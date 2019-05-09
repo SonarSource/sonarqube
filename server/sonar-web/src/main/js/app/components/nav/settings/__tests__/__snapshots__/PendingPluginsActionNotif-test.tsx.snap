@@ -47,14 +47,13 @@ exports[`should display pending actions 1`] = `
         }
       />
     </span>
+    <RestartButton
+      className="spacer-left"
+      fetchSystemStatus={[MockFunction]}
+      systemStatus="UP"
+    />
     <Button
-      className="spacer-left js-restart"
-      onClick={[Function]}
-    >
-      marketplace.restart
-    </Button>
-    <Button
-      className="spacer-left js-cancel-all button-red"
+      className="spacer-left js-cancel-all"
       onClick={[Function]}
     >
       marketplace.revert

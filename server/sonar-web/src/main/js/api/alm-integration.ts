@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, postJSON, post, requestTryAndRepeat } from '../helpers/request';
+import { getJSON, postJSON, post, requestTryAndRepeatUntil } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function bindAlmOrganization(data: { installationId: string; organization: string }) {
@@ -36,7 +36,12 @@ export interface GetAlmOrganizationResponse {
 export function getAlmOrganization(data: {
   installationId: string;
 }): Promise<GetAlmOrganizationResponse> {
-  return requestTryAndRepeat(() => getJSON('/api/alm_integration/show_organization', data), 25, 20)
+  return requestTryAndRepeatUntil(
+    () => getJSON('/api/alm_integration/show_organization', data),
+    { max: 25, slowThreshold: 20 },
+    () => false,
+    [404]
+  )
     .catch(throwGlobalError)
     .then(({ almOrganization, boundOrganization }) => ({
       almOrganization: {

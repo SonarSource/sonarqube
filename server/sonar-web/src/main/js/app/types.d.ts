@@ -930,6 +930,14 @@ declare namespace T {
 
   export interface SysInfoValueObject extends Dict<SysInfoValue> {}
 
+  export type SysStatus =
+    | 'STARTING'
+    | 'UP'
+    | 'DOWN'
+    | 'RESTARTING'
+    | 'DB_MIGRATION_NEEDED'
+    | 'DB_MIGRATION_RUNNING';
+
   export interface SystemUpgrade {
     version: string;
     description: string;

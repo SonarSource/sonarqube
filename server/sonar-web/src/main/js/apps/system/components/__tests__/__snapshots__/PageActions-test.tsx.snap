@@ -33,6 +33,7 @@ exports[`should render correctly 1`] = `
             download="sonarqube_app.log"
             href="/api/system/logs?process=app"
             id="logs-link"
+            rel="noopener noreferrer"
             target="_blank"
           >
             Main Process
@@ -43,6 +44,7 @@ exports[`should render correctly 1`] = `
             download="sonarqube_ce.log"
             href="/api/system/logs?process=ce"
             id="ce-logs-link"
+            rel="noopener noreferrer"
             target="_blank"
           >
             Compute Engine
@@ -53,6 +55,7 @@ exports[`should render correctly 1`] = `
             download="sonarqube_es.log"
             href="/api/system/logs?process=es"
             id="es-logs-link"
+            rel="noopener noreferrer"
             target="_blank"
           >
             Search Engine
@@ -63,6 +66,7 @@ exports[`should render correctly 1`] = `
             download="sonarqube_web.log"
             href="/api/system/logs?process=web"
             id="web-logs-link"
+            rel="noopener noreferrer"
             target="_blank"
           >
             Web Server
@@ -84,17 +88,14 @@ exports[`should render correctly 1`] = `
     href="/api/system/info"
     id="download-link"
     onClick={[Function]}
+    rel="noopener noreferrer"
     target="_blank"
   >
     system.download_system_info
   </a>
-  <Button
-    className="spacer-left"
-    id="restart-server-button"
-    onClick={[Function]}
-  >
-    system.restart_server
-  </Button>
+  <ContextConsumer>
+    <Component />
+  </ContextConsumer>
 </div>
 `;
 
@@ -110,6 +111,7 @@ exports[`should render correctly 2`] = `
           download="sonarqube_app.log"
           href="/api/system/logs?process=app"
           id="logs-link"
+          rel="noopener noreferrer"
           target="_blank"
         >
           Main Process
@@ -120,6 +122,7 @@ exports[`should render correctly 2`] = `
           download="sonarqube_ce.log"
           href="/api/system/logs?process=ce"
           id="ce-logs-link"
+          rel="noopener noreferrer"
           target="_blank"
         >
           Compute Engine
@@ -130,6 +133,7 @@ exports[`should render correctly 2`] = `
           download="sonarqube_es.log"
           href="/api/system/logs?process=es"
           id="es-logs-link"
+          rel="noopener noreferrer"
           target="_blank"
         >
           Search Engine
@@ -140,6 +144,7 @@ exports[`should render correctly 2`] = `
           download="sonarqube_web.log"
           href="/api/system/logs?process=web"
           id="web-logs-link"
+          rel="noopener noreferrer"
           target="_blank"
         >
           Web Server
@@ -185,6 +190,7 @@ exports[`should render without restart and log download 1`] = `
     href="/api/system/info"
     id="download-link"
     onClick={[Function]}
+    rel="noopener noreferrer"
     target="_blank"
   >
     system.download_system_info

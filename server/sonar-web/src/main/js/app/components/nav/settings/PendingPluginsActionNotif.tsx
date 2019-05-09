@@ -20,32 +20,20 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
-import RestartForm from '../../../../components/common/RestartForm';
-import { cancelPendingPlugins, PluginPendingResult } from '../../../../api/plugins';
-import { Button } from '../../../../components/ui/buttons';
-import { translate } from '../../../../helpers/l10n';
+import RestartButton from '../../../../components/common/RestartButton';
 import { Alert } from '../../../../components/ui/Alert';
+import { Button } from '../../../../components/ui/buttons';
+import { cancelPendingPlugins, PluginPendingResult } from '../../../../api/plugins';
+import { translate } from '../../../../helpers/l10n';
 
 interface Props {
+  fetchSystemStatus: () => void;
   pending: PluginPendingResult;
   refreshPending: () => void;
+  systemStatus: T.SysStatus;
 }
 
-interface State {
-  openRestart: boolean;
-}
-
-export default class PendingPluginsActionNotif extends React.PureComponent<Props, State> {
-  state: State = { openRestart: false };
-
-  handleOpenRestart = () => {
-    this.setState({ openRestart: true });
-  };
-
-  hanleCloseRestart = () => {
-    this.setState({ openRestart: false });
-  };
-
+export default class PendingPluginsActionNotif extends React.PureComponent<Props> {
   handleRevert = () => {
     cancelPendingPlugins().then(this.props.refreshPending, () => {});
   };
@@ -79,13 +67,15 @@ export default class PendingPluginsActionNotif extends React.PureComponent<Props
                 />
               </span>
             ))}
-          <Button className="spacer-left js-restart" onClick={this.handleOpenRestart}>
-            {translate('marketplace.restart')}
-          </Button>
-          <Button className="spacer-left js-cancel-all button-red" onClick={this.handleRevert}>
+
+          <RestartButton
+            className="spacer-left"
+            fetchSystemStatus={this.props.fetchSystemStatus}
+            systemStatus={this.props.systemStatus}
+          />
+          <Button className="spacer-left js-cancel-all" onClick={this.handleRevert}>
             {translate('marketplace.revert')}
           </Button>
-          {this.state.openRestart && <RestartForm onClose={this.hanleCloseRestart} />}
         </div>
       </Alert>
     );

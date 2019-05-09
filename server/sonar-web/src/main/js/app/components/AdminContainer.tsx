@@ -20,7 +20,7 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import MarketplaceContext, { defaultPendingPlugins } from './MarketplaceContext';
+import AdminContext, { defaultPendingPlugins, defaultSystemStatus } from './AdminContext';
 import SettingsNav from './nav/settings/SettingsNav';
 import { getAppState, Store } from '../../store/rootReducer';
 import { getSettingsNavigation } from '../../api/nav';
@@ -28,29 +28,24 @@ import { setAdminPages } from '../../store/appState';
 import { translate } from '../../helpers/l10n';
 import { PluginPendingResult, getPendingPlugins } from '../../api/plugins';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
+import { getSystemStatus, waitSystemUPStatus } from '../../api/system';
 
-interface StateProps {
+interface Props {
   appState: Pick<T.AppState, 'adminPages' | 'canAdmin' | 'organizationsEnabled'>;
-}
-
-interface DispatchToProps {
+  location: {};
   setAdminPages: (adminPages: T.Extension[]) => void;
 }
 
-interface OwnProps {
-  location: {};
-}
-
-type Props = StateProps & DispatchToProps & OwnProps;
-
 interface State {
   pendingPlugins: PluginPendingResult;
+  systemStatus: T.SysStatus;
 }
 
-class AdminContainer extends React.PureComponent<Props, State> {
+export class AdminContainer extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
-    pendingPlugins: defaultPendingPlugins
+    pendingPlugins: defaultPendingPlugins,
+    systemStatus: defaultSystemStatus
   };
 
   componentDidMount() {
@@ -60,6 +55,7 @@ class AdminContainer extends React.PureComponent<Props, State> {
     } else {
       this.fetchNavigationSettings();
       this.fetchPendingPlugins();
+      this.fetchSystemStatus();
     }
   }
 
@@ -82,6 +78,32 @@ class AdminContainer extends React.PureComponent<Props, State> {
     );
   };
 
+  fetchSystemStatus = () => {
+    getSystemStatus().then(
+      ({ status }) => {
+        if (this.mounted) {
+          this.setState({ systemStatus: status });
+          if (status === 'RESTARTING') {
+            this.waitRestartingDone();
+          }
+        }
+      },
+      () => {}
+    );
+  };
+
+  waitRestartingDone = () => {
+    waitSystemUPStatus().then(
+      ({ status }) => {
+        if (this.mounted) {
+          this.setState({ systemStatus: status });
+          document.location.reload();
+        }
+      },
+      () => {}
+    );
+  };
+
   render() {
     const { adminPages, organizationsEnabled } = this.props.appState;
 
@@ -90,6 +112,7 @@ class AdminContainer extends React.PureComponent<Props, State> {
       return null;
     }
 
+    const { pendingPlugins, systemStatus } = this.state;
     const defaultTitle = translate('layout.settings');
 
     return (
@@ -98,29 +121,29 @@ class AdminContainer extends React.PureComponent<Props, State> {
         <SettingsNav
           extensions={adminPages}
           fetchPendingPlugins={this.fetchPendingPlugins}
+          fetchSystemStatus={this.fetchSystemStatus}
           location={this.props.location}
           organizationsEnabled={organizationsEnabled}
-          pendingPlugins={this.state.pendingPlugins}
+          pendingPlugins={pendingPlugins}
+          systemStatus={systemStatus}
         />
-        <MarketplaceContext.Provider
+        <AdminContext.Provider
           value={{
+            fetchSystemStatus: this.fetchSystemStatus,
             fetchPendingPlugins: this.fetchPendingPlugins,
-            pendingPlugins: this.state.pendingPlugins
+            pendingPlugins,
+            systemStatus
           }}>
           {this.props.children}
-        </MarketplaceContext.Provider>
+        </AdminContext.Provider>
       </div>
     );
   }
 }
 
-const mapStateToProps = (state: Store): StateProps => ({
-  appState: getAppState(state)
-});
+const mapStateToProps = (state: Store) => ({ appState: getAppState(state) });
 
-const mapDispatchToProps: DispatchToProps = {
-  setAdminPages
-};
+const mapDispatchToProps = { setAdminPages };
 
 export default connect(
   mapStateToProps,

@@ -17,14 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function getSystemStatus(): T.SysStatus {
-  return (window as any).serverStatus;
+import * as React from 'react';
+import { PluginPendingResult } from '../../api/plugins';
+
+export interface AdminContextInterface {
+  fetchSystemStatus: () => void;
+  fetchPendingPlugins: () => void;
+  pendingPlugins: PluginPendingResult;
+  systemStatus: T.SysStatus;
 }
 
-export function getInstance(): 'SonarQube' | 'SonarCloud' {
-  return (window as any).instance;
-}
+export const defaultPendingPlugins = { installing: [], removing: [], updating: [] };
+export const defaultSystemStatus = 'UP';
 
-export function isSonarCloud() {
-  return getInstance() === 'SonarCloud';
-}
+const AdminContext = React.createContext<AdminContextInterface>({
+  fetchSystemStatus: () => {},
+  fetchPendingPlugins: () => {},
+  pendingPlugins: defaultPendingPlugins,
+  systemStatus: defaultSystemStatus
+});
+export default AdminContext;

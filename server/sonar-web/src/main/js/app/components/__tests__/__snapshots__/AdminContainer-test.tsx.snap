@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div>
+  <HelmetWrapper
+    defaultTitle="layout.settings"
+    defer={true}
+    encodeSpecialCharacters={true}
+    titleTemplate="%s - layout.settings"
+  />
+  <SettingsNav
+    extensions={
+      Array [
+        Object {
+          "key": "foo",
+          "name": "Foo",
+        },
+      ]
+    }
+    fetchPendingPlugins={[Function]}
+    fetchSystemStatus={[Function]}
+    location={
+      Object {
+        "action": "PUSH",
+        "hash": "",
+        "key": "key",
+        "pathname": "/path",
+        "query": Object {},
+        "search": "",
+        "state": Object {},
+      }
+    }
+    organizationsEnabled={false}
+    pendingPlugins={
+      Object {
+        "installing": Array [],
+        "removing": Array [],
+        "updating": Array [],
+      }
+    }
+    systemStatus="UP"
+  />
+  <ContextProvider
+    value={
+      Object {
+        "fetchPendingPlugins": [Function],
+        "fetchSystemStatus": [Function],
+        "pendingPlugins": Object {
+          "installing": Array [],
+          "removing": Array [],
+          "updating": Array [],
+        },
+        "systemStatus": "UP",
+      }
+    }
+  />
+</div>
+`;

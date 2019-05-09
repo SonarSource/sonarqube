@@ -19,13 +19,14 @@
  */
 import * as React from 'react';
 import ChangeLogLevelForm from './ChangeLogLevelForm';
-import RestartForm from '../../../components/common/RestartForm';
-import { getFileNameSuffix } from '../utils';
+import AdminContext from '../../../app/components/AdminContext';
 import Dropdown from '../../../components/controls/Dropdown';
+import DropdownIcon from '../../../components/icons-components/DropdownIcon';
+import RestartButton from '../../../components/common/RestartButton';
 import { EditButton, Button } from '../../../components/ui/buttons';
+import { getFileNameSuffix } from '../utils';
 import { getBaseUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 
 interface Props {
   canDownloadLogs: boolean;
@@ -39,7 +40,6 @@ interface Props {
 interface State {
   logLevel: string;
   openLogsLevelForm: boolean;
-  openRestartForm: boolean;
 }
 
 export default class PageActions extends React.PureComponent<Props, State> {
@@ -47,8 +47,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       logLevel: props.logLevel,
-      openLogsLevelForm: false,
-      openRestartForm: false
+      openLogsLevelForm: false
     };
   }
 
@@ -70,14 +69,6 @@ export default class PageActions extends React.PureComponent<Props, State> {
 
   handleLogsLevelClose = () => {
     this.setState({ openLogsLevelForm: false });
-  };
-
-  handleServerRestartOpen = () => {
-    this.setState({ openRestartForm: true });
-  };
-
-  handleServerRestartClose = () => {
-    this.setState({ openRestartForm: false });
   };
 
   removeElementFocus = (event: React.SyntheticEvent<HTMLElement>) => {
@@ -111,6 +102,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
                     download="sonarqube_app.log"
                     href={logsUrl + '?process=app'}
                     id="logs-link"
+                    rel="noopener noreferrer"
                     target="_blank">
                     Main Process
                   </a>
@@ -120,6 +112,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
                     download="sonarqube_ce.log"
                     href={logsUrl + '?process=ce'}
                     id="ce-logs-link"
+                    rel="noopener noreferrer"
                     target="_blank">
                     Compute Engine
                   </a>
@@ -129,6 +122,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
                     download="sonarqube_es.log"
                     href={logsUrl + '?process=es'}
                     id="es-logs-link"
+                    rel="noopener noreferrer"
                     target="_blank">
                     Search Engine
                   </a>
@@ -138,6 +132,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
                     download="sonarqube_web.log"
                     href={logsUrl + '?process=web'}
                     id="web-logs-link"
+                    rel="noopener noreferrer"
                     target="_blank">
                     Web Server
                   </a>
@@ -156,19 +151,20 @@ export default class PageActions extends React.PureComponent<Props, State> {
           href={infoUrl}
           id="download-link"
           onClick={this.removeElementFocus}
+          rel="noopener noreferrer"
           target="_blank">
           {translate('system.download_system_info')}
         </a>
         {this.props.canRestart && (
-          <Button
-            className="spacer-left"
-            id="restart-server-button"
-            onClick={this.handleServerRestartOpen}>
-            {translate('system.restart_server')}
-          </Button>
-        )}
-        {this.props.canRestart && this.state.openRestartForm && (
-          <RestartForm onClose={this.handleServerRestartClose} />
+          <AdminContext.Consumer>
+            {({ fetchSystemStatus, systemStatus }) => (
+              <RestartButton
+                className="spacer-left"
+                fetchSystemStatus={fetchSystemStatus}
+                systemStatus={systemStatus}
+              />
+            )}
+          </AdminContext.Consumer>
         )}
         {this.state.openLogsLevelForm && (
           <ChangeLogLevelForm

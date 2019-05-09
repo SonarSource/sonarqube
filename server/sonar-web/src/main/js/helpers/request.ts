@@ -272,26 +272,42 @@ export function delay(response: any): Promise<any> {
   return new Promise(resolve => setTimeout(() => resolve(response), 1200));
 }
 
-export function requestTryAndRepeat<T>(
+function tryRequestAgain<T>(
   repeatAPICall: () => Promise<T>,
-  tries: number,
-  slowTriesThreshold: number,
-  repeatErrors = [404]
+  tries: { max: number; slowThreshold: number },
+  stopRepeat: (response: T) => boolean,
+  repeatErrors: number[] = []
 ) {
-  return repeatAPICall().catch((error: { response: Response }) => {
-    if (repeatErrors.includes(error.response.status)) {
-      tries--;
-      if (tries > 0) {
-        return new Promise(resolve => {
-          setTimeout(
-            () =>
-              resolve(requestTryAndRepeat(repeatAPICall, tries, slowTriesThreshold, repeatErrors)),
-            tries > slowTriesThreshold ? 500 : 3000
-          );
-        });
+  tries.max--;
+  if (tries.max !== 0) {
+    return new Promise<T>(resolve => {
+      setTimeout(
+        () => resolve(requestTryAndRepeatUntil(repeatAPICall, tries, stopRepeat, repeatErrors)),
+        tries.max > tries.slowThreshold ? 500 : 3000
+      );
+    });
+  }
+  return Promise.reject();
+}
+
+export function requestTryAndRepeatUntil<T>(
+  repeatAPICall: () => Promise<T>,
+  tries: { max: number; slowThreshold: number },
+  stopRepeat: (response: T) => boolean,
+  repeatErrors: number[] = []
+) {
+  return repeatAPICall().then(
+    r => {
+      if (stopRepeat(r)) {
+        return Promise.resolve(r);
       }
-      return Promise.reject();
+      return tryRequestAgain(repeatAPICall, tries, stopRepeat, repeatErrors);
+    },
+    (error: { response: Response }) => {
+      if (repeatErrors.length === 0 || repeatErrors.includes(error.response.status)) {
+        return tryRequestAgain(repeatAPICall, tries, stopRepeat, repeatErrors);
+      }
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
-  });
+  );
 }

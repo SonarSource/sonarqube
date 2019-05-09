@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Alert
+  display="banner"
+  variant="info"
+>
+  <FormattedMessage
+    defaultMessage="system.instance_restarting"
+    id="system.instance_restarting"
+    values={
+      Object {
+        "instance": undefined,
+        "link": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/admin/background_tasks",
+            }
+          }
+        >
+          background_tasks.page
+        </Link>,
+      }
+    }
+  />
+</Alert>
+`;

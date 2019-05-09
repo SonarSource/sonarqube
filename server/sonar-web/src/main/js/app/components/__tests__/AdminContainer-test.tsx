@@ -19,39 +19,24 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import PageActions from '../PageActions';
-import { click } from '../../../../helpers/testUtils';
-
-jest.mock('../../utils', () => ({
-  getFileNameSuffix: (suffix?: string) => `filesuffix(${suffix || ''})`
-}));
+import { AdminContainer } from '../AdminContainer';
+import { mockLocation } from '../../../helpers/testMocks';
 
 it('should render correctly', () => {
-  const wrapper = getWrapper({ serverId: 'MyServerId' });
+  const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('Dropdown')).toMatchSnapshot();
 });
 
-it('should render without restart and log download', () => {
-  expect(
-    getWrapper({ canDownloadLogs: false, canRestart: false, cluster: true })
-  ).toMatchSnapshot();
-});
-
-it('should open change log level modal', () => {
-  const wrapper = getWrapper();
-  click(wrapper.find('#edit-logs-level-button'));
-  expect(wrapper.find('ChangeLogLevelForm')).toHaveLength(1);
-});
-
-function getWrapper(props = {}) {
+function shallowRender(props: Partial<AdminContainer['props']> = {}) {
   return shallow(
-    <PageActions
-      canDownloadLogs={true}
-      canRestart={true}
-      cluster={false}
-      logLevel="INFO"
-      onLogLevelChange={() => {}}
+    <AdminContainer
+      appState={{
+        adminPages: [{ key: 'foo', name: 'Foo' }],
+        canAdmin: true,
+        organizationsEnabled: false
+      }}
+      location={mockLocation()}
+      setAdminPages={jest.fn()}
       {...props}
     />
   );

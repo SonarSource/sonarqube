@@ -18,17 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { PluginPendingResult } from '../../api/plugins';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
+import { Alert } from '../../../../components/ui/Alert';
+import { translate } from '../../../../helpers/l10n';
+import { getInstance } from '../../../../helpers/system';
 
-export interface MarketplaceContextInterface {
-  fetchPendingPlugins: () => void;
-  pendingPlugins: PluginPendingResult;
+export default function SystemRestartNotif() {
+  return (
+    <Alert display="banner" variant="info">
+      <FormattedMessage
+        defaultMessage={translate('system.instance_restarting')}
+        id="system.instance_restarting"
+        values={{
+          instance: getInstance(),
+          link: (
+            <Link to={{ pathname: '/admin/background_tasks' }}>
+              {translate('background_tasks.page')}
+            </Link>
+          )
+        }}
+      />
+    </Alert>
+  );
 }
-
-export const defaultPendingPlugins = { installing: [], removing: [], updating: [] };
-
-const MarketplaceContext = React.createContext<MarketplaceContextInterface>({
-  fetchPendingPlugins: () => {},
-  pendingPlugins: defaultPendingPlugins
-});
-export default MarketplaceContext;

@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ConfirmButton
+  confirmButtonText="restart"
+  modalBody={
+    <React.Fragment>
+      <p
+        className="spacer-top spacer-bottom"
+      >
+        system.are_you_sure_to_restart
+      </p>
+      <p>
+        system.forcing_shutdown_not_recommended
+      </p>
+    </React.Fragment>
+  }
+  modalHeader="system.restart_server"
+  onConfirm={[Function]}
+>
+  <Component />
+</ConfirmButton>
+`;

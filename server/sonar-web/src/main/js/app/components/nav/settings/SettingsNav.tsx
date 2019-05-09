@@ -21,20 +21,23 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { IndexLink, Link } from 'react-router';
 import PendingPluginsActionNotif from './PendingPluginsActionNotif';
-import * as theme from '../../../theme';
+import SystemRestartNotif from './SystemRestartNotif';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
 import Dropdown from '../../../../components/controls/Dropdown';
-import NavBarTabs from '../../../../components/nav/NavBarTabs';
-import { PluginPendingResult } from '../../../../api/plugins';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
+import NavBarTabs from '../../../../components/nav/NavBarTabs';
+import * as theme from '../../../theme';
+import { PluginPendingResult } from '../../../../api/plugins';
 import { translate } from '../../../../helpers/l10n';
 
 interface Props {
   extensions: T.Extension[];
   fetchPendingPlugins: () => void;
+  fetchSystemStatus: () => void;
   location: {};
   organizationsEnabled?: boolean;
   pendingPlugins: PluginPendingResult;
+  systemStatus: T.SysStatus;
 }
 
 export default class SettingsNav extends React.PureComponent<Props> {
@@ -236,11 +239,15 @@ export default class SettingsNav extends React.PureComponent<Props> {
       pendingPlugins.updating.length;
 
     let notifComponent;
-    if (totalPendingPlugins > 0) {
+    if (this.props.systemStatus === 'RESTARTING') {
+      notifComponent = <SystemRestartNotif />;
+    } else if (totalPendingPlugins > 0) {
       notifComponent = (
         <PendingPluginsActionNotif
+          fetchSystemStatus={this.props.fetchSystemStatus}
           pending={pendingPlugins}
           refreshPending={this.props.fetchPendingPlugins}
+          systemStatus={this.props.systemStatus}
         />
       );
     }

@@ -25,8 +25,8 @@ import ClearIcon from '../icons-components/ClearIcon';
 import DeleteIcon from '../icons-components/DeleteIcon';
 import EditIcon from '../icons-components/EditIcon';
 import Tooltip from '../controls/Tooltip';
-import './buttons.css';
 import { IconProps } from '../icons-components/Icon';
+import './buttons.css';
 
 type AllowedButtonAttributes = Pick<
   React.ButtonHTMLAttributes<HTMLButtonElement>,

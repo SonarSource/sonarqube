@@ -42,12 +42,6 @@ it('should not display anything', () => {
   expect(getWrapper({ pending: { installing: [], updating: [], removing: [] } }).type()).toBeNull();
 });
 
-it('should open the restart form', () => {
-  const wrapper = getWrapper();
-  click(wrapper.find('.js-restart'));
-  expect(wrapper.find('RestartForm').exists()).toBeTruthy();
-});
-
 it('should cancel all pending and refresh them', async () => {
   const refreshPending = jest.fn();
   const wrapper = getWrapper({ refreshPending });
@@ -61,6 +55,7 @@ it('should cancel all pending and refresh them', async () => {
 function getWrapper(props = {}) {
   return shallow(
     <PendingPluginsActionNotif
+      fetchSystemStatus={jest.fn()}
       pending={{
         installing: [
           {
@@ -90,6 +85,7 @@ function getWrapper(props = {}) {
         ]
       }}
       refreshPending={() => {}}
+      systemStatus="UP"
       {...props}
     />
   );

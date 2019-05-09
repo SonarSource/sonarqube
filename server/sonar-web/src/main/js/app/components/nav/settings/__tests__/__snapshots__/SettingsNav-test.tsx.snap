@@ -2,6 +2,7 @@
 
 exports[`should display a pending plugin notif 1`] = `
 <PendingPluginsActionNotif
+  fetchSystemStatus={[MockFunction]}
   pending={
     Object {
       "installing": Array [
@@ -16,9 +17,12 @@ exports[`should display a pending plugin notif 1`] = `
       "updating": Array [],
     }
   }
-  refreshPending={[Function]}
+  refreshPending={[MockFunction]}
+  systemStatus="UP"
 />
 `;
+
+exports[`should display restart notif 1`] = `<SystemRestartNotif />`;
 
 exports[`should work with extensions 1`] = `
 <ContextNavBar

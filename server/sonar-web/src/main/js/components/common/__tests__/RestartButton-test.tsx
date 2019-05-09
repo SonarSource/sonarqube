@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function getSystemStatus(): T.SysStatus {
-  return (window as any).serverStatus;
-}
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import RestartButton from '../RestartButton';
 
-export function getInstance(): 'SonarQube' | 'SonarCloud' {
-  return (window as any).instance;
-}
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
 
-export function isSonarCloud() {
-  return getInstance() === 'SonarCloud';
+function shallowRender(props: Partial<RestartButton['props']> = {}) {
+  return shallow(<RestartButton fetchSystemStatus={jest.fn()} systemStatus={'UP'} {...props} />);
 }
