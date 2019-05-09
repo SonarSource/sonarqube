@@ -212,6 +212,7 @@ public class CeServer implements Monitored {
       // stop looping indefinitely
       this.stop = true;
       // interrupt current thread in case its waiting for WebServer
+      // TODO is the waiting during startup or shutdown? this will most likely cause the shutdown to always fail to finish cleanly
       interrupt();
     }
 

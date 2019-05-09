@@ -21,6 +21,8 @@ package org.sonar.process;
 
 import java.io.File;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +44,6 @@ public class ProcessEntryPoint {
 
   private final Props props;
   private final String processKey;
-  private final int processNumber;
-  private final File sharedDir;
   private final Lifecycle lifecycle = new Lifecycle();
   private final ProcessCommands commands;
   private final SystemExit exit;
@@ -55,15 +55,9 @@ public class ProcessEntryPoint {
   private volatile StopperThread stopperThread;
   private volatile HardStopperThread hardStopperThread;
 
-  ProcessEntryPoint(Props props, SystemExit exit, ProcessCommands commands) {
-    this(props, getProcessNumber(props), getSharedDir(props), exit, commands, Runtime.getRuntime());
-  }
-
-  private ProcessEntryPoint(Props props, int processNumber, File sharedDir, SystemExit exit, ProcessCommands commands, Runtime runtime) {
+  private ProcessEntryPoint(Props props, SystemExit exit, ProcessCommands commands, Runtime runtime) {
     this.props = props;
     this.processKey = props.nonNullValue(PROPERTY_PROCESS_KEY);
-    this.processNumber = processNumber;
-    this.sharedDir = sharedDir;
     this.exit = exit;
     this.commands = commands;
     this.stopWatcher = createStopWatcher(commands, this);
@@ -79,18 +73,6 @@ public class ProcessEntryPoint {
     return props;
   }
 
-  public String getKey() {
-    return processKey;
-  }
-
-  public int getProcessNumber() {
-    return processNumber;
-  }
-
-  public File getSharedDir() {
-    return sharedDir;
-  }
-
   /**
    * Launch process and waits until it's down
    */
@@ -104,7 +86,7 @@ public class ProcessEntryPoint {
     try {
       launch(logger);
     } catch (Exception e) {
-      logger.warn("Fail to start {}", getKey(), e);
+      logger.warn("Fail to start {}", processKey, e);
     } finally {
       logger.trace("Hard stopping to clean any resource...");
       hardStop();
@@ -112,7 +94,7 @@ public class ProcessEntryPoint {
   }
 
   private void launch(Logger logger) throws InterruptedException {
-    logger.info("Starting {}", getKey());
+    logger.info("Starting {}", processKey);
     runtime.addShutdownHook(new Thread(() -> {
       exit.setInShutdownHook();
       stop();
@@ -121,13 +103,13 @@ public class ProcessEntryPoint {
     hardStopWatcher.start();
 
     monitored.start();
-    Monitored.Status status = waitForNotDownStatus();
+    Monitored.Status status = waitForStatus(s -> s != Monitored.Status.DOWN);
     if (status == Monitored.Status.UP || status == Monitored.Status.OPERATIONAL) {
       // notify monitor that process is ready
       commands.setUp();
 
       if (lifecycle.tryToMoveTo(Lifecycle.State.STARTED)) {
-        Monitored.Status newStatus = waitForOperational(status);
+        Monitored.Status newStatus = waitForStatus(s -> s == Monitored.Status.OPERATIONAL || s == Monitored.Status.FAILED);
         if (newStatus == Monitored.Status.OPERATIONAL && lifecycle.tryToMoveTo(Lifecycle.State.OPERATIONAL)) {
           commands.setOperational();
         }
@@ -135,35 +117,25 @@ public class ProcessEntryPoint {
         monitored.awaitStop();
       }
     } else {
-      logger.trace("Timeout waiting for process to go UP or OPERATIONAL. Hard stopping...");
+      logger.trace("Fail to start. Hard stopping...");
       hardStop();
     }
   }
 
-  private Monitored.Status waitForNotDownStatus() throws InterruptedException {
-    Monitored.Status status = Monitored.Status.DOWN;
-    while (status == Monitored.Status.DOWN) {
+  private Monitored.Status waitForStatus(Predicate<Monitored.Status> statusPredicate) throws InterruptedException {
+    Monitored.Status status = monitored.getStatus();
+    while (!statusPredicate.test(status)) {
+      Thread.sleep(20);
       status = monitored.getStatus();
-      Thread.sleep(20L);
     }
     return status;
-  }
-
-  private Monitored.Status waitForOperational(Monitored.Status currentStatus) throws InterruptedException {
-    Monitored.Status status = currentStatus;
-    // wait for operation or stop waiting if going to OPERATIONAL failed
-    while (status != Monitored.Status.OPERATIONAL && status != Monitored.Status.FAILED) {
-      status = monitored.getStatus();
-      Thread.sleep(20L);
-    }
-    return status;
-  }
-
-  boolean isStarted() {
-    return lifecycle.isCurrentState(Lifecycle.State.STARTED);
   }
 
   void stop() {
+    stopAsync();
+    waitForStop();
+
+
     stopAsync()
       .ifPresent(stoppingThread -> {
         try {
@@ -177,6 +149,16 @@ public class ProcessEntryPoint {
         }
       });
   }
+
+  private void waitForStop() {
+    try {
+      stopLatch.await();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private CountDownLatch stopLatch = new CountDownLatch(1);
 
   private Optional<StopperThread> stopAsync() {
     if (lifecycle.tryToMoveTo(Lifecycle.State.STOPPING)) {
@@ -219,16 +201,12 @@ public class ProcessEntryPoint {
     return ofNullable(hardStopperThread);
   }
 
-  boolean isCurrentState(Lifecycle.State candidateState) {
-    return lifecycle.isCurrentState(candidateState);
-  }
-
   public static ProcessEntryPoint createForArguments(String[] args) {
     Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
     File sharedDir = getSharedDir(props);
     int processNumber = getProcessNumber(props);
     ProcessCommands commands = DefaultProcessCommands.main(sharedDir, processNumber);
-    return new ProcessEntryPoint(props, processNumber, sharedDir, new SystemExit(), commands, Runtime.getRuntime());
+    return new ProcessEntryPoint(props, new SystemExit(), commands, Runtime.getRuntime());
   }
 
   private static int getProcessNumber(Props props) {
