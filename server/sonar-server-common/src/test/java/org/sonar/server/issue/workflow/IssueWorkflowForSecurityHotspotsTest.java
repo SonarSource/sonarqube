@@ -34,6 +34,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.issue.DefaultTransitions;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
@@ -48,6 +49,7 @@ import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_IN_REVIEW;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
 
@@ -69,7 +71,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
     List<Transition> transitions = underTest.outTransitions(issue);
 
-    assertThat(keys(transitions)).containsOnly("setinreview", "detect", "clear");
+    assertThat(keys(transitions)).containsOnly("setinreview", "detect", "clear", "resolveasreviewed");
   }
 
   @Test
@@ -79,7 +81,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
     List<Transition> transitions = underTest.outTransitions(issue);
 
-    assertThat(keys(transitions)).isEmpty();
+    assertThat(keys(transitions)).containsOnly("resolveasreviewed");
   }
 
   @Test
@@ -95,6 +97,37 @@ public class IssueWorkflowForSecurityHotspotsTest {
     assertThat(result).isTrue();
     assertThat(issue.getStatus()).isEqualTo(STATUS_IN_REVIEW);
     assertThat(issue.resolution()).isNull();
+  }
+
+  @Test
+  public void resolve_as_reviewed_from_to_review() {
+    underTest.start();
+    DefaultIssue issue = new DefaultIssue()
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setIsFromHotspot(true)
+      .setStatus(STATUS_TO_REVIEW);
+
+    boolean result = underTest.doManualTransition(issue, DefaultTransitions.RESOLVE_AS_REVIEWED, IssueChangeContext.createUser(new Date(), "USER1"));
+
+    assertThat(result).isTrue();
+    assertThat(issue.getStatus()).isEqualTo(STATUS_REVIEWED);
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
+  }
+
+  @Test
+  public void resolve_as_reviewed_from_in_review() {
+    underTest.start();
+    DefaultIssue issue = new DefaultIssue()
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setIsFromHotspot(true)
+      .setStatus(STATUS_IN_REVIEW);
+
+    boolean result = underTest.doManualTransition(issue, DefaultTransitions.RESOLVE_AS_REVIEWED, IssueChangeContext.createUser(new Date(), "USER1"));
+
+    assertThat(result).isTrue();
+    assertThat(issue.getStatus()).isEqualTo(STATUS_REVIEWED);
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
+
   }
 
   @Test
@@ -123,6 +156,25 @@ public class IssueWorkflowForSecurityHotspotsTest {
       .setType(RuleType.SECURITY_HOTSPOT)
       .setResolution(null)
       .setStatus(STATUS_IN_REVIEW)
+      .setNew(false)
+      .setBeingClosed(true);
+    Date now = new Date();
+
+    underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
+    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
+    assertThat(issue.closeDate()).isNotNull();
+    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
+  }
+
+  @Test
+  public void automatically_close_resolved_security_hotspots_in_status_reviewed() {
+    underTest.start();
+    DefaultIssue issue = new DefaultIssue()
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setResolution(RESOLUTION_FIXED)
+      .setStatus(STATUS_REVIEWED)
       .setNew(false)
       .setBeingClosed(true);
     Date now = new Date();

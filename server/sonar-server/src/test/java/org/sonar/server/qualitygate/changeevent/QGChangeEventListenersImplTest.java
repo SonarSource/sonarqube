@@ -290,6 +290,8 @@ public class QGChangeEventListenersImplTest {
       .isEqualTo(QGChangeEventListener.Status.TO_REVIEW);
     assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_IN_REVIEW)))
       .isEqualTo(QGChangeEventListener.Status.IN_REVIEW);
+    assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)))
+      .isEqualTo(QGChangeEventListener.Status.REVIEWED);
   }
 
   private void verifyListenerCalled(QGChangeEventListener listener, QGChangeEvent changeEvent, DefaultIssue... issues) {

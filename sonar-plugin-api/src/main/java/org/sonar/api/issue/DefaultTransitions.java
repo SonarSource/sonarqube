@@ -57,8 +57,13 @@ public interface DefaultTransitions {
   String SET_AS_IN_REVIEW = "setinreview";
 
   /**
+   * @since 7.8
+   */
+  String RESOLVE_AS_REVIEWED = "resolveasreviewed";
+
+  /**
    * @since 4.4
    */
   List<String> ALL = unmodifiableList(asList(CONFIRM, UNCONFIRM, REOPEN, RESOLVE, FALSE_POSITIVE, WONT_FIX, CLOSE,
-    DETECT, DISMISS, REJECT, SET_AS_IN_REVIEW, ACCEPT, CLEAR, REOPEN_HOTSPOT));
+    DETECT, DISMISS, REJECT, SET_AS_IN_REVIEW, ACCEPT, CLEAR, REOPEN_HOTSPOT, RESOLVE_AS_REVIEWED));
 }

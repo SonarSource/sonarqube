@@ -194,7 +194,7 @@ public class IssueIndex {
   private static final String AGG_SEVERITIES = "severities";
   private static final String AGG_TO_REVIEW_SECURITY_HOTSPOTS = "toReviewSecurityHotspots";
   private static final String AGG_IN_REVIEW_SECURITY_HOTSPOTS = "inReviewSecurityHotspots";
-  private static final String AGG_WONT_FIX_SECURITY_HOTSPOTS = "wontFixSecurityHotspots";
+  private static final String AGG_REVIEWED_SECURITY_HOTSPOTS = "reviewedSecurityHotspots";
   private static final String AGG_CWES = "cwes";
   private static final BoolQueryBuilder NON_RESOLVED_VULNERABILITIES_FILTER = boolQuery()
     .filter(termQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name()))
@@ -207,10 +207,10 @@ public class IssueIndex {
     .filter(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()))
     .filter(termQuery(FIELD_ISSUE_STATUS, Issue.STATUS_TO_REVIEW))
     .mustNot(existsQuery(FIELD_ISSUE_RESOLUTION));
-  private static final BoolQueryBuilder WONT_FIX_HOTSPOTS_FILTER = boolQuery()
+  private static final BoolQueryBuilder REVIEWED_HOTSPOTS_FILTER = boolQuery()
     .filter(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()))
-    .filter(termQuery(FIELD_ISSUE_STATUS, Issue.STATUS_RESOLVED))
-    .filter(termQuery(FIELD_ISSUE_RESOLUTION, Issue.RESOLUTION_WONT_FIX));
+    .filter(termQuery(FIELD_ISSUE_STATUS, Issue.STATUS_REVIEWED))
+    .filter(termQuery(FIELD_ISSUE_RESOLUTION, Issue.RESOLUTION_FIXED));
 
   public enum Facet {
     SEVERITIES(PARAM_SEVERITIES, FIELD_ISSUE_SEVERITY, Severity.ALL.size()),
@@ -932,11 +932,11 @@ public class IssueIndex {
       .getValue();
     long inReviewSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get(AGG_IN_REVIEW_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
       .getValue();
-    long wontFixSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get(AGG_WONT_FIX_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
+    long reviewedSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get(AGG_REVIEWED_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
       .getValue();
 
     return new SecurityStandardCategoryStatistics(categoryName, vulnerabilities, severityRating, inReviewSecurityHotspots, toReviewSecurityHotspots,
-      wontFixSecurityHotspots, children);
+      reviewedSecurityHotspots, children);
   }
 
   private static AggregationBuilder addSecurityReportSubAggregations(AggregationBuilder categoriesAggs, boolean includeCwe, Optional<Set<String>> cwesInCategory) {
@@ -969,7 +969,7 @@ public class IssueIndex {
       .subAggregation(AggregationBuilders.filter(AGG_IN_REVIEW_SECURITY_HOTSPOTS, IN_REVIEW_HOTSPOTS_FILTER)
         .subAggregation(
           AggregationBuilders.count(AGG_COUNT).field(FIELD_ISSUE_KEY)))
-      .subAggregation(AggregationBuilders.filter(AGG_WONT_FIX_SECURITY_HOTSPOTS, WONT_FIX_HOTSPOTS_FILTER)
+      .subAggregation(AggregationBuilders.filter(AGG_REVIEWED_SECURITY_HOTSPOTS, REVIEWED_HOTSPOTS_FILTER)
         .subAggregation(
           AggregationBuilders.count(AGG_COUNT).field(FIELD_ISSUE_KEY)));
   }
@@ -993,7 +993,7 @@ public class IssueIndex {
           .should(NON_RESOLVED_VULNERABILITIES_FILTER)
           .should(TO_REVIEW_HOTSPOTS_FILTER)
           .should(IN_REVIEW_HOTSPOTS_FILTER)
-          .should(WONT_FIX_HOTSPOTS_FILTER)
+          .should(REVIEWED_HOTSPOTS_FILTER)
           .minimumShouldMatch(1))
       .setSize(0);
   }

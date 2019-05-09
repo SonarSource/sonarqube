@@ -56,6 +56,7 @@ import static org.sonar.api.issue.Issue.STATUS_IN_REVIEW;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 
 @RunWith(DataProviderRunner.class)
@@ -73,7 +74,7 @@ public class IssueWorkflowTest {
     // issues statuses
     expectedStatus.addAll(Arrays.asList(STATUS_OPEN, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_RESOLVED, STATUS_CLOSED));
     // hostpots statuses
-    expectedStatus.addAll(Arrays.asList(STATUS_TO_REVIEW, STATUS_IN_REVIEW));
+    expectedStatus.addAll(Arrays.asList(STATUS_TO_REVIEW, STATUS_IN_REVIEW, STATUS_REVIEWED));
 
     assertThat(underTest.statusKeys()).containsExactlyInAnyOrder(expectedStatus.toArray(new String[]{}));
   }
