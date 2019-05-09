@@ -21,15 +21,14 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import { debounce, uniq } from 'lodash';
 import { connect } from 'react-redux';
-import { InjectedRouter } from 'react-router';
-import { Location } from 'history';
 import Header from './Header';
 import Footer from './Footer';
-import StatsContainer from './StatsContainer';
+import Stats from './Stats';
 import Search from './Search';
 import Tasks from './Tasks';
 import { DEFAULT_FILTERS, DEBOUNCE_DELAY, STATUSES, CURRENTS } from '../constants';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import { Location, Router } from '../../../components/hoc/withRouter';
 import {
   getTypes,
   getActivity,
@@ -45,34 +44,28 @@ import { toShortNotSoISOString } from '../../../helpers/dates';
 import '../background-tasks.css';
 
 interface Props {
-  component?: { id: string };
+  component?: Pick<T.Component, 'key'> & { id: string }; // id should be removed when api/ce/activity accept a component key instead of an id
   fetchOrganizations: (keys: string[]) => void;
   location: Location;
-  router: Pick<InjectedRouter, 'push'>;
+  router: Pick<Router, 'push'>;
 }
 
 interface State {
+  failingCount: number;
   loading: boolean;
+  pendingCount: number;
+  pendingTime?: number;
   tasks: T.Task[];
   types?: string[];
-  query: string;
-  pendingCount: number;
-  failingCount: number;
 }
 
-class BackgroundTasksApp extends React.PureComponent<Props, State> {
+export class BackgroundTasksApp extends React.PureComponent<Props, State> {
   loadTasksDebounced: () => void;
   mounted = false;
 
   constructor(props: Props) {
     super(props);
-    this.state = {
-      failingCount: 0,
-      loading: true,
-      pendingCount: 0,
-      query: '',
-      tasks: []
-    };
+    this.state = { failingCount: 0, loading: true, pendingCount: 0, tasks: [] };
     this.loadTasksDebounced = debounce(this.loadTasks, DEBOUNCE_DELAY);
   }
 
@@ -125,25 +118,23 @@ class BackgroundTasksApp extends React.PureComponent<Props, State> {
       parameters.componentId = this.props.component.id;
     }
 
-    Promise.all([getActivity(parameters), getStatus(parameters.componentId)]).then(responses => {
-      if (this.mounted) {
-        const [activity, status] = responses;
-        const { tasks } = activity;
+    Promise.all([getActivity(parameters), getStatus(parameters.componentId)]).then(
+      ([{ tasks }, status]) => {
+        if (this.mounted) {
+          const organizations = uniq(tasks.map(task => task.organization).filter(o => o));
+          this.props.fetchOrganizations(organizations);
 
-        const pendingCount = status.pending;
-        const failingCount = status.failing;
-
-        const organizations = uniq(tasks.map(task => task.organization).filter(o => o));
-        this.props.fetchOrganizations(organizations);
-
-        this.setState({
-          tasks,
-          pendingCount,
-          failingCount,
-          loading: false
-        });
-      }
-    }, this.stopLoading);
+          this.setState({
+            failingCount: status.failing,
+            loading: false,
+            pendingCount: status.pending,
+            pendingTime: status.pendingTime,
+            tasks
+          });
+        }
+      },
+      this.stopLoading
+    );
   };
 
   handleFilterUpdate = (nextState: Partial<Query>) => {
@@ -187,13 +178,13 @@ class BackgroundTasksApp extends React.PureComponent<Props, State> {
     this.handleFilterUpdate({ query: task.componentKey });
   };
 
-  handleShowFailing() {
+  handleShowFailing = () => {
     this.handleFilterUpdate({
       ...DEFAULT_FILTERS,
       status: STATUSES.FAILED,
       currents: CURRENTS.ONLY_CURRENTS
     });
-  }
+  };
 
   handleCancelAllPending = () => {
     this.setState({ loading: true });
@@ -207,7 +198,7 @@ class BackgroundTasksApp extends React.PureComponent<Props, State> {
 
   render() {
     const { component } = this.props;
-    const { loading, types, tasks, pendingCount, failingCount } = this.state;
+    const { loading, types, tasks } = this.state;
 
     if (!types) {
       return (
@@ -230,12 +221,13 @@ class BackgroundTasksApp extends React.PureComponent<Props, State> {
         <Helmet title={translate('background_tasks.page')} />
         <Header component={component} />
 
-        <StatsContainer
+        <Stats
           component={component}
-          failingCount={failingCount}
+          failingCount={this.state.failingCount}
           onCancelAllPending={this.handleCancelAllPending}
           onShowFailing={this.handleShowFailing}
-          pendingCount={pendingCount}
+          pendingCount={this.state.pendingCount}
+          pendingTime={this.state.pendingTime}
         />
 
         <Search

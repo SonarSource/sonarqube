@@ -18,37 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import StatPendingCount from './StatPendingCount';
-import StatPendingTime from './StatPendingTime';
-import StatStillFailing from './StatStillFailing';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
+import { translate } from '../../../helpers/l10n';
+import { formatMeasure } from '../../../helpers/measures';
+
+// Do not display the pending time for values smaller than this threshold (in ms)
+const MIN_PENDING_TIME_THRESHOLD = 1000;
 
 export interface Props {
+  className?: string;
   component?: Pick<T.Component, 'key'>;
-  failingCount?: number;
-  onCancelAllPending: () => void;
-  onShowFailing: () => void;
   pendingCount?: number;
   pendingTime?: number;
 }
 
-export default function Stats({ component, pendingCount, pendingTime, ...props }: Props) {
+export default function StatPendingTime({ className, pendingCount, pendingTime }: Props) {
+  if (!pendingTime || !pendingCount || pendingTime < MIN_PENDING_TIME_THRESHOLD) {
+    return null;
+  }
   return (
-    <section className="big-spacer-top big-spacer-bottom">
-      <StatPendingCount onCancelAllPending={props.onCancelAllPending} pendingCount={pendingCount} />
-      {!component && (
-        <StatPendingTime
-          className="huge-spacer-left"
-          pendingCount={pendingCount}
-          pendingTime={pendingTime}
-        />
-      )}
-      {!component && (
-        <StatStillFailing
-          className="huge-spacer-left"
-          failingCount={props.failingCount}
-          onShowFailing={props.onShowFailing}
-        />
-      )}
-    </section>
+    <span className={className}>
+      <span className="emphasised-measure">{formatMeasure(pendingTime, 'MILLISEC')}</span>
+      <span className="little-spacer-left">{translate('background_tasks.pending_time')}</span>
+      <HelpTooltip
+        className="little-spacer-left"
+        overlay={translate('background_tasks.pending_time.description')}
+      />
+    </span>
   );
 }

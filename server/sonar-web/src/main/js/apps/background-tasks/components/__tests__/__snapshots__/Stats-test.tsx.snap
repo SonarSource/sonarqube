@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<section
+  className="big-spacer-top big-spacer-bottom"
+>
+  <Connect(StatPendingCount)
+    onCancelAllPending={[MockFunction]}
+    pendingCount={2}
+  />
+  <StatPendingTime
+    className="huge-spacer-left"
+    pendingCount={2}
+    pendingTime={110545}
+  />
+  <StatStillFailing
+    className="huge-spacer-left"
+    failingCount={4}
+    onShowFailing={[MockFunction]}
+  />
+</section>
+`;
+
+exports[`should render correctly for a component 1`] = `
+<section
+  className="big-spacer-top big-spacer-bottom"
+>
+  <Connect(StatPendingCount)
+    onCancelAllPending={[MockFunction]}
+    pendingCount={2}
+  />
+</section>
+`;

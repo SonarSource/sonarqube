@@ -41,3 +41,8 @@
 .bt-workers-warning-icon {
   margin-top: 5px;
 }
+
+.emphasised-measure {
+  font-size: var(--hugeFontSize);
+  font-weight: 300;
+}

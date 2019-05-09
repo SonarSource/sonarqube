@@ -18,37 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import StatPendingCount from './StatPendingCount';
-import StatPendingTime from './StatPendingTime';
-import StatStillFailing from './StatStillFailing';
+import { ButtonLink } from '../../../components/ui/buttons';
+import { translate } from '../../../helpers/l10n';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 
 export interface Props {
-  component?: Pick<T.Component, 'key'>;
+  className?: string;
   failingCount?: number;
-  onCancelAllPending: () => void;
   onShowFailing: () => void;
-  pendingCount?: number;
-  pendingTime?: number;
 }
 
-export default function Stats({ component, pendingCount, pendingTime, ...props }: Props) {
+export default function StatStillFailing({ className, failingCount, onShowFailing }: Props) {
+  if (failingCount === undefined) {
+    return null;
+  }
+
   return (
-    <section className="big-spacer-top big-spacer-bottom">
-      <StatPendingCount onCancelAllPending={props.onCancelAllPending} pendingCount={pendingCount} />
-      {!component && (
-        <StatPendingTime
-          className="huge-spacer-left"
-          pendingCount={pendingCount}
-          pendingTime={pendingTime}
-        />
+    <span className={className}>
+      {failingCount > 0 ? (
+        <ButtonLink className="emphasised-measure text-baseline" onClick={onShowFailing}>
+          {failingCount}
+        </ButtonLink>
+      ) : (
+        <span className="emphasised-measure">{failingCount}</span>
       )}
-      {!component && (
-        <StatStillFailing
-          className="huge-spacer-left"
-          failingCount={props.failingCount}
-          onShowFailing={props.onShowFailing}
-        />
-      )}
-    </section>
+      <span className="little-spacer-left">{translate('background_tasks.failures')}</span>
+      <HelpTooltip
+        className="little-spacer-left"
+        overlay={translate('background_tasks.failing_count')}
+      />
+    </span>
   );
 }

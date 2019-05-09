@@ -19,13 +19,10 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import Stats from '../components/Stats';
 import Search from '../components/Search';
 import { STATUSES, CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS } from '../constants';
 import { formatDuration } from '../utils';
 import { click } from '../../../helpers/testUtils';
-
-const stub = jest.fn();
 
 describe('Constants', () => {
   it('should have STATUSES', () => {
@@ -76,98 +73,6 @@ describe('Search', () => {
     expect(reloadSpy).not.toBeCalled();
     click(reloadButton);
     expect(reloadSpy).toBeCalled();
-  });
-});
-
-describe('Stats', () => {
-  describe('Pending', () => {
-    it('should show zero pending', () => {
-      const result = shallow(
-        <Stats onCancelAllPending={stub} onShowFailing={stub} pendingCount={0} />
-      );
-      expect(result.find('.js-pending-count').text()).toContain('0');
-    });
-
-    it('should show 5 pending', () => {
-      const result = shallow(
-        <Stats onCancelAllPending={stub} onShowFailing={stub} pendingCount={5} />
-      );
-      expect(result.find('.js-pending-count').text()).toContain('5');
-    });
-
-    it('should not show cancel pending button', () => {
-      const result = shallow(
-        <Stats onCancelAllPending={stub} onShowFailing={stub} pendingCount={0} />
-      );
-      expect(result.find('[data-test="cancel-pending"]').length).toBe(0);
-    });
-
-    it('should show cancel pending button', () => {
-      const result = shallow(
-        <Stats
-          isSystemAdmin={true}
-          onCancelAllPending={stub}
-          onShowFailing={stub}
-          pendingCount={5}
-        />
-      );
-      expect(result.find('[data-test="cancel-pending"]').length).toBe(1);
-    });
-
-    it('should trigger cancelling pending', () => {
-      const spy = jest.fn();
-      const result = shallow(
-        <Stats
-          isSystemAdmin={true}
-          onCancelAllPending={spy}
-          onShowFailing={stub}
-          pendingCount={5}
-        />
-      );
-      expect(spy).not.toBeCalled();
-      result.find('[data-test="cancel-pending"]').prop<Function>('onConfirm')();
-      expect(spy).toBeCalled();
-    });
-  });
-
-  describe('Failures', () => {
-    it('should show zero failures', () => {
-      const result = shallow(
-        <Stats failingCount={0} onCancelAllPending={stub} onShowFailing={stub} />
-      );
-      expect(result.find('.js-failures-count').text()).toContain('0');
-    });
-
-    it('should show 5 failures', () => {
-      const result = shallow(
-        <Stats failingCount={5} onCancelAllPending={stub} onShowFailing={stub} />
-      );
-      expect(result.find('.js-failures-count').text()).toContain('5');
-    });
-
-    it('should not show link to failures', () => {
-      const result = shallow(
-        <Stats failingCount={0} onCancelAllPending={stub} onShowFailing={stub} />
-      );
-      expect(result.find('.js-failures-count').is('a')).toBeFalsy();
-    });
-
-    it('should show link to failures', () => {
-      const result = shallow(
-        <Stats failingCount={5} onCancelAllPending={stub} onShowFailing={stub} />
-      );
-      expect(result.find('.js-failures-count').is('a')).toBeTruthy();
-    });
-
-    it('should trigger filtering failures', () => {
-      const spy = jest.fn();
-      const result = shallow(
-        <Stats failingCount={5} onCancelAllPending={stub} onShowFailing={spy} />
-      );
-      expect(spy).not.toBeCalled();
-      click(result.find('.js-failures-count'));
-      expect(spy).toBeCalled();
-    });
   });
 });
 

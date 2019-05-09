@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<span>
+  <span
+    className="emphasised-measure"
+  >
+    5
+  </span>
+  <span
+    className="little-spacer-left display-inline-flex-center"
+  >
+    background_tasks.pending
+    <ConfirmButton
+      cancelButtonText="close"
+      confirmButtonText="background_tasks.cancel_all_tasks.submit"
+      isDestructive={true}
+      modalBody="background_tasks.cancel_all_tasks.text"
+      modalHeader="background_tasks.cancel_all_tasks"
+      onConfirm={[MockFunction]}
+    >
+      <Component />
+    </ConfirmButton>
+  </span>
+</span>
+`;

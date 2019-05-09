@@ -17,12 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import Stats from './Stats';
-import { getAppState, Store } from '../../../store/rootReducer';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import Stats, { Props } from '../Stats';
+import { mockComponent } from '../../../../helpers/testMocks';
 
-const mapStateToProps = (state: Store) => ({
-  isSystemAdmin: !!getAppState(state).canAdmin
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
 });
 
-export default connect(mapStateToProps)(Stats);
+it('should render correctly for a component', () => {
+  expect(shallowRender({ component: mockComponent() })).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<Props> = {}) {
+  return shallow(
+    <Stats
+      failingCount={4}
+      onCancelAllPending={jest.fn()}
+      onShowFailing={jest.fn()}
+      pendingCount={2}
+      pendingTime={110545}
+      {...props}
+    />
+  );
+}

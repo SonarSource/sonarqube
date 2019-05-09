@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<span>
+  <ButtonLink
+    className="emphasised-measure text-baseline"
+    onClick={[MockFunction]}
+  >
+    5
+  </ButtonLink>
+  <span
+    className="little-spacer-left"
+  >
+    background_tasks.failures
+  </span>
+  <HelpTooltip
+    className="little-spacer-left"
+    overlay="background_tasks.failing_count"
+  />
+</span>
+`;
+
+exports[`should render without the filter link 1`] = `
+<span>
+  <span
+    className="emphasised-measure"
+  >
+    0
+  </span>
+  <span
+    className="little-spacer-left"
+  >
+    background_tasks.failures
+  </span>
+  <HelpTooltip
+    className="little-spacer-left"
+    overlay="background_tasks.failing_count"
+  />
+</span>
+`;

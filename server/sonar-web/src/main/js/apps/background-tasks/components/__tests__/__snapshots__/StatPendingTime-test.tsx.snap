@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<span>
+  <span
+    className="emphasised-measure"
+  >
+    15s
+  </span>
+  <span
+    className="little-spacer-left"
+  >
+    background_tasks.pending_time
+  </span>
+  <HelpTooltip
+    className="little-spacer-left"
+    overlay="background_tasks.pending_time.description"
+  />
+</span>
+`;

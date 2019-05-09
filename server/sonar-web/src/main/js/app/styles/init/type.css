@@ -146,11 +146,6 @@ mark {
   font-weight: bold;
 }
 
-.emphasised-measure {
-  font-size: 24px;
-  font-weight: 300;
-}
-
 blockquote {
   border-left: 3px solid var(--barBorderColor);
   padding: 0 8px;
