@@ -31,20 +31,18 @@
 </head>
 
 <body>
-  <script>
-    window.baseUrl = '%WEB_CONTEXT%';
-    window.serverStatus = '%SERVER_STATUS%';
-    window.instance = '%INSTANCE%';
-    window.official = %OFFICIAL%;
-  </script>
-  <script src="./analytics.js"></script>
-
   <div id="content">
     <div class="global-loading">
       <i class="spinner global-loading-spinner"></i>
       <span class="global-loading-text">Loading...</span>
     </div>
   </div>
+  <script>
+    window.baseUrl = '%WEB_CONTEXT%';
+    window.serverStatus = '%SERVER_STATUS%';
+    window.instance = '%INSTANCE%';
+    window.official = %OFFICIAL%;
+  </script>
   <% for (let chunk in htmlWebpackPlugin.files.chunks) { %>
     <script type="module" src="%WEB_CONTEXT%/<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
     <script nomodule src="%WEB_CONTEXT%/<%= htmlWebpackPlugin.files.chunks[chunk].entry.replace(/m\.[\w\d]+/, htmlWebpackPlugin.options.timestamp) %>"></script>

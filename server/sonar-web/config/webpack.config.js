@@ -193,7 +193,6 @@ module.exports = ({ production = true, release = false }) => {
 
         !production && new webpack.HotModuleReplacementPlugin()
       ].filter(Boolean),
-
       performance:
         production && release
           ? {
