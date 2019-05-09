@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -170,6 +171,58 @@ public class CeQueueDaoTest {
     assertThat(underTest.selectPending(db.getSession()))
       .extracting(CeQueueDto::getUuid)
       .containsOnly("p1", "p2", "p3");
+  }
+
+  @Test
+  public void selectCreationDateOfOldestPendingByMainComponentUuid_on_any_component_returns_date() {
+    long time = alwaysIncreasingSystem2.now() + 10_000;
+    insertPending("p1", dto -> {
+      dto.setCreatedAt(time);
+      dto.setUpdatedAt(time+500);
+      dto.setMainComponentUuid("c1");
+    });
+    insertPending("p2", dto -> {
+      dto.setCreatedAt(time + 1000);
+      dto.setUpdatedAt(time + 2000);
+      dto.setMainComponentUuid("c2");
+    });
+
+    makeInProgress("w1", alwaysIncreasingSystem2.now(), insertPending("i1", dto -> dto.setMainComponentUuid("c3")));
+
+    assertThat(underTest.selectCreationDateOfOldestPendingByMainComponentUuid(db.getSession(), null))
+      .isEqualTo(Optional.of(time));
+  }
+
+  @Test
+  public void selectCreationDateOfOldestPendingByMainComponentUuid_on_specific_component_returns_date() {
+    long time = alwaysIncreasingSystem2.now() + 10_000;
+    insertPending("p1", dto -> {
+      dto.setCreatedAt(time);
+      dto.setUpdatedAt(time+500);
+      dto.setMainComponentUuid("c2");
+    });
+    insertPending("p2", dto -> {
+      dto.setCreatedAt(time + 2000);
+      dto.setUpdatedAt(time + 3000);
+      dto.setMainComponentUuid("c1");
+    });
+    insertPending("p3", dto -> {
+      dto.setCreatedAt(time + 4000);
+      dto.setUpdatedAt(time + 5000);
+      dto.setMainComponentUuid("c1");
+    });
+
+    makeInProgress("w1", alwaysIncreasingSystem2.now(), insertPending("i1", dto -> dto.setMainComponentUuid("c1")));
+
+    assertThat(underTest.selectCreationDateOfOldestPendingByMainComponentUuid(db.getSession(), "c1"))
+      .isEqualTo(Optional.of(time+2000));
+  }
+
+  @Test
+  public void selectCreationDateOfOldestPendingByMainComponentUuid_returns_empty_when_no_pending_tasks() {
+    makeInProgress("w1", alwaysIncreasingSystem2.now(), insertPending("i1"));
+    assertThat(underTest.selectCreationDateOfOldestPendingByMainComponentUuid(db.getSession(), null))
+      .isEmpty();
   }
 
   @Test
@@ -583,11 +636,18 @@ public class CeQueueDaoTest {
   }
 
   private CeQueueDto insertPending(String uuid) {
+    return insertPending(uuid, (Consumer<CeQueueDto>) null);
+  }
+
+  private CeQueueDto insertPending(String uuid, @Nullable Consumer<CeQueueDto> dtoConsumer) {
     CeQueueDto dto = new CeQueueDto();
     dto.setUuid(uuid);
     dto.setTaskType(CeTaskTypes.REPORT);
     dto.setStatus(PENDING);
     dto.setSubmitterUuid("henri");
+    if (dtoConsumer != null) {
+      dtoConsumer.accept(dto);
+    }
     underTestAlwaysIncreasingSystem2.insert(db.getSession(), dto);
     db.getSession().commit();
     return dto;
@@ -629,7 +689,7 @@ public class CeQueueDaoTest {
   }
 
   private void verifyCeQueueStatuses(String taskUuid1, CeQueueDto.Status taskStatus1, String taskUuid2, CeQueueDto.Status taskStatus2) {
-    verifyCeQueueStatuses(new String[]{taskUuid1, taskUuid2}, new CeQueueDto.Status[]{taskStatus1, taskStatus2});
+    verifyCeQueueStatuses(new String[] {taskUuid1, taskUuid2}, new CeQueueDto.Status[] {taskStatus1, taskStatus2});
   }
 
   private void verifyCeQueueStatuses(String[] taskUuids, CeQueueDto.Status[] statuses) {

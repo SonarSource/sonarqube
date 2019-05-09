@@ -44,6 +44,8 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Ce;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeQueueTesting.newCeQueueDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.ce.ws.CeWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
@@ -59,9 +61,11 @@ public class ActivityStatusActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
+  private System2 system2 = mock(System2.class);
+
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private WsActionTester ws = new WsActionTester(new ActivityStatusAction(userSession, dbClient, TestComponentFinder.from(db)));
+  private WsActionTester ws = new WsActionTester(new ActivityStatusAction(userSession, dbClient, TestComponentFinder.from(db), system2));
 
   @Test
   public void test_definition() {
@@ -74,7 +78,8 @@ public class ActivityStatusActionTest {
 
   @Test
   public void json_example() {
-    dbClient.ceQueueDao().insert(dbSession, newCeQueueDto("ce-queue-uuid-1").setStatus(CeQueueDto.Status.PENDING));
+    when(system2.now()).thenReturn(200123L);
+    dbClient.ceQueueDao().insert(dbSession, newCeQueueDto("ce-queue-uuid-1").setStatus(CeQueueDto.Status.PENDING).setCreatedAt(100000));
     dbClient.ceQueueDao().insert(dbSession, newCeQueueDto("ce-queue-uuid-2").setStatus(CeQueueDto.Status.PENDING));
     dbClient.ceQueueDao().insert(dbSession, newCeQueueDto("ce-queue-uuid-3").setStatus(CeQueueDto.Status.IN_PROGRESS));
     for (int i = 0; i < 5; i++) {
@@ -116,6 +121,23 @@ public class ActivityStatusActionTest {
 
     assertThat(result.getPending()).isEqualTo(2);
     assertThat(result.getFailing()).isEqualTo(1);
+  }
+
+  @Test
+  public void add_pending_time() {
+    String projectUuid = "project-uuid";
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = newPrivateProjectDto(organizationDto, projectUuid);
+    db.components().insertComponent(project);
+
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    when(system2.now()).thenReturn(2000L);
+    insertInQueue(CeQueueDto.Status.PENDING, project, 1000L);
+    Ce.ActivityStatusWsResponse result = call(projectUuid);
+
+    assertThat(result).extracting(Ce.ActivityStatusWsResponse::getPending, Ce.ActivityStatusWsResponse::getFailing,
+      Ce.ActivityStatusWsResponse::getInProgress, Ce.ActivityStatusWsResponse::getPendingTime)
+      .containsOnly(1, 0, 0, 1000L);
   }
 
   @Test
@@ -171,9 +193,17 @@ public class ActivityStatusActionTest {
   }
 
   private void insertInQueue(CeQueueDto.Status status, @Nullable ComponentDto componentDto) {
-    dbClient.ceQueueDao().insert(dbSession, newCeQueueDto(Uuids.createFast())
+    insertInQueue(status, componentDto, null);
+  }
+
+  private void insertInQueue(CeQueueDto.Status status, @Nullable ComponentDto componentDto, @Nullable Long createdAt) {
+    CeQueueDto ceQueueDto = newCeQueueDto(Uuids.createFast())
       .setStatus(status)
-      .setComponent(componentDto));
+      .setComponent(componentDto);
+    if (createdAt != null) {
+      ceQueueDto.setCreatedAt(createdAt);
+    }
+    dbClient.ceQueueDao().insert(dbSession, ceQueueDto);
     db.commit();
   }
 

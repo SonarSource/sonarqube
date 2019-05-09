@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.monitoring;
 
+import java.util.Optional;
 import org.sonar.api.ce.ComputeEngineSide;
 
 @ComputeEngineSide
@@ -50,12 +51,12 @@ public interface CEQueueStatus {
   long addSuccess(long processingTime);
 
   /**
-   * Adds 1 to the count of batch reports which processing ended with an error and removes 1 from the count of batch
-   * reports under processing. Adds the specified time to the processing time counter.
+   * Adds 1 to the count of tasks which processing ended with an error and removes 1 from the count of tasks
+   * under processing. Adds the specified time to the processing time counter.
    *
    * @param processingTime duration of processing in ms
    *
-   * @return the new count of batch reports which processing ended with an error
+   * @return the new count of tasks which processing ended with an error
    *
    * @see #getErrorCount()
    * @see #getInProgressCount()
@@ -65,27 +66,32 @@ public interface CEQueueStatus {
   long addError(long processingTime);
 
   /**
-   * Count of batch reports waiting for processing since startup, including reports received before instance startup.
+   * Number of pending tasks, including tasks received before instance startup.
    */
   long getPendingCount();
 
   /**
-   * Count of batch reports under processing.
+   * The age, in ms, of the oldest pending task.
+   */
+  Optional<Long> getLongestTimePending();
+
+  /**
+   * Count of tasks under processing.
    */
   long getInProgressCount();
 
   /**
-   * Count of batch reports which processing ended with an error since instance startup.
+   * Count of tasks which processing ended with an error since instance startup.
    */
   long getErrorCount();
 
   /**
-   * Count of batch reports which processing ended successfully since instance startup.
+   * Count of tasks which processing ended successfully since instance startup.
    */
   long getSuccessCount();
 
   /**
-   * Time spent processing batch reports since startup, in milliseconds.
+   * Time spent processing tasks since startup, in milliseconds.
    */
   long getProcessingTime();
 

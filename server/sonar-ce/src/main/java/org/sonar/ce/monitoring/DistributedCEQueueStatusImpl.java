@@ -19,11 +19,12 @@
  */
 package org.sonar.ce.monitoring;
 
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 
 public class DistributedCEQueueStatusImpl extends CEQueueStatusImpl {
-  public DistributedCEQueueStatusImpl(DbClient dbClient) {
-    super(dbClient);
+  public DistributedCEQueueStatusImpl(DbClient dbClient, System2 system2) {
+    super(dbClient, system2);
   }
 
   @Override

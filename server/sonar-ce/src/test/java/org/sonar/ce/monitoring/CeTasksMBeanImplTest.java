@@ -22,6 +22,7 @@ package org.sonar.ce.monitoring;
 import com.google.common.collect.ImmutableSet;
 import java.lang.management.ManagementFactory;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,6 +47,7 @@ import static org.mockito.Mockito.when;
 
 public class CeTasksMBeanImplTest {
   private static final long PENDING_COUNT = 2;
+  private static final Optional<Long> PENDING_TIME = Optional.of(10_000L);
   private static final long IN_PROGRESS_COUNT = 5;
   private static final long ERROR_COUNT = 10;
   private static final long SUCCESS_COUNT = 13;
@@ -91,6 +93,7 @@ public class CeTasksMBeanImplTest {
   @Test
   public void get_methods_delegate_to_the_CEQueueStatus_instance() {
     assertThat(underTest.getPendingCount()).isEqualTo(PENDING_COUNT);
+    assertThat(underTest.getLongestTimePending()).isEqualTo(PENDING_TIME);
     assertThat(underTest.getInProgressCount()).isEqualTo(IN_PROGRESS_COUNT);
     assertThat(underTest.getErrorCount()).isEqualTo(ERROR_COUNT);
     assertThat(underTest.getSuccessCount()).isEqualTo(SUCCESS_COUNT);
@@ -142,7 +145,7 @@ public class CeTasksMBeanImplTest {
   public void export_system_info() {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
     assertThat(section.getName()).isEqualTo("Compute Engine Tasks");
-    assertThat(section.getAttributesCount()).isEqualTo(8);
+    assertThat(section.getAttributesCount()).isEqualTo(9);
   }
 
   private static class DumbCEQueueStatus implements CEQueueStatus {
@@ -150,6 +153,11 @@ public class CeTasksMBeanImplTest {
     @Override
     public long getPendingCount() {
       return PENDING_COUNT;
+    }
+
+    @Override
+    public Optional<Long> getLongestTimePending() {
+      return PENDING_TIME;
     }
 
     @Override
@@ -197,6 +205,7 @@ public class CeTasksMBeanImplTest {
     }
 
   }
+
   private static class DumbCeConfiguration implements CeConfiguration {
 
     @Override

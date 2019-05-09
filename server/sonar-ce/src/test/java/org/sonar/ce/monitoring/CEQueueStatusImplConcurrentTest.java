@@ -28,6 +28,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Test;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +43,7 @@ public class CEQueueStatusImplConcurrentTest {
       return new Thread(r, CEQueueStatusImplConcurrentTest.class.getSimpleName() + cnt++);
     }
   });
-  private CEQueueStatusImpl underTest = new CEQueueStatusImpl(mock(DbClient.class));
+  private CEQueueStatusImpl underTest = new CEQueueStatusImpl(mock(DbClient.class), mock(System2.class));
 
   @After
   public void tearDown() {

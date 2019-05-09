@@ -21,6 +21,7 @@ package org.sonar.ce.monitoring;
 
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class DistributedCEQueueStatusImplTest extends CommonCEQueueStatusImplTest {
-  private DistributedCEQueueStatusImpl underTest = new DistributedCEQueueStatusImpl(getDbClient());
+  private DistributedCEQueueStatusImpl underTest = new DistributedCEQueueStatusImpl(getDbClient(), mock(System2.class));
 
   public DistributedCEQueueStatusImplTest() {
     super(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS));

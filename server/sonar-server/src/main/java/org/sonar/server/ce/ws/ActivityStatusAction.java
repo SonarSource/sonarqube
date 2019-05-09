@@ -19,10 +19,13 @@
  */
 package org.sonar.server.ce.ws;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -44,18 +47,20 @@ public class ActivityStatusAction implements CeWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
+  private final System2 system2;
 
-  public ActivityStatusAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder) {
+  public ActivityStatusAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder, System2 system2) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
+    this.system2 = system2;
   }
 
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("activity_status")
-      .setDescription("Return CE activity related metrics.<br>" +
+      .setDescription("Returns CE activity related metrics.<br>" +
         "Requires 'Administer System' permission or 'Administer' rights on the specified project.")
       .setSince("5.5")
       .setResponseExample(getClass().getResource("activity_status-example.json"))
@@ -70,6 +75,7 @@ public class ActivityStatusAction implements CeWsAction {
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
 
     action.setChangelog(new Change("6.6", "New field 'inProgress' in response"));
+    action.setChangelog(new Change("7.8", "New field 'pendingTime' in response, only included when there are pending tasks"));
   }
 
   @Override
@@ -81,17 +87,25 @@ public class ActivityStatusAction implements CeWsAction {
   private ActivityStatusWsResponse doHandle(Request request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<ComponentDto> component = searchComponent(dbSession, request);
-      String componentUuid = component.isPresent() ? component.get().uuid() : null;
+      String componentUuid = component.map(ComponentDto::uuid).orElse(null);
       checkPermissions(component);
       int pendingCount = dbClient.ceQueueDao().countByStatusAndMainComponentUuid(dbSession, CeQueueDto.Status.PENDING, componentUuid);
       int inProgressCount = dbClient.ceQueueDao().countByStatusAndMainComponentUuid(dbSession, CeQueueDto.Status.IN_PROGRESS, componentUuid);
       int failingCount = dbClient.ceActivityDao().countLastByStatusAndMainComponentUuid(dbSession, CeActivityDto.Status.FAILED, componentUuid);
 
-      return ActivityStatusWsResponse.newBuilder()
+      Optional<Long> creationDate = dbClient.ceQueueDao().selectCreationDateOfOldestPendingByMainComponentUuid(dbSession, componentUuid);
+
+      ActivityStatusWsResponse.Builder builder = ActivityStatusWsResponse.newBuilder()
         .setPending(pendingCount)
         .setInProgress(inProgressCount)
-        .setFailing(failingCount)
-        .build();
+        .setFailing(failingCount);
+
+      creationDate.ifPresent(d -> {
+        long ageOfOldestPendingTime = system2.now() - d;
+        builder.setPendingTime(ageOfOldestPendingTime);
+      });
+
+      return builder.build();
     }
   }
 
@@ -100,7 +114,7 @@ public class ActivityStatusAction implements CeWsAction {
     if (hasComponentInRequest(request)) {
       component = componentFinder.getByUuidOrKey(dbSession, request.getComponentId(), request.getComponentKey(), COMPONENT_ID_AND_KEY);
     }
-    return Optional.fromNullable(component);
+    return Optional.ofNullable(component);
   }
 
   private void checkPermissions(Optional<ComponentDto> component) {
@@ -116,30 +130,24 @@ public class ActivityStatusAction implements CeWsAction {
   }
 
   private static Request toWsRequest(org.sonar.api.server.ws.Request request) {
-    return new Request()
-      .setComponentId(request.param(PARAM_COMPONENT_ID))
-      .setComponentKey(request.param(DEPRECATED_PARAM_COMPONENT_KEY));
+    return new Request(request.param(PARAM_COMPONENT_ID), request.param(DEPRECATED_PARAM_COMPONENT_KEY));
   }
 
   private static class Request {
-
     private String componentId;
     private String componentKey;
 
-    public Request setComponentId(String componentId) {
+    Request(@Nullable String componentId, @Nullable String componentKey) {
       this.componentId = componentId;
-      return this;
+      this.componentKey = componentKey;
     }
 
+    @CheckForNull
     public String getComponentId() {
       return componentId;
     }
 
-    public Request setComponentKey(String componentKey) {
-      this.componentKey = componentKey;
-      return this;
-    }
-
+    @CheckForNull
     public String getComponentKey() {
       return componentKey;
     }

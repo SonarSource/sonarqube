@@ -49,6 +49,7 @@ message ActivityStatusWsResponse {
   optional int32 pending = 1;
   optional int32 failing = 2;
   optional int32 inProgress = 3;
+  optional int64 pendingTime = 4;
 }
 
 // GET api/ce/analysis_status

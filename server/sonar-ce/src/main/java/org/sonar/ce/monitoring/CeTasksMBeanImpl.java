@@ -20,6 +20,7 @@
 package org.sonar.ce.monitoring;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.picocontainer.Startable;
@@ -60,6 +61,11 @@ public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSect
   @Override
   public long getPendingCount() {
     return queueStatus.getPendingCount();
+  }
+
+  @Override
+  public Optional<Long> getLongestTimePending() {
+    return queueStatus.getLongestTimePending();
   }
 
   @Override
@@ -116,6 +122,7 @@ public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSect
     ProtobufSystemInfo.Section.Builder builder = ProtobufSystemInfo.Section.newBuilder();
     builder.setName("Compute Engine Tasks");
     builder.addAttributesBuilder().setKey("Pending").setLongValue(getPendingCount()).build();
+    builder.addAttributesBuilder().setKey("Longest Time Pending (ms)").setLongValue(getLongestTimePending().orElse(0L)).build();
     builder.addAttributesBuilder().setKey("In Progress").setLongValue(getInProgressCount()).build();
     builder.addAttributesBuilder().setKey("Processed With Error").setLongValue(getErrorCount()).build();
     builder.addAttributesBuilder().setKey("Processed With Success").setLongValue(getSuccessCount()).build();

@@ -142,9 +142,12 @@ public class CeQueueDao implements Dao {
     return mapper(dbSession).countByStatusAndMainComponentUuid(status, mainComponentUuid);
   }
 
+  public Optional<Long> selectCreationDateOfOldestPendingByMainComponentUuid(DbSession dbSession, @Nullable String mainComponentUuid) {
+    return Optional.ofNullable(mapper(dbSession).selectCreationDateOfOldestPendingByMainComponentUuid(mainComponentUuid));
+  }
+
   /**
    * Counts entries in the queue with the specified status for each specified main component uuid.
-   *
    * The returned map doesn't contain any entry for main component uuids for which there is no entry in the queue (ie.
    * all entries have a value >= 0).
    */

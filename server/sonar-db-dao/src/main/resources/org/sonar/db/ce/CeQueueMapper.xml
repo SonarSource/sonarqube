@@ -49,6 +49,18 @@
       </if>
   </select>
 
+  <select id="selectCreationDateOfOldestPendingByMainComponentUuid" parameterType="map" resultType="Long">
+    select
+      min(created_at)
+    from
+      ce_queue
+    where
+      status='PENDING'
+      <if test="mainComponentUuid!=null">
+        and main_component_uuid=#{mainComponentUuid,jdbcType=VARCHAR}
+      </if>
+  </select>
+
   <select id="countByStatusAndMainComponentUuids" resultType="org.sonar.db.ce.QueueCount">
     select
       main_component_uuid as mainComponentUuid,

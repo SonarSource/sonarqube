@@ -68,6 +68,9 @@ public interface CeQueueMapper {
 
   int countByStatusAndMainComponentUuid(@Param("status") CeQueueDto.Status status, @Nullable @Param("mainComponentUuid") String mainComponentUuid);
 
+  @CheckForNull
+  Long selectCreationDateOfOldestPendingByMainComponentUuid(@Nullable @Param("mainComponentUuid") String mainComponentUuid);
+
   List<QueueCount> countByStatusAndMainComponentUuids(@Param("status") CeQueueDto.Status status, @Param("mainComponentUuids") List<String> mainComponentUuids);
 
   void insert(CeQueueDto dto);

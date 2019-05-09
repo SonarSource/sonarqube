@@ -21,6 +21,7 @@ package org.sonar.ce.monitoring;
 
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.ce.CeQueueDto;
 
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CEQueueStatusImplTest extends CommonCEQueueStatusImplTest {
-  private CEQueueStatusImpl underTest = new CEQueueStatusImpl(getDbClient());
+  private CEQueueStatusImpl underTest = new CEQueueStatusImpl(getDbClient(), mock(System2.class));
 
   public CEQueueStatusImplTest() {
     super(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS));

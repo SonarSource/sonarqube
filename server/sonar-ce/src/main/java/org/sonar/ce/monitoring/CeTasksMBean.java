@@ -20,33 +20,39 @@
 package org.sonar.ce.monitoring;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CeTasksMBean {
 
   String OBJECT_NAME = "SonarQube:name=ComputeEngineTasks";
 
   /**
-   * Count of batch reports waiting for processing since startup, including reports received before instance startup.
+   * Number of pending tasks, including tasks received before instance startup.
    */
   long getPendingCount();
 
   /**
-   * Count of batch reports under processing.
+   * The age, in ms, of the oldest pending task.
+   */
+  Optional<Long> getLongestTimePending();
+
+  /**
+   * Count of tasks under processing.
    */
   long getInProgressCount();
 
   /**
-   * Count of batch reports which processing ended with an error since instance startup.
+   * Count of tasks which processing ended with an error since instance startup.
    */
   long getErrorCount();
 
   /**
-   * Count of batch reports which processing ended successfully since instance startup.
+   * Count of tasks which processing ended successfully since instance startup.
    */
   long getSuccessCount();
 
   /**
-   * Time spent processing reports since startup, in milliseconds.
+   * Time spent processing tasks since startup, in milliseconds.
    */
   long getProcessingTime();
 

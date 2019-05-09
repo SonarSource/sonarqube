@@ -80,7 +80,7 @@ public class InternalCeQueueImplTest {
   private DbSession session = db.getSession();
 
   private UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
-  private CEQueueStatus queueStatus = new CEQueueStatusImpl(db.getDbClient());
+  private CEQueueStatus queueStatus = new CEQueueStatusImpl(db.getDbClient(), mock(System2.class));
   private DefaultOrganizationProvider defaultOrganizationProvider = mock(DefaultOrganizationProvider.class);
   private ComputeEngineStatus computeEngineStatus = mock(ComputeEngineStatus.class);
   private InternalCeQueue underTest = new InternalCeQueueImpl(system2, db.getDbClient(), uuidFactory, queueStatus, defaultOrganizationProvider, computeEngineStatus);

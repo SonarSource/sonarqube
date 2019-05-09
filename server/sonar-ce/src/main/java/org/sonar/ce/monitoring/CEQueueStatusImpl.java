@@ -21,6 +21,7 @@ package org.sonar.ce.monitoring;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeQueueDto;
@@ -31,13 +32,15 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class CEQueueStatusImpl implements CEQueueStatus {
 
   private final DbClient dbClient;
+  private final System2 system;
   private final AtomicLong inProgress = new AtomicLong(0);
   private final AtomicLong error = new AtomicLong(0);
   private final AtomicLong success = new AtomicLong(0);
   private final AtomicLong processingTime = new AtomicLong(0);
 
-  public CEQueueStatusImpl(DbClient dbClient) {
+  public CEQueueStatusImpl(DbClient dbClient, System2 system) {
     this.dbClient = dbClient;
+    this.system = system;
   }
 
   @Override
@@ -68,6 +71,14 @@ public class CEQueueStatusImpl implements CEQueueStatus {
   public long getPendingCount() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return dbClient.ceQueueDao().countByStatus(dbSession, CeQueueDto.Status.PENDING);
+    }
+  }
+
+  @Override
+  public Optional<Long> getLongestTimePending() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.ceQueueDao().selectCreationDateOfOldestPendingByMainComponentUuid(dbSession, null)
+        .map(creationDate -> system.now() - creationDate);
     }
   }
 
