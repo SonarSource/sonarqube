@@ -19,6 +19,21 @@
     </where>
   </select>
 
+  <select id="selectDbKeys" parameterType="map" resultType="String">
+    SELECT DISTINCT
+      p.kee
+    FROM
+      internal_component_props icp
+    JOIN
+      projects p
+    ON
+      icp.component_uuid = p.uuid
+    <where>
+      icp.kee = #{key, jdbcType=VARCHAR}
+      AND icp.value = #{value, jdbcType=VARCHAR}
+    </where>
+  </select>
+
   <insert id="insert" parameterType="Map">
     insert into internal_component_props
     (
@@ -30,12 +45,12 @@
       created_at
     )
     values (
-      #{dto.uuid},
-      #{dto.componentUuid},
-      #{dto.key},
-      #{dto.value},
-      #{dto.updatedAt},
-      #{dto.createdAt}
+      #{dto.uuid, jdbcType=VARCHAR},
+      #{dto.componentUuid, jdbcType=VARCHAR},
+      #{dto.key, jdbcType=VARCHAR},
+      #{dto.value, jdbcType=VARCHAR},
+      #{dto.updatedAt, jdbcType=BIGINT},
+      #{dto.createdAt, jdbcType=BIGINT}
     )
   </insert>
 
@@ -47,7 +62,20 @@
     </set>
     <where>
       component_uuid = #{dto.componentUuid, jdbcType=VARCHAR}
-      AND kee = #{dto.key}
+      AND kee = #{dto.key, jdbcType=VARCHAR}
+    </where>
+  </update>
+
+  <update id="replaceValue" parameterType="map">
+    update internal_component_props
+    <set>
+      value = #{newValue, jdbcType=VARCHAR},
+      updated_at = #{updatedAt, jdbcType=BIGINT}
+    </set>
+    <where>
+      component_uuid = #{componentUuid, jdbcType=VARCHAR}
+      AND kee = #{key, jdbcType=VARCHAR}
+      AND value = #{oldValue, jdbcType=VARCHAR}
     </where>
   </update>
 
@@ -55,7 +83,7 @@
     DELETE FROM internal_component_props
     <where>
       component_uuid = #{componentUuid, jdbcType=VARCHAR}
-      AND kee = #{key,jdbcType=VARCHAR}
+      AND kee = #{key, jdbcType=VARCHAR}
     </where>
   </delete>
 

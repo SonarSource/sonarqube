@@ -70,6 +70,7 @@ public final class SqTables {
     "groups",
     "groups_users",
     "group_roles",
+    "internal_component_props",
     "internal_properties",
     "issues",
     "issue_changes",

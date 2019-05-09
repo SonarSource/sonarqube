@@ -20,11 +20,15 @@
 package org.sonar.db.property;
 
 import java.util.Optional;
+import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
+/**
+ * A simple key-value store per component.
+ */
 public class InternalComponentPropertiesDao implements Dao {
 
   private final System2 system2;
@@ -35,7 +39,7 @@ public class InternalComponentPropertiesDao implements Dao {
     this.uuidFactory = uuidFactory;
   }
 
-  public void insertOrUpdate(DbSession dbSession, InternalComponentPropertyDto dto) {
+  private void insertOrUpdate(DbSession dbSession, InternalComponentPropertyDto dto) {
     InternalComponentPropertiesMapper mapper = getMapper(dbSession);
 
     dto.setUpdatedAt(system2.now());
@@ -49,12 +53,35 @@ public class InternalComponentPropertiesDao implements Dao {
     mapper.insert(dto);
   }
 
+  /**
+   * For the given component uuid, update the value of the specified key, if exists,
+   * otherwise insert it.
+   */
+  public void insertOrUpdate(DbSession dbSession, String componentUuid, String key, String value) {
+    insertOrUpdate(dbSession, new InternalComponentPropertyDto().setComponentUuid(componentUuid).setKey(key).setValue(value));
+  }
+
+  /**
+   * For the given component uuid, replace the value of the specified key "atomically":
+   * only replace if the old value is still the same as the current value.
+   */
+  public void replaceValue(DbSession dbSession, String componentUuid, String key, String oldValue, String newValue) {
+    getMapper(dbSession).replaceValue(componentUuid, key, oldValue, newValue, system2.now());
+  }
+
   public Optional<InternalComponentPropertyDto> selectByComponentUuidAndKey(DbSession dbSession, String componentUuid, String key) {
     return getMapper(dbSession).selectByComponentUuidAndKey(componentUuid, key);
   }
 
   public int deleteByComponentUuidAndKey(DbSession dbSession, String componentUuid, String key) {
     return getMapper(dbSession).deleteByComponentUuidAndKey(componentUuid, key);
+  }
+
+  /**
+   * Select the projects.kee values for internal component properties having specified key and value.
+   */
+  public Set<String> selectDbKeys(DbSession dbSession, String key, String value) {
+    return getMapper(dbSession).selectDbKeys(key, value);
   }
 
   private static InternalComponentPropertiesMapper getMapper(DbSession dbSession) {

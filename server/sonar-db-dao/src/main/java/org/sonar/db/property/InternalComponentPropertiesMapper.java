@@ -20,6 +20,7 @@
 package org.sonar.db.property;
 
 import java.util.Optional;
+import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 
 public interface InternalComponentPropertiesMapper {
@@ -30,6 +31,13 @@ public interface InternalComponentPropertiesMapper {
 
   int update(@Param("dto") InternalComponentPropertyDto dto);
 
+  /**
+   * Replace value (and update updated_at) only if current value matches oldValue
+   */
+  void replaceValue(@Param("componentUuid") String componentUuid, @Param("key") String key, @Param("oldValue") String oldValue, @Param("newValue") String newValue,
+    @Param("updatedAt") Long updatedAt);
+
   int deleteByComponentUuidAndKey(@Param("componentUuid") String componentUuid, @Param("key") String key);
 
+  Set<String> selectDbKeys(@Param("key") String key, @Param("value") String value);
 }

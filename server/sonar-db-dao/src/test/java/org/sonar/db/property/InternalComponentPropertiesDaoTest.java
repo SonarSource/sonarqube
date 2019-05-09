@@ -19,11 +19,7 @@
  */
 package org.sonar.db.property;
 
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import org.apache.commons.lang.math.RandomUtils;
-import org.assertj.core.api.AbstractAssert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,6 +28,8 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -55,42 +53,83 @@ public class InternalComponentPropertiesDaoTest {
 
   @Test
   public void insertOrUpdate_insert_property_if_it_doesnt_already_exist() {
-    InternalComponentPropertyDto dto = new InternalComponentPropertyDto()
-      .setKey(SOME_KEY)
-      .setComponentUuid(SOME_COMPONENT)
-      .setValue(SOME_VALUE);
+    long createdAt = 10L;
+    when(system2.now()).thenReturn(createdAt);
 
-    long now = RandomUtils.nextLong();
-    when(system2.now()).thenReturn(now);
+    underTest.insertOrUpdate(dbSession, SOME_COMPONENT, SOME_KEY, SOME_VALUE);
 
-    underTest.insertOrUpdate(dbSession, dto);
+    InternalComponentPropertyDto dto = underTest.selectByComponentUuidAndKey(dbSession, SOME_COMPONENT, SOME_KEY).get();
 
-    assertThatInternalProperty(dto.getUuid())
-      .hasComponentUuid(SOME_COMPONENT)
-      .hasKey(SOME_KEY)
-      .hasValue(SOME_VALUE)
-      .hasUpdatedAt(now)
-      .hasCreatedAt(now);
+    assertThat(dto.getComponentUuid()).isEqualTo(SOME_COMPONENT);
+    assertThat(dto.getKey()).isEqualTo(SOME_KEY);
+    assertThat(dto.getValue()).isEqualTo(SOME_VALUE);
+    assertThat(dto.getUpdatedAt()).isEqualTo(createdAt);
+    assertThat(dto.getCreatedAt()).isEqualTo(createdAt);
   }
 
   @Test
   public void insertOrUpdate_update_property_if_it_already_exists() {
-    long creationDate = 10L;
-    when(system2.now()).thenReturn(creationDate);
+    long createdAt = 10L;
+    when(system2.now()).thenReturn(createdAt);
 
     InternalComponentPropertyDto dto = saveDto();
 
-    long updateDate = 20L;
-    when(system2.now()).thenReturn(updateDate);
+    long updatedAt = 20L;
+    when(system2.now()).thenReturn(updatedAt);
 
-    dto.setValue("other value");
+    String newValue = "newValue";
+    underTest.insertOrUpdate(dbSession, dto.getComponentUuid(), dto.getKey(), newValue);
 
-    underTest.insertOrUpdate(dbSession, dto);
+    InternalComponentPropertyDto updatedDto = underTest.selectByComponentUuidAndKey(dbSession, dto.getComponentUuid(), dto.getKey()).get();
 
-    assertThatInternalProperty(dto.getUuid())
-      .hasUpdatedAt(updateDate)
-      .hasValue("other value")
-      .hasCreatedAt(creationDate);
+    assertThat(updatedDto.getComponentUuid()).isEqualTo(SOME_COMPONENT);
+    assertThat(updatedDto.getKey()).isEqualTo(SOME_KEY);
+    assertThat(updatedDto.getValue()).isEqualTo(newValue);
+    assertThat(updatedDto.getUpdatedAt()).isEqualTo(updatedAt);
+    assertThat(updatedDto.getCreatedAt()).isEqualTo(createdAt);
+  }
+
+  @Test
+  public void replaceValue_sets_to_newValue_if_oldValue_matches_expected() {
+    long createdAt = 10L;
+    when(system2.now()).thenReturn(createdAt);
+    InternalComponentPropertyDto dto = saveDto();
+
+    long updatedAt = 20L;
+    when(system2.now()).thenReturn(updatedAt);
+
+    String newValue = "other value";
+    underTest.replaceValue(dbSession, SOME_COMPONENT, SOME_KEY, SOME_VALUE, newValue);
+
+    InternalComponentPropertyDto updatedDto = underTest.selectByComponentUuidAndKey(dbSession, dto.getComponentUuid(), dto.getKey()).get();
+
+    assertThat(updatedDto.getValue()).isEqualTo(newValue);
+    assertThat(updatedDto.getUpdatedAt()).isEqualTo(updatedAt);
+    assertThat(updatedDto.getCreatedAt()).isEqualTo(createdAt);
+  }
+
+  @Test
+  public void replaceValue_does_not_replace_if_oldValue_does_not_match_expected() {
+    long createdAt = 10L;
+    when(system2.now()).thenReturn(createdAt);
+    InternalComponentPropertyDto dto = saveDto();
+
+    long updatedAt = 20L;
+    when(system2.now()).thenReturn(updatedAt);
+
+    underTest.replaceValue(dbSession, SOME_COMPONENT, SOME_KEY, SOME_VALUE + "foo", "other value");
+
+    InternalComponentPropertyDto updatedDto = underTest.selectByComponentUuidAndKey(dbSession, dto.getComponentUuid(), dto.getKey()).get();
+
+    assertThat(updatedDto.getValue()).isEqualTo(SOME_VALUE);
+    assertThat(updatedDto.getUpdatedAt()).isEqualTo(createdAt);
+    assertThat(updatedDto.getCreatedAt()).isEqualTo(createdAt);
+  }
+
+  @Test
+  public void replaceValue_does_not_insert_if_record_does_not_exist() {
+    underTest.replaceValue(dbSession, SOME_COMPONENT, SOME_KEY, SOME_VALUE, "other value");
+    assertThat(underTest.selectByComponentUuidAndKey(dbSession, SOME_COMPONENT, SOME_KEY)).isEmpty();
   }
 
   @Test
@@ -128,96 +167,24 @@ public class InternalComponentPropertiesDaoTest {
     assertThat(underTest.selectByComponentUuidAndKey(dbSession, SOME_COMPONENT, SOME_KEY)).isNotEmpty();
   }
 
+  @Test
+  public void loadDbKey_loads_dbKeys_for_all_components_with_given_property_and_value() {
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto portfolio1 = dbTester.components().insertPublicPortfolio(organizationDto);
+    ComponentDto portfolio2 = dbTester.components().insertPublicPortfolio(organizationDto);
+    ComponentDto portfolio3 = dbTester.components().insertPublicPortfolio(organizationDto);
+    ComponentDto portfolio4 = dbTester.components().insertPublicPortfolio(organizationDto);
+
+    underTest.insertOrUpdate(dbSession, portfolio1.uuid(), SOME_KEY, SOME_VALUE);
+    underTest.insertOrUpdate(dbSession, portfolio2.uuid(), SOME_KEY, "bar");
+    underTest.insertOrUpdate(dbSession, portfolio3.uuid(), "foo", SOME_VALUE);
+
+    assertThat(underTest.selectDbKeys(dbSession, SOME_KEY, SOME_VALUE)).containsOnly(portfolio1.getDbKey());
+  }
+
   private InternalComponentPropertyDto saveDto() {
-    InternalComponentPropertyDto dto = new InternalComponentPropertyDto()
-      .setKey(SOME_KEY)
-      .setComponentUuid(SOME_COMPONENT)
-      .setValue(SOME_VALUE);
-
-    underTest.insertOrUpdate(dbSession, dto);
-    return dto;
-  }
-
-  private InternalComponentPropertyAssert assertThatInternalProperty(String uuid) {
-    return new InternalComponentPropertiesDaoTest.InternalComponentPropertyAssert(dbTester, dbSession, uuid);
-  }
-
-  private static class InternalComponentPropertyAssert extends AbstractAssert<InternalComponentPropertiesDaoTest.InternalComponentPropertyAssert, InternalComponentPropertyDto> {
-
-    public InternalComponentPropertyAssert(DbTester dbTester, DbSession dbSession, String uuid) {
-      super(asInternalProperty(dbTester, dbSession, uuid), InternalComponentPropertyAssert.class);
-    }
-
-    private static InternalComponentPropertyDto asInternalProperty(DbTester dbTester, DbSession dbSession, String uuid) {
-      Map<String, Object> row = dbTester.selectFirst(
-        dbSession,
-        "select" +
-          " uuid as \"uuid\", component_uuid as \"componentUuid\", kee as \"key\", value as \"value\", updated_at as \"updatedAt\", created_at as \"createdAt\"" +
-          " from internal_component_props" +
-          " where uuid='" + uuid+ "'");
-      return new InternalComponentPropertyDto()
-        .setUuid((String) row.get("uuid"))
-        .setComponentUuid((String) row.get("componentUuid"))
-        .setKey((String) row.get("key"))
-        .setValue((String) row.get("value"))
-        .setUpdatedAt((Long) row.get("updatedAt"))
-        .setCreatedAt((Long) row.get("createdAt"));
-    }
-
-    public void doesNotExist() {
-      isNull();
-    }
-
-    public InternalComponentPropertiesDaoTest.InternalComponentPropertyAssert hasKey(String expected) {
-      isNotNull();
-
-      if (!Objects.equals(actual.getKey(), expected)) {
-        failWithMessage("Expected Internal property to have column KEY to be <%s> but was <%s>", true, actual.getKey());
-      }
-
-      return this;
-    }
-
-    public InternalComponentPropertiesDaoTest.InternalComponentPropertyAssert hasComponentUuid(String expected) {
-      isNotNull();
-
-      if (!Objects.equals(actual.getComponentUuid(), expected)) {
-        failWithMessage("Expected Internal property to have column COMPONENT_UUID to be <%s> but was <%s>", true, actual.getComponentUuid());
-      }
-
-      return this;
-    }
-
-    public InternalComponentPropertiesDaoTest.InternalComponentPropertyAssert hasValue(String expected) {
-      isNotNull();
-
-      if (!Objects.equals(actual.getValue(), expected)) {
-        failWithMessage("Expected Internal property to have column VALUE to be <%s> but was <%s>", true, actual.getValue());
-      }
-
-      return this;
-    }
-
-    public InternalComponentPropertiesDaoTest.InternalComponentPropertyAssert hasCreatedAt(long expected) {
-      isNotNull();
-
-      if (!Objects.equals(actual.getCreatedAt(), expected)) {
-        failWithMessage("Expected Internal property to have column CREATED_AT to be <%s> but was <%s>", expected, actual.getCreatedAt());
-      }
-
-      return this;
-    }
-
-    public InternalComponentPropertiesDaoTest.InternalComponentPropertyAssert hasUpdatedAt(long expected) {
-      isNotNull();
-
-      if (!Objects.equals(actual.getUpdatedAt(), expected)) {
-        failWithMessage("Expected Internal property to have column UPDATED_AT to be <%s> but was <%s>", expected, actual.getUpdatedAt());
-      }
-
-      return this;
-    }
-
+    underTest.insertOrUpdate(dbSession, SOME_COMPONENT, SOME_KEY, SOME_VALUE);
+    return underTest.selectByComponentUuidAndKey(dbSession, SOME_COMPONENT, SOME_KEY).get();
   }
 
 }
