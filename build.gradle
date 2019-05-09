@@ -276,20 +276,16 @@ subprojects {
       exceptionFormat 'full' // log the full stack trace (default is the 1st line of the stack trace)
     }
     jacoco {
-      append = false
       enabled = project.hasProperty('jacocoEnabled')
       includes = ['com.sonar.*', 'com.sonarsource.*', 'org.sonar.*', 'org.sonarqube.*', 'org.sonarsource.*', 'io.sonarcloud.*']
     }
     if (project.hasProperty('maxParallelTests')) {
-      // WARNING this is not compatible with jacocoEnabled
       maxParallelForks = project.maxParallelTests as int
     }
     if (project.hasProperty('parallelTests')) {
-      // WARNING this is not compatible with jacocoEnabled
       // See https://guides.gradle.org/performance/#parallel_test_execution
       maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
     }
-
   }
 
   def protoMainSrc = 'src/main/protobuf'
