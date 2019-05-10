@@ -28,6 +28,8 @@ At the software level, SonarCloud ensures private source code is accessible to o
 
 SonarCloud UI and APIs regularly pass penetration testing conducted by a an external company, specialized in cyber and application security, certified in accordance to ISO-27001 and which is also member of the OWASP.
 
+In case you find a vulnerability, please follow our [Responsible Vulnerability Disclosure process](https://community.sonarsource.com/t/responsible-vulnerability-disclosure/9317) to report it to our Security team.
+
 ## Communications
 
 All communications are done over TLS 1.2:
