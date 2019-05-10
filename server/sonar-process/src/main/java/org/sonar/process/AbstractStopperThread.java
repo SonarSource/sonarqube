@@ -36,6 +36,7 @@ abstract class AbstractStopperThread extends Thread {
 
   AbstractStopperThread(String threadName, Runnable stopCode, long terminationTimeoutMs) {
     super(threadName);
+    this.setDaemon(true);
     this.stopCode = stopCode;
     this.terminationTimeoutMs = terminationTimeoutMs;
   }
