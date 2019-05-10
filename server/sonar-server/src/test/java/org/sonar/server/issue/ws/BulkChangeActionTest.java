@@ -345,7 +345,7 @@ public class BulkChangeActionTest {
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issue.getKey()))
-      .setDoTransition("dismiss")
+      .setDoTransition("resetastoreview")
       .setSendNotifications(true)
       .build());
 
