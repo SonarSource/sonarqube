@@ -19,6 +19,7 @@
  */
 package org.sonar.process.test;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import org.sonar.process.Lifecycle.State;
 import org.sonar.process.Monitored;
@@ -31,6 +32,7 @@ public class StandardProcess implements Monitored {
   private AtomicReference<State> state = new AtomicReference<>(State.INIT);
   private volatile boolean stopped = false;
   private volatile boolean hardStopped = false;
+  private CountDownLatch stopLatch = new CountDownLatch(1);
 
   private final Thread daemon = new Thread() {
     @Override
@@ -61,7 +63,7 @@ public class StandardProcess implements Monitored {
   @Override
   public void awaitStop() {
     try {
-      daemon.join();
+      stopLatch.await();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
@@ -73,6 +75,7 @@ public class StandardProcess implements Monitored {
     daemon.interrupt();
     stopped = true;
     state.compareAndSet(State.STOPPING, State.STOPPED);
+    stopLatch.countDown();
   }
 
   /**
@@ -84,6 +87,7 @@ public class StandardProcess implements Monitored {
     daemon.interrupt();
     hardStopped = true;
     state.compareAndSet(State.HARD_STOPPING, State.STOPPED);
+    stopLatch.countDown();
   }
 
   public State getState() {

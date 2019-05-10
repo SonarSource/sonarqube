@@ -20,17 +20,13 @@
 package org.sonar.process;
 
 import java.io.File;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Predicate;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
-import static java.util.Optional.of;
-import static java.util.Optional.ofNullable;
 import static org.sonar.process.Lifecycle.State.STOPPED;
 
 public class ProcessEntryPoint {
@@ -51,11 +47,10 @@ public class ProcessEntryPoint {
   private final StopWatcher hardStopWatcher;
   // new Runnable() is important to avoid conflict of call to ProcessEntryPoint#stop() with Thread#stop()
   private final Runtime runtime;
-  private volatile Monitored monitored;
+  private Monitored monitored;
   private volatile StopperThread stopperThread;
-  private volatile HardStopperThread hardStopperThread;
 
-  private ProcessEntryPoint(Props props, SystemExit exit, ProcessCommands commands, Runtime runtime) {
+  public ProcessEntryPoint(Props props, SystemExit exit, ProcessCommands commands, Runtime runtime) {
     this.props = props;
     this.processKey = props.nonNullValue(PROPERTY_PROCESS_KEY);
     this.exit = exit;
@@ -133,72 +128,42 @@ public class ProcessEntryPoint {
 
   void stop() {
     stopAsync();
-    waitForStop();
-
-
-    stopAsync()
-      .ifPresent(stoppingThread -> {
-        try {
-          // join() does nothing if thread already finished
-          stoppingThread.join();
-          commands.endWatch();
-          exit.exit(0);
-        } catch (InterruptedException e) {
-          // stop can be aborted by a hard stop
-          Thread.currentThread().interrupt();
-        }
-      });
-  }
-
-  private void waitForStop() {
-    try {
-      stopLatch.await();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
-  private CountDownLatch stopLatch = new CountDownLatch(1);
-
-  private Optional<StopperThread> stopAsync() {
-    if (lifecycle.tryToMoveTo(Lifecycle.State.STOPPING)) {
-      long terminationTimeoutMs = Long.parseLong(props.nonNullValue(PROPERTY_GRACEFUL_STOP_TIMEOUT_MS));
-      stopperThread = new StopperThread(monitored, lifecycle, terminationTimeoutMs);
-      stopperThread.start();
-      stopWatcher.stopWatching();
-      return of(stopperThread);
-    }
-    // stopperThread could already exist
-    return ofNullable(stopperThread);
+    monitored.awaitStop();
   }
 
   /**
    * Blocks until stopped in a timely fashion (see {@link HardStopperThread})
    */
   void hardStop() {
-    hardStopAsync()
-      .ifPresent(stoppingThread -> {
-        try {
-          // join() does nothing if thread already finished
-          stoppingThread.join();
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        }
-        commands.endWatch();
-        exit.exit(0);
-      });
+    hardStopAsync();
+    monitored.awaitStop();
   }
 
-  private Optional<HardStopperThread> hardStopAsync() {
+  private void stopAsync() {
+    if (lifecycle.tryToMoveTo(Lifecycle.State.STOPPING)) {
+      LoggerFactory.getLogger(ProcessEntryPoint.class).info("Stopping process");
+      stopWatcher.stopWatching();
+      long terminationTimeoutMs = Long.parseLong(props.nonNullValue(PROPERTY_GRACEFUL_STOP_TIMEOUT_MS));
+      stopperThread = new StopperThread(monitored, this::terminate, terminationTimeoutMs);
+      stopperThread.start();
+    }
+  }
+
+  private void hardStopAsync() {
     if (lifecycle.tryToMoveTo(Lifecycle.State.HARD_STOPPING)) {
-      hardStopperThread = new HardStopperThread(monitored, lifecycle, HARD_STOP_TIMEOUT_MS, stopperThread);
-      hardStopperThread.start();
+      LoggerFactory.getLogger(ProcessEntryPoint.class).info("Hard stopping process");
+      if (stopperThread != null) {
+        stopperThread.stopIt();
+      }
       hardStopWatcher.stopWatching();
       stopWatcher.stopWatching();
-      return of(hardStopperThread);
+      new HardStopperThread(monitored, this::terminate).start();
     }
-    // hardStopperThread could already exist
-    return ofNullable(hardStopperThread);
+  }
+
+  private void terminate() {
+    lifecycle.tryToMoveTo(STOPPED);
+    commands.endWatch();
   }
 
   public static ProcessEntryPoint createForArguments(String[] args) {
@@ -236,15 +201,12 @@ public class ProcessEntryPoint {
    */
   private static class StopperThread extends AbstractStopperThread {
 
-    private StopperThread(Monitored monitored, Lifecycle lifecycle, long terminationTimeoutMs) {
+    private StopperThread(Monitored monitored, Runnable postAction, long terminationTimeoutMs) {
       super("Stopper", () -> {
-        if (!lifecycle.isCurrentState(STOPPED)) {
-          monitored.stop();
-          lifecycle.tryToMoveTo(STOPPED);
-        }
+        monitored.stop();
+        postAction.run();
       }, terminationTimeoutMs);
     }
-
   }
 
   /**
@@ -252,18 +214,12 @@ public class ProcessEntryPoint {
    */
   private static class HardStopperThread extends AbstractStopperThread {
 
-    private HardStopperThread(Monitored monitored, Lifecycle lifecycle, long terminationTimeoutMs, @Nullable StopperThread stopperThread) {
+    private HardStopperThread(Monitored monitored, Runnable postAction) {
       super(
-        "HardStopper",
-        () -> {
-          if (stopperThread != null) {
-            stopperThread.stopIt();
-          }
+        "HardStopper", () -> {
           monitored.hardStop();
-          lifecycle.tryToMoveTo(STOPPED);
-        },
-        terminationTimeoutMs);
+          postAction.run();
+        }, HARD_STOP_TIMEOUT_MS);
     }
-
   }
 }
