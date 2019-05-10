@@ -21,7 +21,7 @@ package org.sonar.ce.app;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.CountDownLatch;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -35,7 +35,6 @@ import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.Props;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.sonar.process.ProcessUtils.awaitTermination;
 
 /**
  * The Compute Engine server which starts a daemon thread to run the {@link ComputeEngineImpl} when it's {@link #start()}
@@ -49,11 +48,7 @@ public class CeServer implements Monitored {
 
   private static final String CE_MAIN_THREAD_NAME = "ce-main";
 
-  /**
-   * Thread that currently is inside our await() method.
-   */
-  private AtomicReference<Thread> awaitThread = new AtomicReference<>();
-  private volatile boolean stopAwait = false;
+  private CountDownLatch awaitStop = new CountDownLatch(1);
 
   private final ComputeEngine computeEngine;
   @Nullable
@@ -87,35 +82,30 @@ public class CeServer implements Monitored {
 
   @Override
   public void awaitStop() {
-    checkState(awaitThread.compareAndSet(null, Thread.currentThread()), "There can't be more than one thread waiting for the Compute Engine to stop");
     checkState(ceMainThread != null, "awaitStop() must not be called before start()");
-
-    try {
-      while (!stopAwait) {
-        try {
-          // wait for a quite long time but we will be interrupted if flag changes anyway
-          Thread.sleep(10_000);
-        } catch (InterruptedException e) {
-          // continue and check the flag
-        }
+    while (true) {
+      try {
+        awaitStop.await();
+        return;
+      } catch (InterruptedException e) {
+        // abort waiting
       }
-    } finally {
-      awaitThread = null;
     }
   }
 
   @Override
   public void stop() {
-    computeEngine.stopProcessing();
-    hardStop();
+    if (ceMainThread != null) {
+      ceMainThread.stopIt();
+      awaitStop();
+    }
   }
 
   @Override
   public void hardStop() {
     if (ceMainThread != null) {
-      // signal main Thread to stop
-      ceMainThread.stopIt();
-      awaitTermination(ceMainThread);
+      ceMainThread.stopItNow();
+      awaitStop();
     }
   }
 
@@ -133,10 +123,11 @@ public class CeServer implements Monitored {
   }
 
   private class CeMainThread extends Thread {
-    private static final int CHECK_FOR_STOP_DELAY = 50;
-    private volatile boolean stop = false;
+    private final CountDownLatch stopSignal = new CountDownLatch(1);
     private volatile boolean started = false;
     private volatile boolean operational = false;
+    private volatile boolean hardStop = false;
+    private volatile boolean dontInterrupt = false;
 
     public CeMainThread() {
       super(CE_MAIN_THREAD_NAME);
@@ -147,17 +138,27 @@ public class CeServer implements Monitored {
       boolean startupSuccessful = attemptStartup();
       this.operational = startupSuccessful;
       this.started = true;
-      if (startupSuccessful) {
-        // call below is blocking
-        waitForStopSignal();
-      } else {
-        stopAwait();
+      try {
+        if (startupSuccessful) {
+          try {
+            stopSignal.await();
+          } catch (InterruptedException e) {
+            // don't restore interrupt flag since it would be unset in attemptShutdown anyway
+          }
+
+          attemptShutdown();
+        }
+      } finally {
+        // release thread(s) waiting for CeServer to stop
+        signalAwaitStop();
       }
     }
 
     private boolean attemptStartup() {
       try {
-        startup();
+        LOG.info("Compute Engine starting up...");
+        computeEngine.startup();
+        LOG.info("Compute Engine is operational");
         return true;
       } catch (org.sonar.api.utils.MessageException | org.sonar.process.MessageException e) {
         LOG.error("Compute Engine startup failed: " + e.getMessage());
@@ -168,35 +169,19 @@ public class CeServer implements Monitored {
       }
     }
 
-    private void startup() {
-      LOG.info("Compute Engine starting up...");
-      computeEngine.startup();
-      LOG.info("Compute Engine is operational");
-    }
-
-    private void waitForStopSignal() {
-      while (!stop) {
-        try {
-          Thread.sleep(CHECK_FOR_STOP_DELAY);
-        } catch (InterruptedException e) {
-          // ignore the interruption itself
-          // Do not propagate the isInterrupted flag with Thread.currentThread().interrupt()
-          // It will break the shutdown of ComputeEngineContainerImpl#stop()
-        }
-      }
-      attemptShutdown();
-    }
-
     private void attemptShutdown() {
       try {
         LOG.info("Compute Engine is stopping...");
+        if (!hardStop) {
+          computeEngine.stopProcessing();
+        }
+        dontInterrupt = true;
+        // make sure that interrupt flag is unset because we don't want to interrupt shutdown of pico container
+        interrupted();
         computeEngine.shutdown();
         LOG.info("Compute Engine is stopped");
       } catch (Throwable e) {
         LOG.error("Compute Engine failed to stop", e);
-      } finally {
-        // release thread waiting for CeServer
-        stopAwait();
       }
     }
 
@@ -209,25 +194,20 @@ public class CeServer implements Monitored {
     }
 
     public void stopIt() {
-      // stop looping indefinitely
-      this.stop = true;
-      // interrupt current thread in case its waiting for WebServer
-      // TODO is the waiting during startup or shutdown? this will most likely cause the shutdown to always fail to finish cleanly
-      interrupt();
+      stopSignal.countDown();
     }
 
-    private void stopAwait() {
-      stopAwait = true;
-      Thread t = awaitThread.get();
-      if (t != null) {
-        t.interrupt();
-        try {
-          t.join(1_000);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          // Ignored
-        }
+    public void stopItNow() {
+      hardStop = true;
+      stopSignal.countDown();
+      // interrupt current thread unless it's already performing shutdown
+      if (!dontInterrupt) {
+        interrupt();
       }
+    }
+
+    private void signalAwaitStop() {
+      awaitStop.countDown();
     }
   }
 

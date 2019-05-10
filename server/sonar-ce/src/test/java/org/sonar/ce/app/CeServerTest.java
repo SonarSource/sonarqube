@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.app;
 
-import com.google.common.base.MoreObjects;
 import java.util.concurrent.CountDownLatch;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -69,6 +68,16 @@ public class CeServerTest {
     newCeServer();
 
     assertThat(Thread.activeCount()).isSameAs(activeCount);
+  }
+
+  @Test
+  public void awaitStop_throws_ISE_if_called_before_start() {
+    CeServer ceServer = newCeServer();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("awaitStop() must not be called before start()");
+
+    ceServer.awaitStop();
   }
 
   @Test
@@ -138,40 +147,6 @@ public class CeServerTest {
       // wait for isReady to change to not DOWN, otherwise test will fail with timeout
     }
     assertThat(ceServer.getStatus()).isEqualTo(Monitored.Status.OPERATIONAL);
-  }
-
-  @Test
-  public void awaitStop_throws_ISE_if_called_before_start() {
-    CeServer ceServer = newCeServer();
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("awaitStop() must not be called before start()");
-
-    ceServer.awaitStop();
-  }
-
-  @Test
-  public void awaitStop_throws_ISE_if_called_twice() {
-    final CeServer ceServer = newCeServer();
-    ExceptionCatcherWaitingThread waitingThread1 = new ExceptionCatcherWaitingThread(ceServer);
-    ExceptionCatcherWaitingThread waitingThread2 = new ExceptionCatcherWaitingThread(ceServer);
-
-    ceServer.start();
-
-    waitingThread1.start();
-    waitingThread2.start();
-
-    while (waitingThread1.isAlive() && waitingThread2.isAlive()) {
-      // wait for either thread to stop because ceServer.awaitStop() failed with an exception
-      // if none stops, the test will fail with timeout
-    }
-
-    Exception exception = MoreObjects.firstNonNull(waitingThread1.getException(), waitingThread2.getException());
-    assertThat(exception)
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("There can't be more than one thread waiting for the Compute Engine to stop");
-
-    assertThat(waitingThread1.getException() != null && waitingThread2.getException() != null).isFalse();
   }
 
   @Test
@@ -302,30 +277,6 @@ public class CeServerTest {
 
     private void releaseStartup() {
       this.latch.countDown();
-    }
-  }
-
-  private static class ExceptionCatcherWaitingThread extends Thread {
-    private final CeServer ceServer;
-    @CheckForNull
-    private Exception exception = null;
-
-    public ExceptionCatcherWaitingThread(CeServer ceServer) {
-      this.ceServer = ceServer;
-    }
-
-    @Override
-    public void run() {
-      try {
-        ceServer.awaitStop();
-      } catch (Exception e) {
-        this.exception = e;
-      }
-    }
-
-    @CheckForNull
-    public Exception getException() {
-      return exception;
     }
   }
 
