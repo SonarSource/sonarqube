@@ -15,7 +15,7 @@ buildscript {
     classpath 'net.rdrei.android.buildtimetracker:gradle-plugin:0.11.0'
     classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.7.5'
     classpath "org.owasp:dependency-check-gradle:4.0.2"
-    classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7'
+    classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.1'
   }
 }
 
