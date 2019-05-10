@@ -62,8 +62,13 @@ public interface DefaultTransitions {
   String RESOLVE_AS_REVIEWED = "resolveasreviewed";
 
   /**
+   * @since 7.8
+   */
+  String OPEN_AS_VULNERABILITY = "openasvulnerability";
+
+  /**
    * @since 4.4
    */
   List<String> ALL = unmodifiableList(asList(CONFIRM, UNCONFIRM, REOPEN, RESOLVE, FALSE_POSITIVE, WONT_FIX, CLOSE,
-    DETECT, DISMISS, REJECT, SET_AS_IN_REVIEW, ACCEPT, CLEAR, REOPEN_HOTSPOT, RESOLVE_AS_REVIEWED));
+    DETECT, DISMISS, REJECT, SET_AS_IN_REVIEW, ACCEPT, CLEAR, REOPEN_HOTSPOT, RESOLVE_AS_REVIEWED, OPEN_AS_VULNERABILITY));
 }

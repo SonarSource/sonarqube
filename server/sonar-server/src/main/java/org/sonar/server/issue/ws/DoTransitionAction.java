@@ -39,6 +39,7 @@ import org.sonar.server.issue.TransitionService;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
+import static org.sonar.api.issue.DefaultTransitions.OPEN_AS_VULNERABILITY;
 import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
 import static org.sonar.api.issue.DefaultTransitions.SET_AS_IN_REVIEW;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSITION;
@@ -74,7 +75,7 @@ public class DoTransitionAction implements IssuesWsAction {
         "The transitions involving security hotspots require the permission 'Administer Security Hotspot'.")
       .setSince("3.6")
       .setChangelog(
-        new Change("7.8", format("added transitions '%s' and %s for security hotspots ", SET_AS_IN_REVIEW, RESOLVE_AS_REVIEWED)),
+        new Change("7.8", format("added '%s', %s and %s transitions for security hotspots ", SET_AS_IN_REVIEW, RESOLVE_AS_REVIEWED, OPEN_AS_VULNERABILITY)),
         new Change("7.3", "added transitions for security hotspots"),
         new Change("6.5", "the database ids of the components are removed from the response"),
         new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."))
