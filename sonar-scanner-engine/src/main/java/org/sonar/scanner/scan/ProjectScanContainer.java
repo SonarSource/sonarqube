@@ -57,6 +57,7 @@ import org.sonar.scanner.ci.vendors.GithubActions;
 import org.sonar.scanner.ci.vendors.GitlabCi;
 import org.sonar.scanner.ci.vendors.Jenkins;
 import org.sonar.scanner.ci.vendors.SemaphoreCi;
+import org.sonar.scanner.ci.vendors.TravisCi;
 import org.sonar.scanner.cpd.CpdExecutor;
 import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
@@ -285,6 +286,7 @@ public class ProjectScanContainer extends ComponentContainer {
       GitlabCi.class,
       Jenkins.class,
       SemaphoreCi.class,
+      TravisCi.class,
 
       AnalysisObservers.class);
 
