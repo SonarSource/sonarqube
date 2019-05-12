@@ -53,6 +53,7 @@ import org.sonar.scanner.ci.vendors.Buildkite;
 import org.sonar.scanner.ci.vendors.CircleCi;
 import org.sonar.scanner.ci.vendors.CirrusCi;
 import org.sonar.scanner.ci.vendors.DroneCi;
+import org.sonar.scanner.ci.vendors.GithubActions;
 import org.sonar.scanner.ci.vendors.Jenkins;
 import org.sonar.scanner.ci.vendors.SemaphoreCi;
 import org.sonar.scanner.cpd.CpdExecutor;
@@ -279,6 +280,7 @@ public class ProjectScanContainer extends ComponentContainer {
       CircleCi.class,
       CirrusCi.class,
       DroneCi.class,
+      GithubActions.class,
       Jenkins.class,
       SemaphoreCi.class,
 
