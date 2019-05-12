@@ -127,6 +127,7 @@ public interface PostProjectAnalysisTask {
      * @deprecated in 7.8, replaced by {@code Analysis#getRevision()}
      * @see #getAnalysis()
      */
+    @Deprecated
     String getScmRevisionId();
   }
 }

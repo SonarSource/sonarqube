@@ -75,7 +75,7 @@ public class PersistAnalysisPropertiesStepTest {
   public void persist_should_stores_sonarDotAnalysisDot_and_sonarDotPullRequestDot_properties() {
     when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.from(PROPERTIES.iterator()));
     when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
-    when(analysisMetadataHolder.getScmRevisionId()).thenReturn(Optional.of(SCM_REV_ID));
+    when(analysisMetadataHolder.getScmRevision()).thenReturn(Optional.of(SCM_REV_ID));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -98,7 +98,7 @@ public class PersistAnalysisPropertiesStepTest {
 
   @Test
   public void persist_filtering_of_properties_is_case_sensitive() {
-    when(analysisMetadataHolder.getScmRevisionId()).thenReturn(Optional.of(SCM_REV_ID));
+    when(analysisMetadataHolder.getScmRevision()).thenReturn(Optional.of(SCM_REV_ID));
     when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.from(ImmutableList.of(
       newContextProperty("sonar.ANALYSIS.foo", "foo"),
       newContextProperty("sonar.anaLysis.bar", "bar"),
@@ -115,7 +115,7 @@ public class PersistAnalysisPropertiesStepTest {
 
   @Test
   public void persist_should_store_nothing_if_there_are_no_context_properties() {
-    when(analysisMetadataHolder.getScmRevisionId()).thenReturn(Optional.of(SCM_REV_ID));
+    when(analysisMetadataHolder.getScmRevision()).thenReturn(Optional.of(SCM_REV_ID));
     when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.emptyCloseableIterator());
     when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
 

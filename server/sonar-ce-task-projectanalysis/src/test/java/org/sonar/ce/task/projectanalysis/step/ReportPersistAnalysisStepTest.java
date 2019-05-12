@@ -78,7 +78,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     analysisDate = DateUtils.parseDateQuietly("2015-06-01").getTime();
     analysisMetadataHolder.setUuid(ANALYSIS_UUID);
     analysisMetadataHolder.setAnalysisDate(analysisDate);
-    analysisMetadataHolder.setScmRevisionId(REVISION_ID);
+    analysisMetadataHolder.setScmRevision(REVISION_ID);
     dbIdsRepository = new DbIdsRepositoryImpl();
 
     now = DateUtils.parseDateQuietly("2015-06-02").getTime();

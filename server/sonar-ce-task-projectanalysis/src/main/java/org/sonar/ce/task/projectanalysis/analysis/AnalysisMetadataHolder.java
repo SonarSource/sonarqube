@@ -148,7 +148,7 @@ public interface AnalysisMetadataHolder {
   Map<String, ScannerPlugin> getScannerPluginsByKey();
 
   /**
-   * Scm Revision id of the analysed code
+   * Scm Revision of the analysed code
    */
-  Optional<String> getScmRevisionId();
+  Optional<String> getScmRevision();
 }

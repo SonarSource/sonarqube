@@ -142,7 +142,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     Long analysisDate = getAnalysisDate();
 
     if (analysisDate != null) {
-      return of(new AnalysisImpl(analysisMetadataHolder.getUuid(), analysisDate, analysisMetadataHolder.getScmRevisionId()));
+      return of(new AnalysisImpl(analysisMetadataHolder.getUuid(), analysisDate, analysisMetadataHolder.getScmRevision()));
     }
     return empty();
   }

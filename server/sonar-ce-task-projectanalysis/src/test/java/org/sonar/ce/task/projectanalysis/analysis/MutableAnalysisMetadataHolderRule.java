@@ -180,14 +180,14 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
 
 
   @Override
-  public MutableAnalysisMetadataHolder setScmRevisionId(String scmRevisionId) {
-    delegate.setScmRevisionId(scmRevisionId);
+  public MutableAnalysisMetadataHolder setScmRevision(String scmRevisionId) {
+    delegate.setScmRevision(scmRevisionId);
     return this;
   }
 
   @Override
-  public Optional<String> getScmRevisionId() {
-    return delegate.getScmRevisionId();
+  public Optional<String> getScmRevision() {
+    return delegate.getScmRevision();
   }
 
   @Override

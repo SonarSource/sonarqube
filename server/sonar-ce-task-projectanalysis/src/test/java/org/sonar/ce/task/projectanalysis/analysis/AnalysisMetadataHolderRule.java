@@ -34,6 +34,7 @@ import org.sonar.server.qualityprofile.QualityProfile;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
 public class AnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
 
@@ -61,7 +62,7 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
 
   private final InitializedProperty<Map<String, ScannerPlugin>> pluginsByKey = new InitializedProperty<>();
 
-  private final InitializedProperty<String> scmRevisionId = new InitializedProperty<>();
+  private final InitializedProperty<String> scmRevision = new InitializedProperty<>();
 
   @Override
   public AnalysisMetadataHolderRule setOrganizationsEnabled(boolean isOrganizationsEnabled) {
@@ -235,18 +236,18 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   }
 
   @Override
-  public MutableAnalysisMetadataHolder setScmRevisionId(String scmRevisionId) {
-    checkState(!this.scmRevisionId.isInitialized(), "ScmRevisionId has already been set");
-    this.scmRevisionId.setProperty(scmRevisionId);
+  public MutableAnalysisMetadataHolder setScmRevision(@Nullable String s) {
+    checkState(!this.scmRevision.isInitialized(), "ScmRevisionId has already been set");
+    this.scmRevision.setProperty(defaultIfBlank(s, null));
     return this;
   }
 
   @Override
-  public Optional<String> getScmRevisionId() {
-    if (!scmRevisionId.isInitialized()) {
+  public Optional<String> getScmRevision() {
+    if (!scmRevision.isInitialized()) {
       return Optional.empty();
     }
-    return Optional.of(scmRevisionId.getProperty());
+    return Optional.ofNullable(scmRevision.getProperty());
   }
 
   @Override

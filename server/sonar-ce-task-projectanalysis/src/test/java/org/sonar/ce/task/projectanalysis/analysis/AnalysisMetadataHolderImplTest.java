@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.analysis;
 
-import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -383,26 +382,40 @@ public class AnalysisMetadataHolderImplTest {
   }
 
   @Test
-  public void setScmRevisionId_throws_ISE_when_called_twice() {
+  public void setScmRevision_throws_ISE_when_called_twice() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
-    underTest.setScmRevisionId("scm_revision_id1");
+    underTest.setScmRevision("bd56dab");
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("ScmRevisionId has already been set");
-    underTest.setScmRevisionId("scm_revision_id1");
+    expectedException.expectMessage("ScmRevision has already been set");
+    underTest.setScmRevision("bd56dab");
   }
 
   @Test
-  public void getScmRevisionId_returns_empty_if_scmRevisionId_is_not_initialized() {
+  public void getScmRevision_returns_empty_if_scmRevision_is_not_initialized() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
-    assertThat(underTest.getScmRevisionId()).isNotPresent();
+    assertThat(underTest.getScmRevision()).isNotPresent();
   }
 
   @Test
-  public void getScmRevisionId_returns_scmRevisionId_if_scmRevisionId_is_initialized() {
+  public void getScmRevision_returns_scmRevision_if_scmRevision_is_initialized() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
-    underTest.setScmRevisionId("scm_revision_id");
-    assertThat(underTest.getScmRevisionId()).isEqualTo(Optional.of("scm_revision_id"));
+    underTest.setScmRevision("bd56dab");
+    assertThat(underTest.getScmRevision()).hasValue("bd56dab");
+  }
+
+  @Test
+  public void getScmRevision_does_not_return_empty_string() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setScmRevision("");
+    assertThat(underTest.getScmRevision()).isEmpty();
+  }
+
+  @Test
+  public void getScmRevision_does_not_return_blank_string() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setScmRevision("    ");
+    assertThat(underTest.getScmRevision()).isEmpty();
   }
 }

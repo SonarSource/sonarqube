@@ -89,5 +89,5 @@ public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
   /**
    * @throws IllegalStateException if scm revision id has already been set
    */
-  MutableAnalysisMetadataHolder setScmRevisionId(String scmRevisionId);
+  MutableAnalysisMetadataHolder setScmRevision(String scmRevisionId);
 }
