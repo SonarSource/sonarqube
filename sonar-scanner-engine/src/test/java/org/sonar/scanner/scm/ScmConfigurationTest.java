@@ -48,7 +48,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
-import static org.sonar.scanner.scm.ScmConfiguration.MESSAGE_SCM_EXLUSIONS_IS_DISABLED_BY_CONFIGURATION;
+import static org.sonar.scanner.scm.ScmConfiguration.MESSAGE_SCM_EXCLUSIONS_IS_DISABLED_BY_CONFIGURATION;
 import static org.sonar.scanner.scm.ScmConfiguration.MESSAGE_SCM_STEP_IS_DISABLED_BY_CONFIGURATION;
 
 @RunWith(DataProviderRunner.class)
@@ -110,7 +110,7 @@ public class ScmConfigurationTest {
 
     underTest.start();
 
-    assertThat(logTester.logs()).contains(MESSAGE_SCM_EXLUSIONS_IS_DISABLED_BY_CONFIGURATION);
+    assertThat(logTester.logs()).contains(MESSAGE_SCM_EXCLUSIONS_IS_DISABLED_BY_CONFIGURATION);
   }
 
   @Test

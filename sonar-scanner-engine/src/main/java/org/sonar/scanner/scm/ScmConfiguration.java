@@ -59,7 +59,7 @@ public class ScmConfiguration implements Startable {
   public static final String FORCE_RELOAD_KEY = "sonar.scm.forceReloadAll";
 
   static final String MESSAGE_SCM_STEP_IS_DISABLED_BY_CONFIGURATION = "SCM Step is disabled by configuration";
-  static final String MESSAGE_SCM_EXLUSIONS_IS_DISABLED_BY_CONFIGURATION = "Exclusions based on SCM info is disabled by configuration";
+  static final String MESSAGE_SCM_EXCLUSIONS_IS_DISABLED_BY_CONFIGURATION = "Exclusions based on SCM info is disabled by configuration";
 
   private final Configuration settings;
   private final AnalysisWarnings analysisWarnings;
@@ -107,7 +107,7 @@ public class ScmConfiguration implements Startable {
       }
     }
     if (isExclusionDisabled()) {
-      LOG.info(MESSAGE_SCM_EXLUSIONS_IS_DISABLED_BY_CONFIGURATION);
+      LOG.info(MESSAGE_SCM_EXCLUSIONS_IS_DISABLED_BY_CONFIGURATION);
     }
   }
 
