@@ -49,6 +49,7 @@ import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 import org.sonar.scanner.ci.CiConfigurationProvider;
 import org.sonar.scanner.ci.vendors.BitbucketPipelines;
 import org.sonar.scanner.ci.vendors.CirrusCi;
+import org.sonar.scanner.ci.vendors.DroneCi;
 import org.sonar.scanner.ci.vendors.SemaphoreCi;
 import org.sonar.scanner.cpd.CpdExecutor;
 import org.sonar.scanner.cpd.CpdSettings;
@@ -270,6 +271,7 @@ public class ProjectScanContainer extends ComponentContainer {
       new CiConfigurationProvider(),
       BitbucketPipelines.class,
       CirrusCi.class,
+      DroneCi.class,
       SemaphoreCi.class,
 
       AnalysisObservers.class);
