@@ -79,10 +79,6 @@ public class ScanProperties {
     }
   }
 
-  public Optional<String> getScmRevision() {
-    return configuration.get(SCM_REVISION);
-  }
-
   /**
    * This should be called in the beginning of the analysis to fail fast
    */

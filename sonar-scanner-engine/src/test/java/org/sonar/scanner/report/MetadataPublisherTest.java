@@ -56,6 +56,7 @@ import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scm.ScmConfiguration;
+import org.sonar.scanner.scm.ScmRevision;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
@@ -83,6 +84,7 @@ public class MetadataPublisherTest {
   private BranchConfiguration branches;
   private ScmConfiguration scmConfiguration;
   private ScmProvider scmProvider = mock(ScmProvider.class);
+  private ScmRevision scmRevision = mock(ScmRevision.class);
 
   @Before
   public void prepare() throws IOException {
@@ -115,7 +117,7 @@ public class MetadataPublisherTest {
     scmConfiguration = mock(ScmConfiguration.class);
     when(scmConfiguration.provider()).thenReturn(scmProvider);
     underTest = new MetadataPublisher(projectInfo, inputModuleHierarchy, properties, qProfiles, cpdSettings,
-      pluginRepository, branches, scmConfiguration);
+      pluginRepository, branches, scmRevision, scmConfiguration);
   }
 
   @Test
@@ -294,7 +296,7 @@ public class MetadataPublisherTest {
   @Test
   public void write_revision_id() throws Exception {
     String revisionId = "some-sha1";
-    when(scmProvider.revisionId(any(Path.class))).thenReturn(revisionId);
+    when(scmRevision.get()).thenReturn(Optional.of(revisionId));
 
     File outputDir = temp.newFolder();
     underTest.publish(new ScannerReportWriter(outputDir));
@@ -302,34 +304,14 @@ public class MetadataPublisherTest {
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     ScannerReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getScmRevisionId()).isEqualTo(revisionId);
-  }
-
-  public void revision_from_scanner_props_overrides_scm_provider_revision_if_specified() throws IOException {
-    String revisionId = "some-sha1";
-    when(scmProvider.revisionId(any(Path.class))).thenReturn(revisionId);
-    when(properties.getScmRevision()).thenReturn(Optional.of("123"));
-
-    File outputDir = temp.newFolder();
-    underTest.publish(new ScannerReportWriter(outputDir));
-
-    ScannerReportReader reader = new ScannerReportReader(outputDir);
-    ScannerReport.Metadata metadata = reader.readMetadata();
-    assertThat(metadata.getScmRevisionId()).isEqualTo("123");
   }
 
   @Test
   public void should_not_crash_when_scm_provider_does_not_support_relativePathFromScmRoot() throws IOException {
-    String revisionId = "some-sha1";
-
     ScmProvider fakeScmProvider = new ScmProvider() {
       @Override
       public String key() {
         return "foo";
-      }
-
-      @Override
-      public String revisionId(Path path) {
-        return revisionId;
       }
     };
     when(scmConfiguration.provider()).thenReturn(fakeScmProvider);
@@ -339,31 +321,6 @@ public class MetadataPublisherTest {
 
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     ScannerReport.Metadata metadata = reader.readMetadata();
-    assertThat(metadata.getScmRevisionId()).isEqualTo(revisionId);
-  }
-
-  @Test
-  public void should_not_crash_when_scm_provider_does_not_support_revisionId() throws IOException {
-    String relativePathFromScmRoot = "some/path";
-
-    ScmProvider fakeScmProvider = new ScmProvider() {
-      @Override
-      public String key() {
-        return "foo";
-      }
-
-      @Override
-      public Path relativePathFromScmRoot(Path path) {
-        return Paths.get(relativePathFromScmRoot);
-      }
-    };
-    when(scmConfiguration.provider()).thenReturn(fakeScmProvider);
-
-    File outputDir = temp.newFolder();
-    underTest.publish(new ScannerReportWriter(outputDir));
-
-    ScannerReportReader reader = new ScannerReportReader(outputDir);
-    ScannerReport.Metadata metadata = reader.readMetadata();
-    assertThat(metadata.getRelativePathFromScmRoot()).isEqualTo(relativePathFromScmRoot);
+    assertThat(metadata.getRelativePathFromScmRoot()).isEmpty();
   }
 }

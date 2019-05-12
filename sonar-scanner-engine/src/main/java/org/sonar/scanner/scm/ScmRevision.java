@@ -1,0 +1,37 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2019 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.scanner.scm;
+
+import java.util.Optional;
+import org.sonar.api.scanner.ScannerSide;
+
+/**
+ * The SCM revision that triggered the analysis. It may be different than
+ * the effective revision checked-out on disk, as provided by {@link org.sonar.api.batch.scm.ScmProvider}.
+ *
+ * For instance on pull requests it's not the merge-commit that some CI services check out. It is
+ * the commit that was pushed by user to the branch.
+ */
+@ScannerSide
+public interface ScmRevision {
+
+  Optional<String> get();
+
+}

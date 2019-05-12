@@ -23,7 +23,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
@@ -44,6 +43,7 @@ import org.sonar.scanner.rule.QualityProfiles;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scm.ScmConfiguration;
+import org.sonar.scanner.scm.ScmRevision;
 
 import static java.util.Optional.ofNullable;
 
@@ -58,13 +58,14 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final CpdSettings cpdSettings;
   private final ScannerPluginRepository pluginRepository;
   private final BranchConfiguration branchConfiguration;
+  private final ScmRevision scmRevision;
 
   @Nullable
   private final ScmConfiguration scmConfiguration;
 
   public MetadataPublisher(ProjectInfo projectInfo, InputModuleHierarchy moduleHierarchy, ScanProperties properties,
     QualityProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration,
-    @Nullable ScmConfiguration scmConfiguration) {
+    ScmRevision scmRevision, @Nullable ScmConfiguration scmConfiguration) {
     this.projectInfo = projectInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.properties = properties;
@@ -72,12 +73,13 @@ public class MetadataPublisher implements ReportPublisherStep {
     this.cpdSettings = cpdSettings;
     this.pluginRepository = pluginRepository;
     this.branchConfiguration = branchConfiguration;
+    this.scmRevision = scmRevision;
     this.scmConfiguration = scmConfiguration;
   }
 
   public MetadataPublisher(ProjectInfo projectInfo, InputModuleHierarchy moduleHierarchy, ScanProperties properties,
-    QualityProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration) {
-    this(projectInfo, moduleHierarchy, properties, qProfiles, cpdSettings, pluginRepository, branchConfiguration, null);
+    QualityProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration, ScmRevision scmRevision) {
+    this(projectInfo, moduleHierarchy, properties, qProfiles, cpdSettings, pluginRepository, branchConfiguration, scmRevision, null);
   }
 
   @Override
@@ -100,9 +102,7 @@ public class MetadataPublisher implements ReportPublisherStep {
 
     ofNullable(rootProject.getBranch()).ifPresent(builder::setDeprecatedBranch);
 
-    if (scmConfiguration != null) {
-      addScmInformation(builder);
-    }
+    addScmInformation(builder);
 
     for (QProfile qp : qProfiles.findAll()) {
       builder.putQprofilesPerLanguage(qp.getLanguage(), ScannerReport.Metadata.QProfile.newBuilder()
@@ -134,33 +134,26 @@ public class MetadataPublisher implements ReportPublisherStep {
         builder.putModulesProjectRelativePathByKey(module.key(), relativePath);
       }
     }
+
+    if (scmConfiguration != null) {
+      ScmProvider scmProvider = scmConfiguration.provider();
+      if (scmProvider != null) {
+        Path projectBasedir = moduleHierarchy.root().getBaseDir();
+        try {
+          builder.setRelativePathFromScmRoot(toSonarQubePath(scmProvider.relativePathFromScmRoot(projectBasedir)));
+        } catch (UnsupportedOperationException e) {
+          LOG.debug(e.getMessage());
+        }
+      }
+    }
   }
 
   private void addScmInformation(ScannerReport.Metadata.Builder builder) {
-    ScmProvider scmProvider = scmConfiguration.provider();
-    if (scmProvider != null) {
-      Path projectBasedir = moduleHierarchy.root().getBaseDir();
-      try {
-        builder.setRelativePathFromScmRoot(toSonarQubePath(scmProvider.relativePathFromScmRoot(projectBasedir)));
-      } catch (UnsupportedOperationException e) {
-        LOG.debug(e.getMessage());
-      }
-      try {
-        computeScmRevision().ifPresent(builder::setScmRevisionId);
-      } catch (UnsupportedOperationException e) {
-        LOG.debug(e.getMessage());
-      }
+    try {
+      scmRevision.get().ifPresent(builder::setScmRevisionId);
+    } catch (UnsupportedOperationException e) {
+      LOG.debug(e.getMessage());
     }
-  }
-
-  private Optional<String> computeScmRevision() {
-    Optional<String> scmRevision = properties.getScmRevision();
-    ScmProvider scmProvider = scmConfiguration.provider();
-    if (!scmRevision.isPresent() && scmProvider != null) {
-      scmRevision = Optional.ofNullable(scmProvider.revisionId(moduleHierarchy.root().getBaseDir()));
-    }
-
-    return scmRevision;
   }
 
   private void addBranchInformation(ScannerReport.Metadata.Builder builder) {

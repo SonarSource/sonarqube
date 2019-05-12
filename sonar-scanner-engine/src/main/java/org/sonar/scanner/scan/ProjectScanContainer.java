@@ -46,6 +46,9 @@ import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.MetricProvider;
 import org.sonar.scanner.bootstrap.PostJobExtensionDictionnary;
 import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
+import org.sonar.scanner.ci.CiConfigurationProvider;
+import org.sonar.scanner.ci.vendors.BitbucketPipelines;
+import org.sonar.scanner.ci.vendors.CirrusCi;
 import org.sonar.scanner.cpd.CpdExecutor;
 import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
@@ -109,6 +112,7 @@ import org.sonar.scanner.scan.measure.DefaultMetricFinder;
 import org.sonar.scanner.scm.ScmChangedFilesProvider;
 import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scanner.scm.ScmPublisher;
+import org.sonar.scanner.scm.ScmRevisionImpl;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
 import org.sonar.scanner.sensor.ProjectSensorContext;
 import org.sonar.scanner.sensor.ProjectSensorExtensionDictionnary;
@@ -248,6 +252,7 @@ public class ProjectScanContainer extends ComponentContainer {
       // SCM
       ScmConfiguration.class,
       ScmPublisher.class,
+      ScmRevisionImpl.class,
 
       // Sensors
       DefaultSensorStorage.class,
@@ -259,6 +264,11 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // Filesystem
       DefaultProjectFileSystem.class,
+
+      // CI
+      new CiConfigurationProvider(),
+      BitbucketPipelines.class,
+      CirrusCi.class,
 
       AnalysisObservers.class);
 
