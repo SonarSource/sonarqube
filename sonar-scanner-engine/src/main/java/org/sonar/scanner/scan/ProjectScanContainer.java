@@ -48,6 +48,7 @@ import org.sonar.scanner.bootstrap.PostJobExtensionDictionnary;
 import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 import org.sonar.scanner.ci.CiConfigurationProvider;
 import org.sonar.scanner.ci.vendors.BitbucketPipelines;
+import org.sonar.scanner.ci.vendors.CircleCi;
 import org.sonar.scanner.ci.vendors.CirrusCi;
 import org.sonar.scanner.ci.vendors.DroneCi;
 import org.sonar.scanner.ci.vendors.Jenkins;
@@ -271,6 +272,7 @@ public class ProjectScanContainer extends ComponentContainer {
       // CI
       new CiConfigurationProvider(),
       BitbucketPipelines.class,
+      CircleCi.class,
       CirrusCi.class,
       DroneCi.class,
       Jenkins.class,
