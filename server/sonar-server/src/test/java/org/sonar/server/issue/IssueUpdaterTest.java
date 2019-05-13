@@ -54,9 +54,7 @@ import org.sonar.server.rule.DefaultRuleFinder;
 
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -170,26 +168,6 @@ public class IssueUpdaterTest {
     assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
     assertThat(changedIssue.getProject()).isEqualTo(projectOf(project));
     assertThat(builder.getChange()).isEqualTo(new UserChange(issue.updateDate().getTime(), userOf(changeAuthor)));
-  }
-
-  @Test
-  public void verify_no_notification_on_hotspot() {
-    UserDto assignee = db.users().insertUser();
-    RuleDto rule = db.rules().insertRule();
-    ComponentDto project = db.components().insertMainBranch();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)
-      .setType(RuleType.SECURITY_HOTSPOT))
-      .setSeverity(MAJOR)
-      .setAssigneeUuid(assignee.getUuid())
-      .toDefaultIssue();
-    UserDto changeAuthor = db.users().insertUser();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), changeAuthor.getUuid());
-    issueFieldsSetter.setSeverity(issue, BLOCKER, context);
-
-    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
-
-    verify(notificationManager, never()).scheduleForSending(any());
   }
 
   @Test

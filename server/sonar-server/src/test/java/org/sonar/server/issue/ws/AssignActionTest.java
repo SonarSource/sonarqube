@@ -56,9 +56,7 @@ import static org.junit.rules.ExpectedException.none;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
-import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.tester.UserSessionRule.standalone;
@@ -190,23 +188,6 @@ public class AssignActionTest {
       .execute();
 
     verify(notificationManager).scheduleForSending(any(IssuesChangesNotification.class));
-  }
-
-  @Test
-  public void do_not_send_notification_on_security_hotspot() {
-    IssueDto issue = db.issues().insertIssue(
-      issueDto -> issueDto
-        .setAssigneeUuid(null)
-        .setType(SECURITY_HOTSPOT));
-    setUserWithBrowsePermission(issue);
-    UserDto arthur = insertUser("arthur");
-
-    ws.newRequest()
-      .setParam("issue", issue.getKey())
-      .setParam("assignee", arthur.getLogin())
-      .execute();
-
-    verifyZeroInteractions(notificationManager);
   }
 
   @Test

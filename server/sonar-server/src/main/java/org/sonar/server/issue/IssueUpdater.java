@@ -24,7 +24,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -93,9 +92,9 @@ public class IssueUpdater {
   private IssueDto doSaveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context,
     Optional<RuleDefinitionDto> rule, ComponentDto project, BranchDto branchDto) {
     IssueDto issueDto = issueStorage.save(session, singletonList(issue)).iterator().next();
-    if (issue.type() == RuleType.SECURITY_HOTSPOT
+    if (
       // since this method is called after an update of the issue, date should never be null
-      || issue.updateDate() == null
+      issue.updateDate() == null
       // name of rule is displayed in notification, rule must therefor be present
       || !rule.isPresent()
       // notification are not supported on PRs and short lived branches
