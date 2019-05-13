@@ -24,6 +24,7 @@ APP_LONG_NAME="${DEF_APP_LONG_NAME}"
 # Wrapper
 WRAPPER_CMD="./wrapper"
 WRAPPER_CONF="../../conf/wrapper.conf"
+SHUTDOWNER_LIB_DIR="../../lib"
 
 # Priority at which to run the wrapper.  See "man nice" for valid priorities.
 #  nice is only used if a priority is specified.
@@ -123,6 +124,12 @@ FIRST_CHAR=`echo $WRAPPER_CONF | cut -c1,1`
 if [ "$FIRST_CHAR" != "/" ]
 then
     WRAPPER_CONF=$REALDIR/$WRAPPER_CONF
+fi
+# Same test for SHUTDOWNER_LIB_DIR
+FIRST_CHAR=`echo $SHUTDOWNER_LIB_DIR | cut -c1,1`
+if [ "$FIRST_CHAR" != "/" ]
+then
+    SHUTDOWNER_LIB_DIR=$REALDIR/$SHUTDOWNER_LIB_DIR
 fi
 
 # Process ID
@@ -263,6 +270,13 @@ then
 else
     CMDNICE="nice -$PRIORITY"
 fi
+
+CMDJAVA="java"
+# read java command from wrapper.conf as first uncommented line containing "wrapper.java.command="
+grep "wrapper.java.command=" "$WRAPPER_CONF" | grep -v "^#" | while read -r line; do
+  CMDJAVA="${line#*=}"
+  break
+done
 
 # Build the anchor file clause.
 if [ "X$IGNORE_SIGNALS" = "X" ]
@@ -435,8 +449,43 @@ start() {
     fi    
 }
  
+waitforstop() {
+    # We can not predict how long it will take for the wrapper to
+    #  actually stop as it depends on settings in wrapper.conf.
+    #  Loop until it does.
+    savepid=$pid
+    CNT=0
+    TOTCNT=0
+    while [ "X$pid" != "X" ]
+    do
+        # Show a waiting message every 5 seconds.
+        if [ "$CNT" -lt "5" ]
+        then
+            CNT=`expr $CNT + 1`
+        else
+            echo "Waiting for $APP_LONG_NAME to exit..."
+            CNT=0
+        fi
+        TOTCNT=`expr $TOTCNT + 1`
+
+        sleep 1
+
+        testpid
+    done
+
+    pid=$savepid
+    testpid
+    if [ "X$pid" != "X" ]
+    then
+        echo "Failed to stop $APP_LONG_NAME."
+        exit 1
+    else
+        echo "Stopped $APP_LONG_NAME."
+    fi
+}
+
 stopit() {
-    echo "Stopping $APP_LONG_NAME..."
+    echo "Gracefully stopping $APP_LONG_NAME..."
     getpid
     if [ "X$pid" = "X" ]
     then
@@ -462,38 +511,28 @@ stopit() {
             fi
         fi
 
-        # We can not predict how long it will take for the wrapper to
-        #  actually stop as it depends on settings in wrapper.conf.
-        #  Loop until it does.
-        savepid=$pid
-        CNT=0
-        TOTCNT=0
-        while [ "X$pid" != "X" ]
-        do
-            # Show a waiting message every 5 seconds.
-            if [ "$CNT" -lt "5" ]
+        waitforstop
+    fi
+}
+
+forcestopit() {
+    getpid
+    if [ "X$pid" = "X" ]
             then
-                CNT=`expr $CNT + 1`
-            else
-                echo "Waiting for $APP_LONG_NAME to exit..."
-                CNT=0
+        echo "$APP_LONG_NAME not running"
+        exit 1
             fi
-            TOTCNT=`expr $TOTCNT + 1`
 
-            sleep 1
-
-            testpid
-        done
-
-        pid=$savepid
         testpid
         if [ "X$pid" != "X" ]
         then
-            echo "Failed to stop $APP_LONG_NAME."
-            exit 1
-        else
-            echo "Stopped $APP_LONG_NAME."
-        fi
+      # start shutdowner from SQ installation directory
+      cd "../.."
+
+      echo "Force stopping $APP_LONG_NAME..."
+      ${CMDJAVA} -classpath "${SHUTDOWNER_LIB_DIR}/*" "org.sonar.application.Shutdowner"
+
+      waitforstop
     fi
 }
 
@@ -546,6 +585,11 @@ case "$1" in
         stopit
         ;;
 
+    'force-stop')
+        checkUser "" $1
+        forcestopit
+        ;;
+
     'restart')
         checkUser touchlock $1
         stopit
@@ -563,7 +607,7 @@ case "$1" in
         ;;
 
     *)
-        echo "Usage: $0 { console | start | stop | restart | status | dump }"
+        echo "Usage: $0 { console | start | stop | force-stop | restart | status | dump }"
         exit 1
         ;;
 esac
