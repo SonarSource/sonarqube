@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render tags popup correctly 1`] = `
+exports[`should render transition popup correctly 1`] = `
 <DropdownOverlay>
   <SelectList
     currentItem="confirm"
@@ -41,6 +41,36 @@ exports[`should render tags popup correctly 1`] = `
       title="issue.transition.wontfix.description"
     >
       issue.transition.wontfix
+    </SelectListItem>
+  </SelectList>
+</DropdownOverlay>
+`;
+
+exports[`should render transition popup correctly for vulnerability 1`] = `
+<DropdownOverlay>
+  <SelectList
+    currentItem="resolveasreviewed"
+    items={
+      Array [
+        "resolveasreviewed",
+        "confirm",
+      ]
+    }
+    onSelect={[MockFunction]}
+  >
+    <SelectListItem
+      item="resolveasreviewed"
+      key="resolveasreviewed"
+      title="vulnerability.transition.resolveasreviewed.description"
+    >
+      vulnerability.transition.resolveasreviewed
+    </SelectListItem>
+    <SelectListItem
+      item="confirm"
+      key="confirm"
+      title="issue.transition.confirm.description"
+    >
+      issue.transition.confirm
     </SelectListItem>
   </SelectList>
 </DropdownOverlay>

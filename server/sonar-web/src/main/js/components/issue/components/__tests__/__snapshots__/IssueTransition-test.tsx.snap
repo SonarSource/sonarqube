@@ -18,6 +18,7 @@ exports[`should open the popup when the button is clicked 2`] = `
     open={true}
     overlay={
       <SetTransitionPopup
+        fromHotspot={false}
         onSelect={[Function]}
         transitions={
           Array [
@@ -27,6 +28,7 @@ exports[`should open the popup when the button is clicked 2`] = `
             "wontfix",
           ]
         }
+        type="BUG"
       />
     }
   >
@@ -55,12 +57,14 @@ exports[`should render with a resolution 1`] = `
     open={false}
     overlay={
       <SetTransitionPopup
+        fromHotspot={false}
         onSelect={[Function]}
         transitions={
           Array [
             "reopen",
           ]
         }
+        type="BUG"
       />
     }
   >
@@ -90,6 +94,7 @@ exports[`should render with the action 1`] = `
     open={false}
     overlay={
       <SetTransitionPopup
+        fromHotspot={false}
         onSelect={[Function]}
         transitions={
           Array [
@@ -99,6 +104,7 @@ exports[`should render with the action 1`] = `
             "wontfix",
           ]
         }
+        type="BUG"
       />
     }
   >

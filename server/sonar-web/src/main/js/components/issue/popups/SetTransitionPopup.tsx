@@ -20,29 +20,42 @@
 import * as React from 'react';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
-import { translate } from '../../../helpers/l10n';
+import { translate, hasMessage } from '../../../helpers/l10n';
 import { DropdownOverlay } from '../../controls/Dropdown';
 
-interface Props {
+export interface Props {
+  fromHotspot: boolean;
   onSelect: (transition: string) => void;
   transitions: string[];
+  type: T.IssueType;
 }
 
-export default function SetTransitionPopup({ onSelect, transitions }: Props) {
+export default function SetTransitionPopup({ fromHotspot, onSelect, transitions, type }: Props) {
+  const isManualVulnerability = fromHotspot && type === 'VULNERABILITY';
   return (
     <DropdownOverlay>
       <SelectList currentItem={transitions[0]} items={transitions} onSelect={onSelect}>
         {transitions.map(transition => {
+          const [name, description] = translateTransition(transition, isManualVulnerability);
           return (
-            <SelectListItem
-              item={transition}
-              key={transition}
-              title={translate('issue.transition', transition, 'description')}>
-              {translate('issue.transition', transition)}
+            <SelectListItem item={transition} key={transition} title={description}>
+              {name}
             </SelectListItem>
           );
         })}
       </SelectList>
     </DropdownOverlay>
   );
+}
+
+function translateTransition(transition: string, isManualVulnerability: boolean) {
+  return isManualVulnerability && hasMessage('vulnerability.transition', transition)
+    ? [
+        translate('vulnerability.transition', transition),
+        translate('vulnerability.transition', transition, 'description')
+      ]
+    : [
+        translate('issue.transition', transition),
+        translate('issue.transition', transition, 'description')
+      ];
 }

@@ -29,7 +29,7 @@ import { updateIssue } from '../actions';
 interface Props {
   hasTransitions: boolean;
   isOpen: boolean;
-  issue: Pick<T.Issue, 'key' | 'resolution' | 'status' | 'transitions'>;
+  issue: Pick<T.Issue, 'fromHotspot' | 'key' | 'resolution' | 'status' | 'transitions' | 'type'>;
   onChange: (issue: T.Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }
@@ -61,7 +61,12 @@ export default class IssueTransition extends React.PureComponent<Props> {
             onRequestClose={this.handleClose}
             open={this.props.isOpen && this.props.hasTransitions}
             overlay={
-              <SetTransitionPopup onSelect={this.setTransition} transitions={issue.transitions} />
+              <SetTransitionPopup
+                fromHotspot={issue.fromHotspot}
+                onSelect={this.setTransition}
+                transitions={issue.transitions}
+                type={issue.type}
+              />
             }>
             <ButtonLink
               className="issue-action issue-action-with-options js-issue-transition"

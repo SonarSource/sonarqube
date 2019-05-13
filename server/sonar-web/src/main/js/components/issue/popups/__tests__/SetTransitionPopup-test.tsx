@@ -19,14 +19,36 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import SetTransitionPopup from '../SetTransitionPopup';
+import SetTransitionPopup, { Props } from '../SetTransitionPopup';
+import { hasMessage } from '../../../../helpers/l10n';
 
-it('should render tags popup correctly', () => {
-  const element = shallow(
+jest.mock('../../../../helpers/l10n', () => ({
+  ...jest.requireActual('../../../../helpers/l10n'),
+  hasMessage: jest.fn().mockReturnValue(false)
+}));
+
+it('should render transition popup correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should render transition popup correctly for vulnerability', () => {
+  (hasMessage as jest.Mock).mockReturnValueOnce('true');
+  expect(
+    shallowRender({
+      fromHotspot: true,
+      transitions: ['resolveasreviewed', 'confirm']
+    })
+  ).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<Props> = {}) {
+  return shallow(
     <SetTransitionPopup
+      fromHotspot={false}
       onSelect={jest.fn()}
       transitions={['confirm', 'resolve', 'falsepositive', 'wontfix']}
+      type="VULNERABILITY"
+      {...props}
     />
   );
-  expect(element).toMatchSnapshot();
-});
+}
