@@ -234,11 +234,11 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
         .setUpdatedAt(now));
 
     insertGroupPermission(dbSession, permissionTemplateDto, ADMIN, ownerGroup);
-    insertGroupPermission(dbSession, permissionTemplateDto, ISSUE_ADMIN, ownerGroup);
-    insertGroupPermission(dbSession, permissionTemplateDto, SECURITYHOTSPOT_ADMIN, ownerGroup);
     insertGroupPermission(dbSession, permissionTemplateDto, SCAN.getKey(), ownerGroup);
     insertGroupPermission(dbSession, permissionTemplateDto, USER, defaultGroup);
     insertGroupPermission(dbSession, permissionTemplateDto, CODEVIEWER, defaultGroup);
+    insertGroupPermission(dbSession, permissionTemplateDto, ISSUE_ADMIN, defaultGroup);
+    insertGroupPermission(dbSession, permissionTemplateDto, SECURITYHOTSPOT_ADMIN, defaultGroup);
 
     dbClient.organizationDao().setDefaultTemplates(
       dbSession,
@@ -260,11 +260,11 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
         .setUpdatedAt(dateNow));
 
     insertProjectCreatorPermission(dbSession, permissionTemplateDto, ADMIN, now);
-    insertProjectCreatorPermission(dbSession, permissionTemplateDto, ISSUE_ADMIN, now);
-    insertProjectCreatorPermission(dbSession, permissionTemplateDto, SECURITYHOTSPOT_ADMIN, now);
     insertProjectCreatorPermission(dbSession, permissionTemplateDto, SCAN.getKey(), now);
     insertGroupPermission(dbSession, permissionTemplateDto, USER, defaultGroup);
     insertGroupPermission(dbSession, permissionTemplateDto, CODEVIEWER, defaultGroup);
+    insertGroupPermission(dbSession, permissionTemplateDto, ISSUE_ADMIN, defaultGroup);
+    insertGroupPermission(dbSession, permissionTemplateDto, SECURITYHOTSPOT_ADMIN, defaultGroup);
 
     dbClient.organizationDao().setDefaultTemplates(
       dbSession,

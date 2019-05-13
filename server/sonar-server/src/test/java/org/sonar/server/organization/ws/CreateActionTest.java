@@ -221,9 +221,12 @@ public class CreateActionTest {
     assertThat(dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateId(dbSession, defaultTemplate.getId()))
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
-        tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN), tuple(ownersGroup.getId(), UserRole.SECURITYHOTSPOT_ADMIN),
+        tuple(ownersGroup.getId(), UserRole.ADMIN),
         tuple(ownersGroup.getId(), GlobalPermissions.SCAN_EXECUTION),
-        tuple(defaultGroup.getId(), UserRole.USER), tuple(defaultGroup.getId(), UserRole.CODEVIEWER));
+        tuple(defaultGroup.getId(), UserRole.USER),
+        tuple(defaultGroup.getId(), UserRole.CODEVIEWER),
+        tuple(defaultGroup.getId(), UserRole.ISSUE_ADMIN),
+        tuple(defaultGroup.getId(), UserRole.SECURITYHOTSPOT_ADMIN));
   }
 
   @Test
