@@ -266,6 +266,13 @@ subprojects {
     // when needed (see protobuf modules for example)
   }
 
+  jacocoTestReport {
+    reports {
+      xml.enabled true
+      csv.enabled false
+      html.enabled false
+    }
+  }
 
   test {
     jvmArgs '-Dfile.encoding=UTF8'
@@ -278,6 +285,9 @@ subprojects {
     jacoco {
       enabled = project.hasProperty('jacocoEnabled')
       includes = ['com.sonar.*', 'com.sonarsource.*', 'org.sonar.*', 'org.sonarqube.*', 'org.sonarsource.*', 'io.sonarcloud.*']
+    }
+    if (project.hasProperty('jacocoEnabled')) {
+      finalizedBy 'jacocoTestReport'
     }
     if (project.hasProperty('maxParallelTests')) {
       maxParallelForks = project.maxParallelTests as int
