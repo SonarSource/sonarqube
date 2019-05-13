@@ -17,27 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import GlobalFooterContainer from './GlobalFooterContainer';
-import { lazyLoad } from '../../components/lazyLoad';
 
-const PageTracker = lazyLoad(() => import('./PageTracker'));
+// The body of the `gtm` function comes from Google Tag Manager docs; let's keep it like it was written.
+// @ts-ignore
+// prettier-ignore
+// eslint-disable-next-line
+const gtm = id => (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});const f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);}(window,document,'script','dataLayer',id));
 
-interface Props {
-  children?: React.ReactNode;
-}
-
-export default function SimpleSessionsContainer({ children }: Props) {
-  return (
-    <>
-      <PageTracker />
-
-      <div className="global-container">
-        <div className="page-wrapper" id="container">
-          {children}
-        </div>
-        <GlobalFooterContainer hideLoggedInInfo={true} />
-      </div>
-    </>
-  );
-}
+module.exports = { gtm };

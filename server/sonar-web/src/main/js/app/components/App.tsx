@@ -19,10 +19,9 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
 import { fetchLanguages } from '../../store/rootActions';
 import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
-import { getInstance, isSonarCloud } from '../../helpers/system';
+import { isSonarCloud } from '../../helpers/system';
 import { lazyLoad } from '../../components/lazyLoad';
 import { getCurrentUser, getAppState, getGlobalSettingValue, Store } from '../../store/rootReducer';
 import { isLoggedIn } from '../../helpers/users';
@@ -102,10 +101,7 @@ class App extends React.PureComponent<Props> {
   render() {
     return (
       <>
-        <Helmet defaultTitle={getInstance()}>
-          {this.props.enableGravatar && this.renderPreconnectLink()}
-        </Helmet>
-        <PageTracker />
+        <PageTracker>{this.props.enableGravatar && this.renderPreconnectLink()}</PageTracker>
         {this.props.children}
       </>
     );

@@ -42,9 +42,16 @@ if (isMainApp()) {
   );
 } else {
   // login, maintenance or setup pages
-  Promise.all([loadMessages(), loadApp()]).then(
-    ([lang, startReactApp]) => {
-      startReactApp(lang, undefined, undefined);
+
+  const appStatePromise: Promise<T.AppState> = new Promise(resolve =>
+    loadAppState()
+      .then(data => resolve(data))
+      .catch(() => resolve(undefined))
+  );
+
+  Promise.all([loadMessages(), appStatePromise, loadApp()]).then(
+    ([lang, appState, startReactApp]) => {
+      startReactApp(lang, undefined, appState);
     },
     error => {
       logError(error);
