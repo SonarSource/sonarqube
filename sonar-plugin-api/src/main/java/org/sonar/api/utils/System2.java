@@ -21,14 +21,13 @@ package org.sonar.api.utils;
 
 import java.net.URL;
 import java.time.Clock;
-import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.SystemUtils;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -61,7 +60,6 @@ import org.sonar.api.server.ServerSide;
  * Note that the name System2 was chosen to not conflict with {@link java.lang.System}.
  * <br>
  * An instance is available in IoC container since 4.3.
- * 
  * Since 6.4 you can also inject {@link Clock} instead of {@link System2} if you are only interested by date/time operations
  *
  * @since 4.2
@@ -98,6 +96,7 @@ public class System2 {
 
   /**
    * Shortcut for {@code System{@link #setProperty(String, String)}}
+   *
    * @since 6.4
    */
   public System2 setProperty(String key, String value) {
@@ -129,6 +128,7 @@ public class System2 {
 
   /**
    * True if Java 7 or Java 8 runtime environment
+   *
    * @since 4.3
    * @deprecated in 6.4. Java 8+ is required, so this method always returns {@code true}.
    */
@@ -142,24 +142,16 @@ public class System2 {
   }
 
   /**
-   * @deprecated in 5.2. Please use {@link #now()}
-   */
-  @Deprecated
-  public Date newDate() {
-    return new Date();
-  }
-
-  /**
-   * @since 5.1
    * @return the JVM's default time zone
+   * @since 5.1
    */
   public TimeZone getDefaultTimeZone() {
     return TimeZone.getDefault();
   }
 
   /**
-   * @since 5.5
    * @see Class#getResource(String)
+   * @since 5.5
    */
   public URL getResource(String name) {
     return getClass().getResource(name);
@@ -167,6 +159,7 @@ public class System2 {
 
   /**
    * Closes the object and throws an {@link java.lang.IllegalStateException} on error.
+   *
    * @since 5.1
    */
   public void close(AutoCloseable closeable) {

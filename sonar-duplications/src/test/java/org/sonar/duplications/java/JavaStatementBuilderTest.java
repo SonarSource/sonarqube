@@ -19,13 +19,6 @@
  */
 package org.sonar.duplications.java;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Test;
-import org.sonar.duplications.DuplicationsTestUtil;
-import org.sonar.duplications.statement.Statement;
-import org.sonar.duplications.statement.StatementChunker;
-import org.sonar.duplications.token.TokenChunker;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,6 +26,12 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
+import org.junit.Test;
+import org.sonar.duplications.DuplicationsTestUtil;
+import org.sonar.duplications.statement.Statement;
+import org.sonar.duplications.statement.StatementChunker;
+import org.sonar.duplications.token.TokenChunker;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -316,6 +315,51 @@ public class JavaStatementBuilderTest {
     assertThat(statements.size()).isEqualTo(2);
     assertThat(statements.get(0).getValue()).isEqualTo("try(FileInputStreamin=newFileInputStream())");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
+  }
+
+  /**
+   * Java 8.
+   */
+  @Test
+  public void shouldHandleLambda() {
+    List<Statement> statements;
+    statements = chunk("List<String> result = lines.stream().filter(line -> !\"mkyong\".equals(line)).collect(Collectors.toList());");
+    assertThat(statements.size()).isEqualTo(1);
+    assertThat(statements).extracting(Statement::getValue).containsExactly("List<String>result=lines.stream().filter(line->!$CHARS.equals(line)).collect(Collectors.toList())");
+
+    statements = chunk("items.forEach((k,v)->{System.out.println(\"Item : \" + k + \" Count : \" + v); if(\"E\".equals(k)) { System.out.println(\"Hello E\");}});");
+    assertThat(statements.size()).isEqualTo(5);
+    assertThat(statements).extracting(Statement::getValue)
+      .containsExactly("items.forEach((k,v)->",
+        "System.out.println($CHARS+k+$CHARS+v)",
+        "if($CHARS.equals(k))",
+        "System.out.println($CHARS)",
+        ")");
+  }
+
+  /**
+   * Java 9.
+   */
+  @Test
+  public void shouldHandleModuleInfo() {
+    List<Statement> statements;
+    statements = chunk("module com.application.infra { requires com.application.domain; exports com.application.infra.api; }");
+    assertThat(statements.size()).isEqualTo(3);
+    assertThat(statements).extracting(Statement::getValue)
+      .containsExactly("modulecom.application.infra",
+      "requirescom.application.domain",
+      "exportscom.application.infra.api");
+  }
+
+  /**
+   * Java 11.
+   */
+  @Test
+  public void shouldHandleVar() {
+    List<Statement> statements;
+    statements = chunk("IFunc f = (@NonNull var x, final var y) -> Foo.foo(x, y);");
+    assertThat(statements.size()).isEqualTo(1);
+    assertThat(statements).extracting(Statement::getValue).containsExactly("IFuncf=(@NonNullvarx,finalvary)->Foo.foo(x,y)");
   }
 
   @Test

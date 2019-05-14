@@ -22,10 +22,10 @@ package org.sonar.scanner.bootstrap;
 import java.time.Clock;
 import java.util.List;
 import java.util.Map;
-import org.sonar.api.SonarEdition;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.internal.MetadataLoader;
@@ -78,9 +78,20 @@ public class GlobalContainer extends ComponentContainer {
     addBootstrapComponents();
   }
 
+  private static void checkJavaVersion() {
+    try {
+      String.class.getMethod("isBlank");
+    } catch (NoSuchMethodException e) {
+      LOG.warn("SonarQube scanners will require Java 11+ starting on next version");
+    }
+  }
+
   private void addBootstrapComponents() {
     Version apiVersion = MetadataLoader.loadVersion(System2.INSTANCE);
     SonarEdition edition = MetadataLoader.loadEdition(System2.INSTANCE);
+    if (edition != SonarEdition.SONARCLOUD) {
+      checkJavaVersion();
+    }
     LOG.debug("{} {}", edition.getLabel(), apiVersion);
     add(
       // plugins
