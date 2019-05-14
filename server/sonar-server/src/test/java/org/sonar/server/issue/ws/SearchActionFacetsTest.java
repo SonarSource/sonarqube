@@ -19,7 +19,9 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.collect.ImmutableMap;
 import java.time.Clock;
+import java.util.Map;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -112,11 +114,14 @@ public class SearchActionFacetsTest {
       .setParam(FACETS, "severities,statuses,resolutions,rules,types,languages,projects,moduleUuids,fileUuids,assignees")
       .executeProtobuf(SearchWsResponse.class);
 
+    Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 1L).put("CONFIRMED", 0L)
+      .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).put("INREVIEW", 0L).put("TOREVIEW", 0L).put("REVIEWED", 0L).build();
+
     assertThat(response.getFacets().getFacetsList())
       .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
       .containsExactlyInAnyOrder(
         tuple("severities", of("INFO", 0L, "MINOR", 0L, "MAJOR", 1L, "CRITICAL", 0L, "BLOCKER", 0L)),
-        tuple("statuses", of("OPEN", 1L, "CONFIRMED", 0L, "REOPENED", 0L, "RESOLVED", 0L, "CLOSED", 0L)),
+        tuple("statuses", expectedStatuses),
         tuple("resolutions", of("", 1L, "FALSE-POSITIVE", 0L, "FIXED", 0L, "REMOVED", 0L, "WONTFIX", 0L)),
         tuple("rules", of(rule.getKey().toString(), 1L)),
         tuple("types", of("CODE_SMELL", 1L, "BUG", 0L, "VULNERABILITY", 0L, "SECURITY_HOTSPOT", 0L)),
@@ -147,11 +152,14 @@ public class SearchActionFacetsTest {
       .setParam("facetMode", FACET_MODE_EFFORT)
       .executeProtobuf(SearchWsResponse.class);
 
+    Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 10L).put("CONFIRMED", 0L)
+    .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).put("INREVIEW", 0L).put("TOREVIEW", 0L).put("REVIEWED", 0L).build();
+
     assertThat(response.getFacets().getFacetsList())
       .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
       .containsExactlyInAnyOrder(
         tuple("severities", of("INFO", 0L, "MINOR", 0L, "MAJOR", 10L, "CRITICAL", 0L, "BLOCKER", 0L)),
-        tuple("statuses", of("OPEN", 10L, "CONFIRMED", 0L, "REOPENED", 0L, "RESOLVED", 0L, "CLOSED", 0L)),
+        tuple("statuses", expectedStatuses),
         tuple("resolutions", of("", 10L, "FALSE-POSITIVE", 0L, "FIXED", 0L, "REMOVED", 0L, "WONTFIX", 0L)),
         tuple("rules", of(rule.getKey().toString(), 10L)),
         tuple("types", of("CODE_SMELL", 10L, "BUG", 0L, "VULNERABILITY", 0L, "SECURITY_HOTSPOT", 0L)),
@@ -440,7 +448,7 @@ public class SearchActionFacetsTest {
         // Assignees contains one additional element : it's the empty string that will return number of unassigned issues
         tuple("assignees", 101),
         // Following facets returned fixed number of elements
-        tuple("statuses", 5),
+        tuple("statuses", 8),
         tuple("resolutions", 5),
         tuple("severities", 5),
         tuple("types", 4));
@@ -498,11 +506,14 @@ public class SearchActionFacetsTest {
       .setParam(FACETS, "severities,statuses,resolutions,rules,types,languages,projects,moduleUuids,fileUuids,assignees")
       .executeProtobuf(SearchWsResponse.class);
 
+    Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 1L).put("CONFIRMED", 0L)
+      .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).put("INREVIEW", 0L).put("TOREVIEW", 0L).put("REVIEWED", 0L).build();
+
     assertThat(response.getFacets().getFacetsList())
       .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
       .containsExactlyInAnyOrder(
         tuple("severities", of("INFO", 0L, "MINOR", 0L, "MAJOR", 1L, "CRITICAL", 0L, "BLOCKER", 0L)),
-        tuple("statuses", of("OPEN", 1L, "CONFIRMED", 0L, "REOPENED", 0L, "RESOLVED", 0L, "CLOSED", 0L)),
+        tuple("statuses", expectedStatuses),
         tuple("resolutions", of("", 1L, "FALSE-POSITIVE", 0L, "FIXED", 0L, "REMOVED", 0L, "WONTFIX", 0L)),
         tuple("rules", of(rule1.getKey().toString(), 1L, rule2.getKey().toString(), 0L)),
         tuple("types", of("CODE_SMELL", 1L, "BUG", 0L, "VULNERABILITY", 0L, "SECURITY_HOTSPOT", 0L)),

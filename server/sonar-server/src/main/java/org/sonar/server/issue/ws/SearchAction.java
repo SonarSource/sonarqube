@@ -34,7 +34,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
@@ -67,6 +66,15 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static org.sonar.api.issue.Issue.RESOLUTIONS;
+import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
+import static org.sonar.api.issue.Issue.STATUSES;
+import static org.sonar.api.issue.Issue.STATUS_IN_REVIEW;
+import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.issue.Issue.STATUS_REOPENED;
+import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
+import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
@@ -189,6 +197,7 @@ public class SearchAction implements IssuesWsAction, Startable {
         PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS)
       .setSince("3.6")
       .setChangelog(
+        new Change("7.8", format("added new Security Hotspots statuses : %s, %s and %s", STATUS_TO_REVIEW, STATUS_IN_REVIEW, STATUS_REVIEWED)),
         new Change("7.8", "Security hotspots are returned by default"),
         new Change("7.7", format("Value '%s' in parameter '%s' is deprecated, please use '%s' instead", DEPRECATED_PARAM_AUTHORS, FACETS, PARAM_AUTHOR)),
         new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT_KEYS)),
@@ -229,12 +238,12 @@ public class SearchAction implements IssuesWsAction, Startable {
       .setPossibleValues(Severity.ALL);
     action.createParam(PARAM_STATUSES)
       .setDescription("Comma-separated list of statuses")
-      .setExampleValue(Issue.STATUS_OPEN + "," + Issue.STATUS_REOPENED)
-      .setPossibleValues(Issue.STATUSES);
+      .setExampleValue(STATUS_OPEN + "," + STATUS_REOPENED)
+      .setPossibleValues(STATUSES);
     action.createParam(PARAM_RESOLUTIONS)
       .setDescription("Comma-separated list of resolutions")
-      .setExampleValue(Issue.RESOLUTION_FIXED + "," + Issue.RESOLUTION_REMOVED)
-      .setPossibleValues(Issue.RESOLUTIONS);
+      .setExampleValue(RESOLUTION_FIXED + "," + RESOLUTION_REMOVED)
+      .setPossibleValues(RESOLUTIONS);
     action.createParam(PARAM_RESOLVED)
       .setDescription("To match resolved or unresolved issues")
       .setBooleanPossibleValues();
@@ -453,8 +462,8 @@ public class SearchAction implements IssuesWsAction, Startable {
 
   private void completeFacets(Facets facets, SearchRequest request, IssueQuery query) {
     addMandatoryValuesToFacet(facets, PARAM_SEVERITIES, Severity.ALL);
-    addMandatoryValuesToFacet(facets, PARAM_STATUSES, Issue.STATUSES);
-    addMandatoryValuesToFacet(facets, PARAM_RESOLUTIONS, concat(singletonList(""), Issue.RESOLUTIONS));
+    addMandatoryValuesToFacet(facets, PARAM_STATUSES, STATUSES);
+    addMandatoryValuesToFacet(facets, PARAM_RESOLUTIONS, concat(singletonList(""), RESOLUTIONS));
     addMandatoryValuesToFacet(facets, FACET_PROJECTS, query.projectUuids());
     addMandatoryValuesToFacet(facets, PARAM_MODULE_UUIDS, query.moduleUuids());
     addMandatoryValuesToFacet(facets, PARAM_FILE_UUIDS, query.fileUuids());
