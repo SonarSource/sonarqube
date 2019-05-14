@@ -41,7 +41,12 @@ public class WebJvmOptionsTest {
   @Before
   public void setUp() throws IOException {
     tmpDir = temporaryFolder.newFolder();
+    underTest = new WebJvmOptions(tmpDir, javaVersion);
   }
+
+  @Test
+  public void constructor_sets_mandatory_JVM_options_before_java11() throws IOException {
+    when(javaVersion.isAtLeastJava11()).thenReturn(false);
 
   @Test
   public void constructor_sets_mandatory_JVM_options_before_java11() {
@@ -52,9 +57,9 @@ public class WebJvmOptionsTest {
   }
 
   @Test
-  public void constructor_sets_mandatory_JVM_options_for_java11() {
+  public void constructor_sets_mandatory_JVM_options_for_java11() throws IOException {
     when(javaVersion.isAtLeastJava11()).thenReturn(true);
-    underTest = new WebJvmOptions(tmpDir, javaVersion);
+
     assertThat(underTest.getAll()).containsExactly(
       "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(),
       "--add-opens=java.base/java.util=ALL-UNNAMED",
