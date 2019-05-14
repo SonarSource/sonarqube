@@ -38,11 +38,9 @@ public class EsManagedProcess extends AbstractManagedProcess {
   private static final int WAIT_FOR_UP_DELAY_IN_MILLIS = 100;
   private static final int WAIT_FOR_UP_TIMEOUT = 10 * 60; /* 1min */
 
-  private final AtomicBoolean nodeUp = new AtomicBoolean(false);
-  private final AtomicBoolean nodeOperational = new AtomicBoolean(false);
+  private volatile boolean nodeOperational = false;
   private final AtomicBoolean firstMasterNotDiscoveredLog = new AtomicBoolean(true);
   private final EsConnector esConnector;
-
 
   public EsManagedProcess(Process process, ProcessId processId, EsConnector esConnector) {
     super(process, processId);
@@ -51,7 +49,7 @@ public class EsManagedProcess extends AbstractManagedProcess {
 
   @Override
   public boolean isOperational() {
-    if (nodeOperational.get()) {
+    if (nodeOperational) {
       return true;
     }
 
@@ -64,10 +62,10 @@ public class EsManagedProcess extends AbstractManagedProcess {
     } finally {
       if (flag) {
         esConnector.stop();
-        nodeOperational.set(true);
+        nodeOperational = true;
       }
     }
-    return nodeOperational.get();
+    return nodeOperational;
   }
 
   private boolean checkOperational() throws InterruptedException {
@@ -75,13 +73,13 @@ public class EsManagedProcess extends AbstractManagedProcess {
     Status status = checkStatus();
     do {
       if (status != Status.CONNECTION_REFUSED) {
-        nodeUp.set(true);
+        break;
       } else {
         Thread.sleep(WAIT_FOR_UP_DELAY_IN_MILLIS);
         i++;
         status = checkStatus();
       }
-    } while (!nodeUp.get() && i < WAIT_FOR_UP_TIMEOUT);
+    } while (i < WAIT_FOR_UP_TIMEOUT);
     return status == YELLOW || status == GREEN;
   }
 

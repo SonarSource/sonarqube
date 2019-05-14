@@ -38,6 +38,7 @@ import org.sonar.application.process.ManagedProcessHandler;
 import org.sonar.application.process.ManagedProcessLifecycle;
 import org.sonar.application.process.ProcessLifecycleListener;
 import org.sonar.process.ProcessId;
+import org.sonar.process.ProcessProperties;
 
 import static org.sonar.application.NodeLifecycle.State.HARD_STOPPING;
 import static org.sonar.application.NodeLifecycle.State.RESTARTING;
@@ -45,6 +46,7 @@ import static org.sonar.application.NodeLifecycle.State.STOPPED;
 import static org.sonar.application.NodeLifecycle.State.STOPPING;
 import static org.sonar.application.process.ManagedProcessHandler.Timeout.newTimeout;
 import static org.sonar.process.ProcessProperties.Property.CE_GRACEFUL_STOP_TIMEOUT;
+import static org.sonar.process.ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT;
 import static org.sonar.process.ProcessProperties.parseTimeoutMs;
 
 public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, ProcessLifecycleListener, AppStateListener {
@@ -111,15 +113,21 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
       case ELASTICSEARCH:
         return HARD_STOP_TIMEOUT;
       case WEB_SERVER:
-        return newTimeout(10, TimeUnit.MINUTES);
+        return newTimeout(getStopTimeoutMs(settings, WEB_GRACEFUL_STOP_TIMEOUT), TimeUnit.MILLISECONDS);
       case COMPUTE_ENGINE:
-        String timeoutMs = settings.getValue(CE_GRACEFUL_STOP_TIMEOUT.getKey())
-          .orElse(CE_GRACEFUL_STOP_TIMEOUT.getDefaultValue());
-        return newTimeout(parseTimeoutMs(CE_GRACEFUL_STOP_TIMEOUT, timeoutMs), TimeUnit.MILLISECONDS);
+        return newTimeout(getStopTimeoutMs(settings, CE_GRACEFUL_STOP_TIMEOUT), TimeUnit.MILLISECONDS);
       case APP:
       default:
         throw new IllegalArgumentException("Unsupported processId " + processId);
     }
+  }
+
+  private static long getStopTimeoutMs(AppSettings settings, ProcessProperties.Property property) {
+    String timeoutMs = settings.getValue(property.getKey())
+      .orElse(property.getDefaultValue());
+    // give some time to CE/Web to shutdown itself after "timeoutMs"
+    long gracePeriod = HARD_STOP_TIMEOUT.getUnit().toMillis(HARD_STOP_TIMEOUT.getDuration());
+    return parseTimeoutMs(property, timeoutMs) + gracePeriod;
   }
 
   private void tryToStartAll() throws InterruptedException {
@@ -250,7 +258,6 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
         " (current thread name is \"{}\")", Thread.currentThread().getName());
       Thread.currentThread().interrupt();
     }
-    awaitTermination.countDown();
   }
 
   private void hardStopAll() throws InterruptedException {
@@ -258,20 +265,22 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     hardStopProcess(ProcessId.COMPUTE_ENGINE);
     hardStopProcess(ProcessId.WEB_SERVER);
     hardStopProcess(ProcessId.ELASTICSEARCH);
-
-    // if all process are already stopped (may occur, eg., when stopping because restart of 1st process failed),
-    // node state won't be updated on process stopped callback, so we must ensure
-    // the node's state is updated
-    if (nodeLifecycle.getState() != RESTARTING) {
-      nodeLifecycle.tryToMoveTo(STOPPED);
-    }
   }
 
+  /**
+   * This might be called twice: once by the state listener and once by the stop/hardStop implementations.
+   * The reason is that if all process are already stopped (may occur, eg., when stopping because restart of 1st process failed),
+   * the node state won't be updated on process stopped callback.
+   */
   private void finalizeStop() {
-    if (nodeLifecycle.getState() == STOPPED) {
+    if (nodeLifecycle.getState() != RESTARTING) {
       interrupt(restartStopperThread);
       interrupt(hardStopperThread);
       interrupt(restarterThread);
+      if (nodeLifecycle.tryToMoveTo(STOPPED)) {
+        LOG.info("SonarQube is stopped");
+      }
+      awaitTermination.countDown();
     }
   }
 
@@ -364,11 +373,9 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
         }
         break;
       case HARD_STOPPING:
-        if (lastProcessStopped && nodeLifecycle.tryToMoveTo(STOPPED)) {
-          LOG.info("SonarQube is stopped");
-          // all processes are stopped, no restart requested
-          // Let's clean-up resources
-          hardStop();
+      case STOPPING:
+        if (lastProcessStopped) {
+          finalizeStop();
         }
         break;
       default:
@@ -408,7 +415,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   }
 
   private class RestarterThread extends Thread {
-    public RestarterThread() {
+    private RestarterThread() {
       super("Restarter");
     }
 
@@ -429,7 +436,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   }
 
   private class RestartStopperThread extends Thread {
-    public RestartStopperThread() {
+    private RestartStopperThread() {
       super("Restart stopper");
     }
 
@@ -441,7 +448,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
 
   private class HardStopperThread extends Thread {
 
-    public HardStopperThread() {
+    private HardStopperThread() {
       super("Hard stopper");
     }
 

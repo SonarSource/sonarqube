@@ -162,7 +162,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .setReadsArgumentsFromFile(true)
       .setArguments(props.rawProperties())
       .setJvmOptions(jvmOptions)
-      .setGracefulStopTimeoutMs(readTimeout(props, WEB_GRACEFUL_STOP_TIMEOUT))
+      .setGracefulStopTimeoutMs(getGracefulStopTimeoutMs(props, WEB_GRACEFUL_STOP_TIMEOUT))
       // required for logback tomcat valve
       .setEnvVariable(PATH_LOGS.getKey(), props.nonNullValue(PATH_LOGS.getKey()))
       .setArgument("sonar.cluster.web.startupLeader", Boolean.toString(leader))
@@ -189,7 +189,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .setReadsArgumentsFromFile(true)
       .setArguments(props.rawProperties())
       .setJvmOptions(jvmOptions)
-      .setGracefulStopTimeoutMs(readTimeout(props, CE_GRACEFUL_STOP_TIMEOUT))
+      .setGracefulStopTimeoutMs(getGracefulStopTimeoutMs(props, CE_GRACEFUL_STOP_TIMEOUT))
       .setClassName("org.sonar.ce.app.CeServer")
       .addClasspath("./lib/common/*");
     String driverPath = props.value(JDBC_DRIVER_PATH.getKey());
@@ -200,10 +200,12 @@ public class CommandFactoryImpl implements CommandFactory {
     return command;
   }
 
-  private static long readTimeout(Props props, ProcessProperties.Property property) {
+  private static long getGracefulStopTimeoutMs(Props props, ProcessProperties.Property property) {
     String value = Optional.ofNullable(props.value(property.getKey()))
       .orElse(property.getDefaultValue());
-    return parseTimeoutMs(property, value);
+    // give some time to CE/Web to shutdown itself after graceful stop timed out
+    long gracePeriod = 30 * 1_000L;
+    return parseTimeoutMs(property, value) + gracePeriod;
   }
 
   private <T extends JvmOptions> void addProxyJvmOptions(JvmOptions<T> jvmOptions) {

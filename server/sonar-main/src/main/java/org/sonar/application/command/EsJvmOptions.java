@@ -47,7 +47,7 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
   // this basically writes down the content of jvm.options file distributed in vanilla Elasticsearch package
   // with some changes to fit running bundled in SQ
   private static Map<String, String> mandatoryOptions(System2 system2, Props props, File tmpDir) {
-    Map<String, String> res = new LinkedHashMap<>(16);
+    Map<String, String> res = new LinkedHashMap<>(30);
     // GC configuration
     res.put("-XX:+UseConcMarkSweepGC", "");
     res.put("-XX:CMSInitiatingOccupancyFraction=", "75");

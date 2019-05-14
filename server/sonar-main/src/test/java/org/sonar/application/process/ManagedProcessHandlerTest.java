@@ -22,6 +22,7 @@ package org.sonar.application.process;
 import java.io.InputStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import org.awaitility.Awaitility;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -70,16 +71,16 @@ public class ManagedProcessHandlerTest {
       verify(listener).onProcessState(A_PROCESS_ID, ManagedProcessLifecycle.State.STARTED);
 
       testProcess.close();
-      // do not wait next run of watcher threads
-      underTest.refreshState();
-      assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STOPPED);
+      Awaitility.await()
+        .atMost(10, TimeUnit.SECONDS)
+        .until(() -> underTest.getState() == ManagedProcessLifecycle.State.STOPPED);
       assertThat(testProcess.isAlive()).isFalse();
       assertThat(testProcess.streamsClosed).isTrue();
       verify(listener).onProcessState(A_PROCESS_ID, ManagedProcessLifecycle.State.STOPPED);
     }
   }
 
-  public ManagedProcessHandler.Builder newHanderBuilder(ProcessId aProcessId) {
+  private ManagedProcessHandler.Builder newHanderBuilder(ProcessId aProcessId) {
     return ManagedProcessHandler.builder(aProcessId)
       .setStopTimeout(newTimeout(1, TimeUnit.SECONDS))
       .setHardStopTimeout(newTimeout(1, TimeUnit.SECONDS));
@@ -232,7 +233,31 @@ public class ManagedProcessHandlerTest {
   }
 
   @Test
-  public void process_is_stopped_forcibly_if_graceful_stop_is_too_long() throws Exception {
+  public void process_is_hard_stopped_if_graceful_stop_is_too_long() throws Exception {
+    ProcessLifecycleListener listener = mock(ProcessLifecycleListener.class);
+    ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID)
+      .addProcessLifecycleListener(listener)
+      .setStopTimeout(newTimeout(1, TimeUnit.MILLISECONDS))
+      .setHardStopTimeout(newTimeout(1, TimeUnit.MILLISECONDS))
+      .build();
+
+    try (TestManagedProcess testProcess = new TestManagedProcess()) {
+      underTest.start(() -> testProcess);
+
+      underTest.stop();
+
+      testProcess.waitFor();
+      assertThat(testProcess.askedForHardStop).isTrue();
+      assertThat(testProcess.askedForStop).isTrue();
+      assertThat(testProcess.destroyedForcibly).isTrue();
+      assertThat(testProcess.isAlive()).isFalse();
+      assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STOPPED);
+      verify(listener).onProcessState(A_PROCESS_ID, ManagedProcessLifecycle.State.STOPPED);
+    }
+  }
+
+  @Test
+  public void process_is_stopped_forcibly_if_hard_stop_is_too_long() throws Exception {
     ProcessLifecycleListener listener = mock(ProcessLifecycleListener.class);
     ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID)
       .addProcessLifecycleListener(listener)

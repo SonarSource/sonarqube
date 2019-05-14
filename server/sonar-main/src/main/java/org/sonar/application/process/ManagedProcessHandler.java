@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +50,7 @@ public class ManagedProcessHandler {
   private final EventWatcher eventWatcher;
   // keep flag so that the operational event is sent only once
   // to listeners
-  private final AtomicBoolean operational = new AtomicBoolean(false);
+  private boolean operational = false;
 
   private ManagedProcessHandler(Builder builder) {
     this.processId = requireNonNull(builder.processId, "processId can't be null");
@@ -101,9 +100,11 @@ public class ManagedProcessHandler {
       stopImpl();
       if (process != null && process.isAlive()) {
         LOG.info("{} failed to stop in a graceful fashion. Hard stopping it.", processId.getKey());
+        hardStop();
+      } else {
+        // enforce stop and clean-up even if process has been quickly stopped
+        stopForcibly();
       }
-      // enforce stop and clean-up even if process has been quickly stopped
-      stopForcibly();
     } else {
       // already stopping or stopped
       waitForDown();
@@ -191,21 +192,20 @@ public class ManagedProcessHandler {
       StreamGobbler.waitUntilFinish(stdErrGobbler);
       stdErrGobbler.interrupt();
     }
+    // will trigger state listeners
     lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.STOPPED);
   }
 
   void refreshState() {
     if (process.isAlive()) {
-      if (!operational.get() && process.isOperational()) {
-        operational.set(true);
+      if (!operational && process.isOperational()) {
+        operational = true;
         eventListeners.forEach(l -> l.onManagedProcessEvent(processId, ManagedProcessEventListener.Type.OPERATIONAL));
       }
       if (process.askedForRestart()) {
         process.acknowledgeAskForRestart();
         eventListeners.forEach(l -> l.onManagedProcessEvent(processId, ManagedProcessEventListener.Type.ASK_FOR_RESTART));
       }
-    } else {
-      stopForcibly();
     }
   }
 
@@ -218,9 +218,9 @@ public class ManagedProcessHandler {
    * This thread blocks as long as the monitored process is physically alive.
    * It avoids from executing {@link Process#exitValue()} at a fixed rate :
    * <ul>
-   *   <li>no usage of exception for flow control. Indeed {@link Process#exitValue()} throws an exception
-   *   if process is alive. There's no method <code>Process#isAlive()</code></li>
-   *   <li>no delay, instantaneous notification that process is down</li>
+   * <li>no usage of exception for flow control. Indeed {@link Process#exitValue()} throws an exception
+   * if process is alive. There's no method <code>Process#isAlive()</code></li>
+   * <li>no delay, instantaneous notification that process is down</li>
    * </ul>
    */
   private class StopWatcher extends Thread {
@@ -228,7 +228,7 @@ public class ManagedProcessHandler {
       // this name is different than Thread#toString(), which includes name, priority
       // and thread group
       // -> do not override toString()
-      super(format("HardStopWatcher[%s]", processId.getKey()));
+      super(format("StopWatcher[%s]", processId.getKey()));
     }
 
     @Override
@@ -259,10 +259,7 @@ public class ManagedProcessHandler {
           Thread.sleep(watcherDelayMs);
         }
       } catch (InterruptedException e) {
-        // request to stop watching process. To avoid unexpected behaviors
-        // the process is stopped.
         Thread.currentThread().interrupt();
-        stopForcibly();
       }
     }
   }

@@ -21,8 +21,11 @@ package org.sonar.process;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.function.BooleanSupplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StopWatcher extends Thread {
+  private static final Logger LOG = LoggerFactory.getLogger(StopWatcher.class);
   private final Runnable stopCommand;
   private final BooleanSupplier shouldStopTest;
   private final long delayMs;
@@ -44,6 +47,7 @@ public class StopWatcher extends Thread {
   public void run() {
     while (watching) {
       if (shouldStopTest.getAsBoolean()) {
+        LOG.trace("{} triggering stop command", this.getName());
         stopCommand.run();
         watching = false;
       } else {

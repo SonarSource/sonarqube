@@ -19,10 +19,13 @@
  */
 package org.sonar.process;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -32,7 +35,6 @@ abstract class AbstractStopperThread extends Thread {
 
   private final Runnable stopCode;
   private final long terminationTimeoutMs;
-  private boolean stop = false;
 
   AbstractStopperThread(String threadName, Runnable stopCode, long terminationTimeoutMs) {
     super(threadName);
@@ -43,20 +45,23 @@ abstract class AbstractStopperThread extends Thread {
 
   @Override
   public void run() {
-    ExecutorService executor = Executors.newSingleThreadExecutor();
+    ExecutorService executor = Executors.newSingleThreadExecutor(
+      new ThreadFactoryBuilder()
+        .setDaemon(false)
+        .setNameFormat(getName() + "-%d")
+        .build());
     try {
       Future future = executor.submit(stopCode);
       future.get(terminationTimeoutMs, TimeUnit.MILLISECONDS);
-    } catch (Exception e) {
-      if (!stop) {
-        LoggerFactory.getLogger(getClass()).error("Can not stop in {}ms", terminationTimeoutMs, e);
-      }
+    } catch (TimeoutException | InterruptedException e) {
+      LoggerFactory.getLogger(getClass()).warn("Can not stop in {}ms", terminationTimeoutMs);
+    } catch (ExecutionException e) {
+      LoggerFactory.getLogger(getClass()).error("Can not stop in {}ms", terminationTimeoutMs, e);
     }
     executor.shutdownNow();
   }
 
   public void stopIt() {
-    this.stop = true;
     super.interrupt();
   }
 }

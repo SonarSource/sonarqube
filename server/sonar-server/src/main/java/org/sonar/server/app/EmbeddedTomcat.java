@@ -21,6 +21,7 @@ package org.sonar.server.app;
 
 import com.google.common.base.Throwables;
 import java.io.File;
+import java.util.concurrent.CountDownLatch;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
@@ -35,6 +36,7 @@ class EmbeddedTomcat {
   private final Props props;
   private Tomcat tomcat = null;
   private volatile StandardContext webappContext;
+  private final CountDownLatch stopLatch = new CountDownLatch(1);
 
   EmbeddedTomcat(Props props) {
     this.props = props;
@@ -94,18 +96,27 @@ class EmbeddedTomcat {
   }
 
   void terminate() {
-    if (tomcat.getServer().getState().isAvailable()) {
-      try {
-        tomcat.stop();
-        tomcat.destroy();
-      } catch (Exception e) {
-        Loggers.get(EmbeddedTomcat.class).error("Fail to stop web server", e);
+    try {
+      if (tomcat.getServer().getState().isAvailable()) {
+        try {
+          tomcat.stop();
+          tomcat.destroy();
+        } catch (Exception e) {
+          Loggers.get(EmbeddedTomcat.class).warn("Failed to stop web server", e);
+        }
       }
+      deleteQuietly(tomcatBasedir());
+    } finally {
+      stopLatch.countDown();
     }
-    deleteQuietly(tomcatBasedir());
   }
 
   void awaitTermination() {
-    tomcat.getServer().await();
+    try {
+      // calling tomcat.getServer().await() might block forever if stop fails for whatever reason
+      stopLatch.await();
+    } catch (InterruptedException e) {
+      // quit
+    }
   }
 }

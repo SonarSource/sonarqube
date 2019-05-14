@@ -21,12 +21,12 @@ package org.sonar.server.app;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
-import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
+import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 
 public class WebServer implements Monitored {
   public static final String PROPERTY_SHARED_PATH = "process.sharedDir";

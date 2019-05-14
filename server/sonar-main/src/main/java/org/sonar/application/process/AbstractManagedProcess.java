@@ -23,6 +23,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ abstract class AbstractManagedProcess implements ManagedProcess {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractManagedProcess.class);
   private static final int EXPECTED_EXIT_VALUE = 0;
-
+  private final AtomicBoolean exitValueLogged = new AtomicBoolean(false);
   protected final Process process;
   private final ProcessId processId;
 
@@ -75,10 +76,12 @@ abstract class AbstractManagedProcess implements ManagedProcess {
 
   public void waitFor() throws InterruptedException {
     int exitValue = process.waitFor();
-    if (exitValue != EXPECTED_EXIT_VALUE) {
-      LOG.warn("Process exited with exit value [{}]: {}", processId.getKey(), exitValue);
-    } else {
-      LOG.debug("Process exited with exit value [{}]: {}", processId.getKey(), exitValue);
+    if (exitValueLogged.compareAndSet(false, true)) {
+      if (exitValue != EXPECTED_EXIT_VALUE) {
+        LOG.warn("Process exited with exit value [{}]: {}", processId.getKey(), exitValue);
+      } else {
+        LOG.debug("Process exited with exit value [{}]: {}", processId.getKey(), exitValue);
+      }
     }
   }
 

@@ -20,7 +20,6 @@
 package org.sonar.process;
 
 import java.io.File;
-import java.util.concurrent.CountDownLatch;
 import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,8 +81,6 @@ public class ProcessEntryPoint {
       launch(logger);
     } catch (Exception e) {
       logger.warn("Fail to start {}", processKey, e);
-    } finally {
-      logger.trace("Hard stopping to clean any resource...");
       hardStop();
     }
   }
@@ -163,6 +160,8 @@ public class ProcessEntryPoint {
 
   private void terminate() {
     lifecycle.tryToMoveTo(STOPPED);
+    hardStopWatcher.stopWatching();
+    stopWatcher.stopWatching();
     commands.endWatch();
   }
 
