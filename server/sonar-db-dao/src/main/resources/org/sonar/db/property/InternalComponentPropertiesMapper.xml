@@ -83,7 +83,6 @@
     DELETE FROM internal_component_props
     <where>
       component_uuid = #{componentUuid, jdbcType=VARCHAR}
-      AND kee = #{key, jdbcType=VARCHAR}
     </where>
   </delete>
 

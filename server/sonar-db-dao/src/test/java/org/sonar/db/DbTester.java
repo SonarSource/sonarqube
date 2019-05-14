@@ -45,6 +45,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.permission.template.PermissionTemplateDbTester;
 import org.sonar.db.plugin.PluginDbTester;
+import org.sonar.db.property.InternalComponentPropertyDbTester;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.qualitygate.QualityGateDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
@@ -92,6 +93,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
   private final WebhookDbTester webhookDbTester;
   private final WebhookDeliveryDbTester webhookDeliveryDbTester;
   private final AlmDbTester almDbTester;
+  private final InternalComponentPropertyDbTester internalComponentPropertyTester;
 
   private DbTester(System2 system2, @Nullable String schemaPath, MyBatisConfExtension... confExtensions) {
     super(TestDb.create(schemaPath, confExtensions));
@@ -118,6 +120,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
     this.webhookDbTester = new WebhookDbTester(this);
     this.webhookDeliveryDbTester = new WebhookDeliveryDbTester(this);
     this.almDbTester = new AlmDbTester(this);
+    this.internalComponentPropertyTester = new InternalComponentPropertyDbTester(this);
   }
 
   public static DbTester create() {
@@ -278,6 +281,10 @@ public class DbTester extends AbstractDbTester<TestDb> {
 
   public AlmDbTester alm() {
     return almDbTester;
+  }
+
+  public InternalComponentPropertyDbTester internalComponentProperties() {
+    return internalComponentPropertyTester;
   }
 
   @Override

@@ -20,24 +20,27 @@
 package org.sonar.db.property;
 
 import java.util.Optional;
-import java.util.Set;
-import org.apache.ibatis.annotations.Param;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 
-public interface InternalComponentPropertiesMapper {
+public class InternalComponentPropertyDbTester {
+  private final DbTester db;
+  private final DbClient dbClient;
+  private final DbSession dbSession;
 
-  Optional<InternalComponentPropertyDto> selectByComponentUuidAndKey(@Param("componentUuid") String componentUuid, @Param("key") String key);
+  public InternalComponentPropertyDbTester(DbTester db) {
+    this.db = db;
+    this.dbClient = db.getDbClient();
+    this.dbSession = db.getSession();
+  }
 
-  void insert(@Param("dto") InternalComponentPropertyDto dto);
+  public void insertProperty(String componentUuid, String key, String value) {
+    dbClient.internalComponentPropertiesDao().insertOrUpdate(dbSession, componentUuid, key, value);
+    db.commit();
+  }
 
-  int update(@Param("dto") InternalComponentPropertyDto dto);
-
-  /**
-   * Replace value (and update updated_at) only if current value matches oldValue
-   */
-  void replaceValue(@Param("componentUuid") String componentUuid, @Param("key") String key, @Param("oldValue") String oldValue, @Param("newValue") String newValue,
-    @Param("updatedAt") Long updatedAt);
-
-  int deleteByComponentUuidAndKey(@Param("componentUuid") String componentUuid);
-
-  Set<String> selectDbKeys(@Param("key") String key, @Param("value") String value);
+  public Optional<InternalComponentPropertyDto> getProperty(String componentUuid, String key) {
+    return dbClient.internalComponentPropertiesDao().selectByComponentUuidAndKey(dbSession, componentUuid, key);
+  }
 }

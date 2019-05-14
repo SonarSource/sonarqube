@@ -151,19 +151,21 @@ public class InternalComponentPropertiesDaoTest {
   }
 
   @Test
-  public void delete_by_component_uuid_and_key_deletes_property() {
-    saveDto();
+  public void delete_by_component_uuid_deletes_all_properties_with_given_componentUuid() {
+    underTest.insertOrUpdate(dbSession, SOME_COMPONENT, SOME_KEY, SOME_VALUE);
+    underTest.insertOrUpdate(dbSession, SOME_COMPONENT, "other_key", "foo");
+    underTest.insertOrUpdate(dbSession, "other_component", SOME_KEY, SOME_VALUE);
 
-    assertThat(underTest.deleteByComponentUuidAndKey(dbSession, SOME_COMPONENT, SOME_KEY)).isEqualTo(1);
+    assertThat(underTest.deleteByComponentUuid(dbSession, SOME_COMPONENT)).isEqualTo(2);
     assertThat(underTest.selectByComponentUuidAndKey(dbSession, SOME_COMPONENT, SOME_KEY)).isEmpty();
+    assertThat(underTest.selectByComponentUuidAndKey(dbSession, "other_component", SOME_KEY)).isNotEmpty();
   }
 
   @Test
   public void delete_by_component_uuid_and_key_does_nothing_if_property_doesnt_exist() {
     saveDto();
 
-    assertThat(underTest.deleteByComponentUuidAndKey(dbSession, SOME_COMPONENT, "other_key")).isEqualTo(0);
-    assertThat(underTest.deleteByComponentUuidAndKey(dbSession, "other_component", SOME_KEY)).isEqualTo(0);
+    assertThat(underTest.deleteByComponentUuid(dbSession, "other_component")).isEqualTo(0);
     assertThat(underTest.selectByComponentUuidAndKey(dbSession, SOME_COMPONENT, SOME_KEY)).isNotEmpty();
   }
 

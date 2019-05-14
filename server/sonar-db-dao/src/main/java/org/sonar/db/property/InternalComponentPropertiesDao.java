@@ -73,8 +73,8 @@ public class InternalComponentPropertiesDao implements Dao {
     return getMapper(dbSession).selectByComponentUuidAndKey(componentUuid, key);
   }
 
-  public int deleteByComponentUuidAndKey(DbSession dbSession, String componentUuid, String key) {
-    return getMapper(dbSession).deleteByComponentUuidAndKey(componentUuid, key);
+  public int deleteByComponentUuid(DbSession dbSession, String componentUuid) {
+    return getMapper(dbSession).deleteByComponentUuidAndKey(componentUuid);
   }
 
   /**
