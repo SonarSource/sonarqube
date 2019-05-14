@@ -44,6 +44,11 @@ sonarqube {
   }
 }
 
+
+if (!JavaVersion.current().java11Compatible) {
+  throw new GradleException("JDK 11+ is required to perform this build. It's currently " + System.getProperty("java.home") + ".")
+}
+
 allprojects {
   apply plugin: 'com.jfrog.artifactory'
   apply plugin: 'maven-publish'
@@ -246,7 +251,10 @@ subprojects {
     exclude group: 'javax.mail', module: 'mail'
   }
 
-  sourceCompatibility = 1.8
+  compileJava {
+    options.compilerArgs.addAll(['--release', '8'])
+  }
+  
   tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
   }
