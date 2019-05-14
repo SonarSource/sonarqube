@@ -22,7 +22,7 @@ Version <!-- sonarqube -->4.x<!-- /sonarqube --><!-- sonarcloud -->1.x<!-- /sona
 * Azure DevOps
 
 <!-- sonarqube -->
-The SonarQube Extension embeds its own version of the [SonarScanner for MSBuild](/scan/sonarqube-scanner-for-msbuild/).
+The SonarQube Extension embeds its own version of the [SonarScanner for MSBuild](/scan/sonarscanner-for-msbuild/).
 <!-- /sonarqube -->
 
 ## Installation

@@ -11,10 +11,10 @@ This plugin lets you centralize the configuration of SonarQube server connection
 
 Then you can trigger SonarQube analysis from Jenkins using standard Jenkins Build Steps or [Jenkins Pipeline DSL](https://jenkins.io/solutions/pipeline/) to trigger analysis with:
 
-* [SonarScanner](/scan/sonarqube-scanner/)
-* [SonarScanner for Maven](/scan/sonarqube-scanner-for-maven/)
-* [SonarScanner for Gradle](/scan/sonarqube-scanner-for-gradle/)
-* [SonarScanner for MSBuild](/scan/sonarqube-scanner-for-msbuild/)
+* [SonarScanner](/scan/sonarscanner/)
+* [SonarScanner for Maven](/scan/sonarscanner-for-maven/)
+* [SonarScanner for Gradle](/scan/sonarscanner-for-gradle/)
+* [SonarScanner for MSBuild](/scan/sonarscanner-for-msbuild/)
 
 Once the job is complete, the plugin will detect that a SonarQube analysis was made during the build and display a badge and a widget on the job page with a link to the SonarQube dashboard as well as quality gate status.
 
