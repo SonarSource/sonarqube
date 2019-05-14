@@ -115,7 +115,10 @@ it('should allow to select all repositories', async () => {
 
 it('should select all repositories', async () => {
   (getRepositories as jest.Mock<any>).mockResolvedValueOnce({
-    repositories: times(6, i => ({ label: `Project ${i}`, installationKey: `key-${i}` }))
+    repositories: [
+      { label: 'Project 1', installationKey: 'key-1' },
+      { label: 'Project 2', installationKey: 'key-2', linkedProjectKey: 'key-2' }
+    ]
   });
 
   const wrapper = shallowRender();

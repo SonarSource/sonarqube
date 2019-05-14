@@ -95,8 +95,9 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
     );
   };
 
-  filterBySearch = (repo: T.AlmRepository) =>
-    repo.label.toLowerCase().includes(this.state.search.toLowerCase());
+  filterBySearch = (search: String) => (repo: T.AlmRepository) => {
+    return repo.label.toLowerCase().includes(search.toLowerCase());
+  };
 
   handleHighlightUpgradeBox = (highlight: boolean) => {
     this.setState({ highlight });
@@ -136,6 +137,7 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
 
       const isPaidOrg = isPaidOrganization(organization);
       const filterByPlan = (repo: T.AlmRepository) => (isPaidOrg ? true : !repo.private);
+      const filterByImportable = (repo: T.AlmRepository) => !repo.linkedProjectKey;
 
       const nextState = {
         selectedRepositories: {},
@@ -143,10 +145,10 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
       };
 
       if (nextState.checkAllRepositories) {
-        const validRepositories = (search
-          ? repositories.filter(this.filterBySearch)
-          : repositories
-        ).filter(filterByPlan);
+        const validRepositories = repositories.filter(
+          repo =>
+            this.filterBySearch(search)(repo) && filterByPlan(repo) && filterByImportable(repo)
+        );
         nextState.selectedRepositories = keyBy(validRepositories, 'installationKey');
       }
 
@@ -174,7 +176,7 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
     const showCheckAll = repositories.length > 1;
     const showUpgradebox =
       !isPaidOrg && hasPrivateRepositories && organization.actions && organization.actions.admin;
-    const filteredRepositories = search ? repositories.filter(this.filterBySearch) : repositories;
+    const filteredRepositories = repositories.filter(this.filterBySearch(search));
 
     return (
       <div className="create-project">
