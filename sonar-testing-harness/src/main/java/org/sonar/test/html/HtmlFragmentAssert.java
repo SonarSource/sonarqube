@@ -66,13 +66,4 @@ public class HtmlFragmentAssert extends AbstractAssert<HtmlFragmentAssert, Strin
       .withText(text);
   }
 
-  /**
-   * Convenience method.
-   * Sames as {@code hasParagraph().withLines(line1, line2, ...)}.
-   */
-  public HtmlParagraphAssert hasParagraph(String firstLine, String... otherLines) {
-    return hasParagraph()
-      .withLines(firstLine, otherLines);
-  }
-
 }

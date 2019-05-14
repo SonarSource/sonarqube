@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.jsoup.nodes.Element;
@@ -90,15 +89,6 @@ public class HtmlParagraphAssert extends HtmlBlockAssert<HtmlParagraphAssert> {
   }
 
   /**
-   * Convenience method.
-   * Sames as {@code hasParagraph().withLines(line1, line2, ...)}.
-   */
-  public HtmlParagraphAssert hasParagraph(String firstLine, String... otherLines) {
-    return hasParagraph()
-      .withLines(firstLine, otherLines);
-  }
-
-  /**
    * Verifies there is no more block.
    */
   public void noMoreBlock() {
@@ -143,22 +133,6 @@ public class HtmlParagraphAssert extends HtmlBlockAssert<HtmlParagraphAssert> {
     Assertions.assertThat(actualLines)
       .describedAs(PRINT_FRAGMENT_TEMPLATE, actual)
       .containsExactly(expectedLines);
-
-    return this;
-  }
-
-  /**
-   * Verifies the current block has all and only the specified lines, in any order.
-   */
-  public HtmlParagraphAssert withLines(Set<String> lines) {
-    isNotNull();
-
-    List<String> actualLines = toLines(actual);
-    String[] expectedLines = lines.toArray(new String[0]);
-
-    Assertions.assertThat(actualLines)
-      .describedAs(PRINT_FRAGMENT_TEMPLATE, actual)
-      .containsOnly(expectedLines);
 
     return this;
   }

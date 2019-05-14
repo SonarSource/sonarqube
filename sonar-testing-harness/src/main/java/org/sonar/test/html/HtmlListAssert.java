@@ -66,19 +66,6 @@ public class HtmlListAssert extends HtmlBlockAssert<HtmlListAssert> {
     return this;
   }
 
-  public HtmlListAssert hasList() {
-    isNotNull();
-
-    Assertions.assertThat(nextBlocks.hasNext())
-      .describedAs("no more block")
-      .isTrue();
-
-    Element element = nextBlocks.next();
-    verifyIsList(element);
-
-    return new HtmlListAssert(element, nextBlocks);
-  }
-
   /**
    * Convenience method.
    * Sames as {@code hasParagraph().withText(text)}.
@@ -118,22 +105,4 @@ public class HtmlListAssert extends HtmlBlockAssert<HtmlListAssert> {
     HtmlParagraphAssert.verifyIsParagraph(element);
     return element;
   }
-
-  /**
-   * Verifies there is no more list in the block.
-   */
-  public void noMoreBlock() {
-    isNotNull();
-
-    Assertions.assertThat(nextBlocks.hasNext())
-      .describedAs("there are still some block. Next one:" + PRINT_FRAGMENT_TEMPLATE,
-        new Object() {
-          @Override
-          public String toString() {
-            return nextBlocks.next().toString();
-          }
-        })
-      .isFalse();
-  }
-
 }

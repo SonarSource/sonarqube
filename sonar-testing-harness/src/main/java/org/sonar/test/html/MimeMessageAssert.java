@@ -71,18 +71,6 @@ public final class MimeMessageAssert extends AbstractAssert<MimeMessageAssert, M
     return this;
   }
 
-  public MimeMessageAssert hasSubject(String text) {
-    isNotNull();
-
-    try {
-      Assertions.assertThat(actual.getSubject()).isEqualTo(text);
-    } catch (MessagingException e) {
-      throw new IllegalStateException(e);
-    }
-
-    return this;
-  }
-
   public MimeMessageAssert subjectContains(String text) {
     isNotNull();
 
