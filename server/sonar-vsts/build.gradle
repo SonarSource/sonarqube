@@ -11,7 +11,12 @@ sonarqube {
 }
 
 yarn_run {
-  ['config', 'public', 'scripts', 'src'].each {
+  ['config', 'public', 'scripts', 'src',
+    '../sonar-web/src/main/js/api',
+    '../sonar-web/src/main/js/app',
+    '../sonar-web/src/main/js/components',
+    '../sonar-web/src/main/js/helpers'
+  ].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
   ['babel.config.js', 'package.json', 'tsconfig.json', 'yarn.lock'].each {
@@ -19,7 +24,6 @@ yarn_run {
   }
   outputs.dir('build/webapp')
   outputs.cacheIf { true }
-  dependsOn(yarn, ':server:sonar-web:yarn')
   args = ['build']
 }
 build.dependsOn(yarn_run)
