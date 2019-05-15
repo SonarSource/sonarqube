@@ -374,6 +374,9 @@ The common use case is to write a language plugin that will allow some other plu
 
 Plugins are loaded in isolated classloaders. It means a plugin can't access another plugin's classes. There is an exception for package names following pattern `org.sonar.plugins.<pluginKey>.api`. For example all classes in a plugin with the key myplugin that are located in `org.sonar.plugins.myplugin.api` are visible to other plugins.
 
+### Serving Static Resources
+If you need to serve static resources from your plugin such as images or JavaScript files, place them in a directory under `resources` named `static` (`myplugin/src/main/resources/static`). At runtime they'll be available from `http://{server}/static/{pluginKey}/{file}`. 
+
 
 ## Versioning and API Deprecation
 ### Versioning Strategy
