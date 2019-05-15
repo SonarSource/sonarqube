@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -129,6 +130,22 @@ public class BulkDeleteActionTest {
   }
 
   @Test
+  public void throw_IllegalArgumentException_if_request_without_any_parameters(){
+    userSession.logIn().setRoot();
+    db.components().insertPrivateProject(org1);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("At lease one parameter among analyzedBefore, projects, projectIds, and q must be provided");
+
+    try {
+      ws.newRequest().execute();
+    } finally {
+      verifyNoDeletions();
+      verifyZeroInteractions(projectLifeCycleListeners);
+    }
+  }
+
+  @Test
   public void projects_that_dont_exist_are_ignored_and_dont_break_bulk_deletion() {
     userSession.logIn().setRoot();
     ComponentDto toDelete1 = db.components().insertPrivateProject(org1);
@@ -169,7 +186,7 @@ public class BulkDeleteActionTest {
     ComponentDto analyzedProject = db.components().insertPrivateProject();
     db.components().insertSnapshot(newAnalysis(analyzedProject));
 
-    ws.newRequest().setParam(PARAM_ON_PROVISIONED_ONLY, "true").execute();
+    ws.newRequest().setParam(PARAM_PROJECTS, provisionedProject.getKey() + "," + analyzedProject.getKey()).setParam(PARAM_ON_PROVISIONED_ONLY, "true").execute();
 
     verifyDeleted(provisionedProject);
     verifyListenersOnProjectsDeleted(provisionedProject);
@@ -180,7 +197,8 @@ public class BulkDeleteActionTest {
     userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization());
     ComponentDto[] projects = IntStream.range(0, 55).mapToObj(i -> db.components().insertPrivateProject()).toArray(ComponentDto[]::new);
 
-    ws.newRequest().execute();
+    List<String> projectKeys = Stream.of(projects).map(ComponentDto::getKey).collect(Collectors.toList());
+    ws.newRequest().setParam(PARAM_PROJECTS, String.join(",", projectKeys)).execute();
 
     verifyDeleted(projects);
     verifyListenersOnProjectsDeleted(projects);
@@ -192,7 +210,10 @@ public class BulkDeleteActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto view = db.components().insertView();
 
-    ws.newRequest().setParam(PARAM_QUALIFIERS, String.join(",", Qualifiers.PROJECT, Qualifiers.VIEW)).execute();
+    ws.newRequest()
+      .setParam(PARAM_PROJECTS, project.getKey() + "," + view.getKey())
+      .setParam(PARAM_QUALIFIERS, String.join(",", Qualifiers.PROJECT, Qualifiers.VIEW))
+      .execute();
 
     verifyDeleted(project, view);
     verifyListenersOnProjectsDeleted(project, view);
