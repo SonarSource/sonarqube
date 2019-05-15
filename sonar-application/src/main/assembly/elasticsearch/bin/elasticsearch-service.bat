@@ -14,7 +14,7 @@ echo elasticsearch-service-x64.exe was not found...
 exit /B 1
 
 :okExe
-set ES_VERSION=6.6.2
+set ES_VERSION=6.8.0
 
 if "%SERVICE_LOG_DIR%" == "" set SERVICE_LOG_DIR=%ES_HOME%\logs
 
@@ -252,3 +252,5 @@ goto:eof
 
 endlocal
 endlocal
+
+exit /b %ERRORLEVEL%

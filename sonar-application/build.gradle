@@ -123,6 +123,8 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
       exclude 'elasticsearch/lib/tools/**'
       exclude 'elasticsearch/modules/aggs-matrix-stats/**'
       exclude 'elasticsearch/modules/ingest-common/**'
+      exclude 'elasticsearch/modules/ingest-geoip/**'
+      exclude 'elasticsearch/modules/ingest-user-agent/**'
       exclude 'elasticsearch/modules/lang-expression/**'
       exclude 'elasticsearch/modules/lang-groovy/**'
       exclude 'elasticsearch/modules/lang-mustache/**'
