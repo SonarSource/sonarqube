@@ -40,6 +40,19 @@ yarn_run {
 }
 build.dependsOn(yarn_run)
 
+"yarn_validate-ci" {
+  // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
+  ['config', 'src/main/js'].each {
+    inputs.dir(it)
+  }
+  ['package.json', 'yarn.lock', 'tsconfig.json', '.eslintrc'].each {
+    inputs.file(it)
+  }
+  outputs.file('eslint-report.json')
+  outputs.dir('coverage')
+  outputs.cacheIf { true }
+}
+
 def sources = fileTree(dir: "src") + fileTree(dir: "scripts") + fileTree(dir: "config")
 
 task licenseCheckWeb(type: com.hierynomus.gradle.license.tasks.LicenseCheck) {

@@ -24,8 +24,17 @@ yarn_run {
   args = ['build']
 }
 
-task "yarn_lint-report"() {
-
+"yarn_validate-ci" {
+  // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
+  ['config', 'src'].each {
+    inputs.dir(it)
+  }
+  ['package.json', 'yarn.lock', 'tsconfig.json', '.eslintrc'].each {
+    inputs.file(it)
+  }
+  outputs.file('eslint-report.json')
+  outputs.dir('coverage')
+  outputs.cacheIf { true }
 }
 
 task zip(type: Zip) {

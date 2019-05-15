@@ -63,9 +63,10 @@
     "format": "prettier --write --list-different 'src/**/*.{js,ts,tsx,css}'",
     "format-check": "prettier --list-different 'src/**/*.{js,ts,tsx,css}'",
     "lint": "eslint --ext js,ts,tsx --quiet src",
+    "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report.json src",
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
-    "validate-ci": "yarn lint && yarn ts-check && yarn format-check && yarn test"
+    "validate-ci": "yarn lint-report && yarn ts-check && yarn format-check && yarn test --coverage"
   },
   "prettier": {
     "jsxBracketSameLine": true,
