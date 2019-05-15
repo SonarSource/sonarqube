@@ -63,6 +63,14 @@ public class MySql extends AbstractDialect {
   public void init(DatabaseMetaData metaData) throws SQLException {
     checkDbVersion(metaData, MIN_SUPPORTED_VERSION);
 
-    Loggers.get(getClass()).warn("MySQL support is deprecated and will be dropped soon.");
+    String message = "\n" +
+      "#############################################################################################################\n" +
+      "#         End of Life of MySQL Support : SonarQube 7.8 is the last version that will support MySQL.         #\n" +
+      "#         Please consider migrating to a supported database. Get the migration detail on                    #\n" +
+      "#         https://community.sonarsource.com/t/end-of-life-of-mysql-support                                  #\n" +
+      "#         and https://github.com/SonarSource/mysql-migrator                                                 #\n" +
+      "#############################################################################################################\n";
+
+    Loggers.get(getClass()).warn(message);
   }
 }

@@ -21,6 +21,7 @@ package org.sonar.db.dialect;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -99,7 +100,8 @@ public class MySqlTest {
   public void init_logs_warning() throws SQLException {
     underTest.init(newMetadata(5, 6));
 
-    assertThat(logs.logs(LoggerLevel.WARN)).contains("MySQL support is deprecated and will be dropped soon.");
+    List<String> logs = this.logs.logs(LoggerLevel.WARN);
+    assertThat(logs.get(0).contains("End of Life of MySQL Support : SonarQube 7.8 is the last version that will support MySQL.")).isTrue();
   }
 
   @Test
