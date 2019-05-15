@@ -53,7 +53,6 @@ public class CommandFactoryImplTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private System2 system2 = Mockito.mock(System2.class);
-  private JavaVersion javaVersion = Mockito.mock(JavaVersion.class);
   private File homeDir;
   private File tempDir;
   private File logsDir;
@@ -77,7 +76,7 @@ public class CommandFactoryImplTest {
   public void constructor_logs_no_warning_if_env_variable_JAVA_TOOL_OPTIONS_is_not_set() {
     attachMemoryAppenderToLoggerOf(CommandFactoryImpl.class);
 
-    new CommandFactoryImpl(new Props(new Properties()), tempDir, system2, javaVersion);
+    new CommandFactoryImpl(new Props(new Properties()), tempDir, system2);
 
     assertThat(listAppender.getLogs()).isEmpty();
   }
@@ -87,7 +86,7 @@ public class CommandFactoryImplTest {
     when(system2.getenv("JAVA_TOOL_OPTIONS")).thenReturn("sds");
     attachMemoryAppenderToLoggerOf(CommandFactoryImpl.class);
 
-    new CommandFactoryImpl(new Props(new Properties()), tempDir, system2, javaVersion);
+    new CommandFactoryImpl(new Props(new Properties()), tempDir, system2);
 
     assertThat(listAppender.getLogs())
       .extracting(ILoggingEvent::getMessage)
@@ -101,7 +100,7 @@ public class CommandFactoryImplTest {
     when(system2.getenv("ES_JAVA_OPTS")).thenReturn("xyz");
     attachMemoryAppenderToLoggerOf(CommandFactoryImpl.class);
 
-    new CommandFactoryImpl(new Props(new Properties()), tempDir, system2, javaVersion);
+    new CommandFactoryImpl(new Props(new Properties()), tempDir, system2);
 
     assertThat(listAppender.getLogs())
       .extracting(ILoggingEvent::getMessage)
@@ -326,7 +325,7 @@ public class CommandFactoryImplTest {
     ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
     when(serviceLoaderWrapper.load()).thenReturn(ImmutableSet.of());
     new ProcessProperties(serviceLoaderWrapper).completeDefaults(props);
-    return new CommandFactoryImpl(props, tempDir, system2, javaVersion);
+    return new CommandFactoryImpl(props, tempDir, system2);
   }
 
   private <T> void attachMemoryAppenderToLoggerOf(Class<T> loggerClass) {

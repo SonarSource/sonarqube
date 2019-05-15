@@ -20,7 +20,6 @@
 package org.sonar.application;
 
 import java.io.IOException;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.application.command.CommandFactory;
@@ -61,7 +60,7 @@ public class App {
       appState.registerClusterName(settings.getProps().nonNullValue(CLUSTER_NAME.getKey()));
       AppReloader appReloader = new AppReloaderImpl(settingsLoader, fileSystem, appState, logging);
       fileSystem.reset();
-      CommandFactory commandFactory = new CommandFactoryImpl(settings.getProps(), fileSystem.getTempDir(), System2.INSTANCE, JavaVersion.INSTANCE);
+      CommandFactory commandFactory = new CommandFactoryImpl(settings.getProps(), fileSystem.getTempDir(), System2.INSTANCE);
 
       try (ProcessLauncher processLauncher = new ProcessLauncherImpl(fileSystem.getTempDir())) {
         Scheduler scheduler = new SchedulerImpl(settings, appReloader, commandFactory, processLauncher, appState);
@@ -91,7 +90,7 @@ public class App {
     }
 
     if (!javaVersion.isAtLeastJava11()) {
-      LoggerFactory.getLogger(this.getClass()).warn("SonarQube will require Java 11+ starting on next version");
+      throw new IllegalStateException("SonarQube requires Java 11+ to run");
     }
   }
 

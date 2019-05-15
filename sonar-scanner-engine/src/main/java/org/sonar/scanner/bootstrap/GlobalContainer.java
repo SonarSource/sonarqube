@@ -83,7 +83,7 @@ public class GlobalContainer extends ComponentContainer {
     try {
       String.class.getMethod("isBlank");
     } catch (NoSuchMethodException e) {
-      LOG.warn("SonarQube scanners will require Java 11+ starting on next version");
+      throw new IllegalStateException("SonarScanner requires Java 11+ to run");
     }
   }
 

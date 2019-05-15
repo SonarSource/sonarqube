@@ -27,39 +27,22 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class CeJvmOptionsTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private File tmpDir;
-  private JavaVersion javaVersion = mock(JavaVersion.class);
   private CeJvmOptions underTest;
 
   @Before
   public void setUp() throws IOException {
     tmpDir = temporaryFolder.newFolder();
-    underTest = new CeJvmOptions(tmpDir, javaVersion);
+    underTest = new CeJvmOptions(tmpDir);
   }
 
   @Test
-  public void constructor_sets_mandatory_JVM_options_before_java11() throws IOException {
-    when(javaVersion.isAtLeastJava11()).thenReturn(false);
-
-  @Test
-  public void constructor_sets_mandatory_JVM_options_before_java11() {
-    when(javaVersion.isAtLeastJava11()).thenReturn(false);
-    underTest = new CeJvmOptions(tmpDir, javaVersion);
-    assertThat(underTest.getAll()).containsExactly(
-      "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
-  }
-
-  @Test
-  public void constructor_sets_mandatory_JVM_options_for_java11() throws IOException {
-    when(javaVersion.isAtLeastJava11()).thenReturn(true);
-
+  public void constructor_sets_mandatory_JVM_options() {
     assertThat(underTest.getAll()).containsExactly(
       "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(),
       "--add-opens=java.base/java.util=ALL-UNNAMED");

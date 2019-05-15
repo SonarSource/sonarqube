@@ -72,13 +72,11 @@ public class CommandFactoryImpl implements CommandFactory {
   private final Props props;
   private final File tempDir;
   private final System2 system2;
-  private final JavaVersion javaVersion;
 
-  public CommandFactoryImpl(Props props, File tempDir, System2 system2, JavaVersion javaVersion) {
+  public CommandFactoryImpl(Props props, File tempDir, System2 system2) {
     this.props = props;
     this.tempDir = tempDir;
     this.system2 = system2;
-    this.javaVersion = javaVersion;
     String javaToolOptions = system2.getenv(ENV_VAR_JAVA_TOOL_OPTIONS);
     if (javaToolOptions != null && !javaToolOptions.trim().isEmpty()) {
       LoggerFactory.getLogger(CommandFactoryImpl.class)
@@ -153,7 +151,7 @@ public class CommandFactoryImpl implements CommandFactory {
   public JavaCommand createWebCommand(boolean leader) {
     File homeDir = props.nonNullValueAsFile(PATH_HOME.getKey());
 
-    WebJvmOptions jvmOptions = new WebJvmOptions(tempDir, javaVersion)
+    WebJvmOptions jvmOptions = new WebJvmOptions(tempDir)
       .addFromMandatoryProperty(props, WEB_JAVA_OPTS.getKey())
       .addFromMandatoryProperty(props, WEB_JAVA_ADDITIONAL_OPTS.getKey());
     addProxyJvmOptions(jvmOptions);
@@ -180,7 +178,7 @@ public class CommandFactoryImpl implements CommandFactory {
   public JavaCommand createCeCommand() {
     File homeDir = props.nonNullValueAsFile(PATH_HOME.getKey());
 
-    CeJvmOptions jvmOptions = new CeJvmOptions(tempDir, javaVersion)
+    CeJvmOptions jvmOptions = new CeJvmOptions(tempDir)
       .addFromMandatoryProperty(props, CE_JAVA_OPTS.getKey())
       .addFromMandatoryProperty(props, CE_JAVA_ADDITIONAL_OPTS.getKey());
     addProxyJvmOptions(jvmOptions);
