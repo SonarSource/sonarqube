@@ -81,15 +81,18 @@ public class BulkDeleteAction implements ProjectsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
+    String parameterRequiredMessage = format("At least one parameter is required among %s, %s, %s (deprecated since 6.4) and %s",
+      PARAM_ANALYZED_BEFORE, PARAM_PROJECTS, PARAM_PROJECT_IDS, Param.TEXT_QUERY);
     WebService.NewAction action = context
       .createAction(ACTION)
       .setPost(true)
       .setDescription("Delete one or several projects.<br />" +
-        "Requires 'Administer System' permission.")
+        "Requires 'Administer System' permission.<br />" +
+        parameterRequiredMessage)
       .setSince("5.2")
       .setHandler(this)
       .setChangelog(
-        new Change("7.8", format("parameters are optionals, but at least one is required among %s, %s and %s", PARAM_ANALYZED_BEFORE, PARAM_PROJECTS, Param.TEXT_QUERY)),
+        new Change("7.8", parameterRequiredMessage),
         new Change("6.7.2", "Only the 1'000 first items in project filters are taken into account"));
 
     support.addOrganizationParam(action);
@@ -145,8 +148,6 @@ public class BulkDeleteAction implements ProjectsWsAction {
   public void handle(Request request, Response response) throws Exception {
     SearchRequest searchRequest = toSearchWsRequest(request);
     userSession.checkLoggedIn();
-
-
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = support.getOrganization(dbSession, searchRequest.getOrganization());
       userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
@@ -163,7 +164,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
     response.noContent();
   }
 
-  private void checkAtLeastOneParameterIsPresent(SearchRequest searchRequest) {
+  private static void checkAtLeastOneParameterIsPresent(SearchRequest searchRequest) {
     boolean analyzedBeforePresent = !Strings.isNullOrEmpty(searchRequest.getAnalyzedBefore());
     List<String> projects = searchRequest.getProjects();
     boolean projectsPresent = projects != null && !projects.isEmpty();
@@ -172,7 +173,8 @@ public class BulkDeleteAction implements ProjectsWsAction {
     boolean queryPresent = !Strings.isNullOrEmpty(searchRequest.getQuery());
     boolean atLeastOneParameterIsPresent = analyzedBeforePresent || projectsPresent || queryPresent || projectIdsPresent;
 
-    checkArgument(atLeastOneParameterIsPresent, format("At lease one parameter among %s, %s, %s, and %s must be provided", PARAM_ANALYZED_BEFORE, PARAM_PROJECTS, PARAM_PROJECT_IDS, Param.TEXT_QUERY));
+    checkArgument(atLeastOneParameterIsPresent, format("At lease one parameter among %s, %s, %s, and %s must be provided",
+      PARAM_ANALYZED_BEFORE, PARAM_PROJECTS, PARAM_PROJECT_IDS, Param.TEXT_QUERY));
   }
 
   private static SearchRequest toSearchWsRequest(Request request) {
