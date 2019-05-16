@@ -35,6 +35,8 @@ yarn_run {
   outputs.file('eslint-report.json')
   outputs.dir('coverage')
   outputs.cacheIf { true }
+
+  dependsOn(yarn)
 }
 
 task zip(type: Zip) {

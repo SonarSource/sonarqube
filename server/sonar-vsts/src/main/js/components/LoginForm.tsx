@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getTextColor } from '@sqhelpers/colors';
+import { getBaseUrl } from '@sqhelpers/urls';
+import { getIdentityProviders } from '@sqapi/users';
 import LoginLink from './LoginLink';
 import SonarCloudIcon from './SonarCloudIcon';
 import * as theme from '../../../../../sonar-web/src/main/js/app/theme';
-import { getIdentityProviders } from '../../../../../sonar-web/src/main/js/api/users';
-import { getTextColor } from '../../../../../sonar-web/src/main/js/helpers/colors';
-import { getBaseUrl } from '../../../../../sonar-web/src/main/js/helpers/urls';
 
 interface Props {
   onReload: () => void;

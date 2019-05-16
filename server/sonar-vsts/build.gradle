@@ -19,11 +19,18 @@ yarn_run {
   ].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
-  ['babel.config.js', 'package.json', 'tsconfig.json', 'yarn.lock'].each {
+  ['babel.config.js', 'package.json', 'tsconfig.json', 'yarn.lock',
+    '../sonar-web/package.json',
+    '../sonar-web/yarn.lock'
+  ].each {
     inputs.file(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
   outputs.dir('build/webapp')
   outputs.cacheIf { true }
+
+  // sonar-web dependencies needs to be installed before we build sonar-vsts otherwise the sonar-web components
+  // that sonar-vsts depends uppon won't find their node_modules
+  dependsOn(':server:sonar-web:yarn')
   args = ['build']
 }
 build.dependsOn(yarn_run)
@@ -38,12 +45,19 @@ build.dependsOn(yarn_run)
   ].each {
     inputs.dir(it)
   }
-  ['package.json', 'yarn.lock', 'tsconfig.json', '.eslintrc', '.eslintignore'].each {
+  ['package.json', 'yarn.lock', 'tsconfig.json', '.eslintrc', '.eslintignore',
+    '../sonar-web/package.json',
+    '../sonar-web/yarn.lock'
+  ].each {
     inputs.file(it)
   }
   outputs.file('eslint-report.json')
   outputs.dir('coverage')
   outputs.cacheIf { true }
+
+  // sonar-web dependencies needs to be installed before we build sonar-vsts otherwise the sonar-web components
+  // that sonar-vsts depends uppon won't find their node_modules
+  dependsOn(yarn, ':server:sonar-web:yarn')
 }
 
 def sources = fileTree(dir: "src") + fileTree(dir: "scripts") + fileTree(dir: "config")

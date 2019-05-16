@@ -51,6 +51,8 @@ build.dependsOn(yarn_run)
   outputs.file('eslint-report.json')
   outputs.dir('coverage')
   outputs.cacheIf { true }
+
+  dependsOn(yarn)
 }
 
 def sources = fileTree(dir: "src") + fileTree(dir: "scripts") + fileTree(dir: "config")

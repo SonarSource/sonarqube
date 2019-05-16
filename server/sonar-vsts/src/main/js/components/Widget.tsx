@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getMeasuresAndMeta } from '@sqapi/measures';
 import QGWidget from './QGWidget';
 import LoginForm from './LoginForm';
-import { getMeasuresAndMeta } from '../../../../../sonar-web/src/main/js/api/measures';
 import { Settings } from '../utils';
 
 interface Props {

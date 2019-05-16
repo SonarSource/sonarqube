@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Component, searchProjects } from '@sqapi/components';
+import { getCurrentUser } from '@sqapi/users';
 import LoginForm from './LoginForm';
 import ProjectSelector from './ProjectSelector';
-import { Component, searchProjects } from '../../../../../sonar-web/src/main/js/api/components';
 import {
   Settings,
   VSTSWidgetSettings,
@@ -28,7 +29,6 @@ import {
   serializeWidgetSettings,
   parseWidgetSettings
 } from '../utils';
-import { getCurrentUser } from '../../../../../sonar-web/src/main/js/api/users';
 
 interface Props {
   contribution: string;

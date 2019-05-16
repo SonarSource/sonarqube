@@ -14,7 +14,10 @@
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
-      "*": ["../sonar-web/node_modules/@types/*", "./node_modules/@types/*", "*"]
+      "@sqapi/*": ["../sonar-web/src/main/js/api/*"],
+      "@sqcomponents/*": ["../sonar-web/src/main/js/components/*"],
+      "@sqhelpers/*": ["../sonar-web/src/main/js/helpers/*"],
+      "*": ["./node_modules/@types/*", "../sonar-web/node_modules/@types/*", "*"]
     },
     "sourceMap": true
   },

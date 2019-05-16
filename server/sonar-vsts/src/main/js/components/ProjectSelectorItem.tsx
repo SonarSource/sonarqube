@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { Component } from '../../../../../sonar-web/src/main/js/api/components';
+import { Component } from '@sqapi/components';
 
 interface Props {
   isActive: boolean;

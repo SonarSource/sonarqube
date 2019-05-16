@@ -32,7 +32,12 @@ module.exports = ({ production = true }) => ({
   devtool: production ? 'source-map' : 'cheap-module-source-map',
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: ['.ts', '.tsx', '.js', '.json']
+    extensions: ['.ts', '.tsx', '.js', '.json'],
+    alias: {
+      '@sqapi': path.resolve(__dirname, '../../sonar-web/src/main/js/api'),
+      '@sqcomponents': path.resolve(__dirname, '../../sonar-web/src/main/js/components'),
+      '@sqhelpers': path.resolve(__dirname, '../../sonar-web/src/main/js/helpers')
+    }
   },
   entry: [
     !production && require.resolve('react-dev-utils/webpackHotDevClient'),

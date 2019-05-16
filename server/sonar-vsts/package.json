@@ -117,7 +117,10 @@
     ],
     "moduleNameMapper": {
       "^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/config/jest/FileStub.js",
-      "^.+\\.css$": "<rootDir>/config/jest/CSSStub.js"
+      "^.+\\.css$": "<rootDir>/config/jest/CSSStub.js",
+      "^@sqapi(.*)$": "<rootDir>/../sonar-web/src/main/js/api$1",
+      "^@sqcomponents(.*)$": "<rootDir>/../sonar-web/src/main/js/components$1",
+      "^@sqhelpers(.*)$": "<rootDir>/../sonar-web/src/main/js/helpers$1"
     },
     "setupFiles": [
       "<rootDir>/config/polyfills.js",
