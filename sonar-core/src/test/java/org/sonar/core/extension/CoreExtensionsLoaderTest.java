@@ -40,7 +40,7 @@ public class CoreExtensionsLoaderTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
-  private CoreExtensionsLoader.ServiceLoaderWrapper serviceLoaderWrapper = mock(CoreExtensionsLoader.ServiceLoaderWrapper.class);
+  private ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
   private CoreExtensionsLoader underTest = new CoreExtensionsLoader(coreExtensionRepository, serviceLoaderWrapper);
 
   @Test

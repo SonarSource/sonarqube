@@ -19,19 +19,34 @@
  */
 package org.sonar.process;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.net.InetAddress;
+import java.util.Map;
 import java.util.Properties;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.test.TestUtils;
+import org.junit.rules.ExpectedException;
+import org.sonar.core.extension.CoreExtension;
+import org.sonar.core.extension.ServiceLoaderWrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProcessPropertiesTest {
+
+  private ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
+  private ProcessProperties processProperties = new ProcessProperties(serviceLoaderWrapper);
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void completeDefaults_adds_default_values() {
     Props props = new Props(new Properties());
-    ProcessProperties.completeDefaults(props);
+
+    processProperties.completeDefaults(props);
 
     assertThat(props.value("sonar.search.javaOpts")).contains("-Xmx");
     assertThat(props.valueAsInt("sonar.jdbc.maxActive")).isEqualTo(60);
@@ -44,21 +59,22 @@ public class ProcessPropertiesTest {
     Properties p = new Properties();
     p.setProperty("sonar.jdbc.username", "angela");
     Props props = new Props(p);
-    ProcessProperties.completeDefaults(props);
+
+    processProperties.completeDefaults(props);
 
     assertThat(props.value("sonar.jdbc.username")).isEqualTo("angela");
   }
 
   @Test
-  public void completeDefaults_set_default_elasticsearch_port_and_bind_address() throws Exception{
+  public void completeDefaults_set_default_elasticsearch_port_and_bind_address() throws Exception {
     Properties p = new Properties();
     Props props = new Props(p);
-    ProcessProperties.completeDefaults(props);
+
+    processProperties.completeDefaults(props);
 
     String address = props.value("sonar.search.host");
     assertThat(address).isNotEmpty();
     assertThat(InetAddress.getByName(address).isLoopbackAddress()).isTrue();
-
     assertThat(props.valueAsInt("sonar.search.port")).isEqualTo(9001);
   }
 
@@ -68,12 +84,93 @@ public class ProcessPropertiesTest {
     p.setProperty("sonar.search.port", "0");
     Props props = new Props(p);
 
-    ProcessProperties.completeDefaults(props);
+    processProperties.completeDefaults(props);
+
     assertThat(props.valueAsInt("sonar.search.port")).isGreaterThan(0);
   }
 
   @Test
-  public void private_constructor() {
-    assertThat(TestUtils.hasOnlyPrivateConstructors(ProcessProperties.class)).isTrue();
+  public void defaults_loads_properties_defaults_from_base_and_extensions() {
+    Props p = new Props(new Properties());
+    when(serviceLoaderWrapper.load()).thenReturn(ImmutableSet.of(new FakeExtension1(), new FakeExtension3()));
+
+    processProperties.completeDefaults(p);
+
+    assertThat(p.value("sonar.some.property")).isEqualTo("1");
+    assertThat(p.value("sonar.some.property2")).isEqualTo("455");
+    assertThat(p.value("sonar.some.property4")).isEqualTo("abc");
+    assertThat(p.value("sonar.some.property5")).isEqualTo("def");
+    assertThat(p.value("sonar.some.property5")).isEqualTo("def");
+    assertThat(p.value("sonar.search.port")).isEqualTo("9001");
+  }
+
+  @Test
+  public void defaults_throws_exception_on_same_property_defined_more_than_once_in_extensions() {
+    Props p = new Props(new Properties());
+    when(serviceLoaderWrapper.load()).thenReturn(ImmutableSet.of(new FakeExtension1(), new FakeExtension2()));
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Configuration error: property definition named 'sonar.some.property2' found in multiple extensions.");
+
+    processProperties.completeDefaults(p);
+  }
+
+  private class FakeExtension1 implements CoreExtension {
+
+    @Override
+    public String getName() {
+      return "fakeExt1";
+    }
+
+    @Override
+    public void load(Context context) {
+      // do nothing
+    }
+
+    @Override
+    public Map<String, String> getExtensionProperties() {
+      return ImmutableMap.of(
+        "sonar.some.property", "1",
+        "sonar.some.property2", "455");
+    }
+  }
+
+  private class FakeExtension2 implements CoreExtension {
+
+    @Override
+    public String getName() {
+      return "fakeExt2";
+    }
+
+    @Override
+    public void load(Context context) {
+      // do nothing
+    }
+
+    @Override
+    public Map<String, String> getExtensionProperties() {
+      return ImmutableMap.of(
+        "sonar.some.property2", "5435",
+        "sonar.some.property3", "32131");
+    }
+  }
+
+  private class FakeExtension3 implements CoreExtension {
+
+    @Override
+    public String getName() {
+      return "fakeExt3";
+    }
+
+    @Override
+    public void load(Context context) {
+      // do nothing
+    }
+
+    @Override
+    public Map<String, String> getExtensionProperties() {
+      return ImmutableMap.of(
+        "sonar.some.property4", "abc",
+        "sonar.some.property5", "def");
+    }
   }
 }

@@ -22,18 +22,26 @@ package org.sonar.process;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.core.extension.CoreExtension;
+import org.sonar.core.extension.ServiceLoaderWrapper;
+
+import static java.lang.String.format;
 
 /**
  * Constants shared by search, web server and app processes.
  * They are almost all the properties defined in conf/sonar.properties.
  */
 public class ProcessProperties {
+
+  private final ServiceLoaderWrapper serviceLoaderWrapper;
 
   public enum Property {
     JDBC_URL("sonar.jdbc.url"),
@@ -151,11 +159,11 @@ public class ProcessProperties {
     }
   }
 
-  private ProcessProperties() {
-    // only static stuff
+  public ProcessProperties(ServiceLoaderWrapper serviceLoaderWrapper) {
+    this.serviceLoaderWrapper = serviceLoaderWrapper;
   }
 
-  public static void completeDefaults(Props props) {
+  public void completeDefaults(Props props) {
     // init string properties
     for (Map.Entry<Object, Object> entry : defaults().entrySet()) {
       props.setDefault(entry.getKey().toString(), entry.getValue().toString());
@@ -164,12 +172,28 @@ public class ProcessProperties {
     fixPortIfZero(props, Property.SEARCH_HOST.getKey(), Property.SEARCH_PORT.getKey());
   }
 
-  public static Properties defaults() {
+  private Properties defaults() {
     Properties defaults = new Properties();
     defaults.putAll(Arrays.stream(Property.values())
       .filter(Property::hasDefaultValue)
       .collect(Collectors.toMap(Property::getKey, Property::getDefaultValue)));
+    defaults.putAll(loadDefaultsFromExtensions());
     return defaults;
+  }
+
+  private Map<String, String> loadDefaultsFromExtensions() {
+    Map<String, String> propertyDefaults = new HashMap<>();
+    Set<CoreExtension> extensions = serviceLoaderWrapper.load();
+    for (CoreExtension ext : extensions) {
+      for (Map.Entry<String, String> property : ext.getExtensionProperties().entrySet()) {
+        if (propertyDefaults.put(property.getKey(), property.getValue()) != null) {
+          throw new IllegalStateException(format("Configuration error: property definition named '%s' found in multiple extensions.",
+            property.getKey()));
+        }
+      }
+    }
+
+    return propertyDefaults;
   }
 
   private static void fixPortIfZero(Props props, String addressPropertyKey, String portPropertyKey) {

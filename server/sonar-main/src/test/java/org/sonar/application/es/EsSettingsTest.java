@@ -20,6 +20,7 @@
 package org.sonar.application.es;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -31,6 +32,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.application.logging.ListAppender;
+import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.ProcessProperties.Property;
 import org.sonar.process.Props;
@@ -331,7 +333,9 @@ public class EsSettingsTest {
   private Props minProps(boolean cluster) throws IOException {
     File homeDir = temp.newFolder();
     Props props = new Props(new Properties());
-    ProcessProperties.completeDefaults(props);
+    ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
+    when(serviceLoaderWrapper.load()).thenReturn(ImmutableSet.of());
+    new ProcessProperties(serviceLoaderWrapper).completeDefaults(props);
     props.set(PATH_HOME.getKey(), homeDir.getAbsolutePath());
     props.set(Property.CLUSTER_ENABLED.getKey(), Boolean.toString(cluster));
     return props;

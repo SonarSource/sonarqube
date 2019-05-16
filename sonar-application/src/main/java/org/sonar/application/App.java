@@ -33,6 +33,7 @@ import org.sonar.application.process.ProcessLauncher;
 import org.sonar.application.process.ProcessLauncherImpl;
 import org.sonar.application.process.StopRequestWatcher;
 import org.sonar.application.process.StopRequestWatcherImpl;
+import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.process.System2;
 import org.sonar.process.SystemExit;
 
@@ -50,7 +51,7 @@ public class App {
   }
 
   public void start(String[] cliArguments) throws IOException {
-    AppSettingsLoader settingsLoader = new AppSettingsLoaderImpl(cliArguments);
+    AppSettingsLoader settingsLoader = new AppSettingsLoaderImpl(cliArguments, new ServiceLoaderWrapper());
     AppSettings settings = settingsLoader.load();
     // order is important - logging must be configured before any other components (AppFileSystem, ...)
     AppLogging logging = new AppLogging(settings);

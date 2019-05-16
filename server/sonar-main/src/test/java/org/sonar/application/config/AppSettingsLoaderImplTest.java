@@ -19,15 +19,20 @@
  */
 package org.sonar.application.config;
 
+import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.core.extension.ServiceLoaderWrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AppSettingsLoaderImplTest {
 
@@ -36,13 +41,20 @@ public class AppSettingsLoaderImplTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  private ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
+
+  @Before
+  public void setup() {
+    when(serviceLoaderWrapper.load()).thenReturn(ImmutableSet.of());
+  }
+
   @Test
   public void load_properties_from_file() throws Exception {
     File homeDir = temp.newFolder();
     File propsFile = new File(homeDir, "conf/sonar.properties");
     FileUtils.write(propsFile, "foo=bar");
 
-    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(new String[0], homeDir);
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(new String[0], homeDir, serviceLoaderWrapper);
     AppSettings settings = underTest.load();
 
     assertThat(settings.getProps().rawProperties()).contains(entry("foo", "bar"));
@@ -53,7 +65,7 @@ public class AppSettingsLoaderImplTest {
     File homeDir = temp.newFolder();
     File propsFileAsDir = new File(homeDir, "conf/sonar.properties");
     FileUtils.forceMkdir(propsFileAsDir);
-    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(new String[0], homeDir);
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(new String[0], homeDir, serviceLoaderWrapper);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Cannot open file " + propsFileAsDir.getAbsolutePath());
@@ -65,7 +77,7 @@ public class AppSettingsLoaderImplTest {
   public void file_is_not_loaded_if_it_does_not_exist() throws Exception {
     File homeDir = temp.newFolder();
 
-    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(new String[0], homeDir);
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(new String[0], homeDir, serviceLoaderWrapper);
     AppSettings settings = underTest.load();
 
     // no failure, file is ignored
@@ -76,7 +88,7 @@ public class AppSettingsLoaderImplTest {
   public void command_line_arguments_are_included_to_settings() throws Exception {
     File homeDir = temp.newFolder();
 
-    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(new String[] {"-Dsonar.foo=bar", "-Dhello=world"}, homeDir);
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(new String[] {"-Dsonar.foo=bar", "-Dhello=world"}, homeDir, serviceLoaderWrapper);
     AppSettings settings = underTest.load();
 
     assertThat(settings.getProps().rawProperties())
@@ -90,7 +102,7 @@ public class AppSettingsLoaderImplTest {
     File propsFile = new File(homeDir, "conf/sonar.properties");
     FileUtils.write(propsFile, "sonar.foo=file");
 
-    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(new String[]{"-Dsonar.foo=cli"}, homeDir);
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(new String[] {"-Dsonar.foo=cli"}, homeDir, serviceLoaderWrapper);
     AppSettings settings = underTest.load();
 
     assertThat(settings.getProps().rawProperties()).contains(entry("sonar.foo", "cli"));
@@ -98,7 +110,7 @@ public class AppSettingsLoaderImplTest {
 
   @Test
   public void detectHomeDir_returns_existing_dir() {
-    assertThat(new AppSettingsLoaderImpl(new String[0]).getHomeDir()).exists().isDirectory();
+    assertThat(new AppSettingsLoaderImpl(new String[0], serviceLoaderWrapper).getHomeDir()).exists().isDirectory();
 
   }
 }

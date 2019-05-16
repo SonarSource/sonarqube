@@ -15,7 +15,8 @@ dependencies {
   compile 'com.hazelcast:hazelcast'
   compile 'org.slf4j:jul-to-slf4j'
   compile 'org.slf4j:slf4j-api'
-
+  compile project(':sonar-core')
+  
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'com.google.protobuf:protobuf-java'
   compileOnly 'org.nanohttpd:nanohttpd'

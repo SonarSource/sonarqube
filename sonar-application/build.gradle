@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 sonarqube {
   properties {
     property 'sonar.projectName', "${projectTitle} :: Application"
@@ -92,6 +94,7 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
 
   into("${archiveDir}/") {
     from file('src/main/assembly')
+      exclude 'conf/sonar.properties'
       exclude 'elasticsearch-patch'
       // elasticsearch script will be replaced by patched version below
       exclude 'elasticsearch/bin/elasticsearch'
@@ -125,6 +128,20 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
       exclude 'elasticsearch/modules/tribe/**'
       exclude 'elasticsearch/modules/x-pack-*/**'
   }
+
+  into("${archiveDir}/conf/") {
+    from file('src/main/assembly/conf/sonar.properties')
+      filter(ReplaceTokens, tokens: [
+              'searchDefaultHeapSize': '512MB',
+              'searchJavaOpts'       : '-Xms512m -Xmx512m -XX:+HeapDumpOnOutOfMemoryError',
+              'ceDefaultHeapSize'    : '512MB',
+              'ceJavaOpts'           : '-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError',
+              'webDefaultHeapSize'   : '512MB',
+              'webJavaOpts'          : '-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError'
+      ])
+  }
+    
+  
   into("${archiveDir}/elasticsearch/") {
     from file('src/main/assembly/elasticsearch-patch')
       include 'bin/elasticsearch'

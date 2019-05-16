@@ -29,12 +29,13 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.function.Consumer;
 import org.slf4j.LoggerFactory;
+import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.process.ConfigurationUtils;
 import org.sonar.process.NetworkUtilsImpl;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.sonar.process.ProcessProperties.completeDefaults;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 
 public class AppSettingsLoaderImpl implements AppSettingsLoader {
@@ -42,15 +43,16 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
   private final File homeDir;
   private final String[] cliArguments;
   private final Consumer<Props>[] consumers;
+  private final ServiceLoaderWrapper serviceLoaderWrapper;
 
-  public AppSettingsLoaderImpl(String[] cliArguments) {
-    this(cliArguments, detectHomeDir(),
-      new FileSystemSettings(), new JdbcSettings(), new ClusterSettings(NetworkUtilsImpl.INSTANCE));
+  public AppSettingsLoaderImpl(String[] cliArguments, ServiceLoaderWrapper serviceLoaderWrapper) {
+    this(cliArguments, detectHomeDir(), serviceLoaderWrapper, new FileSystemSettings(), new JdbcSettings(), new ClusterSettings(NetworkUtilsImpl.INSTANCE));
   }
 
-  AppSettingsLoaderImpl(String[] cliArguments, File homeDir, Consumer<Props>... consumers) {
+  AppSettingsLoaderImpl(String[] cliArguments, File homeDir, ServiceLoaderWrapper serviceLoaderWrapper, Consumer<Props>... consumers) {
     this.cliArguments = cliArguments;
     this.homeDir = homeDir;
+    this.serviceLoaderWrapper = serviceLoaderWrapper;
     this.consumers = consumers;
   }
 
@@ -69,7 +71,7 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
     // supports decryption of values, so it must be used when values
     // are accessed
     Props props = new Props(p);
-    completeDefaults(props);
+    new ProcessProperties(serviceLoaderWrapper).completeDefaults(props);
     Arrays.stream(consumers).forEach(c -> c.accept(props));
 
     return new AppSettingsImpl(props);

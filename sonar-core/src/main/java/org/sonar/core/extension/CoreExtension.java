@@ -19,7 +19,9 @@
  */
 package org.sonar.core.extension;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
+import java.util.Map;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 
@@ -51,4 +53,12 @@ public interface CoreExtension {
   }
 
   void load(Context context);
+
+  /**
+   * Properties with (optionally) default values defined by the extension.
+   * @return map of property names as keys and property default value as values
+   */
+  default Map<String, String> getExtensionProperties() {
+    return ImmutableMap.of();
+  }
 }

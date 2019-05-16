@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.container;
 
+import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -38,6 +39,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.CeDistributedInformationImpl;
 import org.sonar.ce.StandaloneCeDistributedInformation;
+import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.process.ProcessId;
@@ -48,6 +50,7 @@ import org.sonar.server.property.InternalProperties;
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 import static org.sonar.process.ProcessProperties.Property.JDBC_PASSWORD;
@@ -68,9 +71,12 @@ public class ComputeEngineContainerImplTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private ComputeEngineContainerImpl underTest;
+  private ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
+  private ProcessProperties processProperties = new ProcessProperties(serviceLoaderWrapper);
 
   @Before
   public void setUp() {
+    when(serviceLoaderWrapper.load()).thenReturn(ImmutableSet.of());
     underTest = new ComputeEngineContainerImpl();
     underTest.setComputeEngineStatus(mock(ComputeEngineStatus.class));
   }
@@ -148,7 +154,10 @@ public class ComputeEngineContainerImplTest {
   }
 
   private Properties getProperties() throws IOException {
-    Properties properties = ProcessProperties.defaults();
+    Properties properties = new Properties();
+    Props props = new Props(properties);
+    processProperties.completeDefaults(props);
+    properties = props.rawProperties();
     File homeDir = tempFolder.newFolder();
     File dataDir = new File(homeDir, "data");
     dataDir.mkdirs();

@@ -19,9 +19,7 @@
  */
 package org.sonar.core.extension;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.api.utils.log.Logger;
@@ -69,12 +67,5 @@ public class CoreExtensionsLoader {
     checkState(duplicatedNames.isEmpty(),
       "Multiple core extensions declare the following names: %s",
       duplicatedNames.stream().sorted().collect(Collectors.joining(", ")));
-  }
-
-  static class ServiceLoaderWrapper {
-    Set<CoreExtension> load(ClassLoader classLoader) {
-      ServiceLoader<CoreExtension> loader = ServiceLoader.load(CoreExtension.class, classLoader);
-      return ImmutableSet.copyOf(loader.iterator());
-    }
   }
 }

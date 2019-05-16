@@ -19,10 +19,15 @@
  */
 package org.sonar.application.config;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.Properties;
+import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Simple implementation of {@link AppSettings} that loads
@@ -34,7 +39,9 @@ public class TestAppSettings implements AppSettings {
 
   public TestAppSettings() {
     this.props = new Props(new Properties());
-    ProcessProperties.completeDefaults(this.props);
+    ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
+    when(serviceLoaderWrapper.load()).thenReturn(ImmutableSet.of());
+    new ProcessProperties(serviceLoaderWrapper).completeDefaults(this.props);
   }
 
   public TestAppSettings set(String key, String value) {

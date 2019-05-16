@@ -20,6 +20,7 @@
 package org.sonar.application.command;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
@@ -33,6 +34,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.application.es.EsInstallation;
 import org.sonar.application.logging.ListAppender;
+import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -40,6 +42,7 @@ import org.sonar.process.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CommandFactoryImplTest {
@@ -320,7 +323,9 @@ public class CommandFactoryImplTest {
     p.putAll(userProps);
 
     Props props = new Props(p);
-    ProcessProperties.completeDefaults(props);
+    ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
+    when(serviceLoaderWrapper.load()).thenReturn(ImmutableSet.of());
+    new ProcessProperties(serviceLoaderWrapper).completeDefaults(props);
     return new CommandFactoryImpl(props, tempDir, system2, javaVersion);
   }
 
