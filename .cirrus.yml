@@ -195,7 +195,7 @@ test_sql_mysql57_task:
   # this task on your branch
   only_if: $CIRRUS_TAG == "nightly-build"
   gke_container:
-    image: gradle:5.4.1-jdk8
+    image: gradle:5.4.1-jdk11
     cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
@@ -232,7 +232,7 @@ test_sql_mssql2017_task:
   # this task on your branch
   only_if: $CIRRUS_TAG == "nightly-build"
   gke_container:
-    image: gradle:5.4.1-jdk8
+    image: gradle:5.4.1-jdk11
     cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
@@ -267,7 +267,7 @@ test_sql_mssql2019_task:
   # this task on your branch
   only_if: $CIRRUS_TAG == "nightly-build"
   gke_container:
-    image: gradle:5.4.1-jdk8
+    image: gradle:5.4.1-jdk11
     cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
@@ -304,7 +304,7 @@ test_sql_postgres93_task:
   # this task on your branch
   only_if: $CIRRUS_TAG == "nightly-build"
   gke_container:
-    image: gradle:5.4.1-jdk8
+    image: gradle:5.4.1-jdk11
     cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
@@ -338,7 +338,7 @@ test_sql_oracle12_task:
   # this task on your branch
   only_if: $CIRRUS_TAG == "nightly-build"
   gke_container:
-    image: gradle:5.4.1-jdk8
+    image: gradle:5.4.1-jdk11
     cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
