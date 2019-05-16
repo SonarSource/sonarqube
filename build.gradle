@@ -141,7 +141,7 @@ subprojects {
         entry 'hazelcast-client'
       }
       dependency 'com.ibm.icu:icu4j:3.4.4'
-      dependency 'com.microsoft.sqlserver:mssql-jdbc:7.2.2.jre11'
+      dependency 'com.microsoft.sqlserver:mssql-jdbc:7.2.2.jre8'
       dependency 'com.oracle.jdbc:ojdbc8:18.3'
       dependencySet(group: 'com.squareup.okhttp3', version: '3.14.0') {
         entry 'okhttp'
