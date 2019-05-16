@@ -214,6 +214,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
   };
 
   renderLine({
+    displayDuplications,
     index,
     issuesForLine,
     issueLocations,
@@ -222,6 +223,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
     symbols,
     verticalBuffer
   }: {
+    displayDuplications: boolean;
     index: number;
     issuesForLine: T.Issue[];
     issueLocations: T.LinearIssueLocation[];
@@ -245,7 +247,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
         branchLike={undefined}
         displayAllIssues={false}
         displayCoverage={true}
-        displayDuplications={!!line.duplicated}
+        displayDuplications={displayDuplications}
         displayIssues={!isSinkLine || issuesForLine.length > 1}
         displayLocationMarkers={true}
         duplications={lineDuplications}
@@ -318,6 +320,8 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
       ? Math.max(0, LINES_BELOW_LAST - (bottomLine - lowestVisibleIssue))
       : 0;
 
+    const displayDuplications = snippet.some(s => !!s.duplicated);
+
     return (
       <div className="source-viewer-code snippet" key={index}>
         {snippet[0].line > 1 && (
@@ -333,6 +337,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
           <tbody>
             {snippet.map((line, index) =>
               this.renderLine({
+                displayDuplications,
                 index,
                 issuesForLine: issuesByLine[line.line] || [],
                 issueLocations: locationsByLine[line.line] || [],
