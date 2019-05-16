@@ -102,7 +102,7 @@ public class ComponentService {
   }
 
   private static void checkProjectOrModuleKeyFormat(String key) {
-    checkRequest(isValidProjectKey(key), "Malformed key for '%s'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", key);
+    checkRequest(isValidProjectKey(key), "Malformed key for '%s'. It cannot be empty nor contain whitespaces.", key);
   }
 
 }

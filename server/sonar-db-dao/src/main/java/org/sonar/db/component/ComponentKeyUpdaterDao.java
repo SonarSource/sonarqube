@@ -233,7 +233,7 @@ public class ComponentKeyUpdaterDao implements Dao {
   private static void checkNewNameOfAllModules(Set<ResourceDto> modules, String stringToReplace, String replacementString, ComponentKeyUpdaterMapper mapper) {
     for (ResourceDto module : modules) {
       String newKey = computeNewKey(module.getKey(), stringToReplace, replacementString);
-      checkArgument(isValidProjectKey(newKey), "Malformed key for '%s'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", newKey);
+      checkProjectKey(newKey);
       if (mapper.countResourceByKey(newKey) > 0) {
         throw new IllegalArgumentException("Impossible to update key: a component with key \"" + newKey + "\" already exists.");
       }

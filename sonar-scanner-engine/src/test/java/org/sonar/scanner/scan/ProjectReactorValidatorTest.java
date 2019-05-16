@@ -91,28 +91,14 @@ public class ProjectReactorValidatorTest {
   public void allow_slash_issues_mode() {
     when(mode.isIssues()).thenReturn(true);
     underTest.validate(createProjectReactor("project/key"));
-
-    when(mode.isIssues()).thenReturn(false);
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("is not a valid project or module key");
-    underTest.validate(createProjectReactor("project/key"));
   }
 
   @Test
   public void fail_with_invalid_key() {
-    ProjectReactor reactor = createProjectReactor("foo$bar");
+    ProjectReactor reactor = createProjectReactor("  ");
 
     thrown.expect(MessageException.class);
-    thrown.expectMessage("\"foo$bar\" is not a valid project or module key");
-    underTest.validate(reactor);
-  }
-
-  @Test
-  public void fail_with_backslash_in_key() {
-    ProjectReactor reactor = createProjectReactor("foo\\bar");
-
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("\"foo\\bar\" is not a valid project or module key");
+    thrown.expectMessage("\"  \" is not a valid project or module key");
     underTest.validate(reactor);
   }
 
@@ -153,16 +139,6 @@ public class ProjectReactorValidatorTest {
       {"bran#ch"},
       {"bran:ch"}
     };
-  }
-
-  @Test
-  public void fail_with_only_digits() {
-    ProjectReactor reactor = createProjectReactor("12345");
-
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("\"12345\" is not a valid project or module key");
-
-    underTest.validate(reactor);
   }
 
   @Test

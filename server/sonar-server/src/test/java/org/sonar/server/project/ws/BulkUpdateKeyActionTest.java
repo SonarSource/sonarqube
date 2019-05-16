@@ -183,9 +183,9 @@ public class BulkUpdateKeyActionTest {
     insertMyProject();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Malformed key for 'my?project'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+    expectedException.expectMessage("Malformed key for 'my aproject'. Project key cannot be empty nor contain whitespaces.");
 
-    callByKey(MY_PROJECT_KEY, FROM, "my?");
+    callByKey(MY_PROJECT_KEY, FROM, "my a");
   }
 
   @Test
@@ -193,9 +193,9 @@ public class BulkUpdateKeyActionTest {
     insertMyProject();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Malformed key for 'my?project'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+    expectedException.expectMessage("Malformed key for 'my aproject'. Project key cannot be empty nor contain whitespaces.");
 
-    callDryRunByKey(MY_PROJECT_KEY, FROM, "my?");
+    callDryRunByKey(MY_PROJECT_KEY, FROM, "my a");
   }
 
   @Test

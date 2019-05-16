@@ -153,20 +153,20 @@ public class ComponentServiceUpdateKeyTest {
     logInAsProjectAdministrator(project);
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Malformed key for ''. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+    expectedException.expectMessage("Malformed key for ''. It cannot be empty nor contain whitespaces.");
 
     underTest.updateKey(dbSession, project, "");
   }
 
   @Test
-  public void fail_if_new_key_is_not_formatted_correctly() {
+  public void fail_if_new_key_is_invalid() {
     ComponentDto project = insertSampleRootProject();
     logInAsProjectAdministrator(project);
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Malformed key for 'sample?root'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+    expectedException.expectMessage("Malformed key for 'sample root'. It cannot be empty nor contain whitespaces.");
 
-    underTest.updateKey(dbSession, project, "sample?root");
+    underTest.updateKey(dbSession, project, "sample root");
   }
 
   @Test

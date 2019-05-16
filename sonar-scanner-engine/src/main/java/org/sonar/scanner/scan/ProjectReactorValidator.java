@@ -117,8 +117,7 @@ public class ProjectReactorValidator {
 
   private static void validateModule(ProjectDefinition moduleDef, List<String> validationMessages) {
     if (!ComponentKeys.isValidProjectKey(moduleDef.getKey())) {
-      validationMessages.add(format("\"%s\" is not a valid project or module key. "
-        + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", moduleDef.getKey()));
+      validationMessages.add(format("\"%s\" is not a valid project or module key. It cannot be empty nor contain whitespaces.", moduleDef.getKey()));
     }
   }
 

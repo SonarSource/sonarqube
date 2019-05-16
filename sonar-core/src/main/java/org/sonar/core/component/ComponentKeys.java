@@ -30,11 +30,12 @@ public final class ComponentKeys {
   public static final int MAX_COMPONENT_KEY_LENGTH = 400;
 
   /*
-   * Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit
+   * Must not be blank or empty
    */
-  private static final String VALID_PROJECT_KEY_REGEXP = "[\\p{Alnum}\\-_.:]*[\\p{Alpha}\\-_.:]+[\\p{Alnum}\\-_.:]*";
+  private static final String VALID_PROJECT_KEY_REGEXP = "[^\\p{javaWhitespace}]+";
 
   private static final String VALID_PROJECT_KEY_ISSUES_MODE_REGEXP = "[\\p{Alnum}\\-_.:/]*[\\p{Alpha}\\-_.:/]+[\\p{Alnum}\\-_.:/]*";
+
   /*
    * Allowed characters are alphanumeric, '-', '_', '.' and '/'
    */
@@ -60,18 +61,7 @@ public final class ComponentKeys {
   }
 
   /**
-   * <p>Test if given parameter is valid for a project. Valid format is:</p>
-   * <ul>
-   * <li>Allowed characters:
-   * <ul>
-   * <li>Uppercase ASCII letters A-Z</li>
-   * <li>Lowercase ASCII letters a-z</li>
-   * <li>ASCII digits 0-9</li>
-   * <li>Punctuation signs dash '-', underscore '_', period '.' and colon ':'</li>
-   * </ul>
-   * </li>
-   * <li>At least one non-digit</li>
-   * </ul>
+   * Test if given parameter is valid for a project. A key is valid if it doesn't contain whitespaces.
    *
    * @return <code>true</code> if <code>keyCandidate</code> can be used for a project
    */
@@ -85,12 +75,24 @@ public final class ComponentKeys {
    * @throws IllegalArgumentException if the format is incorrect
    */
   public static void checkProjectKey(String keyCandidate) {
-    checkArgument(isValidProjectKey(keyCandidate), "Malformed key for '%s'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.",
-      keyCandidate);
+    checkArgument(isValidProjectKey(keyCandidate), "Malformed key for '%s'. %s", keyCandidate, "Project key cannot be empty nor contain whitespaces.");
   }
 
   /**
-   * Same as {@link #isValidProjectKey(String)}, but allows additionally '/'.
+   * <p>Test if given parameter is valid for a project. Valid format is:</p>
+   * <ul>
+   * <li>Allowed characters:
+   * <ul>
+   * <li>Uppercase ASCII letters A-Z</li>
+   * <li>Lowercase ASCII letters a-z</li>
+   * <li>ASCII digits 0-9</li>
+   * <li>Punctuation signs dash '-', underscore '_', period '.', colon ':' and slash '/'</li>
+   * </ul>
+   * </li>
+   * <li>At least one non-digit</li>
+   * </ul>
+   *
+   * @return <code>true</code> if <code>keyCandidate</code> can be used for a project in issues mode
    */
   public static boolean isValidProjectKeyIssuesMode(String keyCandidate) {
     return keyCandidate.matches(VALID_PROJECT_KEY_ISSUES_MODE_REGEXP);

@@ -163,8 +163,7 @@ public class ComponentUpdater {
   }
 
   private void checkKeyFormat(String qualifier, String key) {
-    checkRequest(isValidProjectKey(key),
-      "Malformed key for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", getQualifierToDisplay(qualifier), key);
+    checkRequest(isValidProjectKey(key), "Malformed key for %s: '%s'. It cannot be empty nor contain whitespaces.", getQualifierToDisplay(qualifier), key);
   }
 
   private void checkLegacyBranchFormat(String qualifier, @Nullable String branch) {

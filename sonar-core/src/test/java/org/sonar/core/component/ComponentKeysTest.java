@@ -47,13 +47,17 @@ public class ComponentKeysTest {
   }
 
   @Test
-  public void isValidModuleKey() {
-    assertThat(ComponentKeys.isValidProjectKey("")).isFalse();
+  public void isValidProjectKey() {
     assertThat(ComponentKeys.isValidProjectKey("abc")).isTrue();
-    assertThat(ComponentKeys.isValidProjectKey("0123")).isFalse();
-    assertThat(ComponentKeys.isValidProjectKey("ab 12")).isFalse();
+    assertThat(ComponentKeys.isValidProjectKey("0123")).isTrue();
     assertThat(ComponentKeys.isValidProjectKey("ab_12")).isTrue();
-    assertThat(ComponentKeys.isValidProjectKey("ab/12")).isFalse();
+    assertThat(ComponentKeys.isValidProjectKey("ab/12")).isTrue();
+    assertThat(ComponentKeys.isValidProjectKey("코드품질")).isTrue();
+    assertThat(ComponentKeys.isValidProjectKey("")).isFalse();
+    assertThat(ComponentKeys.isValidProjectKey(" ")).isFalse();
+    assertThat(ComponentKeys.isValidProjectKey("ab 12")).isFalse();
+    assertThat(ComponentKeys.isValidProjectKey(" ab")).isFalse();
+    assertThat(ComponentKeys.isValidProjectKey("ab ")).isFalse();
   }
 
   @Test
@@ -79,37 +83,22 @@ public class ComponentKeysTest {
   }
 
   @Test
-  public void checkModuleKey_with_correct_keys() {
+  public void checkProjectKey_with_correct_keys() {
     ComponentKeys.checkProjectKey("abc");
     ComponentKeys.checkProjectKey("a-b_1.:2");
   }
 
   @Test
-  public void checkModuleKey_fail_if_only_digit() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Malformed key for '0123'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
-
-    ComponentKeys.checkProjectKey("0123");
-  }
-
-  @Test
-  public void checkModuleKey_fail_if_key_is_empty() {
+  public void checkProjectKey_fail_if_key_is_empty() {
     expectedException.expect(IllegalArgumentException.class);
 
     ComponentKeys.checkProjectKey("");
   }
 
   @Test
-  public void checkModuleKey_fail_if_space() {
+  public void checkProjectKey_fail_if_space() {
     expectedException.expect(IllegalArgumentException.class);
 
     ComponentKeys.checkProjectKey("ab 12");
-  }
-
-  @Test
-  public void checkModuleKey_fail_if_special_characters_not_allowed() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    ComponentKeys.checkProjectKey("ab/12");
   }
 }

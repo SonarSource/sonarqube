@@ -314,9 +314,9 @@ public class ComponentKeyUpdaterDaoTest {
     ComponentDto project = db.components().insertPrivateProject();
 
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Malformed key for 'my?project?key'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+    thrown.expectMessage("Malformed key for '  '. Project key cannot be empty nor contain whitespaces.");
 
-    underTest.bulkUpdateKey(dbSession, project.uuid(), project.getDbKey(), "my?project?key", doNotReturnAnyRekeyedResource());
+    underTest.bulkUpdateKey(dbSession, project.uuid(), project.getDbKey(), "  ", doNotReturnAnyRekeyedResource());
   }
 
   @Test
@@ -377,7 +377,7 @@ public class ComponentKeyUpdaterDaoTest {
 
     thrown.expect(IllegalArgumentException.class);
 
-    underTest.simulateBulkUpdateKey(dbSession, "A", "project", "project?");
+    underTest.simulateBulkUpdateKey(dbSession, "A", "project", "  ");
   }
 
   @Test
