@@ -244,6 +244,9 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
         } else if (value instanceof Integer) {
           // To be consistent, all INTEGER types are mapped as Long
           value = ((Integer) value).longValue();
+        } else if (value instanceof Byte) {
+          Byte byteValue = (Byte) value;
+          value = byteValue.intValue();
         } else if (value instanceof Timestamp) {
           value = new Date(((Timestamp) value).getTime());
         }
