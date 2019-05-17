@@ -22,6 +22,7 @@ import ComponentSourceSnippetViewer from './ComponentSourceSnippetViewer';
 import { groupLocationsByComponent } from './utils';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import DuplicationPopup from '../../../components/SourceViewer/components/DuplicationPopup';
+import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { getIssueFlowSnippets } from '../../../api/issues';
 import {
@@ -221,25 +222,28 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
             };
           }
           return (
-            <ComponentSourceSnippetViewer
-              branchLike={this.props.branchLike}
-              highlightedLocationMessage={this.props.highlightedLocationMessage}
-              issue={this.props.issue}
-              issuePopup={this.state.issuePopup}
-              issuesByLine={issuesByComponent[snippetGroup.component.key] || {}}
+            <SourceViewerContext.Provider
               key={`${this.props.issue.key}-${this.props.selectedFlowIndex}-${i}`}
-              last={i === locationsByComponent.length - 1}
-              loadDuplications={this.fetchDuplications}
-              locations={snippetGroup.locations || []}
-              onIssueChange={this.props.onIssueChange}
-              onIssuePopupToggle={this.handleIssuePopupToggle}
-              onLinePopupToggle={this.handleLinePopupToggle}
-              onLocationSelect={this.props.onLocationSelect}
-              renderDuplicationPopup={this.renderDuplicationPopup}
-              scroll={this.props.scroll}
-              snippetGroup={snippetGroup}
-              {...componentProps}
-            />
+              value={{ branchLike: this.props.branchLike, file: snippetGroup.component }}>
+              <ComponentSourceSnippetViewer
+                branchLike={this.props.branchLike}
+                highlightedLocationMessage={this.props.highlightedLocationMessage}
+                issue={this.props.issue}
+                issuePopup={this.state.issuePopup}
+                issuesByLine={issuesByComponent[snippetGroup.component.key] || {}}
+                last={i === locationsByComponent.length - 1}
+                loadDuplications={this.fetchDuplications}
+                locations={snippetGroup.locations || []}
+                onIssueChange={this.props.onIssueChange}
+                onIssuePopupToggle={this.handleIssuePopupToggle}
+                onLinePopupToggle={this.handleLinePopupToggle}
+                onLocationSelect={this.props.onLocationSelect}
+                renderDuplicationPopup={this.renderDuplicationPopup}
+                scroll={this.props.scroll}
+                snippetGroup={snippetGroup}
+                {...componentProps}
+              />
+            </SourceViewerContext.Provider>
           );
         })}
       </div>

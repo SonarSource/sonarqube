@@ -235,7 +235,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
 
     return (
       <Line
-        branchLike={undefined}
+        branchLike={this.props.branchLike}
         displayAllIssues={false}
         displayCoverage={true}
         displayDuplications={displayDuplications}
