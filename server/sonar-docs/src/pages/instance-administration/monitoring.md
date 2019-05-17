@@ -62,6 +62,7 @@ All these MBeans are read-only. It's not possible to modify or reset their value
 | InProgressCount | Number of Background Tasks currently under processing. Its value is either 1 or 0, since SonarQube can process only one task at a time.
 | SuccessCount | Number of Background Tasks successfully processed since the last restart of SonarQube
 | WorkerCount | Number of Background Tasks that can be processed at the same time
+| PendingTime | Pending time (in ms) of the oldest Background Task waiting to be processed. This measure, together with PendingCount, helps you know if analyses are stacking and taking too long to start processing. This helps you evaluate if it might be worth configuring additional Compute Engine workers (Enterprise Edition) or additional nodes (Data Center Edition) to improve SonarQube performance.
 |
 | Note:
 | * the total number of Background Tasks handled since the last restart of SonarQube is equal to SuccessCount + ErrorCount

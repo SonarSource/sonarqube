@@ -7,19 +7,36 @@ url: /setup/operate-server/
 
 ## Running SonarQube as a Service on Windows
 
-### Install/uninstall NT service (may have to run these files via Run As Administrator):
+### Install or Uninstall NT Service (may have to run these files via Run As Administrator):
 
 ```
 %SONARQUBE_HOME%/bin/windows-x86-64/InstallNTService.bat
 %SONARQUBE_HOME%/bin/windows-x86-64/UninstallNTService.bat
 ```
 
-### Start/stop the service:
+### Start or Stop the Service:
 
 ```
 %SONARQUBE_HOME%/bin/windows-x86-64/StartNTService.bat
 %SONARQUBE_HOME%/bin/windows-x86-64/StopNTService.bat
 ```
+**Note:** `%SONARQUBE_HOME%/bin/windows-x86-64/StopNTService.bat` does a graceful shutdown where no new analysis report processing can start, but the tasks in progress are allowed to finish. The time a stop will take depends on the processing time of the tasks in progress. You'll need to kill all SonarQube processes manually to force a stop.
+
+## Running SonarQube Manually on Linux
+
+### Start or Stop the Instance
+
+```
+Start:
+$SONAR_HOME/bin/linux-x86-64/sonar.sh start
+
+Graceful shutdown:
+$SONAR_HOME/bin/linux-x86-64/sonar.sh stop
+
+Hard stop:
+$SONAR_HOME/bin/linux-x86-64/sonar.sh force-stop
+```
+**Note:** Stop does a graceful shutdown where no new analysis report processing can start, but the tasks in progress are allowed to finish. The time a stop will take depends on the processing time of the tasks in progress. Use force stop for a hard stop. 
 
 ## Running SonarQube as a Service on Linux with SystemD
 
@@ -57,7 +74,7 @@ WantedBy=multi-user.target
 * Because the sonar-application jar name ends with the version of SonarQube, you will need to adjust the `ExecStart` command accordingly on install and at each upgrade.
 * The SonarQube data directory, `/opt/sonarqube/data`, and the extensions directory, `/opt/sonarqube/extensions` should be owned by the `sonarqube` user. As a good practice, the rest should be owned by `root`
 
-Once your `sonarqube.service` file is created and properly configured, run
+Once your `sonarqube.service` file is created and properly configured, run:
 ```
 sudo systemctl enable sonarqube.service
 sudo systemctl start sonarqube.service
@@ -96,6 +113,10 @@ Register SonarQube at boot time (RedHat, CentOS, 64 bit):
 sudo ln -s $SONAR_HOME/bin/linux-x86-64/sonar.sh /usr/bin/sonar
 sudo chmod 755 /etc/init.d/sonar
 sudo chkconfig --add sonar
+```
+Once registration is done, run:
+```
+sudo service sonar start
 ```
 
 ## Securing the Server Behind a Proxy
