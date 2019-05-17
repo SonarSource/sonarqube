@@ -94,17 +94,8 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
   }
 
   createSnippetsFromProps() {
-    const mainLocation: T.FlowLocation = {
-      component: this.props.issue.component,
-      textRange: this.props.issue.textRange || {
-        endLine: 0,
-        endOffset: 0,
-        startLine: 0,
-        startOffset: 0
-      }
-    };
     const snippets = createSnippets(
-      this.props.snippetGroup.locations.concat(mainLocation),
+      this.props.snippetGroup.locations,
       this.props.snippetGroup.sources,
       this.props.last
     );
