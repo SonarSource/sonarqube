@@ -27,42 +27,53 @@ function isWindow(element: Element | Window): element is Window {
   return element === window;
 }
 
-function getScrollPosition(element: Element | Window): number {
-  return isWindow(element) ? window.pageYOffset : element.scrollTop;
+function getScroll(element: Element | Window) {
+  return isWindow(element)
+    ? { x: window.pageXOffset, y: window.pageYOffset }
+    : { x: element.scrollLeft, y: element.scrollTop };
 }
 
-function scrollElement(element: Element | Window, position: number): void {
+function scrollElement(element: Element | Window, x: number, y: number): void {
   if (isWindow(element)) {
-    window.scrollTo(0, position);
+    window.scrollTo(x, y);
   } else {
-    element.scrollTop = position;
+    element.scrollLeft = x;
+    element.scrollTop = y;
   }
 }
 
-let smoothScrollTop = (y: number, parent: Element | Window) => {
-  let scrollTop = getScrollPosition(parent);
-  const scrollingDown = y > scrollTop;
-  const step = Math.ceil(Math.abs(y - scrollTop) / SCROLLING_STEPS);
+let smoothScroll = (target: number, current: number, scroll: (position: number) => void) => {
+  const positiveDirection = target > current;
+  const step = Math.ceil(Math.abs(target - current) / SCROLLING_STEPS);
   let stepsDone = 0;
 
   const interval = setInterval(() => {
-    if (scrollTop === y || SCROLLING_STEPS === stepsDone) {
+    if (current === target || SCROLLING_STEPS === stepsDone) {
       clearInterval(interval);
     } else {
       let goal;
-      if (scrollingDown) {
-        goal = Math.min(y, scrollTop + step);
+      if (positiveDirection) {
+        goal = Math.min(target, current + step);
       } else {
-        goal = Math.max(y, scrollTop - step);
+        goal = Math.max(target, current - step);
       }
       stepsDone++;
-      scrollTop = goal;
-      scrollElement(parent, goal);
+      current = goal;
+      scroll(goal);
     }
   }, SCROLLING_INTERVAL);
 };
+smoothScroll = debounce(smoothScroll, SCROLLING_DURATION, { leading: true });
 
-smoothScrollTop = debounce(smoothScrollTop, SCROLLING_DURATION, { leading: true });
+function smoothScrollTop(position: number, parent: Element | Window) {
+  const scroll = getScroll(parent);
+  smoothScroll(position, scroll.y, position => scrollElement(parent, scroll.x, position));
+}
+
+function smoothScrollLeft(position: number, parent: Element | Window) {
+  const scroll = getScroll(parent);
+  smoothScroll(position, scroll.x, position => scrollElement(parent, position, scroll.y));
+}
 
 export function scrollToElement(
   element: Element,
@@ -78,7 +89,7 @@ export function scrollToElement(
 
   const { top, bottom } = element.getBoundingClientRect();
 
-  const scrollTop = getScrollPosition(parent);
+  const scroll = getScroll(parent);
 
   const height: number = isWindow(parent)
     ? window.innerHeight
@@ -87,20 +98,59 @@ export function scrollToElement(
   const parentTop = isWindow(parent) ? 0 : parent.getBoundingClientRect().top;
 
   if (top - parentTop < opts.topOffset) {
-    const goal = scrollTop - opts.topOffset + top - parentTop;
+    const goal = scroll.y - opts.topOffset + top - parentTop;
     if (opts.smooth) {
       smoothScrollTop(goal, parent);
     } else {
-      scrollElement(parent, goal);
+      scrollElement(parent, scroll.x, goal);
     }
   }
 
   if (bottom - parentTop > height - opts.bottomOffset) {
-    const goal = scrollTop + bottom - parentTop - height + opts.bottomOffset;
+    const goal = scroll.y + bottom - parentTop - height + opts.bottomOffset;
     if (opts.smooth) {
       smoothScrollTop(goal, parent);
     } else {
-      scrollElement(parent, goal);
+      scrollElement(parent, scroll.x, goal);
+    }
+  }
+}
+
+export function scrollHorizontally(
+  element: Element,
+  options: {
+    leftOffset?: number;
+    rightOffset?: number;
+    parent?: Element;
+    smooth?: boolean;
+  }
+): void {
+  const opts = { leftOffset: 0, rightOffset: 0, parent: window, smooth: true, ...options };
+  const { parent } = opts;
+
+  const { left, right } = element.getBoundingClientRect();
+
+  const scroll = getScroll(parent);
+
+  const { left: parentLeft, width } = isWindow(parent)
+    ? { left: 0, width: window.innerWidth }
+    : parent.getBoundingClientRect();
+
+  if (left - parentLeft < opts.leftOffset) {
+    const goal = scroll.x - opts.leftOffset + left - parentLeft;
+    if (opts.smooth) {
+      smoothScrollLeft(goal, parent);
+    } else {
+      scrollElement(parent, goal, scroll.y);
+    }
+  }
+
+  if (right - parentLeft > width - opts.rightOffset) {
+    const goal = scroll.x + right - parentLeft - width + opts.rightOffset;
+    if (opts.smooth) {
+      smoothScrollLeft(goal, parent);
+    } else {
+      scrollElement(parent, goal, scroll.y);
     }
   }
 }

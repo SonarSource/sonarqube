@@ -1,0 +1,930 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="source-viewer-code snippet"
+>
+  <table
+    className="source-table"
+  >
+    <tbody>
+      <tr
+        className="expand-block expand-block-above"
+      >
+        <td
+          colSpan={5}
+        >
+          <button
+            aria-label="source_viewer.expand_above"
+            onClick={[Function]}
+            type="button"
+          >
+            <ExpandSnippetIcon />
+          </button>
+        </td>
+      </tr>
+      <Line
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        displayAllIssues={false}
+        displayCoverage={true}
+        displayDuplications={false}
+        displayIssues={true}
+        displayLocationMarkers={true}
+        duplications={Array []}
+        duplicationsCount={0}
+        highlighted={false}
+        issueLocations={Array []}
+        issues={Array []}
+        key="5"
+        last={false}
+        line={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 5,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        loadDuplications={[MockFunction]}
+        onIssueChange={[MockFunction]}
+        onIssuePopupToggle={[MockFunction]}
+        onIssueSelect={[Function]}
+        onIssueUnselect={[Function]}
+        onIssuesClose={[MockFunction]}
+        onIssuesOpen={[MockFunction]}
+        onLinePopupToggle={[MockFunction]}
+        onLocationSelect={[MockFunction]}
+        onSymbolClick={[MockFunction]}
+        renderDuplicationPopup={[MockFunction]}
+        scroll={[Function]}
+        secondaryIssueLocations={Array []}
+        verticalBuffer={0}
+      />
+      <Line
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        displayAllIssues={false}
+        displayCoverage={true}
+        displayDuplications={false}
+        displayIssues={true}
+        displayLocationMarkers={true}
+        duplications={Array []}
+        duplicationsCount={0}
+        highlighted={false}
+        issueLocations={Array []}
+        issues={Array []}
+        key="6"
+        last={false}
+        line={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 6,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        loadDuplications={[MockFunction]}
+        onIssueChange={[MockFunction]}
+        onIssuePopupToggle={[MockFunction]}
+        onIssueSelect={[Function]}
+        onIssueUnselect={[Function]}
+        onIssuesClose={[MockFunction]}
+        onIssuesOpen={[MockFunction]}
+        onLinePopupToggle={[MockFunction]}
+        onLocationSelect={[MockFunction]}
+        onSymbolClick={[MockFunction]}
+        previousLine={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 5,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        renderDuplicationPopup={[MockFunction]}
+        scroll={[Function]}
+        secondaryIssueLocations={Array []}
+        verticalBuffer={0}
+      />
+      <Line
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        displayAllIssues={false}
+        displayCoverage={true}
+        displayDuplications={false}
+        displayIssues={true}
+        displayLocationMarkers={true}
+        duplications={Array []}
+        duplicationsCount={0}
+        highlighted={false}
+        issueLocations={Array []}
+        issues={Array []}
+        key="7"
+        last={false}
+        line={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 7,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        loadDuplications={[MockFunction]}
+        onIssueChange={[MockFunction]}
+        onIssuePopupToggle={[MockFunction]}
+        onIssueSelect={[Function]}
+        onIssueUnselect={[Function]}
+        onIssuesClose={[MockFunction]}
+        onIssuesOpen={[MockFunction]}
+        onLinePopupToggle={[MockFunction]}
+        onLocationSelect={[MockFunction]}
+        onSymbolClick={[MockFunction]}
+        previousLine={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 6,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        renderDuplicationPopup={[MockFunction]}
+        scroll={[Function]}
+        secondaryIssueLocations={Array []}
+        verticalBuffer={0}
+      />
+      <tr
+        className="expand-block expand-block-below"
+      >
+        <td
+          colSpan={5}
+        >
+          <button
+            aria-label="source_viewer.expand_below"
+            onClick={[Function]}
+            type="button"
+          >
+            <ExpandSnippetIcon />
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`should render correctly when at the bottom of the file 1`] = `
+<div
+  className="source-viewer-code snippet"
+>
+  <table
+    className="source-table"
+  >
+    <tbody>
+      <tr
+        className="expand-block expand-block-above"
+      >
+        <td
+          colSpan={5}
+        >
+          <button
+            aria-label="source_viewer.expand_above"
+            onClick={[Function]}
+            type="button"
+          >
+            <ExpandSnippetIcon />
+          </button>
+        </td>
+      </tr>
+      <Line
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        displayAllIssues={false}
+        displayCoverage={true}
+        displayDuplications={false}
+        displayIssues={true}
+        displayLocationMarkers={true}
+        duplications={Array []}
+        duplicationsCount={0}
+        highlighted={false}
+        issueLocations={Array []}
+        issues={Array []}
+        key="10"
+        last={false}
+        line={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 10,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        loadDuplications={[MockFunction]}
+        onIssueChange={[MockFunction]}
+        onIssuePopupToggle={[MockFunction]}
+        onIssueSelect={[Function]}
+        onIssueUnselect={[Function]}
+        onIssuesClose={[MockFunction]}
+        onIssuesOpen={[MockFunction]}
+        onLinePopupToggle={[MockFunction]}
+        onLocationSelect={[MockFunction]}
+        onSymbolClick={[MockFunction]}
+        renderDuplicationPopup={[MockFunction]}
+        scroll={[Function]}
+        secondaryIssueLocations={Array []}
+        verticalBuffer={0}
+      />
+      <Line
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        displayAllIssues={false}
+        displayCoverage={true}
+        displayDuplications={false}
+        displayIssues={true}
+        displayLocationMarkers={true}
+        duplications={Array []}
+        duplicationsCount={0}
+        highlighted={false}
+        issueLocations={Array []}
+        issues={Array []}
+        key="11"
+        last={false}
+        line={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 11,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        loadDuplications={[MockFunction]}
+        onIssueChange={[MockFunction]}
+        onIssuePopupToggle={[MockFunction]}
+        onIssueSelect={[Function]}
+        onIssueUnselect={[Function]}
+        onIssuesClose={[MockFunction]}
+        onIssuesOpen={[MockFunction]}
+        onLinePopupToggle={[MockFunction]}
+        onLocationSelect={[MockFunction]}
+        onSymbolClick={[MockFunction]}
+        previousLine={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 10,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        renderDuplicationPopup={[MockFunction]}
+        scroll={[Function]}
+        secondaryIssueLocations={Array []}
+        verticalBuffer={0}
+      />
+      <Line
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        displayAllIssues={false}
+        displayCoverage={true}
+        displayDuplications={false}
+        displayIssues={true}
+        displayLocationMarkers={true}
+        duplications={Array []}
+        duplicationsCount={0}
+        highlighted={false}
+        issueLocations={Array []}
+        issues={Array []}
+        key="12"
+        last={false}
+        line={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 12,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        loadDuplications={[MockFunction]}
+        onIssueChange={[MockFunction]}
+        onIssuePopupToggle={[MockFunction]}
+        onIssueSelect={[Function]}
+        onIssueUnselect={[Function]}
+        onIssuesClose={[MockFunction]}
+        onIssuesOpen={[MockFunction]}
+        onLinePopupToggle={[MockFunction]}
+        onLocationSelect={[MockFunction]}
+        onSymbolClick={[MockFunction]}
+        previousLine={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 11,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        renderDuplicationPopup={[MockFunction]}
+        scroll={[Function]}
+        secondaryIssueLocations={Array []}
+        verticalBuffer={0}
+      />
+      <Line
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        displayAllIssues={false}
+        displayCoverage={true}
+        displayDuplications={false}
+        displayIssues={true}
+        displayLocationMarkers={true}
+        duplications={Array []}
+        duplicationsCount={0}
+        highlighted={false}
+        issueLocations={Array []}
+        issues={Array []}
+        key="13"
+        last={false}
+        line={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 13,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        loadDuplications={[MockFunction]}
+        onIssueChange={[MockFunction]}
+        onIssuePopupToggle={[MockFunction]}
+        onIssueSelect={[Function]}
+        onIssueUnselect={[Function]}
+        onIssuesClose={[MockFunction]}
+        onIssuesOpen={[MockFunction]}
+        onLinePopupToggle={[MockFunction]}
+        onLocationSelect={[MockFunction]}
+        onSymbolClick={[MockFunction]}
+        previousLine={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 12,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        renderDuplicationPopup={[MockFunction]}
+        scroll={[Function]}
+        secondaryIssueLocations={Array []}
+        verticalBuffer={0}
+      />
+      <tr
+        className="expand-block expand-block-below"
+      >
+        <td
+          colSpan={5}
+        >
+          <button
+            aria-label="source_viewer.expand_below"
+            onClick={[Function]}
+            type="button"
+          >
+            <ExpandSnippetIcon />
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`should render correctly when at the top of the file 1`] = `
+<div
+  className="source-viewer-code snippet"
+>
+  <table
+    className="source-table"
+  >
+    <tbody>
+      <Line
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        displayAllIssues={false}
+        displayCoverage={true}
+        displayDuplications={false}
+        displayIssues={true}
+        displayLocationMarkers={true}
+        duplications={Array []}
+        duplicationsCount={0}
+        highlighted={false}
+        issueLocations={Array []}
+        issues={Array []}
+        key="1"
+        last={false}
+        line={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 1,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        loadDuplications={[MockFunction]}
+        onIssueChange={[MockFunction]}
+        onIssuePopupToggle={[MockFunction]}
+        onIssueSelect={[Function]}
+        onIssueUnselect={[Function]}
+        onIssuesClose={[MockFunction]}
+        onIssuesOpen={[MockFunction]}
+        onLinePopupToggle={[MockFunction]}
+        onLocationSelect={[MockFunction]}
+        onSymbolClick={[MockFunction]}
+        renderDuplicationPopup={[MockFunction]}
+        scroll={[Function]}
+        secondaryIssueLocations={Array []}
+        verticalBuffer={0}
+      />
+      <Line
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        displayAllIssues={false}
+        displayCoverage={true}
+        displayDuplications={false}
+        displayIssues={true}
+        displayLocationMarkers={true}
+        duplications={Array []}
+        duplicationsCount={0}
+        highlighted={false}
+        issueLocations={Array []}
+        issues={Array []}
+        key="2"
+        last={false}
+        line={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 2,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        loadDuplications={[MockFunction]}
+        onIssueChange={[MockFunction]}
+        onIssuePopupToggle={[MockFunction]}
+        onIssueSelect={[Function]}
+        onIssueUnselect={[Function]}
+        onIssuesClose={[MockFunction]}
+        onIssuesOpen={[MockFunction]}
+        onLinePopupToggle={[MockFunction]}
+        onLocationSelect={[MockFunction]}
+        onSymbolClick={[MockFunction]}
+        previousLine={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 1,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        renderDuplicationPopup={[MockFunction]}
+        scroll={[Function]}
+        secondaryIssueLocations={Array []}
+        verticalBuffer={0}
+      />
+      <Line
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        displayAllIssues={false}
+        displayCoverage={true}
+        displayDuplications={false}
+        displayIssues={true}
+        displayLocationMarkers={true}
+        duplications={Array []}
+        duplicationsCount={0}
+        highlighted={false}
+        issueLocations={Array []}
+        issues={Array []}
+        key="3"
+        last={false}
+        line={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 3,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        loadDuplications={[MockFunction]}
+        onIssueChange={[MockFunction]}
+        onIssuePopupToggle={[MockFunction]}
+        onIssueSelect={[Function]}
+        onIssueUnselect={[Function]}
+        onIssuesClose={[MockFunction]}
+        onIssuesOpen={[MockFunction]}
+        onLinePopupToggle={[MockFunction]}
+        onLocationSelect={[MockFunction]}
+        onSymbolClick={[MockFunction]}
+        previousLine={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 2,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        renderDuplicationPopup={[MockFunction]}
+        scroll={[Function]}
+        secondaryIssueLocations={Array []}
+        verticalBuffer={0}
+      />
+      <Line
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        displayAllIssues={false}
+        displayCoverage={true}
+        displayDuplications={false}
+        displayIssues={true}
+        displayLocationMarkers={true}
+        duplications={Array []}
+        duplicationsCount={0}
+        highlighted={false}
+        issueLocations={Array []}
+        issues={Array []}
+        key="4"
+        last={false}
+        line={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 4,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        loadDuplications={[MockFunction]}
+        onIssueChange={[MockFunction]}
+        onIssuePopupToggle={[MockFunction]}
+        onIssueSelect={[Function]}
+        onIssueUnselect={[Function]}
+        onIssuesClose={[MockFunction]}
+        onIssuesOpen={[MockFunction]}
+        onLinePopupToggle={[MockFunction]}
+        onLocationSelect={[MockFunction]}
+        onSymbolClick={[MockFunction]}
+        previousLine={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 3,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        renderDuplicationPopup={[MockFunction]}
+        scroll={[Function]}
+        secondaryIssueLocations={Array []}
+        verticalBuffer={0}
+      />
+      <Line
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        displayAllIssues={false}
+        displayCoverage={true}
+        displayDuplications={false}
+        displayIssues={true}
+        displayLocationMarkers={true}
+        duplications={Array []}
+        duplicationsCount={0}
+        highlighted={false}
+        issueLocations={Array []}
+        issues={Array []}
+        key="5"
+        last={false}
+        line={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 5,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        loadDuplications={[MockFunction]}
+        onIssueChange={[MockFunction]}
+        onIssuePopupToggle={[MockFunction]}
+        onIssueSelect={[Function]}
+        onIssueUnselect={[Function]}
+        onIssuesClose={[MockFunction]}
+        onIssuesOpen={[MockFunction]}
+        onLinePopupToggle={[MockFunction]}
+        onLocationSelect={[MockFunction]}
+        onSymbolClick={[MockFunction]}
+        previousLine={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 4,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        renderDuplicationPopup={[MockFunction]}
+        scroll={[Function]}
+        secondaryIssueLocations={Array []}
+        verticalBuffer={0}
+      />
+      <Line
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        displayAllIssues={false}
+        displayCoverage={true}
+        displayDuplications={false}
+        displayIssues={true}
+        displayLocationMarkers={true}
+        duplications={Array []}
+        duplicationsCount={0}
+        highlighted={false}
+        issueLocations={Array []}
+        issues={Array []}
+        key="6"
+        last={false}
+        line={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 6,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        loadDuplications={[MockFunction]}
+        onIssueChange={[MockFunction]}
+        onIssuePopupToggle={[MockFunction]}
+        onIssueSelect={[Function]}
+        onIssueUnselect={[Function]}
+        onIssuesClose={[MockFunction]}
+        onIssuesOpen={[MockFunction]}
+        onLinePopupToggle={[MockFunction]}
+        onLocationSelect={[MockFunction]}
+        onSymbolClick={[MockFunction]}
+        previousLine={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 5,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        renderDuplicationPopup={[MockFunction]}
+        scroll={[Function]}
+        secondaryIssueLocations={Array []}
+        verticalBuffer={0}
+      />
+      <Line
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        displayAllIssues={false}
+        displayCoverage={true}
+        displayDuplications={false}
+        displayIssues={true}
+        displayLocationMarkers={true}
+        duplications={Array []}
+        duplicationsCount={0}
+        highlighted={false}
+        issueLocations={Array []}
+        issues={Array []}
+        key="7"
+        last={false}
+        line={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 7,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        loadDuplications={[MockFunction]}
+        onIssueChange={[MockFunction]}
+        onIssuePopupToggle={[MockFunction]}
+        onIssueSelect={[Function]}
+        onIssueUnselect={[Function]}
+        onIssuesClose={[MockFunction]}
+        onIssuesOpen={[MockFunction]}
+        onLinePopupToggle={[MockFunction]}
+        onLocationSelect={[MockFunction]}
+        onSymbolClick={[MockFunction]}
+        previousLine={
+          Object {
+            "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+            "coverageStatus": "covered",
+            "coveredConditions": 2,
+            "duplicated": false,
+            "isNew": true,
+            "line": 6,
+            "scmAuthor": "simon.brandhof@sonarsource.com",
+            "scmDate": "2018-12-11T10:48:39+0100",
+            "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
+          }
+        }
+        renderDuplicationPopup={[MockFunction]}
+        scroll={[Function]}
+        secondaryIssueLocations={Array []}
+        verticalBuffer={0}
+      />
+      <tr
+        className="expand-block expand-block-below"
+      >
+        <td
+          colSpan={5}
+        >
+          <button
+            aria-label="source_viewer.expand_below"
+            onClick={[Function]}
+            type="button"
+          >
+            <ExpandSnippetIcon />
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;

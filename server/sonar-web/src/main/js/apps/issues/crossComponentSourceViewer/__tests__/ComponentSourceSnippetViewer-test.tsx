@@ -102,7 +102,7 @@ it('should expand full component', async () => {
   expect(wrapper.state('snippets')[0]).toHaveLength(14);
 });
 
-it.only('should get the right branch when expanding', async () => {
+it('should get the right branch when expanding', async () => {
   (getSources as jest.Mock).mockResolvedValueOnce(
     Object.values(
       mockSnippetsByComponent('a', [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]).sources
@@ -168,19 +168,19 @@ it('should correctly handle lines actions', () => {
 
   const line = mockSourceLine();
   wrapper
-    .find('Line')
+    .find('SnippetViewer')
     .first()
     .prop<Function>('loadDuplications')(line);
   expect(loadDuplications).toHaveBeenCalledWith('a', line);
 
   wrapper
-    .find('Line')
+    .find('SnippetViewer')
     .first()
-    .prop<Function>('onLinePopupToggle')({ line: 13, name: 'foo' });
+    .prop<Function>('handleLinePopupToggle')({ line: 13, name: 'foo' });
   expect(onLinePopupToggle).toHaveBeenCalledWith({ component: 'a', line: 13, name: 'foo' });
 
   wrapper
-    .find('Line')
+    .find('SnippetViewer')
     .first()
     .prop<Function>('renderDuplicationPopup')(1, 13);
   expect(renderDuplicationPopup).toHaveBeenCalledWith(
