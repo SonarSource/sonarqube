@@ -40,6 +40,7 @@ import {
   optimizeSelectedIssue
 } from '../../../components/SourceViewer/helpers/lines';
 import { translate } from '../../../helpers/l10n';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 
 interface Props {
   branchLike: T.BranchLike | undefined;
@@ -103,6 +104,8 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
   }
 
   expandBlock = (snippetIndex: number, direction: T.ExpandDirection) => {
+    const { branchLike, snippetGroup } = this.props;
+    const { key } = snippetGroup.component;
     const { snippets } = this.state;
 
     const snippet = snippets[snippetIndex];
@@ -122,8 +125,9 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
           };
 
     getSources({
-      key: this.props.snippetGroup.component.key,
-      ...range
+      key,
+      ...range,
+      ...getBranchLikeQuery(branchLike)
     })
       .then(lines =>
         lines.reduce((lineMap: T.Dict<T.SourceLine>, line) => {
@@ -155,11 +159,12 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
   };
 
   expandComponent = () => {
-    const { key } = this.props.snippetGroup.component;
+    const { branchLike, snippetGroup } = this.props;
+    const { key } = snippetGroup.component;
 
     this.setState({ loading: true });
 
-    getSources({ key }).then(
+    getSources({ key, ...getBranchLikeQuery(branchLike) }).then(
       lines => {
         if (this.mounted) {
           this.setState({ loading: false, snippets: [lines] });

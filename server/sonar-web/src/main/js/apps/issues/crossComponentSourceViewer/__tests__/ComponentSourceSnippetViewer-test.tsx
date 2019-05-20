@@ -27,7 +27,8 @@ import {
   mockSourceViewerFile,
   mockFlowLocation,
   mockSnippetsByComponent,
-  mockSourceLine
+  mockSourceLine,
+  mockShortLivingBranch
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { getSources } from '../../../../api/components';
@@ -99,6 +100,28 @@ it('should expand full component', async () => {
   expect(getSources).toHaveBeenCalledWith({ key: 'a' });
   expect(wrapper.state('snippets')).toHaveLength(1);
   expect(wrapper.state('snippets')[0]).toHaveLength(14);
+});
+
+it.only('should get the right branch when expanding', async () => {
+  (getSources as jest.Mock).mockResolvedValueOnce(
+    Object.values(
+      mockSnippetsByComponent('a', [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]).sources
+    )
+  );
+  const snippetGroup: T.SnippetGroup = {
+    locations: [mockFlowLocation()],
+    ...mockSnippetsByComponent('a', [1, 2, 3, 4])
+  };
+
+  const wrapper = shallowRender({
+    branchLike: mockShortLivingBranch({ name: 'asdf' }),
+    snippetGroup
+  });
+
+  wrapper.instance().expandBlock(0, 'down');
+  await waitAndUpdate(wrapper);
+
+  expect(getSources).toHaveBeenCalledWith({ branch: 'asdf', from: 5, key: 'a', to: 17 });
 });
 
 it('should handle correctly open/close issue', () => {
