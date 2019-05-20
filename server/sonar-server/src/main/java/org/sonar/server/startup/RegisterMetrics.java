@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
+import org.picocontainer.Startable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
@@ -40,7 +41,7 @@ import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Lists.newArrayList;
 
-public class RegisterMetrics {
+public class RegisterMetrics implements Startable {
 
   private static final Logger LOG = Loggers.get(RegisterMetrics.class);
 
@@ -59,8 +60,14 @@ public class RegisterMetrics {
     this(dbClient, new Metrics[] {});
   }
 
+  @Override
   public void start() {
     register(concat(CoreMetrics.getMetrics(), getPluginMetrics()));
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
   }
 
   void register(Iterable<Metric> metrics) {

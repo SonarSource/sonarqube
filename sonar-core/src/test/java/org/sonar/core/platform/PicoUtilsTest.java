@@ -19,11 +19,12 @@
  */
 package org.sonar.core.platform;
 
-import java.io.IOException;
+import java.lang.reflect.Method;
 import org.junit.Test;
 import org.picocontainer.Characteristics;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoLifecycleException;
+import org.picocontainer.Startable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -31,11 +32,19 @@ import static org.junit.Assert.fail;
 public class PicoUtilsTest {
 
   @Test
-  public void shouldSanitizePicoLifecycleException() {
-    Throwable th = PicoUtils.sanitize(newPicoLifecycleException(false));
+  public void shouldSanitizePicoLifecycleException() throws NoSuchMethodException {
+    UncheckedFailureComponent instance = new UncheckedFailureComponent();
+    Method method = UncheckedFailureComponent.class.getMethod("start");
+    try {
+      instance.start();
+      fail("Start should have thrown a IllegalStateException");
+    }
+    catch (IllegalStateException e) {
+      Throwable th = PicoUtils.sanitize(new PicoLifecycleException(method, instance, e));
 
-    assertThat(th).isInstanceOf(IllegalStateException.class);
-    assertThat(th.getMessage()).isEqualTo("A good reason to fail");
+      assertThat(th).isInstanceOf(IllegalStateException.class);
+      assertThat(th.getMessage()).isEqualTo("A good reason to fail");
+    }
   }
 
   @Test
@@ -57,49 +66,35 @@ public class PicoUtilsTest {
   @Test
   public void shouldPropagateInitialUncheckedException() {
     try {
-      PicoUtils.propagate(newPicoLifecycleException(false));
+      PicoUtils.propagate(newPicoLifecycleException());
       fail();
     } catch (RuntimeException e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
     }
   }
 
-  @Test
-  public void shouldThrowUncheckedExceptionWhenPropagatingCheckedException() {
-    try {
-      PicoUtils.propagate(newPicoLifecycleException(true));
-      fail();
-    } catch (RuntimeException e) {
-      assertThat(e.getCause()).isInstanceOf(IOException.class);
-      assertThat(e.getCause().getMessage()).isEqualTo("Checked");
-    }
-  }
 
-  private PicoLifecycleException newPicoLifecycleException(boolean initialCheckedException) {
+  private PicoLifecycleException newPicoLifecycleException() {
     MutablePicoContainer container = ComponentContainer.createPicoContainer().as(Characteristics.CACHE);
-    if (initialCheckedException) {
-      container.addComponent(CheckedFailureComponent.class);
-    } else {
-      container.addComponent(UncheckedFailureComponent.class);
-    }
+    container.addComponent(UncheckedFailureComponent.class);
     try {
       container.start();
-      return null;
+      throw new IllegalStateException("An exception should have been thrown by start()");
 
     } catch (PicoLifecycleException e) {
       return e;
     }
   }
 
-  public static class UncheckedFailureComponent {
+  public static class UncheckedFailureComponent implements Startable {
     public void start() {
       throw new IllegalStateException("A good reason to fail");
     }
-  }
 
-  public static class CheckedFailureComponent {
-    public void start() throws IOException {
-      throw new IOException("Checked");
+    @Override
+    public void stop() {
+      // nothing to do
     }
   }
+
 }

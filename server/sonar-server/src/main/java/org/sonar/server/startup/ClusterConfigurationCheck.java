@@ -43,6 +43,7 @@ public class ClusterConfigurationCheck implements Startable {
     }
   }
 
+  @Override
   public void stop() {
     // Nothing to do
   }

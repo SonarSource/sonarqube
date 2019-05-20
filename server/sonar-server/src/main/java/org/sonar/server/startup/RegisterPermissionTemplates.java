@@ -19,6 +19,7 @@
  */
 package org.sonar.server.startup;
 
+import org.picocontainer.Startable;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -37,7 +38,7 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 
-public class RegisterPermissionTemplates {
+public class RegisterPermissionTemplates implements Startable {
 
   private static final Logger LOG = Loggers.get(RegisterPermissionTemplates.class);
   private static final String DEFAULT_TEMPLATE_UUID = "default_template";
@@ -50,6 +51,7 @@ public class RegisterPermissionTemplates {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
+  @Override
   public void start() {
     Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register permission templates");
 
@@ -64,6 +66,11 @@ public class RegisterPermissionTemplates {
     }
 
     profiler.stopDebug();
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
   }
 
   private PermissionTemplateDto getOrInsertDefaultTemplate(DbSession dbSession, String defaultOrganizationUuid) {

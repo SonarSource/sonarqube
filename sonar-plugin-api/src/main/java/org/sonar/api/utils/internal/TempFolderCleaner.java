@@ -19,11 +19,12 @@
  */
 package org.sonar.api.utils.internal;
 
+import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.TempFolder;
 
 @ServerSide
-public class TempFolderCleaner {
+public class TempFolderCleaner implements Startable {
 
   private TempFolder defaultTempFolder;
 
@@ -35,6 +36,7 @@ public class TempFolderCleaner {
    * This method should not be renamed. It follows the naming convention
    * defined by IoC container.
    */
+  @Override
   public void start() {
     // Nothing to do
   }
@@ -43,6 +45,7 @@ public class TempFolderCleaner {
    * This method should not be renamed. It follows the naming convention
    * defined by IoC container.
    */
+  @Override
   public void stop() {
     ((DefaultTempFolder) defaultTempFolder).clean();
   }

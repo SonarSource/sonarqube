@@ -21,18 +21,17 @@ package org.sonar.ce.task.container;
 
 import java.util.List;
 import org.picocontainer.ComponentAdapter;
-import org.picocontainer.ComponentMonitor;
 import org.picocontainer.DefaultPicoContainer;
+import org.picocontainer.LifecycleStrategy;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.behaviors.OptInCaching;
-import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.core.platform.Module;
-import org.sonar.core.platform.StopSafeReflectionLifecycleStrategy;
+import org.sonar.core.platform.StartableCloseableSafeLifecyleStrategy;
 
 import static java.util.Objects.requireNonNull;
 
@@ -61,15 +60,14 @@ public class TaskContainerImpl extends ComponentContainer implements TaskContain
    * and lazily starts its components.
    */
   private static MutablePicoContainer createContainer(ComponentContainer parent) {
-    ComponentMonitor componentMonitor = new NullComponentMonitor();
-    ReflectionLifecycleStrategy lifecycleStrategy = new StopSafeReflectionLifecycleStrategy(componentMonitor) {
+    LifecycleStrategy lifecycleStrategy = new StartableCloseableSafeLifecyleStrategy() {
       @Override
       public boolean isLazy(ComponentAdapter<?> adapter) {
         return adapter.getComponentImplementation().getAnnotation(EagerStart.class) == null;
       }
     };
 
-    return new DefaultPicoContainer(new OptInCaching(), lifecycleStrategy, parent.getPicoContainer(), componentMonitor);
+    return new DefaultPicoContainer(new OptInCaching(), lifecycleStrategy, parent.getPicoContainer(), new NullComponentMonitor());
   }
 
   @Override

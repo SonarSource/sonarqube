@@ -20,15 +20,16 @@
 package org.sonar.server.startup;
 
 import com.google.common.base.Strings;
-import org.sonar.api.utils.log.Loggers;
+import org.picocontainer.Startable;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.property.PropertiesDao;
 
 /**
  * @since 3.4
  */
-public class RenameDeprecatedPropertyKeys {
+public class RenameDeprecatedPropertyKeys implements Startable {
 
   private PropertiesDao dao;
   private PropertyDefinitions definitions;
@@ -38,6 +39,7 @@ public class RenameDeprecatedPropertyKeys {
     this.definitions = definitions;
   }
 
+  @Override
   public void start() {
     Loggers.get(RenameDeprecatedPropertyKeys.class).info("Rename deprecated property keys");
     for (PropertyDefinition definition : definitions.getAll()) {
@@ -45,5 +47,10 @@ public class RenameDeprecatedPropertyKeys {
         dao.renamePropertyKey(definition.deprecatedKey(), definition.key());
       }
     }
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
   }
 }

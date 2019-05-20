@@ -20,13 +20,13 @@
 package org.sonar.server.platform.web;
 
 import java.util.Arrays;
-import javax.servlet.ServletException;
+import org.picocontainer.Startable;
 import org.sonar.api.web.ServletFilter;
 
 /**
  * @since 3.5
  */
-public class RegisterServletFilters {
+public class RegisterServletFilters implements Startable {
   private final ServletFilter[] filters;
 
   public RegisterServletFilters(ServletFilter[] filters) {
@@ -37,12 +37,18 @@ public class RegisterServletFilters {
     this(new ServletFilter[0]);
   }
 
-  public void start() throws ServletException {
+  @Override
+  public void start() {
     if (MasterServletFilter.INSTANCE != null) {
       // Probably a database upgrade. MasterSlaveFilter was instantiated by the servlet container
       // while picocontainer was not completely up.
       // See https://jira.sonarsource.com/browse/SONAR-3612
       MasterServletFilter.INSTANCE.initFilters(Arrays.asList(filters));
     }
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
   }
 }

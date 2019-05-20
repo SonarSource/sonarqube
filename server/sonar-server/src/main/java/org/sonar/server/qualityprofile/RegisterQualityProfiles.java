@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import org.picocontainer.Startable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
@@ -47,7 +48,7 @@ import static org.sonar.server.qualityprofile.ActiveRuleInheritance.NONE;
  * Synchronize Quality profiles during server startup
  */
 @ServerSide
-public class RegisterQualityProfiles {
+public class RegisterQualityProfiles implements Startable {
 
   private static final Logger LOGGER = Loggers.get(RegisterQualityProfiles.class);
 
@@ -69,6 +70,7 @@ public class RegisterQualityProfiles {
     this.system2 = system2;
   }
 
+  @Override
   public void start() {
     List<BuiltInQProfile> builtInQProfiles = builtInQProfileRepository.get();
     if (builtInQProfiles.isEmpty()) {
@@ -104,6 +106,11 @@ public class RegisterQualityProfiles {
       ensureBuiltInDefaultQPContainsRules(dbSession);
     }
     profiler.stopDebug();
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
   }
 
   private Map<QProfileName, RulesProfileDto> loadPersistedProfiles(DbSession dbSession) {

@@ -20,15 +20,16 @@
 package org.sonar.server.util;
 
 import java.util.concurrent.ExecutorService;
+import org.picocontainer.Startable;
 
 /**
  * ExecutorService that exposes a {@code stop} method which can be invoked by Pico container to shutdown properly
  * the service.
  */
-public interface StoppableExecutorService extends ExecutorService {
+public interface StoppableExecutorService extends ExecutorService, Startable {
+  @Override
+  default void start() {
+    // nothing to do
+  }
 
-  /**
-   * Stops the ExecutorService nicely (ie. first let a little time for jobs to end and then abort them)
-   */
-  void stop();
 }

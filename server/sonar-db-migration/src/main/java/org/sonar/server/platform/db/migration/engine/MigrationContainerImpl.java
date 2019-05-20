@@ -20,15 +20,14 @@
 package org.sonar.server.platform.db.migration.engine;
 
 import org.picocontainer.ComponentAdapter;
-import org.picocontainer.ComponentMonitor;
 import org.picocontainer.DefaultPicoContainer;
+import org.picocontainer.LifecycleStrategy;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.behaviors.OptInCaching;
-import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.core.platform.StopSafeReflectionLifecycleStrategy;
+import org.sonar.core.platform.StartableCloseableSafeLifecyleStrategy;
 
 import static java.util.Objects.requireNonNull;
 
@@ -49,14 +48,13 @@ public class MigrationContainerImpl extends ComponentContainer implements Migrat
    * Creates a PicContainer which extends the specified ComponentContainer <strong>but is not referenced in return</strong>.
    */
   private static MutablePicoContainer createContainer(ComponentContainer parent) {
-    ComponentMonitor componentMonitor = new NullComponentMonitor();
-    ReflectionLifecycleStrategy lifecycleStrategy = new StopSafeReflectionLifecycleStrategy(componentMonitor) {
+    LifecycleStrategy lifecycleStrategy = new StartableCloseableSafeLifecyleStrategy() {
       @Override
       public boolean isLazy(ComponentAdapter<?> adapter) {
         return true;
       }
     };
-    return new DefaultPicoContainer(new OptInCaching(), lifecycleStrategy, parent.getPicoContainer(), componentMonitor);
+    return new DefaultPicoContainer(new OptInCaching(), lifecycleStrategy, parent.getPicoContainer(), new NullComponentMonitor());
   }
 
   @Override

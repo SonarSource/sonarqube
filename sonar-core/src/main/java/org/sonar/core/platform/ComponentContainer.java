@@ -310,8 +310,7 @@ public class ComponentContainer implements ContainerPopulator.Container {
   }
 
   public static MutablePicoContainer createPicoContainer() {
-    NullComponentMonitor componentMonitor = new NullComponentMonitor();
-    return new ExtendedDefaultPicoContainer(new OptInCaching(), new StopSafeReflectionLifecycleStrategy(componentMonitor), null, componentMonitor);
+    return new ExtendedDefaultPicoContainer(new OptInCaching(), new StartableCloseableSafeLifecyleStrategy(), null, new NullComponentMonitor());
   }
 
   public ComponentContainer getParent() {

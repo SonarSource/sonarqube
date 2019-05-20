@@ -19,12 +19,14 @@
  */
 package org.sonar.core.platform;
 
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.picocontainer.Startable;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.Property;
 import org.sonar.api.config.PropertyDefinitions;
@@ -48,7 +50,7 @@ public class ComponentContainerTest {
   }
 
   @Test
-  public void should_start_and_stop() {
+  public void should_start_and_stop_component_extending_pico_Startable() {
     ComponentContainer container = spy(new ComponentContainer());
     container.addSingleton(StartableStoppableComponent.class);
     container.startComponents();
@@ -60,6 +62,37 @@ public class ComponentContainerTest {
 
     container.stopComponents();
     assertThat(container.getComponentByType(StartableStoppableComponent.class).stopped).isTrue();
+  }
+
+  @Test
+  public void should_start_and_stop_component_extending_API_Startable() {
+    ComponentContainer container = spy(new ComponentContainer());
+    container.addSingleton(StartableStoppableApiComponent.class);
+    container.startComponents();
+
+    assertThat(container.getComponentByType(StartableStoppableApiComponent.class).started).isTrue();
+    assertThat(container.getComponentByType(StartableStoppableApiComponent.class).stopped).isFalse();
+    verify(container).doBeforeStart();
+    verify(container).doAfterStart();
+
+    container.stopComponents();
+    assertThat(container.getComponentByType(StartableStoppableApiComponent.class).stopped).isTrue();
+  }
+
+  @Test
+  public void should_not_start_and_stop_component_just_having_start_and_stop_method() {
+    ComponentContainer container = spy(new ComponentContainer());
+    container.addSingleton(ReflectionStartableStoppableComponent.class);
+    container.startComponents();
+
+    assertThat(container.getComponentByType(ReflectionStartableStoppableComponent.class).started).isFalse();
+    assertThat(container.getComponentByType(ReflectionStartableStoppableComponent.class).stopped).isFalse();
+    verify(container).doBeforeStart();
+    verify(container).doAfterStart();
+
+    container.stopComponents();
+    assertThat(container.getComponentByType(ReflectionStartableStoppableComponent.class).started).isFalse();
+    assertThat(container.getComponentByType(ReflectionStartableStoppableComponent.class).stopped).isFalse();
   }
 
   @Test
@@ -296,12 +329,26 @@ public class ComponentContainerTest {
       container.getComponentByType(FailingStopWithOOMComponent2.class)
     };
 
+    container.stopComponents();
+
+    assertThat(container.getPicoContainer().getLifecycleState().isDisposed()).isTrue();
+    Arrays.stream(components).forEach(cpt -> assertThat(cpt.stopped).isTrue());
   }
 
   @Test
   public void stop_exception_should_not_hide_start_exception() {
     ComponentContainer container = new ComponentContainer();
     container.add(UnstartableComponent.class, FailingStopWithISEComponent.class);
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Fail to start");
+    container.execute();
+  }
+
+  @Test
+  public void stop_exceptionin_API_component_should_not_hide_start_exception() {
+    ComponentContainer container = new ComponentContainer();
+    container.add(UnstartableApiComponent.class, FailingStopWithISEComponent.class);
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Fail to start");
@@ -339,7 +386,7 @@ public class ComponentContainerTest {
    * Method close() must be executed after stop()
    */
   @Test
-  public void should_close_components_with_lifecycle() {
+  public void should_close_Closeable_components_with_lifecycle() {
     ComponentContainer container = new ComponentContainer();
     StartableCloseableComponent component = new StartableCloseableComponent();
     container.add(component);
@@ -351,7 +398,53 @@ public class ComponentContainerTest {
     assertThat(component.isClosedAfterStop).isTrue();
   }
 
-  public static class StartableStoppableComponent {
+  /**
+   * Method close() must be executed after stop()
+   */
+  @Test
+  public void should_close_AutoCloseable_components_with_lifecycle() {
+    ComponentContainer container = new ComponentContainer();
+    StartableAutoCloseableComponent component = new StartableAutoCloseableComponent();
+    container.add(component);
+
+    container.execute();
+
+    assertThat(component.isStopped).isTrue();
+    assertThat(component.isClosed).isTrue();
+    assertThat(component.isClosedAfterStop).isTrue();
+  }
+
+  public static class StartableStoppableComponent implements Startable {
+    public boolean started = false;
+    public boolean stopped = false;
+
+    @Override
+    public void start() {
+      started = true;
+    }
+
+    @Override
+    public void stop() {
+      stopped = true;
+    }
+  }
+
+  public static class StartableStoppableApiComponent implements org.sonar.api.Startable {
+    public boolean started = false;
+    public boolean stopped = false;
+
+    @Override
+    public void start() {
+      started = true;
+    }
+
+    @Override
+    public void stop() {
+      stopped = true;
+    }
+  }
+
+  public static class ReflectionStartableStoppableComponent {
     public boolean started = false;
     public boolean stopped = false;
 
@@ -364,11 +457,25 @@ public class ComponentContainerTest {
     }
   }
 
-  public static class UnstartableComponent {
+  public static class UnstartableComponent implements Startable {
+    @Override
     public void start() {
       throw new IllegalStateException("Fail to start");
     }
 
+    @Override
+    public void stop() {
+
+    }
+  }
+
+  public static class UnstartableApiComponent implements org.sonar.api.Startable {
+    @Override
+    public void start() {
+      throw new IllegalStateException("Fail to start");
+    }
+
+    @Override
     public void stop() {
 
     }
@@ -431,22 +538,50 @@ public class ComponentContainerTest {
     public boolean isClosed = false;
 
     @Override
-    public void close() throws Exception {
+    public void close() {
       isClosed = true;
     }
   }
 
-  public static class StartableCloseableComponent implements AutoCloseable {
+  public static class StartableAutoCloseableComponent implements Startable,AutoCloseable {
     public boolean isClosed = false;
     public boolean isStopped = false;
     public boolean isClosedAfterStop = false;
 
+    @Override
+    public void start() {
+      // nothing to do
+    }
+
+    @Override
     public void stop() {
       isStopped = true;
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
+      isClosed = true;
+      isClosedAfterStop = isStopped;
+    }
+  }
+
+  public static class StartableCloseableComponent implements Startable, Closeable {
+    public boolean isClosed = false;
+    public boolean isStopped = false;
+    public boolean isClosedAfterStop = false;
+
+    @Override
+    public void start() {
+      // nothing to do
+    }
+
+    @Override
+    public void stop() {
+      isStopped = true;
+    }
+
+    @Override
+    public void close() {
       isClosed = true;
       isClosedAfterStop = isStopped;
     }

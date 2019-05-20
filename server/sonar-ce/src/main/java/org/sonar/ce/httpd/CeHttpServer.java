@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 
@@ -46,7 +47,7 @@ import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
  * This HTTP server exports data required for display of System Info page (and the related web service).
  * It listens on loopback address only, so it does not need to be secure (no HTTPS, no authentication).
  */
-public class CeHttpServer {
+public class CeHttpServer implements Startable {
 
   private final Properties processProps;
   private final List<HttpAction> actions;
@@ -60,7 +61,7 @@ public class CeHttpServer {
     this.nanoHttpd = new CeNanoHttpd(InetAddress.getLoopbackAddress().getHostAddress(), 0, actionRegistry);
   }
 
-  // do not rename. This naming convention is required for picocontainer.
+  @Override
   public void start() {
     try {
       registerActions();
@@ -85,7 +86,7 @@ public class CeHttpServer {
     }
   }
 
-  // do not rename. This naming convention is required for picocontainer.
+  @Override
   public void stop() {
     nanoHttpd.stop();
   }
