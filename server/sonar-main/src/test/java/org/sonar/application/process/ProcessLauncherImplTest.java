@@ -212,7 +212,7 @@ public class ProcessLauncherImplTest {
       .setPort(9001)
       .setHost("localhost")
       .setEsYmlSettings(new EsYmlSettings(new HashMap<>()))
-      .setEsJvmOptions(new EsJvmOptions(tempFolder))
+      .setEsJvmOptions(new EsJvmOptions(new Props(new Properties()), tempFolder))
       .setLog4j2Properties(new Properties());
   }
 

@@ -26,6 +26,7 @@ import com.sonar.orchestrator.locator.Location;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
+import org.sonar.api.utils.log.Loggers;
 
 import static com.sonar.orchestrator.container.Edition.COMMUNITY;
 
@@ -42,6 +43,7 @@ public class CreateDb {
       builder.setSonarVersion(version);
     }
     builder.setOrchestratorProperty("orchestrator.workspaceDir", "build/it");
+    builder.setServerProperty("sonar.es.bootstrap.checks.disable", areEsBootStrapChecksDisabled() ? "true" : "false");
 
     Orchestrator orchestrator = builder.build();
     try {
@@ -49,5 +51,13 @@ public class CreateDb {
     } finally {
       orchestrator.stop();
     }
+  }
+
+  private static boolean areEsBootStrapChecksDisabled() {
+    boolean flag = "true".equalsIgnoreCase(System.getenv("CIRRUS_CI"));
+    if (flag) {
+      Loggers.get(CreateDb.class).info("Running on Cirrus: ES Bootstrap checks are disabled");
+    }
+    return flag;
   }
 }

@@ -114,9 +114,7 @@ public class CommandFactoryImpl implements CommandFactory {
     return new JavaCommand<EsJvmOptions>(ProcessId.ELASTICSEARCH, esInstallation.getHomeDirectory())
       .setEsInstallation(esInstallation)
       .setReadsArgumentsFromFile(false)
-      .setJvmOptions(new EsJvmOptions(tempDir)
-        .addFromMandatoryProperty(props, SEARCH_JAVA_OPTS.getKey())
-        .addFromMandatoryProperty(props, SEARCH_JAVA_ADDITIONAL_OPTS.getKey())
+      .setJvmOptions(esInstallation.getEsJvmOptions()
         .add("-Delasticsearch")
         .add("-Des.path.home=" + esInstallation.getHomeDirectory().getAbsolutePath())
         .add("-Des.path.conf=" + esInstallation.getConfDirectory().getAbsolutePath()))
@@ -137,7 +135,7 @@ public class CommandFactoryImpl implements CommandFactory {
 
     esInstallation
       .setLog4j2Properties(new EsLogging().createProperties(props, esInstallation.getLogDirectory()))
-      .setEsJvmOptions(new EsJvmOptions(tempDir)
+      .setEsJvmOptions(new EsJvmOptions(props, tempDir)
         .addFromMandatoryProperty(props, SEARCH_JAVA_OPTS.getKey())
         .addFromMandatoryProperty(props, SEARCH_JAVA_ADDITIONAL_OPTS.getKey()))
       .setEsYmlSettings(new EsYmlSettings(settingsMap))
