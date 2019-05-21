@@ -102,7 +102,7 @@ Project permissions are available from the project-level Administration menu: **
 Project visibility may be toggled between public or private. Making a project private hides its source code and measures from the `Anyone` group. For both public and private projects, four different permissions can be set:
 
 * **Administer Issues**: Change the type and severity of issues, resolve issues as being "Won't Fix" or "False Positive" (users also need "Browse" permission).
-* **Administer Security Hotspots**: "Detect" (convert) a Vulnerability from a "Security Hotspot", reject, clear, accept or reopen a "Security Hotspot" (users also need "Browse" permission).
+* **Administer Security Hotspots**: With Security Hotspots, you can **Open as a Vulnerability**, **Set as In Review**, **Resolve as Reviewed**. With a Security Hotspot that's been opened as a Vulnerabilty, you can **Reset as To Review** or **Resolve as Reviewed**.
 * **Administer**: Access project settings and perform administration tasks (users also need "Browse" permission).
 * **Execute Analysis**: Execute analyses (project, view, report, developer), and to get all settings required to perform the analysis, even the secured ones like the scm account password, the jira account password, and so on.
 
