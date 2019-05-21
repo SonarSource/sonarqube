@@ -157,7 +157,10 @@ function removeExtraHeadings(content: string, headings: MarkdownHeading[]) {
     .filter(heading => !heading.value || !heading.value.match(/Table of content/i))
     .filter(heading => {
       const regex = new RegExp(
-        `<!-- sonarcloud -->[\\s\\S]*<h2>${heading.value}<\\/h2>[\\s\\S]*<!-- /sonarcloud -->`,
+        `<!-- sonarcloud -->[\\s\\S]*<h2>${heading.value!.replace(
+          /[.*+?^${}()|[\]\\]/g,
+          '\\$&'
+        )}<\\/h2>[\\s\\S]*<!-- /sonarcloud -->`,
         'gim'
       );
       return !content.match(regex);
