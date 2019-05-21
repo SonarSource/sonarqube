@@ -46,10 +46,15 @@ The Payload is a JSON document which includes:
 
 ```
 {
+    "serverUrl": "http://localhost:9000",
+    "taskId": "AVh21JS2JepAEhwQ-b3u",
+    "status": "SUCCESS",
     "analysedAt": "2016-11-18T10:46:28+0100",
+    "revision": "c739069ec7105e01303e8b3065a81141aad9f129",
     "project": {
-        "key": "org.sonarqube:example",
-        "name": "Example"
+        "key": "myproject",
+        "name": "My Project",
+        "url": "https://mycompany.com/sonarqube/dashboard?id=myproject"
     },
     "properties": {
     },
@@ -89,10 +94,7 @@ The Payload is a JSON document which includes:
         ],
         "name": "SonarQube way",
         "status": "OK"
-    },
-    "serverUrl": "http://localhost:9000",
-    "status": "SUCCESS",
-    "taskId": "AVh21JS2JepAEhwQ-b3u"
+    }
 }
 ```
 
