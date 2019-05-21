@@ -267,7 +267,6 @@ public class BulkChangeAction implements IssuesWsAction {
       return;
     }
     Set<ChangedIssue> changedIssues = issues.stream()
-      .filter(issue -> issue.type() != RuleType.SECURITY_HOTSPOT)
       // should not happen but filter it out anyway to avoid NPE in oldestUpdateDate call below
       .filter(issue -> issue.updateDate() != null)
       .map(issue -> toNotification(bulkChangeData, userDtoByUuid, issue))

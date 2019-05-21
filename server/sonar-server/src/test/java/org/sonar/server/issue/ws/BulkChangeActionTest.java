@@ -74,15 +74,16 @@ import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.sonar.api.issue.DefaultTransitions.SET_AS_IN_REVIEW;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
+import static org.sonar.api.issue.Issue.STATUS_IN_REVIEW;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.rules.RuleType.BUG;
@@ -90,6 +91,7 @@ import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.SECURITYHOTSPOT_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_COMMENT;
@@ -333,24 +335,34 @@ public class BulkChangeActionTest {
   }
 
   @Test
-  public void hotspots_are_ignored_and_no_notification_is_sent() {
+  public void send_notification_on_hotspots() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    addUserProjectPermissions(user, project, USER, SECURITYHOTSPOT_ADMIN);
     RuleDefinitionDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file, i -> i.setType(SECURITY_HOTSPOT)
-      .setStatus(STATUS_OPEN).setResolution(null));
+      .setStatus(STATUS_TO_REVIEW).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issue.getKey()))
-      .setDoTransition("resetastoreview")
+      .setDoTransition(SET_AS_IN_REVIEW)
       .setSendNotifications(true)
       .build());
 
-    checkResponse(response, 1, 0, 1, 0);
-    verify(notificationManager, never()).scheduleForSending(any());
+    checkResponse(response, 1, 1, 0, 0);
+    verify(notificationManager).scheduleForSending(issueChangeNotificationCaptor.capture());
+    IssuesChangesNotificationBuilder builder = issuesChangesSerializer.from(issueChangeNotificationCaptor.getValue());
+    assertThat(builder.getIssues()).hasSize(1);
+    ChangedIssue changedIssue = builder.getIssues().iterator().next();
+    assertThat(changedIssue.getKey()).isEqualTo(issue.getKey());
+    assertThat(changedIssue.getNewStatus()).isEqualTo(STATUS_IN_REVIEW);
+    assertThat(changedIssue.getNewResolution()).isEmpty();
+    assertThat(changedIssue.getAssignee()).isEmpty();
+    assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
+    assertThat(builder.getChange()).isEqualTo(new UserChange(NOW, userOf(user)));
+    verifyPostProcessorCalled(file);
   }
 
   @Test
