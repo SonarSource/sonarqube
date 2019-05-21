@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
 
 public class State {
@@ -36,7 +35,6 @@ public class State {
 
   public State(String key, Transition[] outTransitions) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "State key must be set");
-    Preconditions.checkArgument(StringUtils.isAllUpperCase(key), "State key must be upper-case");
     checkDuplications(outTransitions, key);
 
     this.key = key;

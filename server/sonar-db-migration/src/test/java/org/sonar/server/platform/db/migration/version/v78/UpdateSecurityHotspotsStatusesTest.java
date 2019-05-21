@@ -68,8 +68,8 @@ public class UpdateSecurityHotspotsStatusesTest {
     underTest.execute();
 
     assertIssues(
-      tuple(issue1, "TOREVIEW", null, 4, NOW),
-      tuple(issue2, "TOREVIEW", null, 4, NOW),
+      tuple(issue1, "TO_REVIEW", null, 4, NOW),
+      tuple(issue2, "TO_REVIEW", null, 4, NOW),
       // Not updated
       tuple(issue3, "OPEN", null, 1, PAST),
       tuple(issue4, "REOPENED", null, 2, PAST),
@@ -89,7 +89,7 @@ public class UpdateSecurityHotspotsStatusesTest {
     underTest.execute();
 
     assertIssues(
-      tuple(issue1, "INREVIEW", null, 4, NOW),
+      tuple(issue1, "IN_REVIEW", null, 4, NOW),
       tuple(issue2, "REVIEWED", "FIXED", 4, NOW),
       // Not updated
       tuple(issue3, "RESOLVED", "FIXED", 1, PAST),
@@ -109,8 +109,8 @@ public class UpdateSecurityHotspotsStatusesTest {
     underTest.execute();
 
     assertIssueChanges(
-      tuple(issue1, "diff", "status=REOPENED|TOREVIEW,resolution=", NOW, NOW, NOW),
-      tuple(issue3, "diff", "status=RESOLVED|INREVIEW,resolution=FIXED|", NOW, NOW, NOW),
+      tuple(issue1, "diff", "status=REOPENED|TO_REVIEW,resolution=", NOW, NOW, NOW),
+      tuple(issue3, "diff", "status=RESOLVED|IN_REVIEW,resolution=FIXED|", NOW, NOW, NOW),
       tuple(issue4, "diff", "status=RESOLVED|REVIEWED,resolution=WONTFIX|FIXED", NOW, NOW, NOW));
   }
 
@@ -159,15 +159,15 @@ public class UpdateSecurityHotspotsStatusesTest {
 
     underTest.execute();
     assertIssues(
-      tuple(issue1, "TOREVIEW", null, 4, NOW),
-      tuple(issue2, "TOREVIEW", null, 4, NOW));
+      tuple(issue1, "TO_REVIEW", null, 4, NOW),
+      tuple(issue2, "TO_REVIEW", null, 4, NOW));
 
     // Set a new date for NOW in order to check that issues has not been updated again
     system2.setNow(NOW + 1_000_000_000L);
     underTest.execute();
     assertIssues(
-      tuple(issue1, "TOREVIEW", null, 4, NOW),
-      tuple(issue2, "TOREVIEW", null, 4, NOW));
+      tuple(issue1, "TO_REVIEW", null, 4, NOW),
+      tuple(issue2, "TO_REVIEW", null, 4, NOW));
   }
 
   @Test

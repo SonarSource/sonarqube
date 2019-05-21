@@ -28,7 +28,7 @@ public class StateTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  Transition t1 = Transition.builder("close").from("OPEN").to("CLOSED").build();
+  private Transition t1 = Transition.builder("close").from("OPEN").to("CLOSED").build();
 
   @Test
   public void key_should_be_set() {
@@ -36,14 +36,6 @@ public class StateTest {
     expectedException.expectMessage("State key must be set");
 
     new State("", new Transition[0]);
-  }
-
-  @Test
-  public void key_should_be_upper_case() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("State key must be upper-case");
-
-    new State("close", new Transition[0]);
   }
 
   @Test

@@ -45,8 +45,8 @@ public class UpdateSecurityHotspotsStatuses extends DataChange {
   private static final String STATUS_REOPENED = "REOPENED";
   private static final String STATUS_RESOLVED = "RESOLVED";
 
-  private static final String STATUS_TO_REVIEW = "TOREVIEW";
-  private static final String STATUS_IN_REVIEW = "INREVIEW";
+  private static final String STATUS_TO_REVIEW = "TO_REVIEW";
+  private static final String STATUS_IN_REVIEW = "IN_REVIEW";
   private static final String STATUS_REVIEWED = "REVIEWED";
 
   private static final int RULE_TYPE_SECURITY_HOTSPOT = 4;

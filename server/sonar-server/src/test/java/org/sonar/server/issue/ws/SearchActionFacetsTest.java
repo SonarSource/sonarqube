@@ -115,7 +115,7 @@ public class SearchActionFacetsTest {
       .executeProtobuf(SearchWsResponse.class);
 
     Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 1L).put("CONFIRMED", 0L)
-      .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).put("INREVIEW", 0L).put("TOREVIEW", 0L).put("REVIEWED", 0L).build();
+      .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).put("IN_REVIEW", 0L).put("TO_REVIEW", 0L).put("REVIEWED", 0L).build();
 
     assertThat(response.getFacets().getFacetsList())
       .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
@@ -153,7 +153,7 @@ public class SearchActionFacetsTest {
       .executeProtobuf(SearchWsResponse.class);
 
     Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 10L).put("CONFIRMED", 0L)
-    .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).put("INREVIEW", 0L).put("TOREVIEW", 0L).put("REVIEWED", 0L).build();
+      .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).put("IN_REVIEW", 0L).put("TO_REVIEW", 0L).put("REVIEWED", 0L).build();
 
     assertThat(response.getFacets().getFacetsList())
       .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
@@ -507,7 +507,7 @@ public class SearchActionFacetsTest {
       .executeProtobuf(SearchWsResponse.class);
 
     Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 1L).put("CONFIRMED", 0L)
-      .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).put("INREVIEW", 0L).put("TOREVIEW", 0L).put("REVIEWED", 0L).build();
+      .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).put("IN_REVIEW", 0L).put("TO_REVIEW", 0L).put("REVIEWED", 0L).build();
 
     assertThat(response.getFacets().getFacetsList())
       .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))

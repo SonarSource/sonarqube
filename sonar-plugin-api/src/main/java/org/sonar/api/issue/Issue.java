@@ -79,12 +79,12 @@ public interface Issue extends Serializable {
   /**
    * @since 7.8
    */
-  String STATUS_TO_REVIEW = "TOREVIEW";
+  String STATUS_TO_REVIEW = "TO_REVIEW";
 
   /**
    * @since 7.8
    */
-  String STATUS_IN_REVIEW = "INREVIEW";
+  String STATUS_IN_REVIEW = "IN_REVIEW";
 
   /**
    * @since 7.8
