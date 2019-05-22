@@ -17,7 +17,7 @@ It is now possible to verify that webhook payloads actually come from SonarQube 
 The SonarQube server now shuts down gracefully. I.E. it completes any currently-processing (but not queued) background tasks before shutting down. This may mean that shutdown takes longer than previously. ([SONAR-12043](https://jira.sonarsource.com/browse/SONAR-12043))
 
 **Additional authentication methods embedded**  
-The SAML and GitHub Authentication plugins are now embedded in all versions ([SONAR-11894](https://jira.sonarsource.com/browse/SONAR-11894))
+The SAML and GitHub Authentication plugins are now embedded in all editions ([SONAR-11894](https://jira.sonarsource.com/browse/SONAR-11894))
 
 **Scanner version compatibility**  
 Only the following scanner versions are compatible with SonarQube 7.8:
