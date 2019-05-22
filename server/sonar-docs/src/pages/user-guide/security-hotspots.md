@@ -25,14 +25,14 @@ Through the lifecycle, a Security Hotspot takes one of the following statuses:
 * **In Review** – the Security Hotspot is being checked to make sure there isn't a vulnerability in the code.
 * **Reviewed** – the Security Hotspot has been checked and no security issue was found.
 
-A Security Hotspot is only closed if the code containing it is deleted. A Security Hotspot's status will be "Removed" if the rule in the project's Quality Profile identifying it is removed.
+A Security Hotspot is only closed if the code containing it is deleted or the rule is deactivated.
 
 ### Actions
 
 You can perform the following actions on Security Hotspots:
 
 * **Resolve as Reviewed** - There is no vulnerability in the code.
-* **Set as In Review** - A review is in progress to check for a vulnerability
+* **Set as In Review** - A review is in progress to check for a Vulnerability.
 * **Reset as To Review** - The Security Hotspot needs to be analyzed again.
 * **Open as Vulnerability** - There's a Vulnerability in the code that must be fixed.
 
