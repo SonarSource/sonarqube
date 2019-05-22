@@ -17,7 +17,7 @@ Symbol|Meaning
 
 Unless otherwise specified, the following properties accept both absolute paths and paths relative to project root.
 
-Langauge|Property|Remarks
+Language|Property|Remarks
 ----|----|----
 Apex|`sonar.apex.pmd.reportPaths`|Comma-delimited list of paths to [PMD Apex](https://pmd.github.io/pmd-5.5.7/pmd-apex/rules/index.html) reports|
 CSS|`sonar.css.stylelint.reportPaths`|Comma-delimited list of paths to [StyleLint.io](https://stylelint.io/) reports|
@@ -44,7 +44,7 @@ Issues from third-party analyzers are included in the MSBuild output and importe
 
 Note that Roslyn issues with an *error* severity automatically fail the build, and it is not recommended to run the Scanner for MSBuild's end step if the MSBuild step fails for any reason because it will result in an essentially empty analysis, which will close all outstanding issues in the project.
 
-Langauge|Property|Remarks
+Language|Property|Remarks
 ----|----|----
 C#|`sonar.cs.roslyn.ignoreIssues`|Set to `true` to disable import of external issues. Defaults to `false`.
 C#|`sonar.cs.roslyn.bugCategories` `sonar.cs.roslyn.vulnerabilityCategories` `sonar.cs.roslyn.codeSmellCategories`|Comma-delimited list of categories whose issues should be classified as Bugs, Vulnerabilities, or Code Smells. 
