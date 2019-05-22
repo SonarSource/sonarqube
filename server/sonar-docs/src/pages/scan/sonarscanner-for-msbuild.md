@@ -39,8 +39,8 @@ Consider setting file system permissions to restrict access to this file.:
   <Property Name="sonar.host.url">http://localhost:9000</Property>
   <Property Name="sonar.login">[my-user-token]</Property>
 </SonarQubeAnalysisProperties>
-
 ```
+
 * Add `$install_directory` to your PATH environment variable.
 
 ### Installation of the SonarScanner for MSBuild .NET Core Global Tool
