@@ -663,7 +663,7 @@ ul > ul {
   margin: 0 0 1.5rem;
 }
 
-.collapse > a:first-child {
+.collapse div > a:first-child {
   background: url(../images/open.svg) no-repeat 0 50%;
   padding-left: 20px;
   display: block;
@@ -677,27 +677,27 @@ ul > ul {
   transition: all 0.2s ease 0s;
 }
 
-.collapse > a:first-child:hover {
+.collapse div > a:first-child:hover {
   color: #195f8d;
 }
 
-.collapse.close > a:first-child {
+.collapse.close div > a:first-child {
   background: url(../images/close.svg) no-repeat 0 50%;
 }
 
-.collapse.close > * {
+.collapse.close div > * {
   display: none;
 }
 
-.collapse.close > a:first-child {
+.collapse.close div > a:first-child {
   margin: 0;
 }
 
-.collapse *:last-child {
+.collapse div *:last-child {
   margin-bottom: 0;
 }
 
-.collapse .alert {
+.collapse div .alert {
   margin: 0 0.5em 1.5rem;
 }
 

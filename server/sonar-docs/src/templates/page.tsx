@@ -42,17 +42,27 @@ export default class Page extends React.PureComponent<Props> {
 
     for (let i = 0; i < collapsables.length; i++) {
       collapsables[i].classList.add('close');
-      const firstChild = collapsables[i].firstElementChild;
-      if (firstChild) {
-        firstChild.outerHTML = firstChild.outerHTML
-          .replace(/<h2/gi, '<a href="#"')
-          .replace(/<\/h2>/gi, '</a>');
-        firstChild.addEventListener('click', (event: Event & { currentTarget: HTMLElement }) => {
-          event.preventDefault();
-          if (event.currentTarget.parentElement) {
-            event.currentTarget.parentElement.classList.toggle('close');
-          }
-        });
+      const customBlockWrapper = collapsables[i].querySelector('.custom-block-body');
+      if (customBlockWrapper) {
+        let firstChild = customBlockWrapper.firstElementChild;
+        if (firstChild) {
+          firstChild.outerHTML = firstChild.outerHTML
+            .replace(/<h2/gi, '<a href="#"')
+            .replace(/<\/h2>/gi, '</a>');
+
+          // We changed the element. It's reference is no longer correct in some
+          // browsers. Fetch it again.
+          firstChild = customBlockWrapper.firstElementChild;
+          firstChild!.addEventListener('click', (event: Event & { currentTarget: HTMLElement }) => {
+            event.preventDefault();
+            if (
+              event.currentTarget.parentElement &&
+              event.currentTarget.parentElement.parentElement
+            ) {
+              event.currentTarget.parentElement.parentElement.classList.toggle('close');
+            }
+          });
+        }
       }
     }
   }
