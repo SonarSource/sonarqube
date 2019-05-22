@@ -4,32 +4,38 @@ url: /setup/upgrade-notes/
 ---
 
 ## Release 7.8 Upgrade Notes
-**Google Analytics Support**
-Support for Google Analytics is now available via property in `sonar.properties`. ([SONAR-11793](https://jira.sonarsource.com/browse/SONAR-11793))
+**MySQL Deprecation and Migration**  
+This is the last version that will support MySQL. To migrate from MySQL to a supported database, see the free [MySQL Migrator tool](https://github.com/SonarSource/mysql-migrator).
 
-**Additional authentication methods embedded**
+**Notifications changes**  
+Several changes have been made to notificatons. The notifications algorithm has been replaced with one that offers better performance during background task processing. Issue change notifications spawned by analysis or bulk change now generate only one email per event rather than one email per issue. The ability to subscribe globally to new issues notifications and notifications for issues resolved as False Positive or Won't fix has been dropped, as have all such subscriptions. Issue-related notifications on PRs have also been dropped.
+
+**Webhook payloads now signed**  
+It is now possible to verify that webhook payloads actually come from SonarQube via the `X-Sonar-Webhook-HMAC-SHA256` HTTP header. ([SONAR-12000](https://jira.sonarsource.com/browse/SONAR-12000))
+
+**Graceful shutdown**  
+The SonarQube server now shuts down gracefully. I.E. it completes any currently-processing (but not queued) background tasks before shutting down. This may mean that shutdown takes longer than previously. ([SONAR-12043](https://jira.sonarsource.com/browse/SONAR-12043))
+
+**Additional authentication methods embedded**  
 The SAML and GitHub Authentication plugins are now embedded in all versions ([SONAR-11894](https://jira.sonarsource.com/browse/SONAR-11894))
 
-**Scanner version compatibility**
+**Scanner version compatibility**  
 Only the following scanner versions are compatible with SonarQube 7.8:
 * SonarQube Scanner CLI 2.9+
 * SonarQube Scanner Maven 3.3.0.603+
 * SonarQube Scanner Gradle 2.3+
 
-**MySQL Deprecation and Migration**
-This is the last version that will support MySQL. To migrate from MySQL to a supported database, see the [MySQL Migrator tool](https://github.com/SonarSource/mysql-migrator).
-
-**Notifications changes**  
-The notifications algorithm has been replaced with one that offers better performance during background task processing. Additionally, issue change notifications spawned analysis or bulk change now generate only one email per event rather than one email per issue. 
+**Deprecated web services dropped**  
+Web services that were deprecated in 5.x versions have been dropped. ([SONAR-11876](https://jira.sonarsource.com/browse/SONAR-11876))
 
 ## Release 7.7 Upgrade Notes
-**Deprecated parameters dropped**
+**Deprecated parameters dropped**  
 `sonar.language`, and  `sonar.profile`, both deprecated since 4.5, are dropped in this version as is `sonar.analysis.mode`, which as been deprecated since 6.6. These now-unrecognized parameters will simply be ignored, rather than failing analysis.
 
 **PR decoration below GitHub Enterprise 2.14 swapped for GitHub checks**  
 This version adds support for GitHub Enterprise (GHE) checks, which were introduced in GHE 2.14, and drops support for PR decoration in GHE versions prior to 2.14. To use the new checks implementation, an application will need to be created in GHE, and further configuration will be required via the SonarQube UI. ([Details in the docs.](/instance-administration/github-application/).)
 
-**ElasticSearch update requires index rebuild, potentially more filespace**
+**ElasticSearch update requires index rebuild, potentially more filespace**  
 While it is generally possible to keep ElasticSearch indices in an upgrade (see [Configuring the Elasticsearch storage path](/setup/install-server/)), this version's upgrade of ElasticSearch will force all indices to be rebuilt. Additionally, more filespace may be required for this version's data ([SONAR-11826](https://jira.sonarsource.com/browse/SONAR-11826)).
 
 **32-bit architecture support dropped**  
@@ -50,7 +56,7 @@ This version drops the concept of module from the interface. There is no longer 
 **Multi-Module analysis properties removed**  
 Multi-module analysis configuration may need to be changed ([MMF-365](https://jira.sonarsource.com/browse/MMF-365)):
 
-* When the following inclusion / exclusion types are specified in the analysis properties at project level, they must be relative to the project / analysis root: source files, test files, coverage, and duplications. Paths specified at project level will continue to be re-applied at module level but will raise a warning. This backward-compatibile behavior is considered deprecated and will be dropped in a future version. 
+* When exclusions based on file paths are specified in the analysis properties at project level, those file paths must be relative to the project / analysis root. Paths specified at project level will continue to be re-applied at module level but will raise a warning. This backward-compatibile behavior is considered deprecated and will be dropped in a future version. 
 * Specifying source encoding, and issue inclusions / exclusions at module level is no longer supported.
 
 **Incompatibility with Findbugs plugin version 3.9.1 and earlier**  
