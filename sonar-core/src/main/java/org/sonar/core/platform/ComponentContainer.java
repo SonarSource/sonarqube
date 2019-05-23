@@ -36,9 +36,9 @@ import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoContainer;
 import org.picocontainer.behaviors.OptInCaching;
 import org.picocontainer.monitors.NullComponentMonitor;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
 
 import static com.google.common.collect.ImmutableList.copyOf;
@@ -52,8 +52,8 @@ public class ComponentContainer implements ContainerPopulator.Container {
   public static final int COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER = 2;
 
   private static final class ExtendedDefaultPicoContainer extends DefaultPicoContainer {
-    private ExtendedDefaultPicoContainer(ComponentFactory componentFactory, LifecycleStrategy lifecycleStrategy, PicoContainer parent,
-      ComponentMonitor componentMonitor) {
+    private ExtendedDefaultPicoContainer(ComponentFactory componentFactory, LifecycleStrategy lifecycleStrategy,
+      @Nullable PicoContainer parent, ComponentMonitor componentMonitor) {
       super(componentFactory, lifecycleStrategy, parent, componentMonitor);
     }
 
