@@ -62,6 +62,7 @@ allprojects {
 
   ext {
     release = project.hasProperty('release') && project.getProperty('release')
+    ci = project.hasProperty('ci') && project.getProperty('ci')
     official = project.hasProperty('official') && project.getProperty('official')
   }
 

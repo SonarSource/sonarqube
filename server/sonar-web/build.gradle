@@ -27,6 +27,7 @@ yarn_run {
   
   inputs.property('official', official)
   inputs.property('release', release)
+  inputs.property('ci', ci)
 
   ['config', 'public', 'scripts', 'src', '../sonar-docs/src'].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
@@ -36,7 +37,7 @@ yarn_run {
   }
   outputs.dir(webappDir)
   outputs.cacheIf { true }
-  args = [release ? 'build-release' : 'build']
+  args = [release || ci ? 'build-release' : 'build']
 }
 build.dependsOn(yarn_run)
 

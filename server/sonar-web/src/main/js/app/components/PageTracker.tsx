@@ -22,7 +22,8 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { Location, withRouter } from '../../components/hoc/withRouter';
 import { gtm } from '../../helpers/analytics';
-import { installScript, getWebAnalyticsPageHandlerFromCache } from '../../helpers/extensions';
+import { installScript } from '../../helpers/extensions';
+import { getWebAnalyticsPageHandlerFromCache } from '../../helpers/extensionsHandler';
 import { getInstance } from '../../helpers/system';
 import { getGlobalSettingValue, Store, getAppState } from '../../store/rootReducer';
 

@@ -23,10 +23,14 @@ import { shallow } from 'enzyme';
 import { PageTracker } from '../PageTracker';
 import { gtm } from '../../../helpers/analytics';
 import { mockLocation } from '../../../helpers/testMocks';
-import { installScript, getWebAnalyticsPageHandlerFromCache } from '../../../helpers/extensions';
+import { installScript } from '../../../helpers/extensions';
+import { getWebAnalyticsPageHandlerFromCache } from '../../../helpers/extensionsHandler';
 
 jest.mock('../../../helpers/extensions', () => ({
-  installScript: jest.fn().mockResolvedValue({}),
+  installScript: jest.fn().mockResolvedValue({})
+}));
+
+jest.mock('../../../helpers/extensionsHandler', () => ({
   getWebAnalyticsPageHandlerFromCache: jest.fn().mockReturnValue(undefined)
 }));
 

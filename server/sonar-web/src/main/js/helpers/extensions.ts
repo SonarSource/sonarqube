@@ -18,34 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getBaseUrl } from './urls';
-import exposeLibraries from '../app/components/extensions/exposeLibraries';
+import { getExtensionFromCache } from './extensionsHandler';
 
-const WEB_ANALYTICS_EXTENSION = 'sq-web-analytics';
-const extensions: T.Dict<Function> = {};
-
-function registerExtension(key: string, start: Function) {
-  extensions[key] = start;
-}
-
-function setWebAnalyticsPageChangeHandler(pageHandler: (pathname: string) => void) {
-  registerExtension(WEB_ANALYTICS_EXTENSION, pageHandler);
-}
-
-export function installExtensionsHandler() {
-  (window as any).registerExtension = registerExtension;
-}
-
-export function installWebAnalyticsHandler() {
-  (window as any).setWebAnalyticsPageChangeHandler = setWebAnalyticsPageChangeHandler;
-}
-
-export function getExtensionFromCache(key: string): Function | undefined {
-  return extensions[key];
-}
-
-export function getWebAnalyticsPageHandlerFromCache(): Function | undefined {
-  return extensions[WEB_ANALYTICS_EXTENSION];
-}
+let librariesExposed = false;
 
 export function installScript(url: string, target: 'body' | 'head' = 'body'): Promise<any> {
   return new Promise(resolve => {
@@ -62,7 +37,13 @@ export async function getExtensionStart(key: string) {
     return Promise.resolve(fromCache);
   }
 
-  exposeLibraries();
+  if (!librariesExposed) {
+    // Async import allows to reduce initial vendor bundle size
+    const exposeLibraries = (await import('../app/components/extensions/exposeLibraries')).default;
+    exposeLibraries();
+    librariesExposed = true;
+  }
+
   await installScript(`/static/${key}.js`);
 
   const start = getExtensionFromCache(key);

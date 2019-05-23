@@ -17,14 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  getExtensionFromCache,
-  getWebAnalyticsPageHandlerFromCache,
-  getExtensionStart,
-  installExtensionsHandler,
-  installScript,
-  installWebAnalyticsHandler
-} from '../extensions';
+import { getExtensionStart, installScript } from '../extensions';
+import { installExtensionsHandler } from '../extensionsHandler';
 import exposeLibraries from '../../app/components/extensions/exposeLibraries';
 
 jest.mock('../../app/components/extensions/exposeLibraries', () => ({
@@ -35,30 +29,6 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-describe('installExtensionsHandler & extensions.getExtensionFromCache', () => {
-  it('should register the global "registerExtension" function and retrieve extension', () => {
-    expect((window as any).registerExtension).toBeUndefined();
-    installExtensionsHandler();
-    expect((window as any).registerExtension).toEqual(expect.any(Function));
-
-    const start = jest.fn();
-    (window as any).registerExtension('foo', start);
-    expect(getExtensionFromCache('foo')).toBe(start);
-  });
-});
-
-describe('setWebAnalyticsPageChangeHandler & getWebAnalyticsPageHandlerFromCache', () => {
-  it('should register the global "setWebAnalyticsPageChangeHandler" function and retrieve analytics extension', () => {
-    expect((window as any).setWebAnalyticsPageChangeHandler).toBeUndefined();
-    installWebAnalyticsHandler();
-    expect((window as any).setWebAnalyticsPageChangeHandler).toEqual(expect.any(Function));
-
-    const pageChange = jest.fn();
-    (window as any).setWebAnalyticsPageChangeHandler(pageChange);
-    expect(getWebAnalyticsPageHandlerFromCache()).toBe(pageChange);
-  });
-});
-
 describe('installScript', () => {
   it('should add the given script in the dom', () => {
     installScript('custom_script.js');
@@ -67,17 +37,19 @@ describe('installScript', () => {
 });
 
 describe('getExtensionStart', () => {
-  it('should install the extension in the to dom', () => {
+  it('should install the extension in the to dom', async () => {
     const start = jest.fn();
     const scriptTag = document.createElement('script');
     document.createElement = jest.fn().mockReturnValue(scriptTag);
     installExtensionsHandler();
 
     const result = getExtensionStart('bar');
+
+    await new Promise(setImmediate);
+    expect(exposeLibraries).toBeCalled();
+
     (window as any).registerExtension('bar', start);
     (scriptTag.onload as Function)();
-
-    expect(exposeLibraries).toBeCalled();
     return expect(result).resolves.toBe(start);
   });
 

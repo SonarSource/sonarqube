@@ -24,10 +24,11 @@ const webpack = require('webpack');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const getConfigs = require('../config/webpack.config');
 
-const configs = getConfigs({ production: true });
+const configs = getConfigs({ production: true, release: true });
 const config = configs.find(config => config.name === 'modern');
+const analyzerPort = process.env.PORT || 8888;
 
-config.plugins.push(new BundleAnalyzerPlugin());
+config.plugins.push(new BundleAnalyzerPlugin({ analyzerPort }));
 
 webpack(config, err => {
   if (err) {
