@@ -34,6 +34,7 @@ import org.sonar.process.Props;
 import org.sonar.process.System2;
 import org.sonar.test.ExceptionCauseMatcher;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -80,6 +81,38 @@ public class EsJvmOptionsTest {
   @UseDataProvider("java8or11")
   public void constructor_does_not_force_boostrap_checks_if_sonarqube_property_is_true(System2 system2) throws IOException {
     properties.put("sonar.es.bootstrap.checks.disable", "true");
+    File tmpDir = temporaryFolder.newFolder();
+    EsJvmOptions underTest = new EsJvmOptions(system2, new Props(properties), tmpDir);
+
+    assertThat(underTest.getAll())
+      .doesNotContain("-Des.enforce.bootstrap.checks=true");
+  }
+
+  @Test
+  @UseDataProvider("java8or11")
+  public void constructor_forces_boostrap_checks_if_jdbc_url_property_does_not_exist(System2 system2) throws IOException {
+    File tmpDir = temporaryFolder.newFolder();
+    EsJvmOptions underTest = new EsJvmOptions(system2, new Props(properties), tmpDir);
+
+    assertThat(underTest.getAll())
+      .contains("-Des.enforce.bootstrap.checks=true");
+  }
+
+  @Test
+  @UseDataProvider("java8or11")
+  public void constructor_forces_boostrap_checks_if_jdbc_url_property_is_not_h2(System2 system2) throws IOException {
+    properties.put("sonar.jdbc.url", randomAlphanumeric(53));
+    File tmpDir = temporaryFolder.newFolder();
+    EsJvmOptions underTest = new EsJvmOptions(system2, new Props(properties), tmpDir);
+
+    assertThat(underTest.getAll())
+      .contains("-Des.enforce.bootstrap.checks=true");
+  }
+
+  @Test
+  @UseDataProvider("java8or11")
+  public void constructor_does_not_force_boostrap_checks_if_jdbc_url_property_contains_h2(System2 system2) throws IOException {
+    properties.put("sonar.jdbc.url", "jdbc:h2:tcp://ffoo:bar/sonar");
     File tmpDir = temporaryFolder.newFolder();
     EsJvmOptions underTest = new EsJvmOptions(system2, new Props(properties), tmpDir);
 

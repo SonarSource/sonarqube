@@ -126,7 +126,7 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
       res.put("-XX:UseAVX=", "2");
     }
 
-    if (!props.valueAsBoolean("sonar.es.bootstrap.checks.disable")) {
+    if (!props.value("sonar.jdbc.url", "").contains("jdbc:h2") && !props.valueAsBoolean("sonar.es.bootstrap.checks.disable")) {
       res.put("-Des.enforce.bootstrap.checks=", "true");
     }
 
