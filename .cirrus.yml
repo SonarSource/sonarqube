@@ -28,7 +28,7 @@ env:
   # analysis on next.sonarqube.com
   SONARQUBE_NEXT_TOKEN: ENCRYPTED[e3d98fa0ecceb015e9803d47f78c3040f5a710d678a631107635d69f650d4e53ecaf2e2334cc1fe0c47037ec915dcda0]
 
-auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
+auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*'
 
 build_task:
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
