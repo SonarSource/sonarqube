@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="plugin-meta-data-versions"
+>
+  <button
+    className="plugin-meta-data-versions-show-more"
+    onClick={[Function]}
+    type="button"
+  >
+    Show more versions
+  </button>
+  <div
+    className="plugin-meta-data-version"
+    key="5.13"
+  >
+    <div
+      className="plugin-meta-data-version-version"
+    >
+      5.13
+    </div>
+    <div
+      className="plugin-meta-data-version-release-info"
+    >
+      <time
+        className="plugin-meta-data-version-release-date"
+      >
+        2019-05-31
+      </time>
+      <span
+        className="plugin-meta-data-version-compatibility"
+      >
+        6.7
+      </span>
+    </div>
+    <div
+      className="plugin-meta-data-version-release-links"
+    >
+      <span
+        className="plugin-meta-data-version-download"
+      >
+        <a
+          href="https://example.com/sonar-java-plugin-5.13.0.18197.jar"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Download
+        </a>
+      </span>
+      <span
+        className="plugin-meta-data-version-release-notes"
+      >
+        <a
+          href="https://example.com/sonar-java-plugin/release"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Release notes
+        </a>
+      </span>
+    </div>
+  </div>
+  <div
+    className="plugin-meta-data-version"
+    key="4.2"
+  >
+    <div
+      className="plugin-meta-data-version-version"
+    >
+      4.2
+    </div>
+    <div
+      className="plugin-meta-data-version-release-info"
+    />
+    <div
+      className="plugin-meta-data-version-release-links"
+    >
+      <span
+        className="plugin-meta-data-version-download"
+      >
+        <a
+          href="https://example.com/sonar-java-plugin-5.13.0.18197.jar"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Download
+        </a>
+      </span>
+    </div>
+  </div>
+</div>
+`;

@@ -307,3 +307,21 @@ Note that an iframe is **not** a self-closing tag. This means that the following
 <iframe src="http://www.sonarsource.com" />
 
 ```
+
+#### Dynamic Plugin Version Info
+
+_Note: at this time, this is only supported for the static documentation, and will be stripped from the embedded documentation._
+
+You can dynamically include a plugin version block to any page, using the following special tag:
+
+```html
+<!-- update_center:PLUGIN_KEY -->
+```
+
+For example, for Sonar Java, use:
+
+```html
+<!-- update_center:java -->
+```
+
+You can include multiple boxes per page, if needed.

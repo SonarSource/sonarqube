@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+export type Dict<T> = { [key: string]: T };
+
 export interface DocVersion {
   current: boolean;
   value: string;
@@ -34,6 +36,31 @@ export interface DocsNavigationExternalLink {
   title: string;
   url: string;
 }
+
+export type PluginMetaDataInfo = {
+  category?: string;
+  isSonarSourceCommercial: boolean;
+  issueTrackerURL?: string;
+  key?: string;
+  license?: string;
+  name: string;
+  organization?: {
+    name: string;
+    url?: string;
+  };
+  sourcesURL?: string;
+  versions?: PluginVersionInfo[];
+};
+
+export type PluginVersionInfo = {
+  archived?: boolean;
+  changeLogUrl?: string;
+  compatibility?: string;
+  date?: string;
+  description?: string;
+  downloadURL?: string;
+  version: string;
+};
 
 export interface SearchResult {
   exactMatch?: boolean;

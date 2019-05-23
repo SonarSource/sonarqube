@@ -22,6 +22,7 @@ import { StaticQuery, graphql } from 'gatsby';
 import Footer from '../components/Footer';
 import HeaderListProvider from '../components/HeaderListProvider';
 import HeadingsLink from '../components/HeadingsLink';
+import PluginMetaData from '../components/PluginMetaData';
 import Sidebar from '../components/Sidebar';
 import { MarkdownRemarkConnection, MarkdownRemark } from '../@types/graphql-types';
 import './layout.css';
@@ -94,6 +95,7 @@ export default function Layout({ children, location }: Props) {
                 <div className="markdown-container">{children}</div>
               </div>
               <Footer />
+              <PluginMetaData location={location} />
             </div>
           </div>
         )}

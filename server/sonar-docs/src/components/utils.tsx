@@ -19,6 +19,7 @@
  */
 import { sortBy } from 'lodash';
 import { MarkdownRemark } from '../@types/graphql-types';
+import { PluginMetaDataInfo } from '../@types/types';
 
 const WORDS = 6;
 
@@ -125,4 +126,19 @@ export function highlightMarks(str: string, marks: Array<{ from: number; to: num
 
 export function isDefined<T>(x: T | undefined | null): x is T {
   return x !== undefined && x !== null;
+}
+
+export function getPluginMetaData(key: string): Promise<PluginMetaDataInfo> {
+  return (
+    window
+      .fetch(`https://update.sonarsource.org/${key}.json`)
+      .then((response: Response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        }
+        return Promise.reject(response);
+      })
+      /* eslint-disable no-console */
+      .catch(console.error)
+  );
 }
