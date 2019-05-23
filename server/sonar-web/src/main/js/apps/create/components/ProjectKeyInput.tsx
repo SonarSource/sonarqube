@@ -26,7 +26,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   className?: string;
-  initialValue?: string;
+  value: string;
   onChange: (value: string | undefined) => void;
 }
 
@@ -34,22 +34,20 @@ interface State {
   error?: string;
   touched: boolean;
   validating: boolean;
-  value: string;
 }
 
 export default class ProjectKeyInput extends React.PureComponent<Props, State> {
   mounted = false;
   constructor(props: Props) {
     super(props);
-    this.state = { error: undefined, touched: false, validating: false, value: '' };
+    this.state = { error: undefined, touched: false, validating: false };
     this.checkFreeKey = debounce(this.checkFreeKey, 250);
   }
 
   componentDidMount() {
     this.mounted = true;
-    if (this.props.initialValue !== undefined) {
-      this.setState({ value: this.props.initialValue });
-      this.validateKey(this.props.initialValue);
+    if (this.props.value) {
+      this.validateKey(this.props.value);
     }
   }
 
@@ -61,32 +59,30 @@ export default class ProjectKeyInput extends React.PureComponent<Props, State> {
     this.setState({ validating: true });
     return doesComponentExists({ component: key })
       .then(alreadyExist => {
-        if (this.mounted) {
+        if (this.mounted && key === this.props.value) {
           if (!alreadyExist) {
             this.setState({ error: undefined, validating: false });
-            this.props.onChange(key);
           } else {
             this.setState({
               error: translate('onboarding.create_project.project_key.taken'),
               touched: true,
               validating: false
             });
-            this.props.onChange(undefined);
           }
         }
       })
       .catch(() => {
-        if (this.mounted) {
+        if (this.mounted && key === this.props.value) {
           this.setState({ error: undefined, validating: false });
-          this.props.onChange(key);
         }
       });
   };
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
-    this.setState({ touched: true, value });
+    this.setState({ touched: true });
     this.validateKey(value);
+    this.props.onChange(value);
   };
 
   validateKey(key: string) {
@@ -95,7 +91,6 @@ export default class ProjectKeyInput extends React.PureComponent<Props, State> {
         error: translate('onboarding.create_project.project_key.error'),
         touched: true
       });
-      this.props.onChange(undefined);
     } else {
       this.checkFreeKey(key);
     }
@@ -126,7 +121,7 @@ export default class ProjectKeyInput extends React.PureComponent<Props, State> {
           minLength={1}
           onChange={this.handleChange}
           type="text"
-          value={this.state.value}
+          value={this.props.value}
         />
       </ValidationInput>
     );

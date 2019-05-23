@@ -20,19 +20,18 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProjectKeyInput from '../ProjectKeyInput';
-import { doesComponentExists } from '../../../../api/components';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
+jest.useFakeTimers();
+
 jest.mock('../../../../api/components', () => ({
-  doesComponentExists: jest.fn().mockResolvedValue(false)
+  doesComponentExists: jest
+    .fn()
+    .mockImplementation(({ component }) => Promise.resolve(component === 'exists'))
 }));
 
-beforeEach(() => {
-  (doesComponentExists as jest.Mock<any>).mockClear();
-});
-
 it('should render correctly', async () => {
-  const wrapper = shallow(<ProjectKeyInput initialValue="key" onChange={jest.fn()} />);
+  const wrapper = shallow(<ProjectKeyInput onChange={jest.fn()} value="key" />);
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ touched: true });
   await waitAndUpdate(wrapper);
@@ -40,23 +39,23 @@ it('should render correctly', async () => {
 });
 
 it('should not display any status when the key is not defined', async () => {
-  const wrapper = shallow(<ProjectKeyInput onChange={jest.fn()} />);
+  const wrapper = shallow(<ProjectKeyInput onChange={jest.fn()} value="" />);
   await waitAndUpdate(wrapper);
   expect(wrapper.find('ValidationInput').prop('isInvalid')).toBe(false);
   expect(wrapper.find('ValidationInput').prop('isValid')).toBe(false);
 });
 
 it('should have an error when the key is invalid', async () => {
-  const wrapper = shallow(
-    <ProjectKeyInput initialValue="KEy-with#speci@l_char" onChange={jest.fn()} />
-  );
+  const wrapper = shallow(<ProjectKeyInput onChange={jest.fn()} value="KEy-with#speci@l_char" />);
   await waitAndUpdate(wrapper);
   expect(wrapper.find('ValidationInput').prop('isInvalid')).toBe(true);
 });
 
 it('should have an error when the key already exists', async () => {
-  (doesComponentExists as jest.Mock<any>).mockResolvedValue(true);
-  const wrapper = shallow(<ProjectKeyInput initialValue="" onChange={jest.fn()} />);
+  const wrapper = shallow(<ProjectKeyInput onChange={jest.fn()} value="exists" />);
   await waitAndUpdate(wrapper);
+
+  jest.runAllTimers();
+  await new Promise(setImmediate);
   expect(wrapper.find('ValidationInput').prop('isInvalid')).toBe(true);
 });

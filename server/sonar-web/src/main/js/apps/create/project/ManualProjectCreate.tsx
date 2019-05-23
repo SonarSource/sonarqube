@@ -40,9 +40,9 @@ interface Props {
 }
 
 interface State {
-  projectName?: string;
+  projectName: string;
   projectNameChanged: boolean;
-  projectKey?: string;
+  projectKey: string;
   selectedOrganization?: T.Organization;
   selectedVisibility?: T.Visibility;
   submitting: boolean;
@@ -56,6 +56,8 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
   constructor(props: Props) {
     super(props);
     this.state = {
+      projectKey: '',
+      projectName: '',
       projectNameChanged: false,
       selectedOrganization: this.getInitialSelectedOrganization(props),
       submitting: false
@@ -104,7 +106,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       this.setState({ submitting: true });
       createProject({
         project: state.projectKey,
-        name: state.projectName || state.projectKey,
+        name: (state.projectName || state.projectKey).trim(),
         organization: state.selectedOrganization && state.selectedOrganization.key,
         visibility: this.state.selectedVisibility
       }).then(
@@ -150,11 +152,11 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
   };
 
   handleProjectNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const projectName = event.currentTarget.value.trim();
+    const projectName = event.currentTarget.value;
     this.setState({ projectName, projectNameChanged: true });
   };
 
-  handleProjectKeyChange = (projectKey?: string) => {
+  handleProjectKeyChange = (projectKey: string) => {
     this.setState(state => ({
       projectKey,
       projectName: state.projectNameChanged ? state.projectName : projectKey || ''
@@ -182,8 +184,8 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
             )}
             <ProjectKeyInput
               className="form-field"
-              initialValue={this.state.projectKey}
               onChange={this.handleProjectKeyChange}
+              value={this.state.projectKey}
             />
             <div className="form-field">
               <label htmlFor="project-name">
