@@ -71,7 +71,7 @@ import static java.util.Objects.requireNonNull;
  *       .setHandler(new RequestHandler() {
  *         {@literal @}Override
  *         public void handle(Request request, Response response) {
- *           // read request parameters and generates response output
+ *           // read request parameters and generate response output
  *           response.newJsonWriter()
  *             .beginObject()
  *             .prop("hello", request.mandatoryParam("key"))

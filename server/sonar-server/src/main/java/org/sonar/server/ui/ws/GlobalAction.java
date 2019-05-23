@@ -44,6 +44,7 @@ import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.platform.WebServer;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.VersionFormatter;
+import org.sonar.server.ui.WebAnalyticsLoader;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.CoreProperties.RATING_GRID;
@@ -54,7 +55,6 @@ import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_WIDTH_PX;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_HOMEPAGE_URL;
 import static org.sonar.process.ProcessProperties.Property.SONAR_ANALYTICS_GTM_TRACKING_ID;
-import static org.sonar.process.ProcessProperties.Property.SONAR_ANALYTICS_GA_TRACKING_ID;
 import static org.sonar.process.ProcessProperties.Property.SONAR_PRISMIC_ACCESS_TOKEN;
 import static org.sonar.process.ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE;
 
@@ -80,10 +80,12 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final BranchFeatureProxy branchFeature;
   private final UserSession userSession;
   private final PlatformEditionProvider editionProvider;
+  private final WebAnalyticsLoader webAnalyticsLoader;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
     WebServer webServer, DbClient dbClient, OrganizationFlags organizationFlags,
-    DefaultOrganizationProvider defaultOrganizationProvider, BranchFeatureProxy branchFeature, UserSession userSession, PlatformEditionProvider editionProvider) {
+    DefaultOrganizationProvider defaultOrganizationProvider, BranchFeatureProxy branchFeature, UserSession userSession, PlatformEditionProvider editionProvider,
+    WebAnalyticsLoader webAnalyticsLoader) {
     this.pageRepository = pageRepository;
     this.config = config;
     this.resourceTypes = resourceTypes;
@@ -95,6 +97,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
     this.branchFeature = branchFeature;
     this.userSession = userSession;
     this.editionProvider = editionProvider;
+    this.webAnalyticsLoader = webAnalyticsLoader;
     this.systemSettingValuesByKey = new HashMap<>();
   }
 
@@ -104,7 +107,6 @@ public class GlobalAction implements NavigationWsAction, Startable {
     boolean isOnSonarCloud = config.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
     if (isOnSonarCloud) {
       this.systemSettingValuesByKey.put(SONAR_PRISMIC_ACCESS_TOKEN.getKey(), config.get(SONAR_PRISMIC_ACCESS_TOKEN.getKey()).orElse(null));
-      this.systemSettingValuesByKey.put(SONAR_ANALYTICS_GA_TRACKING_ID.getKey(), config.get(SONAR_ANALYTICS_GA_TRACKING_ID.getKey()).orElse(null));
       this.systemSettingValuesByKey.put(SONAR_ANALYTICS_GTM_TRACKING_ID.getKey(), config.get(SONAR_ANALYTICS_GTM_TRACKING_ID.getKey()).orElse(null));
       this.systemSettingValuesByKey.put(SONARCLOUD_HOMEPAGE_URL.getKey(), config.get(SONARCLOUD_HOMEPAGE_URL.getKey()).orElse(null));
     }
@@ -140,6 +142,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
       writeBranchSupport(json);
       editionProvider.get().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
       json.prop("standalone", webServer.isStandalone());
+      writeWebAnalytics(json);
       json.endObject();
     }
   }
@@ -199,4 +202,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
     json.prop("branchesEnabled", branchFeature.isEnabled());
   }
 
+  private void writeWebAnalytics(JsonWriter json) {
+    webAnalyticsLoader.getUrlPathToJs().ifPresent(p -> json.prop("webAnalyticsJsPath", p));
+  }
 }

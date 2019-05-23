@@ -24,10 +24,9 @@ import { Plan } from '../PlanSelect';
 import { mockAlmOrganization } from '../../../../helpers/testMocks';
 import { waitAndUpdate, submit } from '../../../../helpers/testUtils';
 
-jest.mock('../../../../app/components/extensions/utils', () => ({
+jest.mock('../../../../helpers/extensions', () => ({
   getExtensionStart: jest.fn().mockResolvedValue(undefined)
 }));
-
 const subscriptionPlans = [{ maxNcloc: 1000, price: 100 }];
 
 it('should render and use free plan', async () => {

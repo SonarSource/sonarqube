@@ -118,7 +118,6 @@ public class ProcessProperties {
     SONARCLOUD_ENABLED("sonar.sonarcloud.enabled", "false"),
     SONARCLOUD_HOMEPAGE_URL("sonar.homepage.url", ""),
     SONAR_PRISMIC_ACCESS_TOKEN("sonar.prismic.accessToken", ""),
-    SONAR_ANALYTICS_GA_TRACKING_ID("sonar.analytics.ga.trackingId", ""),
     SONAR_ANALYTICS_GTM_TRACKING_ID("sonar.analytics.gtm.trackingId", ""),
     ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS("sonar.onboardingTutorial.showToNewUsers", "true"),
 

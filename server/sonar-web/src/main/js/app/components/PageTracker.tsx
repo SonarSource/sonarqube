@@ -18,35 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as GoogleAnalytics from 'react-ga';
-import { withRouter, WithRouterProps } from 'react-router';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import { getGlobalSettingValue, Store } from '../../store/rootReducer';
+import { Location, withRouter } from '../../components/hoc/withRouter';
 import { gtm } from '../../helpers/analytics';
+import { installScript, getWebAnalyticsPageHandlerFromCache } from '../../helpers/extensions';
 import { getInstance } from '../../helpers/system';
+import { getGlobalSettingValue, Store, getAppState } from '../../store/rootReducer';
 
-interface StateProps {
-  trackingIdGA?: string;
+interface Props {
+  location: Location;
   trackingIdGTM?: string;
+  webAnalytics?: string;
 }
-
-type Props = WithRouterProps & StateProps;
 
 interface State {
   lastLocation?: string;
 }
 
 export class PageTracker extends React.Component<Props, State> {
-  state: State = {
-    lastLocation: undefined
-  };
+  state: State = {};
 
   componentDidMount() {
-    const { trackingIdGA, trackingIdGTM } = this.props;
+    const { trackingIdGTM, webAnalytics } = this.props;
 
-    if (trackingIdGA) {
-      GoogleAnalytics.initialize(trackingIdGA);
+    if (webAnalytics && !getWebAnalyticsPageHandlerFromCache()) {
+      installScript(webAnalytics, 'head');
     }
 
     if (trackingIdGTM) {
@@ -55,51 +52,39 @@ export class PageTracker extends React.Component<Props, State> {
   }
 
   trackPage = () => {
-    const { location, trackingIdGA, trackingIdGTM } = this.props;
+    const { location, trackingIdGTM } = this.props;
     const { lastLocation } = this.state;
+    const { dataLayer } = window as any;
+    const locationChanged = location.pathname !== lastLocation;
+    const webAnalyticsPageChange = getWebAnalyticsPageHandlerFromCache();
 
-    if (location.pathname !== lastLocation) {
-      if (trackingIdGA) {
-        // More info on the "title and page not in sync" issue: https://github.com/nfl/react-helmet/issues/189
-        setTimeout(() => GoogleAnalytics.pageview(location.pathname), 500);
-      }
-
-      if (trackingIdGTM && location.pathname !== '/') {
-        setTimeout(() => {
-          const { dataLayer } = window as any;
-          if (dataLayer && dataLayer.push) {
-            dataLayer.push({ event: 'render-end' });
-          }
-        }, 500);
-      }
-
-      this.setState({
-        lastLocation: location.pathname
-      });
+    if (webAnalyticsPageChange && locationChanged) {
+      this.setState({ lastLocation: location.pathname });
+      setTimeout(() => webAnalyticsPageChange(location.pathname), 500);
+    } else if (dataLayer && dataLayer.push && trackingIdGTM && location.pathname !== '/') {
+      this.setState({ lastLocation: location.pathname });
+      setTimeout(() => dataLayer.push({ event: 'render-end' }), 500);
     }
   };
 
   render() {
-    const { trackingIdGA, trackingIdGTM } = this.props;
-    const tracking = {
-      ...((trackingIdGA || trackingIdGTM) && { onChangeClientState: this.trackPage })
-    };
+    const { trackingIdGTM, webAnalytics } = this.props;
 
     return (
-      <Helmet defaultTitle={getInstance()} {...tracking}>
+      <Helmet
+        defaultTitle={getInstance()}
+        onChangeClientState={trackingIdGTM || webAnalytics ? this.trackPage : undefined}>
         {this.props.children}
       </Helmet>
     );
   }
 }
 
-const mapStateToProps = (state: Store): StateProps => {
-  const trackingIdGA = getGlobalSettingValue(state, 'sonar.analytics.ga.trackingId');
+const mapStateToProps = (state: Store) => {
   const trackingIdGTM = getGlobalSettingValue(state, 'sonar.analytics.gtm.trackingId');
-
   return {
-    trackingIdGA: trackingIdGA && trackingIdGA.value,
-    trackingIdGTM: trackingIdGTM && trackingIdGTM.value
+    trackingIdGTM: trackingIdGTM && trackingIdGTM.value,
+    webAnalytics: getAppState(state).webAnalyticsJsPath
   };
 };
 

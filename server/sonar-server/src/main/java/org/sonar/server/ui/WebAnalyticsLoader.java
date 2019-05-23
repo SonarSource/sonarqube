@@ -17,16 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const extensions: T.Dict<Function> = {};
+package org.sonar.server.ui;
 
-const registerExtension = (key: string, start: Function) => {
-  extensions[key] = start;
-};
+import java.util.Optional;
+import org.sonar.api.server.ServerSide;
 
-export default () => {
-  (window as any).registerExtension = registerExtension;
-};
+@ServerSide
+public interface WebAnalyticsLoader {
 
-export const getExtensionFromCache = (key: string) => {
-  return extensions[key];
-};
+  /**
+   * URL path to the JS file to be loaded by webapp, for instance "/static/foo/bar.js".
+   * It always starts with "/" and does not include the optional web context.
+   */
+  Optional<String> getUrlPathToJs();
+
+}

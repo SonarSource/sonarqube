@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should not trigger if no analytics system is given 1`] = `
+<HelmetWrapper
+  defer={true}
+  encodeSpecialCharacters={true}
+/>
+`;
+
+exports[`should work for WebAnalytics plugin 1`] = `
+<HelmetWrapper
+  defer={true}
+  encodeSpecialCharacters={true}
+  onChangeClientState={[Function]}
+/>
+`;

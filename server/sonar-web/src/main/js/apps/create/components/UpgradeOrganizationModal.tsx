@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import UpgradeOrganizationAdvantages from './UpgradeOrganizationAdvantages';
 import BillingFormShim from './BillingFormShim';
+import UpgradeOrganizationAdvantages from './UpgradeOrganizationAdvantages';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Modal from '../../../components/controls/Modal';
 import { ResetButtonLink } from '../../../components/ui/buttons';
-import { getExtensionStart } from '../../../app/components/extensions/utils';
-import { translate } from '../../../helpers/l10n';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
+import { getExtensionStart } from '../../../helpers/extensions';
+import { translate } from '../../../helpers/l10n';
 
 const BillingForm = withCurrentUser(BillingFormShim);
 

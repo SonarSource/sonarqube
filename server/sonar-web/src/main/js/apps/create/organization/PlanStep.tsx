@@ -24,7 +24,7 @@ import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Step from '../../tutorials/components/Step';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
-import { getExtensionStart } from '../../../app/components/extensions/utils';
+import { getExtensionStart } from '../../../helpers/extensions';
 import { translate } from '../../../helpers/l10n';
 
 const BillingForm = withCurrentUser(BillingFormShim);

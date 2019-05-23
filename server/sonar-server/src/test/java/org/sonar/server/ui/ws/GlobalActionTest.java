@@ -44,6 +44,7 @@ import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.platform.WebServer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
+import org.sonar.server.ui.WebAnalyticsLoader;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.updatecenter.common.Version;
 
@@ -68,6 +69,7 @@ public class GlobalActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("foo");
   private BranchFeatureRule branchFeature = new BranchFeatureRule();
   private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private WebAnalyticsLoader webAnalyticsLoader = mock(WebAnalyticsLoader.class);
 
   private WsActionTester ws;
 
@@ -130,7 +132,6 @@ public class GlobalActionTest {
   public void return_sonarcloud_settings() {
     settings.setProperty("sonar.sonarcloud.enabled", true);
     settings.setProperty("sonar.prismic.accessToken", "secret");
-    settings.setProperty("sonar.analytics.ga.trackingId", "ga_id");
     settings.setProperty("sonar.analytics.gtm.trackingId", "gtm_id");
     settings.setProperty("sonar.homepage.url", "https://s3/homepage.json");
     init();
@@ -138,7 +139,6 @@ public class GlobalActionTest {
     assertJson(call()).isSimilarTo("{" +
       "  \"settings\": {" +
       "    \"sonar.prismic.accessToken\": \"secret\"," +
-      "    \"sonar.analytics.ga.trackingId\": \"ga_id\"," +
       "    \"sonar.analytics.gtm.trackingId\": \"gtm_id\"," +
       "    \"sonar.homepage.url\": \"https://s3/homepage.json\"" +
       "  }" +
@@ -313,6 +313,25 @@ public class GlobalActionTest {
     assertJson(json).isSimilarTo("{\"edition\":\"developer\"}");
   }
 
+  @Test
+  public void web_analytics_js_path_is_not_returned_if_not_defined() {
+    init();
+    when(webAnalyticsLoader.getUrlPathToJs()).thenReturn(Optional.empty());
+
+    String json = call();
+    assertThat(json).doesNotContain("webAnalyticsJsPath");
+  }
+
+  @Test
+  public void web_analytics_js_path_is_returned_if_defined() {
+    init();
+    String path = "static/googleanalytics/analytics.js";
+    when(webAnalyticsLoader.getUrlPathToJs()).thenReturn(Optional.of(path));
+
+    String json = call();
+    assertJson(json).isSimilarTo("{\"webAnalyticsJsPath\":\"" + path + "\"}");
+  }
+
   private void init() {
     init(new org.sonar.api.web.page.Page[] {}, new ResourceTypeTree[] {});
   }
@@ -332,7 +351,7 @@ public class GlobalActionTest {
     }});
     pageRepository.start();
     GlobalAction wsAction = new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
-      webServer, dbClient, organizationFlags, defaultOrganizationProvider, branchFeature, userSession, editionProvider);
+      webServer, dbClient, organizationFlags, defaultOrganizationProvider, branchFeature, userSession, editionProvider, webAnalyticsLoader);
     ws = new WsActionTester(wsAction);
     wsAction.start();
   }

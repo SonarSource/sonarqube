@@ -19,26 +19,41 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import UpgradeOrganizationModal from '../UpgradeOrganizationModal';
+import { Extension } from '../Extension';
+import { mockCurrentUser, mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import { getExtensionStart } from '../../../../helpers/extensions';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../helpers/extensions', () => ({
-  getExtensionStart: jest.fn().mockResolvedValue(undefined)
+  getExtensionStart: jest.fn().mockResolvedValue(jest.fn())
 }));
 
-const organization = { key: 'foo', name: 'Foo' };
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
-it('should render correctly', async () => {
-  const wrapper = shallow(
-    <UpgradeOrganizationModal
-      onClose={jest.fn()}
-      onUpgradeDone={jest.fn()}
-      organization={organization}
-      subscriptionPlans={[]}
-    />
-  );
+it('should render extension correctly', async () => {
+  const start = jest.fn().mockReturnValue(<div className="extension" />);
+  (getExtensionStart as jest.Mock).mockResolvedValue(start);
+
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
+  expect(getExtensionStart).toBeCalledWith('foo');
   await waitAndUpdate(wrapper);
-  expect(getExtensionStart).toHaveBeenCalled();
+  expect(start).toBeCalled();
   expect(wrapper).toMatchSnapshot();
 });
+
+function shallowRender(props: Partial<Extension['props']> = {}) {
+  return shallow(
+    <Extension
+      currentUser={mockCurrentUser()}
+      extension={{ key: 'foo', name: 'Foo' }}
+      intl={{} as any}
+      location={mockLocation()}
+      onFail={jest.fn()}
+      router={mockRouter()}
+      {...props}
+    />
+  );
+}

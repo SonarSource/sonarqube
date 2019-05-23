@@ -102,6 +102,7 @@ declare namespace T {
     settings: T.Dict<string>;
     standalone?: boolean;
     version: string;
+    webAnalyticsJsPath?: string;
   }
 
   export interface Branch {

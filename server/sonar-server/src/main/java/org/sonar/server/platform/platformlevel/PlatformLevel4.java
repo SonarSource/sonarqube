@@ -200,6 +200,7 @@ import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.ui.DeprecatedViews;
 import org.sonar.server.ui.PageDecorations;
 import org.sonar.server.ui.PageRepository;
+import org.sonar.server.ui.WebAnalyticsLoaderImpl;
 import org.sonar.server.ui.ws.NavigationWsModule;
 import org.sonar.server.updatecenter.UpdateCenterModule;
 import org.sonar.server.user.NewUserNotifier;
@@ -264,6 +265,7 @@ public class PlatformLevel4 extends PlatformLevel {
       BackendCleanup.class,
       IndexDefinitions.class,
       WebPagesFilter.class,
+      WebAnalyticsLoaderImpl.class,
 
       // batch
       BatchWsModule.class,

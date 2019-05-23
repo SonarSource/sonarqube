@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`installScript should add the given script in the dom 1`] = `"<script src=\\"custom_script.js\\"></script>"`;
