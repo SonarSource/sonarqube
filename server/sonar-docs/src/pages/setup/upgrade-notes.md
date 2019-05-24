@@ -7,6 +7,9 @@ url: /setup/upgrade-notes/
 **MySQL Deprecation and Migration**  
 This is the last version that will support MySQL. To migrate from MySQL to a supported database, see the free [MySQL Migrator tool](https://github.com/SonarSource/mysql-migrator).
 
+**Elasticsearch bootstrap checks enforced**  
+SonarQube will now fail to start if Elasticsearch's bootstrap checks fail. That means you may need to [adjust the maximum number of open files and processes](/requirements/requirements/) for the SonarQube user as part of this upgrade ([SONAR-11264](https://jira.sonarsource.com/browse/SONAR-11264)). 
+
 **Notifications changes**  
 Several changes have been made to notificatons. The notifications algorithm has been replaced with one that offers better performance during background task processing. Issue change notifications spawned by analysis or bulk change now generate only one email per event rather than one email per issue. The ability to subscribe globally to new issues notifications and notifications for issues resolved as False Positive or Won't fix has been dropped, as have all such subscriptions. Issue-related notifications on PRs have also been dropped.
 
