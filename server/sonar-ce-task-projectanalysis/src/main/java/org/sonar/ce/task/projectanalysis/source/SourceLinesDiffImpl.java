@@ -21,7 +21,9 @@ package org.sonar.ce.task.projectanalysis.source;
 
 import java.util.Collections;
 import java.util.List;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDao;
@@ -31,11 +33,16 @@ public class SourceLinesDiffImpl implements SourceLinesDiff {
   private final DbClient dbClient;
   private final FileSourceDao fileSourceDao;
   private final SourceLinesHashRepository sourceLinesHash;
+  private final MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public SourceLinesDiffImpl(DbClient dbClient, FileSourceDao fileSourceDao, SourceLinesHashRepository sourceLinesHash) {
+  public SourceLinesDiffImpl(DbClient dbClient, FileSourceDao fileSourceDao, SourceLinesHashRepository sourceLinesHash,
+    MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids, AnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
     this.fileSourceDao = fileSourceDao;
     this.sourceLinesHash = sourceLinesHash;
+    this.mergeAndTargetBranchComponentUuids = mergeAndTargetBranchComponentUuids;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
@@ -48,7 +55,21 @@ public class SourceLinesDiffImpl implements SourceLinesDiff {
 
   private List<String> getDBLines(Component component) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<String> database = fileSourceDao.selectLineHashes(dbSession, component.getUuid());
+      String uuid;
+      if (analysisMetadataHolder.isSLBorPR()) {
+        uuid = mergeAndTargetBranchComponentUuids.getTargetBranchComponentUuid(component.getDbKey());
+        if (uuid == null) {
+          uuid = mergeAndTargetBranchComponentUuids.getMergeBranchComponentUuid(component.getDbKey());
+        }
+      } else {
+        uuid = component.getUuid();
+      }
+
+      if (uuid == null) {
+        return Collections.emptyList();
+      }
+
+      List<String> database = fileSourceDao.selectLineHashes(dbSession, uuid);
       if (database == null) {
         return Collections.emptyList();
       }

@@ -36,11 +36,13 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
 import org.sonar.core.hash.SourceHashComputer;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.log.LoggerLevel.TRACE;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
@@ -93,7 +95,6 @@ public class ScmInfoDbLoaderTest {
 
     String mergeFileUuid = "mergeFileUuid";
     String hash = computeSourceHash(1);
-    when(branch.getMergeBranchUuid()).thenReturn("mergeBranchUuid");
 
     when(mergeAndTargetBranchComponentUuids.getMergeBranchComponentUuid(FILE.getDbKey())).thenReturn(mergeFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, mergeFileUuid);
@@ -102,6 +103,25 @@ public class ScmInfoDbLoaderTest {
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
     assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from DB for file 'mergeFileUuid'");
+  }
+
+  @Test
+  public void read_from_target_if_pullrequest() {
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    analysisMetadataHolder.setBaseAnalysis(null);
+    analysisMetadataHolder.setBranch(branch);
+
+    String targetBranchFileUuid = "targetBranchFileUuid";
+    String hash = computeSourceHash(1);
+
+    when(mergeAndTargetBranchComponentUuids.getMergeBranchComponentUuid(FILE.getDbKey())).thenReturn(targetBranchFileUuid);
+    addFileSourceInDb("henry", DATE_1, "rev-1", hash, targetBranchFileUuid);
+
+    DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+    assertThat(scmInfo.getAllChangesets()).hasSize(1);
+    assertThat(scmInfo.fileHash()).isEqualTo(hash);
+    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from DB for file 'targetBranchFileUuid'");
   }
 
   @Test
@@ -116,13 +136,27 @@ public class ScmInfoDbLoaderTest {
   }
 
   @Test
-  public void do_not_read_from_db_on_first_analysis_and_no_merge_branch() {
+  public void do_not_read_from_db_on_first_analysis_if_there_is_no_merge_branch() {
     Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);
 
+
     assertThat(underTest.getScmInfo(FILE)).isEmpty();
     assertThat(logTester.logs(TRACE)).isEmpty();
+  }
+
+  @Test
+  public void do_not_read_from_db_on_pr_is_there_is_no_target_and_merge_branch() {
+    analysisMetadataHolder.setBaseAnalysis(null);
+    analysisMetadataHolder.setBranch(mock(Branch.class));
+
+    assertThat(underTest.getScmInfo(FILE)).isEmpty();
+    assertThat(logTester.logs(TRACE)).isEmpty();
+
+    verify(mergeAndTargetBranchComponentUuids).getMergeBranchComponentUuid(FILE.getDbKey());
+    verify(mergeAndTargetBranchComponentUuids).getTargetBranchComponentUuid(FILE.getDbKey());
   }
 
   private static List<String> generateLines(int lineCount) {

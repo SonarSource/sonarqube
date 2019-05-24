@@ -60,14 +60,18 @@ public class ScmInfoDbLoader {
   }
 
   private Optional<String> getFileUUid(Component file) {
-    if (!analysisMetadataHolder.isFirstAnalysis()) {
+    if (!analysisMetadataHolder.isFirstAnalysis() && !analysisMetadataHolder.isSLBorPR()) {
       return Optional.of(file.getUuid());
     }
 
-    // at this point, it's the first analysis but had copyFromPrevious flag true
+    // at this point, it's the first analysis of a LLB with copyFromPrevious flag true or any analysis of a PR/SLB
     Branch branch = analysisMetadataHolder.getBranch();
     if (!branch.isMain()) {
-      return Optional.ofNullable(mergeBranchComponentUuid.getMergeBranchComponentUuid(file.getDbKey()));
+      String uuid = mergeBranchComponentUuid.getTargetBranchComponentUuid(file.getDbKey());
+      if (uuid == null) {
+        uuid = mergeBranchComponentUuid.getMergeBranchComponentUuid(file.getDbKey());
+      }
+      return Optional.ofNullable(uuid);
     }
 
     return Optional.empty();

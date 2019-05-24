@@ -23,13 +23,14 @@ import java.util.Arrays;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.source.FileSourceDao;
 
-import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -43,11 +44,13 @@ public class SourceLinesDiffImplTest {
   private ComponentDao componentDao = mock(ComponentDao.class);
   private FileSourceDao fileSourceDao = mock(FileSourceDao.class);
   private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
+  private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
+  private MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids = mock(MergeAndTargetBranchComponentUuids.class);
 
-  private SourceLinesDiffImpl underTest = new SourceLinesDiffImpl(dbClient, fileSourceDao, sourceLinesHash);
+  private SourceLinesDiffImpl underTest = new SourceLinesDiffImpl(dbClient, fileSourceDao, sourceLinesHash,
+    mergeAndTargetBranchComponentUuids, analysisMetadataHolder);
 
   private static final int FILE_REF = 1;
-  private static final String FILE_KEY = valueOf(FILE_REF);
 
   private static final String[] CONTENT = {
     "package org.sonar.ce.task.projectanalysis.source_diff;",
@@ -67,18 +70,54 @@ public class SourceLinesDiffImplTest {
   }
 
   @Test
+  public void should_find_diff_with_target_branch_for_slbs() {
+    Component component = fileComponent(FILE_REF);
+    Component componentInTarget = fileComponent(2);
+
+    mockLineHashesInDb(2, CONTENT);
+    setLineHashesInReport(component, CONTENT);
+
+    when(analysisMetadataHolder.isSLBorPR()).thenReturn(true);
+    when(mergeAndTargetBranchComponentUuids.getTargetBranchComponentUuid(component.getKey())).thenReturn("uuid_2");
+
+    assertThat(underTest.computeMatchingLines(component)).containsExactly(1, 2, 3, 4, 5, 6, 7);
+  }
+
+  @Test
+  public void should_find_diff_with_merge_branch_for_slbs_if_not_found_in_target() {
+    Component component = fileComponent(FILE_REF);
+    Component componentInTarget = fileComponent(2);
+
+    mockLineHashesInDb(2, CONTENT);
+    setLineHashesInReport(component, CONTENT);
+
+    when(analysisMetadataHolder.isSLBorPR()).thenReturn(true);
+    when(mergeAndTargetBranchComponentUuids.getMergeBranchComponentUuid(component.getKey())).thenReturn("uuid_2");
+
+    assertThat(underTest.computeMatchingLines(component)).containsExactly(1, 2, 3, 4, 5, 6, 7);
+  }
+
+  @Test
+  public void all_file_is_modified_if_no_source_in_db() {
+    Component component = fileComponent(FILE_REF);
+
+    setLineHashesInReport(component, CONTENT);
+
+    assertThat(underTest.computeMatchingLines(component)).containsExactly(0, 0, 0, 0, 0, 0, 0);
+  }
+
+  @Test
   public void should_find_no_diff_when_report_and_db_content_are_identical() {
     Component component = fileComponent(FILE_REF);
 
-    mockLineHashesInDb("" + FILE_KEY, CONTENT);
+    mockLineHashesInDb(FILE_REF, CONTENT);
     setLineHashesInReport(component, CONTENT);
 
     assertThat(underTest.computeMatchingLines(component)).containsExactly(1, 2, 3, 4, 5, 6, 7);
-
   }
 
-  private void mockLineHashesInDb(String key, @Nullable String[] lineHashes) {
-    when(fileSourceDao.selectLineHashes(dbSession, componentUuidOf(key)))
+  private void mockLineHashesInDb(int ref, @Nullable String[] lineHashes) {
+    when(fileSourceDao.selectLineHashes(dbSession, componentUuidOf(String.valueOf(ref))))
       .thenReturn(Arrays.asList(lineHashes));
   }
 

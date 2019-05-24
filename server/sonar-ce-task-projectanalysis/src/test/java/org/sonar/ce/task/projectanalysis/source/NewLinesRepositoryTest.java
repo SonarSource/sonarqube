@@ -55,7 +55,7 @@ public class NewLinesRepositoryTest {
   private NewLinesRepository repository = new NewLinesRepository(reader, analysisMetadataHolder, periodHolder, scmInfoRepository);
 
   @Test
-  public void load_new_lines_from_report_if_available_and_pullrequest() {
+  public void load_new_lines_from_report_when_available_and_pullrequest() {
     setPullRequest();
     createChangedLinesInReport(1, 2, 5);
 
@@ -67,7 +67,7 @@ public class NewLinesRepositoryTest {
   }
 
   @Test
-  public void calculate_new_lines_from_period() {
+  public void compute_new_lines_using_scm_info_for_period() {
     periodHolder.setPeriod(new Period("", null, 1000L, ""));
     scmInfoRepository.setScmInfo(FILE.getReportAttributes().getRef(), createChangesets(1100L, 900L, 1000L, 800L));
 
@@ -75,6 +75,20 @@ public class NewLinesRepositoryTest {
 
     assertThat(newLines).isPresent();
     assertThat(newLines.get()).containsOnly(1);
+    assertThat(repository.newLinesAvailable()).isTrue();
+  }
+
+  @Test
+  public void compute_new_lines_using_scm_info_for_pullrequest() {
+    periodHolder.setPeriod(null);
+    setPullRequest();
+    analysisMetadataHolder.setAnalysisDate(1000L);
+    scmInfoRepository.setScmInfo(FILE.getReportAttributes().getRef(), createChangesets(1100L, 900L, 1000L, 800L));
+
+    Optional<Set<Integer>> newLines = repository.getNewLines(FILE);
+
+    assertThat(newLines).isPresent();
+    assertThat(newLines.get()).containsOnly(1, 3);
     assertThat(repository.newLinesAvailable()).isTrue();
   }
 
