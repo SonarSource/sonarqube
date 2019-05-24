@@ -10,6 +10,12 @@ This is the last version that will support MySQL. To migrate from MySQL to a sup
 **Elasticsearch bootstrap checks enforced**  
 SonarQube will now fail to start if Elasticsearch's bootstrap checks fail. That means you may need to [adjust the maximum number of open files and processes](/requirements/requirements/) for the SonarQube user as part of this upgrade ([SONAR-11264](https://jira.sonarsource.com/browse/SONAR-11264)). 
 
+**Scanner version compatibility**  
+Only the following scanner versions are compatible with SonarQube 7.8:
+* SonarQube Scanner CLI 2.9+
+* SonarQube Scanner Maven 3.3.0.603+
+* SonarQube Scanner Gradle 2.3+
+
 **Notifications changes**  
 Several changes have been made to notificatons. The notifications algorithm has been replaced with one that offers better performance during background task processing. Issue change notifications spawned by analysis or bulk change now generate only one email per event rather than one email per issue. The ability to subscribe globally to new issues notifications and notifications for issues resolved as False Positive or Won't fix has been dropped, as have all such subscriptions. Issue-related notifications on PRs have also been dropped.
 
@@ -17,16 +23,10 @@ Several changes have been made to notificatons. The notifications algorithm has 
 It is now possible to verify that webhook payloads actually come from SonarQube via the `X-Sonar-Webhook-HMAC-SHA256` HTTP header. ([SONAR-12000](https://jira.sonarsource.com/browse/SONAR-12000))
 
 **Graceful shutdown**  
-The SonarQube server now shuts down gracefully. I.E. it completes any currently-processing (but not queued) background tasks before shutting down. This may mean that shutdown takes longer than previously. ([SONAR-12043](https://jira.sonarsource.com/browse/SONAR-12043))
+The SonarQube server now shuts down gracefully. I.E. it completes any currently-processing background tasks before shutting down. This may mean that shutdown takes longer than previously. ([SONAR-12043](https://jira.sonarsource.com/browse/SONAR-12043))
 
 **Additional authentication methods embedded**  
 The SAML and GitHub Authentication plugins are now embedded in all editions ([SONAR-11894](https://jira.sonarsource.com/browse/SONAR-11894))
-
-**Scanner version compatibility**  
-Only the following scanner versions are compatible with SonarQube 7.8:
-* SonarQube Scanner CLI 2.9+
-* SonarQube Scanner Maven 3.3.0.603+
-* SonarQube Scanner Gradle 2.3+
 
 **Deprecated web services dropped**  
 Web services that were deprecated in 5.x versions have been dropped. ([SONAR-11876](https://jira.sonarsource.com/browse/SONAR-11876))
