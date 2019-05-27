@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.i18n;
+package org.sonar.core.i18n;
 
 import java.util.Date;
 import java.util.Locale;
@@ -25,16 +25,9 @@ import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
-/**
- * Main component that provides translation facilities.
- *
- * @since 2.10
- * @deprecated since 7.8 as plugins as no reason to use it anymore
- */
 @ServerSide
 @ComputeEngineSide
-@Deprecated
-public interface I18n {
+public interface I18n extends org.sonar.api.i18n.I18n {
 
   /**
    * Searches the message of the <code>key</code> for the <code>locale</code> in the list of available bundles.
@@ -73,7 +66,7 @@ public interface I18n {
   /**
    * Return the distance in time between two dates.
    *
-   * @see I18n#age(Locale, long durationInMillis)
+   * @see I18n#age(java.util.Locale, long durationInMillis)
    * @since 4.2
    */
   String age(Locale locale, Date fromDate, Date toDate);
@@ -81,7 +74,7 @@ public interface I18n {
   /**
    * Reports the distance in time a date and now.
    *
-   * @see I18n#age(Locale, Date, Date)
+   * @see I18n#age(java.util.Locale, java.util.Date, java.util.Date)
    * @since 4.2
    */
   String ageFromNow(Locale locale, Date date);

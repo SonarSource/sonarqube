@@ -21,9 +21,9 @@ package org.sonar.server.issue.notification;
 
 import java.util.Date;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.core.i18n.I18n;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
 /**

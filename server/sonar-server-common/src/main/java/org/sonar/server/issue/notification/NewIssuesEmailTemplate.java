@@ -20,8 +20,8 @@
 package org.sonar.server.issue.notification;
 
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.notifications.Notification;
+import org.sonar.core.i18n.I18n;
 
 /**
  * Creates email message for notification "new-issues".

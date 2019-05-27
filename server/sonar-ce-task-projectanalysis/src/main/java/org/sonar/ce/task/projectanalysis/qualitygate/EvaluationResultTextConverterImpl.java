@@ -23,11 +23,11 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
+import org.sonar.core.i18n.I18n;
 
 import static java.util.Objects.requireNonNull;
 

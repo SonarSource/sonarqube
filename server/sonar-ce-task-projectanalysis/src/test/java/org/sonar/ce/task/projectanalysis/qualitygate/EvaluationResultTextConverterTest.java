@@ -27,11 +27,11 @@ import java.util.List;
 import java.util.Locale;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.Durations;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
+import org.sonar.core.i18n.I18n;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

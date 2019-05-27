@@ -21,8 +21,8 @@ package org.sonar.server.issue.notification;
 
 import javax.annotation.CheckForNull;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.notifications.Notification;
+import org.sonar.core.i18n.I18n;
 import org.sonar.server.issue.notification.FPOrWontFixNotification.FpOrWontFix;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.UserChange;

@@ -35,7 +35,7 @@ import java.util.SortedSet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.i18n.I18n;
+import org.sonar.core.i18n.I18n;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Project;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Rule;

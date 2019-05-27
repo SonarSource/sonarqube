@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.sonar.api.i18n.I18n;
+import org.sonar.core.i18n.I18n;
 
 public class I18nRule implements TestRule, I18n {
   private final Map<String, String> messages = new HashMap<>();

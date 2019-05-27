@@ -23,10 +23,10 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.i18n.I18n;
 
 import static java.lang.String.format;
 

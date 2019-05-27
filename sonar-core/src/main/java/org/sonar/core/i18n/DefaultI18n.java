@@ -41,7 +41,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
