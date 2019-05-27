@@ -59,3 +59,29 @@ it('should have an error when the key already exists', async () => {
   await new Promise(setImmediate);
   expect(wrapper.find('ValidationInput').prop('isInvalid')).toBe(true);
 });
+
+it('should handle Change', async () => {
+  const onChange = jest.fn();
+  const wrapper = shallow(<ProjectKeyInput onChange={onChange} value="" />);
+  await waitAndUpdate(wrapper);
+
+  wrapper.find('input').simulate('change', { currentTarget: { value: 'key' } });
+
+  expect(wrapper.state('touched')).toBe(true);
+  expect(onChange).toBeCalledWith('key');
+});
+
+it('should ignore promise return if value has been changed in the meantime', async () => {
+  const onChange = (value: string) => wrapper.setProps({ value });
+  const wrapper = shallow(<ProjectKeyInput onChange={onChange} value="" />);
+  await waitAndUpdate(wrapper);
+
+  wrapper.find('input').simulate('change', { currentTarget: { value: 'exists' } });
+  wrapper.find('input').simulate('change', { currentTarget: { value: 'exists%' } });
+
+  jest.runAllTimers();
+  await new Promise(setImmediate);
+
+  expect(wrapper.state('touched')).toBe(true);
+  expect(wrapper.state('error')).toBe('onboarding.create_project.project_key.error');
+});

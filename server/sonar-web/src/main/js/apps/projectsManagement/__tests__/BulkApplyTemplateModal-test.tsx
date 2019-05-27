@@ -71,7 +71,7 @@ it('bulk applies template to all results', async () => {
 });
 
 it('bulk applies template to selected results', async () => {
-  const wrapper = shallow(render({ selection: ['proj1', 'proj2'] }));
+  const wrapper = shallow(render({ qualifier: 'VW', selection: ['proj1', 'proj2'] }));
   (wrapper.instance() as BulkApplyTemplateModal).mounted = true;
   expect(wrapper).toMatchSnapshot();
 
@@ -88,6 +88,7 @@ it('bulk applies template to selected results', async () => {
   expect(bulkApplyTemplate).toBeCalledWith({
     organization: 'org',
     projects: 'proj1,proj2',
+    qualifiers: 'VW',
     templateId: 'foo'
   });
 

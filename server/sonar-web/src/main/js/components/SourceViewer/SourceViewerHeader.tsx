@@ -73,8 +73,9 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
 
   renderIssueMeasures = () => {
     const { branchLike, issues, sourceViewerFile } = this.props;
-    if (issues && issues.length > 0) {
-      return (
+    return (
+      issues &&
+      issues.length > 0 && (
         <>
           <div className="source-viewer-header-measure-separator" />
 
@@ -101,8 +102,8 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
             );
           })}
         </>
-      );
-    }
+      )
+    );
   };
 
   render() {

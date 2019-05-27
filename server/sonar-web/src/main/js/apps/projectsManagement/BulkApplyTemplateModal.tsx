@@ -88,6 +88,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         ? {
             organization: this.props.organization,
             projects: this.props.selection.join(),
+            qualifiers: this.props.qualifier,
             templateId: permissionTemplate
           }
         : {
