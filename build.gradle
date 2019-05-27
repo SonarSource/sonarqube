@@ -286,6 +286,15 @@ subprojects {
     }
   }
 
+  normalization {
+    runtimeClasspath {
+      // Following classpath resources contain volatile data that changes in each CI build (build number, commit id, time),
+      // so we exclude them from calculation of build cache key of test tasks:
+      ignore 'META-INF/MANIFEST.MF'
+      ignore 'sonar-api-version.txt'
+      ignore 'sq-version.txt'
+    }
+  }
   test {
     jvmArgs '-Dfile.encoding=UTF8'
     maxHeapSize = '1G'
