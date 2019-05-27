@@ -21,6 +21,33 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import Favorite from '../Favorite';
 
+jest.mock('../../../api/favorites', () => ({
+  addFavorite: jest.fn(() => Promise.resolve()),
+  removeFavorite: jest.fn(() => Promise.resolve())
+}));
+
 it('renders', () => {
-  expect(shallow(<Favorite component="foo" favorite={true} qualifier="TRK" />)).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
+
+it('calls handleFavorite when given', async () => {
+  const handleFavorite = jest.fn();
+  const wrapper = shallowRender(handleFavorite);
+  const favoriteBase = wrapper.find('FavoriteBase');
+  const addFavorite = favoriteBase.prop<Function>('addFavorite');
+  const removeFavorite = favoriteBase.prop<Function>('removeFavorite');
+
+  removeFavorite();
+  await new Promise(setImmediate);
+  expect(handleFavorite).toHaveBeenCalledWith('foo', false);
+
+  addFavorite();
+  await new Promise(setImmediate);
+  expect(handleFavorite).toHaveBeenCalledWith('foo', true);
+});
+
+function shallowRender(handleFavorite?: () => void) {
+  return shallow(
+    <Favorite component="foo" favorite={true} handleFavorite={handleFavorite} qualifier="TRK" />
+  );
+}

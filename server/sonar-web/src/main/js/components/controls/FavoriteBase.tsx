@@ -47,12 +47,6 @@ export default class FavoriteBase extends React.PureComponent<Props, State> {
     this.mounted = true;
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.favorite !== this.props.favorite || nextProps.favorite !== this.state.favorite) {
-      this.setState({ favorite: nextProps.favorite });
-    }
-  }
-
   componentWillUnmount() {
     this.mounted = false;
   }

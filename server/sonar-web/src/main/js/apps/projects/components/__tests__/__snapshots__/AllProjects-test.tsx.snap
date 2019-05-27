@@ -1,5 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`handles favorite projects 1`] = `
+Array [
+  Object {
+    "key": "foo",
+    "measures": Object {},
+    "name": "Foo",
+    "tags": Array [],
+    "visibility": "public",
+  },
+]
+`;
+
+exports[`handles favorite projects 2`] = `
+Array [
+  Object {
+    "isFavorite": true,
+    "key": "foo",
+    "measures": Object {},
+    "name": "Foo",
+    "tags": Array [],
+    "visibility": "public",
+  },
+]
+`;
+
 exports[`renders 1`] = `
 <div
   className="layout-page projects-page"
@@ -50,6 +75,8 @@ exports[`renders 1`] = `
                   "key": "foo",
                   "measures": Object {},
                   "name": "Foo",
+                  "tags": Array [],
+                  "visibility": "public",
                 },
               ]
             }
@@ -98,6 +125,7 @@ exports[`renders 1`] = `
               "isLoggedIn": true,
             }
           }
+          handleFavorite={[Function]}
           isFavorite={false}
           isFiltered={false}
           projects={
@@ -106,6 +134,8 @@ exports[`renders 1`] = `
                 "key": "foo",
                 "measures": Object {},
                 "name": "Foo",
+                "tags": Array [],
+                "visibility": "public",
               },
             ]
           }
@@ -195,6 +225,8 @@ exports[`renders 2`] = `
                   "key": "foo",
                   "measures": Object {},
                   "name": "Foo",
+                  "tags": Array [],
+                  "visibility": "public",
                 },
               ]
             }
@@ -226,6 +258,8 @@ exports[`renders 2`] = `
                 "key": "foo",
                 "measures": Object {},
                 "name": "Foo",
+                "tags": Array [],
+                "visibility": "public",
               },
             ]
           }
@@ -391,6 +425,7 @@ exports[`renders correctly empty organization 3`] = `
               "isLoggedIn": true,
             }
           }
+          handleFavorite={[Function]}
           isFavorite={false}
           isFiltered={false}
           organization={

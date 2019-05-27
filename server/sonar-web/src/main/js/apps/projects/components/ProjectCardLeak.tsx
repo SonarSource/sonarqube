@@ -33,81 +33,90 @@ import { formatDuration } from '../utils';
 import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
+  handleFavorite: (component: string, isFavorite: boolean) => void;
   height: number;
   organization: T.Organization | undefined;
   project: Project;
 }
 
-export default function ProjectCardLeak({ height, organization, project }: Props) {
-  const { measures } = project;
-  const hasTags = project.tags.length > 0;
-  const periodMs = project.leakPeriodDate ? difference(Date.now(), project.leakPeriodDate) : 0;
+export default class ProjectCardLeak extends React.PureComponent<Props> {
+  render() {
+    const { handleFavorite, height, organization, project } = this.props;
+    const { measures } = project;
+    const hasTags = project.tags.length > 0;
+    const periodMs = project.leakPeriodDate ? difference(Date.now(), project.leakPeriodDate) : 0;
 
-  return (
-    <div className="boxed-group project-card" data-key={project.key} style={{ height }}>
-      <div className="boxed-group-header clearfix">
-        <div className="project-card-header">
-          {project.isFavorite != null && (
-            <Favorite
-              className="spacer-right"
-              component={project.key}
-              favorite={project.isFavorite}
-              qualifier="TRK"
-            />
-          )}
-          <h2 className="project-card-name">
-            {!organization && (
-              <ProjectCardOrganizationContainer organization={project.organization} />
+    return (
+      <div className="boxed-group project-card" data-key={project.key} style={{ height }}>
+        <div className="boxed-group-header clearfix">
+          <div className="project-card-header">
+            {project.isFavorite != null && (
+              <Favorite
+                className="spacer-right"
+                component={project.key}
+                favorite={project.isFavorite}
+                handleFavorite={handleFavorite}
+                qualifier="TRK"
+              />
             )}
-            <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
-          </h2>
-          {project.analysisDate && <ProjectCardQualityGate status={measures['alert_status']} />}
-          <div className="project-card-header-right">
-            <PrivacyBadgeContainer
-              className="spacer-left"
-              organization={organization || project.organization}
-              qualifier="TRK"
-              tooltipProps={{ projectKey: project.key }}
-              visibility={project.visibility}
-            />
-
-            {hasTags && <TagsList className="spacer-left note" tags={project.tags} />}
-          </div>
-        </div>
-        {project.analysisDate && project.leakPeriodDate && (
-          <div className="project-card-dates note text-right pull-right">
-            <span className="project-card-leak-date pull-right">
-              {translateWithParameters('projects.new_code_period_x', formatDuration(periodMs))}
-            </span>
-            <DateTimeFormatter date={project.analysisDate}>
-              {formattedDate => (
-                <span>{translateWithParameters('projects.last_analysis_on_x', formattedDate)}</span>
+            <h2 className="project-card-name">
+              {!organization && (
+                <ProjectCardOrganizationContainer organization={project.organization} />
               )}
-            </DateTimeFormatter>
+              <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>
+                {project.name}
+              </Link>
+            </h2>
+            {project.analysisDate && <ProjectCardQualityGate status={measures['alert_status']} />}
+            <div className="project-card-header-right">
+              <PrivacyBadgeContainer
+                className="spacer-left"
+                organization={organization || project.organization}
+                qualifier="TRK"
+                tooltipProps={{ projectKey: project.key }}
+                visibility={project.visibility}
+              />
+
+              {hasTags && <TagsList className="spacer-left note" tags={project.tags} />}
+            </div>
+          </div>
+          {project.analysisDate && project.leakPeriodDate && (
+            <div className="project-card-dates note text-right pull-right">
+              <span className="project-card-leak-date pull-right">
+                {translateWithParameters('projects.new_code_period_x', formatDuration(periodMs))}
+              </span>
+              <DateTimeFormatter date={project.analysisDate}>
+                {formattedDate => (
+                  <span>
+                    {translateWithParameters('projects.last_analysis_on_x', formattedDate)}
+                  </span>
+                )}
+              </DateTimeFormatter>
+            </div>
+          )}
+        </div>
+
+        {project.analysisDate && project.leakPeriodDate ? (
+          <div className="boxed-group-inner">
+            <ProjectCardLeakMeasures measures={measures} />
+          </div>
+        ) : (
+          <div className="boxed-group-inner">
+            <div className="project-card-not-analyzed">
+              <span className="note">
+                {project.analysisDate
+                  ? translate('projects.no_new_code_period')
+                  : translate('projects.not_analyzed')}
+              </span>
+              {!project.analysisDate && (
+                <Link className="button spacer-left" to={getProjectUrl(project.key)}>
+                  {translate('projects.configure_analysis')}
+                </Link>
+              )}
+            </div>
           </div>
         )}
       </div>
-
-      {project.analysisDate && project.leakPeriodDate ? (
-        <div className="boxed-group-inner">
-          <ProjectCardLeakMeasures measures={measures} />
-        </div>
-      ) : (
-        <div className="boxed-group-inner">
-          <div className="project-card-not-analyzed">
-            <span className="note">
-              {project.analysisDate
-                ? translate('projects.no_new_code_period')
-                : translate('projects.not_analyzed')}
-            </span>
-            {!project.analysisDate && (
-              <Link className="button spacer-left" to={getProjectUrl(project.key)}>
-                {translate('projects.configure_analysis')}
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    );
+  }
 }

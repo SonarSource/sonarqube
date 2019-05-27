@@ -26,14 +26,23 @@ interface Props {
   component: string;
   favorite: boolean;
   qualifier: string;
+  handleFavorite?: (component: string, isFavorite: boolean) => void;
 }
 
-export default function Favorite({ component, ...other }: Props) {
-  return (
-    <FavoriteBase
-      {...other}
-      addFavorite={() => addFavorite(component)}
-      removeFavorite={() => removeFavorite(component)}
-    />
-  );
+export default class Favorite extends React.PureComponent<Props> {
+  callback = (isFavorite: boolean) =>
+    this.props.handleFavorite && this.props.handleFavorite(this.props.component, isFavorite);
+
+  add = () => {
+    return addFavorite(this.props.component).then(() => this.callback(true));
+  };
+
+  remove = () => {
+    return removeFavorite(this.props.component).then(() => this.callback(false));
+  };
+
+  render() {
+    const { component, handleFavorite, ...other } = this.props;
+    return <FavoriteBase {...other} addFavorite={this.add} removeFavorite={this.remove} />;
+  }
 }

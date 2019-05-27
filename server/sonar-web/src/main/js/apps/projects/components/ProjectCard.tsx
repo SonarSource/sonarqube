@@ -23,15 +23,18 @@ import ProjectCardOverall from './ProjectCardOverall';
 import { Project } from '../types';
 
 interface Props {
+  handleFavorite: (component: string, isFavorite: boolean) => void;
   height: number;
   organization: T.Organization | undefined;
   project: Project;
   type?: string;
 }
 
-export default function ProjectCard(props: Props) {
-  if (props.type === 'leak') {
-    return <ProjectCardLeak {...props} />;
+export default class ProjectCard extends React.PureComponent<Props> {
+  render() {
+    if (this.props.type === 'leak') {
+      return <ProjectCardLeak {...this.props} />;
+    }
+    return <ProjectCardOverall {...this.props} />;
   }
-  return <ProjectCardOverall {...props} />;
 }

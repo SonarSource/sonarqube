@@ -172,6 +172,18 @@ export class AllProjects extends React.PureComponent<Props, State> {
     this.props.router.push({ pathname: this.props.location.pathname });
   };
 
+  handleFavorite = (key: string, isFavorite: boolean) => {
+    this.setState(({ projects }) => {
+      if (!projects) {
+        return null;
+      }
+
+      return {
+        projects: projects.map(p => (p.key === key ? { ...p, isFavorite } : p))
+      };
+    });
+  };
+
   handlePerspectiveChange = ({ view, visualization }: { view: string; visualization?: string }) => {
     const { storageOptionsSuffix } = this.props;
     const query: {
@@ -317,6 +329,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
               <ProjectsList
                 cardType={this.getView()}
                 currentUser={this.props.currentUser}
+                handleFavorite={this.handleFavorite}
                 isFavorite={this.props.isFavorite}
                 isFiltered={hasFilterParams(this.state.query)}
                 organization={this.props.organization}

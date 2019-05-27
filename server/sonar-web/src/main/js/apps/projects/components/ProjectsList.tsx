@@ -33,6 +33,7 @@ import { OnboardingContext } from '../../../app/components/OnboardingContext';
 interface Props {
   cardType?: string;
   currentUser: T.CurrentUser;
+  handleFavorite: (component: string, isFavorite: boolean) => void;
   isFavorite: boolean;
   isFiltered: boolean;
   organization: T.Organization | undefined;
@@ -75,6 +76,7 @@ export default class ProjectsList extends React.PureComponent<Props> {
     return (
       <div key={key} style={{ ...style, height }}>
         <ProjectCard
+          handleFavorite={this.props.handleFavorite}
           height={height}
           key={project.key}
           organization={this.props.organization}

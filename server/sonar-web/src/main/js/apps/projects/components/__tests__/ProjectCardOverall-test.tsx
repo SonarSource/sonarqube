@@ -41,18 +41,12 @@ const PROJECT: Project = {
 
 it('should display analysis date (and not leak period) when defined', () => {
   expect(
-    shallow(<ProjectCardOverall height={100} organization={undefined} project={PROJECT} />)
+    shallowRender(PROJECT)
       .find('.project-card-dates')
       .exists()
   ).toBeTruthy();
   expect(
-    shallow(
-      <ProjectCardOverall
-        height={100}
-        organization={undefined}
-        project={{ ...PROJECT, analysisDate: undefined }}
-      />
-    )
+    shallowRender({ ...PROJECT, analysisDate: undefined })
       .find('.project-card-dates')
       .exists()
   ).toBeFalsy();
@@ -61,7 +55,7 @@ it('should display analysis date (and not leak period) when defined', () => {
 it('should not display the quality gate', () => {
   const project = { ...PROJECT, analysisDate: undefined };
   expect(
-    shallow(<ProjectCardOverall height={100} organization={undefined} project={project} />)
+    shallowRender(project)
       .find('ProjectCardOverallQualityGate')
       .exists()
   ).toBeFalsy();
@@ -70,7 +64,7 @@ it('should not display the quality gate', () => {
 it('should display tags', () => {
   const project = { ...PROJECT, tags: ['foo', 'bar'] };
   expect(
-    shallow(<ProjectCardOverall height={100} organization={undefined} project={project} />)
+    shallowRender(project)
       .find('TagsList')
       .exists()
   ).toBeTruthy();
@@ -79,26 +73,27 @@ it('should display tags', () => {
 it('should display private badge', () => {
   const project: Project = { ...PROJECT, visibility: 'private' };
   expect(
-    shallow(<ProjectCardOverall height={100} organization={undefined} project={project} />)
+    shallowRender(project)
       .find('Connect(PrivacyBadge)')
       .exists()
   ).toBeTruthy();
 });
 
 it('should display the overall measures and quality gate', () => {
-  expect(
-    shallow(<ProjectCardOverall height={100} organization={undefined} project={PROJECT} />)
-  ).toMatchSnapshot();
+  expect(shallowRender(PROJECT)).toMatchSnapshot();
 });
 
 it('should display not analyzed yet', () => {
-  expect(
-    shallow(
-      <ProjectCardOverall
-        height={100}
-        organization={undefined}
-        project={{ ...PROJECT, analysisDate: undefined }}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender({ ...PROJECT, analysisDate: undefined })).toMatchSnapshot();
 });
+
+function shallowRender(project: Project) {
+  return shallow(
+    <ProjectCardOverall
+      handleFavorite={jest.fn()}
+      height={100}
+      organization={undefined}
+      project={project}
+    />
+  );
+}

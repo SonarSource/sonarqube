@@ -31,73 +31,78 @@ import { Project } from '../types';
 import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
+  handleFavorite: (component: string, isFavorite: boolean) => void;
   height: number;
   organization: T.Organization | undefined;
   project: Project;
 }
 
-export default function ProjectCardOverall({ height, organization, project }: Props) {
-  const { measures } = project;
+export default class ProjectCardOverall extends React.PureComponent<Props> {
+  render() {
+    const { handleFavorite, height, organization, project } = this.props;
+    const { measures } = project;
 
-  const hasTags = project.tags.length > 0;
+    const hasTags = project.tags.length > 0;
 
-  return (
-    <div className="boxed-group project-card" data-key={project.key} style={{ height }}>
-      <div className="boxed-group-header clearfix">
-        <div className="project-card-header">
-          {project.isFavorite !== undefined && (
-            <Favorite
-              className="spacer-right"
-              component={project.key}
-              favorite={project.isFavorite}
-              qualifier="TRK"
-            />
-          )}
-          <h2 className="project-card-name">
-            {!organization && (
-              <ProjectCardOrganizationContainer organization={project.organization} />
+    return (
+      <div className="boxed-group project-card" data-key={project.key} style={{ height }}>
+        <div className="boxed-group-header clearfix">
+          <div className="project-card-header">
+            {project.isFavorite !== undefined && (
+              <Favorite
+                className="spacer-right"
+                component={project.key}
+                favorite={project.isFavorite}
+                handleFavorite={handleFavorite}
+                qualifier="TRK"
+              />
             )}
-            <Link to={getProjectUrl(project.key)}>{project.name}</Link>
-          </h2>
-          {project.analysisDate && <ProjectCardQualityGate status={measures['alert_status']} />}
-          <div className="project-card-header-right">
-            <PrivacyBadgeContainer
-              className="spacer-left"
-              organization={organization || project.organization}
-              qualifier="TRK"
-              tooltipProps={{ projectKey: project.key }}
-              visibility={project.visibility}
-            />
-            {hasTags && <TagsList className="spacer-left note" tags={project.tags} />}
-          </div>
-        </div>
-        {project.analysisDate && (
-          <div className="project-card-dates note text-right">
-            <DateTimeFormatter date={project.analysisDate}>
-              {formattedDate => (
-                <span className="big-spacer-left">
-                  {translateWithParameters('projects.last_analysis_on_x', formattedDate)}
-                </span>
+            <h2 className="project-card-name">
+              {!organization && (
+                <ProjectCardOrganizationContainer organization={project.organization} />
               )}
-            </DateTimeFormatter>
+              <Link to={getProjectUrl(project.key)}>{project.name}</Link>
+            </h2>
+            {project.analysisDate && <ProjectCardQualityGate status={measures['alert_status']} />}
+            <div className="project-card-header-right">
+              <PrivacyBadgeContainer
+                className="spacer-left"
+                organization={organization || project.organization}
+                qualifier="TRK"
+                tooltipProps={{ projectKey: project.key }}
+                visibility={project.visibility}
+              />
+              {hasTags && <TagsList className="spacer-left note" tags={project.tags} />}
+            </div>
+          </div>
+          {project.analysisDate && (
+            <div className="project-card-dates note text-right">
+              <DateTimeFormatter date={project.analysisDate}>
+                {formattedDate => (
+                  <span className="big-spacer-left">
+                    {translateWithParameters('projects.last_analysis_on_x', formattedDate)}
+                  </span>
+                )}
+              </DateTimeFormatter>
+            </div>
+          )}
+        </div>
+
+        {project.analysisDate ? (
+          <div className="boxed-group-inner">
+            {<ProjectCardOverallMeasures measures={measures} />}
+          </div>
+        ) : (
+          <div className="boxed-group-inner">
+            <div className="project-card-not-analyzed">
+              <span className="note">{translate('projects.not_analyzed')}</span>
+              <Link className="button spacer-left" to={getProjectUrl(project.key)}>
+                {translate('projects.configure_analysis')}
+              </Link>
+            </div>
           </div>
         )}
       </div>
-
-      {project.analysisDate ? (
-        <div className="boxed-group-inner">
-          {<ProjectCardOverallMeasures measures={measures} />}
-        </div>
-      ) : (
-        <div className="boxed-group-inner">
-          <div className="project-card-not-analyzed">
-            <span className="note">{translate('projects.not_analyzed')}</span>
-            <Link className="button spacer-left" to={getProjectUrl(project.key)}>
-              {translate('projects.configure_analysis')}
-            </Link>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    );
+  }
 }

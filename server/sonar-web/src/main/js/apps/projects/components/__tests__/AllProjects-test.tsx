@@ -188,12 +188,20 @@ it('renders correctly empty organization', async () => {
   expect(wrapper).toMatchSnapshot();
 });
 
+it('handles favorite projects', () => {
+  const wrapper = shallowRender();
+  expect(wrapper.state('projects')).toMatchSnapshot();
+
+  wrapper.instance().handleFavorite('foo', true);
+  expect(wrapper.state('projects')).toMatchSnapshot();
+});
+
 function shallowRender(
   props: Partial<AllProjects['props']> = {},
   push = jest.fn(),
   replace = jest.fn()
 ) {
-  const wrapper = shallow(
+  const wrapper = shallow<AllProjects>(
     <AllProjects
       currentUser={{ isLoggedIn: true }}
       isFavorite={false}
@@ -205,7 +213,7 @@ function shallowRender(
   );
   wrapper.setState({
     loading: false,
-    projects: [{ key: 'foo', measures: {}, name: 'Foo' }],
+    projects: [{ key: 'foo', measures: {}, name: 'Foo', tags: [], visibility: 'public' }],
     total: 0
   });
   return wrapper;
