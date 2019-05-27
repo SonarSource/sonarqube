@@ -21,19 +21,25 @@ import { stringify } from 'querystring';
 import * as React from 'react';
 import { Link } from 'react-router';
 import MeasuresOverlay from './components/MeasuresOverlay';
-import QualifierIcon from '../icons-components/QualifierIcon';
 import Dropdown from '../controls/Dropdown';
 import Favorite from '../controls/Favorite';
 import ListIcon from '../icons-components/ListIcon';
+import QualifierIcon from '../icons-components/QualifierIcon';
 import { ButtonIcon } from '../ui/buttons';
 import { PopupPlacement } from '../ui/popups';
 import { WorkspaceContextShape } from '../workspace/context';
-import { getPathUrlAsString, getBranchLikeUrl, getBaseUrl, getCodeUrl } from '../../helpers/urls';
-import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
-import { translate } from '../../helpers/l10n';
 import { getBranchLikeQuery, isMainBranch } from '../../helpers/branches';
+import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
+import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { omitNil } from '../../helpers/request';
+import {
+  getBranchLikeUrl,
+  getBaseUrl,
+  getCodeUrl,
+  getComponentIssuesUrl,
+  getPathUrlAsString
+} from '../../helpers/urls';
 
 interface Props {
   branchLike: T.BranchLike | undefined;
@@ -65,8 +71,42 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
     this.props.openComponent({ branchLike: this.props.branchLike, key });
   };
 
+  renderIssueMeasures = () => {
+    const { branchLike, issues, sourceViewerFile } = this.props;
+    if (issues && issues.length > 0) {
+      return (
+        <>
+          <div className="source-viewer-header-measure-separator" />
+
+          {['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'].map((type: T.IssueType) => {
+            const params = {
+              ...getBranchLikeQuery(branchLike),
+              fileUuids: sourceViewerFile.uuid,
+              resolved: 'false',
+              types: type
+            };
+
+            const total = issues.filter(issue => issue.type === type).length;
+            return (
+              <div className="source-viewer-header-measure" key={type}>
+                <span className="source-viewer-header-measure-label">
+                  {translate('issue.type', type)}
+                </span>
+                <span className="source-viewer-header-measure-value">
+                  <Link to={getComponentIssuesUrl(sourceViewerFile.project, params)}>
+                    {formatMeasure(total, 'INT')}
+                  </Link>
+                </span>
+              </div>
+            );
+          })}
+        </>
+      );
+    }
+  };
+
   render() {
-    const { issues, showMeasures } = this.props;
+    const { showMeasures } = this.props;
     const {
       key,
       measures,
@@ -77,7 +117,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
       subProject,
       subProjectName
     } = this.props.sourceViewerFile;
-    const isUnitTest = q === 'UTS';
+    const unitTestsOrLines = q === 'UTS' ? 'tests' : 'lines';
     const workspace = false;
     const rawSourcesLink =
       getBaseUrl() +
@@ -129,24 +169,13 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
 
         {showMeasures && (
           <div className="display-flex-center">
-            {isUnitTest && (
+            {measures[unitTestsOrLines] && (
               <div className="source-viewer-header-measure">
                 <span className="source-viewer-header-measure-label">
-                  {translate('metric.tests.name')}
+                  {translate(`metric.${unitTestsOrLines}.name`)}
                 </span>
                 <span className="source-viewer-header-measure-value">
-                  {formatMeasure(measures.tests, 'SHORT_INT')}
-                </span>
-              </div>
-            )}
-
-            {!isUnitTest && (
-              <div className="source-viewer-header-measure">
-                <span className="source-viewer-header-measure-label">
-                  {translate('metric.lines.name')}
-                </span>
-                <span className="source-viewer-header-measure-value">
-                  {formatMeasure(measures.lines, 'SHORT_INT')}
+                  {formatMeasure(measures[unitTestsOrLines], 'SHORT_INT')}
                 </span>
               </div>
             )}
@@ -173,27 +202,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
               </div>
             )}
 
-            {issues && issues.length > 0 && (
-              <>
-                <div className="source-viewer-header-measure-separator" />
-
-                {['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'].map(
-                  (type: T.IssueType) => {
-                    const total = issues.filter(issue => issue.type === type).length;
-                    return (
-                      <div className="source-viewer-header-measure" key={type}>
-                        <span className="source-viewer-header-measure-label">
-                          {translate('issue.type', type)}
-                        </span>
-                        <span className="source-viewer-header-measure-value">
-                          {formatMeasure(total, 'INT')}
-                        </span>
-                      </div>
-                    );
-                  }
-                )}
-              </>
-            )}
+            {this.renderIssueMeasures()}
           </div>
         )}
 

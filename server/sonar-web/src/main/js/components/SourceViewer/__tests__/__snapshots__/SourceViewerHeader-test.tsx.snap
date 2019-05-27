@@ -346,7 +346,23 @@ exports[`should render correctly if issue details are passed 1`] = `
       <span
         className="source-viewer-header-measure-value"
       >
-        0
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/issues",
+              "query": Object {
+                "fileUuids": "foo-bar",
+                "id": "my-project",
+                "resolved": "false",
+                "types": "BUG",
+              },
+            }
+          }
+        >
+          0
+        </Link>
       </span>
     </div>
     <div
@@ -361,7 +377,23 @@ exports[`should render correctly if issue details are passed 1`] = `
       <span
         className="source-viewer-header-measure-value"
       >
-        2
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/issues",
+              "query": Object {
+                "fileUuids": "foo-bar",
+                "id": "my-project",
+                "resolved": "false",
+                "types": "VULNERABILITY",
+              },
+            }
+          }
+        >
+          2
+        </Link>
       </span>
     </div>
     <div
@@ -376,7 +408,23 @@ exports[`should render correctly if issue details are passed 1`] = `
       <span
         className="source-viewer-header-measure-value"
       >
-        1
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/issues",
+              "query": Object {
+                "fileUuids": "foo-bar",
+                "id": "my-project",
+                "resolved": "false",
+                "types": "CODE_SMELL",
+              },
+            }
+          }
+        >
+          1
+        </Link>
       </span>
     </div>
     <div
@@ -391,7 +439,23 @@ exports[`should render correctly if issue details are passed 1`] = `
       <span
         className="source-viewer-header-measure-value"
       >
-        2
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/issues",
+              "query": Object {
+                "fileUuids": "foo-bar",
+                "id": "my-project",
+                "resolved": "false",
+                "types": "SECURITY_HOTSPOT",
+              },
+            }
+          }
+        >
+          2
+        </Link>
       </span>
     </div>
   </div>
