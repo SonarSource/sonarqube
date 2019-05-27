@@ -22,12 +22,15 @@ package org.sonar.db.purge;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.io.ByteArrayInputStream;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -50,7 +53,9 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeQueueDto.Status;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
+import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.ce.CeTaskMessageDto;
+import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
@@ -73,6 +78,7 @@ import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.db.webhook.WebhookDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -1025,6 +1031,180 @@ public class PurgeDaoTest {
   }
 
   @Test
+  public void delete_ce_analysis_older_than_180_and_scanner_context_older_than_40_days_of_specified_project_when_purging_project() {
+    LocalDateTime now = LocalDateTime.now();
+    ComponentDto project1 = db.components().insertPublicProject();
+    Consumer<CeQueueDto> belongsToProject1 = t -> t.setMainComponentUuid(project1.uuid()).setComponentUuid(project1.uuid());
+    ComponentDto project2 = db.components().insertPublicProject();
+    Consumer<CeQueueDto> belongsToProject2 = t -> t.setMainComponentUuid(project2.uuid()).setComponentUuid(project2.uuid());
+
+    insertCeActivityAndChildDataWithDate("VERY_OLD_1", now.minusDays(180).minusMonths(10), belongsToProject1);
+    insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH_1", now.minusDays(180).minusDays(1), belongsToProject1);
+    insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH_1", now.minusDays(180), belongsToProject1);
+    insertCeActivityAndChildDataWithDate("RECENT_1", now.minusDays(1), belongsToProject1);
+    insertCeActivityAndChildDataWithDate("VERY_OLD_2", now.minusDays(180).minusMonths(10), belongsToProject2);
+    insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH_2", now.minusDays(180).minusDays(1), belongsToProject2);
+    insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH_2", now.minusDays(180), belongsToProject2);
+    insertCeActivityAndChildDataWithDate("RECENT_2", now.minusDays(1), belongsToProject2);
+
+    when(system2.now()).thenReturn(now.toInstant(ZoneOffset.UTC).toEpochMilli());
+    underTest.purge(db.getSession(), newConfigurationWith30Days(System2.INSTANCE, project1.uuid(), project1.uuid()),
+      PurgeListener.EMPTY, new PurgeProfiler());
+
+    assertThat(selectActivity("VERY_OLD_1")).isEmpty();
+    assertThat(selectTaskInput("VERY_OLD_1")).isEmpty();
+    assertThat(selectTaskCharacteristic("VERY_OLD_1")).hasSize(0);
+    assertThat(scannerContextExists("VERY_OLD_1")).isFalse();
+    assertThat(selectActivity("VERY_OLD_2")).isNotEmpty();
+    assertThat(selectTaskInput("VERY_OLD_2")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("VERY_OLD_2")).hasSize(1);
+    assertThat(scannerContextExists("VERY_OLD_2")).isTrue();
+
+    assertThat(selectActivity("JUST_OLD_ENOUGH_1")).isEmpty();
+    assertThat(selectTaskInput("JUST_OLD_ENOUGH_1")).isEmpty();
+    assertThat(selectTaskCharacteristic("JUST_OLD_ENOUGH_1")).hasSize(0);
+    assertThat(scannerContextExists("JUST_OLD_ENOUGH_1")).isFalse();
+    assertThat(selectActivity("JUST_OLD_ENOUGH_2")).isNotEmpty();
+    assertThat(selectTaskInput("JUST_OLD_ENOUGH_2")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("JUST_OLD_ENOUGH_2")).hasSize(1);
+    assertThat(scannerContextExists("JUST_OLD_ENOUGH_2")).isTrue();
+
+    assertThat(selectActivity("NOT_OLD_ENOUGH_1")).isNotEmpty();
+    assertThat(selectTaskInput("NOT_OLD_ENOUGH_1")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("NOT_OLD_ENOUGH_1")).hasSize(1);
+    assertThat(scannerContextExists("NOT_OLD_ENOUGH_1")).isFalse();  // because more than 4 weeks old
+    assertThat(selectActivity("NOT_OLD_ENOUGH_2")).isNotEmpty();
+    assertThat(selectTaskInput("NOT_OLD_ENOUGH_2")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("NOT_OLD_ENOUGH_2")).hasSize(1);
+    assertThat(scannerContextExists("NOT_OLD_ENOUGH_2")).isTrue();
+
+    assertThat(selectActivity("RECENT_1")).isNotEmpty();
+    assertThat(selectTaskInput("RECENT_1")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("RECENT_1")).hasSize(1);
+    assertThat(scannerContextExists("RECENT_1")).isTrue();
+    assertThat(selectActivity("RECENT_2")).isNotEmpty();
+    assertThat(selectTaskInput("RECENT_2")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("RECENT_2")).hasSize(1);
+    assertThat(scannerContextExists("RECENT_2")).isTrue();
+  }
+
+  @Test
+  public void delete_ce_analysis_older_than_180_and_scanner_context_older_than_40_days_of_project_and_branches_when_purging_project() {
+    LocalDateTime now = LocalDateTime.now();
+    ComponentDto project1 = db.components().insertPublicProject();
+    ComponentDto branch1 = db.components().insertProjectBranch(project1);
+    Consumer<CeQueueDto> belongsToProject1 = t -> t.setMainComponentUuid(project1.uuid()).setComponentUuid(project1.uuid());
+    Consumer<CeQueueDto> belongsToBranch1 = t -> t.setMainComponentUuid(project1.uuid()).setComponentUuid(branch1.uuid());
+
+    insertCeActivityAndChildDataWithDate("VERY_OLD_1", now.minusDays(180).minusMonths(10), belongsToProject1);
+    insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH_1", now.minusDays(180).minusDays(1), belongsToProject1);
+    insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH_1", now.minusDays(180), belongsToProject1);
+    insertCeActivityAndChildDataWithDate("RECENT_1", now.minusDays(1), belongsToProject1);
+    insertCeActivityAndChildDataWithDate("VERY_OLD_2", now.minusDays(180).minusMonths(10), belongsToBranch1);
+    insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH_2", now.minusDays(180).minusDays(1), belongsToBranch1);
+    insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH_2", now.minusDays(180), belongsToBranch1);
+    insertCeActivityAndChildDataWithDate("RECENT_2", now.minusDays(1), belongsToBranch1);
+
+    when(system2.now()).thenReturn(now.toInstant(ZoneOffset.UTC).toEpochMilli());
+    underTest.purge(db.getSession(), newConfigurationWith30Days(System2.INSTANCE, project1.uuid(), project1.uuid()),
+      PurgeListener.EMPTY, new PurgeProfiler());
+
+    assertThat(selectActivity("VERY_OLD_1")).isEmpty();
+    assertThat(selectTaskInput("VERY_OLD_1")).isEmpty();
+    assertThat(selectTaskCharacteristic("VERY_OLD_1")).hasSize(0);
+    assertThat(scannerContextExists("VERY_OLD_1")).isFalse();
+    assertThat(selectActivity("VERY_OLD_2")).isEmpty();
+    assertThat(selectTaskInput("VERY_OLD_2")).isEmpty();
+    assertThat(selectTaskCharacteristic("VERY_OLD_2")).isEmpty();
+    assertThat(scannerContextExists("VERY_OLD_2")).isFalse();
+
+    assertThat(selectActivity("JUST_OLD_ENOUGH_1")).isEmpty();
+    assertThat(selectTaskInput("JUST_OLD_ENOUGH_1")).isEmpty();
+    assertThat(selectTaskCharacteristic("JUST_OLD_ENOUGH_1")).hasSize(0);
+    assertThat(scannerContextExists("JUST_OLD_ENOUGH_1")).isFalse();
+    assertThat(selectActivity("JUST_OLD_ENOUGH_2")).isEmpty();
+    assertThat(selectTaskInput("JUST_OLD_ENOUGH_2")).isEmpty();
+    assertThat(selectTaskCharacteristic("JUST_OLD_ENOUGH_2")).isEmpty();
+    assertThat(scannerContextExists("JUST_OLD_ENOUGH_2")).isFalse();
+
+    assertThat(selectActivity("NOT_OLD_ENOUGH_1")).isNotEmpty();
+    assertThat(selectTaskInput("NOT_OLD_ENOUGH_1")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("NOT_OLD_ENOUGH_1")).hasSize(1);
+    assertThat(scannerContextExists("NOT_OLD_ENOUGH_1")).isFalse(); // because more than 4 weeks old
+    assertThat(selectActivity("NOT_OLD_ENOUGH_2")).isNotEmpty();
+    assertThat(selectTaskInput("NOT_OLD_ENOUGH_2")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("NOT_OLD_ENOUGH_2")).hasSize(1);
+    assertThat(scannerContextExists("NOT_OLD_ENOUGH_2")).isFalse(); // because more than 4 weeks old
+
+    assertThat(selectActivity("RECENT_1")).isNotEmpty();
+    assertThat(selectTaskInput("RECENT_1")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("RECENT_1")).hasSize(1);
+    assertThat(scannerContextExists("RECENT_1")).isTrue();
+    assertThat(selectActivity("RECENT_2")).isNotEmpty();
+    assertThat(selectTaskInput("RECENT_2")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("RECENT_2")).hasSize(1);
+    assertThat(scannerContextExists("RECENT_2")).isTrue();
+  }
+
+  @Test
+  public void delete_ce_analysis_of_branch_older_than_180_and_scanner_context_older_than_40_days_when_purging_branch() {
+    LocalDateTime now = LocalDateTime.now();
+    ComponentDto project1 = db.components().insertPublicProject();
+    ComponentDto branch1 = db.components().insertProjectBranch(project1);
+    Consumer<CeQueueDto> belongsToProject1 = t -> t.setMainComponentUuid(project1.uuid()).setComponentUuid(project1.uuid());
+    Consumer<CeQueueDto> belongsToBranch1 = t -> t.setMainComponentUuid(project1.uuid()).setComponentUuid(branch1.uuid());
+
+    insertCeActivityAndChildDataWithDate("VERY_OLD_1", now.minusDays(180).minusMonths(10), belongsToProject1);
+    insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH_1", now.minusDays(180).minusDays(1), belongsToProject1);
+    insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH_1", now.minusDays(180), belongsToProject1);
+    insertCeActivityAndChildDataWithDate("RECENT_1", now.minusDays(1), belongsToProject1);
+    insertCeActivityAndChildDataWithDate("VERY_OLD_2", now.minusDays(180).minusMonths(10), belongsToBranch1);
+    insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH_2", now.minusDays(180).minusDays(1), belongsToBranch1);
+    insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH_2", now.minusDays(180), belongsToBranch1);
+    insertCeActivityAndChildDataWithDate("RECENT_2", now.minusDays(1), belongsToBranch1);
+
+    when(system2.now()).thenReturn(now.toInstant(ZoneOffset.UTC).toEpochMilli());
+    underTest.purge(db.getSession(), newConfigurationWith30Days(System2.INSTANCE, branch1.uuid(), branch1.uuid()),
+      PurgeListener.EMPTY, new PurgeProfiler());
+
+    assertThat(selectActivity("VERY_OLD_1")).isNotEmpty();
+    assertThat(selectTaskInput("VERY_OLD_1")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("VERY_OLD_1")).hasSize(1);
+    assertThat(scannerContextExists("VERY_OLD_1")).isTrue();
+    assertThat(selectActivity("VERY_OLD_2")).isEmpty();
+    assertThat(selectTaskInput("VERY_OLD_2")).isEmpty();
+    assertThat(selectTaskCharacteristic("VERY_OLD_2")).isEmpty();
+    assertThat(scannerContextExists("VERY_OLD_2")).isFalse();
+
+    assertThat(selectActivity("JUST_OLD_ENOUGH_1")).isNotEmpty();
+    assertThat(selectTaskInput("JUST_OLD_ENOUGH_1")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("JUST_OLD_ENOUGH_1")).hasSize(1);
+    assertThat(scannerContextExists("JUST_OLD_ENOUGH_1")).isTrue();
+    assertThat(selectActivity("JUST_OLD_ENOUGH_2")).isEmpty();
+    assertThat(selectTaskInput("JUST_OLD_ENOUGH_2")).isEmpty();
+    assertThat(selectTaskCharacteristic("JUST_OLD_ENOUGH_2")).isEmpty();
+    assertThat(scannerContextExists("JUST_OLD_ENOUGH_2")).isFalse();
+
+    assertThat(selectActivity("NOT_OLD_ENOUGH_1")).isNotEmpty();
+    assertThat(selectTaskInput("NOT_OLD_ENOUGH_1")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("NOT_OLD_ENOUGH_1")).hasSize(1);
+    assertThat(scannerContextExists("NOT_OLD_ENOUGH_1")).isTrue();
+    assertThat(selectActivity("NOT_OLD_ENOUGH_2")).isNotEmpty();
+    assertThat(selectTaskInput("NOT_OLD_ENOUGH_2")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("NOT_OLD_ENOUGH_2")).hasSize(1);
+    assertThat(scannerContextExists("NOT_OLD_ENOUGH_2")).isFalse(); // because more than 4 weeks old
+
+    assertThat(selectActivity("RECENT_1")).isNotEmpty();
+    assertThat(selectTaskInput("RECENT_1")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("RECENT_1")).hasSize(1);
+    assertThat(scannerContextExists("RECENT_1")).isTrue();
+    assertThat(selectActivity("RECENT_2")).isNotEmpty();
+    assertThat(selectTaskInput("RECENT_2")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("RECENT_2")).hasSize(1);
+    assertThat(scannerContextExists("RECENT_2")).isTrue();
+  }
+
+  @Test
   public void deleteProject_deletes_webhook_deliveries() {
     ComponentDto project = db.components().insertPublicProject();
     dbClient.webhookDeliveryDao().insert(dbSession, newDto().setComponentUuid(project.uuid()).setUuid("D1").setDurationMs(1000).setWebhookUuid("webhook-uuid"));
@@ -1261,6 +1441,91 @@ public class PurgeDaoTest {
     underTest.deleteNonRootComponentsInView(dbSession, asList(subview2, subview3, pc));
     assertThat(getComponentUuidsOfManualMeasures())
       .containsOnly(view.uuid(), pc.uuid());
+  }
+
+  @Test
+  public void purgeCeActivities_deletes_activity_older_than_180_days_and_their_scanner_context() {
+    LocalDateTime now = LocalDateTime.now();
+    insertCeActivityAndChildDataWithDate("VERY_OLD", now.minusDays(180).minusMonths(10));
+    insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH", now.minusDays(180).minusDays(1));
+    insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH", now.minusDays(180));
+    insertCeActivityAndChildDataWithDate("RECENT", now.minusDays(1));
+    when(system2.now()).thenReturn(now.toInstant(ZoneOffset.UTC).toEpochMilli());
+
+    underTest.purgeCeActivities(db.getSession(), new PurgeProfiler());
+
+    assertThat(selectActivity("VERY_OLD")).isEmpty();
+    assertThat(selectTaskInput("VERY_OLD")).isEmpty();
+    assertThat(selectTaskCharacteristic("VERY_OLD")).hasSize(0);
+    assertThat(scannerContextExists("VERY_OLD")).isFalse();
+
+    assertThat(selectActivity("JUST_OLD_ENOUGH")).isEmpty();
+    assertThat(selectTaskInput("JUST_OLD_ENOUGH")).isEmpty();
+    assertThat(selectTaskCharacteristic("JUST_OLD_ENOUGH")).hasSize(0);
+    assertThat(scannerContextExists("JUST_OLD_ENOUGH")).isFalse();
+
+    assertThat(selectActivity("NOT_OLD_ENOUGH")).isNotEmpty();
+    assertThat(selectTaskInput("NOT_OLD_ENOUGH")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("NOT_OLD_ENOUGH")).hasSize(1);
+    assertThat(scannerContextExists("NOT_OLD_ENOUGH")).isTrue();
+
+    assertThat(selectActivity("RECENT")).isNotEmpty();
+    assertThat(selectTaskInput("RECENT")).isNotEmpty();
+    assertThat(selectTaskCharacteristic("RECENT")).hasSize(1);
+    assertThat(scannerContextExists("RECENT")).isTrue();
+  }
+
+  @Test
+  public void purgeCeScannerContexts_deletes_ce_scanner_context_older_than_28_days() {
+    LocalDateTime now = LocalDateTime.now();
+    insertCeActivityAndChildDataWithDate("VERY_OLD", now.minusDays(28).minusMonths(12));
+    insertCeActivityAndChildDataWithDate("JUST_OLD_ENOUGH", now.minusDays(28).minusDays(1));
+    insertCeActivityAndChildDataWithDate("NOT_OLD_ENOUGH", now.minusDays(28));
+    insertCeActivityAndChildDataWithDate("RECENT", now.minusDays(1));
+    when(system2.now()).thenReturn(now.toInstant(ZoneOffset.UTC).toEpochMilli());
+
+    underTest.purgeCeScannerContexts(db.getSession(), new PurgeProfiler());
+
+    assertThat(scannerContextExists("VERY_OLD")).isFalse();
+    assertThat(scannerContextExists("JUST_OLD_ENOUGH")).isFalse();
+    assertThat(scannerContextExists("NOT_OLD_ENOUGH")).isTrue();
+    assertThat(scannerContextExists("RECENT")).isTrue();
+  }
+
+  private Optional<CeActivityDto> selectActivity(String taskUuid) {
+    return db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), taskUuid);
+  }
+
+  private List<CeTaskCharacteristicDto> selectTaskCharacteristic(String taskUuid) {
+    return db.getDbClient().ceTaskCharacteristicsDao().selectByTaskUuids(db.getSession(), Collections.singletonList(taskUuid));
+  }
+
+  private Optional<CeTaskInputDao.DataStream> selectTaskInput(String taskUuid) {
+    return db.getDbClient().ceTaskInputDao().selectData(db.getSession(), taskUuid);
+  }
+
+  private boolean scannerContextExists(String uuid) {
+    return db.countSql("select count(1) from ce_scanner_context where task_uuid = '" + uuid + "'") == 1;
+  }
+
+  @SafeVarargs
+  private final void insertCeActivityAndChildDataWithDate(String ceActivityUuid, LocalDateTime dateTime,
+    Consumer<CeQueueDto>... queueDtoConsumers) {
+    long date = dateTime.toInstant(UTC).toEpochMilli();
+    CeQueueDto queueDto = new CeQueueDto();
+    queueDto.setUuid(ceActivityUuid);
+    queueDto.setTaskType(CeTaskTypes.REPORT);
+    Arrays.stream(queueDtoConsumers).forEach(t -> t.accept(queueDto));
+    CeActivityDto dto = new CeActivityDto(queueDto);
+    dto.setStatus(CeActivityDto.Status.SUCCESS);
+
+    when(system2.now()).thenReturn(date);
+    insertCeTaskInput(dto.getUuid());
+    insertCeTaskCharacteristics(dto.getUuid(), 1);
+    insertCeScannerContext(dto.getUuid());
+    insertCeTaskMessages(dto.getUuid(), 2);
+    db.getDbClient().ceActivityDao().insert(db.getSession(), dto);
+    db.getSession().commit();
   }
 
   private void insertManualMeasureFor(ComponentDto... componentDtos) {

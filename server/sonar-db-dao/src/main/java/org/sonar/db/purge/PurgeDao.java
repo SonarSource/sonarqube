@@ -28,6 +28,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -68,12 +70,14 @@ public class PurgeDao implements Dao {
     purgeAnalyses(commands, rootUuid);
     purgeDisabledComponents(session, mapper, conf, listener);
     deleteOldClosedIssues(conf, mapper, listener);
+    purgeOldCeActivities(rootUuid, commands);
+    purgeOldCeScannerContexts(rootUuid, commands);
 
     deleteOldDisabledComponents(commands, mapper, rootUuid);
     purgeStaleBranches(commands, conf, mapper, rootUuid);
   }
 
-  private static void purgeStaleBranches(PurgeCommands commands, PurgeConfiguration conf, PurgeMapper mapper, String rootUuid) {
+  private void purgeStaleBranches(PurgeCommands commands, PurgeConfiguration conf, PurgeMapper mapper, String rootUuid) {
     Optional<Date> maxDate = conf.maxLiveDateOfInactiveShortLivingBranches();
     if (!maxDate.isPresent()) {
       // not available if branch plugin is not installed
@@ -174,6 +178,29 @@ public class PurgeDao implements Dao {
       .collect(MoreCollectors.toList());
   }
 
+  public void purgeCeActivities(DbSession session, PurgeProfiler profiler) {
+    PurgeMapper mapper = session.getMapper(PurgeMapper.class);
+    PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
+    purgeOldCeActivities(null, commands);
+  }
+
+  private void purgeOldCeActivities(@Nullable String rootUuid, PurgeCommands commands) {
+    Date sixMonthsAgo = DateUtils.addDays(new Date(system2.now()), -180);
+    commands.deleteCeActivityBefore(rootUuid, sixMonthsAgo.getTime());
+  }
+
+  public void purgeCeScannerContexts(DbSession session, PurgeProfiler profiler) {
+    PurgeMapper mapper = session.getMapper(PurgeMapper.class);
+    PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
+    purgeOldCeScannerContexts(null, commands);
+  }
+
+  private void purgeOldCeScannerContexts(@Nullable String rootUuid, PurgeCommands commands) {
+    Date fourWeeksAgo = DateUtils.addDays(new Date(system2.now()), -28);
+    commands.deleteCeScannerContextBefore(rootUuid, fourWeeksAgo.getTime());
+  }
+
+
   private static final class ManualBaselineAnalysisFilter implements Predicate<PurgeableAnalysisDto> {
     private static final String[] NO_BASELINE = {null};
 
@@ -218,7 +245,7 @@ public class PurgeDao implements Dao {
     deleteRootComponent(uuid, purgeMapper, purgeCommands);
   }
 
-  private static void deleteRootComponent(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {
+  private void deleteRootComponent(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {
     List<IdUuidPair> rootAndModulesOrSubviews = mapper.selectRootAndModulesOrSubviewsByProjectUuid(rootUuid);
     long rootId = rootAndModulesOrSubviews.stream()
       .filter(pair -> pair.getUuid().equals(rootUuid))

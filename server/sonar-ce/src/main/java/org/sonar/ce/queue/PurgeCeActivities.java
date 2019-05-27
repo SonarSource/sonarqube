@@ -19,55 +19,28 @@
  */
 package org.sonar.ce.queue;
 
-import java.util.Date;
-import java.util.Set;
 import org.sonar.api.Startable;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.ce.CeActivityDto;
-
-import static java.util.stream.Stream.concat;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
+import org.sonar.db.purge.PurgeProfiler;
 
 @ComputeEngineSide
 public class PurgeCeActivities implements Startable {
 
-  private static final Logger LOGGER = Loggers.get(PurgeCeActivities.class);
-
   private final DbClient dbClient;
-  private final System2 system2;
+  private final PurgeProfiler profiler;
 
-  public PurgeCeActivities(DbClient dbClient, System2 system2) {
+  public PurgeCeActivities(DbClient dbClient, PurgeProfiler profiler) {
     this.dbClient = dbClient;
-    this.system2 = system2;
+    this.profiler = profiler;
   }
 
   @Override
   public void start() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Date sixMonthsAgo = DateUtils.addDays(new Date(system2.now()), -180);
-
-      LOGGER.info("Delete the Compute Engine tasks created before {}", sixMonthsAgo.getTime());
-      Set<String> ceActivityUuids = dbClient.ceActivityDao().selectOlderThan(dbSession, sixMonthsAgo.getTime())
-        .stream()
-        .map(CeActivityDto::getUuid)
-        .collect(toSet());
-      dbClient.ceActivityDao().deleteByUuids(dbSession, ceActivityUuids);
-      dbClient.ceTaskCharacteristicsDao().deleteByTaskUuids(dbSession, ceActivityUuids);
-      dbClient.ceTaskInputDao().deleteByUuids(dbSession, ceActivityUuids);
-
-      Date fourWeeksAgo = DateUtils.addDays(new Date(system2.now()), -28);
-
-      LOGGER.info("Delete the Scanner contexts tasks created before {}", fourWeeksAgo.getTime());
-      Set<String> scannerContextUuids = dbClient.ceScannerContextDao().selectOlderThan(dbSession, fourWeeksAgo.getTime());
-      dbClient.ceScannerContextDao().deleteByUuids(
-        dbSession,
-        concat(ceActivityUuids.stream(), scannerContextUuids.stream()).collect(toSet()));
+      dbClient.purgeDao().purgeCeActivities(dbSession, profiler);
+      dbClient.purgeDao().purgeCeScannerContexts(dbSession, profiler);
       dbSession.commit();
     }
   }

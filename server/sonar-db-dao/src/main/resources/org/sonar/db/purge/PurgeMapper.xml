@@ -344,64 +344,79 @@
     </foreach>
   </delete>
 
-  <delete id="deleteCeScannerContextOfCeActivityByRootUuid">
+  <delete id="deleteCeScannerContextOfCeActivityByRootUuidOrBefore">
     delete from ce_scanner_context
     where
-      task_uuid in (
-        select
-          uuid
-        from ce_activity
-        where
-          component_uuid=#{rootUuid,jdbcType=VARCHAR}
-          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
-      )
+    task_uuid in (
+      select
+        uuid
+      from ce_activity
+      <include refid="whereClauseCeActivityByRootUuidOrBefore" />
+    )
   </delete>
 
-  <delete id="deleteCeTaskCharacteristicsOfCeActivityByRootUuid">
+  <delete id="deleteCeTaskCharacteristicsOfCeActivityByRootUuidOrBefore">
     delete from ce_task_characteristics
     where
-      task_uuid in (
-        select
-          uuid
-        from ce_activity
-        where
-          component_uuid=#{rootUuid,jdbcType=VARCHAR}
-          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
-      )
+    task_uuid in (
+      select
+        uuid
+      from ce_activity
+      <include refid="whereClauseCeActivityByRootUuidOrBefore" />
+    )
   </delete>
 
-  <delete id="deleteCeTaskInputOfCeActivityByRootUuid">
+  <delete id="deleteCeTaskInputOfCeActivityByRootUuidOrBefore">
     delete from ce_task_input
     where
-      task_uuid in (
-        select
-          uuid
-        from ce_activity
-        where
-          component_uuid=#{rootUuid,jdbcType=VARCHAR}
-          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
-      )
+    task_uuid in (
+      select
+        uuid
+      from ce_activity
+      <include refid="whereClauseCeActivityByRootUuidOrBefore" />
+    )
   </delete>
 
-  <delete id="deleteCeTaskMessageOfCeActivityByRootUuid">
+  <delete id="deleteCeTaskMessageOfCeActivityByRootUuidOrBefore">
     delete from ce_task_message
     where
-      task_uuid in (
-        select
-          uuid
-        from ce_activity
-        where
-          component_uuid=#{rootUuid,jdbcType=VARCHAR}
-          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
-      )
+    task_uuid in (
+      select
+        uuid
+      from ce_activity
+      <include refid="whereClauseCeActivityByRootUuidOrBefore" />
+    )
   </delete>
 
-  <delete id="deleteCeActivityByRootUuid">
-      delete from ce_activity
-      where
+  <delete id="deleteCeActivityByRootUuidOrBefore">
+    delete from ce_activity
+      <include refid="whereClauseCeActivityByRootUuidOrBefore" />
+  </delete>
+
+  <sql id="whereClauseCeActivityByRootUuidOrBefore">
+    where
+    <choose>
+      <when test="rootUuid != null and createdAtBefore != null">
+        created_at &lt; #{createdAtBefore,jdbcType=BIGINT}
+        and (
+          component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+        )
+      </when>
+      <when test="createdAtBefore != null">
+        created_at &lt; #{createdAtBefore,jdbcType=BIGINT}
+      </when>
+      <when test="rootUuid != null">
         component_uuid=#{rootUuid,jdbcType=VARCHAR}
         or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
-  </delete>
+      </when>
+      <!-- safety net when both variables are null to never generate a
+           delete statement deleting the whole table -->
+      <otherwise>
+        1 = 2
+      </otherwise>
+    </choose>
+  </sql>
 
   <delete id="deleteCeScannerContextOfCeQueueByRootUuid">
     delete from ce_scanner_context
