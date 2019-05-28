@@ -24,8 +24,9 @@ import com.hazelcast.spi.exception.RetryableHazelcastException;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.Startable;
 
-public class HealthStateRefresher {
+public class HealthStateRefresher implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(HealthStateRefresher.class);
   private static final int INITIAL_DELAY = 1;
   private static final int DELAY = 10;
