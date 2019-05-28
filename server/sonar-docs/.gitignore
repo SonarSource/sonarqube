@@ -1,16 +1,6 @@
-# Dependency directories
-node_modules/
-
-# Logs
-yarn-debug.log*
-yarn-error.log*
-
 # Gatsby files
 .cache/
 public
-
-# Mac files
-.DS_Store
 
 # tests
 lcov.info

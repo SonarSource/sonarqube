@@ -1,24 +1,5 @@
-# nodeJS downloaded by Maven
-node/
-
-# nodeJS dependencies
-node_modules/
-package-lock.json
-
-# npm logs
-npm-debug.log*
-npm.tar.gz
-yarn-debug.log*
-yarn-error.log*
-
-# VS Code
-.vscode/
-
-#webpack
+# webpack
 .awcache/
-
-# build
-build/
 
 # tests
 src/test/json/**/*.png
