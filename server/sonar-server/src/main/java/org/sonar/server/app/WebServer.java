@@ -21,6 +21,7 @@ package org.sonar.server.app;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
+import org.slf4j.LoggerFactory;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
@@ -74,6 +75,7 @@ public class WebServer implements Monitored {
   public void stop() {
     // hard stop is as graceful as stop for the WebServer
     hardStop();
+    LoggerFactory.getLogger(WebServer.class).info("WebServer stopped");
   }
 
   @Override

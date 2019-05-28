@@ -138,7 +138,7 @@ public class ProcessEntryPoint {
 
   private void stopAsync() {
     if (lifecycle.tryToMoveTo(Lifecycle.State.STOPPING)) {
-      LoggerFactory.getLogger(ProcessEntryPoint.class).info("Stopping process");
+      LoggerFactory.getLogger(ProcessEntryPoint.class).info("Gracefully stopping process");
       stopWatcher.stopWatching();
       long terminationTimeoutMs = Long.parseLong(props.nonNullValue(PROPERTY_GRACEFUL_STOP_TIMEOUT_MS));
       stopperThread = new StopperThread(monitored, this::terminate, terminationTimeoutMs);

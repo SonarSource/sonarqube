@@ -47,6 +47,8 @@ class EmbeddedTomcat {
     System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
 
     System.setProperty("org.apache.catalina.startup.EXIT_ON_INIT_FAILURE", "true");
+    // prevent Tomcat from shutting down our logging when stopping
+    System.setProperty("logbackDisableServletContainerInitializer", "true");
 
     tomcat = new Tomcat();
     // Initialize directories
