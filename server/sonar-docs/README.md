@@ -11,15 +11,11 @@ We use an augmented GitHub markdown syntax:
 
 ## The first time
 
-- Install nodejs, v8.11.3 not 10, which is the latest.
+- Install nodejs v10, which is the current LTS version.
 - Install https://yarnpkg.com/en
-- Add to your .bashrc:
-  - `export ARTIFACTORY_PRIVATE_USERNAME=...`
-  - `export ARTIFACTORY_PRIVATE_PASSWORD=...`
-- Open a new shell or execute those exports in your current session  
-  You can validate this step by executing:
-  - `echo $ARTIFACTORY_PRIVATE_USERNAME`
-  - `echo $ARTIFACTORY_PRIVATE_PASSWORD`
+- Set the following properties in `~/.gradle/gradle.properties`:
+  - `artifactoryUsername=<GitHub username>`
+  - `artifactoryPassword=<Artifactory API key>`
 - Run the following to set up the dev servers:
 
 ```
