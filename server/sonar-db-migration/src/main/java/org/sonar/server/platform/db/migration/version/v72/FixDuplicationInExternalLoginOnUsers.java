@@ -25,28 +25,31 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-public class PopulateExternalIdOnUsers extends DataChange {
+public class FixDuplicationInExternalLoginOnUsers extends DataChange {
 
   private final System2 system2;
 
-  public PopulateExternalIdOnUsers(Database db, System2 system2) {
+  public FixDuplicationInExternalLoginOnUsers(Database db, System2 system2) {
     super(db);
     this.system2 = system2;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    MassUpdate massUpdate = context.prepareMassUpdate().rowPluralName("users");
-    massUpdate.select("SELECT id, external_login FROM users WHERE external_id IS NULL");
-    massUpdate.update("UPDATE users SET external_id=?, updated_at=? WHERE id=?");
+    MassUpdate massUpdate = context.prepareMassUpdate().rowPluralName("users having duplicated values in EXTERNAL_LOGIN");
+    massUpdate.select("SELECT u1.id, u1.login FROM users u1 " +
+      "WHERE EXISTS (SELECT 1 FROM users u2 WHERE u2.external_login = u1.external_login AND u2.id != u1.id)");
+    // EXTERNAL_ID is also updated because the column was added previously and content was copied from EXTERNAL_LOGIN
+    massUpdate.update("UPDATE users SET external_login=?, external_id=?, updated_at=? WHERE id=?");
 
     long now = system2.now();
     massUpdate.execute((row, update) -> {
       long id = row.getLong(1);
-      String externalLogin = row.getString(2);
-      update.setString(1, externalLogin);
-      update.setLong(2, now);
-      update.setLong(3, id);
+      String login = row.getString(2);
+      update.setString(1, login);
+      update.setString(2, login);
+      update.setLong(3, now);
+      update.setLong(4, id);
       return true;
     });
   }

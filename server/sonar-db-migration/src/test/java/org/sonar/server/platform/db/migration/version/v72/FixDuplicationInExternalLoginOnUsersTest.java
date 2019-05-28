@@ -21,7 +21,6 @@ package org.sonar.server.platform.db.migration.version.v72;
 
 import java.sql.SQLException;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,7 +32,7 @@ import org.sonar.db.CoreDbTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-public class PopulateExternalIdOnUsersTest {
+public class FixDuplicationInExternalLoginOnUsersTest {
 
   private static final long PAST = 5_000_000_000L;
   private static final long NOW = 10_000_000_000L;
@@ -42,46 +41,52 @@ public class PopulateExternalIdOnUsersTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(PopulateExternalIdOnUsersTest.class, "users.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(FixDuplicationInExternalLoginOnUsersTest.class, "users.sql");
 
   private System2 system2 = new TestSystem2().setNow(NOW);
 
-  private PopulateExternalIdOnUsers underTest = new PopulateExternalIdOnUsers(db.database(), system2);
+  private FixDuplicationInExternalLoginOnUsers underTest = new FixDuplicationInExternalLoginOnUsers(db.database(), system2);
 
   @Test
-  public void update_users() throws SQLException {
-    insertUser("USER_1", "user1", null);
-    insertUser("USER_2", "user2", "1234");
+  public void fix_duplication() throws SQLException {
+    insertUser("USER_1", "EXT_LOGIN_1", "EXT_LOGIN_1");
+    insertUser("USER_2", "EXT_LOGIN_1", "EXT_LOGIN_1");
+    insertUser("USER_3", "EXT_LOGIN_2", "EXT_LOGIN_2");
+    insertUser("USER_4", "EXT_LOGIN_2", "EXT_LOGIN_2");
+    insertUser("USER_5", "user5", "user5");
 
     underTest.execute();
 
     assertUsers(
-      tuple("USER_1", "user1", NOW),
-      tuple("USER_2", "1234", PAST));
+      tuple("USER_1", "USER_1", "USER_1", NOW),
+      tuple("USER_2", "USER_2", "USER_2", NOW),
+      tuple("USER_3", "USER_3", "USER_3", NOW),
+      tuple("USER_4", "USER_4", "USER_4", NOW),
+      tuple("USER_5", "user5", "user5", PAST));
   }
 
   @Test
   public void migration_is_reentrant() throws SQLException {
-    insertUser("USER_1", "user1", null);
-    insertUser("USER_2", "user2", "1234");
+    insertUser("USER_1", "EXT_LOGIN", "EXT_LOGIN");
+    insertUser("USER_2", "EXT_LOGIN", "EXT_LOGIN");
 
     underTest.execute();
     underTest.execute();
 
     assertUsers(
-      tuple("USER_1", "user1", NOW),
-      tuple("USER_2", "1234", PAST));
+      tuple("USER_1", "USER_1", "USER_1", NOW),
+      tuple("USER_2", "USER_2", "USER_2", NOW));
   }
 
   private void assertUsers(Tuple... expectedTuples) {
-    assertThat(db.select("SELECT LOGIN, EXTERNAL_ID, UPDATED_AT FROM USERS")
+    assertThat(db.select("SELECT LOGIN, EXTERNAL_LOGIN, EXTERNAL_ID, UPDATED_AT FROM USERS")
       .stream()
-      .map(map -> new Tuple(map.get("LOGIN"), map.get("EXTERNAL_ID"), map.get("UPDATED_AT")))
+      .map(map -> new Tuple(map.get("LOGIN"), map.get("EXTERNAL_LOGIN"), map.get("EXTERNAL_ID"), map.get("UPDATED_AT")))
       .collect(Collectors.toList()))
         .containsExactlyInAnyOrder(expectedTuples);
   }
 
-  private void insertUser(String login, String externalLogin, @Nullable String externalId) {
+  private void insertUser(String login, String externalLogin, String externalId) {
     db.executeInsert("USERS",
       "LOGIN", login,
       "EXTERNAL_ID", externalId,

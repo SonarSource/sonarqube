@@ -109,7 +109,7 @@ public class UserRegistrarImpl implements UserRegistrar {
     if (user != null) {
       return user;
     }
-    // Then, try with the external login, for instance when for instance external ID has changed
+    // Then, try with the external login, for instance when external ID has changed
     user = dbClient.userDao().selectByExternalLoginAndIdentityProvider(dbSession, userIdentity.getProviderLogin(), provider.getKey());
     if (user != null) {
       return user;

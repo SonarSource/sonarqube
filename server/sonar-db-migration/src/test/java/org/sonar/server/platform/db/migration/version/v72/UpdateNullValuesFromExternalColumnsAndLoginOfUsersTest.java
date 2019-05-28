@@ -57,27 +57,29 @@ public class UpdateNullValuesFromExternalColumnsAndLoginOfUsersTest {
 
   @Test
   public void update_users() throws SQLException {
-    insertUser("USER_1", "user1", "github");
-    insertUser("USER_2", null, null);
-    insertUser("USER_3", "user", null);
-    insertUser("USER_4", null, "github");
-    insertUser(null, "user", "bitbucket");
-    insertUser(null, null, null);
+    insertUser("USER_1", "user1", "user1", "github");
+    insertUser("USER_2", null, null, null);
+    insertUser("USER_3", "user", null, null);
+    insertUser("USER_4", null, "user", null);
+    insertUser("USER_5", null, null, "github");
+    insertUser(null, "user", "user", "bitbucket");
+    insertUser(null, null, null, null);
 
     underTest.execute();
 
     assertUsers(
-      tuple("USER_1", "user1", "github", PAST),
-      tuple("USER_2", "USER_2", "sonarqube", NOW),
-      tuple("USER_3", "USER_3", "sonarqube", NOW),
-      tuple("USER_4", "USER_4", "sonarqube", NOW),
-      tuple("1", "1", "sonarqube", NOW),
-      tuple("2", "2", "sonarqube", NOW));
+      tuple("USER_1", "user1", "user1", "github", PAST),
+      tuple("USER_2", "USER_2", "USER_2", "sonarqube", NOW),
+      tuple("USER_3", "user", "user", "sonarqube", NOW),
+      tuple("USER_4", "USER_4", "USER_4", "sonarqube", NOW),
+      tuple("USER_5", "USER_5", "USER_5", "github", NOW),
+      tuple("1", "user", "user", "bitbucket", NOW),
+      tuple("2", "2", "2", "sonarqube", NOW));
   }
 
   @Test
   public void log_warning_when_login_is_null() throws SQLException {
-    insertUser(null, "user", "bitbucket");
+    insertUser(null, "user", "user", "bitbucket");
     long id = (long) db.selectFirst("SELECT ID FROM USERS").get("ID");
 
     underTest.execute();
@@ -88,26 +90,27 @@ public class UpdateNullValuesFromExternalColumnsAndLoginOfUsersTest {
 
   @Test
   public void is_reentrant() throws SQLException {
-    insertUser("USER_1", null, null);
+    insertUser("USER_1", null, null, null);
 
     underTest.execute();
     underTest.execute();
 
-    assertUsers(tuple("USER_1", "USER_1", "sonarqube", NOW));
+    assertUsers(tuple("USER_1", "USER_1", "USER_1", "sonarqube", NOW));
   }
 
   private void assertUsers(Tuple... expectedTuples) {
-    assertThat(db.select("SELECT LOGIN, EXTERNAL_LOGIN, EXTERNAL_IDENTITY_PROVIDER, UPDATED_AT FROM USERS")
+    assertThat(db.select("SELECT LOGIN, EXTERNAL_LOGIN, EXTERNAL_ID, EXTERNAL_IDENTITY_PROVIDER, UPDATED_AT FROM USERS")
       .stream()
-      .map(map -> new Tuple(map.get("LOGIN"), map.get("EXTERNAL_LOGIN"), map.get("EXTERNAL_IDENTITY_PROVIDER"), map.get("UPDATED_AT")))
+      .map(map -> new Tuple(map.get("LOGIN"), map.get("EXTERNAL_LOGIN"), map.get("EXTERNAL_ID"), map.get("EXTERNAL_IDENTITY_PROVIDER"), map.get("UPDATED_AT")))
       .collect(toList()))
         .containsExactlyInAnyOrder(expectedTuples);
   }
 
-  private void insertUser(@Nullable String login, @Nullable String externalLogin, @Nullable String externalIdentityProvider) {
+  private void insertUser(@Nullable String login, @Nullable String externalLogin, @Nullable String externalId, @Nullable String externalIdentityProvider) {
     db.executeInsert("USERS",
       "LOGIN", login,
       "EXTERNAL_LOGIN", externalLogin,
+      "EXTERNAL_ID", externalLogin,
       "EXTERNAL_IDENTITY_PROVIDER", externalIdentityProvider,
       "CREATED_AT", PAST,
       "UPDATED_AT", PAST,

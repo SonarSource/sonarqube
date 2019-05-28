@@ -30,7 +30,7 @@ import org.sonar.server.platform.db.migration.step.MassUpdate;
 
 /**
  * The goal of this migration is to sanitize disabled USERS, regarding new way of authentication users.
- * Indeed, authentication will search for user but LOGIN but also buy using EXTERNAL_ID and EXTERNAL_PROVIDER.
+ * Indeed, authentication will search for user by LOGIN but also by using EXTERNAL_ID and EXTERNAL_PROVIDER.
  *
  * As a consequence, these columns must be set as NOT NULL in order to add a UNIQUE index on them.
  *
@@ -52,8 +52,9 @@ public class UpdateNullValuesFromExternalColumnsAndLoginOfUsers extends DataChan
   @Override
   public void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate().rowPluralName("users");
-    massUpdate.select("SELECT id, login FROM users WHERE login IS NULL OR external_login IS NULL OR external_identity_provider IS NULL");
-    massUpdate.update("UPDATE users SET login=?, external_login=?, external_identity_provider=?, updated_at=? WHERE id=?");
+    massUpdate.select("SELECT id, login, external_login, external_identity_provider FROM users " +
+      "WHERE login IS NULL OR external_login IS NULL OR external_id IS NULL OR external_identity_provider IS NULL");
+    massUpdate.update("UPDATE users SET login=?, external_login=?, external_id=?, external_identity_provider=?, updated_at=? WHERE id=?");
 
     long now = system2.now();
     massUpdate.execute((row, update) -> {
@@ -63,11 +64,17 @@ public class UpdateNullValuesFromExternalColumnsAndLoginOfUsers extends DataChan
         LOG.warn("No login has been found for user id '{}'. A UUID has been generated to not have null value.", id);
         login = uuidFactory.create();
       }
+      String externalLogin = row.getNullableString(3);
+      externalLogin = externalLogin == null ? login : externalLogin;
+
+      String externalIdentityProvider = row.getNullableString(4);
+
       update.setString(1, login);
-      update.setString(2, login);
-      update.setString(3, "sonarqube");
-      update.setLong(4, now);
-      update.setLong(5, id);
+      update.setString(2, externalLogin);
+      update.setString(3, externalLogin);
+      update.setString(4, externalIdentityProvider == null ? "sonarqube" : externalIdentityProvider);
+      update.setLong(5, now);
+      update.setLong(6, id);
       return true;
     });
   }
