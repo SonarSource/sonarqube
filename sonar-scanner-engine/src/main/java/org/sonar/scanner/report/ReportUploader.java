@@ -124,6 +124,7 @@ public class ReportUploader {
 
   private Path createZip() throws IOException {
     Path reportZip = Files.createTempFile("scanner-report", ".zip");
+    reportZip.toFile().deleteOnExit();
     ZipUtils.zipDir(reportDir.toFile(), reportZip.toFile());
     return reportZip;
   }
