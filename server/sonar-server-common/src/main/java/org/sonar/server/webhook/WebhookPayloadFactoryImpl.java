@@ -122,20 +122,17 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
   }
 
   private String branchUrlOf(Project project, Branch branch) {
-    if (branch.getType() == Branch.Type.LONG) {
+    Branch.Type branchType = branch.getType();
+    if (branchType == Branch.Type.LONG || branchType == Branch.Type.SHORT) {
       if (branch.isMain()) {
         return projectUrlOf(project);
       }
-      return format("%s/dashboard?branch=%s&id=%s",
-        server.getPublicRootUrl(), encode(branch.getName().orElse("")), encode(project.getKey()));
+      return format("%s/dashboard?id=%s&branch=%s",
+        server.getPublicRootUrl(), encode(project.getKey()), encode(branch.getName().orElse("")));
     }
-    if (branch.getType() == Branch.Type.SHORT) {
-      return format("%s/project/issues?branch=%s&id=%s&resolved=false",
-        server.getPublicRootUrl(), encode(branch.getName().orElse("")), encode(project.getKey()));
-    }
-    if (branch.getType() == Branch.Type.PULL_REQUEST) {
-      return format("%s/project/issues?pullRequest=%s&id=%s&resolved=false",
-        server.getPublicRootUrl(), encode(branch.getName().orElse("")), encode(project.getKey()));
+    if (branchType == Branch.Type.PULL_REQUEST) {
+      return format("%s/dashboard?id=%s&pullRequest=%s",
+        server.getPublicRootUrl(), encode(project.getKey()), encode(branch.getName().orElse("")));
     }
     return projectUrlOf(project);
   }

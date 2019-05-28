@@ -243,7 +243,7 @@ public class WebhookPayloadFactoryImplTest {
         "  \"name\": \"feature/foo\"," +
         "  \"type\": \"SHORT\"," +
         "  \"isMain\": false," +
-        "  \"url\": \"http://foo/project/issues?branch=feature%2Ffoo&id=P1&resolved=false\"" +
+        "  \"url\": \"http://foo/dashboard?id=P1&branch=feature%2Ffoo\"" +
         "}" +
         "}");
   }
@@ -260,7 +260,7 @@ public class WebhookPayloadFactoryImplTest {
         "  \"name\": \"pr/foo\"," +
         "  \"type\": \"PULL_REQUEST\"," +
         "  \"isMain\": false," +
-        "  \"url\": \"http://foo/project/issues?pullRequest=pr%2Ffoo&id=P1&resolved=false\"" +
+        "  \"url\": \"http://foo/dashboard?id=P1&pullRequest=pr%2Ffoo\"" +
         "}" +
         "}");
   }
@@ -298,7 +298,7 @@ public class WebhookPayloadFactoryImplTest {
         "  \"name\": \"feature/foo\"" +
         "  \"type\": \"LONG\"" +
         "  \"isMain\": false," +
-        "  \"url\": \"http://foo/dashboard?branch=feature%2Ffoo&id=P1\"" +
+        "  \"url\": \"http://foo/dashboard?id=P1&branch=feature%2Ffoo\"" +
         "}" +
         "}");
   }
