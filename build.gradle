@@ -255,6 +255,9 @@ subprojects {
   tasks.withType(JavaCompile) {
     options.compilerArgs.addAll(['--release', '8'])
     options.encoding = 'UTF-8'
+    // redudant, just for IDEs to set the correct language level
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
   }
 
   tasks.withType(Javadoc) {
