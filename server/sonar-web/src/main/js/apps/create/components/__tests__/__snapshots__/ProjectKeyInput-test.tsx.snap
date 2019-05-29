@@ -22,5 +22,3 @@ exports[`should render correctly 1`] = `
   />
 </ValidationInput>
 `;
-
-exports[`should render correctly 2`] = `true`;

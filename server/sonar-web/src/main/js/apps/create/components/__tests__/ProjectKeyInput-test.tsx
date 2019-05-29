@@ -31,11 +31,12 @@ beforeEach(() => {
   (doesComponentExists as jest.Mock<any>).mockClear();
 });
 
-it('should render correctly', () => {
+it('should render correctly', async () => {
   const wrapper = shallow(<ProjectKeyInput initialValue="key" onChange={jest.fn()} />);
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ touched: true });
-  expect(wrapper.find('ValidationInput').prop('isValid')).toMatchSnapshot();
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find('ValidationInput').prop('isValid')).toBe(true);
 });
 
 it('should not display any status when the key is not defined', async () => {

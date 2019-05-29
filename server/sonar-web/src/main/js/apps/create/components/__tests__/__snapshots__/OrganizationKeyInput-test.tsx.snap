@@ -28,5 +28,3 @@ exports[`should render correctly 1`] = `
   </div>
 </ValidationInput>
 `;
-
-exports[`should render correctly 2`] = `true`;
