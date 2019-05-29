@@ -69,11 +69,17 @@ describe('branch store actions', () => {
     jest.runAllTimers();
     await new Promise(setImmediate);
 
-    expect(registerBranchStatusAction).toBeCalledWith(branchLike, component, status, [
-      mockQualityGateStatusCondition({
-        period: 1
-      })
-    ]);
+    expect(registerBranchStatusAction).toBeCalledWith(
+      branchLike,
+      component,
+      status,
+      [
+        mockQualityGateStatusCondition({
+          period: 1
+        })
+      ],
+      false
+    );
     expect(dispatch).toBeCalled();
   });
 });

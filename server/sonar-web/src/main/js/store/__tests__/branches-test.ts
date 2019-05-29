@@ -30,12 +30,12 @@ import {
 } from '../../helpers/testMocks';
 import { getBranchLikeKey } from '../../helpers/branches';
 
-type TestArgs = [T.BranchLike, string, T.Status, T.QualityGateStatusCondition[]];
+type TestArgs = [T.BranchLike, string, T.Status, T.QualityGateStatusCondition[], boolean?];
 
 const FAILING_CONDITION = mockQualityGateStatusCondition();
 const COMPONENT = 'foo';
 const BRANCH_STATUS_1: TestArgs = [mockPullRequest(), COMPONENT, 'ERROR', [FAILING_CONDITION]];
-const BRANCH_STATUS_2: TestArgs = [mockLongLivingBranch(), 'bar', 'OK', []];
+const BRANCH_STATUS_2: TestArgs = [mockLongLivingBranch(), 'bar', 'OK', [], true];
 const BRANCH_STATUS_3: TestArgs = [mockShortLivingBranch(), COMPONENT, 'OK', []];
 
 it('should allow to register new branche statuses', () => {
@@ -74,10 +74,10 @@ function convertToState(items: TestArgs[] = []) {
   const state: State = { byComponent: {} };
 
   items.forEach(item => {
-    const [branchLike, component, status, conditions] = item;
+    const [branchLike, component, status, conditions, ignoredConditions] = item;
     state.byComponent[component] = {
       ...(state.byComponent[component] || {}),
-      [getBranchLikeKey(branchLike)]: { conditions, status }
+      [getBranchLikeKey(branchLike)]: { conditions, ignoredConditions, status }
     };
   });
 

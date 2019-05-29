@@ -22,6 +22,7 @@ import { getBranchLikeKey } from '../helpers/branches';
 
 export interface BranchStatusData {
   conditions?: T.QualityGateStatusCondition[];
+  ignoredConditions?: boolean;
   status?: T.Status;
 }
 
@@ -39,14 +40,22 @@ export function registerBranchStatusAction(
   branchLike: T.BranchLike,
   component: string,
   status: T.Status,
-  conditions?: T.QualityGateStatusCondition[]
+  conditions?: T.QualityGateStatusCondition[],
+  ignoredConditions?: boolean
 ) {
-  return { type: Actions.RegisterBranchStatus, branchLike, component, conditions, status };
+  return {
+    type: Actions.RegisterBranchStatus,
+    branchLike,
+    component,
+    conditions,
+    ignoredConditions,
+    status
+  };
 }
 
 export default function(state: State = { byComponent: {} }, action: Action): State {
   if (action.type === Actions.RegisterBranchStatus) {
-    const { component, conditions, branchLike, status } = action;
+    const { component, conditions, branchLike, ignoredConditions, status } = action;
     const branchLikeKey = getBranchLikeKey(branchLike);
     return {
       byComponent: {
@@ -55,6 +64,7 @@ export default function(state: State = { byComponent: {} }, action: Action): Sta
           ...(state.byComponent[component] || {}),
           [branchLikeKey]: {
             conditions,
+            ignoredConditions,
             status
           }
         }

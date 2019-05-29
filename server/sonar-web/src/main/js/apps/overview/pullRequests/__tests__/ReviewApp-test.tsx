@@ -59,6 +59,12 @@ it('should render correctly for a passed QG', async () => {
   expect(fetchBranchStatus).toBeCalled();
 });
 
+it('should render correctly if conditions are ignored', async () => {
+  const wrapper = shallowRender({ ignoredConditions: true });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find('Alert').exists()).toBe(true);
+});
+
 it('should render correctly for a failed QG', async () => {
   const wrapper = shallowRender({
     status: 'ERROR',

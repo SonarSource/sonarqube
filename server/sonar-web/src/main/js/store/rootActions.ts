@@ -70,9 +70,11 @@ export function fetchBranchStatus(branchLike: T.BranchLike, projectKey: string) 
   return debounce((dispatch: Dispatch<any>) => {
     getQualityGateProjectStatus({ projectKey, ...getBranchLikeQuery(branchLike) }).then(
       projectStatus => {
-        const { status } = projectStatus;
+        const { ignoredConditions, status } = projectStatus;
         const conditions = extractStatusConditionsFromProjectStatus(projectStatus);
-        dispatch(registerBranchStatusAction(branchLike, projectKey, status, conditions));
+        dispatch(
+          registerBranchStatusAction(branchLike, projectKey, status, conditions, ignoredConditions)
+        );
       },
       () => {
         dispatch(addGlobalErrorMessage('Fetching Quality Gate status failed'));
