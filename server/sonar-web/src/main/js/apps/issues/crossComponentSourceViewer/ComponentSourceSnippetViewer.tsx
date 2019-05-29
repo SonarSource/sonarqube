@@ -220,6 +220,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
         highlightedSymbols={this.state.highlightedSymbols}
         index={index}
         issue={this.props.issue}
+        issuePopup={this.props.issuePopup}
         issuesByLine={issuesByLine}
         key={index}
         last={last}
