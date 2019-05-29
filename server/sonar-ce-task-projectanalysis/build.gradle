@@ -14,16 +14,6 @@ sourceSets {
   }
 }
 
-
-import org.apache.tools.ant.filters.ReplaceTokens
-processResources {
-  filesMatching('build.properties') {
-    filter ReplaceTokens, tokens: [
-      'buildNumber': release ? 'git rev-parse HEAD'.execute().text.trim() : 'N/A'
-    ]
-  }
-}
-
 configurations {
   tests
   testCompile.extendsFrom compileOnly
