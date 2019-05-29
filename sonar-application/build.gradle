@@ -166,11 +166,20 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
     from configurations.compile
   }
   into("${archiveDir}/web/") {
+    duplicatesStrategy DuplicatesStrategy.FAIL
     // FIXME use configurations.web with correct artifacts
-    from tasks.getByPath(':server:sonar-web:yarn_run').outputs
+    from(tasks.getByPath(':server:sonar-web:yarn_run').outputs) { a ->
+      if (official) {
+         project(':private:branding').fileTree('src').visit { b ->
+           if (!b.isDirectory) {
+             a.exclude b.relativePath.toString()
+           }
+         }
+      }
+    }
     from tasks.getByPath(':server:sonar-vsts:yarn_run').outputs
     if (official) {
-      from project(':private:branding').file('.')
+      from project(':private:branding').file('src')
     }
   }
   into("${archiveDir}/lib/jdbc/mssql/") {

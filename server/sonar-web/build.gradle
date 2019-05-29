@@ -14,18 +14,7 @@ apply plugin: 'com.moowork.node'
 
 def webappDir = "${buildDir}/webapp"
 
-task copyBranding(type: Copy) {
-  into projectDir
-  if (findProject(':private:branding')) {
-    from project(':private:branding').file('.')
-    includeEmptyDirs = false
-  }
-}
-
 yarn_run {
-  if (official) { dependsOn copyBranding }
-  
-  inputs.property('official', official)
   inputs.property('release', release)
   inputs.property('ci', ci)
 
