@@ -27,6 +27,7 @@ import com.hazelcast.nio.Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,13 +70,12 @@ public class AppNodesClusterHostsConsistencyTest {
     Member m2 = newLocalHostMember(2);
     Member m3 = newLocalHostMember(3);
 
-    hostsPerMember.put(m1, Arrays.asList("1.1.1.1:1000", "1.1.1.1:2000", "1.1.1.2:1000"));
     hostsPerMember.put(m2, Arrays.asList("1.1.1.1:1000", "1.1.1.1:2000"));
     hostsPerMember.put(m3, Arrays.asList("1.1.1.1:1000", "1.1.1.2:1000"));
 
     settings.set(CLUSTER_HZ_HOSTS.getKey(), "1.1.1.1:1000,1.1.1.1:2000,1.1.1.2:1000");
 
-    TestHazelcastMember member = new TestHazelcastMember(hostsPerMember);
+    TestHazelcastMember member = new TestHazelcastMember(hostsPerMember, m1);
     AppNodesClusterHostsConsistency underTest = AppNodesClusterHostsConsistency.setInstance(member, settings, logger);
     underTest.check();
 
@@ -90,17 +90,16 @@ public class AppNodesClusterHostsConsistencyTest {
   @Test
   public void dont_log_if_configured_hosts_are_consistent() throws UnknownHostException {
     Map<Member, List<String>> hostsPerMember = new LinkedHashMap<>();
-    Member m1 = newLocalHostMember(1);
+    Member m1 = newLocalHostMember(1, true);
     Member m2 = newLocalHostMember(2);
     Member m3 = newLocalHostMember(3);
 
-    hostsPerMember.put(m1, Arrays.asList("1.1.1.1:1000", "1.1.1.1:2000", "1.1.1.2:1000"));
     hostsPerMember.put(m2, Arrays.asList("1.1.1.1:1000", "1.1.1.1:2000", "1.1.1.2:1000"));
     hostsPerMember.put(m3, Arrays.asList("1.1.1.1:1000", "1.1.1.1:2000", "1.1.1.2:1000"));
 
     settings.set(CLUSTER_HZ_HOSTS.getKey(), "1.1.1.1:1000,1.1.1.1:2000,1.1.1.2:1000");
 
-    TestHazelcastMember member = new TestHazelcastMember(hostsPerMember);
+    TestHazelcastMember member = new TestHazelcastMember(hostsPerMember, m1);
     AppNodesClusterHostsConsistency underTest = AppNodesClusterHostsConsistency.setInstance(member, settings, logger);
     underTest.check();
 
@@ -108,28 +107,27 @@ public class AppNodesClusterHostsConsistencyTest {
   }
 
   @Test
-  public void setInstance_fails_with_ISE_when_called_twice_with_same_arguments() {
-    HazelcastMember hzMember = mock(HazelcastMember.class);
+  public void setInstance_fails_with_ISE_when_called_twice_with_same_arguments() throws UnknownHostException {
+    TestHazelcastMember member = new TestHazelcastMember(Collections.emptyMap(), newLocalHostMember(1, true));
 
-    AppNodesClusterHostsConsistency.setInstance(hzMember, settings);
+    AppNodesClusterHostsConsistency.setInstance(member, settings);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Instance is already set");
 
-    AppNodesClusterHostsConsistency.setInstance(hzMember, settings);
+    AppNodesClusterHostsConsistency.setInstance(member, settings);
   }
 
   @Test
-  public void setInstance_fails_with_ISE_when_called_twice_with_other_arguments() {
-    HazelcastMember hzMember1 = mock(HazelcastMember.class);
-    HazelcastMember hzMember2 = mock(HazelcastMember.class);
-
-    AppNodesClusterHostsConsistency.setInstance(hzMember1, settings);
+  public void setInstance_fails_with_ISE_when_called_twice_with_other_arguments() throws UnknownHostException {
+    TestHazelcastMember member1 = new TestHazelcastMember(Collections.emptyMap(), newLocalHostMember(1, true));
+    TestHazelcastMember member2 = new TestHazelcastMember(Collections.emptyMap(), newLocalHostMember(2, true));
+    AppNodesClusterHostsConsistency.setInstance(member1, new TestAppSettings());
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Instance is already set");
 
-    AppNodesClusterHostsConsistency.setInstance(hzMember2, new TestAppSettings());
+    AppNodesClusterHostsConsistency.setInstance(member2, new TestAppSettings());
   }
 
   private Member newLocalHostMember(int port) throws UnknownHostException {
@@ -138,7 +136,7 @@ public class AppNodesClusterHostsConsistencyTest {
 
   private Member newLocalHostMember(int port, boolean localMember) throws UnknownHostException {
     Member member = mock(Member.class);
-    when (member.localMember()).thenReturn(localMember);
+    when(member.localMember()).thenReturn(localMember);
     Address address1 = new Address(InetAddress.getLocalHost(), port);
     when(member.getAddress()).thenReturn(address1);
     return member;
@@ -146,9 +144,11 @@ public class AppNodesClusterHostsConsistencyTest {
 
   private class TestHazelcastMember implements HazelcastMember {
     private final Map<Member, List<String>> hostsPerMember;
+    private final Cluster cluster = mock(Cluster.class);
 
-    private TestHazelcastMember(Map<Member, List<String>> hostsPerMember) {
+    private TestHazelcastMember(Map<Member, List<String>> hostsPerMember, Member localMember) {
       this.hostsPerMember = hostsPerMember;
+      when(cluster.getLocalMember()).thenReturn(localMember);
     }
 
     @Override
@@ -169,7 +169,6 @@ public class AppNodesClusterHostsConsistencyTest {
     @Override
     public Set<String> getMemberUuids() {
       throw new IllegalStateException("not expected to be called");
-
     }
 
     @Override
@@ -184,7 +183,7 @@ public class AppNodesClusterHostsConsistencyTest {
 
     @Override
     public Cluster getCluster() {
-      throw new IllegalStateException("not expected to be called");
+      return cluster;
     }
 
     @Override

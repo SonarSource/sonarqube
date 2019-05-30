@@ -97,17 +97,13 @@ public class AppNodesClusterHostsConsistency {
       if (anyDifference) {
         StringBuilder builder = new StringBuilder().append("The configuration of the current node doesn't match the list of hosts configured in "
           + "the application nodes that have already joined the cluster:\n");
+        logMemberSetting(builder, hzMember.getCluster().getLocalMember(), currentConfiguredHosts);
+
         for (Map.Entry<Member, List<String>> e : hostsPerMember.entrySet()) {
           if (e.getValue().isEmpty()) {
             continue;
           }
-          builder.append(toString(e.getKey().getAddress()));
-          builder.append(" : ");
-          builder.append(e.getValue());
-          if (e.getKey().localMember()) {
-            builder.append(" (current)");
-          }
-          builder.append("\n");
+          logMemberSetting(builder, e.getKey(), e.getValue());
         }
         builder.append("Make sure the configuration is consistent among all application nodes before you restart any node");
         logger.accept(builder.toString());
@@ -116,6 +112,16 @@ public class AppNodesClusterHostsConsistency {
 
     private String toString(Address address) {
       return address.getHost() + ":" + address.getPort();
+    }
+
+    private void logMemberSetting(StringBuilder builder, Member member, List<String> configuredHosts) {
+      builder.append(toString(member.getAddress()));
+      builder.append(" : ");
+      builder.append(configuredHosts);
+      if (member.localMember()) {
+        builder.append(" (current)");
+      }
+      builder.append("\n");
     }
   }
 
