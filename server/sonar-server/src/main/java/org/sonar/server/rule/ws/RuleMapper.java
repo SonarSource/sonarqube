@@ -183,7 +183,7 @@ public class RuleMapper {
   }
 
   private static void setSecurityStandards(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, FIELD_SECURITY_STANDARDS)) {
+    if (shouldReturnField(fieldsToReturn, FIELD_SECURITY_STANDARDS) && ruleDto.getSecurityStandardsField() != null) {
       ruleResponse.setSecurityStandards(ruleDto.getSecurityStandardsField());
     }
   }
