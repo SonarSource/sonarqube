@@ -72,6 +72,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_STATUS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_SYSTEM_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_TEMPLATE_KEY;
+import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_SECURITY_STANDARDS;
 
 /**
  * Conversion of {@link RuleDto} to {@link Rules.Rule}
@@ -124,6 +125,7 @@ public class RuleMapper {
     setDefaultDebtRemediationFunctionFields(ruleResponse, ruleDefinitionDto, fieldsToReturn);
     setEffortToFixDescription(ruleResponse, ruleDefinitionDto, fieldsToReturn);
     setScope(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setSecurityStandards(ruleResponse, ruleDefinitionDto, fieldsToReturn);
     return ruleResponse;
   }
 
@@ -177,6 +179,12 @@ public class RuleMapper {
   private static void setScope(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_SCOPE)) {
       ruleResponse.setScope(toWsRuleScope(ruleDto.getScope()));
+    }
+  }
+
+  private static void setSecurityStandards(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
+    if (shouldReturnField(fieldsToReturn, FIELD_SECURITY_STANDARDS)) {
+      ruleResponse.setSecurityStandards(ruleDto.getSecurityStandardsField());
     }
   }
 

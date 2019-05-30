@@ -320,7 +320,7 @@ public class RuleDefinitionDto {
     return securityStandards == null ? new HashSet<>() : new TreeSet<>(Arrays.asList(StringUtils.split(securityStandards, ',')));
   }
 
-  private String getSecurityStandardsField() {
+  public String getSecurityStandardsField() {
     return securityStandards;
   }
 

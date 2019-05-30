@@ -122,6 +122,9 @@ message Rule {
   optional sonarqube.ws.commons.RuleScope scope = 46;
   optional bool isExternal = 47;
 
+  // New since 7.8
+  optional string securityStandards = 48;
+
   optional sonarqube.ws.commons.RuleType type = 37;
 
   message Params {
