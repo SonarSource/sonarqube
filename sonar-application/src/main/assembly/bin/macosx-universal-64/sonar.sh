@@ -485,7 +485,7 @@ waitforstop() {
 }
 
 stopit() {
-    echo "Gracefully stopping $APP_LONG_NAME (can take some time)..."
+    echo "Gracefully stopping $APP_LONG_NAME..."
     getpid
     if [ "X$pid" = "X" ]
     then
