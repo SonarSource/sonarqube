@@ -19,7 +19,10 @@
  */
 package org.sonar.db;
 
+import java.util.regex.Pattern;
+
 public class DaoUtils {
+  private static final Pattern ESCAPE_PERCENT_AND_UNDERSCORE = Pattern.compile("[/%_]");
 
   private DaoUtils() {
     // prevent new instances
@@ -55,9 +58,8 @@ public class DaoUtils {
    * Replace escape percent and underscore by adding a slash just before
    */
   private static String escapePercentAndUnderscore(String value) {
-    return value
-        .replaceAll("/", "//")
-        .replaceAll("%", "/%")
-        .replaceAll("_", "/_");
+    return ESCAPE_PERCENT_AND_UNDERSCORE.matcher(value)
+      // $0 : Group zero, stands for the entire expression
+      .replaceAll("/$0");
   }
 }
