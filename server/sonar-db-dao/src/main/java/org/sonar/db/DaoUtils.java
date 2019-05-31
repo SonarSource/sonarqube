@@ -56,8 +56,6 @@ public class DaoUtils {
    */
   private static String escapePercentAndUnderscore(String value) {
     return value
-        .replaceAll("/", "//")
-        .replaceAll("%", "/%")
-        .replaceAll("_", "/_");
+        .replaceAll("/" + "|" + "%" + "|" + "_", "/$0"); // $0 : Group zero, stands for the entire expression
   }
 }
