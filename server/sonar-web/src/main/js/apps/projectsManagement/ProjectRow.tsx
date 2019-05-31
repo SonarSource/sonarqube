@@ -65,7 +65,7 @@ export default class ProjectRow extends React.PureComponent<Props> {
           />
         </td>
 
-        <td className="nowrap">
+        <td className="nowrap hide-overflow" style={{ maxWidth: 400 }}>
           <span className="note">{project.key}</span>
         </td>
 

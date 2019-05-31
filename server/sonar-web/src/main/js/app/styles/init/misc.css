@@ -28,6 +28,13 @@ th.nowrap {
   white-space: nowrap !important;
 }
 
+table.hide-overflow td,
+td.hide-overflow,
+th.hide-overflow {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
 .hidden {
   display: none !important;
   visibility: hidden !important;
