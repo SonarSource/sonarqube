@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -eo pipefail
 
 ./.travis/setup_ramdisk.sh
 
@@ -36,12 +36,15 @@ case "$TARGET" in
 
 BUILD)
   git fetch --unshallow
-  ./gradlew build sonarqube --no-daemon --console plain \
-  -PjacocoEnabled=true \
-  -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
-  -Dsonar.organization=sonarsource \
-  -Dsonar.host.url=https://sonarcloud.io \
-  -Dsonar.login="$SONAR_TOKEN"
+  ./gradlew build --no-daemon --console plain -PjacocoEnabled=true
+
+  if [[ -n "${SONAR_TOKEN}" ]]; then
+    ./gradlew sonarqube --no-daemon --console plain \
+      -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
+      -Dsonar.organization=sonarsource \
+      -Dsonar.host.url=https://sonarcloud.io \
+      -Dsonar.login="$SONAR_TOKEN"
+  fi
   ;;
 
 WEB_TESTS)
