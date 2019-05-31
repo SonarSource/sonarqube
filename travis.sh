@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -euo pipefail
 
 ./.travis/setup_ramdisk.sh
 
@@ -38,7 +38,9 @@ BUILD)
   git fetch --unshallow
   ./gradlew build --no-daemon --console plain -PjacocoEnabled=true
 
-  if [[ -n "${SONAR_TOKEN}" ]]; then
+  # the '-' at the end is needed when using set -u (the 'nounset' flag)
+  # see https://stackoverflow.com/a/9824943/641955
+  if [[ -n "${SONAR_TOKEN-}" ]]; then
     ./gradlew sonarqube --no-daemon --console plain \
       -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
       -Dsonar.organization=sonarsource \
