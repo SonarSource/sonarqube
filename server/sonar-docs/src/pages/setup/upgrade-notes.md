@@ -84,9 +84,11 @@ The deadlock that could occur with the combination of
 
 has been fixed ([SONAR-11467](https://jira.sonarsource.com/browse/SONAR-11467)).
 
-
 **DB Connection Pool Defaults Restored**  
 Database connection pool defaults have been restored to their pre-SonarQube 7.4 values. They were inadvertently affected by a change of connection pooling in 7.4 ([SONAR-11539](https://jira.sonarsource.com/browse/SONAR-11539)). 
+
+**Database Name in JDBC URL Now Case-Sensitive**
+For MSSQL users, a driver upgrade rendered the database name case-sensitive in the JDBC URL ([SONAR-11443](https://jira.sonarsource.com/browse/SONAR-11443)).
 
 [Full Release Notes](https://jira.sonarsource.com/jira/secure/ReleaseNote.jspa?projectId=10930&version=14693)
 
