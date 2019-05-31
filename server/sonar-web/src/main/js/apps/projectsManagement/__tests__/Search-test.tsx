@@ -28,6 +28,16 @@ it('renders', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
+it('disables the delete and bulk apply buttons unless a project is selected', () => {
+  const wrapper = shallowRender();
+  expect(wrapper.find('Button.js-delete').prop('disabled')).toBe(true);
+  expect(wrapper.find('Button.js-bulk-apply-permission-template').prop('disabled')).toBe(true);
+
+  wrapper.setProps({ selection: ['foo'] });
+  expect(wrapper.find('Button.js-delete').prop('disabled')).toBe(false);
+  expect(wrapper.find('Button.js-bulk-apply-permission-template').prop('disabled')).toBe(false);
+});
+
 it('render qualifiers filter', () => {
   expect(shallowRender({ topLevelQualifiers: ['TRK', 'VW', 'APP'] })).toMatchSnapshot();
 });

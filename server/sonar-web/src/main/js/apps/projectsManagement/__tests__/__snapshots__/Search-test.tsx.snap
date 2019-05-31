@@ -155,15 +155,16 @@ exports[`render qualifiers filter 1`] = `
         >
           <Button
             className="js-bulk-apply-permission-template"
-            disabled={false}
+            disabled={true}
             onClick={[Function]}
           >
             permission_templates.bulk_apply_permission_template
           </Button>
           <Button
             className="js-delete spacer-left button-red"
-            disabled={false}
+            disabled={true}
             onClick={[Function]}
+            title="permission_templates.select_to_delete"
           >
             delete
           </Button>
@@ -268,15 +269,16 @@ exports[`renders 1`] = `
         >
           <Button
             className="js-bulk-apply-permission-template"
-            disabled={false}
+            disabled={true}
             onClick={[Function]}
           >
             permission_templates.bulk_apply_permission_template
           </Button>
           <Button
             className="js-delete spacer-left button-red"
-            disabled={false}
+            disabled={true}
             onClick={[Function]}
+            title="permission_templates.select_to_delete"
           >
             delete
           </Button>
