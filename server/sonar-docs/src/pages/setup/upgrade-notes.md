@@ -16,9 +16,6 @@ Only the following scanner versions are compatible with SonarQube 7.8:
 * SonarQube Scanner Maven 3.3.0.603+
 * SonarQube Scanner Gradle 2.3+
 
-**Oracle Compatibility**  
-Oracle 11g and 12.1 are no longer supported.
-
 **Notifications changes**  
 Several changes have been made to notificatons. The notifications algorithm has been replaced with one that offers better performance during background task processing. Issue change notifications spawned by analysis or bulk change now generate only one email per event rather than one email per issue. The ability to subscribe globally to new issues notifications and notifications for issues resolved as False Positive or Won't fix has been dropped, as have all such subscriptions. Issue-related notifications on PRs have also been dropped.
 
