@@ -308,11 +308,8 @@ subprojects {
       exceptionFormat 'full' // log the full stack trace (default is the 1st line of the stack trace)
     }
     jacoco {
-      enabled = project.hasProperty('jacocoEnabled')
+      enabled = true // do not disable recording of code coverage, so that remote Gradle cache entry can be used locally
       includes = ['com.sonar.*', 'com.sonarsource.*', 'org.sonar.*', 'org.sonarqube.*', 'org.sonarsource.*', 'io.sonarcloud.*']
-    }
-    if (project.hasProperty('jacocoEnabled')) {
-      finalizedBy 'jacocoTestReport'
     }
     if (project.hasProperty('maxParallelTests')) {
       maxParallelForks = project.maxParallelTests as int
