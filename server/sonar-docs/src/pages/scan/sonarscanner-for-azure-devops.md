@@ -8,7 +8,7 @@ url: /scan/sonarscanner-for-azure-devops/
 | By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://jira.sonarsource.com/browse/VSTS) – [Source](https://github.com/SonarSource/sonar-scanner-vsts) 
 | **SonarScanner for Azure DevOps**
 
-The <!-- sonarqube -->[SonarQube](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube)<!-- /sonarqube --> <!-- sonarcloud -->[SonarCloud](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarcloud)<!-- /sonarcloud --> extension for Azure DevOps <!-- sonarqube -->Server<!-- /sonarqube --> makes it easy to integrate analysis into your build pipeline. The extension allows the analysis of all languages supported by {instance}. 
+The <!-- sonarqube -->[SonarQube](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube)<!-- /sonarqube --> <!-- sonarcloud -->[SonarCloud](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarcloud)<!-- /sonarcloud --> extension for Azure DevOps <!-- sonarqube -->Server<!-- /sonarqube --> makes it easy to integrate analysis into your build pipeline. The extension allows the analysis of all languages supported by {instance}.
 
 <!-- sonarcloud -->
 Microsoft has published a [dedicated lab](https://aka.ms/sonarcloudlab) describing how to integrate Azure DevOps Pipelines and SonarCloud. The lab includes setting up a Branch Policy in Azure DevOps to block a Pull Request from being submitted if the changed code does not meet the quality bar.
@@ -58,7 +58,7 @@ Each extension provides three tasks you will use in your build definitions to an
  
 When creating a build definition you can filter the list of available tasks by typing "Sonar" to display only the relevant tasks.
 
-## Analysing a .NET solution
+## Analyzing a .NET solution
 1. In your build definition, add:
    * At least **Prepare Analysis Configuration** task and **Run Code Analysis** task
    * Optionally **Publish Quality Gate Result** task
@@ -80,17 +80,42 @@ When creating a build definition you can filter the list of available tasks by t
 
 Once all this is done, you can trigger a build.
 
-## Analysing a Java project with Maven or Gradle
+## Analyzing a Java project with Maven or Gradle
 1. In your build definition, add:
    * At least **Prepare Analysis Configuration** task
-   * Optionaly **Publish Quality Gate Result** task
+   * Optionally **Publish Quality Gate Result** task
 1. Reorder the tasks to respect the following order:
    * **Prepare Analysis Configuration** task before the **Maven** or **Gradle** task.
    * **Publish Quality Gate Result** task after the **Maven** or **Gradle** task.
-1. Click on the Prepare Analysis Configuration build step to configure it:
+1. Click on the **Prepare Analysis Configuration** task to configure it:
    * Select the **SonarQube Server**
    * Select **Integrate with Maven or Gradle**
 1. On the Maven or Gradle task, in **Code Analysis**, check **Run SonarQube or SonarCloud Analysis**
+
+Once all this is done, you can trigger a build.
+
+## Analyzing a Visual C++ project
+1. Make **SonarQube Build Wrapper** available on the build agent
+   * Download and unzip **SonarQube Build Wrapper** on the build agent (see *Prerequisites* section of *C/C++/Objective-C* page). For the Microsoft-hosted build agent you will need to do it every time (as part of build definition), e.g. you can add **PowerShell script** task doing that. For the self-hosted build agent you can do the same either every build or only once (as part of manual setup of build agent). Example of PowerShell commands:
+   ```
+   Invoke-WebRequest -Uri '<sonarqube or sonarcloud url>/static/cpp/build-wrapper-win-x86.zip' -OutFile 'build-wrapper.zip'
+   Expand-Archive -Path 'build-wrapper.zip' -DestinationPath '.'
+   ```
+1. In your build definition, add:
+   * At least **Prepare Analysis Configuration** task, **Run Code Analysis** task and the **Command Line** task
+   * Optionally **Publish Quality Gate Result** task
+1. Reorder the tasks to respect the following order:
+   * **Prepare Analysis Configuration** task before **Command Line** task.
+   * **Run Code Analysis** task after the **Command Line** task.
+   * **Publish Quality Gate Result** task after the **Run Code Analysis** task
+1. On the **Command Line** task
+   * Run **SonarQube Build Wrapper** executable. Pass in as the arguments (1) the output directory to which the Build Wrapper should write its results and (2) the command that runs the compilation of your project, e.g.
+   ```
+   path/to/build-wrapper-win-x86-64.exe --out-dir <output directory> MSBuild.exe /t:Rebuild
+   ```
+1. Click on the **Prepare Analysis Configuration** task to configure it:
+   * Select the **SonarQube Server**
+   * In *Additional Properties* in the *Advanced* section, add the property `sonar.cfamily.build-wrapper-output` with the value of the directory you specified: `sonar.cfamily.build-wrapper-output=<output directory>`
 
 Once all this is done, you can trigger a build.
 
@@ -104,7 +129,7 @@ If you are not developing a .NET application or a Java project, here is the stan
    1. **Prepare Analysis Configuration**
    2. **Run Code Analysis**
    3. **Publish Quality Gate Result**
-1. Click on the Prepare Analysis Configuration build step to configure it:
+1. Click on the **Prepare Analysis Configuration** task to configure it:
    * Select the **SonarQube Server**
    * Select **Use standalone scanner**
    * Then:

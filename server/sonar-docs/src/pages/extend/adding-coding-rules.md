@@ -18,7 +18,7 @@ Languages not listed here don't support custom rules
 
  &nbsp;  |XPath 1.0|Java|Other
 ---|---|---|---
-C#| -  | -  | ![](/images/check.svg)[Importing Issues from Third-Party Roslyn Analyzers (C#, VB.NET)](https://docs.sonarqube.org/pages/viewpage.action?pageId=11640944)
+C#| -  | -  | ![](/images/check.svg)[Importing Issues from Third-Party Roslyn Analyzers (C#, VB.NET)](/analysis/external-issues/)
 COBOL| ![](/images/check.svg) | -  | - 
 Flex|![](/images/check.svg) |  -  | - 
 Java |  -  | ![](/images/check.svg) |  - 
@@ -27,7 +27,7 @@ PHP |  -  | ![](/images/check.svg)|  -
 PL/SQL | ![](/images/check.svg) |  -  | - 
 PL/I | ![](/images/check.svg) |  -  | - 
 RPG |  -  | ![](/images/check.svg)| - 
-VB.NET|  -  |  -  | ![](/images/check.svg)[Importing Issues from Third-Party Roslyn Analyzers (C#, VB.NET)](https://docs.sonarqube.org/pages/viewpage.action?pageId=11640944)
+VB.NET|  -  |  -  | ![](/images/check.svg)[Importing Issues from Third-Party Roslyn Analyzers (C#, VB.NET)](/analysis/external-issues/)
 XML |  ![](/images/check.svg) |  -  | - 
 
 
@@ -43,11 +43,11 @@ Writing coding rules in Java is a six-step process:
 
 See the following pages to see samples and details about how to create coding rules 
 
-* [for COBOL](https://docs.sonarqube.org/display/PLUG/Custom+Rules+for+SonarCOBOL)
-* [for Java](https://docs.sonarqube.org/display/PLUG/Custom+Rules+for+Java)
-* [for JavaScript](https://docs.sonarqube.org/display/PLUG/Custom+Rules+for+SonarJS)
-* [for PHP](https://docs.sonarqube.org/display/PLUG/Custom+Rules+for+PHP)
-* [for RPG](https://docs.sonarqube.org/display/PLUG/Custom+Rules+for+RPG)
+* [for COBOL](/analysis/languages/cobol/)
+* [for Java](/analysis/languages/java/)
+* [for JavaScript](/analysis/languages/javascript/)
+* [for PHP](/analysis/languages/php/)
+* [for RPG](/analysis/languages/rpg/)
 
 
 ## Adding coding rules using XPATH

@@ -27,13 +27,8 @@ yarn
 
 ## Each time
 
-Rebuild and start your SonarQube server (yarn needs this running)
+Start a SonarQube server (yarn needs this running).
 
-```
-cd sonar-enterprise/
-./build.sh -x test -x obfuscate
-./start.sh
-```
 
 To start the SonarQube Embedded docs dev server on port 3000:
 
@@ -168,11 +163,6 @@ You can also use these comments inline:
 ```md
 this content is displayed on <!-- sonarcloud -->SonarCloud<!-- /sonarcloud --><!-- sonarqube -->SonarQube<!-- /sonarqube -->
 ```
-
-### Page-level ToC
-
-All h2 tags will automatically be part of the TOC both in the static and embed documentation.
-The resulting table of contents will also list all h1 items, but h1 is used for the page title, and by convention should not also be used further down the page.
 
 ### Formatting
 

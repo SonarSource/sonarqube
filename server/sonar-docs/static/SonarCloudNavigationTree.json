@@ -8,6 +8,33 @@
     "children": [
       "/analysis/overview/",
       "/analysis/analysis-parameters/",
+      {
+        "title": "Languages",
+        "children": [
+          "/analysis/languages/abap/",
+          "/analysis/languages/apex/",
+          "/analysis/languages/csharp/",
+          "/analysis/languages/cfamily/",
+          "/analysis/languages/cobol/",
+          "/analysis/languages/css/",
+          "/analysis/languages/flex/",
+          "/analysis/languages/go/",
+          "/analysis/languages/html/",
+          "/analysis/languages/java/",
+          "/analysis/languages/javascript/",
+          "/analysis/languages/kotlin/",
+          "/analysis/languages/php/",
+          "/analysis/languages/plsql/",
+          "/analysis/languages/python/",
+          "/analysis/languages/ruby/",
+          "/analysis/languages/scala/",
+          "/analysis/languages/swift/",
+          "/analysis/languages/tsql/",
+          "/analysis/languages/typescript/",
+          "/analysis/languages/vb/",
+          "/analysis/languages/xml/"
+        ]
+      },
       "/analysis/coverage/",
       "/analysis/external-issues/",      
       "/analysis/background-tasks/",

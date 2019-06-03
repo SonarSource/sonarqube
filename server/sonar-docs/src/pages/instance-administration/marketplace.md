@@ -36,9 +36,9 @@ Restarting SonarQube can be done manually from the command line by running `sona
 ## Manual Updates
 If your server has no access to the internet, you won't be able to rely on the Marketplace for plugins, and will have to handle plugin installations and upgrades manually.
 
-To see what plugins are available and which version of a plugin is appropriate for your server, use the [plugin version matrix](https://redirect.sonarsource.com/doc/plugin-version-matrix.html), which is kept up to date with plugin availability and compatibility.
+To see what plugins are available and which version of a plugin is appropriate for your server, use the [plugin version matrix](/instance-administration/plugin-version-matrix/), which is kept up to date with current plugin availability and compatibility.
 
-To install a plugin, simply download it using the manual download link on the plugin documentation page, place it in _$SONARQUBE_HOME/extensions/downloads_, and restart the server.
+To install a plugin, simply download it using the manual download link on the plugin documentation page, place it in _$SONARQUBE-HOME/extensions/downloads_, and restart the server.
 
 ## Which URLs does the Marketplace connect to?
 The SonarQube Marketplace connects to https://update.sonarsource.org/ to get the list of plugins. Most of the referenced plugins are downloaded from:

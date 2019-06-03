@@ -49,7 +49,7 @@ If you want to see this widget, you can go to the "Settings > SonarCloud" page o
 ## FAQ
 
 **Do you have sample projects on Bitbucket Cloud?**
-You can take a look at these various projects: [Sample projects analysed on SonarCloud](https://bitbucket.org/account/user/sonarsource/projects/SAMPLES)
+You can take a look at these various projects: [Sample projects analyzed on SonarCloud](https://bitbucket.org/account/user/sonarsource/projects/SAMPLES)
 
 **I don't see the widget with quality information whereas I configured everything**
 Make sure that your browser is not using some extensions like AdBlocks. They tend to break the integration of third-party applications in BitBucket Cloud.

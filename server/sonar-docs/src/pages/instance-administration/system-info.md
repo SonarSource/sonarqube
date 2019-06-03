@@ -60,7 +60,7 @@ If you're on a commercial edition and using Branch or PR analysis, rest assured 
 The best approach there is to query the database. The actual query varies based on the version of SonarQube and the database engine. Two queries are provided:
 
 * one query that counts LOCs across *all* projects
-& one query that filters out project branches (i.e. projects analysed with the `sonar.branch` parameter). However, this query is accurate only if projects with branches are also analysed once without sonar.branch.
+& one query that filters out project branches (i.e. projects analyzed with the `sonar.branch` parameter). However, this query is accurate only if projects with branches are also analyzed once without sonar.branch.
 
 **SonarQube LTS v5.6.x**
 

@@ -16,11 +16,11 @@ Find the key of your organization, you will need it at later stages. It can be f
 ## Run analysis
 
 SonarCloud currently does not trigger analyses automatically - this feature will come in a near future. Currently, it's up to you to launch them inside your existing CI scripts using the available scanners:
-* Gradle - [SonarScanner for Gradle](https://redirect.sonarsource.com/doc/gradle.html)
-* MSBuild - [SonarScanner for MSBuild](https://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html)
-* Maven - use the [SonarScanner for Maven](https://redirect.sonarsource.com/doc/install-configure-scanner-maven.html)
-* Ant - [SonarScanner for Ant](https://redirect.sonarsource.com/doc/install-configure-scanner-ant.html)
-* anything else (CLI) - [SonarScanner](https://redirect.sonarsource.com/doc/install-configure-scanner.html)
+* Gradle - [SonarScanner for Gradle](/scan/sonarscanner-for-gradle/)
+* MSBuild - [SonarScanner for MSBuild](/scan/sonarscanner-for-msbuild/)
+* Maven - use the [SonarScanner for Maven](/scan/sonarscanner-for-maven/)
+* Ant - [SonarScanner for Ant](/scan/sonarscanner-for-ant/)
+* anything else (CLI) - [SonarScanner](/scan/sonarscanner/)
 
 After creating a project, the tutorial available on its homepage will guide you to find how to trigger an analysis.
 
@@ -33,7 +33,7 @@ After creating a project, the tutorial available on its homepage will guide you 
 <!-- /sonarcloud -->
 
 <!-- sonarqube -->
-Once the SonarQube platform has been installed, you're ready to install an analyzer and begin creating projects. To do that, you must install and configure the scanner that is most appropriate for your needs. Do you build with:
+Once the SonarQube platform has been installed, you're ready to install a scanner and begin creating projects. To do that, you must install and configure the scanner that is most appropriate for your needs. Do you build with:
 
 * Gradle - [SonarScanner for Gradle](https://redirect.sonarsource.com/doc/gradle.html)
 * MSBuild - [SonarScanner for MSBuild](https://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html)
@@ -46,7 +46,7 @@ Once the SonarQube platform has been installed, you're ready to install an analy
 **Note** that we do not recommend running an antivirus scanner on the machine where a SonarQube analysis runs, it could result in unpredictable behavior.
 
 
-A project is created in the platform automatically on its first analysis. However, if you need to set some configuration on your project before its first analysis, you have the option of provisioning it via Administration options.
+A project is created in the platform automatically on its first analysis. However, if you need to set some configuration on your project before its first analysis, you have the option of provisioning it via Administration options or the **+** menu item.
 <!-- /sonarqube -->
 
 ## What does analysis produce? 
