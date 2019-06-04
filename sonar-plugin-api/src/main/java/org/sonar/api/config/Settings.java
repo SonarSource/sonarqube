@@ -19,8 +19,8 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.base.Splitter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +31,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.DateUtils;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -160,6 +160,7 @@ public abstract class Settings {
   /**
    * Effective value as boolean. It is {@code false} if {@link #getString(String)}
    * does not return {@code "true"}, even if it's not a boolean representation.
+   *
    * @return {@code true} if the effective value is {@code "true"}, else {@code false}.
    */
   public boolean getBoolean(String key) {
@@ -169,6 +170,7 @@ public abstract class Settings {
 
   /**
    * Effective value as {@code int}.
+   *
    * @return the value as {@code int}. If the property does not have value nor default value, then {@code 0} is returned.
    * @throws NumberFormatException if value is not empty and is not a parsable integer
    */
@@ -182,6 +184,7 @@ public abstract class Settings {
 
   /**
    * Effective value as {@code long}.
+   *
    * @return the value as {@code long}. If the property does not have value nor default value, then {@code 0L} is returned.
    * @throws NumberFormatException if value is not empty and is not a parsable {@code long}
    */
@@ -225,6 +228,7 @@ public abstract class Settings {
 
   /**
    * Effective value as {@code Float}.
+   *
    * @return the value as {@code Float}. If the property does not have value nor default value, then {@code null} is returned.
    * @throws NumberFormatException if value is not empty and is not a parsable number
    */
@@ -243,6 +247,7 @@ public abstract class Settings {
 
   /**
    * Effective value as {@code Double}.
+   *
    * @return the value as {@code Double}. If the property does not have value nor default value, then {@code null} is returned.
    * @throws NumberFormatException if value is not empty and is not a parsable number
    */
@@ -278,11 +283,9 @@ public abstract class Settings {
         return ArrayUtils.EMPTY_STRING_ARRAY;
       }
 
-      List<String> values = new ArrayList<>();
-      for (String v : Splitter.on(",").trimResults().split(value)) {
-        values.add(v.replace("%2C", ","));
-      }
-      return values.toArray(new String[values.size()]);
+      return Arrays.stream(value.split(",", -1)).map(String::trim)
+        .map(s -> s.replace("%2C", ","))
+        .toArray(String[]::new);
     }
 
     return getStringArrayBySeparator(key, ",");
@@ -358,11 +361,10 @@ public abstract class Settings {
    * Change a property value in a restricted scope only, depending on execution context. New value
    * is <b>never</b> persisted. New value is ephemeral and kept in memory only:
    * <ul>
-   *   <li>during current analysis in the case of scanner stack</li>
-   *   <li>during processing of current HTTP request in the case of web server stack</li>
-   *   <li>during execution of current task in the case of Compute Engine stack</li>
+   * <li>during current analysis in the case of scanner stack</li>
+   * <li>during processing of current HTTP request in the case of web server stack</li>
+   * <li>during execution of current task in the case of Compute Engine stack</li>
    * </ul>
-   *
    * Property is temporarily removed if the parameter {@code value} is {@code null}
    */
   public Settings setProperty(String key, @Nullable String value) {

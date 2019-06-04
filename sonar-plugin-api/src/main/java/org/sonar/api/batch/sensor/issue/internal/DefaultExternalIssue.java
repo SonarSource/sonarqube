@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
-import com.google.common.base.Preconditions;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.rule.Severity;
@@ -29,9 +28,10 @@ import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIssue> implements ExternalIssue, NewExternalIssue {
   private Long effort;
@@ -50,7 +50,7 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
 
   @Override
   public DefaultExternalIssue remediationEffortMinutes(@Nullable Long effort) {
-    Preconditions.checkArgument(effort == null || effort >= 0, format("effort must be greater than or equal 0 (got %s)", effort));
+    checkArgument(effort == null || effort >= 0, format("effort must be greater than or equal 0 (got %s)", effort));
     this.effort = effort;
     return this;
   }

@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.junit.Test;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -36,7 +35,7 @@ import static org.assertj.core.api.Assertions.entry;
 public class KeyValueFormatTest {
 
   @Test
-  public void test_parser() throws Exception {
+  public void test_parser() {
     KeyValueFormat.FieldParser reader = new KeyValueFormat.FieldParser("abc=def;ghi=jkl");
     assertThat(reader.nextKey()).isEqualTo("abc");
     assertThat(reader.nextVal()).isEqualTo("def");

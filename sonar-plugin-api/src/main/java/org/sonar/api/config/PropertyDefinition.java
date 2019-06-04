@@ -34,13 +34,12 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Collections.unmodifiableSet;
@@ -54,6 +53,7 @@ import static org.sonar.api.PropertyType.LONG;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.api.PropertyType.REGULAR_EXPRESSION;
 import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * Declare a plugin property. Values are available at runtime through the component {@link Configuration}.
@@ -461,7 +461,7 @@ public final class PropertyDefinition {
      * only in General Settings.
      *
      * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE}, {@link Qualifiers#APP APP},
-     *         {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
+     *                                  {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
      * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE},
      *                                  {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
      */

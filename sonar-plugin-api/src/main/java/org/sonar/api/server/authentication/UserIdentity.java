@@ -26,10 +26,10 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.user.UserGroupValidation;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * User information provided by the Identity Provider to be register into the platform.

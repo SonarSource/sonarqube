@@ -19,19 +19,18 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
-import com.google.common.base.Preconditions;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
-import javax.annotation.Nullable;
-
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.abbreviate;
 import static org.apache.commons.lang.StringUtils.trim;
+import static org.sonar.api.utils.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
 
@@ -42,15 +41,15 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
   @Override
   public DefaultIssueLocation on(InputComponent component) {
     checkArgument(component != null, "Component can't be null");
-    Preconditions.checkState(this.component == null, "on() already called");
+    checkState(this.component == null, "on() already called");
     this.component = component;
     return this;
   }
 
   @Override
   public DefaultIssueLocation at(TextRange location) {
-    Preconditions.checkState(this.component != null, "at() should be called after on()");
-    Preconditions.checkState(this.component.isFile(), "at() should be called only for an InputFile.");
+    checkState(this.component != null, "at() should be called after on()");
+    checkState(this.component.isFile(), "at() should be called only for an InputFile.");
     DefaultInputFile file = (DefaultInputFile) this.component;
     file.validate(location);
     this.textRange = location;

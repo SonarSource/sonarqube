@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
-import com.google.common.base.Preconditions;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,10 +37,10 @@ import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.utils.PathUtils;
 
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
+import static org.sonar.api.utils.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue> extends DefaultStorable {
   protected IssueLocation primaryLocation;
@@ -72,10 +71,10 @@ public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue> exten
   }
 
   public T at(NewIssueLocation primaryLocation) {
-    Preconditions.checkArgument(primaryLocation != null, "Cannot use a location that is null");
+    checkArgument(primaryLocation != null, "Cannot use a location that is null");
     checkState(this.primaryLocation == null, "at() already called");
     this.primaryLocation = rewriteLocation((DefaultIssueLocation) primaryLocation);
-    Preconditions.checkArgument(this.primaryLocation.inputComponent() != null, "Cannot use a location with no input component");
+    checkArgument(this.primaryLocation.inputComponent() != null, "Cannot use a location with no input component");
     return (T) this;
   }
 
@@ -110,7 +109,7 @@ public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue> exten
       DefaultIssueLocation fixedLocation = new DefaultIssueLocation();
       fixedLocation.on(project);
       StringBuilder fullMessage = new StringBuilder();
-      if (!isNullOrEmpty(path)) {
+      if (path != null && !path.isEmpty()) {
         fullMessage.append("[").append(path).append("] ");
       }
       fullMessage.append(location.message());

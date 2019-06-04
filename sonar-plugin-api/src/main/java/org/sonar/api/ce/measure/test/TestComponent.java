@@ -24,8 +24,8 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.ce.measure.Component;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 @Immutable
 public class TestComponent implements Component {

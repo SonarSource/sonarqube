@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.measure.internal;
 
-import com.google.common.base.Preconditions;
 import java.io.Serializable;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -32,6 +31,8 @@ import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultMeasure<G extends Serializable> extends DefaultStorable implements Measure<G>, NewMeasure<G> {
 
@@ -50,15 +51,15 @@ public class DefaultMeasure<G extends Serializable> extends DefaultStorable impl
 
   @Override
   public DefaultMeasure<G> on(InputComponent component) {
-    Preconditions.checkArgument(component != null, "Component can't be null");
-    Preconditions.checkState(this.component == null, "on() already called");
+    checkArgument(component != null, "Component can't be null");
+    checkState(this.component == null, "on() already called");
     this.component = component;
     return this;
   }
 
   @Override
   public DefaultMeasure<G> forMetric(Metric<G> metric) {
-    Preconditions.checkState(this.metric == null, "Metric already defined");
+    checkState(this.metric == null, "Metric already defined");
     requireNonNull(metric, "metric should be non null");
     this.metric = metric;
     return this;
@@ -66,7 +67,7 @@ public class DefaultMeasure<G extends Serializable> extends DefaultStorable impl
 
   @Override
   public DefaultMeasure<G> withValue(G value) {
-    Preconditions.checkState(this.value == null, "Measure value already defined");
+    checkState(this.value == null, "Measure value already defined");
     requireNonNull(value, "Measure value can't be null");
     this.value = value;
     return this;
@@ -91,7 +92,7 @@ public class DefaultMeasure<G extends Serializable> extends DefaultStorable impl
   public void doSave() {
     requireNonNull(this.value, "Measure value can't be null");
     requireNonNull(this.metric, "Measure metric can't be null");
-    Preconditions.checkState(this.metric.valueType().equals(this.value.getClass()), "Measure value should be of type %s", this.metric.valueType());
+    checkState(this.metric.valueType().equals(this.value.getClass()), "Measure value should be of type %s", this.metric.valueType());
     storage.store(this);
   }
 

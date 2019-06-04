@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
-import com.google.common.base.Preconditions;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.rule.Severity;
@@ -29,9 +28,10 @@ import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements Issue, NewIssue {
   private RuleKey ruleKey;
@@ -57,7 +57,7 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
 
   @Override
   public DefaultIssue gap(@Nullable Double gap) {
-    Preconditions.checkArgument(gap == null || gap >= 0, format("Gap must be greater than or equal 0 (got %s)", gap));
+    checkArgument(gap == null || gap >= 0, format("Gap must be greater than or equal 0 (got %s)", gap));
     this.gap = gap;
     return this;
   }

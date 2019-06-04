@@ -19,7 +19,6 @@
  */
 package org.sonar.api.resources;
 
-import com.google.common.annotations.Beta;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,7 +36,6 @@ import static java.util.Objects.requireNonNull;
 /**
  * @since 2.14
  */
-@Beta
 @ServerSide
 @ComputeEngineSide
 public class ResourceTypes {

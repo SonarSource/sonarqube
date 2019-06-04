@@ -19,7 +19,6 @@
  */
 package org.sonar.api.server.debt.internal;
 
-import com.google.common.base.MoreObjects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -27,7 +26,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
 
@@ -72,7 +71,6 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
     return gapMultiplier();
   }
 
-
   @Override
   @CheckForNull
   public String gapMultiplier() {
@@ -93,7 +91,6 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
   public String baseEffort() {
     return baseEffort;
   }
-
 
   private void validate() {
     checkArgument(type != null, "Remediation function type cannot be null");
@@ -136,13 +133,12 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
     return result;
   }
 
-  
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(DebtRemediationFunction.class)
-      .add("type", type)
-      .add("gap multiplier", gapMultiplier)
-      .add("base effort", baseEffort)
-      .toString();
+    return "DebtRemediationFunction{" +
+      "type=" + type + ", " +
+      "gap multiplier=" + gapMultiplier + ", " +
+      "base effort=" + baseEffort
+      + "}";
   }
 }

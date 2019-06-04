@@ -19,9 +19,8 @@
  */
 package org.sonar.api.server.ws.internal;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Splitter;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,19 +30,19 @@ import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * @since 4.2
  */
 public abstract class ValidatingRequest extends Request {
 
-  private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
+  private static final String COMMA_SPLITTER = ",";
   private WebService.Action action;
   private LocalConnector localConnector;
 
@@ -69,10 +68,9 @@ public abstract class ValidatingRequest extends Request {
   @CheckForNull
   public String param(String key) {
     WebService.Param definition = action.param(key);
-
     String rawValue = readParam(key, definition);
     String rawValueOrDefault = defaultString(rawValue, definition.defaultValue());
-    String value = rawValueOrDefault == null ? null : CharMatcher.WHITESPACE.trimFrom(rawValueOrDefault);
+    String value = rawValueOrDefault == null ? null : trim(rawValueOrDefault);
     validateRequiredValue(key, definition, rawValue);
     if (value == null) {
       return null;
@@ -89,6 +87,23 @@ public abstract class ValidatingRequest extends Request {
     WebService.Param definition = action.param(key);
     List<String> values = readMultiParamOrDefaultValue(key, definition);
     return validateValues(values, definition);
+  }
+
+  private static String trim(String s) {
+    int begin;
+    for (begin = 0; begin < s.length(); begin++) {
+      if (!Character.isWhitespace(s.charAt(begin))) {
+        break;
+      }
+    }
+
+    int end;
+    for (end = s.length(); end > begin; end--) {
+      if (!Character.isWhitespace(s.charAt(end - 1))) {
+        break;
+      }
+    }
+    return s.substring(begin, end);
   }
 
   @Override
@@ -111,7 +126,10 @@ public abstract class ValidatingRequest extends Request {
     if (value == null) {
       return null;
     }
-    List<String> values = COMMA_SPLITTER.splitToList(value);
+    List<String> values = Arrays.stream(value.split(COMMA_SPLITTER))
+      .map(String::trim)
+      .filter(s -> !s.isEmpty())
+      .collect(Collectors.toList());
     return validateValues(values, definition);
   }
 
@@ -123,6 +141,7 @@ public abstract class ValidatingRequest extends Request {
       return null;
     }
     return values.stream()
+      .filter(s -> !s.isEmpty())
       .map(value -> Enum.valueOf(enumClass, value))
       .collect(Collectors.toList());
   }

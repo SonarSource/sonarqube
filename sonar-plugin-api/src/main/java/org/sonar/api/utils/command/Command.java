@@ -19,8 +19,6 @@
  */
 package org.sonar.api.utils.command;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +30,7 @@ import org.sonar.api.utils.System2;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * @since 2.7
@@ -46,7 +45,7 @@ public class Command {
   private final System2 system;
 
   Command(String executable, System2 system) {
-    Preconditions.checkArgument(!StringUtils.isBlank(executable), "Command executable can not be blank");
+    checkArgument(!StringUtils.isBlank(executable), "Command executable can not be blank");
     this.executable = executable;
     this.env = new HashMap<>(system.envVariables());
     this.system = system;
@@ -138,7 +137,6 @@ public class Command {
   /**
    * Set to <code>true</code> if a new shell should be used to execute the command.
    * This is useful when the executed command is a script with no execution rights (+x on unix).
-   *
    * On windows, the command will be executed with <code>cmd /C executable</code>.
    * On other platforms, the command will be executed with <code>sh executable</code>.
    *
@@ -166,11 +164,11 @@ public class Command {
   }
 
   public String toCommandLine() {
-    return Joiner.on(" ").join(toStrings(false));
+    return String.join(" ", toStrings(false));
   }
 
   @Override
   public String toString() {
-    return Joiner.on(" ").join(toStrings(true));
+    return String.join(" ", toStrings(true));
   }
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.highlighting.internal;
 
-import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -33,6 +32,7 @@ import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultHighlighting extends DefaultStorable implements NewHighlighting {
 
@@ -122,6 +122,6 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
   }
 
   private void checkInputFileNotNull() {
-    Preconditions.checkState(inputFile != null, "Call onFile() first");
+    checkState(inputFile != null, "Call onFile() first");
   }
 }

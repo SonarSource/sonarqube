@@ -19,60 +19,50 @@
  */
 package org.sonar.api.batch.rule.internal;
 
-import com.google.common.collect.ImmutableTable;
-
-import com.google.common.collect.HashBasedTable;
-import org.sonar.api.batch.rule.Rule;
-import com.google.common.collect.Table;
-import com.google.common.collect.ImmutableListMultimap;
-import org.sonar.api.batch.rule.Rules;
-import org.sonar.api.rule.RuleKey;
-
-import javax.annotation.concurrent.Immutable;
-
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import javax.annotation.concurrent.Immutable;
+import org.sonar.api.batch.rule.Rule;
+import org.sonar.api.batch.rule.Rules;
+import org.sonar.api.rule.RuleKey;
 
 @Immutable
 class DefaultRules implements Rules {
-  private final ImmutableListMultimap<String, Rule> rulesByRepository;
-  private final ImmutableTable<String, String, List<Rule>> rulesByRepositoryAndInternalKey;
+  private final Map<String, List<Rule>> rulesByRepository;
+  private final Map<String, Map<String, List<Rule>>> rulesByRepositoryAndInternalKey;
   private final Map<RuleKey, Rule> rulesByRuleKey;
 
   DefaultRules(Collection<NewRule> newRules) {
+    Map<String, List<Rule>> rulesByRepositoryBuilder = new HashMap<>();
+    Map<String, Map<String, List<Rule>>> rulesByRepositoryAndInternalKeyBuilder = new HashMap<>();
     Map<RuleKey, Rule> rulesByRuleKeyBuilder = new HashMap<>();
-    ImmutableListMultimap.Builder<String, Rule> builder = ImmutableListMultimap.builder();
-    Table<String, String, List<Rule>> tableBuilder = HashBasedTable.create();
 
     for (NewRule newRule : newRules) {
       DefaultRule r = new DefaultRule(newRule);
       rulesByRuleKeyBuilder.put(r.key(), r);
-      builder.put(r.key().repository(), r);
-      addToTable(tableBuilder, r);
+      rulesByRepositoryBuilder.computeIfAbsent(r.key().repository(), x -> new ArrayList<>()).add(r);
+      addToTable(rulesByRepositoryAndInternalKeyBuilder, r);
     }
 
     rulesByRuleKey = Collections.unmodifiableMap(rulesByRuleKeyBuilder);
-    rulesByRepository = builder.build();
-    rulesByRepositoryAndInternalKey = ImmutableTable.copyOf(tableBuilder);
+    rulesByRepository = Collections.unmodifiableMap(rulesByRepositoryBuilder);
+    rulesByRepositoryAndInternalKey = Collections.unmodifiableMap(rulesByRepositoryAndInternalKeyBuilder);
   }
 
-  private static void addToTable(Table<String, String, List<Rule>> table, DefaultRule r) {
+  private static void addToTable(Map<String, Map<String, List<Rule>>> rulesByRepositoryAndInternalKeyBuilder, DefaultRule r) {
     if (r.internalKey() == null) {
       return;
     }
 
-    List<Rule> ruleList = table.get(r.key().repository(), r.internalKey());
-
-    if (ruleList == null) {
-      ruleList = new LinkedList<>();
-    }
-
-    ruleList.add(r);
-    table.put(r.key().repository(), r.internalKey(), ruleList);
+    rulesByRepositoryAndInternalKeyBuilder
+      .computeIfAbsent(r.key().repository(), x -> new HashMap<>())
+      .computeIfAbsent(r.internalKey(), x -> new ArrayList<>())
+      .add(r);
   }
 
   @Override
@@ -82,18 +72,18 @@ class DefaultRules implements Rules {
 
   @Override
   public Collection<Rule> findAll() {
-    return rulesByRepository.values();
+    return rulesByRepository.values().stream().flatMap(List::stream).collect(Collectors.toList());
   }
 
   @Override
   public Collection<Rule> findByRepository(String repository) {
-    return rulesByRepository.get(repository);
+    return rulesByRepository.getOrDefault(repository, Collections.emptyList());
   }
 
   @Override
   public Collection<Rule> findByInternalKey(String repository, String internalKey) {
-    List<Rule> rules = rulesByRepositoryAndInternalKey.get(repository, internalKey);
-
-    return rules != null ? rules : Collections.<Rule>emptyList();
+    return rulesByRepositoryAndInternalKey
+      .getOrDefault(repository, Collections.emptyMap())
+      .getOrDefault(internalKey, Collections.emptyList());
   }
 }

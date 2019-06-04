@@ -19,7 +19,7 @@
  */
 package org.sonar.api.utils;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * @since 3.6

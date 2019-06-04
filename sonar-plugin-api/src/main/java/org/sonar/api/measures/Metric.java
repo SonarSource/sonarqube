@@ -31,9 +31,8 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * Used to define a metric in a plugin. Should be used with {@link Metrics} extension point.
@@ -219,7 +218,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    * @param userManaged whether the metric is user managed
    */
   private Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, @Nullable String domain,
-                 boolean userManaged) {
+    boolean userManaged) {
     this.key = key;
     this.description = description;
     this.type = type;
@@ -739,13 +738,18 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
       if (ValueType.PERCENT == this.type) {
         this.bestValue = (direction == DIRECTION_BETTER) ? 100.0 : 0.0;
         this.worstValue = (direction == DIRECTION_BETTER) ? 0.0 : 100.0;
-        this.decimalScale = firstNonNull(decimalScale, DEFAULT_DECIMAL_SCALE);
+        this.decimalScale = coalesce(decimalScale, DEFAULT_DECIMAL_SCALE);
 
       } else if (ValueType.FLOAT == this.type) {
-        this.decimalScale = firstNonNull(decimalScale, DEFAULT_DECIMAL_SCALE);
+        this.decimalScale = coalesce(decimalScale, DEFAULT_DECIMAL_SCALE);
       }
       return new Metric<>(this);
     }
+  }
+
+  @CheckForNull
+  private static <T> T coalesce(@Nullable T a, @Nullable T b) {
+    return a == null ? b : a;
   }
 
   @Override

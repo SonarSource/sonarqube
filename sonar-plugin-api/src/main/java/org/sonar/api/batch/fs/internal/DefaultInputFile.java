@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import com.google.common.base.Preconditions;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -45,7 +44,8 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
 
-import static com.google.common.base.Preconditions.checkState;
+import static org.sonar.api.utils.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 /**
  * @since 4.2
@@ -96,7 +96,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   public InputStream inputStream() throws IOException {
     return contents != null ? new ByteArrayInputStream(contents.getBytes(charset()))
       : new BOMInputStream(Files.newInputStream(path()),
-        ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
+      ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
   }
 
   @Override
@@ -313,8 +313,8 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
 
   public TextPointer newPointer(int globalOffset) {
     checkMetadata();
-    Preconditions.checkArgument(globalOffset >= 0, "%s is not a valid offset for a file", globalOffset);
-    Preconditions.checkArgument(globalOffset <= lastValidOffset(), "%s is not a valid offset for file %s. Max offset is %s", globalOffset, this, lastValidOffset());
+    checkArgument(globalOffset >= 0, "%s is not a valid offset for a file", globalOffset);
+    checkArgument(globalOffset <= lastValidOffset(), "%s is not a valid offset for file %s. Max offset is %s", globalOffset, this, lastValidOffset());
     int line = findLine(globalOffset);
     int startLineOffset = originalLineStartOffsets()[line - 1];
     // In case the global offset is between \r and \n, move the pointer to a valid location
@@ -332,11 +332,11 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   private void checkValid(TextPointer pointer, String owner) {
-    Preconditions.checkArgument(pointer.line() >= 1, "%s is not a valid line for a file", pointer.line());
-    Preconditions.checkArgument(pointer.line() <= this.metadata.lines(), "%s is not a valid line for %s. File %s has %s line(s)", pointer.line(), owner, this, metadata.lines());
-    Preconditions.checkArgument(pointer.lineOffset() >= 0, "%s is not a valid line offset for a file", pointer.lineOffset());
+    checkArgument(pointer.line() >= 1, "%s is not a valid line for a file", pointer.line());
+    checkArgument(pointer.line() <= this.metadata.lines(), "%s is not a valid line for %s. File %s has %s line(s)", pointer.line(), owner, this, metadata.lines());
+    checkArgument(pointer.lineOffset() >= 0, "%s is not a valid line offset for a file", pointer.lineOffset());
     int lineLength = lineLength(pointer.line());
-    Preconditions.checkArgument(pointer.lineOffset() <= lineLength,
+    checkArgument(pointer.lineOffset() <= lineLength,
       "%s is not a valid line offset for %s. File %s has %s character(s) at line %s", pointer.lineOffset(), owner, this, lineLength, pointer.line());
   }
 
@@ -345,7 +345,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   private static TextRange newRangeValidPointers(TextPointer start, TextPointer end, boolean acceptEmptyRange) {
-    Preconditions.checkArgument(acceptEmptyRange ? (start.compareTo(end) <= 0) : (start.compareTo(end) < 0),
+    checkArgument(acceptEmptyRange ? (start.compareTo(end) <= 0) : (start.compareTo(end) < 0),
       "Start pointer %s should be before end pointer %s", start, end);
     return new DefaultTextRange(start, end);
   }

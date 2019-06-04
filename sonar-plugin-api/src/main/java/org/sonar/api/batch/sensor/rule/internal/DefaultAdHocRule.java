@@ -28,8 +28,8 @@ import org.sonar.api.batch.sensor.rule.AdHocRule;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
 import org.sonar.api.rules.RuleType;
 
-import static com.google.common.base.Preconditions.checkState;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewAdHocRule {
   private Severity severity;

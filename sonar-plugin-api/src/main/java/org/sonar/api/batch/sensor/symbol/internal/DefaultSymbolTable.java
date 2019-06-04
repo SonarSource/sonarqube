@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.symbol.internal;
 
-import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -34,6 +33,8 @@ import org.sonar.api.batch.sensor.symbol.NewSymbol;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultSymbolTable extends DefaultStorable implements NewSymbolTable {
 
@@ -129,7 +130,7 @@ public class DefaultSymbolTable extends DefaultStorable implements NewSymbolTabl
     @Override
     public NewSymbol newReference(TextRange range) {
       requireNonNull(range, "Provided range is null");
-      Preconditions.checkArgument(!declaration.overlap(range), "Overlapping symbol declaration and reference for symbol at %s", declaration);
+      checkArgument(!declaration.overlap(range), "Overlapping symbol declaration and reference for symbol at %s", declaration);
       references.add(range);
       return this;
     }
@@ -143,6 +144,6 @@ public class DefaultSymbolTable extends DefaultStorable implements NewSymbolTabl
   }
 
   private void checkInputFileNotNull() {
-    Preconditions.checkState(inputFile != null, "Call onFile() first");
+    checkState(inputFile != null, "Call onFile() first");
   }
 }

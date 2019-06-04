@@ -32,10 +32,10 @@ import javax.servlet.Filter;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.server.ServerSide;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 import static org.apache.commons.lang.StringUtils.substringBeforeLast;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * @since 3.1

@@ -19,12 +19,13 @@
  */
 package org.sonar.api.task;
 
-import com.google.common.base.Preconditions;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
+
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * Register and describe a {@link TaskExtension}.
@@ -117,10 +118,10 @@ public class TaskDefinition implements Comparable<TaskDefinition> {
     }
 
     public TaskDefinition build() {
-      Preconditions.checkArgument(!StringUtils.isEmpty(key), "Task key must be set");
-      Preconditions.checkArgument(Pattern.matches(KEY_PATTERN, key), "Task key '" + key + "' must match " + KEY_PATTERN);
-      Preconditions.checkArgument(!StringUtils.isEmpty(description), "Description must be set for task '" + key + "'");
-      Preconditions.checkArgument(taskClass != null, "Class must be set for task '" + key + "'");
+      checkArgument(!StringUtils.isEmpty(key), "Task key must be set");
+      checkArgument(Pattern.matches(KEY_PATTERN, key), "Task key '" + key + "' must match " + KEY_PATTERN);
+      checkArgument(!StringUtils.isEmpty(description), "Description must be set for task '" + key + "'");
+      checkArgument(taskClass != null, "Class must be set for task '" + key + "'");
       return new TaskDefinition(this);
     }
   }

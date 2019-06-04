@@ -19,7 +19,7 @@
  */
 package org.sonar.api.utils.log;
 
-import com.google.common.base.Preconditions;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 class LogInterceptors {
 
@@ -33,7 +33,7 @@ class LogInterceptors {
   }
 
   static void set(LogInterceptor li) {
-    Preconditions.checkArgument(li != null);
+    checkArgument(li != null);
     instance = li;
   }
 }

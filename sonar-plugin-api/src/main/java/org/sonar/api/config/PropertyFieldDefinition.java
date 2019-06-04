@@ -19,7 +19,6 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -28,6 +27,7 @@ import org.sonar.api.PropertyField;
 import org.sonar.api.PropertyType;
 
 import static java.util.Arrays.asList;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * @since 3.3
@@ -151,8 +151,8 @@ public final class PropertyFieldDefinition {
     }
 
     public PropertyFieldDefinition build() {
-      Preconditions.checkArgument(!StringUtils.isEmpty(key), "Key must be set");
-      Preconditions.checkArgument(!StringUtils.isEmpty(name), "Name must be set");
+      checkArgument(!StringUtils.isEmpty(key), "Key must be set");
+      checkArgument(!StringUtils.isEmpty(name), "Name must be set");
       return new PropertyFieldDefinition(this);
     }
   }

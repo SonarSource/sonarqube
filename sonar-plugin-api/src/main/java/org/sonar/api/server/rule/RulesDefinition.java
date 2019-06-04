@@ -19,8 +19,6 @@
  */
 package org.sonar.api.server.rule;
 
-import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -49,8 +47,6 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
@@ -59,6 +55,8 @@ import static java.util.Collections.unmodifiableMap;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.sonar.api.utils.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 /**
  * Defines some coding rules of the same repository. For example the Java Findbugs plugin provides an implementation of
@@ -69,37 +67,28 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
  * <h3>How to use</h3>
  * <pre>
  * public class MyJsRulesDefinition implements RulesDefinition {
- *
  *   {@literal @}Override
  *   public void define(Context context) {
  *     NewRepository repository = context.createRepository("my_js", "js").setName("My Javascript Analyzer");
- *
  *     // define a rule programmatically. Note that rules
  *     // could be loaded from files (JSON, XML, ...)
  *     NewRule x1Rule = repository.createRule("x1")
  *      .setName("No empty line")
  *      .setHtmlDescription("Generate an issue on empty lines")
- *
  *      // optional tags
  *      .setTags("style", "stupid")
- *
  *     // optional status. Default value is READY.
  *     .setStatus(RuleStatus.BETA)
- *
  *     // default severity when the rule is activated on a Quality profile. Default value is MAJOR.
  *     .setSeverity(Severity.MINOR);
- *
  *     // optional type for SonarQube Quality Model. Default is RulesDefinition.Type.CODE_SMELL.
  *     .setType(RulesDefinition.Type.BUG)
- *
  *     x1Rule
  *       .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
- *
  *     x1Rule.createParam("acceptWhitespace")
  *       .setDefaultValue("false")
  *       .setType(RuleParamType.BOOLEAN)
  *       .setDescription("Accept whitespaces on the line");
- *
  *     // don't forget to call done() to finalize the definition
  *     repository.done();
  *   }
@@ -111,13 +100,10 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
  * <br>
  * <pre>
  * public class MyJsRulesDefinition implements RulesDefinition {
- *
  *   private final RulesDefinitionXmlLoader xmlLoader;
- *
  *   public MyJsRulesDefinition(RulesDefinitionXmlLoader xmlLoader) {
  *     this.xmlLoader = xmlLoader;
  *   }
- *
  *   {@literal @}Override
  *   public void define(Context context) {
  *     NewRepository repository = context.createRepository("my_js", "js").setName("My Javascript Analyzer");
@@ -133,15 +119,12 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
  * <br>
  * <pre>
  * public class MyJsRulesDefinition implements RulesDefinition {
- *
  *   private final RulesDefinitionXmlLoader xmlLoader;
  *   private final RulesDefinitionI18nLoader i18nLoader;
- *
  *   public MyJsRulesDefinition(RulesDefinitionXmlLoader xmlLoader, RulesDefinitionI18nLoader i18nLoader) {
  *     this.xmlLoader = xmlLoader;
  *     this.i18nLoader = i18nLoader;
  *   }
- *
  *   {@literal @}Override
  *   public void define(Context context) {
  *     NewRepository repository = context.createRepository("my_js", "js").setName("My Javascript Analyzer");
@@ -404,7 +387,7 @@ public interface RulesDefinition {
     /**
      * Creates a repository of rules from external rule engines.
      * The repository key will be "external_[engineId]".
-     * 
+     *
      * @since 7.2
      */
     public NewRepository createExternalRepository(String engineId, String language) {
@@ -1013,9 +996,9 @@ public interface RulesDefinition {
      * <p>
      * Deprecated keys should be added with this method in order, oldest first, for documentation purpose.
      *
-     * @since 7.1
      * @throws IllegalArgumentException if {@code repository} or {@code key} is {@code null} or empty.
      * @see Rule#deprecatedRuleKeys
+     * @since 7.1
      */
     public NewRule addDeprecatedRuleKey(String repository, String key) {
       deprecatedRuleKeys.add(RuleKey.of(repository, key));
@@ -1067,15 +1050,17 @@ public interface RulesDefinition {
       this.gapDescription = newRule.gapDescription;
       this.scope = newRule.scope == null ? RuleScope.MAIN : newRule.scope;
       this.type = newRule.type == null ? RuleTagsToTypeConverter.convert(newRule.tags) : newRule.type;
-      this.tags = ImmutableSortedSet.copyOf(Sets.difference(newRule.tags, RuleTagsToTypeConverter.RESERVED_TAGS));
-      this.securityStandards = ImmutableSortedSet.copyOf(newRule.securityStandards);
+      Set<String> tagsBuilder = new TreeSet<>(newRule.tags);
+      tagsBuilder.removeAll(RuleTagsToTypeConverter.RESERVED_TAGS);
+      this.tags = Collections.unmodifiableSet(tagsBuilder);
+      this.securityStandards = Collections.unmodifiableSet(new TreeSet<>(newRule.securityStandards));
       Map<String, Param> paramsBuilder = new HashMap<>();
       for (NewParam newParam : newRule.paramsByKey.values()) {
         paramsBuilder.put(newParam.key, new Param(newParam));
       }
       this.params = Collections.unmodifiableMap(paramsBuilder);
       this.activatedByDefault = newRule.activatedByDefault;
-      this.deprecatedRuleKeys = ImmutableSortedSet.copyOf(newRule.deprecatedRuleKeys);
+      this.deprecatedRuleKeys = Collections.unmodifiableSet(new TreeSet<>(newRule.deprecatedRuleKeys));
     }
 
     public Repository repository() {
@@ -1207,35 +1192,34 @@ public interface RulesDefinition {
      * <br>
      * Consider the following use case scenario:
      * <ul>
-     *   <li>Rule {@code Foo:A} is defined in version 1 of the plugin
+     * <li>Rule {@code Foo:A} is defined in version 1 of the plugin
      * <pre>
      * NewRepository newRepository = context.createRepository("Foo", "my_language");
      * NewRule r = newRepository.createRule("A");
      * </pre>
-     *   </li>
-     *   <li>Rule's key is renamed to B in version 2 of the plugin
+     * </li>
+     * <li>Rule's key is renamed to B in version 2 of the plugin
      * <pre>
      * NewRepository newRepository = context.createRepository("Foo", "my_language");
      * NewRule r = newRepository.createRule("B")
      *   .addDeprecatedRuleKey("Foo", "A");
      * </pre>
-     *   </li>
-     *   <li>All rules, including {@code Foo:B}, are moved to a new repository Bar in version 3 of the plugin
+     * </li>
+     * <li>All rules, including {@code Foo:B}, are moved to a new repository Bar in version 3 of the plugin
      * <pre>
      * NewRepository newRepository = context.createRepository("Bar", "my_language");
      * NewRule r = newRepository.createRule("B")
      *   .addDeprecatedRuleKey("Foo", "A")
      *   .addDeprecatedRuleKey("Bar", "B");
      * </pre>
-     *   </li>
+     * </li>
      * </ul>
-     *
      * With all deprecated keys defined in version 3 of the plugin, SonarQube will be able to support "issue re-keying"
      * for this rule in all cases:
      * <ul>
-     *   <li>plugin upgrade from v1 to v2,</li>
-     *   <li>plugin upgrade from v2 to v3</li>
-     *   <li>AND plugin upgrade from v1 to v3</li>
+     * <li>plugin upgrade from v1 to v2,</li>
+     * <li>plugin upgrade from v2 to v3</li>
+     * <li>AND plugin upgrade from v1 to v3</li>
      * </ul>
      * <p>
      * Finally, repository/key pairs must be unique across all rules and their deprecated keys.
@@ -1247,8 +1231,8 @@ public interface RulesDefinition {
      * {@link NewRule#addDeprecatedRuleKey(String, String) addDeprecatedRuleKey}. This allows to describe the history
      * of a rule's repositories and keys over time. Oldest repository and key must be specified first.
      *
-     * @since 7.1
      * @see NewRule#addDeprecatedRuleKey(String, String)
+     * @since 7.1
      */
     public Set<RuleKey> deprecatedRuleKeys() {
       return deprecatedRuleKeys;

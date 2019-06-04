@@ -19,12 +19,12 @@
  */
 package org.sonar.api.rule;
 
-import com.google.common.base.Preconditions;
 import java.io.Serializable;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * Key of a rule. Unique among all the rule repositories.
@@ -50,8 +50,8 @@ public class RuleKey implements Serializable, Comparable<RuleKey> {
    * Create a key. Parameters are NOT null.
    */
   public static RuleKey of(String repository, String rule) {
-    Preconditions.checkArgument(!isEmpty(repository), "Repository must be set");
-    Preconditions.checkArgument(!isEmpty(rule), "Rule must be set");
+    checkArgument(!isEmpty(repository), "Repository must be set");
+    checkArgument(!isEmpty(rule), "Rule must be set");
     return new RuleKey(repository, rule);
   }
 
@@ -61,7 +61,7 @@ public class RuleKey implements Serializable, Comparable<RuleKey> {
    */
   public static RuleKey parse(String s) {
     int semiColonPos = s.indexOf(':');
-    Preconditions.checkArgument(semiColonPos > 0, "Invalid rule key: " + s);
+    checkArgument(semiColonPos > 0, "Invalid rule key: " + s);
     String key = s.substring(0, semiColonPos);
     String repo = s.substring(semiColonPos + 1);
     return RuleKey.of(key, repo);
@@ -80,7 +80,6 @@ public class RuleKey implements Serializable, Comparable<RuleKey> {
   public String rule() {
     return rule;
   }
-
 
   @Override
   public boolean equals(@Nullable Object o) {

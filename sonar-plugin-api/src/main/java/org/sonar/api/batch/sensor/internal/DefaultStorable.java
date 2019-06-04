@@ -19,12 +19,12 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
-import com.google.common.base.Preconditions;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public abstract class DefaultStorable {
 
@@ -41,7 +41,7 @@ public abstract class DefaultStorable {
 
   public final void save() {
     requireNonNull(this.storage, "No persister on this object");
-    Preconditions.checkState(!saved, "This object was already saved");
+    checkState(!saved, "This object was already saved");
     doSave();
     this.saved = true;
   }

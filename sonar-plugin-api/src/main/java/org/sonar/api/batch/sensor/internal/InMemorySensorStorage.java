@@ -19,13 +19,11 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Table;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
@@ -40,11 +38,11 @@ import org.sonar.api.batch.sensor.rule.AdHocRule;
 import org.sonar.api.batch.sensor.rule.internal.DefaultAdHocRule;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 class InMemorySensorStorage implements SensorStorage {
 
-  Table<String, String, Measure> measuresByComponentAndMetric = HashBasedTable.create();
+  Map<String, Map<String, Measure>> measuresByComponentAndMetric = new HashMap<>();
 
   Collection<Issue> allIssues = new ArrayList<>();
   Collection<ExternalIssue> allExternalIssues = new ArrayList<>();
@@ -53,7 +51,7 @@ class InMemorySensorStorage implements SensorStorage {
 
   Map<String, DefaultHighlighting> highlightingByComponent = new HashMap<>();
   Map<String, DefaultCpdTokens> cpdTokensByComponent = new HashMap<>();
-  Multimap<String, DefaultCoverage> coverageByComponent = ArrayListMultimap.create();
+  Map<String, List<DefaultCoverage>> coverageByComponent = new HashMap<>();
   Map<String, DefaultSymbolTable> symbolsPerComponent = new HashMap<>();
   Map<String, String> contextProperties = new HashMap<>();
   Map<String, DefaultSignificantCode> significantCodePerComponent = new HashMap<>();
@@ -63,10 +61,10 @@ class InMemorySensorStorage implements SensorStorage {
     // Emulate duplicate measure check
     String componentKey = measure.inputComponent().key();
     String metricKey = measure.metric().key();
-    if (measuresByComponentAndMetric.contains(componentKey, metricKey)) {
+    if (measuresByComponentAndMetric.getOrDefault(componentKey, Collections.emptyMap()).containsKey(metricKey)) {
       throw new IllegalStateException("Can not add the same measure twice");
     }
-    measuresByComponentAndMetric.row(componentKey).put(metricKey, measure);
+    measuresByComponentAndMetric.computeIfAbsent(componentKey, x -> new HashMap<>()).put(metricKey, measure);
   }
 
   @Override
@@ -92,7 +90,7 @@ class InMemorySensorStorage implements SensorStorage {
   @Override
   public void store(DefaultCoverage defaultCoverage) {
     String fileKey = defaultCoverage.inputFile().key();
-    coverageByComponent.put(fileKey, defaultCoverage);
+    coverageByComponent.computeIfAbsent(fileKey, x -> new ArrayList<>()).add(defaultCoverage);
   }
 
   @Override
@@ -131,7 +129,7 @@ class InMemorySensorStorage implements SensorStorage {
   public void store(DefaultExternalIssue issue) {
     allExternalIssues.add(issue);
   }
-  
+
   @Override
   public void store(DefaultSignificantCode significantCode) {
     String fileKey = significantCode.inputFile().key();

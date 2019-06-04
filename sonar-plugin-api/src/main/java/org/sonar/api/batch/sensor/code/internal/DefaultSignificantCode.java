@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.code.internal;
 
-import com.google.common.base.Preconditions;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import javax.annotation.Nullable;
@@ -28,6 +27,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.code.NewSignificantCode;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.utils.Preconditions;
 
 public class DefaultSignificantCode extends DefaultStorable implements NewSignificantCode {
   private SortedMap<Integer, TextRange> significantCodePerLine = new TreeMap<>();

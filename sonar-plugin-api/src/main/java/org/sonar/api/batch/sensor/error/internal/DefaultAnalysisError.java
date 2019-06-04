@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.error.internal;
 
-import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.sensor.error.AnalysisError;
@@ -28,6 +27,8 @@ import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultAnalysisError extends DefaultStorable implements NewAnalysisError, AnalysisError {
   private InputFile inputFile;
@@ -59,8 +60,8 @@ public class DefaultAnalysisError extends DefaultStorable implements NewAnalysis
 
   @Override
   public NewAnalysisError onFile(InputFile inputFile) {
-    Preconditions.checkArgument(inputFile != null, "Cannot use a inputFile that is null");
-    Preconditions.checkState(this.inputFile == null, "onFile() already called");
+    checkArgument(inputFile != null, "Cannot use a inputFile that is null");
+    checkState(this.inputFile == null, "onFile() already called");
     this.inputFile = inputFile;
     return this;
   }
@@ -73,7 +74,7 @@ public class DefaultAnalysisError extends DefaultStorable implements NewAnalysis
 
   @Override
   public NewAnalysisError at(TextPointer location) {
-    Preconditions.checkState(this.location == null, "at() already called");
+    checkState(this.location == null, "at() already called");
     this.location = location;
     return this;
   }

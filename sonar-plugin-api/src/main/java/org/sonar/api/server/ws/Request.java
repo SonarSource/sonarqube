@@ -19,11 +19,10 @@
  */
 package org.sonar.api.server.ws;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableMap;
 import java.io.BufferedReader;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -31,16 +30,17 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.DateUtils;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.DateUtils.parseDateQuietly;
 import static org.sonar.api.utils.DateUtils.parseDateTimeQuietly;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * @since 4.2
@@ -218,13 +218,11 @@ public abstract class Request {
     if (value == null) {
       return null;
     }
-    Iterable<String> values = Splitter.on(',').omitEmptyStrings().trimResults().split(value);
-    List<E> result = new ArrayList<>();
-    for (String s : values) {
-      result.add(Enum.valueOf(enumClass, s));
-    }
-
-    return result;
+    return Arrays.stream(value.split(","))
+      .map(String::trim)
+      .filter(s -> !s.isEmpty())
+      .map(x -> Enum.valueOf(enumClass, x))
+      .collect(Collectors.toList());
   }
 
   @CheckForNull
@@ -319,11 +317,12 @@ public abstract class Request {
   public abstract Optional<String> header(String name);
 
   public Map<String, String> getHeaders() {
-    return ImmutableMap.of();
+    return Collections.emptyMap();
   }
 
   /**
    * Allows a web service to call another web service.
+   *
    * @see LocalConnector
    * @since 5.5
    */
@@ -331,6 +330,7 @@ public abstract class Request {
 
   /**
    * Return path of the request
+   *
    * @since 6.0
    */
   public abstract String getPath();
@@ -353,7 +353,6 @@ public abstract class Request {
 
     /**
      * @return the value of the parameter
-     *
      * @throws IllegalStateException if param is not present.
      */
     @CheckForNull
@@ -424,7 +423,6 @@ public abstract class Request {
 
     /**
      * @return the value of the parameter
-     *
      * @throws IllegalStateException if param is not present.
      */
     @Override

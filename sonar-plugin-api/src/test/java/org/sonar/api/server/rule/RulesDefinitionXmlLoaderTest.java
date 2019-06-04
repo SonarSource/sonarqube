@@ -32,7 +32,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.test.ExceptionCauseMatcher.hasType;
+import static org.sonar.api.utils.ExceptionCauseMatcher.hasType;
 
 public class RulesDefinitionXmlLoaderTest {
 

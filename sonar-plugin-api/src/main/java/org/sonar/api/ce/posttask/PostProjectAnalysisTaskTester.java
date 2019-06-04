@@ -30,8 +30,8 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * This class can be used to test {@link PostProjectAnalysisTask} implementations, see example below:
@@ -41,21 +41,17 @@ import static java.util.Objects.requireNonNull;
  * import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newConditionBuilder;
  * import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newProjectBuilder;
  * import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newQualityGateBuilder;
- *
  * public class CaptorPostProjectAnalysisTaskTest {
  *   private class CaptorPostProjectAnalysisTask implements PostProjectAnalysisTask {
  *     private ProjectAnalysis projectAnalysis;
- *
  *    {@literal @}Override
  *     public void finished(ProjectAnalysis analysis) {
  *       this.projectAnalysis = analysis;
  *     }
  *   }
- *
  *  {@literal @}Test
  *   public void execute_is_passed_a_non_null_ProjectAnalysis_object() {
  *     CaptorPostProjectAnalysisTask postProjectAnalysisTask = new CaptorPostProjectAnalysisTask();
- *
  *     PostProjectAnalysisTaskTester.of(postProjectAnalysisTask)
  *       .withCeTask(
  *           newCeTaskBuilder()
@@ -83,7 +79,6 @@ import static java.util.Objects.requireNonNull;
  *               .build(QualityGate.EvaluationStatus.OK, "value"))
  *           .build())
  *       .execute();
- *
  *     assertThat(postProjectAnalysisTask.projectAnalysis).isNotNull();
  *   }
  * }

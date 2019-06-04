@@ -22,7 +22,7 @@ package org.sonar.api.user;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.security.DefaultGroups;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class UserGroupValidation {
 

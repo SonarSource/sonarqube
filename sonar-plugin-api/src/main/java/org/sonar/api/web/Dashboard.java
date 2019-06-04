@@ -19,12 +19,12 @@
  */
 package org.sonar.api.web;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Definition of a dashboard.
@@ -40,7 +40,7 @@ public final class Dashboard {
 
   private String description;
   private DashboardLayout layout = DashboardLayout.TWO_COLUMNS;
-  private ListMultimap<Integer, Widget> widgetsByColumn = ArrayListMultimap.create();
+  private Map<Integer, List<Widget>> widgetsByColumn = new HashMap<>();
   private boolean activated = true;
   private boolean global = false;
 
@@ -56,7 +56,6 @@ public final class Dashboard {
 
   /**
    * Add a widget with the given parameters, and return the newly created {@link Widget} object if one wants to add parameters to it.
-   *
    * <p>The widget ids are listed by the web service /api/widgets
    *
    * @param widgetId id of an existing widget
@@ -68,12 +67,12 @@ public final class Dashboard {
     }
 
     Widget widget = new Widget(widgetId);
-    widgetsByColumn.put(columnId, widget);
+    widgetsByColumn.computeIfAbsent(columnId, x -> new ArrayList<>()).add(widget);
     return widget;
   }
 
   public Collection<Widget> getWidgets() {
-    return widgetsByColumn.values();
+    return widgetsByColumn.values().stream().flatMap(List::stream).collect(Collectors.toList());
   }
 
   public List<Widget> getWidgetsOfColumn(int columnId) {

@@ -19,20 +19,19 @@
  */
 package org.sonar.api.utils;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -103,24 +102,24 @@ public class UriReader {
 
     @Override
     public String[] getSupportedSchemes() {
-      return new String[]{"file"};
+      return new String[] {"file"};
     }
 
     @Override
     protected byte[] readBytes(URI uri) {
       try {
-        return Files.toByteArray(new File(uri));
+        return Files.readAllBytes(Paths.get(uri));
       } catch (IOException e) {
-        throw Throwables.propagate(e);
+        throw new RuntimeException(e);
       }
     }
 
     @Override
     protected String readString(URI uri, Charset charset) {
       try {
-        return Files.toString(new File(uri), charset);
+        return new String(Files.readAllBytes(Paths.get(uri)), charset);
       } catch (IOException e) {
-        throw Throwables.propagate(e);
+        throw new RuntimeException(e);
       }
     }
 

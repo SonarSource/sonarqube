@@ -19,7 +19,6 @@
  */
 package org.sonar.api.server.profile;
 
-import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,17 +34,17 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * Define built-in quality profiles which are automatically registered during SonarQube startup.
  * We no more provide any facility to load profiles from XML file or annotated classes, but it should
- * be straightforward to implement (adapt code of deprecated {@link org.sonar.api.profiles.AnnotationProfileParser} 
+ * be straightforward to implement (adapt code of deprecated {@link org.sonar.api.profiles.AnnotationProfileParser}
  * or {@link org.sonar.api.profiles.XMLProfileParser} for example).
  *
  * @since 6.6
@@ -73,7 +72,7 @@ public interface BuiltInQualityProfilesDefinition {
     private void registerProfile(NewBuiltInQualityProfileImpl newProfile) {
       String language = newProfile.language();
       String name = newProfile.name();
-      Preconditions.checkArgument(!profilesByLanguageAndName.computeIfAbsent(language, l -> new LinkedHashMap<>()).containsKey(name),
+      checkArgument(!profilesByLanguageAndName.computeIfAbsent(language, l -> new LinkedHashMap<>()).containsKey(name),
         "There is already a quality profile with name '%s' for language '%s'", name, language);
       profilesByLanguageAndName.get(language).put(name, new BuiltInQualityProfileImpl(newProfile));
     }
@@ -289,6 +288,7 @@ public interface BuiltInQualityProfilesDefinition {
 
     /**
      * Override default rule severity in this quality profile. By default the active rule will have the default rule severity.
+     *
      * @param severity See {@link Severity} constants.
      */
     public NewBuiltInActiveRule overrideSeverity(String severity) {

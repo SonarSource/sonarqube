@@ -19,21 +19,21 @@
  */
 package org.sonar.api.resources;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ListMultimap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * @since 2.14
@@ -44,12 +44,12 @@ import static java.util.Objects.requireNonNull;
 public class ResourceTypeTree {
 
   private final List<ResourceType> types;
-  private final ListMultimap<String, String> relations;
+  private final Map<String, List<String>> relations;
   private final ResourceType root;
 
   private ResourceTypeTree(Builder builder) {
     this.types = unmodifiableList(new ArrayList<>(builder.types));
-    this.relations = ImmutableListMultimap.copyOf(builder.relations);
+    this.relations = Collections.unmodifiableMap(builder.relations);
     this.root = builder.root;
   }
 
@@ -58,7 +58,7 @@ public class ResourceTypeTree {
   }
 
   public List<String> getChildren(String qualifier) {
-    return relations.get(qualifier);
+    return relations.getOrDefault(qualifier, Collections.emptyList());
   }
 
   public ResourceType getRootType() {
@@ -66,10 +66,11 @@ public class ResourceTypeTree {
   }
 
   public List<String> getLeaves() {
-    return unmodifiableList(relations.values()
+    return relations.values()
       .stream()
-      .filter(qualifier -> relations.get(qualifier).isEmpty())
-      .collect(Collectors.toList()));
+      .flatMap(Collection::stream)
+      .filter(qualifier -> !relations.containsKey(qualifier))
+      .collect(Collectors.toList());
   }
 
   @Override
@@ -83,7 +84,8 @@ public class ResourceTypeTree {
 
   public static final class Builder {
     private List<ResourceType> types = new ArrayList<>();
-    private ListMultimap<String, String> relations = ArrayListMultimap.create();
+    private Map<String, List<String>> relations = new HashMap<>();
+    private List<String> children = new ArrayList<>();
     private ResourceType root;
 
     private Builder() {
@@ -100,12 +102,12 @@ public class ResourceTypeTree {
       requireNonNull(parentQualifier);
       requireNonNull(childrenQualifiers);
       checkArgument(childrenQualifiers.length > 0, "childrenQualifiers can't be empty");
-      relations.putAll(parentQualifier, Arrays.asList(childrenQualifiers));
+      relations.computeIfAbsent(parentQualifier, x -> new ArrayList<>()).addAll(Arrays.asList(childrenQualifiers));
+      children.addAll(Arrays.asList(childrenQualifiers));
       return this;
     }
 
     public ResourceTypeTree build() {
-      Collection<String> children = relations.values();
       for (ResourceType type : types) {
         if (!children.contains(type.getQualifier())) {
           root = type;

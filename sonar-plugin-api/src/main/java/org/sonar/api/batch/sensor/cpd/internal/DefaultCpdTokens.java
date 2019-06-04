@@ -30,9 +30,9 @@ import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
   private static final Logger LOG = Loggers.get(DefaultCpdTokens.class);

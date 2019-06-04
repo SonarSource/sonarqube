@@ -19,16 +19,16 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.SetMultimap;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.StreamSupport;
@@ -188,8 +188,8 @@ public class DefaultFileSystem implements FileSystem {
    */
   private static class MapCache extends Cache {
     private final Map<String, InputFile> fileMap = new HashMap<>();
-    private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
-    private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
+    private final Map<String, Set<InputFile>> filesByNameCache = new HashMap<>();
+    private final Map<String, Set<InputFile>> filesByExtensionCache = new HashMap<>();
     private SortedSet<String> languages = new TreeSet<>();
 
     @Override
@@ -218,8 +218,8 @@ public class DefaultFileSystem implements FileSystem {
         languages.add(inputFile.language());
       }
       fileMap.put(inputFile.relativePath(), inputFile);
-      filesByNameCache.put(inputFile.filename(), inputFile);
-      filesByExtensionCache.put(FileExtensionPredicate.getExtension(inputFile), inputFile);
+      filesByNameCache.computeIfAbsent(inputFile.filename(), x -> new HashSet<>()).add(inputFile);
+      filesByExtensionCache.computeIfAbsent(FileExtensionPredicate.getExtension(inputFile), x -> new HashSet<>()).add(inputFile);
     }
 
     @Override

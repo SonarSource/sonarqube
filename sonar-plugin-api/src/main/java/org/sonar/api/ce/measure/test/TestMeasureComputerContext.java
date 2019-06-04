@@ -19,9 +19,8 @@
  */
 package org.sonar.api.ce.measure.test;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -33,9 +32,9 @@ import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.ce.measure.Measure;
 import org.sonar.api.ce.measure.Settings;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.ce.measure.MeasureComputer.MeasureComputerContext;
 import static org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class TestMeasureComputerContext implements MeasureComputerContext {
 
@@ -44,7 +43,7 @@ public class TestMeasureComputerContext implements MeasureComputerContext {
   private final Settings settings;
 
   private Map<String, Measure> componentMeasureByMetricKey = new HashMap<>();
-  private Multimap<String, Measure> childrenComponentMeasureByMetricKey = ArrayListMultimap.create();
+  private Map<String, List<Measure>> childrenComponentMeasureByMetricKey = new HashMap<>();
   private List<Issue> issues = new ArrayList<>();
 
   public TestMeasureComputerContext(Component component, Settings settings, MeasureComputerDefinition definition) {
@@ -73,7 +72,7 @@ public class TestMeasureComputerContext implements MeasureComputerContext {
   @Override
   public Iterable<Measure> getChildrenMeasures(String metric) {
     validateInputMetric(metric);
-    return childrenComponentMeasureByMetricKey.get(metric);
+    return childrenComponentMeasureByMetricKey.getOrDefault(metric, Collections.emptyList());
   }
 
   @Override
@@ -88,7 +87,7 @@ public class TestMeasureComputerContext implements MeasureComputerContext {
 
   public void addChildrenMeasures(String metricKey, Integer... values) {
     for (Integer value : values) {
-      childrenComponentMeasureByMetricKey.put(metricKey, TestMeasure.createMeasure(value));
+      childrenComponentMeasureByMetricKey.computeIfAbsent(metricKey, x -> new ArrayList<>()).add(TestMeasure.createMeasure(value));
     }
   }
 
@@ -104,7 +103,7 @@ public class TestMeasureComputerContext implements MeasureComputerContext {
 
   public void addChildrenMeasures(String metricKey, Double... values) {
     for (Double value : values) {
-      childrenComponentMeasureByMetricKey.put(metricKey, TestMeasure.createMeasure(value));
+      childrenComponentMeasureByMetricKey.computeIfAbsent(metricKey, x -> new ArrayList<>()).add(TestMeasure.createMeasure(value));
     }
   }
 
@@ -120,7 +119,7 @@ public class TestMeasureComputerContext implements MeasureComputerContext {
 
   public void addChildrenMeasures(String metricKey, Long... values) {
     for (Long value : values) {
-      childrenComponentMeasureByMetricKey.put(metricKey, TestMeasure.createMeasure(value));
+      childrenComponentMeasureByMetricKey.computeIfAbsent(metricKey, x -> new ArrayList<>()).add(TestMeasure.createMeasure(value));
     }
   }
 
@@ -136,7 +135,6 @@ public class TestMeasureComputerContext implements MeasureComputerContext {
     componentMeasureByMetricKey.put(metricKey, TestMeasure.createMeasure(value));
   }
 
-
   public void addInputMeasure(String metricKey, boolean value) {
     componentMeasureByMetricKey.put(metricKey, TestMeasure.createMeasure(value));
   }
@@ -147,7 +145,7 @@ public class TestMeasureComputerContext implements MeasureComputerContext {
 
   public void addChildrenMeasures(String metricKey, String... values) {
     for (String value : values) {
-      childrenComponentMeasureByMetricKey.put(metricKey, TestMeasure.createMeasure(value));
+      childrenComponentMeasureByMetricKey.computeIfAbsent(metricKey, x -> new ArrayList<>()).add(TestMeasure.createMeasure(value));
     }
   }
 

@@ -19,8 +19,7 @@
  */
 package org.sonar.api.utils;
 
-import com.google.common.base.Splitter;
-import java.util.List;
+import java.util.regex.Pattern;
 import javax.annotation.concurrent.Immutable;
 
 import static java.lang.Integer.parseInt;
@@ -53,8 +52,7 @@ public class Version implements Comparable<Version> {
   private static final int DEFAULT_PATCH = 0;
   private static final String DEFAULT_QUALIFIER = "";
   private static final String QUALIFIER_SEPARATOR = "-";
-  private static final char SEQUENCE_SEPARATOR = '.';
-  private static final Splitter SEQUENCE_SPLITTER = Splitter.on(SEQUENCE_SEPARATOR);
+  private static final String SEQUENCE_SEPARATOR = ".";
 
   private final int major;
   private final int minor;
@@ -85,6 +83,7 @@ public class Version implements Comparable<Version> {
   /**
    * Build number if the fourth field, for example {@code 12345} for "6.3.0.12345".
    * If absent, then value is zero.
+   *
    * @since 6.3
    */
   public long buildNumber() {
@@ -101,19 +100,19 @@ public class Version implements Comparable<Version> {
   /**
    * Convert a {@link String} to a Version. Supported formats:
    * <ul>
-   *   <li>1</li>
-   *   <li>1.2</li>
-   *   <li>1.2.3</li>
-   *   <li>1-beta-1</li>
-   *   <li>1.2-beta-1</li>
-   *   <li>1.2.3-beta-1</li>
-   *   <li>1.2.3.4567</li>
-   *   <li>1.2.3.4567-beta-1</li>
+   * <li>1</li>
+   * <li>1.2</li>
+   * <li>1.2.3</li>
+   * <li>1-beta-1</li>
+   * <li>1.2-beta-1</li>
+   * <li>1.2.3-beta-1</li>
+   * <li>1.2.3.4567</li>
+   * <li>1.2.3.4567-beta-1</li>
    * </ul>
    * Note that the optional qualifier is the part after the first "-".
    *
    * @throws IllegalArgumentException if parameter is badly formatted, for example
-   * if it defines 5 integer-sequences.
+   *                                  if it defines 5 integer-sequences.
    */
   public static Version parse(String text) {
     String s = trimToEmpty(text);
@@ -121,20 +120,20 @@ public class Version implements Comparable<Version> {
     if (!qualifier.isEmpty()) {
       s = substringBefore(s, QUALIFIER_SEPARATOR);
     }
-    List<String> fields = SEQUENCE_SPLITTER.splitToList(s);
+    String[] fields = s.split(Pattern.quote(SEQUENCE_SEPARATOR));
     int major = 0;
     int minor = 0;
     int patch = DEFAULT_PATCH;
     long buildNumber = DEFAULT_BUILD_NUMBER;
-    int size = fields.size();
+    int size = fields.length;
     if (size > 0) {
-      major = parseFieldAsInt(fields.get(0));
+      major = parseFieldAsInt(fields[0]);
       if (size > 1) {
-        minor = parseFieldAsInt(fields.get(1));
+        minor = parseFieldAsInt(fields[1]);
         if (size > 2) {
-          patch = parseFieldAsInt(fields.get(2));
+          patch = parseFieldAsInt(fields[2]);
           if (size > 3) {
-            buildNumber = parseFieldAsLong(fields.get(3));
+            buildNumber = parseFieldAsLong(fields[3]);
             if (size > 4) {
               throw new IllegalArgumentException("Maximum 4 fields are accepted: " + text);
             }

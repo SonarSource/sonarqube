@@ -215,7 +215,7 @@ public class SensorContextTester implements SensorContext {
   }
 
   public Collection<Measure> measures(String componentKey) {
-    return sensorStorage.measuresByComponentAndMetric.row(componentKey).values();
+    return sensorStorage.measuresByComponentAndMetric.getOrDefault(componentKey, Collections.emptyMap()).values();
   }
 
   public <G extends Serializable> Measure<G> measure(String componentKey, Metric<G> metric) {
@@ -223,7 +223,7 @@ public class SensorContextTester implements SensorContext {
   }
 
   public <G extends Serializable> Measure<G> measure(String componentKey, String metricKey) {
-    return sensorStorage.measuresByComponentAndMetric.row(componentKey).get(metricKey);
+    return sensorStorage.measuresByComponentAndMetric.getOrDefault(componentKey, Collections.emptyMap()).get(metricKey);
   }
 
   @Override
@@ -259,7 +259,7 @@ public class SensorContextTester implements SensorContext {
 
   @CheckForNull
   public Integer lineHits(String fileKey, int line) {
-    return sensorStorage.coverageByComponent.get(fileKey).stream()
+    return sensorStorage.coverageByComponent.getOrDefault(fileKey, Collections.emptyList()).stream()
       .map(c -> c.hitsByLine().get(line))
       .flatMap(Stream::of)
       .filter(Objects::nonNull)
@@ -273,7 +273,7 @@ public class SensorContextTester implements SensorContext {
 
   @CheckForNull
   public Integer conditions(String fileKey, int line) {
-    return sensorStorage.coverageByComponent.get(fileKey).stream()
+    return sensorStorage.coverageByComponent.getOrDefault(fileKey, Collections.emptyList()).stream()
       .map(c -> c.conditionsByLine().get(line))
       .flatMap(Stream::of)
       .filter(Objects::nonNull)
@@ -282,7 +282,7 @@ public class SensorContextTester implements SensorContext {
 
   @CheckForNull
   public Integer coveredConditions(String fileKey, int line) {
-    return sensorStorage.coverageByComponent.get(fileKey).stream()
+    return sensorStorage.coverageByComponent.getOrDefault(fileKey, Collections.emptyList()).stream()
       .map(c -> c.coveredConditionsByLine().get(line))
       .flatMap(Stream::of)
       .filter(Objects::nonNull)

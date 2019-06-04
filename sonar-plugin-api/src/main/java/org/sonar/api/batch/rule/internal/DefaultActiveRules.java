@@ -19,34 +19,32 @@
  */
 package org.sonar.api.batch.rule.internal;
 
-import com.google.common.collect.ImmutableListMultimap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
 
-import javax.annotation.concurrent.Immutable;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 @Immutable
 public class DefaultActiveRules implements ActiveRules {
-  private final ImmutableListMultimap<String, ActiveRule> activeRulesByRepository;
+  private final Map<String, List<ActiveRule>> activeRulesByRepository = new HashMap<>();
   private final Map<String, Map<String, ActiveRule>> activeRulesByRepositoryAndKey = new HashMap<>();
   private final Map<String, Map<String, ActiveRule>> activeRulesByRepositoryAndInternalKey = new HashMap<>();
-  private final ImmutableListMultimap<String, ActiveRule> activeRulesByLanguage;
+  private final Map<String, List<ActiveRule>> activeRulesByLanguage = new HashMap<>();
 
   public DefaultActiveRules(Collection<NewActiveRule> newActiveRules) {
-    ImmutableListMultimap.Builder<String, ActiveRule> repoBuilder = ImmutableListMultimap.builder();
-    ImmutableListMultimap.Builder<String, ActiveRule> langBuilder = ImmutableListMultimap.builder();
     for (NewActiveRule newAR : newActiveRules) {
       DefaultActiveRule ar = new DefaultActiveRule(newAR);
       String repo = ar.ruleKey().repository();
-      repoBuilder.put(repo, ar);
+      activeRulesByRepository.computeIfAbsent(repo, x -> new ArrayList<>()).add(ar);
       if (ar.language() != null) {
-        langBuilder.put(ar.language(), ar);
+        activeRulesByLanguage.computeIfAbsent(ar.language(), x -> new ArrayList<>()).add(ar);
       }
 
       activeRulesByRepositoryAndKey.computeIfAbsent(repo, r -> new HashMap<>()).put(ar.ruleKey().rule(), ar);
@@ -55,8 +53,6 @@ public class DefaultActiveRules implements ActiveRules {
         activeRulesByRepositoryAndInternalKey.computeIfAbsent(repo, r -> new HashMap<>()).put(internalKey, ar);
       }
     }
-    activeRulesByRepository = repoBuilder.build();
-    activeRulesByLanguage = langBuilder.build();
   }
 
   @Override
@@ -67,17 +63,17 @@ public class DefaultActiveRules implements ActiveRules {
 
   @Override
   public Collection<ActiveRule> findAll() {
-    return activeRulesByRepository.values();
+    return activeRulesByRepository.entrySet().stream().flatMap(x -> x.getValue().stream()).collect(Collectors.toList());
   }
 
   @Override
   public Collection<ActiveRule> findByRepository(String repository) {
-    return activeRulesByRepository.get(repository);
+    return activeRulesByRepository.getOrDefault(repository, Collections.emptyList());
   }
 
   @Override
   public Collection<ActiveRule> findByLanguage(String language) {
-    return activeRulesByLanguage.get(language);
+    return activeRulesByLanguage.getOrDefault(language, Collections.emptyList());
   }
 
   @Override

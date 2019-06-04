@@ -30,8 +30,8 @@ import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 

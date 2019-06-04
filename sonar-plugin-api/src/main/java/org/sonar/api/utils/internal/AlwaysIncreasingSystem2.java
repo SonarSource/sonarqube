@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 import org.sonar.api.utils.System2;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * A subclass of {@link System2} which implementation of {@link System2#now()} always return a bigger value than the

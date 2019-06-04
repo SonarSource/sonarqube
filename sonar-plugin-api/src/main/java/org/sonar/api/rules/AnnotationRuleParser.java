@@ -19,13 +19,13 @@
  */
 package org.sonar.api.rules;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.collect.ImmutableMap;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyType;
 import org.sonar.api.ce.ComputeEngineSide;
@@ -101,16 +101,19 @@ public final class AnnotationRuleParser {
     }
   }
 
-  private static final Function<Class<?>, PropertyType> TYPE_FOR_CLASS = Functions.forMap(
-    ImmutableMap.<Class<?>, PropertyType>builder()
-      .put(Integer.class, PropertyType.INTEGER)
-      .put(int.class, PropertyType.INTEGER)
-      .put(Float.class, PropertyType.FLOAT)
-      .put(float.class, PropertyType.FLOAT)
-      .put(Boolean.class, PropertyType.BOOLEAN)
-      .put(boolean.class, PropertyType.BOOLEAN)
-      .build(),
-    PropertyType.STRING);
+  private static final Map<Class<?>, PropertyType> TYPE_FOR_CLASS_MAP = new HashMap<>();
+
+  static {
+    TYPE_FOR_CLASS_MAP.put(Integer.class, PropertyType.INTEGER);
+    TYPE_FOR_CLASS_MAP.put(int.class, PropertyType.INTEGER);
+    TYPE_FOR_CLASS_MAP.put(Float.class, PropertyType.FLOAT);
+    TYPE_FOR_CLASS_MAP.put(float.class, PropertyType.FLOAT);
+    TYPE_FOR_CLASS_MAP.put(Boolean.class, PropertyType.BOOLEAN);
+    TYPE_FOR_CLASS_MAP.put(boolean.class, PropertyType.BOOLEAN);
+
+  }
+
+  private static final Function<Class<?>, PropertyType> TYPE_FOR_CLASS = type -> TYPE_FOR_CLASS_MAP.getOrDefault(type, PropertyType.STRING);
 
   static PropertyType guessType(Class<?> type) {
     return TYPE_FOR_CLASS.apply(type);

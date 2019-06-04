@@ -19,7 +19,6 @@
  */
 package org.sonar.api.config.internal;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -127,7 +126,6 @@ public class MultivalueProperty {
    *    <li>{@code "a,\"  \",b" => "ab"]}</li>
    * </ul>
    */
-  @VisibleForTesting
   static String trimFieldsAndRemoveEmptyFields(String str) {
     char[] chars = str.toCharArray();
     char[] res = new char[chars.length];

@@ -13,7 +13,6 @@ dependencies {
   compile 'commons-io:commons-io'
   compile 'commons-lang:commons-lang'
   compile 'com.google.code.gson:gson'
-  compile 'com.google.guava:guava'
   compile 'org.apache.commons:commons-csv'
 
   // shaded, but not relocated
@@ -30,10 +29,10 @@ dependencies {
   compileOnly 'junit:junit'
   compileOnly 'org.slf4j:slf4j-api'
 
+  testCompile 'com.google.guava:guava'
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.mockito:mockito-core'
-  testCompile project(':sonar-testing-harness')
 }
 
 sourceSets {

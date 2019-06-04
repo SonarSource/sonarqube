@@ -17,30 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.utils.log;
+package org.sonar.api.utils;
 
-import org.junit.Test;
-import org.sonar.api.utils.TestUtils;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class LogInterceptorsTest {
-
-  @Test
-  public void default_is_null_interceptor() {
-    // production-ready
-    assertThat(LogInterceptors.get()).isInstanceOf(NullInterceptor.class);
+public class Preconditions {
+  public static void checkArgument(boolean condition, String message) {
+    if (!condition) {
+      throw new IllegalArgumentException(message);
+    }
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void instance_cant_be_null() {
-    LogInterceptors.set(null);
+  public static void checkArgument(boolean condition) {
+    if (!condition) {
+      throw new IllegalArgumentException();
+    }
   }
 
-  @Test
-  public void private_constructor() {
-    assertThat(TestUtils.hasOnlyPrivateConstructors(LogInterceptors.class)).isTrue();
+  public static void checkArgument(boolean condition, String format, Object... args) {
+    if (!condition) {
+      throw new IllegalArgumentException(String.format(format, args));
+    }
+  }
+
+  public static void checkState(boolean condition, String message) {
+    if (!condition) {
+      throw new IllegalStateException(message);
+    }
+  }
+
+  public static void checkState(boolean condition, String format, Object... args) {
+    if (!condition) {
+      throw new IllegalStateException(String.format(format, args));
+    }
   }
 }
-
-

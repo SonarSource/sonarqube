@@ -22,8 +22,8 @@ package org.sonar.api.server.authentication;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * Display information provided by the Identity Provider to be displayed into the login form.
@@ -47,7 +47,6 @@ public final class Display {
    * URL path to the provider icon, as deployed at runtime, for example "/static/authgithub/github.svg" (in this
    * case "authgithub" is the plugin key. Source file is "src/main/resources/static/github.svg").
    * It can also be an external URL, for example "http://www.mydomain/myincon.png".
-   *
    * Must not be blank.
    * <br>
    * The recommended format is SVG with a size of 24x24 pixels.

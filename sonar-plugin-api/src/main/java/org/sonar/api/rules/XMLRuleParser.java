@@ -19,7 +19,6 @@
  */
 package org.sonar.api.rules;
 
-import com.google.common.base.Strings;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -150,7 +149,7 @@ public final class XMLRuleParser {
         tags.add(StringUtils.trim(cursor.collectDescendantText(false)));
       }
     }
-    if (Strings.isNullOrEmpty(rule.getKey())) {
+    if (rule.getKey() == null || rule.getKey().isEmpty()) {
       throw new SonarException("Node <key> is missing in <rule>");
     }
     rule.setTags(tags.toArray(new String[tags.size()]));

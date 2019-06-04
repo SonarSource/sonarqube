@@ -22,7 +22,7 @@ package org.sonar.api.server.rule;
 import java.util.Collections;
 import org.junit.Test;
 import org.sonar.api.rules.RuleType;
-import org.sonar.test.TestUtils;
+import org.sonar.api.utils.TestUtils;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;

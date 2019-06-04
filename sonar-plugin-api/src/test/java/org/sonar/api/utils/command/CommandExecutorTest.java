@@ -56,18 +56,10 @@ public class CommandExecutorTest {
   public void should_consume_StdOut_and_StdErr() throws Exception {
     // too many false-positives on MS windows
     if (!SystemUtils.IS_OS_WINDOWS) {
-      final StringBuilder stdOutBuilder = new StringBuilder();
-      StreamConsumer stdOutConsumer = new StreamConsumer() {
-        public void consumeLine(String line) {
-          stdOutBuilder.append(line).append(SystemUtils.LINE_SEPARATOR);
-        }
-      };
-      final StringBuilder stdErrBuilder = new StringBuilder();
-      StreamConsumer stdErrConsumer = new StreamConsumer() {
-        public void consumeLine(String line) {
-          stdErrBuilder.append(line).append(SystemUtils.LINE_SEPARATOR);
-        }
-      };
+      StringBuilder stdOutBuilder = new StringBuilder();
+      StreamConsumer stdOutConsumer = line -> stdOutBuilder.append(line).append(SystemUtils.LINE_SEPARATOR);
+      StringBuilder stdErrBuilder = new StringBuilder();
+      StreamConsumer stdErrConsumer = line -> stdErrBuilder.append(line).append(SystemUtils.LINE_SEPARATOR);
       Command command = Command.create(getScript("output")).setDirectory(workDir);
       int exitCode = CommandExecutor.create().execute(command, stdOutConsumer, stdErrConsumer, 1000L);
       assertThat(exitCode).isEqualTo(0);
@@ -97,16 +89,11 @@ public class CommandExecutorTest {
     CommandExecutor.create().execute(command, NOP_CONSUMER, BAD_CONSUMER, 1500L);
   }
 
-  private static final StreamConsumer NOP_CONSUMER = new StreamConsumer() {
-    public void consumeLine(String line) {
-      // nop
-    }
+  private static final StreamConsumer NOP_CONSUMER = line -> {
   };
 
-  private static final StreamConsumer BAD_CONSUMER = new StreamConsumer() {
-    public void consumeLine(String line) {
-      throw new RuntimeException();
-    }
+  private static final StreamConsumer BAD_CONSUMER = line -> {
+    throw new RuntimeException();
   };
 
   @Test
@@ -129,7 +116,7 @@ public class CommandExecutorTest {
   public void should_stop_after_timeout() throws IOException {
     try {
       String executable = getScript("forever");
-      CommandExecutor.create().execute(Command.create(executable).setDirectory(workDir), 1000L);
+      CommandExecutor.create().execute(Command.create(executable).setDirectory(workDir), 100);
       fail();
     } catch (TimeoutException e) {
       // ok
@@ -140,7 +127,7 @@ public class CommandExecutorTest {
   public void should_stop_after_timeout_and_new_shell() throws IOException {
     try {
       String executable = getScript("forever");
-      CommandExecutor.create().execute(Command.create(executable).setNewShell(true).setDirectory(workDir), 1000L);
+      CommandExecutor.create().execute(Command.create(executable).setNewShell(true).setDirectory(workDir), 100);
       fail();
     } catch (TimeoutException e) {
       // ok

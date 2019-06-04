@@ -19,8 +19,6 @@
  */
 package org.sonar.api.ce.measure;
 
-import com.google.common.collect.Multiset;
-import com.google.common.collect.TreeMultiset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,7 +38,7 @@ import org.sonar.api.utils.KeyValueFormat;
  */
 public class RangeDistributionBuilder {
 
-  private Multiset<Number> distributionSet;
+  private Map<Number, Integer> distributionSet;
   private boolean isEmpty = true;
   private Number[] bottomLimits;
   private boolean isValid = true;
@@ -114,7 +112,10 @@ public class RangeDistributionBuilder {
     System.arraycopy(bottomLimits, 0, this.bottomLimits, 0, this.bottomLimits.length);
     Arrays.sort(this.bottomLimits);
     changeDoublesToInts();
-    distributionSet = TreeMultiset.create(NumberComparator.INSTANCE);
+    distributionSet = new TreeMap<>(NumberComparator.INSTANCE);
+    for (Number n : this.bottomLimits) {
+      distributionSet.put(n, 0);
+    }
   }
 
   private void changeDoublesToInts() {
@@ -156,7 +157,7 @@ public class RangeDistributionBuilder {
   private void addValue(Number value, int count) {
     for (int i = bottomLimits.length - 1; i >= 0; i--) {
       if (greaterOrEqualsThan(value, bottomLimits[i])) {
-        this.distributionSet.add(bottomLimits[i], count);
+        this.distributionSet.compute(bottomLimits[i], (k, v) -> v + count);
         return;
       }
     }
@@ -186,11 +187,7 @@ public class RangeDistributionBuilder {
     if (bottomLimits == null || bottomLimits.length == 0) {
       return Collections.emptyMap();
     }
-    Map<Number, Integer> map = new TreeMap<>();
-    for (Number value : bottomLimits) {
-      map.put(value, distributionSet.count(value));
-    }
-    return map;
+    return distributionSet;
   }
 
   private static boolean greaterOrEqualsThan(Number n1, Number n2) {

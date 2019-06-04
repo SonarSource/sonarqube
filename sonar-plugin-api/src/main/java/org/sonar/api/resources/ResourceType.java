@@ -19,7 +19,6 @@
  */
 package org.sonar.api.resources;
 
-import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -27,6 +26,7 @@ import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
  * <p>Experimental extension to declare types of resources.
@@ -36,7 +36,6 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
  * the resource being displayed.
  * <br>
  * Currently, the following properties can be defined:
- * 
  * <ul>
  * <li>"deletable": if set to "true", then this resource can be deleted/purged.</li>
  * <li>"supportsMeasureFilters": if set to "true", then this resource can be displayed in measure filters</li>
@@ -148,7 +147,7 @@ public class ResourceType {
    */
   public static Builder builder(String qualifier) {
     requireNonNull(qualifier);
-    Preconditions.checkArgument(qualifier.length() <= 10, "Qualifier is limited to 10 characters");
+    checkArgument(qualifier.length() <= 10, "Qualifier is limited to 10 characters");
     return new Builder(qualifier);
   }
 
