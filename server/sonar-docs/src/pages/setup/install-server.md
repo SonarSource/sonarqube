@@ -30,13 +30,13 @@ ALTER DATABASE YourSonarQubeDatabase SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBAC
 
 To use integrated security: 
 
-1. Download the [Microsoft SQL JDBC Driver 7.2.2 package](https://www.microsoft.com/en-us/download/details.aspx?id=57782) and copy `sqljdbc_auth.dll` to any folder in your path. 
+1. Download the [Microsoft SQL JDBC Driver 7.2.2 package](https://www.microsoft.com/en-us/download/details.aspx?id=57782) and copy the 64-bit version of `sqljdbc_auth.dll` to any folder in your path. 
 
 2. **If you're running SonarQube as a Windows service,** make sure the Windows account under which the service is running has permission to connect your SQL server. The account should have `db_owner` database role membership. 
 
 	**If you're running the SonarQube server from a command prompt,** the user under which the command prompt is running should have `db_owner` database role membership. 
 
-3. Ensure that `sonar.jdbc.username` or `sonar.jdbc.password` properties are commented out out or SonarQube will use SQL authentication.
+3. Ensure that `sonar.jdbc.username` or `sonar.jdbc.password` properties are commented out or SonarQube will use SQL authentication.
 
 ```
 sonar.jdbc.url=jdbc:sqlserver://localhost;databaseName=sonar;integratedSecurity=true
