@@ -88,7 +88,7 @@ public class ProcessProperties {
     HTTPS_PROXY_PORT("https.proxyPort"),
     HTTP_PROXY_USER("http.proxyUser"),
     HTTP_PROXY_PASSWORD("http.proxyPassword"),
-    HTTP_NON_PROXY_HOSTS("http.nonProxyHosts"),
+    HTTP_NON_PROXY_HOSTS("http.nonProxyHosts", "localhost|127.*|[::1]"),
     HTTP_AUTH_NLM_DOMAN("http.auth.ntlm.domain"),
     SOCKS_PROXY_HOST("socksProxyHost"),
     SOCKS_PROXY_PORT("socksProxyPort"),
