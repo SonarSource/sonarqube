@@ -26,14 +26,25 @@ Example of query to update `is_read_committed_snapshot_on`:
 ```
 ALTER DATABASE YourSonarQubeDatabase SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;
 ```
+#### Integrated Security
 
-If you want to use integrated security, you have to download the Microsoft SQL JDBC Driver 6.2 package from [https://www.microsoft.com/en-us/download/details.aspx?id=55539](https://www.microsoft.com/en-us/download/details.aspx?id=55539) and copy `sqljdbc_auth.dll` to any folder in your path. You should use the 64-bit version of the dll to match the architecture of your server machine. If you are running the SonarQube as a windows service and want to use Integrated security, please make sure the Windows account under which the service is running has permission to connect your SQL Server. The account should have `db_owner` database role membership. Otherwise, if you are running the SonarQube server from a command prompt and want to use Integrated security, the user under which the command prompt is running should have `db_owner` database role membership. Also ensure that `sonar.jdbc.username` or `sonar.jdbc.password properties` are commented out, otherwise SonarQube will use SQL Authentication.
+To use integrated security: 
+
+1. Download the [Microsoft SQL JDBC Driver 7.2.2 package](https://www.microsoft.com/en-us/download/details.aspx?id=57782) and copy `sqljdbc_auth.dll` to any folder in your path. 
+
+2. **If you're running SonarQube as a Windows service,** make sure the Windows account under which the service is running has permission to connect your SQL server. The account should have `db_owner` database role membership. 
+
+	**If you're running the SonarQube server from a command prompt,** the user under which the command prompt is running should have `db_owner` database role membership. 
+
+3. Ensure that `sonar.jdbc.username` or `sonar.jdbc.password` properties are commented out out or SonarQube will use SQL authentication.
 
 ```
 sonar.jdbc.url=jdbc:sqlserver://localhost;databaseName=sonar;integratedSecurity=true
 ```
 
-If you want to use SQL Authentication, use the following connection string. Also ensure that `sonar.jdbc.username` and `sonar.jdbc.password` are set appropriately.
+#### SQL Authentication
+
+To use SQL Authentication, use the following connection string. Also ensure that `sonar.jdbc.username` and `sonar.jdbc.password` are set appropriately:
 
 ```
 sonar.jdbc.url=jdbc:sqlserver://localhost;databaseName=sonar
