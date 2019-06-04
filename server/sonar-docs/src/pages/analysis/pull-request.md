@@ -49,6 +49,11 @@ Specify your PR provider in your global settings at [**Administration > General 
 
 ### GitHub <!-- sonarqube -->Enterprise<!-- /sonarqube --> PR Decoration
 
+<!-- sonarqube-->
+[[info]]
+| *Minimum GitHub Enterprise version* 2.14
+<!-- /sonarqube -->
+
 To add PR decoration to Checks on GitHub <!-- sonarqube -->Enterprise<!-- /sonarqube -->, you need to <!-- sonarqube -->create a GitHub App and configure your SonarQube instance and<!-- /sonarqube --> update your project-level settings.
 
 <!-- sonarqube -->
@@ -60,6 +65,12 @@ An instance administrator needs to create a GitHub App and configure your SonarQ
 In your project settings, set your project repository identifier (for example, SonarSource/sonarqube) at **Administration > General Settings > Pull Requests > Integration with GitHub > Repository identifier**.
 
 ### Bitbucket <!-- sonarqube -->Server<!-- /sonarqube --> PR Decoration
+
+<!-- sonarqube-->
+[[info]]
+| *Minimum BitBucket Server version* 5.15
+<!-- /sonarqube -->
+
 
 To add PR decoration on Bitbucket <!-- sonarqube -->Server<!-- /sonarqube -->, you need to <!-- sonarqube -->set a personal access token and<!-- /sonarqube --> update some settings. 
 
