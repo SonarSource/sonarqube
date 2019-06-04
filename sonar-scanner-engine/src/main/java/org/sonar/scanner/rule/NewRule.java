@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.rule.internal;
+package org.sonar.scanner.rule;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +42,7 @@ public class NewRule {
   RuleStatus status = RuleStatus.defaultStatus();
   Map<String, NewRuleParam> params = new HashMap<>();
 
-  NewRule(RuleKey key) {
+  public NewRule(RuleKey key) {
     this.key = key;
   }
 

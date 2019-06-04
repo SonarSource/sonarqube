@@ -17,7 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.api.batch.rule.internal;
+package org.sonar.scanner.rule;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.batch.rule.RuleParam;
+
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
+class DefaultRuleParam implements RuleParam {
+
+  private final String key;
+  private final String description;
+
+  DefaultRuleParam(NewRuleParam p) {
+    this.key = p.key;
+    this.description = p.description;
+  }
+
+  @Override
+  public String key() {
+    return key;
+  }
+
+  @Override
+  @Nullable
+  public String description() {
+    return description;
+  }
+}

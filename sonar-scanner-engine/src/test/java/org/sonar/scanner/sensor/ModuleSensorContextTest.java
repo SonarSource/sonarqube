@@ -32,7 +32,7 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.scanner.rule.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;

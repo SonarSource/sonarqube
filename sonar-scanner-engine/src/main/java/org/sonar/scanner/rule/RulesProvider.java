@@ -22,8 +22,6 @@ package org.sonar.scanner.rule;
 import java.util.List;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.rule.Rules;
-import org.sonar.api.batch.rule.internal.NewRule;
-import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;

@@ -17,20 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.rule.internal;
+package org.sonar.scanner.rule;
 
-import javax.annotation.Nullable;
+import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.rule.RuleKey;
 
-public class NewRuleParam {
-  final String key;
-  String description;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-  NewRuleParam(String key) {
-    this.key = key;
+/**
+ * Builds instances of {@link org.sonar.api.batch.rule.ActiveRules}.
+ * <b>For unit testing and internal use only</b>.
+ *
+ * @since 4.2
+ */
+public class ActiveRulesBuilder {
+
+  private final Map<RuleKey, NewActiveRule> map = new LinkedHashMap<>();
+
+  public ActiveRulesBuilder addRule(NewActiveRule newActiveRule) {
+    if (map.containsKey(newActiveRule.ruleKey)) {
+      throw new IllegalStateException(String.format("Rule '%s' is already activated", newActiveRule.ruleKey));
+    }
+    map.put(newActiveRule.ruleKey, newActiveRule);
+    return this;
   }
 
-  public NewRuleParam setDescription(@Nullable String s) {
-    description = s;
-    return this;
+  public ActiveRules build() {
+    return new DefaultActiveRules(map.values());
   }
 }
