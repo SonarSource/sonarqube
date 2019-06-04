@@ -22,7 +22,7 @@ package org.sonar.scanner.scan.filesystem;
 import org.junit.Test;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.fs.TestInputFileBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

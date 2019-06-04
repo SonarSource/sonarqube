@@ -38,7 +38,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatchers;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.util.CloseableIterator;

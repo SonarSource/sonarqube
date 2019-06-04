@@ -21,7 +21,6 @@ package org.sonar.scanner.postjob;
 
 import org.sonar.api.batch.postjob.PostJob;
 import org.sonar.api.batch.postjob.PostJobContext;
-import org.sonar.api.batch.postjob.internal.DefaultPostJobDescriptor;
 
 public class PostJobWrapper {
 

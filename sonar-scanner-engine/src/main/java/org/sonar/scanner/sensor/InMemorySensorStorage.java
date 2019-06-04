@@ -29,7 +29,7 @@ import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
 import org.sonar.api.batch.sensor.error.AnalysisError;
-import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -48,7 +48,7 @@ class InMemorySensorStorage implements SensorStorage {
   Collection<AdHocRule> allAdHocRules = new ArrayList<>();
   Collection<AnalysisError> allAnalysisErrors = new ArrayList<>();
 
-  Map<String, DefaultHighlighting> highlightingByComponent = new HashMap<>();
+  Map<String, NewHighlighting> highlightingByComponent = new HashMap<>();
   Map<String, DefaultCpdTokens> cpdTokensByComponent = new HashMap<>();
   Map<String, List<DefaultCoverage>> coverageByComponent = new HashMap<>();
   Map<String, DefaultSymbolTable> symbolsPerComponent = new HashMap<>();
@@ -77,7 +77,8 @@ class InMemorySensorStorage implements SensorStorage {
   }
 
   @Override
-  public void store(DefaultHighlighting highlighting) {
+  public void store(NewHighlighting newHighlighting) {
+    DefaultHighlighting highlighting = (DefaultHighlighting) newHighlighting;
     String fileKey = highlighting.inputFile().key();
     // Emulate duplicate storage check
     if (highlightingByComponent.containsKey(fileKey)) {

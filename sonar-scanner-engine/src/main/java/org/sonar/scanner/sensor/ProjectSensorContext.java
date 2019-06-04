@@ -37,7 +37,6 @@ import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
-import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssue;
@@ -65,7 +64,7 @@ public class ProjectSensorContext implements SensorContext {
   private final Configuration config;
 
   public ProjectSensorContext(DefaultInputProject project, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
-                              SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
+    SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
     this.project = project;
     this.config = config;
     this.mutableSettings = mutableSettings;

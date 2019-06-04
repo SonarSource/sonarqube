@@ -19,14 +19,12 @@
  */
 package org.sonar.xoo.extensions;
 
+import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.postjob.PostJobContext;
-import org.sonar.api.batch.postjob.internal.DefaultPostJobDescriptor;
-import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.utils.log.LogTester;
-
-import java.util.Arrays;
+import org.sonar.scanner.postjob.DefaultPostJobDescriptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

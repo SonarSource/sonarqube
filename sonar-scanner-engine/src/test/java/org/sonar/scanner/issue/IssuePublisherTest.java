@@ -34,7 +34,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.scanner.rule.ActiveRulesBuilder;
 import org.sonar.scanner.rule.NewActiveRule;
 import org.sonar.scanner.rule.RulesBuilder;

@@ -28,12 +28,12 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.scanner.sensor.SensorContextTester;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;

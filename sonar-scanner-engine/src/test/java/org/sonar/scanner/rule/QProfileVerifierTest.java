@@ -24,9 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.MessageException;
+import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 

@@ -19,20 +19,21 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
-import org.sonar.api.batch.sensor.issue.ExternalIssue;
-import org.sonar.api.batch.sensor.rule.AdHocRule;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
 import org.sonar.api.batch.sensor.error.AnalysisError;
-import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
+import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.rule.AdHocRule;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
+import org.sonar.api.scanner.ScannerSide;
 
 /**
  * Interface for storing data computed by sensors.
+ *
  * @since 5.1
  */
 @ScannerSide
@@ -46,7 +47,7 @@ public interface SensorStorage {
 
   void store(AdHocRule adHocRule);
 
-  void store(DefaultHighlighting highlighting);
+  void store(NewHighlighting highlighting);
 
   /**
    * @since 5.2
@@ -54,12 +55,12 @@ public interface SensorStorage {
   void store(DefaultCoverage defaultCoverage);
 
   /**
-   * @since 5.5 
+   * @since 5.5
    */
   void store(DefaultCpdTokens defaultCpdTokens);
 
   /**
-   * @since 5.6 
+   * @since 5.6
    */
   void store(DefaultSymbolTable symbolTable);
 
@@ -70,6 +71,7 @@ public interface SensorStorage {
 
   /**
    * Value is overridden if the key was already stored.
+   *
    * @throws IllegalArgumentException if key is null
    * @throws IllegalArgumentException if value is null
    * @since 6.1

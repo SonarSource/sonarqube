@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositoriesSupplier;
 import org.sonar.scanner.repository.SingleProjectRepository;

@@ -40,6 +40,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.scanner.fs.FileMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

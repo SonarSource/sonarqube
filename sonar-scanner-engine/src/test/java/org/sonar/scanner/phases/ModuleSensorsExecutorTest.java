@@ -29,7 +29,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.scanner.sensor.ModuleSensorExtensionDictionnary;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;

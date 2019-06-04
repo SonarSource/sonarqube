@@ -30,7 +30,7 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
-import org.sonar.scanner.fs.PathPattern;
+import org.sonar.api.batch.fs.internal.PathPattern;
 
 /**
  * Factory of {@link FilePredicate}

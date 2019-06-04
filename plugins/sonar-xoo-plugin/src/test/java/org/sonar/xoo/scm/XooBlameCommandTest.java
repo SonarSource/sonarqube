@@ -28,13 +28,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.BlameCommand.BlameInput;
 import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.scanner.fs.DefaultFileSystem;
+import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.xoo.Xoo;
 
 import static java.util.Collections.singletonList;

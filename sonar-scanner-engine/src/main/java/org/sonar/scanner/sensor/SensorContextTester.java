@@ -44,7 +44,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.scanner.rule.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.code.NewSignificantCode;
@@ -59,8 +58,6 @@ import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.error.internal.DefaultAnalysisError;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
-import org.sonar.api.batch.sensor.highlighting.internal.SyntaxHighlightingRule;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
@@ -82,6 +79,7 @@ import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.scanner.fs.DefaultFileSystem;
+import org.sonar.scanner.rule.ActiveRulesBuilder;
 
 import static java.util.Collections.unmodifiableMap;
 
@@ -342,7 +340,7 @@ public class SensorContextTester implements SensorContext {
    * @return List of styles applied to this position or empty list if there is no highlighting at this position.
    */
   public List<TypeOfText> highlightingTypeAt(String componentKey, int line, int lineOffset) {
-    DefaultHighlighting syntaxHighlightingData = sensorStorage.highlightingByComponent.get(componentKey);
+    DefaultHighlighting syntaxHighlightingData = (DefaultHighlighting) sensorStorage.highlightingByComponent.get(componentKey);
     if (syntaxHighlightingData == null) {
       return Collections.emptyList();
     }

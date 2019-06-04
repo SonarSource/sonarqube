@@ -30,9 +30,10 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.scanner.fs.TestInputFileBuilder;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 

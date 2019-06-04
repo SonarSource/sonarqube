@@ -41,7 +41,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.ScannerPlugin;

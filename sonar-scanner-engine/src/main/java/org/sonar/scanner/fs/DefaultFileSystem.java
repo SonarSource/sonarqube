@@ -37,6 +37,7 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.PathUtils;
 import org.sonar.scanner.fs.predicates.DefaultFilePredicates;

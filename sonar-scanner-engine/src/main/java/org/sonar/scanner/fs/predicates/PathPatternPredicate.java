@@ -21,7 +21,7 @@ package org.sonar.scanner.fs.predicates;
 
 import java.nio.file.Paths;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.fs.PathPattern;
+import org.sonar.api.batch.fs.internal.PathPattern;
 
 /**
  * @since 4.2

@@ -41,7 +41,7 @@ import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
 import org.sonar.api.batch.sensor.error.AnalysisError;
-import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -255,7 +255,8 @@ public class DefaultSensorStorage implements SensorStorage {
   }
 
   @Override
-  public void store(DefaultHighlighting highlighting) {
+  public void store(NewHighlighting newHighlighting) {
+    DefaultHighlighting highlighting = (DefaultHighlighting) newHighlighting;
     ScannerReportWriter writer = reportPublisher.getWriter();
     DefaultInputFile inputFile = (DefaultInputFile) highlighting.inputFile();
     if (shouldSkipStorage(inputFile)) {

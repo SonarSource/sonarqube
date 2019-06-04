@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -37,6 +38,8 @@ import org.sonar.api.utils.PathUtils;
  */
 @Immutable
 public class DefaultIndexedFile extends DefaultInputComponent implements IndexedFile {
+  private static AtomicInteger intGenerator = new AtomicInteger(0);
+
   private final String projectRelativePath;
   private final String moduleRelativePath;
   private final String projectKey;
@@ -44,6 +47,14 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   private final Type type;
   private final Path absolutePath;
   private final SensorStrategy sensorStrategy;
+
+  /**
+   * Testing purposes only!
+   */
+  public DefaultIndexedFile(String projectKey, Path baseDir, String relativePath, @Nullable String language) {
+    this(baseDir.resolve(relativePath), projectKey, relativePath, relativePath, Type.MAIN, language, intGenerator.getAndIncrement(),
+      new SensorStrategy());
+  }
 
   public DefaultIndexedFile(Path absolutePath, String projectKey, String projectRelativePath, String moduleRelativePath, Type type, @Nullable String language, int batchId,
     SensorStrategy sensorStrategy) {

@@ -29,9 +29,9 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.DefaultTextRange;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.scanner.fs.TestInputFileBuilder;
+import org.sonar.scanner.sensor.DefaultSensorDescriptor;
+import org.sonar.scanner.sensor.SensorContextTester;
 import org.sonar.xoo.Xoo;
 
 import static org.assertj.core.api.Assertions.assertThat;

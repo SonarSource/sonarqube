@@ -28,7 +28,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.Encryption;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.log.LogTester;
@@ -36,6 +35,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.scan.ProjectConfiguration;
+import org.sonar.scanner.sensor.SensorContextTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.scanner.fs.TestInputFileBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -28,7 +28,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.scanner.issue.ignore.IgnoreIssuesFilter;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;

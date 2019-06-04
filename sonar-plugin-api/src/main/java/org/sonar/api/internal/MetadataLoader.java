@@ -20,11 +20,9 @@
 package org.sonar.api.internal;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.Scanner;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
@@ -48,10 +46,11 @@ public class MetadataLoader {
   public static Version loadVersion(System2 system) {
     try {
       URL url = system.getResource(VERSION_FILE_PATH);
-      String versionInFile = new String(Files.readAllBytes(Paths.get(url.toURI())), StandardCharsets.UTF_8);
+      Scanner scanner = new Scanner(url.openStream(), StandardCharsets.UTF_8.name());
+      String versionInFile = scanner.nextLine();
       return Version.parse(versionInFile);
-    } catch (IOException | URISyntaxException e) {
-      throw new IllegalStateException("Can not load " + VERSION_FILE_PATH + " from classpath", e);
+    } catch (IOException e) {
+      throw new IllegalStateException("Can not load " + VERSION_FILE_PATH + " from classpath ", e);
     }
   }
 
@@ -61,9 +60,10 @@ public class MetadataLoader {
       if (url == null) {
         return SonarEdition.COMMUNITY;
       }
-      String editionInFile = new String(Files.readAllBytes(Paths.get(url.toURI())), StandardCharsets.UTF_8);
+      Scanner scanner = new Scanner(url.openStream(), StandardCharsets.UTF_8.name());
+      String editionInFile = scanner.nextLine();
       return parseEdition(editionInFile);
-    } catch (IOException | URISyntaxException e) {
+    } catch (IOException e) {
       throw new IllegalStateException("Can not load " + EDITION_FILE_PATH + " from classpath", e);
     }
   }
