@@ -17,31 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.scanner.fs.predicates;
 
+import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.fs.predicates.AbstractFilePredicate;
 
-/**
- * Additional {@link org.sonar.api.batch.fs.FilePredicate}s that are
- * not published in public API
- */
-class AdditionalFilePredicates {
+public class OptimizedFilePredicateAdapter extends AbstractFilePredicate {
 
-  private AdditionalFilePredicates() {
-    // only static inner classes
+  private FilePredicate unoptimizedPredicate;
+
+  private OptimizedFilePredicateAdapter(FilePredicate unoptimizedPredicate) {
+    this.unoptimizedPredicate = unoptimizedPredicate;
   }
 
-  static class KeyPredicate extends AbstractFilePredicate {
-    private final String key;
+  @Override
+  public boolean apply(InputFile inputFile) {
+    return unoptimizedPredicate.apply(inputFile);
+  }
 
-    KeyPredicate(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean apply(InputFile f) {
-      return key.equals(f.key());
+  public static OptimizedFilePredicate create(FilePredicate predicate) {
+    if (predicate instanceof OptimizedFilePredicate) {
+      return (OptimizedFilePredicate) predicate;
+    } else {
+      return new OptimizedFilePredicateAdapter(predicate);
     }
   }
 

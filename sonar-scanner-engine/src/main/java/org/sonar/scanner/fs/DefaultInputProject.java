@@ -17,32 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.scanner.fs;
 
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.fs.predicates.AbstractFilePredicate;
+import javax.annotation.concurrent.Immutable;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.scanner.fs.InputProject;
 
-/**
- * Additional {@link org.sonar.api.batch.fs.FilePredicate}s that are
- * not published in public API
- */
-class AdditionalFilePredicates {
+@Immutable
+public class DefaultInputProject extends AbstractProjectOrModule implements InputProject {
 
-  private AdditionalFilePredicates() {
-    // only static inner classes
+  /**
+   * For testing only!
+   */
+  public DefaultInputProject(ProjectDefinition definition) {
+    super(definition, 0);
   }
 
-  static class KeyPredicate extends AbstractFilePredicate {
-    private final String key;
-
-    KeyPredicate(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean apply(InputFile f) {
-      return key.equals(f.key());
-    }
+  public DefaultInputProject(ProjectDefinition definition, int scannerComponentId) {
+    super(definition, scannerComponentId);
   }
-
 }

@@ -24,10 +24,10 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.Metadata;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.fs.FileMetadata;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 
 public class MetadataGenerator {

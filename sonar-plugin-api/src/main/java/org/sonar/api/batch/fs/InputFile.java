@@ -25,12 +25,11 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 
 /**
  * This layer over {@link java.io.File} adds information for code analyzers.
- * For unit testing purpose, use {@link TestInputFileBuilder} and initialize
+ * For unit testing purpose, use TestInputFileBuilder and initialize
  * the needed fields:
  * 
  * <pre>

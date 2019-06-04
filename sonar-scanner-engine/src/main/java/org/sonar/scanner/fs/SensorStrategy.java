@@ -17,32 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.scanner.fs;
 
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.fs.predicates.AbstractFilePredicate;
 
 /**
- * Additional {@link org.sonar.api.batch.fs.FilePredicate}s that are
- * not published in public API
+ * A shared, mutable object in the project container.
+ * It's used during the execution of sensors to decide whether
+ * sensors should be executed once for the entire project, or per-module.
+ * It is also injected into each InputFile to change the behavior of {@link InputFile#relativePath()}
  */
-class AdditionalFilePredicates {
+public class SensorStrategy {
 
-  private AdditionalFilePredicates() {
-    // only static inner classes
+  private boolean global = true;
+
+  public boolean isGlobal() {
+    return global;
   }
 
-  static class KeyPredicate extends AbstractFilePredicate {
-    private final String key;
-
-    KeyPredicate(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean apply(InputFile f) {
-      return key.equals(f.key());
-    }
+  public void setGlobal(boolean global) {
+    this.global = global;
   }
-
 }

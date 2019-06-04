@@ -17,32 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.scanner.fs.predicates;
 
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.fs.predicates.AbstractFilePredicate;
 
 /**
- * Additional {@link org.sonar.api.batch.fs.FilePredicate}s that are
- * not published in public API
+ * @since 4.2
  */
-class AdditionalFilePredicates {
+class LanguagePredicate extends AbstractFilePredicate {
+  private final String language;
 
-  private AdditionalFilePredicates() {
-    // only static inner classes
+  LanguagePredicate(String language) {
+    this.language = language;
   }
 
-  static class KeyPredicate extends AbstractFilePredicate {
-    private final String key;
-
-    KeyPredicate(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean apply(InputFile f) {
-      return key.equals(f.key());
-    }
+  @Override
+  public boolean apply(InputFile f) {
+    return language.equals(f.language());
   }
-
 }

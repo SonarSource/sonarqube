@@ -17,32 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.scanner.fs.predicates;
 
+import java.util.Collections;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.fs.predicates.AbstractFilePredicate;
+import org.sonar.api.utils.PathUtils;
 
 /**
- * Additional {@link org.sonar.api.batch.fs.FilePredicate}s that are
- * not published in public API
+ * @since 4.2
  */
-class AdditionalFilePredicates {
+public class RelativePathPredicate extends AbstractFilePredicate {
 
-  private AdditionalFilePredicates() {
-    // only static inner classes
+  @Nullable
+  private final String path;
+
+  RelativePathPredicate(String path) {
+    this.path = PathUtils.sanitize(path);
   }
 
-  static class KeyPredicate extends AbstractFilePredicate {
-    private final String key;
+  public String path() {
+    return path;
+  }
 
-    KeyPredicate(String key) {
-      this.key = key;
+  @Override
+  public boolean apply(InputFile f) {
+    if (path == null) {
+      return false;
     }
 
-    @Override
-    public boolean apply(InputFile f) {
-      return key.equals(f.key());
+    return path.equals(f.relativePath());
+  }
+
+  @Override
+  public Iterable<InputFile> get(Index index) {
+    if (path != null) {
+      InputFile f = index.inputFile(this.path);
+      if (f != null) {
+        return Collections.singletonList(f);
+      }
     }
+    return Collections.emptyList();
+  }
+
+  @Override
+  public int priority() {
+    return USE_INDEX;
   }
 
 }

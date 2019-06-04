@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs.internal;
+package org.sonar.scanner.fs;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,13 +43,14 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.internal.Metadata;
 
 import static org.sonar.api.utils.Preconditions.checkArgument;
 import static org.sonar.api.utils.Preconditions.checkState;
 
 /**
  * @since 4.2
- * To create {@link InputFile} in tests, use TestInputFileBuilder.
+ * To create {@link InputFile} in tests, use {@link TestInputFileBuilder}.
  */
 public class DefaultInputFile extends DefaultInputComponent implements InputFile {
 
@@ -205,7 +206,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   /**
-   * {@link #setStatus(org.sonar.api.batch.fs.InputFile.Status)}
+   * {@link #setStatus(Status)}
    */
   @Override
   public Status status() {

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs.internal;
+package org.sonar.scanner.fs;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +44,14 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   private final Type type;
   private final Path absolutePath;
   private final SensorStrategy sensorStrategy;
+
+  /**
+   * Testing purposes only!
+   */
+  public DefaultIndexedFile(String projectKey, Path baseDir, String relativePath, @Nullable String language) {
+    this(baseDir.resolve(relativePath), projectKey, relativePath, relativePath, Type.MAIN, language, TestInputFileBuilder.nextBatchId(),
+      new SensorStrategy());
+  }
 
   public DefaultIndexedFile(Path absolutePath, String projectKey, String projectRelativePath, String moduleRelativePath, Type type, @Nullable String language, int batchId,
     SensorStrategy sensorStrategy) {

@@ -17,32 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.scanner.fs;
 
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.fs.predicates.AbstractFilePredicate;
+import java.util.Collection;
+import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
 
-/**
- * Additional {@link org.sonar.api.batch.fs.FilePredicate}s that are
- * not published in public API
- */
-class AdditionalFilePredicates {
+@Immutable
+public interface InputModuleHierarchy {
+  DefaultInputModule root();
 
-  private AdditionalFilePredicates() {
-    // only static inner classes
-  }
+  boolean isRoot(DefaultInputModule module);
 
-  static class KeyPredicate extends AbstractFilePredicate {
-    private final String key;
+  Collection<DefaultInputModule> children(DefaultInputModule module);
 
-    KeyPredicate(String key) {
-      this.key = key;
-    }
+  @CheckForNull
+  DefaultInputModule parent(DefaultInputModule module);
 
-    @Override
-    public boolean apply(InputFile f) {
-      return key.equals(f.key());
-    }
-  }
+  @CheckForNull
+  String relativePath(DefaultInputModule module);
 
+  @CheckForNull
+  String relativePathToRoot(DefaultInputModule module);
 }

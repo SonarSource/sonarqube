@@ -30,7 +30,6 @@ import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
@@ -48,7 +47,7 @@ import org.sonar.api.utils.Version;
 
 /**
  * See {@link Sensor#execute(SensorContext)}
- * In order to write unit tests you can use {@link SensorContextTester}
+ * In order to write unit tests you can use SensorContextTester
  * @since 5.1
  */
 public interface SensorContext {

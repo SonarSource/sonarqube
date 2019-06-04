@@ -17,32 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.scanner.fs.predicates;
 
+import java.nio.file.Paths;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.fs.predicates.AbstractFilePredicate;
+import org.sonar.scanner.fs.PathPattern;
 
 /**
- * Additional {@link org.sonar.api.batch.fs.FilePredicate}s that are
- * not published in public API
+ * @since 4.2
  */
-class AdditionalFilePredicates {
+class PathPatternPredicate extends AbstractFilePredicate {
 
-  private AdditionalFilePredicates() {
-    // only static inner classes
+  private final PathPattern pattern;
+
+  PathPatternPredicate(PathPattern pattern) {
+    this.pattern = pattern;
   }
 
-  static class KeyPredicate extends AbstractFilePredicate {
-    private final String key;
-
-    KeyPredicate(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean apply(InputFile f) {
-      return key.equals(f.key());
-    }
+  @Override
+  public boolean apply(InputFile f) {
+    return pattern.match(f.path(), Paths.get(f.relativePath()));
   }
 
 }

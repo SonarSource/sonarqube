@@ -17,32 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.scanner.fs.predicates;
 
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.scanner.fs.predicates.AbstractFilePredicate;
 
 /**
- * Additional {@link org.sonar.api.batch.fs.FilePredicate}s that are
- * not published in public API
+ * @deprecated since 7.8
  */
-class AdditionalFilePredicates {
+@Deprecated
+public class StatusPredicate extends AbstractFilePredicate {
 
-  private AdditionalFilePredicates() {
-    // only static inner classes
+  private final InputFile.Status status;
+
+  StatusPredicate(@Nullable InputFile.Status status) {
+    this.status = status;
   }
 
-  static class KeyPredicate extends AbstractFilePredicate {
-    private final String key;
-
-    KeyPredicate(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean apply(InputFile f) {
-      return key.equals(f.key());
-    }
+  @Override
+  public boolean apply(InputFile f) {
+    return status == null || status == f.status();
   }
 
 }

@@ -23,7 +23,6 @@ import org.sonar.api.ExtensionPoint;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
@@ -32,7 +31,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  * <p>
  * For example the Cobertura Sensor parses Cobertura report and saves the first-level of measures on files.
  * 
- * For testing purpose you can use {@link SensorContextTester}
+ * For testing purpose you can use  SensorContextTester
  * @since 7.6
  */
 @ScannerSide

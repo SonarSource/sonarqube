@@ -17,32 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.scanner.fs.predicates;
 
+import java.util.stream.StreamSupport;
+import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.fs.predicates.AbstractFilePredicate;
 
 /**
- * Additional {@link org.sonar.api.batch.fs.FilePredicate}s that are
- * not published in public API
+ * Partial implementation of {@link OptimizedFilePredicate}.
+ * @since 5.1
  */
-class AdditionalFilePredicates {
+public abstract class AbstractFilePredicate implements OptimizedFilePredicate {
 
-  private AdditionalFilePredicates() {
-    // only static inner classes
+  protected static final int DEFAULT_PRIORITY = 10;
+  protected static final int USE_INDEX = 20;
+
+  @Override
+  public Iterable<InputFile> filter(Iterable<InputFile> target) {
+    return () -> StreamSupport.stream(target.spliterator(), false)
+      .filter(this::apply)
+      .iterator();
   }
 
-  static class KeyPredicate extends AbstractFilePredicate {
-    private final String key;
+  @Override
+  public Iterable<InputFile> get(Index index) {
+    return filter(index.inputFiles());
+  }
 
-    KeyPredicate(String key) {
-      this.key = key;
-    }
+  @Override
+  public int priority() {
+    return DEFAULT_PRIORITY;
+  }
 
-    @Override
-    public boolean apply(InputFile f) {
-      return key.equals(f.key());
-    }
+  @Override
+  public final int compareTo(OptimizedFilePredicate o) {
+    return o.priority() - priority();
   }
 
 }
