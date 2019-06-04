@@ -29,7 +29,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.scanner.sensor.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 
 import static org.assertj.core.api.Assertions.assertThat;

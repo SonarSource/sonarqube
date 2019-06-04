@@ -33,10 +33,8 @@ import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.rule.AdHocRule;
-import org.sonar.api.batch.sensor.rule.internal.DefaultAdHocRule;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 
 import static org.sonar.api.utils.Preconditions.checkArgument;
@@ -74,7 +72,7 @@ class InMemorySensorStorage implements SensorStorage {
   }
 
   @Override
-  public void store(DefaultAdHocRule adHocRule) {
+  public void store(AdHocRule adHocRule) {
     allAdHocRules.add(adHocRule);
   }
 
@@ -127,7 +125,7 @@ class InMemorySensorStorage implements SensorStorage {
   }
 
   @Override
-  public void store(DefaultExternalIssue issue) {
+  public void store(ExternalIssue issue) {
     allExternalIssues.add(issue);
   }
 

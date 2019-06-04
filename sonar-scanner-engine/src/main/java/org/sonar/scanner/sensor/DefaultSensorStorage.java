@@ -43,11 +43,10 @@ import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.batch.sensor.rule.internal.DefaultAdHocRule;
+import org.sonar.api.batch.sensor.rule.AdHocRule;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.CoreMetrics;
@@ -231,7 +230,7 @@ public class DefaultSensorStorage implements SensorStorage {
    * Thread safe assuming that each issues for each file are only written once.
    */
   @Override
-  public void store(DefaultExternalIssue externalIssue) {
+  public void store(ExternalIssue externalIssue) {
     if (externalIssue.primaryLocation().inputComponent() instanceof DefaultInputFile) {
       DefaultInputFile defaultInputFile = (DefaultInputFile) externalIssue.primaryLocation().inputComponent();
       defaultInputFile.setPublished(true);
@@ -240,7 +239,7 @@ public class DefaultSensorStorage implements SensorStorage {
   }
 
   @Override
-  public void store(DefaultAdHocRule adHocRule) {
+  public void store(AdHocRule adHocRule) {
     ScannerReportWriter writer = reportPublisher.getWriter();
     final ScannerReport.AdHocRule.Builder builder = ScannerReport.AdHocRule.newBuilder();
     builder.setEngineId(adHocRule.engineId());
