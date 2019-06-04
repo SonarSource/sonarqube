@@ -58,7 +58,7 @@ exports[`should switch to source view if an issue is selected 1`] = `
           >
             <Checkbox
               checked={false}
-              className="spacer-right vertical-middle"
+              className="spacer-right text-middle"
               disabled={false}
               id="issues-selection"
               onCheck={[Function]}
