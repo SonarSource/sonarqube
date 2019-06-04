@@ -40,9 +40,15 @@ public class JenkinsTest {
   @Test
   public void isDetected() {
     setEnvVariable("JENKINS_URL", "http://foo");
+    setEnvVariable("EXECUTOR_NUMBER", "12");
     assertThat(underTest.isDetected()).isTrue();
 
     setEnvVariable("JENKINS_URL", null);
+    setEnvVariable("EXECUTOR_NUMBER", "12");
+    assertThat(underTest.isDetected()).isFalse();
+
+    setEnvVariable("JENKINS_URL", "http://foo");
+    setEnvVariable("EXECUTOR_NUMBER", null);
     assertThat(underTest.isDetected()).isFalse();
   }
 

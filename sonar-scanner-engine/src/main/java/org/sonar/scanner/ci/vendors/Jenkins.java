@@ -42,7 +42,8 @@ public class Jenkins implements CiVendor {
   @Override
   public boolean isDetected() {
     // https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project
-    return isNotBlank(system.envVariable("JENKINS_URL"));
+    // JENKINS_URL is not enough to identify Jenkins. It can be easily used on a non-Jenkins job.
+    return isNotBlank(system.envVariable("JENKINS_URL")) && isNotBlank(system.envVariable("EXECUTOR_NUMBER"));
   }
 
   @Override
