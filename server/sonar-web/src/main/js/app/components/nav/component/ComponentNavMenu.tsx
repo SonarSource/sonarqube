@@ -21,6 +21,8 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
 import Dropdown from '../../../../components/controls/Dropdown';
+import { withAppState } from '../../../../components/hoc/withAppState';
+import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
 import {
   isShortLivingBranch,
@@ -29,8 +31,6 @@ import {
   getBranchLikeQuery
 } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
-import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
-import { withAppState } from '../../../../components/hoc/withAppState';
 import { isSonarCloud } from '../../../../helpers/system';
 
 const SETTINGS_URLS = [
@@ -154,43 +154,6 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
     );
   }
 
-  renderSecurityReportsLink() {
-    return (
-      <ul className="menu">
-        <li>
-          <Link
-            activeClassName="active"
-            to={{
-              pathname: '/project/extension/securityreport/sonarsource_security',
-              query: this.getQuery()
-            }}>
-            {translate('securityreport.sonarsourceSecurity.page')}
-          </Link>
-        </li>
-        <li>
-          <Link
-            activeClassName="active"
-            to={{
-              pathname: '/project/extension/securityreport/owasp_top_10',
-              query: this.getQuery()
-            }}>
-            {translate('securityreport.owaspTop10.page')}
-          </Link>
-        </li>
-        <li>
-          <Link
-            activeClassName="active"
-            to={{
-              pathname: '/project/extension/securityreport/sans_top_25',
-              query: this.getQuery()
-            }}>
-            {translate('securityreport.sansTop25.page')}
-          </Link>
-        </li>
-      </ul>
-    );
-  }
-
   renderSecurityReports() {
     const { branchLike, component } = this.props;
     const { extensions = [] } = component;
@@ -207,22 +170,17 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
       return null;
     }
 
-    const { location = { pathname: '' } } = this.props;
-    const isActive = location.pathname.startsWith('/project/extension/securityreport');
     return (
-      <Dropdown data-test="security" overlay={this.renderSecurityReportsLink()} tagName="li">
-        {({ onToggleClick, open }) => (
-          <a
-            aria-expanded={open}
-            aria-haspopup="true"
-            className={classNames('dropdown-toggle', { active: isActive || open })}
-            href="#"
-            onClick={onToggleClick}>
-            {translate('layout.security_reports')}
-            <DropdownIcon className="little-spacer-left" />
-          </a>
-        )}
-      </Dropdown>
+      <li>
+        <Link
+          activeClassName="active"
+          to={{
+            pathname: '/project/extension/securityreport/securityreport',
+            query: this.getQuery()
+          }}>
+          {translate('layout.security_reports')}
+        </Link>
+      </li>
     );
   }
 

@@ -33,71 +33,7 @@ exports[`should render correctly for security extensions 1`] = `
 </Dropdown>
 `;
 
-exports[`should render correctly for security extensions 2`] = `
-<Dropdown
-  data-test="security"
-  overlay={
-    <ul
-      className="menu"
-    >
-      <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/extension/securityreport/sonarsource_security",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          securityreport.sonarsourceSecurity.page
-        </Link>
-      </li>
-      <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/extension/securityreport/owasp_top_10",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          securityreport.owaspTop10.page
-        </Link>
-      </li>
-      <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/extension/securityreport/sans_top_25",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          securityreport.sansTop25.page
-        </Link>
-      </li>
-    </ul>
-  }
-  tagName="li"
->
-  <Component />
-</Dropdown>
-`;
+exports[`should render correctly for security extensions 2`] = `null`;
 
 exports[`should work for all qualifiers 1`] = `
 <NavBarTabs>
