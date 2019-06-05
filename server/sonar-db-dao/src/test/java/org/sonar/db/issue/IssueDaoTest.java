@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,6 +36,7 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ComponentUpdateDto;
 import org.sonar.db.component.KeyType;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -44,9 +44,11 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
@@ -168,7 +170,8 @@ public class IssueDaoTest {
     IssueDto closedIssueOnFile = db.issues().insert(rule, project, file, i -> i.setStatus("CLOSED").setResolution("FIXED").setType(randomRuleTypeExceptHotspot()));
     IssueDto openIssueOnModule = db.issues().insert(rule, project, module, i -> i.setStatus("OPEN").setResolution(null).setType(randomRuleTypeExceptHotspot()));
     IssueDto openIssueOnProject = db.issues().insert(rule, project, project, i -> i.setStatus("OPEN").setResolution(null).setType(randomRuleTypeExceptHotspot()));
-    IssueDto openIssueOnAnotherProject = db.issues().insert(rule, anotherProject, anotherProject, i -> i.setStatus("OPEN").setResolution(null).setType(randomRuleTypeExceptHotspot()));
+    IssueDto openIssueOnAnotherProject = db.issues().insert(rule, anotherProject, anotherProject,
+      i -> i.setStatus("OPEN").setResolution(null).setType(randomRuleTypeExceptHotspot()));
 
     IssueDto securityHotspot = db.issues().insert(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
     IssueDto manualVulnerability = db.issues().insert(rule, project, file, i -> i.setType(RuleType.VULNERABILITY).setIsFromHotspot(true));
@@ -178,7 +181,8 @@ public class IssueDaoTest {
 
     assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), project))
       .extracting(IssueDto::getKey)
-      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile, openIssueOnModule, openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
+      .containsExactlyInAnyOrder(
+        Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile, openIssueOnModule, openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
 
     assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), module))
       .extracting(IssueDto::getKey)
@@ -269,9 +273,9 @@ public class IssueDaoTest {
 
     assertThat(result.stream().mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
 
-    assertThat(result.stream().filter(g -> g.getRuleType()==RuleType.BUG.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
-    assertThat(result.stream().filter(g -> g.getRuleType()==RuleType.CODE_SMELL.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
-    assertThat(result.stream().filter(g -> g.getRuleType()==RuleType.VULNERABILITY.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
+    assertThat(result.stream().filter(g -> g.getRuleType() == RuleType.BUG.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
+    assertThat(result.stream().filter(g -> g.getRuleType() == RuleType.CODE_SMELL.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
+    assertThat(result.stream().filter(g -> g.getRuleType() == RuleType.VULNERABILITY.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
 
     assertThat(result.stream().filter(g -> g.getSeverity().equals("CRITICAL")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(2);
     assertThat(result.stream().filter(g -> g.getSeverity().equals("MAJOR")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(1);
@@ -281,8 +285,8 @@ public class IssueDaoTest {
     assertThat(result.stream().filter(g -> g.getStatus().equals("RESOLVED")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(1);
     assertThat(result.stream().filter(g -> g.getStatus().equals("CLOSED")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
 
-    assertThat(result.stream().filter(g -> "FALSE-POSITIVE" .equals(g.getResolution())).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(1);
-    assertThat(result.stream().filter(g -> g.getResolution()== null).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(2);
+    assertThat(result.stream().filter(g -> "FALSE-POSITIVE".equals(g.getResolution())).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(1);
+    assertThat(result.stream().filter(g -> g.getResolution() == null).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(2);
 
     assertThat(result.stream().filter(g -> g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
     assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
@@ -291,6 +295,99 @@ public class IssueDaoTest {
     result = underTest.selectIssueGroupsByBaseComponent(db.getSession(), file, 999_999_999L);
     assertThat(result.stream().filter(g -> g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
     assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
+  }
+
+  @Test
+  public void selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid() {
+    assertThat(underTest.selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(db.getSession(), randomAlphabetic(12)))
+      .isEmpty();
+
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto module11 = db.components().insertComponent(newModuleDto(project1));
+    ComponentDto dir11 = db.components().insertComponent(newDirectory(module11, randomAlphabetic(10)));
+    ComponentDto dir12 = db.components().insertComponent(newDirectory(module11, randomAlphabetic(11)));
+    ComponentDto module12 = db.components().insertComponent(newModuleDto(project1));
+    ComponentDto dir13 = db.components().insertComponent(newDirectory(module12, randomAlphabetic(12)));
+    ComponentDto dir14 = db.components().insertComponent(newDirectory(project1, randomAlphabetic(13)));
+    ComponentDto file11 = db.components().insertComponent(newFileDto(project1));
+    ComponentDto application = db.components().insertPrivateApplication(organization);
+    ComponentDto view = db.components().insertView(organization);
+    ComponentDto subview = db.components().insertSubView(view);
+    ComponentDto project2 = db.components().insertPublicProject();
+    ComponentDto module21 = db.components().insertComponent(newModuleDto(project2));
+    ComponentDto dir21 = db.components().insertComponent(newDirectory(project2, randomAlphabetic(15)));
+    ComponentDto file21 = db.components().insertComponent(newFileDto(project2));
+    List<ComponentDto> allcomponents = asList(project1, module11, dir11, dir12, module12, dir13, dir14, file11, application, view, subview, project2, module21, dir21, file21);
+    List<ComponentDto> allModuleOrDirs = asList(module11, dir11, dir12, module12, dir13, dir14, module21, dir21);
+
+    // no issues => always empty
+    allcomponents.stream()
+      .map(ComponentDto::uuid)
+      .forEach(uuid -> assertThat(underTest.selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(db.getSession(), uuid))
+        .isEmpty());
+
+    // return module or dir only if has issue with status different from CLOSED
+    allModuleOrDirs
+      .forEach(moduleOrDir -> {
+        String projectUuid = moduleOrDir.projectUuid();
+        // CLOSED issue => not returned
+        db.issues().insertIssue(t -> t.setProjectUuid(projectUuid).setComponent(moduleOrDir).setStatus(Issue.STATUS_CLOSED));
+        assertThat(underTest.selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(db.getSession(), projectUuid))
+          .isEmpty();
+
+        // status != CLOSED => returned
+        Issue.STATUSES.stream()
+          .filter(t -> !Issue.STATUS_CLOSED.equals(t))
+          .forEach(status -> {
+            IssueDto issue = db.issues().insertIssue(t -> t.setProjectUuid(projectUuid).setComponent(moduleOrDir).setStatus(status));
+            assertThat(underTest.selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(db.getSession(), projectUuid))
+              .containsOnly(moduleOrDir.uuid());
+
+            db.executeDdl("delete from issues where kee='" + issue.getKey() + "'");
+            db.commit();
+            assertThat(underTest.selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(db.getSession(), projectUuid))
+              .isEmpty();
+          });
+      });
+
+    // never return project, view, subview, app or file, whatever the issue status
+    Stream.of(project1, file11, application, view, subview, project2, file21)
+      .forEach(neitherModuleNorDir -> {
+        String projectUuid = neitherModuleNorDir.projectUuid();
+        Issue.STATUSES
+          .forEach(status -> {
+            db.issues().insertIssue(t -> t.setProjectUuid(projectUuid).setComponent(neitherModuleNorDir).setStatus(status));
+            assertThat(underTest.selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(db.getSession(), projectUuid))
+              .isEmpty();
+          });
+      });
+
+    // never return whatever the component if it is disabled
+    allcomponents
+      .forEach(component -> {
+        String projectUuid = component.projectUuid();
+
+        // issues for each status => returned if component is dir or module
+        Issue.STATUSES
+          .forEach(status -> db.issues().insertIssue(t -> t.setProjectUuid(projectUuid).setComponent(component).setStatus(status)));
+        if (allModuleOrDirs.contains(component)) {
+          assertThat(underTest.selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(db.getSession(), projectUuid))
+            .containsOnly(component.uuid());
+        } else {
+          assertThat(underTest.selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(db.getSession(), projectUuid))
+            .isEmpty();
+        }
+
+        // disable component and test again => not returned anymore
+        db.getDbClient().componentDao().update(db.getSession(), ComponentUpdateDto.copyFrom(component).setBEnabled(false).setBChanged(true));
+        db.getDbClient().componentDao().applyBChangesForRootComponentUuid(db.getSession(), projectUuid);
+        db.commit();
+        assertThat(db.getDbClient().componentDao().selectByUuid(db.getSession(), component.uuid()).get().isEnabled())
+          .isFalse();
+        assertThat(underTest.selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(db.getSession(), projectUuid))
+          .isEmpty();
+      });
   }
 
   private static IssueDto newIssueDto(String key) {
