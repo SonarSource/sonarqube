@@ -27,8 +27,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultTextPointer;
-import org.sonar.api.batch.fs.internal.DefaultTextRange;
+import org.sonar.scanner.fs.DefaultTextPointer;
+import org.sonar.scanner.fs.DefaultTextRange;
 import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.scanner.sensor.DefaultSensorDescriptor;
 import org.sonar.scanner.sensor.SensorContextTester;
@@ -77,9 +77,9 @@ public class SymbolReferencesSensorTest {
     sensor.execute(context);
 
     assertThat(context.referencesForSymbolAt("foo:src/foo.xoo", 1, 2))
-      .containsOnly(new DefaultTextRange(new DefaultTextPointer(1, 7), new DefaultTextPointer(1,10)));
+      .containsOnly(new DefaultTextRange(new DefaultTextPointer(1, 7), new DefaultTextPointer(1, 10)));
     assertThat(context.referencesForSymbolAt("foo:src/foo.xoo", 1, 13))
-      .containsOnly(new DefaultTextRange(new DefaultTextPointer(1, 23), new DefaultTextPointer(1,33)));
+      .containsOnly(new DefaultTextRange(new DefaultTextPointer(1, 23), new DefaultTextPointer(1, 33)));
   }
 
 }

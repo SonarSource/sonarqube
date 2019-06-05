@@ -24,7 +24,7 @@ import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.picocontainer.Startable;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
+import org.sonar.scanner.fs.AbstractProjectOrModule;
 
 public class ProjectLock implements Startable {
   private final DirectoryLock lock;

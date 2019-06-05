@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.fs.DefaultInputFile;
 
 import static java.util.stream.Collectors.toList;
 

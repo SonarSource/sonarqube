@@ -32,13 +32,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.config.ScannerProperties;
+import org.sonar.scanner.fs.InputModuleHierarchy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;

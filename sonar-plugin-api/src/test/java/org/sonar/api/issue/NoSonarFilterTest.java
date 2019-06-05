@@ -22,8 +22,9 @@ package org.sonar.api.issue;
 import java.util.Arrays;
 import java.util.HashSet;
 import org.junit.Test;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.scanner.fs.DefaultInputFile;
 import org.sonar.scanner.fs.TestInputFileBuilder;
+import org.sonar.scanner.issue.DefaultNoSonarFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,7 +33,7 @@ public class NoSonarFilterTest {
   @Test
   public void should_store_nosonar_lines_on_inputfile() {
     DefaultInputFile f = TestInputFileBuilder.create("module1", "myfile.java").setLines(8).build();
-    new NoSonarFilter().noSonarInFile(f, new HashSet<>(Arrays.asList(1, 4)));
+    new DefaultNoSonarFilter().noSonarInFile(f, new HashSet<>(Arrays.asList(1, 4)));
 
     assertThat(f.hasNoSonarAt(1)).isTrue();
     assertThat(f.hasNoSonarAt(2)).isFalse();

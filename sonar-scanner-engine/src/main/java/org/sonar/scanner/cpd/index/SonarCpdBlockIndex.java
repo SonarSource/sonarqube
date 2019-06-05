@@ -24,9 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.duplications.block.Block;
@@ -36,6 +34,7 @@ import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
 import org.sonar.scanner.cpd.CpdSettings;
+import org.sonar.scanner.fs.DefaultInputFile;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.report.ReportPublisher;

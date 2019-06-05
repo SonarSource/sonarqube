@@ -22,8 +22,7 @@ package org.sonar.scanner.scan;
 import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
+import org.sonar.scanner.fs.DefaultInputModule;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
@@ -36,7 +35,7 @@ public class ModuleIndexerTest {
   private DefaultInputModuleHierarchy moduleHierarchy;
   private InputComponentStore componentStore;
 
-  public void createIndexer(DefaultInputProject rootProject) {
+  public void createIndexer() {
     componentStore = new InputComponentStore(mock(BranchConfiguration.class));
     moduleHierarchy = mock(DefaultInputModuleHierarchy.class);
     indexer = new ModuleIndexer(componentStore, moduleHierarchy);
@@ -69,7 +68,7 @@ public class ModuleIndexerTest {
     when(mod2.definition()).thenReturn(def);
     when(mod3.definition()).thenReturn(def);
 
-    createIndexer(mock(DefaultInputProject.class));
+    createIndexer();
     when(moduleHierarchy.root()).thenReturn(root);
     when(moduleHierarchy.children(root)).thenReturn(Arrays.asList(mod1, mod2, mod3));
 

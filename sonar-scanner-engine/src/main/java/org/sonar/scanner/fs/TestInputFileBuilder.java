@@ -31,12 +31,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
-import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
-import org.sonar.api.batch.fs.internal.DefaultInputDir;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.Metadata;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.utils.PathUtils;
@@ -218,14 +212,14 @@ public class TestInputFileBuilder {
     return setMetadata(new FileMetadata().readMetadata(new StringReader(content)));
   }
 
-  public org.sonar.api.batch.fs.internal.DefaultInputFile build() {
+  public DefaultInputFile build() {
     Path absolutePath = moduleBaseDir.resolve(relativePath);
     if (projectBaseDir == null) {
       projectBaseDir = moduleBaseDir;
     }
     String projectRelativePath = projectBaseDir.relativize(absolutePath).toString();
-    org.sonar.api.batch.fs.internal.DefaultIndexedFile indexedFile = new DefaultIndexedFile(absolutePath, projectKey, projectRelativePath, relativePath, type, language, id, new SensorStrategy());
-    org.sonar.api.batch.fs.internal.DefaultInputFile inputFile = new org.sonar.api.batch.fs.internal.DefaultInputFile(indexedFile,
+    DefaultIndexedFile indexedFile = new DefaultIndexedFile(absolutePath, projectKey, projectRelativePath, relativePath, type, language, id, new SensorStrategy());
+    DefaultInputFile inputFile = new DefaultInputFile(indexedFile,
       f -> f.setMetadata(new Metadata(lines, nonBlankLines, hash, originalLineStartOffsets, originalLineEndOffsets, lastValidOffset)),
       contents);
     inputFile.setStatus(status);
@@ -234,7 +228,7 @@ public class TestInputFileBuilder {
     return inputFile;
   }
 
-  public static org.sonar.api.batch.fs.internal.DefaultInputModule newDefaultInputModule(String moduleKey, File baseDir) {
+  public static DefaultInputModule newDefaultInputModule(String moduleKey, File baseDir) {
     ProjectDefinition definition = ProjectDefinition.create()
       .setKey(moduleKey)
       .setBaseDir(baseDir)
@@ -242,17 +236,17 @@ public class TestInputFileBuilder {
     return newDefaultInputModule(definition);
   }
 
-  public static org.sonar.api.batch.fs.internal.DefaultInputModule newDefaultInputModule(ProjectDefinition projectDefinition) {
-    return new org.sonar.api.batch.fs.internal.DefaultInputModule(projectDefinition, TestInputFileBuilder.nextBatchId());
+  public static DefaultInputModule newDefaultInputModule(ProjectDefinition projectDefinition) {
+    return new DefaultInputModule(projectDefinition, TestInputFileBuilder.nextBatchId());
   }
 
-  public static DefaultInputModule newDefaultInputModule(org.sonar.api.batch.fs.internal.AbstractProjectOrModule parent, String key) throws IOException {
+  public static DefaultInputModule newDefaultInputModule(AbstractProjectOrModule parent, String key) throws IOException {
     Path basedir = parent.getBaseDir().resolve(key);
     Files.createDirectory(basedir);
     return newDefaultInputModule(key, basedir.toFile());
   }
 
-  public static org.sonar.api.batch.fs.internal.DefaultInputProject newDefaultInputProject(String projectKey, File baseDir) {
+  public static DefaultInputProject newDefaultInputProject(String projectKey, File baseDir) {
     ProjectDefinition definition = ProjectDefinition.create()
       .setKey(projectKey)
       .setBaseDir(baseDir)
@@ -260,8 +254,8 @@ public class TestInputFileBuilder {
     return newDefaultInputProject(definition);
   }
 
-  public static org.sonar.api.batch.fs.internal.DefaultInputProject newDefaultInputProject(ProjectDefinition projectDefinition) {
-    return new org.sonar.api.batch.fs.internal.DefaultInputProject(projectDefinition, TestInputFileBuilder.nextBatchId());
+  public static DefaultInputProject newDefaultInputProject(ProjectDefinition projectDefinition) {
+    return new DefaultInputProject(projectDefinition, TestInputFileBuilder.nextBatchId());
   }
 
   public static DefaultInputProject newDefaultInputProject(String key, Path baseDir) throws IOException {
@@ -269,7 +263,7 @@ public class TestInputFileBuilder {
     return newDefaultInputProject(key, baseDir.toFile());
   }
 
-  public static org.sonar.api.batch.fs.internal.DefaultInputDir newDefaultInputDir(org.sonar.api.batch.fs.internal.AbstractProjectOrModule module, String relativePath) throws IOException {
+  public static DefaultInputDir newDefaultInputDir(AbstractProjectOrModule module, String relativePath) throws IOException {
     Path basedir = module.getBaseDir().resolve(relativePath);
     Files.createDirectory(basedir);
     return new DefaultInputDir(module.key(), relativePath)

@@ -39,14 +39,14 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
-import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cpd.CpdSettings;
+import org.sonar.scanner.fs.DefaultInputModule;
+import org.sonar.scanner.fs.InputModuleHierarchy;
+import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -145,9 +145,9 @@ public class MetadataPublisherTest {
       .setRulesUpdatedAt(date.getTime())
       .build()));
     assertThat(metadata.getPluginsByKey()).containsOnly(entry("java", org.sonar.scanner.protocol.output.ScannerReport.Metadata.Plugin.newBuilder()
-      .setKey("java")
-      .setUpdatedAt(12345)
-      .build()),
+        .setKey("java")
+        .setUpdatedAt(12345)
+        .build()),
       entry("php", org.sonar.scanner.protocol.output.ScannerReport.Metadata.Plugin.newBuilder()
         .setKey("php")
         .setUpdatedAt(45678)

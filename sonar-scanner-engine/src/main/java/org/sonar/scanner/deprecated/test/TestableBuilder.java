@@ -23,9 +23,9 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.scanner.deprecated.perspectives.PerspectiveBuilder;
+import org.sonar.scanner.fs.DefaultInputFile;
 
 public class TestableBuilder extends PerspectiveBuilder<MutableTestable> {
 

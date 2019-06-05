@@ -20,8 +20,8 @@
 package org.sonar.scanner.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.scanner.fs.DefaultFileSystem;
+import org.sonar.scanner.fs.DefaultInputProject;
 
 public class DefaultProjectFileSystem extends DefaultFileSystem {
 

@@ -21,7 +21,6 @@ package org.sonar.core.component;
 
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -43,10 +42,6 @@ public final class ComponentKeys {
 
   private ComponentKeys() {
     // only static stuff
-  }
-
-  public static String createEffectiveKey(String projectKey, DefaultInputFile inputPath) {
-    return createEffectiveKey(projectKey, inputPath.getProjectRelativePath());
   }
 
   public static String createEffectiveKey(String projectKey, @Nullable String path) {

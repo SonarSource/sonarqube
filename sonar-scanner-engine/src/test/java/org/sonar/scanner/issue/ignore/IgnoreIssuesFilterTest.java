@@ -21,10 +21,10 @@ package org.sonar.scanner.issue.ignore;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.api.utils.WildcardPattern;
+import org.sonar.scanner.fs.DefaultInputFile;
 import org.sonar.scanner.issue.DefaultFilterableIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;

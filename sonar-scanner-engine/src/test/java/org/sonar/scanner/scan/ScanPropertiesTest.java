@@ -27,9 +27,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
+import org.sonar.scanner.fs.DefaultInputProject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

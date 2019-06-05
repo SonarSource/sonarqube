@@ -17,5 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.api.batch.sensor.error.internal;
+package org.sonar.scanner.issue;
+
+import java.util.Set;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.issue.NoSonarFilter;
+import org.sonar.scanner.fs.DefaultInputFile;
+
+public class DefaultNoSonarFilter extends NoSonarFilter {
+  public NoSonarFilter noSonarInFile(InputFile inputFile, Set<Integer> noSonarLines) {
+    ((DefaultInputFile) inputFile).noSonarAt(noSonarLines);
+    return this;
+  }
+}

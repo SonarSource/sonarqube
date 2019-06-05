@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs.internal;
+package org.sonar.scanner.fs;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.scanner.fs.TestInputFileBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

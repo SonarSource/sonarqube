@@ -21,7 +21,6 @@ package org.sonar.api.issue;
 
 import java.util.Set;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.scanner.ScannerSide;
 
 /**
@@ -34,7 +33,7 @@ import org.sonar.api.scanner.ScannerSide;
  * @since 3.6
  */
 @ScannerSide
-public class NoSonarFilter {
+public abstract class NoSonarFilter {
 
   /**
    * Register lines in a file that contains the NOSONAR flag.
@@ -44,9 +43,5 @@ public class NoSonarFilter {
    * @since 5.0
    * @since 7.6 the method can be called multiple times by different sensors, and NOSONAR lines are merged
    */
-  public NoSonarFilter noSonarInFile(InputFile inputFile, Set<Integer> noSonarLines) {
-    ((DefaultInputFile) inputFile).noSonarAt(noSonarLines);
-    return this;
-  }
-
+  public abstract NoSonarFilter noSonarInFile(InputFile inputFile, Set<Integer> noSonarLines);
 }

@@ -22,13 +22,13 @@ package org.sonar.scanner.issue.ignore;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.fs.DefaultInputFile;
 import org.sonar.scanner.issue.DefaultFilterableIssue;
 
 public class IgnoreIssuesFilter implements IssueFilter {

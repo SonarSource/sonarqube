@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.symbol.internal;
+package org.sonar.scanner.sensor;
 
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +29,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.scanner.fs.TestInputFileBuilder;
+import org.sonar.scanner.sensor.DefaultSymbolTable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

@@ -23,11 +23,8 @@ import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -66,7 +63,10 @@ import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.deprecated.test.TestableBuilder;
+import org.sonar.scanner.fs.DefaultInputModule;
 import org.sonar.scanner.fs.FileMetadata;
+import org.sonar.scanner.fs.InputModuleHierarchy;
+import org.sonar.scanner.issue.DefaultNoSonarFilter;
 import org.sonar.scanner.issue.IssueFilters;
 import org.sonar.scanner.issue.IssuePublisher;
 import org.sonar.scanner.issue.ignore.EnforceIssuesFilter;
@@ -203,7 +203,7 @@ public class ProjectScanContainer extends ComponentContainer {
       QProfileVerifier.class,
 
       // issues
-      NoSonarFilter.class,
+      DefaultNoSonarFilter.class,
       IssueFilters.class,
       IssuePublisher.class,
 

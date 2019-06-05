@@ -19,11 +19,11 @@
  */
 package org.sonar.scanner.scan;
 
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.deprecated.perspectives.ScannerPerspectives;
+import org.sonar.scanner.fs.DefaultInputModule;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
 import org.sonar.scanner.sensor.ModuleSensorContext;

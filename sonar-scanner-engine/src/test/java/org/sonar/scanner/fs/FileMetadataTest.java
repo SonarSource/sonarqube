@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-
 import javax.annotation.Nullable;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
@@ -31,7 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.Metadata;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -223,7 +221,7 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, " foo\nb ar\r\nbaz \t", StandardCharsets.UTF_8, true);
 
-    org.sonar.api.batch.fs.internal.DefaultInputFile f = new TestInputFileBuilder("foo", tempFile.getName())
+    DefaultInputFile f = new TestInputFileBuilder("foo", tempFile.getName())
       .setModuleBaseDir(tempFile.getParentFile().toPath())
       .setCharset(StandardCharsets.UTF_8)
       .build();

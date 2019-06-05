@@ -27,12 +27,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.scanner.fs.DefaultInputFile;
+import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.scanner.sensor.SensorContextTester;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -105,8 +105,8 @@ public class ExternalIssueImporterTest {
     ReportParser.TextRange input = new ReportParser.TextRange();
     input.startLine = 1;
     input.startColumn = 4;
-    input.endLine= 2;
-    input.endColumn= 3;
+    input.endLine = 2;
+    input.endColumn = 3;
 
     runOn(newIssue(input));
 
@@ -124,8 +124,8 @@ public class ExternalIssueImporterTest {
     ReportParser.TextRange input = new ReportParser.TextRange();
     input.startLine = 1;
     input.startColumn = null;
-    input.endLine= 2;
-    input.endColumn= null;
+    input.endLine = 2;
+    input.endColumn = null;
 
     runOn(newIssue(input));
 
@@ -145,8 +145,8 @@ public class ExternalIssueImporterTest {
     ReportParser.TextRange input = new ReportParser.TextRange();
     input.startLine = 1;
     input.startColumn = 3;
-    input.endLine= 2;
-    input.endColumn= null;
+    input.endLine = 2;
+    input.endColumn = null;
 
     runOn(newIssue(input));
 

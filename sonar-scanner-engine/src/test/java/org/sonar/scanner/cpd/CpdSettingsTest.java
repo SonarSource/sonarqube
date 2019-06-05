@@ -22,8 +22,8 @@ package org.sonar.scanner.cpd;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.config.Configuration;
+import org.sonar.scanner.fs.DefaultInputProject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;

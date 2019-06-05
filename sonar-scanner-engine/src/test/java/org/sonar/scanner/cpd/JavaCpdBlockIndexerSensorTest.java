@@ -32,9 +32,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.duplications.block.Block;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
+import org.sonar.scanner.fs.DefaultInputFile;
 import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.scanner.sensor.SensorContextTester;
 

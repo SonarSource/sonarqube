@@ -20,13 +20,13 @@
 package org.sonar.scanner.issue;
 
 import javax.annotation.Nullable;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.scanner.fs.DefaultInputProject;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;

@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.cpd.internal;
+package org.sonar.scanner.sensor;
 
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.scanner.fs.DefaultInputFile;
 import org.sonar.scanner.fs.TestInputFileBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;

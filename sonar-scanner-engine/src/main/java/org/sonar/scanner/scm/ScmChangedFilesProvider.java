@@ -23,11 +23,11 @@ import java.nio.file.Path;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.scanner.fs.DefaultInputProject;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.util.ScannerUtils;
 

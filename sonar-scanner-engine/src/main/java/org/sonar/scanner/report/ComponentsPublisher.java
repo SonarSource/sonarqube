@@ -25,9 +25,9 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
+import org.sonar.scanner.fs.AbstractProjectOrModule;
+import org.sonar.scanner.fs.DefaultInputFile;
+import org.sonar.scanner.fs.DefaultInputProject;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
@@ -43,7 +43,6 @@ public class ComponentsPublisher implements ReportPublisherStep {
 
   private final InputComponentStore inputComponentStore;
   private final DefaultInputProject project;
-
 
   public ComponentsPublisher(DefaultInputProject project, InputComponentStore inputComponentStore) {
     this.project = project;
@@ -123,7 +122,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
   }
 
   private static void writeProjectLink(ScannerReport.Component.Builder componentBuilder, Map<String, String> properties, ComponentLink.Builder linkBuilder, String linkProp,
-                                       ComponentLinkType linkType) {
+    ComponentLinkType linkType) {
     String link = properties.get(linkProp);
     if (StringUtils.isNotBlank(link)) {
       linkBuilder.setType(linkType);

@@ -27,10 +27,10 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.scanner.fs.AbstractProjectOrModule;
+import org.sonar.scanner.fs.DefaultInputModule;
+import org.sonar.scanner.fs.InputModuleHierarchy;
 
 @Immutable
 public class DefaultInputModuleHierarchy implements InputModuleHierarchy {

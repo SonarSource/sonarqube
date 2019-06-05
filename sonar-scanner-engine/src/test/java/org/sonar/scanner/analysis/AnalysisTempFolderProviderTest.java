@@ -20,13 +20,12 @@
 package org.sonar.scanner.analysis;
 
 import java.io.File;
-import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.utils.TempFolder;
+import org.sonar.scanner.fs.DefaultInputProject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -47,7 +46,7 @@ public class AnalysisTempFolderProviderTest {
   }
 
   @Test
-  public void createTempFolder() throws IOException {
+  public void createTempFolder() {
     File defaultDir = new File(temp.getRoot(), AnalysisTempFolderProvider.TMP_NAME);
 
     TempFolder tempFolder = tempFolderProvider.provide(project);

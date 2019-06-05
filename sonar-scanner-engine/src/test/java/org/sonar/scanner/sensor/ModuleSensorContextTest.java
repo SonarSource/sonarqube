@@ -28,7 +28,6 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputModule;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -37,6 +36,7 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Version;
 import org.sonar.scanner.fs.DefaultFileSystem;
+import org.sonar.scanner.fs.DefaultInputProject;
 import org.sonar.scanner.rule.ActiveRulesBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;

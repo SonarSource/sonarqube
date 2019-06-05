@@ -20,12 +20,12 @@
 package org.sonar.scanner.scm;
 
 import java.util.Optional;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.RawScannerProperties;
 import org.sonar.scanner.ci.CiConfiguration;
+import org.sonar.scanner.fs.InputModuleHierarchy;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.scanner.scan.ScanProperties.SCM_REVISION;

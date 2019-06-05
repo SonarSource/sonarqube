@@ -25,12 +25,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.scanner.sensor.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.scanner.fs.DefaultInputFile;
+import org.sonar.scanner.fs.TestInputFileBuilder;
+import org.sonar.scanner.sensor.DefaultMeasure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -150,6 +150,5 @@ public class DefaultFileLinesContextTest {
     fileLineMeasures.save();
     fileLineMeasures.setIntValue(HITS_METRIC_KEY, 1, 2);
   }
-
 
 }

@@ -28,9 +28,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.scm.ScmProvider;
+import org.sonar.scanner.fs.DefaultInputProject;
+import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;

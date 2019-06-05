@@ -25,9 +25,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
-import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
+import org.sonar.api.batch.sensor.code.NewSignificantCode;
+import org.sonar.api.batch.sensor.coverage.NewCoverage;
+import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -35,7 +35,7 @@ import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.rule.AdHocRule;
-import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
+import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 
 import static org.sonar.api.utils.Preconditions.checkArgument;
 
@@ -88,13 +88,15 @@ class InMemorySensorStorage implements SensorStorage {
   }
 
   @Override
-  public void store(DefaultCoverage defaultCoverage) {
+  public void store(NewCoverage coverage) {
+    DefaultCoverage defaultCoverage = (DefaultCoverage) coverage;
     String fileKey = defaultCoverage.inputFile().key();
     coverageByComponent.computeIfAbsent(fileKey, x -> new ArrayList<>()).add(defaultCoverage);
   }
 
   @Override
-  public void store(DefaultCpdTokens defaultCpdTokens) {
+  public void store(NewCpdTokens cpdTokens) {
+    DefaultCpdTokens defaultCpdTokens = (DefaultCpdTokens) cpdTokens;
     String fileKey = defaultCpdTokens.inputFile().key();
     // Emulate duplicate storage check
     if (cpdTokensByComponent.containsKey(fileKey)) {
@@ -104,7 +106,8 @@ class InMemorySensorStorage implements SensorStorage {
   }
 
   @Override
-  public void store(DefaultSymbolTable symbolTable) {
+  public void store(NewSymbolTable newSymbolTable) {
+    DefaultSymbolTable symbolTable = (DefaultSymbolTable) newSymbolTable;
     String fileKey = symbolTable.inputFile().key();
     // Emulate duplicate storage check
     if (symbolsPerComponent.containsKey(fileKey)) {
@@ -131,7 +134,8 @@ class InMemorySensorStorage implements SensorStorage {
   }
 
   @Override
-  public void store(DefaultSignificantCode significantCode) {
+  public void store(NewSignificantCode newSignificantCode) {
+    DefaultSignificantCode significantCode = (DefaultSignificantCode) newSignificantCode;
     String fileKey = significantCode.inputFile().key();
     // Emulate duplicate storage check
     if (significantCodePerComponent.containsKey(fileKey)) {

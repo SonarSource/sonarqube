@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.symbol.internal;
+package org.sonar.scanner.sensor;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -26,11 +26,10 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.symbol.NewSymbol;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
+import org.sonar.scanner.fs.DefaultInputFile;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.Preconditions.checkArgument;

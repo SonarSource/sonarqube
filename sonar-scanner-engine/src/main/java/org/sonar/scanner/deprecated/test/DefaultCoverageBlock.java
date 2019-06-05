@@ -20,10 +20,10 @@
 package org.sonar.scanner.deprecated.test;
 
 import java.util.List;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.test.CoverageBlock;
 import org.sonar.api.test.TestCase;
 import org.sonar.api.test.Testable;
+import org.sonar.scanner.fs.DefaultInputFile;
 
 public class DefaultCoverageBlock implements CoverageBlock {
 

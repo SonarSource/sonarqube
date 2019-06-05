@@ -32,14 +32,11 @@ import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultInputComponent;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
-import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
+import org.sonar.api.batch.sensor.code.NewSignificantCode;
+import org.sonar.api.batch.sensor.coverage.NewCoverage;
+import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -47,7 +44,7 @@ import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.rule.AdHocRule;
-import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
+import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
@@ -58,6 +55,9 @@ import org.sonar.core.util.CloseableIterator;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
+import org.sonar.scanner.fs.DefaultInputComponent;
+import org.sonar.scanner.fs.DefaultInputFile;
+import org.sonar.scanner.fs.DefaultInputModule;
 import org.sonar.scanner.issue.IssuePublisher;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.FileStructure;
@@ -284,7 +284,8 @@ public class DefaultSensorStorage implements SensorStorage {
   }
 
   @Override
-  public void store(DefaultSymbolTable symbolTable) {
+  public void store(NewSymbolTable newSymbolTable) {
+    DefaultSymbolTable symbolTable = (DefaultSymbolTable) newSymbolTable;
     ScannerReportWriter writer = reportPublisher.getWriter();
     DefaultInputFile inputFile = (DefaultInputFile) symbolTable.inputFile();
     if (shouldSkipStorage(inputFile)) {
@@ -320,7 +321,8 @@ public class DefaultSensorStorage implements SensorStorage {
   }
 
   @Override
-  public void store(DefaultCoverage defaultCoverage) {
+  public void store(NewCoverage coverage) {
+    DefaultCoverage defaultCoverage = (DefaultCoverage) coverage;
     DefaultInputFile inputFile = (DefaultInputFile) defaultCoverage.inputFile();
     inputFile.setPublished(true);
 
@@ -363,16 +365,9 @@ public class DefaultSensorStorage implements SensorStorage {
     }
   }
 
-  private static void validatePositiveLine(Map<Integer, Integer> m, String filePath) {
-    for (int l : m.keySet()) {
-      if (l <= 0) {
-        throw new IllegalStateException(String.format("Measure with line %d for file '%s' must be > 0", l, filePath));
-      }
-    }
-  }
-
   @Override
-  public void store(DefaultCpdTokens defaultCpdTokens) {
+  public void store(NewCpdTokens cpdTokens) {
+    DefaultCpdTokens defaultCpdTokens = (DefaultCpdTokens) cpdTokens;
     DefaultInputFile inputFile = (DefaultInputFile) defaultCpdTokens.inputFile();
     inputFile.setPublished(true);
     PmdBlockChunker blockChunker = new PmdBlockChunker(getCpdBlockSize(inputFile.language()));
@@ -411,7 +406,8 @@ public class DefaultSensorStorage implements SensorStorage {
   }
 
   @Override
-  public void store(DefaultSignificantCode significantCode) {
+  public void store(NewSignificantCode newSignificantCode) {
+    DefaultSignificantCode significantCode = (DefaultSignificantCode) newSignificantCode;
     ScannerReportWriter writer = reportPublisher.getWriter();
     DefaultInputFile inputFile = (DefaultInputFile) significantCode.inputFile();
     if (shouldSkipStorage(inputFile)) {

@@ -29,9 +29,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.sensor.error.AnalysisError;
+import org.sonar.scanner.fs.DefaultInputFile;
+import org.sonar.scanner.fs.DefaultTextPointer;
 import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.scanner.sensor.SensorContextTester;
 

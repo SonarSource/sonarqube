@@ -34,8 +34,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.fs.internal.DefaultInputComponent;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.duplications.block.Block;
@@ -44,6 +42,8 @@ import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
+import org.sonar.scanner.fs.DefaultInputComponent;
+import org.sonar.scanner.fs.DefaultInputFile;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplicate;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplication;
@@ -160,7 +160,8 @@ public class CpdExecutor {
     saveDuplications(inputFile, filtered);
   }
 
-  @VisibleForTesting final void saveDuplications(final DefaultInputComponent component, List<CloneGroup> duplications) {
+  @VisibleForTesting
+  final void saveDuplications(final DefaultInputComponent component, List<CloneGroup> duplications) {
     if (duplications.size() > MAX_CLONE_GROUP_PER_FILE) {
       LOG.warn("Too many duplication groups on file {}. Keep only the first {} groups.", component, MAX_CLONE_GROUP_PER_FILE);
     }

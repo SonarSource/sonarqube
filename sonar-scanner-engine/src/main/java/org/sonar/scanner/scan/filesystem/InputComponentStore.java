@@ -35,9 +35,9 @@ import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.fs.DefaultFileSystem;
+import org.sonar.scanner.fs.DefaultInputFile;
+import org.sonar.scanner.fs.DefaultInputModule;
 import org.sonar.scanner.fs.predicates.FileExtensionPredicate;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 

@@ -25,10 +25,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.scanner.fs.AbstractProjectOrModule;
+import org.sonar.scanner.fs.DefaultInputProject;
 import org.sonar.scanner.fs.TestInputFileBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;

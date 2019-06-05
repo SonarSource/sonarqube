@@ -21,9 +21,9 @@ package org.sonar.scanner.cpd;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.config.Configuration;
 import org.sonar.duplications.block.BlockChunker;
+import org.sonar.scanner.fs.DefaultInputProject;
 
 public class CpdSettings {
   private final Configuration settings;
@@ -41,8 +41,8 @@ public class CpdSettings {
   }
 
   /**
-   * Not applicable to Java, as the {@link BlockChunker} that it uses does not record start and end units of each block. 
-   * Also, it uses statements instead of tokens. 
+   * Not applicable to Java, as the {@link BlockChunker} that it uses does not record start and end units of each block.
+   * Also, it uses statements instead of tokens.
    */
   int getMinimumTokens(String languageKey) {
     return settings.getInt("sonar.cpd." + languageKey + ".minimumTokens").orElse(100);

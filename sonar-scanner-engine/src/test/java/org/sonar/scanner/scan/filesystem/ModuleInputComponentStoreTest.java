@@ -26,8 +26,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
+import org.sonar.scanner.fs.DefaultInputProject;
 import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 

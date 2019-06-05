@@ -24,10 +24,10 @@ import java.util.Locale;
 import java.util.Map;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.fs.DefaultInputModule;
+import org.sonar.scanner.fs.DefaultInputProject;
 import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
 
 public class InputModuleHierarchyProvider extends ProviderAdapter {
@@ -51,7 +51,7 @@ public class InputModuleHierarchyProvider extends ProviderAdapter {
   }
 
   private static Map<DefaultInputModule, DefaultInputModule> createChildren(DefaultInputModule parent, ScannerComponentIdGenerator scannerComponentIdGenerator,
-                                                                                      Map<DefaultInputModule, DefaultInputModule> parents) {
+    Map<DefaultInputModule, DefaultInputModule> parents) {
     for (ProjectDefinition def : parent.definition().getSubProjects()) {
       DefaultInputModule child = createModule(def, scannerComponentIdGenerator.getAsInt());
       parents.put(child, parent);

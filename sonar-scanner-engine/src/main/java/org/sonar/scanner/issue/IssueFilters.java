@@ -20,11 +20,11 @@
 package org.sonar.scanner.issue;
 
 import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.scanner.ProjectInfo;
+import org.sonar.scanner.fs.DefaultInputProject;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 /**

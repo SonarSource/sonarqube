@@ -25,11 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.scanner.fs.DefaultInputFile;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.Preconditions.checkState;

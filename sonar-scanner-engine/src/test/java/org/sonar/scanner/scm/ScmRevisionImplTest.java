@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Test;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.scanner.bootstrap.RawScannerProperties;
 import org.sonar.scanner.ci.CiConfiguration;
+import org.sonar.scanner.fs.InputModuleHierarchy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -60,7 +60,7 @@ public class ScmRevisionImplTest {
   public void ignore_failure_if_scm_does_not_support_revisions() {
     CiConfiguration ciConfiguration = mock(CiConfiguration.class);
     when(ciConfiguration.getScmRevision()).thenReturn(Optional.empty());
-    Map<String,String> scannerConfiguration = new HashMap<>();
+    Map<String, String> scannerConfiguration = new HashMap<>();
     ScmConfiguration scmConfiguration = mock(ScmConfiguration.class, RETURNS_DEEP_STUBS);
     when(scmConfiguration.provider().revisionId(any())).thenThrow(new UnsupportedOperationException("BOOM"));
     InputModuleHierarchy moduleHierarchy = mock(InputModuleHierarchy.class, RETURNS_DEEP_STUBS);
@@ -73,7 +73,7 @@ public class ScmRevisionImplTest {
   private Optional<String> testGet(@Nullable String cliValue, @Nullable String ciValue, @Nullable String scmValue) {
     CiConfiguration ciConfiguration = mock(CiConfiguration.class);
     when(ciConfiguration.getScmRevision()).thenReturn(Optional.ofNullable(ciValue));
-    Map<String,String> scannerConfiguration = new HashMap<>();
+    Map<String, String> scannerConfiguration = new HashMap<>();
     scannerConfiguration.put("sonar.scm.revision", cliValue);
     ScmConfiguration scmConfiguration = mock(ScmConfiguration.class, RETURNS_DEEP_STUBS);
     when(scmConfiguration.provider().revisionId(any())).thenReturn(scmValue);

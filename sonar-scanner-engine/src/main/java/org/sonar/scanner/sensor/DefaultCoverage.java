@@ -17,18 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.coverage.internal;
+package org.sonar.scanner.sensor;
 
 import java.util.Collections;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
-import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.scanner.fs.DefaultInputFile;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.Preconditions.checkState;

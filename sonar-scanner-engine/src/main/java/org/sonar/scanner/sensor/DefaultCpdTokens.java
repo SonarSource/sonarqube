@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.cpd.internal;
+package org.sonar.scanner.sensor;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
-import org.sonar.api.batch.sensor.internal.DefaultStorable;
+import org.sonar.api.batch.sensor.cpd.internal.TokensLine;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.fs.DefaultInputFile;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;

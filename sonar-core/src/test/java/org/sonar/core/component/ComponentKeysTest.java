@@ -22,22 +22,12 @@ package org.sonar.core.component;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ComponentKeysTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
-  @Test
-  public void create_effective_key() {
-    DefaultInputFile file = mock(DefaultInputFile.class);
-    when(file.getProjectRelativePath()).thenReturn("foo/Bar.php");
-    assertThat(ComponentKeys.createEffectiveKey("my_project", file)).isEqualTo("my_project:foo/Bar.php");
-  }
 
   @Test
   public void create_key_from_module_key_path_and_branch() {

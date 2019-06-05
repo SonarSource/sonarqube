@@ -27,13 +27,14 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
+import org.sonar.scanner.fs.DefaultInputFile;
+import org.sonar.scanner.fs.DefaultInputProject;
 import org.sonar.scanner.fs.TestInputFileBuilder;
+import org.sonar.scanner.issue.DefaultIssueLocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

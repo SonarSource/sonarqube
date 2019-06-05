@@ -22,9 +22,9 @@ package org.sonar.scanner.issue;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.scanner.fs.DefaultInputFile;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.abbreviate;

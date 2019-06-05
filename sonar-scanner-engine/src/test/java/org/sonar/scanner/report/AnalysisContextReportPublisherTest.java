@@ -32,14 +32,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
+import org.sonar.scanner.fs.DefaultInputModule;
+import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.ProjectServerSettings;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
@@ -148,6 +148,66 @@ public class AnalysisContextReportPublisherTest {
   }
 
   @Test
+  public void shouldNotDumpSQPropsInSystemProps() throws Exception {
+    logTester.setLevel(LoggerLevel.DEBUG);
+    ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
+    Properties props = new Properties();
+    props.setProperty(COM_FOO, "bar");
+    props.setProperty(SONAR_SKIP, "true");
+    when(system2.properties()).thenReturn(props);
+    DefaultInputModule rootModule = new DefaultInputModule(ProjectDefinition.create()
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder())
+      .setProperty("sonar.projectKey", "foo")
+      .setProperty(COM_FOO, "bar")
+      .setProperty(SONAR_SKIP, "true"));
+    when(store.allModules()).thenReturn(singletonList(rootModule));
+    when(hierarchy.root()).thenReturn(rootModule);
+
+    publisher.init(writer);
+
+    List<String> lines = FileUtils.readLines(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8);
+    assertThat(lines).containsExactly("Environment variables:",
+      "System properties:",
+      "  - com.foo=bar",
+      "SonarQube plugins:",
+      "Global server settings:",
+      "Project server settings:",
+      "Project scanner properties:",
+      "  - sonar.projectKey=foo",
+      "  - sonar.skip=true");
+  }
+
+  @Test
+  public void shouldNotDumpEnvTwice() throws Exception {
+    logTester.setLevel(LoggerLevel.DEBUG);
+    ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
+
+    Map<String, String> env = new HashMap<>();
+    env.put(FOO, "BAR");
+    env.put(BIZ, "BAZ");
+    when(system2.envVariables()).thenReturn(env);
+    DefaultInputModule rootModule = new DefaultInputModule(ProjectDefinition.create()
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder())
+      .setProperty("sonar.projectKey", "foo")
+      .setProperty("env." + FOO, "BAR"));
+    when(store.allModules()).thenReturn(singletonList(rootModule));
+    when(hierarchy.root()).thenReturn(rootModule);
+    publisher.init(writer);
+
+    String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8);
+    assertThat(content).containsOnlyOnce(FOO);
+    assertThat(content).containsOnlyOnce(BIZ);
+    assertThat(content).containsSubsequence(BIZ, FOO);
+
+    content = FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8);
+    assertThat(content).containsOnlyOnce(FOO);
+    assertThat(content).containsOnlyOnce(BIZ);
+    assertThat(content).doesNotContain("env." + FOO);
+  }
+
+  @Test
   public void shouldNotDumpSensitiveModuleProperties() throws Exception {
     ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
     DefaultInputModule rootModule = new DefaultInputModule(ProjectDefinition.create()
@@ -186,7 +246,6 @@ public class AnalysisContextReportPublisherTest {
     publisher.init(writer);
 
     assertThat(writer.getFileStructure().analysisLog()).exists();
-
 
     assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8)).containsSubsequence(
       "sonar.aVeryLongProp=" + StringUtils.repeat("abcde", 199) + "ab...",

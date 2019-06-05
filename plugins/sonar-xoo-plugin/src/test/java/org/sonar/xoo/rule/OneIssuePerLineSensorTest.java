@@ -20,16 +20,16 @@
 package org.sonar.xoo.rule;
 
 import java.io.IOException;
-import org.sonar.api.SonarEdition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
+import org.sonar.scanner.fs.DefaultInputFile;
 import org.sonar.scanner.fs.TestInputFileBuilder;
 import org.sonar.scanner.sensor.DefaultSensorDescriptor;
 import org.sonar.scanner.sensor.SensorContextTester;

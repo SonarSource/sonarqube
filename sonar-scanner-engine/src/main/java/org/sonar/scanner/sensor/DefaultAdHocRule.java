@@ -22,7 +22,6 @@ package org.sonar.scanner.sensor;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.rule.AdHocRule;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;

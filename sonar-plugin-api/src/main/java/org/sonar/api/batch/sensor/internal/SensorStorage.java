@@ -19,16 +19,16 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
-import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
-import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
+import org.sonar.api.batch.sensor.code.NewSignificantCode;
+import org.sonar.api.batch.sensor.coverage.NewCoverage;
+import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.rule.AdHocRule;
-import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
+import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.scanner.ScannerSide;
 
 /**
@@ -52,17 +52,17 @@ public interface SensorStorage {
   /**
    * @since 5.2
    */
-  void store(DefaultCoverage defaultCoverage);
+  void store(NewCoverage defaultCoverage);
 
   /**
    * @since 5.5
    */
-  void store(DefaultCpdTokens defaultCpdTokens);
+  void store(NewCpdTokens cpdTokens);
 
   /**
    * @since 5.6
    */
-  void store(DefaultSymbolTable symbolTable);
+  void store(NewSymbolTable symbolTable);
 
   /**
    * @since 6.0
@@ -81,5 +81,5 @@ public interface SensorStorage {
   /**
    * @since 7.2
    */
-  void store(DefaultSignificantCode significantCode);
+  void store(NewSignificantCode significantCode);
 }

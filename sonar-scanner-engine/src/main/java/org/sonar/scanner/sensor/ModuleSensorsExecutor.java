@@ -23,13 +23,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
+import org.sonar.scanner.fs.DefaultInputModule;
+import org.sonar.scanner.fs.InputModuleHierarchy;
 
 public class ModuleSensorsExecutor {
   private static final Logger LOG = Loggers.get(ModuleSensorsExecutor.class);
@@ -40,7 +40,7 @@ public class ModuleSensorsExecutor {
   private final boolean isRoot;
 
   public ModuleSensorsExecutor(ModuleSensorExtensionDictionnary selector, DefaultInputModule module, InputModuleHierarchy hierarchy,
-                               SensorStrategy strategy, ScannerPluginRepository pluginRepo) {
+    SensorStrategy strategy, ScannerPluginRepository pluginRepo) {
     this.selector = selector;
     this.strategy = strategy;
     this.pluginRepo = pluginRepo;

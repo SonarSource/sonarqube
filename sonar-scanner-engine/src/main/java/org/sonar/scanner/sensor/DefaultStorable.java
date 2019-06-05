@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.internal;
+package org.sonar.scanner.sensor;
 
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.Preconditions.checkState;
