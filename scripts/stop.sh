@@ -7,24 +7,22 @@ set -euo pipefail
 
 ROOT=$(pwd)
 source "$ROOT/scripts/editions.sh"
+source "$ROOT/scripts/os.sh"
 if [ -r "$ROOT/private/scripts/editions.sh" ]; then
   source "$ROOT/private/scripts/editions.sh"
 fi
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  OS='macosx-universal-64'
-else
-  OS='linux-x86-64'
-fi
-
 stopAny() {
-  for edition in $EDITIONS; do
-      SONAR_SH="$(distributionDirOf "$edition")/sonarqube-*/bin/$OS/sonar.sh"
+  # Don't try to stop on windows for now
+  if [[ "${OSTYPE:-}" != "msys" ]]; then
+    for edition in $EDITIONS; do
+      SONAR_SH="$(distributionDirOf "$edition")/sonarqube-*/bin/$OS_DIR/sonar.sh"
       if ls $SONAR_SH &> /dev/null; then
         echo "$(baseFileNameOf "$edition") is unpacked"
         sh $SONAR_SH stop
       fi
-  done
+    done
+  fi
 }
 
 # check the script was called to avoid execute when script is only sourced

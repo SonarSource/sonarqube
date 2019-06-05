@@ -24,6 +24,7 @@ if [ -r "$ROOT/private/scripts/editions.sh" ]; then
 fi
 source "$ROOT/scripts/logs.sh"
 source "$ROOT/scripts/stop.sh"
+source "$ROOT/scripts/os.sh"
 
 PATCHES=""
 EDITION="$DEFAULT_EDITION"
@@ -47,12 +48,6 @@ EDITION=$(resolveAliases "$EDITION")
 checkEdition "$EDITION"
 checkLogArgument "$LOG"
 
-if [[ "${OSTYPE:-}" == "darwin"* ]]; then
-  OS='macosx-universal-64'
-else
-  OS='linux-x86-64'
-fi
-
 OSS_ZIP="$(distributionDirOf "community")/$(baseFileNameOf "community")-*.zip"
 if ! ls ${OSS_ZIP} &> /dev/null; then
   echo 'Sources are not built'
@@ -64,8 +59,8 @@ stopAny
 
 cd "$(distributionDirOf "$EDITION")"
 
-SH_FILE="sonarqube-*/bin/$OS/sonar.sh"
-if ! ls ${SH_FILE} &> /dev/null; then
+SH_FILE_DIR="sonarqube-*/bin/$OS_DIR/"
+if ! ls $SH_FILE_DIR &> /dev/null; then
   BASE_FILE_NAME="$(baseFileNameOf "$EDITION")"
   echo "Unpacking ${BASE_FILE_NAME}..."
   ZIP_FILE="${BASE_FILE_NAME}-*.zip"
@@ -78,7 +73,7 @@ cd "$ROOT"
 
 source "$ROOT"/scripts/patches_utils.sh
 
-SQ_EXEC="$SQ_HOME/bin/$OS/sonar.sh"
+SQ_EXEC="$SQ_HOME/bin/$OS_DIR/$SH_FILE"
 
 # invoke patches if at least one was specified
 # each patch is passed the path to the SQ instance home directory as first and only argument
@@ -86,7 +81,7 @@ if [ "$PATCHES" ]; then
   call_patches "$PATCHES" "$SQ_HOME"
 fi
 
-"$SQ_EXEC" start
+runSQ $SQ_EXEC
 sleep 1
 doTail "$LOG"
 
