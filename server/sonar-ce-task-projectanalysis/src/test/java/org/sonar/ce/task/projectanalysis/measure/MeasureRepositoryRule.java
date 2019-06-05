@@ -23,7 +23,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -61,15 +60,8 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   private final Map<InternalKey, Measure> baseMeasures = new HashMap<>();
   private final Map<InternalKey, Measure> rawMeasures = new HashMap<>();
   private final Map<InternalKey, Measure> initialRawMeasures = new HashMap<>();
-  private Collection<Component> loadedAsRawComponents;
-  private Collection<Metric> loadedAsRawMetrics;
-  private final Predicate<Map.Entry<InternalKey, Measure>> isAddedMeasure = new Predicate<Map.Entry<InternalKey, Measure>>() {
-    @Override
-    public boolean apply(@Nonnull Map.Entry<InternalKey, Measure> input) {
-      return !initialRawMeasures.containsKey(input.getKey())
-        || !MeasureRepoEntry.deepEquals(input.getValue(), initialRawMeasures.get(input.getKey()));
-    }
-  };
+  private final Predicate<Map.Entry<InternalKey, Measure>> isAddedMeasure = input -> !initialRawMeasures.containsKey(input.getKey())
+    || !MeasureRepoEntry.deepEquals(input.getValue(), initialRawMeasures.get(input.getKey()));
 
   private MeasureRepositoryRule(ComponentProvider componentProvider, @Nullable MetricRepositoryRule metricRepositoryRule) {
     this.componentProvider = componentProvider;
@@ -93,18 +85,6 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
 
   public static MeasureRepositoryRule create(Component treeRoot, MetricRepositoryRule metricRepositoryRule) {
     return new MeasureRepositoryRule(new TreeComponentProvider(treeRoot), requireNonNull(metricRepositoryRule));
-  }
-
-  public MeasureRepositoryRule addBaseMeasure(Component component, Metric metric, Measure measure) {
-    checkAndInitProvidersState();
-
-    InternalKey internalKey = new InternalKey(component, metric);
-    checkState(!baseMeasures.containsKey(internalKey),
-      format("Can not add a BaseMeasure twice for a Component (ref=%s) and Metric (key=%s)", getRef(component), metric.getKey()));
-
-    baseMeasures.put(internalKey, measure);
-
-    return this;
   }
 
   public MeasureRepositoryRule addBaseMeasure(int componentRef, String metricKey, Measure measure) {
@@ -188,20 +168,8 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     return Optional.ofNullable(baseMeasures.get(new InternalKey(component, metric)));
   }
 
-  public Collection<Component> getComponentsLoadedAsRaw() {
-    return loadedAsRawComponents;
-  }
-
-  public Collection<Metric> getMetricsLoadedAsRaw() {
-    return loadedAsRawMetrics;
-  }
-
   @Override
   public Optional<Measure> getRawMeasure(Component component, Metric metric) {
-    return Optional.ofNullable(rawMeasures.get(new InternalKey(component, metric)));
-  }
-
-  public Optional<Measure> getRawRuleMeasure(Component component, Metric metric, int ruleId) {
     return Optional.ofNullable(rawMeasures.get(new InternalKey(component, metric)));
   }
 

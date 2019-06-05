@@ -1506,6 +1506,23 @@ public final class CoreMetrics {
     .setWorstValue(5.0)
     .create();
 
+  /**
+   * @since 7.8
+   */
+  public static final String SECURITY_REVIEW_RATING_KEY = "security_review_rating";
+
+  /**
+   * @since 7.8
+   */
+  public static final Metric<Integer> SECURITY_REVIEW_RATING = new Metric.Builder(SECURITY_REVIEW_RATING_KEY, "Security Review Rating", Metric.ValueType.RATING)
+    .setDescription("Security Review Rating")
+    .setDomain(DOMAIN_SECURITY)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setQualitative(true)
+    .setBestValue(1d)
+    .setWorstValue(5d)
+    .create();
+
   // --------------------------------------------------------------------------------------------------------------------
   //
   // FILE DATA

@@ -124,6 +124,15 @@ public class IssueMetricFormulaFactoryImplTest {
   }
 
   @Test
+  public void test_security_review_rating() {
+    withNoIssues().assertThatValueIs(CoreMetrics.SECURITY_REVIEW_RATING, Rating.A);
+
+    with(CoreMetrics.SECURITY_HOTSPOTS, 12.0)
+      .and(CoreMetrics.NCLOC, 1000.0)
+      .assertThatValueIs(CoreMetrics.SECURITY_REVIEW_RATING, Rating.C);
+  }
+
+  @Test
   public void count_unresolved_by_severity() {
     withNoIssues()
       .assertThatValueIs(CoreMetrics.BLOCKER_VIOLATIONS, 0)

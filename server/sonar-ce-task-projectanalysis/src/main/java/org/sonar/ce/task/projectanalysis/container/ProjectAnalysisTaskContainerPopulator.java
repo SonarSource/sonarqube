@@ -77,9 +77,9 @@ import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.issue.RuleTagsCopier;
 import org.sonar.ce.task.projectanalysis.issue.ScmAccountToUser;
 import org.sonar.ce.task.projectanalysis.issue.ScmAccountToUserLoader;
+import org.sonar.ce.task.projectanalysis.issue.ShortBranchOrPullRequestTrackerExecution;
 import org.sonar.ce.task.projectanalysis.issue.SiblingsIssueMerger;
 import org.sonar.ce.task.projectanalysis.issue.SiblingsIssuesLoader;
-import org.sonar.ce.task.projectanalysis.issue.ShortBranchOrPullRequestTrackerExecution;
 import org.sonar.ce.task.projectanalysis.issue.TrackerBaseInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerExecution;
 import org.sonar.ce.task.projectanalysis.issue.TrackerMergeOrTargetBranchInputFactory;
@@ -111,6 +111,7 @@ import org.sonar.ce.task.projectanalysis.qualitymodel.NewMaintainabilityMeasures
 import org.sonar.ce.task.projectanalysis.qualitymodel.NewReliabilityAndSecurityRatingMeasuresVisitor;
 import org.sonar.ce.task.projectanalysis.qualitymodel.RatingSettings;
 import org.sonar.ce.task.projectanalysis.qualitymodel.ReliabilityAndSecurityRatingMeasuresVisitor;
+import org.sonar.ce.task.projectanalysis.qualitymodel.SecurityReviewRatingVisitor;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
 import org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoDbLoader;
@@ -265,6 +266,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       NewMaintainabilityMeasuresVisitor.class,
       ReliabilityAndSecurityRatingMeasuresVisitor.class,
       NewReliabilityAndSecurityRatingMeasuresVisitor.class,
+      SecurityReviewRatingVisitor.class,
       LastCommitVisitor.class,
       MeasureComputersVisitor.class,
 

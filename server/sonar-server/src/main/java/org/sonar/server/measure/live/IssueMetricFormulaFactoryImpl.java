@@ -28,6 +28,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.server.measure.Rating;
+import org.sonar.server.security.SecurityReviewRating;
 
 import static java.util.Arrays.asList;
 import static org.sonar.server.measure.Rating.RATING_BY_SEVERITY;
@@ -106,6 +107,11 @@ public class IssueMetricFormulaFactoryImpl implements IssueMetricFormulaFactory 
 
     new IssueMetricFormula(CoreMetrics.SECURITY_RATING, false,
       (context, issues) -> context.setValue(RATING_BY_SEVERITY.get(issues.getHighestSeverityOfUnresolved(RuleType.VULNERABILITY, false).orElse(Severity.INFO)))),
+
+    new IssueMetricFormula(CoreMetrics.SECURITY_REVIEW_RATING, false,
+      (context, issues) -> context.setValue(SecurityReviewRating.compute(context.getValue(CoreMetrics.NCLOC).orElse(0d).intValue(),
+        context.getValue(CoreMetrics.SECURITY_HOTSPOTS).orElse(0d).intValue())),
+      asList(CoreMetrics.NCLOC, CoreMetrics.SECURITY_HOTSPOTS)),
 
     new IssueMetricFormula(CoreMetrics.NEW_CODE_SMELLS, true,
       (context, issues) -> context.setLeakValue(issues.countUnresolvedByType(RuleType.CODE_SMELL, true))),

@@ -32,8 +32,7 @@ public interface MeasureRepository {
    * Retrieves the base measure (ie. the one currently existing in DB) for the specified {@link Component} for
    * the specified {@link MetricImpl} if it exists.
    * <p>
-   * This method searches for Measure which are specific to the Component and not associated to a rule or a
-   * characteristic.
+   * This method searches for Measure which are specific to the Component.
    * </p>
    *
    * @throws NullPointerException if either argument is {@code null}
@@ -42,32 +41,23 @@ public interface MeasureRepository {
 
   /**
    * Retrieves the measure created during the current analysis for the specified {@link Component} for the specified
-   * {@link Metric} if it exists (ie. one created by the Compute Engine or the Batch) and which is <strong>not</strong>
-   * associated to a rule, a characteristic, or a developer.
+   * {@link Metric} if it exists (ie. one created by the Compute Engine or the Scanner).
    */
   Optional<Measure> getRawMeasure(Component component, Metric metric);
 
   /**
    * Returns the {@link Measure}s for the specified {@link Component} and the specified {@link Metric}.
-   * <p>
-   * Their will be one measure not associated to rules, characteristics or developers, the other ones will be associated to rules or to characteristics
-   * (see {@link Measure#equals(Object)}.
-   * </p>
    */
   Set<Measure> getRawMeasures(Component component, Metric metric);
 
   /**
    * Returns the {@link Measure}s for the specified {@link Component} mapped by their metric key.
-   * <p>
-   * Their can be multiple measures for the same Metric but only one which has no rule nor characteristic, one with a
-   * specific ruleId and one with specific characteristicId (see {@link Measure#equals(Object)}.
-   * </p>
    */
   SetMultimap<String, Measure> getRawMeasures(Component component);
 
   /**
    * Adds the specified measure for the specified Component and Metric. There can be no more than one measure for a
-   * specific combination of Component, Metric and association to a specific rule or characteristic.
+   * specific combination of Component, Metric.
    *
    * @throws NullPointerException if any of the arguments is null
    * @throws UnsupportedOperationException when trying to add a measure when one already exists for the specified Component/Metric paar
@@ -76,7 +66,7 @@ public interface MeasureRepository {
 
   /**
    * Updates the specified measure for the specified Component and Metric. There can be no more than one measure for a
-   * specific combination of Component, Metric and association to a specific rule or characteristic.
+   * specific combination of Component, Metric.
    *
    * @throws NullPointerException if any of the arguments is null
    * @throws UnsupportedOperationException when trying to update a non existing measure
