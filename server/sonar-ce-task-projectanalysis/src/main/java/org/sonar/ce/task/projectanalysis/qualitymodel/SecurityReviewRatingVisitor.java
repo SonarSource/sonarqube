@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.qualitymodel;
 
 import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
@@ -33,7 +34,8 @@ import org.sonar.server.security.SecurityReviewRating;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
-import static org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit.PROJECT;
+import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
+import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
 public class SecurityReviewRatingVisitor extends TypeAwareVisitorAdapter {
@@ -44,7 +46,7 @@ public class SecurityReviewRatingVisitor extends TypeAwareVisitorAdapter {
   private final Metric securityReviewRatingMetric;
 
   public SecurityReviewRatingVisitor(MeasureRepository measureRepository, MetricRepository metricRepository) {
-    super(PROJECT, Order.POST_ORDER);
+    super(new CrawlerDepthLimit.Builder(PROJECT).withViewsMaxDepth(SUBVIEW), Order.POST_ORDER);
     this.measureRepository = measureRepository;
     this.nclocMetric = metricRepository.getByKey(NCLOC_KEY);
     this.securityHostspotsMetric = metricRepository.getByKey(SECURITY_HOTSPOTS_KEY);
@@ -53,15 +55,29 @@ public class SecurityReviewRatingVisitor extends TypeAwareVisitorAdapter {
 
   @Override
   public void visitProject(Component project) {
-    Optional<Measure> nclocMeasure = measureRepository.getRawMeasure(project, nclocMetric);
-    Optional<Measure> securityHostspotsMeasure = measureRepository.getRawMeasure(project, securityHostspotsMetric);
+    computeMeasure(project);
+  }
+
+  @Override
+  public void visitView(Component view) {
+    computeMeasure(view);
+  }
+
+  @Override
+  public void visitSubView(Component subView) {
+    computeMeasure(subView);
+  }
+
+  private void computeMeasure(Component component) {
+    Optional<Measure> nclocMeasure = measureRepository.getRawMeasure(component, nclocMetric);
+    Optional<Measure> securityHostspotsMeasure = measureRepository.getRawMeasure(component, securityHostspotsMetric);
     if (!nclocMeasure.isPresent() || !securityHostspotsMeasure.isPresent()) {
       return;
     }
     int ncloc = nclocMeasure.get().getIntValue();
     int securityHotspots = securityHostspotsMeasure.get().getIntValue();
     Rating rating = SecurityReviewRating.compute(ncloc, securityHotspots);
-    measureRepository.add(project, securityReviewRatingMetric, newMeasureBuilder().create(rating.getIndex(), rating.name()));
+    measureRepository.add(component, securityReviewRatingMetric, newMeasureBuilder().create(rating.getIndex(), rating.name()));
   }
 
 }

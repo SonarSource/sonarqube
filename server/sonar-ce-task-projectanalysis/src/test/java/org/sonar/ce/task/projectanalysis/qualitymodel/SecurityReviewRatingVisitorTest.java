@@ -24,11 +24,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.ce.task.projectanalysis.component.ViewAttributes;
+import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 import org.sonar.ce.task.projectanalysis.component.VisitorsCrawler;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.server.measure.Rating;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,11 +41,27 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
+import static org.sonar.server.measure.Rating.B;
+import static org.sonar.server.measure.Rating.C;
 
 public class SecurityReviewRatingVisitorTest {
 
   private static final int PROJECT_REF = 1;
   private static final Component PROJECT = builder(Component.Type.PROJECT, PROJECT_REF).setKey("project").build();
+
+  private static final int PORTFOLIO_REF = 10;
+  private static final int SUB_PORTFOLIO_1_REF = 11;
+  private static final int SUB_PORTFOLIO_2_REF = 12;
+  private static final Component PORTFOLIO = ViewsComponent.builder(Component.Type.VIEW, Integer.toString(PORTFOLIO_REF))
+    .addChildren(
+      ViewsComponent.builder(Component.Type.SUBVIEW, Integer.toString(SUB_PORTFOLIO_1_REF)).build(),
+      ViewsComponent.builder(Component.Type.SUBVIEW, Integer.toString(SUB_PORTFOLIO_2_REF)).build())
+    .build();
+
+  private static final int APPLICATION_REF = 20;
+  private static final Component APPLICATION = ViewsComponent.builder(Component.Type.VIEW, Integer.toString(APPLICATION_REF))
+    .setViewAttributes(new ViewAttributes(ViewAttributes.Type.APPLICATION))
+    .build();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
@@ -69,8 +86,38 @@ public class SecurityReviewRatingVisitorTest {
     underTest.visit(PROJECT);
 
     Measure measure = measureRepository.getAddedRawMeasure(PROJECT_REF, SECURITY_REVIEW_RATING_KEY).get();
-    assertThat(measure.getIntValue()).isEqualTo(Rating.C.getIndex());
-    assertThat(measure.getData()).isEqualTo(Rating.C.name());
+    assertThat(measure.getIntValue()).isEqualTo(C.getIndex());
+    assertThat(measure.getData()).isEqualTo(C.name());
+  }
+
+  @Test
+  public void compute_security_review_rating_on_portfolio() {
+    treeRootHolder.setRoot(PORTFOLIO);
+    measureRepository.addRawMeasure(PORTFOLIO_REF, NCLOC_KEY, newMeasureBuilder().create(2000));
+    measureRepository.addRawMeasure(PORTFOLIO_REF, SECURITY_HOTSPOTS_KEY, newMeasureBuilder().create(20));
+    measureRepository.addRawMeasure(SUB_PORTFOLIO_1_REF, NCLOC_KEY, newMeasureBuilder().create(1000));
+    measureRepository.addRawMeasure(SUB_PORTFOLIO_1_REF, SECURITY_HOTSPOTS_KEY, newMeasureBuilder().create(5));
+    measureRepository.addRawMeasure(SUB_PORTFOLIO_2_REF, NCLOC_KEY, newMeasureBuilder().create(1000));
+    measureRepository.addRawMeasure(SUB_PORTFOLIO_2_REF, SECURITY_HOTSPOTS_KEY, newMeasureBuilder().create(15));
+
+    underTest.visit(PORTFOLIO);
+
+    assertThat(measureRepository.getAddedRawMeasure(SUB_PORTFOLIO_1_REF, SECURITY_REVIEW_RATING_KEY).get().getIntValue()).isEqualTo(B.getIndex());
+    assertThat(measureRepository.getAddedRawMeasure(SUB_PORTFOLIO_2_REF, SECURITY_REVIEW_RATING_KEY).get().getIntValue()).isEqualTo(C.getIndex());
+    assertThat(measureRepository.getAddedRawMeasure(PORTFOLIO_REF, SECURITY_REVIEW_RATING_KEY).get().getIntValue()).isEqualTo(B.getIndex());
+  }
+
+  @Test
+  public void compute_security_review_rating_on_application() {
+    treeRootHolder.setRoot(APPLICATION);
+    measureRepository.addRawMeasure(APPLICATION_REF, NCLOC_KEY, newMeasureBuilder().create(1000));
+    measureRepository.addRawMeasure(APPLICATION_REF, SECURITY_HOTSPOTS_KEY, newMeasureBuilder().create(12));
+
+    underTest.visit(APPLICATION);
+
+    Measure measure = measureRepository.getAddedRawMeasure(APPLICATION_REF, SECURITY_REVIEW_RATING_KEY).get();
+    assertThat(measure.getIntValue()).isEqualTo(C.getIndex());
+    assertThat(measure.getData()).isEqualTo(C.name());
   }
 
   @Test
