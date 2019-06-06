@@ -19,13 +19,38 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ReliabilityBox from '../ReliabilityBox';
+import MetricBox from '../MetricBox';
 
-it('renders', () => {
+it('should render correctly', () => {
   const measures = {
     reliability_rating: '3',
     last_change_on_reliability_rating: '{"date":"2017-01-02T00:00:00.000Z","value":2}',
     reliability_rating_effort: '{"rating":3,"projects":1}'
   };
-  expect(shallow(<ReliabilityBox component="foo" measures={measures} />)).toMatchSnapshot();
+  expect(
+    shallow(<MetricBox component="foo" measures={measures} metricKey="reliability" />)
+  ).toMatchSnapshot();
+});
+
+it('should render correctly for releasability', () => {
+  const measures = {
+    releasability_rating: '2',
+    last_change_on_releasability_rating: '{"date":"2017-01-02T00:00:00.000Z","value":2}',
+    releasability_effort: '5'
+  };
+  expect(
+    shallow(<MetricBox component="foo" measures={measures} metricKey="releasability" />)
+  ).toMatchSnapshot();
+});
+
+it('should render correctly when no effort', () => {
+  const measures = {
+    releasability_rating: '2',
+    last_change_on_releasability_rating: '{"date":"2017-01-02T00:00:00.000Z","value":2}',
+    releasability_effort: '0'
+  };
+
+  expect(
+    shallow(<MetricBox component="foo" measures={measures} metricKey="releasability" />)
+  ).toMatchSnapshot();
 });

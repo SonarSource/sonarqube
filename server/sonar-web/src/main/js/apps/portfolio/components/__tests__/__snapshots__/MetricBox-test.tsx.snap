@@ -1,0 +1,181 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="portfolio-box"
+>
+  <h2
+    className="portfolio-box-title"
+  >
+    metric_domain.Reliability
+    <HelpTooltip
+      className="little-spacer-left"
+      overlay="portfolio.metric_domain.reliability.help"
+    />
+  </h2>
+  <MainRating
+    component="foo"
+    metric="reliability_rating"
+    value="3"
+  />
+  <h3>
+    portfolio.metric_trend
+  </h3>
+  <RatingFreshness
+    lastChange="{\\"date\\":\\"2017-01-02T00:00:00.000Z\\",\\"value\\":2}"
+    rating="3"
+  />
+  <h3>
+    portfolio.lowest_rated_projects
+  </h3>
+  <Effort
+    component="foo"
+    effort={
+      Object {
+        "projects": 1,
+        "rating": 3,
+      }
+    }
+    metricKey="reliability_rating"
+  />
+  <div
+    className="portfolio-box-links"
+  >
+    <div>
+      <MeasuresButtonLink
+        component="foo"
+        metric="Reliability"
+      />
+    </div>
+    <div>
+      <HistoryButtonLink
+        component="foo"
+        metric="reliability_rating"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly for releasability 1`] = `
+<div
+  className="portfolio-box"
+>
+  <h2
+    className="portfolio-box-title"
+  >
+    metric_domain.Releasability
+    <HelpTooltip
+      className="little-spacer-left"
+      overlay="portfolio.metric_domain.releasability.help"
+    />
+  </h2>
+  <MainRating
+    component="foo"
+    metric="releasability_rating"
+    value="2"
+  />
+  <h3>
+    portfolio.metric_trend
+  </h3>
+  <RatingFreshness
+    lastChange="{\\"date\\":\\"2017-01-02T00:00:00.000Z\\",\\"value\\":2}"
+    rating="2"
+  />
+  <h3>
+    portfolio.lowest_rated_projects
+  </h3>
+  <div
+    className="portfolio-effort"
+  >
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures",
+          "query": Object {
+            "id": "foo",
+            "metric": "alert_status",
+          },
+        }
+      }
+    >
+      <span>
+        <Measure
+          className="little-spacer-right"
+          metricKey="projects"
+          metricType="SHORT_INT"
+          value={5}
+        />
+        project_plural
+      </span>
+    </Link>
+     
+    <Level
+      level="ERROR"
+      small={true}
+    />
+  </div>
+  <div
+    className="portfolio-box-links"
+  >
+    <div>
+      <MeasuresButtonLink
+        component="foo"
+        metric="Releasability"
+      />
+    </div>
+    <div>
+      <HistoryButtonLink
+        component="foo"
+        metric="releasability_rating"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly when no effort 1`] = `
+<div
+  className="portfolio-box"
+>
+  <h2
+    className="portfolio-box-title"
+  >
+    metric_domain.Releasability
+    <HelpTooltip
+      className="little-spacer-left"
+      overlay="portfolio.metric_domain.releasability.help"
+    />
+  </h2>
+  <MainRating
+    component="foo"
+    metric="releasability_rating"
+    value="2"
+  />
+  <h3>
+    portfolio.metric_trend
+  </h3>
+  <RatingFreshness
+    lastChange="{\\"date\\":\\"2017-01-02T00:00:00.000Z\\",\\"value\\":2}"
+    rating="2"
+  />
+  <div
+    className="portfolio-box-links"
+  >
+    <div>
+      <MeasuresButtonLink
+        component="foo"
+        metric="Releasability"
+      />
+    </div>
+    <div>
+      <HistoryButtonLink
+        component="foo"
+        metric="releasability_rating"
+      />
+    </div>
+  </div>
+</div>
+`;

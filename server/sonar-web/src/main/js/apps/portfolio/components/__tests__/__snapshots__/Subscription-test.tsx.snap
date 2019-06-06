@@ -1,63 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders when no email 1`] = `
-<div
-  className="big-spacer-top js-report-subscription"
+<span
+  className="text-muted-2"
 >
-  <p
-    className="note js-no-email"
-  >
-    report.no_email_to_subscribe
-  </p>
-</div>
+  report.no_email_to_subscribe
+</span>
 `;
 
 exports[`renders when not subscribed 1`] = `
-<div
-  className="big-spacer-top js-report-subscription"
+<a
+  href="#"
+  onClick={[Function]}
 >
-  <div
-    className="js-not-subscribed"
-  >
-    <p
-      className="spacer-bottom"
-    >
-      report.unsubscribed.report.frequency.montly.effective
-    </p>
-    <Button
-      className="js-report-subscribe"
-      onClick={[Function]}
-    >
-      report.subscribe
-    </Button>
-  </div>
-</div>
+  report.subscribe_x.report.frequency.montly
+</a>
 `;
 
 exports[`renders when subscribed 1`] = `
-<div
-  className="big-spacer-top js-report-subscription"
+<a
+  href="#"
+  onClick={[Function]}
 >
-  <div
-    className="js-subscribed"
-  >
-    <div
-      className="spacer-bottom"
-    >
-      <AlertSuccessIcon
-        className="pull-left spacer-right"
-      />
-      <div
-        className="overflow-hidden"
-      >
-        report.subscribed.report.frequency.montly.effective
-      </div>
-    </div>
-    <Button
-      onClick={[Function]}
-    >
-      report.unsubscribe
-    </Button>
-  </div>
-</div>
+  report.unsubscribe_x.report.frequency.montly
+</a>
 `;

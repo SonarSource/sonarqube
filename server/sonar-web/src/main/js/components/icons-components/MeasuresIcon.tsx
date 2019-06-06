@@ -18,16 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
-import Summary from '../Summary';
+import Icon, { IconProps } from './Icon';
 
-it('renders', () => {
-  expect(
-    shallow(
-      <Summary
-        component={{ description: 'blabla', key: 'foo' }}
-        measures={{ ncloc: '1234', ncloc_language_distribution: 'java=13;js=17', projects: '15' }}
-      />
-    )
-  ).toMatchSnapshot();
-});
+export default function MeasuresIcon({ className, fill = 'currentColor', size }: IconProps) {
+  return (
+    <Icon className={className} size={size} style={{ fillRule: 'nonzero' }}>
+      <path d="M3.33 6.13h2v6.54h-2zm3.74-2.8h1.86v9.34H7.07zm3.73 5.34h1.87v4H10.8z" fill={fill} />
+    </Icon>
+  );
+}

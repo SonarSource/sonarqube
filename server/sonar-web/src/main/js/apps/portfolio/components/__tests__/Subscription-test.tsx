@@ -26,22 +26,13 @@ jest.mock('../../../../api/report', () => {
 });
 
 import * as React from 'react';
-import { mount, shallow } from 'enzyme';
-import Subscription from '../Subscription';
+import { shallow, mount } from 'enzyme';
+import { Subscription } from '../Subscription';
 import { click, waitAndUpdate } from '../../../../helpers/testUtils';
+import { ReportStatus } from '../../../../api/report';
 
 const subscribe = require('../../../../api/report').subscribe as jest.Mock<any>;
 const unsubscribe = require('../../../../api/report').unsubscribe as jest.Mock<any>;
-
-const status = {
-  canDownload: true,
-  canSubscribe: true,
-  componentFrequency: 'montly',
-  globalFrequency: 'weekly',
-  subscribed: true
-};
-
-const currentUser = { isLoggedIn: true, email: 'foo@example.com' };
 
 beforeEach(() => {
   subscribe.mockClear();
@@ -49,36 +40,69 @@ beforeEach(() => {
 });
 
 it('renders when subscribed', () => {
-  expect(
-    shallow(<Subscription component="foo" currentUser={currentUser} status={status} />)
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('renders when not subscribed', () => {
-  expect(
-    shallow(
-      <Subscription
-        component="foo"
-        currentUser={currentUser}
-        status={{ ...status, subscribed: false }}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender({}, { subscribed: false })).toMatchSnapshot();
 });
 
 it('renders when no email', () => {
-  expect(
-    shallow(<Subscription component="foo" currentUser={{ isLoggedIn: false }} status={status} />)
-  ).toMatchSnapshot();
+  expect(shallowRender({ currentUser: { isLoggedIn: false } })).toMatchSnapshot();
 });
 
 it('changes subscription', async () => {
-  const wrapper = mount(<Subscription component="foo" currentUser={currentUser} status={status} />);
-  click(wrapper.find('button'));
+  const status = {
+    canDownload: true,
+    canSubscribe: true,
+    componentFrequency: 'montly',
+    globalFrequency: 'weekly',
+    subscribed: true
+  };
+
+  const currentUser = { isLoggedIn: true, email: 'foo@example.com' };
+
+  const wrapper = mount(
+    <Subscription
+      component="foo"
+      currentUser={currentUser}
+      onSubscribe={jest.fn()}
+      status={status}
+    />
+  );
+
+  click(wrapper.find('a'));
   expect(unsubscribe).toBeCalledWith('foo');
 
+  wrapper.setProps({ status: { ...status, subscribed: false } });
   await waitAndUpdate(wrapper);
 
-  click(wrapper.find('button'));
+  click(wrapper.find('a'));
   expect(subscribe).toBeCalledWith('foo');
 });
+
+function shallowRender(
+  props: Partial<Subscription['props']> = {},
+  statusOverrides: Partial<ReportStatus> = {}
+) {
+  const status = {
+    canDownload: true,
+    canSubscribe: true,
+    componentFrequency: 'montly',
+    globalFrequency: 'weekly',
+    subscribed: true,
+    ...statusOverrides
+  };
+
+  const currentUser = { isLoggedIn: true, email: 'foo@example.com' };
+
+  return shallow<Subscription>(
+    <Subscription
+      component="foo"
+      currentUser={currentUser}
+      onSubscribe={jest.fn()}
+      status={status}
+      {...props}
+    />
+  );
+}

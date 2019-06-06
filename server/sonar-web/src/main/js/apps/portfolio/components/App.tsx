@@ -19,23 +19,21 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Summary from './Summary';
+import { Link } from 'react-router';
+import MeasuresButtonLink from './MeasuresButtonLink';
+import MetricBox from './MetricBox';
 import Report from './Report';
 import WorstProjects from './WorstProjects';
-import ReleasabilityBox from './ReleasabilityBox';
-import ReliabilityBox from './ReliabilityBox';
-import SecurityBox from './SecurityBox';
-import MaintainabilityBox from './MaintainabilityBox';
-import Activity from './Activity';
 import { SubComponent } from '../types';
 import { PORTFOLIO_METRICS, SUB_COMPONENTS_METRICS, convertMeasures } from '../utils';
-import { getMeasures } from '../../../api/measures';
+import Measure from '../../../components/measure/Measure';
 import { getChildren } from '../../../api/components';
+import { getMeasures } from '../../../api/measures';
 import { translate } from '../../../helpers/l10n';
+import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics, Store } from '../../../store/rootReducer';
 import '../styles.css';
-import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 
 interface OwnProps {
   component: T.Component;
@@ -140,9 +138,13 @@ export class App extends React.PureComponent<Props, State> {
     );
   }
 
-  renderMain() {
+  render() {
     const { component } = this.props;
-    const { measures, subComponents, totalSubComponents } = this.state;
+    const { loading, measures, subComponents, totalSubComponents } = this.state;
+
+    if (loading) {
+      return this.renderSpinner();
+    }
 
     if (this.isEmpty()) {
       return this.renderEmpty();
@@ -153,12 +155,54 @@ export class App extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div>
+      <div className="page page-limited portfolio-overview">
+        <div className="page-actions">
+          <Report component={component} />
+        </div>
+        <h1>{translate('portfolio.health_factors')}</h1>
         <div className="portfolio-boxes">
-          <ReleasabilityBox component={component.key} measures={measures!} />
-          <ReliabilityBox component={component.key} measures={measures!} />
-          <SecurityBox component={component.key} measures={measures!} />
-          <MaintainabilityBox component={component.key} measures={measures!} />
+          <MetricBox component={component.key} measures={measures!} metricKey="releasability" />
+          <MetricBox component={component.key} measures={measures!} metricKey="reliability" />
+          <MetricBox component={component.key} measures={measures!} metricKey="vulnerabilities" />
+          <MetricBox component={component.key} measures={measures!} metricKey="security_hotspots" />
+          <MetricBox component={component.key} measures={measures!} metricKey="maintainability" />
+        </div>
+
+        <h1>{translate('portfolio.breakdown')}</h1>
+        <div className="portfolio-breakdown">
+          <div className="portfolio-breakdown-box">
+            <h2>{translate('portfolio.number_of_projects')}</h2>
+            <div className="portfolio-breakdown-metric">
+              <Measure
+                metricKey="projects"
+                metricType="SHORT_INT"
+                value={(measures && measures.projects) || '0'}
+              />
+            </div>
+            <div className="portfolio-breakdown-box-link">
+              <div>
+                <MeasuresButtonLink component={component.key} metric="projects" />
+              </div>
+            </div>
+          </div>
+          <div className="portfolio-breakdown-box">
+            <h2>{translate('portfolio.number_of_lines')}</h2>
+            <div className="portfolio-breakdown-metric">
+              <Measure
+                metricKey="ncloc"
+                metricType="SHORT_INT"
+                value={(measures && measures.ncloc) || '0'}
+              />
+            </div>
+            <div className="portfolio-breakdown-box-link">
+              <div>
+                <Link
+                  to={getComponentDrilldownUrl({ componentKey: component.key, metric: 'ncloc' })}>
+                  <span>{translate('portfolio.language_breakdown_link')}</span>
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
 
         {subComponents !== undefined && totalSubComponents !== undefined && (
@@ -168,49 +212,6 @@ export class App extends React.PureComponent<Props, State> {
             total={totalSubComponents}
           />
         )}
-      </div>
-    );
-  }
-
-  render() {
-    const { component } = this.props;
-    const { loading, measures } = this.state;
-
-    if (loading) {
-      return this.renderSpinner();
-    }
-
-    return (
-      <div className="page page-limited">
-        <div className="page-with-sidebar">
-          <div className="page-main">{this.renderMain()}</div>
-
-          <aside className="page-sidebar-fixed">
-            <div className="portfolio-meta-card">
-              <h4 className="portfolio-meta-header">
-                {translate('overview.about_this_portfolio')}
-                {component.visibility && (
-                  <PrivacyBadgeContainer
-                    className="spacer-left pull-right"
-                    organization={component.organization}
-                    qualifier={component.qualifier}
-                    tooltipProps={{ projectKey: component.key }}
-                    visibility={component.visibility}
-                  />
-                )}
-              </h4>
-              <Summary component={component} measures={measures || {}} />
-            </div>
-
-            <div className="portfolio-meta-card">
-              <Activity component={component.key} metrics={this.props.metrics} />
-            </div>
-
-            <div className="portfolio-meta-card">
-              <Report component={component} />
-            </div>
-          </aside>
-        </div>
       </div>
     );
   }

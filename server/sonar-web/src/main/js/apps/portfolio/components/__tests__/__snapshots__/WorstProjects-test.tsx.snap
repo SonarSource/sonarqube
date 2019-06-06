@@ -26,7 +26,12 @@ exports[`renders 1`] = `
         <th
           className="text-center portfolio-sub-components-cell"
         >
-          metric_domain.Security
+          portfolio.metric_domain.vulnerabilities
+        </th>
+        <th
+          className="text-center portfolio-sub-components-cell"
+        >
+          portfolio.metric_domain.security_hotspots
         </th>
         <th
           className="text-center portfolio-sub-components-cell"
@@ -91,6 +96,14 @@ exports[`renders 1`] = `
             metricKey="security_rating"
             metricType="RATING"
             value="1"
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            metricKey="security_review_rating"
+            metricType="RATING"
           />
         </td>
         <td
@@ -185,6 +198,14 @@ exports[`renders 1`] = `
           className="text-center"
         >
           <Measure
+            metricKey="security_review_rating"
+            metricType="RATING"
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
             metricKey="sqale_rating"
             metricType="RATING"
             value="4"
@@ -267,6 +288,14 @@ exports[`renders 1`] = `
             metricKey="security_rating"
             metricType="RATING"
             value="1"
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            metricKey="security_review_rating"
+            metricType="RATING"
           />
         </td>
         <td

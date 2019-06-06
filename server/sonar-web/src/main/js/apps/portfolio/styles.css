@@ -17,6 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+.portfolio-overview > h1 {
+  font-weight: normal;
+}
+
+.portfolio-overview > .page-actions {
+  margin-bottom: 0;
+}
+
 .portfolio-measure-secondary-value {
   line-height: var(--controlHeight);
   font-size: 18px;
@@ -43,16 +51,8 @@
 
 .portfolio-freshness {
   line-height: var(--controlHeight);
-  margin-top: 12px;
-  color: var(--secondFontColor);
   font-size: var(--smallFontSize);
   white-space: nowrap;
-}
-
-.portfolio-effort {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--barBorderColor);
 }
 
 .portfolio-boxes {
@@ -61,54 +61,156 @@
   align-items: stretch;
   margin-bottom: 20px;
   padding: 15px 0;
-  border: 1px solid var(--barBorderColor);
-  background-color: #fff;
+  width: 100%;
 }
 
 .portfolio-box {
+  flex: 1 0 10%;
   position: relative;
-  width: 25%;
-  padding: 0 5px;
-  border-radius: 3px;
+  padding: 0 calc(2 * var(--gridSize)) 66px;
+  margin: 0 var(--gridSize);
+  border: 1px solid var(--barBorderColor);
+  background-color: #fff;
   box-sizing: border-box;
-  text-align: center;
+}
+
+.portfolio-box:first-child {
+  margin-left: 0;
+}
+
+.portfolio-box:last-child {
+  margin-right: 0;
 }
 
 .portfolio-box-title {
-  margin-bottom: 25px;
+  padding: var(--gridSize) 0 calc(2 * var(--gridSize));
+  margin: var(--gridSize) 0 calc(2 * var(--gridSize));
   font-size: var(--bigFontSize);
+  line-height: var(--bigFontSize);
+  border-bottom: 1px solid var(--barBorderColor);
+  white-space: nowrap;
 }
 
 .portfolio-box-title > .button-small > svg {
   margin-top: 0;
 }
 
+.portfolio-box > h3 {
+  color: var(--secondFontColor);
+  font-size: 12px;
+  font-weight: normal;
+  margin-top: var(--gridSize);
+}
+
 .portfolio-box-rating,
 .portfolio-box-rating .rating {
   display: block;
-  width: 120px;
-  height: 120px;
-  line-height: 120px;
+  width: 80px;
+  height: 80px;
+  line-height: 80px;
 }
 
 .portfolio-box-rating {
-  margin: 0 auto;
+  margin: calc(2 * var(--gridSize)) auto;
   border: none;
 }
 
 .portfolio-box-rating .rating {
-  border-radius: 120px;
-  font-size: 60px;
+  border-radius: 80px;
+  font-size: 48px;
   text-align: center;
+}
+
+.portfolio-box-rating .rating.no-rating {
+  color: var(--secondFontColor);
+}
+
+.portfolio-box-links {
+  border-top: 1px solid var(--barBorderColor);
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.portfolio-box-links > div {
+  display: inline-block;
+  padding: calc(1.5 * var(--gridSize)) 0;
+  width: 50%;
+  box-sizing: border-box;
+}
+
+.portfolio-box-links > div:first-child {
+  border-right: 1px solid var(--barBorderColor);
+}
+
+.portfolio-box-links a,
+.portfolio-breakdown-box-link a {
+  border: none;
+}
+
+.portfolio-box-links svg,
+.portfolio-breakdown-box-link svg {
+  vertical-align: middle;
+}
+
+.portfolio-box-links a > span,
+.portfolio-breakdown-box-link a > span {
+  border-bottom: 1px solid #cae3f2;
+}
+
+.portfolio-breakdown {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.portfolio-breakdown-box {
+  flex: 0 0 auto;
+  background-color: white;
+  border: 1px solid var(--barBorderColor);
+  margin: var(--gridSize) var(--gridSize) calc(2 * var(--gridSize));
+  padding: 0 var(--gridSize) 66px;
+  position: relative;
+}
+
+.portfolio-breakdown-box:first-child {
+  margin-left: 0;
+}
+
+.portfolio-breakdown-box:last-child {
+  margin-right: 0;
+}
+
+.portfolio-breakdown-box > h2 {
+  color: var(--secondFontColor);
+  margin: var(--gridSize);
+  font-size: 12px;
+}
+
+.portfolio-breakdown-box > .portfolio-breakdown-metric {
+  font-size: var(--hugeFontSize);
+  margin-left: var(--gridSize);
+}
+
+.portfolio-breakdown-box-link {
+  border-top: 1px solid var(--barBorderColor);
+  padding: calc(2 * var(--gridSize));
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 .portfolio-sub-components table.data > thead > tr > th {
   font-size: var(--baseFontSize);
   text-transform: none;
+  vertical-align: middle;
 }
 
 .portfolio-sub-components-cell {
-  width: 90px;
+  width: 110px;
 }
 
 .portfolio-meta-header {

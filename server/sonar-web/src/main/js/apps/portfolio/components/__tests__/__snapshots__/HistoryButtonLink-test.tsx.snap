@@ -2,7 +2,6 @@
 
 exports[`renders 1`] = `
 <Link
-  className="button button-small spacer-left text-text-bottom"
   onlyActiveOnIndex={false}
   style={Object {}}
   to={
@@ -17,7 +16,11 @@ exports[`renders 1`] = `
   }
 >
   <HistoryIcon
+    className="little-spacer-right"
     size={14}
   />
+  <span>
+    portfolio.activity_link
+  </span>
 </Link>
 `;

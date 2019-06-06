@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import BubblesIcon from '../../../components/icons-components/BubblesIcon';
+import MeasuresIcon from '../../../components/icons-components/MeasuresIcon';
+import { translate } from '../../../helpers/l10n';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 
 interface Props {
@@ -29,10 +30,9 @@ interface Props {
 
 export default function MeasuresButtonLink({ component, metric }: Props) {
   return (
-    <Link
-      className="button button-small spacer-left text-text-bottom"
-      to={getComponentDrilldownUrl({ componentKey: component, metric })}>
-      <BubblesIcon size={14} />
+    <Link to={getComponentDrilldownUrl({ componentKey: component, metric })}>
+      <MeasuresIcon className="little-spacer-right" size={14} />
+      <span>{translate('portfolio.measures_link')}</span>
     </Link>
   );
 }

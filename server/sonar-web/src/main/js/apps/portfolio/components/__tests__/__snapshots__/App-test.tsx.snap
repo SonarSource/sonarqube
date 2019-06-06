@@ -2,251 +2,174 @@
 
 exports[`renders 1`] = `
 <div
-  className="page page-limited"
+  className="page page-limited portfolio-overview"
 >
   <div
-    className="page-with-sidebar"
+    className="page-actions"
+  >
+    <Report
+      component={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+    />
+  </div>
+  <h1>
+    portfolio.health_factors
+  </h1>
+  <div
+    className="portfolio-boxes"
+  >
+    <MetricBox
+      component="foo"
+      measures={
+        Object {
+          "ncloc": "173",
+          "reliability_rating": "1",
+        }
+      }
+      metricKey="releasability"
+    />
+    <MetricBox
+      component="foo"
+      measures={
+        Object {
+          "ncloc": "173",
+          "reliability_rating": "1",
+        }
+      }
+      metricKey="reliability"
+    />
+    <MetricBox
+      component="foo"
+      measures={
+        Object {
+          "ncloc": "173",
+          "reliability_rating": "1",
+        }
+      }
+      metricKey="vulnerabilities"
+    />
+    <MetricBox
+      component="foo"
+      measures={
+        Object {
+          "ncloc": "173",
+          "reliability_rating": "1",
+        }
+      }
+      metricKey="security_hotspots"
+    />
+    <MetricBox
+      component="foo"
+      measures={
+        Object {
+          "ncloc": "173",
+          "reliability_rating": "1",
+        }
+      }
+      metricKey="maintainability"
+    />
+  </div>
+  <h1>
+    portfolio.breakdown
+  </h1>
+  <div
+    className="portfolio-breakdown"
   >
     <div
-      className="page-main"
+      className="portfolio-breakdown-box"
     >
-      <div>
-        <div
-          className="portfolio-boxes"
-        >
-          <ReleasabilityBox
+      <h2>
+        portfolio.number_of_projects
+      </h2>
+      <div
+        className="portfolio-breakdown-metric"
+      >
+        <Measure
+          metricKey="projects"
+          metricType="SHORT_INT"
+          value="0"
+        />
+      </div>
+      <div
+        className="portfolio-breakdown-box-link"
+      >
+        <div>
+          <MeasuresButtonLink
             component="foo"
-            measures={
-              Object {
-                "ncloc": "173",
-                "reliability_rating": "1",
-              }
-            }
-          />
-          <ReliabilityBox
-            component="foo"
-            measures={
-              Object {
-                "ncloc": "173",
-                "reliability_rating": "1",
-              }
-            }
-          />
-          <SecurityBox
-            component="foo"
-            measures={
-              Object {
-                "ncloc": "173",
-                "reliability_rating": "1",
-              }
-            }
-          />
-          <MaintainabilityBox
-            component="foo"
-            measures={
-              Object {
-                "ncloc": "173",
-                "reliability_rating": "1",
-              }
-            }
+            metric="projects"
           />
         </div>
-        <WorstProjects
-          component="foo"
-          subComponents={Array []}
-          total={0}
-        />
       </div>
     </div>
-    <aside
-      className="page-sidebar-fixed"
+    <div
+      className="portfolio-breakdown-box"
     >
+      <h2>
+        portfolio.number_of_lines
+      </h2>
       <div
-        className="portfolio-meta-card"
+        className="portfolio-breakdown-metric"
       >
-        <h4
-          className="portfolio-meta-header"
-        >
-          overview.about_this_portfolio
-        </h4>
-        <Summary
-          component={
-            Object {
-              "key": "foo",
-              "name": "Foo",
-              "qualifier": "TRK",
-            }
-          }
-          measures={
-            Object {
-              "ncloc": "173",
-              "reliability_rating": "1",
-            }
-          }
+        <Measure
+          metricKey="ncloc"
+          metricType="SHORT_INT"
+          value="173"
         />
       </div>
       <div
-        className="portfolio-meta-card"
+        className="portfolio-breakdown-box-link"
       >
-        <Activity
-          component="foo"
-          metrics={Object {}}
-        />
-      </div>
-      <div
-        className="portfolio-meta-card"
-      >
-        <Report
-          component={
-            Object {
-              "key": "foo",
-              "name": "Foo",
-              "qualifier": "TRK",
+        <div>
+          <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/component_measures",
+                "query": Object {
+                  "id": "foo",
+                  "metric": "ncloc",
+                },
+              }
             }
-          }
-        />
+          >
+            <span>
+              portfolio.language_breakdown_link
+            </span>
+          </Link>
+        </div>
       </div>
-    </aside>
+    </div>
   </div>
+  <WorstProjects
+    component="foo"
+    subComponents={Array []}
+    total={0}
+  />
 </div>
 `;
 
 exports[`renders when portfolio is empty 1`] = `
 <div
-  className="page page-limited"
+  className="empty-search"
 >
-  <div
-    className="page-with-sidebar"
-  >
-    <div
-      className="page-main"
-    >
-      <div
-        className="empty-search"
-      >
-        <h3>
-          portfolio.empty
-        </h3>
-      </div>
-    </div>
-    <aside
-      className="page-sidebar-fixed"
-    >
-      <div
-        className="portfolio-meta-card"
-      >
-        <h4
-          className="portfolio-meta-header"
-        >
-          overview.about_this_portfolio
-        </h4>
-        <Summary
-          component={
-            Object {
-              "key": "foo",
-              "name": "Foo",
-              "qualifier": "TRK",
-            }
-          }
-          measures={
-            Object {
-              "reliability_rating": "1",
-            }
-          }
-        />
-      </div>
-      <div
-        className="portfolio-meta-card"
-      >
-        <Activity
-          component="foo"
-          metrics={Object {}}
-        />
-      </div>
-      <div
-        className="portfolio-meta-card"
-      >
-        <Report
-          component={
-            Object {
-              "key": "foo",
-              "name": "Foo",
-              "qualifier": "TRK",
-            }
-          }
-        />
-      </div>
-    </aside>
-  </div>
+  <h3>
+    portfolio.empty
+  </h3>
 </div>
 `;
 
 exports[`renders when portfolio is not computed 1`] = `
 <div
-  className="page page-limited"
+  className="empty-search"
 >
-  <div
-    className="page-with-sidebar"
-  >
-    <div
-      className="page-main"
-    >
-      <div
-        className="empty-search"
-      >
-        <h3>
-          portfolio.not_computed
-        </h3>
-      </div>
-    </div>
-    <aside
-      className="page-sidebar-fixed"
-    >
-      <div
-        className="portfolio-meta-card"
-      >
-        <h4
-          className="portfolio-meta-header"
-        >
-          overview.about_this_portfolio
-        </h4>
-        <Summary
-          component={
-            Object {
-              "key": "foo",
-              "name": "Foo",
-              "qualifier": "TRK",
-            }
-          }
-          measures={
-            Object {
-              "ncloc": "173",
-            }
-          }
-        />
-      </div>
-      <div
-        className="portfolio-meta-card"
-      >
-        <Activity
-          component="foo"
-          metrics={Object {}}
-        />
-      </div>
-      <div
-        className="portfolio-meta-card"
-      >
-        <Report
-          component={
-            Object {
-              "key": "foo",
-              "name": "Foo",
-              "qualifier": "TRK",
-            }
-          }
-        />
-      </div>
-    </aside>
-  </div>
+  <h3>
+    portfolio.not_computed
+  </h3>
 </div>
 `;

@@ -18,115 +18,72 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
+import { connect } from 'react-redux';
 import { ReportStatus, subscribe, unsubscribe } from '../../../api/report';
+import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
+import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Button } from '../../../components/ui/buttons';
 import { isLoggedIn } from '../../../helpers/users';
+import { getCurrentUser, Store } from '../../../store/rootReducer';
 
 interface Props {
   component: string;
   currentUser: T.CurrentUser;
+  onSubscribe: () => void;
   status: ReportStatus;
 }
 
-interface State {
-  loading: boolean;
-  subscribed?: boolean;
-}
-
-export default class Subscription extends React.PureComponent<Props, State> {
-  mounted = false;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { subscribed: props.status.subscribed, loading: false };
-  }
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.status.subscribed !== this.props.status.subscribed) {
-      this.setState({ subscribed: nextProps.status.subscribed });
-    }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  stopLoading = () => {
-    if (this.mounted) {
-      this.setState({ loading: false });
-    }
-  };
-
+export class Subscription extends React.PureComponent<Props> {
   handleSubscription = (subscribed: boolean) => {
-    if (this.mounted) {
-      this.setState({ loading: false, subscribed });
-    }
+    addGlobalSuccessMessage(
+      subscribed
+        ? translateWithParameters('report.subscribe_x_success', this.getFrequencyText())
+        : translateWithParameters('report.unsubscribe_x_success', this.getFrequencyText())
+    );
+    this.props.onSubscribe();
   };
 
   handleSubscribe = () => {
-    this.setState({ loading: true });
     subscribe(this.props.component)
       .then(() => this.handleSubscription(true))
-      .catch(this.stopLoading);
+      .catch(throwGlobalError);
   };
 
   handleUnsubscribe = () => {
-    this.setState({ loading: true });
     unsubscribe(this.props.component)
       .then(() => this.handleSubscription(false))
-      .catch(this.stopLoading);
+      .catch(throwGlobalError);
   };
 
-  getEffectiveFrequencyText = () => {
+  getFrequencyText = () => {
     const effectiveFrequency =
       this.props.status.componentFrequency || this.props.status.globalFrequency;
-    return translate('report.frequency', effectiveFrequency, 'effective');
+    return translate('report.frequency', effectiveFrequency);
   };
-
-  renderLoading = () => this.state.loading && <i className="spacer-left spinner" />;
-
-  renderWhenSubscribed = () => (
-    <div className="js-subscribed">
-      <div className="spacer-bottom">
-        <AlertSuccessIcon className="pull-left spacer-right" />
-        <div className="overflow-hidden">
-          {translateWithParameters('report.subscribed', this.getEffectiveFrequencyText())}
-        </div>
-      </div>
-      <Button onClick={this.handleUnsubscribe}>{translate('report.unsubscribe')}</Button>
-      {this.renderLoading()}
-    </div>
-  );
-
-  renderWhenNotSubscribed = () => (
-    <div className="js-not-subscribed">
-      <p className="spacer-bottom">
-        {translateWithParameters('report.unsubscribed', this.getEffectiveFrequencyText())}
-      </p>
-      <Button className="js-report-subscribe" onClick={this.handleSubscribe}>
-        {translate('report.subscribe')}
-      </Button>
-      {this.renderLoading()}
-    </div>
-  );
 
   render() {
     const hasEmail = isLoggedIn(this.props.currentUser) && !!this.props.currentUser.email;
-    const { subscribed } = this.state;
 
-    let inner;
-    if (hasEmail) {
-      inner = subscribed ? this.renderWhenSubscribed() : this.renderWhenNotSubscribed();
-    } else {
-      inner = <p className="note js-no-email">{translate('report.no_email_to_subscribe')}</p>;
+    const { status } = this.props;
+
+    if (!hasEmail) {
+      return <span className="text-muted-2">{translate('report.no_email_to_subscribe')}</span>;
     }
 
-    return <div className="big-spacer-top js-report-subscription">{inner}</div>;
+    return status.subscribed ? (
+      <a href="#" onClick={this.handleUnsubscribe}>
+        {translateWithParameters('report.unsubscribe_x', this.getFrequencyText())}
+      </a>
+    ) : (
+      <a href="#" onClick={this.handleSubscribe}>
+        {translateWithParameters('report.subscribe_x', this.getFrequencyText())}
+      </a>
+    );
   }
 }
+
+const mapStateToProps = (state: Store) => ({
+  currentUser: getCurrentUser(state)
+});
+
+export default connect(mapStateToProps)(Subscription);

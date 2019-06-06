@@ -34,16 +34,69 @@ export const PORTFOLIO_METRICS = [
   'security_rating',
   'security_rating_effort',
 
+  'security_review_rating',
+  'security_review_rating_effort',
+
   'last_change_on_releasability_rating',
   'last_change_on_maintainability_rating',
   'last_change_on_security_rating',
+  'last_change_on_security_review_rating',
   'last_change_on_reliability_rating'
 ];
+
+export interface MetricKeys {
+  activity?: string;
+  effort: string;
+  measuresMetric: string;
+  label: string;
+  last_change: string;
+  rating: string;
+}
+
+export const METRICS_PER_TYPE: T.Dict<MetricKeys> = {
+  releasability: {
+    measuresMetric: 'Releasability',
+    label: 'metric_domain.Releasability',
+    rating: 'releasability_rating',
+    effort: 'releasability_effort',
+    last_change: 'last_change_on_releasability_rating'
+  },
+  reliability: {
+    measuresMetric: 'Reliability',
+    label: 'metric_domain.Reliability',
+    rating: 'reliability_rating',
+    effort: 'reliability_rating_effort',
+    last_change: 'last_change_on_reliability_rating'
+  },
+  vulnerabilities: {
+    measuresMetric: 'Security',
+    label: 'portfolio.metric_domain.vulnerabilities',
+    rating: 'security_rating',
+    effort: 'security_rating_effort',
+    last_change: 'last_change_on_security_rating',
+    activity: 'security_rating,vulnerabilities'
+  },
+  security_hotspots: {
+    measuresMetric: 'security_review_rating',
+    label: 'portfolio.metric_domain.security_hotspots',
+    rating: 'security_review_rating',
+    effort: 'security_review_rating_effort',
+    last_change: 'last_change_on_security_review_rating'
+  },
+  maintainability: {
+    measuresMetric: 'Maintainability',
+    label: 'metric_domain.Maintainability',
+    rating: 'sqale_rating',
+    effort: 'maintainability_rating_effort',
+    last_change: 'last_change_on_maintainability_rating'
+  }
+};
 
 export const SUB_COMPONENTS_METRICS = [
   'ncloc',
   'releasability_rating',
   'security_rating',
+  'security_review_rating',
   'reliability_rating',
   'sqale_rating',
   'alert_status'

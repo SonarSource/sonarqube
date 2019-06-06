@@ -52,7 +52,9 @@ export default function Effort({ component, effort, metricKey }: Props) {
                   metricType="SHORT_INT"
                   value={String(effort.projects)}
                 />
-                {translate('projects_')}
+                {effort.projects === 1
+                  ? translate('project_singular')
+                  : translate('project_plural')}
               </span>
             </Link>
           ),

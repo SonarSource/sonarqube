@@ -59,7 +59,10 @@ export default function WorstProjects({ component, subComponents, total }: Props
               {translate('metric_domain.Reliability')}
             </th>
             <th className="text-center portfolio-sub-components-cell">
-              {translate('metric_domain.Security')}
+              {translate('portfolio.metric_domain.vulnerabilities')}
+            </th>
+            <th className="text-center portfolio-sub-components-cell">
+              {translate('portfolio.metric_domain.security_hotspots')}
             </th>
             <th className="text-center portfolio-sub-components-cell">
               {translate('metric_domain.Maintainability')}
@@ -84,6 +87,7 @@ export default function WorstProjects({ component, subComponents, total }: Props
                 : renderCell(component.measures, 'releasability_rating', 'RATING')}
               {renderCell(component.measures, 'reliability_rating', 'RATING')}
               {renderCell(component.measures, 'security_rating', 'RATING')}
+              {renderCell(component.measures, 'security_review_rating', 'RATING')}
               {renderCell(component.measures, 'sqale_rating', 'RATING')}
               {renderNcloc(component.measures, maxLoc)}
             </tr>

@@ -1,49 +1,48 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders 1`] = `
-<div>
-  <h4>
-    report.page
-  </h4>
-  <i
-    className="spinner"
-  />
-</div>
-`;
+exports[`renders 1`] = `""`;
 
 exports[`renders 2`] = `
-<div>
-  <h4>
-    report.page
-  </h4>
-  <div
-    className="js-report-can-download"
-  >
-    report.can_download
-    <div
-      className="spacer-top"
+<Dropdown
+  overlay={
+    <ul
+      className="menu"
     >
-      <a
-        className="button js-report-download"
-        download="Foo - Executive Report.pdf"
-        href="/api/governance_reports/download?componentKey=foo"
-        target="_blank"
-      >
-        report.print
-      </a>
-    </div>
-  </div>
-  <Connect(Subscription)
-    component="foo"
-    status={
-      Object {
-        "canDownload": true,
-        "canSubscribe": true,
-        "componentFrequency": "montly",
-        "globalFrequency": "weekly",
-        "subscribed": true,
-      }
-    }
-  />
-</div>
+      <li>
+        <a
+          download="Foo - Executive Report.pdf"
+          href="/api/governance_reports/download?componentKey=foo"
+          target="_blank"
+        >
+          report.print
+        </a>
+      </li>
+      <li>
+        <Connect(Subscription)
+          component="foo"
+          onSubscribe={[Function]}
+          status={
+            Object {
+              "canDownload": true,
+              "canSubscribe": true,
+              "componentFrequency": "montly",
+              "globalFrequency": "weekly",
+              "subscribed": true,
+            }
+          }
+        />
+      </li>
+    </ul>
+  }
+  tagName="li"
+>
+  <Button
+    className="dropdown-toggle"
+  >
+    portfolio.pdf_report
+    <DropdownIcon
+      className="spacer-left icon-half-transparent"
+    />
+  </Button>
+</Dropdown>
 `;
