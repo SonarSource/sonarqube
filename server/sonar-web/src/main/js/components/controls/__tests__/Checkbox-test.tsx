@@ -22,14 +22,21 @@ import * as React from 'react';
 import Checkbox from '../Checkbox';
 import { click } from '../../../helpers/testUtils';
 
+it('should render', () => {
+  const checkbox = shallow(<Checkbox checked={true} onCheck={() => {}} title="Title value" />);
+  expect(checkbox).toMatchSnapshot();
+});
+
 it('should render unchecked', () => {
   const checkbox = shallow(<Checkbox checked={false} onCheck={() => true} />);
   expect(checkbox.is('.icon-checkbox-checked')).toBeFalsy();
+  expect(checkbox.prop('aria-checked')).toBe(false);
 });
 
 it('should render checked', () => {
   const checkbox = shallow(<Checkbox checked={true} onCheck={() => true} />);
   expect(checkbox.is('.icon-checkbox-checked')).toBeTruthy();
+  expect(checkbox.prop('aria-checked')).toBe(true);
 });
 
 it('should render disabled', () => {
