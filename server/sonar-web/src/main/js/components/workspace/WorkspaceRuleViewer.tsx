@@ -30,17 +30,34 @@ export interface Props extends T.Omit<WorkspaceHeaderProps, 'children' | 'onClos
   onLoad: (details: { key: string; name: string }) => void;
 }
 
+interface State {
+  loading: boolean;
+}
+
 export default class WorkspaceRuleViewer extends React.PureComponent<Props> {
+  state: State = { loading: true };
+
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.rule.key !== this.props.rule.key) {
+      this.setState({ loading: true });
+    }
+  }
+
   handleClose = () => {
     this.props.onClose(this.props.rule.key);
   };
 
   handleLoaded = (rule: { name: string }) => {
     this.props.onLoad({ key: this.props.rule.key, name: rule.name });
+    // Allow time for the actual rendering, and the browser to pick it up.
+    setTimeout(() => {
+      this.setState({ loading: false });
+    }, 1000);
   };
 
   render() {
     const { rule } = this.props;
+    const { loading } = this.state;
 
     return (
       <div className="workspace-viewer">
@@ -54,7 +71,11 @@ export default class WorkspaceRuleViewer extends React.PureComponent<Props> {
           <WorkspaceRuleTitle rule={rule} />
         </WorkspaceHeader>
 
-        <div className="workspace-viewer-container" style={{ height: this.props.height }}>
+        <div
+          aria-busy={loading}
+          aria-live="polite"
+          className="workspace-viewer-container"
+          style={{ height: this.props.height }}>
           <WorkspaceRuleDetails
             onLoad={this.handleLoaded}
             organizationKey={rule.organization}

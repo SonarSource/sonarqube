@@ -15,12 +15,15 @@ exports[`should render 1`] = `
       rule={
         Object {
           "key": "foo",
+          "name": "Foo",
           "organization": "org",
         }
       }
     />
   </WorkspaceHeader>
   <div
+    aria-busy={true}
+    aria-live="polite"
     className="workspace-viewer-container"
     style={
       Object {

@@ -21,8 +21,33 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import WorkspaceRuleViewer, { Props } from '../WorkspaceRuleViewer';
 
+jest.useFakeTimers();
+
 it('should render', () => {
   expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should correctly mark the content as busy loading (aria)', () => {
+  const rule = { key: 'foo', name: 'Foo', organization: 'org' };
+  const wrapper = shallowRender({ rule });
+  const instance = wrapper.instance();
+  const container = () => wrapper.find('.workspace-viewer-container');
+
+  expect(container().prop('aria-busy')).toBe(true);
+
+  instance.handleLoaded(rule);
+  jest.runAllTimers();
+  wrapper.update();
+  expect(container().prop('aria-busy')).toBe(false);
+
+  const newRule = { key: 'bar', name: 'Bar', organization: 'org' };
+  wrapper.setProps({ rule: newRule }).update();
+  expect(container().prop('aria-busy')).toBe(true);
+
+  instance.handleLoaded(newRule);
+  jest.runAllTimers();
+  wrapper.update();
+  expect(container().prop('aria-busy')).toBe(false);
 });
 
 it('should close', () => {
@@ -41,8 +66,8 @@ it('should call back after load', () => {
 });
 
 function shallowRender(props?: Partial<Props>) {
-  const rule = { key: 'foo', organization: 'org' };
-  return shallow(
+  const rule = { key: 'foo', name: 'Foo', organization: 'org' };
+  return shallow<WorkspaceRuleViewer>(
     <WorkspaceRuleViewer
       height={300}
       onClose={jest.fn()}
