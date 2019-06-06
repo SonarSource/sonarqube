@@ -233,7 +233,7 @@ public class SetDefaultActionTest {
     userSessionRule.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("When providing a quality profile key, neither of organization/language/name must be set");
+    expectedException.expectMessage("When a quality profile key is set, 'organization' 'language' and 'qualityProfile' can't be set");
 
     ws.newRequest().setMethod("POST")
       .setParam(PARAM_KEY, xoo2Profile.getKee())

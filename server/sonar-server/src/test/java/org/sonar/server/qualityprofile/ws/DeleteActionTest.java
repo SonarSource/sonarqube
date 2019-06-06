@@ -204,7 +204,7 @@ public class DeleteActionTest {
     userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("If no quality profile key is specified, language and name must be set");
+    expectedException.expectMessage("If 'key' is not specified, 'qualityProfile' and 'language' must be set");
 
     ws.newRequest()
       .setMethod("POST")
@@ -218,7 +218,7 @@ public class DeleteActionTest {
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("If no quality profile key is specified, language and name must be set");
+    expectedException.expectMessage("If 'key' is not specified, 'qualityProfile' and 'language' must be set");
 
     ws.newRequest()
       .setMethod("POST")
@@ -234,7 +234,7 @@ public class DeleteActionTest {
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("If no quality profile key is specified, language and name must be set");
+    expectedException.expectMessage("If 'key' is not specified, 'qualityProfile' and 'language' must be set");
 
     ws.newRequest()
       .setMethod("POST")
@@ -250,7 +250,7 @@ public class DeleteActionTest {
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("When providing a quality profile key, neither of organization/language/name must be set");
+    expectedException.expectMessage("When a quality profile key is set, 'organization' 'language' and 'qualityProfile' can't be set");
 
     ws.newRequest()
       .setMethod("POST")

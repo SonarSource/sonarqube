@@ -42,8 +42,8 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
  * Reference to a Quality profile as defined by requests to web services api/qualityprofiles.
  * The two exclusive options to reference a profile are:
  * <ul>
- *   <li>by its id (to be deprecated)</li>
- *   <li>by the tuple {organizationKey, language, name}</li>
+ * <li>by its id (to be deprecated)</li>
+ * <li>by the tuple {organizationKey, language, name}</li>
  * </ul>
  */
 public class QProfileReference {
@@ -75,8 +75,8 @@ public class QProfileReference {
 
   /**
    * @return {@code true} if key is defined and {@link #getKey()} can be called. If {@code false}, then
-   *   the couple {language, name} is defined and the methods {@link #getLanguage()}/{@link #getName()}
-   *   can be called.
+   * the couple {language, name} is defined and the methods {@link #getLanguage()}/{@link #getName()}
+   * can be called.
    */
   public boolean hasKey() {
     return type == Type.KEY;
@@ -159,10 +159,12 @@ public class QProfileReference {
 
   public static QProfileReference from(@Nullable String key, @Nullable String organizationKey, @Nullable String lang, @Nullable String name) {
     if (key != null) {
-      checkArgument(isEmpty(organizationKey) && isEmpty(lang) && isEmpty(name), "When providing a quality profile key, neither of organization/language/name must be set");
+      checkArgument(isEmpty(organizationKey) && isEmpty(lang) && isEmpty(name),
+        "When a quality profile key is set, '%s' '%s' and '%s' can't be set", PARAM_ORGANIZATION, PARAM_LANGUAGE, PARAM_QUALITY_PROFILE);
       return fromKey(key);
     }
-    checkArgument(!isEmpty(lang) && !isEmpty(name), "If no quality profile key is specified, language and name must be set");
+    checkArgument(!isEmpty(lang) && !isEmpty(name),
+      "If '%s' is not specified, '%s' and '%s' must be set", PARAM_KEY, PARAM_QUALITY_PROFILE, PARAM_LANGUAGE);
     return fromName(organizationKey, lang, name);
   }
 
@@ -176,18 +178,18 @@ public class QProfileReference {
 
   public static void defineParams(WebService.NewAction action, Languages languages) {
     action.createParam(PARAM_KEY)
-      .setDescription("Quality profile key")
+      .setDescription("Quality profile key. Mandatory unless 'qualityProfile' and 'language' are specified.")
       .setDeprecatedKey("profileKey", "6.5")
       .setDeprecatedSince("6.6")
       .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_QUALITY_PROFILE)
-      .setDescription("Quality profile name")
+      .setDescription("Quality profile name. Mandatory if 'key' is not set.")
       .setDeprecatedKey("profileName", "6.6")
       .setExampleValue("Sonar way");
 
     action.createParam(PARAM_LANGUAGE)
-      .setDescription("Quality profile language")
+      .setDescription("Quality profile language. Mandatory if 'key' is not set.")
       .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(MoreCollectors.toSet()));
   }
 }
