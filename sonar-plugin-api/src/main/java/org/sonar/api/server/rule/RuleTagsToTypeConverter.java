@@ -31,18 +31,18 @@ import static java.util.Collections.unmodifiableSet;
  * @see org.sonar.api.server.rule.RulesDefinition.NewRule#setType(RuleType)
  * @since 5.5
  */
-class RuleTagsToTypeConverter {
+public class RuleTagsToTypeConverter {
 
   public static final String TAG_BUG = "bug";
   public static final String TAG_SECURITY = "security";
-  static final Set<String> RESERVED_TAGS = unmodifiableSet(new HashSet<>(asList(TAG_BUG, TAG_SECURITY)));
+  public static final Set<String> RESERVED_TAGS = unmodifiableSet(new HashSet<>(asList(TAG_BUG, TAG_SECURITY)));
 
 
   private RuleTagsToTypeConverter() {
     // only statics
   }
 
-  static RuleType convert(Collection<String> tags) {
+  public static RuleType convert(Collection<String> tags) {
     if (tags.contains(TAG_BUG)) {
       return RuleType.BUG;
     }

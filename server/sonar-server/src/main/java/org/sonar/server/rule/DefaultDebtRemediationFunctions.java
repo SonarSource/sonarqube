@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.server.rule;
+package org.sonar.server.rule;
 
 import javax.annotation.Nullable;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.MessageException;
 
 /**

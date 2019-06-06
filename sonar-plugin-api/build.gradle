@@ -34,6 +34,8 @@ dependencies {
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.mockito:mockito-core'
   testCompile project(':sonar-scanner-engine')
+  testCompile project(':server:sonar-server')
+
 }
 
 sourceSets {

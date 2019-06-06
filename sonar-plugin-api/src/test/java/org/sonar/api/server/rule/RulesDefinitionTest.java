@@ -41,6 +41,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.server.rule.RuleDefinitionContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -48,7 +49,7 @@ import static org.junit.Assert.fail;
 @RunWith(DataProviderRunner.class)
 public class RulesDefinitionTest {
 
-  RulesDefinition.Context context = new RulesDefinition.Context();
+  RulesDefinition.Context context = new RuleDefinitionContext();
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -400,6 +401,7 @@ public class RulesDefinitionTest {
   /**
    * This is temporarily accepted only for the support of the common-rules that are still declared
    * by plugins. It could be removed in 7.0
+   *
    * @since 5.2
    */
   @Test

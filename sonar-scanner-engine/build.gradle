@@ -44,6 +44,8 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile project(':plugins:sonar-xoo-plugin')
   testCompile project(':sonar-plugin-api').sourceSets.test.output
+  testCompile project(':server:sonar-server')
+
 }
 
 license {

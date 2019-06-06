@@ -50,7 +50,7 @@ public class RuleDefinitionsLoader {
   }
 
   public RulesDefinition.Context load() {
-    RulesDefinition.Context context = new RulesDefinition.Context();
+    RulesDefinition.Context context = new RuleDefinitionContext();
     for (RulesDefinition pluginDefinition : pluginDefs) {
       context.setCurrentPluginKey(serverPluginRepository.getPluginKey(pluginDefinition));
       pluginDefinition.define(context);

@@ -73,6 +73,7 @@ import org.sonar.scanner.scan.branch.BranchConfigurationLoader;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranches;
 import org.sonar.scanner.scan.branch.ProjectPullRequests;
+import org.sonar.server.rule.RuleDefinitionContext;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 
@@ -168,7 +169,7 @@ public class ScannerMediumTester extends ExternalResource {
   }
 
   public ScannerMediumTester addRules(RulesDefinition rulesDefinition) {
-    RulesDefinition.Context context = new RulesDefinition.Context();
+    RulesDefinition.Context context = new RuleDefinitionContext();
     rulesDefinition.define(context);
     List<Repository> repositories = context.repositories();
     for (Repository repo : repositories) {
