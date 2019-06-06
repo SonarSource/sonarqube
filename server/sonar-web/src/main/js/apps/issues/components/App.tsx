@@ -893,6 +893,7 @@ export class App extends React.PureComponent<Props, State> {
           id="issues-selection"
           onCheck={this.handleCheckAll}
           thirdState={thirdState}
+          title={translate('issues.select_all_issues')}
         />
         <Button
           disabled={checked.length === 0}

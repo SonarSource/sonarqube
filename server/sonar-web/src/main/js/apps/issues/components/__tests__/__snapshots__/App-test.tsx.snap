@@ -63,6 +63,7 @@ exports[`should switch to source view if an issue is selected 1`] = `
               id="issues-selection"
               onCheck={[Function]}
               thirdState={false}
+              title="issues.select_all_issues"
             />
             <Button
               disabled={true}
