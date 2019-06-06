@@ -55,7 +55,8 @@ public class DatabaseServerCompatibility implements Startable {
       }
       boolean blueGreen = configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false);
       if (!blueGreen) {
-        String msg = "Database must be upgraded. Please backup database and browse /setup";
+        String msg = "The database must be manually upgraded. Please backup the database and browse /setup. "
+          + "For more information: https://docs.sonarqube.org/latest/setup/upgrading";
         Loggers.get(DatabaseServerCompatibility.class).warn(msg);
         Loggers.get(STARTUP_LOGGER_NAME).warn('\n'
           + HIGHLIGHTER + '\n'
