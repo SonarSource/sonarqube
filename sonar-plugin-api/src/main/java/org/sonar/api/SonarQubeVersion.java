@@ -128,12 +128,14 @@ import static java.util.Objects.requireNonNull;
  * </p>
  *
  * @see SonarRuntime
+ * @deprecated since 7.8 Use {@link SonarRuntime} instead.
  * @since 5.5
  */
 @ScannerSide
 @ServerSide
 @ComputeEngineSide
 @Immutable
+@Deprecated
 public class SonarQubeVersion {
   /**
    * Constant for version 5.5
