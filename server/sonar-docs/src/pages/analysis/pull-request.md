@@ -49,7 +49,7 @@ Specify your PR provider in your global settings at [**Administration > General 
 
 ### GitHub <!-- sonarqube -->Enterprise<!-- /sonarqube --> PR Decoration
 
-<!-- sonarqube-->
+<!-- sonarqube -->
 [[info]]
 | *Minimum GitHub Enterprise version* 2.14
 <!-- /sonarqube -->
@@ -66,7 +66,7 @@ In your project settings, set your project repository identifier (for example, S
 
 ### Bitbucket <!-- sonarqube -->Server<!-- /sonarqube --> PR Decoration
 
-<!-- sonarqube-->
+<!-- sonarqube -->
 [[info]]
 | *Minimum BitBucket Server version* 5.15
 <!-- /sonarqube -->
