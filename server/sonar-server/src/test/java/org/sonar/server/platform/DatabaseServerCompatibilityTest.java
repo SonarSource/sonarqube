@@ -46,7 +46,8 @@ public class DatabaseServerCompatibilityTest {
   @Test
   public void fail_if_requires_downgrade() {
     thrown.expect(MessageException.class);
-    thrown.expectMessage("Database was upgraded to a more recent of SonarQube. Backup must probably be restored or db settings are incorrect.");
+    thrown.expectMessage("Database was upgraded to a more recent version of SonarQube. "
+      + "A backup must probably be restored or the DB settings are incorrect.");
 
     DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_DOWNGRADE);
