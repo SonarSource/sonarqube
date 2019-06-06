@@ -39,7 +39,7 @@ export function getAlmOrganization(data: {
   return requestTryAndRepeatUntil(
     () => getJSON('/api/alm_integration/show_organization', data),
     { max: 25, slowThreshold: 20 },
-    () => false,
+    () => true,
     [404]
   )
     .catch(throwGlobalError)
