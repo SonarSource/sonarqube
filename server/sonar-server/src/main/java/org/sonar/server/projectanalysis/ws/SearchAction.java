@@ -22,7 +22,9 @@ package org.sonar.server.projectanalysis.ws;
 import com.google.common.collect.ImmutableSet;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Change;
@@ -33,6 +35,9 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDao;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
@@ -57,7 +62,6 @@ import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PA
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_TO;
 import static org.sonar.server.projectanalysis.ws.SearchRequest.DEFAULT_PAGE_SIZE;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
-import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements ProjectAnalysesWsAction {
@@ -66,11 +70,13 @@ public class SearchAction implements ProjectAnalysesWsAction {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
+  private final BranchDao branchDao;
 
-  public SearchAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession) {
+  public SearchAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, BranchDao branchDao) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
+    this.branchDao = branchDao;
   }
 
   @Override
@@ -93,16 +99,10 @@ public class SearchAction implements ProjectAnalysesWsAction {
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
 
     action.createParam(PARAM_BRANCH)
-      .setDescription("Branch key")
+      .setDescription("Key of a long lived branch")
       .setSince("6.6")
       .setInternal(true)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
-
-    action.createParam(PARAM_PULL_REQUEST)
-      .setDescription("Pull request id")
-      .setSince("7.1")
-      .setInternal(true)
-      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
 
     action.createParam(PARAM_CATEGORY)
       .setDescription("Event category. Filter analyses that have at least one event of the category specified.")
@@ -134,7 +134,6 @@ public class SearchAction implements ProjectAnalysesWsAction {
     return SearchRequest.builder()
       .setProject(request.mandatoryParam(PARAM_PROJECT))
       .setBranch(request.param(PARAM_BRANCH))
-      .setPullRequest(request.param(PARAM_PULL_REQUEST))
       .setCategory(category == null ? null : EventCategory.valueOf(category))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
@@ -182,8 +181,21 @@ public class SearchAction implements ProjectAnalysesWsAction {
 
   private void addProject(SearchData.Builder data) {
     ComponentDto project = loadComponent(data.getDbSession(), data.getRequest());
+    checkBranchType(project.uuid(), data.getDbSession(), data.getRequest().getBranch());
     checkArgument(Scopes.PROJECT.equals(project.scope()) && ALLOWED_QUALIFIERS.contains(project.qualifier()), "A project, portfolio or application is required");
     data.setProject(project);
+  }
+
+  private void checkBranchType(String rootComponentUuid, DbSession dbSession, @Nullable String branchName) {
+    if (branchName == null) {
+      return;
+    }
+    Optional<BranchDto> branch = branchDao.selectByUuid(dbSession, rootComponentUuid);
+    BranchDto branchDto = branch
+      .orElseThrow(() -> new IllegalArgumentException(String.format("Branch '%s' not found", branchName)));
+    if (branchDto.getBranchType() != BranchType.LONG) {
+      throw new IllegalArgumentException(String.format("Branch '%s' is not of type LONG", branchName));
+    }
   }
 
   private ComponentDto loadComponent(DbSession dbSession, SearchRequest request) {

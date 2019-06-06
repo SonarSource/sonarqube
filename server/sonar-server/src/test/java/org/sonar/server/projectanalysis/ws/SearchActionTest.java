@@ -33,6 +33,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -40,6 +41,8 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDao;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
@@ -68,7 +71,6 @@ import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.BranchType.LONG;
-import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -85,7 +87,6 @@ import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PA
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_CATEGORY;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_FROM;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_PROJECT;
-import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_TO;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -105,7 +106,8 @@ public class SearchActionTest {
 
   private DbClient dbClient = db.getDbClient();
 
-  private WsActionTester ws = new WsActionTester(new SearchAction(dbClient, TestComponentFinder.from(db), userSession));
+  private WsActionTester ws = new WsActionTester(new SearchAction(dbClient, TestComponentFinder.from(db),
+    userSession, new BranchDao(System2.INSTANCE)));
   private UuidFactoryFast uuidFactoryFast = UuidFactoryFast.getInstance();
 
   @DataProvider
@@ -591,29 +593,28 @@ public class SearchActionTest {
       .setProject(project.getKey())
       .setBranch("my_branch")
       .build())
-        .getAnalysesList();
+      .getAnalysesList();
 
     assertThat(result).extracting(Analysis::getKey).containsExactlyInAnyOrder(analysis.getUuid());
     assertThat(result.get(0).getEventsList()).extracting(Event::getKey).containsExactlyInAnyOrder(event.getUuid());
-
   }
 
   @Test
-  public void pull_request() {
+  public void fail_if_branch_is_short_lived() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch").setBranchType(BranchType.SHORT));
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(branch));
     EventDto event = db.events().insertEvent(newEvent(analysis).setCategory(EventCategory.QUALITY_GATE.getLabel()));
 
-    List<Analysis> result = call(SearchRequest.builder()
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Branch 'my_branch' is not of type LONG");
+    call(SearchRequest.builder()
       .setProject(project.getKey())
-      .setPullRequest("pr-123")
+      .setBranch("my_branch")
       .build())
-        .getAnalysesList();
+      .getAnalysesList();
 
-    assertThat(result).extracting(Analysis::getKey).containsExactlyInAnyOrder(analysis.getUuid());
-    assertThat(result.get(0).getEventsList()).extracting(Event::getKey).containsExactlyInAnyOrder(event.getUuid());
   }
 
   @Test
@@ -705,7 +706,7 @@ public class SearchActionTest {
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.param("project").isRequired()).isTrue();
     assertThat(definition.param("category")).isNotNull();
-    assertThat(definition.params()).hasSize(8);
+    assertThat(definition.params()).hasSize(7);
 
     Param from = definition.param("from");
     assertThat(from.since()).isEqualTo("6.5");
@@ -754,7 +755,6 @@ public class SearchActionTest {
       .setMethod(POST.name());
     ofNullable(wsRequest.getProject()).ifPresent(project -> request.setParam(PARAM_PROJECT, project));
     ofNullable(wsRequest.getBranch()).ifPresent(branch1 -> request.setParam(PARAM_BRANCH, branch1));
-    ofNullable(wsRequest.getPullRequest()).ifPresent(branch -> request.setParam(PARAM_PULL_REQUEST, branch));
     ofNullable(wsRequest.getCategory()).ifPresent(category -> request.setParam(PARAM_CATEGORY, category.name()));
     ofNullable(wsRequest.getPage()).ifPresent(page -> request.setParam(Param.PAGE, String.valueOf(page)));
     ofNullable(wsRequest.getPageSize()).ifPresent(pageSize -> request.setParam(Param.PAGE_SIZE, String.valueOf(pageSize)));
