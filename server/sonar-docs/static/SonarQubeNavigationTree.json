@@ -10,6 +10,18 @@
     "title": "Analyzing Source Code",
     "children": [
       "/analysis/overview/",
+      {
+        "title": "Scanners",
+        "children": [
+          "/analysis/scan/sonarscanner-for-gradle/",
+          "/analysis/scan/sonarscanner-for-msbuild/",
+          "/analysis/scan/sonarscanner-for-maven/",
+          "/analysis/scan/sonarscanner-for-azure-devops/",
+          "/analysis/scan/sonarscanner-for-jenkins/",
+          "/analysis/scan/sonarscanner-for-ant/",
+          "/analysis/scan/sonarscanner/"
+        ]
+      },
       "/analysis/analysis-parameters/",
       {
         "title": "Languages",

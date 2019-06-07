@@ -1,6 +1,6 @@
 ---
 title: SonarScanner
-url: /scan/sonarscanner/
+url: /analysis/scan/sonarscanner/
 ---
 
 [[info]]

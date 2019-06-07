@@ -1,6 +1,6 @@
 ---
 title: SonarScanner for Maven
-url: /scan/sonarscanner-for-maven/
+url: /analysis/scan/sonarscanner-for-maven/
 ---
 
 [[info]]

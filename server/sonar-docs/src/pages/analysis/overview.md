@@ -16,11 +16,11 @@ Find the key of your organization, you will need it at later stages. It can be f
 ## Run analysis
 
 SonarCloud currently does not trigger analyses automatically - this feature will come in a near future. Currently, it's up to you to launch them inside your existing CI scripts using the available scanners:
-* Gradle - [SonarScanner for Gradle](/scan/sonarscanner-for-gradle/)
-* MSBuild - [SonarScanner for MSBuild](/scan/sonarscanner-for-msbuild/)
-* Maven - use the [SonarScanner for Maven](/scan/sonarscanner-for-maven/)
-* Ant - [SonarScanner for Ant](/scan/sonarscanner-for-ant/)
-* anything else (CLI) - [SonarScanner](/scan/sonarscanner/)
+* Gradle - [SonarScanner for Gradle](/analysis/scan/sonarscanner-for-gradle/)
+* MSBuild - [SonarScanner for MSBuild](/analysis/scan/sonarscanner-for-msbuild/)
+* Maven - use the [SonarScanner for Maven](/analysis/scan/sonarscanner-for-maven/)
+* Ant - [SonarScanner for Ant](/analysis/scan/sonarscanner-for-ant/)
+* anything else (CLI) - [SonarScanner](/analysis/scan/sonarscanner/)
 
 After creating a project, the tutorial available on its homepage will guide you to find how to trigger an analysis.
 
@@ -35,13 +35,14 @@ After creating a project, the tutorial available on its homepage will guide you 
 <!-- sonarqube -->
 Once the SonarQube platform has been installed, you're ready to install a scanner and begin creating projects. To do that, you must install and configure the scanner that is most appropriate for your needs. Do you build with:
 
-* Gradle - [SonarScanner for Gradle](https://redirect.sonarsource.com/doc/gradle.html)
-* MSBuild - [SonarScanner for MSBuild](https://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html)
-* Maven - use the [SonarScanner for Maven](https://redirect.sonarsource.com/doc/install-configure-scanner-maven.html)
-* Jenkins - [SonarScanner for Jenkins](https://redirect.sonarsource.com/plugins/jenkins.html)
-* Azure DevOps - [SonarQube Extension for Azure DevOps](https://redirect.sonarsource.com/doc/install-configure-scanner-tfs-ts.html)
-* Ant - [SonarScanner for Ant](https://redirect.sonarsource.com/doc/install-configure-scanner-ant.html)
-* anything else (CLI) - [SonarScanner](https://redirect.sonarsource.com/doc/install-configure-scanner.html)
+* Gradle - [SonarScanner for Gradle](/analysis/scan/sonarscanner-for-gradle/)
+* MSBuild - [SonarScanner for MSBuild](/analysis/scan/sonarscanner-for-msbuild/)
+* Maven - use the [SonarScanner for Maven](/analysis/scan/sonarscanner-for-maven/)
+* Jenkins - [SonarScanner for Jenkins](/analysis/scan/sonarscanner-for-jenkins/)
+* Azure DevOps - [SonarQube Extension for Azure DevOps](/analysis/scan/sonarscanner-for-azure-devops/)
+* Ant - [SonarScanner for Ant](/analysis/scan/sonarscanner-for-ant/)
+* anything else (CLI) - [SonarScanner](/analysis/scan/sonarscanner/)
+
 
 **Note** that we do not recommend running an antivirus scanner on the machine where a SonarQube analysis runs, it could result in unpredictable behavior.
 

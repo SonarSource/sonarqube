@@ -49,6 +49,7 @@ Specify your PR provider in your global settings at [**Administration > General 
 
 ### GitHub <!-- sonarqube -->Enterprise<!-- /sonarqube --> PR Decoration
 
+
 <!-- sonarqube -->
 [[info]]
 | *Minimum GitHub Enterprise version* 2.14

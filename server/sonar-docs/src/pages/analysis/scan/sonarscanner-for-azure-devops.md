@@ -1,11 +1,11 @@
 ---
 title: SonarScanner for Azure DevOps
-url: /scan/sonarscanner-for-azure-devops/
+url: /analysis/scan/sonarscanner-for-azure-devops/
 ---
 
 
 [[info]]
-| By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://jira.sonarsource.com/browse/VSTS) – [Source](https://github.com/SonarSource/sonar-scanner-vsts) 
+| By [SonarSource](https://www.sonarsource.com/) - GNU LGPL 3 - [Issue Tracker](https://jira.sonarsource.com/browse/VSTS) - [Source](https://github.com/SonarSource/sonar-scanner-vsts)  
 | **SonarScanner for Azure DevOps**
 
 The <!-- sonarqube -->[SonarQube](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube)<!-- /sonarqube --> <!-- sonarcloud -->[SonarCloud](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarcloud)<!-- /sonarcloud --> extension for Azure DevOps <!-- sonarqube -->Server<!-- /sonarqube --> makes it easy to integrate analysis into your build pipeline. The extension allows the analysis of all languages supported by {instance}.
@@ -22,7 +22,7 @@ Version <!-- sonarqube -->4.x<!-- /sonarqube --><!-- sonarcloud -->1.x<!-- /sona
 * Azure DevOps
 
 <!-- sonarqube -->
-The SonarQube Extension embeds its own version of the [SonarScanner for MSBuild](/scan/sonarscanner-for-msbuild/).
+The SonarQube Extension embeds its own version of the [SonarScanner for MSBuild](/analysis/scan/sonarscanner-for-msbuild/).
 <!-- /sonarqube -->
 
 ## Installation

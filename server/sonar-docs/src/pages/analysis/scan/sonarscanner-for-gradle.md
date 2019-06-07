@@ -1,6 +1,6 @@
 ---
 title: SonarScanner for Gradle
-url: /scan/sonarscanner-for-gradle/
+url: /analysis/scan/sonarscanner-for-gradle/
 ---
 
 [[info]]
