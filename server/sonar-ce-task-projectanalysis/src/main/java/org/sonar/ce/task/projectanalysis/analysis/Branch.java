@@ -31,12 +31,6 @@ public interface Branch extends ComponentKeyGenerator {
   boolean isMain();
 
   /**
-   * Whether branch has been created through the legacy configuration
-   * (scanner parameter sonar.branch) or not
-   */
-  boolean isLegacyFeature();
-
-  /**
    * Name of the branch
    */
   String getName();

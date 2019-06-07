@@ -45,8 +45,6 @@ import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scanner.scm.ScmRevision;
 
-import static java.util.Optional.ofNullable;
-
 public class MetadataPublisher implements ReportPublisherStep {
 
   private static final Logger LOG = Loggers.get(MetadataPublisher.class);
@@ -99,8 +97,6 @@ public class MetadataPublisher implements ReportPublisherStep {
     if (branchConfiguration.branchName() != null) {
       addBranchInformation(builder);
     }
-
-    ofNullable(rootProject.getBranch()).ifPresent(builder::setDeprecatedBranch);
 
     addScmInformation(builder);
 

@@ -27,7 +27,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
-import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.i18n.I18n;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -98,10 +97,8 @@ public class ComponentUpdater {
   }
 
   private ComponentDto createRootComponent(DbSession session, NewComponent newComponent) {
-    checkLegacyBranchFormat(newComponent.qualifier(), newComponent.deprecatedBranch());
-    String keyWithBranch = ComponentKeys.createKey(newComponent.key(), newComponent.deprecatedBranch());
-    checkRequest(!dbClient.componentDao().selectByKey(session, keyWithBranch).isPresent(),
-      "Could not create %s, key already exists: %s", getQualifierToDisplay(newComponent.qualifier()), keyWithBranch);
+    checkRequest(!dbClient.componentDao().selectByKey(session, newComponent.key()).isPresent(),
+      "Could not create %s, key already exists: %s", getQualifierToDisplay(newComponent.qualifier()), newComponent.key());
 
     String uuid = Uuids.create();
     ComponentDto component = new ComponentDto()
@@ -112,7 +109,7 @@ public class ComponentUpdater {
       .setModuleUuid(null)
       .setModuleUuidPath(ComponentDto.UUID_PATH_SEPARATOR + uuid + ComponentDto.UUID_PATH_SEPARATOR)
       .setProjectUuid(uuid)
-      .setDbKey(keyWithBranch)
+      .setDbKey(newComponent.key())
       .setName(newComponent.name())
       .setLongName(newComponent.name())
       .setScope(Scopes.PROJECT)
@@ -149,11 +146,6 @@ public class ComponentUpdater {
 
   private void checkKeyFormat(String qualifier, String key) {
     checkRequest(isValidProjectKey(key), "Malformed key for %s: '%s'. It cannot be empty nor contain whitespaces.", getQualifierToDisplay(qualifier), key);
-  }
-
-  private void checkLegacyBranchFormat(String qualifier, @Nullable String branch) {
-    checkRequest(branch == null || ComponentKeys.isValidLegacyBranch(branch),
-      "Malformed branch for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and '/', with at least one non-digit.", getQualifierToDisplay(qualifier), branch);
   }
 
   private String getQualifierToDisplay(String qualifier) {

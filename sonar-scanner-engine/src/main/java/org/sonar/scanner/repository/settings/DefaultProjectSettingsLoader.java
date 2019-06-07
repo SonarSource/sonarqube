@@ -33,6 +33,6 @@ public class DefaultProjectSettingsLoader extends AbstractSettingsLoader impleme
 
   @Override
   public Map<String, String> loadProjectSettings() {
-    return load(scannerProperties.getKeyWithBranch());
+    return load(scannerProperties.getProjectKey());
   }
 }

@@ -44,7 +44,6 @@ public class SubmitAction implements CeWsAction {
 
   private static final String PARAM_ORGANIZATION_KEY = "organization";
   private static final String PARAM_PROJECT_KEY = "projectKey";
-  private static final String PARAM_PROJECT_BRANCH = "projectBranch";
   private static final String PARAM_PROJECT_NAME = "projectName";
   private static final String PARAM_REPORT_DATA = "report";
   private static final String PARAM_ANALYSIS_CHARACTERISTIC = "characteristic";
@@ -81,12 +80,6 @@ public class SubmitAction implements CeWsAction {
       .setDescription("Key of project")
       .setExampleValue("my_project");
 
-    // deprecated branch (see scanner parameter sonar.branch)
-    action
-      .createParam(PARAM_PROJECT_BRANCH)
-      .setDescription("Optional branch of project")
-      .setExampleValue("branch-1.x");
-
     action
       .createParam(PARAM_PROJECT_NAME)
       .setRequired(false)
@@ -112,13 +105,12 @@ public class SubmitAction implements CeWsAction {
       .emptyAsNull()
       .or(defaultOrganizationProvider.get()::getKey);
     String projectKey = wsRequest.mandatoryParam(PARAM_PROJECT_KEY);
-    String deprecatedBranch = wsRequest.param(PARAM_PROJECT_BRANCH);
     String projectName = abbreviate(defaultIfBlank(wsRequest.param(PARAM_PROJECT_NAME), projectKey), MAX_COMPONENT_NAME_LENGTH);
 
     Map<String, String> characteristics = parseTaskCharacteristics(wsRequest);
 
     try (InputStream report = new BufferedInputStream(wsRequest.mandatoryParamAsPart(PARAM_REPORT_DATA).getInputStream())) {
-      CeTask task = reportSubmitter.submit(organizationKey, projectKey, deprecatedBranch, projectName, characteristics, report);
+      CeTask task = reportSubmitter.submit(organizationKey, projectKey, projectName, characteristics, report);
       Ce.SubmitResponse submitResponse = Ce.SubmitResponse.newBuilder()
         .setTaskId(task.getUuid())
         .setProjectId(task.getComponent().get().getUuid())

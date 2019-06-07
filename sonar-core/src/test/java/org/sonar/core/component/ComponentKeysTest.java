@@ -51,18 +51,6 @@ public class ComponentKeysTest {
   }
 
   @Test
-  public void isValidBranchKey() {
-    assertThat(ComponentKeys.isValidLegacyBranch("")).isTrue();
-    assertThat(ComponentKeys.isValidLegacyBranch("abc")).isTrue();
-    assertThat(ComponentKeys.isValidLegacyBranch("0123")).isTrue();
-    assertThat(ComponentKeys.isValidLegacyBranch("ab 12")).isFalse();
-    assertThat(ComponentKeys.isValidLegacyBranch("ab_12")).isTrue();
-    assertThat(ComponentKeys.isValidLegacyBranch("ab/12")).isTrue();
-    assertThat(ComponentKeys.isValidLegacyBranch("ab\\12")).isFalse();
-    assertThat(ComponentKeys.isValidLegacyBranch("ab\n")).isFalse();
-  }
-
-  @Test
   public void checkProjectKey_with_correct_keys() {
     ComponentKeys.checkProjectKey("abc");
     ComponentKeys.checkProjectKey("a-b_1.:2");

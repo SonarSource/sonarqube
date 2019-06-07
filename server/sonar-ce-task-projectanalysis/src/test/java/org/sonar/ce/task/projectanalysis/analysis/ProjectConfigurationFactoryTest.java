@@ -138,18 +138,6 @@ public class ProjectConfigurationFactoryTest {
     assertThat(config.get("sonar.leak.period")).hasValue("1");
   }
 
-  @Test
-  public void legacy_branch() {
-    ComponentDto project = db.components().insertMainBranch();
-    db.properties().insertProperties(newComponentPropertyDto(project).setKey("sonar.leak.period").setValue("1"));
-    Branch branch = createBranch("legacy", true);
-    when(branch.isLegacyFeature()).thenReturn(true);
-
-    Configuration config = underTest.newProjectConfiguration(project.getKey(), createBranch(branch.getName(), true));
-
-    assertThat(config.get("sonar.leak.period")).hasValue("1");
-  }
-
   private static Branch createBranch(String name, boolean isMain) {
     Branch branch = mock(Branch.class);
     when(branch.getName()).thenReturn(name);

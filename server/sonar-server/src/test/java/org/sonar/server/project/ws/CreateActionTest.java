@@ -62,7 +62,6 @@ import static org.sonar.server.project.Visibility.PRIVATE;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
@@ -109,21 +108,6 @@ public class CreateActionTest {
     assertThat(db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get())
       .extracting(ComponentDto::getDbKey, ComponentDto::name, ComponentDto::qualifier, ComponentDto::scope, ComponentDto::isPrivate, ComponentDto::getMainBranchProjectUuid)
       .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", "PRJ", false, null);
-  }
-
-  @Test
-  public void create_project_with_branch() {
-    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
-
-    CreateWsResponse response = call(CreateRequest.builder()
-      .setProjectKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
-      .setBranch("origin/master")
-      .build());
-
-    assertThat(response.getProject())
-      .extracting(Project::getKey, Project::getName, Project::getQualifier, Project::getVisibility)
-      .containsOnly(DEFAULT_PROJECT_KEY + ":origin/master", DEFAULT_PROJECT_NAME, "TRK", "public");
   }
 
   @Test
@@ -352,8 +336,7 @@ public class CreateActionTest {
       PARAM_VISIBILITY,
       PARAM_ORGANIZATION,
       PARAM_NAME,
-      PARAM_PROJECT,
-      PARAM_BRANCH);
+      PARAM_PROJECT);
 
     WebService.Param organization = definition.param(PARAM_ORGANIZATION);
     assertThat(organization.description()).isEqualTo("The key of the organization");
@@ -375,9 +358,6 @@ public class CreateActionTest {
     WebService.Param name = definition.param(PARAM_NAME);
     assertThat(name.isRequired()).isTrue();
     assertThat(name.description()).isEqualTo("Name of the project. If name is longer than 500, it is abbreviated.");
-
-    WebService.Param branch = definition.param(PARAM_BRANCH);
-    assertThat(branch.deprecatedSince()).isNotNull();
   }
 
   private CreateWsResponse call(CreateRequest request) {
@@ -386,7 +366,6 @@ public class CreateActionTest {
     ofNullable(request.getOrganization()).ifPresent(org -> httpRequest.setParam("organization", org));
     ofNullable(request.getProjectKey()).ifPresent(key -> httpRequest.setParam("project", key));
     ofNullable(request.getName()).ifPresent(name -> httpRequest.setParam("name", name));
-    ofNullable(request.getBranch()).ifPresent(branch -> httpRequest.setParam("branch", branch));
     return httpRequest.executeProtobuf(CreateWsResponse.class);
   }
 

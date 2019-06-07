@@ -46,7 +46,6 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.analysis.Organization;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
-import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
 import org.sonar.ce.task.projectanalysis.qualitygate.ConditionStatus;
@@ -277,17 +276,6 @@ public class PostProjectAnalysisTasksExecutorTest {
   }
 
   @Test
-  public void branch_is_empty_when_legacy_branch_implementation_is_used() {
-    analysisMetadataHolder.setBranch(new DefaultBranchImpl("feature/foo"));
-
-    underTest.finished(true);
-
-    verify(postProjectAnalysisTask).finished(taskContextCaptor.capture());
-
-    assertThat(taskContextCaptor.getValue().getProjectAnalysis().getBranch()).isEmpty();
-  }
-
-  @Test
   public void branch_comes_from_AnalysisMetadataHolder_when_set() {
     analysisMetadataHolder.setBranch(new Branch() {
       @Override
@@ -297,11 +285,6 @@ public class PostProjectAnalysisTasksExecutorTest {
 
       @Override
       public boolean isMain() {
-        return false;
-      }
-
-      @Override
-      public boolean isLegacyFeature() {
         return false;
       }
 
@@ -447,7 +430,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     new PostProjectAnalysisTasksExecutor(
       ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
       system2, new PostProjectAnalysisTask[] {logStatisticsTask})
-      .finished(allStepsExecuted);
+        .finished(allStepsExecuted);
 
     verify(logStatisticsTask).finished(taskContextCaptor.capture());
 
@@ -455,7 +438,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     List<String> logs = logTester.logs(LoggerLevel.INFO);
     assertThat(logs).hasSize(1);
     StringBuilder expectedLog = new StringBuilder("^PT1 ");
-    stats.forEach((k,v) -> expectedLog.append("\\| " + k + "=" + v +" "));
+    stats.forEach((k, v) -> expectedLog.append("\\| " + k + "=" + v + " "));
     expectedLog.append("\\| status=SUCCESS \\| time=\\d+ms$");
     assertThat(logs.get(0)).matches(expectedLog.toString());
   }

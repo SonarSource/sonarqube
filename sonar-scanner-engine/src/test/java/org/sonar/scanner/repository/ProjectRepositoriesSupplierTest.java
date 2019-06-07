@@ -47,7 +47,7 @@ public class ProjectRepositoriesSupplierTest {
     underTest = new ProjectRepositoriesSupplier(loader, props, branchConfiguration);
     Map<String, FileData> fileMap = Maps.newHashMap();
     project = new SingleProjectRepository(fileMap);
-    when(props.getKeyWithBranch()).thenReturn("key");
+    when(props.getProjectKey()).thenReturn("key");
   }
 
   @Test
@@ -63,7 +63,7 @@ public class ProjectRepositoriesSupplierTest {
 
     assertThat(repo.exists()).isEqualTo(true);
 
-    verify(props).getKeyWithBranch();
+    verify(props).getProjectKey();
     verify(loader).load(eq("key"), eq(null));
     verifyNoMoreInteractions(loader, props);
   }

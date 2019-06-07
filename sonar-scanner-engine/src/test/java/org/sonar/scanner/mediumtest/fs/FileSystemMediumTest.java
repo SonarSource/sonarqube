@@ -112,48 +112,6 @@ public class FileSystemMediumTest {
   }
 
   @Test
-  public void logProjectKeyAndOrganizationKey() throws IOException {
-    builder.put("sonar.organization", "my org");
-    builder.put("sonar.branch", "");
-    File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
-
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    tester.newAnalysis()
-      .properties(builder
-        .put("sonar.sources", "src")
-        .build())
-      .execute();
-
-    assertThat(logTester.logs()).contains("Project key: com.foo.project");
-    assertThat(logTester.logs()).contains("Organization key: my org");
-    assertThat(logTester.logs().stream().collect(joining("\n"))).doesNotContain("Branch key");
-  }
-
-  @Test
-  public void logBranchKey() throws IOException {
-    builder.put("sonar.branch", "my-branch");
-    File srcDir = new File(baseDir, "src");
-    assertThat(srcDir.mkdir()).isTrue();
-
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    tester.newAnalysis()
-      .properties(builder
-        .put("sonar.sources", "src")
-        .build())
-      .execute();
-
-    assertThat(logTester.logs()).contains("Project key: com.foo.project");
-    assertThat(logTester.logs()).contains("Branch key: my-branch");
-    assertThat(logTester.logs())
-      .contains("The use of \"sonar.branch\" is deprecated and replaced by \"sonar.branch.name\". See https://redirect.sonarsource.com/doc/branches.html.");
-  }
-
-  @Test
   public void logBranchNameAndType() {
     builder.put("sonar.branch.name", "my-branch");
     File srcDir = new File(baseDir, "src");

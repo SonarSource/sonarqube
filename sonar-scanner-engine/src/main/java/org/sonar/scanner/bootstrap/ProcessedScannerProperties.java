@@ -22,19 +22,16 @@ package org.sonar.scanner.bootstrap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.scanner.scan.ExternalProjectKeyAndOrganization;
 
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.sonar.api.CoreProperties.PROJECT_KEY_PROPERTY;
 
 /**
  * Properties that are coming from scanner.
  */
 @Immutable
-public class ProcessedScannerProperties implements ProjectKey {
+public class ProcessedScannerProperties {
 
   private final Map<String, String> properties;
 
@@ -44,7 +41,7 @@ public class ProcessedScannerProperties implements ProjectKey {
     this.properties.putAll(rawScannerProperties.properties());
 
     externalProjectKeyAndOrganization.getProjectKey()
-      .ifPresent(projectKey -> properties.put(CoreProperties.PROJECT_KEY_PROPERTY, projectKey));
+      .ifPresent(projectKey -> properties.put(PROJECT_KEY_PROPERTY, projectKey));
     externalProjectKeyAndOrganization.getOrganization()
       .ifPresent(organization -> properties.put(org.sonar.core.config.ScannerProperties.ORGANIZATION, organization));
   }
@@ -57,26 +54,7 @@ public class ProcessedScannerProperties implements ProjectKey {
     return properties.get(key);
   }
 
-  @Override
-  public String get() {
-    return getKeyWithBranch();
-  }
-
-  private String getKey() {
-    return properties.get(CoreProperties.PROJECT_KEY_PROPERTY);
-  }
-
-  public String getKeyWithBranch() {
-    String branch = getBranch();
-    String projectKey = getKey();
-    if (branch == null) {
-      return projectKey;
-    }
-    return String.format("%s:%s", projectKey, branch);
-  }
-
-  @CheckForNull
-  private String getBranch() {
-    return trimToNull(properties.get(CoreProperties.PROJECT_BRANCH_PROPERTY));
+  public String getProjectKey() {
+    return this.properties.get(PROJECT_KEY_PROPERTY);
   }
 }

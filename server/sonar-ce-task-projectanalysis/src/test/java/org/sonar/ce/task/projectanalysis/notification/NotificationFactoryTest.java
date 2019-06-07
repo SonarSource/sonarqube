@@ -569,21 +569,15 @@ public class NotificationFactoryTest {
   public static Object[][] noBranchNameBranches() {
     Branch mainBranch = mock(Branch.class);
     when(mainBranch.isMain()).thenReturn(true);
-    when(mainBranch.isLegacyFeature()).thenReturn(false);
     when(mainBranch.getType()).thenReturn(BranchType.LONG);
-    Branch legacyBranch = mock(Branch.class);
-    when(legacyBranch.isLegacyFeature()).thenReturn(true);
     Branch shortBranch = mock(Branch.class);
-    when(shortBranch.isLegacyFeature()).thenReturn(false);
     when(shortBranch.isMain()).thenReturn(false);
     when(shortBranch.getType()).thenReturn(BranchType.SHORT);
     Branch pr = mock(Branch.class);
-    when(pr.isLegacyFeature()).thenReturn(false);
     when(pr.isMain()).thenReturn(false);
     when(pr.getType()).thenReturn(BranchType.PULL_REQUEST);
     return new Object[][] {
       {mainBranch},
-      {legacyBranch},
       {shortBranch},
       {pr}
     };
@@ -664,7 +658,7 @@ public class NotificationFactoryTest {
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Can not find DTO for assignee uuid " + assigneeUuid);
-    
+
     underTest.newIssuesChangesNotification(ImmutableSet.of(issue), assigneesByUuid);
   }
 
@@ -762,8 +756,7 @@ public class NotificationFactoryTest {
         assertThat(changedIssue.getAssignee()).isEmpty();
         assertThat(changedIssue.getRule().getKey()).isEqualTo(issue.ruleKey());
         assertThat(changedIssue.getRule().getName()).isEqualTo(ruleRepository.getByKey(issue.ruleKey()).getName());
-      }
-    );
+      });
   }
 
   private static Map<String, UserDto> nonEmptyAssigneesByUuid() {
@@ -782,7 +775,6 @@ public class NotificationFactoryTest {
 
   private static Branch newBranch(BranchType branchType, String branchName) {
     Branch longBranch = mock(Branch.class);
-    when(longBranch.isLegacyFeature()).thenReturn(false);
     when(longBranch.isMain()).thenReturn(false);
     when(longBranch.getType()).thenReturn(branchType);
     when(longBranch.getName()).thenReturn(branchName);

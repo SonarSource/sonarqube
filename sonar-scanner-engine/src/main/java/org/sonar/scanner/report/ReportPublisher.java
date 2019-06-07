@@ -175,7 +175,6 @@ public class ReportPublisher implements Startable {
       .setParam("organization", properties.organizationKey().orElse(null))
       .setParam("projectKey", moduleHierarchy.root().key())
       .setParam("projectName", moduleHierarchy.root().getOriginalName())
-      .setParam("projectBranch", moduleHierarchy.root().getBranch())
       .setPart("report", filePart);
 
     String branchName = branchConfiguration.branchName();
@@ -211,14 +210,14 @@ public class ReportPublisher implements Startable {
     } else {
 
       Map<String, String> metadata = new LinkedHashMap<>();
-      String effectiveKey = moduleHierarchy.root().getKeyWithBranch();
+
       properties.organizationKey().ifPresent(org -> metadata.put("organization", org));
-      metadata.put("projectKey", effectiveKey);
+      metadata.put("projectKey", moduleHierarchy.root().key());
       metadata.put("serverUrl", server.getPublicRootUrl());
       metadata.put("serverVersion", server.getVersion());
       properties.branch().ifPresent(branch -> metadata.put("branch", branch));
 
-      URL dashboardUrl = buildDashboardUrl(server.getPublicRootUrl(), effectiveKey);
+      URL dashboardUrl = buildDashboardUrl(server.getPublicRootUrl(), moduleHierarchy.root().key());
       metadata.put("dashboardUrl", dashboardUrl.toExternalForm());
 
       URL taskUrl = HttpUrl.parse(server.getPublicRootUrl()).newBuilder()

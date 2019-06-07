@@ -34,7 +34,7 @@ public class QualityProfilesProvider extends ProviderAdapter {
   public QualityProfiles provide(QualityProfileLoader loader, ProcessedScannerProperties props) {
     if (this.profiles == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      profiles = new QualityProfiles(loader.load(props.getKeyWithBranch()));
+      profiles = new QualityProfiles(loader.load(props.getProjectKey()));
       profiler.stopInfo();
     }
 

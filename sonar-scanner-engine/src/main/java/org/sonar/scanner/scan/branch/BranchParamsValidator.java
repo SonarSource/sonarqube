@@ -25,5 +25,5 @@ import org.sonar.api.scanner.ScannerSide;
 
 @ScannerSide
 public interface BranchParamsValidator {
-  void validate(List<String> validationMessages, @Nullable String deprecatedBranchName);
+  void validate(List<String> validationMessages);
 }

@@ -96,7 +96,7 @@ public final class ScmPublisher {
       if (configuration.forceReloadAll() || f.status() != Status.SAME) {
         addIfNotEmpty(filesToBlame, f);
       } else if (!branchConfiguration.isShortOrPullRequest()) {
-        FileData fileData = projectRepositoriesSupplier.get().fileData(componentStore.findModule(f).getKeyWithBranch(), f);
+        FileData fileData = projectRepositoriesSupplier.get().fileData(componentStore.findModule(f).key(), f);
         if (fileData == null || StringUtils.isEmpty(fileData.revision())) {
           addIfNotEmpty(filesToBlame, f);
         } else {

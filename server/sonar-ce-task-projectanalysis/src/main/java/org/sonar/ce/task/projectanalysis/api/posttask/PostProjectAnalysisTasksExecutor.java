@@ -230,11 +230,8 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   @CheckForNull
   private BranchImpl createBranch() {
     org.sonar.ce.task.projectanalysis.analysis.Branch analysisBranch = analysisMetadataHolder.getBranch();
-    if (!analysisBranch.isLegacyFeature()) {
-      String branchKey = analysisBranch.getType() == PULL_REQUEST ? analysisBranch.getPullRequestKey() : analysisBranch.getName();
-      return new BranchImpl(analysisBranch.isMain(), branchKey, Branch.Type.valueOf(analysisBranch.getType().name()));
-    }
-    return null;
+    String branchKey = analysisBranch.getType() == PULL_REQUEST ? analysisBranch.getPullRequestKey() : analysisBranch.getName();
+    return new BranchImpl(analysisBranch.isMain(), branchKey, Branch.Type.valueOf(analysisBranch.getType().name()));
   }
 
   private static QualityGate.Status convert(QualityGateStatus status) {

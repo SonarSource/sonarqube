@@ -19,8 +19,6 @@
  */
 package org.sonar.server.component;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
@@ -33,7 +31,6 @@ import static org.sonar.db.component.ComponentValidator.checkComponentQualifier;
 public class NewComponent {
   private final String organizationUuid;
   private final String key;
-  private final String branch;
   private final String qualifier;
   private final String name;
   private final boolean isPrivate;
@@ -41,7 +38,6 @@ public class NewComponent {
   private NewComponent(NewComponent.Builder builder) {
     this.organizationUuid = builder.organizationUuid;
     this.key = builder.key;
-    this.branch = builder.branch;
     this.qualifier = builder.qualifier;
     this.name = builder.name;
     this.isPrivate = builder.isPrivate;
@@ -63,11 +59,6 @@ public class NewComponent {
     return name;
   }
 
-  @CheckForNull
-  public String deprecatedBranch() {
-    return branch;
-  }
-
   public String qualifier() {
     return qualifier;
   }
@@ -80,7 +71,6 @@ public class NewComponent {
     private String organizationUuid;
     private String key;
     private String qualifier = PROJECT;
-    private String branch;
     private String name;
     private boolean isPrivate = false;
 
@@ -95,11 +85,6 @@ public class NewComponent {
 
     public Builder setKey(String key) {
       this.key = key;
-      return this;
-    }
-
-    public Builder setDeprecatedBranch(@Nullable String s) {
-      this.branch = s;
       return this;
     }
 

@@ -22,7 +22,6 @@ package org.sonar.scanner.report;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,7 +36,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.protocol.output.FileStructure;
-import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
@@ -56,7 +54,6 @@ public class ComponentsPublisherTest {
 
   private File outputDir;
   private ScannerReportWriter writer;
-  private ScannerReportReader reader;
   private BranchConfiguration branchConfiguration;
 
   @Before
@@ -64,11 +61,6 @@ public class ComponentsPublisherTest {
     branchConfiguration = mock(BranchConfiguration.class);
     outputDir = temp.newFolder();
     writer = new ScannerReportWriter(outputDir);
-    reader = new ScannerReportReader(outputDir);
-  }
-
-  private void writeIssue(int componentId) {
-    writer.writeComponentIssues(componentId, Collections.singleton(ScannerReport.Issue.newBuilder().build()));
   }
 
   @Test
@@ -133,29 +125,6 @@ public class ComponentsPublisherTest {
     assertThat(reader.readComponent(4).getStatus()).isEqualTo(FileStatus.SAME);
     assertThat(reader.readComponent(6).getStatus()).isEqualTo(FileStatus.CHANGED);
     assertThat(reader.readComponent(7).getStatus()).isEqualTo(FileStatus.ADDED);
-  }
-
-  @Test
-  public void should_set_modified_name_with_branch() throws IOException {
-    ProjectInfo projectInfo = mock(ProjectInfo.class);
-    when(projectInfo.getAnalysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
-
-    ProjectDefinition rootDef = ProjectDefinition.create()
-      .setKey("foo")
-      .setDescription("Root description")
-      .setBaseDir(temp.newFolder())
-      .setWorkDir(temp.newFolder())
-      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "my_branch");
-
-    DefaultInputProject project = new DefaultInputProject(rootDef, 1);
-
-    InputComponentStore store = new InputComponentStore(branchConfiguration);
-
-    ComponentsPublisher publisher = new ComponentsPublisher(project, store);
-    publisher.publish(writer);
-    Component rootProtobuf = reader.readComponent(1);
-    assertThat(rootProtobuf.getKey()).isEqualTo("foo");
-    assertThat(rootProtobuf.getName()).isEqualTo("foo my_branch");
   }
 
   @Test
@@ -226,14 +195,13 @@ public class ComponentsPublisherTest {
   }
 
   @Test
-  public void publish_project_with_links_and_branch() throws Exception {
+  public void publish_project_with_links() throws Exception {
     ProjectInfo projectInfo = mock(ProjectInfo.class);
     when(projectInfo.getAnalysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
     ProjectDefinition rootDef = ProjectDefinition.create()
       .setKey("foo")
       .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
-      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "my_branch")
       .setName("Root project")
       .setProperty(CoreProperties.LINKS_HOME_PAGE, "http://home")
       .setProperty(CoreProperties.LINKS_CI, "http://ci")

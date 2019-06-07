@@ -44,7 +44,6 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -78,8 +77,7 @@ public class SubmitActionTest {
 
   @Test
   public void submit_task_to_the_queue_and_ask_for_immediate_processing() {
-    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), isNull(), eq("My Project"),
-      anyMap(), any())).thenReturn(A_CE_TASK);
+    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), eq("My Project"), anyMap(), any())).thenReturn(A_CE_TASK);
 
     Ce.SubmitResponse submitResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -88,8 +86,7 @@ public class SubmitActionTest {
       .setMethod("POST")
       .executeProtobuf(Ce.SubmitResponse.class);
 
-    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), isNull(), eq("My Project"),
-      anyMap(), any());
+    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), eq("My Project"), anyMap(), any());
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
     assertThat(submitResponse.getProjectId()).isEqualTo(PROJECT_UUID);
@@ -97,8 +94,7 @@ public class SubmitActionTest {
 
   @Test
   public void submit_task_with_characteristics() {
-    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), isNull(), eq("My Project"),
-      anyMap(), any())).thenReturn(A_CE_TASK);
+    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), eq("My Project"), anyMap(), any())).thenReturn(A_CE_TASK);
 
     String[] characteristics = {"branch=foo", "pullRequest=123", "unsupported=bar"};
     Ce.SubmitResponse submitResponse = tester.newRequest()
@@ -110,8 +106,7 @@ public class SubmitActionTest {
       .executeProtobuf(Ce.SubmitResponse.class);
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
-    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), isNull(), eq("My Project"),
-      map.capture(), any());
+    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), eq("My Project"), map.capture(), any());
 
     // unsupported characteristics are ignored
     assertThat(map.getValue()).containsExactly(entry("branch", "foo"), entry("pullRequest", "123"));
@@ -121,8 +116,7 @@ public class SubmitActionTest {
   public void abbreviate_long_name() {
     String longName = Strings.repeat("a", 1_000);
     String expectedName = Strings.repeat("a", 497) + "...";
-    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), isNull(), eq(expectedName),
-      anyMap(), any())).thenReturn(A_CE_TASK);
+    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), eq(expectedName), anyMap(), any())).thenReturn(A_CE_TASK);
 
     Ce.SubmitResponse submitResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -131,8 +125,7 @@ public class SubmitActionTest {
       .setMethod("POST")
       .executeProtobuf(Ce.SubmitResponse.class);
 
-    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), isNull(), eq(expectedName),
-      anyMap(), any());
+    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), eq(expectedName), anyMap(), any());
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
     assertThat(submitResponse.getProjectId()).isEqualTo(PROJECT_UUID);
@@ -140,8 +133,7 @@ public class SubmitActionTest {
 
   @Test
   public void test_example_json_response() {
-    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), isNull(), eq("My Project"),
-      anyMap(), any())).thenReturn(A_CE_TASK);
+    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), eq("My Project"), anyMap(), any())).thenReturn(A_CE_TASK);
 
     TestResponse wsResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -159,8 +151,7 @@ public class SubmitActionTest {
    */
   @Test
   public void project_name_is_optional() {
-    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), isNull(), eq("my_project"),
-      anyMap(), any())).thenReturn(A_CE_TASK);
+    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), eq("my_project"), anyMap(), any())).thenReturn(A_CE_TASK);
 
     tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -169,8 +160,6 @@ public class SubmitActionTest {
       .setMethod("POST")
       .execute();
 
-    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), isNull(), eq("my_project"),
-      anyMap(), any());
-
+    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), eq("my_project"), anyMap(), any());
   }
 }

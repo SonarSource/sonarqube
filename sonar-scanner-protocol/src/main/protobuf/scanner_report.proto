@@ -33,8 +33,9 @@ message Metadata {
   string organization_key = 2;
   // TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
   string project_key = 3;
-  // maps the property sonar.branch
-  string deprecated_branch = 4;
+
+  reserved 4; // deprecated_branch (legacy branches feature)
+
   int32 root_component_ref = 5;
   bool cross_project_duplication_activated = 6;
   map<string, QProfile> qprofiles_per_language = 7;
@@ -61,7 +62,7 @@ message Metadata {
     string language = 3;
     int64 rulesUpdatedAt = 4;
   }
-  
+
   message Plugin {
     string key = 1;
     int64 updatedAt = 2;
@@ -93,7 +94,7 @@ message ActiveRule {
 message ComponentLink {
   ComponentLinkType type = 1;
   string href = 2;
-  
+
   enum ComponentLinkType {
     UNSET = 0;
     HOME = 1;
@@ -151,27 +152,27 @@ message Measure {
     DoubleValue double_value = 5;
     StringValue string_value = 6;
   }
-  
+
   message BoolValue {
     bool value = 1;
     string data = 2;
   }
-  
+
   message IntValue {
     int32 value = 1;
     string data = 2;
   }
-  
+
   message LongValue {
     int64 value = 1;
     string data = 2;
   }
-  
+
   message DoubleValue {
     double value = 1;
     string data = 2;
   }
-  
+
   message StringValue {
     string value = 1;
   }
@@ -310,7 +311,7 @@ message LineCoverage {
 message SyntaxHighlightingRule {
   TextRange range = 1;
   HighlightingType type = 2;
-  
+
   enum HighlightingType {
     UNSET = 0;
     ANNOTATION = 1;

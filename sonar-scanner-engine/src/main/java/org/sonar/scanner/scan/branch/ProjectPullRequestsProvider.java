@@ -21,10 +21,10 @@ package org.sonar.scanner.scan.branch;
 
 import java.util.Collections;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 
 public class ProjectPullRequestsProvider extends ProviderAdapter {
 
@@ -33,7 +33,7 @@ public class ProjectPullRequestsProvider extends ProviderAdapter {
 
   private ProjectPullRequests pullRequests = null;
 
-  public ProjectPullRequests provide(@org.picocontainer.annotations.Nullable ProjectPullRequestsLoader loader, ProjectKey projectKey) {
+  public ProjectPullRequests provide(@org.picocontainer.annotations.Nullable ProjectPullRequestsLoader loader, ProcessedScannerProperties scannerProperties) {
     if (pullRequests != null) {
       return pullRequests;
     }
@@ -44,7 +44,7 @@ public class ProjectPullRequestsProvider extends ProviderAdapter {
     }
 
     Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-    pullRequests = loader.load(projectKey.get());
+    pullRequests = loader.load(scannerProperties.getProjectKey());
     profiler.stopInfo();
     return pullRequests;
   }

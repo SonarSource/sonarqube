@@ -37,7 +37,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.scanner.ProjectInfo;
@@ -58,7 +57,6 @@ import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scanner.scm.ScmRevision;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -123,7 +121,7 @@ public class MetadataPublisherTest {
   @Test
   public void write_metadata() throws Exception {
     Date date = new Date();
-    when(qProfiles.findAll()).thenReturn(asList(new QProfile("q1", "Q1", "java", date)));
+    when(qProfiles.findAll()).thenReturn(Collections.singletonList(new QProfile("q1", "Q1", "java", date)));
     when(pluginRepository.getPluginsByKey()).thenReturn(ImmutableMap.of(
       "java", new ScannerPlugin("java", 12345L, null),
       "php", new ScannerPlugin("php", 45678L, null)));
@@ -152,28 +150,6 @@ public class MetadataPublisherTest {
         .setKey("php")
         .setUpdatedAt(45678)
         .build()));
-  }
-
-  @Test
-  public void write_project_branch() throws Exception {
-    when(cpdSettings.isCrossProjectDuplicationEnabled()).thenReturn(false);
-
-    ProjectDefinition projectDef = ProjectDefinition.create()
-      .setKey("foo")
-      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch");
-    createPublisher(projectDef);
-
-    File outputDir = temp.newFolder();
-    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
-
-    underTest.publish(writer);
-
-    ScannerReportReader reader = new ScannerReportReader(outputDir);
-    ScannerReport.Metadata metadata = reader.readMetadata();
-    assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
-    assertThat(metadata.getProjectKey()).isEqualTo("root");
-    assertThat(metadata.getDeprecatedBranch()).isEqualTo("myBranch");
-    assertThat(metadata.getCrossProjectDuplicationActivated()).isFalse();
   }
 
   @Test

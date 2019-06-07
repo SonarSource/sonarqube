@@ -26,22 +26,19 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 /**
  * Branch code for {@link ReportSubmitter}.
  * <p>
- * Does not support branches (except deprecated branch feature provided by "sonar.branch") unless an implementation of
- * {@link BranchSupportDelegate} is available.
+ * Does not support branches unless an implementation of {@link BranchSupportDelegate} is available.
  */
 @ServerSide
 public class BranchSupport {
@@ -59,14 +56,13 @@ public class BranchSupport {
     this.delegate = delegate;
   }
 
-  ComponentKey createComponentKey(String projectKey, @Nullable String deprecatedBranch, Map<String, String> characteristics) {
+  ComponentKey createComponentKey(String projectKey, Map<String, String> characteristics) {
     if (characteristics.isEmpty()) {
-      return new ComponentKeyImpl(projectKey, deprecatedBranch, ComponentKeys.createKey(projectKey, deprecatedBranch));
+      return new ComponentKeyImpl(projectKey, projectKey);
     } else {
       checkState(delegate != null, "Current edition does not support branch feature");
     }
 
-    checkArgument(deprecatedBranch == null, "Deprecated branch feature can't be used at the same time as new branch support");
     return delegate.createComponentKey(projectKey, characteristics);
   }
 
@@ -82,15 +78,9 @@ public class BranchSupport {
 
     public abstract String getDbKey();
 
-    public abstract Optional<String> getDeprecatedBranchName();
-
     public abstract Optional<Branch> getBranch();
 
     public abstract Optional<String> getPullRequestKey();
-
-    public final boolean isDeprecatedBranch() {
-      return getDeprecatedBranchName().isPresent();
-    }
 
     public final boolean isMainBranch() {
       return !getBranch().isPresent() && !getPullRequestKey().isPresent();
@@ -149,12 +139,9 @@ public class BranchSupport {
   private static final class ComponentKeyImpl extends ComponentKey {
     private final String key;
     private final String dbKey;
-    @CheckForNull
-    private final String deprecatedBranchName;
 
-    public ComponentKeyImpl(String key, @Nullable String deprecatedBranchName, String dbKey) {
+    public ComponentKeyImpl(String key, String dbKey) {
       this.key = key;
-      this.deprecatedBranchName = deprecatedBranchName;
       this.dbKey = dbKey;
     }
 
@@ -166,11 +153,6 @@ public class BranchSupport {
     @Override
     public String getDbKey() {
       return dbKey;
-    }
-
-    @Override
-    public Optional<String> getDeprecatedBranchName() {
-      return Optional.ofNullable(deprecatedBranchName);
     }
 
     @Override
@@ -198,13 +180,12 @@ public class BranchSupport {
       }
       ComponentKeyImpl that = (ComponentKeyImpl) o;
       return Objects.equals(key, that.key) &&
-        Objects.equals(dbKey, that.dbKey) &&
-        Objects.equals(deprecatedBranchName, that.deprecatedBranchName);
+        Objects.equals(dbKey, that.dbKey);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(key, dbKey, deprecatedBranchName);
+      return Objects.hash(key, dbKey);
     }
   }
 }

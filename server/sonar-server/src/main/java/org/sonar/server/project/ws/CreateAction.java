@@ -44,7 +44,6 @@ import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_CREATE;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
@@ -87,11 +86,6 @@ public class CreateAction implements ProjectsWsAction {
       .setRequired(true)
       .setExampleValue("SonarQube");
 
-    action.createParam(PARAM_BRANCH)
-      .setDeprecatedSince("7.8")
-      .setDescription("SCM Branch of the project. The key of the project will become key:branch, for instance 'SonarQube:branch-5.0'")
-      .setExampleValue("branch-5.0");
-
     action.createParam(PARAM_VISIBILITY)
       .setDescription("Whether the created project should be visible to everyone, or only specific user/groups.<br/>" +
         "If no visibility is specified, the default project visibility of the organization will be used.")
@@ -120,7 +114,6 @@ public class CreateAction implements ProjectsWsAction {
         .setOrganizationUuid(organization.getUuid())
         .setKey(request.getProjectKey())
         .setName(request.getName())
-        .setDeprecatedBranch(request.getBranch())
         .setPrivate(changeToPrivate)
         .setQualifier(PROJECT)
         .build(),
@@ -134,7 +127,6 @@ public class CreateAction implements ProjectsWsAction {
       .setOrganization(request.param(PARAM_ORGANIZATION))
       .setProjectKey(request.mandatoryParam(PARAM_PROJECT))
       .setName(abbreviate(request.mandatoryParam(PARAM_NAME), MAX_COMPONENT_NAME_LENGTH))
-      .setBranch(request.param(PARAM_BRANCH))
       .setVisibility(request.param(PARAM_VISIBILITY))
       .build();
   }
@@ -154,7 +146,6 @@ public class CreateAction implements ProjectsWsAction {
     private final String organization;
     private final String projectKey;
     private final String name;
-    private final String branch;
     @CheckForNull
     private final String visibility;
 
@@ -162,7 +153,6 @@ public class CreateAction implements ProjectsWsAction {
       this.organization = builder.organization;
       this.projectKey = builder.projectKey;
       this.name = builder.name;
-      this.branch = builder.branch;
       this.visibility = builder.visibility;
     }
 
@@ -182,11 +172,6 @@ public class CreateAction implements ProjectsWsAction {
     }
 
     @CheckForNull
-    public String getBranch() {
-      return branch;
-    }
-
-    @CheckForNull
     public String getVisibility() {
       return visibility;
     }
@@ -200,7 +185,6 @@ public class CreateAction implements ProjectsWsAction {
     private String organization;
     private String projectKey;
     private String name;
-    private String branch;
     @CheckForNull
     private String visibility;
 
@@ -219,11 +203,6 @@ public class CreateAction implements ProjectsWsAction {
 
     public Builder setName(@Nullable String name) {
       this.name = name;
-      return this;
-    }
-
-    public Builder setBranch(@Nullable String branch) {
-      this.branch = branch;
       return this;
     }
 

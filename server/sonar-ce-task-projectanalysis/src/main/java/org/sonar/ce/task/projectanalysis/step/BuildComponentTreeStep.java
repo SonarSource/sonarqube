@@ -135,7 +135,7 @@ public class BuildComponentTreeStep implements ComputationStep {
     Branch branch = analysisMetadataHolder.getBranch();
 
     // for non-legacy branches, the public key is different from the DB key.
-    if (!branch.isLegacyFeature() && !branch.isMain()) {
+    if (!branch.isMain()) {
       return new DefaultBranchImpl();
     }
     return branch;

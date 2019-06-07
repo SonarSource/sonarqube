@@ -194,7 +194,8 @@ public class ScmMediumTest {
       // revision,author,dateTime
       "1,foo,2013-01-04\n" +
         "1,bar,2013-01-04\n" +
-        "2,biz,2014-01-04\n", StandardCharsets.UTF_8);
+        "2,biz,2014-01-04\n",
+      StandardCharsets.UTF_8);
 
     File sameContentScmOnServer = new File(baseDir, SAME_CONTENT_SCM_ON_SERVER_XOO);
     FileUtils.write(sameContentScmOnServer, SAMPLE_XOO_CONTENT, StandardCharsets.UTF_8);
@@ -210,7 +211,8 @@ public class ScmMediumTest {
     FileUtils.write(xooScmFile,
       // revision,author,dateTime
       "1,foo,2013-01-04\n" +
-        "1,bar,2013-01-04\n", StandardCharsets.UTF_8);
+        "1,bar,2013-01-04\n",
+      StandardCharsets.UTF_8);
 
     tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
@@ -243,62 +245,6 @@ public class ScmMediumTest {
   }
 
   @Test
-  public void optimize_blame_for_deprecated_branch() throws IOException, URISyntaxException {
-
-    File baseDir = prepareProject();
-    File changedContentScmOnServer = new File(baseDir, CHANGED_CONTENT_SCM_ON_SERVER_XOO);
-    FileUtils.write(changedContentScmOnServer, SAMPLE_XOO_CONTENT + "\nchanged", StandardCharsets.UTF_8);
-    File xooScmFile = new File(baseDir, CHANGED_CONTENT_SCM_ON_SERVER_XOO + ".scm");
-    FileUtils.write(xooScmFile,
-      // revision,author,dateTime
-      "1,foo,2013-01-04\n" +
-        "1,bar,2013-01-04\n" +
-        "2,biz,2014-01-04\n", StandardCharsets.UTF_8);
-
-    File sameContentScmOnServer = new File(baseDir, SAME_CONTENT_SCM_ON_SERVER_XOO);
-    FileUtils.write(sameContentScmOnServer, SAMPLE_XOO_CONTENT, StandardCharsets.UTF_8);
-    // No need to write .scm file since this file should not be blamed
-
-    File noBlameScmOnServer = new File(baseDir, NO_BLAME_SCM_ON_SERVER_XOO);
-    FileUtils.write(noBlameScmOnServer, SAMPLE_XOO_CONTENT + "\nchanged", StandardCharsets.UTF_8);
-    // No .scm file to emulate a failure during blame
-
-    File sameContentNoScmOnServer = new File(baseDir, SAME_CONTENT_NO_SCM_ON_SERVER_XOO);
-    FileUtils.write(sameContentNoScmOnServer, SAMPLE_XOO_CONTENT, StandardCharsets.UTF_8);
-    xooScmFile = new File(baseDir, SAME_CONTENT_NO_SCM_ON_SERVER_XOO + ".scm");
-    FileUtils.write(xooScmFile,
-      // revision,author,dateTime
-      "1,foo,2013-01-04\n" +
-        "1,bar,2013-01-04\n", StandardCharsets.UTF_8);
-
-    tester.newAnalysis()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-        .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.branch", "mybranch")
-        .put("sonar.sources", "src")
-        .put("sonar.scm.provider", "xoo")
-        .build())
-      .execute();
-
-    assertThat(getChangesets(baseDir, "src/sample.xoo")).isNotNull();
-
-    assertThat(getChangesets(baseDir, CHANGED_CONTENT_SCM_ON_SERVER_XOO).getCopyFromPrevious()).isFalse();
-
-    assertThat(getChangesets(baseDir, SAME_CONTENT_SCM_ON_SERVER_XOO).getCopyFromPrevious()).isTrue();
-
-    assertThat(getChangesets(baseDir, SAME_CONTENT_NO_SCM_ON_SERVER_XOO).getCopyFromPrevious()).isFalse();
-
-    assertThat(getChangesets(baseDir, NO_BLAME_SCM_ON_SERVER_XOO)).isNull();
-
-    // 5 .xoo files + 3 .scm files, but only 4 marked for publishing. 1 file is SAME so not included in the total
-    assertThat(logTester.logs()).containsSubsequence("8 files indexed");
-    assertThat(logTester.logs()).containsSubsequence("SCM Publisher 4 source files to be analyzed");
-    assertThat(logTester.logs().stream().anyMatch(s -> Pattern.matches("SCM Publisher 3/4 source files have been analyzed \\(done\\) \\| time=[0-9]+ms", s))).isTrue();
-    assertThat(logTester.logs()).containsSubsequence(MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES, "  * src/no_blame_scm_on_server.xoo");
-  }
-
-  @Test
   public void forceReload() throws IOException, URISyntaxException {
 
     File baseDir = prepareProject();
@@ -308,7 +254,8 @@ public class ScmMediumTest {
     FileUtils.write(xooScmFile,
       // revision,author,dateTime
       "1,foo,2013-01-04\n" +
-        "1,bar,2013-01-04\n", StandardCharsets.UTF_8);
+        "1,bar,2013-01-04\n",
+      StandardCharsets.UTF_8);
 
     AnalysisBuilder analysisBuilder = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()

@@ -233,7 +233,7 @@ public class AnalysisMetadataHolderImplTest {
   public void set_branch() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
 
-    underTest.setBranch(new DefaultBranchImpl("master"));
+    underTest.setBranch(new DefaultBranchImpl());
 
     assertThat(underTest.getBranch().getName()).isEqualTo("master");
   }
@@ -249,11 +249,11 @@ public class AnalysisMetadataHolderImplTest {
   @Test
   public void setBranch_throws_ISE_when_called_twice() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-    underTest.setBranch(new DefaultBranchImpl("master"));
+    underTest.setBranch(new DefaultBranchImpl());
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Branch has already been set");
-    underTest.setBranch(new DefaultBranchImpl("master"));
+    underTest.setBranch(new DefaultBranchImpl());
   }
 
   @Test
@@ -262,21 +262,6 @@ public class AnalysisMetadataHolderImplTest {
     when(editionProvider.get()).thenReturn(Optional.ofNullable(edition));
     Branch branch = mock(Branch.class);
     when(branch.isMain()).thenReturn(true);
-    when(branch.isLegacyFeature()).thenReturn(false);
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-
-    underTest.setBranch(branch);
-
-    assertThat(underTest.getBranch()).isSameAs(branch);
-  }
-
-  @Test
-  @UseDataProvider("anyEditionIncludingNone")
-  public void setBranch_does_not_fail_if_legacy_branch_on_any_edition(@Nullable Edition edition) {
-    when(editionProvider.get()).thenReturn(Optional.ofNullable(edition));
-    Branch branch = mock(Branch.class);
-    when(branch.isMain()).thenReturn(false);
-    when(branch.isLegacyFeature()).thenReturn(true);
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
 
     underTest.setBranch(branch);
@@ -286,11 +271,10 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   @UseDataProvider("anyEditionIncludingNoneButCommunity")
-  public void setBranch_does_not_fail_if_non_main_non_legacy_branch_on_any_edition_but_Community(@Nullable Edition edition) {
+  public void setBranch_does_not_fail_if_non_main_on_any_edition_but_Community(@Nullable Edition edition) {
     when(editionProvider.get()).thenReturn(Optional.ofNullable(edition));
     Branch branch = mock(Branch.class);
     when(branch.isMain()).thenReturn(false);
-    when(branch.isLegacyFeature()).thenReturn(false);
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
 
     underTest.setBranch(branch);
@@ -299,11 +283,10 @@ public class AnalysisMetadataHolderImplTest {
   }
 
   @Test
-  public void setBranch_fails_if_non_main_non_legacy_branch_on_Community_edition() {
+  public void setBranch_fails_if_non_main_branch_on_Community_edition() {
     when(editionProvider.get()).thenReturn(Optional.of(Edition.COMMUNITY));
     Branch branch = mock(Branch.class);
     when(branch.isMain()).thenReturn(false);
-    when(branch.isLegacyFeature()).thenReturn(false);
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
 
     expectedException.expect(IllegalStateException.class);

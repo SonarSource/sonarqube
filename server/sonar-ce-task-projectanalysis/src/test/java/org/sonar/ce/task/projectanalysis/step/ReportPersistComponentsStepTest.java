@@ -676,11 +676,6 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     }
 
     @Override
-    public boolean isLegacyFeature() {
-      return false;
-    }
-
-    @Override
     public String getName() {
       return name;
     }

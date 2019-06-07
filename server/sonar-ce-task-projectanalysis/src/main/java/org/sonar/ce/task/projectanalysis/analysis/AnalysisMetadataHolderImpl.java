@@ -153,7 +153,7 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
     checkState(!this.branch.isInitialized(), "Branch has already been set");
     boolean isCommunityEdition = editionProvider.get().filter(t -> t == EditionProvider.Edition.COMMUNITY).isPresent();
     checkState(
-      !isCommunityEdition || branch.isMain() || branch.isLegacyFeature(),
+      !isCommunityEdition || branch.isMain(),
       "Branches and Pull Requests are not supported in Community Edition");
     this.branch.setProperty(branch);
     return this;

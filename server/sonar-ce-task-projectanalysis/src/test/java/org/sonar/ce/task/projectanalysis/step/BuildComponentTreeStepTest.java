@@ -178,7 +178,6 @@ public class BuildComponentTreeStepTest {
     Branch branch = mock(Branch.class);
     when(branch.getName()).thenReturn("origin/feature");
     when(branch.isMain()).thenReturn(false);
-    when(branch.isLegacyFeature()).thenReturn(false);
     when(branch.generateKey(any(), any())).thenReturn("generated");
     analysisMetadataHolder.setRootComponentRef(ROOT_REF)
       .setAnalysisDate(ANALYSIS_DATE)
@@ -208,7 +207,6 @@ public class BuildComponentTreeStepTest {
     Branch branch = mock(Branch.class);
     when(branch.getName()).thenReturn(branchDto.getBranch());
     when(branch.isMain()).thenReturn(false);
-    when(branch.isLegacyFeature()).thenReturn(false);
     when(branch.generateKey(any(), any())).thenReturn(branchDto.getDbKey());
     analysisMetadataHolder.setRootComponentRef(ROOT_REF)
       .setAnalysisDate(ANALYSIS_DATE)
@@ -238,23 +236,6 @@ public class BuildComponentTreeStepTest {
     verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName(), null);
     verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, REPORT_DIR_PATH_1);
     verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1, null);
-  }
-
-  @Test
-  public void generate_keys_when_using_legacy_branch() {
-    analysisMetadataHolder.setRootComponentRef(ROOT_REF)
-      .setAnalysisDate(ANALYSIS_DATE)
-      .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY)))
-      .setBranch(new DefaultBranchImpl("origin/feature"));
-    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, reportModulesPath);
-    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, FILE_1_REF));
-    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_PATH_1));
-
-    underTest.execute(new TestComputationStepContext());
-
-    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY + ":origin/feature", analysisMetadataHolder.getProject().getName(), null);
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":origin/feature:" + REPORT_DIR_PATH_1, REPORT_DIR_PATH_1);
-    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":origin/feature:" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1, null);
   }
 
   @Test
@@ -517,7 +498,7 @@ public class BuildComponentTreeStepTest {
   private void setAnalysisMetadataHolder() {
     analysisMetadataHolder.setRootComponentRef(ROOT_REF)
       .setAnalysisDate(ANALYSIS_DATE)
-      .setBranch(new DefaultBranchImpl(null))
+      .setBranch(new DefaultBranchImpl())
       .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY)));
   }
 

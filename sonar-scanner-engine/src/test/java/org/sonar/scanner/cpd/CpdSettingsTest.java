@@ -33,13 +33,11 @@ import static org.mockito.Mockito.when;
 public class CpdSettingsTest {
   private CpdSettings cpdSettings;
   private Configuration configuration;
-  private DefaultInputProject project;
 
   @Before
   public void setUp() {
-    project = mock(DefaultInputProject.class);
     configuration = mock(Configuration.class);
-    cpdSettings = new CpdSettings(configuration, project);
+    cpdSettings = new CpdSettings(configuration);
   }
 
   @Test

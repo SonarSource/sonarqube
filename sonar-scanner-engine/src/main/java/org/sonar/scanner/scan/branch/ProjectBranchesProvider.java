@@ -19,13 +19,13 @@
  */
 package org.sonar.scanner.scan.branch;
 
-import java.util.Collections;
+import com.google.common.collect.ImmutableList;
 import org.picocontainer.annotations.Nullable;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 
 public class ProjectBranchesProvider extends ProviderAdapter {
 
@@ -34,19 +34,19 @@ public class ProjectBranchesProvider extends ProviderAdapter {
 
   private ProjectBranches branches = null;
 
-  public ProjectBranches provide(@Nullable ProjectBranchesLoader loader, ProjectKey projectKey) {
-    if (branches != null) {
-      return branches;
+  public ProjectBranches provide(@Nullable ProjectBranchesLoader loader, ProcessedScannerProperties scannerProperties) {
+    if (this.branches != null) {
+      return this.branches;
     }
 
     if (loader == null) {
-      branches = new ProjectBranches(Collections.emptyList());
-      return branches;
+      this.branches = new ProjectBranches(ImmutableList.of());
+      return this.branches;
     }
 
     Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-    branches = loader.load(projectKey.get());
+    this.branches = loader.load(scannerProperties.getProjectKey());
     profiler.stopInfo();
-    return branches;
+    return this.branches;
   }
 }

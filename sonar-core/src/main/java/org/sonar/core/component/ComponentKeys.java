@@ -72,25 +72,6 @@ public final class ComponentKeys {
   }
 
   /**
-   * <p>Test if given parameter is valid for a branch. Valid format is:</p>
-   * <ul>
-   * <li>Allowed characters:
-   * <ul>
-   * <li>Uppercase ASCII letters A-Z</li>
-   * <li>Lowercase ASCII letters a-z</li>
-   * <li>ASCII digits 0-9</li>
-   * <li>Punctuation signs dash '-', underscore '_', period '.', and '/'</li>
-   * </ul>
-   * </li>
-   * </ul>
-   *
-   * @return <code>true</code> if <code>branchCandidate</code> can be used for a project
-   */
-  public static boolean isValidLegacyBranch(String branchCandidate) {
-    return branchCandidate.matches(VALID_BRANCH_REGEXP);
-  }
-
-  /**
    * Return the project key with potential branch
    */
   public static String createKey(String keyWithoutBranch, @Nullable String branch) {

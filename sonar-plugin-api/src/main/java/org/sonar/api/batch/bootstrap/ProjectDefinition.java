@@ -167,29 +167,6 @@ public class ProjectDefinition {
   }
 
   /**
-   * @since 4.5
-   */
-  public String getKeyWithBranch() {
-    String branch = getBranch();
-    String projectKey = getKey();
-    if (StringUtils.isNotBlank(branch)) {
-      projectKey = String.format("%s:%s", projectKey, branch);
-    }
-    return projectKey;
-  }
-
-  @CheckForNull
-  public String getBranch() {
-    String branch = properties.get(CoreProperties.PROJECT_BRANCH_PROPERTY);
-    if (StringUtils.isNotBlank(branch)) {
-      return branch;
-    } else if (parent != null) {
-      return parent.getBranch();
-    }
-    return null;
-  }
-
-  /**
    * @deprecated since 7.7, use {@link #getOriginalProjectVersion()} instead
    */
   @Deprecated

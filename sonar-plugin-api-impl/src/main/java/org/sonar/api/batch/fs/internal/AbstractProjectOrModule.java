@@ -45,8 +45,6 @@ public abstract class AbstractProjectOrModule extends DefaultInputComponent {
   private final String name;
   private final String originalName;
   private final String description;
-  private final String keyWithBranch;
-  private final String branch;
   private final Map<String, String> properties;
 
   private final String key;
@@ -60,8 +58,6 @@ public abstract class AbstractProjectOrModule extends DefaultInputComponent {
     this.name = definition.getName();
     this.originalName = definition.getOriginalName();
     this.description = definition.getDescription();
-    this.keyWithBranch = definition.getKeyWithBranch();
-    this.branch = definition.getBranch();
     this.properties = Collections.unmodifiableMap(new HashMap<>(definition.properties()));
 
     this.definition = definition;
@@ -104,9 +100,6 @@ public abstract class AbstractProjectOrModule extends DefaultInputComponent {
     return workingDir;
   }
 
-  /**
-   * Module key without branch
-   */
   @Override
   public String key() {
     return key;
@@ -127,15 +120,6 @@ public abstract class AbstractProjectOrModule extends DefaultInputComponent {
 
   public Path getWorkDir() {
     return workDir;
-  }
-
-  public String getKeyWithBranch() {
-    return keyWithBranch;
-  }
-
-  @CheckForNull
-  public String getBranch() {
-    return branch;
   }
 
   public Map<String, String> properties() {

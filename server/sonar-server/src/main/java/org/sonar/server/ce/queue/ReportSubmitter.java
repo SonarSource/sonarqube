@@ -76,11 +76,11 @@ public class ReportSubmitter {
    * @throws NotFoundException if the organization with the specified key does not exist
    * @throws IllegalArgumentException if the organization with the specified key is not the organization of the specified project (when it already exists in DB)
    */
-  public CeTask submit(String organizationKey, String projectKey, @Nullable String deprecatedBranch, @Nullable String projectName,
+  public CeTask submit(String organizationKey, String projectKey, @Nullable String projectName,
     Map<String, String> characteristics, InputStream reportInput) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organizationDto = getOrganizationDtoOrFail(dbSession, organizationKey);
-      BranchSupport.ComponentKey componentKey = branchSupport.createComponentKey(projectKey, deprecatedBranch, characteristics);
+      BranchSupport.ComponentKey componentKey = branchSupport.createComponentKey(projectKey, characteristics);
       Optional<ComponentDto> existingComponent = dbClient.componentDao().selectByKey(dbSession, componentKey.getDbKey());
       validateProject(dbSession, existingComponent, projectKey);
       ensureOrganizationIsConsistent(existingComponent, organizationDto);
@@ -138,7 +138,7 @@ public class ReportSubmitter {
   }
 
   private ComponentDto createComponent(DbSession dbSession, OrganizationDto organization, BranchSupport.ComponentKey componentKey, @Nullable String projectName) {
-    if (componentKey.isMainBranch() || componentKey.isDeprecatedBranch()) {
+    if (componentKey.isMainBranch()) {
       ComponentDto project = createProject(dbSession, organization, componentKey, projectName);
       componentUpdater.commitAndIndex(dbSession, project);
       return project;
@@ -175,7 +175,6 @@ public class ReportSubmitter {
       .setOrganizationUuid(organization.getUuid())
       .setKey(componentKey.getKey())
       .setName(defaultIfBlank(projectName, componentKey.getKey()))
-      .setDeprecatedBranch(componentKey.getDeprecatedBranchName().orElse(null))
       .setQualifier(Qualifiers.PROJECT)
       .setPrivate(newProjectPrivate)
       .build();

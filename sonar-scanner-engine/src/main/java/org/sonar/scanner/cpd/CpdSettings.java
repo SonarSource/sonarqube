@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.cpd;
 
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.duplications.block.BlockChunker;
@@ -27,17 +26,13 @@ import org.sonar.api.batch.fs.internal.DefaultInputProject;
 
 public class CpdSettings {
   private final Configuration settings;
-  private final String branch;
 
-  public CpdSettings(Configuration config, DefaultInputProject project) {
+  public CpdSettings(Configuration config) {
     this.settings = config;
-    this.branch = project.getBranch();
   }
 
   public boolean isCrossProjectDuplicationEnabled() {
-    return settings.getBoolean(CoreProperties.CPD_CROSS_PROJECT).orElse(false)
-      // No cross project duplication for branches
-      && StringUtils.isBlank(branch);
+    return settings.getBoolean(CoreProperties.CPD_CROSS_PROJECT).orElse(false);
   }
 
   /**

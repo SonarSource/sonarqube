@@ -21,7 +21,6 @@ package org.sonar.server.ce.queue;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
@@ -58,57 +57,15 @@ public class BranchSupportTest {
   public void createComponentKey_of_main_branch() {
     String projectKey = randomAlphanumeric(12);
 
-    ComponentKey componentKey = underTestNoBranch.createComponentKey(projectKey, null, NO_CHARACTERISTICS);
+    ComponentKey componentKey = underTestNoBranch.createComponentKey(projectKey, NO_CHARACTERISTICS);
 
     assertThat(componentKey)
-      .isEqualTo(underTestWithBranch.createComponentKey(projectKey, null, NO_CHARACTERISTICS));
+      .isEqualTo(underTestWithBranch.createComponentKey(projectKey, NO_CHARACTERISTICS));
     assertThat(componentKey.getKey()).isEqualTo(projectKey);
     assertThat(componentKey.getDbKey()).isEqualTo(projectKey);
-    assertThat(componentKey.isDeprecatedBranch()).isFalse();
     assertThat(componentKey.getMainBranchComponentKey()).isSameAs(componentKey);
     assertThat(componentKey.getBranch()).isEmpty();
     assertThat(componentKey.getPullRequestKey()).isEmpty();
-  }
-
-  @Test
-  public void createComponentKey_of_deprecated_branch() {
-    String projectKey = randomAlphanumeric(12);
-    String deprecatedBranchName = randomAlphanumeric(12);
-
-    ComponentKey componentKey = underTestNoBranch.createComponentKey(projectKey, deprecatedBranchName, NO_CHARACTERISTICS);
-
-    assertThat(componentKey)
-      .isEqualTo(underTestWithBranch.createComponentKey(projectKey, deprecatedBranchName, NO_CHARACTERISTICS));
-    assertThat(componentKey.getKey()).isEqualTo(projectKey);
-    assertThat(componentKey.getDbKey()).isEqualTo(projectKey + ":" + deprecatedBranchName);
-    assertThat(componentKey.isDeprecatedBranch()).isTrue();
-    assertThat(componentKey.getMainBranchComponentKey()).isSameAs(componentKey);
-    assertThat(componentKey.getBranch()).isEmpty();
-    assertThat(componentKey.getPullRequestKey()).isEmpty();
-  }
-
-  @Test
-  @UseDataProvider("nullOrNonEmpty")
-  public void createComponentKey_with_ISE_if_characteristics_is_not_empty_and_delegate_is_null(String deprecatedBranchName) {
-    String projectKey = randomAlphanumeric(12);
-    Map<String, String> nonEmptyMap = newRandomNonEmptyMap();
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Current edition does not support branch feature");
-    
-    underTestNoBranch.createComponentKey(projectKey, deprecatedBranchName, nonEmptyMap);
-  }
-
-  @Test
-  public void createComponentKey_fails_with_IAE_if_characteristics_is_not_empty_and_deprecatedBranchName_is_non_null() {
-    String projectKey = randomAlphanumeric(12);
-    String deprecatedBranchName = randomAlphanumeric(13);
-    Map<String, String> nonEmptyMap = newRandomNonEmptyMap();
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Deprecated branch feature can't be used at the same time as new branch support");
-    
-    underTestWithBranch.createComponentKey(projectKey, deprecatedBranchName, nonEmptyMap);
   }
 
   @Test
@@ -118,7 +75,7 @@ public class BranchSupportTest {
     ComponentKey expected = mock(ComponentKey.class);
     when(branchSupportDelegate.createComponentKey(projectKey, nonEmptyMap)).thenReturn(expected);
 
-    ComponentKey componentKey = underTestWithBranch.createComponentKey(projectKey, null, nonEmptyMap);
+    ComponentKey componentKey = underTestWithBranch.createComponentKey(projectKey, nonEmptyMap);
 
     assertThat(componentKey).isSameAs(expected);
   }
@@ -133,7 +90,7 @@ public class BranchSupportTest {
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Current edition does not support branch feature");
-    
+
     underTestNoBranch.createBranchComponent(dbSession, componentKey, organization, mainComponentDto, mainComponentBranchDto);
   }
 

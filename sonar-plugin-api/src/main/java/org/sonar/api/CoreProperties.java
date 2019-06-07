@@ -139,12 +139,6 @@ public interface CoreProperties {
   /* Global settings */
   String SONAR_HOME = "SONAR_HOME";
 
-  /**
-   * @deprecated since 6.7. This feature is deprecated in favor of the new branch feature.
-   * @see <a href="https://redirect.sonarsource.com/doc/branches.html">https://redirect.sonarsource.com/doc/branches.html/a>
-   */
-  @Deprecated
-  String PROJECT_BRANCH_PROPERTY = "sonar.branch";
   String PROJECT_VERSION_PROPERTY = "sonar.projectVersion";
   String BUILD_STRING_PROPERTY = "sonar.buildString";
 

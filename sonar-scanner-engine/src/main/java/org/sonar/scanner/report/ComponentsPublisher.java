@@ -139,11 +139,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
 
   @CheckForNull
   private static String getName(AbstractProjectOrModule module) {
-    if (StringUtils.isNotEmpty(module.definition().getBranch())) {
-      return module.definition().getName() + " " + module.definition().getBranch();
-    } else {
-      return module.definition().getOriginalName();
-    }
+    return module.definition().getOriginalName();
   }
 
   @CheckForNull

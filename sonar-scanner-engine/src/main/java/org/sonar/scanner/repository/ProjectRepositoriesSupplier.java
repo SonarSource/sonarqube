@@ -44,7 +44,7 @@ public class ProjectRepositoriesSupplier implements Supplier<ProjectRepositories
   public ProjectRepositories get() {
     if (project == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      project = loader.load(scannerProperties.getKeyWithBranch(), branchConfig.longLivingSonarReferenceBranch());
+      project = loader.load(scannerProperties.getProjectKey(), branchConfig.longLivingSonarReferenceBranch());
       profiler.stopInfo();
     }
 

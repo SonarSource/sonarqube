@@ -19,11 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.MessageException;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -39,16 +37,6 @@ public class DefaultBranchImplTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void throw_ME_if_name_contains_invalid_characters() {
-    assertThatNameIsCorrect("master");
-    assertThatNameIsCorrect("feature/foo");
-    assertThatNameIsCorrect("feature_foo");
-
-    assertThatNameIsNotCorrect("feature foo");
-    assertThatNameIsNotCorrect("feature#foo");
-  }
-
-  @Test
   public void default_branch_represents_the_project() {
     DefaultBranchImpl branch = new DefaultBranchImpl();
 
@@ -59,31 +47,5 @@ public class DefaultBranchImplTest {
 
     assertThat(branch.generateKey(PROJECT_KEY, null)).isEqualTo("P");
     assertThat(branch.generateKey(PROJECT_KEY, FILE.getProjectRelativePath())).isEqualTo("P:src/Foo.js");
-  }
-
-  @Test
-  public void branch_represents_a_forked_project_with_different_key() {
-    DefaultBranchImpl branch = new DefaultBranchImpl("bar");
-
-    // not a real branch. Parameter sonar.branch forks project.
-    assertThat(branch.isMain()).isTrue();
-    assertThat(branch.getType()).isEqualTo(BranchType.LONG);
-    assertThat(branch.getName()).isEqualTo("bar");
-    assertThat(branch.supportsCrossProjectCpd()).isFalse();
-
-    assertThat(branch.generateKey(PROJECT_KEY, null)).isEqualTo("P:bar");
-    assertThat(branch.generateKey(PROJECT_KEY, FILE.getProjectRelativePath())).isEqualTo("P:bar:src/Foo.js");
-  }
-
-  private void assertThatNameIsCorrect(@Nullable String name) {
-    DefaultBranchImpl branch = new DefaultBranchImpl(name);
-    assertThat(branch.getName()).isEqualTo(name);
-  }
-
-  private void assertThatNameIsNotCorrect(String name) {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("\"" + name + "\" is not a valid branch name. Allowed characters are alphanumeric, '-', '_', '.' and '/'.");
-
-    new DefaultBranchImpl(name);
   }
 }

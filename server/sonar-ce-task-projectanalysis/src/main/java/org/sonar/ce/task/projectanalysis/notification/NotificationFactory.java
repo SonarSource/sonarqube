@@ -121,7 +121,7 @@ public class NotificationFactory {
     Project.Builder builder = new Project.Builder(project.getUuid())
       .setKey(project.getKey())
       .setProjectName(project.getName());
-    if (!branch.isLegacyFeature() && branch.getType() != PULL_REQUEST && !branch.isMain()) {
+    if (branch.getType() != PULL_REQUEST && !branch.isMain()) {
       builder.setBranchName(branch.getName());
     }
     return builder.build();

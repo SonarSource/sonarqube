@@ -69,16 +69,12 @@ public class ProjectReactorValidator {
       validateModule(moduleDef, validationMessages);
     }
 
-    String deprecatedBranchName = reactor.getRoot().getBranch();
-
     if (isBranchFeatureAvailable()) {
-      branchParamsValidator.validate(validationMessages, deprecatedBranchName);
+      branchParamsValidator.validate(validationMessages);
     } else {
       validateBranchParamsWhenPluginAbsent(validationMessages);
       validatePullRequestParamsWhenPluginAbsent(validationMessages);
     }
-
-    validateLegacyBranch(validationMessages, deprecatedBranchName);
 
     if (!validationMessages.isEmpty()) {
       throw MessageException.of("Validation of project reactor failed:\n  o " +
@@ -105,13 +101,6 @@ public class ProjectReactorValidator {
   private static void validateModule(ProjectDefinition moduleDef, List<String> validationMessages) {
     if (!ComponentKeys.isValidProjectKey(moduleDef.getKey())) {
       validationMessages.add(format("\"%s\" is not a valid project or module key. It cannot be empty nor contain whitespaces.", moduleDef.getKey()));
-    }
-  }
-
-  private static void validateLegacyBranch(List<String> validationMessages, @Nullable String branch) {
-    if (isNotEmpty(branch) && !ComponentKeys.isValidLegacyBranch(branch)) {
-      validationMessages.add(format("\"%s\" is not a valid branch name. "
-        + "Allowed characters are alphanumeric, '-', '_', '.' and '/'.", branch));
     }
   }
 

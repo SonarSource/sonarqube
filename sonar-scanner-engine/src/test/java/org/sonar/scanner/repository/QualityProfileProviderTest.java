@@ -54,7 +54,7 @@ public class QualityProfileProviderTest {
   public void setUp() {
     qualityProfileProvider = new QualityProfilesProvider();
 
-    when(props.getKeyWithBranch()).thenReturn("project");
+    when(props.getProjectKey()).thenReturn("project");
 
     response = new ArrayList<>(1);
     response.add(QualityProfile.newBuilder().setKey("profile").setName("profile").setLanguage("lang").setRulesUpdatedAt(DateUtils.formatDateTime(new Date())).build());

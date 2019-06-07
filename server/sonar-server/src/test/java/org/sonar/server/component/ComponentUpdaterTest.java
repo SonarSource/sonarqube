@@ -137,20 +137,6 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void create_project_with_deprecated_branch() {
-    ComponentDto project = underTest.create(db.getSession(),
-      NewComponent.newComponentBuilder()
-        .setKey(DEFAULT_PROJECT_KEY)
-        .setName(DEFAULT_PROJECT_NAME)
-        .setDeprecatedBranch("origin/master")
-        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-        .build(),
-      null);
-
-    assertThat(project.getDbKey()).isEqualTo("project-key:origin/master");
-  }
-
-  @Test
   public void create_view() {
     NewComponent view = NewComponent.newComponentBuilder()
       .setKey("view-key")
@@ -324,21 +310,6 @@ public class ComponentUpdaterTest {
       NewComponent.newComponentBuilder()
         .setKey("  ")
         .setName(DEFAULT_PROJECT_NAME)
-        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-        .build(),
-      null);
-  }
-
-  @Test
-  public void fail_to_create_new_component_on_invalid_branch() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Malformed branch for Project: origin?branch. Allowed characters are alphanumeric, '-', '_', '.' and '/', with at least one non-digit.");
-
-    underTest.create(db.getSession(),
-      NewComponent.newComponentBuilder()
-        .setKey(DEFAULT_PROJECT_KEY)
-        .setName(DEFAULT_PROJECT_NAME)
-        .setDeprecatedBranch("origin?branch")
         .setOrganizationUuid(db.getDefaultOrganization().getUuid())
         .build(),
       null);

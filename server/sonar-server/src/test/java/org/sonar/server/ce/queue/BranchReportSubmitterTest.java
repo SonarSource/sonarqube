@@ -39,7 +39,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.queue.CeTaskSubmit;
-import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
@@ -109,7 +108,7 @@ public class BranchReportSubmitterTest {
     mockSuccessfulPrepareSubmitCall();
     InputStream reportInput = IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8);
 
-    underTest.submit(organization.getKey(), project.getDbKey(), null, project.name(), emptyMap(), reportInput);
+    underTest.submit(organization.getKey(), project.getDbKey(), project.name(), emptyMap(), reportInput);
 
     verifyZeroInteractions(branchSupportDelegate);
   }
@@ -128,7 +127,7 @@ public class BranchReportSubmitterTest {
     InputStream reportInput = IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8);
     String taskUuid = mockSuccessfulPrepareSubmitCall();
 
-    underTest.submit(organization.getKey(), project.getDbKey(), null, project.name(), randomCharacteristics, reportInput);
+    underTest.submit(organization.getKey(), project.getDbKey(), project.name(), randomCharacteristics, reportInput);
 
     verifyZeroInteractions(permissionTemplateService);
     verifyZeroInteractions(favoriteUpdater);
@@ -137,27 +136,6 @@ public class BranchReportSubmitterTest {
     verify(branchSupportDelegate, times(0)).createBranchComponent(any(), any(), any(), any(), any());
     verifyNoMoreInteractions(branchSupportDelegate);
     verifyQueueSubmit(project, branch, user, randomCharacteristics, taskUuid);
-  }
-
-  @Test
-  public void submit_a_report_on_existing_deprecated_branch() {
-    OrganizationDto organization = db.organizations().insert();
-    String projectKey = randomAlphabetic(10);
-    String deprecatedBranchName = randomAlphabetic(11);
-    ComponentDto deprecatedBranch = db.components().insertMainBranch(organization, cpt -> cpt.setDbKey(ComponentKeys.createKey(projectKey, deprecatedBranchName)));
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN_EXECUTION, deprecatedBranch);
-    Map<String, String> noCharacteristics = emptyMap();
-    InputStream reportInput = IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8);
-    String taskUuid = mockSuccessfulPrepareSubmitCall();
-
-    underTest.submit(organization.getKey(), deprecatedBranch.getDbKey(), null, deprecatedBranch.name(), noCharacteristics, reportInput);
-
-    verifyZeroInteractions(permissionTemplateService);
-    verifyZeroInteractions(favoriteUpdater);
-    verify(branchSupport, times(0)).createBranchComponent(any(), any(), any(), any(), any());
-    verifyZeroInteractions(branchSupportDelegate);
-    verifyQueueSubmit(deprecatedBranch, deprecatedBranch, user, noCharacteristics, taskUuid);
   }
 
   @Test
@@ -177,7 +155,7 @@ public class BranchReportSubmitterTest {
     InputStream reportInput = IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8);
     String taskUuid = mockSuccessfulPrepareSubmitCall();
 
-    underTest.submit(organization.getKey(), existingProject.getDbKey(), null, existingProject.name(), randomCharacteristics, reportInput);
+    underTest.submit(organization.getKey(), existingProject.getDbKey(), existingProject.name(), randomCharacteristics, reportInput);
 
     verifyZeroInteractions(permissionTemplateService);
     verifyZeroInteractions(favoriteUpdater);
@@ -212,7 +190,7 @@ public class BranchReportSubmitterTest {
     String taskUuid = mockSuccessfulPrepareSubmitCall();
     InputStream reportInput = IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8);
 
-    underTest.submit(organization.getKey(), nonExistingProject.getDbKey(), null, nonExistingProject.name(), randomCharacteristics, reportInput);
+    underTest.submit(organization.getKey(), nonExistingProject.getDbKey(), nonExistingProject.name(), randomCharacteristics, reportInput);
 
     BranchDto exitingProjectMainBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), nonExistingProject.uuid()).get();
     verify(branchSupport).createBranchComponent(any(DbSession.class), same(componentKey), eq(organization), eq(nonExistingProject), eq(exitingProjectMainBranch));
@@ -235,7 +213,7 @@ public class BranchReportSubmitterTest {
     when(branchSupportDelegate.createComponentKey(any(), any())).thenThrow(expected);
 
     try {
-      underTest.submit(organization.getKey(), project.getDbKey(), null, project.name(), randomCharacteristics, reportInput);
+      underTest.submit(organization.getKey(), project.getDbKey(), project.name(), randomCharacteristics, reportInput);
       fail("exception should have been thrown");
     } catch (Exception e) {
       assertThat(e).isSameAs(expected);
@@ -275,7 +253,7 @@ public class BranchReportSubmitterTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    underTest.submit(organization.getKey(), nonExistingProject.getDbKey(), null, nonExistingProject.name(), randomCharacteristics, reportInput);
+    underTest.submit(organization.getKey(), nonExistingProject.getDbKey(), nonExistingProject.name(), randomCharacteristics, reportInput);
   }
 
   private static ComponentDto createButDoNotInsertBranch(ComponentDto project) {

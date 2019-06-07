@@ -30,6 +30,8 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class BranchLoaderTest {
   @Rule
@@ -39,14 +41,13 @@ public class BranchLoaderTest {
   public AnalysisMetadataHolderRule metadataHolder = new AnalysisMetadataHolderRule();
 
   @Test
-  public void throw_ME_if_both_branch_properties_are_set() {
+  public void throw_ME_if_both_delegate_absent_and_has_branch_parameters() {
     ScannerReport.Metadata metadata = ScannerReport.Metadata.newBuilder()
-      .setDeprecatedBranch("foo")
       .setBranchName("bar")
       .build();
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Properties sonar.branch and sonar.branch.name can't be set together");
+    expectedException.expectMessage("Current edition does not support branch feature");
 
     new BranchLoader(metadataHolder).load(metadata);
   }
@@ -66,42 +67,13 @@ public class BranchLoaderTest {
   }
 
   @Test
-  public void default_support_of_branches_is_enabled_if_delegate_is_absent() {
+  public void default_support_of_branches_is_enabled_if_delegate_is_present_for_main_branch() {
     ScannerReport.Metadata metadata = ScannerReport.Metadata.newBuilder()
-      .setDeprecatedBranch("foo")
       .build();
+    BranchLoaderDelegate delegate = mock(BranchLoaderDelegate.class);
 
-    new BranchLoader(metadataHolder).load(metadata);
-
-    assertThat(metadataHolder.getBranch()).isNotNull();
-
-    Branch branch = metadataHolder.getBranch();
-    assertThat(branch.isMain()).isTrue();
-    assertThat(branch.getName()).isEqualTo("foo");
-  }
-
-  @Test
-  public void default_support_of_branches_is_enabled_if_delegate_is_present() {
-    ScannerReport.Metadata metadata = ScannerReport.Metadata.newBuilder()
-      .setDeprecatedBranch("foo")
-      .build();
-
-    FakeDelegate delegate = new FakeDelegate();
     new BranchLoader(metadataHolder, delegate).load(metadata);
 
-    assertThat(metadataHolder.getBranch()).isNotNull();
-
-    Branch branch = metadataHolder.getBranch();
-    assertThat(branch.isMain()).isTrue();
-    assertThat(branch.getName()).isEqualTo("foo");
-  }
-
-  private class FakeDelegate implements BranchLoaderDelegate {
-    Branch branch = mock(Branch.class);
-
-    @Override
-    public void load(ScannerReport.Metadata metadata) {
-      metadataHolder.setBranch(branch);
-    }
+    verify(delegate, times(1)).load(metadata);
   }
 }

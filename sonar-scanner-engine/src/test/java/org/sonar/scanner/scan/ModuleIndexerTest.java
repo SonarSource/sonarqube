@@ -33,10 +33,9 @@ import static org.mockito.Mockito.when;
 public class ModuleIndexerTest {
   private ModuleIndexer indexer;
   private DefaultInputModuleHierarchy moduleHierarchy;
-  private InputComponentStore componentStore;
 
   public void createIndexer() {
-    componentStore = new InputComponentStore(mock(BranchConfiguration.class));
+    InputComponentStore componentStore = new InputComponentStore(mock(BranchConfiguration.class));
     moduleHierarchy = mock(DefaultInputModuleHierarchy.class);
     indexer = new ModuleIndexer(componentStore, moduleHierarchy);
   }
@@ -57,11 +56,6 @@ public class ModuleIndexerTest {
     when(mod1.key()).thenReturn("mod1");
     when(mod2.key()).thenReturn("mod2");
     when(mod3.key()).thenReturn("mod3");
-
-    when(root.getKeyWithBranch()).thenReturn("root");
-    when(mod1.getKeyWithBranch()).thenReturn("mod1");
-    when(mod2.getKeyWithBranch()).thenReturn("mod2");
-    when(mod3.getKeyWithBranch()).thenReturn("mod3");
 
     when(root.definition()).thenReturn(rootDef);
     when(mod1.definition()).thenReturn(def);

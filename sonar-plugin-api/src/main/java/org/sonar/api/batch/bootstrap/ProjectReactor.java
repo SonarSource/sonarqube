@@ -19,10 +19,9 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import org.sonar.api.scanner.ScannerSide;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.sonar.api.scanner.ScannerSide;
 
 /**
  * Mutable project definitions that can be modified by {@link ProjectBuilder} extensions.
@@ -73,7 +72,7 @@ public class ProjectReactor {
 
   public String get() {
     if (root != null) {
-      return root.getKeyWithBranch();
+      return root.getKey();
     }
     return null;
   }

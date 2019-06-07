@@ -249,34 +249,6 @@ public class QualityGateEventsStepTest {
   }
 
   @Test
-  public void verify_branch_name_is_set_in_notification_when_not_main() {
-    String branchName = "feature1";
-    analysisMetadataHolder.setBranch(new DefaultBranchImpl(branchName) {
-      @Override
-      public boolean isMain() {
-        return false;
-      }
-    });
-
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric))
-      .thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(OK_QUALITY_GATE_STATUS).createNoValue()));
-    when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(
-      of(Measure.newMeasureBuilder().setQualityGateStatus(new QualityGateStatus(ERROR)).createNoValue()));
-
-    underTest.execute(new TestComputationStepContext());
-
-    verify(notificationService).deliver(notificationArgumentCaptor.capture());
-    Notification notification = notificationArgumentCaptor.getValue();
-    assertThat(notification.getType()).isEqualTo("alerts");
-    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
-    assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
-    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getProjectVersion());
-    assertThat(notification.getFieldValue("branch")).isEqualTo(branchName);
-
-    reset(measureRepository, eventRepository, notificationService);
-  }
-
-  @Test
   public void verify_branch_name_is_not_set_in_notification_when_main() {
     analysisMetadataHolder.setBranch(new DefaultBranchImpl());
 

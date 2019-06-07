@@ -55,9 +55,7 @@ public class DefaultInputProjectTest {
     assertThat(project.getName()).isEqualTo("projectName");
     assertThat(project.getOriginalName()).isEqualTo("projectName");
     assertThat(project.definition()).isEqualTo(def);
-    assertThat(project.getBranch()).isNull();
     assertThat(project.getBaseDir()).isEqualTo(baseDir.toPath());
-    assertThat(project.getKeyWithBranch()).isEqualTo("projectKey");
     assertThat(project.getDescription()).isEqualTo("desc");
     assertThat(project.getWorkDir()).isEqualTo(workDir.toPath());
     assertThat(project.getEncoding()).isEqualTo(Charset.defaultCharset());

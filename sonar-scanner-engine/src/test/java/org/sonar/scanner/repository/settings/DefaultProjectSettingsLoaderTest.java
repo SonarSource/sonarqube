@@ -61,7 +61,7 @@ public class DefaultProjectSettingsLoaderTest {
     out.close();
     when(response.contentStream()).thenReturn(in);
     when(wsClient.call(any())).thenReturn(response);
-    when(properties.getKeyWithBranch()).thenReturn("project_key");
+    when(properties.getProjectKey()).thenReturn("project_key");
 
     Map<String, String> result = underTest.loadProjectSettings();
 
