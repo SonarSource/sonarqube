@@ -22,7 +22,6 @@ package org.sonar.process.logging;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.jul.LevelChangePropagator;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -30,6 +29,7 @@ import ch.qos.logback.classic.spi.LoggerContextListener;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.FileAppender;
+import ch.qos.logback.core.encoder.Encoder;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
@@ -150,18 +150,12 @@ public class LogbackHelper extends AbstractLogHelper {
   }
 
   /**
-   * Creates a new {@link ConsoleAppender} to {@code System.out} with the specified name and log pattern.
-   *
-   * @see #buildLogPattern(RootLoggerConfig)
+   * Creates a new {@link ConsoleAppender} to {@code System.out} with the specified name and log encoder.
    */
-  public ConsoleAppender<ILoggingEvent> newConsoleAppender(Context loggerContext, String name, String logPattern) {
-    PatternLayoutEncoder consoleEncoder = new PatternLayoutEncoder();
-    consoleEncoder.setContext(loggerContext);
-    consoleEncoder.setPattern(logPattern);
-    consoleEncoder.start();
+  public ConsoleAppender<ILoggingEvent> newConsoleAppender(Context loggerContext, String name, Encoder<ILoggingEvent> encoder) {
     ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
     consoleAppender.setContext(loggerContext);
-    consoleAppender.setEncoder(consoleEncoder);
+    consoleAppender.setEncoder(encoder);
     consoleAppender.setName(name);
     consoleAppender.setTarget("System.out");
     consoleAppender.start();
@@ -175,29 +169,22 @@ public class LogbackHelper extends AbstractLogHelper {
    * <li>the file's name will use the prefix defined in {@link RootLoggerConfig#getProcessId()#getLogFilenamePrefix()}.</li>
    * <li>the file will follow the rotation policy defined in property {@link #ROLLING_POLICY_PROPERTY} and
    * the max number of files defined in property {@link #MAX_FILES_PROPERTY}</li>
-   * <li>the logs will follow the specified log pattern</li>
+   * <li>the logs will follow the specified log encoder</li>
    * </ul>
    * </p>
-   *
-   * @see #buildLogPattern(RootLoggerConfig)
    */
-  public FileAppender<ILoggingEvent> configureGlobalFileLog(Props props, RootLoggerConfig config, String logPattern) {
+  public void configureGlobalFileLog(Props props, RootLoggerConfig config, Encoder<ILoggingEvent> encoder) {
     LoggerContext ctx = getRootContext();
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
-    FileAppender<ILoggingEvent> fileAppender = newFileAppender(ctx, props, config, logPattern);
+    FileAppender<ILoggingEvent> fileAppender = newFileAppender(ctx, props, config, encoder);
     rootLogger.addAppender(fileAppender);
-    return fileAppender;
   }
 
-  public FileAppender<ILoggingEvent> newFileAppender(LoggerContext ctx, Props props, RootLoggerConfig config, String logPattern) {
+  public FileAppender<ILoggingEvent> newFileAppender(LoggerContext ctx, Props props, RootLoggerConfig config, Encoder<ILoggingEvent> encoder) {
     RollingPolicy rollingPolicy = createRollingPolicy(ctx, props, config.getProcessId().getLogFilenamePrefix());
     FileAppender<ILoggingEvent> fileAppender = rollingPolicy.createAppender("file_" + config.getProcessId().getLogFilenamePrefix());
     fileAppender.setContext(ctx);
-    PatternLayoutEncoder fileEncoder = new PatternLayoutEncoder();
-    fileEncoder.setContext(ctx);
-    fileEncoder.setPattern(logPattern);
-    fileEncoder.start();
-    fileAppender.setEncoder(fileEncoder);
+    fileAppender.setEncoder(encoder);
     fileAppender.start();
     return fileAppender;
   }
@@ -205,13 +192,11 @@ public class LogbackHelper extends AbstractLogHelper {
   /**
    * Make the logback configuration for a sub process to correctly push all its logs to be read by a stream gobbler
    * on the sub process's System.out.
-   *
-   * @see #buildLogPattern(RootLoggerConfig)
    */
-  public void configureForSubprocessGobbler(Props props, String logPattern) {
+  public void configureForSubprocessGobbler(Props props, Encoder<ILoggingEvent> encoder) {
     if (isAllLogsToConsoleEnabled(props)) {
       LoggerContext ctx = getRootContext();
-      ctx.getLogger(ROOT_LOGGER_NAME).addAppender(newConsoleAppender(ctx, "root_console", logPattern));
+      ctx.getLogger(ROOT_LOGGER_NAME).addAppender(newConsoleAppender(ctx, "root_console", encoder));
     }
   }
 

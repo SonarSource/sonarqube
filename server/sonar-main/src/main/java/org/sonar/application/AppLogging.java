@@ -22,9 +22,11 @@ package org.sonar.application;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
+import ch.qos.logback.core.encoder.Encoder;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.process.StreamGobbler;
 import org.sonar.process.ProcessId;
@@ -152,7 +154,8 @@ public class AppLogging {
    * It creates a dedicated appender to the System.out which applies no formatting the logs it receives.
    */
   private void configureConsole(LoggerContext loggerContext) {
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(loggerContext, CONSOLE_PLAIN_APPENDER, "%msg%n");
+    Encoder<ILoggingEvent> encoder = newPatternLayoutEncoder(loggerContext, "%msg%n");
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(loggerContext, CONSOLE_PLAIN_APPENDER, encoder);
 
     Logger consoleLogger = loggerContext.getLogger(CONSOLE_LOGGER);
     consoleLogger.setAdditive(false);
@@ -192,7 +195,8 @@ public class AppLogging {
     // logs are written to the console because we want them to be in sonar.log and the wrapper will write any log
     // from APP's System.out and System.err to sonar.log
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
-    rootLogger.addAppender(createAppConsoleAppender(ctx, helper.buildLogPattern(APP_ROOT_LOGGER_CONFIG)));
+    Encoder<ILoggingEvent> encoder = newPatternLayoutEncoder(ctx, helper.buildLogPattern(APP_ROOT_LOGGER_CONFIG));
+    rootLogger.addAppender(createAppConsoleAppender(ctx, encoder));
 
     // in regular configuration, sub processes are not copying their logs to their System.out, so, the only logs to be
     // expected in LOGGER_GOBBLER are those before logback is setup in subprocesses or when JVM crashes
@@ -205,10 +209,10 @@ public class AppLogging {
 
   private void configureRootWithLogbackWritingToFile(LoggerContext ctx) {
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
-    String appLogPattern = helper.buildLogPattern(APP_ROOT_LOGGER_CONFIG);
-    FileAppender<ILoggingEvent> fileAppender = helper.newFileAppender(ctx, appSettings.getProps(), APP_ROOT_LOGGER_CONFIG, appLogPattern);
+    Encoder<ILoggingEvent> encoder = newPatternLayoutEncoder(ctx, helper.buildLogPattern(APP_ROOT_LOGGER_CONFIG));
+    FileAppender<ILoggingEvent> fileAppender = helper.newFileAppender(ctx, appSettings.getProps(), APP_ROOT_LOGGER_CONFIG, encoder);
     rootLogger.addAppender(fileAppender);
-    rootLogger.addAppender(createAppConsoleAppender(ctx, appLogPattern));
+    rootLogger.addAppender(createAppConsoleAppender(ctx, encoder));
   }
 
   /**
@@ -224,11 +228,19 @@ public class AppLogging {
   private void configureGobbler(LoggerContext ctx) {
     Logger gobblerLogger = ctx.getLogger(LOGGER_GOBBLER);
     gobblerLogger.setAdditive(false);
-    gobblerLogger.addAppender(helper.newConsoleAppender(ctx, GOBBLER_PLAIN_CONSOLE, "%msg%n"));
+    Encoder<ILoggingEvent> encoder = newPatternLayoutEncoder(ctx, "%msg%n");
+    gobblerLogger.addAppender(helper.newConsoleAppender(ctx, GOBBLER_PLAIN_CONSOLE, encoder));
   }
 
-  private ConsoleAppender<ILoggingEvent> createAppConsoleAppender(LoggerContext ctx, String appLogPattern) {
-    return helper.newConsoleAppender(ctx, APP_CONSOLE_APPENDER, appLogPattern);
+  private ConsoleAppender<ILoggingEvent> createAppConsoleAppender(LoggerContext ctx, Encoder<ILoggingEvent> encoder) {
+    return helper.newConsoleAppender(ctx, APP_CONSOLE_APPENDER, encoder);
   }
 
+  private static Encoder<ILoggingEvent> newPatternLayoutEncoder(LoggerContext context, String pattern) {
+    PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+    encoder.setContext(context);
+    encoder.setPattern(pattern);
+    encoder.start();
+    return encoder;
+  }
 }

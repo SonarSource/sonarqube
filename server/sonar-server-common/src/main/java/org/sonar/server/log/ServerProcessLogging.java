@@ -22,6 +22,7 @@ package org.sonar.server.log;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import com.google.common.collect.ImmutableSet;
@@ -127,10 +128,13 @@ public abstract class ServerProcessLogging {
       .setProcessId(processId)
       .setThreadIdFieldPattern(threadIdFieldPattern)
       .build();
-    String logPattern = helper.buildLogPattern(config);
+    PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+    encoder.setContext(helper.getRootContext());
+    encoder.setPattern(helper.buildLogPattern(config));
+    encoder.start();
 
-    helper.configureGlobalFileLog(props, config, logPattern);
-    helper.configureForSubprocessGobbler(props, logPattern);
+    helper.configureGlobalFileLog(props, config, encoder);
+    helper.configureForSubprocessGobbler(props, encoder);
   }
 
   /**
@@ -142,8 +146,11 @@ public abstract class ServerProcessLogging {
       .setProcessId(ProcessId.APP)
       .setThreadIdFieldPattern("")
       .build();
-    String logPattern = helper.buildLogPattern(config);
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(context, "CONSOLE", logPattern);
+    PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+    encoder.setContext(context);
+    encoder.setPattern(helper.buildLogPattern(config));
+    encoder.start();
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(context, "CONSOLE", encoder);
 
     for (String loggerName : loggerNames) {
       Logger consoleLogger = context.getLogger(loggerName);
