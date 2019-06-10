@@ -19,23 +19,27 @@
  */
 package org.sonar.server.platform.db.migration.version.v78;
 
-import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
-
-public class DbVersion78Test {
-  private DbVersion underTest = new DbVersion78();
-
-  @Test
-  public void migrationNumber_starts_at_2700() {
-    verifyMinimumMigrationNumber(underTest, 2700);
+public class RemoveOrphansFromProjectBranches extends DataChange {
+  public RemoveOrphansFromProjectBranches(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 9);
-  }
+  @Override
+  protected void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("select pb.uuid from project_branches pb where not exists (select 1 from projects p where p.uuid = pb.uuid)");
+    massUpdate.update("delete from project_branches where uuid=?");
+    massUpdate.rowPluralName("orphans in table PROJECT_BRANCHES");
+    massUpdate.execute((row, update) -> {
+      String uuid = row.getString(1);
 
+      update.setString(1, uuid);
+      return true;
+    });
+  }
 }

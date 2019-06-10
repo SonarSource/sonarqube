@@ -34,6 +34,7 @@ public class DbVersion78 implements DbVersion {
       .add(2704, "Add InternalComponentProperties table", CreateInternalComponentPropertiesTable.class)
       .add(2705, "Add column snapshots.revision", AddSnapshotRevision.class)
       .add(2706, "Migrate revision from analysis_properties to snapshots.revision", MigrateRevision.class)
-      .add(2707, "Update statuses of Security Hotspots", UpdateSecurityHotspotsStatuses.class);
+      .add(2707, "Update statuses of Security Hotspots", UpdateSecurityHotspotsStatuses.class)
+      .add(2708, "Remove orphans from PROJECT_BRANCHES", RemoveOrphansFromProjectBranches.class);
   }
 }
