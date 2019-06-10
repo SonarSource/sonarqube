@@ -45,6 +45,7 @@ import static org.sonar.core.config.ScannerProperties.PULL_REQUEST_KEY;
 
 /**
  * This class aims at validating project reactor
+ *
  * @since 3.6
  */
 public class ProjectReactorValidator {
@@ -95,8 +96,8 @@ public class ProjectReactorValidator {
   private void validateBranchParamsWhenPluginAbsent(List<String> validationMessages) {
     for (String param : Arrays.asList(BRANCH_NAME, BRANCH_TARGET)) {
       if (isNotEmpty(settings.get(param).orElse(null))) {
-        validationMessages.add(format("To use the property \"%s\", the branch plugin is required but not installed. "
-          + "See the documentation of branch support: %s.", param, BRANCHES_DOC_LINK));
+        validationMessages.add(format("To use the property \"%s\" and analyze branches, Developer Edition or above is required. "
+          + "See %s for more information.", param, BRANCHES_DOC_LINK));
       }
     }
   }
@@ -104,8 +105,8 @@ public class ProjectReactorValidator {
   private void validatePullRequestParamsWhenPluginAbsent(List<String> validationMessages) {
     Stream.of(PULL_REQUEST_KEY, PULL_REQUEST_BRANCH, PULL_REQUEST_BASE)
       .filter(param -> nonNull(settings.get(param).orElse(null)))
-      .forEach(param -> validationMessages.add(format("To use the property \"%s\", the branch plugin is required but not installed. "
-        + "See the documentation of branch support: %s.", param, BRANCHES_DOC_LINK)));
+      .forEach(param -> validationMessages.add(format("To use the property \"%s\" and analyze pull requests, Developer Edition or above is required. "
+        + "See %s for more information.", param, BRANCHES_DOC_LINK)));
   }
 
   private static void validateModuleIssuesMode(ProjectDefinition moduleDef, List<String> validationMessages) {

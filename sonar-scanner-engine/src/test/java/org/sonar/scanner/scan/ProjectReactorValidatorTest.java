@@ -149,7 +149,7 @@ public class ProjectReactorValidatorTest {
     when(settings.get(eq(ScannerProperties.BRANCH_NAME))).thenReturn(Optional.of("feature1"));
 
     thrown.expect(MessageException.class);
-    thrown.expectMessage("the branch plugin is required but not installed");
+    thrown.expectMessage("To use the property \"sonar.branch.name\" and analyze branches, Developer Edition or above is required");
 
     underTest.validate(reactor);
   }
@@ -162,7 +162,7 @@ public class ProjectReactorValidatorTest {
     when(settings.get(eq(ScannerProperties.BRANCH_TARGET))).thenReturn(Optional.of("feature1"));
 
     thrown.expect(MessageException.class);
-    thrown.expectMessage("the branch plugin is required but not installed");
+    thrown.expectMessage("To use the property \"sonar.branch.target\" and analyze branches, Developer Edition or above is required");
 
     underTest.validate(reactor);
   }
@@ -175,7 +175,7 @@ public class ProjectReactorValidatorTest {
     when(settings.get(eq(ScannerProperties.PULL_REQUEST_KEY))).thenReturn(Optional.of("#1984"));
 
     thrown.expect(MessageException.class);
-    thrown.expectMessage("the branch plugin is required but not installed");
+    thrown.expectMessage("To use the property \"sonar.pullrequest.key\" and analyze pull requests, Developer Edition or above is required");
 
     underTest.validate(reactor);
   }
@@ -188,7 +188,7 @@ public class ProjectReactorValidatorTest {
     when(settings.get(eq(ScannerProperties.PULL_REQUEST_BRANCH))).thenReturn(Optional.of("feature1"));
 
     thrown.expect(MessageException.class);
-    thrown.expectMessage("the branch plugin is required but not installed");
+    thrown.expectMessage("To use the property \"sonar.pullrequest.branch\" and analyze pull requests, Developer Edition or above is required");
 
     underTest.validate(reactor);
   }
@@ -201,7 +201,7 @@ public class ProjectReactorValidatorTest {
     when(settings.get(eq(ScannerProperties.PULL_REQUEST_BASE))).thenReturn(Optional.of("feature1"));
 
     thrown.expect(MessageException.class);
-    thrown.expectMessage("the branch plugin is required but not installed");
+    thrown.expectMessage("To use the property \"sonar.pullrequest.base\" and analyze pull requests, Developer Edition or above is required");
 
     underTest.validate(reactor);
   }
