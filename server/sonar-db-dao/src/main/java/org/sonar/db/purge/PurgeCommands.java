@@ -22,10 +22,16 @@ package org.sonar.db.purge;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
+
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 class PurgeCommands {
 
@@ -35,16 +41,18 @@ class PurgeCommands {
   private final DbSession session;
   private final PurgeMapper purgeMapper;
   private final PurgeProfiler profiler;
+  private final System2 system2;
 
-  PurgeCommands(DbSession session, PurgeMapper purgeMapper, PurgeProfiler profiler) {
+  PurgeCommands(DbSession session, PurgeMapper purgeMapper, PurgeProfiler profiler, System2 system2) {
     this.session = session;
     this.purgeMapper = purgeMapper;
     this.profiler = profiler;
+    this.system2 = system2;
   }
 
   @VisibleForTesting
-  PurgeCommands(DbSession session, PurgeProfiler profiler) {
-    this(session, session.getMapper(PurgeMapper.class), profiler);
+  PurgeCommands(DbSession session, PurgeProfiler profiler, System2 system2) {
+    this(session, session.getMapper(PurgeMapper.class), profiler, system2);
   }
 
   List<String> selectSnapshotUuids(PurgeSnapshotQuery query) {
@@ -145,6 +153,49 @@ class PurgeCommands {
     analysisUuidsPartitions.forEach(purgeMapper::updatePurgeStatusToOne);
     session.commit();
     profiler.stop();
+  }
+
+  void purgeDisabledComponents(String rootComponentUuid, Collection<String> disabledComponentUuids, PurgeListener listener) {
+    Set<String> missedDisabledComponentUuids = new HashSet<>();
+
+    profiler.start("purgeDisabledComponents (file_sources)");
+    missedDisabledComponentUuids.addAll(
+      executeLargeInputs(
+        purgeMapper.selectDisabledComponentsWithFileSource(rootComponentUuid),
+        input -> {
+          purgeMapper.deleteFileSourcesByFileUuid(input);
+          return input;
+        }));
+    profiler.stop();
+
+    profiler.start("purgeDisabledComponents (unresolved_issues)");
+    missedDisabledComponentUuids.addAll(
+      executeLargeInputs(
+        purgeMapper.selectDisabledComponentsWithUnresolvedIssues(rootComponentUuid),
+        input -> {
+          purgeMapper.resolveComponentIssuesNotAlreadyResolved(input, system2.now());
+          return input;
+        }));
+    profiler.stop();
+
+    profiler.start("purgeDisabledComponents (live_measures)");
+    missedDisabledComponentUuids.addAll(
+      executeLargeInputs(
+        purgeMapper.selectDisabledComponentsWithLiveMeasures(rootComponentUuid),
+        input -> {
+          purgeMapper.deleteLiveMeasuresByComponentUuids(input);
+          return input;
+        }));
+    profiler.stop();
+
+    session.commit();
+
+    // notify listener for any disabled component we found child data for which isn't part of the disabled components
+    // provided
+    missedDisabledComponentUuids.removeAll(disabledComponentUuids);
+    if (!missedDisabledComponentUuids.isEmpty()) {
+      listener.onComponentsDisabling(rootComponentUuid, missedDisabledComponentUuids);
+    }
   }
 
   private void deleteAnalysisDuplications(List<List<String>> snapshotUuidsPartitions) {

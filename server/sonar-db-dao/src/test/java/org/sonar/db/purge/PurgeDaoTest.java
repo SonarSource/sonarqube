@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -81,10 +82,12 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
@@ -212,7 +215,7 @@ public class PurgeDaoTest {
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     db.prepareDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles.xml");
     PurgeConfiguration conf = new PurgeConfiguration("PROJECT_UUID", "PROJECT_UUID", asList(Scopes.DIRECTORY, Scopes.FILE),
-      30, Optional.of(30), System2.INSTANCE, Collections.emptyList());
+      30, Optional.of(30), System2.INSTANCE, emptySet());
 
     underTest.purge(dbSession, conf, PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
@@ -232,13 +235,13 @@ public class PurgeDaoTest {
     ComponentDto dir = db.components().insertComponent(newDirectory(module, "sub").setEnabled(false));
     ComponentDto srcFile = db.components().insertComponent(newFileDto(module, dir).setEnabled(false));
     ComponentDto testFile = db.components().insertComponent(newFileDto(module, dir).setEnabled(false));
-    ComponentDto nonSelectedFile = db.components().insertComponent(newFileDto(module, dir).setEnabled(false));
+    ComponentDto enabledFile = db.components().insertComponent(newFileDto(module, dir).setEnabled(true));
     IssueDto openOnFile = db.issues().insert(rule, project, srcFile, issue -> issue.setStatus("OPEN"));
     IssueDto confirmOnFile = db.issues().insert(rule, project, srcFile, issue -> issue.setStatus("CONFIRM"));
     IssueDto openOnDir = db.issues().insert(rule, project, dir, issue -> issue.setStatus("OPEN"));
     IssueDto confirmOnDir = db.issues().insert(rule, project, dir, issue -> issue.setStatus("CONFIRM"));
-    IssueDto openOnNonSelected = db.issues().insert(rule, project, nonSelectedFile, issue -> issue.setStatus("OPEN"));
-    IssueDto confirmOnNonSelected = db.issues().insert(rule, project, nonSelectedFile, issue -> issue.setStatus("CONFIRM"));
+    IssueDto openOnEnabledComponent = db.issues().insert(rule, project, enabledFile, issue -> issue.setStatus("OPEN"));
+    IssueDto confirmOnEnabledComponent = db.issues().insert(rule, project, enabledFile, issue -> issue.setStatus("CONFIRM"));
 
     assertThat(db.countSql("select count(*) from snapshots where purge_status = 1")).isEqualTo(0);
 
@@ -246,7 +249,7 @@ public class PurgeDaoTest {
     assertThat(db.countSql("select count(*) from issues where resolution = 'REMOVED'")).isEqualTo(0);
 
     db.fileSources().insertFileSource(srcFile);
-    FileSourceDto nonSelectedFileSource = db.fileSources().insertFileSource(nonSelectedFile);
+    FileSourceDto nonSelectedFileSource = db.fileSources().insertFileSource(enabledFile);
     assertThat(db.countRowsOfTable("file_sources")).isEqualTo(2);
 
     MetricDto metric1 = db.measures().insertMetric();
@@ -257,14 +260,19 @@ public class PurgeDaoTest {
     LiveMeasureDto liveMeasureMetric2OnDir = db.measures().insertLiveMeasure(dir, metric2);
     LiveMeasureDto liveMeasureMetric1OnProject = db.measures().insertLiveMeasure(project, metric1);
     LiveMeasureDto liveMeasureMetric2OnProject = db.measures().insertLiveMeasure(project, metric2);
-    LiveMeasureDto liveMeasureMetric1OnNonSelected = db.measures().insertLiveMeasure(nonSelectedFile, metric1);
-    LiveMeasureDto liveMeasureMetric2OnNonSelected = db.measures().insertLiveMeasure(nonSelectedFile, metric2);
+    LiveMeasureDto liveMeasureMetric1OnNonSelected = db.measures().insertLiveMeasure(enabledFile, metric1);
+    LiveMeasureDto liveMeasureMetric2OnNonSelected = db.measures().insertLiveMeasure(enabledFile, metric2);
     assertThat(db.countRowsOfTable("live_measures")).isEqualTo(8);
+    PurgeListener purgeListener = mock(PurgeListener.class);
 
     // back to present
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), project.uuid(), module.uuid(), dir.uuid(), srcFile.uuid(), testFile.uuid()), PurgeListener.EMPTY,
-      new PurgeProfiler());
+    Set<String> selectedComponentUuids = ImmutableSet.of(module.uuid(), srcFile.uuid(), testFile.uuid());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), project.uuid(), selectedComponentUuids),
+      purgeListener, new PurgeProfiler());
     dbSession.commit();
+
+    verify(purgeListener).onComponentsDisabling(project.uuid(), selectedComponentUuids);
+    verify(purgeListener).onComponentsDisabling(project.uuid(), ImmutableSet.of(dir.uuid()));
 
     // set purge_status=1 for non-last snapshot
     assertThat(db.countSql("select count(*) from snapshots where purge_status = 1")).isEqualTo(1);
@@ -276,7 +284,7 @@ public class PurgeDaoTest {
         .extracting(IssueDto::getStatus, IssueDto::getResolution)
         .containsExactlyInAnyOrder("CLOSED", "REMOVED");
     }
-    for (IssueDto issue : Arrays.asList(openOnNonSelected, confirmOnNonSelected)) {
+    for (IssueDto issue : Arrays.asList(openOnEnabledComponent, confirmOnEnabledComponent)) {
       assertThat(db.getDbClient().issueDao().selectByKey(dbSession, issue.getKey()).get())
         .extracting("status", "resolution")
         .containsExactlyInAnyOrder(issue.getStatus(), null);
@@ -289,11 +297,11 @@ public class PurgeDaoTest {
     // deletes live measure of selected
     assertThat(db.countRowsOfTable("live_measures")).isEqualTo(4);
     List<LiveMeasureDto> liveMeasureDtos = db.getDbClient().liveMeasureDao()
-      .selectByComponentUuidsAndMetricIds(dbSession, ImmutableSet.of(srcFile.uuid(), dir.uuid(), project.uuid(), nonSelectedFile.uuid()),
+      .selectByComponentUuidsAndMetricIds(dbSession, ImmutableSet.of(srcFile.uuid(), dir.uuid(), project.uuid(), enabledFile.uuid()),
         ImmutableSet.of(metric1.getId(), metric2.getId()));
     assertThat(liveMeasureDtos)
       .extracting(LiveMeasureDto::getComponentUuid)
-      .containsOnly(nonSelectedFile.uuid(), project.uuid());
+      .containsOnly(enabledFile.uuid(), project.uuid());
     assertThat(liveMeasureDtos)
       .extracting(LiveMeasureDto::getMetricId)
       .containsOnly(metric1.getId(), metric2.getId());
@@ -1019,15 +1027,18 @@ public class PurgeDaoTest {
       issue.setResolution(Issue.RESOLUTION_FIXED);
       issue.setIssueCloseDate(new Date());
     });
+    PurgeListener purgeListener = mock(PurgeListener.class);
 
+    Set<String> disabledComponentUuids = ImmutableSet.of(disabledFileWithIssues.uuid(), disabledFileWithoutIssues.uuid());
     underTest.purge(dbSession,
-      newConfigurationWith30Days(System2.INSTANCE, project.uuid(), disabledFileWithIssues.uuid(), disabledFileWithoutIssues.uuid()),
-      PurgeListener.EMPTY, new PurgeProfiler());
+      newConfigurationWith30Days(System2.INSTANCE, project.uuid(), project.uuid(), disabledComponentUuids),
+      purgeListener, new PurgeProfiler());
 
     assertThat(db.getDbClient().componentDao().selectByProjectUuid(project.uuid(), dbSession))
       .extracting("uuid")
       .containsOnly(project.uuid(), enabledFileWithIssues.uuid(), disabledFileWithIssues.uuid(),
         enabledFileWithoutIssues.uuid());
+    verify(purgeListener).onComponentsDisabling(project.uuid(), disabledComponentUuids);
   }
 
   @Test
@@ -1072,7 +1083,7 @@ public class PurgeDaoTest {
     assertThat(selectActivity("NOT_OLD_ENOUGH_1")).isNotEmpty();
     assertThat(selectTaskInput("NOT_OLD_ENOUGH_1")).isNotEmpty();
     assertThat(selectTaskCharacteristic("NOT_OLD_ENOUGH_1")).hasSize(1);
-    assertThat(scannerContextExists("NOT_OLD_ENOUGH_1")).isFalse();  // because more than 4 weeks old
+    assertThat(scannerContextExists("NOT_OLD_ENOUGH_1")).isFalse(); // because more than 4 weeks old
     assertThat(selectActivity("NOT_OLD_ENOUGH_2")).isNotEmpty();
     assertThat(selectTaskInput("NOT_OLD_ENOUGH_2")).isNotEmpty();
     assertThat(selectTaskCharacteristic("NOT_OLD_ENOUGH_2")).hasSize(1);
@@ -1659,11 +1670,15 @@ public class PurgeDaoTest {
   }
 
   private static PurgeConfiguration newConfigurationWith30Days() {
-    return new PurgeConfiguration(PROJECT_UUID, PROJECT_UUID, emptyList(), 30, Optional.of(30), System2.INSTANCE, Collections.emptyList());
+    return new PurgeConfiguration(PROJECT_UUID, PROJECT_UUID, emptyList(), 30, Optional.of(30), System2.INSTANCE, emptySet());
   }
 
-  private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String rootUuid, String projectUuid, String... disabledComponentUuids) {
-    return new PurgeConfiguration(rootUuid, projectUuid, emptyList(), 30, Optional.of(30), system2, asList(disabledComponentUuids));
+  private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String rootUuid, String projectUuid) {
+    return newConfigurationWith30Days(system2, rootUuid, projectUuid, Collections.emptySet());
+  }
+
+  private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String rootUuid, String projectUuid, Set<String> disabledComponentUuids) {
+    return new PurgeConfiguration(rootUuid, projectUuid, emptyList(), 30, Optional.of(30), system2, disabledComponentUuids);
   }
 
 }

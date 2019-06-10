@@ -19,10 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import java.util.Collection;
+import java.util.Set;
 
 public interface MutableDisabledComponentsHolder extends DisabledComponentsHolder {
 
-  void setUuids(Collection<String> uuids);
+  void setUuids(Set<String> uuids);
 
 }

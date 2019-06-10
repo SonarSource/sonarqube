@@ -20,6 +20,7 @@
 package org.sonar.db.purge;
 
 import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
@@ -32,6 +33,12 @@ public interface PurgeMapper {
    * Returns the list of modules/subviews and the application/view/project for the specified project_uuid.
    */
   List<IdUuidPair> selectRootAndModulesOrSubviewsByProjectUuid(@Param("rootUuid") String rootUuid);
+
+  Set<String> selectDisabledComponentsWithFileSource(@Param("projectUuid") String projectUuid);
+
+  Set<String> selectDisabledComponentsWithUnresolvedIssues(@Param("projectUuid") String projectUuid);
+
+  Set<String> selectDisabledComponentsWithLiveMeasures(@Param("projectUuid") String projectUuid);
 
   void deleteAnalyses(@Param("analysisUuids") List<String> analysisUuids);
 

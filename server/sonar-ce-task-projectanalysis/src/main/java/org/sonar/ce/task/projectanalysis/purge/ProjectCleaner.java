@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.purge;
 
-import java.util.Collection;
+import java.util.Set;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
@@ -53,7 +53,7 @@ public class ProjectCleaner {
     this.purgeListener = purgeListener;
   }
 
-  public ProjectCleaner purge(DbSession session, String rootUuid, String projectUuid, Configuration projectConfig, Collection<String> disabledComponentUuids) {
+  public ProjectCleaner purge(DbSession session, String rootUuid, String projectUuid, Configuration projectConfig, Set<String> disabledComponentUuids) {
     long start = System.currentTimeMillis();
     profiler.reset();
 

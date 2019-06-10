@@ -19,22 +19,22 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import java.util.Collection;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkState;
 
 public class DisabledComponentsHolderImpl implements MutableDisabledComponentsHolder {
 
-  private Collection<String> uuids;
+  private Set<String> uuids;
 
   @Override
-  public Collection<String> getUuids() {
+  public Set<String> getUuids() {
     checkState(uuids != null, "UUIDs have not been set in repository");
     return uuids;
   }
 
   @Override
-  public void setUuids(Collection<String> uuids) {
+  public void setUuids(Set<String> uuids) {
     checkState(this.uuids == null, "UUIDs have already been set in repository");
     this.uuids = uuids;
   }

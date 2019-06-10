@@ -63,12 +63,12 @@ public class PurgeDao implements Dao {
 
   public void purge(DbSession session, PurgeConfiguration conf, PurgeListener listener, PurgeProfiler profiler) {
     PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-    PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
+    PurgeCommands commands = new PurgeCommands(session, mapper, profiler, system2);
     String rootUuid = conf.rootUuid();
     deleteAbortedAnalyses(rootUuid, commands);
     deleteDataOfComponentsWithoutHistoricalData(session, rootUuid, conf.getScopesWithoutHistoricalData(), commands);
     purgeAnalyses(commands, rootUuid);
-    purgeDisabledComponents(session, mapper, conf, listener);
+    purgeDisabledComponents(commands, conf, listener);
     deleteOldClosedIssues(conf, mapper, listener);
     purgeOldCeActivities(rootUuid, commands);
     purgeOldCeScannerContexts(rootUuid, commands);
@@ -100,6 +100,12 @@ public class PurgeDao implements Dao {
         .setIslast(false)
         .setNotPurged(true));
     commands.purgeAnalyses(analysisUuids);
+  }
+
+  private static void purgeDisabledComponents(PurgeCommands commands, PurgeConfiguration conf, PurgeListener listener) {
+    String rootUuid = conf.rootUuid();
+    listener.onComponentsDisabling(rootUuid, conf.getDisabledComponentUuids());
+    commands.purgeDisabledComponents(rootUuid, conf.getDisabledComponentUuids(), listener);
   }
 
   private static void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper, PurgeListener listener) {
@@ -148,20 +154,6 @@ public class PurgeDao implements Dao {
     purgeCommands.deleteComponentMeasures(analysisUuids, componentWithoutHistoricalDataUuids);
   }
 
-  private void purgeDisabledComponents(DbSession session, PurgeMapper mapper, PurgeConfiguration conf, PurgeListener listener) {
-    executeLargeInputs(conf.getDisabledComponentUuids(),
-      input -> {
-        mapper.deleteFileSourcesByFileUuid(input);
-        mapper.resolveComponentIssuesNotAlreadyResolved(input, system2.now());
-        mapper.deleteLiveMeasuresByComponentUuids(input);
-        return emptyList();
-      });
-
-    listener.onComponentsDisabling(conf.rootUuid(), conf.getDisabledComponentUuids());
-
-    session.commit();
-  }
-
   private static void deleteOldDisabledComponents(PurgeCommands commands, PurgeMapper mapper, String rootUuid) {
     List<IdUuidPair> disabledComponentsWithoutIssue = mapper.selectDisabledComponentsWithoutIssues(rootUuid);
     commands.deleteDisabledComponentsWithoutIssues(disabledComponentsWithoutIssue);
@@ -180,7 +172,7 @@ public class PurgeDao implements Dao {
 
   public void purgeCeActivities(DbSession session, PurgeProfiler profiler) {
     PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-    PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
+    PurgeCommands commands = new PurgeCommands(session, mapper, profiler, system2);
     purgeOldCeActivities(null, commands);
   }
 
@@ -191,7 +183,7 @@ public class PurgeDao implements Dao {
 
   public void purgeCeScannerContexts(DbSession session, PurgeProfiler profiler) {
     PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-    PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
+    PurgeCommands commands = new PurgeCommands(session, mapper, profiler, system2);
     purgeOldCeScannerContexts(null, commands);
   }
 
@@ -199,7 +191,6 @@ public class PurgeDao implements Dao {
     Date fourWeeksAgo = DateUtils.addDays(new Date(system2.now()), -28);
     commands.deleteCeScannerContextBefore(rootUuid, fourWeeksAgo.getTime());
   }
-
 
   private static final class ManualBaselineAnalysisFilter implements Predicate<PurgeableAnalysisDto> {
     private static final String[] NO_BASELINE = {null};
@@ -228,14 +219,14 @@ public class PurgeDao implements Dao {
   public void deleteBranch(DbSession session, String uuid) {
     PurgeProfiler profiler = new PurgeProfiler();
     PurgeMapper purgeMapper = mapper(session);
-    PurgeCommands purgeCommands = new PurgeCommands(session, profiler);
+    PurgeCommands purgeCommands = new PurgeCommands(session, profiler, system2);
     deleteRootComponent(uuid, purgeMapper, purgeCommands);
   }
 
   public void deleteProject(DbSession session, String uuid) {
     PurgeProfiler profiler = new PurgeProfiler();
     PurgeMapper purgeMapper = mapper(session);
-    PurgeCommands purgeCommands = new PurgeCommands(session, profiler);
+    PurgeCommands purgeCommands = new PurgeCommands(session, profiler, system2);
 
     session.getMapper(BranchMapper.class).selectByProjectUuid(uuid)
       .stream()
@@ -283,7 +274,7 @@ public class PurgeDao implements Dao {
     }
 
     PurgeProfiler profiler = new PurgeProfiler();
-    PurgeCommands purgeCommands = new PurgeCommands(dbSession, profiler);
+    PurgeCommands purgeCommands = new PurgeCommands(dbSession, profiler, system2);
     deleteNonRootComponentsInView(nonRootComponents, purgeCommands);
   }
 
@@ -311,7 +302,7 @@ public class PurgeDao implements Dao {
   }
 
   public void deleteAnalyses(DbSession session, PurgeProfiler profiler, List<IdUuidPair> analysisIdUuids) {
-    new PurgeCommands(session, profiler).deleteAnalyses(analysisIdUuids);
+    new PurgeCommands(session, profiler, system2).deleteAnalyses(analysisIdUuids);
   }
 
   private static PurgeMapper mapper(DbSession session) {

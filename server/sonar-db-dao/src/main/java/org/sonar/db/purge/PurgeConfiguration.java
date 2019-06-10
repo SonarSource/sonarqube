@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Scopes;
@@ -39,10 +40,10 @@ public class PurgeConfiguration {
   private final int maxAgeInDaysOfClosedIssues;
   private final Optional<Integer> maxAgeInDaysOfInactiveShortLivingBranches;
   private final System2 system2;
-  private final Collection<String> disabledComponentUuids;
+  private final Set<String> disabledComponentUuids;
 
   public PurgeConfiguration(String rootUuid, String projectUuid, Collection<String> scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues,
-    Optional<Integer> maxAgeInDaysOfInactiveShortLivingBranches, System2 system2, Collection<String> disabledComponentUuids) {
+    Optional<Integer> maxAgeInDaysOfInactiveShortLivingBranches, System2 system2, Set<String> disabledComponentUuids) {
     this.rootUuid = rootUuid;
     this.projectUuid = projectUuid;
     this.scopesWithoutHistoricalData = scopesWithoutHistoricalData;
@@ -52,7 +53,7 @@ public class PurgeConfiguration {
     this.maxAgeInDaysOfInactiveShortLivingBranches = maxAgeInDaysOfInactiveShortLivingBranches;
   }
 
-  public static PurgeConfiguration newDefaultPurgeConfiguration(Configuration config, String rootUuid, String projectUuid, Collection<String> disabledComponentUuids) {
+  public static PurgeConfiguration newDefaultPurgeConfiguration(Configuration config, String rootUuid, String projectUuid, Set<String> disabledComponentUuids) {
     return new PurgeConfiguration(rootUuid, projectUuid, Arrays.asList(Scopes.DIRECTORY, Scopes.FILE), config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(),
       config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_SHORT_LIVING_BRANCHES), System2.INSTANCE, disabledComponentUuids);
   }
@@ -77,7 +78,7 @@ public class PurgeConfiguration {
     return scopesWithoutHistoricalData;
   }
 
-  public Collection<String> getDisabledComponentUuids() {
+  public Set<String> getDisabledComponentUuids() {
     return disabledComponentUuids;
   }
 

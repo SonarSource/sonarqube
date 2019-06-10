@@ -19,11 +19,11 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DisabledComponentsHolderImplTest {
@@ -35,18 +35,18 @@ public class DisabledComponentsHolderImplTest {
 
   @Test
   public void set_and_get_uuids() {
-    underTest.setUuids(asList("U1", "U2"));
+    underTest.setUuids(ImmutableSet.of("U1", "U2"));
 
     assertThat(underTest.getUuids()).containsExactly("U1", "U2");
   }
 
   @Test
   public void setUuids_fails_if_called_twice() {
-    underTest.setUuids(asList("U1", "U2"));
+    underTest.setUuids(ImmutableSet.of("U1", "U2"));
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("UUIDs have already been set in repository");
-    underTest.setUuids(asList("U1", "U2"));
+    underTest.setUuids(ImmutableSet.of("U1", "U2"));
   }
 
   @Test
