@@ -245,28 +245,28 @@ public class PurgeDao implements Dao {
     deleteRootComponent(uuid, purgeMapper, purgeCommands);
   }
 
-  private void deleteRootComponent(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {
+  private static void deleteRootComponent(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {
     List<IdUuidPair> rootAndModulesOrSubviews = mapper.selectRootAndModulesOrSubviewsByProjectUuid(rootUuid);
     long rootId = rootAndModulesOrSubviews.stream()
       .filter(pair -> pair.getUuid().equals(rootUuid))
       .map(IdUuidPair::getId)
       .findFirst()
       .orElseThrow(() -> new IllegalArgumentException("Couldn't find root component with uuid " + rootUuid));
-    commands.deletePermissions(rootId);
     commands.deleteLinks(rootUuid);
     commands.deleteAnalyses(rootUuid);
     commands.deleteByRootAndModulesOrSubviews(rootAndModulesOrSubviews);
-    commands.deleteComponents(rootUuid);
     commands.deleteIssues(rootUuid);
     commands.deleteFileSources(rootUuid);
     commands.deleteCeActivity(rootUuid);
     commands.deleteCeQueue(rootUuid);
     commands.deleteWebhooks(rootUuid);
     commands.deleteWebhookDeliveries(rootUuid);
+    commands.deleteLiveMeasures(rootUuid);
     commands.deleteProjectMappings(rootUuid);
     commands.deleteProjectAlmBindings(rootUuid);
+    commands.deletePermissions(rootId);
     commands.deleteBranch(rootUuid);
-    commands.deleteLiveMeasures(rootUuid);
+    commands.deleteComponents(rootUuid);
   }
 
   /**
