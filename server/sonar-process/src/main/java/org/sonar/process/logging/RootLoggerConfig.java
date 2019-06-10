@@ -37,11 +37,11 @@ public final class RootLoggerConfig {
     return new Builder();
   }
 
-  ProcessId getProcessId() {
+  public ProcessId getProcessId() {
     return processId;
   }
 
-  String getThreadIdFieldPattern() {
+  public String getThreadIdFieldPattern() {
     return threadIdFieldPattern;
   }
 

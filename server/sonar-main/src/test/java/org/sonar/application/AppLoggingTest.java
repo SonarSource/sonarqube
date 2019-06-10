@@ -28,6 +28,7 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.encoder.Encoder;
+import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import ch.qos.logback.core.joran.spi.ConsoleTarget;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import java.io.File;
@@ -42,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.logging.LogbackHelper;
+import org.sonar.process.logging.LogbackJsonLayout;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
@@ -253,6 +255,18 @@ public class AppLoggingTest {
 
     assertThat(
       LoggerFactory.getLogger("com.hazelcast").isInfoEnabled()).isEqualTo(false);
+  }
+
+  @Test
+  public void use_json_output() {
+    settings.getProps().set("sonar.log.useJsonOutput", "true");
+
+    LoggerContext ctx = underTest.configure();
+    Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
+    ConsoleAppender appender = (ConsoleAppender<ILoggingEvent>)rootLogger.getAppender("APP_CONSOLE");
+    Encoder<ILoggingEvent> encoder = appender.getEncoder();
+    assertThat(encoder).isInstanceOf(LayoutWrappingEncoder.class);
+    assertThat(((LayoutWrappingEncoder)encoder).getLayout()).isInstanceOf(LogbackJsonLayout.class);
   }
 
   private void emulateRunFromSonarScript() {

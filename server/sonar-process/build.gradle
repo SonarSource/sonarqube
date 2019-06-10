@@ -11,6 +11,7 @@ dependencies {
   compile 'commons-codec:commons-codec'
   compile 'commons-io:commons-io'
   compile 'commons-lang:commons-lang'
+  compile 'com.google.code.gson:gson'
   compile 'com.google.guava:guava'
   compile 'com.hazelcast:hazelcast'
   compile 'org.slf4j:jul-to-slf4j'

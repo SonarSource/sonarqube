@@ -28,6 +28,9 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
+import ch.qos.logback.core.Layout;
+import ch.qos.logback.core.encoder.Encoder;
+import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
@@ -474,6 +477,32 @@ public class LogbackHelperTest {
     LoggerContext context = underTest.apply(newLogLevelConfig().offUnlessTrace("fii").build(), new Props(properties));
 
     assertThat(context.getLogger("fii").getLevel()).isNull();
+  }
+
+  @Test
+  public void createEncoder_uses_pattern_by_default() {
+    RootLoggerConfig config = newRootLoggerConfigBuilder()
+      .setProcessId(ProcessId.WEB_SERVER)
+      .build();
+
+    Encoder<ILoggingEvent> encoder = underTest.createEncoder(props, config, underTest.getRootContext());
+
+    assertThat(encoder).isInstanceOf(PatternLayoutEncoder.class);
+  }
+
+  @Test
+  public void createEncoder_uses_json_output() {
+    props.set("sonar.log.useJsonOutput", "true");
+    RootLoggerConfig config = newRootLoggerConfigBuilder()
+      .setProcessId(ProcessId.WEB_SERVER)
+      .build();
+
+    Encoder<ILoggingEvent> encoder = underTest.createEncoder(props, config, underTest.getRootContext());
+
+    assertThat(encoder).isInstanceOf(LayoutWrappingEncoder.class);
+    Layout layout = ((LayoutWrappingEncoder) encoder).getLayout();
+    assertThat(layout).isInstanceOf(LogbackJsonLayout.class);
+    assertThat(((LogbackJsonLayout)layout).getProcessKey()).isEqualTo("web");
   }
 
   private LogLevelConfig.Builder newLogLevelConfig() {

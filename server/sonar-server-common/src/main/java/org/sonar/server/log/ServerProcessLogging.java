@@ -22,9 +22,9 @@ package org.sonar.server.log;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.encoder.Encoder;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import org.sonar.process.ProcessId;
@@ -107,7 +107,7 @@ public abstract class ServerProcessLogging {
 
     configureRootLogger(props);
     helper.apply(logLevelConfig, props);
-    configureDirectToConsoleLoggers(ctx, STARTUP_LOGGER_NAME);
+    configureDirectToConsoleLoggers(props, ctx, STARTUP_LOGGER_NAME);
     extendConfigure();
 
     helper.enableJulChangePropagation(ctx);
@@ -128,11 +128,7 @@ public abstract class ServerProcessLogging {
       .setProcessId(processId)
       .setThreadIdFieldPattern(threadIdFieldPattern)
       .build();
-    PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-    encoder.setContext(helper.getRootContext());
-    encoder.setPattern(helper.buildLogPattern(config));
-    encoder.start();
-
+    Encoder<ILoggingEvent> encoder = helper.createEncoder(props, config, helper.getRootContext());
     helper.configureGlobalFileLog(props, config, encoder);
     helper.configureForSubprocessGobbler(props, encoder);
   }
@@ -141,15 +137,12 @@ public abstract class ServerProcessLogging {
    * Setup one or more specified loggers to be non additive and to print to System.out which will be caught by the Main
    * Process and written to sonar.log.
    */
-  private void configureDirectToConsoleLoggers(LoggerContext context, String... loggerNames) {
+  private void configureDirectToConsoleLoggers(Props props, LoggerContext context, String... loggerNames) {
     RootLoggerConfig config = newRootLoggerConfigBuilder()
       .setProcessId(ProcessId.APP)
       .setThreadIdFieldPattern("")
       .build();
-    PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-    encoder.setContext(context);
-    encoder.setPattern(helper.buildLogPattern(config));
-    encoder.start();
+    Encoder<ILoggingEvent> encoder = helper.createEncoder(props, config, context);
     ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(context, "CONSOLE", encoder);
 
     for (String loggerName : loggerNames) {
@@ -158,5 +151,4 @@ public abstract class ServerProcessLogging {
       consoleLogger.addAppender(consoleAppender);
     }
   }
-
 }

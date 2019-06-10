@@ -22,6 +22,7 @@ package org.sonar.process.logging;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.jul.LevelChangePropagator;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -30,6 +31,7 @@ import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.encoder.Encoder;
+import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
@@ -221,6 +223,21 @@ public class LogbackHelper extends AbstractLogHelper {
     configurator.setContext(context);
     context.reset();
     configurator.doConfigure(LogbackHelper.class.getResource(xmlResourcePath));
+  }
+
+  public Encoder<ILoggingEvent> createEncoder(Props props, RootLoggerConfig config, LoggerContext context) {
+    if (props.valueAsBoolean("sonar.log.useJsonOutput", false)) {
+      LayoutWrappingEncoder encoder = new LayoutWrappingEncoder<>();
+      encoder.setLayout(new LogbackJsonLayout(config.getProcessId().getKey()));
+      encoder.setContext(context);
+      encoder.start();
+      return encoder;
+    }
+    PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+    encoder.setContext(context);
+    encoder.setPattern(buildLogPattern(config));
+    encoder.start();
+    return encoder;
   }
 
   public RollingPolicy createRollingPolicy(Context ctx, Props props, String filenamePrefix) {

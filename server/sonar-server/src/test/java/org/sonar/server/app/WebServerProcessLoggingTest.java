@@ -28,6 +28,9 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
+import ch.qos.logback.core.OutputStreamAppender;
+import ch.qos.logback.core.encoder.Encoder;
+import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import ch.qos.logback.core.joran.spi.JoranException;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
@@ -44,6 +47,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
+import org.sonar.process.logging.LogbackJsonLayout;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
@@ -495,6 +499,19 @@ public class WebServerProcessLoggingTest {
       "com.microsoft.sqlserver.jdbc.Statement",
       "com.microsoft.sqlserver.jdbc.Connection")
       .forEach(loggerName -> assertThat(context.getLogger(loggerName).getLevel()).isEqualTo(Level.OFF));
+  }
+
+  @Test
+  public void use_json_output() {
+    props.set("sonar.log.useJsonOutput", "true");
+
+    LoggerContext context = underTest.configure(props);
+
+    Logger rootLogger = context.getLogger(ROOT_LOGGER_NAME);
+    OutputStreamAppender appender = (OutputStreamAppender)rootLogger.getAppender("file_web");
+    Encoder<ILoggingEvent> encoder = appender.getEncoder();
+    assertThat(encoder).isInstanceOf(LayoutWrappingEncoder.class);
+    assertThat(((LayoutWrappingEncoder)encoder).getLayout()).isInstanceOf(LogbackJsonLayout.class);
   }
 
   private void verifyRootLogLevel(LoggerContext ctx, Level expected) {
