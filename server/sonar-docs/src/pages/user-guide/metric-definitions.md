@@ -177,13 +177,10 @@ Number of new Security Hotspots
 The ratio of the number of Security Hotspots that are in "To Review" or "In Review" status per 1K lines of code.
 
 A = 0–3 "To Review" and "In Review" Security Hotspots per 1K lines of code
-B = 4–10
-C = 11–15
-D = 16–25
-E = 26+
-
-**Security Hotspot Review Rating on new code** (`new_security_hotspot_review_rating`)
-Same as _Security Hotspot Review Rating_ but on the code changed in the New Code period.
+B = >3–10
+C = >10–15
+D = >15–25
+E = >25
 
 ---
 ## Size
