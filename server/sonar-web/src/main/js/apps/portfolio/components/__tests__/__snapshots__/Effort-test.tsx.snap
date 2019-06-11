@@ -18,6 +18,7 @@ exports[`renders 1`] = `
               "query": Object {
                 "id": "foo",
                 "metric": "security_rating",
+                "view": "list",
               },
             }
           }
