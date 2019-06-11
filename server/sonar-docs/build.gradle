@@ -13,8 +13,9 @@ clean.doFirst {
 }
 
 yarn_run {
-  environment = [ GATSBY_DOCS_VERSION: version ]
-  inputs.property('version', version)
+  def docsVersion = version.split("[.-]").take(2).join('.')
+  environment = [ GATSBY_DOCS_VERSION: docsVersion ]
+  inputs.property('version', docsVersion)
   inputs.dir('src').withPathSensitivity(PathSensitivity.RELATIVE)
   ['gatsby-config.js', 'gatsby-node.js', 'package.json', 'yarn.lock', 'tsconfig.json'].each {
     inputs.file(it).withPathSensitivity(PathSensitivity.RELATIVE)
