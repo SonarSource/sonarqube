@@ -164,7 +164,7 @@ E = at least 1 Blocker Vulnerability
 **Security remediation effort** (`security_remediation_effort`)  
 Effort to fix all vulnerability issues. The measure is stored in minutes in the DB. An 8-hour day is assumed when values are shown in days.
 
-**Security remedation effort on new code** (`new_security_remediation_effort`)  
+**Security remediation effort on new code** (`new_security_remediation_effort`)  
 Same as _Security remediation effort_ but on the code changed in the New Code period.
 
 **Security Hotspots** (`security_hotspots`)
@@ -176,11 +176,11 @@ Number of new Security Hotspots
 **Security Hotspot Review Rating** (`security_hotspot_review_rating`)
 The ratio of the number of Security Hotspots that are in "To Review" or "In Review" status per 1K lines of code.
 
-A = 0–3 "To Review" and "In Review" Security Hotspots per 1K lines of code
-B = >3–10
-C = >10–15
-D = >15–25
-E = >25
+A = 0–3 "To Review" and "In Review" Security Hotspots per 1K lines of code  
+B = >3–10  
+C = >10–15  
+D = >15–25  
+E = >25  
 
 ---
 ## Size
