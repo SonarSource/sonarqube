@@ -13,7 +13,7 @@ SonarCloud can autonomously scan your code, by simply reading it from your repos
 ## Prerequisites
 
 * The first version of this Beta feature works only for GitHub repositories. 
-* The automatic analysis can be activated only on projects which were set up through the SonarCloud web interface.
+* The automatic analysis can be activated only on projects which are bound to their remote repository. This implies that the the project was set up through the SonarCloud web interface by selecting a repository (i.e. not "manually").
 
 ## What to expect
 
