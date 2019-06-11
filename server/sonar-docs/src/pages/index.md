@@ -67,6 +67,5 @@ Below are a few key pointers, otherwise head over to the left pane for full docu
 
 ---
 Not using the current version?  
-[6.7.x (current LTS)](https://docs.sonarqube.org/display/SONARQUBE67/Documentation)  
-[Documentation for other versions](/previous-versions/)  
+[6.7.x (current LTS)](https://docs.sonarqube.org/6.7)
 <!-- /sonarqube -->
