@@ -9,13 +9,7 @@ Security Reports quickly give you the big picture on your application's security
 The Security Reports are fed by the analyzers, which rely on the rules activated in your quality profiles to raise security issues. If there are no rules corresponding to a given OWASP category activated in your Quality Profile, you will get no issues linked to that specific category and the rating displayed will be A. That won't mean you are safe for that category, but that you need to activate more rules (assuming some exist).
 
 ## What's the difference between a Security Hotspot and a Vulnerability?
-Vulnerabilities are points in the code which are open to attack.
-Security Hotspots are security-sensitive pieces of code that should be carefully reviewed by someone with a security auditor hat. This person can be:
-* a member of the development team who is more sensitive to security problems 
-* someone outside the development team contracted for the purpose of reviewing these Hotspots.
-
-The main goal of Security Hotspots is to help focus the efforts of someone manually review application source code. The second goal is to educate developers and to increase their security-awareness. 
-Having a Hotspot in your application does not mean there is a problem, but that someone should review the code to see if the sensitive piece of code is being used in the safest manner.
+Vulnerabilities are points in the code which are open to attack. Security Hotspots highlight security-sensitive pieces of code that need to be manually reviewed to ensure the sensitive piece of code is being used in the safest manner. Security hotspots also help educate developers on security issues. 
 
 For more details, see [Security Hotspots](/user-guide/security-hotspots/)
 

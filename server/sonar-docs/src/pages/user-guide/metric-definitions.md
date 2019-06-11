@@ -167,6 +167,24 @@ Effort to fix all vulnerability issues. The measure is stored in minutes in the 
 **Security remedation effort on new code** (`new_security_remediation_effort`)  
 Same as _Security remediation effort_ but on the code changed in the New Code period.
 
+**Security Hotspots** (`security_hotspots`)
+Number of Security Hotspots
+
+**New Security Hotspots** (`new_security_hotspots`)
+Number of new Security Hotspots
+
+**Security Hotspot Review Rating** (`security_hotspot_review_rating`)
+The ratio of the number of Security Hotspots that are in "To Review" or "In Review" status per 1K lines of code.
+
+A = 0–3 "To Review" and "In Review" Security Hotspots per 1K lines of code
+B = 4–10
+C = 11–15
+D = 16–25
+E = 26+
+
+**Security Hotspot Review Rating on new code** (`new_security_hotspot_review_rating`)
+Same as _Security Hotspot Review Rating_ but on the code changed in the New Code period.
+
 ---
 ## Size
 **Classes** (`classes`)  
