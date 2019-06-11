@@ -9,9 +9,9 @@ SonarCloud is the leading product for Continuous Code Quality online, totally fr
 
 SonarCloud offers end-to-end integrations for teams leveraging the following solutions in their development processes:
 
-* [GitHub](/integrations/github/)
+* [GitHub.com](/integrations/github/)
 * [Bitbucket Cloud](/integrations/bitbucketcloud/)
-* [Azure DevOps](/integrations/vsts/)
+* [Azure DevOps Services](/integrations/vsts/)
 
 Are you ready to eliminate bugs and vulnerabilities? Will you champion quality code in your projects?
 

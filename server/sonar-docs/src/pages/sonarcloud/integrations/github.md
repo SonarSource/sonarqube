@@ -1,5 +1,5 @@
 ---
-title: Get started with GitHub
+title: Get started with GitHub.com
 nav: GitHub
 url: /integrations/github/
 ---

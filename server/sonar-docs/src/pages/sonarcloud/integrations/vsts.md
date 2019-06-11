@@ -1,11 +1,11 @@
 ---
-title: Get started with Azure DevOps
-nav: Azure DevOps
+title: Get started with Azure DevOps Services
+nav: Azure DevOps Services
 url: /integrations/vsts/
 ---
 
 [[info]]
-| This page is about Azure DevOps, formerly known as VSTS.
+| This page is about Azure DevOps Services, formerly known as VSTS.
 
 You can connect to SonarCloud using your Azure DevOps account. On the [login page](/#sonarcloud#/sessions/new), just click on the "Log in with Azure DevOps" button.
 
