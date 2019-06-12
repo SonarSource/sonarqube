@@ -185,7 +185,7 @@ Concurrent analyses (i.e. parallel analysis of two solutions on the same build m
    * For MSBuild, the path is `<MSBUILD_INSTALL_DIR>\<Version>\Microsoft.Common.targets\ImportBefore` where <MSBUILD_INSTALL_DIR> is:
       *For v14, default path is: `C:\Program Files (x86)\MSBuild\14.0\Microsoft.Common.Targets\ImportBefore`
       * For v15, default path is: `C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Microsoft.Common.targets\ImportBefore` (for VS Community Edition)
-      * For v16, default path is: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Microsoft.Common.targets` (for VS Community Edition)
+      * For v16, default path is: `C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Microsoft.Common.targets` (for VS Community Edition)
    * For dotnet, the path is `<DOTNET_SDK_INSTALL_DIR>\15.0\Microsoft.Common.targets\ImportBefore` where `<DOTNET_SDK_INSTALL_DIR>` can be found using the `dotnet --info` and looking for the Base Path property.
 
 The performance impact of this global installation for projects that aren't analyzed is negligible as this target is only a bootstrapper and will bail out nearly instantaneously when the `.sonarqube` folder is not found under the folder being built.
@@ -199,5 +199,5 @@ To instruct the Java VM to use specific proxy settings or when there is no syste
 ```
 SONAR_SCANNER_OPTS = "-Dhttp.proxyHost=yourProxyHost -Dhttp.proxyPort=yourProxyPort"
 ```
-Where yourProxyHost and yourProxyPort are the hostname and the port of your proxy server. There are additional proxy settings for https, authentication and exclusions that could be passed to the Java VM, for full reference visit the following article: https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html
+Where _yourProxyHost_ and _yourProxyPort_ are the hostname and the port of your proxy server. There are additional proxy settings for https, authentication and exclusions that could be passed to the Java VM, for full reference visit the following article: https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html
 
