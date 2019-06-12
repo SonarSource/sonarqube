@@ -137,7 +137,7 @@ export class App extends React.PureComponent<Props, State> {
     const banQualityGate = ({ measures = [], qualifier }: T.ComponentMeasure) => {
       const bannedMetrics: string[] = [];
       if (!['VW', 'SVW'].includes(qualifier)) {
-        bannedMetrics.push('alert_status');
+        bannedMetrics.push('alert_status', 'security_review_rating');
       }
       if (qualifier === 'APP') {
         bannedMetrics.push('releasability_rating', 'releasability_effort');
