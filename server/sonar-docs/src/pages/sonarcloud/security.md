@@ -7,7 +7,7 @@ We know that your code is very important to you and your business. We also know 
 
 ## Hosting
 
-SonarCloud is hosted on Amazon AWS in Frankfurt and Ireland. 
+SonarCloud runs primarily off the AWS Frankfurt region. It also uses marginally services located in the AWS Ireland region when they are not available in Frankfurt.
 
 ## System security
 
@@ -16,7 +16,7 @@ SonarCloud uses its own Virtual Private Cloud (AWS VPC). Accesses to the infrast
 
 ## Data security
 
-At the infrastructure level, access to data is controlled by virtue of being hosted in a network zone which only the Technology Operations have access to. 
+At the infrastructure level, access to data is controlled by virtue of being hosted in network zones which only the Technology Operations have access to. 
 
 To insure data availability, the SonarCloud database is replicated in quasi real time between 2 availability zones both within the Frankfurt region. In addition, the database is fully backed up every day with a 7 days retention. 
 
@@ -37,26 +37,10 @@ All communications are done over TLS 1.2:
 * Using WS APIs
 * Running analysis (by the scanners) from CI services and pushing analysis reports to SonarCloud
 
-## SonarCloud Webhook IPs
+## SonarCloud Webhooks 
 
-[[warning]]
-| ![Warning](/images/exclamation.svg) You can use secrets to secure webhooks and ensure they are coming from SonarCloud (see the "Securing your webhooks" section of the [Webhooks](/project-administration/webhooks/#securing-your-webhooks) page for more information). Because of this, we are deprecating the Webhook IP list and it will be removed on June 1st, 2019.
+You can use secrets to secure webhooks and ensure they are coming from SonarCloud (see the "Securing your webhooks" section of the [Webhooks](/project-administration/webhooks/#securing-your-webhooks) page for more information). 
 
-SonarCloud performs webhook calls from the following list of IPs:
-```
-3.120.158.225
-3.121.87.141 
-52.59.209.17
-52.59.246.1
-54.93.180.144
-18.184.94.137
-18.184.195.184 
-18.185.94.218 
-18.194.44.125
-18.194.206.183
-18.194.244.158
-18.195.64.198
-```
 
 ## Authentication
 
