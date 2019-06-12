@@ -64,7 +64,7 @@ public class RemoveViewsDefinitionFromProperties extends DataChange {
         " (?,?,?,?)")) {
         long now = system2.now();
         insert
-          .setString(1, "views.def")
+          .setString(1, VIEWS_DEFINITION_PROPERTY_KEY)
           .setBoolean(2, false)
           .setString(3, property)
           .setLong(4, now)

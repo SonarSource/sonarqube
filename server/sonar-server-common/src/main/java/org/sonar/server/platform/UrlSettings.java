@@ -68,7 +68,7 @@ public class UrlSettings {
   private String computeBaseUrl() {
     String host = config.get("sonar.web.host").orElse("");
     int port = config.getInt("sonar.web.port").orElse(0);
-    String context = config.get("sonar.web.context").orElse("");
+    String context = config.get(PROPERTY_CONTEXT).orElse("");
 
     StringBuilder res = new StringBuilder();
     res.append("http://");

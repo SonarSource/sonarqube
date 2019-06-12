@@ -116,7 +116,7 @@ public class PropertiesDao implements Dao {
     res.setString(1, projectUuid);
     int index = 2;
     for (String dispatcherKey : dispatcherKeys) {
-      res.setString(index, "notification." + dispatcherKey + ".%");
+      res.setString(index, NOTIFICATION_PREFIX + dispatcherKey + ".%");
       index++;
     }
     return res;
