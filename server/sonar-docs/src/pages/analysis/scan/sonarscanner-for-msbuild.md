@@ -119,8 +119,8 @@ There are only two additional arguments that are allowed for the end step:
 
 Parameter|Description
 ---|---
-`/d:sonar.login=<username> or <token>`|[optional] This argument is required if it is added to the begin step.
-`/d:sonar.password=<password>`|[optional] This argument is required if it is added to the begin step and not required if you are using <token>
+`/d:sonar.login=<username> or <token>`|[optional] This argument is required if it was added to the begin step.
+`/d:sonar.password=<password>`|[optional] This argument is required if it was added to the begin step and you are not using an authentication token.
 
 ### Known Limitations
 * MSBuild versions older than 14 are not supported.
