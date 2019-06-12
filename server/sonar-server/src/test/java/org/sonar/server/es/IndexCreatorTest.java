@@ -36,6 +36,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.IndexType.IndexMainType;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
+import org.sonar.server.es.metadata.MetadataIndexImpl;
 import org.sonar.server.es.newindex.NewRegularIndex;
 import org.sonar.server.es.newindex.SettingsConfiguration;
 import org.sonar.server.platform.db.migration.es.MigrationEsClient;
@@ -60,7 +61,7 @@ public class IndexCreatorTest {
   public EsTester es = EsTester.createCustom();
 
   private MetadataIndexDefinition metadataIndexDefinition = new MetadataIndexDefinition(new MapSettings().asConfig());
-  private MetadataIndex metadataIndex = new MetadataIndex(es.client());
+  private MetadataIndex metadataIndex = new MetadataIndexImpl(es.client());
   private TestEsDbCompatibility esDbCompatibility = new TestEsDbCompatibility();
   private MapSettings settings = new MapSettings();
   private MigrationEsClient migrationEsClient = mock(MigrationEsClient.class);

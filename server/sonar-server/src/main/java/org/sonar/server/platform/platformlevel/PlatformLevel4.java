@@ -63,8 +63,8 @@ import org.sonar.server.es.IndexDefinitions;
 import org.sonar.server.es.ProjectIndexersImpl;
 import org.sonar.server.es.RecoveryIndexer;
 import org.sonar.server.es.metadata.EsDbCompatibilityImpl;
-import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
+import org.sonar.server.es.metadata.MetadataIndexImpl;
 import org.sonar.server.extension.CoreExtensionBootstraper;
 import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteModule;
@@ -244,7 +244,7 @@ public class PlatformLevel4 extends PlatformLevel {
     addIfStartupLeader(
       IndexCreator.class,
       MetadataIndexDefinition.class,
-      MetadataIndex.class,
+      MetadataIndexImpl.class,
       EsDbCompatibilityImpl.class);
 
     addIfCluster(NodeHealthModule.class);

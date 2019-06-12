@@ -42,7 +42,7 @@ public class MetadataIndexTest {
 
   @Rule
   public EsTester es = EsTester.createCustom(new MetadataIndexDefinitionBridge(), new FakeIndexDefinition());
-  private final MetadataIndex underTest = new MetadataIndex(es.client());
+  private final MetadataIndex underTest = new MetadataIndexImpl(es.client());
   private final String indexName = randomAlphabetic(20).toLowerCase(Locale.ENGLISH);
   private final Index index = new Random().nextBoolean() ? Index.simple(indexName) : Index.withRelations(indexName);
 

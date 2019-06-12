@@ -19,24 +19,34 @@
  */
 package org.sonar.server.es.metadata;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import javax.annotation.CheckForNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.db.DbClient;
-import org.sonar.server.es.EsTester;
-import org.sonar.server.es.newindex.FakeIndexDefinition;
+import org.sonar.server.es.Index;
+import org.sonar.server.es.IndexType;
+
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class EsDbCompatibilityImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  @Rule
-  public EsTester es = EsTester.createCustom(new MetadataIndexDefinitionBridge(), new FakeIndexDefinition());
+
   private DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
-  private MetadataIndex metadataIndex = new MetadataIndex(es.client());
+  private MetadataIndex metadataIndex = spy(new TestMetadataIndex());
   private EsDbCompatibilityImpl underTest = new EsDbCompatibilityImpl(dbClient, metadataIndex);
 
   @Test
@@ -63,7 +73,7 @@ public class EsDbCompatibilityImplTest {
   }
 
   @Test
-  public void store_db_metadata_in_es() {
+  public void markAsCompatible_db_metadata_in_es() {
     prepareDb("mysql");
 
     underTest.markAsCompatible();
@@ -72,7 +82,7 @@ public class EsDbCompatibilityImplTest {
   }
 
   @Test
-  public void store_updates_db_metadata_in_es() {
+  public void markAsCompatible_updates_db_metadata_in_es() {
     prepareEs("mysql");
     prepareDb("postgres");
 
@@ -82,12 +92,24 @@ public class EsDbCompatibilityImplTest {
   }
 
   @Test
-  public void store_marks_es_as_compatible_with_db() {
+  public void markAsCompatible_marks_es_as_compatible_with_db() {
     prepareDb("postgres");
 
     underTest.markAsCompatible();
 
     assertThat(underTest.hasSameDbVendor()).isTrue();
+  }
+
+  @Test
+  public void markAsCompatible_has_no_effect_if_vendor_is_the_same() {
+    String vendor = randomAlphabetic(12);
+    prepareEs(vendor);
+    prepareDb(vendor);
+
+    underTest.markAsCompatible();
+
+    assertThat(underTest.hasSameDbVendor()).isTrue();
+    verify(metadataIndex, times(0)).setDbMetadata(anyString());
   }
 
   private void prepareDb(String dbVendor) {
@@ -96,5 +118,44 @@ public class EsDbCompatibilityImplTest {
 
   private void prepareEs(String dbVendor) {
     metadataIndex.setDbMetadata(dbVendor);
+    // reset spy to not perturbate assertions on spy from verified code
+    reset(metadataIndex);
+  }
+
+  private static class TestMetadataIndex implements MetadataIndex {
+    private final Map<Index, String> hashes = new HashMap<>();
+    private final Map<IndexType, Boolean> initializeds = new HashMap<>();
+    @CheckForNull
+    private String dbVendor = null;
+
+    @Override
+    public Optional<String> getHash(Index index) {
+      return Optional.ofNullable(hashes.get(index));
+    }
+
+    @Override
+    public void setHash(Index index, String hash) {
+      hashes.put(index, hash);
+    }
+
+    @Override
+    public boolean getInitialized(IndexType indexType) {
+      return initializeds.getOrDefault(indexType, false);
+    }
+
+    @Override
+    public void setInitialized(IndexType indexType, boolean initialized) {
+      initializeds.put(indexType, initialized);
+    }
+
+    @Override
+    public Optional<String> getDbVendor() {
+      return Optional.ofNullable(dbVendor);
+    }
+
+    @Override
+    public void setDbMetadata(String vendor) {
+      this.dbVendor = vendor;
+    }
   }
 }

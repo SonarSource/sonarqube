@@ -20,85 +20,19 @@
 package org.sonar.server.es.metadata;
 
 import java.util.Optional;
-import org.elasticsearch.action.get.GetRequestBuilder;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.common.document.DocumentField;
-import org.sonar.server.es.EsClient;
 import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexType;
-import org.sonar.server.es.IndexType.IndexMainType;
-import org.sonar.server.es.IndexType.IndexRelationType;
 
-import static org.sonar.server.es.metadata.MetadataIndexDefinition.TYPE_METADATA;
-import static org.sonar.server.es.newindex.DefaultIndexSettings.REFRESH_IMMEDIATE;
+public interface MetadataIndex {
+  Optional<String> getHash(Index index);
 
-public class MetadataIndex {
+  void setHash(Index index, String hash);
 
-  private static final String DB_VENDOR_KEY = "dbVendor";
+  boolean getInitialized(IndexType indexType);
 
-  private final EsClient esClient;
+  void setInitialized(IndexType indexType, boolean initialized);
 
-  public MetadataIndex(EsClient esClient) {
-    this.esClient = esClient;
-  }
+  Optional<String> getDbVendor();
 
-  public Optional<String> getHash(Index index) {
-    return getMetadata(hashId(index));
-  }
-
-  public void setHash(Index index, String hash) {
-    setMetadata(hashId(index), hash);
-  }
-
-  private static String hashId(Index index) {
-    return index.getName() + ".indexStructure";
-  }
-
-  public boolean getInitialized(IndexType indexType) {
-    return getMetadata(initializedId(indexType)).map(Boolean::parseBoolean).orElse(false);
-  }
-
-  public void setInitialized(IndexType indexType, boolean initialized) {
-    setMetadata(initializedId(indexType), String.valueOf(initialized));
-  }
-
-  private static String initializedId(IndexType indexType) {
-    if (indexType instanceof IndexMainType) {
-      IndexMainType mainType = (IndexMainType) indexType;
-      return mainType.getIndex().getName() + "." + mainType.getType() + ".initialized";
-    }
-    if (indexType instanceof IndexRelationType) {
-      IndexRelationType relationType = (IndexRelationType) indexType;
-      IndexMainType mainType = relationType.getMainType();
-      return mainType.getIndex().getName() + "." + mainType.getType() + "." + relationType.getName() + ".initialized";
-    }
-    throw new IllegalArgumentException("Unsupported IndexType " + indexType.getClass());
-  }
-
-  public Optional<String> getDbVendor() {
-    return getMetadata(DB_VENDOR_KEY);
-  }
-
-  public void setDbMetadata(String vendor) {
-    setMetadata(DB_VENDOR_KEY, vendor);
-  }
-
-  private Optional<String> getMetadata(String id) {
-    GetRequestBuilder request = esClient.prepareGet(TYPE_METADATA, id)
-      .setStoredFields(MetadataIndexDefinition.FIELD_VALUE);
-    GetResponse response = request.get();
-    if (response.isExists()) {
-      DocumentField field = response.getField(MetadataIndexDefinition.FIELD_VALUE);
-      return Optional.of(field.getValue());
-    }
-    return Optional.empty();
-  }
-
-  private void setMetadata(String id, String value) {
-    esClient.prepareIndex(TYPE_METADATA)
-      .setId(id)
-      .setSource(MetadataIndexDefinition.FIELD_VALUE, value)
-      .setRefreshPolicy(REFRESH_IMMEDIATE)
-      .get();
-  }
+  void setDbMetadata(String vendor);
 }

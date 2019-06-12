@@ -40,7 +40,9 @@ public class EsDbCompatibilityImpl implements EsDbCompatibility {
 
   @Override
   public void markAsCompatible() {
-    metadataIndex.setDbMetadata(getDbVendor());
+    if (!hasSameDbVendor()) {
+      metadataIndex.setDbMetadata(getDbVendor());
+    }
   }
 
   private String getDbVendor() {

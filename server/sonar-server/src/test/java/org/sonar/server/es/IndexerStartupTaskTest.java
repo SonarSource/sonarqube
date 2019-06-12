@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.metadata.MetadataIndex;
+import org.sonar.server.es.metadata.MetadataIndexImpl;
 import org.sonar.server.es.newindex.FakeIndexDefinition;
 
 import static org.mockito.ArgumentMatchers.eq;
@@ -41,7 +42,7 @@ public class IndexerStartupTaskTest {
   public EsTester es = EsTester.createCustom(new FakeIndexDefinition());
 
   private final MapSettings settings = new MapSettings();
-  private final MetadataIndex metadataIndex = mock(MetadataIndex.class);
+  private final MetadataIndex metadataIndex = mock(MetadataIndexImpl.class);
   private final StartupIndexer indexer = mock(StartupIndexer.class);
   private final IndexerStartupTask underTest = new IndexerStartupTask(es.client(), settings.asConfig(), metadataIndex, indexer);
 
