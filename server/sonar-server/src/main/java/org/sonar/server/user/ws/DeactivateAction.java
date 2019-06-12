@@ -74,7 +74,7 @@ public class DeactivateAction implements UsersWsAction {
       .setResponseExample(getClass().getResource("deactivate-example.json"))
       .setHandler(this);
 
-    action.createParam("login")
+    action.createParam(PARAM_LOGIN)
       .setDescription("User login")
       .setRequired(true)
       .setExampleValue("myuser");

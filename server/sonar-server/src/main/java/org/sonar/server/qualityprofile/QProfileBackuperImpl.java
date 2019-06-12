@@ -148,7 +148,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       SMInputFactory inputFactory = initStax();
       SMHierarchicCursor rootC = inputFactory.rootElementCursor(backup);
       rootC.advance(); // <profile>
-      if (!"profile".equals(rootC.getLocalName())) {
+      if (!ATTRIBUTE_PROFILE.equals(rootC.getLocalName())) {
         throw new IllegalArgumentException("Backup XML is not valid. Root element must be <profile>.");
       }
       SMInputCursor cursor = rootC.childElementCursor();

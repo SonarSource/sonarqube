@@ -59,7 +59,7 @@ public class ValidateAction extends ServletFilter implements AuthenticationWsAct
 
   @Override
   public void define(WebService.NewController controller) {
-    controller.createAction("validate")
+    controller.createAction(VALIDATE_ACTION)
       .setDescription("Check credentials.")
       .setSince("3.3")
       .setHandler(ServletFilterHandler.INSTANCE)
