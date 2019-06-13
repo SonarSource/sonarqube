@@ -18,14 +18,15 @@ url: /analysis/languages/python/
 Discover and update the Python-specific [properties](/analysis/analysis-parameters/) in: <!-- sonarcloud -->Project <!-- /sonarcloud --> **[Administration > General Settings > Python](/#sonarqube-admin#/admin/settings?category=python)**.
 
 ## Pylint
-[Pylint](http://www.pylint.org/) is an external static source code analyzer used to augment Python analysis. To include Pylint issues, first generate an issues report:
+[Pylint](http://www.pylint.org/) is an external static source code analyzer, it can be used in conjunction with SonarPython.
+
+You can enable Pylint rules directly in your Python Quality Profile. Their rule keys start with "*Pylint:*".
+
+Once the rules are activated you should run Pylint and import its report:
 ```
 pylint <module_or_package> -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" > <report_file>
 ```
-Then pass it in to analysis with the `sonar.python.pylint.reportPath` property.
-
-The analyzer will execute Pylint for you if you haven't specified the path to a Pylint report. The path to your installation of `pylint` can be tuned using the `sonar.python.pylint` property, and non-default a properties file can be specified with `sonar.python.pylint_config`.
-
+Then pass the generated report path to analysis via the `sonar.python.pylint.reportPath` property.
 
 ## Related Pages
 * [Importing External Issues](/analysis/external-issues/) ([Pylint](http://www.pylint.org/), [Bandit](https://github.com/PyCQA/bandit/blob/master/README.rst))
