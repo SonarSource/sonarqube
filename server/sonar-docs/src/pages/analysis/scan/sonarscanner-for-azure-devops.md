@@ -14,19 +14,18 @@ The <!-- sonarqube -->[SonarQube](https://marketplace.visualstudio.com/items?ite
 Microsoft has published a [dedicated lab](https://aka.ms/sonarcloudlab) describing how to integrate Azure DevOps Pipelines and SonarCloud. The lab includes setting up a Branch Policy in Azure DevOps to block a Pull Request from being submitted if the changed code does not meet the quality bar.
 <!-- /sonarcloud -->
 
+<!-- sonarqube -->
 ## Compatibility
-Version <!-- sonarqube -->4.x<!-- /sonarqube --><!-- sonarcloud -->1.x<!-- /sonarcloud --> is compatible with:
+Version 4.x is compatible with:
 * TFS 2017 Update 2+
 * TFS 2018
 * Azure DevOps Server 2019
-* Azure DevOps
-
-<!-- sonarqube -->
-The SonarQube Extension embeds its own version of the [SonarScanner for MSBuild](/analysis/scan/sonarscanner-for-msbuild/).
 <!-- /sonarqube -->
 
+The extension embeds its own version of the [SonarScanner for MSBuild](/analysis/scan/sonarscanner-for-msbuild/).
+
 ## Installation
-1. Install the extension [from the marketplace](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube). 
+1. Install the extension <!-- sonarqube -->[from the marketplace](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube)<!-- /sonarqube --><!-- sonarcloud -->[from the marketplace](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarcloud)<!-- /sonarcloud -->. 
 
 If you are using [Microsoft-hosted build agents](https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops) then there is nothing else to install. The extension will work with all of the hosted agents (Windows, Linux, and MacOS).
 
@@ -42,7 +41,7 @@ The first thing to do is to declare <!-- sonarqube -->your SonarQube server<!-- 
 1. Specify a **Connection name**, the **Server URL** of your SonarQube Server (including the port if required) and the [Authentication Token](/user-guide/user-token/) to use.
 <!-- /sonarqube -->
 <!-- sonarcloud -->
-1. Specify a **Connection name** and **SonarCloud token**. There is a link in the dialog that will take you to the account security page on SonarCloud where you can create a new token if necessary. You can also button that lets you verify that connection is correctly configured.
+1. Specify a **Connection name** and **SonarCloud token**. There is a link in the dialog that will take you to the account security page on SonarCloud where you can create a new token if necessary. There is also a button that lets you verify that connection is correctly configured.
 <!-- /sonarcloud -->
 
 Each extension provides three tasks you will use in your build definitions to analyze your projects:
@@ -169,5 +168,3 @@ This is not possible with previous versions of the extension.
 
 **How do I break the build based on the quality gate status?**  
 This is not possible with the new version of the extension if you are using the most up-to-date versions of the tasks. We believe that breaking a CI build is not the right approach. Instead, we are providing pull request decoration (to make sure that issues aren't introduced at merge time) and we'll soon add a way to check the quality gate as part of a Release process.
-
-
