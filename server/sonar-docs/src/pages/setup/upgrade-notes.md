@@ -25,6 +25,9 @@ It is now possible to verify that webhook payloads actually come from SonarQube 
 **Graceful shutdown**  
 The SonarQube server now shuts down gracefully. I.E. it completes any currently-processing background tasks before shutting down. This may mean that shutdown takes longer than previously. ([SONAR-12043](https://jira.sonarsource.com/browse/SONAR-12043))
 
+**Duplication density correction**  
+A bug affecting the calculation of duplication density has been fixed. Each project's duplication density value will likely rise at the next analysis, possibly affecting Quality Gate status. ([SONAR-12188](https://jira.sonarsource.com/browse/SONAR-12188))
+
 **Additional authentication methods embedded**  
 The SAML and GitHub Authentication plugins are now embedded in all editions ([SONAR-11894](https://jira.sonarsource.com/browse/SONAR-11894))
 
