@@ -236,6 +236,12 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
     return component.breadcrumbs[current].key;
   };
 
+  filterMetrics({ qualifier }: T.Component, metrics: T.Metric[]) {
+    return ['VW', 'SVW'].includes(qualifier)
+      ? metrics
+      : metrics.filter(metric => metric.key !== 'security_review_rating');
+  }
+
   firstLoadData(query: Query, component: T.Component) {
     const graphMetrics = getHistoryMetrics(query.graph, query.customMetrics);
     const topLevelComponent = this.getTopLevelComponent(component);
@@ -244,15 +250,15 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
       getAllMetrics(),
       this.fetchMeasuresHistory(graphMetrics)
     ]).then(
-      response => {
+      ([{ analyses, paging }, metrics, measuresHistory]) => {
         if (this.mounted) {
           this.setState({
-            analyses: response[0].analyses,
+            analyses,
             graphLoading: false,
             initialized: true,
-            measuresHistory: response[2],
-            metrics: response[1],
-            paging: response[0].paging
+            measuresHistory,
+            metrics: this.filterMetrics(component, metrics),
+            paging
           });
 
           this.fetchAllActivities(topLevelComponent);

@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ProjectActivityApp
+  addCustomEvent={[Function]}
+  addVersion={[Function]}
+  analyses={Array []}
+  analysesLoading={false}
+  changeEvent={[Function]}
+  deleteAnalysis={[Function]}
+  deleteEvent={[Function]}
+  graphLoading={true}
+  initializing={true}
+  measuresHistory={Array []}
+  metrics={Array []}
+  project={
+    Object {
+      "breadcrumbs": Array [
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        },
+      ],
+      "key": "my-project",
+      "name": "MyProject",
+      "organization": "foo",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "deleted": false,
+          "key": "my-qp",
+          "language": "ts",
+          "name": "Sonar way",
+        },
+      ],
+      "tags": Array [],
+    }
+  }
+  query={
+    Object {
+      "category": "",
+      "customMetrics": Array [],
+      "from": undefined,
+      "graph": "issues",
+      "project": "",
+      "selectedDate": undefined,
+      "to": undefined,
+    }
+  }
+  updateQuery={[Function]}
+/>
+`;
