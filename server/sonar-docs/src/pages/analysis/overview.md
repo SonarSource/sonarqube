@@ -43,11 +43,11 @@ Once the SonarQube platform has been installed, you're ready to install a scanne
 * Ant - [SonarScanner for Ant](/analysis/scan/sonarscanner-for-ant/)
 * anything else (CLI) - [SonarScanner](/analysis/scan/sonarscanner/)
 
+[[warning]]
+| We do not recommend running an antivirus scanner on the machine where a SonarQube analysis runs, it could result in unpredictable behavior.
 
-**Note** that we do not recommend running an antivirus scanner on the machine where a SonarQube analysis runs, it could result in unpredictable behavior.
 
-
-A project is created in the platform automatically on its first analysis. However, if you need to set some configuration on your project before its first analysis, you have the option of provisioning it via Administration options or the **+** menu item.
+A project is created in SonarQube automatically on its first analysis. However, if you need to set some configuration on your project before its first analysis, you have the option of provisioning it via Administration options or the **+** menu item, which is visible to users with project creation rights.
 <!-- /sonarqube -->
 
 ## What does analysis produce? 
