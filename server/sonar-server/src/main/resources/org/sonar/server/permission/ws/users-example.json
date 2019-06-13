@@ -2,7 +2,7 @@
   "paging": {
     "pageIndex": 1,
     "pageSize": 20,
-    "total": 2
+    "total": 3
   },
   "users": [
     {
@@ -18,6 +18,13 @@
       "email": "george.orwell@1984.net",
       "avatar": "583af86a274c1027ef078cada831babf",
       "permissions": ["scan"]
+    },
+    {
+      "login": "adam.west",
+      "name": "Adam West",
+      "email": "adamwest@adamwest.com",
+      "avatar": "9b55aba24cc5ee533294334bd20abb34",
+      "permissions": []
     }
   ]
 }

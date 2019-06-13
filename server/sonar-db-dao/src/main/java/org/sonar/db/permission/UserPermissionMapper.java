@@ -31,6 +31,11 @@ public interface UserPermissionMapper {
   List<Integer> selectUserIdsByQuery(@Param("query") PermissionQuery query);
 
   /**
+   * Fetch user ids based on permission query and only in a specific scope (global permissions only, organization permissions only or project permissions only)
+   */
+  List<Integer> selectUserIdsByQueryAndScope(@Param("query") PermissionQuery query);
+
+  /**
    * Count the number of distinct users returned by {@link #selectUserIdsByQuery(PermissionQuery)}
    * {@link PermissionQuery#getPageOffset()} and {@link PermissionQuery#getPageSize()} are ignored.
    */

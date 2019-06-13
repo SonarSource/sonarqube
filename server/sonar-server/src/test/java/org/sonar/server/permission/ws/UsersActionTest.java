@@ -76,12 +76,14 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   public void search_for_users_with_response_example() {
     UserDto user1 = db.users().insertUser(newUserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
     db.organizations().addMember(db.getDefaultOrganization(), user1);
-    UserDto user2 = db.users().insertUser(newUserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
+    UserDto user2 = db.users().insertUser(newUserDto().setLogin("adam.west").setName("Adam West").setEmail("adamwest@adamwest.com"));
     db.organizations().addMember(db.getDefaultOrganization(), user2);
+    UserDto user3 = db.users().insertUser(newUserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
+    db.organizations().addMember(db.getDefaultOrganization(), user3);
     db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_PROFILES);
     db.users().insertPermissionOnUser(user1, ADMINISTER);
     db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_GATES);
-    db.users().insertPermissionOnUser(user2, SCAN);
+    db.users().insertPermissionOnUser(user3, SCAN);
 
     loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest().execute().getInput();

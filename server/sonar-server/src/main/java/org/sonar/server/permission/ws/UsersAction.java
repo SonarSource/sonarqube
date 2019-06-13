@@ -131,7 +131,10 @@ public class UsersAction implements PermissionsWsAction {
       .setPageIndex(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setSearchQuery(textQuery);
-    project.ifPresent(projectId -> permissionQuery.setComponentUuid(projectId.getUuid()));
+    project.ifPresent(projectId -> {
+      permissionQuery.setComponentUuid(projectId.getUuid());
+      permissionQuery.setComponentId(projectId.getId());
+    });
     if (permission != null) {
       if (project.isPresent()) {
         requestValidator.validateProjectPermission(permission);
@@ -167,7 +170,7 @@ public class UsersAction implements PermissionsWsAction {
   }
 
   private List<UserDto> findUsers(DbSession dbSession, PermissionQuery query) {
-    List<Integer> orderedIds = dbClient.userPermissionDao().selectUserIdsByQuery(dbSession, query);
+    List<Integer> orderedIds = dbClient.userPermissionDao().selectUserIdsByQueryAndScope(dbSession, query);
     return Ordering.explicit(orderedIds).onResultOf(UserDto::getId).immutableSortedCopy(dbClient.userDao().selectByIds(dbSession, orderedIds));
   }
 
@@ -176,11 +179,10 @@ public class UsersAction implements PermissionsWsAction {
       return emptyList();
     }
     List<Integer> userIds = users.stream().map(UserDto::getId).collect(Collectors.toList());
-    PermissionQuery query = PermissionQuery.builder()
+    PermissionQuery.Builder queryBuilder = PermissionQuery.builder()
       .setOrganizationUuid(org.getUuid())
-      .setComponentUuid(project.map(ProjectId::getUuid).orElse(null))
-      .withAtLeastOnePermission()
-      .build();
-    return dbClient.userPermissionDao().selectUserPermissionsByQuery(dbSession, query, userIds);
+      .withAtLeastOnePermission();
+    project.ifPresent(p -> queryBuilder.setComponentUuid(p.getUuid()));
+    return dbClient.userPermissionDao().selectUserPermissionsByQuery(dbSession, queryBuilder.build(), userIds);
   }
 }

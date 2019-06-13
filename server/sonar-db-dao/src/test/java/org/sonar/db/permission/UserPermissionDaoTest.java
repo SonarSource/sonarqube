@@ -261,6 +261,48 @@ public class UserPermissionDaoTest {
   }
 
   @Test
+  public void selectUserIdsByQueryAndScope_with_organization_scope() {
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
+    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"), org1, org2);
+    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"), org1, org2);
+    ComponentDto project1 = db.components().insertPrivateProject(org1);
+    ComponentDto project2 = db.components().insertPrivateProject(org2);
+    addProjectPermission(org1, USER, user1, project1);
+    addGlobalPermission(org1, PROVISIONING, user1);
+    addProjectPermission(org2, ISSUE_ADMIN, user2, project2);
+    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(org1.getUuid()).build();
+
+    List<Integer> result = underTest.selectUserIdsByQueryAndScope(dbSession, query);
+
+    // users with any kind of global permissions are first on the list and then sorted by name
+    assertThat(result).containsExactly(user1.getId(), user2.getId());
+  }
+
+  @Test
+  public void selectUserIdsByQueryAndScope_with_project_scope() {
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
+    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"), org1, org2);
+    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"), org1, org2);
+    ComponentDto project1 = db.components().insertPrivateProject(org1);
+    ComponentDto project2 = db.components().insertPrivateProject(org2);
+    addProjectPermission(org1, USER, user1, project1);
+    addGlobalPermission(org1, PROVISIONING, user1);
+    addProjectPermission(org2, ISSUE_ADMIN, user2, project2);
+    PermissionQuery query = PermissionQuery.builder()
+      .setOrganizationUuid(org1.getUuid())
+      .setComponentUuid(project1.uuid())
+      .setComponentId(project1.getId())
+      .build();
+
+    List<Integer> result = underTest.selectUserIdsByQueryAndScope(dbSession, query);
+
+    // users with any this projects permissions are first on the list and then sorted by name
+    assertThat(result).containsExactly(user1.getId(), user2.getId());
+  }
+
+  @Test
   public void selectUserIdsByQuery_is_paginated() {
     OrganizationDto organization = db.organizations().insert();
     List<Integer> userIds = new ArrayList<>();

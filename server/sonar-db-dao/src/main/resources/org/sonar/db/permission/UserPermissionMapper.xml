@@ -27,6 +27,28 @@
     order by case when (count(ur.role) > 0) then 1 else 2 end asc, lower(u.name) asc
   </select>
 
+  <select id="selectUserIdsByQueryAndScope" parameterType="map" resultType="int">
+    select
+    u.id, lower(u.name)
+    from users u
+    left join user_roles ur on ur.user_id = u.id and ur.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
+    <choose>
+      <when test="query.componentId == null">
+        and ur.resource_id is null
+      </when>
+      <otherwise>
+        and ur.resource_id = #{query.componentId,jdbcType=BIGINT}
+      </otherwise>
+    </choose>
+    left join projects p on ur.resource_id = p.id
+    inner join organization_members om on u.id=om.user_id and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
+    <where>
+      <include refid="sqlQueryFilters" />
+    </where>
+    group by u.id, lower(u.name)
+    order by case when (count(distinct ur.role) > 0) then 1 else 2 end asc, lower(u.name) asc
+  </select>
+
   <select id="countUsersByQuery" parameterType="map" resultType="int">
     select count(distinct(u.id))
     <include refid="sqlQueryJoins" />

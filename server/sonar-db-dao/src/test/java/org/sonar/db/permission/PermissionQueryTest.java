@@ -34,12 +34,14 @@ public class PermissionQueryTest {
   public void create_query() {
     PermissionQuery quey = PermissionQuery.builder()
       .setComponentUuid("COMPONENT_UUID")
+      .setComponentId(1234L)
       .setOrganizationUuid("ORGANIZATION_UUID")
       .setPermission("user")
       .setSearchQuery("sonar")
       .build();
 
     assertThat(quey.getComponentUuid()).isEqualTo("COMPONENT_UUID");
+    assertThat(quey.getComponentId()).isEqualTo(1234L);
     assertThat(quey.getOrganizationUuid()).isEqualTo("ORGANIZATION_UUID");
     assertThat(quey.getPermission()).isEqualTo("user");
     assertThat(quey.getSearchQuery()).isEqualTo("sonar");

@@ -51,7 +51,16 @@ public class UserPermissionDao implements Dao {
   }
 
   public List<Integer> selectUserIdsByQuery(DbSession dbSession, PermissionQuery query) {
-    return mapper(dbSession).selectUserIdsByQuery(query)
+    return paginate(mapper(dbSession).selectUserIdsByQuery(query), query);
+  }
+
+  public List<Integer> selectUserIdsByQueryAndScope(DbSession dbSession, PermissionQuery query) {
+    return paginate(mapper(dbSession).selectUserIdsByQueryAndScope(query), query);
+  }
+
+
+  private static List<Integer> paginate(List<Integer> results, PermissionQuery query) {
+    return results
       .stream()
       // Pagination is done in Java because it's too complex to use SQL pagination in Oracle and MsSQL with the distinct
       .skip(query.getPageOffset())
