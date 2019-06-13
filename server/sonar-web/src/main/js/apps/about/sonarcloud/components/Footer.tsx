@@ -31,6 +31,11 @@ export default function Footer() {
             <h4 className="sc-footer-nav-column-title">Need Help</h4>
             <ul>
               <li className="spacer-top">
+                <Link className="sc-footer-link" to="/documentation">
+                  Documentation
+                </Link>
+              </li>
+              <li className="spacer-top">
                 <a
                   className="sc-footer-link"
                   href="https://community.sonarsource.com/c/help/sc"
