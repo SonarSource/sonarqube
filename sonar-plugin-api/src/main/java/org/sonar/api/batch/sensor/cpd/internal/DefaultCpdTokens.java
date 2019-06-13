@@ -27,20 +27,23 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
 public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
-
+  private static final Logger LOG = Loggers.get(DefaultCpdTokens.class);
   private final List<TokensLine> result = new ArrayList<>();
-  private InputFile inputFile;
+  private DefaultInputFile inputFile;
   private int startLine = Integer.MIN_VALUE;
   private int startIndex = 0;
   private int currentIndex = 0;
   private StringBuilder sb = new StringBuilder();
   private TextRange lastRange;
+  private boolean loggedTestCpdWarning = false;
 
   public DefaultCpdTokens(SensorStorage storage) {
     super(storage);
@@ -48,7 +51,7 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
 
   @Override
   public DefaultCpdTokens onFile(InputFile inputFile) {
-    this.inputFile = requireNonNull(inputFile, "file can't be null");
+    this.inputFile = (DefaultInputFile) requireNonNull(inputFile, "file can't be null");
     return this;
   }
 
@@ -79,8 +82,6 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
     checkState(lastRange == null || lastRange.end().compareTo(range.start()) <= 0,
       "Tokens of file %s should be provided in order.\nPrevious token: %s\nLast token: %s", inputFile, lastRange, range);
 
-    String value = image;
-
     int line = range.start().line();
     if (line != startLine) {
       addNewTokensLine(result, startIndex, currentIndex, startLine, sb);
@@ -88,14 +89,24 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
       startLine = line;
     }
     currentIndex++;
-    sb.append(value);
+    sb.append(image);
     lastRange = range;
 
     return this;
   }
 
   private boolean isExcludedForDuplication() {
-    return ((DefaultInputFile) inputFile).isExcludedForDuplication();
+    if (inputFile.isExcludedForDuplication()) {
+      return true;
+    }
+    if (inputFile.type() == InputFile.Type.TEST) {
+      if (!loggedTestCpdWarning) {
+        LOG.warn("Duplication reported for '{}' will be ignored because it's a test file.", inputFile);
+        loggedTestCpdWarning = true;
+      }
+      return true;
+    }
+    return false;
   }
 
   public List<TokensLine> getTokenLines() {

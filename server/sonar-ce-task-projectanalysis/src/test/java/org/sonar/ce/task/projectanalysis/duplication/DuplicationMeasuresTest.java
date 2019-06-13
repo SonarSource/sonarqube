@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.duplication;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
@@ -51,10 +52,13 @@ public class DuplicationMeasuresTest {
   private static final int FILE_2_REF = 12342;
   private static final int FILE_3_REF = 1261;
   private static final int FILE_4_REF = 1262;
+  private static final int FILE_5_REF = 1263;
+
   private static final FileAttributes FILE_1_ATTRS = mock(FileAttributes.class);
   private static final FileAttributes FILE_2_ATTRS = mock(FileAttributes.class);
   private static final FileAttributes FILE_3_ATTRS = mock(FileAttributes.class);
   private static final FileAttributes FILE_4_ATTRS = mock(FileAttributes.class);
+  private static final FileAttributes FILE_5_ATTRS = mock(FileAttributes.class);
 
   private static final String SOME_FILE_KEY = "some file key";
 
@@ -69,7 +73,8 @@ public class DuplicationMeasuresTest {
               builder(FILE, FILE_2_REF).setFileAttributes(FILE_2_ATTRS).build())
             .build(),
           builder(FILE, FILE_3_REF).setFileAttributes(FILE_3_ATTRS).build(),
-          builder(FILE, FILE_4_REF).setFileAttributes(FILE_4_ATTRS).build())
+          builder(FILE, FILE_4_REF).setFileAttributes(FILE_4_ATTRS).build(),
+          builder(FILE, FILE_5_REF).setFileAttributes(FILE_5_ATTRS).build())
         .build());
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
@@ -84,6 +89,11 @@ public class DuplicationMeasuresTest {
 
   private DuplicationMeasures underTest = new DuplicationMeasures(treeRootHolder, metricRepository, measureRepository, duplicationRepository);
 
+  @Before
+  public void before() {
+    when(FILE_5_ATTRS.isUnitTest()).thenReturn(true);
+  }
+
   @Test
   public void compute_duplicated_blocks_one_for_original_one_for_each_InnerDuplicate() {
     TextBlock original = new TextBlock(1, 1);
@@ -92,6 +102,18 @@ public class DuplicationMeasuresTest {
     underTest.execute();
 
     assertRawMeasureValue(FILE_1_REF, DUPLICATED_BLOCKS_KEY, 4);
+  }
+
+  @Test
+  public void dont_compute_duplicated_blocks_for_test_files() {
+    duplicationRepository.addDuplication(FILE_5_REF, new TextBlock(1, 1), new TextBlock(3, 3));
+    duplicationRepository.addDuplication(FILE_5_REF, new TextBlock(2, 2), new TextBlock(3, 3));
+
+    underTest.execute();
+
+    assertRawMeasureValue(FILE_5_REF, DUPLICATED_BLOCKS_KEY, 0);
+    assertRawMeasureValue(FILE_5_REF, DUPLICATED_FILES_KEY, 0);
+
   }
 
   @Test
@@ -250,6 +272,9 @@ public class DuplicationMeasuresTest {
     when(FILE_1_ATTRS.getLines()).thenReturn(10);
     when(FILE_2_ATTRS.getLines()).thenReturn(40);
 
+    // this should have no effect as it's a test file
+    when(FILE_5_ATTRS.getLines()).thenReturn(1_000_000);
+
     underTest.execute();
 
     assertRawMeasureValue(FILE_1_REF, DUPLICATED_LINES_DENSITY_KEY, 20d);
@@ -276,7 +301,7 @@ public class DuplicationMeasuresTest {
   }
 
   @Test
-  public void not_compute_duplicated_lines_density_when_lines_is_zero() {
+  public void dont_compute_duplicated_lines_density_when_lines_is_zero() {
     when(FILE_1_ATTRS.getLines()).thenReturn(0);
     when(FILE_2_ATTRS.getLines()).thenReturn(0);
     underTest.execute();

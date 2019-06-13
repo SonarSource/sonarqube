@@ -20,6 +20,7 @@
 package org.sonar.api.batch.sensor.cpd.internal;
 
 import org.junit.Test;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -32,6 +33,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class DefaultCpdTokensTest {
+  private final SensorStorage sensorStorage = mock(SensorStorage.class);
 
   private final DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.java")
     .setLines(2)
@@ -42,7 +44,6 @@ public class DefaultCpdTokensTest {
 
   @Test
   public void save_no_tokens() {
-    SensorStorage sensorStorage = mock(SensorStorage.class);
     DefaultCpdTokens tokens = new DefaultCpdTokens(sensorStorage)
       .onFile(inputFile);
 
@@ -55,7 +56,6 @@ public class DefaultCpdTokensTest {
 
   @Test
   public void save_one_token() {
-    SensorStorage sensorStorage = mock(SensorStorage.class);
     DefaultCpdTokens tokens = new DefaultCpdTokens(sensorStorage)
       .onFile(inputFile)
       .addToken(inputFile.newRange(1, 2, 1, 5), "foo");
@@ -69,7 +69,6 @@ public class DefaultCpdTokensTest {
 
   @Test
   public void handle_exclusions() {
-    SensorStorage sensorStorage = mock(SensorStorage.class);
     inputFile.setExcludedForDuplication(true);
     DefaultCpdTokens tokens = new DefaultCpdTokens(sensorStorage)
       .onFile(inputFile)
@@ -83,8 +82,26 @@ public class DefaultCpdTokensTest {
   }
 
   @Test
+  public void dont_save_for_test_files() {
+    DefaultInputFile testInputFile = new TestInputFileBuilder("foo", "src/Foo.java")
+      .setLines(2)
+      .setOriginalLineStartOffsets(new int[] {0, 50})
+      .setOriginalLineEndOffsets(new int[] {49, 100})
+      .setLastValidOffset(101)
+      .setType(InputFile.Type.TEST)
+      .build();
+
+    DefaultCpdTokens tokens = new DefaultCpdTokens(sensorStorage)
+      .onFile(testInputFile)
+      .addToken(testInputFile.newRange(1, 2, 1, 5), "foo");
+
+    tokens.save();
+    verifyZeroInteractions(sensorStorage);
+    assertThat(tokens.getTokenLines()).isEmpty();
+  }
+
+  @Test
   public void save_many_tokens() {
-    SensorStorage sensorStorage = mock(SensorStorage.class);
     DefaultCpdTokens tokens = new DefaultCpdTokens(sensorStorage)
       .onFile(inputFile)
       .addToken(inputFile.newRange(1, 2, 1, 5), "foo")
