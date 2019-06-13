@@ -80,7 +80,8 @@
   margin: -1em 0 2em;
 }
 
-.documentation-content.markdown li > p {
+.documentation-content.markdown li > p,
+.documentation-content.markdown li > p + pre {
   margin: 0;
 }
 
