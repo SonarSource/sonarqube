@@ -26,6 +26,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
+import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
@@ -81,6 +83,8 @@ public class IndexCreator implements Startable {
       metadataIndexDefinition.define(context);
       NewIndex index = context.getIndices().values().iterator().next();
       createIndex(index.build(), false);
+    } else {
+      ensureWritable(metadataMainType);
     }
 
     checkDbCompatibility(definitions.getIndices().values());
@@ -94,8 +98,34 @@ public class IndexCreator implements Startable {
           createIndex(index, true);
         } else if (hasDefinitionChange(index)) {
           updateIndex(index);
+        } else {
+          ensureWritable(index.getMainType());
         }
       });
+  }
+
+  private void ensureWritable(IndexType.IndexMainType mainType) {
+    if (isReadOnly(mainType)) {
+      removeReadOnly(mainType);
+    }
+  }
+
+  private boolean isReadOnly(IndexType.IndexMainType mainType) {
+    String indexName = mainType.getIndex().getName();
+    String readOnly = client.nativeClient().admin().indices().getSettings(new GetSettingsRequest().indices(indexName)).actionGet()
+      .getSetting(indexName, "index.blocks.read_only_allow_delete");
+    return readOnly != null && "true".equalsIgnoreCase(readOnly);
+  }
+
+  private void removeReadOnly(IndexType.IndexMainType mainType) {
+    LOGGER.info("Index [{}] is read-only. Making it writable...", mainType.getIndex().getName());
+
+    String indexName = mainType.getIndex().getName();
+    Settings.Builder builder = Settings.builder();
+    builder.putNull("index.blocks.read_only_allow_delete");
+    client.nativeClient().admin().indices()
+      .updateSettings(new UpdateSettingsRequest().indices(indexName).settings(builder.build()))
+      .actionGet();
   }
 
   @Override

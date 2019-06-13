@@ -24,9 +24,12 @@ import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
+import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.elasticsearch.common.settings.Settings;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -174,6 +177,49 @@ public class IndexCreatorTest {
       .contains("Create type metadatas/metadata");
   }
 
+  @Test
+  public void start_makes_metadata_index_read_write_if_read_only() {
+    run(new FakeIndexDefinition());
+
+    IndexMainType mainType = MetadataIndexDefinition.TYPE_METADATA;
+    makeReadOnly(mainType);
+
+    run(new FakeIndexDefinition());
+
+    assertThat(isNotReadOnly(mainType)).isTrue();
+  }
+
+  @Test
+  public void start_makes_index_read_write_if_read_only() {
+    FakeIndexDefinition fakeIndexDefinition = new FakeIndexDefinition();
+    IndexMainType fakeIndexMainType= FakeIndexDefinition.INDEX_TYPE.getMainType();
+    run(fakeIndexDefinition);
+
+    IndexMainType mainType = MetadataIndexDefinition.TYPE_METADATA;
+    makeReadOnly(mainType);
+    makeReadOnly(fakeIndexMainType);
+
+    run(fakeIndexDefinition);
+
+    assertThat(isNotReadOnly(mainType)).isTrue();
+    assertThat(isNotReadOnly(fakeIndexMainType)).isTrue();
+  }
+
+  private boolean isNotReadOnly(IndexMainType mainType) {
+    String indexName = mainType.getIndex().getName();
+    String readOnly = es.client().nativeClient().admin().indices().getSettings(new GetSettingsRequest().indices(indexName)).actionGet()
+      .getSetting(indexName, "index.blocks.read_only_allow_delete");
+    return readOnly == null;
+  }
+
+  private void makeReadOnly(IndexMainType mainType) {
+    Settings.Builder builder = Settings.builder();
+    builder.put("index.blocks.read_only_allow_delete", "true");
+    es.client().nativeClient().admin().indices()
+      .updateSettings(new UpdateSettingsRequest().indices(mainType.getIndex().getName()).settings(builder.build()))
+      .actionGet();
+  }
+
   private void enableBlueGreenDeployment() {
     settings.setProperty("sonar.blueGreenEnabled", "true");
   }
@@ -237,7 +283,7 @@ public class IndexCreatorTest {
   }
 
   private static class FakeIndexDefinition implements IndexDefinition {
-    private static final IndexMainType INDEX_TYPE = main(Index.simple("fakes"), "fake");
+    static final IndexMainType INDEX_TYPE = main(Index.simple("fakes"), "fake");
 
     @Override
     public void define(IndexDefinitionContext context) {
