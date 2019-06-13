@@ -30,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.mediumtest.AnalysisResult;
@@ -56,6 +57,7 @@ public class ProjectBuilderMediumTest {
 
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
+    .setEdition(SonarEdition.SONARCLOUD)
     .registerPlugin("xoo", new XooPluginWithBuilder(projectBuilder))
     .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")

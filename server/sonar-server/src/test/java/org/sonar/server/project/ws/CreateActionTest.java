@@ -392,6 +392,9 @@ public class CreateActionTest {
     WebService.Param name = definition.param(PARAM_NAME);
     assertThat(name.isRequired()).isTrue();
     assertThat(name.description()).isEqualTo("Name of the project. If name is longer than 500, it is abbreviated.");
+
+    WebService.Param branch = definition.param(PARAM_BRANCH);
+    assertThat(branch.deprecatedSince()).isNotNull();
   }
 
   private CreateWsResponse call(CreateRequest request) {

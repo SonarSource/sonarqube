@@ -41,12 +41,17 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.Plugin;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.Version;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LogOutput;
@@ -89,6 +94,7 @@ public class ScannerMediumTester extends ExternalResource {
   private final FakeRulesLoader rulesLoader = new FakeRulesLoader();
   private final FakeQualityProfileLoader qualityProfiles = new FakeQualityProfileLoader();
   private final FakeActiveRulesLoader activeRules = new FakeActiveRulesLoader();
+  private final FakeSonarRuntime sonarRuntime = new FakeSonarRuntime();
   private LogOutput logOutput = null;
 
   private static void createWorkingDirs() throws IOException {
@@ -220,7 +226,7 @@ public class ScannerMediumTester extends ExternalResource {
   }
 
   @Override
-  protected void before() throws Throwable {
+  protected void before() {
     try {
       createWorkingDirs();
     } catch (IOException e) {
@@ -287,6 +293,7 @@ public class ScannerMediumTester extends ExternalResource {
           tester.activeRules,
           tester.globalSettingsLoader,
           tester.projectSettingsLoader,
+          tester.sonarRuntime,
           result)
         .setLogOutput(tester.logOutput)
         .build().execute();
@@ -404,6 +411,39 @@ public class ScannerMediumTester extends ExternalResource {
     }
   }
 
+  private static class FakeSonarRuntime implements SonarRuntime {
+
+    private SonarEdition edition;
+
+    FakeSonarRuntime() {
+      this.edition = SonarEdition.COMMUNITY;
+    }
+
+    @Override
+    public Version getApiVersion() {
+      return Version.create(7, 8);
+    }
+
+    @Override
+    public SonarProduct getProduct() {
+      return SonarProduct.SONARQUBE;
+    }
+
+    @Override
+    public SonarQubeSide getSonarQubeSide() {
+      return SonarQubeSide.SCANNER;
+    }
+
+    @Override
+    public SonarEdition getEdition() {
+      return edition;
+    }
+
+    public void setEdition(SonarEdition edition) {
+      this.edition = edition;
+    }
+  }
+
   public ScannerMediumTester setBranchType(BranchType branchType) {
     branchConfiguration.branchType = branchType;
     return this;
@@ -421,6 +461,11 @@ public class ScannerMediumTester extends ExternalResource {
 
   public ScannerMediumTester setLongLivingSonarReferenceBranch(String longLivingSonarReferenceBranch) {
     this.branchConfiguration.longLivingSonarReferenceBranch = longLivingSonarReferenceBranch;
+    return this;
+  }
+
+  public ScannerMediumTester setEdition(SonarEdition edition) {
+    this.sonarRuntime.setEdition(edition);
     return this;
   }
 

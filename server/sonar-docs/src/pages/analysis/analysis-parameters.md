@@ -99,7 +99,6 @@ Key | Description | Default
 | ![](/images/cross.svg) These parameters are listed for completeness, but are deprecated and should not be used in new analyses.
 
 Key | Description
----|----|---
-`sonar.branch` **![](/images/cross.svg)Deprecated since SQ 6.7** | _The Developer Edition provides fuller-featured branch functionality._ Manage SCM branches. Two branches of the same project are considered to be different projects in SonarQube. As a consequence issues found in a project A in a branch B1 are not linked to issues found for this project A in a branch B2. There is no way to automatically resolve issues from B2 when they are resolved in B1 as again A-B1 & A-B2 are considered separated projects. 
+---|----|--- 
 `sonar.links.scm_dev` **![](/images/cross.svg)Deprecated since SQ 7.1** | Developer connection. | `<scm><developerConnection>` for Maven projects
 <!-- /sonarqube -->

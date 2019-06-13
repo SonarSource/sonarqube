@@ -66,6 +66,10 @@ public class ScanProperties {
     return configuration.get(BRANCH_NAME);
   }
 
+  public Optional<String> get(String propertyKey) {
+    return configuration.get(propertyKey);
+  }
+
   public Path metadataFilePath() {
     Optional<String> metadataFilePath = configuration.get(METADATA_FILE_PATH_KEY);
     if (metadataFilePath.isPresent()) {

@@ -34,6 +34,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.MessageException;
@@ -65,6 +66,7 @@ public class FileSystemMediumTest {
 
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
+    .setEdition(SonarEdition.SONARCLOUD)
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addDefaultQProfile("xoo2", "Sonar Way");
@@ -152,7 +154,7 @@ public class FileSystemMediumTest {
   }
 
   @Test
-  public void logBranchNameAndType() throws IOException {
+  public void logBranchNameAndType() {
     builder.put("sonar.branch.name", "my-branch");
     File srcDir = new File(baseDir, "src");
     assertThat(srcDir.mkdir()).isTrue();
@@ -1065,7 +1067,8 @@ public class FileSystemMediumTest {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("File '" + xooFile2.getAbsolutePath() + "' is ignored. It is not located in module basedir '" + new File(baseDir, "moduleA") + "'.");
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains("File '" + xooFile2.getAbsolutePath() + "' is ignored. It is not located in module basedir '" + new File(baseDir, "moduleA") + "'.");
   }
 
   @Test

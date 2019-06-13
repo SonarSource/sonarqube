@@ -93,6 +93,7 @@ public class CreateAction implements ProjectsWsAction {
       .setExampleValue("SonarQube");
 
     action.createParam(PARAM_BRANCH)
+      .setDeprecatedSince("7.8")
       .setDescription("SCM Branch of the project. The key of the project will become key:branch, for instance 'SonarQube:branch-5.0'")
       .setExampleValue("branch-5.0");
 

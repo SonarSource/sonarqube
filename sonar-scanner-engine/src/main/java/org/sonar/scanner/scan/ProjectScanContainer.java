@@ -21,6 +21,8 @@ package org.sonar.scanner.scan;
 
 import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.Nullable;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
@@ -30,6 +32,7 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.config.ScannerProperties;
@@ -321,15 +324,22 @@ public class ProjectScanContainer extends ComponentContainer {
     GlobalAnalysisMode analysisMode = getComponentByType(GlobalAnalysisMode.class);
     InputModuleHierarchy tree = getComponentByType(InputModuleHierarchy.class);
     ScanProperties properties = getComponentByType(ScanProperties.class);
+    SonarRuntime sonarRuntime = getComponentByType(SonarRuntime.class);
     properties.validate();
 
     properties.organizationKey().ifPresent(k -> LOG.info("Organization key: {}", k));
-
-    String branch = tree.root().definition().getBranch();
-    if (branch != null) {
-      LOG.info("Branch key: {}", branch);
-      LOG.warn("The use of \"sonar.branch\" is deprecated and replaced by \"{}\". See {}.",
-        ScannerProperties.BRANCH_NAME, ScannerProperties.BRANCHES_DOC_LINK);
+    if (sonarRuntime.getEdition() == SonarEdition.SONARCLOUD) {
+      String branch = tree.root().definition().getBranch();
+      if (branch != null) {
+        LOG.info("Branch key: {}", branch);
+        LOG.warn("The use of \"sonar.branch\" is deprecated and replaced by \"{}\". See {}.",
+          ScannerProperties.BRANCH_NAME, ScannerProperties.BRANCHES_DOC_LINK);
+      }
+    } else {
+      properties.get("sonar.branch").ifPresent(deprecatedBranch -> {
+        throw MessageException.of("The 'sonar.branch' parameter is no longer supported. You should stop using it. " +
+          "Branch analysis is available in Developer Edition and above. See https://redirect.sonarsource.com/editions/developer.html for more information.");
+      });
     }
 
     BranchConfiguration branchConfig = getComponentByType(BranchConfiguration.class);

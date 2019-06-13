@@ -21,10 +21,6 @@ No, you don't need to be connected to a SCM. But if you use Git or SVN we can be
 ## What if I mark an Issue "Won't Fix" or "False-Positive" in a branch?
 It be replicated as such when merging my short-lived branch into the Master. Each time there is an analysis of a long-lived branch, we look at the issues on the short-lived branches and try to synchronize them with the newly raised issues on the long-lived branch. In case you made some changes on the issues (false-positive, won't fix), these changes will be reported on the long-lived branch.
 
-## Can I still use 'sonar.branch'?  
-`sonar.branch` is deprecated. You can still use it but it will behave the same way it always has: a separate project will be created. We encourage you to smoothly migrate your users to the new parameter `sonar.branch.name`.
-Please note you cannot use `sonar.branch` together with `sonar.branch.name`.
-
 ## Can I manually delete a branch?  
 This can be achieved by going into the Administration menu at Project's level, then Branches.
 
