@@ -61,6 +61,8 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -170,8 +172,8 @@ public class CeWorkerImplTest {
     inOrder.verify(executionListener1).onStart(task);
     inOrder.verify(executionListener2).onStart(task);
     inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED, null, null);
-    inOrder.verify(executionListener1).onEnd(task, CeActivityDto.Status.FAILED, null, null);
-    inOrder.verify(executionListener2).onEnd(task, CeActivityDto.Status.FAILED, null, null);
+    inOrder.verify(executionListener1).onEnd(eq(task), eq(CeActivityDto.Status.FAILED), any(), isNull(), isNull());
+    inOrder.verify(executionListener2).onEnd(eq(task), eq(CeActivityDto.Status.FAILED), any(), isNull(), isNull());
   }
 
   @Test
@@ -200,8 +202,8 @@ public class CeWorkerImplTest {
     inOrder.verify(executionListener2).onStart(task);
     inOrder.verify(taskProcessor).process(task);
     inOrder.verify(queue).remove(task, CeActivityDto.Status.SUCCESS, null, null);
-    inOrder.verify(executionListener1).onEnd(task, CeActivityDto.Status.SUCCESS, null, null);
-    inOrder.verify(executionListener2).onEnd(task, CeActivityDto.Status.SUCCESS, null, null);
+    inOrder.verify(executionListener1).onEnd(eq(task), eq(CeActivityDto.Status.SUCCESS), any(), isNull(), isNull());
+    inOrder.verify(executionListener2).onEnd(eq(task), eq(CeActivityDto.Status.SUCCESS), any(), isNull(), isNull());
   }
 
   @Test
@@ -232,8 +234,8 @@ public class CeWorkerImplTest {
     inOrder.verify(executionListener2).onStart(task);
     inOrder.verify(taskProcessor).process(task);
     inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED, null, error);
-    inOrder.verify(executionListener1).onEnd(task, CeActivityDto.Status.FAILED, null, error);
-    inOrder.verify(executionListener2).onEnd(task, CeActivityDto.Status.FAILED, null, error);
+    inOrder.verify(executionListener1).onEnd(eq(task), eq(CeActivityDto.Status.FAILED), any(), isNull(), eq(error));
+    inOrder.verify(executionListener2).onEnd(eq(task), eq(CeActivityDto.Status.FAILED), any(), isNull(), eq(error));
   }
 
   @Test

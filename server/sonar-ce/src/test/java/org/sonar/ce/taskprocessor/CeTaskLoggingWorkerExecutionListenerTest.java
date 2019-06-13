@@ -19,6 +19,8 @@
  */
 package org.sonar.ce.taskprocessor;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Random;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -48,7 +50,7 @@ public class CeTaskLoggingWorkerExecutionListenerTest {
   public void onEnd_calls_clearForTask() {
     underTest.onEnd(mock(CeTask.class),
       CeActivityDto.Status.values()[new Random().nextInt(CeActivityDto.Status.values().length)],
-      null, null);
+      Duration.of(1, ChronoUnit.SECONDS), null, null);
 
     verify(ceTaskLogging).clearForTask();
     verifyNoMoreInteractions(ceTaskLogging);

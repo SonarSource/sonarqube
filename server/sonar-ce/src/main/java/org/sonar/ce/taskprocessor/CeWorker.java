@@ -19,9 +19,11 @@
  */
 package org.sonar.ce.taskprocessor;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import javax.annotation.Nullable;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
@@ -68,6 +70,7 @@ public interface CeWorker extends Callable<CeWorker.Result> {
    * All classes implementing this interface are guaranted to be called for each event, even if another implementation
    * failed when called.
    */
+  @ComputeEngineSide
   interface ExecutionListener {
     /**
      * Called when starting executing a {@link CeTask} (which means: after it's been picked for processing, but before
@@ -78,6 +81,6 @@ public interface CeWorker extends Callable<CeWorker.Result> {
     /**
      * Called when the processing of the task is finished (which means: after it's been moved to history).
      */
-    void onEnd(CeTask ceTask, CeActivityDto.Status status, @Nullable CeTaskResult taskResult, @Nullable Throwable error);
+    void onEnd(CeTask ceTask, CeActivityDto.Status status, Duration duration, @Nullable CeTaskResult taskResult, @Nullable Throwable error);
   }
 }

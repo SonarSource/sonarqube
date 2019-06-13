@@ -19,6 +19,8 @@
  */
 package org.sonar.ce.notification;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
@@ -96,7 +98,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
 
   @Test
   public void onEnd_has_no_effect_if_status_is_SUCCESS() {
-    fullMockedUnderTest.onEnd(ceTaskMock, CeActivityDto.Status.SUCCESS, ceTaskResultMock, throwableMock);
+    fullMockedUnderTest.onEnd(ceTaskMock, CeActivityDto.Status.SUCCESS, randomDuration(), ceTaskResultMock, throwableMock);
 
     verifyZeroInteractions(ceTaskMock, ceTaskResultMock, throwableMock, notificationService, dbClientMock, serializer, system2);
   }
@@ -105,7 +107,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
   public void onEnd_has_no_effect_if_CeTask_type_is_not_report() {
     when(ceTaskMock.getType()).thenReturn(randomAlphanumeric(12));
 
-    fullMockedUnderTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, throwableMock);
+    fullMockedUnderTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
 
     verifyZeroInteractions(ceTaskResultMock, throwableMock, notificationService, dbClientMock, serializer, system2);
   }
@@ -114,7 +116,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
   public void onEnd_has_no_effect_if_CeTask_has_no_component_uuid() {
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
 
-    fullMockedUnderTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, throwableMock);
+    fullMockedUnderTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
 
     verifyZeroInteractions(ceTaskResultMock, throwableMock, notificationService, dbClientMock, serializer, system2);
   }
@@ -127,7 +129,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.class)))
       .thenReturn(false);
 
-    fullMockedUnderTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, throwableMock);
+    fullMockedUnderTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
 
     verifyZeroInteractions(ceTaskResultMock, throwableMock, dbClientMock, serializer, system2);
   }
@@ -143,7 +145,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     expectedException.expect(RowNotFoundException.class);
     expectedException.expectMessage("Component with uuid '" + componentUuid + "' not found");
 
-    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, throwableMock);
+    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
   }
 
   @Test
@@ -166,7 +168,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
           when(notificationService.hasProjectSubscribersForTypes(component.uuid(), singleton(ReportAnalysisFailureNotification.class)))
             .thenReturn(true);
 
-          underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, throwableMock);
+          underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
 
           fail("An IllegalArgumentException should have been thrown for component " + component);
         } catch (IllegalArgumentException e) {
@@ -190,7 +192,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     expectedException.expect(RowNotFoundException.class);
     expectedException.expectMessage("CeActivity with uuid '" + taskUuid + "' not found");
 
-    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, throwableMock);
+    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
   }
 
   @Test
@@ -201,7 +203,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     ComponentDto project = initMocksToPassConditions(taskUuid, createdAt, executedAt);
     Notification notificationMock = mockSerializer();
 
-    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, throwableMock);
+    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
 
     ArgumentCaptor<ReportAnalysisFailureNotificationBuilder> notificationCaptor = verifyAndCaptureSerializedNotification();
     verify(notificationService).deliver(same(notificationMock));
@@ -225,7 +227,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     String message = randomAlphanumeric(66);
     when(throwableMock.getMessage()).thenReturn(message);
 
-    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, throwableMock);
+    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
 
     ArgumentCaptor<ReportAnalysisFailureNotificationBuilder> notificationCaptor = verifyAndCaptureSerializedNotification();
 
@@ -239,7 +241,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     initMocksToPassConditions(taskUuid, random.nextInt(999_999), (long) random.nextInt(999_999));
     Notification notificationMock = mockSerializer();
 
-    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, null);
+    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, null);
 
     verify(notificationService).deliver(same(notificationMock));
     ArgumentCaptor<ReportAnalysisFailureNotificationBuilder> notificationCaptor = verifyAndCaptureSerializedNotification();
@@ -254,7 +256,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     initMocksToPassConditions(taskUuid, random.nextInt(999_999), (long) random.nextInt(999_999));
     Notification notificationMock = mockSerializer();
 
-    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, null, null);
+    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), null, null);
 
     verify(notificationService).deliver(same(notificationMock));
   }
@@ -265,7 +267,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     initMocksToPassConditions(taskUuid, random.nextInt(999_999), (long) random.nextInt(999_999));
     Notification notificationMock = mockSerializer();
 
-    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, null);
+    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, null);
 
     verify(notificationService).deliver(same(notificationMock));
     verifyZeroInteractions(ceTaskResultMock);
@@ -279,7 +281,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     when(system2.now()).thenReturn(now);
     Notification notificationMock = mockSerializer();
 
-    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, null);
+    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, null);
 
     verify(notificationService).deliver(same(notificationMock));
     ArgumentCaptor<ReportAnalysisFailureNotificationBuilder> notificationCaptor = verifyAndCaptureSerializedNotification();
@@ -309,8 +311,8 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
       .setTaskType(CeTaskTypes.REPORT)
       .setComponentUuid(project.uuid())
       .setCreatedAt(createdAt))
-        .setExecutedAt(executedAt)
-        .setStatus(CeActivityDto.Status.FAILED));
+      .setExecutedAt(executedAt)
+      .setStatus(CeActivityDto.Status.FAILED));
     dbTester.getSession().commit();
   }
 
@@ -318,5 +320,9 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     ArgumentCaptor<ReportAnalysisFailureNotificationBuilder> notificationCaptor = ArgumentCaptor.forClass(ReportAnalysisFailureNotificationBuilder.class);
     verify(serializer).toNotification(notificationCaptor.capture());
     return notificationCaptor;
+  }
+
+  private Duration randomDuration() {
+    return Duration.of(random.nextLong(), ChronoUnit.MILLIS);
   }
 }

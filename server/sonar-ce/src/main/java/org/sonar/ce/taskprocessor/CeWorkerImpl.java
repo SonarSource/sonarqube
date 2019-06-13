@@ -19,6 +19,8 @@
  */
 package org.sonar.ce.taskprocessor;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -61,9 +63,9 @@ public class CeWorkerImpl implements CeWorker {
   private final AtomicReference<RunningState> runningState = new AtomicReference<>();
 
   public CeWorkerImpl(int ordinal, String uuid,
-    InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository,
-    CeWorkerController ceWorkerController,
-    ExecutionListener... listeners) {
+                      InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository,
+                      CeWorkerController ceWorkerController,
+                      ExecutionListener... listeners) {
     this.ordinal = checkOrdinal(ordinal);
     this.uuid = uuid;
     this.queue = queue;
@@ -117,7 +119,7 @@ public class CeWorkerImpl implements CeWorker {
       localRunningState = new RunningState(currentThread);
       if (!runningState.compareAndSet(null, localRunningState)) {
         LOG.warn("Worker {} (UUID=%s) starts executing with new Thread {} while running state isn't null. " +
-          "Forcefully updating Workers's running state to new Thread.",
+            "Forcefully updating Workers's running state to new Thread.",
           getOrdinal(), getUUID(), currentThread);
         runningState.set(localRunningState);
       }
@@ -136,7 +138,7 @@ public class CeWorkerImpl implements CeWorker {
       localRunningState.runningThread.setName(oldName);
       if (!runningState.compareAndSet(localRunningState, null)) {
         LOG.warn("Worker {} (UUID=%s) ending execution in Thread {} while running state has already changed." +
-          " Keeping this new state.",
+            " Keeping this new state.",
           getOrdinal(), getUUID(), localRunningState.runningThread);
       }
     }
@@ -152,7 +154,7 @@ public class CeWorkerImpl implements CeWorker {
     }
 
     try (CeWorkerController.ProcessingRecorderHook processing = ceWorkerController.registerProcessingFor(this);
-      ExecuteTask executeTask = new ExecuteTask(localRunningState, ceTask.get())) {
+         ExecuteTask executeTask = new ExecuteTask(localRunningState, ceTask.get())) {
       executeTask.run();
     } catch (Exception e) {
       LOG.error(format("An error occurred while executing task with uuid '%s'", ceTask.get().getUuid()), e);
@@ -235,7 +237,7 @@ public class CeWorkerImpl implements CeWorker {
     }
 
     private void finalizeTask(CeTask task, Profiler ceProfiler, CeActivityDto.Status status,
-      @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
+                              @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
       try {
         queue.remove(task, status, taskResult, error);
       } catch (Exception e) {
@@ -244,9 +246,10 @@ public class CeWorkerImpl implements CeWorker {
         }
         LOG.error(format("Failed to finalize task with uuid '%s' and persist its state to db", task.getUuid()), e);
       } finally {
-        // finalize
-        stopLogProfiler(ceProfiler, status);
-        callListeners(t -> t.onEnd(task, status, taskResult, error));
+        ceProfiler.addContext("status", status.name());
+        long durationMs = ceProfiler.stopInfo("Executed task");
+        Duration duration = Duration.of(durationMs, ChronoUnit.MILLIS);
+        callListeners(t -> t.onEnd(task, status, duration, taskResult, error));
       }
     }
 
@@ -287,11 +290,6 @@ public class CeWorkerImpl implements CeWorker {
     } else {
       return submitter.getUuid();
     }
-  }
-
-  private static void stopLogProfiler(Profiler profiler, CeActivityDto.Status status) {
-    profiler.addContext("status", status.name());
-    profiler.stopInfo("Executed task");
   }
 
   private static final class RunningState {

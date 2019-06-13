@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.taskprocessor;
 
+import java.time.Duration;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskInterrupter;
@@ -38,7 +39,7 @@ public class CeTaskInterrupterWorkerExecutionListener implements CeWorker.Execut
   }
 
   @Override
-  public void onEnd(CeTask ceTask, CeActivityDto.Status status, @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
+  public void onEnd(CeTask ceTask, CeActivityDto.Status status, Duration duration, @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
     interrupter.onEnd(ceTask);
   }
 }

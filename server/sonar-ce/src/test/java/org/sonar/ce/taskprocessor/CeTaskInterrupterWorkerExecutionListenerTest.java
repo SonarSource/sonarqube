@@ -19,13 +19,14 @@
  */
 package org.sonar.ce.taskprocessor;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Random;
 import org.junit.Test;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskInterrupter;
 import org.sonar.db.ce.CeActivityDto;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -49,7 +50,7 @@ public class CeTaskInterrupterWorkerExecutionListenerTest {
     CeTask ceTask = mock(CeTask.class);
     CeActivityDto.Status randomStatus = CeActivityDto.Status.values()[new Random().nextInt(CeActivityDto.Status.values().length)];
 
-    underTest.onEnd(ceTask, randomStatus, null, null);
+    underTest.onEnd(ceTask, randomStatus, Duration.of(1, ChronoUnit.SECONDS), null, null);
 
     verify(ceTaskInterrupter).onEnd(same(ceTask));
   }
