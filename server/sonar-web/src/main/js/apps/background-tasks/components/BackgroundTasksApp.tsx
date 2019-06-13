@@ -112,7 +112,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
     const query = this.props.location.query.query || DEFAULT_FILTERS.query;
 
     const filters = { status, taskType, currents, minSubmittedAt, maxExecutedAt, query };
-    const parameters /*: Object */ = mapFiltersToParameters(filters);
+    const parameters = mapFiltersToParameters(filters);
 
     if (this.props.component) {
       parameters.componentId = this.props.component.id;

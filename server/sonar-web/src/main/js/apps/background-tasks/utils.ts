@@ -72,7 +72,7 @@ export function mapFiltersToParameters(filters: Partial<Query> = {}) {
   }
 
   if (filters.query) {
-    parameters.componentQuery = filters.query;
+    parameters.q = filters.query;
   }
 
   return parameters;
