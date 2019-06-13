@@ -19,7 +19,7 @@ Symbol|Meaning
 
 Unless otherwise specified, the following properties accept both absolute paths and paths relative to project root.
 
-Langauge|Property|Remarks
+Language|Property|Remarks
 ----|----|----
 Apex|`sonar.apex.pmd.reportPaths`|Comma-delimited list of paths to [PMD Apex](https://pmd.github.io/pmd-5.5.7/pmd-apex/rules/index.html) [XML reports](https://pmd.github.io/latest/pmd_userdocs_installation.html#running-pmd-via-command-line)|
 CSS|`sonar.css.stylelint.reportPaths`|Comma-delimited list of paths to [StyleLint.io](https://stylelint.io/) reports|
