@@ -21,9 +21,10 @@ import * as React from 'react';
 import lunr, { LunrBuilder, LunrIndex, LunrToken } from 'lunr';
 import { sortBy } from 'lodash';
 import { DocNavigationItem } from 'Docs/@types/types';
-import SearchResultEntry, { SearchResult } from './SearchResultEntry';
+import SearchResultEntry from './SearchResultEntry';
 import { getUrlsList } from '../navTreeUtils';
 import { DocumentationEntry } from '../utils';
+import { isDefined } from '../../../helpers/types';
 
 interface Props {
   navigation: DocNavigationItem[];
@@ -62,6 +63,11 @@ export default class SearchResults extends React.PureComponent<Props> {
       )
       .map(match => {
         const page = this.props.pages.find(page => page.relativeName === match.ref);
+
+        if (!page) {
+          return null;
+        }
+
         const highlights: T.Dict<[number, number][]> = {};
         let longestTerm = '';
         let exactMatch = false;
@@ -93,7 +99,7 @@ export default class SearchResults extends React.PureComponent<Props> {
 
         return { exactMatch, highlights, longestTerm, page, query };
       })
-      .filter(result => result.page) as SearchResult[];
+      .filter(isDefined);
 
     // Re-order results by the length of the longest matched term and by exact
     // match (if applicable). The longer the matched term is, the higher the

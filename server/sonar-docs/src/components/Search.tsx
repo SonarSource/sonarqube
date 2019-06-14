@@ -73,6 +73,13 @@ export default class Search extends React.PureComponent<Props, State> {
           return undefined;
         }
 
+        const searchResultPage: SearchResult['page'] = {
+          id: page.id,
+          text: (page.html || '').replace(/<(?:.|\n)*?>/gm, '').replace(/&#x3C;(?:.|\n)*?>/gm, ''),
+          title: getMarkdownRemarkTitle(page) || '',
+          url: getMarkdownRemarkUrl(page) || ''
+        };
+
         const highlights: { [field: string]: [number, number][] } = {};
         let longestTerm = '';
         let exactMatch = false;
@@ -103,14 +110,7 @@ export default class Search extends React.PureComponent<Props, State> {
         });
 
         return {
-          page: {
-            id: page.id,
-            text: (page.html || '')
-              .replace(/<(?:.|\n)*?>/gm, '')
-              .replace(/&#x3C;(?:.|\n)*?>/gm, ''),
-            title: getMarkdownRemarkTitle(page) || '',
-            url: getMarkdownRemarkUrl(page) || ''
-          },
+          page: searchResultPage,
           exactMatch,
           highlights,
           query,
