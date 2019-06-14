@@ -31,7 +31,7 @@ configurations {
 
 ext {
   slangVersion = '1.5.0.315'
-  dotnetVersion = '7.11.0.8083'
+  dotnetVersion = '7.14.0.8411'
 }
 
 dependencies {
@@ -60,14 +60,14 @@ dependencies {
   bundledPlugin "org.sonarsource.dotnet:sonar-csharp-plugin:${dotnetVersion}@jar"
   bundledPlugin "org.sonarsource.dotnet:sonar-vbnet-plugin:${dotnetVersion}@jar"
   bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin:2.4.0.1222@jar'
-  bundledPlugin 'org.sonarsource.go:sonar-go-plugin:1.1.0.1612@jar'
+  bundledPlugin 'org.sonarsource.go:sonar-go-plugin:1.1.1.2000@jar'
   bundledPlugin 'org.sonarsource.html:sonar-html-plugin:3.1.0.1615@jar'
-  bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.11.0.17289@jar'
+  bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.13.0.18197@jar'
   bundledPlugin 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.0.1.143@jar'
-  bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin:5.1.1.7506@jar'
+  bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin:5.2.1.7778@jar'
   bundledPlugin 'org.sonarsource.ldap:sonar-ldap-plugin:2.2.0.608@jar'
-  bundledPlugin 'org.sonarsource.php:sonar-php-plugin:3.0.0.4537@jar'
-  bundledPlugin 'org.sonarsource.python:sonar-python-plugin:1.13.0.2922@jar'
+  bundledPlugin 'org.sonarsource.php:sonar-php-plugin:3.1.1.4762@jar'
+  bundledPlugin 'org.sonarsource.python:sonar-python-plugin:1.14.0.3086@jar'
   bundledPlugin "org.sonarsource.slang:sonar-kotlin-plugin:${slangVersion}@jar"
   bundledPlugin "org.sonarsource.slang:sonar-ruby-plugin:${slangVersion}@jar"
   bundledPlugin 'org.sonarsource.scm.git:sonar-scm-git-plugin:1.8.0.1574@jar'
@@ -208,8 +208,8 @@ zip.doFirst {
 }
 // Check the size of the archive
 zip.doLast {
-  def minLength = 191000000
-  def maxLength = 199000000
+  def minLength = 194000000
+  def maxLength = 202000000
   def length = archiveFile.get().asFile.length()
   if (length < minLength)
     throw new GradleException("$archiveName size ($length) too small. Min is $minLength")
