@@ -16,6 +16,9 @@ Only the following scanner versions are compatible with SonarQube 7.8:
 * SonarQube Scanner Maven 3.3.0.603+
 * SonarQube Scanner Gradle 2.3+
 
+**Analysis fails with old branch parameter**
+`sonar.branch` was deprecated in 6.7. With this version analysis fails when it is used. Where it is still in use, simply remove the `sonar.branch` property and update your `sonar.projectKey` value to `key:branch`.
+
 **Notifications changes**  
 Several changes have been made to notificatons. The notifications algorithm has been replaced with one that offers better performance during background task processing. Issue change notifications spawned by analysis or bulk change now generate only one email per event rather than one email per issue. The ability to subscribe globally to new issues notifications and notifications for issues resolved as False Positive or Won't fix has been dropped, as have all such subscriptions. Issue-related notifications on PRs have also been dropped.
 
