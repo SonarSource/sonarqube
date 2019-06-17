@@ -158,7 +158,11 @@ export class AboutApp extends React.PureComponent<Props, State> {
           </div>
 
           {customText && (
-            <div className="about-page-section" dangerouslySetInnerHTML={{ __html: customText }} />
+            <div
+              className="about-page-section"
+              // Safe: Defined by instance admin
+              dangerouslySetInnerHTML={{ __html: customText }}
+            />
           )}
 
           <AboutLanguages />

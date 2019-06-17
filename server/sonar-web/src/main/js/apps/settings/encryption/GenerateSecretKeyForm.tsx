@@ -76,10 +76,32 @@ export default class GenerateSecretKeyForm extends React.PureComponent<Props, St
               <ClipboardButton className="little-spacer-left" copyValue={secretKey} />
             </div>
             <h3 className="spacer-bottom">{translate('encryption.how_to_use')}</h3>
-            <div
-              className="markdown"
-              dangerouslySetInnerHTML={{ __html: translate('encryption.how_to_use.content') }}
-            />
+            <div className="markdown">
+              <ul>
+                <li>
+                  <FormattedMessage
+                    defaultMessage={translate('encryption.how_to_use.content1')}
+                    id="encryption.how_to_use.content1"
+                    values={{
+                      secret_file: <code>~/.sonar/sonar-secret.txt</code>,
+                      property: <code>sonar.secretKeyPath</code>,
+                      propreties_file: <code>conf/sonar.properties</code>
+                    }}
+                  />
+                </li>
+                <li>{translate('encryption.how_to_use.content2')}</li>
+                <li>
+                  <FormattedMessage
+                    defaultMessage={translate('encryption.how_to_use.content3')}
+                    id="encryption.how_to_use.content3"
+                    values={{
+                      property: <code>sonar.secretKeyPath</code>
+                    }}
+                  />
+                </li>
+                <li>{translate('encryption.how_to_use.content4')}</li>
+              </ul>
+            </div>
           </>
         ) : (
           <form id="generate-secret-key-form" onSubmit={this.handleSubmit}>

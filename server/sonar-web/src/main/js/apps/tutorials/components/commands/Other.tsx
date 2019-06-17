@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import SQScanner from './SQScanner';
 import CodeSnippet from '../../../../components/common/CodeSnippet';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
@@ -51,18 +52,25 @@ export default function Other(props: Props) {
         {translate('onboarding.analysis.sq_scanner.execute')}
       </h4>
       <InstanceMessage message={translate('onboarding.analysis.sq_scanner.execute.text')}>
-        {transformedMessage => (
-          <p
-            className="spacer-bottom markdown"
-            dangerouslySetInnerHTML={{ __html: transformedMessage }}
-          />
-        )}
+        {transformedMessage => <p className="spacer-bottom markdown">{transformedMessage}</p>}
       </InstanceMessage>
       <CodeSnippet isOneLine={props.os === 'win'} snippet={command} />
-      <p
-        className="big-spacer-top markdown"
-        dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.sq_scanner.docs') }}
-      />
+      <p className="big-spacer-top markdown">
+        <FormattedMessage
+          defaultMessage={translate('onboarding.analysis.sq_scanner.docs')}
+          id="onboarding.analysis.sq_scanner.docs"
+          values={{
+            link: (
+              <a
+                href="http://redirect.sonarsource.com/doc/install-configure-scanner.html"
+                rel="noopener noreferrer"
+                target="_blank">
+                {translate('onboarding.analysis.sq_scanner.docs_link')}
+              </a>
+            )
+          }}
+        />
+      </p>
     </div>
   );
 }

@@ -99,6 +99,7 @@ export default class Params extends React.PureComponent<Props> {
                 <td>
                   <div
                     className="markdown"
+                    // Safe: comes from the backend
                     dangerouslySetInnerHTML={{ __html: param.description }}
                   />
                 </td>

@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import * as classNames from 'classnames';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   allowMore: boolean;
@@ -61,15 +62,15 @@ export default class SearchShowMore extends React.PureComponent<Props> {
             href="#"
             onClick={this.handleMoreClick}
             onMouseEnter={this.handleMoreMouseEnter}>
-            <div
-              className="pull-right text-muted-2 menu-footer-note"
-              dangerouslySetInnerHTML={{
-                __html: translateWithParameters(
-                  'search.show_more.hint',
-                  '<span class="shortcut-button shortcut-button-small">Enter</span>'
-                )
-              }}
-            />
+            <div className="pull-right text-muted-2 menu-footer-note">
+              <FormattedMessage
+                defaultMessage={translate('search.show_more.hint')}
+                id={'search.show_more.hint'}
+                values={{
+                  key: <span className="shortcut-button shortcut-button-small">Enter</span>
+                }}
+              />
+            </div>
             <span>{translate('show_more')}</span>
           </a>
         </DeferredSpinner>

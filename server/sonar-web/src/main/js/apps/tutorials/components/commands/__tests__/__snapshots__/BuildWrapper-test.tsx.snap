@@ -9,12 +9,19 @@ exports[`renders correctly 1`] = `
   </h4>
   <p
     className="spacer-bottom markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.build_wrapper.text.win",
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.build_wrapper.text"
+      id="onboarding.analysis.build_wrapper.text"
+      values={
+        Object {
+          "env_var": <code>
+            %PATH%
+          </code>,
+        }
       }
-    }
-  />
+    />
+  </p>
   <p>
     <a
       className="button"
@@ -37,12 +44,19 @@ exports[`renders correctly 2`] = `
   </h4>
   <p
     className="spacer-bottom markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.build_wrapper.text.linux",
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.build_wrapper.text"
+      id="onboarding.analysis.build_wrapper.text"
+      values={
+        Object {
+          "env_var": <code>
+            PATH
+          </code>,
+        }
       }
-    }
-  />
+    />
+  </p>
   <p>
     <a
       className="button"
@@ -65,12 +79,19 @@ exports[`renders correctly 3`] = `
   </h4>
   <p
     className="spacer-bottom markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.build_wrapper.text.mac",
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.build_wrapper.text"
+      id="onboarding.analysis.build_wrapper.text"
+      values={
+        Object {
+          "env_var": <code>
+            PATH
+          </code>,
+        }
       }
-    }
-  />
+    />
+  </p>
   <p>
     <a
       className="button"

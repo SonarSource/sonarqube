@@ -19,12 +19,21 @@ exports[`should render 1`] = `
     >
       <div
         className="pull-right text-muted-2 menu-footer-note"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "search.show_more.hint.<span class=\\"shortcut-button shortcut-button-small\\">Enter</span>",
+      >
+        <FormattedMessage
+          defaultMessage="search.show_more.hint"
+          id="search.show_more.hint"
+          values={
+            Object {
+              "key": <span
+                className="shortcut-button shortcut-button-small"
+              >
+                Enter
+              </span>,
+            }
           }
-        }
-      />
+        />
+      </div>
       <span>
         show_more
       </span>

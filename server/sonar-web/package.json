@@ -5,6 +5,7 @@
   "repository": "SonarSource/sonarqube",
   "license": "LGPL-3.0",
   "dependencies": {
+    "@types/dompurify": "^0.0.32",
     "classnames": "2.2.6",
     "clipboard": "2.0.1",
     "core-js": "3.0.0",
@@ -16,6 +17,7 @@
     "d3-shape": "1.2.2",
     "d3-zoom": "1.7.3",
     "date-fns": "1.29.0",
+    "dompurify": "^1.0.11",
     "formik": "1.2.0",
     "history": "3.3.0",
     "intl-relativeformat": "2.1.0",
@@ -78,6 +80,7 @@
     "@types/react-router": "3.0.20",
     "@types/react-select": "1.2.6",
     "@types/react-virtualized": "9.21.0",
+    "@types/sanitize-html": "1.20.0",
     "@types/valid-url": "1.0.2",
     "@typescript-eslint/parser": "1.5.0",
     "autoprefixer": "9.5.0",

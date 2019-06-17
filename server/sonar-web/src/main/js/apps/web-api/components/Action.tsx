@@ -171,6 +171,7 @@ export default class Action extends React.PureComponent<Props, State> {
         <div className="boxed-group-inner">
           <div
             className="web-api-action-description markdown"
+            // Safe: comes from the backend
             dangerouslySetInnerHTML={{ __html: action.description }}
           />
 

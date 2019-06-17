@@ -112,6 +112,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
       {this.props.ruleDetails.htmlNote !== undefined && (
         <div
           className="rule-desc spacer-bottom markdown"
+          // Safe: defined by rule creator (instance admin?)
           dangerouslySetInnerHTML={{ __html: this.props.ruleDetails.htmlNote }}
         />
       )}
@@ -193,6 +194,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
         {hasDescription ? (
           <div
             className="coding-rules-detail-description rule-desc markdown"
+            // Safe: defined by rule creator (instance admin?)
             dangerouslySetInnerHTML={{ __html: ruleDetails.htmlDesc || '' }}
           />
         ) : (

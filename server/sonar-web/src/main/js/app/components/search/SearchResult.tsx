@@ -137,6 +137,7 @@ export default class SearchResult extends React.PureComponent<Props, State> {
               {component.match ? (
                 <span
                   className="navbar-search-item-match"
+                  // Safe: comes from the backend
                   dangerouslySetInnerHTML={{ __html: component.match }}
                 />
               ) : (

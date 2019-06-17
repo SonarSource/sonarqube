@@ -1,0 +1,83 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="js-rule-parameters"
+>
+  <h3
+    className="coding-rules-detail-title"
+  >
+    coding_rules.parameters
+  </h3>
+  <table
+    className="coding-rules-detail-parameters"
+  >
+    <tbody>
+      <tr
+        className="coding-rules-detail-parameter"
+        key="1"
+      >
+        <td
+          className="coding-rules-detail-parameter-name"
+        >
+          1
+        </td>
+        <td
+          className="coding-rules-detail-parameter-description"
+        >
+          <p
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "description",
+              }
+            }
+          />
+          <div
+            className="note spacer-top"
+          >
+            coding_rules.parameters.default_value
+            <br />
+            <span
+              className="coding-rules-detail-parameter-value"
+            >
+              1
+            </span>
+          </div>
+        </td>
+      </tr>
+      <tr
+        className="coding-rules-detail-parameter"
+        key="1"
+      >
+        <td
+          className="coding-rules-detail-parameter-name"
+        >
+          1
+        </td>
+        <td
+          className="coding-rules-detail-parameter-description"
+        >
+          <p
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "description",
+              }
+            }
+          />
+          <div
+            className="note spacer-top"
+          >
+            coding_rules.parameters.default_value
+            <br />
+            <span
+              className="coding-rules-detail-parameter-value"
+            >
+              1
+            </span>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;

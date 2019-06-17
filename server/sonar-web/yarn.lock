@@ -967,6 +967,23 @@
     "@types/d3-interpolate" "*"
     "@types/d3-selection" "*"
 
+"@types/domhandler@*":
+  version "2.4.1"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/domhandler/-/domhandler-2.4.1.tgz#7b3b347f7762180fbcb1ece1ce3dd0ebbb8c64cf"
+  integrity sha1-ezs0f3diGA+8sezhzj3Q67uMZM8=
+
+"@types/dompurify@^0.0.32":
+  version "0.0.32"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/dompurify/-/dompurify-0.0.32.tgz#ccc4148d7f2e0598006611e82e840806fab4b268"
+  integrity sha1-zMQUjX8uBZgAZhHoLoQIBvq0smg=
+
+"@types/domutils@*":
+  version "1.7.2"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/domutils/-/domutils-1.7.2.tgz#89422e579c165994ad5c09ce90325da596cc105d"
+  integrity sha1-iUIuV5wWWZStXAnOkDJdpZbMEF0=
+  dependencies:
+    "@types/domhandler" "*"
+
 "@types/enzyme@3.9.1":
   version "3.9.1"
   resolved "https://registry.yarnpkg.com/@types/enzyme/-/enzyme-3.9.1.tgz#3a0ce07e30066dbc26cd3474c8e680af2d249e26"
@@ -993,6 +1010,15 @@
   version "3.2.3"
   resolved "https://registry.yarnpkg.com/@types/history/-/history-3.2.3.tgz#2416fee5cac641da2d05a905de5af5cb50162f60"
   integrity sha512-s4SNWd31cmFP52ilv3LKCh344ayIXmfmcfExsegGspgnk/pQh75Yo6v49uzSE1oFMXp+Sz4GVnesL7rgybX9tQ==
+
+"@types/htmlparser2@*":
+  version "3.10.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/htmlparser2/-/htmlparser2-3.10.0.tgz#b94d3b08f813c9eec12990ac6a34d8b17a7aebc9"
+  integrity sha1-uU07CPgTye7BKZCsajTYsXp668k=
+  dependencies:
+    "@types/domhandler" "*"
+    "@types/domutils" "*"
+    "@types/node" "*"
 
 "@types/istanbul-lib-coverage@^1.1.0":
   version "1.1.0"
@@ -1105,6 +1131,13 @@
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
+
+"@types/sanitize-html@1.20.0":
+  version "1.20.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/sanitize-html/-/sanitize-html-1.20.0.tgz#b3beaa9eacab0e0fa5022d5faa727fea8fb9fc5d"
+  integrity sha1-s76qnqyrDg+lAi1fqnJ/6o+5/F0=
+  dependencies:
+    "@types/htmlparser2" "*"
 
 "@types/stack-utils@^1.0.1":
   version "1.0.1"
@@ -3407,6 +3440,11 @@ domhandler@^2.3.0:
   integrity sha512-JiK04h0Ht5u/80fdLMCEmV4zkNh2BcoMFBmZ/91WtYZ8qVXSKjiw7fXMgFPnHcSZgOo3XdinHvmnDUeMf5R4wA==
   dependencies:
     domelementtype "1"
+
+dompurify@^1.0.11:
+  version "1.0.11"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/dompurify/-/dompurify-1.0.11.tgz#fe0f4a40d147f7cebbe31a50a1357539cfc1eb4d"
+  integrity sha1-/g9KQNFH98674xpQoTV1Oc/B600=
 
 domutils@1.5.1:
   version "1.5.1"

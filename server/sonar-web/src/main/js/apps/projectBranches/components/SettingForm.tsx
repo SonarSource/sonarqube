@@ -21,6 +21,7 @@ import * as React from 'react';
 import { setSimpleSettingValue, resetSettingValue } from '../../../api/settings';
 import { Button, SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { sanitizeTranslation } from '../../settings/utils';
 
 interface Props {
   branch?: string;
@@ -96,7 +97,9 @@ export default class SettingForm extends React.PureComponent<Props, State> {
         <div className="modal-body">
           <div
             className="big-spacer-bottom markdown"
-            dangerouslySetInnerHTML={{ __html: translate(`property.${setting.key}.description`) }}
+            dangerouslySetInnerHTML={{
+              __html: sanitizeTranslation(translate(`property.${setting.key}.description`))
+            }}
           />
           <div className="modal-field">
             <input

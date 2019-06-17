@@ -21,7 +21,7 @@ import * as React from 'react';
 import { groupBy, isEqual, sortBy } from 'lodash';
 import DefinitionsList from './DefinitionsList';
 import EmailForm from './EmailForm';
-import { getSubCategoryName, getSubCategoryDescription } from '../utils';
+import { getSubCategoryName, getSubCategoryDescription, sanitizeTranslation } from '../utils';
 
 interface Props {
   category: string;
@@ -74,7 +74,7 @@ export default class SubCategoryDefinitionsList extends React.PureComponent<Prop
             {subCategory.description != null && (
               <div
                 className="settings-sub-category-description markdown"
-                dangerouslySetInnerHTML={{ __html: subCategory.description }}
+                dangerouslySetInnerHTML={{ __html: sanitizeTranslation(subCategory.description) }}
               />
             )}
             <DefinitionsList

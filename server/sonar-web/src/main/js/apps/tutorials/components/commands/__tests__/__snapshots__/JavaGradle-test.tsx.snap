@@ -35,20 +35,28 @@ exports[`renders correctly 1`] = `
   />
   <p
     className="big-spacer-top markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.java.gradle.docs",
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.docs"
+      id="onboarding.analysis.docs"
+      values={
+        Object {
+          "link": <a
+            href="http://redirect.sonarsource.com/doc/gradle.html"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            onboarding.analysis.java.gradle.docs_link
+          </a>,
+        }
       }
-    }
-  />
+    />
+  </p>
   <p
     className="big-spacer-top markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.browse_url_after_analysis",
-      }
-    }
-  />
+  >
+    onboarding.analysis.browse_url_after_analysis
+  </p>
 </div>
 `;
 
@@ -87,20 +95,28 @@ exports[`renders correctly 2`] = `
   />
   <p
     className="big-spacer-top markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.java.gradle.docs",
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.docs"
+      id="onboarding.analysis.docs"
+      values={
+        Object {
+          "link": <a
+            href="http://redirect.sonarsource.com/doc/gradle.html"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            onboarding.analysis.java.gradle.docs_link
+          </a>,
+        }
       }
-    }
-  />
+    />
+  </p>
   <p
     className="big-spacer-top markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.browse_url_after_analysis",
-      }
-    }
-  />
+  >
+    onboarding.analysis.browse_url_after_analysis
+  </p>
 </div>
 `;
 
@@ -139,19 +155,27 @@ exports[`renders with projectKey 1`] = `
   />
   <p
     className="big-spacer-top markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.java.gradle.docs",
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.docs"
+      id="onboarding.analysis.docs"
+      values={
+        Object {
+          "link": <a
+            href="http://redirect.sonarsource.com/doc/gradle.html"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            onboarding.analysis.java.gradle.docs_link
+          </a>,
+        }
       }
-    }
-  />
+    />
+  </p>
   <p
     className="big-spacer-top markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.auto_refresh_after_analysis",
-      }
-    }
-  />
+  >
+    onboarding.analysis.auto_refresh_after_analysis
+  </p>
 </div>
 `;

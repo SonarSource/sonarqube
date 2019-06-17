@@ -89,6 +89,7 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
         </div>
         <div
           className="issue-comment-text markdown"
+          // Safe: Comes from the backend, after markdown transformation to html
           dangerouslySetInnerHTML={{ __html: comment.htmlText }}
         />
         <div className="issue-comment-age">

@@ -24,20 +24,38 @@ exports[`Maintenance Page should render DB_MIGRATION_NEEDED status 1`] = `
       </h1>
       <p
         className="maintenance-text"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "maintenance.sonarqube_is_under_maintenance.1",
+      >
+        <FormattedMessage
+          defaultMessage="maintenance.sonarqube_is_under_maintenance.1"
+          id="maintenance.sonarqube_is_under_maintenance.1"
+          values={
+            Object {
+              "link": <a
+                href="https://redirect.sonarsource.com/doc/plugin-library.html"
+              >
+                maintenance.sonarqube_is_under_maintenance_link.1
+              </a>,
+            }
           }
-        }
-      />
+        />
+      </p>
       <p
         className="maintenance-text"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "maintenance.sonarqube_is_under_maintenance.2",
+      >
+        <FormattedMessage
+          defaultMessage="maintenance.sonarqube_is_under_maintenance.2"
+          id="maintenance.sonarqube_is_under_maintenance.2"
+          values={
+            Object {
+              "link": <a
+                href="https://redirect.sonarsource.com/doc/upgrading.html"
+              >
+                maintenance.sonarqube_is_under_maintenance_link.2
+              </a>,
+            }
           }
-        }
-      />
+        />
+      </p>
     </div>
   </div>
 </Fragment>
@@ -67,20 +85,38 @@ exports[`Maintenance Page should render DB_MIGRATION_RUNNING status 1`] = `
       </h1>
       <p
         className="maintenance-text"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "maintenance.sonarqube_is_under_maintenance.1",
+      >
+        <FormattedMessage
+          defaultMessage="maintenance.sonarqube_is_under_maintenance.1"
+          id="maintenance.sonarqube_is_under_maintenance.1"
+          values={
+            Object {
+              "link": <a
+                href="https://redirect.sonarsource.com/doc/plugin-library.html"
+              >
+                maintenance.sonarqube_is_under_maintenance_link.1
+              </a>,
+            }
           }
-        }
-      />
+        />
+      </p>
       <p
         className="maintenance-text"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "maintenance.sonarqube_is_under_maintenance.2",
+      >
+        <FormattedMessage
+          defaultMessage="maintenance.sonarqube_is_under_maintenance.2"
+          id="maintenance.sonarqube_is_under_maintenance.2"
+          values={
+            Object {
+              "link": <a
+                href="https://redirect.sonarsource.com/doc/upgrading.html"
+              >
+                maintenance.sonarqube_is_under_maintenance_link.2
+              </a>,
+            }
           }
-        }
-      />
+        />
+      </p>
     </div>
   </div>
 </Fragment>

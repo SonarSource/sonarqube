@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import CodeSnippet from '../../../../components/common/CodeSnippet';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
 import { translate } from '../../../../helpers/l10n';
@@ -45,18 +46,27 @@ export default function JavaMaven(props: Props) {
         <InstanceMessage message={translate('onboarding.analysis.java.maven.text')} />
       </p>
       <CodeSnippet snippet={command} />
-      <p
-        className="big-spacer-top markdown"
-        dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.java.maven.docs') }}
-      />
-      <p
-        className="big-spacer-top markdown"
-        dangerouslySetInnerHTML={{
-          __html: props.projectKey
-            ? translate('onboarding.analysis.auto_refresh_after_analysis')
-            : translate('onboarding.analysis.browse_url_after_analysis')
-        }}
-      />
+      <p className="big-spacer-top markdown">
+        <FormattedMessage
+          defaultMessage={translate('onboarding.analysis.docs')}
+          id="onboarding.analysis.docs"
+          values={{
+            link: (
+              <a
+                href="http://redirect.sonarsource.com/doc/install-configure-scanner-maven.html"
+                rel="noopener noreferrer"
+                target="_blank">
+                {translate('onboarding.analysis.java.maven.docs_link')}
+              </a>
+            )
+          }}
+        />
+      </p>
+      <p className="big-spacer-top markdown">
+        {props.projectKey
+          ? translate('onboarding.analysis.auto_refresh_after_analysis')
+          : translate('onboarding.analysis.browse_url_after_analysis')}
+      </p>
     </div>
   );
 }

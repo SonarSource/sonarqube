@@ -9,12 +9,19 @@ exports[`renders correctly 1`] = `
   </h4>
   <p
     className="spacer-bottom markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.msbuild.text",
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.msbuild.text"
+      id="onboarding.analysis.msbuild.text"
+      values={
+        Object {
+          "code": <code>
+            %PATH%
+          </code>,
+        }
       }
-    }
-  />
+    />
+  </p>
   <p>
     <a
       className="button"

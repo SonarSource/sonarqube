@@ -619,6 +619,18 @@ export function mockRuleDetails(overrides: Partial<T.RuleDetails> = {}): T.RuleD
   };
 }
 
+export function mockRuleDetailsParameter(
+  overrides: Partial<T.RuleParameter> = {}
+): T.RuleParameter {
+  return {
+    defaultValue: '1',
+    htmlDesc: 'description',
+    key: '1',
+    type: 'number',
+    ...overrides
+  };
+}
+
 export function mockShortLivingBranch(
   overrides: Partial<T.ShortLivingBranch> = {}
 ): T.ShortLivingBranch {

@@ -119,6 +119,7 @@ export default class IssuesSourceViewer extends React.PureComponent<Props> {
       const component = selectedLocation ? selectedLocation.component : openIssue.component;
       const allMessagesEmpty =
         locations !== undefined && locations.every(location => !location.msg);
+
       const highlightedLocations = locations.filter(location => location.component === component);
 
       // do not load issues when open another file for a location

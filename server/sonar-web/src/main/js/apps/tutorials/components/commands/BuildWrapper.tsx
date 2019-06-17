@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/urls';
 
@@ -38,12 +39,15 @@ export default function BuildWrapper(props: Props) {
       <h4 className="spacer-bottom">
         {translate('onboarding.analysis.build_wrapper.header', props.os)}
       </h4>
-      <p
-        className="spacer-bottom markdown"
-        dangerouslySetInnerHTML={{
-          __html: translate('onboarding.analysis.build_wrapper.text', props.os)
-        }}
-      />
+      <p className="spacer-bottom markdown">
+        <FormattedMessage
+          defaultMessage={translate('onboarding.analysis.build_wrapper.text')}
+          id="onboarding.analysis.build_wrapper.text"
+          values={{
+            env_var: <code>{props.os === 'win' ? '%PATH%' : 'PATH'}</code>
+          }}
+        />
+      </p>
       <p>
         <a
           className="button"

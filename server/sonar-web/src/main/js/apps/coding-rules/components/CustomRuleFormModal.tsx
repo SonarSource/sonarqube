@@ -304,6 +304,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
       )}
       <div
         className="modal-field-description"
+        // Safe: defined by rule creator (instance admin?)
         dangerouslySetInnerHTML={{ __html: param.htmlDesc || '' }}
       />
     </div>

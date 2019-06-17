@@ -9,12 +9,22 @@ exports[`renders correctly 1`] = `
   </h4>
   <p
     className="spacer-bottom markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.sq_scanner.text.win",
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.sq_scanner.text"
+      id="onboarding.analysis.sq_scanner.text"
+      values={
+        Object {
+          "dir": <code>
+            bin
+          </code>,
+          "env_var": <code>
+            %PATH%
+          </code>,
+        }
       }
-    }
-  />
+    />
+  </p>
   <p>
     <a
       className="button"
@@ -37,12 +47,22 @@ exports[`renders correctly 2`] = `
   </h4>
   <p
     className="spacer-bottom markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.sq_scanner.text.linux",
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.sq_scanner.text"
+      id="onboarding.analysis.sq_scanner.text"
+      values={
+        Object {
+          "dir": <code>
+            bin
+          </code>,
+          "env_var": <code>
+            PATH
+          </code>,
+        }
       }
-    }
-  />
+    />
+  </p>
   <p>
     <a
       className="button"
@@ -65,12 +85,22 @@ exports[`renders correctly 3`] = `
   </h4>
   <p
     className="spacer-bottom markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.sq_scanner.text.mac",
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.sq_scanner.text"
+      id="onboarding.analysis.sq_scanner.text"
+      values={
+        Object {
+          "dir": <code>
+            bin
+          </code>,
+          "env_var": <code>
+            PATH
+          </code>,
+        }
       }
-    }
-  />
+    />
+  </p>
   <p>
     <a
       className="button"

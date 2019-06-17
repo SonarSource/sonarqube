@@ -18,17 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import TreeMap from '../TreeMap';
+import TreeMapRect from '../TreeMapRect';
+import { mockEvent } from '../../../helpers/testMocks';
 
-it('should display', () => {
+it('should render correctly', () => {
   const items = [
     { key: '1', size: 10, color: '#777', label: 'SonarQube :: Server' },
     { key: '2', size: 30, color: '#777', label: 'SonarQube :: Web' },
     { key: '3', size: 20, color: '#777', label: 'SonarQube :: Search' }
   ];
-  const chart = shallow(
-    <TreeMap height={100} items={items} onRectangleClick={() => {}} width={100} />
+  const onRectClick = jest.fn();
+  const chart = mount(
+    <TreeMap height={100} items={items} onRectangleClick={onRectClick} width={100} />
   );
-  expect(chart.find('TreeMapRect')).toHaveLength(3);
+  const rects = chart.find(TreeMapRect);
+  expect(rects).toHaveLength(3);
+
+  const event: React.MouseEvent<HTMLAnchorElement> = mockEvent({ stopPropagation: jest.fn() });
+  (rects.first().instance() as TreeMapRect).handleLinkClick(event);
+  expect(event.stopPropagation).toHaveBeenCalled();
+
+  (rects.first().instance() as TreeMapRect).handleRectClick();
+  expect(onRectClick).toHaveBeenCalledWith('2');
 });

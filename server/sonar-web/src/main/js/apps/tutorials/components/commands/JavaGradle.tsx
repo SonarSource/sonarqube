@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import CodeSnippet from '../../../../components/common/CodeSnippet';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
 import { translate } from '../../../../helpers/l10n';
@@ -45,10 +46,16 @@ export default function JavaGradle(props: Props) {
       <h4 className="spacer-bottom">{translate('onboarding.analysis.java.gradle.header')}</h4>
       <InstanceMessage message={translate('onboarding.analysis.java.gradle.text.1')}>
         {transformedMessage => (
-          <p
-            className="spacer-bottom markdown"
-            dangerouslySetInnerHTML={{ __html: transformedMessage }}
-          />
+          <p className="spacer-bottom markdown">
+            <FormattedMessage
+              defaultMessage={transformedMessage}
+              id="onboarding.analysis.java.gradle.text.1"
+              values={{
+                plugin_code: <code>org.sonarqube</code>,
+                filename: <code>build.gradle</code>
+              }}
+            />
+          </p>
         )}
       </InstanceMessage>
       <CodeSnippet snippet={config} />
@@ -56,18 +63,27 @@ export default function JavaGradle(props: Props) {
         {translate('onboarding.analysis.java.gradle.text.2')}
       </p>
       <CodeSnippet snippet={command} />
-      <p
-        className="big-spacer-top markdown"
-        dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.java.gradle.docs') }}
-      />
-      <p
-        className="big-spacer-top markdown"
-        dangerouslySetInnerHTML={{
-          __html: props.projectKey
-            ? translate('onboarding.analysis.auto_refresh_after_analysis')
-            : translate('onboarding.analysis.browse_url_after_analysis')
-        }}
-      />
+      <p className="big-spacer-top markdown">
+        <FormattedMessage
+          defaultMessage={translate('onboarding.analysis.docs')}
+          id="onboarding.analysis.docs"
+          values={{
+            link: (
+              <a
+                href="http://redirect.sonarsource.com/doc/gradle.html"
+                rel="noopener noreferrer"
+                target="_blank">
+                {translate('onboarding.analysis.java.gradle.docs_link')}
+              </a>
+            )
+          }}
+        />
+      </p>
+      <p className="big-spacer-top markdown">
+        {props.projectKey
+          ? translate('onboarding.analysis.auto_refresh_after_analysis')
+          : translate('onboarding.analysis.browse_url_after_analysis')}
+      </p>
     </div>
   );
 }

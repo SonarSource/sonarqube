@@ -30,12 +30,23 @@ exports[`renders correctly 1`] = `
   />
   <p
     className="big-spacer-top markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.sq_scanner.docs",
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.sq_scanner.docs"
+      id="onboarding.analysis.sq_scanner.docs"
+      values={
+        Object {
+          "link": <a
+            href="http://redirect.sonarsource.com/doc/install-configure-scanner.html"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            onboarding.analysis.sq_scanner.docs_link
+          </a>,
+        }
       }
-    }
-  />
+    />
+  </p>
 </div>
 `;
 
@@ -69,12 +80,23 @@ exports[`renders correctly 2`] = `
   />
   <p
     className="big-spacer-top markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.sq_scanner.docs",
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.sq_scanner.docs"
+      id="onboarding.analysis.sq_scanner.docs"
+      values={
+        Object {
+          "link": <a
+            href="http://redirect.sonarsource.com/doc/install-configure-scanner.html"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            onboarding.analysis.sq_scanner.docs_link
+          </a>,
+        }
       }
-    }
-  />
+    />
+  </p>
 </div>
 `;
 
@@ -108,11 +130,22 @@ exports[`renders correctly 3`] = `
   />
   <p
     className="big-spacer-top markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.sq_scanner.docs",
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.sq_scanner.docs"
+      id="onboarding.analysis.sq_scanner.docs"
+      values={
+        Object {
+          "link": <a
+            href="http://redirect.sonarsource.com/doc/install-configure-scanner.html"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            onboarding.analysis.sq_scanner.docs_link
+          </a>,
+        }
       }
-    }
-  />
+    />
+  </p>
 </div>
 `;

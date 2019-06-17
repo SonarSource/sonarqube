@@ -84,10 +84,6 @@ export default class TreeMapRect extends React.PureComponent<Props> {
     const isTextVisible = this.props.width >= 40 && this.props.height >= 45;
     const isIconVisible = this.props.width >= 24 && this.props.height >= 26;
 
-    const label = this.props.prefix
-      ? `${this.props.prefix}<br>${this.props.label.substr(this.props.prefix.length)}`
-      : this.props.label;
-
     return (
       <div
         className="treemap-cell"
@@ -101,9 +97,16 @@ export default class TreeMapRect extends React.PureComponent<Props> {
               {this.props.icon}
             </span>
           )}
-          {isTextVisible && (
-            <span className="treemap-text" dangerouslySetInnerHTML={{ __html: label }} />
-          )}
+          {isTextVisible &&
+            (this.props.prefix ? (
+              <span className="treemap-text">
+                {this.props.prefix}
+                <br />
+                {this.props.label.substr(this.props.prefix.length)}
+              </span>
+            ) : (
+              <span className="treemap-text">{this.props.label}</span>
+            ))}
         </div>
         {this.renderLink()}
       </div>

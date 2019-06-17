@@ -43,12 +43,23 @@ exports[`renders correctly 1`] = `
   />
   <p
     className="big-spacer-top markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.msbuild.docs",
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.docs"
+      id="onboarding.analysis.docs"
+      values={
+        Object {
+          "link": <a
+            href="http://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            onboarding.analysis.msbuild.docs_link
+          </a>,
+        }
       }
-    }
-  />
+    />
+  </p>
 </div>
 `;
 
@@ -97,11 +108,22 @@ exports[`renders correctly 2`] = `
   />
   <p
     className="big-spacer-top markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.msbuild.docs",
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.docs"
+      id="onboarding.analysis.docs"
+      values={
+        Object {
+          "link": <a
+            href="http://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            onboarding.analysis.msbuild.docs_link
+          </a>,
+        }
       }
-    }
-  />
+    />
+  </p>
 </div>
 `;

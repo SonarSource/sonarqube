@@ -104,7 +104,11 @@ export default class Page extends React.PureComponent<Props> {
         </Helmet>
         <HeaderList headers={realHeadingsList} />
         <h1>{pageTitle || mainTitle}</h1>
-        <div className="markdown-content" dangerouslySetInnerHTML={{ __html: htmlPageContent }} />
+        <div
+          className="markdown-content"
+          // Safe: comes from the backend
+          dangerouslySetInnerHTML={{ __html: htmlPageContent }}
+        />
       </>
     );
   }

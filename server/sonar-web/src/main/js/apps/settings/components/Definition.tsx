@@ -26,7 +26,8 @@ import {
   getPropertyName,
   getPropertyDescription,
   getSettingValue,
-  isDefaultOrInherited
+  isDefaultOrInherited,
+  sanitizeTranslation
 } from '../utils';
 import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
 import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
@@ -142,7 +143,7 @@ export class Definition extends React.PureComponent<Props, State> {
           {description && (
             <div
               className="markdown small spacer-top"
-              dangerouslySetInnerHTML={{ __html: description }}
+              dangerouslySetInnerHTML={{ __html: sanitizeTranslation(description) }}
             />
           )}
 

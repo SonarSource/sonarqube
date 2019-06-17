@@ -52,6 +52,7 @@ export default function Domain({ domain, query }: Props) {
       {domain.description && (
         <div
           className="web-api-domain-description markdown"
+          // Safe: comes from the backend
           dangerouslySetInnerHTML={{ __html: domain.description }}
         />
       )}

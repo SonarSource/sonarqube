@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 
 interface Props {
@@ -31,12 +32,16 @@ export default function SQScanner(props: Props) {
       <h4 className="spacer-bottom">
         {translate('onboarding.analysis.sq_scanner.header', props.os)}
       </h4>
-      <p
-        className="spacer-bottom markdown"
-        dangerouslySetInnerHTML={{
-          __html: translate('onboarding.analysis.sq_scanner.text', props.os)
-        }}
-      />
+      <p className="spacer-bottom markdown">
+        <FormattedMessage
+          defaultMessage={translate('onboarding.analysis.sq_scanner.text')}
+          id="onboarding.analysis.sq_scanner.text"
+          values={{
+            dir: <code>bin</code>,
+            env_var: <code>{props.os === 'win' ? '%PATH%' : 'PATH'}</code>
+          }}
+        />
+      </p>
       <p>
         <a
           className="button"

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { sanitize } from 'dompurify';
 import { translate, hasMessage } from '../../helpers/l10n';
 
 export const DEFAULT_CATEGORY = 'general';
@@ -33,6 +34,12 @@ export interface DefaultInputProps {
   onSave?: () => void;
   setting: T.Setting;
   value: any;
+}
+
+export function sanitizeTranslation(html: string) {
+  return sanitize(html, {
+    ALLOWED_TAGS: ['b', 'br', 'code', 'i', 'li', 'p', 'strong', 'ul']
+  });
 }
 
 export function getPropertyName(definition: T.SettingDefinition) {

@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import Helmet from 'react-helmet';
+import { FormattedMessage } from 'react-intl';
+import * as classNames from 'classnames';
 import { getMigrationStatus, getSystemStatus, migrateDatabase } from '../../../api/system';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
@@ -201,18 +202,32 @@ export default class App extends React.PureComponent<Props, State> {
                 </h1>
                 {!isSonarCloud() && (
                   <>
-                    <p
-                      className="maintenance-text"
-                      dangerouslySetInnerHTML={{
-                        __html: translate('maintenance.sonarqube_is_under_maintenance.1')
-                      }}
-                    />
-                    <p
-                      className="maintenance-text"
-                      dangerouslySetInnerHTML={{
-                        __html: translate('maintenance.sonarqube_is_under_maintenance.2')
-                      }}
-                    />
+                    <p className="maintenance-text">
+                      <FormattedMessage
+                        defaultMessage={translate('maintenance.sonarqube_is_under_maintenance.1')}
+                        id="maintenance.sonarqube_is_under_maintenance.1"
+                        values={{
+                          link: (
+                            <a href="https://redirect.sonarsource.com/doc/plugin-library.html">
+                              {translate('maintenance.sonarqube_is_under_maintenance_link.1')}
+                            </a>
+                          )
+                        }}
+                      />
+                    </p>
+                    <p className="maintenance-text">
+                      <FormattedMessage
+                        defaultMessage={translate('maintenance.sonarqube_is_under_maintenance.2')}
+                        id="maintenance.sonarqube_is_under_maintenance.2"
+                        values={{
+                          link: (
+                            <a href="https://redirect.sonarsource.com/doc/upgrading.html">
+                              {translate('maintenance.sonarqube_is_under_maintenance_link.2')}
+                            </a>
+                          )
+                        }}
+                      />
+                    </p>
                   </>
                 )}
               </>

@@ -224,6 +224,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
                   )}
                   <div
                     className="note"
+                    // Safe: defined by rule creator (instance admin?)
                     dangerouslySetInnerHTML={{ __html: param.htmlDesc || '' }}
                   />
                 </div>
