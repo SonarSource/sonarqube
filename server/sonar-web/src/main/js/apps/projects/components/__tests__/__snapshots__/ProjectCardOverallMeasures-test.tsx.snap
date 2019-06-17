@@ -243,7 +243,7 @@ exports[`should render empty 1`] = `
 <div
   className="note"
 >
-  overview.project.empty
+  overview.project.main_branch_empty
 </div>
 `;
 

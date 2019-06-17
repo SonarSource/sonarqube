@@ -40,7 +40,7 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
 
   const { ncloc } = measures;
   if (!ncloc) {
-    return <div className="note">{translate('overview.project.empty')}</div>;
+    return <div className="note">{translate('overview.project.main_branch_empty')}</div>;
   }
 
   return (

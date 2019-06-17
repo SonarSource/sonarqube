@@ -26,7 +26,8 @@ import {
   mockMainBranch,
   mockComponent,
   mockMetric,
-  mockMeasure
+  mockMeasure,
+  mockLongLivingBranch
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
@@ -70,18 +71,75 @@ it('should render correctly', async () => {
   expect(getAllTimeMachineData).toBeCalled();
 });
 
-it('should render correctly if no measures are found', async () => {
+it('should show the correct message if the application is empty or has no lines of code', async () => {
   (getMeasuresAndMeta as jest.Mock).mockResolvedValue({
     component: {
-      measures: [mockMeasure({ metric: 'coverage' })],
+      measures: [mockMeasure({ metric: 'projects' })],
       name: 'foo'
     },
-    metrics: [mockMetric()]
+    metrics: [mockMetric({ key: 'projects' })]
   });
-  const wrapper = shallowRender();
+
+  const wrapper = shallowRender({
+    component: mockComponent({ key: 'foo', name: 'foo', qualifier: 'APP' })
+  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find('h3').text()).toBe('portfolio.app.no_lines_of_code');
+
+  (getMeasuresAndMeta as jest.Mock).mockResolvedValue({
+    component: {
+      measures: [],
+      name: 'bar'
+    },
+    metrics: []
+  });
+  wrapper.setProps({ component: mockComponent({ key: 'bar', name: 'bar', qualifier: 'APP' }) });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find('h3').text()).toBe('portfolio.app.empty');
+});
+
+it('should show the correct message if the project is empty', async () => {
+  (getMeasuresAndMeta as jest.Mock).mockResolvedValue({
+    component: {
+      measures: [],
+      name: 'foo'
+    },
+    metrics: []
+  });
+  const wrapper = shallowRender({ branchLike: mockMainBranch() });
 
   await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('h3').text()).toBe('overview.project.main_branch_empty');
+
+  wrapper.setProps({ branchLike: mockLongLivingBranch({ name: 'branch-foo' }) });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find('h3').text()).toBe('overview.project.branch_X_empty.branch-foo');
+
+  wrapper.setProps({ branchLike: undefined });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find('h3').text()).toBe('overview.project.empty');
+});
+
+it('should show the correct message if the project has no lines of code', async () => {
+  (getMeasuresAndMeta as jest.Mock).mockResolvedValue({
+    component: {
+      measures: [mockMeasure({ metric: 'bugs' })],
+      name: 'foo'
+    },
+    metrics: [mockMetric({ key: 'bugs' })]
+  });
+  const wrapper = shallowRender({ branchLike: mockMainBranch() });
+
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find('h3').text()).toBe('overview.project.main_branch_no_lines_of_code');
+
+  wrapper.setProps({ branchLike: mockLongLivingBranch({ name: 'branch-foo' }) });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find('h3').text()).toBe('overview.project.branch_X_no_lines_of_code.branch-foo');
+
+  wrapper.setProps({ branchLike: undefined });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find('h3').text()).toBe('overview.project.no_lines_of_code');
 });
 
 function getMockHelpers() {
