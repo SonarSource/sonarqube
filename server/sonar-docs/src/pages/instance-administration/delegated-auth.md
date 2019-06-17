@@ -4,10 +4,20 @@ url: /instance-administration/delegated-auth/
 ---
 
 
-SonarQube comes with an onboard user database, as well as the ability to delegate authentication via HTTP Headers, or LDAP.
+SonarQube comes with an onboard user database, as well as the ability to delegate authentication via HTTP Headers, GitHub Authentication, SAML, or LDAP. Each method offers user identity management, group synchronization/mapping and authentication.
+
+## Group Mapping
+When using group mapping, the following caveats apply regardless of which delegated authentication method is used:
+* membership in synchronized groups will override any membership locally configured in SonarQube _at each login_
+* membership in a group is synched only if a group with the same name exists in SonarQube
+* membership in the default group `sonar-users` remains (this is a built-in group) even if the group does not exist in the identity provider
+
+[[warning]]
+|When group mapping is configured, the delegated authentication source becomes the one and only place to manage group membership, and the user's groups are re-fetched with each log in.
+
 
 ## HTTP Header Authentication
-This feature is designed to delegate user authentication to third-party systems (proxies/servers).
+You can delegate user authentication to third-party systems (proxies/servers) using HTTP Header Authentication.
 
 When this feature is activated, SonarQube expects that the authentication is handled prior any query reaching the server. 
 The tool that handles the authentication should:
@@ -22,6 +32,95 @@ The tool that handles the authentication should:
 All the parameters required to activate and configure this feature are available in SonarQube server configuration file (in _$SONARQUBE-HOME/conf/sonar.properties_).
 
 Using Http header authentication is an easy way integrate your SonarQube deployment with an in-house SSO implementation.
+
+## GitHub Authentication
+You can delegate authentication to GitHub Enterprise using a dedicated GitHub OAuth application. Alternately, if you're using the pull request decoration provided as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/) you can harness the [GitHub application needed for PR decoration](/instance-administration/github-application/) to also provide authentication.
+
+### Dedicated GitHub OAuth application
+1. You'll need to first create a GitHub OAuth application. Click [here](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) for general instructions:
+   1. "Homepage URL" is the public URL to your SonarQube server, for example "https://sonarqube.mycompany.com". For security reasons HTTP is not supported. HTTPS must be used. The public URL is configured in SonarQube at **[Administration -> General -> Server base URL](/#sonarqube-admin#/admin/settings)**
+   1. "Authorization callback URL" is <Homepage URL>/oauth2/callback, for example "https://sonarqube.mycompany.com/oauth2/callback"
+1. In SonarQube navigate to **[Administration > Configuration > General Settings > GitHub](/#sonarqube-admin#/admin/settings?category=github)**:
+   1. Set **Enabled** to `true`
+   1. Set the **Client ID** to the value provided by the GitHub developer application
+   1. Set the **Client Secret** to the value provided by the GitHub developer application
+  
+On the login form, the new "Log in with GitHub" button allows users to connect with their GitHub Enterprise accounts. 
+
+### Re-use GitHub PR decoration application
+1. In the GitHub app, in **Permission & events > User permissions**: Add **Read-only** access in **Emails**.
+1. In SonarQube settings, update the **Client ID** and **Client Secret** and use values defined in the GitHub app
+
+If you previously used a dedicated GitHub OAuth application for authentication, it can be removed.
+
+## SAML Authentication  
+You can delegate authentication to a SAML 2.0 Identity Provider using SAML Authentication.
+
+### Limitations
+* SAML requests are not signed. Client signature validation should be disabled in the Identity Provider.
+* SAML encrypted responses are not supported. SAML encryption should be disabled in the Identity Provider.
+
+### Example: Using Keycloak as a SAML Identity Provider
+The following example may be useful if you're using Keycloak as a SAML Identity Provider. If you're not using Keycloak, your settings are likely to be different.
+
+[[collapse]]
+| ## In the Keycloak server, create a new SAML client
+| Create a new client
+|
+| 1. "Client ID" is something like "sonarqube" 
+| 1. "Client Protocol" must be set to "saml"
+| 1. "Client SAML Endpoint" can be left empty
+|
+| Configure the new client
+|
+| 1. in Settings
+|    1. Set"Client Signature Required" to OFF
+|    1. Set "Valid Redirect URIs" to "<Your SonarQube URL>/oauth2/callback/*, E.G https://sonarqube.mycompany.com/oauth2/callback/saml
+| 1. in Client Scopes > Default Client Scopes , remove "role_list" from "Assigned Default Client Scopes" (to prevent the error `com.onelogin.saml2.exception.ValidationError: Found an Attribute element with duplicated Name` during authentication)
+| 1. In Mappers create a mapper for each user attribute (Note that values provided below for Name, SAML Attribute Name, Role Attribute Name are only example values): 
+|    1. Create a mapper for the login: 
+|       * Name: Login
+|       * Mapper Type: User Property
+|       * Property: Username (Note that the login should not contain any special characters other than `.-_@` to meet SonarQube restrictions.)
+|       * SAML Attribute Name: login
+|    1. Create a mapper for the name: 
+|       * Name: Name
+|       * Mapper Type: User Property
+|       * User Attribute: Username (It can also be another attribute you would previously have specified for the users)
+|       * SAML Attribute Name: name
+|    1. (Optional) Create a mapper for the email: 
+|       * Name: Email
+|       * Mapper Type: User Property
+|       * Property: Email
+|       * SAML Attribute Name: email
+|    1. (Optional) Create a mapper for the groups (If you rely on a list of roles defined in "Roles" of the Realm (not in "Roles" of the client)):
+|       * Name: Groups
+|       * Mapper Type: Role list
+|       * Role Attribute Name: groups
+|       * Single Role Attribute: ON
+|    1. If you rely on a list of groups defined in "Groups":
+|       * Name: Groups
+|       * Mapper Type: Group list
+|       * Role Attribute Name: groups
+|       * Single Role Attribute: ON
+|       * Full Group Path: OFF
+|
+| Download the XML configuration file in Installations > Format Option > SAML Metadata IDPSSODescriptor
+
+[[collapse]]
+| ## In SonarQube, Configure SAML authentication
+| Go to **[Administration > Configuration > General Settings > SAML > Authentication](/#sonarqube-admin#/admin/settings?category=saml)**
+| * **Enabled** should be set to true
+| * **Application ID** is the value of the "Client ID" you set in Keycloak (for example "sonarqube")
+| * **Provider ID** is the value of the "EntityDescriptor" > "entityID" attribute in the XML configuration file (for example "http://keycloak:8080/auth/realms/sonarqube" where sonarqube is the name of the realm)
+| * **SAML login url** is the value of "SingleSignOnService" > "Location" attribute in the XML configuration file (for example "http://keycloak:8080/auth/realms/sonarqube/protocol/saml")
+| * **Provider certificate** is the value of "dsig:X509Certificate" node in the XML configuration file
+| * **SAML user login attribute** is the value set in the login mapper in "SAML Attribute Name"
+| * **SAML user name attribute** is the value set in the name mapper in "SAML Attribute Name"
+| * (Optional) **SAML user email attribute** is the value set in the email mapper in "SAML Attribute Name"
+| * (Optional) **SAML group attribute** is the value set in the groups mapper in "Role/Group Attribute Name"
+|
+| In the login form, the new button "Log in with SAML" allows users to connect with their SAML account.
 
 ## LDAP Authentication
 You can configure SonarQube authentication and authorization to an LDAP server (including LDAP Service of Active Directory) by configuring the correct values in _$SONARQUBE-HOME/conf/sonar.properties_.
@@ -83,9 +182,6 @@ Property|Description|Default value|Required|Example for Active Directory
 
 **Group Mapping**
 Only [groups](http://identitycontrol.blogspot.fr/2007/07/static-vs-dynamic-ldap-groups.html) are supported (not [roles](http://identitycontrol.blogspot.fr/2007/07/static-vs-dynamic-ldap-groups.html)). Only [static groups](http://identitycontrol.blogspot.fr/2007/07/static-vs-dynamic-ldap-groups.html) are supported (not [dynamic groups](http://identitycontrol.blogspot.fr/2007/07/static-vs-dynamic-ldap-groups.html)).
-
-[[warning]]
-|When group mapping is configured (i.e the below `ldap.group.*` properties are configured), membership in LDAP server will override any membership locally configured in SonarQube. LDAP server becomes the one and only place to manage group membership (and the info is fetched each time the user logs in).
 
 For the delegation of authorization, [groups must be first defined in SonarQube](/instance-administration/security/). Then, the following properties must be defined to allow SonarQube to automatically synchronize the relationships between users and groups.
 
@@ -158,8 +254,3 @@ Java parameters are documented here: http://docs.oracle.com/javase/jndi/tutorial
 * Troubleshooting NTLM
    * [Enabling NTLM Logging](http://blogs.technet.com/b/askds/archive/2009/10/08/ntlm-blocking-and-you-application-analysis-and-auditing-methodologies-in-windows-7.aspx)
 
-## Authenticating Via Other Systems
-Additionally, several plugins are available to allow delegation to other providers: 
-* Crowd - [SonarQube Crowd Plugin](https://github.com/SonarCommunity/sonar-crowd)
-* GitHub - [GitHub Authentication Plugin](https://redirect.sonarsource.com/plugins/authgithub.html)
-* Bitbucket - [Bitbucket Authentication Plugin](https://github.com/SonarQubeCommunity/sonar-auth-bitbucket)
