@@ -20,10 +20,14 @@
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default function ComponentsEmpty() {
+interface Props {
+  canBePinned?: boolean;
+}
+
+export default function ComponentsEmpty({ canBePinned = true }: Props) {
   return (
     <tr>
-      <td />
+      {canBePinned && <td />}
       <td className="note" colSpan={2}>
         {translate('no_results')}
       </td>

@@ -9,11 +9,7 @@ exports[`should render correctly 1`] = `
   />
   <td
     className="thin nowrap"
-  >
-    <span
-      className="spacer-right"
-    />
-  </td>
+  />
   <td
     className="code-name-cell"
   >

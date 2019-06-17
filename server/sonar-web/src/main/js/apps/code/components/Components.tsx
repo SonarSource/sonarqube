@@ -43,11 +43,14 @@ export class Components extends React.PureComponent<Props> {
     );
     const metrics = metricKeys.map(metric => this.props.metrics[metric]);
     const colSpan = metrics.length + 4;
+    const canBePinned = baseComponent && !['APP', 'VW', 'SVW'].includes(baseComponent.qualifier);
+
     return (
       <table className="data boxed-padding zebra">
         {baseComponent && (
           <ComponentsHeader
             baseComponent={baseComponent}
+            canBePinned={canBePinned}
             metrics={metricKeys}
             rootComponent={rootComponent}
           />
@@ -56,6 +59,7 @@ export class Components extends React.PureComponent<Props> {
           <tbody>
             <Component
               branchLike={branchLike}
+              canBePinned={canBePinned}
               component={baseComponent}
               key={baseComponent.key}
               metrics={metrics}
@@ -72,6 +76,7 @@ export class Components extends React.PureComponent<Props> {
             components.map((component, index, list) => (
               <Component
                 branchLike={branchLike}
+                canBePinned={canBePinned}
                 canBrowse={true}
                 component={component}
                 key={component.key}
@@ -82,7 +87,7 @@ export class Components extends React.PureComponent<Props> {
               />
             ))
           ) : (
-            <ComponentsEmpty />
+            <ComponentsEmpty canBePinned={canBePinned} />
           )}
 
           <tr className="blank">

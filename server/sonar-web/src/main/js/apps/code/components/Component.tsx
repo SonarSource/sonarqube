@@ -27,6 +27,7 @@ import { withScrollTo } from '../../../components/hoc/withScrollTo';
 
 interface Props {
   branchLike?: T.BranchLike;
+  canBePinned?: boolean;
   canBrowse?: boolean;
   component: T.ComponentMeasure;
   metrics: T.Metric[];
@@ -39,6 +40,7 @@ export class Component extends React.PureComponent<Props> {
   render() {
     const {
       branchLike,
+      canBePinned = true,
       canBrowse = false,
       component,
       metrics,
@@ -52,21 +54,23 @@ export class Component extends React.PureComponent<Props> {
     return (
       <tr className={classNames({ selected })}>
         <td className="blank" />
-        <td className="thin nowrap">
-          <span className="spacer-right">
+        {canBePinned && (
+          <td className="thin nowrap">
             {isFile && (
-              <WorkspaceContext.Consumer>
-                {({ openComponent }) => (
-                  <ComponentPin
-                    branchLike={branchLike}
-                    component={component}
-                    openComponent={openComponent}
-                  />
-                )}
-              </WorkspaceContext.Consumer>
+              <span className="spacer-right">
+                <WorkspaceContext.Consumer>
+                  {({ openComponent }) => (
+                    <ComponentPin
+                      branchLike={branchLike}
+                      component={component}
+                      openComponent={openComponent}
+                    />
+                  )}
+                </WorkspaceContext.Consumer>
+              </span>
             )}
-          </span>
-        </td>
+          </td>
+        )}
         <td className="code-name-cell">
           <ComponentName
             branchLike={branchLike}

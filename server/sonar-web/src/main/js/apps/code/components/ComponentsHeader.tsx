@@ -23,6 +23,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   baseComponent?: T.ComponentMeasure;
+  canBePinned?: boolean;
   metrics: string[];
   rootComponent: T.ComponentMeasure;
 }
@@ -34,7 +35,12 @@ const SHORT_NAME_METRICS = [
   'new_duplicated_lines_density'
 ];
 
-export default function ComponentsHeader({ baseComponent, metrics, rootComponent }: Props) {
+export default function ComponentsHeader({
+  baseComponent,
+  canBePinned = true,
+  metrics,
+  rootComponent
+}: Props) {
   const isPortfolio = ['VW', 'SVW'].includes(rootComponent.qualifier);
   let columns: string[] = [];
   if (isPortfolio) {
@@ -54,7 +60,7 @@ export default function ComponentsHeader({ baseComponent, metrics, rootComponent
   return (
     <thead>
       <tr className="code-components-header">
-        <th className="thin nowrap" colSpan={2} />
+        <th className="thin nowrap" colSpan={canBePinned ? 2 : 1} />
         <th />
         {baseComponent &&
           columns.map((column, index) => (

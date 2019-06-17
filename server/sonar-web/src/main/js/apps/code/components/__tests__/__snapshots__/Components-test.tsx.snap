@@ -12,6 +12,7 @@ exports[`renders correctly 1`] = `
         "qualifier": "TRK",
       }
     }
+    canBePinned={true}
     metrics={
       Array [
         "coverage",
@@ -27,6 +28,7 @@ exports[`renders correctly 1`] = `
   />
   <tbody>
     <withScrollTo(Component)
+      canBePinned={true}
       component={
         Object {
           "key": "foo",
@@ -70,6 +72,7 @@ exports[`renders correctly 1`] = `
   </tbody>
   <tbody>
     <withScrollTo(Component)
+      canBePinned={true}
       canBrowse={true}
       component={
         Object {
@@ -161,6 +164,7 @@ exports[`renders correctly for leak 1`] = `
         "qualifier": "TRK",
       }
     }
+    canBePinned={true}
     metrics={Array []}
     rootComponent={
       Object {
@@ -180,6 +184,7 @@ exports[`renders correctly for leak 1`] = `
           "type": "SHORT",
         }
       }
+      canBePinned={true}
       component={
         Object {
           "key": "foo",
@@ -222,6 +227,7 @@ exports[`renders correctly for leak 1`] = `
           "type": "SHORT",
         }
       }
+      canBePinned={true}
       canBrowse={true}
       component={
         Object {
