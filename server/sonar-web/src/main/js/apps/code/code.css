@@ -60,21 +60,15 @@
   box-sizing: border-box;
 }
 
-.code-truncated {
-  display: inline-block;
-  vertical-align: text-top;
-  max-width: 50vw;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .code-name-cell {
   max-width: 0;
 }
 
-.code-name-cell .code-truncated {
-  max-width: 100%;
+@media (max-width: 1200px) {
+  .code-name-cell .badge,
+  .code-name-cell .outline-badge {
+    display: none;
+  }
 }
 
 .code-search {
