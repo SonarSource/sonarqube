@@ -341,7 +341,6 @@ public class RegisterRulesTest {
     assertThat(rule1.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2.getTime());
-    // TODO check remediation function
 
     List<RuleParamDto> params = dbClient.ruleDao().selectRuleParamsByRuleKey(db.getSession(), RULE_KEY1);
     assertThat(params).hasSize(2);
