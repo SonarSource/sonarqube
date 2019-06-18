@@ -134,6 +134,7 @@ exports[`renders 1`] = `
           >
             <rect
               className="bar-chart-bar"
+              fill="#4b9fd5"
               height="10"
               width={50}
               x="0"
@@ -230,6 +231,7 @@ exports[`renders 1`] = `
           >
             <rect
               className="bar-chart-bar"
+              fill="#4b9fd5"
               height="10"
               width={25}
               x="0"
@@ -326,6 +328,7 @@ exports[`renders 1`] = `
           >
             <rect
               className="bar-chart-bar"
+              fill="#4b9fd5"
               height="10"
               width={38}
               x="0"

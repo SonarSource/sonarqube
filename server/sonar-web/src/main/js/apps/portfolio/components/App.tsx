@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 import MeasuresButtonLink from './MeasuresButtonLink';
 import MetricBox from './MetricBox';
 import Report from './Report';
@@ -30,7 +29,6 @@ import Measure from '../../../components/measure/Measure';
 import { getChildren } from '../../../api/components';
 import { getMeasures } from '../../../api/measures';
 import { translate } from '../../../helpers/l10n';
-import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics, Store } from '../../../store/rootReducer';
 import '../styles.css';
@@ -171,8 +169,8 @@ export class App extends React.PureComponent<Props, State> {
         <h1>{translate('portfolio.breakdown')}</h1>
         <div className="portfolio-breakdown">
           <div className="portfolio-breakdown-box">
-            <h2>{translate('portfolio.number_of_projects')}</h2>
-            <div className="portfolio-breakdown-metric">
+            <h2 className="text-muted small">{translate('portfolio.number_of_projects')}</h2>
+            <div className="portfolio-breakdown-metric huge">
               <Measure
                 metricKey="projects"
                 metricType="SHORT_INT"
@@ -186,8 +184,8 @@ export class App extends React.PureComponent<Props, State> {
             </div>
           </div>
           <div className="portfolio-breakdown-box">
-            <h2>{translate('portfolio.number_of_lines')}</h2>
-            <div className="portfolio-breakdown-metric">
+            <h2 className="text-muted small">{translate('portfolio.number_of_lines')}</h2>
+            <div className="portfolio-breakdown-metric huge">
               <Measure
                 metricKey="ncloc"
                 metricType="SHORT_INT"
@@ -196,10 +194,11 @@ export class App extends React.PureComponent<Props, State> {
             </div>
             <div className="portfolio-breakdown-box-link">
               <div>
-                <Link
-                  to={getComponentDrilldownUrl({ componentKey: component.key, metric: 'ncloc' })}>
-                  <span>{translate('portfolio.language_breakdown_link')}</span>
-                </Link>
+                <MeasuresButtonLink
+                  component={component.key}
+                  label={translate('portfolio.language_breakdown_link')}
+                  metric="ncloc"
+                />
               </div>
             </div>
           </div>

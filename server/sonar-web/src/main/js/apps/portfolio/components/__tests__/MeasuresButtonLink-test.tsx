@@ -22,7 +22,10 @@ import { shallow } from 'enzyme';
 import MeasuresButtonLink from '../MeasuresButtonLink';
 
 it('renders', () => {
-  expect(
-    shallow(<MeasuresButtonLink component="foo" metric="security_rating" />)
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ label: 'Foo' })).toMatchSnapshot();
 });
+
+function shallowRender(props = {}) {
+  return shallow(<MeasuresButtonLink component="foo" metric="security_rating" {...props} />);
+}

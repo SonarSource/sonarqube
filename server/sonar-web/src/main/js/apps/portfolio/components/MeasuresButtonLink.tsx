@@ -25,14 +25,15 @@ import { getComponentDrilldownUrl } from '../../../helpers/urls';
 
 interface Props {
   component: string;
+  label?: string;
   metric: string;
 }
 
-export default function MeasuresButtonLink({ component, metric }: Props) {
+export default function MeasuresButtonLink({ component, label, metric }: Props) {
   return (
     <Link to={getComponentDrilldownUrl({ componentKey: component, metric })}>
       <MeasuresIcon className="little-spacer-right" size={14} />
-      <span>{translate('portfolio.measures_link')}</span>
+      <span>{label || translate('portfolio.measures_link')}</span>
     </Link>
   );
 }

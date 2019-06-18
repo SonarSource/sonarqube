@@ -21,6 +21,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { max } from 'lodash';
 import { SubComponent } from '../types';
+import * as theme from '../../../app/theme';
 import Measure from '../../../components/measure/Measure';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -129,7 +130,14 @@ function renderNcloc(measures: T.Dict<string | undefined>, maxLoc: number) {
       </span>
       {maxLoc > 0 && (
         <svg className="spacer-left" height="16" width="50">
-          <rect className="bar-chart-bar" height="10" width={barWidth} x="0" y="3" />
+          <rect
+            className="bar-chart-bar"
+            height="10"
+            fill={theme.blue}
+            width={barWidth}
+            x="0"
+            y="3"
+          />
         </svg>
       )}
     </td>

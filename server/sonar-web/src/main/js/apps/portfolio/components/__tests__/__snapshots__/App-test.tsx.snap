@@ -83,11 +83,13 @@ exports[`renders 1`] = `
     <div
       className="portfolio-breakdown-box"
     >
-      <h2>
+      <h2
+        className="text-muted small"
+      >
         portfolio.number_of_projects
       </h2>
       <div
-        className="portfolio-breakdown-metric"
+        className="portfolio-breakdown-metric huge"
       >
         <Measure
           metricKey="projects"
@@ -109,11 +111,13 @@ exports[`renders 1`] = `
     <div
       className="portfolio-breakdown-box"
     >
-      <h2>
+      <h2
+        className="text-muted small"
+      >
         portfolio.number_of_lines
       </h2>
       <div
-        className="portfolio-breakdown-metric"
+        className="portfolio-breakdown-metric huge"
       >
         <Measure
           metricKey="ncloc"
@@ -125,23 +129,11 @@ exports[`renders 1`] = `
         className="portfolio-breakdown-box-link"
       >
         <div>
-          <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to={
-              Object {
-                "pathname": "/component_measures",
-                "query": Object {
-                  "id": "foo",
-                  "metric": "ncloc",
-                },
-              }
-            }
-          >
-            <span>
-              portfolio.language_breakdown_link
-            </span>
-          </Link>
+          <MeasuresButtonLink
+            component="foo"
+            label="portfolio.language_breakdown_link"
+            metric="ncloc"
+          />
         </div>
       </div>
     </div>

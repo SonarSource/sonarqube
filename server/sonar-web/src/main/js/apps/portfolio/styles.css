@@ -162,48 +162,33 @@
 
 .portfolio-breakdown {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
 }
 
 .portfolio-breakdown-box {
   flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
   background-color: white;
   border: 1px solid var(--barBorderColor);
-  margin: var(--gridSize) var(--gridSize) calc(2 * var(--gridSize));
-  padding: 0 var(--gridSize) 66px;
-  position: relative;
+  margin: var(--gridSize) 0 calc(2 * var(--gridSize));
 }
 
-.portfolio-breakdown-box:first-child {
-  margin-left: 0;
+.portfolio-breakdown-box + .portfolio-breakdown-box {
+  margin-left: calc(2 * var(--gridSize));
 }
 
-.portfolio-breakdown-box:last-child {
-  margin-right: 0;
-}
-
-.portfolio-breakdown-box > h2 {
-  color: var(--secondFontColor);
-  margin: var(--gridSize);
-  font-size: 12px;
-}
-
-.portfolio-breakdown-box > .portfolio-breakdown-metric {
-  font-size: var(--hugeFontSize);
-  margin-left: var(--gridSize);
+.portfolio-breakdown-box h2,
+.portfolio-breakdown-box .portfolio-breakdown-metric {
+  margin: var(--gridSize) calc(2 * var(--gridSize)) 0;
 }
 
 .portfolio-breakdown-box-link {
+  margin-top: calc(2 * var(--gridSize));
   border-top: 1px solid var(--barBorderColor);
   padding: calc(2 * var(--gridSize));
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
 }
 
-.portfolio-sub-components table.data > thead > tr > th {
+.portfolio-sub-components table.data th {
   font-size: var(--baseFontSize);
   text-transform: none;
   vertical-align: middle;
