@@ -26,7 +26,6 @@ import IssueLabel from './IssueLabel';
 import IssueRating from './IssueRating';
 import MeasurementLabel from './MeasurementLabel';
 import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import QualityGateConditions from '../qualityGate/QualityGateConditions';
@@ -119,114 +118,119 @@ export class ReviewApp extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branchLike, component, conditions = [], ignoredConditions, status } = this.props;
+    const { branchLike, component, conditions, ignoredConditions, status } = this.props;
     const { loading, measures } = this.state;
+
+    if (loading || !conditions) {
+      return (
+        <div className="page page-limited">
+          <i className="spinner" />
+        </div>
+      );
+    }
+
     const erroredConditions = conditions.filter(condition => condition.level === 'ERROR');
 
     return (
       <div className="page page-limited">
-        {loading ? (
-          <DeferredSpinner />
-        ) : (
-          <div
-            className={classNames('pr-overview', {
-              'has-conditions': erroredConditions.length > 0
-            })}>
-            {ignoredConditions && (
-              <Alert className="big-spacer-bottom" display="inline" variant="info">
-                <span className="text-middle">
-                  {translate('overview.quality_gate.ignored_conditions')}
-                </span>
-                <HelpTooltip
+        <div
+          className={classNames('pr-overview', {
+            'has-conditions': erroredConditions.length > 0
+          })}>
+          {ignoredConditions && (
+            <Alert className="big-spacer-bottom" display="inline" variant="info">
+              <span className="text-middle">
+                {translate('overview.quality_gate.ignored_conditions')}
+              </span>
+              <HelpTooltip
+                className="spacer-left"
+                overlay={translate('overview.quality_gate.ignored_conditions.tooltip')}
+              />
+            </Alert>
+          )}
+          <div className="display-flex-row">
+            <div className="pr-overview-quality-gate big-spacer-right">
+              <h3 className="spacer-bottom small">
+                {translate('overview.quality_gate')}
+                <DocTooltip
                   className="spacer-left"
-                  overlay={translate('overview.quality_gate.ignored_conditions.tooltip')}
+                  doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/project-homepage-quality-gate.md')}
                 />
-              </Alert>
-            )}
-            <div className="display-flex-row">
-              <div className="pr-overview-quality-gate big-spacer-right">
-                <h3 className="spacer-bottom small">
-                  {translate('overview.quality_gate')}
-                  <DocTooltip
-                    className="spacer-left"
-                    doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/project-homepage-quality-gate.md')}
-                  />
-                </h3>
-                <LargeQualityGateBadge component={component} level={status} />
+              </h3>
+              <LargeQualityGateBadge component={component} level={status} />
+            </div>
+
+            {erroredConditions.length > 0 && (
+              <div className="pr-overview-failed-conditions big-spacer-right">
+                <h3 className="spacer-bottom small">{translate('overview.failed_conditions')}</h3>
+                <QualityGateConditions
+                  branchLike={branchLike}
+                  collapsible={true}
+                  component={component}
+                  conditions={erroredConditions}
+                />
               </div>
+            )}
 
-              {erroredConditions.length > 0 && (
-                <div className="pr-overview-failed-conditions big-spacer-right">
-                  <h3 className="spacer-bottom small">{translate('overview.failed_conditions')}</h3>
-                  <QualityGateConditions
-                    branchLike={branchLike}
-                    collapsible={true}
-                    component={component}
-                    conditions={erroredConditions}
-                  />
-                </div>
-              )}
+            <div className="pr-overview-measurements flex-1">
+              <h3 className="spacer-bottom small">{translate('overview.metrics')}</h3>
 
-              <div className="pr-overview-measurements flex-1">
-                <h3 className="spacer-bottom small">{translate('overview.metrics')}</h3>
-
-                {['BUG', 'VULNERABILITY', 'CODE_SMELL'].map((type: IssueType) => (
-                  <div className="pr-overview-measurements-row display-flex-row" key={type}>
-                    <div className="pr-overview-measurements-value flex-1 small display-flex-center">
-                      <IssueLabel
-                        branchLike={branchLike}
-                        className="overview-domain-measure-value"
-                        component={component}
-                        measures={measures}
-                        type={type}
-                      />
-                    </div>
-                    {type === 'VULNERABILITY' && (
-                      <div className="pr-overview-measurements-value flex-1 small display-flex-center">
-                        <IssueLabel
-                          branchLike={branchLike}
-                          className="huge"
-                          component={component}
-                          docTooltip={import(/* webpackMode: "eager" */ 'Docs/tooltips/metrics/security-hotspots.md')}
-                          measures={measures}
-                          type="SECURITY_HOTSPOT"
-                        />
-                      </div>
-                    )}
-                    <div className="pr-overview-measurements-rating display-flex-center">
-                      <IssueRating
-                        branchLike={branchLike}
-                        component={component}
-                        measures={measures}
-                        type={type}
-                      />
-                    </div>
-                  </div>
-                ))}
-
-                {['COVERAGE', 'DUPLICATION'].map((type: MeasurementType) => (
-                  <div className="pr-overview-measurements-row display-flex-row" key={type}>
-                    <div className="pr-overview-measurements-value flex-1 small display-flex-center">
-                      <MeasurementLabel
-                        branchLike={branchLike}
-                        className="overview-domain-measure-value"
-                        component={component}
-                        measures={measures}
-                        type={type}
-                      />
-                    </div>
-
-                    <AfterMergeEstimate
-                      className="pr-overview-measurements-estimate"
+              {['BUG', 'VULNERABILITY', 'CODE_SMELL'].map((type: IssueType) => (
+                <div className="pr-overview-measurements-row display-flex-row" key={type}>
+                  <div className="pr-overview-measurements-value flex-1 small display-flex-center">
+                    <IssueLabel
+                      branchLike={branchLike}
+                      className="overview-domain-measure-value"
+                      component={component}
                       measures={measures}
                       type={type}
                     />
                   </div>
-                ))}
-              </div>
+                  {type === 'VULNERABILITY' && (
+                    <div className="pr-overview-measurements-value flex-1 small display-flex-center">
+                      <IssueLabel
+                        branchLike={branchLike}
+                        className="huge"
+                        component={component}
+                        docTooltip={import(/* webpackMode: "eager" */ 'Docs/tooltips/metrics/security-hotspots.md')}
+                        measures={measures}
+                        type="SECURITY_HOTSPOT"
+                      />
+                    </div>
+                  )}
+                  <div className="pr-overview-measurements-rating display-flex-center">
+                    <IssueRating
+                      branchLike={branchLike}
+                      component={component}
+                      measures={measures}
+                      type={type}
+                    />
+                  </div>
+                </div>
+              ))}
+
+              {['COVERAGE', 'DUPLICATION'].map((type: MeasurementType) => (
+                <div className="pr-overview-measurements-row display-flex-row" key={type}>
+                  <div className="pr-overview-measurements-value flex-1 small display-flex-center">
+                    <MeasurementLabel
+                      branchLike={branchLike}
+                      className="overview-domain-measure-value"
+                      component={component}
+                      measures={measures}
+                      type={type}
+                    />
+                  </div>
+
+                  <AfterMergeEstimate
+                    className="pr-overview-measurements-estimate"
+                    measures={measures}
+                    type={type}
+                  />
+                </div>
+              ))}
             </div>
           </div>
-        )}
+        </div>
       </div>
     );
   }

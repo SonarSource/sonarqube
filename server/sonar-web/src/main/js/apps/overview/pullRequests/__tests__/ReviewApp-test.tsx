@@ -48,7 +48,10 @@ beforeEach(() => {
 
 it('should render correctly for a passed QG', async () => {
   const fetchBranchStatus = jest.fn();
+
   const wrapper = shallowRender({ fetchBranchStatus, status: 'OK' });
+
+  wrapper.setProps({ conditions: [] });
 
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
@@ -60,7 +63,7 @@ it('should render correctly for a passed QG', async () => {
 });
 
 it('should render correctly if conditions are ignored', async () => {
-  const wrapper = shallowRender({ ignoredConditions: true });
+  const wrapper = shallowRender({ conditions: [], ignoredConditions: true });
   await waitAndUpdate(wrapper);
   expect(wrapper.find('Alert').exists()).toBe(true);
 });
