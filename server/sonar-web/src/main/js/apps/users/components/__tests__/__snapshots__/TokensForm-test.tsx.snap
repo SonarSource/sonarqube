@@ -30,7 +30,7 @@ exports[`should render correctly 1`] = `
     </SubmitButton>
   </form>
   <table
-    className="data zebra big-spacer-top "
+    className="data zebra big-spacer-top"
   >
     <thead>
       <tr>
@@ -106,7 +106,7 @@ exports[`should render correctly 2`] = `
     </SubmitButton>
   </form>
   <table
-    className="data zebra big-spacer-top "
+    className="data zebra big-spacer-top"
   >
     <thead>
       <tr>
@@ -139,6 +139,7 @@ exports[`should render correctly 2`] = `
         timeout={100}
       >
         <TokensFormItem
+          deleteConfirmation="inline"
           key="foo"
           login="luke"
           onRevokeToken={[Function]}
@@ -151,6 +152,7 @@ exports[`should render correctly 2`] = `
           }
         />
         <TokensFormItem
+          deleteConfirmation="inline"
           key="bar"
           login="luke"
           onRevokeToken={[Function]}

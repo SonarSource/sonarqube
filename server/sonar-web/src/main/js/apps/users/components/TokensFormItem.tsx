@@ -18,29 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { Button } from '../../../components/ui/buttons';
+import ConfirmButton from '../../../components/controls/ConfirmButton';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DateFromNowHourPrecision from '../../../components/intl/DateFromNowHourPrecision';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Tooltip from '../../../components/controls/Tooltip';
-import { Button } from '../../../components/ui/buttons';
 import { limitComponentName } from '../../../helpers/path';
 import { revokeToken } from '../../../api/user-tokens';
 import { translate } from '../../../helpers/l10n';
 
+export type TokenDeleteConfirmation = 'inline' | 'modal';
+
 interface Props {
+  deleteConfirmation: TokenDeleteConfirmation;
   login: string;
   onRevokeToken: (token: T.UserToken) => void;
   token: T.UserToken;
 }
 
 interface State {
-  deleting: boolean;
   loading: boolean;
+  showConfirmation: boolean;
 }
 
 export default class TokensFormItem extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { deleting: false, loading: false };
+  state: State = { loading: false, showConfirmation: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -50,25 +55,33 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleRevoke = () => {
-    if (this.state.deleting) {
-      this.setState({ loading: true });
-      revokeToken({ login: this.props.login, name: this.props.token.name }).then(
-        () => this.props.onRevokeToken(this.props.token),
-        () => {
-          if (this.mounted) {
-            this.setState({ loading: false, deleting: false });
-          }
+  handleClick = () => {
+    if (this.state.showConfirmation) {
+      this.handleRevoke().then(() => {
+        if (this.mounted) {
+          this.setState({ showConfirmation: false });
         }
-      );
+      });
     } else {
-      this.setState({ deleting: true });
+      this.setState({ showConfirmation: true });
     }
   };
 
+  handleRevoke = () => {
+    this.setState({ loading: true });
+    return revokeToken({ login: this.props.login, name: this.props.token.name }).then(
+      () => this.props.onRevokeToken(this.props.token),
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
+      }
+    );
+  };
+
   render() {
-    const { token } = this.props;
-    const { loading } = this.state;
+    const { deleteConfirmation, token } = this.props;
+    const { loading, showConfirmation } = this.state;
     return (
       <tr>
         <td>
@@ -86,14 +99,37 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
           <DeferredSpinner loading={loading}>
             <i className="spinner-placeholder" />
           </DeferredSpinner>
-          <Button
-            className="button-red input-small spacer-left"
-            disabled={loading}
-            onClick={this.handleRevoke}>
-            {this.state.deleting
-              ? translate('users.tokens.sure')
-              : translate('users.tokens.revoke')}
-          </Button>
+          {deleteConfirmation === 'modal' ? (
+            <ConfirmButton
+              confirmButtonText={translate('users.tokens.revoke_token')}
+              isDestructive={true}
+              modalBody={
+                <FormattedMessage
+                  defaultMessage={translate('users.tokens.sure_X')}
+                  id="users.tokens.sure_X"
+                  values={{ token: <strong>{token.name}</strong> }}
+                />
+              }
+              modalHeader={translate('users.tokens.revoke_token')}
+              onConfirm={this.handleRevoke}>
+              {({ onClick }) => (
+                <Button
+                  className="spacer-left button-red input-small"
+                  disabled={loading}
+                  onClick={onClick}
+                  title={translate('users.tokens.revoke_token')}>
+                  {translate('users.tokens.revoke')}
+                </Button>
+              )}
+            </ConfirmButton>
+          ) : (
+            <Button
+              className="button-red input-small spacer-left"
+              disabled={loading}
+              onClick={this.handleClick}>
+              {showConfirmation ? translate('users.tokens.sure') : translate('users.tokens.revoke')}
+            </Button>
+          )}
         </td>
       </tr>
     );

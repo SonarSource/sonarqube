@@ -26,6 +26,7 @@ exports[`should render correctly 1`] = `
     className="modal-body modal-container"
   >
     <TokensForm
+      deleteConfirmation="inline"
       login="john.doe"
       updateTokensCount={[MockFunction]}
     />

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import TokensFormItem from './TokensFormItem';
+import TokensFormItem, { TokenDeleteConfirmation } from './TokensFormItem';
 import TokensFormNewToken from './TokensFormNewToken';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { SubmitButton } from '../../../components/ui/buttons';
@@ -26,6 +26,7 @@ import { getTokens, generateToken } from '../../../api/user-tokens';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
+  deleteConfirmation: TokenDeleteConfirmation;
   login: string;
   updateTokensCount?: (login: string, tokensCount: number) => void;
 }
@@ -128,6 +129,7 @@ export default class TokensForm extends React.PureComponent<Props, State> {
     }
     return tokens.map(token => (
       <TokensFormItem
+        deleteConfirmation={this.props.deleteConfirmation}
         key={token.name}
         login={this.props.login}
         onRevokeToken={this.handleRevokeToken}
@@ -171,7 +173,7 @@ export default class TokensForm extends React.PureComponent<Props, State> {
 
         {newToken && <TokensFormNewToken token={newToken} />}
 
-        <table className="data zebra big-spacer-top ">
+        <table className="data zebra big-spacer-top">
           <thead>
             <tr>
               <th>{translate('name')}</th>

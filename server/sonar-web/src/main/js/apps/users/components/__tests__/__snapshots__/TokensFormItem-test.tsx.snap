@@ -48,7 +48,69 @@ exports[`should render correctly 1`] = `
 </tr>
 `;
 
-exports[`should revoke the token 1`] = `
+exports[`should render correctly 2`] = `
+<tr>
+  <td>
+    <Tooltip
+      overlay="foo"
+    >
+      <span>
+        foo
+      </span>
+    </Tooltip>
+  </td>
+  <td
+    className="nowrap"
+  >
+    <DateFromNowHourPrecision
+      date="2019-01-18T15:06:33+0100"
+    />
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <DateFormatter
+      date="2019-01-15T15:06:33+0100"
+      long={true}
+    />
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <DeferredSpinner
+      loading={false}
+      timeout={100}
+    >
+      <i
+        className="spinner-placeholder"
+      />
+    </DeferredSpinner>
+    <ConfirmButton
+      confirmButtonText="users.tokens.revoke_token"
+      isDestructive={true}
+      modalBody={
+        <FormattedMessage
+          defaultMessage="users.tokens.sure_X"
+          id="users.tokens.sure_X"
+          values={
+            Object {
+              "token": <strong>
+                foo
+              </strong>,
+            }
+          }
+        />
+      }
+      modalHeader="users.tokens.revoke_token"
+      onConfirm={[Function]}
+    >
+      <Component />
+    </ConfirmButton>
+  </td>
+</tr>
+`;
+
+exports[`should revoke the token using inline confirmation 1`] = `
 <Button
   className="button-red input-small spacer-left"
   disabled={false}
@@ -58,7 +120,7 @@ exports[`should revoke the token 1`] = `
 </Button>
 `;
 
-exports[`should revoke the token 2`] = `
+exports[`should revoke the token using inline confirmation 2`] = `
 <Button
   className="button-red input-small spacer-left"
   disabled={false}

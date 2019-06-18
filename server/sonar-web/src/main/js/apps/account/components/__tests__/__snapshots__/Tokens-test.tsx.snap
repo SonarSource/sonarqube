@@ -18,6 +18,7 @@ exports[`renders 1`] = `
       />
     </div>
     <TokensForm
+      deleteConfirmation="modal"
       login="user"
     />
   </div>

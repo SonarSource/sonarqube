@@ -43,7 +43,11 @@ export default function TokensFormModal(props: Props) {
         </h2>
       </header>
       <div className="modal-body modal-container">
-        <TokensForm login={props.user.login} updateTokensCount={props.updateTokensCount} />
+        <TokensForm
+          deleteConfirmation="inline"
+          login={props.user.login}
+          updateTokensCount={props.updateTokensCount}
+        />
       </div>
       <footer className="modal-foot">
         <ResetButtonLink onClick={props.onClose}>{translate('Done')}</ResetButtonLink>

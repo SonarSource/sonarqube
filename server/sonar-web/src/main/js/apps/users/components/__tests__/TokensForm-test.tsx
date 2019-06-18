@@ -79,5 +79,7 @@ it('should revoke tokens', async () => {
 });
 
 function shallowRender(props: Partial<TokensForm['props']> = {}) {
-  return shallow<TokensForm>(<TokensForm login="luke" updateTokensCount={jest.fn()} {...props} />);
+  return shallow<TokensForm>(
+    <TokensForm deleteConfirmation="inline" login="luke" updateTokensCount={jest.fn()} {...props} />
+  );
 }

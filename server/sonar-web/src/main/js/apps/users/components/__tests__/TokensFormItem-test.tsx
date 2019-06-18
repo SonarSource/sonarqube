@@ -43,11 +43,12 @@ beforeEach(() => {
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ deleteConfirmation: 'modal' })).toMatchSnapshot();
 });
 
-it('should revoke the token', async () => {
+it('should revoke the token using inline confirmation', async () => {
   const onRevokeToken = jest.fn();
-  const wrapper = shallowRender({ onRevokeToken });
+  const wrapper = shallowRender({ deleteConfirmation: 'inline', onRevokeToken });
   expect(wrapper.find('Button')).toMatchSnapshot();
   click(wrapper.find('Button'));
   expect(wrapper.find('Button')).toMatchSnapshot();
@@ -58,8 +59,23 @@ it('should revoke the token', async () => {
   expect(onRevokeToken).toHaveBeenCalledWith(userToken);
 });
 
+it('should revoke the token using modal confirmation', async () => {
+  const onRevokeToken = jest.fn();
+  const wrapper = shallowRender({ deleteConfirmation: 'modal', onRevokeToken });
+  wrapper.find('ConfirmButton').prop<Function>('onConfirm')();
+  expect(revokeToken).toHaveBeenCalledWith({ login: 'luke', name: 'foo' });
+  await waitAndUpdate(wrapper);
+  expect(onRevokeToken).toHaveBeenCalledWith(userToken);
+});
+
 function shallowRender(props: Partial<TokensFormItem['props']> = {}) {
   return shallow(
-    <TokensFormItem login="luke" onRevokeToken={jest.fn()} token={userToken} {...props} />
+    <TokensFormItem
+      deleteConfirmation="inline"
+      login="luke"
+      onRevokeToken={jest.fn()}
+      token={userToken}
+      {...props}
+    />
   );
 }
