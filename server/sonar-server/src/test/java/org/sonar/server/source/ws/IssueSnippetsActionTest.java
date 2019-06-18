@@ -19,6 +19,7 @@
  */
 package org.sonar.server.source.ws;
 
+import java.net.URL;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,14 +41,15 @@ import org.sonar.db.source.FileSourceTester;
 import org.sonar.server.component.ws.ComponentViewerJsonWriter;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.source.index.FileSourceTesting;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.JsonAssert;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -61,6 +63,8 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class IssueSnippetsActionTest {
+  private static final String SCM_AUTHOR_JSON_FIELD = "scmAuthor";
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
@@ -70,22 +74,22 @@ public class IssueSnippetsActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private FileSourceTester fileSourceTester = new FileSourceTester(db);
+  private OrganizationDto organization;
   private ComponentDto project;
   private WsActionTester actionTester;
 
   @Before
   public void setUp() {
-    OrganizationDto organization = db.organizations().insert();
+    organization = db.organizations().insert();
     project = db.components().insertPrivateProject(organization, "projectUuid");
 
     HtmlSourceDecorator htmlSourceDecorator = mock(HtmlSourceDecorator.class);
-    when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString(), anyString())).then((Answer<String>)
-      invocationOnMock -> "<p>" + invocationOnMock.getArguments()[0] + "</p>");
+    when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString(), anyString()))
+      .then((Answer<String>) invocationOnMock -> "<p>" + invocationOnMock.getArguments()[0] + "</p>");
     LinesJsonWriter linesJsonWriter = new LinesJsonWriter(htmlSourceDecorator);
-    IssueFinder issueFinder = new IssueFinder(dbClient, userSession);
     ComponentViewerJsonWriter componentViewerJsonWriter = new ComponentViewerJsonWriter(dbClient);
     SourceService sourceService = new SourceService(dbClient, htmlSourceDecorator);
-    actionTester = new WsActionTester(new IssueSnippetsAction(sourceService, dbClient, issueFinder, linesJsonWriter, componentViewerJsonWriter));
+    actionTester = new WsActionTester(new IssueSnippetsAction(dbClient, userSession, sourceService, linesJsonWriter, componentViewerJsonWriter));
   }
 
   @Test
@@ -196,7 +200,10 @@ public class IssueSnippetsActionTest {
       newLocation(file1.uuid(), 9, 9), newLocation(file2.uuid(), 1, 5));
 
     TestResponse response = actionTester.newRequest().setParam("issueKey", issueKey1).execute();
-    response.assertJson(getClass(), "issue_snippets_multiple_locations.json");
+    JsonAssert.assertJson(response.getInput())
+      .ignoreFields(SCM_AUTHOR_JSON_FIELD)
+      .isSimilarTo(toUrl("issue_snippets_multiple_locations.json"));
+    assertThat(response.getInput()).doesNotContain(SCM_AUTHOR_JSON_FIELD);
   }
 
   @Test
@@ -213,7 +220,31 @@ public class IssueSnippetsActionTest {
       newLocation(file1.uuid(), 12, 12));
 
     TestResponse response = actionTester.newRequest().setParam("issueKey", issueKey1).execute();
-    response.assertJson(getClass(), "issue_snippets_close_to_each_other.json");
+    JsonAssert.assertJson(response.getInput())
+      .ignoreFields(SCM_AUTHOR_JSON_FIELD)
+      .isSimilarTo(toUrl("issue_snippets_close_to_each_other.json"));
+    assertThat(response.getInput()).doesNotContain(SCM_AUTHOR_JSON_FIELD);
+  }
+
+  @Test
+  public void returns_scmAuthors_if_user_belongs_to_organization_of_project_of_issue() {
+    ComponentDto file1 = insertFile(project, "file1");
+    ComponentDto file2 = insertFile(project, "file2");
+
+    DbFileSources.Data fileSources = FileSourceTesting.newFakeData(10).build();
+    fileSourceTester.insertFileSource(file1, 10, dto -> dto.setSourceData(fileSources));
+    fileSourceTester.insertFileSource(file2, 10, dto -> dto.setSourceData(fileSources));
+
+    userSession.logIn()
+      .addProjectPermission(USER, project, file1, file2)
+      .addMembership(organization);
+
+    String issueKey1 = insertIssue(file1, newLocation(file1.uuid(), 5, 5),
+      newLocation(file1.uuid(), 9, 9), newLocation(file2.uuid(), 1, 5));
+
+    TestResponse response = actionTester.newRequest().setParam("issueKey", issueKey1).execute();
+    JsonAssert.assertJson(response.getInput())
+      .isSimilarTo(toUrl("issue_snippets_multiple_locations.json"));
   }
 
   private DbIssues.Location newLocation(String fileUuid, int startLine, int endLine) {
@@ -241,6 +272,16 @@ public class IssueSnippetsActionTest {
 
     db.commit();
     return issue.getKey();
+  }
+
+  private URL toUrl(String fileName) {
+    Class clazz = getClass();
+    String path = clazz.getSimpleName() + "/" + fileName;
+    URL url = clazz.getResource(path);
+    if (url == null) {
+      throw new IllegalStateException("Cannot find " + path);
+    }
+    return url;
   }
 
 }

@@ -20,7 +20,6 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.io.Resources;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -33,30 +32,35 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.component.ws.ComponentViewerJsonWriter;
-import org.sonar.server.issue.IssueFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
+import org.sonar.server.user.UserSession;
+
+import static java.lang.String.format;
 
 public class IssueSnippetsAction implements SourcesWsAction {
-  private final IssueFinder issueFinder;
-  private final LinesJsonWriter linesJsonWriter;
-  private final ComponentViewerJsonWriter componentViewerJsonWriter;
-  private final SourceService sourceService;
   private final DbClient dbClient;
+  private final UserSession userSession;
+  private final SourceService sourceService;
+  private final ComponentViewerJsonWriter componentViewerJsonWriter;
+  private final LinesJsonWriter linesJsonWriter;
 
-  public IssueSnippetsAction(SourceService sourceService, DbClient dbClient, IssueFinder issueFinder, LinesJsonWriter linesJsonWriter,
-    ComponentViewerJsonWriter componentViewerJsonWriter) {
+  public IssueSnippetsAction(DbClient dbClient, UserSession userSession, SourceService sourceService, LinesJsonWriter linesJsonWriter,
+                             ComponentViewerJsonWriter componentViewerJsonWriter) {
     this.sourceService = sourceService;
     this.dbClient = dbClient;
-    this.issueFinder = issueFinder;
+    this.userSession = userSession;
     this.linesJsonWriter = linesJsonWriter;
     this.componentViewerJsonWriter = componentViewerJsonWriter;
   }
@@ -81,60 +85,61 @@ public class IssueSnippetsAction implements SourcesWsAction {
   public void handle(Request request, Response response) throws Exception {
     String issueKey = request.mandatoryParam("issueKey");
     try (DbSession dbSession = dbClient.openSession(false)) {
-      IssueDto issueDto = issueFinder.getByKey(dbSession, issueKey);
-
-      Map<String, TreeSet<Integer>> linesPerComponent;
-      Map<String, ComponentDto> componentsByUuid;
+      IssueDto issueDto = dbClient.issueDao().selectByKey(dbSession, issueKey)
+        .orElseThrow(() -> new NotFoundException(format("Issue with key '%s' does not exist", issueKey)));
+      ComponentDto project = dbClient.componentDao().selectByUuid(dbSession, issueDto.getProjectUuid())
+        .orElseThrow(() -> new NotFoundException(format("Project with uuid '%s' does not exist", issueDto.getProjectUuid())));
+      userSession.checkComponentPermission(UserRole.USER, project);
 
       DbIssues.Locations locations = issueDto.parseLocations();
-      if (locations != null && issueDto.getComponentUuid() != null) {
-        linesPerComponent = getLinesPerComponent(issueDto.getComponentUuid(), locations);
-        componentsByUuid = dbClient.componentDao().selectByUuids(dbSession, linesPerComponent.keySet())
-          .stream().collect(Collectors.toMap(ComponentDto::uuid, c -> c));
+      String componentUuid = issueDto.getComponentUuid();
+      if (locations == null || componentUuid == null) {
+        response.noContent();
       } else {
-        componentsByUuid = Collections.emptyMap();
-        linesPerComponent = Collections.emptyMap();
-      }
+        Map<String, TreeSet<Integer>> linesPerComponent = getLinesPerComponent(componentUuid, locations);
+        Map<String, ComponentDto> componentsByUuid = dbClient.componentDao().selectByUuids(dbSession, linesPerComponent.keySet())
+          .stream().collect(Collectors.toMap(ComponentDto::uuid, c -> c));
+        try (JsonWriter jsonWriter = response.newJsonWriter()) {
+          jsonWriter.beginObject();
 
-      try (JsonWriter jsonWriter = response.newJsonWriter()) {
-        jsonWriter.beginObject();
-
-        for (Map.Entry<String, TreeSet<Integer>> e : linesPerComponent.entrySet()) {
-          ComponentDto componentDto = componentsByUuid.get(e.getKey());
-          if (componentDto != null) {
-            processComponent(dbSession, jsonWriter, componentDto, e.getKey(), e.getValue());
+          boolean showScmAuthors = userSession.hasMembership(new OrganizationDto().setUuid(project.getOrganizationUuid()));
+          for (Map.Entry<String, TreeSet<Integer>> e : linesPerComponent.entrySet()) {
+            ComponentDto componentDto = componentsByUuid.get(e.getKey());
+            if (componentDto != null) {
+              writeSnippet(dbSession, jsonWriter, componentDto, e.getValue(), showScmAuthors);
+            }
           }
-        }
 
-        jsonWriter.endObject();
+          jsonWriter.endObject();
+        }
       }
     }
   }
 
-  private void processComponent(DbSession dbSession, JsonWriter writer, ComponentDto componentDto, String fileUuid, Set<Integer> lines) {
-    Optional<Iterable<DbFileSources.Line>> lineSourcesOpt = sourceService.getLines(dbSession, fileUuid, lines);
+  private void writeSnippet(DbSession dbSession, JsonWriter writer, ComponentDto fileDto, Set<Integer> lines, boolean showScmAuthors) {
+    Optional<Iterable<DbFileSources.Line>> lineSourcesOpt = sourceService.getLines(dbSession, fileDto.uuid(), lines);
     if (!lineSourcesOpt.isPresent()) {
       return;
     }
 
     Supplier<Optional<Long>> periodDateSupplier = () -> dbClient.snapshotDao()
-      .selectLastAnalysisByComponentUuid(dbSession, componentDto.projectUuid())
+      .selectLastAnalysisByComponentUuid(dbSession, fileDto.projectUuid())
       .map(SnapshotDto::getPeriodDate);
 
     Iterable<DbFileSources.Line> lineSources = lineSourcesOpt.get();
 
-    writer.name(componentDto.getKey()).beginObject();
+    writer.name(fileDto.getKey()).beginObject();
 
     writer.name("component").beginObject();
-    componentViewerJsonWriter.writeComponentWithoutFav(writer, componentDto, dbSession, false);
-    componentViewerJsonWriter.writeMeasures(writer, componentDto, dbSession);
+    componentViewerJsonWriter.writeComponentWithoutFav(writer, fileDto, dbSession, false);
+    componentViewerJsonWriter.writeMeasures(writer, fileDto, dbSession);
     writer.endObject();
-    linesJsonWriter.writeSource(lineSources, writer, false, periodDateSupplier);
+    linesJsonWriter.writeSource(lineSources, writer, showScmAuthors, periodDateSupplier);
 
     writer.endObject();
   }
 
-  private Map<String, TreeSet<Integer>> getLinesPerComponent(String componentUuid, DbIssues.Locations locations) {
+  private static Map<String, TreeSet<Integer>> getLinesPerComponent(String componentUuid, DbIssues.Locations locations) {
     Map<String, TreeSet<Integer>> linesPerComponent = new HashMap<>();
 
     if (locations.hasTextRange()) {
@@ -155,7 +160,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
   }
 
   private static void addTextRange(Map<String, TreeSet<Integer>> linesPerComponent, String componentUuid,
-    DbCommons.TextRange textRange, int numLinesAfterIssue) {
+                                   DbCommons.TextRange textRange, int numLinesAfterIssue) {
     int start = textRange.getStartLine() - 2;
     int end = textRange.getEndLine() + numLinesAfterIssue;
 
