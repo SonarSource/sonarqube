@@ -13,6 +13,7 @@ target/
 *.iml
 *.ipr
 .idea/
+.attach_pid*
 out/
 
 # ---- VS Code
