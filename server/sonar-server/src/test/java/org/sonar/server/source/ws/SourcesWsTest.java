@@ -19,78 +19,44 @@
  */
 package org.sonar.server.source.ws;
 
+import java.util.Random;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbClient;
-import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.ws.ComponentViewerJsonWriter;
-import org.sonar.server.issue.IssueFinder;
-import org.sonar.server.source.SourceService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
 public class SourcesWsTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  ShowAction showAction = new ShowAction(mock(SourceService.class), mock(DbClient.class), userSessionRule, mock(ComponentFinder.class));
-  RawAction rawAction = new RawAction(mock(DbClient.class), mock(SourceService.class), userSessionRule, mock(ComponentFinder.class));
-  LinesAction linesAction = new LinesAction(mock(ComponentFinder.class), mock(DbClient.class), mock(SourceService.class), mock(LinesJsonWriter.class), userSessionRule);
-  HashAction hashAction = new HashAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class));
-  IssueSnippetsAction issueSnippetsAction = new IssueSnippetsAction(mock(SourceService.class), mock(DbClient.class), mock(IssueFinder.class),
-    mock(LinesJsonWriter.class), mock(ComponentViewerJsonWriter.class));
-  WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, linesAction, hashAction, issueSnippetsAction));
-
   @Test
   public void define_ws() {
-    WebService.Controller controller = tester.controller("api/sources");
+    SourcesWsAction[] actions = IntStream.range(0, 1 + new Random().nextInt(10))
+      .mapToObj(i -> {
+        SourcesWsAction wsAction = mock(SourcesWsAction.class);
+        doAnswer(invocation -> {
+          WebService.NewController controller = invocation.getArgument(0);
+          controller.createAction("action_" + i)
+            .setHandler(wsAction);
+          return null;
+        }).when(wsAction).define(any(WebService.NewController.class));
+        return wsAction;
+      })
+      .toArray(SourcesWsAction[]::new);
+
+    WsTester underTest = new WsTester(new SourcesWs(actions));
+
+    WebService.Controller controller = underTest.controller("api/sources");
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("4.2");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(5);
-
-    WebService.Action show = controller.action("show");
-    assertThat(show).isNotNull();
-    assertThat(show.handler()).isSameAs(showAction);
-    assertThat(show.since()).isEqualTo("4.4");
-    assertThat(show.isInternal()).isFalse();
-    assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(3);
-
-    WebService.Action raw = controller.action("raw");
-    assertThat(raw).isNotNull();
-    assertThat(raw.handler()).isSameAs(rawAction);
-    assertThat(raw.since()).isEqualTo("5.0");
-    assertThat(raw.isInternal()).isFalse();
-    assertThat(raw.responseExampleAsString()).isNotEmpty();
-    assertThat(raw.params()).hasSize(3);
-
-    WebService.Action lines = controller.action("lines");
-    assertThat(lines).isNotNull();
-    assertThat(lines.handler()).isSameAs(linesAction);
-    assertThat(lines.since()).isEqualTo("5.0");
-    assertThat(lines.isInternal()).isTrue();
-    assertThat(lines.responseExampleAsString()).isNotEmpty();
-    assertThat(lines.params()).hasSize(6);
-
-    WebService.Action hash = controller.action("hash");
-    assertThat(hash).isNotNull();
-    assertThat(hash.handler()).isSameAs(hashAction);
-    assertThat(hash.since()).isEqualTo("5.0");
-    assertThat(hash.isInternal()).isTrue();
-    assertThat(hash.responseExampleAsString()).isNotEmpty();
-    assertThat(hash.params()).hasSize(1);
-
-    WebService.Action issueSnippets = controller.action("issue_snippets");
-    assertThat(issueSnippets).isNotNull();
-    assertThat(issueSnippets.handler()).isSameAs(issueSnippetsAction);
-    assertThat(issueSnippets.since()).isEqualTo("7.8");
-    assertThat(issueSnippets.isInternal()).isTrue();
-    assertThat(issueSnippets.responseExampleAsString()).isNotEmpty();
-    assertThat(issueSnippets.params()).hasSize(1);
+    assertThat(controller.actions()).hasSize(actions.length);
   }
 }

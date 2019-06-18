@@ -182,16 +182,7 @@ import org.sonar.server.rule.ws.RuleWsSupport;
 import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.rule.ws.TagsAction;
 import org.sonar.server.setting.ws.SettingsWsModule;
-import org.sonar.server.source.HtmlSourceDecorator;
-import org.sonar.server.source.SourceService;
-import org.sonar.server.source.ws.HashAction;
-import org.sonar.server.source.ws.IndexAction;
-import org.sonar.server.source.ws.IssueSnippetsAction;
-import org.sonar.server.source.ws.LinesAction;
-import org.sonar.server.source.ws.LinesJsonWriter;
-import org.sonar.server.source.ws.RawAction;
-import org.sonar.server.source.ws.ScmAction;
-import org.sonar.server.source.ws.SourcesWs;
+import org.sonar.server.source.ws.SourceWsModule;
 import org.sonar.server.startup.LogServerId;
 import org.sonar.server.telemetry.TelemetryClient;
 import org.sonar.server.telemetry.TelemetryDaemon;
@@ -433,17 +424,7 @@ public class PlatformLevel4 extends PlatformLevel {
       DebtRulesXMLImporter.class,
 
       // source
-      HtmlSourceDecorator.class,
-      LinesJsonWriter.class,
-      SourceService.class,
-      SourcesWs.class,
-      org.sonar.server.source.ws.ShowAction.class,
-      IssueSnippetsAction.class,
-      LinesAction.class,
-      HashAction.class,
-      RawAction.class,
-      IndexAction.class,
-      ScmAction.class,
+      SourceWsModule.class,
 
       // Duplications
       DuplicationsParser.class,
