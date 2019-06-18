@@ -9,7 +9,17 @@ exports[`should render correctly 1`] = `
     className="modal-head"
   >
     <h2>
-      users.tokens
+      <FormattedMessage
+        defaultMessage="users.user_X_tokens"
+        id="users.user_X_tokens"
+        values={
+          Object {
+            "user": <em>
+              John Doe
+            </em>,
+          }
+        }
+      />
     </h2>
   </header>
   <div

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import TokensForm from './TokensForm';
 import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
@@ -30,11 +31,16 @@ interface Props {
 }
 
 export default function TokensFormModal(props: Props) {
-  const header = translate('users.tokens');
   return (
-    <Modal contentLabel={header} onRequestClose={props.onClose}>
+    <Modal contentLabel={translate('users.tokens')} onRequestClose={props.onClose}>
       <header className="modal-head">
-        <h2>{header}</h2>
+        <h2>
+          <FormattedMessage
+            defaultMessage={translate('users.user_X_tokens')}
+            id="users.user_X_tokens"
+            values={{ user: <em>{props.user.name}</em> }}
+          />
+        </h2>
       </header>
       <div className="modal-body modal-container">
         <TokensForm login={props.user.login} updateTokensCount={props.updateTokensCount} />
