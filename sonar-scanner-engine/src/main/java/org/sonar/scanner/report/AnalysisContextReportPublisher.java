@@ -27,7 +27,6 @@ import java.nio.file.Files;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
@@ -36,8 +35,6 @@ import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
@@ -50,8 +47,6 @@ import static java.util.stream.Collectors.toList;
 public class AnalysisContextReportPublisher {
 
   private static final String KEY_VALUE_FORMAT = "  - %s=%s";
-
-  private static final Logger LOG = Loggers.get(AnalysisContextReportPublisher.class);
 
   private static final String ENV_PROP_PREFIX = "env.";
   private static final String SONAR_PROP_PREFIX = "sonar.";
@@ -81,10 +76,6 @@ public class AnalysisContextReportPublisher {
     }
     File analysisLog = writer.getFileStructure().analysisLog();
     try (BufferedWriter fileWriter = Files.newBufferedWriter(analysisLog.toPath(), StandardCharsets.UTF_8)) {
-      if (LOG.isDebugEnabled()) {
-        writeEnvVariables(fileWriter);
-        writeSystemProps(fileWriter);
-      }
       writePlugins(fileWriter);
       writeGlobalSettings(fileWriter);
       writeProjectSettings(fileWriter);
@@ -99,31 +90,6 @@ public class AnalysisContextReportPublisher {
     for (PluginInfo p : pluginRepo.getPluginInfos()) {
       fileWriter.append(String.format("  - %s %s (%s)", p.getName(), p.getVersion(), p.getKey())).append('\n');
     }
-  }
-
-  private void writeSystemProps(BufferedWriter fileWriter) throws IOException {
-    fileWriter.write("System properties:\n");
-    Properties sysProps = system.properties();
-    for (String prop : new TreeSet<>(sysProps.stringPropertyNames())) {
-      if (prop.startsWith(SONAR_PROP_PREFIX)) {
-        continue;
-      }
-      fileWriter.append(String.format(KEY_VALUE_FORMAT, prop, sysProps.getProperty(prop))).append('\n');
-    }
-  }
-
-  private void writeEnvVariables(BufferedWriter fileWriter) throws IOException {
-    fileWriter.append("Environment variables:\n");
-    Map<String, String> envVariables = system.envVariables();
-    new TreeSet<>(envVariables.keySet())
-      .forEach(envKey -> {
-        try {
-          String envValue = isSensitiveEnvVariable(envKey) ? "******" : envVariables.get(envKey);
-          fileWriter.append(String.format(KEY_VALUE_FORMAT, envKey, envValue)).append('\n');
-        } catch (IOException e) {
-          throw new IllegalStateException(e);
-        }
-      });
   }
 
   private void writeGlobalSettings(BufferedWriter fileWriter) throws IOException {
@@ -197,10 +163,6 @@ public class AnalysisContextReportPublisher {
 
   private boolean isEnvVariable(String propKey) {
     return propKey.startsWith(ENV_PROP_PREFIX) && system.envVariables().containsKey(propKey.substring(ENV_PROP_PREFIX.length()));
-  }
-
-  private static boolean isSensitiveEnvVariable(String key) {
-    return key.contains("_TOKEN") || key.contains("_PASSWORD") || key.contains("_SECURED");
   }
 
   private static boolean isSensitiveProperty(String key) {
