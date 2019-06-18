@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<SelectList
+  elements={
+    Array [
+      "test1",
+      "test2",
+      "test3",
+    ]
+  }
+  elementsTotalCount={55}
+  labelAll="quality_gates.projects.all"
+  labelSelected="quality_gates.projects.with"
+  labelUnselected="quality_gates.projects.without"
+  needReload={false}
+  onLoadMore={[Function]}
+  onReload={[Function]}
+  onSearch={[Function]}
+  onSelect={[Function]}
+  onUnselect={[Function]}
+  readOnly={true}
+  renderElement={[Function]}
+  selectedElements={
+    Array [
+      "test3",
+    ]
+  }
+/>
+`;

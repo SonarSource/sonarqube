@@ -103,13 +103,6 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
 
   render() {
     const { allowBulkSelection, elements, filter } = this.props;
-    const filteredElements = elements.filter(element => {
-      if (filter === Filter.All) {
-        return true;
-      }
-      const isSelected = this.isSelected(element);
-      return filter === Filter.Selected ? isSelected : !isSelected;
-    });
 
     return (
       <div className={classNames('select-list-list-container spacer-top')}>
@@ -118,7 +111,7 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
             elements.length > 0 &&
             filter === Filter.All &&
             this.renderBulkSelector()}
-          {filteredElements.map(element => (
+          {elements.map(element => (
             <SelectListListElement
               disabled={this.isDisabled(element)}
               element={element}

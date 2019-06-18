@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render "3 of 5 shown" 1`] = `
+<footer
+  className="spacer-top note text-center"
+>
+  x_of_y_shown.3.5
+  <a
+    className="spacer-left"
+    href="#"
+    onClick={[Function]}
+  >
+    show_more
+  </a>
+</footer>
+`;
+
+exports[`should render "reload" properly 1`] = `
+<footer
+  className="spacer-top note text-center"
+>
+  x_of_y_shown.3.5
+  <a
+    className="spacer-left"
+    href="#"
+    onClick={[Function]}
+  >
+    show_more
+  </a>
+</footer>
+`;
+
+exports[`should render "reload" properly 2`] = `
+<footer
+  className="spacer-top note text-center"
+>
+  x_of_y_shown.3.5
+  <a
+    className="spacer-left"
+    href="#"
+    onClick={[Function]}
+  >
+    reload
+  </a>
+</footer>
+`;

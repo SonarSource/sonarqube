@@ -20,8 +20,9 @@
 import * as React from 'react';
 import SelectListListContainer from './SelectListListContainer';
 import { translate } from '../../helpers/l10n';
-import SearchBox from '../controls/SearchBox';
+import ListFooter from '../controls/ListFooter';
 import RadioToggle from '../controls/RadioToggle';
+import SearchBox from '../controls/SearchBox';
 import './styles.css';
 
 export enum Filter {
@@ -33,10 +34,14 @@ export enum Filter {
 interface Props {
   allowBulkSelection?: boolean;
   elements: string[];
+  elementsTotalCount?: number;
   disabledElements?: string[];
   labelSelected?: string;
   labelUnselected?: string;
   labelAll?: string;
+  needReload?: boolean;
+  onLoadMore?: () => Promise<void>;
+  onReload?: () => Promise<void>;
   onSearch: (query: string, tab: Filter) => Promise<void>;
   onSelect: (element: string) => Promise<void>;
   onUnselect: (element: string) => Promise<void>;
@@ -127,6 +132,15 @@ export default class SelectList extends React.PureComponent<Props, State> {
           renderElement={this.props.renderElement}
           selectedElements={this.props.selectedElements}
         />
+        {!!this.props.elementsTotalCount && this.props.onLoadMore && (
+          <ListFooter
+            count={this.props.elements.length}
+            loadMore={this.props.onLoadMore}
+            needReload={this.props.needReload}
+            reload={this.props.onReload}
+            total={this.props.elementsTotalCount}
+          />
+        )}
       </div>
     );
   }

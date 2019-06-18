@@ -1,12 +1,33 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display elements based on filters 1`] = `
+exports[`should render correctly 1`] = `
 <div
   className="select-list-list-container spacer-top"
 >
   <ul
     className="menu"
   >
+    <li>
+      <Checkbox
+        checked={true}
+        onCheck={[Function]}
+        thirdState={true}
+      >
+        <span
+          className="big-spacer-left"
+        >
+          bulk_change
+          <DeferredSpinner
+            className="spacer-left"
+            loading={false}
+            timeout={10}
+          />
+        </span>
+      </Checkbox>
+    </li>
+    <li
+      className="divider"
+    />
     <SelectListListElement
       disabled={false}
       element="foo"
@@ -33,55 +54,6 @@ exports[`should display elements based on filters 1`] = `
       onUnselect={[MockFunction]}
       renderElement={[Function]}
       selected={false}
-    />
-  </ul>
-</div>
-`;
-
-exports[`should display elements based on filters 2`] = `
-<div
-  className="select-list-list-container spacer-top"
->
-  <ul
-    className="menu"
-  >
-    <SelectListListElement
-      disabled={false}
-      element="bar"
-      key="bar"
-      onSelect={[MockFunction]}
-      onUnselect={[MockFunction]}
-      renderElement={[Function]}
-      selected={false}
-    />
-    <SelectListListElement
-      disabled={false}
-      element="baz"
-      key="baz"
-      onSelect={[MockFunction]}
-      onUnselect={[MockFunction]}
-      renderElement={[Function]}
-      selected={false}
-    />
-  </ul>
-</div>
-`;
-
-exports[`should display elements based on filters 3`] = `
-<div
-  className="select-list-list-container spacer-top"
->
-  <ul
-    className="menu"
-  >
-    <SelectListListElement
-      disabled={false}
-      element="foo"
-      key="foo"
-      onSelect={[MockFunction]}
-      onUnselect={[MockFunction]}
-      renderElement={[Function]}
-      selected={true}
     />
   </ul>
 </div>

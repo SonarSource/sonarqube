@@ -22,28 +22,18 @@ import { shallow } from 'enzyme';
 import SelectListListContainer from '../SelectListListContainer';
 import { Filter } from '../SelectList';
 
-const elementsContainer = (
-  <SelectListListContainer
-    disabledElements={[]}
-    elements={['foo', 'bar', 'baz']}
-    filter={Filter.All}
-    onSelect={jest.fn(() => Promise.resolve())}
-    onUnselect={jest.fn(() => Promise.resolve())}
-    renderElement={(foo: string) => foo}
-    selectedElements={['foo']}
-  />
-);
-
-it('should display elements based on filters', () => {
-  const wrapper = shallow(elementsContainer);
-  expect(wrapper.find('SelectListListElement')).toHaveLength(3);
-  expect(wrapper).toMatchSnapshot();
-
-  wrapper.setProps({ filter: Filter.Unselected });
-  expect(wrapper.find('SelectListListElement')).toHaveLength(2);
-  expect(wrapper).toMatchSnapshot();
-
-  wrapper.setProps({ filter: Filter.Selected });
-  expect(wrapper.find('SelectListListElement')).toHaveLength(1);
+it('should render correctly', () => {
+  const wrapper = shallow(
+    <SelectListListContainer
+      allowBulkSelection={true}
+      disabledElements={[]}
+      elements={['foo', 'bar', 'baz']}
+      filter={Filter.All}
+      onSelect={jest.fn(() => Promise.resolve())}
+      onUnselect={jest.fn(() => Promise.resolve())}
+      renderElement={(foo: string) => foo}
+      selectedElements={['foo']}
+    />
+  );
   expect(wrapper).toMatchSnapshot();
 });

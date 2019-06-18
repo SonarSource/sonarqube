@@ -23,11 +23,13 @@ import DeferredSpinner from '../common/DeferredSpinner';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 
-interface Props {
+export interface Props {
   count: number;
   className?: string;
   loading?: boolean;
   loadMore?: () => void;
+  needReload?: boolean;
+  reload?: () => void;
   ready?: boolean;
   total?: number;
 }
@@ -41,17 +43,41 @@ export default function ListFooter({ ready = true, ...props }: Props) {
     }
   };
 
+  const handleReload = (event: React.SyntheticEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    if (props.reload) {
+      props.reload();
+    }
+  };
+
   const hasMore = props.total && props.total > props.count;
+
   const loadMoreLink = (
     <a className="spacer-left" href="#" onClick={handleLoadMore}>
       {translate('show_more')}
     </a>
   );
+
+  const reloadLink = (
+    <a className="spacer-left" href="#" onClick={handleReload}>
+      {translate('reload')}
+    </a>
+  );
+
   const className = classNames(
     'spacer-top note text-center',
     { 'new-loading': !ready },
     props.className
   );
+
+  let link;
+
+  if (props.needReload && props.reload) {
+    link = reloadLink;
+  } else if (hasMore && props.loadMore) {
+    link = loadMoreLink;
+  }
 
   return (
     <footer className={className}>
@@ -60,7 +86,7 @@ export default function ListFooter({ ready = true, ...props }: Props) {
         formatMeasure(props.count, 'INT', null),
         formatMeasure(props.total, 'INT', null)
       )}
-      {props.loadMore != null && hasMore ? loadMoreLink : null}
+      {link}
       {props.loading && <DeferredSpinner className="text-bottom spacer-left position-absolute" />}
     </footer>
   );

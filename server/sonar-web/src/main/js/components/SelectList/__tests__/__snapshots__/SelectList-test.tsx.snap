@@ -377,3 +377,141 @@ exports[`should display a loader when updating filter 2`] = `
   />
 </div>
 `;
+
+exports[`should display pagination element properly 1`] = `
+<div
+  className="select-list"
+>
+  <div
+    className="display-flex-center"
+  >
+    <RadioToggle
+      className="spacer-right"
+      disabled={false}
+      name="filter"
+      onCheck={[Function]}
+      options={
+        Array [
+          Object {
+            "disabled": false,
+            "label": "selected",
+            "value": "selected",
+          },
+          Object {
+            "disabled": false,
+            "label": "unselected",
+            "value": "deselected",
+          },
+          Object {
+            "disabled": false,
+            "label": "all",
+            "value": "all",
+          },
+        ]
+      }
+      value="selected"
+    />
+    <SearchBox
+      autoFocus={true}
+      loading={false}
+      onChange={[Function]}
+      placeholder="search_verb"
+      value=""
+    />
+  </div>
+  <SelectListListContainer
+    disabledElements={Array []}
+    elements={
+      Array [
+        "foo",
+        "bar",
+        "baz",
+      ]
+    }
+    filter="selected"
+    onSelect={[MockFunction]}
+    onUnselect={[MockFunction]}
+    renderElement={[Function]}
+    selectedElements={
+      Array [
+        "foo",
+      ]
+    }
+  />
+  <ListFooter
+    count={3}
+    loadMore={[MockFunction]}
+    total={100}
+  />
+</div>
+`;
+
+exports[`should display pagination element properly 2`] = `
+<div
+  className="select-list"
+>
+  <div
+    className="display-flex-center"
+  >
+    <RadioToggle
+      className="spacer-right"
+      disabled={false}
+      name="filter"
+      onCheck={[Function]}
+      options={
+        Array [
+          Object {
+            "disabled": false,
+            "label": "selected",
+            "value": "selected",
+          },
+          Object {
+            "disabled": false,
+            "label": "unselected",
+            "value": "deselected",
+          },
+          Object {
+            "disabled": false,
+            "label": "all",
+            "value": "all",
+          },
+        ]
+      }
+      value="selected"
+    />
+    <SearchBox
+      autoFocus={true}
+      loading={false}
+      onChange={[Function]}
+      placeholder="search_verb"
+      value=""
+    />
+  </div>
+  <SelectListListContainer
+    disabledElements={Array []}
+    elements={
+      Array [
+        "foo",
+        "bar",
+        "baz",
+      ]
+    }
+    filter="selected"
+    onSelect={[MockFunction]}
+    onUnselect={[MockFunction]}
+    renderElement={[Function]}
+    selectedElements={
+      Array [
+        "foo",
+      ]
+    }
+  />
+  <ListFooter
+    count={3}
+    loadMore={[MockFunction]}
+    needReload={true}
+    reload={[MockFunction]}
+    total={100}
+  />
+</div>
+`;

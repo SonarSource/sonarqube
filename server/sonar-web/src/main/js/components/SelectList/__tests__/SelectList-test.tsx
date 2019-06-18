@@ -22,24 +22,13 @@ import { shallow } from 'enzyme';
 import SelectList, { Filter } from '../SelectList';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 
-const selectList = (
-  <SelectList
-    elements={['foo', 'bar', 'baz']}
-    onSearch={jest.fn(() => Promise.resolve())}
-    onSelect={jest.fn(() => Promise.resolve())}
-    onUnselect={jest.fn(() => Promise.resolve())}
-    renderElement={(foo: string) => foo}
-    selectedElements={['foo']}
-  />
-);
-
 it('should display selected elements only by default', () => {
-  const wrapper = shallow<SelectList>(selectList);
+  const wrapper = shallowRender();
   expect(wrapper.state().filter).toBe(Filter.Selected);
 });
 
 it('should display a loader when searching', async () => {
-  const wrapper = shallow<SelectList>(selectList);
+  const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.state().loading).toBe(false);
 
@@ -52,7 +41,7 @@ it('should display a loader when searching', async () => {
 });
 
 it('should display a loader when updating filter', async () => {
-  const wrapper = shallow<SelectList>(selectList);
+  const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.state().loading).toBe(false);
 
@@ -66,7 +55,7 @@ it('should display a loader when updating filter', async () => {
 });
 
 it('should cancel filter selection when search is active', async () => {
-  const wrapper = shallow<SelectList>(selectList);
+  const wrapper = shallowRender();
 
   wrapper.setState({ filter: Filter.Selected });
   await waitAndUpdate(wrapper);
@@ -76,3 +65,25 @@ it('should cancel filter selection when search is active', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
+
+it('should display pagination element properly', () => {
+  const wrapper = shallowRender({ elementsTotalCount: 100, onLoadMore: jest.fn() });
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.setProps({ needReload: true, onReload: jest.fn() });
+  expect(wrapper).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<SelectList['props']> = {}) {
+  return shallow<SelectList>(
+    <SelectList
+      elements={['foo', 'bar', 'baz']}
+      onSearch={jest.fn(() => Promise.resolve())}
+      onSelect={jest.fn(() => Promise.resolve())}
+      onUnselect={jest.fn(() => Promise.resolve())}
+      renderElement={(foo: string) => foo}
+      selectedElements={['foo']}
+      {...props}
+    />
+  );
+}

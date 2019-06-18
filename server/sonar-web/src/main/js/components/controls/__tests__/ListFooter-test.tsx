@@ -19,37 +19,58 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ListFooter from '../ListFooter';
+import ListFooter, { Props } from '../ListFooter';
 import { click } from '../../../helpers/testUtils';
 
 it('should render "3 of 5 shown"', () => {
-  const listFooter = shallow(<ListFooter count={3} total={5} />);
+  const listFooter = shallowRender();
   expect(listFooter.text()).toContain('x_of_y_shown.3.5');
+  expect(listFooter).toMatchSnapshot();
 });
 
 it('should not render "show more"', () => {
-  const listFooter = shallow(<ListFooter count={3} total={5} />);
+  const listFooter = shallowRender({ loadMore: undefined });
   expect(listFooter.find('a').length).toBe(0);
 });
 
 it('should not render "show more"', () => {
-  const listFooter = shallow(<ListFooter count={5} loadMore={jest.fn()} total={5} />);
+  const listFooter = shallowRender({ count: 5 });
   expect(listFooter.find('a').length).toBe(0);
 });
 
 it('should "show more"', () => {
   const loadMore = jest.fn();
-  const listFooter = shallow(<ListFooter count={3} loadMore={loadMore} total={5} />);
+  const listFooter = shallowRender({ loadMore });
   const link = listFooter.find('a');
   expect(link.length).toBe(1);
   click(link);
   expect(loadMore).toBeCalled();
 });
 
+it('should render "reload" properly', () => {
+  const listFooter = shallowRender({ needReload: true });
+  expect(listFooter).toMatchSnapshot();
+
+  const reload = jest.fn();
+
+  listFooter.setProps({ reload });
+  expect(listFooter).toMatchSnapshot();
+
+  const link = listFooter.find('a');
+  expect(link.length).toBe(1);
+
+  click(link);
+  expect(reload).toBeCalled();
+});
+
 it('should display spinner while loading', () => {
   expect(
-    shallow(<ListFooter count={3} loadMore={jest.fn()} loading={true} total={10} />)
+    shallowRender({ loading: true })
       .find('DeferredSpinner')
       .exists()
   ).toBe(true);
 });
+
+function shallowRender(props: Partial<Props> = {}) {
+  return shallow(<ListFooter count={3} loadMore={jest.fn()} total={5} {...props} />);
+}
