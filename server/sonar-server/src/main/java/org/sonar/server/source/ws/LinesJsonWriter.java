@@ -34,7 +34,7 @@ public class LinesJsonWriter {
     this.htmlSourceDecorator = htmlSourceDecorator;
   }
 
-  public void writeSource(Iterable<DbFileSources.Line> lines, JsonWriter json, boolean filterScmAuthors, Supplier<Optional<Long>> periodDateSupplier) {
+  public void writeSource(Iterable<DbFileSources.Line> lines, JsonWriter json, boolean showScmAuthors, Supplier<Optional<Long>> periodDateSupplier) {
     Optional<Long> periodDate = null;
 
     json.name("sources").beginArray();
@@ -43,7 +43,7 @@ public class LinesJsonWriter {
         .prop("line", line.getLine())
         .prop("code", htmlSourceDecorator.getDecoratedSourceAsHtml(line.getSource(), line.getHighlighting(), line.getSymbols()))
         .prop("scmRevision", line.getScmRevision());
-      if (!filterScmAuthors) {
+      if (showScmAuthors) {
         json.prop("scmAuthor", line.getScmAuthor());
       }
       if (line.hasScmDate()) {

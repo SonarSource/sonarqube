@@ -150,16 +150,14 @@ public class LinesAction implements SourcesWsAction {
       Iterable<DbFileSources.Line> lines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "No source found for file '%s'", file.getDbKey());
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
-        linesJsonWriter.writeSource(lines, json, isMemberOfOrganization(dbSession, file), periodDateSupplier);
+        linesJsonWriter.writeSource(lines, json, isMemberOfOrganization(file), periodDateSupplier);
         json.endObject();
       }
     }
   }
 
-  private boolean isMemberOfOrganization(DbSession dbSession, ComponentDto file) {
-    OrganizationDto organizationDto = dbClient.organizationDao().selectByUuid(dbSession, file.getOrganizationUuid())
-      .orElseThrow(() -> new IllegalStateException(String.format("Organization with uuid '%s' not found", file.getOrganizationUuid())));
-    return !userSession.hasMembership(organizationDto);
+  private boolean isMemberOfOrganization(ComponentDto file) {
+    return userSession.hasMembership(new OrganizationDto().setUuid(file.getOrganizationUuid()));
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request wsRequest) {

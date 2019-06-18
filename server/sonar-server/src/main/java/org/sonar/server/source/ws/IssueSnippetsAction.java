@@ -44,7 +44,6 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.component.ws.ComponentViewerJsonWriter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.source.SourceService;
-import org.sonar.server.user.UserSession;
 
 public class IssueSnippetsAction implements SourcesWsAction {
   private final IssueFinder issueFinder;
@@ -130,7 +129,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
     componentViewerJsonWriter.writeComponentWithoutFav(writer, componentDto, dbSession, false);
     componentViewerJsonWriter.writeMeasures(writer, componentDto, dbSession);
     writer.endObject();
-    linesJsonWriter.writeSource(lineSources, writer, true, periodDateSupplier);
+    linesJsonWriter.writeSource(lineSources, writer, false, periodDateSupplier);
 
     writer.endObject();
   }
