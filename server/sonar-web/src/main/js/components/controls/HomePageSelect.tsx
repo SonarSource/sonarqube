@@ -21,6 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { connect } from 'react-redux';
 import Tooltip from './Tooltip';
+import { ButtonLink } from '../ui/buttons';
 import HomeIcon from '../icons-components/HomeIcon';
 import { translate } from '../../helpers/l10n';
 import { getCurrentUser, Store } from '../../store/rootReducer';
@@ -41,9 +42,7 @@ interface Props extends StateProps, DispatchProps {
 }
 
 class HomePageSelect extends React.PureComponent<Props> {
-  handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleClick = () => {
     this.props.setHomePage(this.props.currentPage);
   };
 
@@ -61,20 +60,18 @@ class HomePageSelect extends React.PureComponent<Props> {
     return (
       <Tooltip overlay={tooltip}>
         {checked ? (
-          <span className={classNames('display-inline-block', this.props.className)}>
+          <span
+            aria-label={tooltip}
+            className={classNames('display-inline-block', this.props.className)}>
             <HomeIcon filled={checked} />
           </span>
         ) : (
-          <a
-            className={classNames(
-              'link-no-underline',
-              'display-inline-block',
-              this.props.className
-            )}
-            href="#"
+          <ButtonLink
+            aria-label={tooltip}
+            className={classNames('link-no-underline', 'set-homepage-link', this.props.className)}
             onClick={this.handleClick}>
             <HomeIcon filled={checked} />
-          </a>
+          </ButtonLink>
         )}
       </Tooltip>
     );

@@ -5,6 +5,7 @@ exports[`should render checked 1`] = `
   overlay="homepage.current"
 >
   <span
+    aria-label="homepage.current"
     className="display-inline-block"
   >
     <HomeIcon
@@ -18,14 +19,14 @@ exports[`should render unchecked 1`] = `
 <Tooltip
   overlay="homepage.check"
 >
-  <a
-    className="link-no-underline display-inline-block"
-    href="#"
+  <ButtonLink
+    aria-label="homepage.check"
+    className="link-no-underline set-homepage-link"
     onClick={[Function]}
   >
     <HomeIcon
       filled={false}
     />
-  </a>
+  </ButtonLink>
 </Tooltip>
 `;

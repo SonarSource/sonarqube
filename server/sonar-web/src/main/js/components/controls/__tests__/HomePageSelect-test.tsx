@@ -50,7 +50,7 @@ it('should set new home page', async () => {
     users: { currentUser: { isLoggedIn: true } }
   } as Store);
   const wrapper = getWrapper(homepage, store);
-  click(wrapper.find('a'));
+  click(wrapper.find('ButtonLink'));
   await new Promise(setImmediate);
   const currentUser = getCurrentUser(store.getState() as Store) as T.LoggedInUser;
   expect(currentUser.homepage).toEqual(homepage);
