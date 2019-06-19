@@ -36,5 +36,6 @@
   left: 6px;
   top: 6px;
   color: white;
+  background-color: var(--globalNavBarBg);
   text-decoration: underline;
 }

@@ -113,6 +113,11 @@ a.text-danger:focus {
   color: #af252f;
 }
 
+.link-red:focus,
+a.text-danger:focus {
+  outline: 1px dotted var(--red);
+}
+
 a.text-muted {
   border-bottom: 1px solid #dddddd;
   color: var(--secondFontColor);
@@ -122,6 +127,10 @@ a.text-muted:hover,
 a.text-muted:active,
 a.text-muted:focus {
   color: #5e5e5e;
+}
+
+a.text-muted:focus {
+  outline: 1px dotted var(--blue);
 }
 
 a.text-warning {
@@ -135,6 +144,10 @@ a.text-warning:focus {
   color: #f1994f;
 }
 
+a.text-warning:focus {
+  outline: 1px dotted var(--orange);
+}
+
 a.text-success {
   border-bottom: 1px solid #77ff77;
   color: var(--green);
@@ -144,4 +157,13 @@ a.text-success:hover,
 a.text-success:active,
 a.text-success:focus {
   color: #007700;
+}
+
+a.text-success:focus {
+  outline: 1px dotted var(--green);
+}
+
+a.set-homepage-link:focus,
+a.favorite-link:focus {
+  outline: 1px dotted var(--blue);
 }

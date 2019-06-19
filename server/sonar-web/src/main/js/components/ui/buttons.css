@@ -148,7 +148,7 @@
 .button-link:active,
 .button-link:focus {
   box-shadow: none;
-  outline: thin dotted #ccc;
+  outline: 1px dotted var(--blue);
 }
 
 .button-link:disabled,

@@ -326,6 +326,7 @@ a.search-navigator-facet:focus,
   color: var(--baseFontColor);
 }
 
+.search-navigator-facet-header > a:focus,
 .search-navigator-facet-header > a:hover {
   color: var(--blue);
 }
