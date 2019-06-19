@@ -28,6 +28,7 @@ public class DbVersion79 implements DbVersion {
     registry
       .add(2800, "Truncate environment variables and system properties from existing scanner reports",
         TruncateEnvAndSystemVarsFromScannerContext.class)
-      .add(2801, "populate install version and install date internal properties", PopulateInstallDateAndVersion.class);
+      .add(2801, "populate install version and install date internal properties", PopulateInstallDateAndVersion.class)
+      .add(2802, "Migrate property 'sonar.pullrequest.provider' value from VSTS to Azure DevOps", MigrateVstsProviderToAzureDevOps.class);
   }
 }
