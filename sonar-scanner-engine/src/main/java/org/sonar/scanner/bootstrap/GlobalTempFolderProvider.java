@@ -31,9 +31,9 @@ import org.picocontainer.ComponentLifecycle;
 import org.picocontainer.PicoContainer;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.internal.DefaultTempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 

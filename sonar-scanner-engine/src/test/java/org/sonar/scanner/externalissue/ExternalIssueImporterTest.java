@@ -31,9 +31,9 @@ import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.scanner.fs.DefaultInputFile;
-import org.sonar.scanner.fs.TestInputFileBuilder;
-import org.sonar.scanner.sensor.SensorContextTester;
+import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.impl.fs.TestInputFileBuilder;
+import org.sonar.api.impl.sensor.SensorContextTester;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;

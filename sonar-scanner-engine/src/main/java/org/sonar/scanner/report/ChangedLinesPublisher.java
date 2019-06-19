@@ -29,14 +29,14 @@ import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.fs.DefaultInputFile;
-import org.sonar.scanner.fs.DefaultInputProject;
+import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.impl.fs.DefaultInputProject;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scm.ScmConfiguration;
-import org.sonar.scanner.util.ScannerUtils;
+import org.sonar.api.impl.utils.ScannerUtils;
 
 public class ChangedLinesPublisher implements ReportPublisherStep {
   private static final Logger LOG = Loggers.get(ChangedLinesPublisher.class);

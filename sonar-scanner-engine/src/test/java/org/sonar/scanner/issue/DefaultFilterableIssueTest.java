@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.scanner.ProjectInfo;
-import org.sonar.scanner.fs.DefaultInputProject;
+import org.sonar.api.impl.fs.DefaultInputProject;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.scanner.protocol.output.ScannerReport.TextRange;

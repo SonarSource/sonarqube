@@ -34,9 +34,9 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
-import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -178,7 +178,7 @@ public class CeQueueDaoTest {
     long time = alwaysIncreasingSystem2.now() + 10_000;
     insertPending("p1", dto -> {
       dto.setCreatedAt(time);
-      dto.setUpdatedAt(time+500);
+      dto.setUpdatedAt(time + 500);
       dto.setMainComponentUuid("c1");
     });
     insertPending("p2", dto -> {
@@ -198,7 +198,7 @@ public class CeQueueDaoTest {
     long time = alwaysIncreasingSystem2.now() + 10_000;
     insertPending("p1", dto -> {
       dto.setCreatedAt(time);
-      dto.setUpdatedAt(time+500);
+      dto.setUpdatedAt(time + 500);
       dto.setMainComponentUuid("c2");
     });
     insertPending("p2", dto -> {
@@ -215,7 +215,7 @@ public class CeQueueDaoTest {
     makeInProgress("w1", alwaysIncreasingSystem2.now(), insertPending("i1", dto -> dto.setMainComponentUuid("c1")));
 
     assertThat(underTest.selectCreationDateOfOldestPendingByMainComponentUuid(db.getSession(), "c1"))
-      .isEqualTo(Optional.of(time+2000));
+      .isEqualTo(Optional.of(time + 2000));
   }
 
   @Test

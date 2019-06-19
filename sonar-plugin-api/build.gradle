@@ -33,8 +33,7 @@ dependencies {
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.mockito:mockito-core'
-  testCompile project(':sonar-scanner-engine')
-  testCompile project(':server:sonar-server')
+  testCompile project(':sonar-plugin-api-impl')
 
 }
 

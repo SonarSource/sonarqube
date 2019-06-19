@@ -34,7 +34,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
-import org.sonar.scanner.rule.LoadedActiveRule;
+import org.sonar.api.batch.rule.LoadedActiveRule;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 

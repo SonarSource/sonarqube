@@ -29,11 +29,11 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.scanner.fs.DefaultTextPointer;
-import org.sonar.scanner.fs.DefaultTextRange;
-import org.sonar.scanner.fs.TestInputFileBuilder;
-import org.sonar.scanner.sensor.DefaultSensorDescriptor;
-import org.sonar.scanner.sensor.SensorContextTester;
+import org.sonar.api.impl.fs.DefaultTextPointer;
+import org.sonar.api.impl.fs.DefaultTextRange;
+import org.sonar.api.impl.fs.TestInputFileBuilder;
+import org.sonar.api.impl.sensor.DefaultSensorDescriptor;
+import org.sonar.api.impl.sensor.SensorContextTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

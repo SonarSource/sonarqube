@@ -25,7 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 import org.sonar.core.util.FileUtils;
-import org.sonar.scanner.fs.DefaultInputModule;
+import org.sonar.api.impl.fs.DefaultInputModule;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 
 /**

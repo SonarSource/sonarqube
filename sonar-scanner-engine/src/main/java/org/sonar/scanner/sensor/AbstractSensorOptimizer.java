@@ -25,6 +25,7 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.impl.sensor.DefaultSensorDescriptor;
 
 public abstract class AbstractSensorOptimizer {
 

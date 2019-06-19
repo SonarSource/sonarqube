@@ -20,7 +20,7 @@
 package org.sonar.scanner.scan.filesystem;
 
 import javax.annotation.concurrent.Immutable;
-import org.sonar.scanner.fs.DefaultInputFile;
+import org.sonar.api.impl.fs.DefaultInputFile;
 import org.sonar.scanner.scan.ProjectConfiguration;
 
 @Immutable

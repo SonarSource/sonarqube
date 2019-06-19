@@ -26,8 +26,8 @@ import java.util.function.Function;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.fs.DefaultInputProject;
+import org.sonar.api.impl.fs.DefaultInputProject;
 
 import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
 import static org.sonar.core.config.ScannerProperties.ORGANIZATION;

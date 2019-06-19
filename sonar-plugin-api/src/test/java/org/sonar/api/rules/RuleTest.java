@@ -19,12 +19,10 @@
  */
 package org.sonar.api.rules;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.sonar.api.utils.SonarException;
-
 import java.util.Arrays;
 import java.util.List;
+import org.junit.Assert;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -81,7 +79,7 @@ public class RuleTest {
     assertThat(rule.getSeverity()).isEqualTo(RulePriority.MAJOR);
   }
 
-  @Test(expected = SonarException.class)
+  @Test(expected = IllegalStateException.class)
   public void should_not_authorize_unkown_status() {
     Rule.create().setStatus("Unknown");
   }

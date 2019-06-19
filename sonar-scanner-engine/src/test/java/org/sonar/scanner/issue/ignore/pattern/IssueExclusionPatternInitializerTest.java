@@ -22,7 +22,7 @@ package org.sonar.scanner.issue.ignore.pattern;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.MapSettings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.config.IssueExclusionProperties;
 

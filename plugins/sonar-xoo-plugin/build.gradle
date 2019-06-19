@@ -11,11 +11,10 @@ dependencies {
   runtime project(path: ':sonar-plugin-api', configuration: 'shadow')
   compileOnly project(path: ':sonar-plugin-api')
 
-  testCompile project(path: ':sonar-scanner-engine')
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.mockito:mockito-core'
-  testCompile project(':server:sonar-server')
+  testCompile project(':sonar-plugin-api-impl')
 }
 
 jar {

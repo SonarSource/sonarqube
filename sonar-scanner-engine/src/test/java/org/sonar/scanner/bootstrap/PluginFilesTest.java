@@ -50,7 +50,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.MapSettings;
 import org.sonar.scanner.bootstrap.ScannerPluginInstaller.InstalledPlugin;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClientFactories;
@@ -74,7 +74,7 @@ public class PluginFilesTest {
   public void setUp() throws Exception {
     HttpConnector connector = HttpConnector.newBuilder().url(server.url("/").toString()).build();
     GlobalAnalysisMode analysisMode = new GlobalAnalysisMode(new RawScannerProperties(Collections.emptyMap()));
-    ScannerWsClient wsClient = new ScannerWsClient(WsClientFactories.getDefault().newClient(connector), false, analysisMode);
+    DefaultScannerWsClient wsClient = new DefaultScannerWsClient(WsClientFactories.getDefault().newClient(connector), false, analysisMode);
 
     userHome = temp.newFolder();
     MapSettings settings = new MapSettings();

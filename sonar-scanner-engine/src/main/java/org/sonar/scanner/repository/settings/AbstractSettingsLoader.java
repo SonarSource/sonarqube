@@ -34,8 +34,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.util.ScannerUtils;
+import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.api.impl.utils.ScannerUtils;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
@@ -43,9 +43,9 @@ import org.sonarqube.ws.client.HttpException;
 public abstract class AbstractSettingsLoader {
 
   private static final Logger LOG = Loggers.get(AbstractSettingsLoader.class);
-  private final ScannerWsClient wsClient;
+  private final DefaultScannerWsClient wsClient;
 
-  public AbstractSettingsLoader(final ScannerWsClient wsClient) {
+  public AbstractSettingsLoader(final DefaultScannerWsClient wsClient) {
     this.wsClient = wsClient;
   }
 

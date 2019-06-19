@@ -24,7 +24,7 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.fs.DefaultInputProject;
+import org.sonar.api.impl.fs.DefaultInputProject;
 import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
 
 public class InputProjectProvider extends ProviderAdapter {

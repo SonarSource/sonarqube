@@ -48,7 +48,7 @@ public class ScannerPluginInstallerTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private PluginFiles pluginFiles = mock(PluginFiles.class);
-  private ScannerWsClient wsClient = mock(ScannerWsClient.class);
+  private DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class);
   private ScannerPluginInstaller underTest = new ScannerPluginInstaller(pluginFiles, wsClient);
 
   @Test

@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
@@ -43,7 +43,7 @@ public class DefaultQualityProfileLoaderTest {
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
-  private ScannerWsClient wsClient = mock(ScannerWsClient.class);
+  private DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class);
   private ScanProperties properties = mock(ScanProperties.class);
   private DefaultQualityProfileLoader underTest = new DefaultQualityProfileLoader(properties, wsClient);
 

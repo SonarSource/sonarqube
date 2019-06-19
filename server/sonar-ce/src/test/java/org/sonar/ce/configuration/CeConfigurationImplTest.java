@@ -23,8 +23,8 @@ import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.ConfigurationBridge;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.ConfigurationBridge;
+import org.sonar.api.impl.config.MapSettings;
 import org.sonar.api.utils.MessageException;
 
 import static java.lang.Math.abs;

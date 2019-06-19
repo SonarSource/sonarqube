@@ -30,7 +30,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.server.rule.RuleDefinitionContext;
+import org.sonar.api.impl.server.RuleDefinitionContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.ExceptionCauseMatcher.hasType;

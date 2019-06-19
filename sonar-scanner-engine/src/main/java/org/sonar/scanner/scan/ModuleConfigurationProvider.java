@@ -27,7 +27,7 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.GlobalServerSettings;
-import org.sonar.scanner.fs.DefaultInputModule;
+import org.sonar.api.impl.fs.DefaultInputModule;
 
 public class ModuleConfigurationProvider extends ProviderAdapter {
 

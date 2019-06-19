@@ -20,7 +20,7 @@
 package org.sonar.scanner.report;
 
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.scanner.rule.DefaultActiveRule;
+import org.sonar.api.batch.rule.DefaultActiveRule;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;

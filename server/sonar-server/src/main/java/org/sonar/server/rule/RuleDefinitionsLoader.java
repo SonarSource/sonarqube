@@ -20,6 +20,7 @@
 package org.sonar.server.rule;
 
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.impl.server.RuleDefinitionContext;
 import org.sonar.server.plugins.ServerPluginRepository;
 
 /**

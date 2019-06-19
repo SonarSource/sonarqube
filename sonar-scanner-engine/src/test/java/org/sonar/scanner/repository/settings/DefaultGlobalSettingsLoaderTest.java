@@ -25,7 +25,7 @@ import java.io.PipedOutputStream;
 import java.util.Map;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 
 public class DefaultGlobalSettingsLoaderTest {
 
-  private ScannerWsClient wsClient = mock(ScannerWsClient.class);
+  private DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class);
   private DefaultGlobalSettingsLoader underTest = new DefaultGlobalSettingsLoader(wsClient);
 
   @Test

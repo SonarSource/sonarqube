@@ -27,17 +27,17 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 
 import static org.apache.commons.lang.StringUtils.trimToEmpty;
 
 public class DefaultServer extends Server {
 
   private final Configuration settings;
-  private final ScannerWsClient client;
+  private final DefaultScannerWsClient client;
   private final SonarRuntime runtime;
 
-  public DefaultServer(Configuration settings, ScannerWsClient client, SonarRuntime runtime) {
+  public DefaultServer(Configuration settings, DefaultScannerWsClient client, SonarRuntime runtime) {
     this.settings = settings;
     this.client = client;
     this.runtime = runtime;

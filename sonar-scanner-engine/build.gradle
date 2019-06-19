@@ -30,6 +30,7 @@ dependencies {
   compile project(':sonar-scanner-protocol')
   compile project(':sonar-ws')
   compile project(':sonar-duplications')
+  compile project(':sonar-plugin-api-impl')
   runtime project(path: ':sonar-plugin-api', configuration: 'shadow')
   compileOnly project(path: ':sonar-plugin-api')
 
@@ -44,7 +45,6 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile project(':plugins:sonar-xoo-plugin')
   testCompile project(':sonar-plugin-api').sourceSets.test.output
-  testCompile project(':server:sonar-server')
 
 }
 

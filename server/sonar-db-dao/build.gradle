@@ -21,6 +21,7 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile project(':sonar-testing-harness')
   testCompile project(':server:sonar-db-core').sourceSets.test.output
+  testCompile project(':sonar-plugin-api-impl')
 
   testCompileOnly 'com.google.code.findbugs:jsr305'
 

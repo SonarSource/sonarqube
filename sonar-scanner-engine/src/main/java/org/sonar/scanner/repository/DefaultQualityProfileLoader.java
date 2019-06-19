@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
@@ -37,15 +37,15 @@ import org.sonarqube.ws.client.HttpException;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static org.sonar.scanner.util.ScannerUtils.encodeForUrl;
+import static org.sonar.api.impl.utils.ScannerUtils.encodeForUrl;
 
 public class DefaultQualityProfileLoader implements QualityProfileLoader {
   private static final String WS_URL = "/api/qualityprofiles/search.protobuf";
 
-  private final ScannerWsClient wsClient;
+  private final DefaultScannerWsClient wsClient;
   private final ScanProperties properties;
 
-  public DefaultQualityProfileLoader(ScanProperties properties, ScannerWsClient wsClient) {
+  public DefaultQualityProfileLoader(ScanProperties properties, DefaultScannerWsClient wsClient) {
     this.properties = properties;
     this.wsClient = wsClient;
   }
@@ -69,10 +69,10 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
         if (tryLoadDefault) {
           return loadDefault();
         } else {
-          throw MessageException.of(errorMsg.get() + ": " + ScannerWsClient.createErrorMessage(e));
+          throw MessageException.of(errorMsg.get() + ": " + DefaultScannerWsClient.createErrorMessage(e));
         }
       }
-      throw new IllegalStateException(errorMsg.get() + ": " + ScannerWsClient.createErrorMessage(e));
+      throw new IllegalStateException(errorMsg.get() + ": " + DefaultScannerWsClient.createErrorMessage(e));
     } catch (MessageException e) {
       throw e;
     } catch (Exception e) {

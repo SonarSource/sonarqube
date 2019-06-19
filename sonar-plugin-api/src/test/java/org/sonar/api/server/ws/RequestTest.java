@@ -41,8 +41,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.server.ws.internal.PartImpl;
-import org.sonar.api.server.ws.internal.ValidatingRequest;
+import org.sonar.api.impl.ws.PartImpl;
+import org.sonar.api.impl.ws.ValidatingRequest;
 import org.sonar.api.utils.DateUtils;
 
 import static com.google.common.base.Strings.repeat;

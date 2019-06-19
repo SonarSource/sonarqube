@@ -20,6 +20,10 @@
 package org.sonar.api.utils;
 
 public class Preconditions {
+  private Preconditions() {
+    // static only
+  }
+
   public static void checkArgument(boolean condition, String message) {
     if (!condition) {
       throw new IllegalArgumentException(message);

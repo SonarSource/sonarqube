@@ -20,6 +20,7 @@
 package org.sonar.scanner.rule;
 
 import java.util.List;
+import org.sonar.api.batch.rule.LoadedActiveRule;
 
 public interface ActiveRulesLoader {
   List<LoadedActiveRule> load(String qualityProfileKey);

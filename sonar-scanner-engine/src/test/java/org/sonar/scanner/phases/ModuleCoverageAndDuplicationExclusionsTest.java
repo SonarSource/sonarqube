@@ -25,8 +25,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
-import org.sonar.scanner.fs.DefaultInputFile;
-import org.sonar.scanner.fs.TestInputFileBuilder;
+import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.impl.fs.TestInputFileBuilder;
 import org.sonar.scanner.scan.ModuleConfiguration;
 import org.sonar.scanner.scan.filesystem.ModuleCoverageAndDuplicationExclusions;
 

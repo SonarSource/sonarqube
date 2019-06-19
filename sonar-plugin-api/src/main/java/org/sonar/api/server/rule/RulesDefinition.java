@@ -347,7 +347,7 @@ public interface RulesDefinition {
   /**
    * Instantiated by core but not by plugins, except for their tests.
    */
-  interface Context {
+  abstract class Context {
     /*
      * New builder for {@link org.sonar.api.server.rule.RulesDefinition.Repository}.
      * <br>
@@ -355,7 +355,7 @@ public interface RulesDefinition {
      * the FbContrib plugin contributes to the Findbugs plugin rules. In this case no need
      * to execute {@link org.sonar.api.server.rule.RulesDefinition.NewRepository#setName(String)}
      */
-    NewRepository createRepository(String key, String language);
+    public abstract NewRepository createRepository(String key, String language);
 
     /**
      * Creates a repository of rules from external rule engines.
@@ -363,34 +363,34 @@ public interface RulesDefinition {
      *
      * @since 7.2
      */
-    NewRepository createExternalRepository(String engineId, String language);
+    public abstract NewRepository createExternalRepository(String engineId, String language);
 
     /**
      * @deprecated since 5.2. Simply use {@link #createRepository(String, String)}
      */
     @Deprecated
-    NewRepository extendRepository(String key, String language);
+    public abstract NewRepository extendRepository(String key, String language);
 
     @CheckForNull
-    Repository repository(String key);
+    public abstract Repository repository(String key);
 
-    List<Repository> repositories();
-
-    /**
-     * @deprecated returns empty list since 5.2. Concept of "extended repository" was misleading and not valuable. Simply declare
-     * repositories and use {@link #repositories()}. See http://jira.sonarsource.com/browse/SONAR-6709
-     */
-    @Deprecated
-    List<ExtendedRepository> extendedRepositories(String repositoryKey);
+    public abstract List<Repository> repositories();
 
     /**
      * @deprecated returns empty list since 5.2. Concept of "extended repository" was misleading and not valuable. Simply declare
      * repositories and use {@link #repositories()}. See http://jira.sonarsource.com/browse/SONAR-6709
      */
     @Deprecated
-    List<ExtendedRepository> extendedRepositories();
+    public abstract List<ExtendedRepository> extendedRepositories(String repositoryKey);
 
-    void setCurrentPluginKey(@Nullable String pluginKey);
+    /**
+     * @deprecated returns empty list since 5.2. Concept of "extended repository" was misleading and not valuable. Simply declare
+     * repositories and use {@link #repositories()}. See http://jira.sonarsource.com/browse/SONAR-6709
+     */
+    @Deprecated
+    public abstract List<ExtendedRepository> extendedRepositories();
+
+    public abstract void setCurrentPluginKey(@Nullable String pluginKey);
   }
 
   interface NewExtendedRepository {
@@ -484,36 +484,36 @@ public interface RulesDefinition {
     DebtRemediationFunction create(DebtRemediationFunction.Type type, @Nullable String gapMultiplier, @Nullable String baseEffort);
   }
 
-  interface NewRule {
+  abstract class NewRule {
 
-    String key();
+    public abstract String key();
 
     /**
      * @since 7.1
      */
     @CheckForNull
-    RuleScope scope();
+    public abstract RuleScope scope();
 
     /**
      * @since 7.1
      */
-    NewRule setScope(RuleScope scope);
+    public abstract NewRule setScope(RuleScope scope);
 
     /**
      * Required rule name
      */
-    NewRule setName(String s);
+    public abstract NewRule setName(String s);
 
-    NewRule setTemplate(boolean template);
+    public abstract NewRule setTemplate(boolean template);
 
     /**
      * Should this rule be enabled by default. For example in SonarLint standalone.
      *
      * @since 6.0
      */
-    NewRule setActivatedByDefault(boolean activatedByDefault);
+    public abstract NewRule setActivatedByDefault(boolean activatedByDefault);
 
-    NewRule setSeverity(String s);
+    public abstract NewRule setSeverity(String s);
 
     /**
      * The type as defined by the SonarQube Quality Model.
@@ -531,36 +531,36 @@ public interface RulesDefinition {
      *
      * @since 5.5
      */
-    NewRule setType(RuleType t);
+    public abstract NewRule setType(RuleType t);
 
     /**
      * The optional description, in HTML format, has no max length. It's exclusive with markdown description
      * (see {@link #setMarkdownDescription(String)})
      */
-    NewRule setHtmlDescription(@Nullable String s);
+    public abstract NewRule setHtmlDescription(@Nullable String s);
 
     /**
      * Load description from a file available in classpath. Example : <code>setHtmlDescription(getClass().getResource("/myrepo/Rule1234.html")</code>
      */
-    NewRule setHtmlDescription(@Nullable URL classpathUrl);
+    public abstract NewRule setHtmlDescription(@Nullable URL classpathUrl);
 
     /**
      * The optional description, in a restricted Markdown format, has no max length. It's exclusive with HTML description
      * (see {@link #setHtmlDescription(String)})
      */
-    NewRule setMarkdownDescription(@Nullable String s);
+    public abstract NewRule setMarkdownDescription(@Nullable String s);
 
     /**
      * Load description from a file available in classpath. Example : {@code setMarkdownDescription(getClass().getResource("/myrepo/Rule1234.md")}
      */
-    NewRule setMarkdownDescription(@Nullable URL classpathUrl);
+    public abstract NewRule setMarkdownDescription(@Nullable URL classpathUrl);
 
     /**
      * Default value is {@link org.sonar.api.rule.RuleStatus#READY}. The value
      * {@link org.sonar.api.rule.RuleStatus#REMOVED} is not accepted and raises an
      * {@link java.lang.IllegalArgumentException}.
      */
-    NewRule setStatus(RuleStatus status);
+    public abstract NewRule setStatus(RuleStatus status);
 
     /**
      * SQALE sub-characteristic. See http://www.sqale.org
@@ -570,23 +570,24 @@ public interface RulesDefinition {
      * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model. This method does nothing.
      * See https://jira.sonarsource.com/browse/MMF-184
      */
-    NewRule setDebtSubCharacteristic(@Nullable String s);
+    @Deprecated
+    public abstract NewRule setDebtSubCharacteristic(@Nullable String s);
 
     /**
      * Factory of {@link org.sonar.api.server.debt.DebtRemediationFunction}
      */
-    DebtRemediationFunctions debtRemediationFunctions();
+    public abstract DebtRemediationFunctions debtRemediationFunctions();
 
     /**
      * @see #debtRemediationFunctions()
      */
-    NewRule setDebtRemediationFunction(@Nullable DebtRemediationFunction fn);
+    public abstract NewRule setDebtRemediationFunction(@Nullable DebtRemediationFunction fn);
 
     /**
      * @deprecated since 5.5, replaced by {@link #setGapDescription(String)}
      */
     @Deprecated
-    NewRule setEffortToFixDescription(@Nullable String s);
+    public abstract NewRule setEffortToFixDescription(@Nullable String s);
 
     /**
      * For rules that use LINEAR or LINEAR_OFFSET remediation functions, the meaning
@@ -597,44 +598,44 @@ public interface RulesDefinition {
      * remediation function gap multiplier/base effort would be something like
      * "Effort to test one uncovered condition".
      */
-    NewRule setGapDescription(@Nullable String s);
+    public abstract NewRule setGapDescription(@Nullable String s);
 
     /**
      * Create a parameter with given unique key. Max length of key is 128 characters.
      */
-    NewParam createParam(String paramKey);
+    public abstract NewParam createParam(String paramKey);
 
     @CheckForNull
-    NewParam param(String paramKey);
+    public abstract NewParam param(String paramKey);
 
-    Collection<NewParam> params();
-
-    /**
-     * @see RuleTagFormat
-     */
-    NewRule addTags(String... list);
+    public abstract Collection<NewParam> params();
 
     /**
      * @see RuleTagFormat
      */
-    NewRule setTags(String... list);
+    public abstract NewRule addTags(String... list);
+
+    /**
+     * @see RuleTagFormat
+     */
+    public abstract NewRule setTags(String... list);
 
     /**
      * @since 7.3
      */
-    NewRule addOwaspTop10(OwaspTop10... standards);
+    public abstract NewRule addOwaspTop10(OwaspTop10... standards);
 
     /**
      * @since 7.3
      */
-    NewRule addCwe(int... nums);
+    public abstract NewRule addCwe(int... nums);
 
     /**
      * Optional key that can be used by the rule engine. Not displayed
      * in webapp. For example the Java Checkstyle plugin feeds this field
      * with the internal path ("Checker/TreeWalker/AnnotationUseStyle").
      */
-    NewRule setInternalKey(@Nullable String s);
+    public abstract NewRule setInternalKey(@Nullable String s);
 
     /**
      * Register a repository and key under which this rule used to be known
@@ -646,10 +647,7 @@ public interface RulesDefinition {
      * @see Rule#deprecatedRuleKeys
      * @since 7.1
      */
-    NewRule addDeprecatedRuleKey(String repository, String key);
-
-    @Override
-    String toString();
+    public abstract NewRule addDeprecatedRuleKey(String repository, String key);
   }
 
   @Immutable
@@ -796,22 +794,22 @@ public interface RulesDefinition {
 
   }
 
-  interface NewParam {
-    String key();
+  abstract class NewParam {
+    public abstract String key();
 
-    NewParam setName(@Nullable String s);
+    public abstract NewParam setName(@Nullable String s);
 
-    NewParam setType(RuleParamType t);
+    public abstract NewParam setType(RuleParamType t);
 
     /**
      * Plain-text description. Can be null. Max length is 4000 characters.
      */
-    NewParam setDescription(@Nullable String s);
+    public abstract NewParam setDescription(@Nullable String s);
 
     /**
      * Empty default value will be converted to null. Max length is 4000 characters.
      */
-    NewParam setDefaultValue(@Nullable String s);
+    public abstract NewParam setDefaultValue(@Nullable String s);
   }
 
   @Immutable

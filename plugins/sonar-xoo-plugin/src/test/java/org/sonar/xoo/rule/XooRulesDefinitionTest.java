@@ -23,11 +23,11 @@ import org.sonar.api.SonarEdition;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.SonarQubeSide;
-import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.impl.context.SonarRuntimeImpl;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
-import org.sonar.server.rule.RuleDefinitionContext;
+import org.sonar.api.impl.server.RuleDefinitionContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v76;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.MapSettings;
 import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;

@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
-import org.sonar.api.server.ws.internal.PartImpl;
-import org.sonar.api.server.ws.internal.ValidatingRequest;
+import org.sonar.api.impl.ws.PartImpl;
+import org.sonar.api.impl.ws.ValidatingRequest;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarqube.ws.MediaTypes;
 

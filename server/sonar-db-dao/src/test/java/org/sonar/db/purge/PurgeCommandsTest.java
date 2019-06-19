@@ -23,8 +23,8 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -35,7 +35,6 @@ import org.sonar.db.user.UserDto;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 public class PurgeCommandsTest {
 
@@ -106,7 +105,6 @@ public class PurgeCommandsTest {
     assertThat(dbTester.countRowsOfTable("issue_changes")).isEqualTo(1);
   }
 
-
   @Test
   public void shouldDeleteAnalyses() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteResource.xml");
@@ -121,7 +119,6 @@ public class PurgeCommandsTest {
     assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
     assertThat(dbTester.countRowsOfTable("issue_changes")).isEqualTo(1);
   }
-
 
   @Test
   public void shouldDeleteIssuesAndIssueChanges() {

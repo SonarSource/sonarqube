@@ -43,7 +43,7 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -72,7 +72,7 @@ public class ReportPublisher implements Startable {
   private static final String ID = "id";
   private static final String RESOLVED = "resolved";
 
-  private final ScannerWsClient wsClient;
+  private final DefaultScannerWsClient wsClient;
   private final AnalysisContextReportPublisher contextPublisher;
   private final InputModuleHierarchy moduleHierarchy;
   private final GlobalAnalysisMode analysisMode;
@@ -86,7 +86,7 @@ public class ReportPublisher implements Startable {
   private ScannerReportWriter writer;
   private ScannerReportReader reader;
 
-  public ReportPublisher(ScanProperties properties, ScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
+  public ReportPublisher(ScanProperties properties, DefaultScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
     InputModuleHierarchy moduleHierarchy, GlobalAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers, BranchConfiguration branchConfiguration) {
     this.wsClient = wsClient;
     this.server = server;
@@ -195,7 +195,7 @@ public class ReportPublisher implements Startable {
     try {
       response = wsClient.call(post).failIfNotSuccessful();
     } catch (HttpException e) {
-      throw MessageException.of(String.format("Failed to upload report - %s", ScannerWsClient.createErrorMessage(e)));
+      throw MessageException.of(String.format("Failed to upload report - %s", DefaultScannerWsClient.createErrorMessage(e)));
     }
 
     try (InputStream protobuf = response.contentStream()) {

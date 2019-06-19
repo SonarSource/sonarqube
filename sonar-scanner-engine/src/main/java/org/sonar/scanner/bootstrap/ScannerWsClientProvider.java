@@ -36,9 +36,9 @@ public class ScannerWsClientProvider extends ProviderAdapter {
   static final String READ_TIMEOUT_SEC_PROPERTY = "sonar.ws.timeout";
   static final int DEFAULT_READ_TIMEOUT_SEC = 60;
 
-  private ScannerWsClient wsClient;
+  private DefaultScannerWsClient wsClient;
 
-  public synchronized ScannerWsClient provide(final RawScannerProperties scannerProps,
+  public synchronized DefaultScannerWsClient provide(final RawScannerProperties scannerProps,
     final EnvironmentInformation env, GlobalAnalysisMode globalMode, System2 system) {
     if (wsClient == null) {
       String url = defaultIfBlank(scannerProps.property("sonar.host.url"), CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
@@ -60,7 +60,7 @@ public class ScannerWsClientProvider extends ProviderAdapter {
         connectorBuilder.proxyCredentials(proxyUser, System.getProperty("http.proxyPassword"));
       }
 
-      wsClient = new ScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null, globalMode);
+      wsClient = new DefaultScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null, globalMode);
     }
     return wsClient;
   }

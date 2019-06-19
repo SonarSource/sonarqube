@@ -26,10 +26,10 @@ import java.util.Locale;
 import java.util.TimeZone;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 

@@ -22,7 +22,7 @@ package org.sonar.server.usergroups.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
+import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;

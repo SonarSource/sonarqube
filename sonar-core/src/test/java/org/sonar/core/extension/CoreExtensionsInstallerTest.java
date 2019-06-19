@@ -46,7 +46,7 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.MapSettings;
 import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -227,7 +227,8 @@ public class CoreExtensionsInstallerTest {
 
   @Test
   @UseDataProvider("allMethodsToAddExtension")
-  public void install_adds_providers_to_container_and_install_extensions_they_provide_when_annotated_with_expected_annotation(BiConsumer<CoreExtension.Context, Collection<Object>> extensionAdder) {
+  public void install_adds_providers_to_container_and_install_extensions_they_provide_when_annotated_with_expected_annotation(
+    BiConsumer<CoreExtension.Context, Collection<Object>> extensionAdder) {
     List<Object> extensions = ImmutableList.of(WestSideProvider.class, PartiallyWestSideProvider.class, EastSideProvider.class);
     CoreExtension coreExtension = newCoreExtension(context -> extensionAdder.accept(context, extensions));
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));

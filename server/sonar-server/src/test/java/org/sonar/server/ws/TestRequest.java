@@ -34,8 +34,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.server.ws.internal.PartImpl;
-import org.sonar.api.server.ws.internal.ValidatingRequest;
+import org.sonar.api.impl.ws.PartImpl;
+import org.sonar.api.impl.ws.ValidatingRequest;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;

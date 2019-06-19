@@ -25,7 +25,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.internal.JUnitTempFolder;
+import org.sonar.api.impl.utils.JUnitTempFolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.Component.Type;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;

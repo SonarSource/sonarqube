@@ -21,7 +21,6 @@ package org.sonar.ce.taskprocessor;
 
 import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.ce.notification.ReportAnalysisFailureNotificationExecutionListener;
 import org.sonar.ce.task.CeTaskInterrupter;
 import org.sonar.core.platform.ComponentContainer;

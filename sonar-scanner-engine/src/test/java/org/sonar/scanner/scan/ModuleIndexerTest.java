@@ -22,7 +22,7 @@ package org.sonar.scanner.scan;
 import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.scanner.fs.DefaultInputModule;
+import org.sonar.api.impl.fs.DefaultInputModule;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 

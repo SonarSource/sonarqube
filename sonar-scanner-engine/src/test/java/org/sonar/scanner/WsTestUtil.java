@@ -24,7 +24,7 @@ import java.io.Reader;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.mockito.ArgumentMatcher;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
 
@@ -35,25 +35,25 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class WsTestUtil {
-  public static void mockStream(ScannerWsClient mock, String path, InputStream is) {
+  public static void mockStream(DefaultScannerWsClient mock, String path, InputStream is) {
     WsResponse response = mock(WsResponse.class);
     when(response.contentStream()).thenReturn(is);
     when(mock.call(argThat(new RequestMatcher(path)))).thenReturn(response);
   }
 
-  public static void mockStream(ScannerWsClient mock, InputStream is) {
+  public static void mockStream(DefaultScannerWsClient mock, InputStream is) {
     WsResponse response = mock(WsResponse.class);
     when(response.contentStream()).thenReturn(is);
     when(mock.call(any(WsRequest.class))).thenReturn(response);
   }
 
-  public static void mockReader(ScannerWsClient mock, Reader reader) {
+  public static void mockReader(DefaultScannerWsClient mock, Reader reader) {
     WsResponse response = mock(WsResponse.class);
     when(response.contentReader()).thenReturn(reader);
     when(mock.call(any(WsRequest.class))).thenReturn(response);
   }
 
-  public static void mockReader(ScannerWsClient mock, String path, Reader reader, Reader... others) {
+  public static void mockReader(DefaultScannerWsClient mock, String path, Reader reader, Reader... others) {
     WsResponse response = mock(WsResponse.class);
     when(response.contentReader()).thenReturn(reader);
     WsResponse[] otherResponses = new WsResponse[others.length];
@@ -66,15 +66,15 @@ public class WsTestUtil {
     when(mock.call(argThat(new RequestMatcher(path)))).thenReturn(response, otherResponses);
   }
 
-  public static void mockException(ScannerWsClient mock, Exception e) {
+  public static void mockException(DefaultScannerWsClient mock, Exception e) {
     when(mock.call(any(WsRequest.class))).thenThrow(e);
   }
 
-  public static void mockException(ScannerWsClient mock, String path, Exception e) {
+  public static void mockException(DefaultScannerWsClient mock, String path, Exception e) {
     when(mock.call(argThat(new RequestMatcher(path)))).thenThrow(e);
   }
 
-  public static void verifyCall(ScannerWsClient mock, String path) {
+  public static void verifyCall(DefaultScannerWsClient mock, String path) {
     verify(mock).call(argThat(new RequestMatcher(path)));
   }
 

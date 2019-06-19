@@ -40,8 +40,8 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.fs.DefaultInputModule;
+import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.api.impl.fs.DefaultInputModule;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -73,7 +73,7 @@ public class ReportPublisherTest {
 
   GlobalAnalysisMode mode = mock(GlobalAnalysisMode.class);
   ScanProperties properties = mock(ScanProperties.class);
-  ScannerWsClient wsClient = mock(ScannerWsClient.class, Mockito.RETURNS_DEEP_STUBS);
+  DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class, Mockito.RETURNS_DEEP_STUBS);
   Server server = mock(Server.class);
   InputModuleHierarchy moduleHierarchy = mock(InputModuleHierarchy.class);
   DefaultInputModule root;

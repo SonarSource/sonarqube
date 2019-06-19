@@ -28,9 +28,9 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.fs.DefaultInputFile;
-import org.sonar.scanner.fs.TestInputFileBuilder;
-import org.sonar.scanner.sensor.SensorContextTester;
+import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.impl.fs.TestInputFileBuilder;
+import org.sonar.api.impl.sensor.SensorContextTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

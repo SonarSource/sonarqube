@@ -20,7 +20,7 @@
 package org.sonar.server.notification.ws;
 
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.MapSettings;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.server.issue.notification.FPOrWontFixNotificationHandler;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;

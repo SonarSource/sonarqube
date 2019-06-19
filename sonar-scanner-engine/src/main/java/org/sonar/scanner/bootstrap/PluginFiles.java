@@ -52,11 +52,11 @@ public class PluginFiles {
   private static final String PACK200 = "pack200";
   private static final String UNCOMPRESSED_MD5_HEADER = "Sonar-UncompressedMD5";
 
-  private final ScannerWsClient wsClient;
+  private final DefaultScannerWsClient wsClient;
   private final File cacheDir;
   private final File tempDir;
 
-  public PluginFiles(ScannerWsClient wsClient, Configuration configuration) {
+  public PluginFiles(DefaultScannerWsClient wsClient, Configuration configuration) {
     this.wsClient = wsClient;
     File home = locateHomeDir(configuration);
     this.cacheDir = mkdir(new File(home, "cache"), "user cache");

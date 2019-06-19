@@ -21,10 +21,9 @@ package org.sonar.api.batch.rule;
 
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.impl.rule.ActiveRulesBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
-import org.sonar.scanner.rule.ActiveRulesBuilder;
-import org.sonar.scanner.rule.NewActiveRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

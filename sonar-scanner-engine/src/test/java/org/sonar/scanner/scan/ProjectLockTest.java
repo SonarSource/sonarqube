@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.scanner.fs.DefaultInputProject;
+import org.sonar.api.impl.fs.DefaultInputProject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

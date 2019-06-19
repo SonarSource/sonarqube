@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
-import org.sonar.api.config.internal.ConfigurationBridge;
+import org.sonar.api.impl.config.ConfigurationBridge;
 
 import static java.util.Objects.requireNonNull;
 

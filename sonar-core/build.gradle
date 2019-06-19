@@ -17,6 +17,7 @@ dependencies {
   compile 'org.slf4j:slf4j-api'
   compile 'org.sonarsource.update-center:sonar-update-center-common'
   compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compile project(':sonar-plugin-api-impl')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 

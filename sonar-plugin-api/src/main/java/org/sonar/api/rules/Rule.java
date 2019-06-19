@@ -324,7 +324,7 @@ public class Rule {
    */
   public Rule setStatus(String status) {
     if (!STATUS_LIST.contains(status)) {
-      throw new SonarException("The status of a rule can only contain : " + String.join(", ", STATUS_LIST));
+      throw new IllegalStateException("The status of a rule can only contain : " + String.join(", ", STATUS_LIST));
     }
     this.status = status;
     return this;

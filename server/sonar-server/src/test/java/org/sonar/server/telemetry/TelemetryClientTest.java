@@ -26,7 +26,7 @@ import okhttp3.Request;
 import okio.Buffer;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;

@@ -25,16 +25,16 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.protocol.GsonHelper;
 import org.sonarqube.ws.client.GetRequest;
 
 public class DefaultMetricsRepositoryLoader implements MetricsRepositoryLoader {
 
   private static final String METRICS_SEARCH_URL = "/api/metrics/search?f=name,description,direction,qualitative,custom&ps=500&p=";
-  private ScannerWsClient wsClient;
+  private DefaultScannerWsClient wsClient;
 
-  public DefaultMetricsRepositoryLoader(ScannerWsClient wsClient) {
+  public DefaultMetricsRepositoryLoader(DefaultScannerWsClient wsClient) {
     this.wsClient = wsClient;
   }
 

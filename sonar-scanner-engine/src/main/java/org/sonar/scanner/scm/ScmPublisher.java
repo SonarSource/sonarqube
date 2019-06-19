@@ -29,7 +29,7 @@ import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.fs.DefaultInputFile;
+import org.sonar.api.impl.fs.DefaultInputFile;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;

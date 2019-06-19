@@ -25,7 +25,7 @@ import java.util.Random;
 import org.assertj.core.groups.Tuple;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.MapSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;

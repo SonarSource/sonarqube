@@ -33,6 +33,7 @@ dependencies {
   compileOnly project(':server:sonar-process')
   compileOnly project(':server:sonar-server-common')
   compileOnly project(':sonar-plugin-api')
+  compileOnly project(':sonar-plugin-api-impl')
   compileOnly project(':sonar-duplications')
 
   testCompile 'com.google.code.findbugs:jsr305'

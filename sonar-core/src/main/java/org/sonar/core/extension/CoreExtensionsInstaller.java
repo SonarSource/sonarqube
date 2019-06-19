@@ -29,7 +29,7 @@ import java.util.function.Predicate;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.MapSettings;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -60,9 +60,9 @@ public abstract class CoreExtensionsInstaller {
   }
 
   /**
-   * @param container the container into which extensions will be installed
-   * @param extensionFilter filters extensions added to {@link CoreExtension.Context}. When it returns false, the
-   *                        extension is ignored as if it had never been added to the context.
+   * @param container            the container into which extensions will be installed
+   * @param extensionFilter      filters extensions added to {@link CoreExtension.Context}. When it returns false, the
+   *                             extension is ignored as if it had never been added to the context.
    * @param additionalSideFilter applied on top of filtering on {@link #supportedAnnotationType} to decide whether
    *                             extension should be added to container as an object or only as a PropertyDefinition.
    */

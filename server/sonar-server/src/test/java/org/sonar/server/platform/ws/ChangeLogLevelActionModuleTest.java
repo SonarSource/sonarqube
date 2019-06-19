@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.picocontainer.ComponentAdapter;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.MapSettings;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.platform.WebServer;
 

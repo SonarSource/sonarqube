@@ -31,9 +31,9 @@ import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
-import org.sonar.scanner.fs.DefaultInputFile;
-import org.sonar.scanner.fs.TestInputFileBuilder;
-import org.sonar.scanner.sensor.SensorContextTester;
+import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.impl.fs.TestInputFileBuilder;
+import org.sonar.api.impl.sensor.SensorContextTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

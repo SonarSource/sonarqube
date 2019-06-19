@@ -23,11 +23,11 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.fs.internal.Metadata;
+import org.sonar.api.impl.fs.Metadata;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.fs.DefaultInputFile;
-import org.sonar.scanner.fs.FileMetadata;
+import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.impl.fs.FileMetadata;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 
 public class MetadataGenerator {

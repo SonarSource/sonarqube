@@ -20,13 +20,14 @@
 package org.sonar.scanner.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.scanner.fs.DefaultFileSystem;
-import org.sonar.scanner.fs.DefaultInputProject;
+import org.sonar.api.impl.fs.DefaultFileSystem;
+import org.sonar.api.impl.fs.DefaultInputProject;
+import org.sonar.api.impl.fs.predicates.DefaultFilePredicates;
 
 public class DefaultProjectFileSystem extends DefaultFileSystem {
 
   public DefaultProjectFileSystem(InputComponentStore inputComponentStore, DefaultInputProject project) {
-    super(project.getBaseDir(), inputComponentStore);
+    super(project.getBaseDir(), inputComponentStore, new DefaultFilePredicates(project.getBaseDir()));
     setFields(project);
   }
 

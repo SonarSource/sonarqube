@@ -49,11 +49,11 @@ import org.sonar.core.config.IssueExclusionProperties;
 import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
-import org.sonar.scanner.util.ScannerUtils;
+import org.sonar.api.impl.utils.ScannerUtils;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
-import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
+import static org.sonar.api.impl.config.MultivalueProperty.parseAsCsv;
 
 /**
  * Class that creates a project definition based on a set of properties.

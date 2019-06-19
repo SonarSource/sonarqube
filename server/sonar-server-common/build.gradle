@@ -25,8 +25,8 @@ dependencies {
   compile project(':sonar-markdown')
   compile project(':sonar-ws')
 
-  compileOnly project(path: ':sonar-plugin-api')
-  compileOnly project(path: ':server:sonar-process')
+  compileOnly project(':sonar-plugin-api')
+  compileOnly project(':server:sonar-process')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
@@ -46,6 +46,7 @@ dependencies {
   testCompile 'org.assertj:assertj-guava'
   testCompile 'org.mockito:mockito-core'
   testCompile project(':server:sonar-db-testing')
+  testCompile project(':sonar-plugin-api-impl')
 }
 
 task testJar(type: Jar) {

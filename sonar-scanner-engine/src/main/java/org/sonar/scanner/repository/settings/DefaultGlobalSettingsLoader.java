@@ -20,11 +20,11 @@
 package org.sonar.scanner.repository.settings;
 
 import java.util.Map;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 
 public class DefaultGlobalSettingsLoader extends AbstractSettingsLoader implements GlobalSettingsLoader {
 
-  public DefaultGlobalSettingsLoader(final ScannerWsClient wsClient) {
+  public DefaultGlobalSettingsLoader(final DefaultScannerWsClient wsClient) {
     super(wsClient);
   }
 

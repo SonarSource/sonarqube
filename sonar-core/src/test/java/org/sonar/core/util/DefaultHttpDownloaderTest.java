@@ -52,7 +52,7 @@ import org.simpleframework.http.Response;
 import org.simpleframework.http.core.Container;
 import org.simpleframework.transport.connect.SocketConnection;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.SonarException;
 
@@ -138,10 +138,10 @@ public class DefaultHttpDownloaderTest {
       @Override
       public boolean matches(Object ex) {
         return
-        // Java 8
-        ex instanceof NoRouteToHostException || ex instanceof SocketException
-        // Java 7 or before
-          || ex instanceof SocketTimeoutException;
+          // Java 8
+          ex instanceof NoRouteToHostException || ex instanceof SocketException
+            // Java 7 or before
+            || ex instanceof SocketTimeoutException;
       }
 
       @Override

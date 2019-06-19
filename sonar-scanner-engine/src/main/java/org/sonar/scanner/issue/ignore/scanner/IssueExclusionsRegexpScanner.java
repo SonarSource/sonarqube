@@ -27,8 +27,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.fs.DefaultInputFile;
-import org.sonar.scanner.fs.charhandler.CharHandler;
+import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.impl.fs.charhandler.CharHandler;
 import org.sonar.scanner.issue.ignore.pattern.LineRange;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader.DoubleRegexpMatcher;
 

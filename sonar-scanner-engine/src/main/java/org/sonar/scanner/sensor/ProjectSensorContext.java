@@ -40,11 +40,19 @@ import org.sonar.api.batch.sensor.rule.NewAdHocRule;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
+import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.impl.fs.DefaultInputProject;
+import org.sonar.api.impl.issue.DefaultIssue;
+import org.sonar.api.impl.sensor.DefaultAdHocRule;
+import org.sonar.api.impl.sensor.DefaultCoverage;
+import org.sonar.api.impl.sensor.DefaultCpdTokens;
+import org.sonar.api.impl.sensor.DefaultExternalIssue;
+import org.sonar.api.impl.sensor.DefaultHighlighting;
+import org.sonar.api.impl.sensor.DefaultMeasure;
+import org.sonar.api.impl.sensor.DefaultSignificantCode;
+import org.sonar.api.impl.sensor.DefaultSymbolTable;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.Version;
-import org.sonar.scanner.fs.DefaultInputFile;
-import org.sonar.scanner.fs.DefaultInputProject;
-import org.sonar.scanner.issue.DefaultIssue;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
 
 @ThreadSafe

@@ -21,7 +21,7 @@ package org.sonar.scanner.repository;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.scanner.fs.DefaultInputFile;
+import org.sonar.api.impl.fs.DefaultInputFile;
 
 @Immutable
 public abstract class ProjectRepositories {

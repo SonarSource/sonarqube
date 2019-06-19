@@ -21,7 +21,7 @@ package org.sonar.api.config;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.MapSettings;
 import org.sonar.api.platform.Server;
 
 import static org.assertj.core.api.Assertions.assertThat;

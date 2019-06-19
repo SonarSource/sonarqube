@@ -25,7 +25,7 @@ import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.postjob.PostJob;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.postjob.PostJobDescriptor;
-import org.sonar.scanner.postjob.DefaultPostJobDescriptor;
+import org.sonar.api.impl.sensor.DefaultPostJobDescriptor;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;

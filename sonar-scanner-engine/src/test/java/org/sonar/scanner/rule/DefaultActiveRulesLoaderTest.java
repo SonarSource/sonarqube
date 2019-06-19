@@ -26,10 +26,11 @@ import java.util.Collection;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.batch.rule.LoadedActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Active;
@@ -54,11 +55,11 @@ public class DefaultActiveRulesLoaderTest {
   private static final String SEVERITY_VALUE = Severity.MINOR;
 
   private DefaultActiveRulesLoader loader;
-  private ScannerWsClient wsClient;
+  private DefaultScannerWsClient wsClient;
 
   @Before
   public void setUp() {
-    wsClient = mock(ScannerWsClient.class);
+    wsClient = mock(DefaultScannerWsClient.class);
     BranchConfiguration branchConfig = mock(BranchConfiguration.class);
     when(branchConfig.isShortOrPullRequest()).thenReturn(false);
     loader = new DefaultActiveRulesLoader(wsClient);

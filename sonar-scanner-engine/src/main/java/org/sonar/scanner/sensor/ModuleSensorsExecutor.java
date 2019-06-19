@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.sonar.api.batch.fs.internal.SensorStrategy;
+import org.sonar.api.impl.fs.SensorStrategy;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
-import org.sonar.scanner.fs.DefaultInputModule;
+import org.sonar.api.impl.fs.DefaultInputModule;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 
 public class ModuleSensorsExecutor {

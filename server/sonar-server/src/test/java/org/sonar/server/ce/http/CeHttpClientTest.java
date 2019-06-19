@@ -30,7 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.MapSettings;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 import org.sonar.process.ProcessEntryPoint;

@@ -28,8 +28,8 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.util.ScannerUtils;
+import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.api.impl.utils.ScannerUtils;
 import org.sonarqube.ws.Batch.WsProjectResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
@@ -38,9 +38,9 @@ import org.sonarqube.ws.client.WsResponse;
 public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoader {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectRepositoriesLoader.class);
   private static final String BATCH_PROJECT_URL = "/batch/project.protobuf";
-  private final ScannerWsClient wsClient;
+  private final DefaultScannerWsClient wsClient;
 
-  public DefaultProjectRepositoriesLoader(ScannerWsClient wsClient) {
+  public DefaultProjectRepositoriesLoader(DefaultScannerWsClient wsClient) {
     this.wsClient = wsClient;
   }
 

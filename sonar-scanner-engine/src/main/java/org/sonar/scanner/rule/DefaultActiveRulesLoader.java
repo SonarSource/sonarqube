@@ -26,9 +26,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.util.ScannerUtils;
+import org.sonar.api.impl.utils.ScannerUtils;
+import org.sonar.api.batch.rule.LoadedActiveRule;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.DateUtils;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Active;
 import org.sonarqube.ws.Rules.Active.Param;
@@ -36,9 +38,6 @@ import org.sonarqube.ws.Rules.ActiveList;
 import org.sonarqube.ws.Rules.Rule;
 import org.sonarqube.ws.Rules.SearchResponse;
 import org.sonarqube.ws.client.GetRequest;
-
-import static org.sonar.api.utils.DateUtils.dateToLong;
-import static org.sonar.api.utils.DateUtils.parseDateTime;
 
 public class DefaultActiveRulesLoader implements ActiveRulesLoader {
   private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt,updatedAt&activation=true";
@@ -106,8 +105,8 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
       loadedRule.setRuleKey(RuleKey.parse(r.getKey()));
       loadedRule.setName(r.getName());
       loadedRule.setSeverity(active.getSeverity());
-      loadedRule.setCreatedAt(dateToLong(parseDateTime(active.getCreatedAt())));
-      loadedRule.setUpdatedAt(dateToLong(parseDateTime(active.getUpdatedAt())));
+      loadedRule.setCreatedAt(DateUtils.dateToLong(DateUtils.parseDateTime(active.getCreatedAt())));
+      loadedRule.setUpdatedAt(DateUtils.dateToLong(DateUtils.parseDateTime(active.getUpdatedAt())));
       loadedRule.setLanguage(r.getLang());
       loadedRule.setInternalKey(r.getInternalKey());
       if (r.hasTemplateKey()) {

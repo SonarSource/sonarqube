@@ -28,7 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 
 public class DefaultMetricsRepositoryLoaderTest {
   private static final String WS_URL = "/api/metrics/search?f=name,description,direction,qualitative,custom&ps=500&p=";
-  private ScannerWsClient wsClient;
+  private DefaultScannerWsClient wsClient;
   private DefaultMetricsRepositoryLoader metricsRepositoryLoader;
 
   @Rule
@@ -48,7 +48,7 @@ public class DefaultMetricsRepositoryLoaderTest {
 
   @Before
   public void setUp() throws IOException {
-    wsClient = mock(ScannerWsClient.class);
+    wsClient = mock(DefaultScannerWsClient.class);
     WsTestUtil.mockReader(wsClient, WS_URL + "1", new StringReader(IOUtils.toString(this.getClass().getResourceAsStream("DefaultMetricsRepositoryLoaderTest/page1.json"))));
     WsTestUtil.mockReader(wsClient, WS_URL + "2", new StringReader(IOUtils.toString(this.getClass().getResourceAsStream("DefaultMetricsRepositoryLoaderTest/page2.json"))));
     metricsRepositoryLoader = new DefaultMetricsRepositoryLoader(wsClient);

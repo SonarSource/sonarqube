@@ -24,7 +24,7 @@ import java.util.Locale;
 import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.utils.internal.TestSystem2;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.extension.CoreExtension;
 import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.core.platform.PluginInfo;

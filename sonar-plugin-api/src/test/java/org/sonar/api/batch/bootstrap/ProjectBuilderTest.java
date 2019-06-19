@@ -23,7 +23,7 @@ import java.io.File;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext;
 import org.sonar.api.config.Settings;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;

@@ -27,9 +27,9 @@ import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.fs.DefaultInputProject;
+import org.sonar.api.impl.fs.DefaultInputProject;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
-import org.sonar.scanner.util.ScannerUtils;
+import org.sonar.api.impl.utils.ScannerUtils;
 
 public class ScmChangedFilesProvider extends ProviderAdapter {
   private static final Logger LOG = Loggers.get(ScmChangedFilesProvider.class);

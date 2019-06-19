@@ -22,8 +22,8 @@ package org.sonar.server.platform;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.internal.ConfigurationBridge;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.ConfigurationBridge;
+import org.sonar.api.impl.config.MapSettings;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 

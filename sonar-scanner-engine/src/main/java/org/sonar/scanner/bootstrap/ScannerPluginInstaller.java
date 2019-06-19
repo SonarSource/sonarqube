@@ -45,9 +45,9 @@ public class ScannerPluginInstaller implements PluginInstaller {
   private static final String PLUGINS_WS_URL = "api/plugins/installed";
 
   private final PluginFiles pluginFiles;
-  private final ScannerWsClient wsClient;
+  private final DefaultScannerWsClient wsClient;
 
-  public ScannerPluginInstaller(PluginFiles pluginFiles, ScannerWsClient wsClient) {
+  public ScannerPluginInstaller(PluginFiles pluginFiles, DefaultScannerWsClient wsClient) {
     this.pluginFiles = pluginFiles;
     this.wsClient = wsClient;
   }

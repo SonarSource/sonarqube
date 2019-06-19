@@ -23,8 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.internal.DefaultTempFolder;
 
 public class TempFolderProvider extends ProviderAdapter {
 

@@ -22,6 +22,7 @@ package org.sonar.scanner.postjob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.impl.sensor.DefaultPostJobDescriptor;
 
 public class PostJobOptimizer {
 

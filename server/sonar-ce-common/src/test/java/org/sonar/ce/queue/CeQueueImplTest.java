@@ -28,8 +28,8 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.ce.queue.CeTaskSubmit.Component;
 import org.sonar.ce.task.CeTask;
 import org.sonar.core.util.UuidFactory;
@@ -215,7 +215,6 @@ public class CeQueueImplTest {
     CeTaskSubmit taskSubmit2 = createTaskSubmit("some type");
     UserDto userDto1 = db.getDbClient().userDao().selectByUuid(db.getSession(), taskSubmit1.getSubmitterUuid());
 
-
     List<CeTask> tasks = underTest.massSubmit(asList(taskSubmit1, taskSubmit2));
 
     assertThat(tasks).hasSize(2);
@@ -370,7 +369,7 @@ public class CeQueueImplTest {
 
     assertThat(tasks)
       .hasSize(2)
-      .extracting(task -> task.getComponent().get().getUuid(),task -> task.getMainComponent().get().getUuid())
+      .extracting(task -> task.getComponent().get().getUuid(), task -> task.getMainComponent().get().getUuid())
       .containsOnly(tuple(componentForMainComponentUuid2.getUuid(), componentForMainComponentUuid2.getMainComponentUuid()),
         tuple(componentForMainComponentUuid4.getUuid(), componentForMainComponentUuid4.getMainComponentUuid()));
     assertThat(db.getDbClient().ceQueueDao().selectAllInAscOrder(db.getSession()))
@@ -609,6 +608,7 @@ public class CeQueueImplTest {
   }
 
   private static int newComponentIdGenerator = new Random().nextInt(8_999_333);
+
   private static Component newComponent(String mainComponentUuid) {
     return new Component("uuid_" + newComponentIdGenerator++, mainComponentUuid);
   }

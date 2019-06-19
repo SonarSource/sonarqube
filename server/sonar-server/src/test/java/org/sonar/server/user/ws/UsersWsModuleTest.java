@@ -20,8 +20,8 @@
 package org.sonar.server.user.ws;
 
 import org.junit.Test;
-import org.sonar.api.config.internal.ConfigurationBridge;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.config.ConfigurationBridge;
+import org.sonar.api.impl.config.MapSettings;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.process.ProcessProperties;
 

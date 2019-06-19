@@ -32,7 +32,7 @@ import org.sonar.api.test.TestPlan;
 import org.sonar.api.test.Testable;
 import org.sonar.api.test.exception.CoverageAlreadyExistsException;
 import org.sonar.api.test.exception.IllegalDurationException;
-import org.sonar.scanner.fs.DefaultInputFile;
+import org.sonar.api.impl.fs.DefaultInputFile;
 
 public class DefaultTestCase implements MutableTestCase {
 
