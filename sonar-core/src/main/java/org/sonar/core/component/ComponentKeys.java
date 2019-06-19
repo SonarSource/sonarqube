@@ -34,8 +34,6 @@ public final class ComponentKeys {
    */
   private static final String VALID_PROJECT_KEY_REGEXP = "[^\\p{javaWhitespace}]+";
 
-  private static final String VALID_PROJECT_KEY_ISSUES_MODE_REGEXP = "[\\p{Alnum}\\-_.:/]*[\\p{Alpha}\\-_.:/]+[\\p{Alnum}\\-_.:/]*";
-
   /*
    * Allowed characters are alphanumeric, '-', '_', '.' and '/'
    */
@@ -76,26 +74,6 @@ public final class ComponentKeys {
    */
   public static void checkProjectKey(String keyCandidate) {
     checkArgument(isValidProjectKey(keyCandidate), "Malformed key for '%s'. %s", keyCandidate, "Project key cannot be empty nor contain whitespaces.");
-  }
-
-  /**
-   * <p>Test if given parameter is valid for a project. Valid format is:</p>
-   * <ul>
-   * <li>Allowed characters:
-   * <ul>
-   * <li>Uppercase ASCII letters A-Z</li>
-   * <li>Lowercase ASCII letters a-z</li>
-   * <li>ASCII digits 0-9</li>
-   * <li>Punctuation signs dash '-', underscore '_', period '.', colon ':' and slash '/'</li>
-   * </ul>
-   * </li>
-   * <li>At least one non-digit</li>
-   * </ul>
-   *
-   * @return <code>true</code> if <code>keyCandidate</code> can be used for a project in issues mode
-   */
-  public static boolean isValidProjectKeyIssuesMode(String keyCandidate) {
-    return keyCandidate.matches(VALID_PROJECT_KEY_ISSUES_MODE_REGEXP);
   }
 
   /**

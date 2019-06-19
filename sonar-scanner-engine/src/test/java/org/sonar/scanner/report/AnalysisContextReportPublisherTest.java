@@ -23,9 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -33,7 +31,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
@@ -69,7 +66,6 @@ public class AnalysisContextReportPublisherTest {
 
   private ScannerPluginRepository pluginRepo = mock(ScannerPluginRepository.class);
   private AnalysisContextReportPublisher publisher;
-  private AnalysisMode analysisMode = mock(AnalysisMode.class);
   private System2 system2;
   private GlobalServerSettings globalServerSettings;
   private InputModuleHierarchy hierarchy;
@@ -85,7 +81,7 @@ public class AnalysisContextReportPublisherTest {
     hierarchy = mock(InputModuleHierarchy.class);
     store = mock(InputComponentStore.class);
     projectServerSettings = mock(ProjectServerSettings.class);
-    publisher = new AnalysisContextReportPublisher(projectServerSettings, analysisMode, pluginRepo, system2, globalServerSettings, hierarchy, store);
+    publisher = new AnalysisContextReportPublisher(projectServerSettings, pluginRepo, system2, globalServerSettings, hierarchy, store);
   }
 
   @Test
@@ -104,16 +100,6 @@ public class AnalysisContextReportPublisherTest {
     assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8)).contains("Xoo 1.0 (xoo)");
 
     verifyZeroInteractions(system2);
-  }
-
-  @Test
-  public void shouldNotDumpInIssuesMode() throws Exception {
-    when(analysisMode.isIssues()).thenReturn(true);
-
-    ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
-    publisher.init(writer);
-
-    assertThat(writer.getFileStructure().analysisLog()).doesNotExist();
   }
 
   @Test

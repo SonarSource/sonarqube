@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
@@ -49,32 +48,26 @@ import static org.sonar.core.config.ScannerProperties.PULL_REQUEST_KEY;
  * @since 3.6
  */
 public class ProjectReactorValidator {
-  private final AnalysisMode mode;
   private final GlobalConfiguration settings;
 
   // null = branch plugin is not available
   @Nullable
   private final BranchParamsValidator branchParamsValidator;
 
-  public ProjectReactorValidator(AnalysisMode mode, GlobalConfiguration settings, @Nullable BranchParamsValidator branchParamsValidator) {
-    this.mode = mode;
+  public ProjectReactorValidator(GlobalConfiguration settings, @Nullable BranchParamsValidator branchParamsValidator) {
     this.settings = settings;
     this.branchParamsValidator = branchParamsValidator;
   }
 
-  public ProjectReactorValidator(AnalysisMode mode, GlobalConfiguration settings) {
-    this(mode, settings, null);
+  public ProjectReactorValidator(GlobalConfiguration settings) {
+    this(settings, null);
   }
 
   public void validate(ProjectReactor reactor) {
     List<String> validationMessages = new ArrayList<>();
 
     for (ProjectDefinition moduleDef : reactor.getProjects()) {
-      if (mode.isIssues()) {
-        validateModuleIssuesMode(moduleDef, validationMessages);
-      } else {
-        validateModule(moduleDef, validationMessages);
-      }
+      validateModule(moduleDef, validationMessages);
     }
 
     String deprecatedBranchName = reactor.getRoot().getBranch();
@@ -107,13 +100,6 @@ public class ProjectReactorValidator {
       .filter(param -> nonNull(settings.get(param).orElse(null)))
       .forEach(param -> validationMessages.add(format("To use the property \"%s\" and analyze pull requests, Developer Edition or above is required. "
         + "See %s for more information.", param, BRANCHES_DOC_LINK)));
-  }
-
-  private static void validateModuleIssuesMode(ProjectDefinition moduleDef, List<String> validationMessages) {
-    if (!ComponentKeys.isValidProjectKeyIssuesMode(moduleDef.getKey())) {
-      validationMessages.add(format("\"%s\" is not a valid project or module key. "
-        + "Allowed characters in issues mode are alphanumeric, '-', '_', '.', '/' and ':', with at least one non-digit.", moduleDef.getKey()));
-    }
   }
 
   private static void validateModule(ProjectDefinition moduleDef, List<String> validationMessages) {

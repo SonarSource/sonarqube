@@ -31,7 +31,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
@@ -51,10 +50,9 @@ public class ProjectReactorValidatorTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private AnalysisMode mode = mock(AnalysisMode.class);
   private GlobalConfiguration settings = mock(GlobalConfiguration.class);
   private ProjectInfo projectInfo = mock(ProjectInfo.class);
-  private ProjectReactorValidator underTest = new ProjectReactorValidator(mode, settings);
+  private ProjectReactorValidator underTest = new ProjectReactorValidator(settings);
 
   @Before
   public void prepare() {
@@ -85,12 +83,6 @@ public class ProjectReactorValidatorTest {
       {"foo:bar"},
       {"foo_bar"}
     };
-  }
-
-  @Test
-  public void allow_slash_issues_mode() {
-    when(mode.isIssues()).thenReturn(true);
-    underTest.validate(createProjectReactor("project/key"));
   }
 
   @Test

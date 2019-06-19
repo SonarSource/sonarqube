@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
@@ -53,16 +52,14 @@ public class AnalysisContextReportPublisher {
   private static final int MAX_WIDTH = 1000;
   private final ScannerPluginRepository pluginRepo;
   private final ProjectServerSettings projectServerSettings;
-  private final AnalysisMode mode;
   private final System2 system;
   private final GlobalServerSettings globalServerSettings;
   private final InputModuleHierarchy hierarchy;
   private final InputComponentStore store;
 
-  public AnalysisContextReportPublisher(ProjectServerSettings projectServerSettings, AnalysisMode mode, ScannerPluginRepository pluginRepo, System2 system,
+  public AnalysisContextReportPublisher(ProjectServerSettings projectServerSettings, ScannerPluginRepository pluginRepo, System2 system,
     GlobalServerSettings globalServerSettings, InputModuleHierarchy hierarchy, InputComponentStore store) {
     this.projectServerSettings = projectServerSettings;
-    this.mode = mode;
     this.pluginRepo = pluginRepo;
     this.system = system;
     this.globalServerSettings = globalServerSettings;
@@ -71,9 +68,6 @@ public class AnalysisContextReportPublisher {
   }
 
   public void init(ScannerReportWriter writer) {
-    if (mode.isIssues()) {
-      return;
-    }
     File analysisLog = writer.getFileStructure().analysisLog();
     try (BufferedWriter fileWriter = Files.newBufferedWriter(analysisLog.toPath(), StandardCharsets.UTF_8)) {
       writePlugins(fileWriter);
