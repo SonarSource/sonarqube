@@ -155,7 +155,7 @@ a.badge-focus:active {
   border: 1px solid var(--gray80);
   border-radius: 2px;
   box-sizing: border-box;
-  color: var(--secondFontColor);
+  background-color: var(--gray80);
   font-size: var(--smallFontSize);
   font-weight: 400;
   white-space: nowrap;
@@ -169,6 +169,7 @@ a.badge-focus:active {
 
 .outline-badge.badge-info {
   border-color: var(--blue);
+  background-color: var(--lightBlue);
 }
 
 .outline-badge.badge-icon {
