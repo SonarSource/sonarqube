@@ -28,11 +28,13 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderImpl;
 import org.sonar.ce.task.projectanalysis.analysis.Organization;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.component.TestSettingsRepository;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class DefaultAssigneeTest {
 
@@ -45,7 +47,7 @@ public class DefaultAssigneeTest {
 
   private MapSettings settings = new MapSettings();
   private ConfigurationRepository settingsRepository = new TestSettingsRepository(settings.asConfig());
-  private AnalysisMetadataHolderImpl analysisMetadataHolder = new AnalysisMetadataHolderImpl();
+  private AnalysisMetadataHolderImpl analysisMetadataHolder = new AnalysisMetadataHolderImpl(mock(PlatformEditionProvider.class));
   private OrganizationDto organizationDto;
 
   private DefaultAssignee underTest = new DefaultAssignee(db.getDbClient(), settingsRepository, analysisMetadataHolder);

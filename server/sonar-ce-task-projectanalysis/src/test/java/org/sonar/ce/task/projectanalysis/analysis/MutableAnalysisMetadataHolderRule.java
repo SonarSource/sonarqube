@@ -24,16 +24,20 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.project.Project;
 import org.sonar.server.qualityprofile.QualityProfile;
 
+import static org.mockito.Mockito.mock;
+
 public class MutableAnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
 
-  private AnalysisMetadataHolderImpl delegate = new AnalysisMetadataHolderImpl();
+  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private AnalysisMetadataHolderImpl delegate = new AnalysisMetadataHolderImpl(editionProvider);
 
   @Override
   protected void after() {
-    delegate = new AnalysisMetadataHolderImpl();
+    delegate = new AnalysisMetadataHolderImpl(editionProvider);
   }
 
   @Override

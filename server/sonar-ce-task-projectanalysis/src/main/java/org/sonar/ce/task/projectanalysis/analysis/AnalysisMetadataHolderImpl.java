@@ -25,6 +25,8 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.util.InitializedProperty;
+import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.component.BranchType;
 import org.sonar.server.project.Project;
 import org.sonar.server.qualityprofile.QualityProfile;
@@ -48,6 +50,12 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
   private final InitializedProperty<Map<String, ScannerPlugin>> pluginsByKey = new InitializedProperty<>();
   private final InitializedProperty<String> scmRevision = new InitializedProperty<>();
+
+  private final PlatformEditionProvider editionProvider;
+
+  public AnalysisMetadataHolderImpl(PlatformEditionProvider editionProvider) {
+    this.editionProvider = editionProvider;
+  }
 
   @Override
   public MutableAnalysisMetadataHolder setOrganizationsEnabled(boolean isOrganizationsEnabled) {
@@ -143,6 +151,10 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   @Override
   public MutableAnalysisMetadataHolder setBranch(Branch branch) {
     checkState(!this.branch.isInitialized(), "Branch has already been set");
+    boolean isCommunityEdition = editionProvider.get().filter(t -> t == EditionProvider.Edition.COMMUNITY).isPresent();
+    checkState(
+      !isCommunityEdition || branch.isMain() || branch.isLegacyFeature(),
+      "Branches and Pull Requests are not supported in Community Edition");
     this.branch.setProperty(branch);
     return this;
   }
