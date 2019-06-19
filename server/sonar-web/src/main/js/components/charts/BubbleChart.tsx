@@ -328,10 +328,7 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
       <div>
         <div className="bubble-chart-zoom">
           <Tooltip overlay={translate('component_measures.bubble_chart.zoom_level')}>
-            <Link
-              className={classNames('outline-badge', { active: this.state.transform.k > 1 })}
-              onClick={this.resetZoom}
-              to="#">
+            <Link onClick={this.resetZoom} to="#">
               {this.getZoomLevelLabel()}
             </Link>
           </Tooltip>

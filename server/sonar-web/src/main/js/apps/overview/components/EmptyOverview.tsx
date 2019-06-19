@@ -111,9 +111,7 @@ export function WarningMessage({
         id={message}
         values={{
           branchName: branchLike.name,
-          branchType: (
-            <div className="outline-badge text-baseline">{translate('branches.main_branch')}</div>
-          )
+          branchType: translate('branches.main_branch')
         }}
       />
     </Alert>

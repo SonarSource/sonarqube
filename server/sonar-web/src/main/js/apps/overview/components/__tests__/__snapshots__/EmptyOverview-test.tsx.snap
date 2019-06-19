@@ -276,11 +276,7 @@ exports[`should render warning message 1`] = `
     values={
       Object {
         "branchName": "master",
-        "branchType": <div
-          className="outline-badge text-baseline"
-        >
-          branches.main_branch
-        </div>,
+        "branchType": "branches.main_branch",
       }
     }
   />
