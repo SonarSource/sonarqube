@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -182,7 +183,7 @@ public class ProjectReactorBuilder {
       workDir = initRootProjectWorkDir(baseDir, moduleProperties);
     } else {
       workDir = initModuleWorkDir(baseDir, moduleProperties);
-      checkUnsupportedIssueExclusions(moduleProperties);
+      checkUnsupportedIssueExclusions(moduleProperties, parent.properties());
     }
 
     return ProjectDefinition.create().setProperties(moduleProperties)
@@ -191,9 +192,9 @@ public class ProjectReactorBuilder {
       .setBuildDir(initModuleBuildDir(baseDir, moduleProperties));
   }
 
-  private void checkUnsupportedIssueExclusions(Map<String, String> moduleProperties) {
+  private void checkUnsupportedIssueExclusions(Map<String, String> moduleProperties, Map<String, String> parentProps) {
     UNSUPPORTED_PROPS_FOR_MODULES.stream().forEach(p -> {
-      if (moduleProperties.containsKey(p)) {
+      if (moduleProperties.containsKey(p) && !Objects.equals(moduleProperties.get(p), parentProps.get(p))) {
         warnOnceUnsupportedIssueExclusions(
           "Specifying issue exclusions at module level is not supported anymore. Configure the property '" + p + "' and any other issue exclusions at project level.");
       }

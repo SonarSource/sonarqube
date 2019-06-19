@@ -285,6 +285,27 @@ public class IssuesMediumTest {
 
     issues = result.issuesFor(result.inputFile("moduleB/src/sampleB.xoo"));
     assertThat(issues).hasSize(10);
+
+
+    // SONAR-11850 The Maven scanner replicates properties defined on the root module to all modules
+    logTester.clear();
+    result = tester.newAnalysis()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.modules", "moduleA,moduleB")
+        .put("sonar.sources", "src")
+        .put("sonar.scm.disabled", "true")
+        .put("sonar.issue.ignore.multicriteria", "1")
+        .put("sonar.issue.ignore.multicriteria.1.ruleKey", "*")
+        .put("sonar.issue.ignore.multicriteria.1.resourceKey", "*")
+        .put("moduleA.sonar.issue.ignore.multicriteria", "1")
+        .put("moduleA.sonar.issue.ignore.multicriteria.1.ruleKey", "*")
+        .put("moduleA.sonar.issue.ignore.multicriteria.1.resourceKey", "*")
+        .build())
+      .execute();
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
   }
 
   @Test
