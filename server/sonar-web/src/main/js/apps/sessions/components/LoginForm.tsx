@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
@@ -87,8 +86,6 @@ export default class LoginForm extends React.PureComponent<Props, State> {
     }
     return (
       <form className="login-form" onSubmit={this.handleSubmit}>
-        <GlobalMessagesContainer />
-
         <div className="big-spacer-bottom">
           <label className="login-label" htmlFor="login">
             {translate('login')}

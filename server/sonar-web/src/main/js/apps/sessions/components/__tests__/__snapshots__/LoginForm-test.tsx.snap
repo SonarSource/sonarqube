@@ -19,7 +19,6 @@ exports[`expands more options 2`] = `
   className="login-form"
   onSubmit={[Function]}
 >
-  <Connect(GlobalMessages) />
   <div
     className="big-spacer-bottom"
   >
@@ -92,7 +91,6 @@ exports[`logs in with simple credentials 1`] = `
   className="login-form"
   onSubmit={[Function]}
 >
-  <Connect(GlobalMessages) />
   <div
     className="big-spacer-bottom"
   >
@@ -165,7 +163,6 @@ exports[`should display a spinner and disabled button while loading 1`] = `
   className="login-form"
   onSubmit={[Function]}
 >
-  <Connect(GlobalMessages) />
   <div
     className="big-spacer-bottom"
   >

@@ -10,6 +10,7 @@ exports[`logs in with form alone 1`] = `
   >
     login.login_to_sonarqube
   </h1>
+  <Connect(GlobalMessages) />
   <LoginForm
     collapsed={false}
     onSubmit={[MockFunction]}
@@ -28,6 +29,7 @@ exports[`logs in with identity provider 1`] = `
   >
     login.login_to_sonarqube
   </h1>
+  <Connect(GlobalMessages) />
   <OAuthProviders
     identityProviders={
       Array [

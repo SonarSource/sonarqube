@@ -20,6 +20,7 @@
 import * as React from 'react';
 import LoginForm from './LoginForm';
 import OAuthProviders from './OAuthProviders';
+import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { translate } from '../../../helpers/l10n';
 import './Login.css';
 
@@ -33,6 +34,8 @@ export default function Login({ identityProviders, onSubmit, returnTo }: Props) 
   return (
     <div className="login-page" id="login_form">
       <h1 className="login-title text-center">{translate('login.login_to_sonarqube')}</h1>
+
+      <GlobalMessagesContainer />
 
       {identityProviders.length > 0 && (
         <OAuthProviders identityProviders={identityProviders} returnTo={returnTo} />
