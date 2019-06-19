@@ -53,7 +53,7 @@ a:focus {
 }
 
 .link-no-underline {
-  border-bottom: none;
+  border-bottom: none !important;
 }
 
 .link-underline {

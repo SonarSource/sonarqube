@@ -20,6 +20,7 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import Tooltip from './Tooltip';
+import { ButtonLink } from '../ui/buttons';
 import FavoriteIcon from '../icons-components/FavoriteIcon';
 import { translate } from '../../helpers/l10n';
 
@@ -51,8 +52,7 @@ export default class FavoriteBase extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  toggleFavorite = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
+  toggleFavorite = () => {
     if (this.state.favorite) {
       this.removeFavorite();
     } else {
@@ -83,17 +83,19 @@ export default class FavoriteBase extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const tooltip = this.state.favorite
+    const { favorite } = this.state;
+    const tooltip = favorite
       ? translate('favorite.current', this.props.qualifier)
       : translate('favorite.check', this.props.qualifier);
+    const ariaLabel = translate('favorite.action', favorite ? 'remove' : 'add');
     return (
       <Tooltip overlay={tooltip}>
-        <a
-          className={classNames('display-inline-block', 'link-no-underline', this.props.className)}
-          href="#"
+        <ButtonLink
+          aria-label={ariaLabel}
+          className={classNames('favorite-link', 'link-no-underline', this.props.className)}
           onClick={this.toggleFavorite}>
-          <FavoriteIcon favorite={this.state.favorite} />
-        </a>
+          <FavoriteIcon favorite={favorite} />
+        </ButtonLink>
       </Tooltip>
     );
   }

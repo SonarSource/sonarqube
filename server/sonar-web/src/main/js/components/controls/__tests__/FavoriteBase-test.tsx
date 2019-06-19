@@ -35,14 +35,14 @@ it('should render not favorite', () => {
 it('should add favorite', () => {
   const addFavorite = jest.fn(() => Promise.resolve());
   const favorite = renderFavoriteBase({ favorite: false, addFavorite });
-  click(favorite.find('a'));
+  click(favorite.find('ButtonLink'));
   expect(addFavorite).toBeCalled();
 });
 
 it('should remove favorite', () => {
   const removeFavorite = jest.fn(() => Promise.resolve());
   const favorite = renderFavoriteBase({ favorite: true, removeFavorite });
-  click(favorite.find('a'));
+  click(favorite.find('ButtonLink'));
   expect(removeFavorite).toBeCalled();
 });
 

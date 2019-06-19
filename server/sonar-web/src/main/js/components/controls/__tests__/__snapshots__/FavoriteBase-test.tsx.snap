@@ -4,15 +4,15 @@ exports[`should render favorite 1`] = `
 <Tooltip
   overlay="favorite.current.TRK"
 >
-  <a
-    className="display-inline-block link-no-underline"
-    href="#"
+  <ButtonLink
+    aria-label="favorite.action.remove"
+    className="favorite-link link-no-underline"
     onClick={[Function]}
   >
     <FavoriteIcon
       favorite={true}
     />
-  </a>
+  </ButtonLink>
 </Tooltip>
 `;
 
@@ -20,14 +20,14 @@ exports[`should render not favorite 1`] = `
 <Tooltip
   overlay="favorite.check.TRK"
 >
-  <a
-    className="display-inline-block link-no-underline"
-    href="#"
+  <ButtonLink
+    aria-label="favorite.action.add"
+    className="favorite-link link-no-underline"
     onClick={[Function]}
   >
     <FavoriteIcon
       favorite={false}
     />
-  </a>
+  </ButtonLink>
 </Tooltip>
 `;
