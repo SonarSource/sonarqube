@@ -17,29 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration;
+package org.sonar.server.platform.db.migration.version;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+import static java.util.Objects.requireNonNull;
 
-public class MigrationConfigurationModuleTest {
-  private MigrationConfigurationModule underTest = new MigrationConfigurationModule();
+/**
+ * Implementation of {@link DefaultOrganizationUuidProvider} which never fails and returns the specified organization uuid.
+ */
+public class TestDefaultOrganizationUuidProvider implements DefaultOrganizationUuidProvider {
+  private final String organizationUuid;
 
-  @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
-
-    underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER
-        // DbVersion classes
-        + 2
-        // Others
-        + 4);
+  public TestDefaultOrganizationUuidProvider(String organizationUuid) {
+    this.organizationUuid = requireNonNull(organizationUuid, "organizationUuid can't be null");
   }
 
+  @Override
+  public String get(DataChange.Context context) {
+    return organizationUuid;
+  }
+
+  @Override
+  public String getAndCheck(DataChange.Context context) {
+    return organizationUuid;
+  }
 }

@@ -20,22 +20,28 @@
 package org.sonar.server.platform.db.migration.version.v79;
 
 import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
 import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
 public class DbVersion79Test {
-  private DbVersion underTest = new DbVersion79();
+  private DbVersion79 underTest = new DbVersion79();
 
   @Test
-  public void migrationNumber_starts_at_2800() {
-    verifyMinimumMigrationNumber(underTest, 2800);
+  public void verify_no_support_component() {
+    assertThat(underTest.getSupportComponents()).isEmpty();
+  }
+
+  @Test
+  public void migrationNumber_starts_at_1153() {
+    verifyMinimumMigrationNumber(underTest, 1);
   }
 
   @Test
   public void verify_migration_count() {
-    verifyMigrationCount(underTest, 5);
+    verifyMigrationCount(underTest, 2);
   }
+
 
 }
