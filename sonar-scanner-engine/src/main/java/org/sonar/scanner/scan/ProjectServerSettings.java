@@ -19,7 +19,8 @@
  */
 package org.sonar.scanner.scan;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 
@@ -32,11 +33,11 @@ public class ProjectServerSettings {
   private final Map<String, String> properties;
 
   public ProjectServerSettings(Map<String, String> properties) {
-    this.properties = properties;
+    this.properties = Collections.unmodifiableMap(new HashMap<>(properties));
   }
 
   public Map<String, String> properties() {
-    return ImmutableMap.copyOf(properties);
+    return properties;
   }
 
   public String property(String key) {

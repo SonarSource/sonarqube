@@ -19,10 +19,11 @@
  */
 package org.sonar.scanner.genericcoverage;
 
-import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.sensor.Sensor;
@@ -69,9 +70,8 @@ public class GenericCoverageSensor implements Sensor {
     this.config = config;
   }
 
-  public static ImmutableList<PropertyDefinition> properties() {
-    return ImmutableList.of(
-
+  public static List<PropertyDefinition> properties() {
+    return Collections.singletonList(
       PropertyDefinition.builder(REPORT_PATHS_PROPERTY_KEY)
         .name("Coverage report paths")
         .description("List of comma-separated paths (absolute or relative) containing coverage report.")
@@ -103,8 +103,8 @@ public class GenericCoverageSensor implements Sensor {
       .global()
       .onlyWhenConfiguration(c -> asList(REPORT_PATHS_PROPERTY_KEY, OLD_REPORT_PATH_PROPERTY_KEY, OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY,
         OLD_IT_COVERAGE_REPORT_PATHS_PROPERTY_KEY, OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY)
-          .stream()
-          .anyMatch(c::hasKey));
+        .stream()
+        .anyMatch(c::hasKey));
   }
 
   @Override

@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.deprecated.perspectives;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.component.Perspective;
@@ -27,7 +27,7 @@ import org.sonar.api.component.ResourcePerspectives;
 
 public class ScannerPerspectives implements ResourcePerspectives {
 
-  private final Map<Class<?>, PerspectiveBuilder<?>> builders = Maps.newHashMap();
+  private final Map<Class<?>, PerspectiveBuilder<?>> builders = new HashMap<>();
 
   public ScannerPerspectives(PerspectiveBuilder[] builders) {
     for (PerspectiveBuilder builder : builders) {

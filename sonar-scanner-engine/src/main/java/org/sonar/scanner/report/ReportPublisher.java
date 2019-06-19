@@ -19,8 +19,6 @@
  */
 package org.sonar.scanner.report;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Throwables;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -168,7 +166,6 @@ public class ReportPublisher implements Startable {
   /**
    * Uploads the report file to server and returns the generated task id
    */
-  @VisibleForTesting
   String upload(File report) {
     LOG.debug("Upload report");
     long startTime = System.currentTimeMillis();
@@ -201,14 +198,13 @@ public class ReportPublisher implements Startable {
     try (InputStream protobuf = response.contentStream()) {
       return Ce.SubmitResponse.parser().parseFrom(protobuf).getTaskId();
     } catch (Exception e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     } finally {
       long stopTime = System.currentTimeMillis();
       LOG.info("Analysis report uploaded in " + (stopTime - startTime) + "ms");
     }
   }
 
-  @VisibleForTesting
   void logSuccess(@Nullable String taskId) {
     if (taskId == null) {
       LOG.info("ANALYSIS SUCCESSFUL");

@@ -19,8 +19,9 @@
  */
 package org.sonar.scanner.genericcoverage;
 
-import com.google.common.collect.ImmutableList;
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -53,8 +54,8 @@ public class GenericTestExecutionSensor implements Sensor {
     this.configuration = configuration;
   }
 
-  public static ImmutableList<PropertyDefinition> properties() {
-    return ImmutableList.of(
+  public static List<PropertyDefinition> properties() {
+    return Collections.singletonList(
 
       PropertyDefinition.builder(REPORT_PATHS_PROPERTY_KEY)
         .name("Unit tests results report paths")

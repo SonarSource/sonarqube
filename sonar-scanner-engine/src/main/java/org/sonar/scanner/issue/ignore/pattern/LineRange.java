@@ -19,9 +19,11 @@
  */
 package org.sonar.scanner.issue.ignore.pattern;
 
-import com.google.common.base.Preconditions;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
+
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class LineRange {
   private int from;
@@ -32,7 +34,7 @@ public class LineRange {
   }
 
   public LineRange(int from, int to) {
-    Preconditions.checkArgument(from <= to, "Line range is not valid: %s must be greater or equal than %s", to, from);
+    checkArgument(from <= to, "Line range is not valid: %s must be greater or equal than %s", to, from);
 
     this.from = from;
     this.to = to;
@@ -65,11 +67,7 @@ public class LineRange {
 
   @Override
   public int hashCode() {
-    final int PRIME = 31;
-    int result = 1;
-    result = PRIME * result + from;
-    result = PRIME * result + to;
-    return result;
+    return Objects.hash(from, to);
   }
 
   @Override

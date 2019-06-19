@@ -19,13 +19,13 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.ExtensionProvider;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
+import org.sonar.api.scanner.ScannerSide;
 
 @ScannerSide
 public class MetricProvider extends ExtensionProvider {
@@ -42,7 +42,7 @@ public class MetricProvider extends ExtensionProvider {
 
   @Override
   public List<Metric> provide() {
-    List<Metric> metrics = Lists.newArrayList(CoreMetrics.getMetrics());
+    List<Metric> metrics = new ArrayList<>(CoreMetrics.getMetrics());
     for (Metrics factory : factories) {
       metrics.addAll(factory.getMetrics());
     }

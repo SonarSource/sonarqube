@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.rule;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
@@ -40,7 +39,6 @@ public class QProfileVerifier {
     execute(LOG);
   }
 
-  @VisibleForTesting
   void execute(Logger logger) {
     for (String lang : store.languages()) {
       QProfile profile = profiles.findByLanguage(lang);

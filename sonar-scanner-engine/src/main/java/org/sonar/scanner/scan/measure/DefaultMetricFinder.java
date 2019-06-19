@@ -19,16 +19,14 @@
  */
 package org.sonar.scanner.scan.measure;
 
-import com.google.common.collect.Lists;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.scanner.repository.MetricsRepository;
@@ -53,7 +51,7 @@ public class DefaultMetricFinder implements MetricFinder {
 
   @Override
   public Collection<Metric<Serializable>> findAll(List<String> metricKeys) {
-    List<Metric<Serializable>> result = Lists.newLinkedList();
+    List<Metric<Serializable>> result = new ArrayList<>();
     for (String metricKey : metricKeys) {
       Metric<Serializable> metric = findByKey(metricKey);
       if (metric != null) {

@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.genericcoverage;
 
-import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -40,6 +39,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 
+import static org.sonar.api.utils.Preconditions.checkState;
 import static org.sonar.scanner.genericcoverage.GenericCoverageReportParser.checkElementName;
 import static org.sonar.scanner.genericcoverage.GenericCoverageReportParser.longValue;
 import static org.sonar.scanner.genericcoverage.GenericCoverageReportParser.mandatoryAttribute;
@@ -116,12 +116,12 @@ public class GenericTestExecutionReportParser {
         }
         continue;
       }
-      Preconditions.checkState(
+      checkState(
         inputFile.language() != null,
         "Line %s of report refers to a file with an unknown language: %s",
         fileCursor.getCursorLocation().getLineNumber(),
         filePath);
-      Preconditions.checkState(
+      checkState(
         inputFile.type() != InputFile.Type.MAIN,
         "Line %s of report refers to a file which is not configured as a test file: %s",
         fileCursor.getCursorLocation().getLineNumber(),

@@ -19,7 +19,8 @@
  */
 package org.sonar.scanner.repository;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
@@ -31,7 +32,7 @@ public class MultiModuleProjectRepository extends ProjectRepositories {
 
   public MultiModuleProjectRepository(Map<String, SingleProjectRepository> repositoriesPerModule) {
     super(true);
-    this.repositoriesPerModule = ImmutableMap.copyOf(repositoriesPerModule);
+    this.repositoriesPerModule = Collections.unmodifiableMap(new HashMap<>(repositoriesPerModule));
   }
 
   @CheckForNull

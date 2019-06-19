@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import com.google.common.base.Throwables;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -104,11 +103,13 @@ public final class Batch {
       return t;
     }
 
-    for (Throwable y : Throwables.getCausalChain(t)) {
+    Throwable y = t;
+    do {
       if (y instanceof MessageException) {
         return (MessageException) y;
       }
-    }
+      y = y.getCause();
+    } while (y != null);
 
     return t;
   }

@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.issue.ignore.pattern;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -53,7 +52,6 @@ public abstract class AbstractPatternInitializer {
     return !multicriteriaPatterns.isEmpty();
   }
 
-  @VisibleForTesting
   protected final void initPatterns() {
     // Patterns Multicriteria
     multicriteriaPatterns = new ArrayList<>();

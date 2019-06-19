@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.sonar.core.component.DefaultResourceTypes;
@@ -36,8 +36,8 @@ public class BatchComponents {
   }
 
   public static Collection<Object> all() {
-    List<Object> components = Lists.newArrayList(
-      DefaultResourceTypes.get());
+    List<Object> components = new ArrayList<>();
+    components.add(DefaultResourceTypes.get());
     components.addAll(CorePropertyDefinitions.all());
     components.add(ZeroCoverageSensor.class);
     components.add(JavaCpdBlockIndexerSensor.class);

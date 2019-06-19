@@ -22,12 +22,11 @@ package org.sonar.scanner.issue.ignore.pattern;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.config.IssueExclusionProperties;
-
-import static com.google.common.base.Strings.nullToEmpty;
 
 public class IssueExclusionPatternInitializer extends AbstractPatternInitializer {
 
@@ -77,6 +76,13 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
       allFilePatterns.add(nullToEmpty(allFileRegexp));
     }
     allFilePatterns = Collections.unmodifiableList(allFilePatterns);
+  }
+
+  private String nullToEmpty(@Nullable String str) {
+    if (str == null) {
+      return "";
+    }
+    return str;
   }
 
   public List<BlockIssuePattern> getBlockPatterns() {

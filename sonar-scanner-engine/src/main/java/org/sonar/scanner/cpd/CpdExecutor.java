@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.cpd;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -34,6 +33,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.impl.fs.DefaultInputComponent;
+import org.sonar.api.impl.fs.DefaultInputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.duplications.block.Block;
@@ -42,8 +43,6 @@ import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.api.impl.fs.DefaultInputComponent;
-import org.sonar.api.impl.fs.DefaultInputFile;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplicate;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplication;
@@ -90,7 +89,6 @@ public class CpdExecutor {
     execute(TIMEOUT);
   }
 
-  @VisibleForTesting
   void execute(long timeout) {
     List<FileBlocks> components = new ArrayList<>(index.noResources());
     Iterator<ResourceBlocks> it = index.iterator();
@@ -129,7 +127,6 @@ public class CpdExecutor {
     return files == 1 ? "file" : "files";
   }
 
-  @VisibleForTesting
   void runCpdAnalysis(ExecutorService executorService, DefaultInputFile inputFile, Collection<Block> fileBlocks, long timeout) {
     LOG.debug("Detection of duplications for {}", inputFile.absolutePath());
     progressReport.message(String.format("%d/%d - current file: %s", count, total, inputFile.absolutePath()));
@@ -160,7 +157,6 @@ public class CpdExecutor {
     saveDuplications(inputFile, filtered);
   }
 
-  @VisibleForTesting
   final void saveDuplications(final DefaultInputComponent component, List<CloneGroup> duplications) {
     if (duplications.size() > MAX_CLONE_GROUP_PER_FILE) {
       LOG.warn("Too many duplication groups on file {}. Keep only the first {} groups.", component, MAX_CLONE_GROUP_PER_FILE);

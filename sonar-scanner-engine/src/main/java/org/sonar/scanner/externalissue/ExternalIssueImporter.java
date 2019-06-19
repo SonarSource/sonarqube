@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.externalissue;
 
-import com.google.common.base.MoreObjects;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -121,7 +120,7 @@ public class ExternalIssueImporter {
     if (location.textRange != null) {
       if (location.textRange.startColumn != null) {
         TextPointer start = file.newPointer(location.textRange.startLine, location.textRange.startColumn);
-        int endLine = MoreObjects.firstNonNull(location.textRange.endLine, location.textRange.startLine);
+        int endLine = (location.textRange.endLine != null) ? location.textRange.endLine : location.textRange.startLine;
         int endColumn;
 
         if (location.textRange.endColumn == null) {

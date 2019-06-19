@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.report;
 
-import com.google.common.collect.Iterables;
 import java.util.Objects;
 import java.util.stream.StreamSupport;
 import org.sonar.api.batch.fs.InputComponent;
@@ -68,7 +67,7 @@ public class TestExecutionPublisher implements ReportPublisherStep {
 
   private void updateTestExecutionFromTestPlan(final InputFile inputFile, ScannerReportWriter writer) {
     final MutableTestPlan testPlan = testPlanBuilder.getTestPlanByFile(inputFile);
-    if (testPlan == null || Iterables.isEmpty(testPlan.testCases())) {
+    if (testPlan == null || !testPlan.testCases().iterator().hasNext()) {
       return;
     }
     long nonSkippedTests = StreamSupport.stream(testPlan.testCases().spliterator(), false).filter(t -> t.status() != Status.SKIPPED).count();

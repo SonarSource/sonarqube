@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +34,7 @@ import org.sonar.core.platform.PluginRepository;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 /**
  * Orchestrates the installation and loading of plugins
@@ -116,14 +116,14 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
   @Override
   public PluginInfo getPluginInfo(String key) {
     ScannerPlugin info = pluginsByKeys.get(key);
-    Preconditions.checkState(info != null, "Plugin [%s] does not exist", key);
+    checkState(info != null, "Plugin [%s] does not exist", key);
     return info.getInfo();
   }
 
   @Override
   public Plugin getPluginInstance(String key) {
     Plugin instance = pluginInstancesByKeys.get(key);
-    Preconditions.checkState(instance != null, "Plugin [%s] does not exist", key);
+    checkState(instance != null, "Plugin [%s] does not exist", key);
     return instance;
   }
 

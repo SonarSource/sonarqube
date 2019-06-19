@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.deprecated.test;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -32,7 +31,7 @@ public class DefaultTestPlan implements MutableTestPlan {
   @Override
   @CheckForNull
   public Iterable<MutableTestCase> testCasesByName(String name) {
-    List<MutableTestCase> result = Lists.newArrayList();
+    List<MutableTestCase> result = new ArrayList<>();
     for (MutableTestCase testCase : testCases()) {
       if (name.equals(testCase.name())) {
         result.add(testCase);

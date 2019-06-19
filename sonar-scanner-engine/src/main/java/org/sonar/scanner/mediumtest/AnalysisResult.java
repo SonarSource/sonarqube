@@ -19,8 +19,6 @@
  */
 package org.sonar.scanner.mediumtest;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,10 +33,10 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.scanner.fs.InputProject;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.api.impl.fs.DefaultInputComponent;
 import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.scanner.fs.InputProject;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
 import org.sonar.scanner.protocol.output.ScannerReport.Symbol;
@@ -100,7 +98,7 @@ public class AnalysisResult implements AnalysisObserver {
   }
 
   private List<ScannerReport.Issue> issuesFor(int ref) {
-    List<ScannerReport.Issue> result = Lists.newArrayList();
+    List<ScannerReport.Issue> result = new ArrayList<>();
     try (CloseableIterator<ScannerReport.Issue> it = reader.readComponentIssues(ref)) {
       while (it.hasNext()) {
         result.add(it.next());
@@ -110,7 +108,7 @@ public class AnalysisResult implements AnalysisObserver {
   }
 
   private List<ScannerReport.ExternalIssue> externalIssuesFor(int ref) {
-    List<ScannerReport.ExternalIssue> result = Lists.newArrayList();
+    List<ScannerReport.ExternalIssue> result = new ArrayList<>();
     try (CloseableIterator<ScannerReport.ExternalIssue> it = reader.readComponentExternalIssues(ref)) {
       while (it.hasNext()) {
         result.add(it.next());
@@ -136,13 +134,17 @@ public class AnalysisResult implements AnalysisObserver {
     Map<String, List<ScannerReport.Measure>> result = new HashMap<>();
     List<ScannerReport.Measure> projectMeasures = new ArrayList<>();
     try (CloseableIterator<ScannerReport.Measure> it = reader.readComponentMeasures(((DefaultInputComponent) project).scannerId())) {
-      Iterators.addAll(projectMeasures, it);
+      while (it.hasNext()) {
+        projectMeasures.add(it.next());
+      }
     }
     result.put(project.key(), projectMeasures);
     for (InputFile inputFile : inputFilesByKeys.values()) {
       List<ScannerReport.Measure> measures = new ArrayList<>();
       try (CloseableIterator<ScannerReport.Measure> it = reader.readComponentMeasures(((DefaultInputComponent) inputFile).scannerId())) {
-        Iterators.addAll(measures, it);
+        while (it.hasNext()) {
+          measures.add(it.next());
+        }
       }
       result.put(inputFile.key(), measures);
     }

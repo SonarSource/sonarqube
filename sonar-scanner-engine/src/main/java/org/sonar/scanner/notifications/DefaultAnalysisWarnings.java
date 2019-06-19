@@ -28,7 +28,7 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.System2;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class DefaultAnalysisWarnings implements AnalysisWarnings {
   private final System2 system2;

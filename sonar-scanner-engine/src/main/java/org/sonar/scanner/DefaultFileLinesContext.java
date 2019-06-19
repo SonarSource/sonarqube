@@ -53,7 +53,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
 
   @Override
   public void setIntValue(String metricKey, int line, int value) {
-    Preconditions.checkNotNull(metricKey);
+    checkNotNull(metricKey);
     checkLineRange(line);
 
     setValue(metricKey, line, value);
@@ -66,11 +66,17 @@ public class DefaultFileLinesContext implements FileLinesContext {
 
   @Override
   public void setStringValue(String metricKey, int line, String value) {
-    Preconditions.checkNotNull(metricKey);
+    checkNotNull(metricKey);
     checkLineRange(line);
-    Preconditions.checkNotNull(value);
+    checkNotNull(value);
 
     setValue(metricKey, line, value);
+  }
+
+  private static void checkNotNull(Object object) {
+    if (object == null) {
+      throw new NullPointerException();
+    }
   }
 
   private void setValue(String metricKey, int line, Object value) {

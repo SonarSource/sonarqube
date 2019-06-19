@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.repository.settings;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -31,11 +30,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.sonar.api.impl.utils.ScannerUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
-import org.sonar.api.impl.utils.ScannerUtils;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
@@ -72,7 +71,6 @@ public abstract class AbstractSettingsLoader {
     }
   }
 
-  @VisibleForTesting
   static Map<String, String> toMap(List<Settings.Setting> settingsList) {
     Map<String, String> result = new LinkedHashMap<>();
     for (Settings.Setting s : settingsList) {

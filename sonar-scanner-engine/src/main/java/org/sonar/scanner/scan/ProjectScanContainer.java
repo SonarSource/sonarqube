@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.scan;
 
-import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarRuntime;
@@ -309,7 +308,6 @@ public class ProjectScanContainer extends ComponentContainer {
       .install(this, getScannerProjectExtensionsFilter());
   }
 
-  @VisibleForTesting
   static ExtensionMatcher getScannerProjectExtensionsFilter() {
     return extension -> {
       if (isDeprecatedScannerSide(extension)) {
@@ -395,7 +393,6 @@ public class ProjectScanContainer extends ComponentContainer {
     scan(module);
   }
 
-  @VisibleForTesting
   void scan(DefaultInputModule module) {
     new ModuleScanContainer(this, module).execute();
   }

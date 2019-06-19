@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.impl.fs.DefaultFileSystem;
 import org.sonar.api.impl.fs.DefaultInputProject;
 import org.sonar.api.impl.fs.predicates.DefaultFilePredicates;
@@ -31,7 +30,6 @@ public class DefaultProjectFileSystem extends DefaultFileSystem {
     setFields(project);
   }
 
-  @VisibleForTesting
   public DefaultProjectFileSystem(DefaultInputProject project) {
     super(project.getBaseDir());
     setFields(project);

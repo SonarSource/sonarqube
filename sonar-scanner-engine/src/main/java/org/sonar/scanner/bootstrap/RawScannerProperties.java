@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
@@ -49,7 +49,7 @@ public class RawScannerProperties {
       }
       decryptedProps.put(entry.getKey(), value);
     }
-    this.properties = decryptedProps;
+    this.properties = Collections.unmodifiableMap(new HashMap<>(decryptedProps));
   }
 
   public Encryption getEncryption() {
@@ -57,7 +57,7 @@ public class RawScannerProperties {
   }
 
   public Map<String, String> properties() {
-    return ImmutableMap.copyOf(properties);
+    return properties;
   }
 
   public String property(String key) {

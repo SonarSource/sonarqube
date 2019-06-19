@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -43,9 +42,7 @@ public final class LoggingConfiguration {
   public static final String LEVEL_ROOT_VERBOSE = "DEBUG";
   public static final String LEVEL_ROOT_DEFAULT = "INFO";
 
-  @VisibleForTesting
   static final String FORMAT_DEFAULT = "%d{HH:mm:ss.SSS} %-5level - %msg%n";
-  @VisibleForTesting
   static final String FORMAT_MAVEN = "[%level] [%d{HH:mm:ss.SSS}] %msg%n";
 
   private Map<String, String> substitutionVariables = new HashMap<>();
@@ -110,7 +107,6 @@ public final class LoggingConfiguration {
     return addSubstitutionVariable(PROPERTY_ROOT_LOGGER_LEVEL, level);
   }
 
-  @VisibleForTesting
   LoggingConfiguration setFormat(String format) {
     return addSubstitutionVariable(PROPERTY_FORMAT, StringUtils.defaultIfBlank(format, FORMAT_DEFAULT));
   }
@@ -120,7 +116,6 @@ public final class LoggingConfiguration {
     return this;
   }
 
-  @VisibleForTesting
   String getSubstitutionVariable(String key) {
     return substitutionVariables.get(key);
   }

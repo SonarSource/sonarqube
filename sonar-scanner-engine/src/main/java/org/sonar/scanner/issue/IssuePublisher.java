@@ -21,6 +21,7 @@ package org.sonar.scanner.issue;
 
 import java.util.Collection;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.TextRange;
@@ -36,8 +37,6 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueLocation;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
 import org.sonar.scanner.report.ReportPublisher;
-
-import static com.google.common.base.Strings.nullToEmpty;
 
 /**
  * Initialize the issues raised during scan.
@@ -89,6 +88,13 @@ public class IssuePublisher {
     DefaultInputComponent inputComponent = (DefaultInputComponent) issue.primaryLocation().inputComponent();
     ScannerReport.ExternalIssue rawExternalIssue = createReportExternalIssue(issue, inputComponent.scannerId());
     write(inputComponent.scannerId(), rawExternalIssue);
+  }
+
+  private static String nullToEmpty(@Nullable String str) {
+    if (str == null) {
+      return "";
+    }
+    return str;
   }
 
   private static ScannerReport.Issue createReportIssue(Issue issue, int componentRef, String activeRuleSeverity) {

@@ -22,7 +22,7 @@ package org.sonar.scanner.repository;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class ContextPropertiesCache {
 

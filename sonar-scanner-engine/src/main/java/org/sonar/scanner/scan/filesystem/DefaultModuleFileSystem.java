@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.impl.fs.DefaultFileSystem;
 import org.sonar.api.impl.fs.DefaultInputModule;
 import org.sonar.api.impl.fs.predicates.DefaultFilePredicates;
@@ -31,7 +30,6 @@ public class DefaultModuleFileSystem extends DefaultFileSystem {
     initFields(module);
   }
 
-  @VisibleForTesting
   public DefaultModuleFileSystem(DefaultInputModule module) {
     super(module.getBaseDir());
     initFields(module);

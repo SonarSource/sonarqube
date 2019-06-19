@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.genericcoverage;
 
-import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -34,6 +33,8 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.utils.MessageException;
+
+import static org.sonar.api.utils.Preconditions.checkState;
 
 public class GenericCoverageReportParser {
 
@@ -85,7 +86,7 @@ public class GenericCoverageReportParser {
         }
         continue;
       }
-      Preconditions.checkState(
+      checkState(
         inputFile.language() != null,
         "Line %s of report refers to a file with an unknown language: %s",
         fileCursor.getCursorLocation().getLineNumber(),

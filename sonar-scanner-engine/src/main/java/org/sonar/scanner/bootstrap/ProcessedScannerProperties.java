@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -50,7 +50,7 @@ public class ProcessedScannerProperties implements ProjectKey {
   }
 
   public Map<String, String> properties() {
-    return ImmutableMap.copyOf(properties);
+    return Collections.unmodifiableMap(new HashMap<>(properties));
   }
 
   public String property(String key) {
