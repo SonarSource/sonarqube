@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,6 +60,7 @@ public class AppNodesClusterHostsConsistencyTest {
   private Consumer<String> logger = mock(Consumer.class);
 
   @Before
+  @After
   public void setUp() {
     AppNodesClusterHostsConsistency.clearInstance();
   }
