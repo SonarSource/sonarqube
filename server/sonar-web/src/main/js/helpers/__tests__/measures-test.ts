@@ -60,7 +60,12 @@ describe('#formatMeasure()', () => {
     expect(formatMeasure(1529, 'SHORT_INT')).toBe('1.5k');
     expect(formatMeasure(10000, 'SHORT_INT')).toBe('10k');
     expect(formatMeasure(10678, 'SHORT_INT')).toBe('11k');
-    expect(formatMeasure(1234567890, 'SHORT_INT')).toBe('1G');
+    expect(formatMeasure(9467890, 'SHORT_INT')).toBe('9.5M');
+    expect(formatMeasure(994567890, 'SHORT_INT')).toBe('995M');
+    expect(formatMeasure(999000001, 'SHORT_INT')).toBe('999M');
+    expect(formatMeasure(999567890, 'SHORT_INT')).toBe('1G');
+    expect(formatMeasure(1234567890, 'SHORT_INT')).toBe('1.2G');
+    expect(formatMeasure(11234567890, 'SHORT_INT')).toBe('11G');
   });
 
   it('should format FLOAT', () => {
@@ -130,8 +135,8 @@ describe('#formatMeasure()', () => {
     expect(formatMeasure(-1 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('-1min');
 
     expect(formatMeasure(1529 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('1.5kd');
-    expect(formatMeasure(1234567 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('1Md');
-    expect(formatMeasure(1234567 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('1Md');
+    expect(formatMeasure(1234567 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('1.2Md');
+    expect(formatMeasure(12345670 * ONE_DAY + 4 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('12Md');
   });
 
   it('should format RATING', () => {

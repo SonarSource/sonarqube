@@ -18,19 +18,40 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, ShallowWrapper } from 'enzyme';
 import Statistics, { StatisticCard } from '../Statistics';
 
-const STATISTICS = {
-  icon: 'stat-icon',
-  text: 'my stat',
-  value: 26666
-};
+const STATISTICS = { icon: 'stat-icon', text: 'my stat', value: 26666 };
 
 it('should render', () => {
   expect(shallow(<Statistics statistics={[STATISTICS]} />)).toMatchSnapshot();
 });
 
 it('should render StatisticCard', () => {
-  expect(shallow(<StatisticCard statistic={STATISTICS} />)).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
+
+it('should render big numbers correctly', () => {
+  function checkCountUp(wrapper: ShallowWrapper, end: number, suffix: string) {
+    expect(wrapper.find('CountUp').prop('end')).toBe(end);
+    expect(wrapper.find('CountUp').prop('suffix')).toBe(suffix);
+  }
+
+  checkCountUp(
+    shallowRender({ statistic: { ...STATISTICS, value: 999003632 } }),
+    999,
+    'short_number_suffix.m'
+  );
+  checkCountUp(
+    shallowRender({ statistic: { ...STATISTICS, value: 999861538 } }),
+    999,
+    'short_number_suffix.m'
+  );
+  checkCountUp(shallowRender({ statistic: { ...STATISTICS, value: 1100021731 } }), 1.1, ' billion');
+});
+
+function shallowRender(props: Partial<StatisticCard['props']> = {}) {
+  const wrapper = shallow(<StatisticCard statistic={STATISTICS} {...props} />);
+  wrapper.setState({ viewable: true });
+  return wrapper;
+}

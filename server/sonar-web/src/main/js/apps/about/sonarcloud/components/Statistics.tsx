@@ -21,6 +21,7 @@ import * as React from 'react';
 import { throttle } from 'lodash';
 import CountUp from 'react-countup';
 import { formatMeasure } from '../../../../helpers/measures';
+import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/urls';
 import './Statistics.css';
 
@@ -83,9 +84,14 @@ export class StatisticCard extends React.PureComponent<StatisticCardProps, Stati
 
   render() {
     const { statistic } = this.props;
-    const formattedString = formatMeasure(statistic.value, 'SHORT_INT');
-    const value = parseFloat(formattedString.slice(0, -1));
-    const suffix = formattedString.substr(-1);
+    const formattedString = formatMeasure(statistic.value, 'SHORT_INT', {
+      roundingFunc: Math.floor
+    });
+    const value = parseFloat(formattedString);
+    let suffix = formattedString.replace(value.toString(), '');
+    if (suffix === translate('short_number_suffix.g')) {
+      suffix = ' ' + translate('billion');
+    }
     return (
       <div className="sc-stat-card sc-big-spacer-top" ref={node => (this.container = node)}>
         <div className="sc-stat-icon">

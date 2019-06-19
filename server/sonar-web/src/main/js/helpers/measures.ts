@@ -130,18 +130,44 @@ function intFormatter(value: number): string {
   return numberFormatter(value);
 }
 
-function shortIntFormatter(value: number): string {
-  if (value >= 1e9) {
-    return numberFormatter(value / 1e9) + translate('short_number_suffix.g');
-  } else if (value >= 1e6) {
-    return numberFormatter(value / 1e6) + translate('short_number_suffix.m');
-  } else if (value >= 1e4) {
-    return numberFormatter(value / 1e3) + translate('short_number_suffix.k');
-  } else if (value >= 1e3) {
-    return numberFormatter(value / 1e3, 0, 1) + translate('short_number_suffix.k');
-  } else {
-    return numberFormatter(value);
+const shortIntFormats = [
+  { unit: 1e10, formatUnit: 1e9, fraction: 0, suffix: 'short_number_suffix.g' },
+  { unit: 1e9, formatUnit: 1e9, fraction: 1, suffix: 'short_number_suffix.g' },
+  { unit: 1e7, formatUnit: 1e6, fraction: 0, suffix: 'short_number_suffix.m' },
+  { unit: 1e6, formatUnit: 1e6, fraction: 1, suffix: 'short_number_suffix.m' },
+  { unit: 1e4, formatUnit: 1e3, fraction: 0, suffix: 'short_number_suffix.k' },
+  { unit: 1e3, formatUnit: 1e3, fraction: 1, suffix: 'short_number_suffix.k' }
+];
+
+function shortIntFormatter(
+  value: number,
+  option?: { roundingFunc?: (x: number) => number }
+): string {
+  const roundingFunc = (option && option.roundingFunc) || undefined;
+  for (let i = 0; i < shortIntFormats.length; i++) {
+    const { unit, formatUnit, fraction, suffix } = shortIntFormats[i];
+    const nextFraction = unit / (shortIntFormats[i + 1] ? shortIntFormats[i + 1].unit / 10 : 1);
+    const roundedValue = numberRound(value / unit, nextFraction, roundingFunc);
+    if (roundedValue >= 1) {
+      return (
+        numberFormatter(
+          numberRound(value / formatUnit, Math.pow(10, fraction), roundingFunc),
+          0,
+          fraction
+        ) + translate(suffix)
+      );
+    }
   }
+
+  return numberFormatter(value);
+}
+
+function numberRound(
+  value: number,
+  fraction: number = 1000,
+  roundingFunc: (x: number) => number = Math.round
+) {
+  return roundingFunc(value * fraction) / fraction;
 }
 
 function floatFormatter(value: number): string {

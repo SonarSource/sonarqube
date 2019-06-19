@@ -33,6 +33,14 @@ exports[`should render StatisticCard 1`] = `
   <div
     className="sc-stat-content"
   >
+    <CountUp
+      delay={0}
+      duration={4}
+      end={26}
+      suffix="short_number_suffix.k"
+    >
+      <Component />
+    </CountUp>
     <span>
       my stat
     </span>
