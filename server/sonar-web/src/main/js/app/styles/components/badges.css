@@ -85,7 +85,7 @@ a.badge {
   font-size: var(--verySmallFontSize);
   text-transform: uppercase;
   background-color: var(--lightBlue);
-  color: var(--darkBlue);
+  color: var(--veryDarkBlue);
   font-weight: 600;
 }
 
