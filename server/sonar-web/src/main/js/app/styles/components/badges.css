@@ -90,14 +90,8 @@ a.badge {
 }
 
 .badge-muted {
-  background-color: transparent;
+  background-color: var(--gray80);
   color: var(--secondFontColor);
-}
-
-.badge-muted:hover,
-.badge-muted:focus,
-.badge-muted:active {
-  color: var(--blue);
 }
 
 .badge-success,
