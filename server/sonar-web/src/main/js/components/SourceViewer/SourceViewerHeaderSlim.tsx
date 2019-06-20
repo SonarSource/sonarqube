@@ -18,14 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Link } from 'react-router';
+import * as classNames from 'classnames';
 import DeferredSpinner from '../common/DeferredSpinner';
 import Favorite from '../controls/Favorite';
 import ExpandSnippetIcon from '../icons-components/ExpandSnippetIcon';
 import QualifierIcon from '../icons-components/QualifierIcon';
 import { ButtonIcon } from '../ui/buttons';
-import { getPathUrlAsString, getBranchLikeUrl } from '../../helpers/urls';
+import { translate } from '../../helpers/l10n';
+import { getPathUrlAsString, getBranchLikeUrl, getComponentIssuesUrl } from '../../helpers/urls';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
-import { isMainBranch } from '../../helpers/branches';
+import { isMainBranch, getBranchLikeQuery } from '../../helpers/branches';
 import './SourceViewerHeaderSlim.css';
 
 export interface Props {
@@ -43,7 +46,16 @@ export default function SourceViewerHeaderSlim({
   onExpand,
   sourceViewerFile
 }: Props) {
-  const { key, path, project, projectName, q, subProject, subProjectName } = sourceViewerFile;
+  const {
+    key,
+    measures,
+    path,
+    project,
+    projectName,
+    q,
+    subProject,
+    subProjectName
+  } = sourceViewerFile;
 
   return (
     <div className="source-viewer-header-slim display-flex-row display-flex-space-between">
@@ -78,9 +90,25 @@ export default function SourceViewerHeaderSlim({
         )}
       </div>
 
+      {measures.issues !== undefined && (
+        <div
+          className={classNames('flex-0 big-spacer-left', {
+            'little-spacer-right': !expandable || loading
+          })}>
+          <Link
+            to={getComponentIssuesUrl(project, {
+              ...getBranchLikeQuery(branchLike),
+              fileUuids: sourceViewerFile.uuid,
+              resolved: 'false'
+            })}>
+            {translate('source_viewer.view_all_issues')}
+          </Link>
+        </div>
+      )}
+
       {expandable && (
         <DeferredSpinner className="little-spacer-right" loading={loading}>
-          <div className="source-viewer-header-slim-actions flex-0">
+          <div className="flex-0 big-spacer-left">
             <ButtonIcon className="js-actions" onClick={onExpand}>
               <ExpandSnippetIcon />
             </ButtonIcon>

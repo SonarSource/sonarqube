@@ -38,12 +38,32 @@ exports[`should render correctly 1`] = `
       </span>
     </div>
   </div>
+  <div
+    className="flex-0 big-spacer-left"
+  >
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/issues",
+          "query": Object {
+            "fileUuids": "foo-bar",
+            "id": "my-project",
+            "resolved": "false",
+          },
+        }
+      }
+    >
+      source_viewer.view_all_issues
+    </Link>
+  </div>
   <DeferredSpinner
     className="little-spacer-right"
     timeout={100}
   >
     <div
-      className="source-viewer-header-slim-actions flex-0"
+      className="flex-0 big-spacer-left"
     >
       <ButtonIcon
         className="js-actions"
@@ -101,12 +121,32 @@ exports[`should render correctly for subproject 1`] = `
       </span>
     </div>
   </div>
+  <div
+    className="flex-0 big-spacer-left"
+  >
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/issues",
+          "query": Object {
+            "fileUuids": "foo-bar",
+            "id": "my-project",
+            "resolved": "false",
+          },
+        }
+      }
+    >
+      source_viewer.view_all_issues
+    </Link>
+  </div>
   <DeferredSpinner
     className="little-spacer-right"
     timeout={100}
   >
     <div
-      className="source-viewer-header-slim-actions flex-0"
+      className="flex-0 big-spacer-left"
     >
       <ButtonIcon
         className="js-actions"

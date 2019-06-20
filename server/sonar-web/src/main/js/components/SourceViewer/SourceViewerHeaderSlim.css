@@ -24,7 +24,3 @@
   align-items: center;
   min-height: 25px;
 }
-
-.source-viewer-header-slim-actions {
-  margin-left: calc(3 * var(--gridSize));
-}
