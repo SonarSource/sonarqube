@@ -76,7 +76,7 @@
   border-bottom: 4px solid transparent;
   box-sizing: border-box;
   color: #ccc;
-  font-size: var(--smallFontSize);
+  font-size: var(--baseFontSize);
   letter-spacing: 0.05em;
   white-space: nowrap;
 }
