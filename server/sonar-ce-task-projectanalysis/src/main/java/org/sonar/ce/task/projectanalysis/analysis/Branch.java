@@ -49,7 +49,7 @@ public interface Branch extends ComponentKeyGenerator {
   String getMergeBranchUuid();
 
   /**
-   * Whether the cross-project duplication tracker must be enabled
+   * Whether the cross-project duplication tracker can be enabled
    * or not.
    */
   boolean supportsCrossProjectCpd();

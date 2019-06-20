@@ -19,41 +19,49 @@
  */
 package org.sonar.ce.task.projectanalysis.duplication;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Ordering;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
 
 @Immutable
 public final class Duplication {
-  private static final Ordering<Duplicate> DUPLICATE_ORDERING = Ordering.from(DuplicateComparatorByType.INSTANCE)
-    .compound(Ordering.natural().onResultOf(DuplicateToFileKey.INSTANCE))
-    .compound(Ordering.natural().onResultOf(DuplicateToTextBlock.INSTANCE));
+  private static final Comparator<Duplicate> DUPLICATE_COMPARATOR = DuplicateComparatorByType.INSTANCE
+    .thenComparing(DuplicateToFileKey.INSTANCE).thenComparing(DuplicateToTextBlock.INSTANCE);
 
   private final TextBlock original;
   private final SortedSet<Duplicate> duplicates;
 
   /**
-   * @throws NullPointerException if {@code original} is {@code null} or {@code duplicates} is {@code null} or {@code duplicates} contains {@code null}
+   * @throws NullPointerException     if {@code original} is {@code null} or {@code duplicates} is {@code null} or {@code duplicates} contains {@code null}
    * @throws IllegalArgumentException if {@code duplicates} is empty
    * @throws IllegalArgumentException if {@code duplicates} contains a {@link InnerDuplicate} with {@code original}
    */
-  public Duplication(final TextBlock original, final Iterable<Duplicate> duplicates) {
+  public Duplication(TextBlock original, List<Duplicate> duplicates) {
     this.original = requireNonNull(original, "original TextBlock can not be null");
-    this.duplicates = from(requireNonNull(duplicates, "duplicates can not be null"))
-      .filter(FailOnNullDuplicate.INSTANCE)
-      .filter(new EnsureInnerDuplicateIsNotOriginalTextBlock(original))
-      .toSortedSet(DUPLICATE_ORDERING);
-    checkArgument(!this.duplicates.isEmpty(), "duplicates can not be empty");
+    validateDuplicates(original, duplicates);
+    this.duplicates = new TreeSet<>(DUPLICATE_COMPARATOR);
+    this.duplicates.addAll(duplicates);
+  }
+
+  private static void validateDuplicates(TextBlock original, List<Duplicate> duplicates) {
+    requireNonNull(duplicates, "duplicates can not be null");
+    checkArgument(!duplicates.isEmpty(), "duplicates can not be empty");
+
+    for (Duplicate dup : duplicates) {
+      requireNonNull(dup, "duplicates can not contain null");
+      if (dup instanceof InnerDuplicate) {
+        checkArgument(!original.equals(dup.getTextBlock()), "TextBlock of an InnerDuplicate can not be the original TextBlock");
+      }
+    }
   }
 
   /**
@@ -67,8 +75,8 @@ public final class Duplication {
    * The duplicates of the original, sorted by inner duplicates, then project duplicates, then cross-project duplicates.
    * For each category of duplicate, they are sorted by:
    * <ul>
-   *   <li>file key (unless it's an InnerDuplicate)</li>
-   *   <li>then by TextBlocks by start line and in case of same line, by shortest first</li>
+   * <li>file key (unless it's an InnerDuplicate)</li>
+   * <li>then by TextBlocks by start line and in case of same line, by shortest first</li>
    * </ul
    * <p>The returned set can not be empty and no inner duplicate can contain the original {@link TextBlock}.</p>
    */
@@ -101,16 +109,6 @@ public final class Duplication {
       '}';
   }
 
-  private enum FailOnNullDuplicate implements Predicate<Duplicate> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nullable Duplicate input) {
-      requireNonNull(input, "duplicates can not contain null");
-      return true;
-    }
-  }
-
   private enum DuplicateComparatorByType implements Comparator<Duplicate> {
     INSTANCE;
 
@@ -140,22 +138,6 @@ public final class Duplication {
     @Nonnull
     public TextBlock apply(@Nonnull Duplicate input) {
       return input.getTextBlock();
-    }
-  }
-
-  private static class EnsureInnerDuplicateIsNotOriginalTextBlock implements Predicate<Duplicate> {
-    private final TextBlock original;
-
-    public EnsureInnerDuplicateIsNotOriginalTextBlock(TextBlock original) {
-      this.original = original;
-    }
-
-    @Override
-    public boolean apply(@Nullable Duplicate input) {
-      if (input instanceof InnerDuplicate) {
-        checkArgument(!original.equals(input.getTextBlock()), "TextBlock of an InnerDuplicate can not be the original TextBlock");
-      }
-      return true;
     }
   }
 

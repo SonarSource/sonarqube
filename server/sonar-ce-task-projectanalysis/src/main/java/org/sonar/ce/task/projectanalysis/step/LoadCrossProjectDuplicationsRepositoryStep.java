@@ -19,9 +19,11 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Function;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -44,12 +46,8 @@ import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.scanner.protocol.output.ScannerReport.CpdTextBlock;
 
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Lists.newArrayList;
-
 /**
  * Feed the duplications repository from the cross project duplication blocks computed with duplications blocks of the analysis report.
- *
  * Blocks can be empty if :
  * - The file is excluded from the analysis using {@link org.sonar.api.CoreProperties#CPD_EXCLUSIONS}
  * - On Java, if the number of statements of the file is too small, nothing will be sent.
@@ -96,23 +94,25 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
 
     @Override
     public void visitFile(Component file) {
-      List<CpdTextBlock> cpdTextBlocks;
+      List<CpdTextBlock> cpdTextBlocks = new ArrayList<>();
       try (CloseableIterator<CpdTextBlock> blocksIt = reportReader.readCpdTextBlocks(file.getReportAttributes().getRef())) {
-        cpdTextBlocks = newArrayList(blocksIt);
-        LOGGER.trace("Found {} cpd blocks on file {}", cpdTextBlocks.size(), file.getDbKey());
-        if (cpdTextBlocks.isEmpty()) {
-          return;
+        while(blocksIt.hasNext()) {
+          cpdTextBlocks.add(blocksIt.next());
         }
       }
+      LOGGER.trace("Found {} cpd blocks on file {}", cpdTextBlocks.size(), file.getDbKey());
+      if (cpdTextBlocks.isEmpty()) {
+        return;
+      }
 
-      Collection<String> hashes = from(cpdTextBlocks).transform(CpdTextBlockToHash.INSTANCE).toList();
+      Collection<String> hashes = cpdTextBlocks.stream().map(CpdTextBlockToHash.INSTANCE).collect(Collectors.toList());
       List<DuplicationUnitDto> dtos = selectDuplicates(file, hashes);
       if (dtos.isEmpty()) {
         return;
       }
 
-      Collection<Block> duplicatedBlocks = from(dtos).transform(DtoToBlock.INSTANCE).toList();
-      Collection<Block> originBlocks = from(cpdTextBlocks).transform(new CpdTextBlockToBlock(file.getDbKey())).toList();
+      Collection<Block> duplicatedBlocks = dtos.stream().map(DtoToBlock.INSTANCE).collect(Collectors.toList());
+      Collection<Block> originBlocks = cpdTextBlocks.stream().map(new CpdTextBlockToBlock(file.getDbKey())).collect(Collectors.toList());
       LOGGER.trace("Found {} duplicated cpd blocks on file {}", duplicatedBlocks.size(), file.getDbKey());
 
       integrateCrossProjectDuplications.computeCpd(file, originBlocks, duplicatedBlocks);
@@ -155,7 +155,7 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
     private final String fileKey;
     private int indexInFile = 0;
 
-    public CpdTextBlockToBlock(String fileKey) {
+    CpdTextBlockToBlock(String fileKey) {
       this.fileKey = fileKey;
     }
 

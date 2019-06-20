@@ -19,11 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.duplication;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -51,7 +49,7 @@ public class DuplicationTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("original TextBlock can not be null");
 
-    new Duplication(null, Collections.emptySet());
+    new Duplication(null, Collections.emptyList());
   }
 
   @Test
@@ -67,7 +65,7 @@ public class DuplicationTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("duplicates can not be empty");
 
-    new Duplication(SOME_ORIGINAL_TEXTBLOCK, Collections.emptySet());
+    new Duplication(SOME_ORIGINAL_TEXTBLOCK, Collections.emptyList());
   }
 
   @Test
@@ -75,7 +73,7 @@ public class DuplicationTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("duplicates can not contain null");
 
-    new Duplication(SOME_ORIGINAL_TEXTBLOCK, new HashSet<>(Arrays.asList(mock(Duplicate.class), null, mock(Duplicate.class))));
+    new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(mock(Duplicate.class), null, mock(Duplicate.class)));
   }
 
   @Test
@@ -83,7 +81,7 @@ public class DuplicationTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("TextBlock of an InnerDuplicate can not be the original TextBlock");
 
-    new Duplication(SOME_ORIGINAL_TEXTBLOCK, new HashSet<>(Arrays.asList(mock(Duplicate.class), new InnerDuplicate(SOME_ORIGINAL_TEXTBLOCK), mock(Duplicate.class))));
+    new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(mock(Duplicate.class), new InnerDuplicate(SOME_ORIGINAL_TEXTBLOCK), mock(Duplicate.class)));
   }
 
   @Test
@@ -91,7 +89,7 @@ public class DuplicationTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Unsupported type of Duplicate " + MyDuplicate.class.getName());
 
-    new Duplication(SOME_ORIGINAL_TEXTBLOCK, ImmutableSet.of(new MyDuplicate(), new MyDuplicate()));
+    new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new MyDuplicate(), new MyDuplicate()));
   }
 
   private static final class MyDuplicate implements Duplicate {
@@ -104,7 +102,8 @@ public class DuplicationTest {
 
   @Test
   public void getOriginal_returns_original() {
-    assertThat(new Duplication(SOME_ORIGINAL_TEXTBLOCK, ImmutableSet.of(mock(Duplicate.class))).getOriginal()).isSameAs(SOME_ORIGINAL_TEXTBLOCK);
+    assertThat(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_1)))
+      .getOriginal()).isSameAs(SOME_ORIGINAL_TEXTBLOCK);
   }
 
   @Test

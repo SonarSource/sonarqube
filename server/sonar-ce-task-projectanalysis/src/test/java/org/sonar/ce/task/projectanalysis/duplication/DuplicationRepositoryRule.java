@@ -101,7 +101,7 @@ public class DuplicationRepositoryRule extends ExternalResource implements Dupli
       component,
       new Duplication(
         original,
-        from(Arrays.asList(duplicates)).transform(TextBlockToInnerDuplicate.INSTANCE)));
+        from(Arrays.asList(duplicates)).transform(TextBlockToInnerDuplicate.INSTANCE).toList()));
 
     return this;
   }

@@ -26,8 +26,10 @@ import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
 import org.sonar.duplications.block.Block;
@@ -38,29 +40,29 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
 public class IntegrateCrossProjectDuplicationsTest {
+  private static final String XOO_LANGUAGE = "xoo";
+  private static final String ORIGIN_FILE_KEY = "ORIGIN_FILE_KEY";
+  private static final Component ORIGIN_FILE = builder(FILE, 1)
+    .setKey(ORIGIN_FILE_KEY)
+    .setFileAttributes(new FileAttributes(false, XOO_LANGUAGE, 1))
+    .build();
+  private static final String OTHER_FILE_KEY = "OTHER_FILE_KEY";
 
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
   public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create();
 
-  static final String XOO_LANGUAGE = "xoo";
-
-  static final String ORIGIN_FILE_KEY = "ORIGIN_FILE_KEY";
-  static final Component ORIGIN_FILE = builder(FILE, 1)
-    .setKey(ORIGIN_FILE_KEY)
-    .setFileAttributes(new FileAttributes(false, XOO_LANGUAGE, 1))
-    .build();
-
-  static final String OTHER_FILE_KEY = "OTHER_FILE_KEY";
-
-  MapSettings settings = new MapSettings();
-
-  IntegrateCrossProjectDuplications underTest = new IntegrateCrossProjectDuplications(settings.asConfig(), duplicationRepository);
+  private TestSystem2 system = new TestSystem2();
+  private MapSettings settings = new MapSettings();
+  private CeTaskMessages ceTaskMessages = mock(CeTaskMessages.class);
+  private IntegrateCrossProjectDuplications underTest = new IntegrateCrossProjectDuplications(settings.asConfig(), duplicationRepository, ceTaskMessages, system);
 
   @Test
   public void add_duplications_from_two_blocks() {
@@ -335,10 +337,12 @@ public class IntegrateCrossProjectDuplicationsTest {
   @Test
   public void log_warning_if_this_deprecated_feature_is_enabled() {
     settings.setProperty("sonar.cpd.cross_project", "true");
+    system.setNow(1000L);
 
-    new IntegrateCrossProjectDuplications(settings.asConfig(), duplicationRepository);
+    new IntegrateCrossProjectDuplications(settings.asConfig(), duplicationRepository, ceTaskMessages, system);
 
     assertThat(logTester.logs()).containsExactly("This analysis uses the deprecated cross-project duplication feature.");
+    verify(ceTaskMessages).add(new CeTaskMessages.Message("This project uses the deprecated cross-project duplication feature.", 1000L));
   }
 
   private static Duplication crossProjectDuplication(TextBlock original, String otherFileKey, TextBlock duplicate) {

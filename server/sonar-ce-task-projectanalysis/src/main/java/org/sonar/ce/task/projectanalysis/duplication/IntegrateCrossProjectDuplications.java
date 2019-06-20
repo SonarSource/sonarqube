@@ -19,18 +19,20 @@
  */
 package org.sonar.ce.task.projectanalysis.duplication;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
@@ -39,16 +41,15 @@ import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.PackedMemoryCloneIndex;
 
-import static com.google.common.collect.FluentIterable.from;
-
 /**
  * Transform a list of duplication blocks into clone groups, then add these clone groups into the duplication repository.
  */
 public class IntegrateCrossProjectDuplications {
 
   private static final Logger LOGGER = Loggers.get(IntegrateCrossProjectDuplications.class);
-
   private static final String JAVA_KEY = "java";
+  private static final String DEPRECATED_WARNING = "This analysis uses the deprecated cross-project duplication feature.";
+  private static final String DEPRECATED_WARNING_DASHBOARD = "This project uses the deprecated cross-project duplication feature.";
 
   private static final int MAX_CLONE_GROUP_PER_FILE = 100;
   private static final int MAX_CLONE_PART_PER_GROUP = 100;
@@ -58,11 +59,12 @@ public class IntegrateCrossProjectDuplications {
 
   private Map<String, NumberOfUnitsNotLessThan> numberOfUnitsByLanguage = new HashMap<>();
 
-  public IntegrateCrossProjectDuplications(Configuration config, DuplicationRepository duplicationRepository) {
+  public IntegrateCrossProjectDuplications(Configuration config, DuplicationRepository duplicationRepository, CeTaskMessages ceTaskMessages, System2 system) {
     this.config = config;
     this.duplicationRepository = duplicationRepository;
     if (config.getBoolean(CoreProperties.CPD_CROSS_PROJECT).orElse(false)) {
-      LOGGER.warn("This analysis uses the deprecated cross-project duplication feature.");
+      LOGGER.warn(DEPRECATED_WARNING);
+      ceTaskMessages.add(new CeTaskMessages.Message(DEPRECATED_WARNING_DASHBOARD, system.now()));
     }
   }
 
@@ -72,7 +74,9 @@ public class IntegrateCrossProjectDuplications {
     populateIndex(duplicationIndex, duplicationBlocks);
 
     List<CloneGroup> duplications = SuffixTreeCloneDetectionAlgorithm.detect(duplicationIndex, originBlocks);
-    Iterable<CloneGroup> filtered = from(duplications).filter(getNumberOfUnitsNotLessThan(component.getFileAttributes().getLanguageKey()));
+    Iterable<CloneGroup> filtered = duplications.stream()
+      .filter(getNumberOfUnitsNotLessThan(component.getFileAttributes().getLanguageKey()))
+      .collect(Collectors.toList());
     addDuplications(component, filtered);
   }
 
@@ -96,20 +100,21 @@ public class IntegrateCrossProjectDuplications {
 
   private void addDuplication(Component file, CloneGroup duplication) {
     ClonePart originPart = duplication.getOriginPart();
-    Iterable<Duplicate> duplicates = convertClonePartsToDuplicates(file, duplication);
-    if (!Iterables.isEmpty(duplicates)) {
+    List<Duplicate> duplicates = convertClonePartsToDuplicates(file, duplication);
+    if (!duplicates.isEmpty()) {
       duplicationRepository.add(
         file,
         new Duplication(new TextBlock(originPart.getStartLine(), originPart.getEndLine()), duplicates));
     }
   }
 
-  private static Iterable<Duplicate> convertClonePartsToDuplicates(final Component file, CloneGroup duplication) {
+  private static List<Duplicate> convertClonePartsToDuplicates(final Component file, CloneGroup duplication) {
     final ClonePart originPart = duplication.getOriginPart();
-    return from(duplication.getCloneParts())
+    return duplication.getCloneParts().stream()
       .filter(new DoesNotMatchSameComponentKey(originPart.getResourceId()))
       .filter(new DuplicateLimiter(file, originPart))
-      .transform(ClonePartToCrossProjectDuplicate.INSTANCE);
+      .map(ClonePartToCrossProjectDuplicate.INSTANCE)
+      .collect(Collectors.toList());
   }
 
   private NumberOfUnitsNotLessThan getNumberOfUnitsNotLessThan(String language) {
@@ -132,12 +137,12 @@ public class IntegrateCrossProjectDuplications {
   private static class NumberOfUnitsNotLessThan implements Predicate<CloneGroup> {
     private final int min;
 
-    public NumberOfUnitsNotLessThan(int min) {
+    NumberOfUnitsNotLessThan(int min) {
       this.min = min;
     }
 
     @Override
-    public boolean apply(@Nonnull CloneGroup input) {
+    public boolean test(@Nonnull CloneGroup input) {
       return input.getLengthInUnits() >= min;
     }
   }
@@ -150,7 +155,7 @@ public class IntegrateCrossProjectDuplications {
     }
 
     @Override
-    public boolean apply(@Nonnull ClonePart part) {
+    public boolean test(@Nonnull ClonePart part) {
       return !part.getResourceId().equals(componentKey);
     }
   }
@@ -160,18 +165,18 @@ public class IntegrateCrossProjectDuplications {
     private final ClonePart originPart;
     private int counter = 0;
 
-    public DuplicateLimiter(Component file, ClonePart originPart) {
+    DuplicateLimiter(Component file, ClonePart originPart) {
       this.file = file;
       this.originPart = originPart;
     }
 
     @Override
-    public boolean apply(@Nonnull ClonePart input) {
+    public boolean test(@Nonnull ClonePart input) {
       if (counter == MAX_CLONE_PART_PER_GROUP) {
         LOGGER.warn("Too many duplication references on file {} for block at line {}. Keeping only the first {} references.",
           file.getDbKey(), originPart.getStartLine(), MAX_CLONE_PART_PER_GROUP);
       }
-      boolean res = counter <= MAX_CLONE_GROUP_PER_FILE;
+      boolean res = counter < MAX_CLONE_GROUP_PER_FILE;
       counter++;
       return res;
     }
