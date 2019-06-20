@@ -26,15 +26,12 @@ The SonarQube Java analyzer is able to analyze any kind of Java source files reg
 
 We recommend using the Critical Patch Update (CPU) releases.
 
-[[warning]]
-| ![Warning](/images/exclamation.svg) Support for Java 8 has been deprecated in SonarQube v7.8 and will be removed in SonarQube v7.9 LTS.
-
 | Java           |                          |
 | -------------- | ------------------------ |
 | Oracle JRE     | ![](/images/check.svg) 11 |
-|                | ![](/images/exclamation.svg) 8 – Support for Java 8 will be removed in SQ v7.9 LTS |
+|                | ![](/images/cross.svg) 8  |
 | OpenJDK        | ![](/images/check.svg) 11 |
-|                | ![](/images/exclamation.svg) 8 – Support for Java 8 will be removed in SQ v7.9 LTS |
+|                | ![](/images/cross.svg) 8  |
 
 | Database                                                    |                                                                                                                                                                                                                                                                   |
 | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
