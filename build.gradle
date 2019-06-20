@@ -414,6 +414,15 @@ subprojects {
   }
 }
 
+
+// Yarn doesn't support concurrent access to its global cache,
+// i.e. parallel execution of several "yarn install" tasks,
+// since these tasks are independent, we can establish arbitrary total order
+// to prevent their concurrent execution:
+def yarnInstallTasks = allprojects.findResults { it -> it.tasks.findByName('yarn') }
+yarnInstallTasks.eachWithIndex { it, i -> if (i > 0) it.mustRunAfter(yarnInstallTasks.get(i - 1)) }
+
+
 artifactory {
   clientConfig.setIncludeEnvVars(true)
   clientConfig.setEnvVarsExcludePatterns('*password*,*PASSWORD*,*secret*,*MAVEN_CMD_LINE_ARGS*,sun.java.command,*token*,*TOKEN*,*LOGIN*,*login*,*key*,*KEY*')
