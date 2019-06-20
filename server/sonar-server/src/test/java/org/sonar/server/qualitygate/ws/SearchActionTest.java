@@ -70,25 +70,6 @@ public class SearchActionTest {
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void definition() {
-    WebService.Action action = ws.getDef();
-
-    assertThat(action).isNotNull();
-    assertThat(action.isInternal()).isFalse();
-    assertThat(action.isPost()).isFalse();
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params())
-      .extracting(WebService.Param::key, WebService.Param::isRequired)
-      .containsExactlyInAnyOrder(
-        tuple("gateId", true),
-        tuple("query", false),
-        tuple("organization", false),
-        tuple("selected", false),
-        tuple("page", false),
-        tuple("pageSize", false));
-  }
-
-  @Test
   public void search_projects_of_a_quality_gate_from_an_organization() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPublicProject(organization);
@@ -101,9 +82,8 @@ public class SearchActionTest {
       .executeProtobuf(SearchResponse.class);
 
     assertThat(response.getResultsList())
-      .extracting(Result::getId, Result::getName)
-      .containsExactlyInAnyOrder(tuple(project.getId(), project.name()));
-    assertThat(response.getMore()).isFalse();
+      .extracting(Result::getId, Result::getKey, Result::getName)
+      .containsExactlyInAnyOrder(tuple(project.getId(), project.getKey(), project.name()));
   }
 
   @Test
@@ -120,7 +100,6 @@ public class SearchActionTest {
     assertThat(response.getResultsList())
       .extracting(Result::getId, Result::getName)
       .containsExactlyInAnyOrder(tuple(project.getId(), project.name()));
-    assertThat(response.getMore()).isFalse();
   }
 
   @Test
@@ -151,10 +130,10 @@ public class SearchActionTest {
       .executeProtobuf(SearchResponse.class);
 
     assertThat(response.getResultsList())
-      .extracting(Result::getName, Result::getSelected)
+      .extracting(Result::getName, Result::getKey, Result::getSelected)
       .containsExactlyInAnyOrder(
-        tuple(associatedProject.name(), true),
-        tuple(unassociatedProject.name(), false));
+        tuple(associatedProject.name(), associatedProject.getKey(), true),
+        tuple(unassociatedProject.name(), unassociatedProject.getKey(), false));
   }
 
   @Test
@@ -309,25 +288,53 @@ public class SearchActionTest {
   }
 
   @Test
-  public void more_is_true_when_not_all_project_fit_in_page_size() {
+  public void test_pagination_on_many_pages() {
     OrganizationDto organization = db.organizations().insert();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
     for (int i = 0; i < 20; i++) {
       ComponentDto project = db.components().insertPublicProject(organization);
       db.qualityGates().associateProjectToQualityGate(project, qualityGate);
     }
-
     userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
 
     SearchResponse response = ws.newRequest()
       .setParam(PARAM_GATE_ID, valueOf(qualityGate.getId()))
       .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam(PARAM_PAGE_SIZE, valueOf(10))
+      .setParam(PARAM_PAGE_SIZE, valueOf(5))
+      .setParam(PARAM_PAGE, valueOf(2))
+      .executeProtobuf(SearchResponse.class);
+
+    assertThat(response)
+      .extracting(SearchResponse::getMore,
+        searchResponse -> searchResponse.getPaging().getPageIndex(),
+        searchResponse -> searchResponse.getPaging().getPageSize(),
+        searchResponse -> searchResponse.getPaging().getTotal())
+      .contains(true, 2, 5, 20);
+  }
+
+  @Test
+  public void test_pagination_on_one_page() {
+    OrganizationDto organization = db.organizations().insert();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    for (int i = 0; i < 20; i++) {
+      ComponentDto project = db.components().insertPublicProject(organization);
+      db.qualityGates().associateProjectToQualityGate(project, qualityGate);
+    }
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+
+    SearchResponse response = ws.newRequest()
+      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getId()))
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_PAGE_SIZE, valueOf(100))
       .setParam(PARAM_PAGE, valueOf(1))
       .executeProtobuf(SearchResponse.class);
 
-    assertThat(response.getMore()).isTrue();
-    assertThat(response.getResultsCount()).isEqualTo(10);
+    assertThat(response)
+      .extracting(SearchResponse::getMore,
+        searchResponse -> searchResponse.getPaging().getPageIndex(),
+        searchResponse -> searchResponse.getPaging().getPageSize(),
+        searchResponse -> searchResponse.getPaging().getTotal())
+      .contains(false, 1, 100, 20);
   }
 
   @Test
@@ -378,6 +385,25 @@ public class SearchActionTest {
       .setParam(PARAM_GATE_ID, valueOf(qualityGate.getId()))
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(SearchResponse.class);
+  }
+
+  @Test
+  public void definition() {
+    WebService.Action action = ws.getDef();
+
+    assertThat(action).isNotNull();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params())
+      .extracting(WebService.Param::key, WebService.Param::isRequired)
+      .containsExactlyInAnyOrder(
+        tuple("gateId", true),
+        tuple("query", false),
+        tuple("organization", false),
+        tuple("selected", false),
+        tuple("page", false),
+        tuple("pageSize", false));
   }
 
 }

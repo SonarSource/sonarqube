@@ -4,7 +4,7 @@
 <mapper namespace="org.sonar.db.qualitygate.ProjectQgateAssociationMapper">
 
   <select id="selectProjects" parameterType="map" resultType="ProjectQgateAssociation">
-    SELECT proj.id as id, proj.name as name, prop.text_value as gateId
+    SELECT proj.id as id, proj.kee as key, proj.name as name, prop.text_value as gateId
     FROM projects proj
     LEFT JOIN properties prop ON prop.resource_id=proj.id AND prop.prop_key='sonar.qualitygate' AND prop.text_value = #{query.gateId}
     where

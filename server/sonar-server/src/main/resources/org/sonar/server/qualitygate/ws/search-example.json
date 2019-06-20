@@ -1,15 +1,21 @@
 {
-  "more": true,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 2
+  },
   "results": [
     {
       "id": 1,
       "name": "Simple Java project analyzed with the SonarQube Runner",
+      "key": "somple-java",
       "selected": true
     },
     {
       "id": 4,
       "name": "My Project",
-      "selected": true
+      "key": "my-project",
+      "selected": false
     }
   ]
 }

@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 public class ProjectQgateAssociationDto {
 
   private Long id;
+  private String key;
   private String name;
   private String gateId;
 
@@ -37,6 +38,15 @@ public class ProjectQgateAssociationDto {
 
   public ProjectQgateAssociationDto setId(Long id) {
     this.id = id;
+    return this;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  public ProjectQgateAssociationDto setKey(String key) {
+    this.key = key;
     return this;
   }
 
@@ -59,10 +69,4 @@ public class ProjectQgateAssociationDto {
     return this;
   }
 
-  public ProjectQgateAssociation toQgateAssociation() {
-    return new ProjectQgateAssociation()
-      .setId(id)
-      .setName(name)
-      .setMember(gateId != null);
-  }
 }

@@ -20,6 +20,8 @@ syntax = "proto2";
 
 package sonarqube.ws.qualitygate;
 
+import "ws-commons.proto";
+
 option java_package = "org.sonarqube.ws";
 option java_outer_classname = "Qualitygates";
 option optimize_for = SPEED;
@@ -132,13 +134,16 @@ message ShowWsResponse {
 
 // GET api/qualitygates/search
 message SearchResponse {
+  // Deprecated since 7.9
   optional bool more = 1;
   repeated Result results = 2;
+  optional sonarqube.ws.commons.Paging paging = 3;
 
   message Result {
     optional int64 id = 1;
     optional string name = 2;
     optional bool selected = 3;
+    optional string key = 4;
   }
 }
 

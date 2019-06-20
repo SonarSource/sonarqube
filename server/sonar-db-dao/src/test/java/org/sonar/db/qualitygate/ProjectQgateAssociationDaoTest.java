@@ -56,11 +56,11 @@ public class ProjectQgateAssociationDaoTest {
       .build());
 
     assertThat(result)
-      .extracting(ProjectQgateAssociationDto::getId, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
+      .extracting(ProjectQgateAssociationDto::getId, ProjectQgateAssociationDto::getKey, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
       .containsExactlyInAnyOrder(
-        tuple(project1.getId(), project1.name(), qualityGate1.getId().toString()),
-        tuple(project2.getId(), project2.name(), qualityGate1.getId().toString()),
-        tuple(project3.getId(), project3.name(), null));
+        tuple(project1.getId(), project1.getKey(), project1.name(), qualityGate1.getId().toString()),
+        tuple(project2.getId(), project2.getKey(), project2.name(), qualityGate1.getId().toString()),
+        tuple(project3.getId(), project3.getKey(), project3.name(), null));
   }
 
   @Test

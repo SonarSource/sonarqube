@@ -22,6 +22,7 @@ package org.sonar.server.qualitygate.ws;
 import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.List;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -31,13 +32,13 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates;
 
+import static java.util.stream.Collectors.toList;
 import static org.sonar.api.server.ws.WebService.Param.SELECTED;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.db.qualitygate.ProjectQgateAssociationQuery.ANY;
@@ -66,6 +67,10 @@ public class SearchAction implements QualityGatesWsAction {
         "Only authorized projects for current user will be returned.")
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "search-example.json"))
+      .setChangelog(
+        new Change("7.9", "New field 'paging' in response"),
+        new Change("7.9", "New field 'key' returning the project key in 'results' response"),
+        new Change("7.9", "Field 'more' is deprecated in the response"))
       .setHandler(this);
 
     action.createParam(PARAM_GATE_ID)
@@ -97,45 +102,42 @@ public class SearchAction implements QualityGatesWsAction {
 
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, request.mandatoryParamAsLong(PARAM_GATE_ID));
-      Association associations = find(dbSession,
-        ProjectQgateAssociationQuery.builder()
-          .qualityGate(qualityGate)
-          .membership(request.param(PARAM_QUERY) == null ? request.param(SELECTED) : ANY)
-          .projectSearch(request.param(PARAM_QUERY))
-          .pageIndex(request.paramAsInt(PARAM_PAGE))
-          .pageSize(request.paramAsInt(PARAM_PAGE_SIZE))
-          .build());
 
-      Qualitygates.SearchResponse.Builder createResponse = Qualitygates.SearchResponse.newBuilder()
-        .setMore(associations.hasMoreResults());
+      ProjectQgateAssociationQuery projectQgateAssociationQuery = ProjectQgateAssociationQuery.builder()
+        .qualityGate(qualityGate)
+        .membership(request.param(PARAM_QUERY) == null ? request.param(SELECTED) : ANY)
+        .projectSearch(request.param(PARAM_QUERY))
+        .pageIndex(request.paramAsInt(PARAM_PAGE))
+        .pageSize(request.paramAsInt(PARAM_PAGE_SIZE))
+        .build();
+      List<ProjectQgateAssociationDto> projects = dbClient.projectQgateAssociationDao().selectProjects(dbSession, projectQgateAssociationQuery);
+      List<ProjectQgateAssociationDto> authorizedProjects = keepAuthorizedProjects(dbSession, projects);
+      Paging paging = forPageIndex(projectQgateAssociationQuery.pageIndex())
+        .withPageSize(projectQgateAssociationQuery.pageSize())
+        .andTotal(authorizedProjects.size());
+      List<ProjectQgateAssociationDto> paginatedProjects = getPaginatedProjects(authorizedProjects, paging);
 
-      for (ProjectQgateAssociation project : associations.projects()) {
+      Qualitygates.SearchResponse.Builder createResponse = Qualitygates.SearchResponse.newBuilder().setMore(paging.hasNextPage());
+      createResponse.getPagingBuilder()
+        .setPageIndex(paging.pageIndex())
+        .setPageSize(paging.pageSize())
+        .setTotal(paging.total())
+        .build();
+
+      for (ProjectQgateAssociationDto project : paginatedProjects) {
         createResponse.addResultsBuilder()
-          .setId(project.id())
-          .setName(project.name())
-          .setSelected(project.isMember());
+          .setId(project.getId())
+          .setName(project.getName())
+          .setKey(project.getKey())
+          .setSelected(project.getGateId() != null);
       }
 
       writeProtobuf(createResponse.build(), request, response);
     }
   }
 
-  private SearchAction.Association find(DbSession dbSession, ProjectQgateAssociationQuery query) {
-    List<ProjectQgateAssociationDto> projects = dbClient.projectQgateAssociationDao().selectProjects(dbSession, query);
-    List<ProjectQgateAssociationDto> authorizedProjects = keepAuthorizedProjects(dbSession, projects);
-
-    Paging paging = forPageIndex(query.pageIndex())
-      .withPageSize(query.pageSize())
-      .andTotal(authorizedProjects.size());
-    return new SearchAction.Association(toProjectAssociations(getPaginatedProjects(authorizedProjects, paging)), paging.hasNextPage());
-  }
-
   private static List<ProjectQgateAssociationDto> getPaginatedProjects(List<ProjectQgateAssociationDto> projects, Paging paging) {
-    return projects.stream().skip(paging.offset()).limit(paging.pageSize()).collect(MoreCollectors.toList());
-  }
-
-  private static List<ProjectQgateAssociation> toProjectAssociations(List<ProjectQgateAssociationDto> dtos) {
-    return dtos.stream().map(ProjectQgateAssociationDto::toQgateAssociation).collect(MoreCollectors.toList());
+    return projects.stream().skip(paging.offset()).limit(paging.pageSize()).collect(toList());
   }
 
   private List<ProjectQgateAssociationDto> keepAuthorizedProjects(DbSession dbSession, List<ProjectQgateAssociationDto> projects) {
@@ -148,23 +150,5 @@ public class SearchAction implements QualityGatesWsAction {
     List<Long> projectIds = projects.stream().map(ProjectQgateAssociationDto::getId).collect(MoreCollectors.toList());
     Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession, projectIds, userSession.getUserId(), UserRole.USER);
     return projects.stream().filter(project -> authorizedProjectIds.contains(project.getId())).collect(MoreCollectors.toList());
-  }
-
-  private static class Association {
-    private List<ProjectQgateAssociation> projects;
-    private boolean hasMoreResults;
-
-    private Association(List<ProjectQgateAssociation> projects, boolean hasMoreResults) {
-      this.projects = projects;
-      this.hasMoreResults = hasMoreResults;
-    }
-
-    public List<ProjectQgateAssociation> projects() {
-      return projects;
-    }
-
-    public boolean hasMoreResults() {
-      return hasMoreResults;
-    }
   }
 }
