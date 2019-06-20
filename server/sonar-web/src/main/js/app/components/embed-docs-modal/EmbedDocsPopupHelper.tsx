@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { ButtonLink } from '../../../components/ui/buttons';
 import Toggler from '../../../components/controls/Toggler';
 import HelpIcon from '../../../components/icons-components/HelpIcon';
 import { lazyLoad } from '../../../components/lazyLoad';
@@ -55,9 +56,7 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<{}, State>
     this.setState({ helpOpen });
   };
 
-  handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleClick = () => {
     this.toggleHelp();
   };
 
@@ -78,13 +77,14 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<{}, State>
           onRequestClose={this.closeHelp}
           open={this.state.helpOpen}
           overlay={<EmbedDocsPopup onClose={this.closeHelp} />}>
-          <a
+          <ButtonLink
+            aria-expanded={this.state.helpOpen}
+            aria-haspopup={true}
             className="navbar-help navbar-icon"
-            href="#"
             onClick={this.handleClick}
             title={translate('help')}>
             <HelpIcon />
-          </a>
+          </ButtonLink>
         </Toggler>
       </li>
     );
