@@ -221,6 +221,7 @@ public class SearchAction implements IssuesWsAction, Startable {
       .setPossibleValues(SUPPORTED_FACETS);
     action.createParam(FACET_MODE)
       .setDefaultValue(FACET_MODE_COUNT)
+      .setDeprecatedSince("7.9")
       .setDescription("Choose the returned value for facet items, either count of issues or sum of remediation effort.")
       .setPossibleValues(FACET_MODE_COUNT, FACET_MODE_EFFORT);
     action.addSortParams(IssueQuery.SORTS, null, true);

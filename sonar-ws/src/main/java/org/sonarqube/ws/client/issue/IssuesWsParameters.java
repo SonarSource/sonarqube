@@ -99,6 +99,10 @@ public class IssuesWsParameters {
   public static final String PARAM_ASC = "asc";
   public static final String PARAM_ADDITIONAL_FIELDS = "additionalFields";
 
+  /**
+   * @deprecated since 7.9
+   */
+  @Deprecated
   public static final String FACET_MODE = "facetMode";
   public static final String FACET_MODE_COUNT = "count";
   public static final String FACET_MODE_EFFORT = "effort";
