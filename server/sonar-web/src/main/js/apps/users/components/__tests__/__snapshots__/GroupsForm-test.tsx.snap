@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Modal
+  contentLabel="users.update_groups"
+  onRequestClose={[Function]}
+>
+  <div
+    className="modal-head"
+  >
+    <h2>
+      users.update_groups
+    </h2>
+  </div>
+  <div
+    className="modal-body"
+  >
+    <SelectList
+      elements={
+        Array [
+          "test1",
+          "test2",
+          "test3",
+        ]
+      }
+      elementsTotalCount={1}
+      needReload={false}
+      onLoadMore={[Function]}
+      onReload={[Function]}
+      onSearch={[Function]}
+      onSelect={[Function]}
+      onUnselect={[Function]}
+      renderElement={[Function]}
+      selectedElements={
+        Array [
+          "test1",
+          "test2",
+        ]
+      }
+    />
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <a
+      className="js-modal-close"
+      href="#"
+      onClick={[Function]}
+    >
+      Done
+    </a>
+  </footer>
+</Modal>
+`;

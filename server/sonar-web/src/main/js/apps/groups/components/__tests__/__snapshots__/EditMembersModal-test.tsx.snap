@@ -1,50 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render modal 1`] = `
+exports[`should render modal properly 1`] = `
 <Modal
   contentLabel="users.update"
-  onRequestClose={[Function]}
->
-  <header
-    className="modal-head"
-  >
-    <h2>
-      users.update
-    </h2>
-  </header>
-  <div
-    className="modal-body"
-  >
-    <DeferredSpinner
-      loading={true}
-      timeout={100}
-    >
-      <SelectList
-        elements={Array []}
-        onSearch={[Function]}
-        onSelect={[Function]}
-        onUnselect={[Function]}
-        renderElement={[Function]}
-        selectedElements={Array []}
-      />
-    </DeferredSpinner>
-  </div>
-  <footer
-    className="modal-foot"
-  >
-    <ResetButtonLink
-      onClick={[Function]}
-    >
-      Done
-    </ResetButtonLink>
-  </footer>
-</Modal>
-`;
-
-exports[`should render modal 2`] = `
-<Modal
-  contentLabel="users.update"
-  onRequestClose={[Function]}
+  onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
@@ -66,6 +25,9 @@ exports[`should render modal 2`] = `
             "foo",
           ]
         }
+        needReload={false}
+        onLoadMore={[Function]}
+        onReload={[Function]}
         onSearch={[Function]}
         onSelect={[Function]}
         onUnselect={[Function]}
@@ -82,7 +44,7 @@ exports[`should render modal 2`] = `
     className="modal-foot"
   >
     <ResetButtonLink
-      onClick={[Function]}
+      onClick={[MockFunction]}
     >
       Done
     </ResetButtonLink>

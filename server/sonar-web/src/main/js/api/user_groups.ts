@@ -44,7 +44,7 @@ export function getUsersInGroup(data: {
   ps?: number;
   q?: string;
   selected?: string;
-}): Promise<{ paging: T.Paging; users: GroupUser[] }> {
+}): Promise<T.Paging & { users: GroupUser[] }> {
   return getJSON('/api/user_groups/users', data).catch(throwGlobalError);
 }
 

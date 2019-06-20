@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { find, without } from 'lodash';
+import * as React from 'react';
+import {
+  addUserToGroup,
+  getUsersInGroup,
+  GroupUser,
+  removeUserFromGroup
+} from '../../../api/user_groups';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Modal from '../../../components/controls/Modal';
 import SelectList, { Filter } from '../../../components/SelectList/SelectList';
 import { ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import {
-  GroupUser,
-  removeUserFromGroup,
-  addUserToGroup,
-  getUsersInGroup
-} from '../../../api/user_groups';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
   group: T.Group;
@@ -37,39 +37,83 @@ interface Props {
   organization: string | undefined;
 }
 
+export interface SearchParams {
+  name: string;
+  organization?: string;
+  page: number;
+  pageSize: number;
+  query?: string;
+  selected: string;
+}
+
 interface State {
+  lastSearchParams: SearchParams;
+  listHasBeenTouched: boolean;
   loading: boolean;
   users: GroupUser[];
+  usersTotalCount?: number;
   selectedUsers: string[];
 }
 
+const PAGE_SIZE = 100;
+
 export default class EditMembers extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { loading: true, users: [], selectedUsers: [] };
+
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      lastSearchParams: {
+        name: props.group.name,
+        organization: props.organization,
+        page: 1,
+        pageSize: PAGE_SIZE,
+        query: '',
+        selected: Filter.Selected
+      },
+      listHasBeenTouched: false,
+      loading: true,
+      users: [],
+      selectedUsers: []
+    };
+  }
 
   componentDidMount() {
     this.mounted = true;
-    this.handleSearch('', Filter.Selected);
+    this.fetchUsers(this.state.lastSearchParams);
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
-  handleSearch = (query: string, selected: Filter) => {
-    return getUsersInGroup({
-      name: this.props.group.name,
-      organization: this.props.organization,
-      ps: 100,
-      q: query !== '' ? query : undefined,
-      selected
+  fetchUsers = (searchParams: SearchParams, more?: boolean) =>
+    getUsersInGroup({
+      ...searchParams,
+      p: searchParams.page,
+      ps: searchParams.pageSize,
+      q: searchParams.query !== '' ? searchParams.query : undefined
     }).then(
       data => {
         if (this.mounted) {
-          this.setState({
-            loading: false,
-            users: data.users,
-            selectedUsers: data.users.filter(user => user.selected).map(user => user.login)
+          this.setState(prevState => {
+            const users = more ? [...prevState.users, ...data.users] : data.users;
+            const newSelectedUsers = data.users
+              .filter(user => user.selected)
+              .map(user => user.login);
+            const selectedUsers = more
+              ? [...prevState.selectedUsers, ...newSelectedUsers]
+              : newSelectedUsers;
+
+            return {
+              lastSearchParams: searchParams,
+              listHasBeenTouched: false,
+              loading: false,
+              users,
+              usersTotalCount: data.total,
+              selectedUsers
+            };
           });
         }
       },
@@ -79,35 +123,57 @@ export default class EditMembers extends React.PureComponent<Props, State> {
         }
       }
     );
-  };
 
-  handleSelect = (login: string) => {
-    return addUserToGroup({
+  handleLoadMore = () =>
+    this.fetchUsers(
+      {
+        ...this.state.lastSearchParams,
+        page: this.state.lastSearchParams.page + 1
+      },
+      true
+    );
+
+  handleReload = () =>
+    this.fetchUsers({
+      ...this.state.lastSearchParams,
+      page: 1
+    });
+
+  handleSearch = (query: string, selected: Filter) =>
+    this.fetchUsers({
+      ...this.state.lastSearchParams,
+      page: 1,
+      query,
+      selected
+    });
+
+  handleSelect = (login: string) =>
+    addUserToGroup({
       name: this.props.group.name,
       login,
       organization: this.props.organization
     }).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({
+          listHasBeenTouched: true,
           selectedUsers: [...state.selectedUsers, login]
         }));
       }
     });
-  };
 
-  handleUnselect = (login: string) => {
-    return removeUserFromGroup({
+  handleUnselect = (login: string) =>
+    removeUserFromGroup({
       name: this.props.group.name,
       login,
       organization: this.props.organization
     }).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({
+          listHasBeenTouched: true,
           selectedUsers: without(state.selectedUsers, login)
         }));
       }
     });
-  };
 
   renderElement = (login: string): React.ReactNode => {
     const user = find(this.state.users, { login });
@@ -138,6 +204,12 @@ export default class EditMembers extends React.PureComponent<Props, State> {
           <DeferredSpinner loading={this.state.loading}>
             <SelectList
               elements={this.state.users.map(user => user.login)}
+              elementsTotalCount={this.state.usersTotalCount}
+              needReload={
+                this.state.listHasBeenTouched && this.state.lastSearchParams.selected !== Filter.All
+              }
+              onLoadMore={this.handleLoadMore}
+              onReload={this.handleReload}
               onSearch={this.handleSearch}
               onSelect={this.handleSelect}
               onUnselect={this.handleUnselect}

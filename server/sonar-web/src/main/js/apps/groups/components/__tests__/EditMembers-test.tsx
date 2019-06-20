@@ -36,6 +36,7 @@ it('should edit members', async () => {
   expect(wrapper).toMatchSnapshot();
 
   await waitAndUpdate(wrapper);
+
   click(wrapper.find('ResetButtonLink'));
   expect(onEdit).toBeCalled();
   expect(wrapper).toMatchSnapshot();

@@ -19,22 +19,40 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import EditMembersModal, { SearchParams } from '../EditMembersModal';
+import GroupsForm, { SearchParams } from '../GroupsForm';
 import SelectList, { Filter } from '../../../../components/SelectList/SelectList';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import { getUsersInGroup, addUserToGroup, removeUserFromGroup } from '../../../../api/user_groups';
+import { getUserGroups } from '../../../../api/users';
+import { addUserToGroup, removeUserFromGroup } from '../../../../api/user_groups';
+import { mockUser } from '../../../../helpers/testMocks';
 
-jest.mock('../../../../api/user_groups', () => ({
-  getUsersInGroup: jest.fn().mockResolvedValue({
+jest.mock('../../../../api/users', () => ({
+  getUserGroups: jest.fn().mockResolvedValue({
     paging: { pageIndex: 1, pageSize: 10, total: 1 },
-    users: [
+    groups: [
       {
-        login: 'foo',
-        name: 'bar',
+        id: 1001,
+        name: 'test1',
+        description: 'test1',
         selected: true
+      },
+      {
+        id: 1002,
+        name: 'test2',
+        description: 'test2',
+        selected: true
+      },
+      {
+        id: 1003,
+        name: 'test3',
+        description: 'test3',
+        selected: false
       }
     ]
-  }),
+  })
+}));
+
+jest.mock('../../../../api/user_groups', () => ({
   addUserToGroup: jest.fn().mockResolvedValue({}),
   removeUserFromGroup: jest.fn().mockResolvedValue({})
 }));
@@ -43,12 +61,12 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-it('should render modal properly', async () => {
+it('should render correctly', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
   expect(wrapper).toMatchSnapshot();
-  expect(getUsersInGroup).toHaveBeenCalledWith(
+  expect(getUserGroups).toHaveBeenCalledWith(
     expect.objectContaining({
       p: 1
     })
@@ -66,7 +84,7 @@ it('should handle reload properly', async () => {
   await waitAndUpdate(wrapper);
 
   wrapper.instance().handleReload();
-  expect(getUsersInGroup).toHaveBeenCalledWith(
+  expect(getUserGroups).toHaveBeenCalledWith(
     expect.objectContaining({
       p: 1
     })
@@ -79,7 +97,7 @@ it('should handle search reload properly', async () => {
   await waitAndUpdate(wrapper);
 
   wrapper.instance().handleSearch('foo', Filter.Selected);
-  expect(getUsersInGroup).toHaveBeenCalledWith(
+  expect(getUserGroups).toHaveBeenCalledWith(
     expect.objectContaining({
       p: 1,
       q: 'foo',
@@ -94,7 +112,7 @@ it('should handle load more properly', async () => {
   await waitAndUpdate(wrapper);
 
   wrapper.instance().handleLoadMore();
-  expect(getUsersInGroup).toHaveBeenCalledWith(
+  expect(getUserGroups).toHaveBeenCalledWith(
     expect.objectContaining({
       p: 2
     })
@@ -110,7 +128,7 @@ it('should handle selection properly', async () => {
   await waitAndUpdate(wrapper);
   expect(addUserToGroup).toHaveBeenCalledWith(
     expect.objectContaining({
-      login: 'toto'
+      name: 'toto'
     })
   );
   expect(wrapper.state().listHasBeenTouched).toBe(true);
@@ -124,19 +142,14 @@ it('should handle deselection properly', async () => {
   await waitAndUpdate(wrapper);
   expect(removeUserFromGroup).toHaveBeenCalledWith(
     expect.objectContaining({
-      login: 'tata'
+      name: 'tata'
     })
   );
   expect(wrapper.state().listHasBeenTouched).toBe(true);
 });
 
-function shallowRender(props: Partial<EditMembersModal['props']> = {}) {
-  return shallow<EditMembersModal>(
-    <EditMembersModal
-      group={{ id: 1, name: 'foo', membersCount: 1 }}
-      onClose={jest.fn()}
-      organization={'bar'}
-      {...props}
-    />
+function shallowRender(props: Partial<GroupsForm['props']> = {}) {
+  return shallow<GroupsForm>(
+    <GroupsForm onClose={jest.fn()} onUpdateUsers={jest.fn()} user={mockUser()} {...props} />
   );
 }

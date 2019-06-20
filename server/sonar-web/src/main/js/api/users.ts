@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post, postJSON, RequestData } from '../helpers/request';
+import { getJSON, post, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function getCurrentUser(): Promise<T.CurrentUser> {
@@ -40,22 +40,14 @@ export interface UserGroup {
   selected: boolean;
 }
 
-export function getUserGroups(
-  login: string,
-  organization?: string,
-  query?: string,
-  selected?: string
-): Promise<{ paging: T.Paging; groups: UserGroup[] }> {
-  const data: RequestData = { login };
-  if (organization) {
-    data.organization = organization;
-  }
-  if (query) {
-    data.q = query;
-  }
-  if (selected) {
-    data.selected = selected;
-  }
+export function getUserGroups(data: {
+  login: string;
+  organization?: string;
+  p?: number;
+  ps?: number;
+  q?: string;
+  selected?: string;
+}): Promise<{ paging: T.Paging; groups: UserGroup[] }> {
   return getJSON('/api/users/groups', data);
 }
 

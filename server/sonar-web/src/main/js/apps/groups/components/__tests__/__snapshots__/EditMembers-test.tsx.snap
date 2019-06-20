@@ -311,6 +311,9 @@ exports[`should edit members 2`] = `
                   >
                     <SelectList
                       elements={Array []}
+                      needReload={false}
+                      onLoadMore={[Function]}
+                      onReload={[Function]}
                       onSearch={[Function]}
                       onSelect={[Function]}
                       onUnselect={[Function]}
