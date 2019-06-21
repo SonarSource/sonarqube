@@ -151,7 +151,7 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
       const { branchLike, measures, component } = this.props;
       const measure = measures.find(measure => measure.metric.key === metric);
       if (!measure) {
-        return <span>—</span>;
+        return <span className="big">—</span>;
       }
 
       const value = this.getValue(measure);

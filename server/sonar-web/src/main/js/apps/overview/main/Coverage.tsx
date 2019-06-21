@@ -106,7 +106,7 @@ export class Coverage extends React.PureComponent<ComposedProps> {
           </DrilldownLink>
         </div>
       ) : (
-        <span>—</span>
+        <span className="big">—</span>
       );
 
     const newLinesToCover = measures.find(measure => measure.metric.key === 'new_lines_to_cover');

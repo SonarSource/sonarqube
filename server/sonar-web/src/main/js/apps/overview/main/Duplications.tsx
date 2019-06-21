@@ -106,7 +106,7 @@ export class Duplications extends React.PureComponent<ComposedProps> {
           </DrilldownLink>
         </div>
       ) : (
-        <span>—</span>
+        <span className="big">—</span>
       );
 
     const newLinesMeasure = measures.find(measure => measure.metric.key === 'new_lines');

@@ -123,6 +123,7 @@
 
 .portfolio-box-rating .rating.no-rating {
   color: var(--secondFontColor);
+  font-size: var(--bigFontSize);
 }
 
 .portfolio-box-links {

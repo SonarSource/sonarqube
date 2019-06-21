@@ -128,7 +128,7 @@ exports[`should render correctly 1`] = `
           className="overview-domain-measure"
         >
           <div
-            className="overview-domain-measure-value overview-domain-measure-value-small"
+            className="overview-domain-measure-value"
           >
             <Link
               onlyActiveOnIndex={false}
@@ -260,27 +260,25 @@ exports[`should render correctly 1`] = `
           className="overview-domain-measure"
         >
           <div
-            className="overview-domain-measure-value overview-domain-measure-value-small"
+            className="overview-domain-measure-value"
           >
-            <span>
-              <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to={
-                  Object {
-                    "pathname": "/project/issues",
-                    "query": Object {
-                      "id": "my-project",
-                      "resolved": "false",
-                      "sinceLeakPeriod": "true",
-                      "types": "SECURITY_HOTSPOT",
-                    },
-                  }
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/project/issues",
+                  "query": Object {
+                    "id": "my-project",
+                    "resolved": "false",
+                    "sinceLeakPeriod": "true",
+                    "types": "SECURITY_HOTSPOT",
+                  },
                 }
-              >
-                10
-              </Link>
-            </span>
+              }
+            >
+              10
+            </Link>
           </div>
           <div
             className="overview-domain-measure-label"

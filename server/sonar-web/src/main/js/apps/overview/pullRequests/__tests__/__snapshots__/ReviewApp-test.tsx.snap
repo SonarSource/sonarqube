@@ -425,7 +425,7 @@ exports[`should render correctly for a failed QG 1`] = `
                   "title": "Foo Bar feature",
                 }
               }
-              className="huge"
+              className="overview-domain-measure-value"
               component={
                 Object {
                   "breadcrumbs": Array [],
@@ -1460,7 +1460,7 @@ exports[`should render correctly for a passed QG 1`] = `
                   "title": "Foo Bar feature",
                 }
               }
-              className="huge"
+              className="overview-domain-measure-value"
               component={
                 Object {
                   "breadcrumbs": Array [],

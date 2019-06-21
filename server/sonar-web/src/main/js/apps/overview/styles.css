@@ -543,6 +543,7 @@
 
 .pr-overview-measurements-value .measure-empty {
   margin-top: -4px;
+  font-size: var(--bigFontSize);
 }
 
 .pr-overview-measurements-rating,
