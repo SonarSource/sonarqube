@@ -118,20 +118,24 @@ export class App extends React.PureComponent<Props, State> {
 
   renderEmpty() {
     return (
-      <div className="empty-search">
-        <h3>
-          {!this.state.measures || !this.state.measures['projects']
-            ? translate('portfolio.empty')
-            : translate('portfolio.no_lines_of_code')}
-        </h3>
+      <div className="page page-limited">
+        <div className="empty-search">
+          <h3>
+            {!this.state.measures || !this.state.measures['projects']
+              ? translate('portfolio.empty')
+              : translate('portfolio.no_lines_of_code')}
+          </h3>
+        </div>
       </div>
     );
   }
 
   renderWhenNotComputed() {
     return (
-      <div className="empty-search">
-        <h3>{translate('portfolio.not_computed')}</h3>
+      <div className="page page-limited">
+        <div className="empty-search">
+          <h3>{translate('portfolio.not_computed')}</h3>
+        </div>
       </div>
     );
   }

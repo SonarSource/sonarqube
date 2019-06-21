@@ -148,20 +148,28 @@ exports[`renders 1`] = `
 
 exports[`renders when portfolio is empty 1`] = `
 <div
-  className="empty-search"
+  className="page page-limited"
 >
-  <h3>
-    portfolio.empty
-  </h3>
+  <div
+    className="empty-search"
+  >
+    <h3>
+      portfolio.empty
+    </h3>
+  </div>
 </div>
 `;
 
 exports[`renders when portfolio is not computed 1`] = `
 <div
-  className="empty-search"
+  className="page page-limited"
 >
-  <h3>
-    portfolio.not_computed
-  </h3>
+  <div
+    className="empty-search"
+  >
+    <h3>
+      portfolio.not_computed
+    </h3>
+  </div>
 </div>
 `;
