@@ -20,6 +20,7 @@
 package org.sonar.server.authentication;
 
 import javax.servlet.FilterChain;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
@@ -27,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
@@ -65,7 +65,6 @@ public class InitFilterTest {
 
   private BaseContextFactory baseContextFactory = mock(BaseContextFactory.class);
   private OAuth2ContextFactory oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
-  private Server server = mock(Server.class);
 
   private HttpServletRequest request = mock(HttpServletRequest.class);
   private HttpServletResponse response = mock(HttpServletResponse.class);
@@ -80,14 +79,15 @@ public class InitFilterTest {
   private OAuth2AuthenticationParameters auth2AuthenticationParameters = mock(OAuth2AuthenticationParameters.class);
 
   private ArgumentCaptor<AuthenticationException> authenticationExceptionCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
+  private ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
 
-  private InitFilter underTest = new InitFilter(identityProviderRepository, baseContextFactory, oAuth2ContextFactory, server, authenticationEvent, auth2AuthenticationParameters);
+  private InitFilter underTest = new InitFilter(identityProviderRepository, baseContextFactory, oAuth2ContextFactory, authenticationEvent, auth2AuthenticationParameters);
 
   @Before
   public void setUp() throws Exception {
     when(oAuth2ContextFactory.newContext(request, response, oAuth2IdentityProvider)).thenReturn(oauth2Context);
     when(baseContextFactory.newContext(request, response, baseIdentityProvider)).thenReturn(baseContext);
-    when(server.getContextPath()).thenReturn("");
+    when(request.getContextPath()).thenReturn("");
   }
 
   @Test
@@ -97,7 +97,7 @@ public class InitFilterTest {
 
   @Test
   public void do_filter_with_context() {
-    when(server.getContextPath()).thenReturn("/sonarqube");
+    when(request.getContextPath()).thenReturn("/sonarqube");
     when(request.getRequestURI()).thenReturn("/sonarqube/sessions/init/" + OAUTH2_PROVIDER_KEY);
     identityProviderRepository.addIdentityProvider(oAuth2IdentityProvider);
 
@@ -131,7 +131,7 @@ public class InitFilterTest {
 
   @Test
   public void init_authentication_parameter_on_auth2_identity_provider() {
-    when(server.getContextPath()).thenReturn("/sonarqube");
+    when(request.getContextPath()).thenReturn("/sonarqube");
     when(request.getRequestURI()).thenReturn("/sonarqube/sessions/init/" + OAUTH2_PROVIDER_KEY);
     identityProviderRepository.addIdentityProvider(oAuth2IdentityProvider);
 
@@ -187,14 +187,14 @@ public class InitFilterTest {
   }
 
   @Test
-  public void redirect_when_failing_because_of_UnauthorizedExceptionException() throws Exception {
+  public void redirect_contains_cookie_with_error_message_when_failing_because_of_UnauthorizedExceptionException() throws Exception {
     IdentityProvider identityProvider = new FailWithUnauthorizedExceptionIdProvider("failing");
     when(request.getRequestURI()).thenReturn("/sessions/init/" + identityProvider.getKey());
     identityProviderRepository.addIdentityProvider(identityProvider);
 
     underTest.doFilter(request, response, chain);
 
-    verify(response).sendRedirect("/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
+    verify(response).sendRedirect("/sessions/unauthorized");
     verify(authenticationEvent).loginFailure(eq(request), authenticationExceptionCaptor.capture());
     AuthenticationException authenticationException = authenticationExceptionCaptor.getValue();
     assertThat(authenticationException).hasMessage("Email john@email.com is already used");
@@ -202,23 +202,31 @@ public class InitFilterTest {
     assertThat(authenticationException.getLogin()).isNull();
     assertThat(authenticationException.getPublicMessage()).isEqualTo("Email john@email.com is already used");
     verifyDeleteAuthCookie();
+
+    verify(response).addCookie(cookieArgumentCaptor.capture());
+    Cookie cookie = cookieArgumentCaptor.getValue();
+    assertThat(cookie.getName()).isEqualTo("AUTHENTICATION-ERROR");
+    assertThat(cookie.getValue()).isEqualTo("Email%20john%40email.com%20is%20already%20used");
+    assertThat(cookie.getPath()).isEqualTo("/");
+    assertThat(cookie.isHttpOnly()).isFalse();
+    assertThat(cookie.getMaxAge()).isEqualTo(300);
+    assertThat(cookie.getSecure()).isFalse();
   }
 
   @Test
   public void redirect_with_context_path_when_failing_because_of_UnauthorizedException() throws Exception {
-    when(server.getContextPath()).thenReturn("/sonarqube");
+    when(request.getContextPath()).thenReturn("/sonarqube");
     IdentityProvider identityProvider = new FailWithUnauthorizedExceptionIdProvider("failing");
     when(request.getRequestURI()).thenReturn("/sonarqube/sessions/init/" + identityProvider.getKey());
     identityProviderRepository.addIdentityProvider(identityProvider);
 
     underTest.doFilter(request, response, chain);
 
-    verify(response).sendRedirect("/sonarqube/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
-    verifyDeleteAuthCookie();
+    verify(response).sendRedirect("/sonarqube/sessions/unauthorized");
   }
 
   @Test
-  public void redirect_when_failing_because_of_EmailAlreadyExistException() throws Exception {
+  public void redirect_contains_cookie_when_failing_because_of_EmailAlreadyExistException() throws Exception {
     UserDto existingUser = newUserDto().setEmail("john@email.com").setExternalLogin("john.bitbucket").setExternalIdentityProvider("bitbucket");
     FailWithEmailAlreadyExistException identityProvider = new FailWithEmailAlreadyExistException("failing", existingUser);
     when(request.getRequestURI()).thenReturn("/sessions/init/" + identityProvider.getKey());
@@ -226,8 +234,16 @@ public class InitFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(response).sendRedirect("/sessions/email_already_exists?email=john%40email.com&login=john.github&provider=failing&existingLogin=john.bitbucket&existingProvider=bitbucket");
+    verify(response).sendRedirect("/sessions/email_already_exists");
     verify(auth2AuthenticationParameters).delete(eq(request), eq(response));
+    verify(response).addCookie(cookieArgumentCaptor.capture());
+    Cookie cookie = cookieArgumentCaptor.getValue();
+    assertThat(cookie.getName()).isEqualTo("AUTHENTICATION-ERROR");
+    assertThat(cookie.getValue()).contains("john%40email.com");
+    assertThat(cookie.getPath()).isEqualTo("/");
+    assertThat(cookie.isHttpOnly()).isFalse();
+    assertThat(cookie.getMaxAge()).isEqualTo(300);
+    assertThat(cookie.getSecure()).isFalse();
   }
 
   @Test
@@ -241,6 +257,18 @@ public class InitFilterTest {
     verify(response).sendRedirect("/sessions/unauthorized");
     assertThat(logTester.logs(LoggerLevel.WARN)).containsExactlyInAnyOrder("Fail to initialize authentication with provider 'failing'");
     verifyDeleteAuthCookie();
+  }
+
+  @Test
+  public void redirect_with_context_when_failing_because_of_Exception() throws Exception {
+    when(request.getContextPath()).thenReturn("/sonarqube");
+    IdentityProvider identityProvider = new FailWithIllegalStateException("failing");
+    when(request.getRequestURI()).thenReturn("/sessions/init/" + identityProvider.getKey());
+    identityProviderRepository.addIdentityProvider(identityProvider);
+
+    underTest.doFilter(request, response, chain);
+
+    verify(response).sendRedirect("/sonarqube/sessions/unauthorized");
   }
 
   private void assertOAuth2InitCalled() {

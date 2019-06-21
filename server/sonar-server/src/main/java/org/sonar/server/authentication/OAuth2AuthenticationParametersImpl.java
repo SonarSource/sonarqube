@@ -33,10 +33,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static java.net.URLDecoder.decode;
-import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Optional.empty;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.server.authentication.AuthenticationRedirection.encodeMessage;
 import static org.sonar.server.authentication.Cookies.findCookie;
 import static org.sonar.server.authentication.Cookies.newCookieBuilder;
 
@@ -131,11 +131,7 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
 
   private static String toJson(Map<String, String> map) {
     Gson gson = new GsonBuilder().create();
-    try {
-      return encode(gson.toJson(map), UTF_8.name());
-    } catch (UnsupportedEncodingException e) {
-      throw new IllegalStateException(e);
-    }
+    return encodeMessage(gson.toJson(map));
   }
 
   private static Map<String, String> fromJson(String json) {

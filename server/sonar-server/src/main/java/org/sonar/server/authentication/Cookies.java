@@ -31,7 +31,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Helper class to create a {@link javax.servlet.http.Cookie}.
  *
- * The {@link javax.servlet.http.Cookie#secure} will automatically be set.
+ * The {@link javax.servlet.http.Cookie#setSecure(boolean)} will automatically be set to true.
  */
 public class Cookies {
 
@@ -65,7 +65,7 @@ public class Cookies {
     private boolean httpOnly;
     private int expiry;
 
-    public CookieBuilder(HttpServletRequest request) {
+    CookieBuilder(HttpServletRequest request) {
       this.request = request;
     }
 

@@ -22,7 +22,6 @@ package org.sonar.server.authentication;
 import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.web.ServletFilter;
 
@@ -31,12 +30,11 @@ import static java.lang.String.format;
 import static org.sonar.server.authentication.AuthenticationError.handleError;
 
 public abstract class AuthenticationFilter extends ServletFilter {
+
   static final String CALLBACK_PATH = "/oauth2/callback/";
   private final IdentityProviderRepository identityProviderRepository;
-  private final Server server;
 
-  public AuthenticationFilter(Server server, IdentityProviderRepository identityProviderRepository) {
-    this.server = server;
+  public AuthenticationFilter(IdentityProviderRepository identityProviderRepository) {
     this.identityProviderRepository = identityProviderRepository;
   }
 
@@ -47,15 +45,15 @@ public abstract class AuthenticationFilter extends ServletFilter {
   @CheckForNull
   IdentityProvider resolveProviderOrHandleResponse(HttpServletRequest request, HttpServletResponse response, String path) {
     String requestUri = request.getRequestURI();
-    String providerKey = extractKeyProvider(requestUri, server.getContextPath() + path);
+    String providerKey = extractKeyProvider(requestUri, request.getContextPath() + path);
     if (providerKey == null) {
-      handleError(response, "No provider key found in URI");
+      handleError(request, response, "No provider key found in URI");
       return null;
     }
     try {
       return identityProviderRepository.getEnabledByKey(providerKey);
     } catch (Exception e) {
-      handleError(e, response, format("Failed to retrieve IdentityProvider for key '%s'", providerKey));
+      handleError(e, request, response, format("Failed to retrieve IdentityProvider for key '%s'", providerKey));
       return null;
     }
   }
@@ -69,9 +67,5 @@ public abstract class AuthenticationFilter extends ServletFilter {
       }
     }
     return null;
-  }
-
-  String getContextPath() {
-    return server.getContextPath();
   }
 }

@@ -35,7 +35,9 @@ public class AuthenticationRedirection {
 
   public static String encodeMessage(String message) {
     try {
-      return encode(message, UTF_8.name());
+      return encode(message, UTF_8.name())
+        // In order for Javascript to be able to decode this message, + must be replaced by %20
+        .replace("+", "%20");
     } catch (UnsupportedEncodingException e) {
       throw new IllegalStateException(format("Fail to encode %s", message), e);
     }

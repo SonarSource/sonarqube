@@ -103,7 +103,7 @@ public class UserSessionInitializer {
       }
       if (isNotLocalOrJwt(e.getSource())) {
         // redirect to Unauthorized error page
-        handleAuthenticationError(e, response, request.getContextPath());
+        handleAuthenticationError(e, request, response);
         return false;
       }
       // Web pages should redirect to the index.html file

@@ -19,49 +19,56 @@
  */
 package org.sonar.server.authentication;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.authentication.event.AuthenticationException;
 
-import static java.lang.String.format;
 import static org.sonar.server.authentication.AuthenticationRedirection.encodeMessage;
 import static org.sonar.server.authentication.AuthenticationRedirection.redirectTo;
+import static org.sonar.server.authentication.Cookies.newCookieBuilder;
 
-final class AuthenticationError {
+public final class AuthenticationError {
 
   private static final String UNAUTHORIZED_PATH = "/sessions/unauthorized";
-  private static final String UNAUTHORIZED_PATH_WITH_MESSAGE = UNAUTHORIZED_PATH + "?message=%s";
+
   private static final Logger LOGGER = Loggers.get(AuthenticationError.class);
+  private static final String AUTHENTICATION_ERROR_COOKIE = "AUTHENTICATION-ERROR";
+  private static final int FIVE_MINUTES_IN_SECONDS = 5 * 60;
 
   private AuthenticationError() {
     // Utility class
   }
 
-  static void handleError(Exception e, HttpServletResponse response, String message) {
+  static void handleError(Exception e, HttpServletRequest request, HttpServletResponse response, String message) {
     LOGGER.warn(message, e);
-    redirectToUnauthorized(response);
+    redirectToUnauthorized(request, response);
   }
 
-  static void handleError(HttpServletResponse response, String message) {
+  static void handleError(HttpServletRequest request, HttpServletResponse response, String message) {
     LOGGER.warn(message);
-    redirectToUnauthorized(response);
+    redirectToUnauthorized(request, response);
   }
 
-  static void handleAuthenticationError(AuthenticationException e, HttpServletResponse response, String contextPath) {
-    redirectTo(response, getPath(e, contextPath));
-  }
-
-  private static String getPath(AuthenticationException e, String contextPath) {
+  static void handleAuthenticationError(AuthenticationException e, HttpServletRequest request, HttpServletResponse response) {
     String publicMessage = e.getPublicMessage();
-    if (publicMessage == null || publicMessage.isEmpty()) {
-      return UNAUTHORIZED_PATH;
+    if (publicMessage != null && !publicMessage.isEmpty()) {
+      addErrorCookie(request, response, publicMessage);
     }
-    return contextPath + format(UNAUTHORIZED_PATH_WITH_MESSAGE, encodeMessage(publicMessage));
+    redirectToUnauthorized(request, response);
   }
 
-  public static void redirectToUnauthorized(HttpServletResponse response) {
-    redirectTo(response, UNAUTHORIZED_PATH);
+  public static void addErrorCookie(HttpServletRequest request, HttpServletResponse response, String value) {
+    response.addCookie(newCookieBuilder(request)
+      .setName(AUTHENTICATION_ERROR_COOKIE)
+      .setValue(encodeMessage(value))
+      .setHttpOnly(false)
+      .setExpiry(FIVE_MINUTES_IN_SECONDS)
+      .build());
   }
 
+  private static void redirectToUnauthorized(HttpServletRequest request, HttpServletResponse response) {
+    redirectTo(response, request.getContextPath() + UNAUTHORIZED_PATH);
+  }
 }

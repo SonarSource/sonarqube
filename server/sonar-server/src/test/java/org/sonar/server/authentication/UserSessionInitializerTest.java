@@ -19,6 +19,7 @@
  */
 package org.sonar.server.authentication;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
@@ -58,6 +59,8 @@ public class UserSessionInitializerTest {
   private RequestAuthenticator authenticator = mock(RequestAuthenticator.class);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
   private MapSettings settings = new MapSettings();
+  private ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
+
   private UserSessionInitializer underTest = new UserSessionInitializer(settings.asConfig(), threadLocalSession, authenticationEvent, authenticator);
 
   @Before
@@ -154,7 +157,15 @@ public class UserSessionInitializerTest {
 
     assertThat(underTest.initUserSession(request, response)).isFalse();
 
-    verify(response).sendRedirect("/sessions/unauthorized?message=Token+id+hasn%27t+been+found");
+    verify(response).sendRedirect("/sessions/unauthorized");
+    verify(response).addCookie(cookieArgumentCaptor.capture());
+    Cookie cookie = cookieArgumentCaptor.getValue();
+    assertThat(cookie.getName()).isEqualTo("AUTHENTICATION-ERROR");
+    assertThat(cookie.getValue()).isEqualTo("Token%20id%20hasn%27t%20been%20found");
+    assertThat(cookie.getPath()).isEqualTo("/");
+    assertThat(cookie.isHttpOnly()).isFalse();
+    assertThat(cookie.getMaxAge()).isEqualTo(300);
+    assertThat(cookie.getSecure()).isFalse();
   }
 
   @Test
@@ -165,7 +176,7 @@ public class UserSessionInitializerTest {
 
     assertThat(underTest.initUserSession(request, response)).isFalse();
 
-    verify(response).sendRedirect("/sonarqube/sessions/unauthorized?message=Token+id+hasn%27t+been+found");
+    verify(response).sendRedirect("/sonarqube/sessions/unauthorized");
   }
 
   private void assertPathIsIgnored(String path) {

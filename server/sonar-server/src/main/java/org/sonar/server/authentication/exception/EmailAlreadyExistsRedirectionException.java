@@ -19,12 +19,16 @@
  */
 package org.sonar.server.authentication.exception;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.user.UserDto;
 
-import static java.lang.String.format;
-import static org.sonar.server.authentication.AuthenticationRedirection.encodeMessage;
+import static org.sonar.server.authentication.AuthenticationError.addErrorCookie;
 
 /**
  * This exception is used to redirect the user to a page explaining him that his email is already used by another account,
@@ -32,7 +36,12 @@ import static org.sonar.server.authentication.AuthenticationRedirection.encodeMe
  */
 public class EmailAlreadyExistsRedirectionException extends RedirectionException {
 
-  private static final String PATH = "/sessions/email_already_exists?email=%s&login=%s&provider=%s&existingLogin=%s&existingProvider=%s";
+  private static final String PATH = "/sessions/email_already_exists";
+  private static final String EMAIL_FIELD = "email";
+  private static final String LOGIN_FIELD = "login";
+  private static final String PROVIDER_FIELD = "provider";
+  private static final String EXISTING_LOGIN_FIELD = "existingLogin";
+  private static final String EXISTING_PROVIDER_FIELD = "existingProvider";
 
   private final String email;
   private final UserDto existingUser;
@@ -46,13 +55,19 @@ public class EmailAlreadyExistsRedirectionException extends RedirectionException
     this.provider = provider;
   }
 
+  public void addCookie(HttpServletRequest request, HttpServletResponse response) {
+    Gson gson = new GsonBuilder().create();
+    String message = gson.toJson(ImmutableMap.of(
+      EMAIL_FIELD, email,
+      LOGIN_FIELD, userIdentity.getProviderLogin(),
+      PROVIDER_FIELD, provider.getKey(),
+      EXISTING_LOGIN_FIELD, existingUser.getExternalLogin(),
+      EXISTING_PROVIDER_FIELD, existingUser.getExternalIdentityProvider()));
+    addErrorCookie(request, response, message);
+  }
+
   @Override
   public String getPath(String contextPath) {
-    return contextPath + format(PATH,
-      encodeMessage(email),
-      encodeMessage(userIdentity.getProviderLogin()),
-      encodeMessage(provider.getKey()),
-      encodeMessage(existingUser.getExternalLogin()),
-      encodeMessage(existingUser.getExternalIdentityProvider()));
+    return contextPath + PATH;
   }
 }

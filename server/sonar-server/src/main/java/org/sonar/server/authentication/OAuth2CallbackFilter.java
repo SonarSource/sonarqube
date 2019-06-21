@@ -25,13 +25,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.authentication.exception.RedirectionException;
+import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
+import org.sonar.server.authentication.exception.UpdateLoginRedirectionException;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 import static java.lang.String.format;
@@ -48,8 +48,8 @@ public class OAuth2CallbackFilter extends AuthenticationFilter {
   private final ThreadLocalUserSession threadLocalUserSession;
 
   public OAuth2CallbackFilter(IdentityProviderRepository identityProviderRepository, OAuth2ContextFactory oAuth2ContextFactory,
-    Server server, AuthenticationEvent authenticationEvent, OAuth2AuthenticationParameters oauth2Parameters, ThreadLocalUserSession threadLocalUserSession) {
-    super(server, identityProviderRepository);
+    AuthenticationEvent authenticationEvent, OAuth2AuthenticationParameters oauth2Parameters, ThreadLocalUserSession threadLocalUserSession) {
+    super(identityProviderRepository);
     this.oAuth2ContextFactory = oAuth2ContextFactory;
     this.authenticationEvent = authenticationEvent;
     this.oauth2Parameters = oauth2Parameters;
@@ -77,18 +77,22 @@ public class OAuth2CallbackFilter extends AuthenticationFilter {
       if (provider instanceof OAuth2IdentityProvider) {
         handleOAuth2Provider(response, request, (OAuth2IdentityProvider) provider);
       } else {
-        handleError(response, format("Not an OAuth2IdentityProvider: %s", provider.getClass()));
+        handleError(request, response, format("Not an OAuth2IdentityProvider: %s", provider.getClass()));
       }
+    } catch (EmailAlreadyExistsRedirectionException e) {
+      oauth2Parameters.delete(request, response);
+      e.addCookie(request, response);
+      redirectTo(response, e.getPath(request.getContextPath()));
+    } catch (UpdateLoginRedirectionException e) {
+      oauth2Parameters.delete(request, response);
+      redirectTo(response, e.getPath(request.getContextPath()));
     } catch (AuthenticationException e) {
       oauth2Parameters.delete(request, response);
       authenticationEvent.loginFailure(request, e);
-      handleAuthenticationError(e, response, getContextPath());
-    } catch (RedirectionException e) {
-      oauth2Parameters.delete(request, response);
-      redirectTo(response, e.getPath(getContextPath()));
+      handleAuthenticationError(e, request, response);
     } catch (Exception e) {
       oauth2Parameters.delete(request, response);
-      handleError(e, response, format("Fail to callback authentication with '%s'", provider.getKey()));
+      handleError(e, request, response, format("Fail to callback authentication with '%s'", provider.getKey()));
     }
   }
 

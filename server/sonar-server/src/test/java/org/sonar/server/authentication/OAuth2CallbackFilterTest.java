@@ -20,6 +20,7 @@
 package org.sonar.server.authentication;
 
 import javax.servlet.FilterChain;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
@@ -27,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
@@ -64,7 +64,6 @@ public class OAuth2CallbackFilterTest {
 
   private HttpServletRequest request = mock(HttpServletRequest.class);
   private HttpServletResponse response = mock(HttpServletResponse.class);
-  private Server server = mock(Server.class);
   private FilterChain chain = mock(FilterChain.class);
 
   private FakeOAuth2IdentityProvider oAuth2IdentityProvider = new WellbehaveFakeOAuth2IdentityProvider(OAUTH2_PROVIDER_KEY, true, LOGIN);
@@ -73,14 +72,15 @@ public class OAuth2CallbackFilterTest {
   private ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
 
   private ArgumentCaptor<AuthenticationException> authenticationExceptionCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
+  private ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
 
-  private OAuth2CallbackFilter underTest = new OAuth2CallbackFilter(identityProviderRepository, oAuth2ContextFactory, server, authenticationEvent, oAuthRedirection,
+  private OAuth2CallbackFilter underTest = new OAuth2CallbackFilter(identityProviderRepository, oAuth2ContextFactory, authenticationEvent, oAuthRedirection,
     threadLocalUserSession);
 
   @Before
   public void setUp() throws Exception {
     when(oAuth2ContextFactory.newCallback(request, response, oAuth2IdentityProvider)).thenReturn(mock(OAuth2IdentityProvider.CallbackContext.class));
-    when(server.getContextPath()).thenReturn("");
+    when(request.getContextPath()).thenReturn("");
   }
 
   @Test
@@ -90,7 +90,7 @@ public class OAuth2CallbackFilterTest {
 
   @Test
   public void do_filter_with_context() {
-    when(server.getContextPath()).thenReturn("/sonarqube");
+    when(request.getContextPath()).thenReturn("/sonarqube");
     when(request.getRequestURI()).thenReturn("/sonarqube/oauth2/callback/" + OAUTH2_PROVIDER_KEY);
     identityProviderRepository.addIdentityProvider(oAuth2IdentityProvider);
     when(threadLocalUserSession.hasSession()).thenReturn(true);
@@ -104,7 +104,7 @@ public class OAuth2CallbackFilterTest {
 
   @Test
   public void do_filter_with_context_no_log_if_provider_did_not_call_authenticate_on_context() {
-    when(server.getContextPath()).thenReturn("/sonarqube");
+    when(request.getContextPath()).thenReturn("/sonarqube");
     when(request.getRequestURI()).thenReturn("/sonarqube/oauth2/callback/" + OAUTH2_PROVIDER_KEY);
     FakeOAuth2IdentityProvider identityProvider = new FakeOAuth2IdentityProvider(OAUTH2_PROVIDER_KEY, true);
     identityProviderRepository.addIdentityProvider(identityProvider);
@@ -164,7 +164,7 @@ public class OAuth2CallbackFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(response).sendRedirect("/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
+    verify(response).sendRedirect("/sessions/unauthorized");
     verify(authenticationEvent).loginFailure(eq(request), authenticationExceptionCaptor.capture());
     AuthenticationException authenticationException = authenticationExceptionCaptor.getValue();
     assertThat(authenticationException).hasMessage("Email john@email.com is already used");
@@ -172,18 +172,27 @@ public class OAuth2CallbackFilterTest {
     assertThat(authenticationException.getLogin()).isNull();
     assertThat(authenticationException.getPublicMessage()).isEqualTo("Email john@email.com is already used");
     verify(oAuthRedirection).delete(eq(request), eq(response));
+
+    verify(response).addCookie(cookieArgumentCaptor.capture());
+    Cookie cookie = cookieArgumentCaptor.getValue();
+    assertThat(cookie.getName()).isEqualTo("AUTHENTICATION-ERROR");
+    assertThat(cookie.getValue()).isEqualTo("Email%20john%40email.com%20is%20already%20used");
+    assertThat(cookie.getPath()).isEqualTo("/");
+    assertThat(cookie.isHttpOnly()).isFalse();
+    assertThat(cookie.getMaxAge()).isEqualTo(300);
+    assertThat(cookie.getSecure()).isFalse();
   }
 
   @Test
   public void redirect_with_context_path_when_failing_because_of_UnauthorizedExceptionException() throws Exception {
-    when(server.getContextPath()).thenReturn("/sonarqube");
+    when(request.getContextPath()).thenReturn("/sonarqube");
     FailWithUnauthorizedExceptionIdProvider identityProvider = new FailWithUnauthorizedExceptionIdProvider();
     when(request.getRequestURI()).thenReturn("/sonarqube/oauth2/callback/" + identityProvider.getKey());
     identityProviderRepository.addIdentityProvider(identityProvider);
 
     underTest.doFilter(request, response, chain);
 
-    verify(response).sendRedirect("/sonarqube/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
+    verify(response).sendRedirect("/sonarqube/sessions/unauthorized");
     verify(oAuthRedirection).delete(eq(request), eq(response));
   }
 
@@ -201,6 +210,18 @@ public class OAuth2CallbackFilterTest {
   }
 
   @Test
+  public void redirect_with_context_when_failing_because_of_Exception() throws Exception {
+    when(request.getContextPath()).thenReturn("/sonarqube");
+    FailWithIllegalStateException identityProvider = new FailWithIllegalStateException();
+    when(request.getRequestURI()).thenReturn("/oauth2/callback/" + identityProvider.getKey());
+    identityProviderRepository.addIdentityProvider(identityProvider);
+
+    underTest.doFilter(request, response, chain);
+
+    verify(response).sendRedirect("/sonarqube/sessions/unauthorized");
+  }
+
+  @Test
   public void redirect_when_failing_because_of_EmailAlreadyExistException() throws Exception {
     UserDto existingUser = newUserDto().setEmail("john@email.com").setExternalLogin("john.bitbucket").setExternalIdentityProvider("bitbucket");
     FailWithEmailAlreadyExistException identityProvider = new FailWithEmailAlreadyExistException(existingUser);
@@ -209,9 +230,16 @@ public class OAuth2CallbackFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(response)
-      .sendRedirect("/sessions/email_already_exists?email=john%40email.com&login=john.github&provider=failing&existingLogin=john.bitbucket&existingProvider=bitbucket");
+    verify(response).sendRedirect("/sessions/email_already_exists");
     verify(oAuthRedirection).delete(eq(request), eq(response));
+    verify(response).addCookie(cookieArgumentCaptor.capture());
+    Cookie cookie = cookieArgumentCaptor.getValue();
+    assertThat(cookie.getName()).isEqualTo("AUTHENTICATION-ERROR");
+    assertThat(cookie.getValue()).contains("john%40email.com");
+    assertThat(cookie.getPath()).isEqualTo("/");
+    assertThat(cookie.isHttpOnly()).isFalse();
+    assertThat(cookie.getMaxAge()).isEqualTo(300);
+    assertThat(cookie.getSecure()).isFalse();
   }
 
   @Test

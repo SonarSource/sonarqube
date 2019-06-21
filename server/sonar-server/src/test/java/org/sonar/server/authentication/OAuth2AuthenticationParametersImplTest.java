@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.platform.Server;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,7 +39,6 @@ public class OAuth2AuthenticationParametersImplTest {
   private static final String AUTHENTICATION_COOKIE_NAME = "AUTH-PARAMS";
   private ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
 
-  private Server server = mock(Server.class);
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private HttpServletRequest request = mock(HttpServletRequest.class);
 
@@ -48,7 +46,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Before
   public void setUp() throws Exception {
-    when(server.getContextPath()).thenReturn("");
+    when(request.getContextPath()).thenReturn("");
   }
 
   @Test
