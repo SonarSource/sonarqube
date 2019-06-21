@@ -111,66 +111,62 @@ exports[`renders 1`] = `
         </div>
       </div>
     </div>
-    <DeferredSpinner
-      loading={false}
-      timeout={100}
+    <div
+      className="layout-page-main-inner"
     >
-      <div
-        className="layout-page-main-inner"
-      >
-        <ProjectsList
-          cardType="overall"
-          currentUser={
+      <ProjectsList
+        cardType="overall"
+        currentUser={
+          Object {
+            "isLoggedIn": true,
+          }
+        }
+        handleFavorite={[Function]}
+        isFavorite={false}
+        isFiltered={false}
+        projects={
+          Array [
             Object {
-              "isLoggedIn": true,
-            }
+              "key": "foo",
+              "measures": Object {},
+              "name": "Foo",
+              "tags": Array [],
+              "visibility": "public",
+            },
+          ]
+        }
+        query={
+          Object {
+            "coverage": undefined,
+            "duplications": undefined,
+            "gate": undefined,
+            "languages": undefined,
+            "maintainability": undefined,
+            "new_coverage": undefined,
+            "new_duplications": undefined,
+            "new_lines": undefined,
+            "new_maintainability": undefined,
+            "new_reliability": undefined,
+            "new_security": undefined,
+            "reliability": undefined,
+            "search": undefined,
+            "security": undefined,
+            "size": undefined,
+            "sort": undefined,
+            "tags": undefined,
+            "view": undefined,
+            "visualization": undefined,
           }
-          handleFavorite={[Function]}
-          isFavorite={false}
-          isFiltered={false}
-          projects={
-            Array [
-              Object {
-                "key": "foo",
-                "measures": Object {},
-                "name": "Foo",
-                "tags": Array [],
-                "visibility": "public",
-              },
-            ]
-          }
-          query={
-            Object {
-              "coverage": undefined,
-              "duplications": undefined,
-              "gate": undefined,
-              "languages": undefined,
-              "maintainability": undefined,
-              "new_coverage": undefined,
-              "new_duplications": undefined,
-              "new_lines": undefined,
-              "new_maintainability": undefined,
-              "new_reliability": undefined,
-              "new_security": undefined,
-              "reliability": undefined,
-              "search": undefined,
-              "security": undefined,
-              "size": undefined,
-              "sort": undefined,
-              "tags": undefined,
-              "view": undefined,
-              "visualization": undefined,
-            }
-          }
-        />
-        <ListFooter
-          count={1}
-          loadMore={[Function]}
-          ready={true}
-          total={0}
-        />
-      </div>
-    </DeferredSpinner>
+        }
+      />
+      <ListFooter
+        count={1}
+        loadMore={[Function]}
+        loading={false}
+        ready={true}
+        total={0}
+      />
+    </div>
   </div>
 </div>
 `;
@@ -243,31 +239,26 @@ exports[`renders 2`] = `
         </div>
       </div>
     </div>
-    <DeferredSpinner
-      loading={false}
-      timeout={100}
+    <div
+      className="layout-page-main-inner"
     >
-      <div
-        className="layout-page-main-inner"
-      >
-        <Visualizations
-          displayOrganizations={false}
-          projects={
-            Array [
-              Object {
-                "key": "foo",
-                "measures": Object {},
-                "name": "Foo",
-                "tags": Array [],
-                "visibility": "public",
-              },
-            ]
-          }
-          total={0}
-          visualization="risk"
-        />
-      </div>
-    </DeferredSpinner>
+      <Visualizations
+        displayOrganizations={false}
+        projects={
+          Array [
+            Object {
+              "key": "foo",
+              "measures": Object {},
+              "name": "Foo",
+              "tags": Array [],
+              "visibility": "public",
+            },
+          ]
+        }
+        total={0}
+        visualization="risk"
+      />
+    </div>
   </div>
 </div>
 `;
@@ -411,70 +402,66 @@ exports[`renders correctly empty organization 3`] = `
         </div>
       </div>
     </div>
-    <DeferredSpinner
-      loading={false}
-      timeout={100}
+    <div
+      className="layout-page-main-inner"
     >
-      <div
-        className="layout-page-main-inner"
-      >
-        <ProjectsList
-          cardType="overall"
-          currentUser={
-            Object {
-              "isLoggedIn": true,
-            }
+      <ProjectsList
+        cardType="overall"
+        currentUser={
+          Object {
+            "isLoggedIn": true,
           }
-          handleFavorite={[Function]}
-          isFavorite={false}
-          isFiltered={false}
-          organization={
+        }
+        handleFavorite={[Function]}
+        isFavorite={false}
+        isFiltered={false}
+        organization={
+          Object {
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
+        projects={
+          Array [
             Object {
               "key": "foo",
+              "measures": Object {},
               "name": "Foo",
-            }
+            },
+          ]
+        }
+        query={
+          Object {
+            "coverage": undefined,
+            "duplications": undefined,
+            "gate": undefined,
+            "languages": undefined,
+            "maintainability": undefined,
+            "new_coverage": undefined,
+            "new_duplications": undefined,
+            "new_lines": undefined,
+            "new_maintainability": undefined,
+            "new_reliability": undefined,
+            "new_security": undefined,
+            "reliability": undefined,
+            "search": undefined,
+            "security": undefined,
+            "size": undefined,
+            "sort": undefined,
+            "tags": undefined,
+            "view": undefined,
+            "visualization": undefined,
           }
-          projects={
-            Array [
-              Object {
-                "key": "foo",
-                "measures": Object {},
-                "name": "Foo",
-              },
-            ]
-          }
-          query={
-            Object {
-              "coverage": undefined,
-              "duplications": undefined,
-              "gate": undefined,
-              "languages": undefined,
-              "maintainability": undefined,
-              "new_coverage": undefined,
-              "new_duplications": undefined,
-              "new_lines": undefined,
-              "new_maintainability": undefined,
-              "new_reliability": undefined,
-              "new_security": undefined,
-              "reliability": undefined,
-              "search": undefined,
-              "security": undefined,
-              "size": undefined,
-              "sort": undefined,
-              "tags": undefined,
-              "view": undefined,
-              "visualization": undefined,
-            }
-          }
-        />
-        <ListFooter
-          count={1}
-          loadMore={[Function]}
-          ready={true}
-          total={0}
-        />
-      </div>
-    </DeferredSpinner>
+        }
+      />
+      <ListFooter
+        count={1}
+        loadMore={[Function]}
+        loading={false}
+        ready={true}
+        total={0}
+      />
+    </div>
   </div>
 </div>
 `;

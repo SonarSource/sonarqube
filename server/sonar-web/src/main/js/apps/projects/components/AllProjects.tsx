@@ -309,43 +309,44 @@ export class AllProjects extends React.PureComponent<Props, State> {
   );
 
   renderMain = () => {
-    return (
-      <DeferredSpinner loading={this.state.loading}>
-        {this.getView() === 'visualizations' ? (
-          <div className="layout-page-main-inner">
-            {this.state.projects && (
-              <Visualizations
-                displayOrganizations={!this.props.organization && isSonarCloud()}
-                projects={this.state.projects}
-                sort={this.state.query.sort}
-                total={this.state.total}
-                visualization={this.getVisualization()}
-              />
-            )}
-          </div>
-        ) : (
-          <div className="layout-page-main-inner">
-            {this.state.projects && (
-              <ProjectsList
-                cardType={this.getView()}
-                currentUser={this.props.currentUser}
-                handleFavorite={this.handleFavorite}
-                isFavorite={this.props.isFavorite}
-                isFiltered={hasFilterParams(this.state.query)}
-                organization={this.props.organization}
-                projects={this.state.projects}
-                query={this.state.query}
-              />
-            )}
-            <ListFooter
-              count={this.state.projects !== undefined ? this.state.projects.length : 0}
-              loadMore={this.fetchMoreProjects}
-              ready={!this.state.loading}
-              total={this.state.total !== undefined ? this.state.total : 0}
-            />
-          </div>
+    if (this.state.loading && this.state.projects === undefined) {
+      return <DeferredSpinner />;
+    }
+
+    return this.getView() === 'visualizations' ? (
+      <div className="layout-page-main-inner">
+        {this.state.projects && (
+          <Visualizations
+            displayOrganizations={!this.props.organization && isSonarCloud()}
+            projects={this.state.projects}
+            sort={this.state.query.sort}
+            total={this.state.total}
+            visualization={this.getVisualization()}
+          />
         )}
-      </DeferredSpinner>
+      </div>
+    ) : (
+      <div className="layout-page-main-inner">
+        {this.state.projects && (
+          <ProjectsList
+            cardType={this.getView()}
+            currentUser={this.props.currentUser}
+            handleFavorite={this.handleFavorite}
+            isFavorite={this.props.isFavorite}
+            isFiltered={hasFilterParams(this.state.query)}
+            organization={this.props.organization}
+            projects={this.state.projects}
+            query={this.state.query}
+          />
+        )}
+        <ListFooter
+          count={this.state.projects !== undefined ? this.state.projects.length : 0}
+          loading={this.state.loading}
+          loadMore={this.fetchMoreProjects}
+          ready={!this.state.loading}
+          total={this.state.total !== undefined ? this.state.total : 0}
+        />
+      </div>
     );
   };
 
