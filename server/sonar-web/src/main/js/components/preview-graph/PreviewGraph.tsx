@@ -34,6 +34,7 @@ import {
 } from '../../apps/projectActivity/utils';
 import { formatMeasure, getShortType } from '../../helpers/measures';
 import { getBranchLikeQuery } from '../../helpers/branches';
+import { translate } from '../../helpers/l10n';
 import { withRouter, Router } from '../hoc/withRouter';
 
 interface History {
@@ -184,6 +185,7 @@ class PreviewGraph extends React.PureComponent<Props, State> {
 
     return (
       <div
+        aria-label={translate('overview.project_activity.click_to_see')}
         className="overview-analysis-graph big-spacer-bottom spacer-top"
         onClick={this.handleClick}
         role="link"
