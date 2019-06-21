@@ -190,7 +190,7 @@ export class ReviewApp extends React.PureComponent<Props, State> {
                     <div className="pr-overview-measurements-value flex-1 small display-flex-center">
                       <IssueLabel
                         branchLike={branchLike}
-                        className="huge"
+                        className="overview-domain-measure-value"
                         component={component}
                         docTooltip={import(/* webpackMode: "eager" */ 'Docs/tooltips/metrics/security-hotspots.md')}
                         measures={measures}

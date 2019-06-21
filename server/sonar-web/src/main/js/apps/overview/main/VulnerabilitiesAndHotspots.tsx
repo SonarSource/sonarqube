@@ -55,7 +55,7 @@ export class VulnerabiltiesAndHotspots extends React.PureComponent<ComposedProps
             </div>
           </div>
           <div className="overview-domain-measure">
-            <div className="overview-domain-measure-value overview-domain-measure-value-small">
+            <div className="overview-domain-measure-value">
               <span>{this.props.renderIssues('new_security_hotspots', 'SECURITY_HOTSPOT')}</span>
             </div>
             <div className="overview-domain-measure-label">
@@ -91,7 +91,7 @@ export class VulnerabiltiesAndHotspots extends React.PureComponent<ComposedProps
             {this.props.renderHistoryLink('vulnerabilities')}
           </div>
           <div className="overview-domain-measure">
-            <div className="overview-domain-measure-value overview-domain-measure-value-small">
+            <div className="overview-domain-measure-value">
               {this.props.renderIssues('security_hotspots', 'SECURITY_HOTSPOT')}
             </div>
             <div className="overview-domain-measure-label display-flex-center display-flex-justify-center">

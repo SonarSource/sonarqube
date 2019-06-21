@@ -243,11 +243,6 @@
   white-space: nowrap;
 }
 
-.overview-domain-measure-value-small {
-  font-size: var(--hugeFontSize);
-  margin-top: 12px;
-}
-
 .overview-domain-secondary-measure-value {
   line-height: 1;
   font-size: 20px;
