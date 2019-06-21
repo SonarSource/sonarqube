@@ -7,7 +7,7 @@ exports[`should render correctly for SonarCloud 1`] = `
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
-    title="Lorem | documentation.page_title"
+    title="Lorem | documentation.page_title.sonarcloud"
   />
   <ScreenPositionHelper
     className="layout-page-side-outer"
@@ -45,7 +45,7 @@ exports[`should render correctly for SonarQube 1`] = `
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
-    title="Lorem | documentation.page_title"
+    title="Lorem | documentation.page_title.sonarqube"
   >
     <meta
       content="noindex nofollow"
@@ -139,7 +139,7 @@ exports[`should show a 404 if the page doesn't exist 1`] = `
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
-    title="documentation.page_title"
+    title="documentation.page_title.sonarcloud"
   >
     <meta
       content="noindex nofollow"

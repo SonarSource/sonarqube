@@ -56,7 +56,10 @@ export default class App extends React.PureComponent<Props> {
       : ((navigationTreeSonarQube as any).default as DocNavigationItem[]);
     const { splat = '' } = this.props.params;
     const page = this.pages.find(p => p.url === '/' + splat);
-    const mainTitle = translate('documentation.page_title');
+    const mainTitle = translate(
+      'documentation.page_title',
+      isSonarCloud() ? 'sonarcloud' : 'sonarqube'
+    );
 
     if (!page) {
       return (
