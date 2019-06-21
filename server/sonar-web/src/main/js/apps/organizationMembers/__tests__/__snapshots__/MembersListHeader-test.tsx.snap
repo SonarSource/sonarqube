@@ -20,7 +20,6 @@ exports[`should render a help tooltip 1`] = `
           organization.members.see_all_members_on_x.github
         </a>
       </p>
-      )}
     </div>
   }
 />
@@ -46,7 +45,6 @@ exports[`should render a help tooltip 2`] = `
           organization.members.see_all_members_on_x.bitbucket
         </a>
       </p>
-      )}
     </div>
   }
 />

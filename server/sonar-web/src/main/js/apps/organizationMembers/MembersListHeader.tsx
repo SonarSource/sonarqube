@@ -64,7 +64,6 @@ export default function MembersListHeader({ handleSearch, organization, total }:
                       )}
                     </a>
                   </p>
-                  )}
                 </div>
               }
             />
