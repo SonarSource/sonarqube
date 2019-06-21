@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Dispatch } from 'redux';
-import { bindAlmOrganization } from '../../../api/alm-integration';
 import * as api from '../../../api/organizations';
 import * as actions from '../../../store/organizations';
 import { isGithub } from '../../../helpers/almIntegrations';
@@ -37,19 +36,5 @@ export function createOrganization({
         }
         return newOrganization.key;
       });
-  };
-}
-
-export function updateOrganization(organization: T.Organization & { installationId?: string }) {
-  return (dispatch: Dispatch) => {
-    const { key, installationId, ...changes } = organization;
-    const promises = [api.updateOrganization(key, changes)];
-    if (installationId) {
-      promises.push(bindAlmOrganization({ organization: key, installationId }));
-    }
-    return Promise.all(promises).then(() => {
-      dispatch(actions.updateOrganization(key, changes));
-      return organization.key;
-    });
   };
 }

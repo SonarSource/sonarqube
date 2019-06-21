@@ -72,15 +72,6 @@ exports[`should fetch members and render for non-admin 2`] = `
     refreshMembers={[Function]}
   />
   <MembersListHeader
-    currentUser={
-      Object {
-        "groups": Array [],
-        "isLoggedIn": true,
-        "login": "luke",
-        "name": "Skywalker",
-        "scmAccounts": Array [],
-      }
-    }
     handleSearch={[Function]}
     organization={
       Object {

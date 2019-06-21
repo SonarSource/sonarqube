@@ -20,7 +20,6 @@
 import {
   isBitbucket,
   isGithub,
-  isPersonal,
   isVSTS,
   sanitizeAlmId,
   getAlmMembersUrl,
@@ -51,19 +50,6 @@ it('#isGithub', () => {
 it('#isVSTS', () => {
   expect(isVSTS('microsoft')).toBeTruthy();
   expect(isVSTS('github')).toBeFalsy();
-});
-
-it('#isPersonal', () => {
-  const almOrg = {
-    almUrl: '',
-    key: 'foo',
-    name: 'Foo',
-    personal: true,
-    privateRepos: 0,
-    publicRepos: 3
-  };
-  expect(isPersonal(almOrg)).toBeTruthy();
-  expect(isPersonal({ ...almOrg, personal: false })).toBeFalsy();
 });
 
 it('#sanitizeAlmId', () => {

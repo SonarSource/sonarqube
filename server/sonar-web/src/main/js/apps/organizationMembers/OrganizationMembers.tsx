@@ -212,7 +212,6 @@ export default class OrganizationMembers extends React.PureComponent<Props, Stat
         {members !== undefined && paging !== undefined && (
           <>
             <MembersListHeader
-              currentUser={currentUser}
               handleSearch={this.handleSearchMembers}
               organization={organization}
               total={paging.total}

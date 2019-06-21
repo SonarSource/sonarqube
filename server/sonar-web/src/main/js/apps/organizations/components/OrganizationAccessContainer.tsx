@@ -79,6 +79,6 @@ export function hasAdminAccess({
   );
 }
 
-export function OrganizationAdminAccess(props: OwnProps) {
+export default function OrganizationAdminAccess(props: OwnProps) {
   return <OrganizationAccessContainer hasAccess={hasAdminAccess} {...props} />;
 }

@@ -107,7 +107,7 @@ function shallowRender(props: Partial<AutoOrganizationCreate['props']> = {}) {
     <AutoOrganizationCreate
       almApplication={mockAlmApplication()}
       almInstallId="id-foo"
-      almOrganization={{ ...organization, personal: false }}
+      almOrganization={organization}
       createOrganization={jest.fn()}
       handleCancelImport={jest.fn()}
       handleOrgDetailsFinish={jest.fn()}

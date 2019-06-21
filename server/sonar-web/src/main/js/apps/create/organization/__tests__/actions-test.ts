@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as actions from '../actions';
+import { createOrganization, syncMembers } from '../../../../api/organizations';
 import { mockOrganization, mockOrganizationWithAlm } from '../../../../helpers/testMocks';
-import { createOrganization, syncMembers, updateOrganization } from '../../../../api/organizations';
-import { bindAlmOrganization } from '../../../../api/alm-integration';
+import * as actions from '../actions';
 
 jest.mock('../../../../api/alm-integration', () => ({
   bindAlmOrganization: jest.fn().mockResolvedValue({})
@@ -62,28 +61,5 @@ describe('#createOrganization', () => {
     expect(createOrganization).toHaveBeenCalledWith(org);
     await promise;
     expect(syncMembers).toHaveBeenCalledWith(org.key);
-  });
-});
-
-describe('#updateOrganization', () => {
-  it('should update and dispatch', async () => {
-    const org = mockOrganization();
-    const { key, ...changes } = org;
-    const promise = actions.updateOrganization(org)(dispatch);
-
-    expect(updateOrganization).toHaveBeenCalledWith(key, changes);
-    const returnValue = await promise;
-    expect(dispatch).toHaveBeenCalledWith({ changes, key, type: 'UPDATE_ORGANIZATION' });
-    expect(returnValue).toBe(key);
-  });
-
-  it('should update and bind', () => {
-    const org = { ...mockOrganization(), installationId: '1' };
-    const { key, installationId, ...changes } = org;
-    const promise = actions.updateOrganization(org)(dispatch);
-
-    expect(updateOrganization).toHaveBeenCalledWith(key, changes);
-    expect(bindAlmOrganization).toHaveBeenCalledWith({ organization: key, installationId });
-    return promise;
   });
 });

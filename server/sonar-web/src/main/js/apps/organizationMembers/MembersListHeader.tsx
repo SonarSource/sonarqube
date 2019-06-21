@@ -25,18 +25,12 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 
 export interface Props {
-  currentUser: T.LoggedInUser;
   handleSearch: (query?: string) => void;
   organization: T.Organization;
   total?: number;
 }
 
-export default function MembersListHeader({
-  currentUser,
-  handleSearch,
-  organization,
-  total
-}: Props) {
+export default function MembersListHeader({ handleSearch, organization, total }: Props) {
   return (
     <div className="panel panel-vertical bordered-bottom spacer-bottom">
       <SearchBox
@@ -58,21 +52,18 @@ export default function MembersListHeader({
                       sanitizeAlmId(organization.alm.key)
                     )}
                   </p>
-                  {currentUser.personalOrganization !== organization.key && (
-                    <>
-                      <hr />
-                      <p>
-                        <a
-                          href={getAlmMembersUrl(organization.alm.key, organization.alm.url)}
-                          rel="noopener noreferrer"
-                          target="_blank">
-                          {translateWithParameters(
-                            'organization.members.see_all_members_on_x',
-                            translate(sanitizeAlmId(organization.alm.key))
-                          )}
-                        </a>
-                      </p>
-                    </>
+                  <hr />
+                  <p>
+                    <a
+                      href={getAlmMembersUrl(organization.alm.key, organization.alm.url)}
+                      rel="noopener noreferrer"
+                      target="_blank">
+                      {translateWithParameters(
+                        'organization.members.see_all_members_on_x',
+                        translate(sanitizeAlmId(organization.alm.key))
+                      )}
+                    </a>
+                  </p>
                   )}
                 </div>
               }

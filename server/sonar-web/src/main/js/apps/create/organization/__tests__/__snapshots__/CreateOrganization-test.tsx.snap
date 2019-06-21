@@ -1,92 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render with auto personal organization bind page 1`] = `
-<AlmApplicationInstalling
-  almKey="github"
-/>
-`;
-
-exports[`should render with auto personal organization bind page 2`] = `
-<Fragment>
-  <HelmetWrapper
-    defer={true}
-    encodeSpecialCharacters={true}
-    title="onboarding.import_organization.personal.page.header"
-    titleTemplate="%s"
-  />
-  <div
-    className="page page-limited huge-spacer-top huge-spacer-bottom"
-  >
-    <A11ySkipTarget
-      anchor="create_org_main"
-    />
-    <header
-      className="page-header huge-spacer-bottom"
-    >
-      <h1
-        className="page-title huge big-spacer-bottom"
-      >
-        <strong>
-          onboarding.import_organization.personal.page.header
-        </strong>
-      </h1>
-    </header>
-    <AutoPersonalOrganizationBind
-      almApplication={
-        Object {
-          "backgroundColor": "blue",
-          "iconPath": "icon/path",
-          "installationUrl": "https://alm.installation.url",
-          "key": "github",
-          "name": "GitHub",
-        }
-      }
-      almInstallId="foo"
-      almOrganization={
-        Object {
-          "almUrl": "https://github.com/foo",
-          "avatar": "http://example.com/avatar",
-          "description": "description-foo",
-          "key": "foo",
-          "name": "foo",
-          "personal": true,
-          "privateRepos": 0,
-          "publicRepos": 3,
-          "url": "http://example.com/foo",
-        }
-      }
-      handleCancelImport={[Function]}
-      handleOrgDetailsFinish={[Function]}
-      handleOrgDetailsStepOpen={[Function]}
-      importPersonalOrg={
-        Object {
-          "actions": Object {
-            "admin": true,
-          },
-          "key": "foo",
-          "name": "Foo",
-        }
-      }
-      onDone={[Function]}
-      step={0}
-      subscriptionPlans={
-        Array [
-          Object {
-            "maxNcloc": 100000,
-            "price": 10,
-          },
-          Object {
-            "maxNcloc": 250000,
-            "price": 75,
-          },
-        ]
-      }
-      updateOrganization={[MockFunction]}
-    />
-  </div>
-</Fragment>
-`;
-
 exports[`should render with auto tab displayed 1`] = `
 <Fragment>
   <HelmetWrapper
@@ -261,7 +174,6 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
           "description": "Continuous Code Quality",
           "key": "sonarsource",
           "name": "SonarSource",
-          "personal": false,
           "privateRepos": 0,
           "publicRepos": 3,
           "url": "https://www.sonarsource.com",
@@ -449,7 +361,6 @@ exports[`should render with organization bind page 2`] = `
           "description": "description-foo",
           "key": "foo",
           "name": "foo",
-          "personal": false,
           "privateRepos": 0,
           "publicRepos": 3,
           "url": "http://example.com/foo",

@@ -118,6 +118,10 @@ exports[`should display organization list if any 1`] = `
               "name": "Arthur",
             },
             Object {
+              "key": "b",
+              "name": "Boston Co",
+            },
+            Object {
               "key": "d",
               "name": "Daniel Inc",
             },

@@ -53,10 +53,6 @@ export function isVSTS(almKey?: string): boolean {
   return almKey === 'microsoft';
 }
 
-export function isPersonal(organization?: T.AlmOrganization) {
-  return Boolean(organization && organization.personal);
-}
-
 export function sanitizeAlmId(almKey: string) {
   if (isBitbucket(almKey)) {
     return 'bitbucket';

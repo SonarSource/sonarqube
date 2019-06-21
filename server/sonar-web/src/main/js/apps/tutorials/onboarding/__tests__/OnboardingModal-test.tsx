@@ -21,7 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { OnboardingModal, Props } from '../OnboardingModal';
 import { click } from '../../../../helpers/testUtils';
-import { mockLoggedInUser, mockOrganization } from '../../../../helpers/testMocks';
+import { mockOrganization } from '../../../../helpers/testMocks';
 
 it('renders correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -41,22 +41,20 @@ it('should open project create page', () => {
 
 it('should display organization list if any', () => {
   const wrapper = shallowRender({
-    currentUser: mockLoggedInUser({ personalOrganization: 'personal' }),
     userOrganizations: [
       mockOrganization({ key: 'a', name: 'Arthur' }),
-      mockOrganization({ key: 'd', name: 'Daniel Inc' }),
-      mockOrganization({ key: 'personal', name: 'Personal' })
+      mockOrganization({ key: 'b', name: 'Boston Co' }),
+      mockOrganization({ key: 'd', name: 'Daniel Inc' })
     ]
   });
 
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('OrganizationsShortList').prop('organizations')).toHaveLength(2);
+  expect(wrapper.find('OrganizationsShortList').prop('organizations')).toHaveLength(3);
 });
 
 function shallowRender(props: Partial<Props> = {}) {
   return shallow(
     <OnboardingModal
-      currentUser={mockLoggedInUser()}
       onClose={jest.fn()}
       onOpenProjectOnboarding={jest.fn()}
       userOrganizations={[]}

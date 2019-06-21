@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function getWrappedDisplayName(WrappedComponent: React.ComponentType, hocName: string) {
+export function getWrappedDisplayName<P>(
+  WrappedComponent: React.ComponentType<P>,
+  hocName: string
+) {
   const wrappedDisplayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
   return `${hocName}(${wrappedDisplayName})`;
 }

@@ -43,7 +43,6 @@ export function mockAlmOrganization(overrides: Partial<T.AlmOrganization> = {}):
     description: 'description-foo',
     key: 'foo',
     name: 'foo',
-    personal: false,
     privateRepos: 0,
     publicRepos: 3,
     url: 'http://example.com/foo',

@@ -37,7 +37,6 @@ declare namespace T {
   export interface AlmOrganization extends OrganizationBase {
     almUrl: string;
     key: string;
-    personal: boolean;
     privateRepos: number;
     publicRepos: number;
   }
@@ -440,7 +439,6 @@ declare namespace T {
     local?: boolean;
     login: string;
     name: string;
-    personalOrganization?: string;
     scmAccounts: string[];
     settings?: CurrentUserSetting[];
   }
@@ -519,7 +517,6 @@ declare namespace T {
     alm?: { key: string; membersSync: boolean; url: string };
     adminPages?: Extension[];
     canUpdateProjectsVisibilityToPrivate?: boolean;
-    guarded?: boolean;
     isDefault?: boolean;
     key: string;
     pages?: Extension[];

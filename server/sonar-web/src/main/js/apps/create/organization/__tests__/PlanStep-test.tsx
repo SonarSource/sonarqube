@@ -80,7 +80,7 @@ it('should upgrade', async () => {
 it('should preselect paid plan', async () => {
   const wrapper = shallow(
     <PlanStep
-      almOrganization={mockAlmOrganization({ personal: true, privateRepos: 5, publicRepos: 0 })}
+      almOrganization={mockAlmOrganization({ privateRepos: 5, publicRepos: 0 })}
       createOrganization={jest.fn()}
       onDone={jest.fn()}
       onUpgradeFail={jest.fn()}

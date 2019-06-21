@@ -29,16 +29,13 @@ import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
 export interface Props {
-  currentUser: T.LoggedInUser;
   onClose: VoidFunction;
   onOpenProjectOnboarding: VoidFunction;
   userOrganizations: T.Organization[];
 }
 
 export function OnboardingModal(props: Props) {
-  const { currentUser, onClose, onOpenProjectOnboarding, userOrganizations } = props;
-
-  const organizations = userOrganizations.filter(o => o.key !== currentUser.personalOrganization);
+  const { onClose, onOpenProjectOnboarding, userOrganizations } = props;
 
   const header = translate('onboarding.header');
   return (
@@ -46,7 +43,7 @@ export function OnboardingModal(props: Props) {
       contentLabel={header}
       onRequestClose={onClose}
       shouldCloseOnOverlayClick={false}
-      size={organizations.length > 0 ? 'medium' : 'small'}>
+      size={userOrganizations.length > 0 ? 'medium' : 'small'}>
       <div className="modal-head">
         <h2>{translate('onboarding.header')}</h2>
         <p className="spacer-top">{translate('onboarding.header.description')}</p>
@@ -59,7 +56,7 @@ export function OnboardingModal(props: Props) {
             {translate('onboarding.project.create')}
           </Button>
         </div>
-        {organizations.length > 0 && (
+        {userOrganizations.length > 0 && (
           <>
             <div className="vertical-pipe-separator">
               <div className="vertical-separator" />
@@ -69,7 +66,7 @@ export function OnboardingModal(props: Props) {
               <h3 className="big-spacer-bottom">
                 {translate('onboarding.browse_your_organizations')}
               </h3>
-              <OrganizationsShortList onClick={onClose} organizations={organizations} />
+              <OrganizationsShortList onClick={onClose} organizations={userOrganizations} />
             </div>
           </>
         )}

@@ -72,13 +72,8 @@ const routes = [
         childRoutes: qualityGatesRoutes
       },
       {
-        component: lazyLoad(() =>
-          import('./components/OrganizationAccessContainer').then(lib => ({
-            default: lib.OrganizationAdminAccess
-          }))
-        ),
+        component: lazyLoad(() => import('./components/OrganizationAccessContainer')),
         childRoutes: [
-          { path: 'delete', component: lazyLoad(() => import('./components/OrganizationDelete')) },
           { path: 'edit', component: lazyLoad(() => import('./components/OrganizationEdit')) },
           { path: 'groups', component: lazyLoad(() => import('../groups/components/App')) },
           {

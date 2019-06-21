@@ -30,7 +30,6 @@ type RequiredOrganization = Required<T.OrganizationBase>;
 
 interface Props {
   infoBlock?: React.ReactNode;
-  keyReadOnly?: boolean;
   onContinue: (organization: T.Organization) => Promise<void>;
   organization?: T.Organization;
   submitText: string;
@@ -132,12 +131,10 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
 
   render() {
     const { submitting } = this.state;
-    const { infoBlock, keyReadOnly } = this.props;
+    const { infoBlock } = this.props;
     return (
       <form id="organization-form" onSubmit={this.handleSubmit}>
-        {!keyReadOnly && (
-          <OrganizationKeyInput initialValue={this.state.key} onChange={this.handleKeyUpdate} />
-        )}
+        <OrganizationKeyInput initialValue={this.state.key} onChange={this.handleKeyUpdate} />
         <div className="big-spacer-top">
           <ResetButtonLink onClick={this.handleAdditionalClick}>
             {translate(

@@ -63,7 +63,6 @@ jest.mock('../../../../api/alm-integration', () => ({
       description: 'Continuous Code Quality',
       key: 'sonarsource',
       name: 'SonarSource',
-      personal: false,
       privateRepos: 0,
       publicRepos: 3,
       url: 'https://www.sonarsource.com'
@@ -83,12 +82,11 @@ jest.mock('../../../../helpers/storage', () => ({
 }));
 
 const user = mockLoggedInUser();
-const fooAlmOrganization = mockAlmOrganization({ personal: true });
+const fooAlmOrganization = mockAlmOrganization();
 const fooBarAlmOrganization = mockAlmOrganization({
   avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
   key: 'Foo&Bar',
-  name: 'Foo & Bar',
-  personal: true
+  name: 'Foo & Bar'
 });
 
 const boundOrganization = { key: 'foobar', name: 'Foo & Bar' };
@@ -132,22 +130,9 @@ it('should render with auto tab selected and manual disabled', async () => {
   expect(getOrganizations).toHaveBeenCalled();
 });
 
-it('should render with auto personal organization bind page', async () => {
-  (getAlmOrganization as jest.Mock<any>).mockResolvedValueOnce({
-    almOrganization: fooAlmOrganization
-  });
-  const wrapper = shallowRender({
-    currentUser: { ...user, externalProvider: 'github', personalOrganization: 'foo' },
-    location: { query: { installation_id: 'foo' } } as Location
-  });
-  expect(wrapper).toMatchSnapshot();
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-});
-
 it('should render with organization bind page', async () => {
   (getAlmOrganization as jest.Mock<any>).mockResolvedValueOnce({
-    almOrganization: { ...fooAlmOrganization, personal: false }
+    almOrganization: fooAlmOrganization
   });
   const wrapper = shallowRender({
     currentUser: { ...user, externalProvider: 'github' },
@@ -235,7 +220,7 @@ it('should redirect to projects creation page after creation', async () => {
     state: { organization: 'foo', tab: 'manual' }
   });
 
-  wrapper.setState({ almOrganization: { ...fooAlmOrganization, personal: false } });
+  wrapper.setState({ almOrganization: fooAlmOrganization });
   (get as jest.Mock<any>).mockReturnValueOnce(Date.now().toString());
   wrapper.instance().handleOrgCreated('foo');
   expect(push).toHaveBeenCalledWith({
@@ -246,7 +231,7 @@ it('should redirect to projects creation page after creation', async () => {
 
 it('should display AutoOrganizationCreate with already bound organization', async () => {
   (getAlmOrganization as jest.Mock<any>).mockResolvedValueOnce({
-    almOrganization: { ...fooBarAlmOrganization, personal: false },
+    almOrganization: fooBarAlmOrganization,
     boundOrganization
   });
   (get as jest.Mock<any>)
@@ -344,7 +329,6 @@ function createComponent(props: Partial<CreateOrganization['props']> = {}) {
       router={mockRouter()}
       routes={[]}
       skipOnboarding={jest.fn()}
-      updateOrganization={jest.fn()}
       userOrganizations={[
         mockOrganizationWithAdminActions(),
         mockOrganizationWithAdminActions(mockOrganizationWithAlm({ key: 'bar', name: 'Bar' })),
