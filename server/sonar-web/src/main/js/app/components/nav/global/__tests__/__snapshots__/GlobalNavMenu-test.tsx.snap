@@ -6,7 +6,7 @@ exports[`should show administration menu if the user has the rights 1`] = `
 >
   <li>
     <Link
-      activeClassName=""
+      className=""
       onlyActiveOnIndex={false}
       style={Object {}}
       to="/projects"
@@ -33,6 +33,7 @@ exports[`should show administration menu if the user has the rights 1`] = `
   </li>
   <li>
     <Link
+      activeClassName="active"
       onlyActiveOnIndex={false}
       style={Object {}}
       to="/coding_rules"

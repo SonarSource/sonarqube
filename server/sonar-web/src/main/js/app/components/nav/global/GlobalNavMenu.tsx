@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
-import { getQualityGatesUrl, getBaseUrl } from '../../../../helpers/urls';
+import { getQualityGatesUrl } from '../../../../helpers/urls';
 import { isMySet } from '../../../../apps/issues/utils';
 import Dropdown from '../../../../components/controls/Dropdown';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
@@ -35,10 +35,6 @@ interface Props {
 }
 
 export default class GlobalNavMenu extends React.PureComponent<Props> {
-  activeLink(url: string) {
-    return window.location.pathname.indexOf(getBaseUrl() + url) === 0 ? 'active' : undefined;
-  }
-
   renderProjects() {
     if (isSonarCloud() && !isLoggedIn(this.props.currentUser)) {
       return null;
@@ -50,7 +46,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
 
     return (
       <li>
-        <Link activeClassName={classNames({ active })} to="/projects">
+        <Link className={classNames({ active })} to="/projects">
           {isSonarCloud() ? translate('my_projects') : translate('projects.page')}
         </Link>
       </li>
@@ -72,7 +68,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
       return null;
     }
 
-    const active = this.props.location.pathname === 'issues';
+    const active = this.props.location.pathname.startsWith('/issues');
 
     if (isSonarCloud()) {
       return (
@@ -102,7 +98,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
   renderRulesLink() {
     return (
       <li>
-        <Link className={this.activeLink('/coding_rules')} to="/coding_rules">
+        <Link activeClassName="active" to="/coding_rules">
           {translate('coding_rules.page')}
         </Link>
       </li>
