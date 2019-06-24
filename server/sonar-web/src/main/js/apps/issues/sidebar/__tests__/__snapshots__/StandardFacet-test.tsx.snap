@@ -20,14 +20,11 @@ exports[`should render empty sub-facet 1`] = `
   property="sansTop25"
 >
   <FacetHeader
+    fetching={false}
     name="issues.facet.sansTop25"
     onClick={[Function]}
     open={true}
     values={Array []}
-  />
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
   />
   <div
     className="search-navigator-facet-empty little-spacer-top"
@@ -64,6 +61,7 @@ exports[`should render sub-facets 1`] = `
     property="sonarsourceSecurity"
   >
     <FacetHeader
+      fetching={false}
       name="issues.facet.sonarsourceSecurity"
       onClick={[Function]}
       open={true}
@@ -72,10 +70,6 @@ exports[`should render sub-facets 1`] = `
           "SQL Injection",
         ]
       }
-    />
-    <DeferredSpinner
-      loading={false}
-      timeout={100}
     />
     <FacetItemsList>
       <FacetItem
@@ -101,6 +95,7 @@ exports[`should render sub-facets 1`] = `
     property="owaspTop10"
   >
     <FacetHeader
+      fetching={false}
       name="issues.facet.owaspTop10"
       onClick={[Function]}
       open={true}
@@ -109,10 +104,6 @@ exports[`should render sub-facets 1`] = `
           "A3",
         ]
       }
-    />
-    <DeferredSpinner
-      loading={false}
-      timeout={100}
     />
     <FacetItemsList>
       <FacetItem
@@ -150,6 +141,7 @@ exports[`should render sub-facets 1`] = `
     property="sansTop25"
   >
     <FacetHeader
+      fetching={false}
       name="issues.facet.sansTop25"
       onClick={[Function]}
       open={true}
@@ -158,10 +150,6 @@ exports[`should render sub-facets 1`] = `
           "Risky Resource Management",
         ]
       }
-    />
-    <DeferredSpinner
-      loading={false}
-      timeout={100}
     />
     <FacetItemsList>
       <FacetItem

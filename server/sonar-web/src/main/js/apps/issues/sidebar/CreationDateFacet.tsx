@@ -32,7 +32,6 @@ import DateRangeInput from '../../../components/controls/DateRangeInput';
 import { isSameDay, parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
   component: T.Component | undefined;
@@ -279,6 +278,7 @@ class CreationDateFacet extends React.PureComponent<Props & InjectedIntlProps> {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
+          fetching={this.props.fetching}
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
@@ -286,7 +286,6 @@ class CreationDateFacet extends React.PureComponent<Props & InjectedIntlProps> {
           values={this.getValues()}
         />
 
-        <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && this.renderInner()}
       </FacetBox>
     );

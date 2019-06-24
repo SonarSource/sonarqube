@@ -21,7 +21,6 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { orderBy, without } from 'lodash';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
@@ -143,6 +142,7 @@ export class TypeFacet extends React.PureComponent<Props> {
       <FacetBox property={this.property}>
         <FacetHeader
           clearLabel="reset_verb"
+          fetching={this.props.fetching}
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
@@ -150,7 +150,6 @@ export class TypeFacet extends React.PureComponent<Props> {
           values={values}
         />
 
-        <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && (
           <>
             <FacetItemsList>{ISSUE_TYPES.map(this.renderItem)}</FacetItemsList>

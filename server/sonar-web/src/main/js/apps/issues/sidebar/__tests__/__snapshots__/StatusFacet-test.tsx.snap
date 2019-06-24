@@ -5,15 +5,12 @@ exports[`should render correctly 1`] = `
   property="statuses"
 >
   <FacetHeader
+    fetching={false}
     name="issues.facet.statuses"
     onClear={[Function]}
     onClick={[Function]}
     open={true}
     values={Array []}
-  />
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
   />
   <FacetItemsList
     title="issues"

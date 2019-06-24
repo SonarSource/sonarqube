@@ -25,7 +25,6 @@ import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import { translate } from '../../../helpers/l10n';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 interface Props {
@@ -116,6 +115,7 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
       <FacetBox property={this.property}>
         <FacetHeader
           clearLabel="reset_verb"
+          fetching={this.props.fetching}
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
@@ -123,7 +123,6 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
           values={values}
         />
 
-        <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && (
           <>
             <FacetItemsList>{RESOLUTIONS.map(this.renderItem)}</FacetItemsList>

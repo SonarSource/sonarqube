@@ -18,14 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import OpenCloseIcon from '../icons-components/OpenCloseIcon';
-import HelpTooltip from '../controls/HelpTooltip';
 import { Button } from '../ui/buttons';
+import DeferredSpinner from '../common/DeferredSpinner';
+import HelpTooltip from '../controls/HelpTooltip';
+import OpenCloseIcon from '../icons-components/OpenCloseIcon';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
 interface Props {
   children?: React.ReactNode;
   clearLabel?: string;
+  fetching?: boolean;
   helper?: string;
   name: React.ReactNode;
   onClear?: () => void;
@@ -69,7 +71,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
       this.props.values != null && this.props.values.length > 0 && this.props.onClear != null;
 
     return (
-      <div className="search-navigator-facet-header-wrapper">
+      <div className="search-navigator-facet-header-wrapper display-flex-center">
         {this.props.onClick ? (
           <span className="search-navigator-facet-header display-flex-center">
             <a href="#" onClick={this.handleClick}>
@@ -90,6 +92,12 @@ export default class FacetHeader extends React.PureComponent<Props> {
         <span className="search-navigator-facet-header-value spacer-left spacer-right ">
           {this.renderValueIndicator()}
         </span>
+
+        {this.props.fetching && (
+          <span className="little-spacer-right">
+            <DeferredSpinner />
+          </span>
+        )}
 
         {showClearButton && (
           <Button

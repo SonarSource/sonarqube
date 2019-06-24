@@ -46,6 +46,10 @@ it('should render without link', () => {
   expect(shallow(<FacetHeader name="foo" open={false} />)).toMatchSnapshot();
 });
 
+it('should render with a spinner if loading', () => {
+  expect(shallow(<FacetHeader fetching={true} name="foo" open={false} />)).toMatchSnapshot();
+});
+
 it('should call onClick', () => {
   const onClick = jest.fn();
   const wrapper = shallow(<FacetHeader name="foo" onClick={onClick} open={false} />);

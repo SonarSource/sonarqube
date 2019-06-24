@@ -99,6 +99,7 @@ exports[`should render open by default 1`] = `
 >
   <FacetHeader
     clearLabel="reset_verb"
+    fetching={false}
     name="issues.facet.types"
     onClear={[Function]}
     onClick={[Function]}
@@ -109,10 +110,6 @@ exports[`should render open by default 1`] = `
         "issue.type.CODE_SMELL",
       ]
     }
-  />
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
   />
   <FacetItemsList>
     <FacetItem

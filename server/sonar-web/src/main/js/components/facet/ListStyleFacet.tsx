@@ -27,7 +27,6 @@ import FacetItemsList from './FacetItemsList';
 import ListStyleFacetFooter from './ListStyleFacetFooter';
 import MultipleSelectionHint from './MultipleSelectionHint';
 import { Alert } from '../ui/Alert';
-import DeferredSpinner from '../common/DeferredSpinner';
 import ListFooter from '../controls/ListFooter';
 import SearchBox from '../controls/SearchBox';
 import Tooltip from '../controls/Tooltip';
@@ -394,6 +393,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
         })}
         property={this.props.property}>
         <FacetHeader
+          fetching={this.props.fetching}
           name={
             <Tooltip overlay={disabled ? this.props.disabledHelper : undefined}>
               <span>{this.props.facetHeader}</span>
@@ -405,7 +405,6 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
           values={values}
         />
 
-        <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && !disabled && (
           <>
             {this.renderSearch()}

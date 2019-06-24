@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { sortBy, without, omit } from 'lodash';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
@@ -300,6 +299,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
       <>
         <FacetBox className="is-inner" property="sonarsourceSecurity">
           <FacetHeader
+            fetching={this.props.fetchingSonarSourceSecurity}
             name={translate('issues.facet.sonarsourceSecurity')}
             onClick={this.handleSonarSourceSecurityHeaderClick}
             open={this.props.sonarsourceSecurityOpen}
@@ -307,7 +307,6 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
               renderSonarSourceSecurityCategory(this.state.standards, item)
             )}
           />
-          <DeferredSpinner loading={this.props.fetchingSonarSourceSecurity} />
           {this.props.sonarsourceSecurityOpen && (
             <>
               {this.renderSonarSourceSecurityList()}
@@ -317,6 +316,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
         </FacetBox>
         <FacetBox className="is-inner" property="owaspTop10">
           <FacetHeader
+            fetching={this.props.fetchingOwaspTop10}
             name={translate('issues.facet.owaspTop10')}
             onClick={this.handleOwaspTop10HeaderClick}
             open={this.props.owaspTop10Open}
@@ -324,7 +324,6 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
               renderOwaspTop10Category(this.state.standards, item)
             )}
           />
-          <DeferredSpinner loading={this.props.fetchingOwaspTop10} />
           {this.props.owaspTop10Open && (
             <>
               {this.renderOwaspTop10List()}
@@ -334,6 +333,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
         </FacetBox>
         <FacetBox className="is-inner" property="sansTop25">
           <FacetHeader
+            fetching={this.props.fetchingSansTop25}
             name={translate('issues.facet.sansTop25')}
             onClick={this.handleSansTop25HeaderClick}
             open={this.props.sansTop25Open}
@@ -341,7 +341,6 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
               renderSansTop25Category(this.state.standards, item)
             )}
           />
-          <DeferredSpinner loading={this.props.fetchingSansTop25} />
           {this.props.sansTop25Open && (
             <>
               {this.renderSansTop25List()}

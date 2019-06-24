@@ -6,6 +6,7 @@ exports[`should be disabled 1`] = `
   property="foo"
 >
   <FacetHeader
+    fetching={false}
     name={
       <Tooltip
         overlay="Disabled helper description"
@@ -19,10 +20,6 @@ exports[`should be disabled 1`] = `
     open={false}
     values={Array []}
   />
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
-  />
 </FacetBox>
 `;
 
@@ -32,6 +29,7 @@ exports[`should display all selected items 1`] = `
   property="foo"
 >
   <FacetHeader
+    fetching={false}
     name={
       <Tooltip>
         <span>
@@ -49,10 +47,6 @@ exports[`should display all selected items 1`] = `
         "c",
       ]
     }
-  />
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
   />
   <SearchBox
     autoFocus={false}
@@ -126,6 +120,7 @@ exports[`should render 1`] = `
   property="foo"
 >
   <FacetHeader
+    fetching={false}
     name={
       <Tooltip>
         <span>
@@ -137,10 +132,6 @@ exports[`should render 1`] = `
     onClick={[Function]}
     open={true}
     values={Array []}
-  />
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
   />
   <SearchBox
     autoFocus={false}
@@ -207,6 +198,7 @@ exports[`should search 1`] = `
   property="foo"
 >
   <FacetHeader
+    fetching={false}
     name={
       <Tooltip>
         <span>
@@ -218,10 +210,6 @@ exports[`should search 1`] = `
     onClick={[Function]}
     open={true}
     values={Array []}
-  />
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
   />
   <SearchBox
     autoFocus={false}
@@ -278,6 +266,7 @@ exports[`should search 2`] = `
   property="foo"
 >
   <FacetHeader
+    fetching={false}
     name={
       <Tooltip>
         <span>
@@ -289,10 +278,6 @@ exports[`should search 2`] = `
     onClick={[Function]}
     open={true}
     values={Array []}
-  />
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
   />
   <SearchBox
     autoFocus={false}
@@ -361,6 +346,7 @@ exports[`should search 3`] = `
   property="foo"
 >
   <FacetHeader
+    fetching={false}
     name={
       <Tooltip>
         <span>
@@ -372,10 +358,6 @@ exports[`should search 3`] = `
     onClick={[Function]}
     open={true}
     values={Array []}
-  />
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
   />
   <SearchBox
     autoFocus={false}
@@ -442,6 +424,7 @@ exports[`should search 4`] = `
   property="foo"
 >
   <FacetHeader
+    fetching={false}
     name={
       <Tooltip>
         <span>
@@ -453,10 +436,6 @@ exports[`should search 4`] = `
     onClick={[Function]}
     open={true}
     values={Array []}
-  />
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
   />
   <SearchBox
     autoFocus={false}
@@ -485,6 +464,7 @@ exports[`should search 5`] = `
   property="foo"
 >
   <FacetHeader
+    fetching={false}
     name={
       <Tooltip>
         <span>
@@ -496,10 +476,6 @@ exports[`should search 5`] = `
     onClick={[Function]}
     open={true}
     values={Array []}
-  />
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
   />
   <SearchBox
     autoFocus={false}
