@@ -21,6 +21,10 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import Unauthorized from '../Unauthorized';
 
+jest.mock('../../../../helpers/cookies', () => ({
+  getCookie: jest.fn().mockReturnValue('Foo')
+}));
+
 it('render', () => {
-  expect(shallow(<Unauthorized location={{ query: { message: 'Foo' } }} />)).toMatchSnapshot();
+  expect(shallow(<Unauthorized />)).toMatchSnapshot();
 });

@@ -20,18 +20,10 @@
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
+import { getCookie } from '../../../helpers/cookies';
 
-interface Props {
-  location: {
-    query: {
-      message: string;
-    };
-  };
-}
-
-export default function Unauthorized(props: Props) {
-  const { message } = props.location.query;
-
+export default function Unauthorized() {
+  const message = decodeURIComponent(getCookie('AUTHENTICATION-ERROR') || '');
   return (
     <div className="page-wrapper-simple" id="bd">
       <div className="page-simple" id="nonav">

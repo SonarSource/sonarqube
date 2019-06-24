@@ -42,15 +42,16 @@ jest.mock('../../../../api/users', () => ({
     })
 }));
 
+jest.mock('../../../../helpers/cookies', () => ({
+  getCookie: jest
+    .fn()
+    .mockReturnValue(
+      '%7B%22email%22%3A%22mail%40example.com%22%2C%22login%22%3A%22foo%22%2C%22provider%22%3A%22github%22%2C%22existingLogin%22%3A%22bar%22%2C%22existingProvider%22%3A%22bitbucket%22%7D'
+    )
+}));
+
 it('render', async () => {
-  const query = {
-    email: 'mail@example.com',
-    login: 'foo',
-    provider: 'github',
-    existingLogin: 'bar',
-    existingProvider: 'bitbucket'
-  };
-  const wrapper = shallow(<EmailAlreadyExists location={{ query }} />);
+  const wrapper = shallow(<EmailAlreadyExists />);
   (wrapper.instance() as EmailAlreadyExists).mounted = true;
   (wrapper.instance() as EmailAlreadyExists).fetchIdentityProviders();
   await waitAndUpdate(wrapper);

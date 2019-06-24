@@ -19,33 +19,21 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { getIdentityProviders } from '../../../api/users';
 import * as theme from '../../../app/theme';
+import { Alert } from '../../../components/ui/Alert';
+import { getIdentityProviders } from '../../../api/users';
+import { getCookie } from '../../../helpers/cookies';
+import { getBaseUrl } from '../../../helpers/urls';
 import { getTextColor } from '../../../helpers/colors';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
-import { Alert } from '../../../components/ui/Alert';
-
-interface Props {
-  location: {
-    query: {
-      email: string;
-      login: string;
-      provider: string;
-      existingLogin: string;
-      existingProvider: string;
-    };
-  };
-}
 
 interface State {
   identityProviders: T.IdentityProvider[];
-  loading: boolean;
 }
 
-export default class EmailAlreadyExists extends React.PureComponent<Props, State> {
+export default class EmailAlreadyExists extends React.PureComponent<{}, State> {
   mounted = false;
-  state: State = { identityProviders: [], loading: true };
+  state: State = { identityProviders: [] };
 
   componentDidMount() {
     this.mounted = true;
@@ -57,22 +45,31 @@ export default class EmailAlreadyExists extends React.PureComponent<Props, State
   }
 
   fetchIdentityProviders = () => {
-    this.setState({ loading: true });
     getIdentityProviders().then(
       ({ identityProviders }) => {
         if (this.mounted) {
-          this.setState({ identityProviders, loading: false });
+          this.setState({ identityProviders });
         }
       },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
+      () => {}
     );
   };
 
-  renderIdentityProvier = (provider: string, login: string) => {
+  getAuthError = (): {
+    email?: string;
+    login?: string;
+    provider?: string;
+    existingLogin?: string;
+    existingProvider?: string;
+  } => {
+    const cookie = getCookie('AUTHENTICATION-ERROR');
+    if (cookie) {
+      return JSON.parse(decodeURIComponent(cookie));
+    }
+    return {};
+  };
+
+  renderIdentityProvier = (provider?: string, login?: string) => {
     const identityProvider = this.state.identityProviders.find(p => p.key === provider);
 
     return identityProvider ? (
@@ -99,8 +96,7 @@ export default class EmailAlreadyExists extends React.PureComponent<Props, State
   };
 
   render() {
-    const { query } = this.props.location;
-
+    const authError = this.getAuthError();
     return (
       <div className="page-wrapper-simple" id="bd">
         <div className="page-simple" id="nonav">
@@ -109,15 +105,15 @@ export default class EmailAlreadyExists extends React.PureComponent<Props, State
               <FormattedMessage
                 defaultMessage={translate('sessions.email_already_exists.1')}
                 id="sessions.email_already_exists.1"
-                values={{ email: <strong>{query.email}</strong> }}
+                values={{ email: <strong>{authError.email}</strong> }}
               />
             </p>
-            {this.renderIdentityProvier(query.existingProvider, query.existingLogin)}
+            {this.renderIdentityProvier(authError.existingProvider, authError.existingLogin)}
           </div>
 
           <div className="big-spacer-bottom js-new-account">
             <p className="little-spacer-bottom">{translate('sessions.email_already_exists.2')}</p>
-            {this.renderIdentityProvier(query.provider, query.login)}
+            {this.renderIdentityProvier(authError.provider, authError.login)}
           </div>
 
           <Alert variant="warning">
@@ -132,7 +128,7 @@ export default class EmailAlreadyExists extends React.PureComponent<Props, State
           <div className="big-spacer-top text-right">
             <a
               className="button js-continue"
-              href={`${getBaseUrl()}/sessions/init/${query.provider}?allowEmailShift=true`}>
+              href={`${getBaseUrl()}/sessions/init/${authError.provider}?allowEmailShift=true`}>
               {translate('continue')}
             </a>
             <a className="big-spacer-left js-cancel" href={getBaseUrl() + '/'}>
