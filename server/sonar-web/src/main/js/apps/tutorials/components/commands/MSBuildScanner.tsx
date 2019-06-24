@@ -39,7 +39,7 @@ export default function MSBuildScanner(props: Props) {
       <p>
         <a
           className="button"
-          href="http://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html"
+          href="https://sonarcloud.io/documentation/analysis/scan/sonarscanner-for-msbuild/"
           rel="noopener noreferrer"
           target="_blank">
           {translate('download_verb')}

@@ -37,3 +37,9 @@ You can monitor the Quality Gate status of your projects directly in your Azure 
     * **For public projects:** you can simply select your project from the dropdown. A searchbar inside the dropdown will help you find it easily. Just select it and click on the "Save" button.
 
     * **For private projects:** you'll have to log in using the links provided under the dropdown. Once logged in, your private projects will appear in the dropdown. Select the one you are interested in, and click on "Save".
+
+## FAQ
+
+1. Which kind of analysis scenario are supported for .Net projects ?
+
+    * Using Sonar Scanner for MSBuild, you can build multiple .Net projects / solutions between the "Prepare Analysis on SonarCloud" and "Run Analysis" tasks. You will have full support of Issues and Code Coverage on both branches and PR Analysis. Other kind of scenarios are not yet supported.

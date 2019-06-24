@@ -4,12 +4,12 @@ url: /analysis/scan/sonarscanner-for-msbuild/
 ---
 
 [[info]]
-| **Download SonarQube Scanner for MSBuild 4.6.0.1930** - Compatible with SonarQube 6.7+ (LTS)  
-| By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://github.com/SonarSource/sonar-scanner-msbuild/issues) – [Source](https://github.com/SonarSource-VisualStudio/sonar-msbuild-runner)   
+| **Download SonarScanner for MSBuild 4.6.2.2108** - Compatible with SonarQube 6.7+ (LTS)  
+| By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://github.com/SonarSource/sonar-scanner-msbuild/issues) – [Source](https://github.com/SonarSource/sonar-scanner-msbuild)
 |
-| [.NET Framework 4.6+](https://github.com/SonarSource/sonar-scanner-msbuild/releases/download/4.6.0.1930/sonar-scanner-msbuild-4.6.0.1930-net46.zip) |
-| [.NET Core 2.0+](https://github.com/SonarSource/sonar-scanner-msbuild/releases/download/4.6.0.1930/sonar-scanner-msbuild-4.6.0.1930-netcoreapp2.0.zip) |
-| [.NET Core Global Tool](https://www.nuget.org/packages/dotnet-sonarscanner) 
+| [.NET Framework 4.6+](https://github.com/SonarSource/sonar-scanner-msbuild/releases/download/4.6.2.2108/sonar-scanner-msbuild-4.6.2.2108-net46.zip) |
+| [.NET Core 2.0+](https://github.com/SonarSource/sonar-scanner-msbuild/releases/download/4.6.2.2108/sonar-scanner-msbuild-4.6.2.2108-netcoreapp2.0.zip) |
+| [.NET Core Global Tool](https://www.nuget.org/packages/dotnet-sonarscanner)
 
 
 The SonarScanner for MSBuild is the recommended way to launch an analysis for projects/solutions using MSBuild or dotnet command as a build tool. It is the result of a [collaboration between SonarSource and Microsoft](http://www.sonarqube.org/announcing-sonarqube-integration-with-msbuild-and-team-build/). 
@@ -59,25 +59,28 @@ There are two versions of the SonarScanner for MSBuild.
 
 The first version is based on the “classic” .NET Framework. To use it, execute the following commands from the root folder of your project:
 ```
-SonarScanner.MSBuild.exe begin /k:"project-key"
+SonarScanner.MSBuild.exe begin /k:"project-key" <!-- sonarcloud -->/d:sonar.organization="<organization>" /d:sonar.login="<token>" <!-- /sonarcloud -->
 MSBuild.exe <path to solution.sln> /t:Rebuild
-SonarScanner.MSBuild.exe end
+SonarScanner.MSBuild.exe end <!-- sonarcloud -->/d:sonar.login="<token>" <!-- /sonarcloud -->
 ```
 Note: On Mac OS or Linux, you can also use `mono <path to SonarScanner.MSBuild.exe>`.
 
+
 The second version is based on .NET Core which has a very similar usage:
 ```
-dotnet <path to SonarScanner.MSBuild.dll> begin /k:"project-key"
+dotnet <path to SonarScanner.MSBuild.dll> begin /k:"project-key" <!-- sonarcloud -->/d:sonar.organization="<organization>" /d:sonar.login="<token>" <!-- /sonarcloud -->
 dotnet build <path to solution.sln>
-dotnet <path to SonarScanner.MSBuild.dll> end
+dotnet <path to SonarScanner.MSBuild.dll> end <!-- sonarcloud -->/d:sonar.login="<token>" <!-- /sonarcloud -->
 ```
 The .NET Core version can also be used as a .NET Core Global Tool.
-After installing the Scanner as a global tool as described above it can be invoked as follows: 
+After installing the Scanner as a global tool as described above it can be invoked as follows:
 ```
-dotnet sonarscanner begin /k:"project-key"
+dotnet sonarscanner begin /k:"project-key" <!-- sonarcloud -->/d:sonar.organization="<organization>" /d:sonar.login="<token>" <!-- /sonarcloud -->
 dotnet build <path to solution.sln>
-dotnet sonarscanner end
+dotnet sonarscanner end <!-- sonarcloud -->/d:sonar.login="<token>" <!-- /sonarcloud -->
 ```
+
+Same as above, if you are targetting a SonarCloud project, will have to add both the organization and a login for authentication.
 
 Notes:
 
@@ -86,7 +89,7 @@ Notes:
 
 ## Analysis steps
 ### Begin
-The begin step is executed when you add the `begin` command line argument. It hooks into the MSBuild pipeline, downloads SonarQube quality profiles and settings and prepares your project for the analysis. 
+The begin step is executed when you add the `begin` command line argument. It hooks into the MSBuild pipeline, downloads SonarQube quality profiles and settings and prepares your project for the analysis.
 
 Command Line Parameters:
 
@@ -95,6 +98,7 @@ Parameter|Description
 `/k:<project-key>`|[required] Specifies the key of the analyzed project in SonarQube
 `/n:<project name>`|[optional] Specifies the name of the analyzed project in SonarQube. Adding this argument will overwrite the project name in SonarQube if it already exists.
 `/v:<version>`|[recommended] Specifies the version of your project.
+<!-- sonarcloud --> `/d:sonar.organization=<organization>`|[required] Specifies the name of the target organization in SonarCloud <!-- /sonarcloud -->
 `/d:sonar.login=<username> or <token>`| [optional] Specifies the username or access token to authenticate with to SonarQube. If this argument is added to the begin step, it must also be added on the end step.
 `/d:sonar.password=<password>`|[optional] Specifies the password for the SonarQube username in the `sonar.login` argument. This argument is not needed if you use authentication token. If this argument is added to the begin step, it must also be added on the end step.
 `/d:sonar.verbose=true`|[optional] Sets the logging verbosity to detailed. Add this argument before sending logs for troubleshooting.
@@ -199,5 +203,5 @@ To instruct the Java VM to use specific proxy settings or when there is no syste
 ```
 SONAR_SCANNER_OPTS = "-Dhttp.proxyHost=yourProxyHost -Dhttp.proxyPort=yourProxyPort"
 ```
-Where _yourProxyHost_ and _yourProxyPort_ are the hostname and the port of your proxy server. There are additional proxy settings for https, authentication and exclusions that could be passed to the Java VM, for full reference visit the following article: https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html
+Where _yourProxyHost_ and _yourProxyPort_ are the hostname and the port of your proxy server. There are additional proxy settings for https, authentication and exclusions that could be passed to the Java VM. For more information see the following article: https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html
 
