@@ -119,7 +119,7 @@ public class UserRegistrarImplTest {
 
   private UserRegistrarImpl underTest = new UserRegistrarImpl(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
     new OrganizationUpdaterImpl(db.getDbClient(), mock(System2.class), UuidFactoryFast.getInstance(),
-      new OrganizationValidationImpl(), settings.asConfig(), null, null, null, permissionService),
+      new OrganizationValidationImpl(), null, null, null, permissionService),
     defaultGroupFinder, new MemberUpdater(db.getDbClient(), defaultGroupFinder, userIndexer));
 
   @Test
@@ -651,28 +651,6 @@ public class UserRegistrarImplTest {
       .contains(USER_LOGIN, USER_IDENTITY.getProviderLogin());
     OrganizationDto organizationReloaded = db.getDbClient().organizationDao().selectByUuid(db.getSession(), personalOrganization.getUuid()).get();
     assertThat(organizationReloaded.getKey()).isEqualTo(USER_LOGIN);
-  }
-
-  @Test
-  public void fail_to_authenticate_existing_user_when_personal_org_does_not_exist() {
-    organizationFlags.setEnabled(true);
-    db.users().insertUser(u -> u
-      .setLogin("Old login")
-      .setExternalId(USER_IDENTITY.getProviderId())
-      .setExternalLogin("old identity")
-      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
-      .setOrganizationUuid("unknown"));
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Cannot find personal organization uuid 'unknown' for user 'Old login'");
-
-    underTest.register(UserRegistration.builder()
-      .setUserIdentity(USER_IDENTITY)
-      .setProvider(IDENTITY_PROVIDER)
-      .setSource(Source.local(BASIC))
-      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
-      .build());
   }
 
   @Test

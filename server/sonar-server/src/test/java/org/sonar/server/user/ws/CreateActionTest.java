@@ -25,13 +25,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.core.config.CorePropertyDefinitions;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -60,9 +58,7 @@ import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_EMAIL;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_LOGIN;
@@ -133,20 +129,6 @@ public class CreateActionTest {
 
     // member of default group in default organization
     assertThat(db.users().selectGroupIdsOfUser(dbUser.get())).containsOnly(defaultGroupInDefaultOrg.getId());
-  }
-
-  @Test
-  public void create_user_calls_create_personal_organization_if_personal_organizations_are_enabled() {
-    logInAsSystemAdministrator();
-    enableCreatePersonalOrg(true);
-    assertACallToOrganizationCreationWhenUserIsCreated();
-  }
-
-  @Test
-  public void create_user_calls_create_personal_organization_if_personal_organizations_are_disabled() {
-    logInAsSystemAdministrator();
-    enableCreatePersonalOrg(false);
-    assertACallToOrganizationCreationWhenUserIsCreated();
   }
 
   @Test
@@ -396,21 +378,6 @@ public class CreateActionTest {
       .setScmAccounts(singletonList(login.substring(0, 2)))
       .setPassword("pwd_" + login)
       .build());
-  }
-
-  private void assertACallToOrganizationCreationWhenUserIsCreated() {
-    call(CreateRequest.builder()
-      .setLogin("john")
-      .setName("John")
-      .setPassword("1234")
-      .build());
-
-    Optional<UserDto> dbUser = db.users().selectUserByLogin("john");
-    assertThat(dbUser).isPresent();
-
-    ArgumentCaptor<UserDto> userCaptor = ArgumentCaptor.forClass(UserDto.class);
-    verify(organizationUpdater).createForUser(any(DbSession.class), userCaptor.capture());
-    assertThat(userCaptor.getValue().getId()).isEqualTo(dbUser.get().getId());
   }
 
   private void logInAsSystemAdministrator() {

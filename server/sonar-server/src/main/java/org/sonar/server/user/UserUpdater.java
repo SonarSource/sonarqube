@@ -433,7 +433,7 @@ public class UserUpdater {
     } else {
       addUserToDefaultOrganizationAndDefaultGroup(dbSession, userDto);
     }
-    organizationUpdater.createForUser(dbSession, userDto);
+
     return res;
   }
 

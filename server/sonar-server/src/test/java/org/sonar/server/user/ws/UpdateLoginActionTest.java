@@ -61,9 +61,8 @@ public class UpdateLoginActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private MapSettings settings = new MapSettings();
   private OrganizationUpdater organizationUpdater = new OrganizationUpdaterImpl(db.getDbClient(), mock(System2.class), UuidFactoryFast.getInstance(),
-    new OrganizationValidationImpl(), settings.asConfig(), null, null, null, null);
+    new OrganizationValidationImpl(), null, null, null, null);
 
   private WsActionTester ws = new WsActionTester(new UpdateLoginAction(db.getDbClient(), userSession,
     new UserUpdater(system2, mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()),

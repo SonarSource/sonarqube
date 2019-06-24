@@ -24,12 +24,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
-import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -38,8 +35,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.permission.UserPermissionDto;
-import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
@@ -65,7 +60,6 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
-import static org.sonar.server.organization.OrganizationUpdater.NewOrganization.newOrganizationBuilder;
 
 public class OrganizationUpdaterImpl implements OrganizationUpdater {
 
@@ -73,20 +67,18 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
   private final System2 system2;
   private final UuidFactory uuidFactory;
   private final OrganizationValidation organizationValidation;
-  private final Configuration config;
   private final BuiltInQProfileRepository builtInQProfileRepository;
   private final DefaultGroupCreator defaultGroupCreator;
   private final UserIndexer userIndexer;
   private final PermissionService permissionService;
 
   public OrganizationUpdaterImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory,
-    OrganizationValidation organizationValidation, Configuration config, UserIndexer userIndexer,
+    OrganizationValidation organizationValidation, UserIndexer userIndexer,
     BuiltInQProfileRepository builtInQProfileRepository, DefaultGroupCreator defaultGroupCreator, PermissionService permissionService) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
     this.organizationValidation = organizationValidation;
-    this.config = config;
     this.userIndexer = userIndexer;
     this.builtInQProfileRepository = builtInQProfileRepository;
     this.defaultGroupCreator = defaultGroupCreator;
@@ -123,43 +115,6 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
   }
 
   @Override
-  public Optional<OrganizationDto> createForUser(DbSession dbSession, UserDto newUser) {
-    if (!isCreatePersonalOrgEnabled()) {
-      return Optional.empty();
-    }
-
-    String nameOrLogin = nameOrLogin(newUser);
-    NewOrganization newOrganization = newOrganizationBuilder()
-      .setKey(organizationValidation.generateKeyFrom(newUser.getLogin()))
-      .setName(toName(nameOrLogin))
-      .setDescription(format(PERSONAL_ORGANIZATION_DESCRIPTION_PATTERN, nameOrLogin))
-      .build();
-    checkKey(dbSession, newOrganization.getKey());
-
-    QualityGateDto builtInQualityGate = dbClient.qualityGateDao().selectBuiltIn(dbSession);
-    OrganizationDto organization = insertOrganization(dbSession, newOrganization, builtInQualityGate,
-      dto -> dto.setGuarded(true));
-    dbClient.userDao().update(dbSession, newUser.setOrganizationUuid(organization.getUuid()));
-    insertOrganizationMember(dbSession, organization, newUser.getId());
-    GroupDto defaultGroup = defaultGroupCreator.create(dbSession, organization.getUuid());
-    dbClient.qualityGateDao().associate(dbSession, uuidFactory.create(), organization, builtInQualityGate);
-    permissionService.getAllOrganizationPermissions()
-      .forEach(p -> insertUserPermissions(dbSession, newUser, organization, p));
-    insertPersonalOrgDefaultTemplate(dbSession, organization, defaultGroup);
-    try (DbSession batchDbSession = dbClient.openSession(true)) {
-      insertQualityProfiles(dbSession, batchDbSession, organization);
-      addCurrentUserToGroup(dbSession, defaultGroup, newUser.getId());
-
-      batchDbSession.commit();
-
-      // Elasticsearch is updated when DB session is committed
-      userIndexer.commitAndIndex(dbSession, newUser);
-
-      return Optional.of(organization);
-    }
-  }
-
-  @Override
   public void updateOrganizationKey(DbSession dbSession, OrganizationDto organization, String newKey) {
     String sanitizedKey = organizationValidation.generateKeyFrom(newKey);
     if (organization.getKey().equals(sanitizedKey)) {
@@ -172,25 +127,6 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
   private void checkKey(DbSession dbSession, String key) {
     checkState(!organizationKeyIsUsed(dbSession, key),
       "Can't create organization with key '%s' because an organization with this key already exists", key);
-  }
-
-  private static String nameOrLogin(UserDto newUser) {
-    String name = newUser.getName();
-    if (name == null || name.isEmpty()) {
-      return newUser.getLogin();
-    }
-    return name;
-  }
-
-  private String toName(String login) {
-    String name = login.substring(0, Math.min(login.length(), OrganizationValidation.NAME_MAX_LENGTH));
-    // should not happen has login can't be less than 2 chars, but we call it for safety
-    organizationValidation.checkName(name);
-    return name;
-  }
-
-  private boolean isCreatePersonalOrgEnabled() {
-    return config.getBoolean(CorePropertyDefinitions.ORGANIZATIONS_CREATE_PERSONAL_ORG).orElse(false);
   }
 
   private void validate(NewOrganization newOrganization) {
@@ -246,43 +182,6 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
       new DefaultTemplates().setProjectUuid(permissionTemplateDto.getUuid()));
   }
 
-  private void insertPersonalOrgDefaultTemplate(DbSession dbSession, OrganizationDto organizationDto, GroupDto defaultGroup) {
-    long now = system2.now();
-    Date dateNow = new Date(now);
-    PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().insert(
-      dbSession,
-      new PermissionTemplateDto()
-        .setOrganizationUuid(organizationDto.getUuid())
-        .setUuid(uuidFactory.create())
-        .setName("Default template")
-        .setDescription(format(PERM_TEMPLATE_DESCRIPTION_PATTERN, organizationDto.getName()))
-        .setCreatedAt(dateNow)
-        .setUpdatedAt(dateNow));
-
-    insertProjectCreatorPermission(dbSession, permissionTemplateDto, ADMIN, now);
-    insertProjectCreatorPermission(dbSession, permissionTemplateDto, SCAN.getKey(), now);
-    insertGroupPermission(dbSession, permissionTemplateDto, USER, defaultGroup);
-    insertGroupPermission(dbSession, permissionTemplateDto, CODEVIEWER, defaultGroup);
-    insertGroupPermission(dbSession, permissionTemplateDto, ISSUE_ADMIN, defaultGroup);
-    insertGroupPermission(dbSession, permissionTemplateDto, SECURITYHOTSPOT_ADMIN, defaultGroup);
-
-    dbClient.organizationDao().setDefaultTemplates(
-      dbSession,
-      organizationDto.getUuid(),
-      new DefaultTemplates().setProjectUuid(permissionTemplateDto.getUuid()));
-  }
-
-  private void insertProjectCreatorPermission(DbSession dbSession, PermissionTemplateDto permissionTemplateDto, String permission, long now) {
-    dbClient.permissionTemplateCharacteristicDao().insert(
-      dbSession,
-      new PermissionTemplateCharacteristicDto()
-        .setTemplateId(permissionTemplateDto.getId())
-        .setWithProjectCreator(true)
-        .setPermission(permission)
-        .setCreatedAt(now)
-        .setUpdatedAt(now));
-  }
-
   private void insertGroupPermission(DbSession dbSession, PermissionTemplateDto template, String permission, @Nullable GroupDto group) {
     dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), group == null ? null : group.getId(), permission);
   }
@@ -335,12 +234,6 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
         .setOrganizationUuid(group.getOrganizationUuid())
         .setGroupId(group.getId())
         .setRole(permission.getKey()));
-  }
-
-  private void insertUserPermissions(DbSession dbSession, UserDto userDto, OrganizationDto organization, OrganizationPermission permission) {
-    dbClient.userPermissionDao().insert(
-      dbSession,
-      new UserPermissionDto(organization.getUuid(), permission.getKey(), userDto.getId(), null));
   }
 
   private void addCurrentUserToGroup(DbSession dbSession, GroupDto group, int createUserId) {

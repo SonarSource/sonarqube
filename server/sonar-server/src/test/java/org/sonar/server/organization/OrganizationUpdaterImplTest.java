@@ -109,7 +109,6 @@ public class OrganizationUpdaterImplTest {
   private DbClient dbClient = db.getDbClient();
   private UuidFactory uuidFactory = new SequenceUuidFactory();
   private OrganizationValidation organizationValidation = mock(OrganizationValidation.class);
-  private MapSettings settings = new MapSettings();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private UserIndex userIndex = new UserIndex(es.client(), system2);
   private DefaultGroupCreator defaultGroupCreator = new DefaultGroupCreatorImpl(dbClient);
@@ -117,7 +116,7 @@ public class OrganizationUpdaterImplTest {
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
 
-  private OrganizationUpdaterImpl underTest = new OrganizationUpdaterImpl(dbClient, system2, uuidFactory, organizationValidation, settings.asConfig(), userIndexer,
+  private OrganizationUpdaterImpl underTest = new OrganizationUpdaterImpl(dbClient, system2, uuidFactory, organizationValidation, userIndexer,
     builtInQProfileRepositoryRule, defaultGroupCreator, permissionService);
 
   @Test
@@ -348,182 +347,6 @@ public class OrganizationUpdaterImplTest {
   }
 
   @Test
-  public void createForUser_creates_guarded_organization_with_key_name_and_description_generated_from_user_login_and_name_and_associated_to_user() {
-    UserDto user = db.users().insertUser(A_LOGIN);
-    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
-    enableCreatePersonalOrg(true);
-    builtInQProfileRepositoryRule.initialize();
-    db.qualityGates().insertBuiltInQualityGate();
-
-    underTest.createForUser(dbSession, user);
-
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
-    assertThat(organization.getUuid()).isNotEmpty();
-    assertThat(organization.getKey()).isEqualTo(SLUG_OF_A_LOGIN);
-    assertThat(organization.getName()).isEqualTo(user.getName());
-    assertThat(organization.getDescription()).isEqualTo(user.getName() + "'s personal organization");
-    assertThat(organization.getUrl()).isNull();
-    assertThat(organization.getAvatarUrl()).isNull();
-    assertThat(organization.isGuarded()).isTrue();
-    assertThat(organization.getSubscription()).isEqualTo(Subscription.FREE);
-    assertThat(organization.getCreatedAt()).isEqualTo(A_DATE);
-    assertThat(organization.getUpdatedAt()).isEqualTo(A_DATE);
-
-    assertThat(db.getDbClient().userDao().selectByUuid(dbSession, user.getUuid()).getOrganizationUuid()).isEqualTo(organization.getUuid());
-  }
-
-  @Test
-  public void createForUser_fails_with_ISE_if_organization_with_slug_of_login_already_exists() {
-    UserDto user = db.users().insertUser(A_LOGIN);
-    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
-    db.organizations().insertForKey(SLUG_OF_A_LOGIN);
-    enableCreatePersonalOrg(true);
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can't create organization with key '" + SLUG_OF_A_LOGIN + "' " +
-      "because an organization with this key already exists");
-
-    underTest.createForUser(dbSession, user);
-  }
-
-  @Test
-  public void createForUser_gives_all_permissions_for_new_organization_to_current_user() {
-    UserDto user = db.users().insertUser(dto -> dto.setLogin(A_LOGIN).setName(A_NAME));
-    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
-    enableCreatePersonalOrg(true);
-    builtInQProfileRepositoryRule.initialize();
-    db.qualityGates().insertBuiltInQualityGate();
-
-    underTest.createForUser(dbSession, user);
-
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
-    assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), organization.getUuid()))
-      .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
-  }
-
-  @Test
-  public void createForUser_creates_members_group_and_add_current_user_to_it() {
-    UserDto user = db.users().insertUser(dto -> dto.setLogin(A_LOGIN).setName(A_NAME));
-    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
-    enableCreatePersonalOrg(true);
-    builtInQProfileRepositoryRule.initialize();
-    db.qualityGates().insertBuiltInQualityGate();
-
-    underTest.createForUser(dbSession, user);
-
-    verifyMembersGroup(user, SLUG_OF_A_LOGIN);
-  }
-
-  @Test
-  public void createForUser_creates_default_template_for_new_organization() {
-    UserDto user = db.users().insertUser(dto -> dto.setLogin(A_LOGIN).setName(A_NAME));
-    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
-    enableCreatePersonalOrg(true);
-    builtInQProfileRepositoryRule.initialize();
-    db.qualityGates().insertBuiltInQualityGate();
-
-    underTest.createForUser(dbSession, user);
-
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
-    int defaultGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, organization.getUuid()).get();
-    PermissionTemplateDto defaultTemplate = dbClient.permissionTemplateDao().selectByName(dbSession, organization.getUuid(), "default template");
-    assertThat(defaultTemplate.getName()).isEqualTo("Default template");
-    assertThat(defaultTemplate.getDescription()).isEqualTo("Default permission template of organization " + A_NAME);
-    DefaultTemplates defaultTemplates = dbClient.organizationDao().getDefaultTemplates(dbSession, organization.getUuid()).get();
-    assertThat(defaultTemplates.getProjectUuid()).isEqualTo(defaultTemplate.getUuid());
-    assertThat(defaultTemplates.getApplicationsUuid()).isNull();
-    assertThat(dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateId(dbSession, defaultTemplate.getId()))
-      .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
-      .containsOnly(
-        tuple(defaultGroupId, UserRole.USER),
-        tuple(defaultGroupId, UserRole.CODEVIEWER),
-        tuple(defaultGroupId, UserRole.ISSUE_ADMIN),
-        tuple(defaultGroupId, UserRole.SECURITYHOTSPOT_ADMIN));
-    assertThat(dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, Collections.singletonList(defaultTemplate.getId())))
-      .extracting(PermissionTemplateCharacteristicDto::getWithProjectCreator, PermissionTemplateCharacteristicDto::getPermission)
-      .containsOnly(
-        tuple(true, UserRole.ADMIN),
-        tuple(true, GlobalPermissions.SCAN_EXECUTION));
-  }
-
-  @Test
-  public void createForUser_add_current_user_as_member_of_organization() {
-    UserDto user = db.users().insertUser(dto -> dto.setLogin(A_LOGIN).setName(A_NAME));
-    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
-    enableCreatePersonalOrg(true);
-    builtInQProfileRepositoryRule.initialize();
-    db.qualityGates().insertBuiltInQualityGate();
-
-    underTest.createForUser(dbSession, user);
-
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
-    assertThat(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId())).isPresent();
-  }
-
-  @Test
-  public void createForUser_associates_to_built_in_quality_profiles() {
-    UserDto user = db.users().insertUser(A_LOGIN);
-    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
-    enableCreatePersonalOrg(true);
-    db.qualityGates().insertBuiltInQualityGate();
-    BuiltInQProfile builtIn1 = builtInQProfileRepositoryRule.add(newLanguage("foo"), "qp1");
-    BuiltInQProfile builtIn2 = builtInQProfileRepositoryRule.add(newLanguage("foo"), "qp2");
-    builtInQProfileRepositoryRule.initialize();
-    insertRulesProfile(builtIn1);
-    insertRulesProfile(builtIn2);
-
-    underTest.createForUser(dbSession, user);
-
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
-    List<QProfileDto> profiles = dbClient.qualityProfileDao().selectOrderedByOrganizationUuid(dbSession, organization);
-    assertThat(profiles).extracting(p -> new QProfileName(p.getLanguage(), p.getName())).containsExactlyInAnyOrder(
-      builtIn1.getQProfileName(), builtIn2.getQProfileName());
-  }
-
-  @Test
-  public void createForUser_associates_to_built_in_quality_gate() {
-    QualityGateDto builtInQualityGate = db.qualityGates().insertBuiltInQualityGate();
-    UserDto user = db.users().insertUser(A_LOGIN);
-    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
-    enableCreatePersonalOrg(true);
-    builtInQProfileRepositoryRule.initialize();
-
-    underTest.createForUser(dbSession, user);
-
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
-    assertThat(dbClient.qualityGateDao().selectDefault(dbSession, organization).getUuid()).isEqualTo(builtInQualityGate.getUuid());
-  }
-
-  @Test
-  public void createForUser_has_no_effect_if_setting_for_feature_is_not_set() {
-    checkSizeOfTables();
-
-    underTest.createForUser(null /* argument is not even read */, null /* argument is not even read */);
-
-    checkSizeOfTables();
-  }
-
-  @Test
-  public void createForUser_has_no_effect_if_setting_for_feature_is_disabled() {
-    enableCreatePersonalOrg(false);
-
-    checkSizeOfTables();
-
-    underTest.createForUser(null /* argument is not even read */, null /* argument is not even read */);
-
-    checkSizeOfTables();
-  }
-
-  private void checkSizeOfTables() {
-    assertThat(db.countRowsOfTable("organizations")).isEqualTo(1);
-    assertThat(db.countRowsOfTable("groups")).isEqualTo(0);
-    assertThat(db.countRowsOfTable("groups_users")).isEqualTo(0);
-    assertThat(db.countRowsOfTable("permission_templates")).isEqualTo(0);
-    assertThat(db.countRowsOfTable("perm_templates_users")).isEqualTo(0);
-    assertThat(db.countRowsOfTable("perm_templates_groups")).isEqualTo(0);
-  }
-
-  @Test
   public void update_personal_organization() {
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("old login"));
     when(organizationValidation.generateKeyFrom("new_login")).thenReturn("new_login");
@@ -555,10 +378,6 @@ public class OrganizationUpdaterImplTest {
     expectedException.expectMessage("Can't create organization with key 'new_login' because an organization with this key already exists");
 
     underTest.updateOrganizationKey(dbSession, organization, "new_login");
-  }
-
-  private void enableCreatePersonalOrg(boolean flag) {
-    settings.setProperty(CorePropertyDefinitions.ORGANIZATIONS_CREATE_PERSONAL_ORG, flag);
   }
 
   private void verifyGroupOwners(UserDto user, String organizationKey, String organizationName) {

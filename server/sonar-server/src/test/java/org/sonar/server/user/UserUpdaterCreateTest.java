@@ -55,8 +55,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.user.UserTesting.newLocalUser;
@@ -630,21 +628,6 @@ public class UserUpdaterCreateTest {
       .setScmAccounts(asList("u1", "u_1"))
       .build(), u -> {
       });
-  }
-
-  @Test
-  public void create_personal_organization_when_creating_user() {
-    createDefaultGroup();
-
-    UserDto dto = underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin("user")
-      .setName("User")
-      .setEmail("user@mail.com")
-      .setPassword("PASSWORD")
-      .build(), u -> {
-      });
-
-    verify(organizationUpdater).createForUser(any(DbSession.class), eq(dto));
   }
 
   @Test

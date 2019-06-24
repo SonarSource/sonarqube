@@ -81,9 +81,9 @@ import static org.sonar.core.config.CorePropertyDefinitions.ORGANIZATIONS_ANYONE
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_NAME;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_257_CHARS_LONG;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_65_CHARS_LONG;
-import static org.sonar.server.user.index.UserIndexDefinition.TYPE_USER;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ORGANIZATION_UUIDS;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_UUID;
+import static org.sonar.server.user.index.UserIndexDefinition.TYPE_USER;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class CreateActionTest {
@@ -108,9 +108,8 @@ public class CreateActionTest {
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-  private OrganizationUpdater organizationUpdater = new OrganizationUpdaterImpl(dbClient, system2, UuidFactoryFast.getInstance(), organizationValidation, settings.asConfig(),
-    userIndexer,
-    mock(BuiltInQProfileRepository.class), new DefaultGroupCreatorImpl(dbClient), permissionService);
+  private OrganizationUpdater organizationUpdater = new OrganizationUpdaterImpl(dbClient, system2, UuidFactoryFast.getInstance(), organizationValidation,
+    userIndexer, mock(BuiltInQProfileRepository.class), new DefaultGroupCreatorImpl(dbClient), permissionService);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
   private OrganizationAlmBinding organizationAlmBinding = mock(OrganizationAlmBinding.class);
 

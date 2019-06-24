@@ -63,7 +63,6 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.server.authentication.UserRegistration.UpdateLoginStrategy;
 
 public class UserRegistrarImpl implements UserRegistrar {
 
@@ -209,16 +208,20 @@ public class UserRegistrarImpl implements UserRegistrar {
     if (personalOrganizationUuid == null) {
       return;
     }
+
     Optional<OrganizationDto> personalOrganization = dbClient.organizationDao().selectByUuid(dbSession, personalOrganizationUuid);
-    checkState(personalOrganization.isPresent(),
-      "Cannot find personal organization uuid '%s' for user '%s'", personalOrganizationUuid, user.getLogin());
-    UpdateLoginStrategy updateLoginStrategy = authenticatorParameters.getUpdateLoginStrategy();
+
+    personalOrganization.ifPresent(organizationDto -> updateOrganizationKey(dbSession, user, authenticatorParameters, newLogin, organizationDto));
+  }
+
+  private void updateOrganizationKey(DbSession dbSession, UserDto user, UserRegistration authenticatorParameters, @Nullable String newLogin, OrganizationDto personalOrganization) {
+    UserRegistration.UpdateLoginStrategy updateLoginStrategy = authenticatorParameters.getUpdateLoginStrategy();
     switch (updateLoginStrategy) {
       case ALLOW:
-        organizationUpdater.updateOrganizationKey(dbSession, personalOrganization.get(), requireNonNull(newLogin, "new login cannot be null"));
+        organizationUpdater.updateOrganizationKey(dbSession, personalOrganization, requireNonNull(newLogin, "new login cannot be null"));
         return;
       case WARN:
-        throw new UpdateLoginRedirectionException(authenticatorParameters.getUserIdentity(), authenticatorParameters.getProvider(), user, personalOrganization.get());
+        throw new UpdateLoginRedirectionException(authenticatorParameters.getUserIdentity(), authenticatorParameters.getProvider(), user, personalOrganization);
       default:
         throw new IllegalStateException(format("Unknown strategy %s", updateLoginStrategy));
     }

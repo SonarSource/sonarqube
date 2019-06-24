@@ -115,7 +115,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
 
   private UserRegistrarImpl underTest = new UserRegistrarImpl(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
     new OrganizationUpdaterImpl(db.getDbClient(), mock(System2.class), UuidFactoryFast.getInstance(),
-      new OrganizationValidationImpl(), settings.asConfig(), null, null, null, permissionService),
+      new OrganizationValidationImpl(), null, null, null, permissionService),
     defaultGroupFinder, new MemberUpdater(db.getDbClient(), defaultGroupFinder, userIndexer));
 
   @Test
