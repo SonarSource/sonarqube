@@ -164,14 +164,5 @@
       "/extend/contributing/"
     ]
   },
-  "/faq/",
-  {
-    "title": "Scanners",
-    "url": "https://docs.sonarqube.org/display/SCAN"
-  },
-  {
-    "title": "Plugins",
-    "url": "https://docs.sonarqube.org/display/PLUG"
-  
-  }
+  "/faq/"
 ]
