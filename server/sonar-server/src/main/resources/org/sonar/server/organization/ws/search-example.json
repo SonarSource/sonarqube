@@ -8,7 +8,6 @@
     {
       "key": "foo-company",
       "name": "Foo Company",
-      "guarded": true,
       "actions": {
         "admin": false,
         "delete": false,
@@ -21,7 +20,6 @@
       "description": "The Bar company produces quality software too.",
       "url": "https://www.bar.com",
       "avatar": "https://www.bar.com/logo.png",
-      "guarded": false,
       "actions": {
         "admin": true,
         "delete": true,

@@ -4,7 +4,6 @@
     "name": "Foo Company",
     "description": "The Foo company produces quality software for Bar.",
     "url": "https://www.foo.com",
-    "avatar": "https://www.foo.com/foo.png",
-    "guarded": false
+    "avatar": "https://www.foo.com/foo.png"
   }
 }

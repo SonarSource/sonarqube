@@ -159,8 +159,7 @@ public class SearchAction implements OrganizationsWsAction {
     boolean onlyMembershipOrganizations) {
     builder
       .setName(organization.getName())
-      .setKey(organization.getKey())
-      .setGuarded(organization.isGuarded());
+      .setKey(organization.getKey());
     ofNullable(organization.getDescription()).ifPresent(builder::setDescription);
     ofNullable(organization.getUrl()).ifPresent(builder::setUrl);
     ofNullable(organization.getAvatarUrl()).ifPresent(builder::setAvatar);

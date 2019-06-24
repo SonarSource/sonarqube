@@ -116,8 +116,7 @@ public class OrganizationsWsSupport {
     Organization.Builder builder = Organization.newBuilder();
     builder
       .setName(dto.getName())
-      .setKey(dto.getKey())
-      .setGuarded(dto.isGuarded());
+      .setKey(dto.getKey());
     ofNullable(dto.getDescription()).ifPresent(builder::setDescription);
     ofNullable(dto.getUrl()).ifPresent(builder::setUrl);
     ofNullable(dto.getAvatarUrl()).ifPresent(builder::setAvatar);
