@@ -33,7 +33,7 @@ C / C++ / Objective-C|`sonar.cfamily.bullseye.reportPath`| Path to the report fr
 C#|`sonar.cs.vscoveragexml.reportsPaths`|Path to Visual Studio Code Coverage report. Multiple paths may be comma-delimited, or included via wildcards. See _Notes on importing .NET reports_ below.
 C#|`sonar.cs.dotcover.reportsPaths`|Path to dotCover coverage report. See _Notes on importing .NET reports_ below.
 C#|`sonar.cs.opencover.reportsPaths`|Path to OpenCover coverage report. See _Notes on importing .NET reports_ below.
-Flex|`soanr.flex.cobertura.reportPath`|Path to the Cobertura XML report. May be absolute or relative to the project base directory.
+Flex|`sonar.flex.cobertura.reportPaths`|Path to the Cobertura XML reports. Multiple paths may be comma-delimited. May be absolute or relative to the project base directory.
 Go|`sonar.go.coverage.reportPaths`|Comma-delimited list of paths to coverage report files. Path wildcards are supported (see above) since SonarGo 1.1.
 Java / Kotlin / Scala / JVM|`sonar.coverage.jacoco.xmlReportPaths`|Path to JaCoCo XML coverage reports.
 Java|`sonar.jacoco.reportPaths`![](/images/cross.svg)|**Deprecated. Use `sonar.coverage.jacoco.xmlReportsPath`.** Path to JaCoCo reports in binary format. **Supported only for Java**. 
