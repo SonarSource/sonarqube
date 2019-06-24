@@ -77,7 +77,6 @@ Note that you can just push an empty `.sonarcloud.properties` file, this will wo
 
 * There is no visual feedback (yet) in the UI when SonarCloud runs an analysis.
 * A consequence of the previous point is that if - for any reason, SonarCloud fails to successfully run the analysis, nothing will be displayed. In that case, just come on [the forum](https://community.sonarsource.com/tags/c/help/sc/autoscan) and ask a question, we'll monitor that closely.
-* Pull requests from forks are not analyzed (only PRs from the same repository)
 * Code coverage information is not supported
 * Import of external rule engine reports is not supported
 
