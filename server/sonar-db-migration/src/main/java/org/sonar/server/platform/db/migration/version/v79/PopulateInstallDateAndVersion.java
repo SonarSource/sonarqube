@@ -25,8 +25,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
+@SupportsBlueGreen
 public class PopulateInstallDateAndVersion extends DataChange {
 
   private static final Logger LOG = Loggers.get(PopulateInstallDateAndVersion.class);
