@@ -24,6 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
@@ -56,9 +58,11 @@ public class AutoDbMigrationTest {
   private DefaultServerUpgradeStatus serverUpgradeStatus = mock(DefaultServerUpgradeStatus.class);
   private MigrationEngine migrationEngine = mock(MigrationEngine.class);
   private MigrationSteps migrationSteps = mock(MigrationSteps.class);
-  private AutoDbMigration underTest = new AutoDbMigration(serverUpgradeStatus, dbClient, migrationEngine, migrationSteps);
+  private SonarRuntime sonarRuntime = mock(SonarRuntime.class);
+  private System2 system2 = mock(System2.class);
+  private AutoDbMigration underTest = new AutoDbMigration(serverUpgradeStatus, dbClient, migrationEngine, migrationSteps, sonarRuntime, system2);
 
-  private AutoDbMigration noRealH2Creation = spy(new AutoDbMigration(serverUpgradeStatus, dbClient, migrationEngine, migrationSteps) {
+  private AutoDbMigration noRealH2Creation = spy(new AutoDbMigration(serverUpgradeStatus, dbClient, migrationEngine, migrationSteps, sonarRuntime, system2) {
     @Override
     protected void createH2Schema(Connection connection, String dialectId) {
       // do nothing

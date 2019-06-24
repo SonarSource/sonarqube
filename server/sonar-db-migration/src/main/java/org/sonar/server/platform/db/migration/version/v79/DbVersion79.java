@@ -27,6 +27,7 @@ public class DbVersion79 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(2800, "Truncate environment variables and system properties from existing scanner reports",
-        TruncateEnvAndSystemVarsFromScannerContext.class);
+        TruncateEnvAndSystemVarsFromScannerContext.class)
+      .add(2801, "populate install version and install date internal properties", PopulateInstallDateAndVersion.class);
   }
 }

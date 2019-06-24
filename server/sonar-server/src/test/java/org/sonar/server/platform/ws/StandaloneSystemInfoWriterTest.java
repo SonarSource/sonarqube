@@ -79,7 +79,7 @@ public class StandaloneSystemInfoWriterTest {
     // response does not contain empty "Section Three"
     assertThat(writer.toString()).isEqualTo("{\"Health\":\"GREEN\",\"Health Causes\":[],\"Section One\":{\"foo\":\"bar\"},\"Section Two\":{\"one\":1,\"two\":2}," +
       "\"Statistics\":{\"id\":\"\",\"version\":\"\",\"database\":{\"name\":\"\",\"version\":\"\"},\"plugins\":[],\"userCount\":0,\"projectCount\":0,\"usingBranches\":false," +
-      "\"ncloc\":0,\"projectCountByLanguage\":[],\"nclocByLanguage\":[]}}");
+      "\"ncloc\":0,\"projectCountByLanguage\":[],\"nclocByLanguage\":[],\"installationDate\":0,\"installationVersion\":\"\"}}");
   }
 
   private void logInAsSystemAdministrator() {

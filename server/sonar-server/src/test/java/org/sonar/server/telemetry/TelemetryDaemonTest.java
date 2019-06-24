@@ -102,12 +102,12 @@ public class TelemetryDaemonTest {
   private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
 
   private final TelemetryDataLoader communityDataLoader = new TelemetryDataLoader(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
-    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), null);
+    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), internalProperties, null);
   private TelemetryDaemon communityUnderTest = new TelemetryDaemon(communityDataLoader, client, settings.asConfig(), internalProperties, system2);
 
   private final LicenseReader licenseReader = mock(LicenseReader.class);
   private final TelemetryDataLoader commercialDataLoader = new TelemetryDataLoader(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
-    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), licenseReader);
+    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), internalProperties, licenseReader);
   private TelemetryDaemon commercialUnderTest = new TelemetryDaemon(commercialDataLoader, client, settings.asConfig(), internalProperties, system2);
 
   @After
@@ -270,6 +270,32 @@ public class TelemetryDaemonTest {
 
     ArgumentCaptor<String> json = captureJson();
     assertThat(json.getValue()).contains(id, version);
+  }
+
+  @Test
+  public void send_server_installation_date_and_installation_version() throws IOException {
+    initTelemetrySettingsToDefaultValues();
+    settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
+    String installationVersion = "7.9.BEST.LTS.EVER";
+    Long installationDate = 1546300800000L; // 2019/01/01
+    internalProperties.write(InternalProperties.INSTALLATION_DATE, String.valueOf(installationDate));
+    internalProperties.write(InternalProperties.INSTALLATION_VERSION, installationVersion);
+
+    communityUnderTest.start();
+
+    ArgumentCaptor<String> json = captureJson();
+    assertThat(json.getValue()).contains(installationVersion, installationDate.toString());
+  }
+
+  @Test
+  public void do_not_send_server_installation_details_if_missing_property() throws IOException {
+    initTelemetrySettingsToDefaultValues();
+    settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
+
+    communityUnderTest.start();
+
+    ArgumentCaptor<String> json = captureJson();
+    assertThat(json.getValue()).doesNotContain("installationVersion", "installationDate");
   }
 
   @Test

@@ -71,6 +71,12 @@ public class TelemetryDataJsonWriter {
       json.endObject();
     });
     json.endArray();
+    if (statistics.getInstallationDate() != null) {
+      json.prop("installationDate", statistics.getInstallationDate());
+    }
+    if (statistics.getInstallationVersion() != null) {
+      json.prop("installationVersion", statistics.getInstallationVersion());
+    }
     json.endObject();
   }
 }

@@ -42,6 +42,17 @@ public interface InternalProperties {
   String COMPUTE_ENGINE_PAUSE = "ce.pause";
 
   String BITBUCKETCLOUD_APP_SHAREDSECRET = "bbc.app.sharedSecret";
+
+  /**
+   * First installation date
+   */
+  String INSTALLATION_DATE = "installation.date";
+
+  /**
+   * first installation SQ version
+   */
+  String INSTALLATION_VERSION = "installation.version";
+
   /**
    * Read the value of the specified property.
    *

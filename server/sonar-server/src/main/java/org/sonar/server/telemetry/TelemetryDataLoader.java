@@ -22,6 +22,7 @@ package org.sonar.server.telemetry;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -38,6 +39,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresStatistics;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.property.InternalProperties;
 import org.sonar.server.telemetry.TelemetryData.Database;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserQuery;
@@ -53,16 +55,18 @@ public class TelemetryDataLoader {
   private final ProjectMeasuresIndex projectMeasuresIndex;
   private final PlatformEditionProvider editionProvider;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final InternalProperties internalProperties;
   @CheckForNull
   private final LicenseReader licenseReader;
 
   public TelemetryDataLoader(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
-    PlatformEditionProvider editionProvider, DefaultOrganizationProvider defaultOrganizationProvider) {
-    this(server, dbClient, pluginRepository, userIndex, projectMeasuresIndex, editionProvider, defaultOrganizationProvider, null);
+    PlatformEditionProvider editionProvider, DefaultOrganizationProvider defaultOrganizationProvider, InternalProperties internalProperties) {
+    this(server, dbClient, pluginRepository, userIndex, projectMeasuresIndex, editionProvider, defaultOrganizationProvider, internalProperties, null);
   }
 
   public TelemetryDataLoader(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
-    PlatformEditionProvider editionProvider, DefaultOrganizationProvider defaultOrganizationProvider, @Nullable LicenseReader licenseReader) {
+    PlatformEditionProvider editionProvider, DefaultOrganizationProvider defaultOrganizationProvider, InternalProperties internalProperties,
+    @Nullable LicenseReader licenseReader) {
     this.server = server;
     this.dbClient = dbClient;
     this.pluginRepository = pluginRepository;
@@ -71,6 +75,16 @@ public class TelemetryDataLoader {
     this.editionProvider = editionProvider;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.licenseReader = licenseReader;
+    this.internalProperties = internalProperties;
+  }
+
+  private static Database loadDatabaseMetadata(DbSession dbSession) {
+    try {
+      DatabaseMetaData metadata = dbSession.getConnection().getMetaData();
+      return new Database(metadata.getDatabaseProductName(), metadata.getDatabaseProductVersion());
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to get DB metadata", e);
+    }
   }
 
   public TelemetryData load() {
@@ -99,19 +113,17 @@ public class TelemetryDataLoader {
       data.setNcloc(dbClient.liveMeasureDao().sumNclocOfBiggestLongLivingBranch(dbSession, query));
     }
 
+    Optional<String> installationDateProperty = internalProperties.read(InternalProperties.INSTALLATION_DATE);
+    if (installationDateProperty.isPresent()) {
+      data.setInstallationDate(Long.valueOf(installationDateProperty.get()));
+    }
+    Optional<String> installationVersionProperty = internalProperties.read(InternalProperties.INSTALLATION_VERSION);
+    data.setInstallationVersion(installationVersionProperty.orElse(null));
+
     return data.build();
   }
 
   String loadServerId() {
     return server.getId();
-  }
-
-  private static Database loadDatabaseMetadata(DbSession dbSession) {
-    try {
-      DatabaseMetaData metadata = dbSession.getConnection().getMetaData();
-      return new Database(metadata.getDatabaseProductName(), metadata.getDatabaseProductVersion());
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to get DB metadata", e);
-    }
   }
 }

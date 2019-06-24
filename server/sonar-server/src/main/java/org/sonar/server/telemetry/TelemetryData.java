@@ -40,6 +40,8 @@ public class TelemetryData {
   private final Map<String, Long> nclocByLanguage;
   private final Optional<EditionProvider.Edition> edition;
   private final String licenseType;
+  private final Long installationDate;
+  private final String installationVersion;
 
   private TelemetryData(Builder builder) {
     serverId = builder.serverId;
@@ -54,6 +56,8 @@ public class TelemetryData {
     nclocByLanguage = builder.projectMeasuresStatistics.getNclocByLanguage();
     edition = builder.edition;
     licenseType = builder.licenseType;
+    installationDate = builder.installationDate;
+    installationVersion = builder.installationVersion;
   }
 
   public String getServerId() {
@@ -104,6 +108,14 @@ public class TelemetryData {
     return Optional.ofNullable(licenseType);
   }
 
+  public Long getInstallationDate(){
+    return installationDate;
+  }
+
+  public String getInstallationVersion(){
+    return installationVersion;
+  }
+
   static Builder builder() {
     return new Builder();
   }
@@ -119,6 +131,8 @@ public class TelemetryData {
     private Boolean usingBranches;
     private Optional<EditionProvider.Edition> edition;
     private String licenseType;
+    private Long installationDate;
+    private String installationVersion;
 
     private Builder() {
       // enforce static factory method
@@ -171,6 +185,16 @@ public class TelemetryData {
 
     public Builder setLicenseType(@Nullable String licenseType) {
       this.licenseType = licenseType;
+      return this;
+    }
+
+    public Builder setInstallationDate(@Nullable Long installationDate){
+      this.installationDate = installationDate;
+      return this;
+    }
+
+    public Builder setInstallationVersion(@Nullable String installationVersion){
+      this.installationVersion = installationVersion;
       return this;
     }
 
