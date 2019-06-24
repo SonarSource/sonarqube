@@ -73,6 +73,7 @@ public class IssueWorkflow implements Startable {
 
   private static void buildManualTransitions(StateMachine.Builder builder) {
     builder
+      // confirm
       .transition(Transition.builder(DefaultTransitions.CONFIRM)
         .from(STATUS_OPEN).to(STATUS_CONFIRMED)
         .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
@@ -83,25 +84,32 @@ public class IssueWorkflow implements Startable {
         .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(null))
         .build())
-      .transition(Transition.builder(DefaultTransitions.UNCONFIRM)
-        .from(STATUS_CONFIRMED).to(STATUS_REOPENED)
-        .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
-        .functions(new SetResolution(null))
-        .build())
+
+      // resolve as fixed
       .transition(Transition.builder(DefaultTransitions.RESOLVE)
         .from(STATUS_OPEN).to(STATUS_RESOLVED)
         .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(RESOLUTION_FIXED))
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.RESOLVE)
         .from(STATUS_REOPENED).to(STATUS_RESOLVED)
         .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(RESOLUTION_FIXED))
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.RESOLVE)
         .from(STATUS_CONFIRMED).to(STATUS_RESOLVED)
         .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(RESOLUTION_FIXED))
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
+        .build())
+
+      // reopen
+      .transition(Transition.builder(DefaultTransitions.UNCONFIRM)
+        .from(STATUS_CONFIRMED).to(STATUS_REOPENED)
+        .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
+        .functions(new SetResolution(null))
         .build())
       .transition(Transition.builder(DefaultTransitions.REOPEN)
         .from(STATUS_RESOLVED).to(STATUS_REOPENED)

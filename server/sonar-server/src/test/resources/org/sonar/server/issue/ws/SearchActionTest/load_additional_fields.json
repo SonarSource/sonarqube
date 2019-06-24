@@ -8,8 +8,7 @@
         "set_tags"
       ],
       "transitions": [
-        "confirm",
-        "resolve"
+        "confirm"
       ]
     }
   ],

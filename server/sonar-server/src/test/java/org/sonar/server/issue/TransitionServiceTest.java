@@ -98,7 +98,7 @@ public class TransitionServiceTest {
 
     List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());
 
-    assertThat(result).extracting(Transition::key).containsOnly("confirm", "resolve");
+    assertThat(result).extracting(Transition::key).containsOnly("confirm");
   }
 
   @Test
