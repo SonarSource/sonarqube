@@ -35,7 +35,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
@@ -471,7 +470,7 @@ public class ScannerMediumTester extends ExternalResource {
 
   private class FakeBranchConfigurationLoader implements BranchConfigurationLoader {
     @Override
-    public BranchConfiguration load(Map<String, String> localSettings, Supplier<Map<String, String>> settingsSupplier, ProjectBranches branches, ProjectPullRequests pullRequests) {
+    public BranchConfiguration load(Map<String, String> projectSettings, ProjectBranches branches, ProjectPullRequests pullRequests) {
       return branchConfiguration;
     }
   }

@@ -20,10 +20,9 @@
 package org.sonar.scanner.scan.branch;
 
 import java.util.Map;
-import java.util.function.Supplier;
 import org.sonar.api.scanner.ScannerSide;
 
 @ScannerSide
 public interface BranchConfigurationLoader {
-  BranchConfiguration load(Map<String, String> localSettings, Supplier<Map<String, String>> remoteSettingsSupplier, ProjectBranches branches, ProjectPullRequests pullRequests);
+  BranchConfiguration load(Map<String, String> projectSettings, ProjectBranches branches, ProjectPullRequests pullRequests);
 }
