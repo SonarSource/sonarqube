@@ -36,9 +36,9 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static java.lang.String.format;
-import static java.lang.String.valueOf;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.Metric.ValueType.BOOL;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
@@ -162,7 +162,7 @@ public class QualityGateConditionsUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_condition_on_greater_than_E() {
+  public void fail_to_create_condition_on_rating_greater_than_E() {
     MetricDto metric = insertMetric(RATING, SQALE_RATING_KEY);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
 
@@ -316,6 +316,7 @@ public class QualityGateConditionsUpdaterTest {
   public static Object[][] invalid_metrics() {
     return new Object[][] {
       {ALERT_STATUS_KEY, INT, false},
+      {SECURITY_REVIEW_RATING_KEY, RATING, false},
       {"boolean", BOOL, false},
       {"string", STRING, false},
       {"data_metric", DATA, false},
@@ -385,8 +386,7 @@ public class QualityGateConditionsUpdaterTest {
       .setKey(key)
       .setValueType(type.name())
       .setHidden(false)
-      .setDirection(0)
-    );
+      .setDirection(0));
   }
 
   private void verifyCondition(QualityGateConditionDto dto, QualityGateDto qualityGate, MetricDto metric, String operator, String error) {

@@ -27,9 +27,9 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -44,9 +44,10 @@ import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
-import static java.lang.String.valueOf;
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.api.measures.Metric.DIRECTION_BETTER;
 import static org.sonar.api.measures.Metric.DIRECTION_NONE;
 import static org.sonar.api.measures.Metric.DIRECTION_WORST;
@@ -72,10 +73,11 @@ public class QualityGateConditionsUpdater {
     ValueType.MILLISEC,
     ValueType.LEVEL,
     ValueType.RATING,
-    ValueType.WORK_DUR
-  );
+    ValueType.WORK_DUR);
 
   private static final List<String> RATING_VALID_INT_VALUES = stream(Rating.values()).map(r -> Integer.toString(r.getIndex())).collect(Collectors.toList());
+
+  private static final Set<String> INVALID_METRIC_KEYS = ImmutableSet.of(ALERT_STATUS_KEY, SECURITY_REVIEW_RATING_KEY);
 
   private final DbClient dbClient;
 
@@ -133,21 +135,20 @@ public class QualityGateConditionsUpdater {
   }
 
   private static void validateMetric(MetricDto metric, List<String> errors) {
-    check(isAlertable(metric), errors, "Metric '%s' cannot be used to define a condition.", metric.getKey());
+    check(isValid(metric), errors, "Metric '%s' cannot be used to define a condition.", metric.getKey());
   }
 
-  private static boolean isAlertable(MetricDto metric) {
+  private static boolean isValid(MetricDto metric) {
     return !metric.isHidden()
       && VALID_METRIC_TYPES.contains(ValueType.valueOf(metric.getValueType()))
-      && !CoreMetrics.ALERT_STATUS_KEY.equals(metric.getKey());
+      && !INVALID_METRIC_KEYS.contains(metric.getKey());
   }
 
   private static void checkOperator(MetricDto metric, String operator, List<String> errors) {
     check(
       Condition.Operator.isValid(operator) && isAllowedOperator(operator, metric),
       errors,
-      "Operator %s is not allowed for this metric.", operator
-    );
+      "Operator %s is not allowed for this metric.", operator);
   }
 
   private static void checkErrorThreshold(MetricDto metric, String errorThreshold, List<String> errors) {
