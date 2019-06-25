@@ -80,7 +80,7 @@ export default class ClipboardButton extends React.PureComponent<Props, State> {
     return (
       <Tooltip overlay={translate('copied_action')} visible={this.state.tooltipShown}>
         <Button
-          className={classNames('js-copy-to-clipboard no-select', this.props.className)}
+          className={classNames('no-select', this.props.className)}
           data-clipboard-text={this.props.copyValue}
           innerRef={node => (this.copyButton = node)}>
           {this.props.label ? this.props.label : translate('copy')}

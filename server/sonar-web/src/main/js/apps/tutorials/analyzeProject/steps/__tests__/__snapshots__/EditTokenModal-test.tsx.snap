@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ConfirmModal
+  confirmButtonText="save"
+  confirmDisable={true}
+  header="onboarding.token.header"
+  onClose={[MockFunction]}
+  onConfirm={[Function]}
+>
+  <p
+    className="spacer-bottom"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.token.text"
+      id="onboarding.token.text"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/account/security"
+          >
+            onboarding.token.text.user_account
+          </Link>,
+        }
+      }
+    />
+  </p>
+  <RenderOptions
+    checked="use_existing_token"
+    name="token-mode"
+    onCheck={[Function]}
+    optionLabelKey="onboarding.token"
+    options={
+      Array [
+        "use_existing_token",
+        "generate_token",
+      ]
+    }
+  />
+  <div
+    className="big-spacer-top"
+  >
+    <input
+      className="input-super-large spacer-right text-middle"
+      onChange={[Function]}
+      placeholder="onboarding.token.use_existing_token.placeholder"
+      required={true}
+      type="text"
+      value=""
+    />
+  </div>
+</ConfirmModal>
+`;

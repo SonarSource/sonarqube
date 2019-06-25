@@ -1,0 +1,137 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render the requirements for builds 1`] = `
+<Fragment>
+  <p
+    className="spacer-bottom"
+  >
+    onboarding.analysis.with.travis.environments
+  </p>
+  <div
+    className="flex-columns"
+  >
+    <div
+      className="flex-column flex-column-half"
+    >
+      <a
+        href="https://docs.travis-ci.com/user/reference/precise/"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        onboarding.analysis.with.travis.environment.image.java
+      </a>
+      <CodeSnippet
+        isOneLine={true}
+        noCopy={true}
+        snippet="language: java"
+      />
+    </div>
+    <div
+      className="display-flex-stretch"
+    >
+      <div
+        className="vertical-pipe-separator"
+      >
+        <div
+          className="vertical-separator "
+        />
+        <span
+          className="note"
+        >
+          or
+        </span>
+        <div
+          className="vertical-separator"
+        />
+      </div>
+    </div>
+    <div
+      className="flex-column flex-column-half"
+    >
+      <a
+        href="https://docs.travis-ci.com/user/reference/trusty/"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        onboarding.analysis.with.travis.environment.image.ci
+      </a>
+      <CodeSnippet
+        isOneLine={true}
+        noCopy={true}
+        snippet="dist: trusty"
+      />
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`should render the requirements for builds 2`] = `
+<Fragment>
+  <p>
+    onboarding.analysis.with.travis.environment
+     
+    <a
+      href="https://docs.travis-ci.com/user/reference/trusty/"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      onboarding.analysis.with.travis.environment.image.ci
+    </a>
+  </p>
+  <CodeSnippet
+    isOneLine={true}
+    noCopy={true}
+    snippet="dist: trusty"
+  />
+</Fragment>
+`;
+
+exports[`should render the sonarcloud yaml for travis 1`] = `
+"addons:
+  sonarcloud:
+    organization: \\"Add your organization key\\"
+    token:
+      secure: \\"**************************\\" # encrypted value of your token"
+`;
+
+exports[`should render the sonarcloud yaml for travis 2`] = `
+"addons:
+  sonarcloud:
+    organization: \\"SonarSource\\"
+    token:
+      secure: \\"**************************\\" # encrypted value of your token"
+`;
+
+exports[`should render the sonarcloud yaml for travis 3`] = `
+<React.Fragment>
+  addons:
+  sonarcloud:
+    organization: "Add your organization key"
+    token:
+      secure: 
+  <span
+    className="highlight"
+  >
+    "**************************"
+     # encrypted value of your token
+  </span>
+  <br />
+</React.Fragment>
+`;
+
+exports[`should render the sonarcloud yaml for travis 4`] = `
+<React.Fragment>
+  addons:
+  sonarcloud:
+    organization: "SonarSource"
+    token:
+      secure: 
+  <span
+    className="highlight"
+  >
+    "**************************"
+     # encrypted value of your token
+  </span>
+  <br />
+</React.Fragment>
+`;

@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <h1
+    className="spacer-bottom spacer-top"
+  >
+    onboarding.analysis.with.yourci.title
+  </h1>
+  <ProjectAnalysisStepFromBuildTool
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    currentUser={
+      Object {
+        "groups": Array [],
+        "isLoggedIn": true,
+        "login": "luke",
+        "name": "Skywalker",
+        "scmAccounts": Array [],
+      }
+    }
+    displayRowLayout={true}
+    mode="CI"
+    onDone={[MockFunction]}
+    open={true}
+    organization="foo"
+    setToken={[MockFunction]}
+    stepNumber={1}
+    token="token123"
+  />
+</Fragment>
+`;

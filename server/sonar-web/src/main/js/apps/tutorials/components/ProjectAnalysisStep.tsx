@@ -28,7 +28,7 @@ interface Props {
   component?: T.Component;
   displayRowLayout?: boolean;
   onFinish?: (projectKey?: string) => void;
-  onReset?: () => void;
+  onReset?: VoidFunction;
   open: boolean;
   organization?: string;
   stepNumber: number;
@@ -39,17 +39,17 @@ interface State {
   config?: LanguageConfig;
 }
 
+export function getProjectKey(config?: LanguageConfig, component?: T.Component) {
+  return (component && component.key) || (config && config.projectKey);
+}
+
 export default class ProjectAnalysisStep extends React.PureComponent<Props, State> {
   state: State = {};
-
-  getProjectKey = ({ config } = this.state, { component } = this.props) => {
-    return (component && component.key) || (config && config.projectKey);
-  };
 
   handleLanguageSelect = (config: LanguageConfig) => {
     this.setState({ config });
     if (this.props.onFinish) {
-      const projectKey = config.language !== 'java' ? this.getProjectKey({ config }) : undefined;
+      const projectKey = config.language !== 'java' ? getProjectKey(config) : undefined;
       this.props.onFinish(projectKey);
     }
   };

@@ -24,71 +24,83 @@ import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 import { Alert } from '../../../components/ui/Alert';
 
+export function TutorialSuggestionBitbucket() {
+  return (
+    <Alert className="big-spacer-bottom" variant="info">
+      <p>{translate('onboarding.project_analysis.commands_for_analysis')}</p>
+      <p>{translate('onboarding.project_analysis.suggestions.bitbucket')}</p>
+      <FormattedMessage
+        defaultMessage={translate('onboarding.project_analysis.simply_link')}
+        id={'onboarding.project_analysis.simply_link'}
+        values={{
+          link: (
+            <a
+              href={
+                getBaseUrl() +
+                '/documentation/integrations/bitbucketcloud/#analyzing-with-pipelines'
+              }
+              rel="noopener noreferrer"
+              target="_blank">
+              {translate('onboarding.project_analysis.guide_to_integrate_pipelines')}
+            </a>
+          )
+        }}
+      />
+    </Alert>
+  );
+}
+
+export function TutorialSuggestionGithub() {
+  return (
+    <Alert className="big-spacer-bottom" variant="info">
+      <p>{translate('onboarding.project_analysis.commands_for_analysis')} </p>
+      <p>{translate('onboarding.project_analysis.suggestions.github')}</p>
+      <FormattedMessage
+        defaultMessage={translate('onboarding.project_analysis.simply_link')}
+        id={'onboarding.project_analysis.simply_link'}
+        values={{
+          link: (
+            <a
+              href="https://docs.travis-ci.com/user/sonarcloud/"
+              rel="noopener noreferrer"
+              target="_blank">
+              {translate('onboarding.project_analysis.guide_to_integrate_travis')}
+            </a>
+          )
+        }}
+      />
+    </Alert>
+  );
+}
+
+export function TutorialSuggestionVSTS() {
+  return (
+    <Alert className="big-spacer-bottom" variant="info">
+      <FormattedMessage
+        defaultMessage={translate('onboarding.project_analysis.simply_link')}
+        id={'onboarding.project_analysis.simply_link'}
+        values={{
+          link: (
+            <a
+              href={getBaseUrl() + '/documentation/integrations/vsts/'}
+              rel="noopener noreferrer"
+              target="_blank">
+              {translate('onboarding.project_analysis.guide_to_integrate_vsts')}
+            </a>
+          )
+        }}
+      />
+    </Alert>
+  );
+}
+
 export default function AnalyzeTutorialSuggestion({ almKey }: { almKey?: string }) {
   if (isBitbucket(almKey)) {
-    return (
-      <Alert className="big-spacer-bottom" variant="info">
-        <p>{translate('onboarding.project_analysis.commands_for_analysis')}</p>
-        <p>{translate('onboarding.project_analysis.suggestions.bitbucket')}</p>
-        <FormattedMessage
-          defaultMessage={translate('onboarding.project_analysis.simply_link')}
-          id={'onboarding.project_analysis.simply_link'}
-          values={{
-            link: (
-              <a
-                href={
-                  getBaseUrl() +
-                  '/documentation/integrations/bitbucketcloud/#analyzing-with-pipelines'
-                }
-                rel="noopener noreferrer"
-                target="_blank">
-                {translate('onboarding.project_analysis.guide_to_integrate_piplines')}
-              </a>
-            )
-          }}
-        />
-      </Alert>
-    );
+    return <TutorialSuggestionBitbucket />;
   } else if (isGithub(almKey)) {
-    return (
-      <Alert className="big-spacer-bottom" variant="info">
-        <p>{translate('onboarding.project_analysis.commands_for_analysis')} </p>
-        <p>{translate('onboarding.project_analysis.suggestions.github')}</p>
-        <FormattedMessage
-          defaultMessage={translate('onboarding.project_analysis.simply_link')}
-          id={'onboarding.project_analysis.simply_link'}
-          values={{
-            link: (
-              <a
-                href="https://docs.travis-ci.com/user/sonarcloud/"
-                rel="noopener noreferrer"
-                target="_blank">
-                {translate('onboarding.project_analysis.guide_to_integrate_travis')}
-              </a>
-            )
-          }}
-        />
-      </Alert>
-    );
+    return <TutorialSuggestionGithub />;
   } else if (isVSTS(almKey)) {
-    return (
-      <Alert className="big-spacer-bottom" variant="info">
-        <FormattedMessage
-          defaultMessage={translate('onboarding.project_analysis.simply_link')}
-          id={'onboarding.project_analysis.simply_link'}
-          values={{
-            link: (
-              <a
-                href={getBaseUrl() + '/documentation/integrations/vsts/'}
-                rel="noopener noreferrer"
-                target="_blank">
-                {translate('onboarding.project_analysis.guide_to_integrate_vsts')}
-              </a>
-            )
-          }}
-        />
-      </Alert>
-    );
+    return <TutorialSuggestionVSTS />;
   }
   return null;
 }

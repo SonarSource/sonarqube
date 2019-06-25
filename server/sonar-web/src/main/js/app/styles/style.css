@@ -136,7 +136,8 @@
 }
 
 .rule-desc code,
-.markdown code {
+.markdown code,
+code.rule {
   padding: 0.2em 0.45em;
   margin: 0;
   background-color: rgba(0, 0, 0, 0.06);

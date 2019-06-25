@@ -1,0 +1,89 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div>
+  <h2
+    className="spacer-bottom spacer-top"
+  >
+    onboarding.analysis.with.travis.setup.title.a
+  </h2>
+  <RequirementJavaBuild />
+  <hr
+    className="no-horizontal-margins"
+  />
+  <h2
+    className="spacer-bottom spacer-top"
+  >
+    onboarding.analysis.with.travis.setup.title.b
+  </h2>
+  <FormattedMessage
+    defaultMessage="onboarding.analysis.java.gradle.text.1.sonarcloud"
+    id="onboarding.analysis.java.gradle.text.1.sonarcloud"
+    values={
+      Object {
+        "file": <code>
+          build.gradle
+        </code>,
+        "plugin": <code>
+          org.sonarqube
+        </code>,
+      }
+    }
+  />
+  <CodeSnippet
+    snippet="plugins {
+  id \\"org.sonarqube\\" version \\"2.7\\"
+}
+
+sonarqube {
+  properties {
+    sonar.projectKey: luke-lightsaber
+  }
+}"
+  />
+  <FormattedMessage
+    defaultMessage="onboarding.analysis.java.gradle.text.2.sonarcloud"
+    id="onboarding.analysis.java.gradle.text.2.sonarcloud"
+    values={
+      Object {
+        "file": <code>
+          .travis.yml
+        </code>,
+      }
+    }
+  />
+  <CodeSnippet
+    render={[Function]}
+    snippet="addons:
+  sonarcloud:
+    organization: \\"use-the-force\\"
+    token:
+      secure: \\"**************************\\" # encrypted value of your token
+
+script:
+  - ./gradlew sonarqube"
+  />
+  <FormattedMessage
+    defaultMessage="onboarding.analysis.sq_scanner.docs_use_case"
+    id="onboarding.analysis.sq_scanner.docs_use_case"
+    values={
+      Object {
+        "link": <a
+          href="http://redirect.sonarsource.com/doc/gradle.html"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          onboarding.analysis.sqscanner.docs.gradle.title
+        </a>,
+        "useCaseLink": <a
+          href="https://github.com/SonarSource/sq-com_example_java-gradle-travis"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          onboarding.analysis.sqscanner.docs.gradle.example_project.title
+        </a>,
+      }
+    }
+  />
+</div>
+`;

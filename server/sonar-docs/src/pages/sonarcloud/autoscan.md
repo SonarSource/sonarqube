@@ -49,7 +49,7 @@ If you're starting from scratch:
 
 1. Do the [setup for your project](/#sonarcloud#/projects/create) (from the `+ > Analyze new project` top right menu)
     * ![](/images/exclamation.svg) Remember that your project must absolutely be created by selecting a GitHub repository - otherwise it won't work.
-1. Once the setup is done on SonarCloud, you end up on the project home page which shows a tutorial. Ignore it and simply add a `.sonarcloud.properties` file in the base directory of your default branch (or on a PR which targets this default branch). 
+1. Once the setup is done on SonarCloud, you end up on the project home page which shows a tutorial. Ignore it and simply add a `.sonarcloud.properties` file in the base directory of your default branch or on a PR. 
 1. After a while, the analysis results will be visible in SonarCloud (and your PR will be annotated with comments if you pushed the file on a PR)
 
 Here are the supported optional settings for the `.sonarcloud.properties` file:

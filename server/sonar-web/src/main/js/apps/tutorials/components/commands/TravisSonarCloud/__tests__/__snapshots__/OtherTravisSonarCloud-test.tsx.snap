@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<CommonTravisSonarCloud
+  command="addons:
+  sonarcloud:
+    organization: \\"use-the-force\\"
+    token:
+      secure: \\"**************************\\" # encrypted value of your token
+
+script:
+  # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
+  - sonar-scanner"
+  renderCommand={[Function]}
+/>
+`;

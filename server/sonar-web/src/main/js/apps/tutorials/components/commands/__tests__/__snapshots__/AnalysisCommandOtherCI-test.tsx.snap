@@ -1,0 +1,231 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render AnalysisCommandCustom correctly 1`] = `""`;
+
+exports[`should render RenderCommandForClangOrGCC 1`] = `""`;
+
+exports[`should render RenderCommandForClangOrGCC 2`] = `""`;
+
+exports[`should render RenderCommandForOther 1`] = `""`;
+
+exports[`should render RenderCommandForOther 2`] = `""`;
+
+exports[`should render for Clang or GCC 1`] = `
+<AnalysisCommandCommon
+  buildType="make"
+  component={
+    Object {
+      "breadcrumbs": Array [],
+      "key": "my-project",
+      "name": "MyProject",
+      "organization": "foo",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "deleted": false,
+          "key": "my-qp",
+          "language": "ts",
+          "name": "Sonar way",
+        },
+      ],
+      "tags": Array [],
+    }
+  }
+  currentUser={
+    Object {
+      "groups": Array [],
+      "isLoggedIn": true,
+      "login": "luke",
+      "name": "Skywalker",
+      "scmAccounts": Array [],
+    }
+  }
+  getBuildOptions={[Function]}
+  mode="CI"
+  onDone={[MockFunction]}
+  organization="org"
+  setToken={[MockFunction]}
+  token="123"
+/>
+`;
+
+exports[`should render for Gradle 1`] = `
+<AnalysisCommandCommon
+  buildType="gradle"
+  component={
+    Object {
+      "breadcrumbs": Array [],
+      "key": "my-project",
+      "name": "MyProject",
+      "organization": "foo",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "deleted": false,
+          "key": "my-qp",
+          "language": "ts",
+          "name": "Sonar way",
+        },
+      ],
+      "tags": Array [],
+    }
+  }
+  currentUser={
+    Object {
+      "groups": Array [],
+      "isLoggedIn": true,
+      "login": "luke",
+      "name": "Skywalker",
+      "scmAccounts": Array [],
+    }
+  }
+  getBuildOptions={[Function]}
+  mode="CI"
+  onDone={[MockFunction]}
+  organization="org"
+  setToken={[MockFunction]}
+  token="123"
+/>
+`;
+
+exports[`should render for Maven 1`] = `
+<AnalysisCommandCommon
+  buildType="maven"
+  component={
+    Object {
+      "breadcrumbs": Array [],
+      "key": "my-project",
+      "name": "MyProject",
+      "organization": "foo",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "deleted": false,
+          "key": "my-qp",
+          "language": "ts",
+          "name": "Sonar way",
+        },
+      ],
+      "tags": Array [],
+    }
+  }
+  currentUser={
+    Object {
+      "groups": Array [],
+      "isLoggedIn": true,
+      "login": "luke",
+      "name": "Skywalker",
+      "scmAccounts": Array [],
+    }
+  }
+  getBuildOptions={[Function]}
+  mode="CI"
+  onDone={[MockFunction]}
+  organization="org"
+  setToken={[MockFunction]}
+  token="123"
+/>
+`;
+
+exports[`should render for other 1`] = `
+<AnalysisCommandCommon
+  buildType="other"
+  component={
+    Object {
+      "breadcrumbs": Array [],
+      "key": "my-project",
+      "name": "MyProject",
+      "organization": "foo",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "deleted": false,
+          "key": "my-qp",
+          "language": "ts",
+          "name": "Sonar way",
+        },
+      ],
+      "tags": Array [],
+    }
+  }
+  currentUser={
+    Object {
+      "groups": Array [],
+      "isLoggedIn": true,
+      "login": "luke",
+      "name": "Skywalker",
+      "scmAccounts": Array [],
+    }
+  }
+  getBuildOptions={[Function]}
+  mode="CI"
+  onDone={[MockFunction]}
+  organization="org"
+  setToken={[MockFunction]}
+  token="123"
+/>
+`;
+
+exports[`should render for unsupported build systems 1`] = `
+<AnalysisCommandCommon
+  buildType="whatever"
+  component={
+    Object {
+      "breadcrumbs": Array [],
+      "key": "my-project",
+      "name": "MyProject",
+      "organization": "foo",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "deleted": false,
+          "key": "my-qp",
+          "language": "ts",
+          "name": "Sonar way",
+        },
+      ],
+      "tags": Array [],
+    }
+  }
+  currentUser={
+    Object {
+      "groups": Array [],
+      "isLoggedIn": true,
+      "login": "luke",
+      "name": "Skywalker",
+      "scmAccounts": Array [],
+    }
+  }
+  getBuildOptions={[Function]}
+  mode="CI"
+  onDone={[MockFunction]}
+  organization="org"
+  setToken={[MockFunction]}
+  token="123"
+/>
+`;

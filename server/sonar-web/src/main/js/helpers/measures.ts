@@ -33,6 +33,7 @@ export function formatMeasure(
   options?: any
 ): string {
   const formatter = getFormatter(type);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   return useFormatter(value, formatter, options);
 }
 

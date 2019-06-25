@@ -41,7 +41,7 @@ interface ButtonProps extends AllowedButtonAttributes {
   onClick?: () => void;
   preventDefault?: boolean;
   stopPropagation?: boolean;
-  type?: string;
+  type?: 'button' | 'submit' | 'reset' | undefined;
 }
 
 export class Button extends React.PureComponent<ButtonProps> {

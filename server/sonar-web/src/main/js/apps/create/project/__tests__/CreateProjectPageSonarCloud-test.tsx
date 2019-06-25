@@ -60,7 +60,7 @@ it('should render correctly', async () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should render with Manual creation only', () => {
+it('should render with Custom creation only', () => {
   expect(getWrapper({ currentUser: { ...user, externalProvider: 'microsoft' } })).toMatchSnapshot();
 });
 

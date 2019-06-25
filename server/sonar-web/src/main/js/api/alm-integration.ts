@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, postJSON, post, requestTryAndRepeatUntil } from '../helpers/request';
+import { getJSON, postJSON, post, requestTryAndRepeatUntil, getCorsJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { AlmLanguagesStats } from '../apps/tutorials/analyzeProject/utils';
 
 export function bindAlmOrganization(data: { installationId: string; organization: string }) {
   return post('/api/alm_integration/bind_organization', data).catch(throwGlobalError);
@@ -74,4 +75,10 @@ export function provisionProject(data: {
     ...data,
     installationKeys: data.installationKeys.join(',')
   }).catch(throwGlobalError);
+}
+
+export function getGithubLanguages(url: string): Promise<AlmLanguagesStats> {
+  // We don't want to throwGlobalError
+  const apiUrl = url.replace('https://github.com/', 'https://api.github.com/repos/');
+  return getCorsJSON(`${apiUrl}/languages`);
 }

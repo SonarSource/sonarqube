@@ -53,6 +53,10 @@
   margin-left: 20px;
 }
 
+.flex-column-full {
+  width: 100%;
+}
+
 .flex-column-half {
   width: 50%;
 }

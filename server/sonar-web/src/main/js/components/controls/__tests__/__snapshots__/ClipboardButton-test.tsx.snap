@@ -6,7 +6,7 @@ exports[`should display correctly 1`] = `
   visible={false}
 >
   <Button
-    className="js-copy-to-clipboard no-select"
+    className="no-select"
     data-clipboard-text="foo"
     innerRef={[Function]}
   >
@@ -21,7 +21,7 @@ exports[`should display correctly 2`] = `
   visible={true}
 >
   <Button
-    className="js-copy-to-clipboard no-select"
+    className="no-select"
     data-clipboard-text="foo"
     innerRef={[Function]}
   >
@@ -36,7 +36,7 @@ exports[`should display correctly 3`] = `
   visible={false}
 >
   <Button
-    className="js-copy-to-clipboard no-select"
+    className="no-select"
     data-clipboard-text="foo"
     innerRef={[Function]}
   >
@@ -51,7 +51,7 @@ exports[`should render a custom label if provided 1`] = `
   visible={false}
 >
   <Button
-    className="js-copy-to-clipboard no-select"
+    className="no-select"
     data-clipboard-text="foo"
     innerRef={[Function]}
   >

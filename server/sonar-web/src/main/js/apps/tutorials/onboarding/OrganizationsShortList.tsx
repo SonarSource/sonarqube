@@ -25,7 +25,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
   organizations: T.Organization[];
-  onClick: () => void;
+  onClick: VoidFunction;
 }
 
 export default function OrganizationsShortList({ onClick, organizations }: Props) {

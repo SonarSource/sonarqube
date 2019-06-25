@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Step
+  finished={false}
+  onOpen={[MockFunction]}
+  open={true}
+  renderForm={[Function]}
+  renderResult={[Function]}
+  stepNumber={1}
+  stepTitle={
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.travis.sonarcloud"
+      id="onboarding.analysis.travis.sonarcloud"
+      values={
+        Object {
+          "filename": <code
+            className="rule"
+          >
+            .travis.yml
+          </code>,
+        }
+      }
+    />
+  }
+/>
+`;
+
+exports[`should render the form correctly 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <div
+    className="flex-columns"
+  >
+    <div
+      className="flex-column-full"
+    >
+      <BuildSystemForm
+        build="maven"
+        setBuild={[Function]}
+      />
+      <AnalysisCommandTravis
+        buildType="maven"
+      />
+    </div>
+  </div>
+  <div
+    className="big-spacer-top"
+  >
+    <Button
+      className="js-continue"
+      onClick={[MockFunction]}
+    >
+      onboarding.finish
+    </Button>
+  </div>
+</div>
+`;

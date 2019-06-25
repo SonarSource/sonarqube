@@ -31,15 +31,6 @@ it('renders correctly', () => {
   ).toMatchSnapshot();
 
   expect(
-    shallow(
-      <ClangGCC
-        host="host"
-        organization="organization"
-        os="linux"
-        projectKey="projectKey"
-        small={true}
-        token="token"
-      />
-    )
+    shallow(<ClangGCC host="host" os="linux" projectKey="projectKey" small={true} token="token" />)
   ).toMatchSnapshot();
 });

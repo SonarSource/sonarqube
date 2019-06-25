@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { RenderOptions } from './RenderOptions';
 import NewProjectForm from './NewProjectForm';
 import RadioToggle from '../../../components/controls/RadioToggle';
 import { translate } from '../../../helpers/l10n';
@@ -28,11 +29,28 @@ interface Props {
   component?: T.Component;
   config?: LanguageConfig;
   onDone: (config: LanguageConfig) => void;
-  onReset: () => void;
+  onReset: VoidFunction;
   organization?: string;
 }
 
 type State = LanguageConfig;
+
+export interface RenderOSProps {
+  os: string | undefined;
+  setOS: (os: string) => void;
+}
+export function RenderOS(props: RenderOSProps) {
+  return (
+    <RenderOptions
+      checked={props.os}
+      name="os"
+      onCheck={props.setOS}
+      optionLabelKey={'onboarding.language.os'}
+      options={['linux', 'win', 'mac']}
+      titleLabelKey={'onboarding.language.os'}
+    />
+  );
+}
 
 export default class LanguageForm extends React.PureComponent<Props, State> {
   constructor(props: Props) {
@@ -76,48 +94,25 @@ export default class LanguageForm extends React.PureComponent<Props, State> {
   };
 
   renderJavaBuild = () => (
-    <div className="big-spacer-top">
-      <h4 className="spacer-bottom">{translate('onboarding.language.java.build_technology')}</h4>
-      <RadioToggle
-        name="java-build"
-        onCheck={this.handleJavaBuildChange}
-        options={['maven', 'gradle'].map(build => ({
-          label: translate('onboarding.language.java.build_technology', build),
-          value: build
-        }))}
-        value={this.state.javaBuild}
-      />
-    </div>
+    <RenderOptions
+      checked={this.state.javaBuild}
+      name="java-build"
+      onCheck={this.handleJavaBuildChange}
+      optionLabelKey="onboarding.language.java.build_technology"
+      options={['maven', 'gradle']}
+      titleLabelKey="onboarding.language.java.build_technology"
+    />
   );
 
   renderCFamilyCompiler = () => (
-    <div className="big-spacer-top">
-      <h4 className="spacer-bottom">{translate('onboarding.language.c-family.compiler')}</h4>
-      <RadioToggle
-        name="c-family-compiler"
-        onCheck={this.handleCFamilyCompilerChange}
-        options={['msvc', 'clang-gcc'].map(compiler => ({
-          label: translate('onboarding.language.c-family.compiler', compiler),
-          value: compiler
-        }))}
-        value={this.state.cFamilyCompiler}
-      />
-    </div>
-  );
-
-  renderOS = () => (
-    <div className="big-spacer-top">
-      <h4 className="spacer-bottom">{translate('onboarding.language.os')}</h4>
-      <RadioToggle
-        name="os"
-        onCheck={this.handleOSChange}
-        options={['linux', 'win', 'mac'].map(os => ({
-          label: translate('onboarding.language.os', os),
-          value: os
-        }))}
-        value={this.state.os}
-      />
-    </div>
+    <RenderOptions
+      checked={this.state.cFamilyCompiler}
+      name="c-family-compiler"
+      onCheck={this.handleCFamilyCompilerChange}
+      optionLabelKey={'onboarding.language.c-family.compiler'}
+      options={['msvc', 'clang-gcc']}
+      titleLabelKey={'onboarding.language.c-family.compiler'}
+    />
   );
 
   renderProjectKey = () => {
@@ -164,8 +159,9 @@ export default class LanguageForm extends React.PureComponent<Props, State> {
         </div>
         {language === 'java' && this.renderJavaBuild()}
         {language === 'c-family' && this.renderCFamilyCompiler()}
-        {((language === 'c-family' && cFamilyCompiler === 'clang-gcc') || language === 'other') &&
-          this.renderOS()}
+        {((language === 'c-family' && cFamilyCompiler === 'clang-gcc') || language === 'other') && (
+          <RenderOS os={this.state.os} setOS={this.handleOSChange} />
+        )}
         {this.renderProjectKey()}
       </>
     );

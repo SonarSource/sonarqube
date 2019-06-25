@@ -26,7 +26,7 @@ import { Router } from '../../../components/hoc/withRouter';
 
 interface Props {
   router: Router;
-  skipOnboarding: () => void;
+  skipOnboarding: VoidFunction;
 }
 
 export class OnboardingPage extends React.PureComponent<Props> {

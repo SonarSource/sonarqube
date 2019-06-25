@@ -27,14 +27,15 @@ import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessI
 import { DeleteButton, SubmitButton, Button } from '../../../components/ui/buttons';
 import { getTokens, generateToken, revokeToken } from '../../../api/user-tokens';
 import { translate } from '../../../helpers/l10n';
+import { getUniqueTokenName } from '../utils';
 
 interface Props {
-  currentUser: { login: string };
+  currentUser: Pick<T.LoggedInUser, 'login'>;
   finished: boolean;
   initialTokenName?: string;
   open: boolean;
   onContinue: (token: string) => void;
-  onOpen: () => void;
+  onOpen: VoidFunction;
   stepNumber: number;
 }
 
@@ -70,7 +71,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
             this.props.initialTokenName !== undefined &&
             this.props.initialTokenName === this.state.tokenName
           ) {
-            this.setState({ tokenName: this.getUniqueTokenName(tokens) });
+            this.setState({ tokenName: getUniqueTokenName(tokens) });
           }
         }
       },
@@ -84,21 +85,6 @@ export default class TokenStep extends React.PureComponent<Props, State> {
 
   getToken = () =>
     this.state.selection === 'generate' ? this.state.token : this.state.existingToken;
-
-  getUniqueTokenName = (tokens: T.UserToken[]) => {
-    const { initialTokenName = '' } = this.props;
-    const hasToken = (name: string) => tokens.find(token => token.name === name) !== undefined;
-
-    if (!hasToken(initialTokenName)) {
-      return initialTokenName;
-    }
-
-    let i = 1;
-    while (hasToken(`${initialTokenName} ${i}`)) {
-      i++;
-    }
-    return `${initialTokenName} ${i}`;
-  };
 
   canContinue = () => {
     const { existingToken, selection, token } = this.state;

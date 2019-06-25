@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Step
+  finished={false}
+  onOpen={[Function]}
+  open={true}
+  renderForm={[Function]}
+  renderResult={[Function]}
+  stepNumber={1}
+  stepTitle="onboarding.analysis.header"
+/>
+`;

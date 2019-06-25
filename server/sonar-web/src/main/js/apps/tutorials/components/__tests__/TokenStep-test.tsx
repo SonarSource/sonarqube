@@ -28,7 +28,7 @@ jest.mock('../../../../api/user-tokens', () => ({
   revokeToken: () => Promise.resolve()
 }));
 
-const currentUser = { login: 'user' };
+const currentUser: Pick<T.LoggedInUser, 'login'> = { login: 'user' };
 
 it('generates token', async () => {
   const wrapper = shallow(

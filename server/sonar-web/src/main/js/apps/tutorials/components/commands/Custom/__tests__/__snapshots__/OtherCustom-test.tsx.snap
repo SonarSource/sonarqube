@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="huge-spacer-top"
+>
+  <SQScanner
+    os="linux"
+  />
+  <h4
+    className="huge-spacer-top spacer-bottom"
+  >
+    onboarding.analysis.sq_scanner.execute
+  </h4>
+  <InstanceMessage
+    message="onboarding.analysis.sq_scanner.execute.text.custom"
+  >
+    <Component />
+  </InstanceMessage>
+  <CodeSnippet
+    isOneLine={false}
+    render={[Function]}
+    snippet={
+      Array [
+        "sonar-scanner",
+        "-Dsonar.projectKey=luke-lightsaber",
+        "-Dsonar.organization=use-the-force",
+        "-Dsonar.sources=.",
+        "-Dsonar.host.url=https://sonarcloud.io",
+        "-Dsonar.login=sonarsource123",
+      ]
+    }
+    wrap={true}
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.standard.docs",
+      }
+    }
+  />
+  <div
+    className="big-spacer-top"
+  >
+    <Button
+      className="js-continue"
+      onClick={[MockFunction]}
+    >
+      onboarding.finish
+    </Button>
+  </div>
+</div>
+`;

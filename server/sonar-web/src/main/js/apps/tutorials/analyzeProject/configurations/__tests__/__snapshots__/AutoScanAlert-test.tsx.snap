@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should renders correctly 1`] = `
+<Alert
+  className="big-spacer-top"
+  variant="info"
+>
+  <div>
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.with.autoscan.alert"
+      id="onboarding.analysis.with.autoscan.alert"
+      values={
+        Object {
+          "caveats": <React.Fragment>
+            <strong>
+              onboarding.analysis.with.autoscan.alert.caveats
+            </strong>
+             
+            <DocTooltip
+              doc={Promise {}}
+            />
+          </React.Fragment>,
+          "scopes": <React.Fragment>
+            <strong>
+              onboarding.analysis.with.autoscan.alert.scopes
+            </strong>
+             
+            <DocTooltip
+              doc={Promise {}}
+            />
+          </React.Fragment>,
+        }
+      }
+    />
+  </div>
+</Alert>
+`;

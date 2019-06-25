@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import NewProjectForm from '../NewProjectForm';
 import { change, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 
@@ -31,7 +31,7 @@ jest.mock('../../../../components/icons-components/DeleteIcon');
 
 it('creates new project', async () => {
   const onDone = jest.fn();
-  const wrapper = mount(<NewProjectForm onDelete={jest.fn()} onDone={onDone} />);
+  const wrapper = shallow(<NewProjectForm onDelete={jest.fn()} onDone={onDone} />);
   expect(wrapper).toMatchSnapshot();
   change(wrapper.find('input'), 'foo');
   submit(wrapper.find('form'));
@@ -43,7 +43,7 @@ it('creates new project', async () => {
 
 it('deletes project', async () => {
   const onDelete = jest.fn();
-  const wrapper = mount(<NewProjectForm onDelete={onDelete} onDone={jest.fn()} />);
+  const wrapper = shallow(<NewProjectForm onDelete={onDelete} onDone={jest.fn()} />);
   wrapper.setState({ done: true, loading: false, projectKey: 'foo' });
   expect(wrapper).toMatchSnapshot();
   (wrapper.find('DeleteButton').prop('onClick') as Function)();

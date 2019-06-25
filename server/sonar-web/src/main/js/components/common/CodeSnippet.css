@@ -30,7 +30,7 @@
   overflow: auto;
 }
 
-.code-snippet button {
+.code-snippet > button {
   position: absolute;
   top: calc(2 * var(--gridSize));
   right: calc(2 * var(--gridSize));
@@ -42,9 +42,9 @@
   user-select: none;
 }
 
-.code-snippet button:hover,
-.code-snippet button:focus,
-.code-snippet button:active {
+.code-snippet > button:hover,
+.code-snippet > button:focus,
+.code-snippet > button:active {
   background-color: #fff;
   color: var(--gray40);
 }
@@ -53,7 +53,28 @@
   padding-bottom: 40px;
 }
 
-.code-snippet-oneline button {
+.code-snippet-oneline > button {
   top: auto;
-  top: 40px;
+  bottom: 16px;
+}
+
+.code-snippet-wrap pre {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.code-snippet .highlight {
+  font-weight: bold;
+  color: var(--alertBorderError);
+}
+
+.code-snippet .button-icon {
+  color: #fff !important;
+}
+
+.code-snippet .button-icon:hover svg,
+.code-snippet .button-icon:focus svg,
+.code-snippet .button-icon:active svg {
+  background-color: #fff;
+  color: var(--gray40);
 }

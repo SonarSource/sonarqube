@@ -31,14 +31,6 @@ it('renders correctly', () => {
   ).toMatchSnapshot();
 
   expect(
-    shallow(
-      <Other
-        host="host"
-        organization="organization"
-        os="linux"
-        projectKey="projectKey"
-        token="token"
-      />
-    )
+    shallow(<Other host="host" os="linux" projectKey="projectKey" token="token" />)
   ).toMatchSnapshot();
 });

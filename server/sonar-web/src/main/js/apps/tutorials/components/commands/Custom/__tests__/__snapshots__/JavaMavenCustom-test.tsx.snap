@@ -1,0 +1,83 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render common elements correctly 1`] = `
+<div>
+  <h4
+    className="spacer-bottom"
+  >
+    onboarding.analysis.java.maven.header
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+  >
+    <InstanceMessage
+      message="onboarding.analysis.java.maven.text.custom"
+    />
+  </p>
+  <RenderCustomContent
+    command={
+      Array [
+        "mvn sonar:sonar",
+        undefined,
+        undefined,
+        "-Dsonar.host.url=sonarcloud",
+        "-Dsonar.login=123",
+      ]
+    }
+    linkText="onboarding.analysis.java.maven.docs_link"
+    linkUrl="http://redirect.sonarsource.com/doc/install-configure-scanner-maven.html"
+    onDone={[MockFunction]}
+    toggleModal={[MockFunction]}
+  />
+</div>
+`;
+
+exports[`should render correctly 1`] = `
+<div>
+  <h4
+    className="spacer-bottom"
+  >
+    onboarding.analysis.java.maven.header
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+  >
+    <InstanceMessage
+      message="onboarding.analysis.java.maven.text.custom"
+    />
+  </p>
+  <RenderCustomContent
+    command={
+      Array [
+        "mvn sonar:sonar",
+        "-Dsonar.projectKey=luke-lightsaber",
+        "-Dsonar.organization=use-the-force",
+        "-Dsonar.host.url=https://sonarcloud.io",
+        "-Dsonar.login=sonarsource123",
+      ]
+    }
+    linkText="onboarding.analysis.java.maven.docs_link"
+    linkUrl="http://redirect.sonarsource.com/doc/install-configure-scanner-maven.html"
+    onDone={[MockFunction]}
+    toggleModal={[MockFunction]}
+  />
+</div>
+`;
+
+exports[`should render maven custom content 1`] = `
+<RenderCustomContent
+  command={
+    Array [
+      "mvn sonar:sonar",
+      "-Dsonar.projectKey=luke-lightsaber",
+      "-Dsonar.organization=use-the-force",
+      "-Dsonar.host.url=https://sonarcloud.io",
+      "-Dsonar.login=sonarsource123",
+    ]
+  }
+  linkText="onboarding.analysis.java.maven.docs_link"
+  linkUrl="http://redirect.sonarsource.com/doc/install-configure-scanner-maven.html"
+  onDone={[MockFunction]}
+  toggleModal={[MockFunction]}
+/>
+`;

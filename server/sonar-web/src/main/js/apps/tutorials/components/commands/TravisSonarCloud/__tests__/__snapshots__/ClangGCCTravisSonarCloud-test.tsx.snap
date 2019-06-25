@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<CommonTravisSonarCloud
+  command="addons:
+  sonarcloud:
+    organization: \\"use-the-force\\"
+    token:
+      secure: \\"**************************\\" # encrypted value of your token
+
+script:
+  - make clean
+  # Wraps the compilation with the Build Wrapper to generate configuration (used
+  # later by the SonarQube Scanner) into the \\"bw-output\\" folder
+  - build-wrapper-linux-x86-64 --out-dir bw-output make all
+  # Execute some tests
+  - make test
+  # And finally run the SonarQube analysis - read the \\"sonar-project.properties\\"
+  # file to see the specific configuration
+  - sonar-scanner"
+  renderCommand={[Function]}
+/>
+`;

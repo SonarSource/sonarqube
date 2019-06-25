@@ -27,7 +27,7 @@ import InstanceMessage from '../../../components/common/InstanceMessage';
 import { isSonarCloud } from '../../../helpers/system';
 import '../styles.css';
 
-enum Steps {
+export enum Steps {
   ANALYSIS,
   TOKEN
 }

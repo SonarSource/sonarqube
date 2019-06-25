@@ -1,0 +1,91 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Step
+  finished={false}
+  onOpen={[Function]}
+  open={true}
+  renderForm={[Function]}
+  renderResult={[Function]}
+  stepNumber={1}
+  stepTitle="onboarding.analysis.header"
+/>
+`;
+
+exports[`should render the form correctly 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <div
+    className="flex-columns"
+  >
+    <div
+      className="flex-column flex-column-half bordered-right"
+    >
+      <BuildSystemForm
+        setBuild={[Function]}
+      />
+    </div>
+    <div
+      className="flex-column flex-column-half"
+    >
+      [Function]
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render the form correctly 2`] = `
+<div
+  className="boxed-group-inner"
+>
+  <div
+    className="display-flex-column"
+  >
+    <BuildSystemForm
+      setBuild={[Function]}
+    />
+    <div
+      className="huge-spacer-top"
+    >
+      <AnalysisCommandCustom
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        currentUser={
+          Object {
+            "groups": Array [],
+            "isLoggedIn": true,
+            "login": "luke",
+            "name": "Skywalker",
+            "scmAccounts": Array [],
+          }
+        }
+        onDone={[Function]}
+        setToken={[MockFunction]}
+        small={true}
+      />
+    </div>
+  </div>
+</div>
+`;

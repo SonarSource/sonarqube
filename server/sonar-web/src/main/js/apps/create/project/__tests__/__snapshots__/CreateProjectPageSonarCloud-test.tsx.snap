@@ -100,7 +100,7 @@ exports[`should render correctly 2`] = `
 </Fragment>
 `;
 
-exports[`should render with Manual creation only 1`] = `
+exports[`should render with Custom creation only 1`] = `
 <Fragment>
   <HelmetWrapper
     defer={true}

@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <h1
+    className="spacer-bottom spacer-top"
+  >
+    onboarding.analysis.with.autoscan.title
+  </h1>
+  <p
+    className="spacer-bottom"
+  >
+    onboarding.analysis.with.autoscan.text
+  </p>
+  <AutoScanAlert />
+  <Step
+    finished={false}
+    onOpen={[Function]}
+    open={true}
+    renderForm={[Function]}
+    renderResult={[Function]}
+    stepNumber={1}
+    stepTitle={
+      <FormattedMessage
+        defaultMessage="onboarding.analysis.with.autoscan.filename"
+        id="onboarding.analysis.with.autoscan.filename"
+        values={
+          Object {
+            "filename": <code
+              className="rule"
+            >
+              .sonarcloud.properties
+            </code>,
+          }
+        }
+      />
+    }
+  />
+</Fragment>
+`;

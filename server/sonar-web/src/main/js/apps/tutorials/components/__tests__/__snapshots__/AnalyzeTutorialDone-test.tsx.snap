@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="page-analysis-container page-analysis-container-sonarcloud"
+>
+  <BackButton
+    onClick={[Function]}
+    tooltip="onboarding.tutorial.return_to_tutorial"
+  >
+    back
+  </BackButton>
+  <div
+    className="page-analysis page-analysis-waiting huge-spacer-top huge-spacer-bottom"
+  >
+    <img
+      alt="SonarCloud"
+      src="/images/sonarcloud/analysis/Waiting-for-analysis.svg"
+    />
+    <h1
+      className="big-spacer-bottom huge-spacer-top"
+    >
+      onboarding.finished.title
+    </h1>
+    <p>
+      onboarding.finished.text
+    </p>
+    <div
+      className="links huge-spacer-top huge-spacer-bottom"
+    >
+      <h2
+        className="huge-spacer-bottom"
+      >
+        onboarding.finished.links.title
+      </h2>
+      <ul>
+        <li
+          className="big-spacer-bottom"
+        >
+          <a
+            href="https://sonarcloud.io/documentation/user-guide/quality-gates/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            What is a Quality Gate?
+          </a>
+        </li>
+        <li
+          className="big-spacer-bottom"
+        >
+          <a
+            href="https://sonarcloud.io/documentation/instance-administration/quality-profiles/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Configure your Quality Profiles
+          </a>
+          .
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+`;

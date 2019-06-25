@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="huge-spacer-top"
+>
+  <h4
+    className="huge-spacer-top spacer-bottom"
+  >
+    onboarding.analysis.sq_scanner.header.ci
+  </h4>
+  <CodeSnippet
+    snippet="
+local SONAR_SCANNER_VERSION=onboarding.analysis.sonar_scanner_version
+export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION
+rm -rf $SONAR_SCANNER_HOME
+mkdir -p $SONAR_SCANNER_HOME
+curl -sSLo $HOME/.sonar/sonar-scanner.zip http://repo1.maven.org/maven2/org/sonarsource/scanner/cli/sonar-scanner-cli/$SONAR_SCANNER_VERSION/sonar-scanner-cli-$SONAR_SCANNER_VERSION.zip
+unzip $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
+rm $HOME/.sonar/sonar-scanner.zip
+export PATH=$SONAR_SCANNER_HOME/bin:$PATH
+export SONAR_SCANNER_OPTS=\\"-server\\""
+  />
+  <h4
+    className="huge-spacer-top spacer-bottom"
+  >
+    onboarding.analysis.sq_scanner.execute.ci
+  </h4>
+  <InstanceMessage
+    message="onboarding.analysis.sq_scanner.execute.text.custom"
+  >
+    <Component />
+  </InstanceMessage>
+  <CodeSnippet
+    isOneLine={false}
+    render={[Function]}
+    snippet={
+      Array [
+        "sonar-scanner",
+        "-Dsonar.projectKey=luke-lightsaber",
+        "-Dsonar.organization=use-the-force",
+        "-Dsonar.sources=.",
+        "-Dsonar.host.url=https://sonarcloud.io",
+        "-Dsonar.login=sonarsource123",
+      ]
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.standard.docs",
+      }
+    }
+  />
+  <div
+    className="big-spacer-top"
+  >
+    <Button
+      className="js-continue"
+      onClick={[MockFunction]}
+    >
+      onboarding.finish
+    </Button>
+  </div>
+</div>
+`;

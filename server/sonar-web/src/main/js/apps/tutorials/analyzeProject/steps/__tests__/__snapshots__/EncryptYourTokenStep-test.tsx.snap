@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Step
+  finished={true}
+  onOpen={[MockFunction]}
+  open={true}
+  renderForm={[Function]}
+  renderResult={[Function]}
+  stepNumber={1}
+  stepTitle="onboarding.analysis.with.travis.encrypt.title"
+/>
+`;

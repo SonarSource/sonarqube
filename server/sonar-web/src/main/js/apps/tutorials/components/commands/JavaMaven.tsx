@@ -23,7 +23,7 @@ import CodeSnippet from '../../../../components/common/CodeSnippet';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
 import { translate } from '../../../../helpers/l10n';
 
-interface Props {
+export interface Props {
   host: string;
   organization?: string;
   projectKey?: string;

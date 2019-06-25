@@ -25,6 +25,18 @@ export interface LanguageConfig {
   projectKey?: string;
 }
 
+export interface StepProps {
+  component?: T.Component;
+  finished?: boolean;
+  hasStepAfter?: (hasStepAfter: boolean) => void;
+  onContinue: VoidFunction;
+  onOpen: VoidFunction;
+  open: boolean;
+  organization?: string;
+  stepNumber: number;
+  token?: string;
+}
+
 export function isLanguageConfigured(config?: LanguageConfig) {
   if (!config) {
     return false;
@@ -41,4 +53,18 @@ export function isLanguageConfigured(config?: LanguageConfig) {
 
 export function quote(os: string): (s: string) => string {
   return os === 'win' ? (s: string) => `"${s}"` : (s: string) => s;
+}
+
+export function getUniqueTokenName(tokens: T.UserToken[], initialTokenName = '') {
+  const hasToken = (name: string) => tokens.find(token => token.name === name) !== undefined;
+
+  if (!hasToken(initialTokenName)) {
+    return initialTokenName;
+  }
+
+  let i = 1;
+  while (hasToken(`${initialTokenName} ${i}`)) {
+    i++;
+  }
+  return `${initialTokenName} ${i}`;
 }

@@ -20,13 +20,15 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet';
 import OverviewApp from './OverviewApp';
-import EmptyOverview from './EmptyOverview';
 import ReviewApp from '../pullRequests/ReviewApp';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { withRouter, Router } from '../../../components/hoc/withRouter';
 import { getProjectUrl, getBaseUrl, getPathUrlAsString } from '../../../helpers/urls';
 import { isSonarCloud } from '../../../helpers/system';
 import { isShortLivingBranch, isPullRequest } from '../../../helpers/branches';
+import { lazyLoad } from '../../../components/lazyLoad';
+
+const EmptyOverview = lazyLoad(() => import('./EmptyOverview'));
 
 interface Props {
   branchLike?: T.BranchLike;

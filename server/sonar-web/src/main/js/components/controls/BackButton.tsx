@@ -26,8 +26,8 @@ import { translate } from '../../helpers/l10n';
 interface Props {
   className?: string;
   disabled?: boolean;
-  tooltip?: string;
   onClick: () => void;
+  tooltip?: string;
 }
 
 export default class BackButton extends React.PureComponent<Props> {

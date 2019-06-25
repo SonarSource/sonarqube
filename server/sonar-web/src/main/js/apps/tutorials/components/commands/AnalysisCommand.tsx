@@ -26,6 +26,7 @@ import ClangGCC from './ClangGCC';
 import Other from './Other';
 import { getHostUrl } from '../../../../helpers/urls';
 import { LanguageConfig } from '../../utils';
+import { getProjectKey } from '../ProjectAnalysisStep';
 
 interface Props {
   component?: T.Component;
@@ -36,10 +37,6 @@ interface Props {
 }
 
 export default class AnalysisCommand extends React.PureComponent<Props> {
-  getProjectKey = ({ component, languageConfig } = this.props) => {
-    return (component && component.key) || languageConfig.projectKey;
-  };
-
   renderCommandForMaven = () => {
     const { component, token } = this.props;
     if (!token) {
@@ -71,8 +68,8 @@ export default class AnalysisCommand extends React.PureComponent<Props> {
   };
 
   renderCommandForDotNet = () => {
-    const { small, token } = this.props;
-    const projectKey = this.getProjectKey();
+    const { component, languageConfig, small, token } = this.props;
+    const projectKey = getProjectKey(languageConfig, component);
     if (!projectKey || !token) {
       return null;
     }
@@ -88,8 +85,8 @@ export default class AnalysisCommand extends React.PureComponent<Props> {
   };
 
   renderCommandForMSVC = () => {
-    const { small, token } = this.props;
-    const projectKey = this.getProjectKey();
+    const { component, languageConfig, small, token } = this.props;
+    const projectKey = getProjectKey(languageConfig, component);
     if (!projectKey || !token) {
       return null;
     }
@@ -105,8 +102,8 @@ export default class AnalysisCommand extends React.PureComponent<Props> {
   };
 
   renderCommandForClangGCC = () => {
-    const { languageConfig, small, token } = this.props;
-    const projectKey = this.getProjectKey();
+    const { component, languageConfig, small, token } = this.props;
+    const projectKey = getProjectKey(languageConfig, component);
     if (!languageConfig || !projectKey || !languageConfig.os || !token) {
       return null;
     }
@@ -123,8 +120,8 @@ export default class AnalysisCommand extends React.PureComponent<Props> {
   };
 
   renderCommandForOther = () => {
-    const { languageConfig, token } = this.props;
-    const projectKey = this.getProjectKey();
+    const { component, languageConfig, token } = this.props;
+    const projectKey = getProjectKey(languageConfig, component);
     if (!languageConfig || !projectKey || !languageConfig.os || !token) {
       return null;
     }

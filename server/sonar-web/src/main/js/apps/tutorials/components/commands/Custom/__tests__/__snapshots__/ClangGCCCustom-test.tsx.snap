@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render common elements correctly 1`] = `
+<Fragment>
+  <h4
+    className="huge-spacer-top spacer-bottom"
+  >
+    onboarding.analysis.sq_scanner.execute
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+  >
+    onboarding.analysis.sq_scanner.execute.text.custom
+  </p>
+  <CodeSnippet
+    snippet="command1"
+  />
+  <CodeSnippet
+    isOneLine={false}
+    render={[Function]}
+    snippet={
+      Array [
+        "command2",
+      ]
+    }
+    wrap={true}
+  />
+  <FormattedMessage
+    defaultMessage="onboarding.analysis.sq_scanner.docs"
+    id="onboarding.analysis.sq_scanner.docs"
+    values={
+      Object {
+        "link": <a
+          href="http://redirect.sonarsource.com/doc/install-configure-scanner.html"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          onboarding.analysis.sq_scanner.docs_link
+        </a>,
+      }
+    }
+  />
+  <div
+    className="big-spacer-top"
+  >
+    <Button
+      className="js-continue"
+      onClick={[MockFunction]}
+    >
+      onboarding.finish
+    </Button>
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly 1`] = `
+<div
+  className="huge-spacer-top"
+>
+  <SQScanner
+    os="linux"
+  />
+  <BuildWrapper
+    className="huge-spacer-top"
+    os="linux"
+  />
+  <ClangGCCCommon
+    command1="build-wrapper-linux-x86-64 --out-dir bw-output make clean all"
+    command2={
+      Array [
+        "sonar-scanner",
+        "-Dsonar.projectKey=luke-lightsaber",
+        "-Dsonar.organization=use-the-force",
+        "-Dsonar.sources=.",
+        "-Dsonar.cfamily.build-wrapper-output=bw-output",
+        "-Dsonar.host.url=https://sonarcloud.io",
+        "-Dsonar.login=sonarsource123",
+      ]
+    }
+    onDone={[MockFunction]}
+    os="linux"
+    renderCommand2={[Function]}
+  />
+</div>
+`;

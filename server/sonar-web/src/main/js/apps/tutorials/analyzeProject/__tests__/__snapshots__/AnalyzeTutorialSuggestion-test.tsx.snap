@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders bitbucket suggestions correctly 1`] = `
+exports[`renders bitbucket tutorial correctly 1`] = `
 <Alert
   className="big-spacer-bottom"
   variant="info"
@@ -21,7 +21,7 @@ exports[`renders bitbucket suggestions correctly 1`] = `
           rel="noopener noreferrer"
           target="_blank"
         >
-          onboarding.project_analysis.guide_to_integrate_piplines
+          onboarding.project_analysis.guide_to_integrate_pipelines
         </a>,
       }
     }
@@ -29,7 +29,7 @@ exports[`renders bitbucket suggestions correctly 1`] = `
 </Alert>
 `;
 
-exports[`renders github suggestions correctly 1`] = `
+exports[`renders github tutorial correctly 1`] = `
 <Alert
   className="big-spacer-bottom"
   variant="info"
@@ -59,7 +59,7 @@ exports[`renders github suggestions correctly 1`] = `
 </Alert>
 `;
 
-exports[`renders vsts suggestions correctly 1`] = `
+exports[`renders microsoft tutorial correctly 1`] = `
 <Alert
   className="big-spacer-bottom"
   variant="info"

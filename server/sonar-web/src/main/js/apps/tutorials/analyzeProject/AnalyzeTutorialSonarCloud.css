@@ -1,0 +1,119 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2019 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+.page-analysis {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.page-analysis .page-header {
+  text-align: center;
+}
+
+.page-analysis h1 {
+  font-weight: bold;
+}
+
+.page-analysis-container-sonarcloud .onboarding-step {
+  padding: 0 calc(var(--gridSize) * 4);
+}
+
+.analysis-selector {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.analysis-modes {
+  display: flex;
+  justify-content: space-around;
+  width: 80%;
+}
+
+.mode-type {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.mode-type .icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.mode-type .name {
+  font-weight: bold;
+}
+
+.mode-type-autoscan {
+  padding: calc(var(--gridSize) * 6) calc(var(--gridSize) * 10);
+  background: white;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
+}
+
+.mode-type-autoscan .icon {
+  background-image: url(/images/sonarcloud-square-logo.svg);
+}
+
+.mode-type-autoscan .icon .badge {
+  position: absolute;
+  top: 12px;
+  right: 0;
+}
+
+.mode-type-travis .icon {
+  background-image: url(/images/sonarcloud/analysis/helmet.svg);
+}
+
+.mode-type-other .icon {
+  background-image: url(/images/sonarcloud/analysis/galaxy.svg);
+}
+
+.mode-type-manual .icon {
+  background-image: url(/images/sonarcloud/analysis/manual.svg);
+}
+
+.step-selector {
+  display: flex;
+}
+
+.page-analysis-waiting {
+  text-align: center;
+}
+
+.page-analysis-waiting .links {
+  padding: calc(var(--gridSize) * 6) calc(var(--gridSize) * 10);
+  background: white;
+}
+
+.onboarding-step hr.no-horizontal-margins {
+  margin-left: 0;
+  margin-right: 0;
+}

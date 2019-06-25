@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Step
+  finished={false}
+  onOpen={[MockFunction]}
+  open={true}
+  renderForm={[Function]}
+  renderResult={[Function]}
+  stepNumber={1}
+  stepTitle={
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.with.travis.sonar.properties.title"
+      id="onboarding.analysis.with.travis.sonar.properties.title"
+      values={
+        Object {
+          "filename": <code
+            className="rule"
+          >
+            sonar.properties
+          </code>,
+        }
+      }
+    />
+  }
+/>
+`;

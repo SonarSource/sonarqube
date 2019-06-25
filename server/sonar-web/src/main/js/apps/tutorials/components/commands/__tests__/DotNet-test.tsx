@@ -19,19 +19,19 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import DotNet from '../DotNet';
+import DotNet, { Props } from '../DotNet';
 
-it('renders correctly', () => {
-  expect(shallow(<DotNet host="host" projectKey="projectKey" token="token" />)).toMatchSnapshot();
+it('DotNet renders correctly', () => {
+  expect(shallowRender).toMatchSnapshot();
+
   expect(
-    shallow(
-      <DotNet
-        host="host"
-        organization="organization"
-        projectKey="projectKey"
-        small={true}
-        token="token"
-      />
-    )
+    shallowRender({
+      organization: 'organization',
+      small: true
+    })
   ).toMatchSnapshot();
 });
+
+function shallowRender(props: Partial<Props> = {}) {
+  return shallow(<DotNet host="host" projectKey="projectKey" token="token" {...props} />);
+}

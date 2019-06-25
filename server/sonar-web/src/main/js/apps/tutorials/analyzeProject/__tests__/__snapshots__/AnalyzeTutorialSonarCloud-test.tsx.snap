@@ -1,0 +1,207 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders for Azure 1`] = `
+<DeferredSpinner
+  customSpinner={<Unknown />}
+  loading={false}
+  timeout={100}
+>
+  <TutorialSuggestionVSTS />
+</DeferredSpinner>
+`;
+
+exports[`renders for BitBucket 1`] = `
+<DeferredSpinner
+  customSpinner={<Unknown />}
+  loading={false}
+  timeout={100}
+>
+  <TutorialSuggestionBitbucket />
+  <TokenStep
+    currentUser={
+      Object {
+        "externalProvider": "github",
+        "groups": Array [],
+        "isLoggedIn": true,
+        "login": "luke",
+        "name": "Skywalker",
+        "scmAccounts": Array [],
+      }
+    }
+    finished={false}
+    initialTokenName="Analyze \\"MyProject\\""
+    onContinue={[Function]}
+    onOpen={[Function]}
+    open={true}
+    stepNumber={1}
+  />
+  <ProjectAnalysisStep
+    component={
+      Object {
+        "alm": Object {
+          "key": "bitbucket",
+          "url": "https://bitbucket.com/luke/lightsaber",
+        },
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    displayRowLayout={true}
+    open={false}
+    stepNumber={2}
+  />
+</DeferredSpinner>
+`;
+
+exports[`renders for GitHub 1`] = `
+<DeferredSpinner
+  customSpinner={<Unknown />}
+  loading={false}
+  timeout={100}
+>
+  <div
+    className="page-analysis-container page-analysis-container-sonarcloud"
+  >
+    <div
+      className="page-analysis big-spacer-top big-spacer-bottom huge-spacer-left huge-spacer-right"
+    >
+      <div
+        className="page-header big-spacer-bottom"
+      >
+        <h1
+          className="big-spacer-bottom"
+        >
+          onboarding.project_analysis.header
+        </h1>
+        <p>
+          <InstanceMessage
+            message="onboarding.project_analysis.description"
+          />
+        </p>
+      </div>
+      <div
+        className="mode-type mode-type-autoscan huge-spacer-top huge-spacer-bottom"
+      >
+        <div
+          className="icon"
+        >
+          <div
+            className="badge badge-new"
+          >
+            BETA
+          </div>
+        </div>
+        <p>
+          SonarCloud Automatic Analysis
+        </p>
+        <button
+          className="button big-spacer-top big-spacer-bottom"
+          onClick={[Function]}
+          type="button"
+        >
+          projects.configure_analysis
+        </button>
+      </div>
+      <div
+        className="analysis-modes"
+      >
+        <div
+          className="mode-type mode-type-travis"
+          key="travis"
+        >
+          <div
+            className="icon"
+          />
+          <div
+            className="name"
+          >
+            With Travis CI
+          </div>
+          <button
+            className="button big-spacer-top big-spacer-bottom"
+            onClick={[Function]}
+            type="button"
+          >
+            projects.configure_analysis
+          </button>
+        </div>
+        <div
+          className="mode-type mode-type-other"
+          key="other"
+        >
+          <div
+            className="icon"
+          />
+          <div
+            className="name"
+          >
+            With other CI tools
+          </div>
+          <button
+            className="button big-spacer-top big-spacer-bottom"
+            onClick={[Function]}
+            type="button"
+          >
+            projects.configure_analysis
+          </button>
+        </div>
+        <div
+          className="mode-type mode-type-manual"
+          key="manual"
+        >
+          <div
+            className="icon"
+          />
+          <div
+            className="name"
+          >
+            Manually
+          </div>
+          <button
+            className="button big-spacer-top big-spacer-bottom"
+            onClick={[Function]}
+            type="button"
+          >
+            projects.configure_analysis
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</DeferredSpinner>
+`;
+
+exports[`renders for a non supported component 1`] = `
+<DeferredSpinner
+  customSpinner={<Unknown />}
+  loading={true}
+  timeout={100}
+/>
+`;
+
+exports[`should have a spinner 1`] = `
+<div
+  className="display-flex-justify-center spinner-margin"
+>
+  <i
+    className="spinner global-loading-spinner"
+  />
+</div>
+`;

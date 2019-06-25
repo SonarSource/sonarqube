@@ -30,8 +30,8 @@ import '../styles.css';
 
 export interface Props {
   currentUser: T.LoggedInUser;
-  onClose: () => void;
-  onOpenProjectOnboarding: () => void;
+  onClose: VoidFunction;
+  onOpenProjectOnboarding: VoidFunction;
   userOrganizations: T.Organization[];
 }
 

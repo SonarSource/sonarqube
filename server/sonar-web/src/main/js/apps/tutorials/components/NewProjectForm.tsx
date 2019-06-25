@@ -23,7 +23,7 @@ import { DeleteButton, SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  onDelete: () => void;
+  onDelete: VoidFunction;
   onDone: (projectKey: string) => void;
   organization?: string;
   projectKey?: string;

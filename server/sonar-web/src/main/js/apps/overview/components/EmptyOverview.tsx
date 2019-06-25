@@ -21,12 +21,14 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import AnalyzeTutorial from '../../tutorials/analyzeProject/AnalyzeTutorial';
+import AnalyzeTutorialSonarCloud from '../../tutorials/analyzeProject/AnalyzeTutorialSonarCloud';
 import MetaContainer from '../meta/MetaContainer';
 import { isLongLivingBranch, isBranch, isMainBranch } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import { isLoggedIn } from '../../../helpers/users';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { Alert } from '../../../components/ui/Alert';
+import { isSonarCloud } from '../../../helpers/system';
 
 interface OwnProps {
   branchLike?: T.BranchLike;
@@ -70,9 +72,13 @@ export function EmptyOverview({
                   }
                 />
               )}
-              {!hasBranches && !hasAnalyses && (
-                <AnalyzeTutorial component={component} currentUser={currentUser} />
-              )}
+              {!hasBranches &&
+                !hasAnalyses &&
+                (isSonarCloud() ? (
+                  <AnalyzeTutorialSonarCloud component={component} currentUser={currentUser} />
+                ) : (
+                  <AnalyzeTutorial component={component} currentUser={currentUser} />
+                ))}
             </>
           ) : (
             <WarningMessage
@@ -82,13 +88,15 @@ export function EmptyOverview({
           )}
         </div>
 
-        <div className="overview-sidebar page-sidebar-fixed">
-          <MetaContainer
-            branchLike={branchLike}
-            component={component}
-            onComponentChange={onComponentChange}
-          />
-        </div>
+        {!isSonarCloud() && (
+          <div className="overview-sidebar page-sidebar-fixed">
+            <MetaContainer
+              branchLike={branchLike}
+              component={component}
+              onComponentChange={onComponentChange}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

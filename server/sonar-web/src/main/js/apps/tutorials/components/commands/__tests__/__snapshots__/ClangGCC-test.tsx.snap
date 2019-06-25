@@ -145,7 +145,7 @@ exports[`renders correctly 3`] = `
       Array [
         "sonar-scanner",
         "-Dsonar.projectKey=projectKey",
-        "-Dsonar.organization=organization",
+        undefined,
         "-Dsonar.sources=.",
         "-Dsonar.cfamily.build-wrapper-output=bw-output",
         "-Dsonar.host.url=host",

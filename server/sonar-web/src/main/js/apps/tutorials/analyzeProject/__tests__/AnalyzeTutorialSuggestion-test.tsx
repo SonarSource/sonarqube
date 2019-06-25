@@ -19,20 +19,42 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import AnalyzeTutorialSuggestion from '../AnalyzeTutorialSuggestion';
+import AnalyzeTutorialSuggestion, {
+  TutorialSuggestionBitbucket,
+  TutorialSuggestionGithub,
+  TutorialSuggestionVSTS
+} from '../AnalyzeTutorialSuggestion';
 
 it('should not render', () => {
   expect(shallow(<AnalyzeTutorialSuggestion almKey={undefined} />).type()).toBeNull();
 });
 
 it('renders bitbucket suggestions correctly', () => {
-  expect(shallow(<AnalyzeTutorialSuggestion almKey="bitbucket" />)).toMatchSnapshot();
+  expect(
+    shallow(<AnalyzeTutorialSuggestion almKey="bitbucket" />).find(TutorialSuggestionBitbucket)
+  ).toHaveLength(1);
 });
 
 it('renders github suggestions correctly', () => {
-  expect(shallow(<AnalyzeTutorialSuggestion almKey="github" />)).toMatchSnapshot();
+  expect(
+    shallow(<AnalyzeTutorialSuggestion almKey="github" />).find(TutorialSuggestionGithub)
+  ).toHaveLength(1);
 });
 
 it('renders vsts suggestions correctly', () => {
-  expect(shallow(<AnalyzeTutorialSuggestion almKey="microsoft" />)).toMatchSnapshot();
+  expect(
+    shallow(<AnalyzeTutorialSuggestion almKey="microsoft" />).find(TutorialSuggestionVSTS)
+  ).toHaveLength(1);
+});
+
+it('renders bitbucket tutorial correctly', () => {
+  expect(shallow(<TutorialSuggestionBitbucket />)).toMatchSnapshot();
+});
+
+it('renders github tutorial correctly', () => {
+  expect(shallow(<TutorialSuggestionGithub />)).toMatchSnapshot();
+});
+
+it('renders microsoft tutorial correctly', () => {
+  expect(shallow(<TutorialSuggestionVSTS />)).toMatchSnapshot();
 });

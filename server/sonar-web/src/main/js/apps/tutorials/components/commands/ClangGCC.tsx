@@ -26,7 +26,7 @@ import InstanceMessage from '../../../../components/common/InstanceMessage';
 import { translate } from '../../../../helpers/l10n';
 import { quote } from '../../utils';
 
-interface Props {
+export interface Props {
   host: string;
   os: string;
   organization?: string;

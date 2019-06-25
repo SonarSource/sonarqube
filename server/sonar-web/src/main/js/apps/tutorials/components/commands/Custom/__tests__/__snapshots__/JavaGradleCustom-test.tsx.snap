@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div>
+  <h4
+    className="spacer-bottom"
+  >
+    onboarding.analysis.java.gradle.header
+  </h4>
+  <FormattedMessage
+    defaultMessage="onboarding.analysis.java.gradle.text.1.sonarcloud"
+    id="onboarding.analysis.java.gradle.text.1.sonarcloud"
+    values={
+      Object {
+        "file": <code>
+          build.gradle
+        </code>,
+        "plugin": <code>
+          org.sonarqube
+        </code>,
+      }
+    }
+  />
+  <CodeSnippet
+    snippet="plugins {
+  id \\"org.sonarqube\\" version \\"2.7\\"
+}"
+  />
+  <p
+    className="spacer-top spacer-bottom markdown"
+  >
+    onboarding.analysis.java.gradle.text.2
+  </p>
+  <RenderCustomContent
+    command={
+      Array [
+        "./gradlew sonarqube",
+        "-Dsonar.projectKey=luke-lightsaber",
+        "-Dsonar.organization=use-the-force",
+        "-Dsonar.host.url=https://sonarcloud.io",
+        "-Dsonar.login=sonarsource123",
+      ]
+    }
+    linkText="onboarding.analysis.java.gradle.docs_link"
+    linkUrl="http://redirect.sonarsource.com/doc/gradle.html"
+    onDone={[MockFunction]}
+    toggleModal={[MockFunction]}
+  />
+</div>
+`;
+
+exports[`should render gradle custom content 1`] = `
+<RenderCustomContent
+  command={
+    Array [
+      "./gradlew sonarqube",
+      "-Dsonar.projectKey=luke-lightsaber",
+      "-Dsonar.organization=use-the-force",
+      "-Dsonar.host.url=https://sonarcloud.io",
+      "-Dsonar.login=sonarsource123",
+    ]
+  }
+  linkText="onboarding.analysis.java.gradle.docs_link"
+  linkUrl="http://redirect.sonarsource.com/doc/gradle.html"
+  onDone={[MockFunction]}
+  toggleModal={[MockFunction]}
+/>
+`;

@@ -22,8 +22,8 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 
 interface Props {
-  finished: boolean;
-  onOpen: () => void;
+  finished?: boolean;
+  onOpen: VoidFunction;
   open: boolean;
   renderForm: () => React.ReactNode;
   renderResult: () => React.ReactNode;

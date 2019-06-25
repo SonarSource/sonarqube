@@ -47,14 +47,6 @@ it('should render OverviewApp', () => {
   ).toBeTruthy();
 });
 
-it('should render EmptyOverview', () => {
-  expect(
-    getWrapper({ component: { key: 'foo' } as T.Component })
-      .find('Connect(EmptyOverview)')
-      .exists()
-  ).toBeTruthy();
-});
-
 function getWrapper(props = {}) {
   return shallow(
     <App

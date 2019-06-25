@@ -24,7 +24,7 @@ import { withRouter, Router } from '../../../components/hoc/withRouter';
 import { getOrganizationUrl } from '../../../helpers/urls';
 
 interface Props {
-  onClick: () => void;
+  onClick: VoidFunction;
   organization: T.Organization;
   router: Router;
 }

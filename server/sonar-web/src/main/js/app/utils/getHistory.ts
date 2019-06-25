@@ -23,6 +23,7 @@ import { createHistory, History } from 'history';
 let history: History;
 
 function ensureHistory() {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   history = useRouterHistory(createHistory)({
     // do not use `getBaseUrl` from `helpers/urls` to no import this file with all its dependecies
     basename: (window as any).baseUrl

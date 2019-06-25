@@ -26,21 +26,35 @@ interface Props {
   className?: string;
   isOneLine?: boolean;
   noCopy?: boolean;
+  render?: () => JSX.Element;
   snippet: string | (string | undefined)[];
+  wrap?: boolean;
 }
 
 // keep this "useless" concatentation for the readability reason
 // eslint-disable-next-line no-useless-concat
 const s = ' \\' + '\n  ';
 
-export default function CodeSnippet({ className, isOneLine, noCopy, snippet }: Props) {
+export default function CodeSnippet({
+  className,
+  isOneLine,
+  noCopy,
+  render,
+  snippet,
+  wrap
+}: Props) {
   const snippetArray = Array.isArray(snippet)
     ? snippet.filter(line => line !== undefined)
     : [snippet];
   const finalSnippet = isOneLine ? snippetArray.join(' ') : snippetArray.join(s);
   return (
-    <div className={classNames('code-snippet', { 'code-snippet-oneline': isOneLine }, className)}>
-      <pre>{finalSnippet}</pre>
+    <div
+      className={classNames(
+        'code-snippet',
+        { 'code-snippet-oneline': isOneLine, 'code-snippet-wrap': wrap },
+        className
+      )}>
+      <pre>{render ? render() : finalSnippet}</pre>
       {!noCopy && <ClipboardButton copyValue={finalSnippet} />}
     </div>
   );
