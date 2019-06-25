@@ -456,6 +456,16 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void return_all_projects_when_setIgnoreAuthorization_is_true() {
+    indexForUser(USER1, newDoc(PROJECT1), newDoc(PROJECT2));
+    indexForUser(USER2, newDoc(PROJECT3));
+    userSession.logIn(USER1);
+
+    assertResults(new ProjectMeasuresQuery().setIgnoreAuthorization(false), PROJECT1, PROJECT2);
+    assertResults(new ProjectMeasuresQuery().setIgnoreAuthorization(true), PROJECT1, PROJECT2, PROJECT3);
+  }
+
+  @Test
   public void does_not_return_facet_when_no_facets_in_options() {
     index(
       newDoc(PROJECT1, NCLOC, 10d, COVERAGE_KEY, 30d, MAINTAINABILITY_RATING, 3d)

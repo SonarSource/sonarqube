@@ -27,6 +27,7 @@ import org.sonar.server.es.IndexerStartupTask;
 import org.sonar.server.organization.DefaultOrganizationEnforcer;
 import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.platform.web.RegisterServletFilters;
+import org.sonar.server.qualitygate.ProjectsInWarningDaemon;
 import org.sonar.server.qualitygate.RegisterQualityGates;
 import org.sonar.server.qualityprofile.BuiltInQProfileInsertImpl;
 import org.sonar.server.qualityprofile.BuiltInQProfileLoader;
@@ -81,6 +82,8 @@ public class PlatformLevelStartup extends PlatformLevel {
       protected void doPrivileged() {
         PlatformLevelStartup.super.start();
         getOptional(IndexerStartupTask.class).ifPresent(IndexerStartupTask::execute);
+        // Need to be executed after indexing as it executes an ES query
+        get(ProjectsInWarningDaemon.class).notifyStart();
         get(ServerLifecycleNotifier.class).notifyStart();
         get(ProcessCommandWrapper.class).notifyOperational();
         get(WebServerRuleFinder.class).stopCaching();

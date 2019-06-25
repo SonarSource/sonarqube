@@ -63,6 +63,8 @@ public class QualityGateModule extends Module {
       DeleteConditionAction.class,
       UpdateConditionAction.class,
       ProjectStatusAction.class,
-      GetByProjectAction.class);
+      GetByProjectAction.class,
+      ProjectsInWarningDaemon.class,
+      ProjectsInWarning.class);
   }
 }

@@ -45,6 +45,7 @@ public class ProjectMeasuresQuery {
   private String sort = SORT_BY_NAME;
   private boolean asc = true;
   private String queryText;
+  private boolean ignoreAuthorization;
 
   public ProjectMeasuresQuery addMetricCriterion(MetricCriterion metricCriterion) {
     this.metricCriteria.add(metricCriterion);
@@ -124,6 +125,15 @@ public class ProjectMeasuresQuery {
 
   public ProjectMeasuresQuery setAsc(boolean asc) {
     this.asc = asc;
+    return this;
+  }
+
+  public boolean isIgnoreAuthorization() {
+    return ignoreAuthorization;
+  }
+
+  public ProjectMeasuresQuery setIgnoreAuthorization(boolean ignoreAuthorization) {
+    this.ignoreAuthorization = ignoreAuthorization;
     return this;
   }
 

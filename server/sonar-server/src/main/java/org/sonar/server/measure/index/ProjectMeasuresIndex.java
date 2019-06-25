@@ -349,7 +349,9 @@ public class ProjectMeasuresIndex {
   private Map<String, QueryBuilder> createFilters(ProjectMeasuresQuery query) {
     Map<String, QueryBuilder> filters = new HashMap<>();
     filters.put("__indexType", termQuery(FIELD_INDEX_TYPE, TYPE_PROJECT_MEASURES.getName()));
-    filters.put("__authorization", authorizationTypeSupport.createQueryFilter());
+    if (!query.isIgnoreAuthorization()) {
+      filters.put("__authorization", authorizationTypeSupport.createQueryFilter());
+    }
     Multimap<String, MetricCriterion> metricCriterionMultimap = ArrayListMultimap.create();
     query.getMetricCriteria().forEach(metricCriterion -> metricCriterionMultimap.put(metricCriterion.getMetricKey(), metricCriterion));
     metricCriterionMultimap.asMap().forEach((key, value) -> {

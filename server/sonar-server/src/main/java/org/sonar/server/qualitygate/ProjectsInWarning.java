@@ -19,16 +19,26 @@
  */
 package org.sonar.server.qualitygate;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * Store number of projects in warning in order for the web service api/components/search to know if warning value should be return in the quality gate facet.
+ * The value is updated each time the daemon {@link ProjectsInWarningDaemon} is executed
+ */
+public class ProjectsInWarning {
 
-public class QualityGateModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new QualityGateModule().configure(container);
-    assertThat(container.size()).isEqualTo(23 + 2);
+  private Long projectsInWarning;
+
+  public void update(long projectsInWarning) {
+    this.projectsInWarning = projectsInWarning;
+  }
+
+  public long count() {
+    checkArgument(isInitialized(), "Initialization has not be done");
+    return projectsInWarning;
+  }
+
+  boolean isInitialized() {
+    return projectsInWarning != null;
   }
 }
