@@ -8,10 +8,6 @@ sonarqube {
 
 group = 'com.sonarsource.sonarqube'
 
-clean.doFirst {
-  delete "${project.buildDir}/public/"
-}
-
 yarn_run {
   def docsVersion = version.split("[.-]").take(2).join('.')
   environment = [ GATSBY_DOCS_VERSION: docsVersion ]
@@ -24,6 +20,8 @@ yarn_run {
   outputs.cacheIf { true }
   args = ['build']
 }
+// To clean outputs outside of "build" directory:
+clean.dependsOn(cleanYarn_run)
 
 "yarn_validate-ci" {
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
