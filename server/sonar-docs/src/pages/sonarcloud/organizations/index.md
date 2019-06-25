@@ -9,7 +9,7 @@ An organization is a space where a team or a whole company can collaborate acros
 
 An organization consists of:
 * Projects, on which users collaborate
-* [Members](/organizations/manage-team/), who can have different persmissions on the projects
+* [Members](/organizations/manage-team/), who can have different permissions on the projects
 * [Quality Profiles](/instance-administration/quality-profiles/) and [Quality Gates](/user-guide/quality-gates/), which can be customized and shared accross projects
 
 There are 2 kind of organizations:
