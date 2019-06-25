@@ -51,7 +51,7 @@ exports[`should render 1`] = `
     </li>
     <li>
       <a
-        href="https://www.sonarsource.com/resources/product-news/"
+        href="https://www.sonarqube.org/whats-new/"
         rel="noopener noreferrer"
         target="_blank"
       >

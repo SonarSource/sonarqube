@@ -218,7 +218,7 @@ export default class Sidebar extends React.PureComponent<Props, State> {
           </a>
           <a
             className="icon-only"
-            href="https://www.sonarsource.com/resources/product-news/"
+            href="https://www.sonarqube.org/whats-new/"
             rel="noopener noreferrer"
             target="_blank">
             <img alt="Product News" src={`/${this.props.version}/images/newspaper.svg`} />

@@ -229,7 +229,7 @@ exports[`should render correctly 1`] = `
     </a>
     <a
       className="icon-only"
-      href="https://www.sonarsource.com/resources/product-news/"
+      href="https://www.sonarqube.org/whats-new/"
       rel="noopener noreferrer"
       target="_blank"
     >
