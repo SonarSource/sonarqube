@@ -47,7 +47,8 @@ export default function ComponentsHeader({
     columns = [
       translate('metric_domain.Releasability'),
       translate('metric_domain.Reliability'),
-      translate('metric_domain.Security'),
+      translate('portfolio.metric_domain.vulnerabilities'),
+      translate('portfolio.metric_domain.security_hotspots'),
       translate('metric_domain.Maintainability'),
       translate('metric', 'ncloc', 'name')
     ];
@@ -65,8 +66,11 @@ export default function ComponentsHeader({
         {baseComponent &&
           columns.map((column, index) => (
             <th
-              className={classNames('thin', 'nowrap', 'text-right', {
-                'code-components-cell': index > 0
+              className={classNames('thin', {
+                'code-components-cell': !isPortfolio && index > 0,
+                nowrap: !isPortfolio,
+                'text-center': isPortfolio && index < columns.length - 1,
+                'text-right': !isPortfolio || index === columns.length - 1
               })}
               key={column}>
               {column}

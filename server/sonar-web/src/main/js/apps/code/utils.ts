@@ -44,6 +44,7 @@ const PORTFOLIO_METRICS = [
   'releasability_rating',
   'reliability_rating',
   'security_rating',
+  'security_review_rating',
   'sqale_rating',
   'ncloc'
 ];

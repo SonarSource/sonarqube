@@ -41,7 +41,7 @@ export default class ComponentMeasure extends React.PureComponent<Props> {
       component.measures.find(measure => measure.metric === finalMetricKey);
 
     if (!measure) {
-      return <span />;
+      return measure === false ? <span /> : <span>—</span>;
     }
 
     const value = isDiffMetric(metric.key) ? getLeakValue(measure) : measure.value;

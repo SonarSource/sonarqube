@@ -82,8 +82,17 @@ export class Component extends React.PureComponent<Props> {
         </td>
 
         {metrics.map(metric => (
-          <td className="thin nowrap text-right" key={metric.key}>
-            <div className="code-components-cell">
+          <td
+            className={classNames('thin', {
+              'text-center': metric.type === 'RATING',
+              'nowrap text-right': metric.type !== 'RATING'
+            })}
+            key={metric.key}>
+            <div
+              className={classNames({
+                'code-components-rating-cell': metric.type === 'RATING',
+                'code-components-cell': metric.type !== 'RATING'
+              })}>
               <ComponentMeasure component={component} metric={metric} />
             </div>
           </td>

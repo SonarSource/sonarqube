@@ -26,31 +26,37 @@ exports[`renders correctly for portfolios 1`] = `
     />
     <th />
     <th
-      className="thin nowrap text-right"
+      className="thin text-center"
       key="metric_domain.Releasability"
     >
       metric_domain.Releasability
     </th>
     <th
-      className="thin nowrap text-right code-components-cell"
+      className="thin text-center"
       key="metric_domain.Reliability"
     >
       metric_domain.Reliability
     </th>
     <th
-      className="thin nowrap text-right code-components-cell"
-      key="metric_domain.Security"
+      className="thin text-center"
+      key="portfolio.metric_domain.vulnerabilities"
     >
-      metric_domain.Security
+      portfolio.metric_domain.vulnerabilities
     </th>
     <th
-      className="thin nowrap text-right code-components-cell"
+      className="thin text-center"
+      key="portfolio.metric_domain.security_hotspots"
+    >
+      portfolio.metric_domain.security_hotspots
+    </th>
+    <th
+      className="thin text-center"
       key="metric_domain.Maintainability"
     >
       metric_domain.Maintainability
     </th>
     <th
-      className="thin nowrap text-right code-components-cell"
+      className="thin text-right"
       key="metric.ncloc.name"
     >
       metric.ncloc.name
@@ -77,7 +83,7 @@ exports[`renders correctly for projects 1`] = `
       metric.foo.name
     </th>
     <th
-      className="thin nowrap text-right code-components-cell"
+      className="thin code-components-cell nowrap text-right"
       key="metric.bar.name"
     >
       metric.bar.name

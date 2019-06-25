@@ -60,6 +60,10 @@
   box-sizing: border-box;
 }
 
+.code-components-rating-cell {
+  width: 110px;
+}
+
 .code-name-cell {
   max-width: 0;
 }
@@ -77,6 +81,11 @@
 
 .code-components-header {
   position: sticky;
-  top: 95px;
+  top: 105px;
   background-color: rgba(255, 255, 255, 0.9);
+  z-index: 1;
+}
+
+table > thead > tr.code-components-header > th {
+  vertical-align: middle;
 }
