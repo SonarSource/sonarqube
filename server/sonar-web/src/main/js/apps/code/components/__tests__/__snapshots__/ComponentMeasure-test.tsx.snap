@@ -4,7 +4,7 @@ exports[`renders correctly 1`] = `
 <Measure
   metricKey="coverage"
   metricType="PERCENT"
-  value="3.0"
+  value="1.0"
 />
 `;
 
@@ -12,8 +12,22 @@ exports[`renders correctly for leak values 1`] = `
 <Measure
   metricKey="new_coverage"
   metricType="PERCENT"
-  value="10.0"
+  value="1.0"
 />
 `;
 
-exports[`renders correctly when no measure found 1`] = `<span />`;
+exports[`renders correctly when component has no measures 1`] = `<span />`;
+
+exports[`should render correctly for releasability rating 1`] = `
+<Measure
+  metricKey="alert_status"
+  metricType="LEVEL"
+  value="1.0"
+/>
+`;
+
+exports[`should render correctly when no measure matches the metric 1`] = `
+<span>
+  —
+</span>
+`;

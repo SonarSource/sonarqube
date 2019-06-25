@@ -20,37 +20,52 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentMeasure from '../ComponentMeasure';
-
-const METRIC = { id: '1', key: 'coverage', type: 'PERCENT', name: 'Coverage' };
-const LEAK_METRIC = { id: '2', key: 'new_coverage', type: 'PERCENT', name: 'Coverage on New Code' };
-const COMPONENT = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
-const COMPONENT_MEASURE = {
-  ...COMPONENT,
-  measures: [{ value: '3.0', periods: [{ index: 1, value: '10.0' }], metric: METRIC.key }]
-};
+import { mockMetric, mockMeasure, mockComponentMeasure } from '../../../../helpers/testMocks';
 
 it('renders correctly', () => {
-  expect(
-    shallow(<ComponentMeasure component={COMPONENT_MEASURE} metric={METRIC} />)
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('renders correctly for leak values', () => {
   expect(
     shallow(
       <ComponentMeasure
-        component={{
-          ...COMPONENT,
-          measures: [
-            { value: '3.0', periods: [{ index: 1, value: '10.0' }], metric: LEAK_METRIC.key }
-          ]
-        }}
-        metric={LEAK_METRIC}
+        component={mockComponentMeasure(false, {
+          measures: [mockMeasure({ metric: 'new_coverage' })]
+        })}
+        metric={mockMetric({ key: 'new_coverage', name: 'Coverage on New Code' })}
       />
     )
   ).toMatchSnapshot();
 });
 
-it('renders correctly when no measure found', () => {
-  expect(shallow(<ComponentMeasure component={COMPONENT} metric={METRIC} />)).toMatchSnapshot();
+it('renders correctly when component has no measures', () => {
+  expect(
+    shallowRender({ component: mockComponentMeasure(false, { measures: undefined }) })
+  ).toMatchSnapshot();
 });
+
+it('should render correctly when no measure matches the metric', () => {
+  expect(shallowRender({ metric: mockMetric({ key: 'nonexistent_key' }) })).toMatchSnapshot();
+});
+
+it('should render correctly for releasability rating', () => {
+  expect(
+    shallowRender({
+      component: mockComponentMeasure(false, {
+        measures: [mockMeasure({ metric: 'alert_status' })]
+      }),
+      metric: mockMetric({ key: 'releasability_rating' })
+    })
+  ).toMatchSnapshot();
+});
+
+function shallowRender(overrides: Partial<ComponentMeasure['props']> = {}) {
+  return shallow(
+    <ComponentMeasure
+      component={mockComponentMeasure(false, { measures: [mockMeasure({ metric: 'coverage' })] })}
+      metric={mockMetric()}
+      {...overrides}
+    />
+  );
+}
