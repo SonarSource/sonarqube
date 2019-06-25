@@ -173,7 +173,7 @@ Number of Security Hotspots
 **New Security Hotspots** (`new_security_hotspots`)
 Number of new Security Hotspots
 
-**Security Hotspot Review Rating** (`security_hotspot_review_rating`)
+**Security Review Rating** (`security_review_rating`)
 The ratio of the number of Security Hotspots that are in "To Review" or "In Review" status per 1K lines of code.
 
 A = 0–3 "To Review" and "In Review" Security Hotspots per 1K lines of code  

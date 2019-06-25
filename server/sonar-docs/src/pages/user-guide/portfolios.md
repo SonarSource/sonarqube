@@ -9,7 +9,7 @@ url: /user-guide/portfolios/
 
 The Portfolio Home Page is the central place for managers and tech leads to keep an eye on the Releasability of the projects under their supervision. Releasability is based on the project's quality gate: Passed is releasable and Failed is not. Each Portfolio home page offers an aggregate view of the releasability of all projects in the Portfolio.
 
-At the top of the page, you can easily see whether the overall Portfolio is currently rated as releasable and if any projects in the Portfolio have failed their Quality Gate. And the Reliability, Security Vulnerabilities, Security Hotspots Review, and Maintainability ratings show the overall health of the Portfolio in these three domains, along with an indicator of the worst-performing project(s) in each domain.
+At the top of the page, you can easily see whether the overall Portfolio is currently rated as releasable and if any projects in the Portfolio have failed their Quality Gate. And the Reliability, Security Vulnerabilities, Security Review, and Maintainability ratings show the overall health of the Portfolio in these three domains, along with an indicator of the worst-performing project(s) in each domain.
 
 For each domain, you'll see:
 
@@ -27,13 +27,13 @@ The Releasability rating is the ratio of projects in the Portfolio that have a *
 **D**: > 20%  
 **E**: <= 20%  
 
-### Reliability, Security Vulnerabilities, Security Hotspots Review, and Maintainability Ratings
+### Reliability, Security Vulnerabilities, Security Review, and Maintainability Ratings
 
-The Reliability, Security Vulnerabilities, Security Hotspots Review, and Maintainability ratings for a Portfolio are calculated as the average of the ratings for all projects included in the Portfolio. 
+The Reliability, Security Vulnerabilities, Security Review, and Maintainability ratings for a Portfolio are calculated as the average of the ratings for all projects included in the Portfolio. 
 
 SonarQube converts each project's letter rating to a number (see conversion table below), calculates an average number for the projects in the portfolio, and converts that average to a letter rating. Averages ending with .5 are rounded up resulting in the "lower" of the two possible ratings, so an average of 2.5 would be rounded up to 3 and result in a "C" rating).
 
-This gives an "problem density" measure on the four axes of Reliability, Security Vulnerabilities, Security Hotspots Review, and Maintainability for your Portfolio.
+This gives an "problem density" measure on the four axes of Reliability, Security Vulnerabilities, Security Review, and Maintainability for your Portfolio.
 
 Rating conversion:
 
