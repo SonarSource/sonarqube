@@ -29,21 +29,17 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.AlmAppInstallDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
-import org.sonar.server.authentication.UserRegistration.UpdateLoginStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.MemberUpdater;
 import org.sonar.server.organization.OrganizationUpdater;
-import org.sonar.server.organization.OrganizationUpdaterImpl;
-import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.permission.PermissionService;
@@ -114,8 +110,6 @@ public class UserRegistrarImplOrgMembershipSyncTest {
   private DefaultGroupFinder defaultGroupFinder = new DefaultGroupFinder(db.getDbClient());
 
   private UserRegistrarImpl underTest = new UserRegistrarImpl(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
-    new OrganizationUpdaterImpl(db.getDbClient(), mock(System2.class), UuidFactoryFast.getInstance(),
-      new OrganizationValidationImpl(), null, null, null, permissionService),
     defaultGroupFinder, new MemberUpdater(db.getDbClient(), defaultGroupFinder, userIndexer));
 
   @Test
@@ -131,7 +125,6 @@ public class UserRegistrarImplOrgMembershipSyncTest {
       .setProvider(GITHUB_PROVIDER)
       .setSource(Source.realm(BASIC, GITHUB_PROVIDER.getName()))
       .setExistingEmailStrategy(ExistingEmailStrategy.ALLOW)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .setOrganizationAlmIds(ImmutableSet.of(gitHubInstall.getOrganizationAlmId()))
       .build());
 
@@ -152,7 +145,6 @@ public class UserRegistrarImplOrgMembershipSyncTest {
       .setProvider(GITHUB_PROVIDER)
       .setSource(Source.realm(BASIC, GITHUB_PROVIDER.getName()))
       .setExistingEmailStrategy(ExistingEmailStrategy.ALLOW)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .setOrganizationAlmIds(null)
       .build());
 
@@ -173,7 +165,6 @@ public class UserRegistrarImplOrgMembershipSyncTest {
       .setProvider(BITBUCKET_PROVIDER)
       .setSource(Source.realm(BASIC, BITBUCKET_PROVIDER.getName()))
       .setExistingEmailStrategy(ExistingEmailStrategy.ALLOW)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .setOrganizationAlmIds(ImmutableSet.of(gitHubInstall.getOrganizationAlmId()))
       .build());
 
@@ -199,7 +190,6 @@ public class UserRegistrarImplOrgMembershipSyncTest {
       .setProvider(identityProvider)
       .setSource(Source.realm(BASIC, identityProvider.getName()))
       .setExistingEmailStrategy(ExistingEmailStrategy.ALLOW)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .setOrganizationAlmIds(ImmutableSet.of(almAppInstall.getOrganizationAlmId()))
       .build());
 
@@ -224,7 +214,6 @@ public class UserRegistrarImplOrgMembershipSyncTest {
       .setProvider(GITHUB_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .setOrganizationAlmIds(ImmutableSet.of(gitHubInstall.getOrganizationAlmId()))
       .build());
 
@@ -245,7 +234,6 @@ public class UserRegistrarImplOrgMembershipSyncTest {
       .setProvider(GITHUB_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .setOrganizationAlmIds(ImmutableSet.of(gitHubInstall.getOrganizationAlmId()))
       .build());
 

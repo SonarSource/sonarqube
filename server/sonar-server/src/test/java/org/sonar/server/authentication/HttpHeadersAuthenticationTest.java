@@ -107,7 +107,7 @@ public class HttpHeadersAuthenticationTest {
     db.getDbClient(),
     new UserUpdater(system2, mock(NewUserNotifier.class), db.getDbClient(), userIndexer, organizationFlags, defaultOrganizationProvider, organizationUpdater,
       new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
-    defaultOrganizationProvider, organizationFlags, mock(OrganizationUpdater.class), new DefaultGroupFinder(db.getDbClient()), null);
+    defaultOrganizationProvider, organizationFlags, new DefaultGroupFinder(db.getDbClient()), null);
 
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);

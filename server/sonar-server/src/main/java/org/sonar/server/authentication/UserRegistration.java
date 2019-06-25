@@ -48,26 +48,10 @@ class UserRegistration {
     FORBID
   }
 
-  /**
-   * Strategy to be executed when the login of the user is updated
-   */
-  enum UpdateLoginStrategy {
-    /**
-     * Authentication is allowed, the login of the user updated
-     */
-    ALLOW,
-    /**
-     * Authentication process is stopped, the user is redirected to a page explaining that the login will be updated.
-     * It only happens when personal organizations are activated
-     */
-    WARN
-  }
-
   private final UserIdentity userIdentity;
   private final IdentityProvider provider;
   private final AuthenticationEvent.Source source;
   private final ExistingEmailStrategy existingEmailStrategy;
-  private final UpdateLoginStrategy updateLoginStrategy;
   private final Set<String> organizationAlmIds;
 
   UserRegistration(Builder builder) {
@@ -75,7 +59,6 @@ class UserRegistration {
     this.provider = builder.provider;
     this.source = builder.source;
     this.existingEmailStrategy = builder.existingEmailStrategy;
-    this.updateLoginStrategy = builder.updateLoginStrategy;
     this.organizationAlmIds = builder.organizationAlmIds;
   }
 
@@ -95,10 +78,6 @@ class UserRegistration {
     return existingEmailStrategy;
   }
 
-  public UpdateLoginStrategy getUpdateLoginStrategy() {
-    return updateLoginStrategy;
-  }
-
   @CheckForNull
   public Set<String> getOrganizationAlmIds() {
     return organizationAlmIds;
@@ -113,7 +92,6 @@ class UserRegistration {
     private IdentityProvider provider;
     private AuthenticationEvent.Source source;
     private ExistingEmailStrategy existingEmailStrategy;
-    private UpdateLoginStrategy updateLoginStrategy;
     private Set<String> organizationAlmIds;
 
     public Builder setUserIdentity(UserIdentity userIdentity) {
@@ -140,14 +118,6 @@ class UserRegistration {
     }
 
     /**
-     * Strategy to be executed when the login of the user has changed
-     */
-    public Builder setUpdateLoginStrategy(UpdateLoginStrategy updateLoginStrategy) {
-      this.updateLoginStrategy = updateLoginStrategy;
-      return this;
-    }
-
-    /**
      * List of ALM organization the user is member of.
      * When set to null, it means that no organization membership synchronization should be done.
      */
@@ -161,7 +131,6 @@ class UserRegistration {
       requireNonNull(provider, "identityProvider must be set");
       requireNonNull(source, "Source must be set");
       requireNonNull(existingEmailStrategy, "existingEmailStrategy must be set ");
-      requireNonNull(updateLoginStrategy, "updateLoginStrategy must be set");
       return new UserRegistration(this);
     }
   }

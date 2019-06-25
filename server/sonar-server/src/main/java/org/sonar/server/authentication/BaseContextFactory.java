@@ -26,7 +26,6 @@ import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
-import org.sonar.server.authentication.UserRegistration.UpdateLoginStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSessionFactory;
@@ -86,7 +85,6 @@ public class BaseContextFactory {
           .setProvider(identityProvider)
           .setSource(Source.external(identityProvider))
           .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-          .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
           .build());
       jwtHttpHandler.generateToken(userDto, request, response);
       threadLocalUserSession.set(userSessionFactory.create(userDto));

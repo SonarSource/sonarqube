@@ -32,7 +32,6 @@ import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
-import org.sonar.server.authentication.exception.UpdateLoginRedirectionException;
 
 import static java.lang.String.format;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
@@ -87,9 +86,6 @@ public class InitFilter extends AuthenticationFilter {
     } catch (EmailAlreadyExistsRedirectionException e) {
       oAuthOAuth2AuthenticationParameters.delete(request, response);
       e.addCookie(request, response);
-      redirectTo(response, e.getPath(request.getContextPath()));
-    } catch (UpdateLoginRedirectionException e) {
-      oAuthOAuth2AuthenticationParameters.delete(request, response);
       redirectTo(response, e.getPath(request.getContextPath()));
     } catch (AuthenticationException e) {
       oAuthOAuth2AuthenticationParameters.delete(request, response);

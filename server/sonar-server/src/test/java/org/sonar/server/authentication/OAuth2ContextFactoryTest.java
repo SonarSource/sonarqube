@@ -36,7 +36,6 @@ import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.OAuth2ContextFactory.OAuthContextImpl;
 import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
-import org.sonar.server.authentication.UserRegistration.UpdateLoginStrategy;
 import org.sonar.server.user.TestUserSessionFactory;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
@@ -162,28 +161,6 @@ public class OAuth2ContextFactoryTest {
 
     assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
     assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getExistingEmailStrategy()).isEqualTo(ExistingEmailStrategy.WARN);
-  }
-
-  @Test
-  public void authenticate_with_allow_login_update() {
-    when(oAuthParameters.getAllowUpdateLogin(request)).thenReturn(Optional.of(true));
-    OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
-
-    callback.authenticate(USER_IDENTITY);
-
-    assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
-    assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getUpdateLoginStrategy()).isEqualTo(UpdateLoginStrategy.ALLOW);
-  }
-
-  @Test
-  public void authenticate_without_allowing_login_update() {
-    when(oAuthParameters.getAllowUpdateLogin(request)).thenReturn(Optional.of(false));
-    OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
-
-    callback.authenticate(USER_IDENTITY);
-
-    assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
-    assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getUpdateLoginStrategy()).isEqualTo(UpdateLoginStrategy.WARN);
   }
 
   @Test

@@ -31,7 +31,6 @@ import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
-import org.sonar.server.authentication.UserRegistration.UpdateLoginStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSessionFactory;
@@ -139,14 +138,12 @@ public class OAuth2ContextFactory {
     @Override
     public void authenticate(UserIdentity userIdentity, @Nullable Set<String> organizationAlmIds) {
       Boolean allowEmailShift = oAuthParameters.getAllowEmailShift(request).orElse(false);
-      Boolean allowUpdateLogin = oAuthParameters.getAllowUpdateLogin(request).orElse(false);
       UserDto userDto = userRegistrar.register(
         UserRegistration.builder()
           .setUserIdentity(userIdentity)
           .setProvider(identityProvider)
           .setSource(AuthenticationEvent.Source.oauth2(identityProvider))
           .setExistingEmailStrategy(allowEmailShift ? ExistingEmailStrategy.ALLOW : ExistingEmailStrategy.WARN)
-          .setUpdateLoginStrategy(allowUpdateLogin ? UpdateLoginStrategy.ALLOW : UpdateLoginStrategy.WARN)
           .setOrganizationAlmIds(organizationAlmIds)
           .build());
       jwtHttpHandler.generateToken(userDto, request, response);

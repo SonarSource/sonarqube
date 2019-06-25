@@ -68,15 +68,11 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
   public void init(HttpServletRequest request, HttpServletResponse response) {
     String returnTo = request.getParameter(RETURN_TO_PARAMETER);
     String allowEmailShift = request.getParameter(ALLOW_EMAIL_SHIFT_PARAMETER);
-    String allowLoginUpdate = request.getParameter(ALLOW_LOGIN_UPDATE_PARAMETER);
     Map<String, String> parameters = new HashMap<>();
     Optional<String> sanitizeRedirectUrl = sanitizeRedirectUrl(returnTo);
     sanitizeRedirectUrl.ifPresent(s -> parameters.put(RETURN_TO_PARAMETER, s));
     if (isNotBlank(allowEmailShift)) {
       parameters.put(ALLOW_EMAIL_SHIFT_PARAMETER, allowEmailShift);
-    }
-    if (isNotBlank(allowLoginUpdate)) {
-      parameters.put(ALLOW_LOGIN_UPDATE_PARAMETER, allowLoginUpdate);
     }
     if (parameters.isEmpty()) {
       return;

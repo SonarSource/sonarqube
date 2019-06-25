@@ -76,7 +76,6 @@ public class OAuth2AuthenticationParametersImplTest {
   public void init_does_not_create_cookie_when_parameters_are_empty() {
     when(request.getParameter("return_to")).thenReturn("");
     when(request.getParameter("allowEmailShift")).thenReturn("");
-    when(request.getParameter("allowUpdateLogin")).thenReturn("");
 
     underTest.init(request, response);
 
@@ -87,7 +86,6 @@ public class OAuth2AuthenticationParametersImplTest {
   public void init_does_not_create_cookie_when_parameters_are_null() {
     when(request.getParameter("return_to")).thenReturn(null);
     when(request.getParameter("allowEmailShift")).thenReturn(null);
-    when(request.getParameter("allowUpdateLogin")).thenReturn(null);
 
     underTest.init(request, response);
 
@@ -167,16 +165,6 @@ public class OAuth2AuthenticationParametersImplTest {
     Optional<Boolean> allowEmailShift = underTest.getAllowEmailShift(request);
 
     assertThat(allowEmailShift).isEmpty();
-  }
-
-  @Test
-  public void getAllowUpdateLogin() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"allowUpdateLogin\":\"true\"}")});
-
-    Optional<Boolean> allowLoginUpdate = underTest.getAllowUpdateLogin(request);
-
-    assertThat(allowLoginUpdate).isNotEmpty();
-    assertThat(allowLoginUpdate.get()).isTrue();
   }
 
   @Test

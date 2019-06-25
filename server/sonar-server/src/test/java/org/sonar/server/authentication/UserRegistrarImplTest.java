@@ -25,34 +25,24 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
-import org.sonar.server.authentication.UserRegistration.UpdateLoginStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
-import org.sonar.server.authentication.exception.UpdateLoginRedirectionException;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.MemberUpdater;
 import org.sonar.server.organization.OrganizationUpdater;
-import org.sonar.server.organization.OrganizationUpdaterImpl;
-import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
-import org.sonar.server.permission.PermissionService;
-import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
@@ -113,13 +103,9 @@ public class UserRegistrarImplTest {
     settings.asConfig(),
     localAuthentication);
 
-  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
   private DefaultGroupFinder defaultGroupFinder = new DefaultGroupFinder(db.getDbClient());
 
   private UserRegistrarImpl underTest = new UserRegistrarImpl(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
-    new OrganizationUpdaterImpl(db.getDbClient(), mock(System2.class), UuidFactoryFast.getInstance(),
-      new OrganizationValidationImpl(), null, null, null, permissionService),
     defaultGroupFinder, new MemberUpdater(db.getDbClient(), defaultGroupFinder, userIndexer));
 
   @Test
@@ -131,7 +117,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.realm(BASIC, IDENTITY_PROVIDER.getName()))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     UserDto user = db.users().selectUserByLogin(USER_LOGIN).get();
@@ -160,7 +145,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.realm(BASIC, IDENTITY_PROVIDER.getName()))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     UserDto user = db.getDbClient().userDao().selectByEmail(db.getSession(), "john@email.com").get(0);
@@ -223,7 +207,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     assertThat(db.users().selectUserByLogin(USER_LOGIN).get().isOnboarded()).isFalse();
@@ -239,7 +222,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     assertThat(db.users().selectUserByLogin(USER_LOGIN).get().isOnboarded()).isTrue();
@@ -260,7 +242,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     assertThat(db.users().selectUserByLogin(newUser.getLogin()).get())
@@ -284,7 +265,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.ALLOW)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     UserDto newUserReloaded = db.users().selectUserByLogin(newUser.getLogin()).get();
@@ -311,7 +291,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.WARN)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
   }
 
@@ -332,7 +311,6 @@ public class UserRegistrarImplTest {
       .setSource(source)
       .setExistingEmailStrategy(FORBID)
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
   }
 
@@ -354,7 +332,6 @@ public class UserRegistrarImplTest {
       .setSource(source)
       .setExistingEmailStrategy(FORBID)
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
   }
 
@@ -375,7 +352,6 @@ public class UserRegistrarImplTest {
       .setProvider(identityProvider)
       .setSource(source)
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
   }
 
@@ -394,7 +370,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     assertThat(db.users().selectUserByLogin(USER_LOGIN).get())
@@ -417,7 +392,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     assertThat(db.users().selectUserByLogin("Old login")).isNotPresent();
@@ -442,7 +416,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     assertThat(db.users().selectUserByLogin("Old login")).isNotPresent();
@@ -467,7 +440,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     assertThat(db.users().selectUserByLogin("Old login")).isNotPresent();
@@ -494,7 +466,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
@@ -526,7 +497,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
@@ -550,7 +520,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     // No new user is created
@@ -574,83 +543,11 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
       .extracting(UserDto::getLogin, UserDto::getExternalLogin)
       .contains(USER_LOGIN, USER_IDENTITY.getProviderLogin());
-  }
-
-  @Test
-  public void authenticate_existing_user_with_login_update_and_personal_org_does_not_exits_and_strategy_is_WARN() {
-    organizationFlags.setEnabled(true);
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin("Old login")
-      .setExternalId(USER_IDENTITY.getProviderId())
-      .setExternalLogin("old identity")
-      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
-      .setOrganizationUuid(null));
-
-    underTest.register(UserRegistration.builder()
-      .setUserIdentity(USER_IDENTITY)
-      .setProvider(IDENTITY_PROVIDER)
-      .setSource(Source.local(BASIC))
-      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.WARN)
-      .build());
-
-    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
-      .extracting(UserDto::getLogin, UserDto::getExternalLogin)
-      .contains(USER_LOGIN, USER_IDENTITY.getProviderLogin());
-  }
-
-  @Test
-  public void throw_UpdateLoginRedirectionException_when_authenticating_with_login_update_and_personal_org_exists_and_strategy_is_WARN() {
-    organizationFlags.setEnabled(true);
-    OrganizationDto organization = db.organizations().insert(o -> o.setKey("Old login"));
-    db.users().insertUser(u -> u
-      .setLogin("Old login")
-      .setExternalId(USER_IDENTITY.getProviderId())
-      .setExternalLogin("old identity")
-      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
-      .setOrganizationUuid(organization.getUuid()));
-
-    expectedException.expect(UpdateLoginRedirectionException.class);
-
-    underTest.register(UserRegistration.builder()
-      .setUserIdentity(USER_IDENTITY)
-      .setProvider(IDENTITY_PROVIDER)
-      .setSource(Source.local(BASIC))
-      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.WARN)
-      .build());
-  }
-
-  @Test
-  public void authenticate_existing_user_and_update_personal_og_key_when_personal_org_exists_and_strategy_is_ALLOW() {
-    organizationFlags.setEnabled(true);
-    OrganizationDto personalOrganization = db.organizations().insert(o -> o.setKey("Old login"));
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin("Old login")
-      .setExternalId(USER_IDENTITY.getProviderId())
-      .setExternalLogin("old identity")
-      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
-      .setOrganizationUuid(personalOrganization.getUuid()));
-
-    underTest.register(UserRegistration.builder()
-      .setUserIdentity(USER_IDENTITY)
-      .setProvider(IDENTITY_PROVIDER)
-      .setSource(Source.local(BASIC))
-      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
-      .build());
-
-    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
-      .extracting(UserDto::getLogin, UserDto::getExternalLogin)
-      .contains(USER_LOGIN, USER_IDENTITY.getProviderLogin());
-    OrganizationDto organizationReloaded = db.getDbClient().organizationDao().selectByUuid(db.getSession(), personalOrganization.getUuid()).get();
-    assertThat(organizationReloaded.getKey()).isEqualTo(USER_LOGIN);
   }
 
   @Test
@@ -670,7 +567,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     UserDto userDto = db.users().selectUserByLogin(USER_LOGIN).get();
@@ -700,7 +596,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.ALLOW)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     UserDto currentUserReloaded = db.users().selectUserByLogin(currentUser.getLogin()).get();
@@ -728,7 +623,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.WARN)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
   }
 
@@ -755,7 +649,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.realm(AuthenticationEvent.Method.FORM, IDENTITY_PROVIDER.getName()))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
   }
 
@@ -777,7 +670,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     UserDto currentUserReloaded = db.users().selectUserByLogin(currentUser.getLogin()).get();
@@ -869,7 +761,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
 
     checkGroupMembership(user, groupInDefaultOrg);
@@ -887,7 +778,6 @@ public class UserRegistrarImplTest {
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
       .build());
   }
 

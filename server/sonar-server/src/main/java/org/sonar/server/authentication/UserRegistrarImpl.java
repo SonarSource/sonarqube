@@ -38,19 +38,16 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.ALM;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
-import org.sonar.server.authentication.exception.UpdateLoginRedirectionException;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.MemberUpdater;
 import org.sonar.server.organization.OrganizationFlags;
-import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UpdateUser;
@@ -58,10 +55,8 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
-import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class UserRegistrarImpl implements UserRegistrar {
@@ -72,17 +67,15 @@ public class UserRegistrarImpl implements UserRegistrar {
   private final UserUpdater userUpdater;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final OrganizationFlags organizationFlags;
-  private final OrganizationUpdater organizationUpdater;
   private final DefaultGroupFinder defaultGroupFinder;
   private final MemberUpdater memberUpdater;
 
   public UserRegistrarImpl(DbClient dbClient, UserUpdater userUpdater, DefaultOrganizationProvider defaultOrganizationProvider, OrganizationFlags organizationFlags,
-    OrganizationUpdater organizationUpdater, DefaultGroupFinder defaultGroupFinder, MemberUpdater memberUpdater) {
+    DefaultGroupFinder defaultGroupFinder, MemberUpdater memberUpdater) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.organizationFlags = organizationFlags;
-    this.organizationUpdater = organizationUpdater;
     this.defaultGroupFinder = defaultGroupFinder;
     this.memberUpdater = memberUpdater;
   }
@@ -142,7 +135,6 @@ public class UserRegistrarImpl implements UserRegistrar {
     if (login != null) {
       update.setLogin(login);
     }
-    detectLoginUpdate(dbSession, userDto, update, authenticatorParameters);
     Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters);
     userUpdater.updateAndCommit(dbSession, userDto, update, beforeCommit(dbSession, false, authenticatorParameters), toArray(otherUserToIndex));
     return userDto;
@@ -194,37 +186,6 @@ public class UserRegistrarImpl implements UserRegistrar {
       (Objects.equals(existingUser.getExternalIdentityProvider(), authenticatorParameters.getProvider().getKey()) &&
         (Objects.equals(existingUser.getExternalId(), getProviderIdOrProviderLogin(authenticatorParameters.getUserIdentity()))
           || Objects.equals(existingUser.getExternalLogin(), authenticatorParameters.getUserIdentity().getProviderLogin())));
-  }
-
-  private void detectLoginUpdate(DbSession dbSession, UserDto user, UpdateUser update, UserRegistration authenticatorParameters) {
-    String newLogin = update.login();
-    if (!update.isLoginChanged() || user.getLogin().equals(newLogin)) {
-      return;
-    }
-    if (!organizationFlags.isEnabled(dbSession)) {
-      return;
-    }
-    String personalOrganizationUuid = user.getOrganizationUuid();
-    if (personalOrganizationUuid == null) {
-      return;
-    }
-
-    Optional<OrganizationDto> personalOrganization = dbClient.organizationDao().selectByUuid(dbSession, personalOrganizationUuid);
-
-    personalOrganization.ifPresent(organizationDto -> updateOrganizationKey(dbSession, user, authenticatorParameters, newLogin, organizationDto));
-  }
-
-  private void updateOrganizationKey(DbSession dbSession, UserDto user, UserRegistration authenticatorParameters, @Nullable String newLogin, OrganizationDto personalOrganization) {
-    UserRegistration.UpdateLoginStrategy updateLoginStrategy = authenticatorParameters.getUpdateLoginStrategy();
-    switch (updateLoginStrategy) {
-      case ALLOW:
-        organizationUpdater.updateOrganizationKey(dbSession, personalOrganization, requireNonNull(newLogin, "new login cannot be null"));
-        return;
-      case WARN:
-        throw new UpdateLoginRedirectionException(authenticatorParameters.getUserIdentity(), authenticatorParameters.getProvider(), user, personalOrganization);
-      default:
-        throw new IllegalStateException(format("Unknown strategy %s", updateLoginStrategy));
-    }
   }
 
   private void syncGroups(DbSession dbSession, UserIdentity userIdentity, UserDto userDto) {

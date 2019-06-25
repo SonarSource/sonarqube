@@ -38,7 +38,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
-import org.sonar.server.authentication.UserRegistration.UpdateLoginStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
@@ -149,7 +148,6 @@ public class CredentialsExternalAuthentication implements Startable {
         .setProvider(new ExternalIdentityProvider())
         .setSource(realmEventSource(method))
         .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-        .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
         .build());
   }
 
