@@ -50,6 +50,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.NestedSortBuilder;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -150,7 +151,7 @@ public class ProjectMeasuresIndex {
     .put(NEW_RELIABILITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, NEW_RELIABILITY_RATING_KEY, facetBuilder))
     .put(SECURITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, SECURITY_RATING_KEY, facetBuilder))
     .put(NEW_SECURITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, NEW_SECURITY_RATING_KEY, facetBuilder))
-    .put(ALERT_STATUS_KEY, (esSearch, query, facetBuilder) -> esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, facetBuilder, createQualityGateFacet())))
+    .put(ALERT_STATUS_KEY, (esSearch, query, facetBuilder) -> esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, facetBuilder, createQualityGateFacet(query))))
     .put(FILTER_LANGUAGES, ProjectMeasuresIndex::addLanguagesFacet)
     .put(FIELD_TAGS, ProjectMeasuresIndex::addTagsFacet)
     .build();
@@ -338,10 +339,13 @@ public class ProjectMeasuresIndex {
             new KeyedFilter("5", termQuery(FIELD_MEASURES_VALUE, 5d)))));
   }
 
-  private static AbstractAggregationBuilder createQualityGateFacet() {
+  private static AbstractAggregationBuilder createQualityGateFacet(ProjectMeasuresQuery projectMeasuresQuery) {
     return filters(
       ALERT_STATUS_KEY,
-      QUALITY_GATE_STATUS.entrySet().stream()
+      QUALITY_GATE_STATUS
+        .entrySet()
+        .stream()
+        .filter(qgs -> !(projectMeasuresQuery.isIgnoreWarning() && qgs.getKey().equals(Metric.Level.WARN.name())))
         .map(entry -> new KeyedFilter(entry.getKey(), termQuery(FIELD_QUALITY_GATE_STATUS, entry.getValue())))
         .toArray(KeyedFilter[]::new));
   }

@@ -46,6 +46,7 @@ public class ProjectMeasuresQuery {
   private boolean asc = true;
   private String queryText;
   private boolean ignoreAuthorization;
+  private boolean ignoreWarning;
 
   public ProjectMeasuresQuery addMetricCriterion(MetricCriterion metricCriterion) {
     this.metricCriteria.add(metricCriterion);
@@ -134,6 +135,15 @@ public class ProjectMeasuresQuery {
 
   public ProjectMeasuresQuery setIgnoreAuthorization(boolean ignoreAuthorization) {
     this.ignoreAuthorization = ignoreAuthorization;
+    return this;
+  }
+
+  public boolean isIgnoreWarning() {
+    return ignoreWarning;
+  }
+
+  public ProjectMeasuresQuery setIgnoreWarning(boolean ignoreWarning) {
+    this.ignoreWarning = ignoreWarning;
     return this;
   }
 

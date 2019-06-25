@@ -37,6 +37,9 @@ export interface Props {
 }
 
 export default function QualityGateFilter(props: Props) {
+  const hasWarnStatus = props.facet && props.facet['WARN'] !== undefined;
+  const options = hasWarnStatus ? ['OK', 'WARN', 'ERROR'] : ['OK', 'ERROR'];
+
   return (
     <Filter
       facet={props.facet}
@@ -44,7 +47,7 @@ export default function QualityGateFilter(props: Props) {
       header={<FilterHeader name={translate('projects.facets.quality_gate')} />}
       maxFacetValue={props.maxFacetValue}
       onQueryChange={props.onQueryChange}
-      options={['OK', 'WARN', 'ERROR']}
+      options={options}
       organization={props.organization}
       property="gate"
       query={props.query}

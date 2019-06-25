@@ -12,7 +12,6 @@ exports[`renders 1`] = `
   options={
     Array [
       "OK",
-      "WARN",
       "ERROR",
     ]
   }

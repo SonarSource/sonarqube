@@ -19,15 +19,27 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import QualityGateFilter from '../QualityGateFilter';
+import QualityGateFilter, { Props } from '../QualityGateFilter';
 
 it('renders', () => {
-  const wrapper = shallow(<QualityGateFilter onQueryChange={jest.fn()} query={{}} />);
+  const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 
   const renderOption = wrapper.prop('renderOption');
   expect(renderOption(2, false)).toMatchSnapshot();
 
   const getFacetValueForOption = wrapper.prop('getFacetValueForOption');
-  expect(getFacetValueForOption({ ERROR: 1, WARN: 2, OK: 3 }, 'WARN')).toBe(2);
+  expect(getFacetValueForOption({ ERROR: 1, OK: 3 }, 'OK')).toBe(3);
 });
+
+it('should render with warning facet', () => {
+  expect(
+    shallowRender({ facet: { ERROR: 1, WARN: 2, OK: 3 } })
+      .find('Filter')
+      .prop('options')
+  ).toEqual(['OK', 'WARN', 'ERROR']);
+});
+
+function shallowRender(props: Partial<Props> = {}) {
+  return shallow(<QualityGateFilter onQueryChange={jest.fn()} query={{}} {...props} />);
+}

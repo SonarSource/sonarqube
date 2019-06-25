@@ -29,10 +29,12 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -52,6 +54,7 @@ import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
+import org.sonar.server.qualitygate.ProjectsInWarning;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -64,6 +67,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
@@ -114,12 +118,12 @@ public class SearchProjectsActionTest {
 
   @DataProvider
   public static Object[][] rating_metric_keys() {
-    return new Object[][]{{SQALE_RATING_KEY}, {RELIABILITY_RATING_KEY}, {SECURITY_RATING_KEY}};
+    return new Object[][] {{SQALE_RATING_KEY}, {RELIABILITY_RATING_KEY}, {SECURITY_RATING_KEY}};
   }
 
   @DataProvider
   public static Object[][] new_rating_metric_keys() {
-    return new Object[][]{{NEW_MAINTAINABILITY_RATING_KEY}, {NEW_RELIABILITY_RATING_KEY}, {NEW_SECURITY_RATING_KEY}};
+    return new Object[][] {{NEW_MAINTAINABILITY_RATING_KEY}, {NEW_RELIABILITY_RATING_KEY}, {NEW_SECURITY_RATING_KEY}};
   }
 
   private DbClient dbClient = db.getDbClient();
@@ -128,11 +132,16 @@ public class SearchProjectsActionTest {
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, new ProjectMeasuresIndexer(dbClient, es.client()));
   private ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
+  private ProjectsInWarning projectsInWarning = new ProjectsInWarning();
 
-  private WsActionTester ws = new WsActionTester(
-    new SearchProjectsAction(dbClient, index, userSession));
+  private WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, projectsInWarning));
 
   private RequestBuilder request = SearchProjectsRequest.builder();
+
+  @Before
+  public void setUp() throws Exception {
+    projectsInWarning.update(0L);
+  }
 
   @Test
   public void verify_definition() {
@@ -199,18 +208,18 @@ public class SearchProjectsActionTest {
 
     MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType("PERCENT"));
     ComponentDto project1 = insertProject(organization1Dto, c -> c
-        .setDbKey(KEY_PROJECT_EXAMPLE_001)
-        .setName("My Project 1")
-        .setTagsString("finance, java"),
+      .setDbKey(KEY_PROJECT_EXAMPLE_001)
+      .setName("My Project 1")
+      .setTagsString("finance, java"),
       new Measure(coverage, c -> c.setValue(80d)));
     ComponentDto project2 = insertProject(organization1Dto, c -> c
-        .setDbKey(KEY_PROJECT_EXAMPLE_002)
-        .setName("My Project 2"),
+      .setDbKey(KEY_PROJECT_EXAMPLE_002)
+      .setName("My Project 2"),
       new Measure(coverage, c -> c.setValue(90d)));
     ComponentDto project3 = insertProject(organization2Dto, c -> c
-        .setDbKey(KEY_PROJECT_EXAMPLE_003)
-        .setName("My Project 3")
-        .setTagsString("sales, offshore, java"),
+      .setDbKey(KEY_PROJECT_EXAMPLE_003)
+      .setName("My Project 3")
+      .setTagsString("sales, offshore, java"),
       new Measure(coverage, c -> c.setValue(20d)));
     addFavourite(project1);
 
@@ -630,6 +639,30 @@ public class SearchProjectsActionTest {
   }
 
   @Test
+  public void return_new_lines_facet() {
+    userSession.logIn();
+    OrganizationDto organizationDto = db.organizations().insert();
+    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(NEW_LINES_KEY).setValueType(INT.name()));
+    insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(100d)));
+    insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(15_000d)));
+    insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(50_000d)));
+
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(NEW_LINES_KEY)));
+
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> NEW_LINES_KEY.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(
+        tuple("*-1000.0", 1L),
+        tuple("1000.0-10000.0", 0L),
+        tuple("10000.0-100000.0", 2L),
+        tuple("100000.0-500000.0", 0L),
+        tuple("500000.0-*", 0L));
+  }
+
+  @Test
   public void return_languages_facet() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
@@ -873,51 +906,49 @@ public class SearchProjectsActionTest {
   }
 
   @Test
-  public void return_ncloc_facet() {
+  public void return_quality_gate_facet() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(NCLOC).setValueType(INT.name()));
-    insertProject(organizationDto, new Measure(coverage, c -> c.setValue(100d)));
-    insertProject(organizationDto, new Measure(coverage, c -> c.setValue(15_000d)));
-    insertProject(organizationDto, new Measure(coverage, c -> c.setValue(50_000d)));
+    MetricDto qualityGateStatus = db.measures().insertMetric(c -> c.setKey(ALERT_STATUS_KEY).setValueType(LEVEL.name()));
+    insertProject(organizationDto, new Measure(qualityGateStatus, c -> c.setData(Metric.Level.ERROR.name()).setValue(null)));
+    insertProject(organizationDto, new Measure(qualityGateStatus, c -> c.setData(Metric.Level.ERROR.name()).setValue(null)));
+    insertProject(organizationDto, new Measure(qualityGateStatus, c -> c.setData(Metric.Level.WARN.name()).setValue(null)));
+    insertProject(organizationDto, new Measure(qualityGateStatus, c -> c.setData(Metric.Level.OK.name()).setValue(null)));
+    projectsInWarning.update(1L);
 
-    SearchProjectsWsResponse result = call(request.setFacets(singletonList(NCLOC)));
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(ALERT_STATUS_KEY)));
 
     Common.Facet facet = result.getFacets().getFacetsList().stream()
-      .filter(oneFacet -> NCLOC.equals(oneFacet.getProperty()))
+      .filter(oneFacet -> ALERT_STATUS_KEY.equals(oneFacet.getProperty()))
       .findFirst().orElseThrow(IllegalStateException::new);
     assertThat(facet.getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactly(
-        tuple("*-1000.0", 1L),
-        tuple("1000.0-10000.0", 0L),
-        tuple("10000.0-100000.0", 2L),
-        tuple("100000.0-500000.0", 0L),
-        tuple("500000.0-*", 0L));
+      .containsOnly(
+        tuple("OK", 1L),
+        tuple("ERROR", 2L),
+        tuple("WARN", 1L));
   }
 
   @Test
-  public void return_new_lines_facet() {
+  public void return_quality_gate_facet_without_warning_when_no_projects_in_warning() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(NEW_LINES_KEY).setValueType(INT.name()));
-    insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(100d)));
-    insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(15_000d)));
-    insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(50_000d)));
+    MetricDto qualityGateStatus = db.measures().insertMetric(c -> c.setKey(ALERT_STATUS_KEY).setValueType(LEVEL.name()));
+    insertProject(organizationDto, new Measure(qualityGateStatus, c -> c.setData(Metric.Level.ERROR.name()).setValue(null)));
+    insertProject(organizationDto, new Measure(qualityGateStatus, c -> c.setData(Metric.Level.ERROR.name()).setValue(null)));
+    insertProject(organizationDto, new Measure(qualityGateStatus, c -> c.setData(Metric.Level.OK.name()).setValue(null)));
+    projectsInWarning.update(0L);
 
-    SearchProjectsWsResponse result = call(request.setFacets(singletonList(NEW_LINES_KEY)));
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(ALERT_STATUS_KEY)));
 
     Common.Facet facet = result.getFacets().getFacetsList().stream()
-      .filter(oneFacet -> NEW_LINES_KEY.equals(oneFacet.getProperty()))
+      .filter(oneFacet -> ALERT_STATUS_KEY.equals(oneFacet.getProperty()))
       .findFirst().orElseThrow(IllegalStateException::new);
     assertThat(facet.getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactly(
-        tuple("*-1000.0", 1L),
-        tuple("1000.0-10000.0", 0L),
-        tuple("10000.0-100000.0", 2L),
-        tuple("100000.0-500000.0", 0L),
-        tuple("500000.0-*", 0L));
+      .containsOnly(
+        tuple("OK", 1L),
+        tuple("ERROR", 2L));
   }
 
   @Test
@@ -1099,7 +1130,7 @@ public class SearchProjectsActionTest {
 
     List<Component> projects = call(request
       .setFilter("alert_status = WARN"))
-      .getComponentsList();
+        .getComponentsList();
 
     assertThat(projects)
       .extracting(Component::getKey)

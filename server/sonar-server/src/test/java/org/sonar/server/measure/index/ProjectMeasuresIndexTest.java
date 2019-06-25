@@ -1145,6 +1145,27 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void facet_quality_gate_does_not_return_deprecated_warning_when_set_ignore_warning_is_true() {
+    index(
+      // 2 docs with QG OK
+      newDoc().setQualityGateStatus(OK.name()),
+      newDoc().setQualityGateStatus(OK.name()),
+      // 4 docs with QG ERROR
+      newDoc().setQualityGateStatus(ERROR.name()),
+      newDoc().setQualityGateStatus(ERROR.name()),
+      newDoc().setQualityGateStatus(ERROR.name()),
+      newDoc().setQualityGateStatus(ERROR.name()));
+
+    assertThat(underTest.search(new ProjectMeasuresQuery().setIgnoreWarning(true), new SearchOptions().addFacets(ALERT_STATUS_KEY)).getFacets().get(ALERT_STATUS_KEY)).containsOnly(
+      entry(ERROR.name(), 4L),
+      entry(OK.name(), 2L));
+    assertThat(underTest.search(new ProjectMeasuresQuery().setIgnoreWarning(false), new SearchOptions().addFacets(ALERT_STATUS_KEY)).getFacets().get(ALERT_STATUS_KEY)).containsOnly(
+      entry(ERROR.name(), 4L),
+      entry(WARN.name(), 0L),
+      entry(OK.name(), 2L));
+  }
+
+  @Test
   public void facet_languages() {
     index(
       newDoc().setLanguages(singletonList("java")),
