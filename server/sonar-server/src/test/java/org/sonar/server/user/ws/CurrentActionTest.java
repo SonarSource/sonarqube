@@ -113,8 +113,8 @@ public class CurrentActionTest {
 
     assertThat(response)
       .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::hasAvatar, CurrentWsResponse::getLocal,
-        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::hasPersonalOrganization, CurrentWsResponse::getSettingsList)
-      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube", false, Collections.emptyList());
+        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getSettingsList)
+      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube", Collections.emptyList());
     assertThat(response.hasEmail()).isFalse();
     assertThat(response.getScmAccountsList()).isEmpty();
     assertThat(response.getGroupsList()).isEmpty();
@@ -162,17 +162,6 @@ public class CurrentActionTest {
   }
 
   @Test
-  public void return_personal_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user = db.users().insertUser(u -> u.setOrganizationUuid(organization.getUuid()));
-    userSession.logIn(user);
-
-    CurrentWsResponse response = call();
-
-    assertThat(response.getPersonalOrganization()).isEqualTo(organization.getKey());
-  }
-
-  @Test
   public void return_user_settings() {
     UserDto user = db.users().insertUser();
     db.users().insertUserSetting(user, userSetting -> userSetting
@@ -200,17 +189,6 @@ public class CurrentActionTest {
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("User login 'obiwan.kenobi' cannot be found");
-
-    call();
-  }
-
-  @Test
-  public void fail_with_ISE_when_personal_organization_does_not_exist() {
-    UserDto user = db.users().insertUser(u -> u.setOrganizationUuid("Unknown"));
-    userSession.logIn(user);
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Organization uuid 'Unknown' does not exist");
 
     call();
   }

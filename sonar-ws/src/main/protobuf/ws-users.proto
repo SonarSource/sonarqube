@@ -110,7 +110,6 @@ message CurrentWsResponse {
   optional bool showOnboardingTutorial = 11;
   optional string avatar = 12;
   optional Homepage homepage = 13;
-  optional string personalOrganization = 14;
   repeated Setting settings = 15;
 
   message Permissions {
