@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migration;
 
 import org.sonar.core.platform.Module;
 import org.sonar.server.platform.db.migration.history.MigrationHistoryImpl;
+import org.sonar.server.platform.db.migration.history.MigrationHistoryMeddler;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistryImpl;
 import org.sonar.server.platform.db.migration.step.MigrationStepsProvider;
 import org.sonar.server.platform.db.migration.version.v56.DbVersion56;
@@ -75,6 +76,7 @@ public class MigrationConfigurationModule extends Module {
       new MigrationStepsProvider(),
 
       // history
-      MigrationHistoryImpl.class);
+      MigrationHistoryImpl.class,
+      MigrationHistoryMeddler.class);
   }
 }

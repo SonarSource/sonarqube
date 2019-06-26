@@ -31,6 +31,8 @@ import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class MigrationHistoryImplTest {
   @Rule
@@ -38,11 +40,14 @@ public class MigrationHistoryImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private MigrationHistoryImpl underTest = new MigrationHistoryImpl(dbTester.database());
+  private MigrationHistoryMeddler migrationHistoryMeddler = mock(MigrationHistoryMeddler.class);
+  private MigrationHistoryImpl underTest = new MigrationHistoryImpl(dbTester.database(), migrationHistoryMeddler);
 
   @Test
-  public void start_does_not_fail_if_table_history_exists() {
+  public void start_does_not_fail_if_table_history_exists_and_calls_meddler() {
     underTest.start();
+
+    verify(migrationHistoryMeddler).meddle(underTest);
   }
 
   @Test

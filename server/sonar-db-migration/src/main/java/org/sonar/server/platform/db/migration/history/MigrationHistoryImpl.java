@@ -40,15 +40,18 @@ public class MigrationHistoryImpl implements MigrationHistory {
   private static final String SCHEMA_MIGRATIONS_TABLE = "schema_migrations";
 
   private final Database database;
+  private final MigrationHistoryMeddler migrationHistoryMeddler;
 
-  public MigrationHistoryImpl(Database database) {
+  public MigrationHistoryImpl(Database database, MigrationHistoryMeddler migrationHistoryMeddler) {
     this.database = database;
+    this.migrationHistoryMeddler = migrationHistoryMeddler;
   }
 
   @Override
   public void start() {
     try (Connection connection = database.getDataSource().getConnection()) {
       checkState(DatabaseUtils.tableExists(MigrationHistoryTable.NAME, connection), "Migration history table is missing");
+      migrationHistoryMeddler.meddle(this);
     } catch (SQLException e) {
       Throwables.propagate(e);
     }
