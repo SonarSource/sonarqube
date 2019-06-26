@@ -23,7 +23,7 @@
   height: var(--smallControlHeight);
   line-height: calc(var(--smallControlHeight) - 1px);
   padding: 0 var(--gridSize);
-  border-radius: 2px;
+  border-radius: 10px;
   font-size: var(--smallFontSize);
   min-width: 10px;
   letter-spacing: 0.03em;
@@ -45,12 +45,6 @@ a.badge:active {
 
 a.badge {
   border-bottom: none;
-}
-
-.badge.is-rounded {
-  padding-left: 5px;
-  padding-right: 5px;
-  border-radius: 50px;
 }
 
 .badge-medium {
@@ -111,7 +105,6 @@ a.badge {
 
 .badge-danger-light {
   border: 1px solid var(--alertBorderError) !important;
-  border-radius: 3px;
   background-color: var(--alertBackgroundError);
   color: #a94442;
 }
@@ -124,7 +117,6 @@ a.badge-danger-light:active {
 
 .badge-focus {
   border: 1px solid #faebcc;
-  border-radius: 3px;
   background-color: #fcf8e3;
   color: #8a6d3b;
   font-weight: 400;
@@ -147,7 +139,7 @@ a.badge-focus:active {
   line-height: calc(var(--smallControlHeight) - 1px);
   padding: 0 var(--gridSize);
   border: 1px solid var(--gray80);
-  border-radius: 2px;
+  border-radius: 10px;
   box-sizing: border-box;
   background-color: var(--gray80);
   font-size: var(--smallFontSize);
