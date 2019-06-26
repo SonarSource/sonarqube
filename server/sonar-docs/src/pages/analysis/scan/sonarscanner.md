@@ -4,13 +4,13 @@ url: /analysis/scan/sonarscanner/
 ---
 
 [[info]]
-| **Download SonarScanner 3.3** - Compatible with SonarQube 6.7+ (LTS)  
+| **Download SonarScanner 4.0** - Compatible with SonarQube 6.7+ (LTS)
 | By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://jira.sonarsource.com/browse/SQSCANNER) – [Source](https://github.com/Sonarsource/sonar-scanner-cli)   
 |
-| [Linux 64-bit](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip) |
-| [Windowx 64-bit](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-windows.zip) |
-| [Mac OS X 64-bit](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-macosx.zip) |
-| [Any*](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492.zip)  
+| [Linux 64-bit](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.0.0.1744-linux.zip) |
+| [Windowx 64-bit](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.0.0.1744-windows.zip) |
+| [Mac OS X 64-bit](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.0.0.1744-macosx.zip) |
+| [Any*](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.0.0.1744.zip)
 | *Requires a pre-installed JVM - with the same requirements as the SonarQube server.
 
 The SonarScanner is the scanner to use when there is no specific scanner for your build system.

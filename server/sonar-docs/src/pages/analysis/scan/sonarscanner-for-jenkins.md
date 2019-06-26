@@ -4,8 +4,8 @@ url: /analysis/scan/sonarscanner-for-jenkins/
 ---
 
 [[info]]
-| By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://jira.sonarsource.com/browse/JNKNS) – [Source](https://github.com/SonarSource/sonar-scanner-jenkins)  
-| Current version: **SonarScanner for Jenkins 2.8.1**
+| By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://jira.sonarsource.com/browse/SONARJNKNS) – [Source](https://github.com/SonarSource/sonar-scanner-jenkins)
+| Current version: **SonarScanner for Jenkins 2.9**
 
 This plugin lets you centralize the configuration of SonarQube server connection details in Jenkins global configuration.
 
@@ -21,8 +21,9 @@ Once the job is complete, the plugin will detect that a SonarQube analysis was m
 ## Installation
 1. [Install the SonarScanner for Jenkins via the Jenkins Update Center](https://plugins.jenkins.io/sonar).
 1. Configure your SonarQube server(s)
-   * Log into Jenkins as an administrator and go to Manage Jenkins > Configure System: 
+   * Log into Jenkins as an administrator and go to Manage Jenkins > Configure System
    * Scroll down to the SonarQube configuration section, click on Add SonarQube, and add the values you're prompted for.
+   * The server authentication token should be created as a 'Secret Text' credential
 
 ## Analyzing a .NET solution
 **Global Configuration**  
@@ -52,14 +53,14 @@ Once the environment variables are available, use them in a standard Maven build
 
 Maven goal:
 ```
-$SONAR_MAVEN_GOAL -Dsonar.host.url=$SONAR_HOST_URL
+$SONAR_MAVEN_GOAL
 ```
 Gradle task:
 ```
-sonarqube -Dsonar.host.url=$SONAR_HOST_URL
+sonarqube
 ```
 
-In both cases, launching your analysis may require authentication. In that case, make sure that the Global Configuration defines a valid SonarQube token, and add it to the Maven goal or Gradle task with the following argument and value: `-Dsonar.login=$SONAR_AUTH_TOKEN`
+In both cases, launching your analysis may require authentication. In that case, make sure that the Global Configuration defines a valid SonarQube token.
 
 ## Analyzing other project types
 
@@ -79,7 +80,9 @@ If you don't see a drop down list with all available SonarScanner versions but i
 
 
 ## Using a Jenkins pipeline
-Since version 2.5 of the SonarScanner for Jenkins, there is official support of Jenkins pipeline. We provide a `withSonarQubeEnv` block that allows you to select the SonarQube server you want to interact with. Connection details you have configured in Jenkins global configuration will be automatically passed to the scanner.
+We provide a `withSonarQubeEnv` block that allows you to select the SonarQube server you want to interact with. Connection details you have configured in Jenkins global configuration will be automatically passed to the scanner.
+
+If needed you can override the `credentialId` if you don't want to use the one defined in global configuration (for example if you define credentials at folder level).
 
 Here are a some examples for every scanner, assuming you run on Unix slaves and you have configured a server named "My SonarQube Server" as well as required tools. If you run on Windows slaves, just replace `sh` with `bat`.
 
@@ -90,9 +93,8 @@ node {
     git 'https://github.com/foo/bar.git'
   }
   stage('SonarQube analysis') {
-    // requires SonarScanner 2.8+
-    def scannerHome = tool 'SonarScanner 2.8';
-    withSonarQubeEnv('My SonarQube Server') {
+    def scannerHome = tool 'SonarScanner 4.0';
+    withSonarQubeEnv('My SonarQube Server') { // If you have configured more than one global server connection, you can specify its name
       sh "${scannerHome}/bin/sonar-scanner"
     }
   }
@@ -105,10 +107,8 @@ node {
     git 'https://github.com/foo/bar.git'
   }
   stage('SonarQube analysis') {
-    withSonarQubeEnv('My SonarQube Server') {
-      // requires SonarScanner for Gradle 2.1+
-      // It's important to add --info because of SONARJNKNS-281
-      sh './gradlew --info sonarqube'
+    withSonarQubeEnv() { // Will pick the global server connection you have configured
+      sh './gradlew sonarqube'
     }
   }
 }
@@ -120,9 +120,8 @@ node {
     git 'https://github.com/foo/bar.git'
   }
   stage('SonarQube analysis') {
-    withSonarQubeEnv('My SonarQube Server') {
-      // requires SonarScanner for Maven 3.2+
-      sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar'
+    withSonarQubeEnv(credentialsId: 'f225455e-ea59-40fa-8af7-08176e86507a', installationName: 'My SonarQube Server') { // You can override the credential to be used
+      sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.6.0.1398:sonar'
     }
   }
 }
@@ -134,12 +133,11 @@ node {
     git 'https://github.com/foo/bar.git'
   }
   stage('Build + SonarQube analysis') {
-    def sqScannerMsBuildHome = tool 'Scanner for MSBuild 2.2'
+    def sqScannerMsBuildHome = tool 'Scanner for MSBuild 4.6'
     withSonarQubeEnv('My SonarQube Server') {
-      // Due to SONARMSBRU-307 value of sonar.host.url and credentials should be passed on command line
-      bat "${sqScannerMsBuildHome}\\SonarQube.Scanner.MSBuild.exe begin /k:myKey /n:myName /v:1.0 /d:sonar.host.url=%SONAR_HOST_URL% /d:sonar.login=%SONAR_AUTH_TOKEN%"
+      bat "${sqScannerMsBuildHome}\\SonarQube.Scanner.MSBuild.exe begin /k:myKey"
       bat 'MSBuild.exe /t:Rebuild'
-      bat "${sqScannerMsBuildHome}\\SonarQube.Scanner.MSBuild.exe end /d:sonar.login=%SONAR_AUTH_TOKEN%"
+      bat "${sqScannerMsBuildHome}\\SonarQube.Scanner.MSBuild.exe end"
     }
   }
 }
@@ -162,7 +160,7 @@ node {
   stage('SonarQube analysis') {
     withSonarQubeEnv('My SonarQube Server') {
       sh 'mvn clean package sonar:sonar'
-    } // SonarQube taskId is automatically attached to the pipeline context
+    } // submitted SonarQube taskId is automatically attached to the pipeline context
   }
 }
   
@@ -203,7 +201,6 @@ pipeline {
                 timeout(time: 1, unit: 'HOURS') {
                     // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
                     // true = set pipeline to UNSTABLE, false = don't
-                    // Requires SonarScanner for Jenkins 2.7+
                     waitForQualityGate abortPipeline: true
                 }
             }
@@ -212,7 +209,7 @@ pipeline {
 }
 ```
 
-If you want to run multiple analysis in the same pipeline and use waitForQualityGate, it works starting from version 2.8, but you have to do everything in order:
+If you want to run multiple analysis in the same pipeline and use waitForQualityGate you have to do everything in order:
 ```
 pipeline {
     agent any
