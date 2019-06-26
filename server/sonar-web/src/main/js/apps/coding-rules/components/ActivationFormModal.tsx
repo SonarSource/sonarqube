@@ -159,7 +159,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
             <h2>{this.props.modalHeader}</h2>
           </div>
 
-          <div className="modal-body">
+          <div className="modal-body modal-container">
             {!isUpdateMode && activeInAllProfiles && (
               <Alert variant="info">{translate('coding_rules.active_in_all_profiles')}</Alert>
             )}

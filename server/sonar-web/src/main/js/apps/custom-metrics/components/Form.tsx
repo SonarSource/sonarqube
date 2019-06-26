@@ -106,7 +106,7 @@ export default class Form extends React.PureComponent<Props, State> {
               <h2>{this.props.header}</h2>
             </header>
 
-            <div className="modal-body">
+            <div className="modal-body modal-container">
               <div className="modal-field">
                 <label htmlFor="create-metric-key">
                   {translate('key')}

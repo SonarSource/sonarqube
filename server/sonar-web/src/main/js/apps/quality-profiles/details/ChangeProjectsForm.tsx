@@ -175,7 +175,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
           <h2>{header}</h2>
         </div>
 
-        <div className="modal-body" id="profile-projects">
+        <div className="modal-body modal-container" id="profile-projects">
           <SelectList
             allowBulkSelection={true}
             elements={this.state.projects.map(project => project.key)}

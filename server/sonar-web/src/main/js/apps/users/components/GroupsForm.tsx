@@ -192,7 +192,7 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
           <h2>{header}</h2>
         </div>
 
-        <div className="modal-body">
+        <div className="modal-body modal-container">
           <SelectList
             elements={this.state.groups.map(group => group.name)}
             elementsTotalCount={this.state.groupsTotalCount}

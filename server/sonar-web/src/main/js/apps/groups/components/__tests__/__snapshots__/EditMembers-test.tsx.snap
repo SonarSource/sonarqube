@@ -83,7 +83,7 @@ exports[`should edit members 2`] = `
       </button>
     </Button>
   </ButtonIcon>
-  <EditMembers
+  <EditMembersModal
     group={
       Object {
         "id": 3,
@@ -137,7 +137,7 @@ exports[`should edit members 2`] = `
                     </h2>
                   </header>
                   <div
-                    class="modal-body"
+                    class="modal-body modal-container"
                   >
                     <div
                       class="select-list"
@@ -303,7 +303,7 @@ exports[`should edit members 2`] = `
                   </h2>
                 </header>
                 <div
-                  className="modal-body"
+                  className="modal-body modal-container"
                 >
                   <DeferredSpinner
                     loading={true}
@@ -504,7 +504,7 @@ exports[`should edit members 2`] = `
         </Portal>
       </Modal>
     </Modal>
-  </EditMembers>
+  </EditMembersModal>
 </EditMembers>
 `;
 

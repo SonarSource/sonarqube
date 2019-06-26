@@ -57,7 +57,7 @@ interface State {
 
 const PAGE_SIZE = 100;
 
-export default class EditMembers extends React.PureComponent<Props, State> {
+export default class EditMembersModal extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -200,7 +200,7 @@ export default class EditMembers extends React.PureComponent<Props, State> {
           <h2>{modalHeader}</h2>
         </header>
 
-        <div className="modal-body">
+        <div className="modal-body modal-container">
           <DeferredSpinner loading={this.state.loading}>
             <SelectList
               elements={this.state.users.map(user => user.login)}

@@ -13,7 +13,7 @@ exports[`should render correctly 1`] = `
     </h2>
   </div>
   <div
-    className="modal-body"
+    className="modal-body modal-container"
   >
     <SelectList
       elements={

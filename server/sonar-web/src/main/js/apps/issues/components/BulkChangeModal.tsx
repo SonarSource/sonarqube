@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
 import { pickBy, sortBy } from 'lodash';
 import { searchAssignees } from '../utils';
@@ -496,7 +495,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           <h2>{translateWithParameters('issue_bulk_change.form.title', issues.length)}</h2>
         </div>
 
-        <div className={classNames('modal-body', { 'modal-container': limitReached })}>
+        <div className="modal-body modal-container">
           {limitReached && (
             <Alert variant="warning">
               <FormattedMessage

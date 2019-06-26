@@ -162,7 +162,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
               <h2>{header}</h2>
             </header>
 
-            <div className="modal-body">
+            <div className="modal-body modal-container">
               {error && <Alert variant="error">{error}</Alert>}
 
               {!error && user && !user.local && (

@@ -18,7 +18,7 @@ exports[`should display error message when no issues available 1`] = `
       </h2>
     </div>
     <div
-      className="modal-body"
+      className="modal-body modal-container"
     >
       <Alert
         variant="warning"
@@ -63,7 +63,7 @@ exports[`should display form when issues are present 1`] = `
       </h2>
     </div>
     <div
-      className="modal-body"
+      className="modal-body modal-container"
     >
       <Checkbox
         checked={false}

@@ -19,7 +19,7 @@ exports[`should render correctly 1`] = `
       </h2>
     </header>
     <div
-      className="modal-body"
+      className="modal-body modal-container"
     >
       <div
         className="modal-field"
@@ -134,7 +134,7 @@ exports[`should render correctly 2`] = `
       </h2>
     </header>
     <div
-      className="modal-body"
+      className="modal-body modal-container"
     >
       <div
         className="modal-field"
