@@ -29,6 +29,7 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.internal.matchers.Any;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.api.utils.log.LogTester;
@@ -50,6 +51,7 @@ import org.sonar.server.property.MapInternalProperties;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.util.GlobalLockManager;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Arrays.asList;
@@ -57,6 +59,8 @@ import static java.util.Collections.emptySet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.mock;
@@ -93,6 +97,7 @@ public class TelemetryDaemonTest {
 
   private TelemetryClient client = mock(TelemetryClient.class);
   private InternalProperties internalProperties = spy(new MapInternalProperties());
+  private final GlobalLockManager lockManager = mock(GlobalLockManager.class);
   private FakeServer server = new FakeServer();
   private PluginRepository pluginRepository = mock(PluginRepository.class);
   private TestSystem2 system2 = new TestSystem2().setNow(System.currentTimeMillis());
@@ -103,12 +108,12 @@ public class TelemetryDaemonTest {
 
   private final TelemetryDataLoader communityDataLoader = new TelemetryDataLoader(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
     new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), internalProperties, null);
-  private TelemetryDaemon communityUnderTest = new TelemetryDaemon(communityDataLoader, client, settings.asConfig(), internalProperties, system2);
+  private TelemetryDaemon communityUnderTest = new TelemetryDaemon(communityDataLoader, client, settings.asConfig(), internalProperties, lockManager, system2);
 
   private final LicenseReader licenseReader = mock(LicenseReader.class);
   private final TelemetryDataLoader commercialDataLoader = new TelemetryDataLoader(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
     new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), internalProperties, licenseReader);
-  private TelemetryDaemon commercialUnderTest = new TelemetryDaemon(commercialDataLoader, client, settings.asConfig(), internalProperties, system2);
+  private TelemetryDaemon commercialUnderTest = new TelemetryDaemon(commercialDataLoader, client, settings.asConfig(), internalProperties, lockManager, system2);
 
   @After
   public void tearDown() {
@@ -124,6 +129,7 @@ public class TelemetryDaemonTest {
     List<PluginInfo> plugins = asList(newPlugin("java", "4.12.0.11033"), newPlugin("scmgit", "1.2"), new PluginInfo("other"));
     when(pluginRepository.getPluginInfos()).thenReturn(plugins);
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
 
     IntStream.range(0, 3).forEach(i -> db.users().insertUser());
     db.users().insertUser(u -> u.setActive(false));
@@ -175,6 +181,7 @@ public class TelemetryDaemonTest {
   @Test
   public void take_biggest_long_living_branches() throws IOException {
     initTelemetrySettingsToDefaultValues();
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
@@ -197,6 +204,7 @@ public class TelemetryDaemonTest {
   @Test
   public void send_data_via_client_at_startup_after_initial_delay() throws IOException {
     initTelemetrySettingsToDefaultValues();
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     communityUnderTest.start();
 
@@ -206,6 +214,7 @@ public class TelemetryDaemonTest {
   @Test
   public void data_contains_no_license_type_on_community_edition() throws IOException {
     initTelemetrySettingsToDefaultValues();
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
 
     communityUnderTest.start();
@@ -219,6 +228,7 @@ public class TelemetryDaemonTest {
     initTelemetrySettingsToDefaultValues();
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     when(licenseReader.read()).thenReturn(Optional.empty());
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
 
     commercialUnderTest.start();
 
@@ -234,6 +244,7 @@ public class TelemetryDaemonTest {
     LicenseReader.License license = mock(LicenseReader.License.class);
     when(license.getType()).thenReturn(licenseType);
     when(licenseReader.read()).thenReturn(Optional.of(license));
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
 
     commercialUnderTest.start();
 
@@ -246,6 +257,7 @@ public class TelemetryDaemonTest {
   @Test
   public void check_if_should_send_data_periodically() throws IOException {
     initTelemetrySettingsToDefaultValues();
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     long now = system2.now();
     long sixDaysAgo = now - (ONE_DAY * 6L);
     long sevenDaysAgo = now - (ONE_DAY * 7L);
@@ -261,6 +273,7 @@ public class TelemetryDaemonTest {
   @Test
   public void send_server_id_and_version() throws IOException {
     initTelemetrySettingsToDefaultValues();
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     String id = randomAlphanumeric(40);
     String version = randomAlphanumeric(10);
@@ -275,6 +288,7 @@ public class TelemetryDaemonTest {
   @Test
   public void send_server_installation_date_and_installation_version() throws IOException {
     initTelemetrySettingsToDefaultValues();
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     String installationVersion = "7.9.BEST.LTS.EVER";
     Long installationDate = 1546300800000L; // 2019/01/01
@@ -290,6 +304,7 @@ public class TelemetryDaemonTest {
   @Test
   public void do_not_send_server_installation_details_if_missing_property() throws IOException {
     initTelemetrySettingsToDefaultValues();
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
 
     communityUnderTest.start();
@@ -301,6 +316,7 @@ public class TelemetryDaemonTest {
   @Test
   public void do_not_send_data_if_last_ping_earlier_than_one_week_ago() throws IOException {
     initTelemetrySettingsToDefaultValues();
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     long now = system2.now();
     long sixDaysAgo = now - (ONE_DAY * 6L);
@@ -314,6 +330,7 @@ public class TelemetryDaemonTest {
   @Test
   public void send_data_if_last_ping_is_one_week_ago() throws IOException {
     initTelemetrySettingsToDefaultValues();
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     long today = parseDate("2017-08-01").getTime();
     system2.setNow(today + 15 * ONE_HOUR);
@@ -330,6 +347,7 @@ public class TelemetryDaemonTest {
   @Test
   public void opt_out_sent_once() throws IOException {
     initTelemetrySettingsToDefaultValues();
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     settings.setProperty("sonar.telemetry.enable", "false");
     communityUnderTest.start();

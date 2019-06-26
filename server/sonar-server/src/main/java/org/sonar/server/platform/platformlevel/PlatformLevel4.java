@@ -519,11 +519,14 @@ public class PlatformLevel4 extends PlatformLevel {
       HttpRequestIdModule.class,
 
       RecoveryIndexer.class,
-      ProjectIndexersImpl.class);
+      ProjectIndexersImpl.class,
 
-    // telemetry
-    add(TelemetryDataLoader.class);
-    addIfStartupLeader(TelemetryDaemon.class, TelemetryClient.class);
+      // telemetry
+      TelemetryDataLoader.class,
+      TelemetryDaemon.class,
+      TelemetryClient.class
+
+    );
 
     // system info
     add(WebSystemInfoModule.class);

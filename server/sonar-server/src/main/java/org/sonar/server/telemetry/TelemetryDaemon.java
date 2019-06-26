@@ -36,6 +36,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.property.InternalProperties;
+import org.sonar.server.util.GlobalLockManager;
 
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.parseDate;
@@ -50,21 +51,26 @@ public class TelemetryDaemon implements Startable {
   private static final int SEVEN_DAYS = 7 * 24 * 60 * 60 * 1_000;
   private static final String I_PROP_LAST_PING = "telemetry.lastPing";
   private static final String I_PROP_OPT_OUT = "telemetry.optOut";
+  private static final String LOCK_NAME = "TelemetryStat";
   private static final Logger LOG = Loggers.get(TelemetryDaemon.class);
+  private static final String LOCK_DELAY_SEC = "sonar.telemetry.lock.delay";
 
   private final TelemetryDataLoader dataLoader;
   private final TelemetryClient telemetryClient;
+  private final GlobalLockManager lockManager;
   private final Configuration config;
   private final InternalProperties internalProperties;
   private final System2 system2;
 
   private ScheduledExecutorService executorService;
 
-  public TelemetryDaemon(TelemetryDataLoader dataLoader, TelemetryClient telemetryClient, Configuration config, InternalProperties internalProperties, System2 system2) {
+  public TelemetryDaemon(TelemetryDataLoader dataLoader, TelemetryClient telemetryClient, Configuration config,
+    InternalProperties internalProperties, GlobalLockManager lockManager, System2 system2) {
     this.dataLoader = dataLoader;
     this.telemetryClient = telemetryClient;
     this.config = config;
     this.internalProperties = internalProperties;
+    this.lockManager = lockManager;
     this.system2 = system2;
   }
 
@@ -113,6 +119,11 @@ public class TelemetryDaemon implements Startable {
   private Runnable telemetryCommand() {
     return () -> {
       try {
+
+        if (!lockManager.tryLock(LOCK_NAME, lockDuration())) {
+          return;
+        }
+
         long now = system2.now();
         if (shouldUploadStatistics(now)) {
           uploadStatistics();
@@ -156,5 +167,9 @@ public class TelemetryDaemon implements Startable {
   private int frequency() {
     return config.getInt(SONAR_TELEMETRY_FREQUENCY_IN_SECONDS.getKey())
       .orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", SONAR_TELEMETRY_FREQUENCY_IN_SECONDS)));
+  }
+
+  private int lockDuration(){
+    return config.getInt(LOCK_DELAY_SEC).orElse(60);
   }
 }

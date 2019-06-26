@@ -61,6 +61,7 @@ import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.setting.ThreadLocalSettings;
 import org.sonar.server.user.SystemPasscodeImpl;
 import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.util.GlobalLockManager;
 import org.sonar.server.util.OkHttpClientProvider;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
@@ -127,6 +128,8 @@ public class PlatformLevel1 extends PlatformLevel {
 
       // issues
       IssueIndex.class,
+
+      GlobalLockManager.class,
 
       new OkHttpClientProvider(),
 
