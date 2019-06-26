@@ -16,7 +16,15 @@ From the "Register new GitHub App" page, follow these steps to create your GitHu
 
 1. Under **GitHub App name**, give your app a name (such as SonarQubePRChecks).
 2. GitHub requires a **Homepage URL** and a **Webhook URL**. These values aren't important for Pull Request decoration, so you can use any URL (such as https://www.sonarqube.org/).
-3. Under "Permissions" set **Checks** to **Read & write**.
+3. Grant access for the following **Permissions**
+
+	| Permission          | Access       |
+	|---------------------|--------------|
+	| Checks              | Read & write |
+	| Repository metadata | Read-only    |
+	| Pull Requests       | Read-only    |
+	| Commit statuses     | Read-only    |
+
 4. Under "Where can this GitHub App be installed?," select **Any account**.
 5. Click **Create GitHub App**.
 
