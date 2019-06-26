@@ -4,7 +4,8 @@ url: /setup/upgrade-notes/
 ---
 
 ## Release 7.9 LTS Upgrade Notes  
-
+**MySQL No Longer Supported**
+SonarQube no longer supports MySQL. To migrate from MySQL to a supported database, see the free [MySQL Migrator tool](https://github.com/SonarSource/mysql-migrator).
 
 [Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=14945)
 
