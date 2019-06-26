@@ -88,6 +88,7 @@ import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_INSEC
 import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_RISKY_RESOURCE;
 import static org.sonar.server.security.SecurityStandardHelper.SONARSOURCE_CWE_MAPPING;
+import static org.sonar.server.security.SecurityStandardHelper.SONARSOURCE_OTHER_CWES_CATEGORY;
 import static org.sonar.server.security.SecurityStandardHelper.UNKNOWN_STANDARD;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -260,9 +261,9 @@ public class SearchAction implements IssuesWsAction, Startable {
       .setPossibleValues((Object[]) RuleType.values())
       .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
     action.createParam(PARAM_OWASP_TOP_10)
-      .setDescription("Comma-separated list of OWASP Top 10 lowercase categories. Use '" + UNKNOWN_STANDARD + "' to select issues not associated to any OWASP Top 10 category.")
+      .setDescription("Comma-separated list of OWASP Top 10 lowercase categories.")
       .setSince("7.3")
-      .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", UNKNOWN_STANDARD);
+      .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10");
     action.createParam(PARAM_SANS_TOP_25)
       .setDescription("Comma-separated list of SANS Top 25 categories.")
       .setSince("7.3")
@@ -271,9 +272,10 @@ public class SearchAction implements IssuesWsAction, Startable {
       .setDescription("Comma-separated list of CWE identifiers. Use '" + UNKNOWN_STANDARD + "' to select issues not associated to any CWE.")
       .setExampleValue("12,125," + UNKNOWN_STANDARD);
     action.createParam(PARAM_SONARSOURCE_SECURITY)
-      .setDescription("Comma-separated list of SonarSource security categories.")
+      .setDescription("Comma-separated list of SonarSource security categories. Use '" + SONARSOURCE_OTHER_CWES_CATEGORY + "' to select issues not associated" +
+        " with any category")
       .setSince("7.8")
-      .setPossibleValues(SONARSOURCE_CWE_MAPPING.keySet());
+      .setPossibleValues(ImmutableList.builder().addAll(SONARSOURCE_CWE_MAPPING.keySet()).add(SONARSOURCE_OTHER_CWES_CATEGORY).build());
     action.createParam(DEPRECATED_PARAM_AUTHORS)
       .setDeprecatedSince("7.7")
       .setDescription("This parameter is deprecated, please use '%s' instead", PARAM_AUTHOR)

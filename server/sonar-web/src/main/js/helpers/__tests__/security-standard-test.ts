@@ -53,9 +53,6 @@ describe('renderOwaspTop10Category', () => {
     owaspTop10: {
       a1: {
         title: 'Injection'
-      },
-      unknown: {
-        title: 'Not OWASP'
       }
     },
     sansTop25: {},
@@ -66,8 +63,6 @@ describe('renderOwaspTop10Category', () => {
     expect(renderOwaspTop10Category(standards, 'a1', true)).toEqual('OWASP A1 - Injection');
     expect(renderOwaspTop10Category(standards, 'a2')).toEqual('A2');
     expect(renderOwaspTop10Category(standards, 'a2', true)).toEqual('OWASP A2');
-    expect(renderOwaspTop10Category(standards, 'unknown')).toEqual('Not OWASP');
-    expect(renderOwaspTop10Category(standards, 'unknown', true)).toEqual('Not OWASP');
   });
 });
 
@@ -115,8 +110,6 @@ describe('renderSonarSourceSecurityCategory', () => {
     expect(renderSonarSourceSecurityCategory(standards, 'xss', true)).toEqual(
       'SONAR Cross-Site Scripting (XSS)'
     );
-    expect(renderSonarSourceSecurityCategory(standards, 'unknown')).toEqual('unknown');
-    expect(renderSonarSourceSecurityCategory(standards, 'unknown', true)).toEqual('SONAR unknown');
     expect(renderSonarSourceSecurityCategory(standards, 'others')).toEqual('Others');
     expect(renderSonarSourceSecurityCategory(standards, 'others', true)).toEqual('Others');
   });

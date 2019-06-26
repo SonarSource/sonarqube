@@ -218,8 +218,7 @@ public class IssueIndexSecurityReportsTest {
         tuple("a7", 0L, OptionalInt.empty(), 0L, 0L, 0L),
         tuple("a8", 0L, OptionalInt.empty(), 0L, 0L, 1L /* reviewedHotspot */),
         tuple("a9", 0L, OptionalInt.empty(), 0L, 0L, 0L),
-        tuple("a10", 0L, OptionalInt.empty(), 0L, 0L, 0L),
-        tuple("unknown", 1L /* notowaspvul */, OptionalInt.of(4) /* CRITICAL = D */, 1L /* notowasphotspot */, 0L, 0L));
+        tuple("a10", 0L, OptionalInt.empty(), 0L, 0L, 0L));
     return owaspTop10Report;
   }
 

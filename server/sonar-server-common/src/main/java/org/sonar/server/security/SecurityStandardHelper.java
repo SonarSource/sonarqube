@@ -20,8 +20,10 @@
 package org.sonar.server.security;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Ordering;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -74,6 +76,9 @@ public class SecurityStandardHelper {
     .put("insecure-conf", ImmutableSet.of("102", "489"))
     .put("file-manipulation", ImmutableSet.of("97", "73"))
     .build();
+  public static final String SONARSOURCE_OTHER_CWES_CATEGORY = "others";
+  public static final Ordering<String> SONARSOURCE_CATEGORY_ORDERING = Ordering.explicit(
+    ImmutableList.<String>builder().addAll(SONARSOURCE_CWE_MAPPING.keySet()).add(SONARSOURCE_OTHER_CWES_CATEGORY).build());
 
   private static final Splitter SECURITY_STANDARDS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
@@ -94,19 +99,19 @@ public class SecurityStandardHelper {
   }
 
   public static List<String> getSonarSourceSecurityCategories(Collection<String> cwe) {
-    return SONARSOURCE_CWE_MAPPING
+    List<String> result = SONARSOURCE_CWE_MAPPING
       .keySet()
       .stream()
       .filter(k -> cwe.stream().anyMatch(SONARSOURCE_CWE_MAPPING.get(k)::contains))
       .collect(toList());
+    return result.isEmpty() ? singletonList(SONARSOURCE_OTHER_CWES_CATEGORY) : result;
   }
 
   public static List<String> getOwaspTop10(Collection<String> securityStandards) {
-    List<String> result = securityStandards.stream()
+    return securityStandards.stream()
       .filter(s -> s.startsWith(OWASP_TOP10_PREFIX))
       .map(s -> s.substring(OWASP_TOP10_PREFIX.length()))
       .collect(toList());
-    return result.isEmpty() ? singletonList(UNKNOWN_STANDARD) : result;
   }
 
   public static List<String> getCwe(Collection<String> securityStandards) {

@@ -157,7 +157,7 @@ import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_INSEC
 import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_RISKY_RESOURCE;
 import static org.sonar.server.security.SecurityStandardHelper.SONARSOURCE_CWE_MAPPING;
-import static org.sonar.server.security.SecurityStandardHelper.UNKNOWN_STANDARD;
+import static org.sonar.server.security.SecurityStandardHelper.SONARSOURCE_OTHER_CWES_CATEGORY;
 import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_AUTHORS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
@@ -880,15 +880,15 @@ public class IssueIndex {
 
   public List<SecurityStandardCategoryStatistics> getSonarSourceReport(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
     SearchRequestBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
-    SONARSOURCE_CWE_MAPPING.keySet()
-      .forEach(
-        sonarsourceCategory -> request.addAggregation(createAggregation(FIELD_ISSUE_SONARSOURCE_SECURITY, sonarsourceCategory, includeCwe, Optional.of(SONARSOURCE_CWE_MAPPING))));
+    Stream.concat(SONARSOURCE_CWE_MAPPING.keySet().stream(), Stream.of(SONARSOURCE_OTHER_CWES_CATEGORY))
+      .forEach(sonarsourceCategory -> request.addAggregation(
+        createAggregation(FIELD_ISSUE_SONARSOURCE_SECURITY, sonarsourceCategory, includeCwe, Optional.of(SONARSOURCE_CWE_MAPPING))));
     return processSecurityReportSearchResults(request, includeCwe);
   }
 
   public List<SecurityStandardCategoryStatistics> getOwaspTop10Report(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
     SearchRequestBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
-    Stream.concat(IntStream.rangeClosed(1, 10).mapToObj(i -> "a" + i), Stream.of(UNKNOWN_STANDARD))
+    IntStream.rangeClosed(1, 10).mapToObj(i -> "a" + i)
       .forEach(owaspCategory -> request.addAggregation(createAggregation(FIELD_ISSUE_OWASP_TOP_10, owaspCategory, includeCwe, Optional.empty())));
     return processSecurityReportSearchResults(request, includeCwe);
   }

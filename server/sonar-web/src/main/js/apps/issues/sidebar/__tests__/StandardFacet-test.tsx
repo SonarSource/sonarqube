@@ -160,25 +160,25 @@ it('should toggle sub-facets', () => {
 it('should display correct selection', () => {
   const wrapper = shallowRender({
     open: true,
-    owaspTop10: ['a1', 'a3', 'unknown'],
+    owaspTop10: ['a1', 'a3'],
     sansTop25: ['risky-resource', 'foo'],
     cwe: ['42', '1111', 'unknown'],
-    sonarsourceSecurity: ['sql-injection']
+    sonarsourceSecurity: ['sql-injection', 'others']
   });
   checkValues('standards', [
     'SONAR SQL Injection',
+    'Others',
     'OWASP A1 - a1 title',
     'OWASP A3',
-    'Not OWAPS',
     'SANS Risky Resource Management',
     'SANS foo',
     'CWE-42 - cwe-42 title',
     'CWE-1111',
     'Unknown CWE'
   ]);
-  checkValues('owaspTop10', ['A1 - a1 title', 'A3', 'Not OWAPS']);
+  checkValues('owaspTop10', ['A1 - a1 title', 'A3']);
   checkValues('sansTop25', ['Risky Resource Management', 'foo']);
-  checkValues('sonarsourceSecurity', ['SQL Injection']);
+  checkValues('sonarsourceSecurity', ['SQL Injection', 'Others']);
 
   function checkValues(property: string, values: string[]) {
     expect(
@@ -219,10 +219,13 @@ function shallowRender(props: Partial<StandardFacet['props']> = {}) {
   );
   wrapper.setState({
     standards: {
-      owaspTop10: { a1: { title: 'a1 title' }, unknown: { title: 'Not OWAPS' } },
+      owaspTop10: { a1: { title: 'a1 title' } },
       sansTop25: { 'risky-resource': { title: 'Risky Resource Management' } },
       cwe: { 42: { title: 'cwe-42 title' }, unknown: { title: 'Unknown CWE' } },
-      sonarsourceSecurity: { 'sql-injection': { title: 'SQL Injection' } }
+      sonarsourceSecurity: {
+        'sql-injection': { title: 'SQL Injection' },
+        others: { title: 'Others' }
+      }
     }
   });
   return wrapper;

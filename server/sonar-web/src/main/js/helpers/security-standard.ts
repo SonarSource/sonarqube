@@ -40,8 +40,6 @@ export function renderOwaspTop10Category(
   const record = standards.owaspTop10[category];
   if (!record) {
     return addPrefix(category.toUpperCase(), 'OWASP', withPrefix);
-  } else if (category === 'unknown') {
-    return record.title;
   } else {
     return addPrefix(`${category.toUpperCase()} - ${record.title}`, 'OWASP', withPrefix);
   }
@@ -62,10 +60,12 @@ export function renderSonarSourceSecurityCategory(
   withPrefix = false
 ): string {
   const record = standards.sonarsourceSecurity[category];
-  if (category === 'others') {
+  if (!record) {
+    return addPrefix(category.toUpperCase(), 'SONAR', withPrefix);
+  } else if (category === 'others') {
     return record.title;
   } else {
-    return addPrefix(record ? record.title : category, 'SONAR', withPrefix);
+    return addPrefix(record.title, 'SONAR', withPrefix);
   }
 }
 
