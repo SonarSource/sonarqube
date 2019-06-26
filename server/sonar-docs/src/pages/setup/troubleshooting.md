@@ -40,4 +40,36 @@ Unless you wrote the code that produced this error, you really only care about:
 * the first line, which ought to have a human-readable message after the colon. In this case, it's Unable to blame file `**/**/foo.java`
 * and any line that starts with `Caused by:`. There are often several `Caused by` lines, and indentation makes them easy to find as you scroll through the error. Be sure to read each of these lines. Very often one of them - the last one or next to last one - contains the real problem.
 
+## Recovering from Elasticsearch read-only indices
+
+You may encounter issues with Elasticsearch (ES) indices becoming locked in read-only mode. ES requires free disk space available and implements a safety mechanism to prevent the disk from being flooded with index data that:
+
+* **For non-DCE** –  locks all indices in read-only mode when the 95% used disk usage watermark is reached.  
+* **For DCE** – locks all or some indices in read-only mode when one or more node reaches the 95% used disk usage watermark.
+
+ES shows warnings in the logs as soon as disk usage reaches 85% and 90%. At 95% usage and above, indices turning read-only causes errors in the web and compute engine.
+
+Freeing disk space will *not* automatically make the indices return to read-write. To make indices read-write, you also need to:
+
+* **For non-DCE** – restart SonarQube.
+* **For DCE** – restart *ALL* application nodes (the first application node restarted after all have been stopped will make the indices read-write).  
+
+SonarQube's built-in resilience mechanism allows SonarQube to eventually recover from the indices being behind data in the DB (this process can take a while).
+
+If you still have inconsistencies, you'll need to rebuild the indices (this operation can take a long time depending on the number of issues and components):
+
+**non-DCE:**  
+
+1. Stop SonarQube  
+1. Delete the data/es6 directory  
+1. Restart SonarQube  
+
+**DCE:**  
+
+1. Stop the whole cluster (ES and application nodes)  
+1. Delete the data/es6 directory on each ES node  
+1. Restart the whole cluster  
+    
+**Note:** See [Configure & Operate a Cluster](/setup/operate-cluster/) for information on stopping and starting a cluster.
+
 <!-- /sonarqube -->

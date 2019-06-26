@@ -13,15 +13,15 @@ In case your SonarQube Server is running on Linux and you are using Oracle, the 
  -Djava.security.egd=file:///dev/urandom
  ```
 
- ## Elasticsearch (aka ES)
+ ## Elasticsearch (ES)
 * [Elasticsearch](https://www.elastic.co/) is used by SonarQube in the background in the SearchServer process. To ensure good performance of your SonarQube, you need to follow these recommendations that are linked to ES usage.
 
 ## JVM
 * It is recommended to set the min and max memory to the same value to prevent the heap from resizing at runtime, a very costly process. See -Xms and  -Xmx of property `sonar.search.javaOpts`.
 
 ## Disk
-* Free disk space is an absolute requirement. ES will lock indices in read-only mode if free disk space drops below 15%. 
-* Disk can easily become the bottleneck of ES. If you can afford SSDs, they are by far superior to any spinning media. SSD-backed nodes see boosts in both query and indexing performance. If you use spinning media, try to obtain the fastest disks possible (high performance server disks 15k RPM drives).
+* Free disk space is an absolute requirement. ES implements a safety mechanism to prevent the disk from being flooded with index data that locks all indices in read-only mode when a 95% disk usage watermark is reached. For information on recovering from ES read-only indices, see the [Troubleshooting](/setup/troubleshooting/) page.
+* Disk can easily  become the bottleneck of ES. If you can afford SSDs, they are by far superior to any spinning media. SSD-backed nodes see boosts in both query and indexing performance. If you use spinning media, try to obtain the fastest disks possible (high performance server disks 15k RPM drives).
 * Make sure to increase the number of open files descriptors on the machine (or for the user running SonarQube server). Setting it to 32k or even 64k is recommended. See [this ElasticSearch article](https://www.elastic.co/guide/en/elasticsearch/reference/current/file-descriptors.html).
 * Using RAID 0 is an effective way to increase disk speed, for both spinning disks and SSD. There is no need to use mirroring or parity variants of RAID because of Elasticsearch replicas and database primary storage.
 8 Do not use remote-mounted storage, such as NFS, SMB/CIFS or network-attached storages (NAS). They are often slower, display larger latencies with a wider deviation in average latency, and are a single point of failure.
