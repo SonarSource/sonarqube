@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { sanitize } from 'dompurify';
 import Avatar from '../../ui/Avatar';
 import Toggler from '../../controls/Toggler';
 import { EditButton, DeleteButton } from '../../ui/buttons';
@@ -89,8 +90,7 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
         </div>
         <div
           className="issue-comment-text markdown"
-          // Safe: Comes from the backend, after markdown transformation to html
-          dangerouslySetInnerHTML={{ __html: comment.htmlText }}
+          dangerouslySetInnerHTML={{ __html: sanitize(comment.htmlText) }}
         />
         <div className="issue-comment-age">
           <DateFromNow date={comment.createdAt} />
