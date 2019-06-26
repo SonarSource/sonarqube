@@ -27,13 +27,7 @@ export const ISSUE_TYPES: T.IssueType[] = [
   'CODE_SMELL',
   'SECURITY_HOTSPOT'
 ];
-export const RULE_TYPES: T.RuleType[] = [
-  'BUG',
-  'VULNERABILITY',
-  'CODE_SMELL',
-  'SECURITY_HOTSPOT',
-  'UNKNOWN'
-];
+export const RULE_TYPES: T.RuleType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
 export const RULE_STATUSES = ['READY', 'BETA', 'DEPRECATED'];
 
 export const CHART_COLORS_RANGE_PERCENT = [

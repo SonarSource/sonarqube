@@ -105,10 +105,6 @@ exports[`should handle re-activation 1`] = `
                   "label": "issue.type.SECURITY_HOTSPOT",
                   "value": "SECURITY_HOTSPOT",
                 },
-                Object {
-                  "label": "issue.type.UNKNOWN",
-                  "value": "UNKNOWN",
-                },
               ]
             }
             searchable={false}
@@ -339,10 +335,6 @@ exports[`should render correctly 1`] = `
                 Object {
                   "label": "issue.type.SECURITY_HOTSPOT",
                   "value": "SECURITY_HOTSPOT",
-                },
-                Object {
-                  "label": "issue.type.UNKNOWN",
-                  "value": "UNKNOWN",
                 },
               ]
             }
