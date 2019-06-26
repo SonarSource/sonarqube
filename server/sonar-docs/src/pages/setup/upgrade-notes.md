@@ -3,6 +3,11 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 7.9 LTS Upgrade Notes  
+
+
+[Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=14945)
+
 ## Release 7.8 Upgrade Notes
 **MySQL Deprecation and Migration**  
 This is the last version that will support MySQL. To migrate from MySQL to a supported database, see the free [MySQL Migrator tool](https://github.com/SonarSource/mysql-migrator).
@@ -36,6 +41,8 @@ The SAML and GitHub Authentication plugins are now embedded in all editions ([SO
 
 **Deprecated web services dropped**  
 Web services that were deprecated in 5.x versions have been dropped. ([SONAR-11876](https://jira.sonarsource.com/browse/SONAR-11876))
+
+[Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=14939)
 
 ## Release 7.7 Upgrade Notes
 **Deprecated parameters dropped**  
