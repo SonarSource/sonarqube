@@ -20,7 +20,6 @@
 package org.sonar.server.platform.db.migration.version.v70;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -63,12 +62,11 @@ public class PopulateLiveMeasuresTest {
       field("VALUE"),
       field("TEXT_VALUE"),
       field("VARIATION"),
-      field("MEASURE_DATA")
-    ).containsExactlyInAnyOrder(generateLiveMeasures());
-  }
+      field("MEASURE_DATA")).containsExactlyInAnyOrder(generateLiveMeasures());
 
-  private Function<Map<String, Object>, Object> field(String name) {
-    return m -> m.get(name);
+    assertThat(db.select("select project_uuid as \"PROJECT_UUID\" from live_measures_p"))
+      .extracting(t -> t.get("PROJECT_UUID"))
+      .containsOnly("PRJ1", "PRJ2");
   }
 
   @Test
@@ -85,60 +83,184 @@ public class PopulateLiveMeasuresTest {
       field("VALUE"),
       field("TEXT_VALUE"),
       field("VARIATION"),
-      field("MEASURE_DATA")
-    ).containsExactlyInAnyOrder(generateLiveMeasures());
+      field("MEASURE_DATA")).containsExactlyInAnyOrder(generateLiveMeasures());
+  }
+
+  @Test
+  public void do_not_fail_if_live_measure_of_component_already_partially_inserted() throws SQLException {
+    generateProjectMeasures();
+
+    db.executeInsert(
+      "LIVE_MEASURES",
+      "UUID", "foo",
+      "COMPONENT_UUID", "PRJ1",
+      "PROJECT_UUID", "PRJ1",
+      "METRIC_ID", 1010,
+      "CREATED_AT", 1L,
+      "UPDATED_AT", 1L
+    );
+
+    underTest.execute();
+
+  }
+
+  private Function<Map<String, Object>, Object> field(String name) {
+    return m -> m.get(name);
   }
 
   private void generateProjectMeasures() {
-    Map<String, Object> project = new HashMap<>();
-    project.put("UUID", "PRJ1");
-    project.put("ORGANIZATION_UUID", "ORG1");
-    project.put("UUID_PATH", "X");
-    project.put("ROOT_UUID", "X");
-    project.put("PROJECT_UUID", "PRJ1");
-    project.put("PRIVATE", "FALSE");
-    db.executeInsert("PROJECTS", project);
+    db.executeInsert("PROJECTS",
+      "UUID", "PRJ1",
+      "PROJECT_UUID", "PRJ1",
+      "ORGANIZATION_UUID", "ORG1",
+      "UUID_PATH", "X",
+      "ROOT_UUID", "X",
+      "PRIVATE", "FALSE");
+    db.executeInsert("PROJECTS",
+      "UUID", "DIR1",
+      "PROJECT_UUID", "PRJ1",
+      "ORGANIZATION_UUID", "ORG1",
+      "UUID_PATH", "X",
+      "ROOT_UUID", "X",
+      "PRIVATE", "FALSE");
+    db.executeInsert("PROJECTS",
+      "UUID", "FIL1",
+      "PROJECT_UUID", "PRJ1",
+      "ORGANIZATION_UUID", "ORG1",
+      "UUID_PATH", "X",
+      "ROOT_UUID", "X",
+      "PRIVATE", "FALSE");
+    db.executeInsert("PROJECTS",
+      "UUID", "PRJ2",
+      "PROJECT_UUID", "PRJ2",
+      "ORGANIZATION_UUID", "ORG1",
+      "UUID_PATH", "X",
+      "ROOT_UUID", "X",
+      "PRIVATE", "FALSE");
+    db.executeInsert("PROJECTS",
+      "UUID", "DIR2",
+      "PROJECT_UUID", "PRJ2",
+      "ORGANIZATION_UUID", "ORG1",
+      "UUID_PATH", "X",
+      "ROOT_UUID", "X",
+      "PRIVATE", "FALSE");
+    db.executeInsert("PROJECTS",
+      "UUID", "FIL2",
+      "PROJECT_UUID", "PRJ2",
+      "ORGANIZATION_UUID", "ORG1",
+      "UUID_PATH", "X",
+      "ROOT_UUID", "X",
+      "PRIVATE", "FALSE");
+    db.executeInsert("PROJECTS",
+      "UUID", "PRJ3",
+      "PROJECT_UUID", "PRJ3",
+      "ORGANIZATION_UUID", "ORG1",
+      "UUID_PATH", "X",
+      "ROOT_UUID", "X",
+      "PRIVATE", "FALSE");
+    db.executeInsert("PROJECTS",
+      "UUID", "PRJ4",
+      "PROJECT_UUID", "PRJ4",
+      "ORGANIZATION_UUID", "ORG1",
+      "UUID_PATH", "X",
+      "ROOT_UUID", "X",
+      "PRIVATE", "FALSE");
 
-    Map<String, Object> analysis1 = new HashMap<>();
-    analysis1.put("UUID", "A1");
-    analysis1.put("ISLAST", "FALSE");
-    analysis1.put("COMPONENT_UUID", "PRJ1");
-    db.executeInsert("SNAPSHOTS", analysis1);
+    // non last snapshot, none of its measures should be copied to live_measures
+    db.executeInsert("SNAPSHOTS",
+      "UUID", "1A1",
+      "ISLAST", "FALSE",
+      "COMPONENT_UUID", "PRJ1");
+    db.executeInsert("PROJECT_MEASURES",
+      "COMPONENT_UUID", "PRJ1",
+      "ANALYSIS_UUID", "1A1",
+      "METRIC_ID", "100");
+    db.executeInsert("PROJECT_MEASURES",
+      "COMPONENT_UUID", "DIR1",
+      "ANALYSIS_UUID", "1A1",
+      "METRIC_ID", "110",
+      "VALUE", "11");
+    db.executeInsert("PROJECT_MEASURES",
+      "COMPONENT_UUID", "FIL1",
+      "ANALYSIS_UUID", "1A1",
+      "METRIC_ID", "120",
+      "VALUE", "12");
+    db.executeInsert("SNAPSHOTS",
+      "UUID", "1A2",
+      "ISLAST", "FALSE",
+      "COMPONENT_UUID", "PRJ2");
+    db.executeInsert("PROJECT_MEASURES",
+      "COMPONENT_UUID", "PRJ2",
+      "ANALYSIS_UUID", "1A2",
+      "METRIC_ID", "200");
+    db.executeInsert("PROJECT_MEASURES",
+      "COMPONENT_UUID", "DIR2",
+      "ANALYSIS_UUID", "1A2",
+      "METRIC_ID", "210",
+      "VALUE", "21");
+    db.executeInsert("PROJECT_MEASURES",
+      "COMPONENT_UUID", "FIL2",
+      "ANALYSIS_UUID", "1A2",
+      "METRIC_ID", "220",
+      "VALUE", "22");
+    // PRJ3 has only non-last snapshot??!!?? => won't go into live_measures_p
+    db.executeInsert("SNAPSHOTS",
+      "UUID", "1A3",
+      "ISLAST", "FALSE",
+      "COMPONENT_UUID", "PRJ3");
 
-    Map<String, Object> analysis2 = new HashMap<>();
-    analysis2.put("UUID", "A2");
-    analysis2.put("ISLAST", "TRUE");
-    analysis2.put("COMPONENT_UUID", "PRJ1");
-    db.executeInsert("SNAPSHOTS", analysis2);
-
-    Map<String, Object> measure1 = new HashMap<>();
-    measure1.put("COMPONENT_UUID", "PRJ1");
-    measure1.put("ANALYSIS_UUID", "A1");
-    measure1.put("METRIC_ID", "123");
-    db.executeInsert("PROJECT_MEASURES", measure1);
-
-    Map<String, Object> measure2 = new HashMap<>();
-    measure2.put("COMPONENT_UUID", "PRJ1");
-    measure2.put("ANALYSIS_UUID", "A2");
-    measure2.put("METRIC_ID", "123");
-    measure2.put("VALUE", "234");
-    measure2.put("TEXT_VALUE", "TEXT_VALUEx");
-    measure2.put("VARIATION_VALUE_1", "345");
-    measure2.put("MEASURE_DATA", "FFFF");
-    db.executeInsert("PROJECT_MEASURES", measure2);
-
-    // measures with person_id not null are purged later
-    // by another migration
-    Map<String, Object> personMeasure = new HashMap<>();
-    personMeasure.put("COMPONENT_UUID", "PRJ1");
-    personMeasure.put("ANALYSIS_UUID", "A2");
-    personMeasure.put("METRIC_ID", "200");
-    personMeasure.put("VALUE", "234");
-    personMeasure.put("TEXT_VALUE", "TEXT_VALUEx");
-    personMeasure.put("VARIATION_VALUE_1", "345");
-    personMeasure.put("MEASURE_DATA", "FFFF");
-    personMeasure.put("PERSON_ID", "99");
-    db.executeInsert("PROJECT_MEASURES", personMeasure);
+    // last snapshot, all measure should be copied to live_measures
+    db.executeInsert("SNAPSHOTS",
+      "UUID", "2A1",
+      "ISLAST", "TRUE",
+      "COMPONENT_UUID", "PRJ1");
+    db.executeInsert("PROJECT_MEASURES",
+      "COMPONENT_UUID", "PRJ1",
+      "ANALYSIS_UUID", "2A1",
+      "METRIC_ID", "1010",
+      "VALUE", "101",
+      "TEXT_VALUE", "TEXT_VALUEx",
+      "VARIATION_VALUE_1", "345",
+      "MEASURE_DATA", "FFFF");
+    db.executeInsert("PROJECT_MEASURES",
+      "COMPONENT_UUID", "PRJ1",
+      "ANALYSIS_UUID", "2A1",
+      "METRIC_ID", "1020",
+      "VALUE", "102");
+    db.executeInsert("PROJECT_MEASURES",
+      "COMPONENT_UUID", "DIR1",
+      "ANALYSIS_UUID", "2A1",
+      "METRIC_ID", "1030",
+      "VALUE", "103");
+    // FIL1 has no measure for this snapshot => will trigger infinite loop if not taken into account
+    db.executeInsert("SNAPSHOTS",
+      "UUID", "2A2",
+      "ISLAST", "TRUE",
+      "COMPONENT_UUID", "PRJ2");
+    db.executeInsert("PROJECT_MEASURES",
+      "COMPONENT_UUID", "PRJ2",
+      "ANALYSIS_UUID", "2A2",
+      "METRIC_ID", "2010",
+      "VALUE", "201",
+      "TEXT_VALUE", "TEXT_VALUEx",
+      "VARIATION_VALUE_1", "345",
+      "MEASURE_DATA", "FFFF");
+    db.executeInsert("PROJECT_MEASURES",
+      "COMPONENT_UUID", "PRJ2",
+      "ANALYSIS_UUID", "2A2",
+      "METRIC_ID", "2020",
+      "VALUE", "202");
+    db.executeInsert("PROJECT_MEASURES",
+      "COMPONENT_UUID", "DIR2",
+      "ANALYSIS_UUID", "2A2",
+      "METRIC_ID", "2030",
+      "VALUE", "203");
+    // FIL2 has no measure for this snapshot => will trigger infinite loop if not taken into account
+    // PRJ5 has last snapshot without measure => won't go into live_measures_p
+    db.executeInsert("SNAPSHOTS",
+      "UUID", "2A4",
+      "ISLAST", "FALSE",
+      "COMPONENT_UUID", "PRJ4");
   }
 
   private List<Map<String, Object>> getLiveMeasures() {
@@ -147,7 +269,12 @@ public class PopulateLiveMeasuresTest {
 
   private Tuple[] generateLiveMeasures() {
     return new Tuple[] {
-      tuple("PRJ1", "PRJ1", 123L, 234.0, "TEXT_VALUEx", 345.0, new byte[] {-1, -1})
+      tuple("PRJ1", "PRJ1", 1010L, 101.0, "TEXT_VALUEx", 345.0, new byte[] {-1, -1}),
+      tuple("PRJ1", "PRJ1", 1020L, 102.0, null, null, null),
+      tuple("DIR1", "PRJ1", 1030L, 103.0, null, null, null),
+      tuple("PRJ2", "PRJ2", 2010L, 201.0, "TEXT_VALUEx", 345.0, new byte[] {-1, -1}),
+      tuple("PRJ2", "PRJ2", 2020L, 202.0, null, null, null),
+      tuple("DIR2", "PRJ2", 2030L, 203.0, null, null, null)
     };
   }
 }

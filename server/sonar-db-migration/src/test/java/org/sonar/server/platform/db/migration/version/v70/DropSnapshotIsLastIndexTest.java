@@ -17,29 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration;
+package org.sonar.server.platform.db.migration.version.v70;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.db.CoreDbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+public class DropSnapshotIsLastIndexTest {
 
-public class MigrationConfigurationModuleTest {
-  private MigrationConfigurationModule underTest = new MigrationConfigurationModule();
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropSnapshotIsLastIndexTest.class, "snapshots.sql");
+
+  private DropSnapshotIsLastIndex underTest = new DropSnapshotIsLastIndex(db.database());
 
   @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
+  public void drop_index_on_snapshots_islast() throws SQLException {
+    underTest.execute();
 
-    underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER
-        // DbVersion classes
-        + 20
-        // Others
-        + 4);
+    db.assertIndexDoesNotExist("snapshots", "ix_snapshot_is_last");
   }
 
+  @Test
+  public void migration_is_reentrant() throws SQLException {
+    underTest.execute();
+
+    underTest.execute();
+  }
 }

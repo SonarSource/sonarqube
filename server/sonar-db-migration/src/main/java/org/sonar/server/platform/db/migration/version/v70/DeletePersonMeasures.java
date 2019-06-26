@@ -20,7 +20,6 @@
 package org.sonar.server.platform.db.migration.version.v70;
 
 import java.sql.SQLException;
-import org.sonar.api.config.Configuration;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -30,22 +29,14 @@ import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-public class DeletePersonAndFileMeasures extends DataChange {
+public class DeletePersonMeasures extends DataChange {
 
-  private final Configuration configuration;
-
-  public DeletePersonAndFileMeasures(Database db, Configuration configuration) {
+  public DeletePersonMeasures(Database db) {
     super(db);
-    this.configuration = configuration;
   }
 
   @Override
   protected void execute(Context context) throws SQLException {
-    if (configuration.getBoolean("sonar.sonarcloud.enabled").orElse(false)) {
-      // clean-up will be done in background so that interruption of service
-      // is reduced during upgrade
-      return;
-    }
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select uuid from snapshots");
     massUpdate.rowPluralName("snapshots");
@@ -68,27 +59,27 @@ public class DeletePersonAndFileMeasures extends DataChange {
         return "delete pm from project_measures pm " +
           "inner join projects c on c.uuid = pm.component_uuid " +
           "where pm.analysis_uuid = ? " +
-          "and (c.qualifier in ('UTS', 'FIL') or pm.person_id is not null)";
+          "and pm.person_id is not null";
       case H2.ID:
         return "delete from project_measures " +
           "where id in ( " +
           "  select pm.id from project_measures pm " +
           "  inner join projects c on c.uuid = pm.component_uuid " +
           "  where pm.analysis_uuid = ? " +
-          "  and (c.qualifier in ('UTS', 'FIL') or pm.person_id is not null) " +
+          "  and pm.person_id is not null" +
           ")";
       case PostgreSql.ID:
         return "delete from project_measures pm " +
           "using projects c " +
           "where pm.analysis_uuid = ? " +
           "and c.uuid = pm.component_uuid " +
-          "and (c.qualifier in ('UTS', 'FIL') or pm.person_id is not null) ";
+          "and pm.person_id is not null";
       case Oracle.ID:
         return "delete from project_measures pm where exists (" +
           "  select 1 from project_measures pm2 " +
           "  inner join projects c on c.uuid = pm2.component_uuid " +
           "  where pm2.analysis_uuid = ? " +
-          "  and (c.qualifier in ('UTS', 'FIL') or pm.person_id is not null) " +
+          "  and pm.person_id is not null " +
           "  and pm.id = pm2.id" +
           ") and pm.analysis_uuid = ?";
       default:

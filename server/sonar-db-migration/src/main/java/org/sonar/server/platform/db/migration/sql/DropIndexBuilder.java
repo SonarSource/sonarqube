@@ -19,7 +19,11 @@
  */
 package org.sonar.server.platform.db.migration.sql;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
+import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -72,4 +76,11 @@ public class DropIndexBuilder {
     }
   }
 
+  public boolean indexExists(Database database) throws SQLException {
+    validateTableName(tableName);
+    validateIndexName(indexName);
+    try (Connection connection = database.getDataSource().getConnection()) {
+      return DatabaseUtils.indexExists(tableName, indexName, connection);
+    }
+  }
 }

@@ -294,17 +294,7 @@ public class DatabaseUtils {
   }
 
   private static boolean doTableExists(String table, Connection connection) {
-    String schema = null;
-
-    try {
-      // Using H2 with a JDBC TCP connection is throwing an exception
-      // See org.h2.engine.SessionRemote#getCurrentSchemaName()
-      if (!"H2 JDBC Driver".equals(connection.getMetaData().getDriverName())) {
-        schema = connection.getSchema();
-      }
-    } catch (SQLException e) {
-      Loggers.get(DatabaseUtils.class).warn("Fail to determine schema. Keeping it null for searching tables", e);
-    }
+    String schema = getSchema(connection);
 
     // table type is used to speed-up Oracle by removing introspection of system tables and aliases.
     try (ResultSet rs = connection.getMetaData().getTables(connection.getCatalog(), schema, table, TABLE_TYPE)) {
@@ -318,6 +308,44 @@ public class DatabaseUtils {
     } catch (SQLException e) {
       throw wrapSqlException(e, "Can not check that table %s exists", table);
     }
+  }
+
+  public static boolean indexExists(String table, String index, Connection connection) {
+    return doIndexExists(table, index, connection) ||
+      doIndexExists(table.toLowerCase(Locale.ENGLISH), index, connection) ||
+      doIndexExists(table.toUpperCase(Locale.ENGLISH), index, connection);
+  }
+
+  private static boolean doIndexExists(String table, String index, Connection connection) {
+    String schema = getSchema(connection);
+
+    try (ResultSet rs = connection.getMetaData().getIndexInfo(connection.getCatalog(), schema, table, false, true)) {
+      while (rs.next()) {
+        String indexName = rs.getString("INDEX_NAME");
+        if (index.equalsIgnoreCase(indexName)) {
+          return true;
+        }
+      }
+      return false;
+    } catch (SQLException e) {
+      throw wrapSqlException(e, "Can not check that table %s exists", table);
+    }
+  }
+
+  @CheckForNull
+  private static String getSchema(Connection connection) {
+    String schema = null;
+
+    try {
+      // Using H2 with a JDBC TCP connection is throwing an exception
+      // See org.h2.engine.SessionRemote#getCurrentSchemaName()
+      if (!"H2 JDBC Driver".equals(connection.getMetaData().getDriverName())) {
+        schema = connection.getSchema();
+      }
+    } catch (SQLException e) {
+      Loggers.get(DatabaseUtils.class).warn("Fail to determine schema. Keeping it null for searching tables", e);
+    }
+    return schema;
   }
 
   public static IllegalStateException wrapSqlException(SQLException e, String message, Object... messageArgs) {

@@ -405,9 +405,17 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
   }
 
   public void assertTableDoesNotExist(String table) {
+    assertTableExists(table, false);
+  }
+
+  public void assertTableExists(String table) {
+    assertTableExists(table, true);
+  }
+
+  private void assertTableExists(String table, boolean expected) {
     try (Connection connection = getConnection()) {
       boolean tableExists = DatabaseUtils.tableExists(table, connection);
-      assertThat(tableExists).isFalse();
+      assertThat(tableExists).isEqualTo(expected);
     } catch (Exception e) {
       throw new IllegalStateException("Fail to check if table exists", e);
     }

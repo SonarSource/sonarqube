@@ -17,29 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration;
+package org.sonar.server.platform.db.migration.version.v70;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.db.CoreDbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+public class DropTempTableLiveMeasuresPTest {
 
-public class MigrationConfigurationModuleTest {
-  private MigrationConfigurationModule underTest = new MigrationConfigurationModule();
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropTempTableLiveMeasuresPTest.class, "live_measures_p.sql");
+
+  private DropTempTableLiveMeasuresP underTest = new DropTempTableLiveMeasuresP(db.database());
 
   @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
+  public void drop_table_live_measures_p() throws SQLException {
+    String tableName = "live_measures_p";
 
-    underTest.configure(container);
+    db.assertTableExists(tableName);
 
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER
-        // DbVersion classes
-        + 20
-        // Others
-        + 4);
+    underTest.execute();
+
+    db.assertTableDoesNotExist(tableName);
   }
 
+  @Test
+  public void migration_is_reentrant() throws SQLException {
+    underTest.execute();
+
+    underTest.execute();
+  }
 }

@@ -19,23 +19,30 @@
  */
 package org.sonar.server.platform.db.migration.version.v70;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DeleteFileMeasures extends DataChange {
 
-public class DbVersion70Test {
-
-  private DbVersion70 underTest = new DbVersion70();
-
-  @Test
-  public void migrationNumber_starts_at_1900() {
-    verifyMinimumMigrationNumber(underTest, 1930);
+  public DeleteFileMeasures(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 30);
+  @Override
+  protected void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("select c.uuid from projects c where c.qualifier = 'UTS' or  c.qualifier = 'FIL'");
+    massUpdate.rowPluralName("files");
+    massUpdate.update("delete from project_measures pm where pm.component_uuid=?")
+      .setBatchSize(10);
+
+    massUpdate.execute((row, update) -> {
+      String componentUuid = row.getString(1);
+      update.setString(1, componentUuid);
+      return true;
+    });
   }
 
 }

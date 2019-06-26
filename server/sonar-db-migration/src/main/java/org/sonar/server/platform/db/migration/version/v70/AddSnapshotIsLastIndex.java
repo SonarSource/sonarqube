@@ -19,23 +19,29 @@
  */
 package org.sonar.server.platform.db.migration.version.v70;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
 
-public class DbVersion70Test {
+public class AddSnapshotIsLastIndex extends DdlChange {
+  static final String TABLE_NAME = "snapshots";
+  static final String INDEX_NAME = "ix_snapshot_is_last";
 
-  private DbVersion70 underTest = new DbVersion70();
-
-  @Test
-  public void migrationNumber_starts_at_1900() {
-    verifyMinimumMigrationNumber(underTest, 1930);
+  public AddSnapshotIsLastIndex(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 30);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(
+      new CreateIndexBuilder(getDialect())
+        .setTable(TABLE_NAME)
+        .setName(INDEX_NAME)
+        .setUnique(false)
+        .addColumn(newBooleanColumnDefBuilder().setColumnName("islast").setIsNullable(false).setDefaultValue(false).build())
+        .build());
   }
-
 }

@@ -19,23 +19,34 @@
  */
 package org.sonar.server.platform.db.migration.version.v70;
 
+import java.sql.SQLException;
+import java.sql.Types;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class CreateTempTableLiveMeasuresPTest {
+  @Rule
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(CreateTempTableLiveMeasuresPTest.class, "empty.sql");
 
-public class DbVersion70Test {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  private DbVersion70 underTest = new DbVersion70();
+  private CreateTempTableLiveMeasuresP underTest = new CreateTempTableLiveMeasuresP(dbTester.database());
 
   @Test
-  public void migrationNumber_starts_at_1900() {
-    verifyMinimumMigrationNumber(underTest, 1930);
+  public void create_table_live_measures_p() throws SQLException {
+    underTest.execute();
+
+    dbTester.assertColumnDefinition("live_measures_p", "project_uuid", Types.VARCHAR, 50, false);
+    dbTester.assertPrimaryKey("live_measures_p", "pk_live_measures_p", "project_uuid");
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 30);
-  }
+  public void migration_is_reentrant() throws SQLException {
+    underTest.execute();
 
+    underTest.execute();
+  }
 }

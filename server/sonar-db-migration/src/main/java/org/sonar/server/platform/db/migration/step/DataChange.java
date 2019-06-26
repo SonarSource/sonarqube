@@ -48,7 +48,7 @@ public abstract class DataChange implements MigrationStep {
 
   protected abstract void execute(Context context) throws SQLException;
 
-  private Connection createReadUncommittedConnection() throws SQLException {
+  protected Connection createReadUncommittedConnection() throws SQLException {
     Connection connection = db.getDataSource().getConnection();
     connection.setAutoCommit(false);
     if (connection.getMetaData().supportsTransactionIsolationLevel(Connection.TRANSACTION_READ_UNCOMMITTED)) {

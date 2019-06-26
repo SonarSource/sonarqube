@@ -31,6 +31,7 @@ import static org.sonar.server.platform.db.migration.def.BlobColumnDef.newBlobCo
 import static org.sonar.server.platform.db.migration.def.DecimalColumnDef.newDecimalColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.IntegerColumnDef.newIntegerColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_VARCHAR_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class CreateTableLiveMeasures extends DdlChange {
@@ -43,21 +44,23 @@ public class CreateTableLiveMeasures extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
+    VarcharColumnDef projectUuidCol = newVarcharColumnDefBuilder()
+      .setColumnName("project_uuid")
+      .setIsNullable(false)
+      .setLimit(UUID_VARCHAR_SIZE)
+      .build();
+
     context.execute(new CreateTableBuilder(getDialect(), TABLE_NAME)
       .addPkColumn(newVarcharColumnDefBuilder()
         .setColumnName("uuid")
         .setIsNullable(false)
         .setLimit(VarcharColumnDef.UUID_SIZE)
         .build())
-      .addColumn(newVarcharColumnDefBuilder()
-        .setColumnName("project_uuid")
-        .setIsNullable(false)
-        .setLimit(VarcharColumnDef.UUID_VARCHAR_SIZE)
-        .build())
+      .addColumn(projectUuidCol)
       .addColumn(newVarcharColumnDefBuilder()
         .setColumnName("component_uuid")
         .setIsNullable(false)
-        .setLimit(VarcharColumnDef.UUID_VARCHAR_SIZE)
+        .setLimit(UUID_VARCHAR_SIZE)
         .build())
       .addColumn(newIntegerColumnDefBuilder()
         .setColumnName("metric_id")
@@ -97,29 +100,10 @@ public class CreateTableLiveMeasures extends DdlChange {
       .build());
 
     context.execute(new CreateIndexBuilder(getDialect())
-      .addColumn(newVarcharColumnDefBuilder()
-        .setColumnName("project_uuid")
-        .setIsNullable(false)
-        .setLimit(VarcharColumnDef.UUID_VARCHAR_SIZE)
-        .build())
+      .addColumn(projectUuidCol)
       .setUnique(false)
       .setTable(TABLE_NAME)
       .setName("live_measures_project")
-      .build());
-
-    context.execute(new CreateIndexBuilder(getDialect())
-      .addColumn(newVarcharColumnDefBuilder()
-        .setColumnName("component_uuid")
-        .setIsNullable(false)
-        .setLimit(VarcharColumnDef.UUID_VARCHAR_SIZE)
-        .build())
-      .addColumn(newIntegerColumnDefBuilder()
-        .setColumnName("metric_id")
-        .setIsNullable(false)
-        .build())
-      .setUnique(true)
-      .setTable(TABLE_NAME)
-      .setName("live_measures_component")
       .build());
   }
 }

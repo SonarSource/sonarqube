@@ -20,20 +20,19 @@
 package org.sonar.server.platform.db.migration.version.v70;
 
 import java.sql.SQLException;
-import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CreateTableLiveMeasuresTest {
+public class AddLiveMeasuresMetricIndexTest {
   private static final String TABLE = "live_measures";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreateTableLiveMeasuresTest.class, "empty.sql");
+  public final CoreDbTester db = CoreDbTester.createForSchema(AddLiveMeasuresMetricIndexTest.class, "live_measures.sql");
 
-  private CreateTableLiveMeasures underTest = new CreateTableLiveMeasures(db.database());
+  private AddLiveMeasuresMetricIndex underTest = new AddLiveMeasuresMetricIndex(db.database());
 
   @Test
   public void creates_table_on_empty_db() throws SQLException {
@@ -41,18 +40,6 @@ public class CreateTableLiveMeasuresTest {
 
     assertThat(db.countRowsOfTable(TABLE)).isEqualTo(0);
 
-    db.assertColumnDefinition(TABLE, "uuid", Types.VARCHAR, 40, false);
-    db.assertColumnDefinition(TABLE, "project_uuid", Types.VARCHAR, 50, false);
-    db.assertColumnDefinition(TABLE, "component_uuid", Types.VARCHAR, 50, false);
-    db.assertColumnDefinition(TABLE, "metric_id", Types.INTEGER, null, false);
-    db.assertColumnDefinition(TABLE, "value", Types.DOUBLE, null, true);
-    db.assertColumnDefinition(TABLE, "text_value", Types.VARCHAR, 4_000, true);
-    db.assertColumnDefinition(TABLE, "variation", Types.DOUBLE, null, true);
-    db.assertColumnDefinition(TABLE, "measure_data", Types.BLOB, null, true);
-    db.assertColumnDefinition(TABLE, "update_marker", Types.VARCHAR, 40, true);
-    db.assertColumnDefinition(TABLE, "created_at", Types.BIGINT, null, false);
-    db.assertColumnDefinition(TABLE, "updated_at", Types.BIGINT, null, false);
-
-    db.assertIndex(TABLE, "live_measures_project", "project_uuid");
+    db.assertUniqueIndex(TABLE, "live_measures_component", "component_uuid", "metric_id");
   }
 }

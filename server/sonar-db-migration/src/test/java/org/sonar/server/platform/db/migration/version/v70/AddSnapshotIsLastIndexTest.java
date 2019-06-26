@@ -19,23 +19,34 @@
  */
 package org.sonar.server.platform.db.migration.version.v70;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class AddSnapshotIsLastIndexTest {
+  @Rule
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(AddSnapshotIsLastIndexTest.class, "snapshots.sql");
 
-public class DbVersion70Test {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  private DbVersion70 underTest = new DbVersion70();
+  private AddSnapshotIsLastIndex underTest = new AddSnapshotIsLastIndex(dbTester.database());
 
   @Test
-  public void migrationNumber_starts_at_1900() {
-    verifyMinimumMigrationNumber(underTest, 1930);
+  public void add_index_on_snapshots_islast_column() throws SQLException {
+    underTest.execute();
+
+    dbTester.assertIndex("snapshots", "ix_snapshot_is_last", "islast");
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 30);
-  }
+  public void migration_is_not_reentrant() throws SQLException {
+    underTest.execute();
 
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.execute();
+  }
 }
