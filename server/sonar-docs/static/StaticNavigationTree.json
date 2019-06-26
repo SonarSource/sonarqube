@@ -85,7 +85,8 @@
           "/branches/branches-faq/"
         ]
       },
-      "/analysis/scm-integration/"
+      "/analysis/scm-integration/",
+      "/analysis/security_configuration/"
     ]
   },
   {
