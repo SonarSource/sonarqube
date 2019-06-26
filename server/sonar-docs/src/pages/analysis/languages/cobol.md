@@ -10,10 +10,7 @@ _Cobol analysis is available as part of the [Enterprise Edition](https://redirec
 <!-- /sonarqube -->
 
 <!-- static -->
-
-[[info]]
-| <iframe src="http://update.sonarsource.org/plugins/cobol-confluence-include.html" height="125px">Your browser does not support iframes.</iframe>
-
+<!-- update_center:cobol -->
 <!-- /static -->
 
 ## Language-Specific Properties

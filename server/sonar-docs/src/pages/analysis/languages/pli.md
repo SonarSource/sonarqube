@@ -6,10 +6,7 @@ url: /analysis/languages/pli/
 _PL/I is available as part of [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://redirect.sonarsource.com/editions/editions.html)._
 
 <!-- static -->
-
-[[info]]
-| <iframe src="http://update.sonarsource.org/plugins/pli-confluence-include.html" height="125px">Your browser does not support iframes.</iframe>
-
+<!-- update_center:pli -->
 <!-- /static -->
 
 ## Language-Specific Properties

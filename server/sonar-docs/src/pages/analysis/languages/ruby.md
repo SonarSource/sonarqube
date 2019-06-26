@@ -4,8 +4,7 @@ url: /analysis/languages/ruby/
 ---
 
 <!-- static -->
-[[info]]
-| <iframe src="http://update.sonarsource.org/plugins/ruby-confluence-include.html" height="125px">Your browser does not support iframes.</iframe>
+<!-- update_center:ruby -->
 <!-- /static -->
 
 

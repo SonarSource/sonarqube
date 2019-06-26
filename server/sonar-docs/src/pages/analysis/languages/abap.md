@@ -10,10 +10,7 @@ _ABAP is available as part of [Developer Edition](https://redirect.sonarsource.c
 <!-- /sonarqube -->
 
 <!-- static -->
-
-[[info]]
-| <iframe src="http://update.sonarsource.org/plugins/abap-confluence-include.html" height="125px">Your browser does not support iframes.</iframe>
-
+<!-- update_center:abap -->
 <!-- /static -->
 
 ## Language-Specific Properties

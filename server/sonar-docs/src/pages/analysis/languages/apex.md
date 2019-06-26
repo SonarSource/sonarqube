@@ -10,10 +10,7 @@ _Apex analysis is available as part of the [Enterprise Edition](https://redirect
 <!-- /sonarqube -->
 
 <!-- static -->
-
-[[info]]
-| <iframe src="http://update.sonarsource.org/plugins/sonarapex-confluence-include.html" height="125px">Your browser does not support iframes.</iframe>
-
+<!-- update_center:sonarapex -->
 <!-- /static -->
 
 ## Language-Specific Properties

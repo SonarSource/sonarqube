@@ -10,10 +10,7 @@ _VB6 analysis is available as part of the [Enterprise Edition](https://redirect.
 <!-- /sonarqube -->
 
 <!-- static -->
-
-[[info]]
-| <iframe src="http://update.sonarsource.org/plugins/vb-confluence-include.html" height="125px">Your browser does not support iframes.</iframe>
-
+<!-- update_center:vb -->
 <!-- /static -->
 
 ## Language-Specific Properties

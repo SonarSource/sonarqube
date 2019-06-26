@@ -4,8 +4,7 @@ url: /analysis/languages/go/
 ---
 
 <!-- static -->
-[[info]]
-| <iframe src="http://update.sonarsource.org/plugins/go-confluence-include.html" height="125px">Your browser does not support iframes.</iframe>
+<!-- update_center:go -->
 <!-- /static -->
 
 

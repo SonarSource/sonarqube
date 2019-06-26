@@ -8,8 +8,7 @@ _C/C++/Objective-C analysis is available as part of [Developer Edition](https://
 <!-- /sonarqube -->
 
 <!-- static -->
-[[info]]
-| <iframe src="http://update.sonarsource.org/plugins/cpp-confluence-include.html" height="125px">Your browser does not support iframes.</iframe>
+<!-- update_center:cpp -->
 <!-- /static -->
 
 

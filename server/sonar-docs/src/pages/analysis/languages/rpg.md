@@ -6,10 +6,7 @@ url: /analysis/languages/rpg/
 _RPG is available as part of [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://redirect.sonarsource.com/editions/editions.html)._
 
 <!-- static -->
-
-[[info]]
-| <iframe src="http://update.sonarsource.org/plugins/rpg-confluence-include.html" height="125px">Your browser does not support iframes.</iframe>
-
+<!-- update_center:rpg -->
 <!-- /static -->
 
 ## Language-Specific Properties

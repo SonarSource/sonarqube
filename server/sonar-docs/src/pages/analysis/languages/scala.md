@@ -4,8 +4,7 @@ url: /analysis/languages/scala/
 ---
 
 <!-- static -->
-[[info]]
-| <iframe src="http://update.sonarsource.org/plugins/sonarscala-confluence-include.html" height="125px">Your browser does not support iframes.</iframe>
+<!-- update_center:sonarscala -->
 <!-- /static -->
 
 

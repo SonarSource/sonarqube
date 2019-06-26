@@ -4,8 +4,7 @@ url: /analysis/languages/csharp/
 ---
 
 <!-- static -->
-[[info]]
-| <iframe src="http://update.sonarsource.org/plugins/csharp-confluence-include.html" height="125px">Your browser does not support iframes.</iframe>
+<!-- update_center:csharp -->
 <!-- /static -->
 
 

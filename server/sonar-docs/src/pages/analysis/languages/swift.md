@@ -4,8 +4,7 @@ url: /analysis/languages/swift/
 ---
 
 <!-- static -->
-[[info]]
-| <iframe src="http://update.sonarsource.org/plugins/swift-confluence-include.html" height="125px">Your browser does not support iframes.</iframe>
+<!-- update_center:swift -->
 <!-- /static -->
 
 
