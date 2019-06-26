@@ -37,8 +37,8 @@ import static java.util.Arrays.asList;
  * the entry point classes as defined in manifests. It assumes that JAR files are compatible with current
  * environment (minimal sonarqube version, compatibility between plugins, ...):
  * <ul>
- *   <li>server verifies compatibility of JARs before deploying them at startup (see ServerPluginRepository)</li>
- *   <li>batch loads only the plugins deployed on server (see BatchPluginRepository)</li>
+ * <li>server verifies compatibility of JARs before deploying them at startup (see ServerPluginRepository)</li>
+ * <li>batch loads only the plugins deployed on server (see BatchPluginRepository)</li>
  * </ul>
  * <p/>
  * Plugins have their own isolated classloader, inheriting only from API classes.
@@ -93,6 +93,9 @@ public class PluginLoader {
       // The plugins that extend other plugins can only add some files to classloader.
       // They can't change metadata like ordering strategy or compatibility mode.
       if (Strings.isNullOrEmpty(info.getBasePlugin())) {
+        if (info.isUseChildFirstClassLoader()) {
+          Loggers.get(getClass()).warn("Plugin {} [{}] uses a child first classloader which is deprecated", info.getName(), info.getKey());
+        }
         def.setSelfFirstStrategy(info.isUseChildFirstClassLoader());
         Version minSqVersion = info.getMinimalSqVersion();
         boolean compatibilityMode = minSqVersion != null && minSqVersion.compareToIgnoreQualifier(COMPATIBILITY_MODE_MAX_VERSION) < 0;

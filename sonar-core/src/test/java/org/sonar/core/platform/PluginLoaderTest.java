@@ -21,6 +21,7 @@ package org.sonar.core.platform;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -107,6 +108,21 @@ public class PluginLoaderTest {
       entry("fooExtension1", "org.foo.Extension1Plugin"),
       entry("fooExtension2", "org.foo.Extension2Plugin"));
     // TODO test mask - require change in sonar-classloader
+  }
+
+  @Test
+  public void log_warning_if_plugin_uses_child_first_classloader() throws IOException {
+    File jarFile = temp.newFile();
+    PluginInfo info = new PluginInfo("foo")
+      .setJarFile(jarFile)
+      .setUseChildFirstClassLoader(true)
+      .setMainClass("org.foo.FooPlugin");
+
+    Collection<PluginClassLoaderDef> defs = underTest.defineClassloaders(ImmutableMap.of("foo", info));
+    assertThat(defs).extracting(PluginClassLoaderDef::getBasePluginKey).containsExactly("foo");
+
+    List<String> warnings = logTester.logs(LoggerLevel.WARN);
+    assertThat(warnings).contains("Plugin foo [foo] uses a child first classloader which is deprecated");
   }
 
   @Test
