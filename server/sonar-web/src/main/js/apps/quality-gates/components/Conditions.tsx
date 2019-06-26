@@ -39,7 +39,7 @@ interface Props {
 }
 
 const FORBIDDEN_METRIC_TYPES = ['DATA', 'DISTRIB', 'STRING', 'BOOL'];
-const FORBIDDEN_METRICS = ['alert_status', 'releasability_rating'];
+const FORBIDDEN_METRICS = ['alert_status', 'releasability_rating', 'security_review_rating'];
 
 export default class Conditions extends React.PureComponent<Props> {
   getConditionKey = (condition: T.Condition, index: number) => {
