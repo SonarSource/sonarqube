@@ -82,14 +82,11 @@ public class SearchActionTest {
     OrganizationDto userAdminOrganization = db.organizations().insert();
     OrganizationDto groupAdminOrganization = db.organizations().insert();
     OrganizationDto browseOrganization = db.organizations().insert();
-    OrganizationDto guardedOrganization = db.organizations().insert(dto -> dto.setGuarded(true));
     UserDto user = db.users().insertUser();
     GroupDto group = db.users().insertGroup(groupAdminOrganization);
     db.users().insertMember(group, user);
-    userSession.logIn(user).addPermission(ADMINISTER, userAdminOrganization)
-      .addPermission(ADMINISTER, guardedOrganization);
+    userSession.logIn(user).addPermission(ADMINISTER, userAdminOrganization);
     db.users().insertPermissionOnUser(userAdminOrganization, user, ADMINISTER);
-    db.users().insertPermissionOnUser(guardedOrganization, user, ADMINISTER);
     db.users().insertPermissionOnGroup(group, ADMINISTER);
 
     SearchWsResponse result = call(ws.newRequest());
@@ -99,8 +96,7 @@ public class SearchActionTest {
       .containsExactlyInAnyOrder(
         tuple(userAdminOrganization.getKey(), true, true),
         tuple(browseOrganization.getKey(), false, false),
-        tuple(groupAdminOrganization.getKey(), true, true),
-        tuple(guardedOrganization.getKey(), true, false));
+        tuple(groupAdminOrganization.getKey(), true, true));
   }
 
   @Test

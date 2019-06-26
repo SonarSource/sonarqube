@@ -335,17 +335,6 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void delete_specified_guarded_organization_if_exists_and_user_is_system_administrator() {
-    OrganizationDto organization = db.organizations().insert(dto -> dto.setGuarded(true));
-    logInAsSystemAdministrator();
-
-    sendRequest(organization);
-
-    verifyOrganizationDoesNotExist(organization);
-    verify(projectLifeCycleListeners).onProjectsDeleted(emptySet());
-  }
-
-  @Test
   @UseDataProvider("OneOrMoreIterations")
   public void delete_components_of_specified_organization(int numberOfIterations) {
     OrganizationDto organization = db.organizations().insert();

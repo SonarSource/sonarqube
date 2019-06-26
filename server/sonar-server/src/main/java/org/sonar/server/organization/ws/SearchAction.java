@@ -149,7 +149,7 @@ public class SearchAction implements OrganizationsWsAction {
         wsOrganization.setActions(Organization.Actions.newBuilder()
           .setAdmin(isAdmin)
           .setProvision(canProvision)
-          .setDelete(o.isGuarded() ? userSession.isRoot() : isAdmin));
+          .setDelete(isAdmin));
         response.addOrganizations(toOrganization(wsOrganization, o, organizationAlmBindingByOrgUuid.get(o.getUuid()), onlyMembershipOrganizations));
       });
     return response.build();
