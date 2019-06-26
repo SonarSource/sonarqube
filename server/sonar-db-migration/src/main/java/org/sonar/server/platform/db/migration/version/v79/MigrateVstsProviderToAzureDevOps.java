@@ -57,7 +57,7 @@ public class MigrateVstsProviderToAzureDevOps extends DataChange {
       case VSTS:
         return "Azure DevOps Services";
       case VSTS_TFS:
-        return "Azure DevOps Services/Server";
+        return "Azure DevOps";
       default:
         throw new IllegalStateException("Unexpected value: " + oldValue);
     }

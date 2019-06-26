@@ -53,7 +53,7 @@ public class MigrateVstsProviderToAzureDevOpsTest {
     assertPropertyContainsInAnyOrder(
       tuple("sonar.pullrequest.provider", "any.value_here", null, false),
       tuple("sonar.pullrequest.provider", "Azure DevOps Services", null, false),
-      tuple("sonar.pullrequest.provider", "Azure DevOps Services/Server", null, false), // Single change
+      tuple("sonar.pullrequest.provider", "Azure DevOps", null, false), // Single change
       tuple("whatever.property", "nothingspecial", null, false),
       tuple("whatever.property", null, "nothing.special", false)
     );
@@ -73,7 +73,7 @@ public class MigrateVstsProviderToAzureDevOpsTest {
     assertPropertyContainsInAnyOrder(
       tuple("sonar.pullrequest.provider", "any.value_here", null, false),
       tuple("sonar.pullrequest.provider", "Azure DevOps Services", null, false),
-      tuple("sonar.pullrequest.provider", "Azure DevOps Services/Server", null, false), // Single change
+      tuple("sonar.pullrequest.provider", "Azure DevOps", null, false), // Single change
       tuple("whatever.property", "nothingspecial", null, false),
       tuple("whatever.property", null, "nothing.special", false)
     );
