@@ -31,8 +31,10 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Project } from '../types';
 import { formatDuration } from '../utils';
 import { getProjectUrl } from '../../../helpers/urls';
+import { isLoggedIn } from '../../../helpers/users';
 
 interface Props {
+  currentUser: T.CurrentUser;
   handleFavorite: (component: string, isFavorite: boolean) => void;
   height: number;
   organization: T.Organization | undefined;
@@ -41,7 +43,7 @@ interface Props {
 
 export default class ProjectCardLeak extends React.PureComponent<Props> {
   render() {
-    const { handleFavorite, height, organization, project } = this.props;
+    const { currentUser, handleFavorite, height, organization, project } = this.props;
     const { measures } = project;
     const hasTags = project.tags.length > 0;
     const periodMs = project.leakPeriodDate ? difference(Date.now(), project.leakPeriodDate) : 0;
@@ -108,7 +110,7 @@ export default class ProjectCardLeak extends React.PureComponent<Props> {
                   ? translate('projects.no_new_code_period')
                   : translate('projects.not_analyzed')}
               </span>
-              {!project.analysisDate && (
+              {!project.analysisDate && isLoggedIn(currentUser) && (
                 <Link className="button spacer-left" to={getProjectUrl(project.key)}>
                   {translate('projects.configure_analysis')}
                 </Link>

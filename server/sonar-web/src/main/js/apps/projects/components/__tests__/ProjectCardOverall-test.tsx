@@ -21,6 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProjectCardOverall from '../ProjectCardOverall';
 import { Project } from '../../types';
+import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 
 const MEASURES = {
   alert_status: 'OK',
@@ -38,6 +39,9 @@ const PROJECT: Project = {
   tags: [],
   visibility: 'public'
 };
+
+const USER_LOGGED_OUT = mockCurrentUser();
+const USER_LOGGED_IN = mockLoggedInUser();
 
 it('should display analysis date (and not leak period) when defined', () => {
   expect(
@@ -87,9 +91,14 @@ it('should display not analyzed yet', () => {
   expect(shallowRender({ ...PROJECT, analysisDate: undefined })).toMatchSnapshot();
 });
 
-function shallowRender(project: Project) {
+it('should display configure analysis button for logged in user', () => {
+  expect(shallowRender({ ...PROJECT, analysisDate: undefined }, USER_LOGGED_IN)).toMatchSnapshot();
+});
+
+function shallowRender(project: Project, user: T.CurrentUser = USER_LOGGED_OUT) {
   return shallow(
     <ProjectCardOverall
+      currentUser={user}
       handleFavorite={jest.fn()}
       height={100}
       organization={undefined}

@@ -76,6 +76,7 @@ export default class ProjectsList extends React.PureComponent<Props> {
     return (
       <div key={key} style={{ ...style, height }}>
         <ProjectCard
+          currentUser={this.props.currentUser}
           handleFavorite={this.props.handleFavorite}
           height={height}
           key={project.key}

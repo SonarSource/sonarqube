@@ -29,8 +29,10 @@ import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContai
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Project } from '../types';
 import { getProjectUrl } from '../../../helpers/urls';
+import { isLoggedIn } from '../../../helpers/users';
 
 interface Props {
+  currentUser: T.CurrentUser;
   handleFavorite: (component: string, isFavorite: boolean) => void;
   height: number;
   organization: T.Organization | undefined;
@@ -39,7 +41,7 @@ interface Props {
 
 export default class ProjectCardOverall extends React.PureComponent<Props> {
   render() {
-    const { handleFavorite, height, organization, project } = this.props;
+    const { currentUser, handleFavorite, height, organization, project } = this.props;
     const { measures } = project;
 
     const hasTags = project.tags.length > 0;
@@ -96,9 +98,11 @@ export default class ProjectCardOverall extends React.PureComponent<Props> {
           <div className="boxed-group-inner">
             <div className="project-card-not-analyzed">
               <span className="note">{translate('projects.not_analyzed')}</span>
-              <Link className="button spacer-left" to={getProjectUrl(project.key)}>
-                {translate('projects.configure_analysis')}
-              </Link>
+              {isLoggedIn(currentUser) && (
+                <Link className="button spacer-left" to={getProjectUrl(project.key)}>
+                  {translate('projects.configure_analysis')}
+                </Link>
+              )}
             </div>
           </div>
         )}

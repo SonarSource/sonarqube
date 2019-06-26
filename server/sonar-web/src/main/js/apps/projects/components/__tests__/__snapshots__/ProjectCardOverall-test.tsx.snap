@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display not analyzed yet 1`] = `
+exports[`should display configure analysis button for logged in user 1`] = `
 <div
   className="boxed-group project-card"
   data-key="foo"
@@ -92,6 +92,87 @@ exports[`should display not analyzed yet 1`] = `
       >
         projects.configure_analysis
       </Link>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should display not analyzed yet 1`] = `
+<div
+  className="boxed-group project-card"
+  data-key="foo"
+  style={
+    Object {
+      "height": 100,
+    }
+  }
+>
+  <div
+    className="boxed-group-header clearfix"
+  >
+    <div
+      className="project-card-header"
+    >
+      <h2
+        className="project-card-name"
+      >
+        <Connect(ProjectCardOrganization)
+          organization={
+            Object {
+              "key": "org",
+              "name": "org",
+            }
+          }
+        />
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/dashboard",
+              "query": Object {
+                "branch": undefined,
+                "id": "foo",
+              },
+            }
+          }
+        >
+          Foo
+        </Link>
+      </h2>
+      <div
+        className="project-card-header-right"
+      >
+        <Connect(PrivacyBadge)
+          className="spacer-left"
+          organization={
+            Object {
+              "key": "org",
+              "name": "org",
+            }
+          }
+          qualifier="TRK"
+          tooltipProps={
+            Object {
+              "projectKey": "foo",
+            }
+          }
+          visibility="public"
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    className="boxed-group-inner"
+  >
+    <div
+      className="project-card-not-analyzed"
+    >
+      <span
+        className="note"
+      >
+        projects.not_analyzed
+      </span>
     </div>
   </div>
 </div>

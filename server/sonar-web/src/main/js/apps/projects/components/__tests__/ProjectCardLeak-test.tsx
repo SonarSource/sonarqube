@@ -21,6 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProjectCardLeak from '../ProjectCardLeak';
 import { Project } from '../../types';
+import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 
 jest.mock(
   'date-fns/difference_in_milliseconds',
@@ -44,6 +45,9 @@ const PROJECT: Project = {
   tags: [],
   visibility: 'public'
 };
+
+const USER_LOGGED_OUT = mockCurrentUser();
+const USER_LOGGED_IN = mockLoggedInUser();
 
 it('should display analysis date and leak start date', () => {
   const card = shallowRender(PROJECT);
@@ -84,9 +88,14 @@ it('should display not analyzed yet', () => {
   expect(shallowRender({ ...PROJECT, analysisDate: undefined })).toMatchSnapshot();
 });
 
-function shallowRender(project: Project) {
+it('should display configure analysis button for logged in user', () => {
+  expect(shallowRender({ ...PROJECT, analysisDate: undefined }, USER_LOGGED_IN)).toMatchSnapshot();
+});
+
+function shallowRender(project: Project, user: T.CurrentUser = USER_LOGGED_OUT) {
   return shallow(
     <ProjectCardLeak
+      currentUser={user}
       handleFavorite={jest.fn()}
       height={100}
       organization={undefined}

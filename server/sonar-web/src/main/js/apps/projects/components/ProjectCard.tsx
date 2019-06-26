@@ -23,6 +23,7 @@ import ProjectCardOverall from './ProjectCardOverall';
 import { Project } from '../types';
 
 interface Props {
+  currentUser: T.CurrentUser;
   handleFavorite: (component: string, isFavorite: boolean) => void;
   height: number;
   organization: T.Organization | undefined;

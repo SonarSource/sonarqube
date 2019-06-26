@@ -21,6 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { Project } from '../../types';
 import ProjectCard from '../ProjectCard';
+import { mockCurrentUser } from '../../../../helpers/testMocks';
 
 const ORGANIZATION = { key: 'org', name: 'org' };
 
@@ -57,6 +58,7 @@ it('should show <ProjectCardLeak/> when asked', () => {
 function shallowRender(type?: string) {
   return shallow(
     <ProjectCard
+      currentUser={mockCurrentUser()}
       handleFavorite={jest.fn}
       height={200}
       organization={ORGANIZATION}
