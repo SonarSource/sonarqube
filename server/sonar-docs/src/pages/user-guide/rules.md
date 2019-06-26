@@ -11,9 +11,9 @@ In {instance}, analyzers contribute rules which are executed on source code to g
 
 For Code Smells and Bugs, zero false-positives are expected. At least this is the target so that developers don't have to wonder if a fix is required.
 
-For Vulnerabilities, the target is to have more than 80% of the issues to be true-positives.
+For Vulnerabilities, the target is to have more than 80% of issues be true-positives.
 
-Security Hotspot rules are purposefully designed to draw attention to code is security-sensitive. It is expected that more than 80% of the issues will be quickly resolved as "Won't Fix" after review by a Security Auditor.
+Security Hotspot rules draw attention to code that is security-sensitive. It is expected that more than 80% of the issues will be quickly resolved as "Reviewed" after review by a developer.
 
 The Rules page is the entry point where you can discover all the existing rules or create new ones based on provided templates.
 
@@ -40,25 +40,23 @@ If a quality profile is selected, it is also possible to check for its active se
 
 To see the details of a rule, either click on it, or use the right arrow key. Along with basic rule data, you'll also be able to see which, if any, profiles it's active in and how many open issues have been raised with it.
 
-The 2 following actions are available only if you have the right permissions ("Administer Quality Profiles and Gates"):
+The following actions are available only if you have the right permissions ("Administer Quality Profiles and Gates"):
 
 * **Add/Remove Tags**:
   * It is possible to add existing tags on a rule, or to create new ones (just enter a new name while typing in the text field).
   * Note that some rules have built-in tags that you cannot remove - they are provided by the plugins which contribute the rules.
 * **Extend Description**:
-  * Extending rule descriptions is useful to let users know how your organization is using a particular rule for instance or to give more insight on a rule.
+  * You can extend rule descriptions to let users know how your organization is using a particular rule or to give more insight on a rule.
   * Note that the extension will be available to non-admin users as a normal part of the rule details.
 
 <!-- sonarqube -->
 ## Rule Templates and Custom Rules
 
-Rule Templates are provided by plugins to allow users to define their own rules in {instance}. For instance, the template "Architectural Constraint" can be used to create any kind of rule that checks forbidden access from a set of file to another set of files.
-
-Rule templates are like cookie cutters from which you can stamp out new, "custom rules". To find templates, use the template facet:
+Rule Templates are provided by plugins as a basis for users to define their own custom rules in {instance}. To find templates, select the **Show Templates Only** facet from the the "Template" dropdown:
 
 ![Rule templates.](/images/rule-templates.png)
 
-To create a custom rule from a template, you will have to fill the following information:
+To create a custom rule from a template click the **Create** button next to the "Custom Rules" heading and fill in the following information:
 * Name
 * Key (auto-suggested)
 * Description (Markdown format is supported)
@@ -66,16 +64,16 @@ To create a custom rule from a template, you will have to fill the following inf
 * Status
 * The parameters specified by the template
 
-It's easy to navigate from a template to the custom rules defined from it: just click on the link in the "Custom Rules" section and you will end up on the details of the given rule.
+You can navigate from a template to the details of custom rules defined from it by clicking the link in the "Custom Rules" section.
 
 ![Rule template details.](/images/rule-template-details.png)
 
 ### Custom Rules
-Custom Rules are considered like any other rule, except that they can be fully edited or even deleted:
+Custom Rules are considered like any other rule, except that you can edit or delete them:
 
 ![Custom rules.](/images/rules-custom.png)
 
-Note that when deleting a custom rule, it is not physically removed from the {instance} instance but rather its status is set to "REMOVED". This allows current or old issues related to this rule to be displayed properly in {instance} until they are fully removed.
+**Note:** When deleting a custom rule, it is not physically removed from the {instance} instance. Instead, its status is set to "REMOVED". This allows current or old issues related to this rule to be displayed properly in {instance} until they are fully removed.
 
 ## Extending Coding Rules
 
@@ -86,7 +84,7 @@ Custom coding rules can be added. See [Adding Coding Rules](/extend/adding-codin
 
 ### How are rules categorized?
 
-The {instance} Quality Model divides rules into four categories: Bugs, Vulnerabilities, Security Hotspots and Code Smells. Rules are assigned to categories based on the answers to these questions:
+The {instance} Quality Model divides rules into four categories: Bugs, Vulnerabilities, Security Hotspots, and Code Smells. Rules are assigned to categories based on the answers to these questions:
 
 **Is the rule about code that is demonstrably wrong, or more likely wrong than not?**  
 If the answer is "yes", then it's a Bug rule.  
