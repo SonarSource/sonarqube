@@ -52,7 +52,7 @@ public class RemoveOrphansFromProjectBranchesTest {
 
     underTest.execute();
 
-    assertThat(db.select("select uuid as \"UUID\" from project_branches").stream().map(t -> t.get("UUID")))
+    assertThat(db.select("select uuid as \"UUID\" from project_branches").stream().map(t -> (String) t.get("UUID")))
       .containsOnly(keeps)
       .doesNotContain(deletes);
   }
