@@ -51,23 +51,7 @@ it('should not render coverage', () => {
     vulnerabilities: '0'
   };
   const wrapper = shallow(<ProjectCardOverallMeasures measures={measures} />);
-  expect(wrapper.find('[data-key="coverage"]')).toMatchSnapshot();
-});
-
-it('should not render duplications', () => {
-  const measures = {
-    alert_status: 'ERROR',
-    bugs: '17',
-    code_smells: '132',
-    coverage: '88.3',
-    ncloc: '2053',
-    reliability_rating: '1.0',
-    security_rating: '1.0',
-    sqale_rating: '1.0',
-    vulnerabilities: '0'
-  };
-  const wrapper = shallow(<ProjectCardOverallMeasures measures={measures} />);
-  expect(wrapper.find('[data-key="duplicated_lines_density"]')).toMatchSnapshot();
+  expect(wrapper.find('[data-key="coverage"]').exists()).toBe(false);
 });
 
 it('should render empty', () => {

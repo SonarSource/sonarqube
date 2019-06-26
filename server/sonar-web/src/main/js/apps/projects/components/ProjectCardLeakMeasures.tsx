@@ -86,18 +86,20 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
         </div>
       </div>
 
-      <div className="project-card-measure" data-key="new_coverage">
-        <div className="project-card-measure-inner">
-          <div className="project-card-measure-number">
-            <Measure
-              metricKey="new_coverage"
-              metricType="PERCENT"
-              value={measures['new_coverage']}
-            />
+      {measures['new_coverage'] != null && (
+        <div className="project-card-measure" data-key="new_coverage">
+          <div className="project-card-measure-inner">
+            <div className="project-card-measure-number">
+              <Measure
+                metricKey="new_coverage"
+                metricType="PERCENT"
+                value={measures['new_coverage']}
+              />
+            </div>
+            <div className="project-card-measure-label">{translate('metric.coverage.name')}</div>
           </div>
-          <div className="project-card-measure-label">{translate('metric.coverage.name')}</div>
         </div>
-      </div>
+      )}
 
       <div className="project-card-measure" data-key="new_duplicated_lines_density">
         <div className="project-card-measure-inner">

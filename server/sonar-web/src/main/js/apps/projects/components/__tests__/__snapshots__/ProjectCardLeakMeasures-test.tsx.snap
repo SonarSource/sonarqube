@@ -262,28 +262,6 @@ exports[`should render no data style new coverage, new duplications and new line
   </div>
   <div
     className="project-card-measure"
-    data-key="new_coverage"
-  >
-    <div
-      className="project-card-measure-inner"
-    >
-      <div
-        className="project-card-measure-number"
-      >
-        <Measure
-          metricKey="new_coverage"
-          metricType="PERCENT"
-        />
-      </div>
-      <div
-        className="project-card-measure-label"
-      >
-        metric.coverage.name
-      </div>
-    </div>
-  </div>
-  <div
-    className="project-card-measure"
     data-key="new_duplicated_lines_density"
   >
     <div

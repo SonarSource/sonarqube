@@ -98,20 +98,19 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
           </div>
         </div>
       </div>
-
-      <div className="project-card-measure" data-key="coverage">
-        <div className="project-card-measure-inner">
-          <div className="project-card-measure-number">
-            {measures['coverage'] != null && (
+      {measures['coverage'] != null && (
+        <div className="project-card-measure" data-key="coverage">
+          <div className="project-card-measure-inner">
+            <div className="project-card-measure-number">
               <span className="spacer-right">
                 <CoverageRating value={measures['coverage']} />
               </span>
-            )}
-            <Measure metricKey="coverage" metricType="PERCENT" value={measures['coverage']} />
+              <Measure metricKey="coverage" metricType="PERCENT" value={measures['coverage']} />
+            </div>
+            <div className="project-card-measure-label">{translate('metric.coverage.name')}</div>
           </div>
-          <div className="project-card-measure-label">{translate('metric.coverage.name')}</div>
         </div>
-      </div>
+      )}
 
       <div className="project-card-measure" data-key="duplicated_lines_density">
         <div className="project-card-measure-inner">
