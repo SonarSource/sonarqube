@@ -51,7 +51,6 @@
 
 .portfolio-freshness {
   line-height: var(--controlHeight);
-  font-size: var(--smallFontSize);
   white-space: nowrap;
 }
 
