@@ -138,6 +138,7 @@
       "/instance-administration/housekeeping/",
       "/instance-administration/notifications/",
       "/instance-administration/system-info/",
+      "/instance-administration/license-manager/",
       "/instance-administration/monitoring/",
       "/instance-administration/project-move/",
       "/instance-administration/custom-measures/",
