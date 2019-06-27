@@ -117,11 +117,13 @@ export default class UserForm extends React.PureComponent<Props, State> {
   };
 
   handleUpdateUser = () => {
+    const { user } = this.props;
+
     this.setState({ submitting: true });
     updateUser({
-      email: this.state.email,
+      email: user!.local ? this.state.email : undefined,
       login: this.state.login,
-      name: this.state.name,
+      name: user!.local ? this.state.name : undefined,
       scmAccount: uniq(this.state.scmAccounts)
     }).then(() => {
       this.props.onUpdateUsers();

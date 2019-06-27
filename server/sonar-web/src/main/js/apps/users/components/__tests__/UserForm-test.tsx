@@ -29,6 +29,10 @@ jest.mock('../../../../api/users', () => ({
   updateUser: jest.fn().mockResolvedValue({})
 }));
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 it('should render correctly', () => {
   expect(shallowRender().dive()).toMatchSnapshot();
   expect(shallowRender({ user: undefined }).dive()).toMatchSnapshot();
@@ -86,7 +90,7 @@ it('should correctly create a new user', () => {
   });
 });
 
-it('should correctly update a user', () => {
+it('should correctly update a local user', () => {
   const email = 'foo@bar.ch';
   const login = 'foo';
   const name = 'Foo';
@@ -101,6 +105,25 @@ it('should correctly update a user', () => {
     name,
     scmAccount: ['gh', 'bitbucket']
   });
+});
+
+it('should correctly update a non-local user', () => {
+  const email = 'foo@bar.ch';
+  const login = 'foo';
+  const name = 'Foo';
+  const scmAccounts = ['gh', 'bitbucket'];
+  const wrapper = shallowRender({
+    user: mockUser({ email, local: false, login, name, scmAccounts })
+  }).dive();
+
+  submit(wrapper.find('form'));
+
+  expect(updateUser).toBeCalledWith(
+    expect.not.objectContaining({
+      email,
+      name
+    })
+  );
 });
 
 function shallowRender(props: Partial<UserForm['props']> = {}) {
