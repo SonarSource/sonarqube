@@ -104,7 +104,7 @@ public class ShowAction implements RulesWsAction {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = ruleWsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
-      RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization, key)
+      RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization.getUuid(), key)
         .orElseThrow(() -> new NotFoundException(String.format("Rule not found: %s", key)));
 
       List<RuleDefinitionDto> templateRules = ofNullable(rule.getTemplateId())

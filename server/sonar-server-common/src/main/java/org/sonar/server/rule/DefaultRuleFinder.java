@@ -79,7 +79,7 @@ public class DefaultRuleFinder implements RuleFinder {
       String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
       OrganizationDto defaultOrganization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
         .orElseThrow(() -> new IllegalStateException(String.format("Cannot find default organization '%s'", defaultOrganizationUuid)));
-      Optional<RuleDto> rule = ruleDao.selectByKey(dbSession, defaultOrganization, key);
+      Optional<RuleDto> rule = ruleDao.selectByKey(dbSession, defaultOrganization.getUuid(), key);
       if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
         return toRule(rule.get(), ruleDao.selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
       } else {

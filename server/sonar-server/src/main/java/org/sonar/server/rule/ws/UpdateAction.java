@@ -207,7 +207,7 @@ public class UpdateAction implements RulesWsAction {
   }
 
   private RuleUpdate createRuleUpdate(DbSession dbSession, RuleKey key, OrganizationDto organization) {
-    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization, key)
+    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization.getUuid(), key)
       .orElseThrow(() -> new NotFoundException(format("This rule does not exist: %s", key)));
     RuleUpdate ruleUpdate = ofNullable(rule.getTemplateId())
       .map(x -> RuleUpdate.createForCustomRule(key))
@@ -252,7 +252,7 @@ public class UpdateAction implements RulesWsAction {
   }
 
   private UpdateResponse buildResponse(DbSession dbSession, RuleKey key, OrganizationDto organization) {
-    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization, key)
+    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization.getUuid(), key)
       .orElseThrow(() -> new NotFoundException(format("Rule not found: %s", key)));
     List<RuleDefinitionDto> templateRules = new ArrayList<>(1);
     if (rule.getDefinition().isCustomRule()) {

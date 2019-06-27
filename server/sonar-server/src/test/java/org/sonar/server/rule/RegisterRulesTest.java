@@ -664,7 +664,7 @@ public class RegisterRulesTest {
       repo.done();
     });
 
-    RuleDto reloaded = dbClient.ruleDao().selectByKey(db.getSession(), defaultOrganization, rule.getKey()).get();
+    RuleDto reloaded = dbClient.ruleDao().selectByKey(db.getSession(), defaultOrganization.getUuid(), rule.getKey()).get();
     assertThat(reloaded.isAdHoc()).isFalse();
   }
 
@@ -677,7 +677,7 @@ public class RegisterRulesTest {
 
     execute();
 
-    RuleDto reloaded = dbClient.ruleDao().selectByKey(db.getSession(), defaultOrganization, rule.getKey()).get();
+    RuleDto reloaded = dbClient.ruleDao().selectByKey(db.getSession(), defaultOrganization.getUuid(), rule.getKey()).get();
     assertThat(reloaded.getStatus()).isEqualTo(REMOVED);
   }
 
@@ -690,7 +690,7 @@ public class RegisterRulesTest {
 
     execute();
 
-    RuleDto reloaded = dbClient.ruleDao().selectByKey(db.getSession(), defaultOrganization, rule.getKey()).get();
+    RuleDto reloaded = dbClient.ruleDao().selectByKey(db.getSession(), defaultOrganization.getUuid(), rule.getKey()).get();
     assertThat(reloaded.getStatus()).isEqualTo(READY);
   }
 

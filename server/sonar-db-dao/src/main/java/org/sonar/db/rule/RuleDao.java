@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
@@ -44,9 +43,9 @@ import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class RuleDao implements Dao {
 
-  public Optional<RuleDto> selectByKey(DbSession session, OrganizationDto organization, RuleKey key) {
-    RuleDto res = mapper(session).selectByKey(organization.getUuid(), key);
-    ensureOrganizationIsSet(organization.getUuid(), res);
+  public Optional<RuleDto> selectByKey(DbSession session, String organizationUuid, RuleKey key) {
+    RuleDto res = mapper(session).selectByKey(organizationUuid, key);
+    ensureOrganizationIsSet(organizationUuid, res);
     return ofNullable(res);
   }
 
@@ -59,8 +58,8 @@ public class RuleDao implements Dao {
     return ofNullable(mapper(session).selectDefinitionByKey(key));
   }
 
-  public Optional<RuleMetadataDto> selectMetadataByKey(DbSession session, RuleKey key, OrganizationDto organization) {
-    return ofNullable(mapper(session).selectMetadataByKey(key, organization.getUuid()));
+  public Optional<RuleMetadataDto> selectMetadataByKey(DbSession session, RuleKey key, String organizationUuid) {
+    return ofNullable(mapper(session).selectMetadataByKey(key, organizationUuid));
   }
 
   public RuleDto selectOrFailByKey(DbSession session, OrganizationDto organization, RuleKey key) {

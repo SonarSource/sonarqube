@@ -84,9 +84,9 @@ public class RuleDaoTest {
     RuleMetadataDto metadata = newRuleMetadata(ruleDefinition, organization);
     db.rules().insertRule(ruleDefinition, metadata);
 
-    assertThat(underTest.selectByKey(db.getSession(), organization, RuleKey.of("foo", "bar")))
+    assertThat(underTest.selectByKey(db.getSession(), organization.getUuid(), RuleKey.of("foo", "bar")))
       .isEmpty();
-    RuleDto rule = underTest.selectByKey(db.getSession(), organization, ruleDefinition.getKey()).get();
+    RuleDto rule = underTest.selectByKey(db.getSession(), organization.getUuid(), ruleDefinition.getKey()).get();
     assertEquals(rule.getDefinition(), ruleDefinition);
     verifyMetadata(rule.getMetadata(), ruleDefinition, metadata);
   }
@@ -95,7 +95,7 @@ public class RuleDaoTest {
   public void selectByKey_return_rule_even_if_organization_does_not_exist() {
     RuleDefinitionDto ruleDefinition = db.rules().insert();
 
-    assertThat(underTest.selectByKey(db.getSession(), OrganizationTesting.newOrganizationDto(), ruleDefinition.getKey()))
+    assertThat(underTest.selectByKey(db.getSession(), OrganizationTesting.newOrganizationDto().getUuid(), ruleDefinition.getKey()))
       .isNotEmpty();
   }
 
@@ -104,7 +104,7 @@ public class RuleDaoTest {
     OrganizationDto organization = db.organizations().insert();
     RuleDefinitionDto ruleDefinition = db.rules().insert();
 
-    RuleDto rule = underTest.selectByKey(db.getSession(), organization, ruleDefinition.getKey()).get();
+    RuleDto rule = underTest.selectByKey(db.getSession(), organization.getUuid(), ruleDefinition.getKey()).get();
     verifyNoMetadata(rule.getMetadata(), ruleDefinition, organization);
   }
 
@@ -118,9 +118,9 @@ public class RuleDaoTest {
     RuleMetadataDto expectedOrg2 = newRuleMetadata(ruleDefinition, organization2);
     db.rules().insertRule(ruleDefinition, expectedOrg2);
 
-    RuleDto rule = underTest.selectByKey(db.getSession(), organization1, ruleDefinition.getKey()).get();
+    RuleDto rule = underTest.selectByKey(db.getSession(), organization1.getUuid(), ruleDefinition.getKey()).get();
     verifyMetadata(rule.getMetadata(), ruleDefinition, expectedOrg1);
-    rule = underTest.selectByKey(db.getSession(), organization2, ruleDefinition.getKey()).get();
+    rule = underTest.selectByKey(db.getSession(), organization2.getUuid(), ruleDefinition.getKey()).get();
     verifyMetadata(rule.getMetadata(), ruleDefinition, expectedOrg2);
   }
 

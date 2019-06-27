@@ -58,7 +58,7 @@ public class AdHocRuleCreator {
    */
   public RuleDto persistAndIndex(DbSession dbSession, NewAdHocRule adHoc, OrganizationDto organizationDto) {
     RuleDao dao = dbClient.ruleDao();
-    Optional<RuleDto> existingRuleDtoOpt = dao.selectByKey(dbSession, organizationDto, adHoc.getKey());
+    Optional<RuleDto> existingRuleDtoOpt = dao.selectByKey(dbSession, organizationDto.getUuid(), adHoc.getKey());
     RuleMetadataDto metadata;
     long now = system2.now();
     if (!existingRuleDtoOpt.isPresent()) {

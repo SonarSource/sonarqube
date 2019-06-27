@@ -197,7 +197,7 @@ public class UpdateActionTest {
     assertThat(updatedRule.getTags().getTagsList()).containsExactly("tag2", "tag3");
 
     // check database
-    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey(), organization)
+    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey(), organization.getUuid())
       .orElseThrow(() -> new IllegalStateException("Cannot load metadata"));
     assertThat(metadataOfSpecificOrg.getTags()).containsExactly("tag2", "tag3");
   }
@@ -238,7 +238,7 @@ public class UpdateActionTest {
     assertThat(updatedRule.getRemFnBaseEffort()).isEqualTo(newEffort);
 
     // check database
-    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey(), organization)
+    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey(), organization.getUuid())
       .orElseThrow(() -> new IllegalStateException("Cannot load metadata"));
     assertThat(metadataOfSpecificOrg.getRemediationFunction()).isEqualTo(newOffset);
     assertThat(metadataOfSpecificOrg.getRemediationGapMultiplier()).isEqualTo(newMultiplier);
@@ -267,7 +267,7 @@ public class UpdateActionTest {
     assertThat(updatedRule.getNoteLogin()).isEqualTo(userAuthenticated.getLogin());
 
     // check database
-    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey(), organization).get();
+    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey(), organization.getUuid()).get();
     assertThat(metadataOfSpecificOrg.getNoteData()).isEqualTo("new data");
     assertThat(metadataOfSpecificOrg.getNoteUserUuid()).isEqualTo(userAuthenticated.getUuid());
   }
