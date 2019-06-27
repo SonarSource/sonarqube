@@ -21,6 +21,8 @@ package org.sonar.process;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -29,6 +31,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
 import javax.annotation.Nullable;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -38,6 +42,7 @@ import static java.util.Objects.requireNonNull;
  * {@link org.apache.commons.io.FileUtils Common IO FileUtils} class.
  */
 public final class FileUtils2 {
+  private static final Logger LOG = Loggers.get(FileUtils2.class);
   private static final String DIRECTORY_CAN_NOT_BE_NULL = "Directory can not be null";
   private static final EnumSet<FileVisitOption> FOLLOW_LINKS = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
 
@@ -80,6 +85,10 @@ public final class FileUtils2 {
     try {
       if (file.isDirectory()) {
         deleteDirectory(file);
+
+        if (file.exists()) {
+          LOG.warn("Unable to delete directory '{}'", file);
+        }
       } else {
         Files.delete(file.toPath());
       }
@@ -110,10 +119,6 @@ public final class FileUtils2 {
       throw new IOException(format("Directory '%s' is a file", directory));
     }
     deleteDirectoryImpl(path);
-
-    if (directory.exists()) {
-      throw new IOException(format("Unable to delete directory '%s'", directory));
-    }
   }
 
   /**
@@ -183,13 +188,24 @@ public final class FileUtils2 {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-      Files.delete(file);
+      try {
+        Files.delete(file);
+      } catch (AccessDeniedException e) {
+        LOG.debug("Access delete to file '{}'. Ignoring and proceeding with recursive delete", file);
+      }
       return FileVisitResult.CONTINUE;
     }
 
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-      Files.delete(dir);
+      try {
+        Files.delete(dir);
+      } catch (AccessDeniedException e) {
+        LOG.debug("Access denied to delete directory '{}'. Ignoring and proceeding with recursive delete", dir);
+      } catch (DirectoryNotEmptyException e) {
+        LOG.trace("Can not delete non empty directory '{}', presumably because it contained non accessible files/directories. " +
+          "Ignoring and proceeding with recursive delete", dir, e);
+      }
       return FileVisitResult.CONTINUE;
     }
   }
