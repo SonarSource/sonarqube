@@ -4,6 +4,10 @@
     "name": "John",
     "email": "john@email.com",
     "active": true,
+    "local": false,
+    "externalIdentity": "jo",
+    "externalProvider": "sonarqube",
+    "groups": [],
     "scmAccounts": [
       "jon.snow"
     ],

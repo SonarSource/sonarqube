@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.internal.google.common.base.Preconditions;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -126,9 +127,11 @@ public class UpdateAction implements UsersWsAction {
     UserDto user = getUser(dbSession, login);
     UpdateUser updateUser = new UpdateUser();
     if (request.getName() != null) {
+      Preconditions.checkArgument(user.isLocal(), "Name cannot be updated for a non-local user");
       updateUser.setName(request.getName());
     }
     if (request.getEmail() != null) {
+      Preconditions.checkArgument(user.isLocal(), "Email cannot be updated for a non-local user");
       updateUser.setEmail(emptyToNull(request.getEmail()));
     }
     if (!request.getScmAccounts().isEmpty()) {

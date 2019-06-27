@@ -98,6 +98,32 @@ public class UpdateActionTest {
   }
 
   @Test
+  public void fail_on_update_name_non_local_user() {
+    createUser(false);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Name cannot be updated for a non-local user");
+
+    ws.newRequest()
+      .setParam("login", "john")
+      .setParam("name", "Jean Neige")
+      .execute();
+  }
+
+  @Test
+  public void fail_on_update_email_non_local_user() {
+    createUser(false);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Email cannot be updated for a non-local user");
+
+    ws.newRequest()
+      .setParam("login", "john")
+      .setParam("email", "jean.neige@thegreatw.all")
+      .execute();
+  }
+
+  @Test
   public void update_only_name() {
     createUser();
 
@@ -283,13 +309,17 @@ public class UpdateActionTest {
   }
 
   private void createUser() {
+    createUser(true);
+  }
+
+  private void createUser(boolean local) {
     UserDto userDto = newUserDto()
       .setEmail("john@email.com")
       .setLogin("john")
       .setName("John")
       .setScmAccounts(newArrayList("jn"))
       .setActive(true)
-      .setLocal(true)
+      .setLocal(local)
       .setExternalLogin("jo")
       .setExternalIdentityProvider("sonarqube");
     dbClient.userDao().insert(dbSession, userDto);
