@@ -50,9 +50,10 @@ it('should render prefilled and create org', async () => {
   wrapper.setProps({ organization });
   wrapper.find('PlanStep').prop<Function>('createOrganization')();
 
-  const alm = {
+  const alm: T.Organization['alm'] = {
     key: 'github',
     membersSync: true,
+    personal: false,
     url: 'http://github.com/thing'
   };
   expect(createOrganization).toBeCalledWith({ ...organization, alm, installationId: 'id-foo' });

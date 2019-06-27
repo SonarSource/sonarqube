@@ -62,4 +62,18 @@ describe('#createOrganization', () => {
     await promise;
     expect(syncMembers).toHaveBeenCalledWith(org.key);
   });
+
+  it('should not sync members for personal Github orgs', async () => {
+    const { alm, ...org } = mockOrganizationWithAlm(
+      {},
+      { key: 'github', membersSync: true, personal: true, url: 'https://github.com/foo' }
+    );
+
+    (createOrganization as jest.Mock).mockResolvedValueOnce(org);
+    const promise = actions.createOrganization({ alm, ...org })(dispatch);
+
+    expect(createOrganization).toHaveBeenCalledWith(org);
+    await promise;
+    expect(syncMembers).not.toBeCalled();
+  });
 });

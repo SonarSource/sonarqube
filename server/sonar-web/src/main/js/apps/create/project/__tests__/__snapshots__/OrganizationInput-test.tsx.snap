@@ -34,6 +34,7 @@ exports[`should render correctly 1`] = `
           "alm": Object {
             "key": "github",
             "membersSync": false,
+            "personal": false,
             "url": "https://github.com/foo",
           },
           "key": "bar",

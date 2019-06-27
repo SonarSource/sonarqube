@@ -361,6 +361,7 @@ exports[`should render with organization bind page 2`] = `
           "description": "description-foo",
           "key": "foo",
           "name": "foo",
+          "personal": false,
           "privateRepos": 0,
           "publicRepos": 3,
           "url": "http://example.com/foo",

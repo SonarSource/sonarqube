@@ -86,6 +86,7 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
       alm: {
         key: almApplication.key,
         membersSync: true,
+        personal: almOrganization.personal,
         url: almOrganization.almUrl
       },
       installationId: this.props.almInstallId

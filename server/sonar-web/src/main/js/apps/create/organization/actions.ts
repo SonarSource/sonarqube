@@ -31,7 +31,7 @@ export function createOrganization({
       .createOrganization({ ...organization, name: organization.name || organization.key })
       .then((newOrganization: T.Organization) => {
         dispatch(actions.createOrganization({ ...newOrganization, alm }));
-        if (alm && alm.membersSync && isGithub(alm.key)) {
+        if (alm && alm.membersSync && !alm.personal && isGithub(alm.key)) {
           api.syncMembers(newOrganization.key);
         }
         return newOrganization.key;

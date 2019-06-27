@@ -87,6 +87,7 @@ exports[`should render correctly 2`] = `
             "alm": Object {
               "key": "github",
               "membersSync": false,
+              "personal": false,
               "url": "https://github.com/foo",
             },
             "key": "bar",
@@ -152,6 +153,7 @@ exports[`should render with Custom creation only 1`] = `
             "alm": Object {
               "key": "github",
               "membersSync": false,
+              "personal": false,
               "url": "https://github.com/foo",
             },
             "key": "bar",
@@ -222,6 +224,7 @@ exports[`should switch tabs 1`] = `
             "alm": Object {
               "key": "github",
               "membersSync": false,
+              "personal": false,
               "url": "https://github.com/foo",
             },
             "key": "bar",

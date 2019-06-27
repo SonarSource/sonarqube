@@ -30,6 +30,7 @@ exports[`should preselect paid plan 1`] = `
             "description": "description-foo",
             "key": "foo",
             "name": "foo",
+            "personal": false,
             "privateRepos": 5,
             "publicRepos": 0,
             "url": "http://example.com/foo",

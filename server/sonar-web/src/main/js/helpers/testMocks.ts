@@ -43,6 +43,7 @@ export function mockAlmOrganization(overrides: Partial<T.AlmOrganization> = {}):
     description: 'description-foo',
     key: 'foo',
     name: 'foo',
+    personal: false,
     privateRepos: 0,
     publicRepos: 3,
     url: 'http://example.com/foo',
@@ -491,7 +492,13 @@ export function mockOrganizationWithAlm(
   almOverrides: Partial<T.Organization['alm']> = {}
 ): T.Organization {
   return mockOrganization({
-    alm: { key: 'github', membersSync: false, url: 'https://github.com/foo', ...almOverrides },
+    alm: {
+      key: 'github',
+      membersSync: false,
+      personal: false,
+      url: 'https://github.com/foo',
+      ...almOverrides
+    },
     ...overrides
   });
 }

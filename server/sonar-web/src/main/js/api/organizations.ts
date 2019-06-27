@@ -39,7 +39,7 @@ export function getOrganization(key: string): Promise<T.Organization | undefined
 
 interface GetOrganizationNavigation {
   adminPages: T.Extension[];
-  alm?: { key: string; membersSync: boolean; url: string };
+  alm?: { key: string; membersSync: boolean; personal: boolean; url: string };
   canUpdateProjectsVisibilityToPrivate: boolean;
   isDefault: boolean;
   pages: T.Extension[];

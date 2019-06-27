@@ -39,6 +39,7 @@ exports[`should display the list of repositories 1`] = `
             "alm": Object {
               "key": "github",
               "membersSync": false,
+              "personal": false,
               "url": "https://github.com/foo",
             },
             "key": "foo",
@@ -140,6 +141,7 @@ exports[`should display the list of repositories 2`] = `
             "alm": Object {
               "key": "github",
               "membersSync": false,
+              "personal": false,
               "url": "https://github.com/foo",
             },
             "key": "foo",
@@ -166,6 +168,7 @@ exports[`should display the organization upgrade box 1`] = `
       "alm": Object {
         "key": "github",
         "membersSync": false,
+        "personal": false,
         "url": "https://github.com/foo",
       },
       "key": "foo",

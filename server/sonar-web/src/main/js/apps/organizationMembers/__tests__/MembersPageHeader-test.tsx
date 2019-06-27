@@ -48,6 +48,13 @@ it('should render for GitHub bound organization without sync', () => {
   expect(shallowRender({ organization })).toMatchSnapshot();
 });
 
+it('should render for personal GitHub bound organization without sync', () => {
+  const organization = mockOrganizationWithAlm(mockOrganizationWithAdminActions(), {
+    personal: true
+  });
+  expect(shallowRender({ organization })).toMatchSnapshot();
+});
+
 it('should render for bound organization with sync', () => {
   const organization = mockOrganizationWithAlm(mockOrganizationWithAdminActions(), {
     membersSync: true

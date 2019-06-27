@@ -43,6 +43,8 @@ export default function MembersPageHeader(props: Props) {
   const almKey = organization.alm && sanitizeAlmId(organization.alm.key);
   const hasMemberSync = organization.alm && organization.alm.membersSync;
   const showSyncNotif = isAdmin && organization.alm && !hasMemberSync;
+  const isSyncEligible =
+    almKey && isGithub(almKey) && organization.alm && !organization.alm.personal;
 
   return (
     <header className="page-header">
@@ -50,7 +52,7 @@ export default function MembersPageHeader(props: Props) {
       <DeferredSpinner loading={props.loading} />
       {isAdmin && (
         <div className="page-actions text-right">
-          {almKey && isGithub(almKey) && !showSyncNotif && (
+          {isSyncEligible && !showSyncNotif && (
             <SyncMemberForm
               buttonText={translate('organization.members.config_synchro')}
               hasOtherMembers={members && members.length > 1}
@@ -85,7 +87,7 @@ export default function MembersPageHeader(props: Props) {
             )
           }}
         />
-        {almKey && isGithub(almKey) && showSyncNotif && (
+        {almKey && isSyncEligible && showSyncNotif && (
           <Alert className="spacer-top" display="inline" variant="info">
             {translateWithParameters(
               'organization.members.auto_sync_members_from_org_x',
