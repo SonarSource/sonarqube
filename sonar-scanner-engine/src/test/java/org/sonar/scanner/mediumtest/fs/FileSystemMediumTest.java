@@ -814,9 +814,14 @@ public class FileSystemMediumTest {
 
       assertThat(result.inputFiles()).hasSize(3);
       assertThat(result.inputFiles()).extractingResultOf("relativePath").containsOnly(
-        "xources/hello/HelloJava.xoo",
+        "testx/ClassOneTest.xoo.measures",
+        "xources/hello/helloscala.xoo.measures",
+        "xources/hello/HelloJava.xoo.measures",
+        "testx/ClassOneTest.xoo",
+        "xources/hello/HelloJava.xoo.scm",
         "xources/hello/helloscala.xoo",
-        "testx/ClassOneTest.xoo");
+        "testx/ClassOneTest.xoo.scm",
+        "xources/hello/HelloJava.xoo");
     }
   }
 
