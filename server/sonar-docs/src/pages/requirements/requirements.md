@@ -22,16 +22,16 @@ For additional requirements and recommendations relating to database and Elastic
 
 ## Supported Platforms
 ### Java
-The SonarQube Java analyzer is able to analyze any kind of Java source files regardless of the version of Java they comply to. But SonarQube analysis and the SonarQube Server require specific versions of the JVM.
+The SonarQube Java analyzer is able to analyze any kind of Java source files regardless of the version of Java they comply to. However, SonarQube analysis requires version 8+ of the JVM and the SonarQube Server requires version 11+.
 
 We recommend using the Critical Patch Update (CPU) releases.
 
-| Java           |                          |
-| -------------- | ------------------------ |
-| Oracle JRE     | ![](/images/check.svg) 11 |
-|                | ![](/images/cross.svg) 8  |
-| OpenJDK        | ![](/images/check.svg) 11 |
-|                | ![](/images/cross.svg) 8  |
+| Java           | Server                    | Analysis                  |
+| -------------- | ------------------------- | ------------------------- |
+| Oracle JRE     | ![](/images/check.svg) 11 | ![](/images/check.svg) 11 |
+|                | ![](/images/cross.svg) 8  | ![](/images/check.svg) 8  |
+| OpenJDK        | ![](/images/check.svg) 11 | ![](/images/check.svg) 11 |
+|                | ![](/images/cross.svg) 8  | ![](/images/check.svg) 8  |
 
 | Database                                                    |                                                                                                                                                                                                                                                                   |
 | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
