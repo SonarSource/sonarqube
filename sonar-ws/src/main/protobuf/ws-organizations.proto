@@ -66,6 +66,7 @@ message Organization {
   message Alm {
     optional string key = 1;
     optional string url = 2;
+    optional bool personal = 3;
   }
 
   message Actions {

@@ -194,7 +194,8 @@ public class OrganizationActionTest {
       "    \"alm\": {" +
       "      \"key\": \"" + organizationAlmBinding.getAlm().getId() + "\"," +
       "      \"url\": \"" + organizationAlmBinding.getUrl() + "\"," +
-      "      \"membersSync\": " + organizationAlmBinding.isMembersSyncEnable() +
+      "      \"membersSync\": " + organizationAlmBinding.isMembersSyncEnable() + "," +
+      "      \"personal\": " + almAppInstall.isOwnerUser() +
       "    }" +
       "  }" +
       "}");

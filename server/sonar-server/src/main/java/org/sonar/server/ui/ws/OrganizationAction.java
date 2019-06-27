@@ -19,8 +19,10 @@
  */
 package org.sonar.server.ui.ws;
 
+import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -30,6 +32,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.page.Page;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.alm.AlmAppInstallDto;
 import org.sonar.db.alm.OrganizationAlmBindingDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.organization.OrganizationDto;
@@ -100,16 +103,26 @@ public class OrganizationAction implements NavigationWsAction {
         }
       }
       boolean newProjectPrivate = dbClient.organizationDao().getNewProjectPrivate(dbSession, organization);
+      Optional<OrganizationAlmBindingDto> optOrganizationAlmBinding = dbClient.organizationAlmBindingDao().selectByOrganization(dbSession, organization);
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
-      writeOrganization(json, organization, dbClient.organizationAlmBindingDao().selectByOrganization(dbSession, organization), newProjectPrivate);
+      if (optOrganizationAlmBinding.isPresent()) {
+        OrganizationAlmBindingDto organizationAlmBinding = optOrganizationAlmBinding.get();
+        Optional<AlmAppInstallDto> almAppInstall = dbClient.almAppInstallDao().selectByUuid(dbSession, organizationAlmBinding.getAlmAppInstallUuid());
+        Preconditions.checkState(almAppInstall.isPresent(), "Failed to get ALM information for organization '{}': '{}' application is not installed.",
+          organization.getName(), organizationAlmBinding.getAlm().getId());
+        writeOrganization(json, organization, newProjectPrivate, organizationAlmBinding, almAppInstall.get());
+      } else {
+        writeOrganization(json, organization, newProjectPrivate, null, null);
+      }
       json.endObject()
         .close();
     }
   }
 
-  private void writeOrganization(JsonWriter json, OrganizationDto organization, Optional<OrganizationAlmBindingDto> organizationAlmBinding, boolean newProjectPrivate) {
+  private void writeOrganization(JsonWriter json, OrganizationDto organization, boolean newProjectPrivate, @Nullable OrganizationAlmBindingDto organizationAlmBinding,
+    @Nullable AlmAppInstallDto almAppInstall) {
     json.name("organization")
       .beginObject()
       .prop("isDefault", organization.getKey().equals(defaultOrganizationProvider.get().getKey()))
@@ -118,7 +131,26 @@ public class OrganizationAction implements NavigationWsAction {
       .prop("canUpdateProjectsVisibilityToPrivate",
         userSession.hasPermission(ADMINISTER, organization) &&
           billingValidations.canUpdateProjectVisibilityToPrivate(new BillingValidations.Organization(organization.getKey(), organization.getUuid(), organization.getName())));
-    writeAlm(json, organizationAlmBinding);
+
+    if (organizationAlmBinding != null && almAppInstall != null) {
+      writeAlm(json, organizationAlmBinding, almAppInstall);
+    }
+
+    writeOrganizationPages(json, organization);
+  }
+
+  private static void writeAlm(JsonWriter json, OrganizationAlmBindingDto organizationAlmBinding, AlmAppInstallDto almAppInstall) {
+    json
+      .name("alm")
+      .beginObject()
+      .prop("key", organizationAlmBinding.getAlm().getId())
+      .prop("url", organizationAlmBinding.getUrl())
+      .prop("membersSync", organizationAlmBinding.isMembersSyncEnable())
+      .prop("personal", almAppInstall.isOwnerUser())
+      .endObject();
+  }
+
+  private void writeOrganizationPages(JsonWriter json, OrganizationDto organization) {
     json.name("pages");
     writePages(json, pageRepository.getOrganizationPages(false));
     if (userSession.hasPermission(ADMINISTER, organization)) {
@@ -137,14 +169,4 @@ public class OrganizationAction implements NavigationWsAction {
     json.endArray();
   }
 
-  private static void writeAlm(JsonWriter json, Optional<OrganizationAlmBindingDto> organizationAlmBindingOpt) {
-    organizationAlmBindingOpt.ifPresent(
-      organizationAlmBinding -> json
-        .name("alm")
-        .beginObject()
-        .prop("key", organizationAlmBinding.getAlm().getId())
-        .prop("url", organizationAlmBinding.getUrl())
-        .prop("membersSync", organizationAlmBinding.isMembersSyncEnable())
-        .endObject());
-  }
 }
