@@ -5,14 +5,14 @@ url: /user-guide/security-hotspots/
 
 ## What is a Security Hotspot?
 
-Unlike Vulnerabilities, Security Hotspots aren't necessarily issues that are open to attack. Instead, Security Hotspots highlight security-sensitive pieces of code that need to be manually reviewed. Upon review, you might be find a Vulnerability at a Security Hotspot location that needs to be fixed or that there is no threat. 
+Unlike Vulnerabilities, Security Hotspots aren't necessarily issues that are open to attack. Instead, Security Hotspots highlight security-sensitive pieces of code that need to be manually reviewed. Upon review, you'll either find a Vulnerability that needs to be fixed or that there is no threat. 
 
 ## Why are Security Hotspots Important?
 
 Security Hotspots help focus the efforts of developers who are manually checking security-sensitive code. Reviewing Security Hotspots allows you to:
 
 * **Fix security issues** – Reviewing Security Hotspots gives you the opportunity to detect vulnerabilities and ensure issues are fixed before merging pull requests or releasing your branch.
-* **Learn about security** – {instance} explains why your code was identified as a Security Hotspot and the link between your Security Hotspots and well-known attacks or weaknesses such as SQL Injection, Weak Cryptography, or Authentication. Knowing this makes you aware of when you're working on security-sensitive code and helps you avoid creating Vulnerabilities.
+* **Learn about security** – {instance} explains why your code was identified as a Security Hotspot and the link between your Security Hotspots and well-known attacks or weaknesses such as SQL Injection, Weak Cryptography, or Authentication. This helps you to know when you're working on security-sensitive code and to avoid creating Vulnerabilities.
 
 ## Security Hotspot Lifecycle
 Security Hotspots have a dedicated lifecycle and must be reviewed by someone with the "Administer Security Hotspots" permission. 
