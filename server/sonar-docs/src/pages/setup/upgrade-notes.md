@@ -10,7 +10,11 @@ SonarQube no longer supports MySQL. To migrate from MySQL to a supported databas
 **Java 11 Required**  
 The SonarQube server now requires Java 11. Analyses may continue to use Java 8 if necessary.
 
+**Pylint should be run manually**  
+Running Pylint automatically during python analysis has been deprecated, and is broken in this version on Windows. If needed, Pylint must be run ahead of time and the resulting report passed in to analysis. This [will be fixed](https://jira.sonarsource.com/browse/SONARPY-339) in a future version of SonarPython.
+
 [Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=14945)
+
 
 ## Release 7.8 Upgrade Notes
 **MySQL Deprecation and Migration**  
