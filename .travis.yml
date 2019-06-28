@@ -1,7 +1,7 @@
 language: java
 sudo: required
 install: true
-jdk: oraclejdk11
+jdk: openjdk11
 script: ./travis.sh
 dist: trusty
 
