@@ -49,8 +49,8 @@ public class ProjectsInWarningDaemon implements Startable {
 
   private static final Logger LOG = Loggers.get(ProjectsInWarningDaemon.class);
 
-  private static final String FREQUENCY_IN_SECONDS_PROPERTY = "sonar.projectsInWarning.frequencyInSeconds";
-  private static final int DEFAULT_FREQUENCY_IN_SECONDS = 60 * 60 * 24;
+  private static final String FREQUENCY_IN_MILLISECONDS_PROPERTY = "sonar.projectsInWarning.frequencyInMilliseconds";
+  private static final int DEFAULT_FREQUENCY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
   private static final String THREAD_NAME_PREFIX = "sq-projects-in-warning-service-";
 
   private static final String LOCK_NAME = "ProjectsInWarn";
@@ -84,11 +84,11 @@ public class ProjectsInWarningDaemon implements Startable {
     }
     LOG.info("Counting number of projects in warning is enabled.");
     executorService = Executors.newSingleThreadScheduledExecutor(newThreadFactory());
-    executorService.scheduleWithFixedDelay(countProjectsInWarning(), 0, frequency(), TimeUnit.SECONDS);
+    executorService.scheduleWithFixedDelay(countProjectsInWarning(), 0, frequency(), TimeUnit.MILLISECONDS);
   }
 
   private int frequency() {
-    return config.getInt(FREQUENCY_IN_SECONDS_PROPERTY).orElse(DEFAULT_FREQUENCY_IN_SECONDS);
+    return config.getInt(FREQUENCY_IN_MILLISECONDS_PROPERTY).orElse(DEFAULT_FREQUENCY_IN_MILLISECONDS);
   }
 
   private Runnable countProjectsInWarning() {

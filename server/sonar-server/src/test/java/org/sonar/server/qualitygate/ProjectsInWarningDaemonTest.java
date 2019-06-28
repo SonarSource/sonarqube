@@ -72,7 +72,7 @@ public class ProjectsInWarningDaemonTest {
 
   @Before
   public void setUp() throws Exception {
-    settings.setProperty("sonar.projectsInWarning.frequencyInSeconds", "1");
+    settings.setProperty("sonar.projectsInWarning.frequencyInMilliseconds", "100");
   }
 
   @After
@@ -139,7 +139,6 @@ public class ProjectsInWarningDaemonTest {
   public void update_internal_properties_when_already_exits_and_projects_in_warnings_more_than_zero() throws InterruptedException {
     allowLockToBeAcquired();
     MetricDto qualityGateStatus = insertQualityGateStatusMetric();
-    ;
     insertProjectInWarning(qualityGateStatus);
     insertProjectInWarning(qualityGateStatus);
     // Setting contains 10, it should be updated with new value
@@ -194,7 +193,7 @@ public class ProjectsInWarningDaemonTest {
   }
 
   private void waitForValueToBeComputed(long expectedValue) throws InterruptedException {
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1000; i++) {
       if (projectsInWarning.isInitialized() && projectsInWarning.count() == expectedValue) {
         break;
       }
