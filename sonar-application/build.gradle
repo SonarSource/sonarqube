@@ -31,7 +31,7 @@ configurations {
 
 ext {
   slangVersion = '1.5.0.315'
-  dotnetVersion = '7.14.0.8411'
+  dotnetVersion = '7.15.0.8572'
 }
 
 dependencies {
@@ -61,14 +61,14 @@ dependencies {
   bundledPlugin 'org.sonarsource.css:sonar-css-plugin:1.1.0.993@jar'
   bundledPlugin "org.sonarsource.dotnet:sonar-csharp-plugin:${dotnetVersion}@jar"
   bundledPlugin "org.sonarsource.dotnet:sonar-vbnet-plugin:${dotnetVersion}@jar"
-  bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin:2.4.0.1222@jar'
+  bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin:2.5.1.1831@jar'
   bundledPlugin 'org.sonarsource.go:sonar-go-plugin:1.1.1.2000@jar'
   bundledPlugin 'org.sonarsource.html:sonar-html-plugin:3.1.0.1615@jar'
-  bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.13.0.18197@jar'
+  bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.13.1.18282@jar'
   bundledPlugin 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.0.1.143@jar'
   bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin:5.2.1.7778@jar'
   bundledPlugin 'org.sonarsource.ldap:sonar-ldap-plugin:2.2.0.608@jar'
-  bundledPlugin 'org.sonarsource.php:sonar-php-plugin:3.1.1.4762@jar'
+  bundledPlugin 'org.sonarsource.php:sonar-php-plugin:3.2.0.4868@jar'
   bundledPlugin 'org.sonarsource.python:sonar-python-plugin:1.14.0.3086@jar'
   bundledPlugin "org.sonarsource.slang:sonar-kotlin-plugin:${slangVersion}@jar"
   bundledPlugin "org.sonarsource.slang:sonar-ruby-plugin:${slangVersion}@jar"
