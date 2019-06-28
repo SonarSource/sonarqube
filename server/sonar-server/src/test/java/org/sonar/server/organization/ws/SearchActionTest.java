@@ -272,6 +272,7 @@ public class SearchActionTest {
     Map<String, Organization> orgByKey = result.getOrganizationsList().stream().collect(toMap(Organization::getKey, identity()));
     assertThat(orgByKey.get(organization.getKey()).getAlm().getKey()).isEqualTo(organizationAlmBinding.getAlm().getId());
     assertThat(orgByKey.get(organization.getKey()).getAlm().getUrl()).isEqualTo(organizationAlmBinding.getUrl());
+    assertThat(orgByKey.get(organization.getKey()).getAlm().getPersonal()).isEqualTo(almAppInstall.isOwnerUser());
     assertThat(orgByKey.get(organizationNotBoundToAlm.getKey()).hasAlm()).isEqualTo(false);
   }
 

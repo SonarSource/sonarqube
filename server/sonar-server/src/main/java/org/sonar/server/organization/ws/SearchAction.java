@@ -32,6 +32,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.alm.AlmAppInstallDto;
 import org.sonar.db.alm.OrganizationAlmBindingDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationQuery;
@@ -110,9 +111,11 @@ public class SearchAction implements OrganizationsWsAction {
       Set<String> provisionOrganizationUuids = searchOrganizationWithProvisionPermission(dbSession);
       Map<String, OrganizationAlmBindingDto> organizationAlmBindingByOrgUuid = dbClient.organizationAlmBindingDao().selectByOrganizations(dbSession, organizations)
         .stream().collect(MoreCollectors.uniqueIndex(OrganizationAlmBindingDto::getOrganizationUuid));
+      Map<String, AlmAppInstallDto> almAppInstallDtoByUuid = dbClient.almAppInstallDao().selectByOrganizations(dbSession, organizations)
+        .stream().collect(MoreCollectors.uniqueIndex(AlmAppInstallDto::getUuid));
 
       Organizations.SearchWsResponse wsResponse = buildOrganizations(organizations, adminOrganizationUuids, provisionOrganizationUuids, organizationAlmBindingByOrgUuid,
-        onlyMembershipOrganizations, paging);
+        almAppInstallDtoByUuid, onlyMembershipOrganizations, paging);
       writeProtobuf(wsResponse, request, response);
     }
   }
@@ -137,7 +140,8 @@ public class SearchAction implements OrganizationsWsAction {
   }
 
   private Organizations.SearchWsResponse buildOrganizations(List<OrganizationDto> organizations, Set<String> adminOrganizationUuids, Set<String> provisionOrganizationUuids,
-    Map<String, OrganizationAlmBindingDto> organizationAlmBindingByOrgUuid, boolean onlyMembershipOrganizations, Paging paging) {
+    Map<String, OrganizationAlmBindingDto> organizationAlmBindingByOrgUuid, Map<String, AlmAppInstallDto> almAppInstallDtoByUuid, boolean onlyMembershipOrganizations,
+    Paging paging) {
     Organizations.SearchWsResponse.Builder response = Organizations.SearchWsResponse.newBuilder();
     response.setPaging(paging);
     Organization.Builder wsOrganization = Organization.newBuilder();
@@ -150,13 +154,17 @@ public class SearchAction implements OrganizationsWsAction {
           .setAdmin(isAdmin)
           .setProvision(canProvision)
           .setDelete(isAdmin));
-        response.addOrganizations(toOrganization(wsOrganization, o, organizationAlmBindingByOrgUuid.get(o.getUuid()), onlyMembershipOrganizations));
+        OrganizationAlmBindingDto organizationAlmBinding = organizationAlmBindingByOrgUuid.get(o.getUuid());
+        AlmAppInstallDto almAppinstall = organizationAlmBinding == null
+          ? null
+          : almAppInstallDtoByUuid.get(organizationAlmBinding.getAlmAppInstallUuid());
+        response.addOrganizations(toOrganization(wsOrganization, o, organizationAlmBinding, almAppinstall, onlyMembershipOrganizations));
       });
     return response.build();
   }
 
   private static Organization.Builder toOrganization(Organization.Builder builder, OrganizationDto organization, @Nullable OrganizationAlmBindingDto organizationAlmBinding,
-    boolean onlyMembershipOrganizations) {
+    @Nullable AlmAppInstallDto almAppInstallDto, boolean onlyMembershipOrganizations) {
     builder
       .setName(organization.getName())
       .setKey(organization.getKey());
@@ -164,9 +172,13 @@ public class SearchAction implements OrganizationsWsAction {
     ofNullable(organization.getUrl()).ifPresent(builder::setUrl);
     ofNullable(organization.getAvatarUrl()).ifPresent(builder::setAvatar);
     if (onlyMembershipOrganizations && organizationAlmBinding != null) {
-      builder.setAlm(Organization.Alm.newBuilder()
+      Organization.Alm.Builder almBuilder = Organization.Alm.newBuilder()
         .setKey(organizationAlmBinding.getAlm().getId())
-        .setUrl(organizationAlmBinding.getUrl()));
+        .setUrl(organizationAlmBinding.getUrl());
+      if (almAppInstallDto != null) {
+        almBuilder.setPersonal(almAppInstallDto.isOwnerUser());
+      }
+      builder.setAlm(almBuilder.build());
     }
     if (onlyMembershipOrganizations) {
       builder.setSubscription(Organizations.Subscription.valueOf(organization.getSubscription().name()));

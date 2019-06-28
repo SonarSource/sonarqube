@@ -19,6 +19,7 @@
  */
 package org.sonar.db.alm;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Objects;
 import java.util.Optional;
 import org.assertj.core.api.AbstractAssert;
@@ -33,7 +34,9 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 
+import static java.util.Collections.emptyList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -152,15 +155,40 @@ public class AlmAppInstallDaoTest {
   @Test
   public void selectByOrganization() {
     OrganizationDto organization = db.organizations().insert();
-    db.getDbClient().almAppInstallDao().insertOrUpdate(db.getSession(), ALM.GITHUB, "the-owner", false, "123456", null);
-    // could be improved, insertOrUpdate should return the DTO with its uuid
-    Optional<AlmAppInstallDto> install = db.getDbClient().almAppInstallDao().selectByOrganizationAlmId(db.getSession(), ALM.GITHUB, "the-owner");
-    db.getDbClient().organizationAlmBindingDao().insert(db.getSession(), organization, install.get(), "xxx", "xxx", true);
+    AlmAppInstallDto install = insertAlmAppInstall(organization);
     db.commit();
 
-    assertThat(underTest.selectByOrganization(db.getSession(), GITHUB, organization).get().getUuid()).isEqualTo(install.get().getUuid());
+    assertThat(underTest.selectByOrganization(db.getSession(), GITHUB, organization).get().getUuid()).isEqualTo(install.getUuid());
     assertThat(underTest.selectByOrganization(db.getSession(), BITBUCKETCLOUD, organization)).isEmpty();
     assertThat(underTest.selectByOrganization(db.getSession(), GITHUB, new OrganizationDto().setUuid("other-organization"))).isEmpty();
+  }
+
+  @Test
+  public void selectByOrganizations() {
+    OrganizationDto org1 = db.organizations().insert();
+    AlmAppInstallDto install1 = insertAlmAppInstall(org1);
+    OrganizationDto org2 = db.organizations().insert();
+    AlmAppInstallDto install2 = insertAlmAppInstall(org2);
+    OrganizationDto org3 = db.organizations().insert();
+    db.commit();
+
+    assertThat(underTest.selectByOrganizations(db.getSession(), ImmutableList.of(org1, org2, org3)))
+      .extracting(AlmAppInstallDto::getUuid)
+      .containsOnly(install1.getUuid(), install2.getUuid());
+  }
+
+  @Test
+  public void selectByOrganizations_return_empty_list_if_list_of_orgs_is_empty() {
+    assertThat(underTest.selectByOrganizations(db.getSession(), emptyList())).isEmpty();
+  }
+
+  private AlmAppInstallDto insertAlmAppInstall(OrganizationDto organization) {
+    String organizationAlmId = randomAlphanumeric(10);
+    db.getDbClient().almAppInstallDao().insertOrUpdate(db.getSession(), ALM.GITHUB, organizationAlmId, false, randomNumeric(6), null);
+    // could be improved, insertOrUpdate should return the DTO with its uuid
+    Optional<AlmAppInstallDto> install = db.getDbClient().almAppInstallDao().selectByOrganizationAlmId(db.getSession(), ALM.GITHUB, organizationAlmId);
+    db.getDbClient().organizationAlmBindingDao().insert(db.getSession(), organization, install.get(), "xxx", "xxx", true);
+    return install.get();
   }
 
   @Test

@@ -50,6 +50,17 @@
     and oab.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByOrganizationUuids" parameterType="String" resultType="org.sonar.db.alm.AlmAppInstallDto">
+    select <include refid="sqlColumns"/>
+    from
+    alm_app_installs aai
+    inner join organization_alm_bindings oab on oab.alm_app_install_uuid = aai.uuid
+    where oab.organization_uuid in
+      <foreach collection="organizationUuids" open="(" close=")" item="organizationUuid" separator=",">
+        #{organizationUuid , jdbcType=VARCHAR}
+      </foreach>
+  </select>
+
   <select id="selectUnboundByUserExternalId" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
     select <include refid="sqlColumns" />
     from

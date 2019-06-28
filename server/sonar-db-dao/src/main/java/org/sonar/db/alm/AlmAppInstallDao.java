@@ -21,6 +21,8 @@ package org.sonar.db.alm;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -31,6 +33,7 @@ import org.sonar.db.organization.OrganizationDto;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 /**
  * Store instances of installed app in external ALM like GitHub or Bitbucket Cloud.
@@ -68,6 +71,10 @@ public class AlmAppInstallDao implements Dao {
     return Optional.ofNullable(mapper.selectByOrganizationUuid(alm.getId(), organization.getUuid()));
   }
 
+  public List<AlmAppInstallDto> selectByOrganizations(DbSession dbSession, List<OrganizationDto> organizations) {
+    Set<String> organizationUuids = organizations.stream().map(OrganizationDto::getUuid).collect(Collectors.toSet());
+    return executeLargeInputs(organizationUuids, uuids -> getMapper(dbSession).selectByOrganizationUuids(organizationUuids));
+  }
 
   public List<AlmAppInstallDto> selectUnboundByUserExternalId(DbSession dbSession, String userExternalId) {
     return getMapper(dbSession).selectUnboundByUserExternalId(userExternalId);
