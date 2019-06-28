@@ -66,6 +66,7 @@ LimitNOFILE=65536
 LimitNPROC=8192
 TimeoutStartSec=5
 Restart=always
+SuccessExitStatus=143
 
 [Install]
 WantedBy=multi-user.target
