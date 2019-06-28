@@ -23,7 +23,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Loggers;
 
 public class MySql extends AbstractDialect {
 
@@ -62,15 +61,5 @@ public class MySql extends AbstractDialect {
   @Override
   public void init(DatabaseMetaData metaData) throws SQLException {
     checkDbVersion(metaData, MIN_SUPPORTED_VERSION);
-
-    String message = "\n" +
-      "#############################################################################################################\n" +
-      "#         End of Life of MySQL Support : SonarQube 7.8 is the last version that will support MySQL.         #\n" +
-      "#         Please consider migrating to a supported database. Get the migration detail on                    #\n" +
-      "#         https://community.sonarsource.com/t/end-of-life-of-mysql-support                                  #\n" +
-      "#         and https://github.com/SonarSource/mysql-migrator                                                 #\n" +
-      "#############################################################################################################\n";
-
-    Loggers.get(getClass()).warn(message);
   }
 }

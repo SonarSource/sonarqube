@@ -33,10 +33,12 @@ import org.apache.commons.dbcp2.BasicDataSourceFactory;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.DialectUtils;
+import org.sonar.db.dialect.MySql;
 import org.sonar.db.profiling.NullConnectionInterceptor;
 import org.sonar.db.profiling.ProfiledConnectionInterceptor;
 import org.sonar.db.profiling.ProfiledDataSource;
@@ -63,8 +65,7 @@ public class DefaultDatabase implements Database {
   private static final String DBCP_JDBC_MAX_WAIT = "maxWaitMillis";
   private static final Map<String, String> SONAR_JDBC_TO_DBCP_PROPERTY_MAPPINGS = ImmutableMap.of(
     SONAR_JDBC_MAX_ACTIVE, DBCP_JDBC_MAX_ACTIVE,
-    SONAR_JDBC_MAX_WAIT, DBCP_JDBC_MAX_WAIT
-  );
+    SONAR_JDBC_MAX_WAIT, DBCP_JDBC_MAX_WAIT);
 
   private final LogbackHelper logbackHelper;
   private final Settings settings;
@@ -79,8 +80,9 @@ public class DefaultDatabase implements Database {
 
   @Override
   public void start() {
+    initSettings();
+    failIfMySql();
     try {
-      initSettings();
       initDataSource();
       checkConnection();
 
@@ -98,6 +100,19 @@ public class DefaultDatabase implements Database {
 
     dialect = DialectUtils.find(properties.getProperty(SONAR_JDBC_DIALECT), properties.getProperty(JDBC_URL.getKey()));
     properties.setProperty(SONAR_JDBC_DRIVER, dialect.getDefaultDriverClassName());
+  }
+
+  private void failIfMySql() {
+    if (!MySql.ID.equals(dialect.getId())) {
+      return;
+    }
+    throw MessageException.of("\n" +
+      "#############################################################################################################\n" +
+      "#         End of Life of MySQL Support : SonarQube 7.9 and future versions do not support MySQL.            #\n" +
+      "#         Please migrate to a supported database. Get more details at                                       #\n" +
+      "#         https://community.sonarsource.com/t/end-of-life-of-mysql-support                                  #\n" +
+      "#         and https://github.com/SonarSource/mysql-migrator                                                 #\n" +
+      "#############################################################################################################\n");
   }
 
   private void initDataSource() throws Exception {

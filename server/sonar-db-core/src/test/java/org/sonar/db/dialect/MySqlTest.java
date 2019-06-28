@@ -21,14 +21,12 @@ package org.sonar.db.dialect;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -86,22 +84,14 @@ public class MySqlTest {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Unsupported mysql version: 5.5. Minimal supported version is 5.6.");
 
-    DatabaseMetaData metadata = newMetadata( 5, 5);
+    DatabaseMetaData metadata = newMetadata(5, 5);
     underTest.init(metadata);
   }
 
   @Test
   public void init_does_not_fail_if_mysql_5_6() throws Exception {
-    DatabaseMetaData metadata = newMetadata( 5, 6);
+    DatabaseMetaData metadata = newMetadata(5, 6);
     underTest.init(metadata);
-  }
-
-  @Test
-  public void init_logs_warning() throws SQLException {
-    underTest.init(newMetadata(5, 6));
-
-    List<String> logs = this.logs.logs(LoggerLevel.WARN);
-    assertThat(logs.get(0).contains("End of Life of MySQL Support : SonarQube 7.8 is the last version that will support MySQL.")).isTrue();
   }
 
   @Test

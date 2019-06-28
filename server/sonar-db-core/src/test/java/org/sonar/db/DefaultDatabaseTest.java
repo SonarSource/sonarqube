@@ -28,8 +28,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.MessageException;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.process.logging.LogbackHelper;
 
@@ -40,9 +40,9 @@ import static org.mockito.Mockito.mock;
 
 @RunWith(DataProviderRunner.class)
 public class DefaultDatabaseTest {
+
   private LogbackHelper logbackHelper = mock(LogbackHelper.class);
   private static final String SONAR_JDBC = "sonar.jdbc.";
-
 
   @Rule
   public ExpectedException expectedException = none();
@@ -101,7 +101,7 @@ public class DefaultDatabaseTest {
 
   @Test
   public void shouldCompleteProperties() {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
 
     DefaultDatabase db = new DefaultDatabase(logbackHelper, settings) {
       @Override
@@ -118,7 +118,7 @@ public class DefaultDatabaseTest {
 
   @Test
   public void shouldStart() {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     settings.setProperty("sonar.jdbc.url", "jdbc:h2:mem:sonar");
     settings.setProperty("sonar.jdbc.driverClassName", "org.h2.Driver");
     settings.setProperty("sonar.jdbc.username", "sonar");
@@ -135,7 +135,7 @@ public class DefaultDatabaseTest {
 
   @Test
   public void shouldGuessDialectFromUrl() {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     settings.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost/sonar");
 
     DefaultDatabase database = new DefaultDatabase(logbackHelper, settings);
@@ -146,13 +146,25 @@ public class DefaultDatabaseTest {
 
   @Test
   public void shouldGuessDefaultDriver() {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     settings.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost/sonar");
 
     DefaultDatabase database = new DefaultDatabase(logbackHelper, settings);
     database.initSettings();
 
     assertThat(database.getProperties().getProperty("sonar.jdbc.driverClassName")).isEqualTo("org.postgresql.Driver");
+  }
+
+  @Test
+  public void fail_when_mysql_is_used() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty("sonar.jdbc.url", "jdbc:mysql://localhost/sonar");
+
+    DefaultDatabase database = new DefaultDatabase(logbackHelper, settings);
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("End of Life of MySQL Support");
+    database.start();
   }
 
   @DataProvider
