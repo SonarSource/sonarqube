@@ -19,23 +19,31 @@
  */
 package org.sonar.server.platform.db.migration.version.v79;
 
-import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.api.config.Configuration;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.es.MigrationEsClient;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+@SupportsBlueGreen
+public class ReindexIssuesAndRules extends DataChange {
 
-public class DbVersion79Test {
-  private DbVersion underTest = new DbVersion79();
+  private final Configuration configuration;
+  private final MigrationEsClient esClient;
 
-  @Test
-  public void migrationNumber_starts_at_2800() {
-    verifyMinimumMigrationNumber(underTest, 2800);
+  public ReindexIssuesAndRules(Database db, Configuration configuration, MigrationEsClient esClient) {
+    super(db);
+    this.configuration = configuration;
+    this.esClient = esClient;
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 5);
+  @Override
+  public void execute(Context context) throws SQLException {
+    if (configuration.getBoolean("sonar.sonarcloud.enabled").orElse(false)) {
+      return;
+    }
+    esClient.deleteIndexes("issues", "rules");
   }
 
 }

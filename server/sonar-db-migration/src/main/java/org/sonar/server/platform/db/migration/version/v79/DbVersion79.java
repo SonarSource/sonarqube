@@ -30,6 +30,7 @@ public class DbVersion79 implements DbVersion {
         TruncateEnvAndSystemVarsFromScannerContext.class)
       .add(2801, "populate install version and install date internal properties", PopulateInstallDateAndVersion.class)
       .add(2802, "Migrate property 'sonar.pullrequest.provider' value from VSTS to Azure DevOps", MigrateVstsProviderToAzureDevOps.class)
-      .add(2803, "Remove quality gate conditions on Security Review Rating", RemoveQGConditionsOnSecurityReviewRating.class);
+      .add(2803, "Remove quality gate conditions on Security Review Rating", RemoveQGConditionsOnSecurityReviewRating.class)
+      .add(2804, "Reindex issues and rules to take into account latest categories definition", ReindexIssuesAndRules.class);
   }
 }
