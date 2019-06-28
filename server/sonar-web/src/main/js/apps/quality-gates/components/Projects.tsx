@@ -45,7 +45,7 @@ export interface SearchParams {
 interface State {
   lastSearchParams: SearchParams;
   listHasBeenTouched: boolean;
-  projects: Array<{ id: string; name: string; selected: boolean }>;
+  projects: Array<{ id: string; key: string; name: string; selected: boolean }>;
   projectsTotalCount?: number;
   selectedProjects: string[];
 }
@@ -161,7 +161,19 @@ export default class Projects extends React.PureComponent<Props, State> {
 
   renderElement = (id: string): React.ReactNode => {
     const project = find(this.state.projects, { id });
-    return project === undefined ? id : project.name;
+    return (
+      <div className="select-list-list-item">
+        {project === undefined ? (
+          id
+        ) : (
+          <>
+            {project.name}
+            <br />
+            <span className="note">{project.key}</span>
+          </>
+        )}
+      </div>
+    );
   };
 
   render() {

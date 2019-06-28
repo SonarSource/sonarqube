@@ -113,7 +113,10 @@ export function searchProjects(data: {
   pageSize?: number;
   query?: string;
   selected?: string;
-}): Promise<{ paging: T.Paging; results: Array<{ id: string; name: string; selected: boolean }> }> {
+}): Promise<{
+  paging: T.Paging;
+  results: Array<{ id: string; key: string; name: string; selected: boolean }>;
+}> {
   return getJSON('/api/qualitygates/search', data).catch(throwGlobalError);
 }
 

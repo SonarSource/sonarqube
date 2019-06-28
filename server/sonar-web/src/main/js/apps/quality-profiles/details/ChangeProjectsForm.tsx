@@ -163,7 +163,19 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
 
   renderElement = (key: string): React.ReactNode => {
     const project = find(this.state.projects, { key });
-    return project === undefined ? key : project.name;
+    return (
+      <div className="select-list-list-item">
+        {project === undefined ? (
+          key
+        ) : (
+          <>
+            {project.name}
+            <br />
+            <span className="note">{project.key}</span>
+          </>
+        )}
+      </div>
+    );
   };
 
   render() {

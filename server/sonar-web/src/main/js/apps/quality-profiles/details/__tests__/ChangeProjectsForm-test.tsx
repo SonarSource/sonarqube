@@ -50,8 +50,11 @@ beforeEach(() => {
 it('should render correctly', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
+  expect(wrapper.instance().mounted).toBe(true);
 
   expect(wrapper).toMatchSnapshot();
+  expect(wrapper.instance().renderElement('test1')).toMatchSnapshot();
+  expect(wrapper.instance().renderElement('test_foo')).toMatchSnapshot();
   expect(getProfileProjects).toHaveBeenCalled();
 
   wrapper.setState({ listHasBeenTouched: true });
@@ -59,6 +62,9 @@ it('should render correctly', async () => {
 
   wrapper.setState({ lastSearchParams: { selected: Filter.All } as SearchParams });
   expect(wrapper.find(SelectList).props().needReload).toBe(false);
+
+  wrapper.instance().componentWillUnmount();
+  expect(wrapper.instance().mounted).toBe(false);
 });
 
 it('should handle reload properly', async () => {

@@ -33,9 +33,9 @@ jest.mock('../../../../api/quality-gates', () => ({
   searchProjects: jest.fn().mockResolvedValue({
     paging: { pageIndex: 1, pageSize: 3, total: 55 },
     results: [
-      { id: 'test1', name: 'test1', selected: false },
-      { id: 'test2', name: 'test2', selected: false },
-      { id: 'test3', name: 'test3', selected: true }
+      { id: 'test1', key: 'test1', name: 'test1', selected: false },
+      { id: 'test2', key: 'test2', name: 'test2', selected: false },
+      { id: 'test3', key: 'test3', name: 'test3', selected: true }
     ]
   }),
   associateGateWithProject: jest.fn().mockResolvedValue({}),
@@ -49,8 +49,11 @@ beforeEach(() => {
 it('should render correctly', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
+  expect(wrapper.instance().mounted).toBe(true);
 
   expect(wrapper).toMatchSnapshot();
+  expect(wrapper.instance().renderElement('test1')).toMatchSnapshot();
+  expect(wrapper.instance().renderElement('test_foo')).toMatchSnapshot();
   expect(searchProjects).toHaveBeenCalledWith(
     expect.objectContaining({
       page: 1
@@ -62,6 +65,9 @@ it('should render correctly', async () => {
 
   wrapper.setState({ lastSearchParams: { selected: Filter.All } as SearchParams });
   expect(wrapper.find(SelectList).props().needReload).toBe(false);
+
+  wrapper.instance().componentWillUnmount();
+  expect(wrapper.instance().mounted).toBe(false);
 });
 
 it('should handle reload properly', async () => {
