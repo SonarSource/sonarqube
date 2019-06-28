@@ -65,7 +65,7 @@ dependencies {
   bundledPlugin 'org.sonarsource.go:sonar-go-plugin:1.1.1.2000@jar'
   bundledPlugin 'org.sonarsource.html:sonar-html-plugin:3.1.0.1615@jar'
   bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.13.1.18282@jar'
-  bundledPlugin 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.0.1.143@jar'
+  bundledPlugin 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.0.2.475@jar'
   bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin:5.2.1.7778@jar'
   bundledPlugin 'org.sonarsource.ldap:sonar-ldap-plugin:2.2.0.608@jar'
   bundledPlugin 'org.sonarsource.php:sonar-php-plugin:3.2.0.4868@jar'
