@@ -4,6 +4,10 @@ url: /setup/upgrade-notes/
 ---
 
 ## Release 7.9 LTS Upgrade Notes  
+[[warning]]
+| **Risk of slow upgrade with Microsoft SQL Server**  
+| A possible performance issue has been detected with SonarQube upgrade on Microsoft SQL Server. Root-cause analysis is ongoing to eliminate any environment-related issue. If an implementation issue is confirmed then a bug fix will be quickly released in a 7.9.1 version. Reference ticket for this investigation is [SONAR-12251](https://jira.sonarsource.com/browse/SONAR-12251).
+
 **MySQL No Longer Supported**  
 SonarQube no longer supports MySQL. To migrate from MySQL to a supported database, see the free [MySQL Migrator tool](https://github.com/SonarSource/mysql-migrator).
 
