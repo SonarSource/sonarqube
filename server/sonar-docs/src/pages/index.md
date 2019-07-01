@@ -65,7 +65,4 @@ Below are a few key pointers, otherwise head over to the left pane for full docu
 * [Source code](https://github.com/SonarSource)
 * [Issue tracker](https://jira.sonarsource.com/)
 
----
-Not using the current version?  
-[6.7.x (current LTS)](https://docs.sonarqube.org/6.7)
 <!-- /sonarqube -->
