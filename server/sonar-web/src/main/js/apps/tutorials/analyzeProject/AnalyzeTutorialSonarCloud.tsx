@@ -127,6 +127,10 @@ export default class AnalyzeTutorialSonarCloud extends React.PureComponent<Props
     this.mounted = false;
   }
 
+  stopLoading = () => {
+    this.setState({ loading: false });
+  };
+
   configureBitbucket = () => {
     this.setState({ alm: alms[ALM_KEYS.BITBUCKET], loading: false });
   };
@@ -146,6 +150,7 @@ export default class AnalyzeTutorialSonarCloud extends React.PureComponent<Props
     }
 
     if (!component.alm) {
+      this.stopLoading();
       return;
     }
 
@@ -155,19 +160,14 @@ export default class AnalyzeTutorialSonarCloud extends React.PureComponent<Props
       return;
     }
 
-    getGithubLanguages(url).then(
-      almLanguagesStats => {
-        if (this.mounted) {
-          this.setState({
-            almLanguageStats: almLanguagesStats,
-            loading: false
-          });
-        }
-      },
-      () => {
-        this.setState({ loading: false });
+    getGithubLanguages(url).then(almLanguagesStats => {
+      if (this.mounted) {
+        this.setState({
+          almLanguageStats: almLanguagesStats,
+          loading: false
+        });
       }
-    );
+    }, this.stopLoading);
   };
 
   configureMicrosoft = () => {

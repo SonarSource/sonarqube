@@ -71,18 +71,18 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+const compGitHub = {
+  ...component,
+  alm: { key: 'github', url: 'https://github.com/luke/lightsaber' }
+};
+
 it('shows a loading screen', () => {
-  expect(shallowRender()
-    .find('DeferredSpinner')
-    .prop('loading') as boolean).toBe(true);
+  const wrapper = shallowRender({ component: compGitHub });
+  expect(wrapper.find('DeferredSpinner').prop('loading') as boolean).toBe(true);
 });
 
 it('renders for GitHub', async () => {
-  const comp = {
-    ...component,
-    alm: { key: 'github', url: 'https://github.com/luke/lightsaber' }
-  };
-  const wrapper = shallowRender({ component: comp });
+  const wrapper = shallowRender({ component: compGitHub });
   await waitAndUpdate(wrapper);
 
   expect(wrapper).toMatchSnapshot();
@@ -120,11 +120,8 @@ it('renders for Azure', () => {
   expect(shallowRender({ component: comp })).toMatchSnapshot();
 });
 
-it('renders for a non supported component', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  expect(wrapper).toMatchSnapshot();
+it('renders for a manual project', () => {
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('renders the finished state', async () => {

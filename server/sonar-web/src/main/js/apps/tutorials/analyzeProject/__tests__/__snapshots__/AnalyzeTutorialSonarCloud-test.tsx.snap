@@ -188,12 +188,99 @@ exports[`renders for GitHub 1`] = `
 </DeferredSpinner>
 `;
 
-exports[`renders for a non supported component 1`] = `
+exports[`renders for a manual project 1`] = `
 <DeferredSpinner
   customSpinner={<Unknown />}
-  loading={true}
+  loading={false}
   timeout={100}
-/>
+>
+  <div
+    className="page-analysis-container page-analysis-container-sonarcloud"
+  >
+    <div
+      className="page-analysis big-spacer-top big-spacer-bottom huge-spacer-left huge-spacer-right"
+    >
+      <div
+        className="page-header big-spacer-bottom"
+      >
+        <h1
+          className="big-spacer-bottom"
+        >
+          onboarding.project_analysis.header
+        </h1>
+        <p>
+          <InstanceMessage
+            message="onboarding.project_analysis.description"
+          />
+        </p>
+      </div>
+      <div
+        className="analysis-modes"
+      >
+        <div
+          className="mode-type mode-type-travis"
+          key="travis"
+        >
+          <div
+            className="icon"
+          />
+          <div
+            className="name"
+          >
+            With Travis CI
+          </div>
+          <button
+            className="button big-spacer-top big-spacer-bottom"
+            onClick={[Function]}
+            type="button"
+          >
+            projects.configure_analysis
+          </button>
+        </div>
+        <div
+          className="mode-type mode-type-other"
+          key="other"
+        >
+          <div
+            className="icon"
+          />
+          <div
+            className="name"
+          >
+            With other CI tools
+          </div>
+          <button
+            className="button big-spacer-top big-spacer-bottom"
+            onClick={[Function]}
+            type="button"
+          >
+            projects.configure_analysis
+          </button>
+        </div>
+        <div
+          className="mode-type mode-type-manual"
+          key="manual"
+        >
+          <div
+            className="icon"
+          />
+          <div
+            className="name"
+          >
+            Manually
+          </div>
+          <button
+            className="button big-spacer-top big-spacer-bottom"
+            onClick={[Function]}
+            type="button"
+          >
+            projects.configure_analysis
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</DeferredSpinner>
 `;
 
 exports[`should have a spinner 1`] = `
