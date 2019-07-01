@@ -35,7 +35,7 @@ public class DeleteFileMeasures extends DataChange {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select c.uuid from projects c where c.qualifier = 'UTS' or  c.qualifier = 'FIL'");
     massUpdate.rowPluralName("files");
-    massUpdate.update("delete from project_measures pm where pm.component_uuid=?")
+    massUpdate.update("delete from project_measures where component_uuid=?")
       .setBatchSize(10);
 
     massUpdate.execute((row, update) -> {
