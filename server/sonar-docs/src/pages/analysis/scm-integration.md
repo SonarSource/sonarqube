@@ -22,6 +22,7 @@ Auto-detection of Git during analysis will happen if there is a .git folder in t
 
 * Git doesn't consider old "Mac" line ends (CR) as new lines. As a result the blame operation will contain fewer lines than expected by SonarQube and analysis will fail. The solution is to fix line ends to use either Windows (CR/LF) or Unix (LF) line ends.
 * JGit doesn't support .mailmap file to "clean" email adress during the blame
+* "Missing blame information..." can be caused by checking out with a partial / shallow clone, or using Git submodules.
 
 ### Advanced information
 The plugin uses [JGit](https://www.eclipse.org/jgit/) 4.9.0. JGit is a pure Java implementation of Git client.
