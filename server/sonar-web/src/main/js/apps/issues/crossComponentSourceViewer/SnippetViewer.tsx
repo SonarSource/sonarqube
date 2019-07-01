@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import classNames from 'classnames';
 import ExpandSnippetIcon from 'sonar-ui-common/components/icons/ExpandSnippetIcon';
 import { scrollHorizontally } from 'sonar-ui-common/helpers/scrolling';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -191,46 +192,48 @@ export default class SnippetViewer extends React.PureComponent<Props> {
 
     return (
       <div className="source-viewer-code snippet" ref={this.node}>
-        <table className="source-table">
-          <tbody>
-            {snippet[0].line > 1 && (
-              <tr className="expand-block expand-block-above">
-                <td colSpan={5}>
-                  <button
-                    aria-label={translate('source_viewer.expand_above')}
-                    onClick={this.expandBlock('up')}
-                    type="button">
-                    <ExpandSnippetIcon />
-                  </button>
-                </td>
-              </tr>
-            )}
-            {snippet.map((line, index) =>
-              this.renderLine({
-                displayDuplications,
-                index,
-                issuesForLine: issuesByLine[line.line] || [],
-                issueLocations: locationsByLine[line.line] || [],
-                line,
-                snippet,
-                symbols: symbols[line.line],
-                verticalBuffer: index === snippet.length - 1 ? verticalBuffer : 0
-              })
-            )}
-            {(!lastLine || snippet[snippet.length - 1].line < lastLine) && (
-              <tr className="expand-block expand-block-below">
-                <td colSpan={5}>
-                  <button
-                    aria-label={translate('source_viewer.expand_below')}
-                    onClick={this.expandBlock('down')}
-                    type="button">
-                    <ExpandSnippetIcon />
-                  </button>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        <div>
+          {snippet[0].line > 1 && (
+            <div className="expand-block expand-block-above">
+              <button
+                aria-label={translate('source_viewer.expand_above')}
+                onClick={this.expandBlock('up')}
+                type="button">
+                <ExpandSnippetIcon />
+              </button>
+            </div>
+          )}
+          <table
+            className={classNames('source-table', {
+              'expand-up': snippet[0].line > 1,
+              'expand-down': !lastLine || snippet[snippet.length - 1].line < lastLine
+            })}>
+            <tbody>
+              {snippet.map((line, index) =>
+                this.renderLine({
+                  displayDuplications,
+                  index,
+                  issuesForLine: issuesByLine[line.line] || [],
+                  issueLocations: locationsByLine[line.line] || [],
+                  line,
+                  snippet,
+                  symbols: symbols[line.line],
+                  verticalBuffer: index === snippet.length - 1 ? verticalBuffer : 0
+                })
+              )}
+            </tbody>
+          </table>
+          {(!lastLine || snippet[snippet.length - 1].line < lastLine) && (
+            <div className="expand-block expand-block-below">
+              <button
+                aria-label={translate('source_viewer.expand_below')}
+                onClick={this.expandBlock('down')}
+                type="button">
+                <ExpandSnippetIcon />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     );
   }

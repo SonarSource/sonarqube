@@ -19,7 +19,13 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { createSnippets, expandSnippet, EXPAND_BY_LINES, MERGE_DISTANCE } from './utils';
+import {
+  createSnippets,
+  expandSnippet,
+  EXPAND_BY_LINES,
+  MERGE_DISTANCE,
+  linesForSnippets
+} from './utils';
 import SnippetViewer from './SnippetViewer';
 import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
@@ -57,11 +63,12 @@ interface State {
   highlightedSymbols: string[];
   loading: boolean;
   openIssuesByLine: T.Dict<boolean>;
-  snippets: T.SourceLine[][];
+  snippets: T.Snippet[];
 }
 
 export default class ComponentSourceSnippetViewer extends React.PureComponent<Props, State> {
   mounted = false;
+  rootNodeRef = React.createRef<HTMLDivElement>();
   state: State = {
     additionalLines: {},
     highlightedSymbols: [],
@@ -80,35 +87,78 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
   }
 
   createSnippetsFromProps() {
-    const snippets = createSnippets(
-      this.props.snippetGroup.locations,
-      this.props.snippetGroup.sources,
-      this.props.last
-    );
+    const snippets = createSnippets(this.props.snippetGroup.locations, this.props.last);
     this.setState({ snippets });
+  }
+
+  getNodes(index: number): { wrapper: HTMLElement; table: HTMLElement } | undefined {
+    const root = this.rootNodeRef.current;
+    if (!root) {
+      return undefined;
+    }
+    const element = root.querySelector(`#snippet-wrapper-${index}`);
+    if (!element) {
+      return undefined;
+    }
+    const wrapper = element.querySelector<HTMLElement>('.snippet');
+    if (!wrapper) {
+      return undefined;
+    }
+    const table = wrapper.firstChild as HTMLElement;
+    if (!table) {
+      return undefined;
+    }
+
+    return { wrapper, table };
+  }
+
+  setMaxHeight(index: number, value?: number, up = false) {
+    const nodes = this.getNodes(index);
+
+    if (!nodes) {
+      return;
+    }
+
+    const { wrapper, table } = nodes;
+
+    const maxHeight = value !== undefined ? value : table.getBoundingClientRect().height;
+
+    if (up) {
+      const startHeight = wrapper.getBoundingClientRect().height;
+      table.style.transition = 'none';
+      table.style.marginTop = `${startHeight - maxHeight}px`;
+
+      // animate!
+      setTimeout(() => {
+        table.style.transition = '';
+        table.style.marginTop = '0px';
+        wrapper.style.maxHeight = `${maxHeight + 20}px`;
+      }, 0);
+    } else {
+      wrapper.style.maxHeight = `${maxHeight + 20}px`;
+    }
   }
 
   expandBlock = (snippetIndex: number, direction: T.ExpandDirection) => {
     const { branchLike, snippetGroup } = this.props;
     const { key } = snippetGroup.component;
     const { snippets } = this.state;
-
-    const snippet = snippets[snippetIndex];
-
+    const snippet = snippets.find(s => s.index === snippetIndex);
+    if (!snippet) {
+      return;
+    }
     // Extend by EXPAND_BY_LINES and add buffer for merging snippets
     const extension = EXPAND_BY_LINES + MERGE_DISTANCE - 1;
-
     const range =
       direction === 'up'
         ? {
-            from: Math.max(1, snippet[0].line - extension),
-            to: snippet[0].line - 1
+            from: Math.max(1, snippet.start - extension),
+            to: snippet.start - 1
           }
         : {
-            from: snippet[snippet.length - 1].line + 1,
-            to: snippet[snippet.length - 1].line + extension
+            from: snippet.end + 1,
+            to: snippet.end + extension
           };
-
     getSources({
       key,
       ...range,
@@ -122,26 +172,54 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
         }, {})
       )
       .then(
-        newLinesMapped => {
-          if (this.mounted) {
-            this.setState(({ additionalLines, snippets }) => {
-              const combinedLines = { ...additionalLines, ...newLinesMapped };
-
-              return {
-                additionalLines: combinedLines,
-                snippets: expandSnippet({
-                  direction,
-                  lines: { ...combinedLines, ...this.props.snippetGroup.sources },
-                  snippetIndex,
-                  snippets
-                })
-              };
-            });
-          }
-        },
+        newLinesMapped => this.animateBlockExpansion(snippetIndex, direction, newLinesMapped),
         () => {}
       );
   };
+
+  animateBlockExpansion(
+    snippetIndex: number,
+    direction: T.ExpandDirection,
+    newLinesMapped: T.Dict<T.SourceLine>
+  ) {
+    if (this.mounted) {
+      const { snippets } = this.state;
+
+      const newSnippets = expandSnippet({
+        direction,
+        snippetIndex,
+        snippets
+      });
+
+      const deletedSnippets = newSnippets.filter(s => s.toDelete);
+
+      // set max-height to current height for CSS transitions
+      deletedSnippets.forEach(s => this.setMaxHeight(s.index));
+      this.setMaxHeight(snippetIndex);
+
+      this.setState(
+        ({ additionalLines, snippets }) => {
+          const combinedLines = { ...additionalLines, ...newLinesMapped };
+          return {
+            additionalLines: combinedLines,
+            snippets
+          };
+        },
+        () => {
+          // Set max-height 0 to trigger CSS transitions
+          deletedSnippets.forEach(s => {
+            this.setMaxHeight(s.index, 0);
+          });
+          this.setMaxHeight(snippetIndex, undefined, direction === 'up');
+
+          // Wait for transition to finish before updating dom
+          setTimeout(() => {
+            this.setState({ snippets: newSnippets.filter(s => !s.toDelete) });
+          }, 200);
+        }
+      );
+    }
+  }
 
   expandComponent = () => {
     const { branchLike, snippetGroup } = this.props;
@@ -152,7 +230,14 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
     getSources({ key, ...getBranchLikeQuery(branchLike) }).then(
       lines => {
         if (this.mounted) {
-          this.setState({ loading: false, snippets: [lines] });
+          this.setState(({ additionalLines }) => {
+            const combinedLines = { ...additionalLines, ...lines };
+            return {
+              additionalLines: combinedLines,
+              loading: false,
+              snippets: [{ start: 0, end: lines[lines.length - 1].line, index: -1 }]
+            };
+          });
         }
       },
       () => {
@@ -222,7 +307,6 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
         issue={this.props.issue}
         issuePopup={this.props.issuePopup}
         issuesByLine={issuesByLine}
-        key={index}
         last={last}
         loadDuplications={this.loadDuplications}
         locations={this.props.locations}
@@ -240,19 +324,26 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
 
   render() {
     const { branchLike, duplications, issue, issuesByLine, last, snippetGroup } = this.props;
-    const { loading, snippets } = this.state;
+    const { additionalLines, loading, snippets } = this.state;
     const locations = locationsByLine([issue]);
 
     const fullyShown =
       snippets.length === 1 &&
       snippetGroup.component.measures &&
-      snippets[0].length === parseInt(snippetGroup.component.measures.lines || '', 10);
+      snippets[0].end - snippets[0].start ===
+        parseInt(snippetGroup.component.measures.lines || '', 10);
+
+    const snippetLines = linesForSnippets(snippets, {
+      ...snippetGroup.sources,
+      ...additionalLines
+    });
 
     return (
       <div
         className={classNames('component-source-container', {
           'source-duplications-expanded': duplications && duplications.length > 0
-        })}>
+        })}
+        ref={this.rootNodeRef}>
         <SourceViewerHeaderSlim
           branchLike={branchLike}
           expandable={!fullyShown}
@@ -260,15 +351,17 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
           onExpand={this.expandComponent}
           sourceViewerFile={snippetGroup.component}
         />
-        {snippets.map((snippet, index) =>
-          this.renderSnippet({
-            snippet,
-            index,
-            issuesByLine: last ? issuesByLine : {},
-            locationsByLine: last && index === snippets.length - 1 ? locations : {},
-            last: last && index === snippets.length - 1
-          })
-        )}
+        {snippetLines.map((snippet, index) => (
+          <div id={`snippet-wrapper-${snippets[index].index}`} key={snippets[index].index}>
+            {this.renderSnippet({
+              snippet,
+              index: snippets[index].index,
+              issuesByLine: last ? issuesByLine : {},
+              locationsByLine: last && index === snippets.length - 1 ? locations : {},
+              last: last && index === snippets.length - 1
+            })}
+          </div>
+        ))}
       </div>
     );
   }

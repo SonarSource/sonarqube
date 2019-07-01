@@ -17,13 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { keyBy, range } from 'lodash';
 import { groupLocationsByComponent, createSnippets, expandSnippet } from '../utils';
-import {
-  mockFlowLocation,
-  mockSnippetsByComponent,
-  mockSourceLine
-} from '../../../../helpers/testMocks';
+import { mockFlowLocation, mockSnippetsByComponent } from '../../../../helpers/testMocks';
 
 describe('groupLocationsByComponent', () => {
   it('should handle empty args', () => {
@@ -92,12 +87,11 @@ describe('createSnippets', () => {
           textRange: { startLine: 19, startOffset: 2, endLine: 19, endOffset: 3 }
         })
       ],
-      mockSnippetsByComponent('', [14, 15, 16, 17, 18, 19, 20, 21, 22]).sources,
       false
     );
 
     expect(results).toHaveLength(1);
-    expect(results[0]).toHaveLength(8);
+    expect(results[0]).toEqual({ index: 0, start: 14, end: 21 });
   });
 
   it('should merge snippets correctly, even when not in sequence', () => {
@@ -113,13 +107,12 @@ describe('createSnippets', () => {
           textRange: { startLine: 14, startOffset: 2, endLine: 14, endOffset: 3 }
         })
       ],
-      mockSnippetsByComponent('', [12, 13, 14, 15, 16, 17, 18, 45, 46, 47, 48, 49]).sources,
       false
     );
 
     expect(results).toHaveLength(2);
-    expect(results[0]).toHaveLength(7);
-    expect(results[1]).toHaveLength(5);
+    expect(results[0]).toEqual({ index: 0, start: 12, end: 18 });
+    expect(results[1]).toEqual({ index: 1, start: 45, end: 49 });
   });
 
   it('should merge three snippets together', () => {
@@ -138,56 +131,46 @@ describe('createSnippets', () => {
           textRange: { startLine: 18, startOffset: 2, endLine: 18, endOffset: 3 }
         })
       ],
-      mockSnippetsByComponent('', [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 45, 46, 47, 48, 49])
-        .sources,
       false
     );
 
     expect(results).toHaveLength(2);
-    expect(results[0]).toHaveLength(11);
-    expect(results[1]).toHaveLength(5);
+    expect(results[0]).toEqual({ index: 0, start: 14, end: 24 });
+    expect(results[1]).toEqual({ index: 1, start: 45, end: 49 });
   });
 });
 
 describe('expandSnippet', () => {
   it('should add lines above', () => {
-    const lines = keyBy(range(4, 19).map(line => mockSourceLine({ line })), 'line');
-    const snippets = [[lines[14], lines[15], lines[16], lines[17], lines[18]]];
+    const snippets = [{ start: 14, end: 18, index: 0 }];
 
-    const result = expandSnippet({ direction: 'up', lines, snippetIndex: 0, snippets });
+    const result = expandSnippet({ direction: 'up', snippetIndex: 0, snippets });
 
     expect(result).toHaveLength(1);
-    expect(result[0]).toHaveLength(15);
-    expect(result[0].map(l => l.line)).toEqual(range(4, 19));
+    expect(result[0]).toEqual({ start: 4, end: 18, index: 0 });
   });
 
   it('should add lines below', () => {
-    const lines = keyBy(range(4, 19).map(line => mockSourceLine({ line })), 'line');
-    const snippets = [[lines[4], lines[5], lines[6], lines[7], lines[8]]];
+    const snippets = [{ start: 4, end: 8, index: 0 }];
 
-    const result = expandSnippet({ direction: 'down', lines, snippetIndex: 0, snippets });
+    const result = expandSnippet({ direction: 'down', snippetIndex: 0, snippets });
 
     expect(result).toHaveLength(1);
-    expect(result[0].map(l => l.line)).toEqual(range(4, 19));
+    expect(result[0]).toEqual({ start: 4, end: 18, index: 0 });
   });
 
   it('should merge snippets if necessary', () => {
-    const lines = keyBy(
-      range(4, 23)
-        .concat(range(38, 43))
-        .map(line => mockSourceLine({ line })),
-      'line'
-    );
     const snippets = [
-      [lines[4], lines[5], lines[6], lines[7], lines[8]],
-      [lines[38], lines[39], lines[40], lines[41], lines[42]],
-      [lines[17], lines[18], lines[19], lines[20], lines[21]]
+      { index: 1, start: 4, end: 8 },
+      { index: 2, start: 38, end: 42 },
+      { index: 3, start: 17, end: 21 }
     ];
 
-    const result = expandSnippet({ direction: 'down', lines, snippetIndex: 0, snippets });
+    const result = expandSnippet({ direction: 'down', snippetIndex: 1, snippets });
 
-    expect(result).toHaveLength(2);
-    expect(result[0].map(l => l.line)).toEqual(range(4, 22));
-    expect(result[1].map(l => l.line)).toEqual(range(38, 43));
+    expect(result).toHaveLength(3);
+    expect(result[0]).toEqual({ index: 1, start: 4, end: 21 });
+    expect(result[1]).toEqual({ index: 2, start: 38, end: 42 });
+    expect(result[2]).toEqual({ index: 3, start: 17, end: 21, toDelete: true });
   });
 });

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount, ReactWrapper } from 'enzyme';
 import { times } from 'lodash';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import ComponentSourceSnippetViewer from '../ComponentSourceSnippetViewer';
@@ -70,7 +70,7 @@ it('should expand block', async () => {
 
   expect(getSources).toHaveBeenCalledWith({ from: 19, key: 'a', to: 31 });
   expect(wrapper.state('snippets')).toHaveLength(2);
-  expect(wrapper.state('snippets')[0]).toHaveLength(15);
+  expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 22, end: 36 });
   expect(Object.keys(wrapper.state('additionalLines'))).toHaveLength(10);
 });
 
@@ -99,7 +99,7 @@ it('should expand full component', async () => {
 
   expect(getSources).toHaveBeenCalledWith({ key: 'a' });
   expect(wrapper.state('snippets')).toHaveLength(1);
-  expect(wrapper.state('snippets')[0]).toHaveLength(14);
+  expect(wrapper.state('snippets')[0]).toEqual({ index: -1, start: 0, end: 13 });
 });
 
 it('should get the right branch when expanding', async () => {
@@ -190,6 +190,107 @@ it('should correctly handle lines actions', () => {
   );
 });
 
+describe('getNodes', () => {
+  const snippetGroup: T.SnippetGroup = {
+    component: mockSourceViewerFile(),
+    locations: [],
+    sources: []
+  };
+  const wrapper = mount<ComponentSourceSnippetViewer>(
+    <ComponentSourceSnippetViewer
+      branchLike={mockMainBranch()}
+      duplications={undefined}
+      duplicationsByLine={undefined}
+      highlightedLocationMessage={{ index: 0, text: '' }}
+      issue={mockIssue()}
+      issuesByLine={{}}
+      last={false}
+      linePopup={undefined}
+      loadDuplications={jest.fn()}
+      locations={[]}
+      onIssueChange={jest.fn()}
+      onIssuePopupToggle={jest.fn()}
+      onLinePopupToggle={jest.fn()}
+      onLocationSelect={jest.fn()}
+      renderDuplicationPopup={jest.fn()}
+      scroll={jest.fn()}
+      snippetGroup={snippetGroup}
+    />
+  );
+
+  it('should return undefined if any node is missing', async () => {
+    await waitAndUpdate(wrapper);
+    const rootNode = wrapper.instance().rootNodeRef;
+    mockDom(rootNode.current!);
+    expect(wrapper.instance().getNodes(0)).toBeUndefined();
+    expect(wrapper.instance().getNodes(1)).toBeUndefined();
+    expect(wrapper.instance().getNodes(2)).toBeUndefined();
+  });
+
+  it('should return elements if dom is correct', async () => {
+    await waitAndUpdate(wrapper);
+    const rootNode = wrapper.instance().rootNodeRef;
+    mockDom(rootNode.current!);
+    expect(wrapper.instance().getNodes(3)).not.toBeUndefined();
+  });
+});
+
+describe('getHeight', () => {
+  jest.useFakeTimers();
+
+  const snippetGroup: T.SnippetGroup = {
+    component: mockSourceViewerFile(),
+    locations: [],
+    sources: []
+  };
+  const wrapper = mount<ComponentSourceSnippetViewer>(
+    <ComponentSourceSnippetViewer
+      branchLike={mockMainBranch()}
+      duplications={undefined}
+      duplicationsByLine={undefined}
+      highlightedLocationMessage={{ index: 0, text: '' }}
+      issue={mockIssue()}
+      issuesByLine={{}}
+      last={false}
+      linePopup={undefined}
+      loadDuplications={jest.fn()}
+      locations={[]}
+      onIssueChange={jest.fn()}
+      onIssuePopupToggle={jest.fn()}
+      onLinePopupToggle={jest.fn()}
+      onLocationSelect={jest.fn()}
+      renderDuplicationPopup={jest.fn()}
+      scroll={jest.fn()}
+      snippetGroup={snippetGroup}
+    />
+  );
+
+  it('should set maxHeight to current height', async () => {
+    await waitAndUpdate(wrapper);
+
+    const nodes = mockDomForSizes(wrapper, { wrapperHeight: 42, tableHeight: 68 });
+    wrapper.instance().setMaxHeight(0);
+
+    expect(nodes.wrapper.getAttribute('style')).toBe('max-height: 88px;');
+    expect(nodes.table.getAttribute('style')).toBeNull();
+  });
+
+  it('should set margin and then maxHeight for a nice upwards animation', async () => {
+    await waitAndUpdate(wrapper);
+
+    const nodes = mockDomForSizes(wrapper, { wrapperHeight: 42, tableHeight: 68 });
+    wrapper.instance().setMaxHeight(0, undefined, true);
+
+    expect(nodes.wrapper.getAttribute('style')).toBeNull();
+    expect(nodes.table.getAttribute('style')).toBe('transition: none; margin-top: -26px;');
+
+    jest.runAllTimers();
+
+    expect(nodes.wrapper.getAttribute('style')).toBe('max-height: 88px;');
+    expect(nodes.table.getAttribute('style')).toBe('margin-top: 0px;');
+  });
+});
+
 function shallowRender(props: Partial<ComponentSourceSnippetViewer['props']> = {}) {
   const snippetGroup: T.SnippetGroup = {
     component: mockSourceViewerFile(),
@@ -218,4 +319,48 @@ function shallowRender(props: Partial<ComponentSourceSnippetViewer['props']> = {
       {...props}
     />
   );
+}
+
+function mockDom(refNode: HTMLDivElement) {
+  refNode.querySelector = jest.fn(query => {
+    const index = query.split('-').pop();
+
+    switch (index) {
+      case '0':
+        return null;
+      case '1':
+        return mount(<div />).getDOMNode();
+      case '2':
+        return mount(
+          <div>
+            <div className="snippet" />
+          </div>
+        ).getDOMNode();
+      case '3':
+        return mount(
+          <div>
+            <div className="snippet">
+              <div />
+            </div>
+          </div>
+        ).getDOMNode();
+      default:
+        return null;
+    }
+  });
+}
+
+function mockDomForSizes(
+  componentWrapper: ReactWrapper<{}, {}, ComponentSourceSnippetViewer>,
+  { wrapperHeight = 0, tableHeight = 0 }
+) {
+  const wrapper = mount(<div className="snippet" />).getDOMNode();
+  wrapper.getBoundingClientRect = jest.fn().mockReturnValue({ height: wrapperHeight });
+  const table = mount(<div />).getDOMNode();
+  table.getBoundingClientRect = jest.fn().mockReturnValue({ height: tableHeight });
+  componentWrapper.instance().getNodes = jest.fn().mockReturnValue({
+    wrapper,
+    table
+  });
+  return { wrapper, table };
 }

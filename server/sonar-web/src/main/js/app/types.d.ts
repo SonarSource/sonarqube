@@ -792,6 +792,13 @@ declare namespace T {
     type: 'SHORT';
   }
 
+  export interface Snippet {
+    start: number;
+    end: number;
+    index: number;
+    toDelete?: boolean;
+  }
+
   export interface SnippetGroup extends SnippetsByComponent {
     locations: T.FlowLocation[];
   }
