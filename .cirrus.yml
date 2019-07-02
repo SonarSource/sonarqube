@@ -262,41 +262,6 @@ test_sql_mssql2017_task:
       path: "**/test-results/**/*.xml"
       format: junit
 
-test_sql_mssql2019_task:
-  depends_on: build
-  # Comment the following line and commit with message "DO NOT MERGE" in order to run
-  # this task on your branch
-  only_if: $CIRRUS_TAG == "nightly-build"
-  gke_container:
-    image: gradle:5.4.1-jdk11
-    cluster_name: cirrus-euw3a-cluster
-    zone: europe-west3-a
-    namespace: default
-    cpu: 1
-    memory: 5Gb
-    additional_containers:
-      - name: mssql
-        image: mcr.microsoft.com/mssql/server:2019-CTP2.2-ubuntu
-        port: 1433
-        cpu: 2
-        memory: 5Gb
-        env:
-          MSSQL_PID: Developer # this is the default edition
-          ACCEPT_EULA: Y
-          SA_PASSWORD: sonarqube!1
-  gradle_cache:
-    folder: ~/.gradle/caches
-  script:
-    - ./private/cirrus/cirrus-db-unit-test.sh mssql2019
-  cleanup_before_cache_script:
-    - ./private/cirrus/cleanup-gradle-cache.sh
-  on_failure:
-    reports_artifacts:
-      path: "**/build/reports/**/*"
-    junit_artifacts:
-      path: "**/test-results/**/*.xml"
-      format: junit
-
 
 # this is the oldest compatible version of PostgreSQL
 test_sql_postgres93_task:
