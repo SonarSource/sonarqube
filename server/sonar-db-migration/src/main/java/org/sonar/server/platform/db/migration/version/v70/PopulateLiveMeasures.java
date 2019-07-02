@@ -96,7 +96,9 @@ public class PopulateLiveMeasures extends DataChange {
       "   (uuid, component_uuid, project_uuid, metric_id, value, text_value, variation, measure_data, created_at, updated_at)" +
       " values" +
       "   (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    massUpdate.update("insert into live_measures_p (project_uuid) values (?)");
+    massUpdate.update("insert into live_measures_p (project_uuid) values (?)")
+      // we want to commit each project finished asap to avoid restarting them over in case of interruption
+      .setBatchSize(1);
     LiveMeasurePopulationMultiHandler handler = new LiveMeasurePopulationMultiHandler(firstAttempt, rows, now);
     massUpdate.execute(handler);
 
