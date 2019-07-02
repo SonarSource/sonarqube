@@ -19,14 +19,17 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import ChangeProjectsForm, { SearchParams } from '../ChangeProjectsForm';
+import { waitAndUpdate, click } from 'sonar-ui-common/helpers/testUtils';
+import ChangeProjectsForm from '../ChangeProjectsForm';
 import SelectList, { Filter } from '../../../../components/SelectList/SelectList';
 import {
   getProfileProjects,
   associateProject,
   dissociateProject
 } from '../../../../api/quality-profiles';
+
+const profile: any = { key: 'profFile_key' };
+const organization = 'TEST';
 
 jest.mock('../../../../api/quality-profiles', () => ({
   getProfileProjects: jest.fn().mockResolvedValue({
@@ -41,95 +44,77 @@ jest.mock('../../../../api/quality-profiles', () => ({
   dissociateProject: jest.fn().mockResolvedValue({})
 }));
 
-const profile: any = { key: 'profFile_key' };
-
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
 it('should render correctly', async () => {
   const wrapper = shallowRender();
+  wrapper
+    .find(SelectList)
+    .props()
+    .onSearch({
+      query: '',
+      filter: Filter.Selected,
+      page: 1,
+      pageSize: 100
+    });
   await waitAndUpdate(wrapper);
-  expect(wrapper.instance().mounted).toBe(true);
 
+  expect(wrapper.instance().mounted).toBe(true);
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.instance().renderElement('test1')).toMatchSnapshot();
   expect(wrapper.instance().renderElement('test_foo')).toMatchSnapshot();
-  expect(getProfileProjects).toHaveBeenCalled();
 
-  wrapper.setState({ listHasBeenTouched: true });
-  expect(wrapper.find(SelectList).props().needReload).toBe(true);
-
-  wrapper.setState({ lastSearchParams: { selected: Filter.All } as SearchParams });
-  expect(wrapper.find(SelectList).props().needReload).toBe(false);
+  expect(getProfileProjects).toHaveBeenCalledWith(
+    expect.objectContaining({
+      key: profile.key,
+      organization,
+      p: 1,
+      ps: 100,
+      q: undefined,
+      selected: Filter.Selected
+    })
+  );
+  expect(wrapper.state().needToReload).toBe(false);
 
   wrapper.instance().componentWillUnmount();
   expect(wrapper.instance().mounted).toBe(false);
 });
 
-it('should handle reload properly', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  wrapper.instance().handleReload();
-  expect(getProfileProjects).toHaveBeenCalledWith(
-    expect.objectContaining({
-      p: 1
-    })
-  );
-  expect(wrapper.state().listHasBeenTouched).toBe(false);
-});
-
-it('should handle search reload properly', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  wrapper.instance().handleSearch('foo', Filter.Selected);
-  expect(getProfileProjects).toHaveBeenCalledWith(
-    expect.objectContaining({
-      p: 1,
-      q: 'foo',
-      selected: Filter.Selected
-    })
-  );
-  expect(wrapper.state().listHasBeenTouched).toBe(false);
-});
-
-it('should handle load more properly', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  wrapper.instance().handleLoadMore();
-  expect(getProfileProjects).toHaveBeenCalledWith(
-    expect.objectContaining({
-      p: 2
-    })
-  );
-  expect(wrapper.state().listHasBeenTouched).toBe(false);
-});
-
 it('should handle selection properly', async () => {
   const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
   wrapper.instance().handleSelect('toto');
   await waitAndUpdate(wrapper);
+
   expect(associateProject).toHaveBeenCalledWith(profile.key, 'toto');
-  expect(wrapper.state().listHasBeenTouched).toBe(true);
+  expect(wrapper.state().needToReload).toBe(true);
 });
 
 it('should handle deselection properly', async () => {
   const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
   wrapper.instance().handleUnselect('tata');
   await waitAndUpdate(wrapper);
+
   expect(dissociateProject).toHaveBeenCalledWith(profile.key, 'tata');
-  expect(wrapper.state().listHasBeenTouched).toBe(true);
+  expect(wrapper.state().needToReload).toBe(true);
+});
+
+it('should close modal properly', () => {
+  const spy = jest.fn();
+  const wrapper = shallowRender({ onClose: spy });
+  click(wrapper.find('a'));
+
+  expect(spy).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<ChangeProjectsForm['props']> = {}) {
   return shallow<ChangeProjectsForm>(
-    <ChangeProjectsForm onClose={jest.fn()} organization="TEST" profile={profile} {...props} />
+    <ChangeProjectsForm
+      onClose={jest.fn()}
+      organization={organization}
+      profile={profile}
+      {...props}
+    />
   );
 }

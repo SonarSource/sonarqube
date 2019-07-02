@@ -21,7 +21,10 @@ import * as React from 'react';
 import { find, without } from 'lodash';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import Modal from 'sonar-ui-common/components/controls/Modal';
-import SelectList, { Filter } from '../../../components/SelectList/SelectList';
+import SelectList, {
+  Filter,
+  SelectListSearchParams
+} from '../../../components/SelectList/SelectList';
 import { Profile } from '../types';
 import {
   associateProject,
@@ -36,24 +39,13 @@ interface Props {
   profile: Profile;
 }
 
-export interface SearchParams {
-  key: string;
-  organization: string | null;
-  page: number;
-  pageSize: number;
-  query?: string;
-  selected: string;
-}
-
 interface State {
-  lastSearchParams: SearchParams;
-  listHasBeenTouched: boolean;
+  needToReload: boolean;
+  lastSearchParams?: SelectListSearchParams;
   projects: ProfileProject[];
   projectsTotalCount?: number;
   selectedProjects: string[];
 }
-
-const PAGE_SIZE = 100;
 
 export default class ChangeProjectsForm extends React.PureComponent<Props, State> {
   mounted = false;
@@ -62,15 +54,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
     super(props);
 
     this.state = {
-      lastSearchParams: {
-        key: props.profile.key,
-        organization: props.organization,
-        page: 1,
-        pageSize: PAGE_SIZE,
-        query: '',
-        selected: Filter.Selected
-      },
-      listHasBeenTouched: false,
+      needToReload: false,
       projects: [],
       selectedProjects: []
     };
@@ -78,22 +62,25 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchProjects(this.state.lastSearchParams);
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
-  fetchProjects = (searchParams: SearchParams, more?: boolean) =>
+  fetchProjects = (searchParams: SelectListSearchParams) =>
     getProfileProjects({
-      ...searchParams,
+      key: this.props.profile.key,
+      organization: this.props.organization,
       p: searchParams.page,
       ps: searchParams.pageSize,
-      q: searchParams.query !== '' ? searchParams.query : undefined
+      q: searchParams.query !== '' ? searchParams.query : undefined,
+      selected: searchParams.filter
     }).then(data => {
       if (this.mounted) {
         this.setState(prevState => {
+          const more = searchParams.page != null && searchParams.page > 1;
+
           const projects = more ? [...prevState.projects, ...data.results] : data.results;
           const newSeletedProjects = data.results
             .filter(project => project.selected)
@@ -104,7 +91,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
 
           return {
             lastSearchParams: searchParams,
-            listHasBeenTouched: false,
+            needToReload: false,
             projects,
             projectsTotalCount: data.paging.total,
             selectedProjects
@@ -113,34 +100,11 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
       }
     });
 
-  handleLoadMore = () =>
-    this.fetchProjects(
-      {
-        ...this.state.lastSearchParams,
-        page: this.state.lastSearchParams.page + 1
-      },
-      true
-    );
-
-  handleReload = () =>
-    this.fetchProjects({
-      ...this.state.lastSearchParams,
-      page: 1
-    });
-
-  handleSearch = (query: string, selected: Filter) =>
-    this.fetchProjects({
-      ...this.state.lastSearchParams,
-      page: 1,
-      query,
-      selected
-    });
-
   handleSelect = (key: string) =>
     associateProject(this.props.profile.key, key).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({
-          listHasBeenTouched: true,
+          needToReload: true,
           selectedProjects: [...state.selectedProjects, key]
         }));
       }
@@ -150,7 +114,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
     dissociateProject(this.props.profile.key, key).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({
-          listHasBeenTouched: true,
+          needToReload: true,
           selectedProjects: without(state.selectedProjects, key)
         }));
       }
@@ -195,16 +159,17 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
             labelAll={translate('quality_gates.projects.all')}
             labelSelected={translate('quality_gates.projects.with')}
             labelUnselected={translate('quality_gates.projects.without')}
-            needReload={
-              this.state.listHasBeenTouched && this.state.lastSearchParams.selected !== Filter.All
+            needToReload={
+              this.state.needToReload &&
+              this.state.lastSearchParams &&
+              this.state.lastSearchParams.filter !== Filter.All
             }
-            onLoadMore={this.handleLoadMore}
-            onReload={this.handleReload}
-            onSearch={this.handleSearch}
+            onSearch={this.fetchProjects}
             onSelect={this.handleSelect}
             onUnselect={this.handleUnselect}
             renderElement={this.renderElement}
             selectedElements={this.state.selectedProjects}
+            withPaging={true}
           />
         </div>
 

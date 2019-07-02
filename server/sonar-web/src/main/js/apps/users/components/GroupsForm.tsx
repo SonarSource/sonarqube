@@ -21,7 +21,10 @@ import * as React from 'react';
 import { find, without } from 'lodash';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import Modal from 'sonar-ui-common/components/controls/Modal';
-import SelectList, { Filter } from '../../../components/SelectList/SelectList';
+import SelectList, {
+  Filter,
+  SelectListSearchParams
+} from '../../../components/SelectList/SelectList';
 import { getUserGroups, UserGroup } from '../../../api/users';
 import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
 
@@ -31,24 +34,13 @@ interface Props {
   user: T.User;
 }
 
-export interface SearchParams {
-  login: string;
-  organization?: string;
-  page: number;
-  pageSize: number;
-  query?: string;
-  selected: string;
-}
-
 interface State {
+  needToReload: boolean;
+  lastSearchParams?: SelectListSearchParams;
   groups: UserGroup[];
   groupsTotalCount?: number;
-  lastSearchParams: SearchParams;
-  listHasBeenTouched: boolean;
   selectedGroups: string[];
 }
-
-const PAGE_SIZE = 100;
 
 export default class GroupsForm extends React.PureComponent<Props, State> {
   mounted = false;
@@ -57,39 +49,33 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
+      needToReload: false,
       groups: [],
-      lastSearchParams: {
-        login: props.user.login,
-        page: 1,
-        pageSize: PAGE_SIZE,
-        query: '',
-        selected: Filter.Selected
-      },
-      listHasBeenTouched: false,
       selectedGroups: []
     };
   }
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchUsers(this.state.lastSearchParams);
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
-  fetchUsers = (searchParams: SearchParams, more?: boolean) =>
+  fetchUsers = (searchParams: SelectListSearchParams) =>
     getUserGroups({
-      login: searchParams.login,
-      organization: searchParams.organization !== '' ? searchParams.organization : undefined,
+      login: this.props.user.login,
+      organization: undefined,
       p: searchParams.page,
       ps: searchParams.pageSize,
       q: searchParams.query !== '' ? searchParams.query : undefined,
-      selected: searchParams.selected
+      selected: searchParams.filter
     }).then(data => {
       if (this.mounted) {
         this.setState(prevState => {
+          const more = searchParams.page != null && searchParams.page > 1;
+
           const groups = more ? [...prevState.groups, ...data.groups] : data.groups;
           const newSeletedGroups = data.groups.filter(gp => gp.selected).map(gp => gp.name);
           const selectedGroups = more
@@ -98,36 +84,13 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
 
           return {
             lastSearchParams: searchParams,
-            listHasBeenTouched: false,
+            needToReload: false,
             groups,
             groupsTotalCount: data.paging.total,
             selectedGroups
           };
         });
       }
-    });
-
-  handleLoadMore = () =>
-    this.fetchUsers(
-      {
-        ...this.state.lastSearchParams,
-        page: this.state.lastSearchParams.page + 1
-      },
-      true
-    );
-
-  handleReload = () =>
-    this.fetchUsers({
-      ...this.state.lastSearchParams,
-      page: 1
-    });
-
-  handleSearch = (query: string, selected: Filter) =>
-    this.fetchUsers({
-      ...this.state.lastSearchParams,
-      page: 1,
-      query,
-      selected
     });
 
   handleSelect = (name: string) =>
@@ -137,7 +100,7 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
     }).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({
-          listHasBeenTouched: true,
+          needToReload: true,
           selectedGroups: [...state.selectedGroups, name]
         }));
       }
@@ -150,7 +113,7 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
     }).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({
-          listHasBeenTouched: true,
+          needToReload: true,
           selectedGroups: without(state.selectedGroups, name)
         }));
       }
@@ -196,16 +159,17 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
           <SelectList
             elements={this.state.groups.map(group => group.name)}
             elementsTotalCount={this.state.groupsTotalCount}
-            needReload={
-              this.state.listHasBeenTouched && this.state.lastSearchParams.selected !== Filter.All
+            needToReload={
+              this.state.needToReload &&
+              this.state.lastSearchParams &&
+              this.state.lastSearchParams.filter !== Filter.All
             }
-            onLoadMore={this.handleLoadMore}
-            onReload={this.handleReload}
-            onSearch={this.handleSearch}
+            onSearch={this.fetchUsers}
             onSelect={this.handleSelect}
             onUnselect={this.handleUnselect}
             renderElement={this.renderElement}
             selectedElements={this.state.selectedGroups}
+            withPaging={true}
           />
         </div>
 

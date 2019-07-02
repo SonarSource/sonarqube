@@ -19,12 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import GroupsForm, { SearchParams } from '../GroupsForm';
+import { waitAndUpdate, click } from 'sonar-ui-common/helpers/testUtils';
+import GroupsForm from '../GroupsForm';
 import SelectList, { Filter } from '../../../../components/SelectList/SelectList';
 import { getUserGroups } from '../../../../api/users';
 import { addUserToGroup, removeUserFromGroup } from '../../../../api/user_groups';
 import { mockUser } from '../../../../helpers/testMocks';
+
+const user = mockUser();
 
 jest.mock('../../../../api/users', () => ({
   getUserGroups: jest.fn().mockResolvedValue({
@@ -63,93 +65,78 @@ beforeEach(() => {
 
 it('should render correctly', async () => {
   const wrapper = shallowRender();
+  wrapper
+    .find(SelectList)
+    .props()
+    .onSearch({
+      query: '',
+      filter: Filter.Selected,
+      page: 1,
+      pageSize: 100
+    });
   await waitAndUpdate(wrapper);
 
+  expect(wrapper.instance().mounted).toBe(true);
   expect(wrapper).toMatchSnapshot();
+  expect(wrapper.instance().renderElement('test1')).toMatchSnapshot();
+  expect(wrapper.instance().renderElement('test_foo')).toMatchSnapshot();
+
   expect(getUserGroups).toHaveBeenCalledWith(
     expect.objectContaining({
-      p: 1
-    })
-  );
-
-  wrapper.setState({ listHasBeenTouched: true });
-  expect(wrapper.find(SelectList).props().needReload).toBe(true);
-
-  wrapper.setState({ lastSearchParams: { selected: Filter.All } as SearchParams });
-  expect(wrapper.find(SelectList).props().needReload).toBe(false);
-});
-
-it('should handle reload properly', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  wrapper.instance().handleReload();
-  expect(getUserGroups).toHaveBeenCalledWith(
-    expect.objectContaining({
-      p: 1
-    })
-  );
-  expect(wrapper.state().listHasBeenTouched).toBe(false);
-});
-
-it('should handle search reload properly', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  wrapper.instance().handleSearch('foo', Filter.Selected);
-  expect(getUserGroups).toHaveBeenCalledWith(
-    expect.objectContaining({
+      login: user.login,
+      organization: undefined,
       p: 1,
-      q: 'foo',
+      ps: 100,
+      q: undefined,
       selected: Filter.Selected
     })
   );
-  expect(wrapper.state().listHasBeenTouched).toBe(false);
-});
+  expect(wrapper.state().needToReload).toBe(false);
 
-it('should handle load more properly', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  wrapper.instance().handleLoadMore();
-  expect(getUserGroups).toHaveBeenCalledWith(
-    expect.objectContaining({
-      p: 2
-    })
-  );
-  expect(wrapper.state().listHasBeenTouched).toBe(false);
+  wrapper.instance().componentWillUnmount();
+  expect(wrapper.instance().mounted).toBe(false);
 });
 
 it('should handle selection properly', async () => {
   const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
   wrapper.instance().handleSelect('toto');
   await waitAndUpdate(wrapper);
+
   expect(addUserToGroup).toHaveBeenCalledWith(
     expect.objectContaining({
+      login: user.login,
       name: 'toto'
     })
   );
-  expect(wrapper.state().listHasBeenTouched).toBe(true);
+  expect(wrapper.state().needToReload).toBe(true);
 });
 
 it('should handle deselection properly', async () => {
   const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
   wrapper.instance().handleUnselect('tata');
   await waitAndUpdate(wrapper);
+
   expect(removeUserFromGroup).toHaveBeenCalledWith(
     expect.objectContaining({
+      login: user.login,
       name: 'tata'
     })
   );
-  expect(wrapper.state().listHasBeenTouched).toBe(true);
+  expect(wrapper.state().needToReload).toBe(true);
+});
+
+it('should close modal properly', () => {
+  const spyOnClose = jest.fn();
+  const spyOnUpdateUsers = jest.fn();
+  const wrapper = shallowRender({ onClose: spyOnClose, onUpdateUsers: spyOnUpdateUsers });
+  click(wrapper.find('.js-modal-close'));
+
+  expect(spyOnClose).toHaveBeenCalled();
+  expect(spyOnUpdateUsers).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<GroupsForm['props']> = {}) {
   return shallow<GroupsForm>(
-    <GroupsForm onClose={jest.fn()} onUpdateUsers={jest.fn()} user={mockUser()} {...props} />
+    <GroupsForm onClose={jest.fn()} onUpdateUsers={jest.fn()} user={user} {...props} />
   );
 }

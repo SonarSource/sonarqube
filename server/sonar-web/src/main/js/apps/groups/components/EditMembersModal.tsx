@@ -22,8 +22,10 @@ import { find, without } from 'lodash';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import SelectList, { Filter } from '../../../components/SelectList/SelectList';
+import SelectList, {
+  Filter,
+  SelectListSearchParams
+} from '../../../components/SelectList/SelectList';
 import { addUserToGroup, getUsersInGroup, removeUserFromGroup } from '../../../api/user_groups';
 
 interface Props {
@@ -32,25 +34,13 @@ interface Props {
   organization: string | undefined;
 }
 
-export interface SearchParams {
-  name: string;
-  organization?: string;
-  page: number;
-  pageSize: number;
-  query?: string;
-  selected: string;
-}
-
 interface State {
-  lastSearchParams: SearchParams;
-  listHasBeenTouched: boolean;
-  loading: boolean;
+  lastSearchParams?: SelectListSearchParams;
+  needToReload: boolean;
   users: T.UserSelected[];
   usersTotalCount?: number;
   selectedUsers: string[];
 }
-
-const PAGE_SIZE = 100;
 
 export default class EditMembersModal extends React.PureComponent<Props, State> {
   mounted = false;
@@ -59,16 +49,7 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
     super(props);
 
     this.state = {
-      lastSearchParams: {
-        name: props.group.name,
-        organization: props.organization,
-        page: 1,
-        pageSize: PAGE_SIZE,
-        query: '',
-        selected: Filter.Selected
-      },
-      listHasBeenTouched: false,
-      loading: true,
+      needToReload: false,
       users: [],
       selectedUsers: []
     };
@@ -76,70 +57,41 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchUsers(this.state.lastSearchParams);
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
-  fetchUsers = (searchParams: SearchParams, more?: boolean) =>
+  fetchUsers = (searchParams: SelectListSearchParams) =>
     getUsersInGroup({
-      ...searchParams,
+      name: this.props.group.name,
+      organization: this.props.organization,
       p: searchParams.page,
       ps: searchParams.pageSize,
-      q: searchParams.query !== '' ? searchParams.query : undefined
-    }).then(
-      data => {
-        if (this.mounted) {
-          this.setState(prevState => {
-            const users = more ? [...prevState.users, ...data.users] : data.users;
-            const newSelectedUsers = data.users
-              .filter(user => user.selected)
-              .map(user => user.login);
-            const selectedUsers = more
-              ? [...prevState.selectedUsers, ...newSelectedUsers]
-              : newSelectedUsers;
+      q: searchParams.query !== '' ? searchParams.query : undefined,
+      selected: searchParams.filter
+    }).then(data => {
+      if (this.mounted) {
+        this.setState(prevState => {
+          const more = searchParams.page != null && searchParams.page > 1;
 
-            return {
-              lastSearchParams: searchParams,
-              listHasBeenTouched: false,
-              loading: false,
-              users,
-              usersTotalCount: data.total,
-              selectedUsers
-            };
-          });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
+          const users = more ? [...prevState.users, ...data.users] : data.users;
+          const newSelectedUsers = data.users.filter(user => user.selected).map(user => user.login);
+          const selectedUsers = more
+            ? [...prevState.selectedUsers, ...newSelectedUsers]
+            : newSelectedUsers;
+
+          return {
+            needToReload: false,
+            lastSearchParams: searchParams,
+            loading: false,
+            users,
+            usersTotalCount: data.total,
+            selectedUsers
+          };
+        });
       }
-    );
-
-  handleLoadMore = () =>
-    this.fetchUsers(
-      {
-        ...this.state.lastSearchParams,
-        page: this.state.lastSearchParams.page + 1
-      },
-      true
-    );
-
-  handleReload = () =>
-    this.fetchUsers({
-      ...this.state.lastSearchParams,
-      page: 1
-    });
-
-  handleSearch = (query: string, selected: Filter) =>
-    this.fetchUsers({
-      ...this.state.lastSearchParams,
-      page: 1,
-      query,
-      selected
     });
 
   handleSelect = (login: string) =>
@@ -150,7 +102,7 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
     }).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({
-          listHasBeenTouched: true,
+          needToReload: true,
           selectedUsers: [...state.selectedUsers, login]
         }));
       }
@@ -164,7 +116,7 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
     }).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({
-          listHasBeenTouched: true,
+          needToReload: true,
           selectedUsers: without(state.selectedUsers, login)
         }));
       }
@@ -196,22 +148,21 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
         </header>
 
         <div className="modal-body modal-container">
-          <DeferredSpinner loading={this.state.loading}>
-            <SelectList
-              elements={this.state.users.map(user => user.login)}
-              elementsTotalCount={this.state.usersTotalCount}
-              needReload={
-                this.state.listHasBeenTouched && this.state.lastSearchParams.selected !== Filter.All
-              }
-              onLoadMore={this.handleLoadMore}
-              onReload={this.handleReload}
-              onSearch={this.handleSearch}
-              onSelect={this.handleSelect}
-              onUnselect={this.handleUnselect}
-              renderElement={this.renderElement}
-              selectedElements={this.state.selectedUsers}
-            />
-          </DeferredSpinner>
+          <SelectList
+            elements={this.state.users.map(user => user.login)}
+            elementsTotalCount={this.state.usersTotalCount}
+            needToReload={
+              this.state.needToReload &&
+              this.state.lastSearchParams &&
+              this.state.lastSearchParams.filter !== Filter.All
+            }
+            onSearch={this.fetchUsers}
+            onSelect={this.handleSelect}
+            onUnselect={this.handleUnselect}
+            renderElement={this.renderElement}
+            selectedElements={this.state.selectedUsers}
+            withPaging={true}
+          />
         </div>
 
         <footer className="modal-foot">

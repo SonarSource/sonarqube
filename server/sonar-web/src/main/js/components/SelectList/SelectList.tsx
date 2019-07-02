@@ -39,55 +39,92 @@ interface Props {
   labelSelected?: string;
   labelUnselected?: string;
   labelAll?: string;
-  needReload?: boolean;
-  onLoadMore?: () => Promise<void>;
-  onReload?: () => Promise<void>;
-  onSearch: (query: string, tab: Filter) => Promise<void>;
+  needToReload?: boolean;
+  onSearch: (searchParams: SelectListSearchParams) => Promise<void>;
   onSelect: (element: string) => Promise<void>;
   onUnselect: (element: string) => Promise<void>;
+  pageSize?: number;
   readOnly?: boolean;
   renderElement: (element: string) => React.ReactNode;
   selectedElements: string[];
+  withPaging?: boolean;
 }
 
-interface State {
+export interface SelectListSearchParams {
   filter: Filter;
-  loading: boolean;
+  page?: number;
+  pageSize?: number;
   query: string;
 }
 
+interface State {
+  lastSearchParams: SelectListSearchParams;
+  loading: boolean;
+}
+
+const DEFAULT_PAGE_SIZE = 100;
+
 export default class SelectList extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { filter: Filter.Selected, loading: false, query: '' };
+
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      lastSearchParams: {
+        filter: Filter.Selected,
+        page: 1,
+        pageSize: props.pageSize ? props.pageSize : DEFAULT_PAGE_SIZE,
+        query: ''
+      },
+      loading: false
+    };
+  }
 
   componentDidMount() {
     this.mounted = true;
+    this.search({});
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
-  stopLoading = () => {
-    if (this.mounted) {
-      this.setState({ loading: false });
-    }
-  };
+  getFilter = () =>
+    this.state.lastSearchParams.query === '' ? this.state.lastSearchParams.filter : Filter.All;
 
-  changeFilter = (filter: Filter) => {
-    this.setState({ filter, loading: true });
-    this.props.onSearch(this.state.query, filter).then(this.stopLoading, this.stopLoading);
-  };
+  search = (searchParams: Partial<SelectListSearchParams>) =>
+    this.setState(
+      prevState => ({
+        loading: true,
+        lastSearchParams: { ...prevState.lastSearchParams, ...searchParams }
+      }),
+      () =>
+        this.props
+          .onSearch({
+            filter: this.getFilter(),
+            page: this.props.withPaging ? this.state.lastSearchParams.page : undefined,
+            pageSize: this.props.withPaging ? this.state.lastSearchParams.pageSize : undefined,
+            query: this.state.lastSearchParams.query
+          })
+          .finally(() => {
+            if (this.mounted) {
+              this.setState({ loading: false });
+            }
+          })
+    );
 
-  handleQueryChange = (query: string) => {
-    this.setState({ loading: true, query }, () => {
-      this.props.onSearch(query, this.getFilter()).then(this.stopLoading, this.stopLoading);
+  changeFilter = (filter: Filter) => this.search({ filter, page: 1 });
+
+  handleQueryChange = (query: string) => this.search({ page: 1, query });
+
+  onLoadMore = () =>
+    this.search({
+      page:
+        this.state.lastSearchParams.page != null ? this.state.lastSearchParams.page + 1 : undefined
     });
-  };
 
-  getFilter = () => {
-    return this.state.query === '' ? this.state.filter : Filter.All;
-  };
+  onReload = () => this.search({ page: 1 });
 
   render() {
     const {
@@ -95,9 +132,9 @@ export default class SelectList extends React.PureComponent<Props, State> {
       labelUnselected = translate('unselected'),
       labelAll = translate('all')
     } = this.props;
-    const { filter } = this.state;
+    const { filter } = this.state.lastSearchParams;
 
-    const disabled = this.state.query !== '';
+    const disabled = this.state.lastSearchParams.query !== '';
 
     return (
       <div className="select-list">
@@ -118,7 +155,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
             loading={this.state.loading}
             onChange={this.handleQueryChange}
             placeholder={translate('search_verb')}
-            value={this.state.query}
+            value={this.state.lastSearchParams.query}
           />
         </div>
         <SelectListListContainer
@@ -132,12 +169,12 @@ export default class SelectList extends React.PureComponent<Props, State> {
           renderElement={this.props.renderElement}
           selectedElements={this.props.selectedElements}
         />
-        {!!this.props.elementsTotalCount && this.props.onLoadMore && (
+        {!!this.props.elementsTotalCount && (
           <ListFooter
             count={this.props.elements.length}
-            loadMore={this.props.onLoadMore}
-            needReload={this.props.needReload}
-            reload={this.props.onReload}
+            loadMore={this.onLoadMore}
+            needReload={this.props.needToReload}
+            reload={this.onReload}
             total={this.props.elementsTotalCount}
           />
         )}

@@ -20,7 +20,10 @@
 import * as React from 'react';
 import { find, without } from 'lodash';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import SelectList, { Filter } from '../../../components/SelectList/SelectList';
+import SelectList, {
+  Filter,
+  SelectListSearchParams
+} from '../../../components/SelectList/SelectList';
 import {
   associateGateWithProject,
   dissociateGateWithProject,
@@ -33,24 +36,13 @@ interface Props {
   qualityGate: T.QualityGate;
 }
 
-export interface SearchParams {
-  gateId: number;
-  organization?: string;
-  page: number;
-  pageSize: number;
-  query?: string;
-  selected: string;
-}
-
 interface State {
-  lastSearchParams: SearchParams;
-  listHasBeenTouched: boolean;
+  needToReload: boolean;
+  lastSearchParams?: SelectListSearchParams;
   projects: Array<{ id: string; key: string; name: string; selected: boolean }>;
   projectsTotalCount?: number;
   selectedProjects: string[];
 }
-
-const PAGE_SIZE = 100;
 
 export default class Projects extends React.PureComponent<Props, State> {
   mounted = false;
@@ -59,15 +51,7 @@ export default class Projects extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      lastSearchParams: {
-        gateId: props.qualityGate.id,
-        organization: props.organization,
-        page: 1,
-        pageSize: PAGE_SIZE,
-        query: '',
-        selected: Filter.Selected
-      },
-      listHasBeenTouched: false,
+      needToReload: false,
       projects: [],
       selectedProjects: []
     };
@@ -75,20 +59,25 @@ export default class Projects extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchProjects(this.state.lastSearchParams);
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
-  fetchProjects = (searchParams: SearchParams, more?: boolean) =>
+  fetchProjects = (searchParams: SelectListSearchParams) =>
     searchProjects({
-      ...searchParams,
-      query: searchParams.query !== '' ? searchParams.query : undefined
+      gateId: this.props.qualityGate.id,
+      organization: this.props.organization,
+      page: searchParams.page,
+      pageSize: searchParams.pageSize,
+      query: searchParams.query !== '' ? searchParams.query : undefined,
+      selected: searchParams.filter
     }).then(data => {
       if (this.mounted) {
         this.setState(prevState => {
+          const more = searchParams.page != null && searchParams.page > 1;
+
           const projects = more ? [...prevState.projects, ...data.results] : data.results;
           const newSelectedProjects = data.results
             .filter(project => project.selected)
@@ -99,36 +88,13 @@ export default class Projects extends React.PureComponent<Props, State> {
 
           return {
             lastSearchParams: searchParams,
-            listHasBeenTouched: false,
+            needToReload: false,
             projects,
             projectsTotalCount: data.paging.total,
             selectedProjects
           };
         });
       }
-    });
-
-  handleLoadMore = () =>
-    this.fetchProjects(
-      {
-        ...this.state.lastSearchParams,
-        page: this.state.lastSearchParams.page + 1
-      },
-      true
-    );
-
-  handleReload = () =>
-    this.fetchProjects({
-      ...this.state.lastSearchParams,
-      page: 1
-    });
-
-  handleSearch = (query: string, selected: string) =>
-    this.fetchProjects({
-      ...this.state.lastSearchParams,
-      page: 1,
-      query,
-      selected
     });
 
   handleSelect = (id: string) =>
@@ -138,9 +104,9 @@ export default class Projects extends React.PureComponent<Props, State> {
       projectId: id
     }).then(() => {
       if (this.mounted) {
-        this.setState(state => ({
-          listHasBeenTouched: true,
-          selectedProjects: [...state.selectedProjects, id]
+        this.setState(prevState => ({
+          needToReload: true,
+          selectedProjects: [...prevState.selectedProjects, id]
         }));
       }
     });
@@ -152,9 +118,9 @@ export default class Projects extends React.PureComponent<Props, State> {
       projectId: id
     }).then(() => {
       if (this.mounted) {
-        this.setState(state => ({
-          listHasBeenTouched: true,
-          selectedProjects: without(state.selectedProjects, id)
+        this.setState(prevState => ({
+          needToReload: true,
+          selectedProjects: without(prevState.selectedProjects, id)
         }));
       }
     });
@@ -184,17 +150,18 @@ export default class Projects extends React.PureComponent<Props, State> {
         labelAll={translate('quality_gates.projects.all')}
         labelSelected={translate('quality_gates.projects.with')}
         labelUnselected={translate('quality_gates.projects.without')}
-        needReload={
-          this.state.listHasBeenTouched && this.state.lastSearchParams.selected !== Filter.All
+        needToReload={
+          this.state.needToReload &&
+          this.state.lastSearchParams &&
+          this.state.lastSearchParams.filter !== Filter.All
         }
-        onLoadMore={this.handleLoadMore}
-        onReload={this.handleReload}
-        onSearch={this.handleSearch}
+        onSearch={this.fetchProjects}
         onSelect={this.handleSelect}
         onUnselect={this.handleUnselect}
         readOnly={!this.props.canEdit}
         renderElement={this.renderElement}
         selectedElements={this.state.selectedProjects}
+        withPaging={true}
       />
     );
   }

@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import Projects, { SearchParams } from '../Projects';
+import Projects from '../Projects';
 import SelectList, { Filter } from '../../../../components/SelectList/SelectList';
 import { mockQualityGate } from '../../../../helpers/testMocks';
 import {
@@ -28,6 +28,9 @@ import {
   associateGateWithProject,
   dissociateGateWithProject
 } from '../../../../api/quality-gates';
+
+const qualityGate = mockQualityGate();
+const organization = 'TEST';
 
 jest.mock('../../../../api/quality-gates', () => ({
   searchProjects: jest.fn().mockResolvedValue({
@@ -48,97 +51,66 @@ beforeEach(() => {
 
 it('should render correctly', async () => {
   const wrapper = shallowRender();
+  wrapper
+    .find(SelectList)
+    .props()
+    .onSearch({
+      query: '',
+      filter: Filter.Selected,
+      page: 1,
+      pageSize: 100
+    });
   await waitAndUpdate(wrapper);
-  expect(wrapper.instance().mounted).toBe(true);
 
+  expect(wrapper.instance().mounted).toBe(true);
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.instance().renderElement('test1')).toMatchSnapshot();
   expect(wrapper.instance().renderElement('test_foo')).toMatchSnapshot();
+
   expect(searchProjects).toHaveBeenCalledWith(
     expect.objectContaining({
-      page: 1
+      gateId: qualityGate.id,
+      organization,
+      page: 1,
+      pageSize: 100,
+      query: undefined,
+      selected: Filter.Selected
     })
   );
-
-  wrapper.setState({ listHasBeenTouched: true });
-  expect(wrapper.find(SelectList).props().needReload).toBe(true);
-
-  wrapper.setState({ lastSearchParams: { selected: Filter.All } as SearchParams });
-  expect(wrapper.find(SelectList).props().needReload).toBe(false);
+  expect(wrapper.state().needToReload).toBe(false);
 
   wrapper.instance().componentWillUnmount();
   expect(wrapper.instance().mounted).toBe(false);
 });
 
-it('should handle reload properly', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  wrapper.instance().handleReload();
-  expect(searchProjects).toHaveBeenCalledWith(
-    expect.objectContaining({
-      page: 1
-    })
-  );
-  expect(wrapper.state().listHasBeenTouched).toBe(false);
-});
-
-it('should handle search reload properly', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  wrapper.instance().handleSearch('foo', Filter.Selected);
-  expect(searchProjects).toHaveBeenCalledWith(
-    expect.objectContaining({
-      page: 1,
-      query: 'foo',
-      selected: Filter.Selected
-    })
-  );
-  expect(wrapper.state().listHasBeenTouched).toBe(false);
-});
-
-it('should handle load more properly', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  wrapper.instance().handleLoadMore();
-  expect(searchProjects).toHaveBeenCalledWith(
-    expect.objectContaining({
-      page: 2
-    })
-  );
-  expect(wrapper.state().listHasBeenTouched).toBe(false);
-});
-
 it('should handle selection properly', async () => {
   const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
   wrapper.instance().handleSelect('toto');
   await waitAndUpdate(wrapper);
+
   expect(associateGateWithProject).toHaveBeenCalledWith(
     expect.objectContaining({
       projectId: 'toto'
     })
   );
-  expect(wrapper.state().listHasBeenTouched).toBe(true);
+  expect(wrapper.state().needToReload).toBe(true);
 });
 
 it('should handle deselection properly', async () => {
   const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
   wrapper.instance().handleUnselect('tata');
   await waitAndUpdate(wrapper);
+
   expect(dissociateGateWithProject).toHaveBeenCalledWith(
     expect.objectContaining({
       projectId: 'tata'
     })
   );
-  expect(wrapper.state().listHasBeenTouched).toBe(true);
+  expect(wrapper.state().needToReload).toBe(true);
 });
 
 function shallowRender(props: Partial<Projects['props']> = {}) {
-  return shallow<Projects>(<Projects qualityGate={mockQualityGate()} {...props} />);
+  return shallow<Projects>(
+    <Projects organization={organization} qualityGate={qualityGate} {...props} />
+  );
 }

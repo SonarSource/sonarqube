@@ -24,9 +24,7 @@ exports[`should render correctly 1`] = `
         ]
       }
       elementsTotalCount={1}
-      needReload={false}
-      onLoadMore={[Function]}
-      onReload={[Function]}
+      needToReload={false}
       onSearch={[Function]}
       onSelect={[Function]}
       onUnselect={[Function]}
@@ -37,6 +35,7 @@ exports[`should render correctly 1`] = `
           "test2",
         ]
       }
+      withPaging={true}
     />
   </div>
   <footer
@@ -51,4 +50,28 @@ exports[`should render correctly 1`] = `
     </a>
   </footer>
 </Modal>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="select-list-list-item"
+>
+  <React.Fragment>
+    test1
+    <br />
+    <span
+      className="note"
+    >
+      test1
+    </span>
+  </React.Fragment>
+</div>
+`;
+
+exports[`should render correctly 3`] = `
+<div
+  className="select-list-list-item"
+>
+  test_foo
+</div>
 `;

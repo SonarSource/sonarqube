@@ -13,9 +13,7 @@ exports[`should render correctly 1`] = `
   labelAll="quality_gates.projects.all"
   labelSelected="quality_gates.projects.with"
   labelUnselected="quality_gates.projects.without"
-  needReload={false}
-  onLoadMore={[Function]}
-  onReload={[Function]}
+  needToReload={false}
   onSearch={[Function]}
   onSelect={[Function]}
   onUnselect={[Function]}
@@ -26,6 +24,7 @@ exports[`should render correctly 1`] = `
       "test3",
     ]
   }
+  withPaging={true}
 />
 `;
 

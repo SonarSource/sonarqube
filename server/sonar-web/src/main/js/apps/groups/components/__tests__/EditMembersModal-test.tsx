@@ -20,9 +20,12 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import EditMembersModal, { SearchParams } from '../EditMembersModal';
+import EditMembersModal from '../EditMembersModal';
 import SelectList, { Filter } from '../../../../components/SelectList/SelectList';
 import { getUsersInGroup, addUserToGroup, removeUserFromGroup } from '../../../../api/user_groups';
+
+const organization = 'orga';
+const group = { id: 1, name: 'foo', membersCount: 1 };
 
 jest.mock('../../../../api/user_groups', () => ({
   getUsersInGroup: jest.fn().mockResolvedValue({
@@ -45,98 +48,70 @@ beforeEach(() => {
 
 it('should render modal properly', async () => {
   const wrapper = shallowRender();
+  wrapper
+    .find(SelectList)
+    .props()
+    .onSearch({
+      query: '',
+      filter: Filter.Selected,
+      page: 1,
+      pageSize: 100
+    });
   await waitAndUpdate(wrapper);
+  expect(wrapper.state().needToReload).toBe(false);
 
+  expect(wrapper.instance().mounted).toBe(true);
   expect(wrapper).toMatchSnapshot();
+  expect(wrapper.instance().renderElement('test1')).toMatchSnapshot();
+  expect(wrapper.instance().renderElement('test_foo')).toMatchSnapshot();
+
   expect(getUsersInGroup).toHaveBeenCalledWith(
     expect.objectContaining({
-      p: 1
-    })
-  );
-
-  wrapper.setState({ listHasBeenTouched: true });
-  expect(wrapper.find(SelectList).props().needReload).toBe(true);
-
-  wrapper.setState({ lastSearchParams: { selected: Filter.All } as SearchParams });
-  expect(wrapper.find(SelectList).props().needReload).toBe(false);
-});
-
-it('should handle reload properly', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  wrapper.instance().handleReload();
-  expect(getUsersInGroup).toHaveBeenCalledWith(
-    expect.objectContaining({
-      p: 1
-    })
-  );
-  expect(wrapper.state().listHasBeenTouched).toBe(false);
-});
-
-it('should handle search reload properly', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  wrapper.instance().handleSearch('foo', Filter.Selected);
-  expect(getUsersInGroup).toHaveBeenCalledWith(
-    expect.objectContaining({
+      name: group.name,
+      organization,
       p: 1,
-      q: 'foo',
+      ps: 100,
+      q: undefined,
       selected: Filter.Selected
     })
   );
-  expect(wrapper.state().listHasBeenTouched).toBe(false);
-});
 
-it('should handle load more properly', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  wrapper.instance().handleLoadMore();
-  expect(getUsersInGroup).toHaveBeenCalledWith(
-    expect.objectContaining({
-      p: 2
-    })
-  );
-  expect(wrapper.state().listHasBeenTouched).toBe(false);
+  wrapper.instance().componentWillUnmount();
+  expect(wrapper.instance().mounted).toBe(false);
 });
 
 it('should handle selection properly', async () => {
   const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
   wrapper.instance().handleSelect('toto');
   await waitAndUpdate(wrapper);
+
   expect(addUserToGroup).toHaveBeenCalledWith(
     expect.objectContaining({
+      name: group.name,
+      organization,
       login: 'toto'
     })
   );
-  expect(wrapper.state().listHasBeenTouched).toBe(true);
+  expect(wrapper.state().needToReload).toBe(true);
 });
 
 it('should handle deselection properly', async () => {
   const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
   wrapper.instance().handleUnselect('tata');
+
   await waitAndUpdate(wrapper);
   expect(removeUserFromGroup).toHaveBeenCalledWith(
     expect.objectContaining({
+      name: group.name,
+      organization,
       login: 'tata'
     })
   );
-  expect(wrapper.state().listHasBeenTouched).toBe(true);
+  expect(wrapper.state().needToReload).toBe(true);
 });
 
 function shallowRender(props: Partial<EditMembersModal['props']> = {}) {
   return shallow<EditMembersModal>(
-    <EditMembersModal
-      group={{ id: 1, name: 'foo', membersCount: 1 }}
-      onClose={jest.fn()}
-      organization="bar"
-      {...props}
-    />
+    <EditMembersModal group={group} onClose={jest.fn()} organization={organization} {...props} />
   );
 }

@@ -22,67 +22,126 @@ import { shallow } from 'enzyme';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import SelectList, { Filter } from '../SelectList';
 
-it('should display selected elements only by default', () => {
+const elements = ['foo', 'bar', 'baz'];
+const selectedElements = [elements[0]];
+const disabledElements = [elements[1]];
+
+it('should display properly with basics features', async () => {
   const wrapper = shallowRender();
-  expect(wrapper.state().filter).toBe(Filter.Selected);
+  await waitAndUpdate(wrapper);
+  expect(wrapper.instance().mounted).toBe(true);
+
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.instance().componentWillUnmount();
+  expect(wrapper.instance().mounted).toBe(false);
+});
+
+it('should display properly with advanced features', async () => {
+  const wrapper = shallowRender({
+    allowBulkSelection: true,
+    elementsTotalCount: 125,
+    pageSize: 10,
+    readOnly: true,
+    withPaging: true
+  });
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper).toMatchSnapshot();
 });
 
 it('should display a loader when searching', async () => {
   const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  await waitAndUpdate(wrapper);
   expect(wrapper.state().loading).toBe(false);
 
-  wrapper.instance().handleQueryChange('');
+  wrapper.instance().search({});
   expect(wrapper.state().loading).toBe(true);
   expect(wrapper).toMatchSnapshot();
 
   await waitAndUpdate(wrapper);
-  expect(wrapper.state().loading).toBe(false);
-});
-
-it('should display a loader when updating filter', async () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.state().loading).toBe(false);
-
-  wrapper.instance().changeFilter(Filter.Unselected);
-  expect(wrapper.state().loading).toBe(true);
-  expect(wrapper).toMatchSnapshot();
-
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state().filter).toBe(Filter.Unselected);
   expect(wrapper.state().loading).toBe(false);
 });
 
 it('should cancel filter selection when search is active', async () => {
-  const wrapper = shallowRender();
+  const spy = jest.fn().mockResolvedValue({});
+  const wrapper = shallowRender({ onSearch: spy });
+  wrapper.instance().changeFilter(Filter.Unselected);
+  await waitAndUpdate(wrapper);
 
-  wrapper.setState({ filter: Filter.Selected });
+  expect(spy).toHaveBeenCalledWith({
+    query: '',
+    filter: Filter.Unselected,
+    page: undefined,
+    pageSize: undefined
+  });
+  expect(wrapper).toMatchSnapshot();
+
+  const query = 'test';
+  wrapper.instance().handleQueryChange(query);
+  expect(spy).toHaveBeenCalledWith({
+    query,
+    filter: Filter.All,
+    page: undefined,
+    pageSize: undefined
+  });
+
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.setState({ query: 'foobar' });
+  wrapper.instance().handleQueryChange('');
+  expect(spy).toHaveBeenCalledWith({
+    query: '',
+    filter: Filter.Unselected,
+    page: undefined,
+    pageSize: undefined
+  });
+
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should display pagination element properly', () => {
-  const wrapper = shallowRender({ elementsTotalCount: 100, onLoadMore: jest.fn() });
+it('should display pagination element properly and call search method with correct parameters', () => {
+  const spy = jest.fn().mockResolvedValue({});
+  const wrapper = shallowRender({ elementsTotalCount: 100, onSearch: spy, withPaging: true });
   expect(wrapper).toMatchSnapshot();
+  expect(spy).toHaveBeenCalledWith({
+    query: '',
+    filter: Filter.Selected,
+    page: 1,
+    pageSize: 100
+  }); // Basic default call
 
-  wrapper.setProps({ needReload: true, onReload: jest.fn() });
+  wrapper.instance().onLoadMore();
+  expect(spy).toHaveBeenCalledWith({
+    query: '',
+    filter: Filter.Selected,
+    page: 2,
+    pageSize: 100
+  }); // Load more call
+
+  wrapper.instance().onReload();
+  expect(spy).toHaveBeenCalledWith({
+    query: '',
+    filter: Filter.Selected,
+    page: 1,
+    pageSize: 100
+  }); // Reload call
+
+  wrapper.setProps({ needToReload: true });
   expect(wrapper).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<SelectList['props']> = {}) {
   return shallow<SelectList>(
     <SelectList
-      elements={['foo', 'bar', 'baz']}
+      disabledElements={disabledElements}
+      elements={elements}
       onSearch={jest.fn(() => Promise.resolve())}
       onSelect={jest.fn(() => Promise.resolve())}
       onUnselect={jest.fn(() => Promise.resolve())}
       renderElement={(foo: string) => foo}
-      selectedElements={['foo']}
+      selectedElements={selectedElements}
       {...props}
     />
   );
