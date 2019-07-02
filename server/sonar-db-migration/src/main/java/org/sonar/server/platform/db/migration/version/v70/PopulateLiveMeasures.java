@@ -54,8 +54,7 @@ public class PopulateLiveMeasures extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
-    boolean firstAttempt = context.prepareSelect("select count(1) from live_measures_p")
-      .get(t -> t.getLong(1)) == 0;
+    boolean firstAttempt = isFirstAttempt(context);
     if (!firstAttempt) {
       LOG.info("Retry detected (non empty table live_measures_p). Handle it");
     }
@@ -84,6 +83,12 @@ public class PopulateLiveMeasures extends DataChange {
       if (!rows.isEmpty()) {
         processProjectBatch(context, rows, firstAttempt, now);
       }
+    }
+  }
+
+  private static boolean isFirstAttempt(Context context) throws SQLException {
+    try (Select select = context.prepareSelect("select count(1) from live_measures_p")) {
+      return select.get(t -> t.getLong(1)) == 0;
     }
   }
 
