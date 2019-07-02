@@ -213,9 +213,6 @@
         <when test="_databaseId == 'mssql'">
           p.module_uuid_path LIKE module.module_uuid_path + '%'
         </when>
-        <when test="_databaseId == 'mysql'">
-          p.module_uuid_path LIKE concat(module.module_uuid_path, '%')
-        </when>
         <otherwise>
           p.module_uuid_path LIKE module.module_uuid_path || '%'
         </otherwise>

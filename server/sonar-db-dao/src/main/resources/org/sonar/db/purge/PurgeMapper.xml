@@ -310,14 +310,6 @@
       issues.project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
 
-  <!-- Mysql -->
-  <delete id="deleteIssueChangesByProjectUuid" databaseId="mysql" parameterType="map">
-    delete ic from issue_changes as ic, issues as i
-    where
-      ic.issue_key=i.kee
-      and i.component_uuid = #{projectUuid,jdbcType=VARCHAR}
-  </delete>
-
   <delete id="deleteIssuesByProjectUuid" parameterType="map">
     delete from issues
     where project_uuid = #{projectUuid,jdbcType=VARCHAR}

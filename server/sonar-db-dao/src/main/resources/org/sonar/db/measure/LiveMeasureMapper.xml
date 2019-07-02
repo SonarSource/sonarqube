@@ -149,17 +149,6 @@
     <include refid="sql_deleteByComponentUuidExcludingMetricIds"/>
   </delete>
 
-  <!--
-  best practice on MySQL : order the rows to be locked in order
-  to minimize risk of deadlock.
-  https://stackoverflow.com/a/2423921/229031
-  https://jira.sonarsource.com/browse/SONAR-10117?focusedCommentId=153555&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-153555
-  -->
-  <delete id="deleteByComponentUuidExcludingMetricIds" parameterType="map" databaseId="mysql">
-    <include refid="sql_deleteByComponentUuidExcludingMetricIds"/>
-    order by uuid
-  </delete>
-
   <sql id="sql_deleteByComponentUuidExcludingMetricIds">
     delete from live_measures
     where
