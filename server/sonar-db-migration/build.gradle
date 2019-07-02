@@ -25,7 +25,6 @@ dependencies {
   testRuntime 'com.h2database:h2'
   testRuntime 'com.microsoft.sqlserver:mssql-jdbc'
   testRuntime 'com.oracle.jdbc:ojdbc8'
-  testRuntime 'mysql:mysql-connector-java'
   testRuntime 'org.postgresql:postgresql'
 }
 
