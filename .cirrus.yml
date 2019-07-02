@@ -37,11 +37,11 @@ build_task:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
     builder_image_name: docker-builder-v1
-    cluster_name: cirrus-euw3a-cluster
-    zone: europe-west3-a
+    cluster_name: cirrus-uscentral1a-cluster
+    zone: us-central1-a
     namespace: default
-    cpu: 3
-    memory: 10Gb
+    cpu: 1.7
+    memory: 5Gb
   gradle_cache:
     folder: ~/.gradle/caches
   env:
@@ -64,8 +64,8 @@ deploy_docs_task:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
     builder_image_name: docker-builder-v1
-    cluster_name: cirrus-euw3a-cluster
-    zone: europe-west3-a
+    cluster_name: cirrus-uscentral1a-cluster
+    zone: us-central1-a
     namespace: default
     cpu: 1
     memory: 1Gb
@@ -85,8 +85,8 @@ validate_task:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
     builder_image_name: docker-builder-v1
-    cluster_name: cirrus-euw3a-cluster
-    zone: europe-west3-a
+    cluster_name: cirrus-uscentral1a-cluster
+    zone: us-central1-a
     namespace: default
     cpu: 2.4
     memory: 10Gb
@@ -119,8 +119,8 @@ qa_task:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
     builder_image_name: docker-builder-v1
-    cluster_name: cirrus-euw3a-cluster
-    zone: europe-west3-a
+    cluster_name: cirrus-uscentral1a-cluster
+    zone: us-central1-a
     namespace: default
     cpu: 2.4
     memory: 10Gb
@@ -176,8 +176,8 @@ promote_task:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
     builder_image_name: docker-builder-v1
-    cluster_name: cirrus-euw3a-cluster
-    zone: europe-west3-a
+    cluster_name: cirrus-uscentral1a-cluster
+    zone: us-central1-a
     namespace: default
     cpu: 1
     memory: 1Gb
@@ -198,8 +198,8 @@ sql_mssql2017_task:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
     builder_image_name: docker-builder-v1
-    cluster_name: cirrus-euw3a-cluster
-    zone: europe-west3-a
+    cluster_name: cirrus-uscentral1a-cluster
+    zone: us-central1-a
     namespace: default
     cpu: 1
     memory: 5Gb
@@ -236,8 +236,8 @@ sql_postgres93_task:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
     builder_image_name: docker-builder-v1
-    cluster_name: cirrus-euw3a-cluster
-    zone: europe-west3-a
+    cluster_name: cirrus-uscentral1a-cluster
+    zone: us-central1-a
     namespace: default
     cpu: 1
     memory: 5Gb
@@ -272,8 +272,8 @@ sql_oracle12_task:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
     builder_image_name: docker-builder-v1
-    cluster_name: cirrus-euw3a-cluster
-    zone: europe-west3-a
+    cluster_name: cirrus-uscentral1a-cluster
+    zone: us-central1-a
     namespace: default
     cpu: 1
     memory: 5Gb
@@ -307,8 +307,8 @@ upgd_mssql2017_task:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
     builder_image_name: docker-builder-v1
-    cluster_name: cirrus-euw3a-cluster
-    zone: europe-west3-a
+    cluster_name: cirrus-uscentral1a-cluster
+    zone: us-central1-a
     namespace: default
     cpu: 1.5
     memory: 6Gb
@@ -352,8 +352,8 @@ upgd_oracle12_task:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
     builder_image_name: docker-builder-v1
-    cluster_name: cirrus-euw3a-cluster
-    zone: europe-west3-a
+    cluster_name: cirrus-uscentral1a-cluster
+    zone: us-central1-a
     namespace: default
     cpu: 1.5
     memory: 6Gb
