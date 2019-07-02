@@ -198,7 +198,7 @@ Example: `Symfony\\Component\\HttpFoundation\\Request::getUser` for the `getUser
 Note: the `methodId` should be related to methods or functions that are part of the analysis scope. Because we recommended to not analyze code of frameworks at the same time that you scan your own source code, defining methods or functions from frameworks will have no effect.
 This is linked to the fact that the SonarQube security engine needs to know the runtime type of each variable. The type can't be guessed when objects are created by frameworks' factories. Out of the box, the SonarQube security engine supports the main Symfony and Laravel types.
 
-### MethodId for C#
+### MethodId for C&#35;
 
 If you want to declare the constructor `SqlCommand` belonging to the namespace `System.Data.SqlClient` as a sink, the `methodId` should be:
 
