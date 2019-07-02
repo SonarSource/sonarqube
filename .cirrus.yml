@@ -241,7 +241,7 @@ test_sql_mssql2017_task:
     memory: 5Gb
     additional_containers:
       - name: mssql
-        image: mcr.microsoft.com/mssql/server:2017-CU12-ubuntu
+        image: mcr.microsoft.com/mssql/server:2017-GA-ubuntu
         port: 1433
         cpu: 2
         memory: 5Gb
@@ -394,7 +394,7 @@ test_upgrade_mssql2017_task:
     memory: 6Gb
     additional_containers:
       - name: mssql
-        image: mcr.microsoft.com/mssql/server:2017-CU12-ubuntu
+        image: mcr.microsoft.com/mssql/server:2017-GA-ubuntu
         port: 1433
         cpu: 2
         memory: 5Gb
