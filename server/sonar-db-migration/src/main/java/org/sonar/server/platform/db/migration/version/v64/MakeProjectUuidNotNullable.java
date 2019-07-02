@@ -55,7 +55,7 @@ public class MakeProjectUuidNotNullable extends DdlChange {
       .updateColumn(projectUuidCol)
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_PROJECTS)
       .setName(INDEX_PROJECTS_PROJECT_UUID)
       .setUnique(false).addColumn(projectUuidCol)

@@ -48,7 +48,7 @@ public class AddUserExternalIdColumnInAlmAppInstall extends DdlChange {
       .build();
     context.execute(new AddColumnsBuilder(getDialect(), ALM_APP_INSTALLS_TABLE)
       .addColumn(userExternalIdDef).build());
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(ALM_APP_INSTALLS_TABLE)
       .addColumn(userExternalIdDef)
       .setUnique(false)

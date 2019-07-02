@@ -61,7 +61,7 @@ public class ReplaceIndexInProjectBranches extends DdlChange {
       .setName(OLD_INDEX_NAME)
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .addColumn(PROJECT_UUID_COLUMN)
       .addColumn(KEE_COLUMN)
       .addColumn(KEY_TYPE_COLUMN)

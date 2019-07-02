@@ -45,7 +45,7 @@ public class MakeUuidNotNullableOnQualityGates extends DdlChange {
       .updateColumn(UUID_COLUMN)
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .addColumn(UUID_COLUMN)
       .setUnique(true)
       .setTable(TABLE_NAME)

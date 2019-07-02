@@ -43,7 +43,6 @@ public class MsSqlTest {
     assertThat(underTest.matchesJdbcUrl("jdbc:sqlserver://localhost:1433;databasename=sonar")).isTrue();
 
     assertThat(underTest.matchesJdbcUrl("jdbc:hsql:foo")).isFalse();
-    assertThat(underTest.matchesJdbcUrl("jdbc:mysql:foo")).isFalse();
   }
 
   @Test

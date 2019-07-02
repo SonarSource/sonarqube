@@ -161,10 +161,6 @@ To grant more memory to a server-side process, uncomment and edit the relevant j
 - `sonar.ce.javaOpts`
 - `sonar.search.javaOpts`
 
-### Cannot connect to MySQL database
-
-By default, remote access to MySQL database server is disabled for security reasons. If you want to remotely access the database server, you need to follow this [quick guide](https://www.cyberciti.biz/tips/how-do-i-enable-remote-access-to-mysql-database-server.html).
-
 ### Failed to start on Windows Vista
 
 SonarQube seems unable to start when installed under the `Program Files` directory on Windows Vista. It should therefore not be installed there.

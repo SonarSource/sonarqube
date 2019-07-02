@@ -51,13 +51,9 @@ public interface Dialect {
   /**
    * Fetch size to be used when scrolling large result sets.
    */
-  int getScrollDefaultFetchSize();
-
-  /**
-   * Fetch size to scroll one row at a time. It sounds strange because obviously value is 1 in most cases,
-   * but it's different on MySQL...
-   */
-  int getScrollSingleRowFetchSize();
+  default int getScrollDefaultFetchSize() {
+    return 200;
+  }
 
   /**
    * Indicates whether DB migration can be perform on the DB vendor implementation associated with the current dialect.

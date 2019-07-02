@@ -24,7 +24,6 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -63,7 +62,6 @@ public class DecimalColumnDef extends AbstractColumnDef {
       case PostgreSql.ID:
       case Oracle.ID:
         return String.format("NUMERIC (%s,%s)", precision, scale);
-      case MySql.ID:
       case MsSql.ID:
         return String.format("DECIMAL (%s,%s)", precision, scale);
       case H2.ID:

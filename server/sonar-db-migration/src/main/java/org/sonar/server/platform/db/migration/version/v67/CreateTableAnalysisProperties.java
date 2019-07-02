@@ -76,7 +76,7 @@ public class CreateTableAnalysisProperties extends DdlChange {
       .build()
     );
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .addColumn(SNAPSHOT_UUID_COLUMN)
       .setUnique(false)
       .setTable(TABLE_NAME)

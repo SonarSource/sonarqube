@@ -51,15 +51,15 @@ public class EsDbCompatibilityImplTest {
 
   @Test
   public void hasSameDbVendor_is_true_if_values_match() {
-    prepareDb("mysql");
-    prepareEs("mysql");
+    prepareDb("mssql");
+    prepareEs("mssql");
 
     assertThat(underTest.hasSameDbVendor()).isTrue();
   }
 
   @Test
   public void hasSameDbVendor_is_false_if_values_dont_match() {
-    prepareDb("mysql");
+    prepareDb("mssql");
     prepareEs("postgres");
 
     assertThat(underTest.hasSameDbVendor()).isFalse();
@@ -67,23 +67,23 @@ public class EsDbCompatibilityImplTest {
 
   @Test
   public void hasSameDbVendor_is_false_if_value_is_absent_from_es() {
-    prepareDb("mysql");
+    prepareDb("mssql");
 
     assertThat(underTest.hasSameDbVendor()).isFalse();
   }
 
   @Test
   public void markAsCompatible_db_metadata_in_es() {
-    prepareDb("mysql");
+    prepareDb("mssql");
 
     underTest.markAsCompatible();
 
-    assertThat(metadataIndex.getDbVendor()).hasValue("mysql");
+    assertThat(metadataIndex.getDbVendor()).hasValue("mssql");
   }
 
   @Test
   public void markAsCompatible_updates_db_metadata_in_es() {
-    prepareEs("mysql");
+    prepareEs("mssql");
     prepareDb("postgres");
 
     underTest.markAsCompatible();

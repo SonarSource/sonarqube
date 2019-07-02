@@ -35,7 +35,7 @@ public class AddIndexOnOrganizationMembers extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(
-      new CreateIndexBuilder(getDialect())
+      new CreateIndexBuilder()
         .setTable("organization_members")
         .setName("ix_org_members_on_user_id")
         .addColumn(IntegerColumnDef.newIntegerColumnDefBuilder()

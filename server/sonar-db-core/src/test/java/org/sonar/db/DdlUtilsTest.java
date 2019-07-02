@@ -39,7 +39,7 @@ public class DdlUtilsTest {
   @Test
   public void shouldSupportOnlyH2() {
     Assertions.assertThat(DdlUtils.supportsDialect("h2")).isTrue();
-    assertThat(DdlUtils.supportsDialect("mysql")).isFalse();
+    assertThat(DdlUtils.supportsDialect("postgresql")).isFalse();
     assertThat(DdlUtils.supportsDialect("oracle")).isFalse();
     assertThat(DdlUtils.supportsDialect("mssql")).isFalse();
   }

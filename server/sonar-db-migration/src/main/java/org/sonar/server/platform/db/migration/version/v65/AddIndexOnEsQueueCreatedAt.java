@@ -38,7 +38,7 @@ public class AddIndexOnEsQueueCreatedAt extends DdlChange {
       .setIsNullable(false)
       .build();
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setName("es_queue_created_at")
       .setTable("es_queue")
       .addColumn(column)

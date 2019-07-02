@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.db.dialect.Dialect;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.def.ColumnDef;
@@ -70,8 +69,6 @@ public class AlterColumnsBuilder {
     switch (dialect.getId()) {
       case PostgreSql.ID:
         return createPostgresQuery();
-      case MySql.ID:
-        return createMySqlQuery();
       case Oracle.ID:
         return createOracleQuery();
       default:
@@ -93,12 +90,6 @@ public class AlterColumnsBuilder {
         sql.append(", ");
       }
     }
-    return Collections.singletonList(sql.toString());
-  }
-
-  private List<String> createMySqlQuery() {
-    StringBuilder sql = new StringBuilder(ALTER_TABLE + tableName + " ");
-    addColumns(sql, "MODIFY COLUMN ", "", true);
     return Collections.singletonList(sql.toString());
   }
 

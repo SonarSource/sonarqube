@@ -68,13 +68,6 @@ public class JdbcSettingsTest {
   }
 
   @Test
-  public void resolve_MySql_when_jdbc_url_contains_mysql_in_any_case() {
-    checkProviderForUrlAndUnchangedUrl("jdbc:mysql:foo", Provider.MYSQL);
-
-    checkProviderForUrlAndUnchangedUrl("jdbc:mYsQL:foo", Provider.MYSQL);
-  }
-
-  @Test
   public void resolve_SqlServer_when_jdbc_url_contains_sqlserver_in_any_case() {
     checkProviderForUrlAndUnchangedUrl("jdbc:sqlserver:foo", Provider.SQLSERVER);
 
@@ -113,23 +106,6 @@ public class JdbcSettingsTest {
     expectedException.expectMessage("Bad format of JDBC URL: oracle:thin:@localhost/XE");
 
     underTest.resolveProviderAndEnforceNonnullJdbcUrl(props);
-  }
-
-  @Test
-  public void check_mysql_parameters() {
-    // minimal -> ok
-    underTest.checkUrlParameters(Provider.MYSQL,
-      "jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8");
-
-    // full -> ok
-    underTest.checkUrlParameters(Provider.MYSQL,
-      "jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance");
-
-    // missing required -> ko
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("JDBC URL must have the property 'useUnicode=true'");
-
-    underTest.checkUrlParameters(Provider.MYSQL, "jdbc:mysql://localhost:3306/sonar?characterEncoding=utf8");
   }
 
   @Test

@@ -24,7 +24,6 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -54,8 +53,6 @@ public class BooleanColumnDef extends AbstractColumnDef {
         return "NUMBER(1)";
       case MsSql.ID:
         return "BIT";
-      case MySql.ID:
-        return "TINYINT(1)";
       default:
         throw new UnsupportedOperationException(String.format("Unknown dialect '%s'", dialect.getId()));
     }

@@ -48,7 +48,7 @@ public class DropDataTypeFromFileSources extends DdlChange {
     context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, "data_type")
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_NAME)
       .setName("file_sources_file_uuid")
       .setUnique(true)

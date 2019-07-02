@@ -31,7 +31,6 @@ import org.junit.runner.RunWith;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.def.ColumnDef;
@@ -55,8 +54,7 @@ public class CreateTableBuilderTest {
   private static final Oracle ORACLE = new Oracle();
   private static final PostgreSql POSTGRESQL = new PostgreSql();
   private static final MsSql MS_SQL = new MsSql();
-  private static final MySql MY_SQL = new MySql();
-  private static final Dialect[] ALL_DIALECTS = {H2, MY_SQL, MS_SQL, POSTGRESQL, ORACLE};
+  private static final Dialect[] ALL_DIALECTS = {H2, MS_SQL, POSTGRESQL, ORACLE};
   private static final String TABLE_NAME = "table_42";
 
   @Rule
@@ -126,7 +124,7 @@ public class CreateTableBuilderTest {
 
   @DataProvider
   public static Object[][] digitCharsDataProvider() {
-    return new Object[][] {
+    return new Object[][]{
       {'0'},
       {'1'},
       {'2'},
@@ -289,27 +287,6 @@ public class CreateTableBuilderTest {
     assertThat(stmts.iterator().next())
       .isEqualTo(
         "CREATE TABLE table_42 (id INTEGER NOT NULL AUTO_INCREMENT (1,1), CONSTRAINT pk_table_42 PRIMARY KEY (id))");
-  }
-
-  @Test
-  public void build_adds_AUTO_INCREMENT_clause_on_MySql() {
-    List<String> stmts = new CreateTableBuilder(MY_SQL, TABLE_NAME)
-      .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
-      .build();
-    assertThat(stmts).hasSize(1);
-    assertThat(stmts.iterator().next())
-      .startsWith("CREATE TABLE table_42 (id INTEGER NOT NULL AUTO_INCREMENT, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
-  }
-
-  @Test
-  public void builds_adds_hardcoded_collation_clause_on_MySql() {
-    List<String> stmts = new CreateTableBuilder(MY_SQL, TABLE_NAME)
-      .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
-      .build();
-    assertThat(stmts).hasSize(1);
-    assertThat(stmts.iterator().next())
-      .endsWith(" ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_bin");
-
   }
 
   @Test
@@ -522,11 +499,6 @@ public class CreateTableBuilderTest {
   }
 
   @Test
-  public void build_adds_DEFAULT_clause_on_varchar_column_on_MySQL() {
-    verifyDefaultClauseOnVarcharColumn(MY_SQL, "CREATE TABLE table_42 (status VARCHAR (1) DEFAULT 'P' NOT NULL) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_bin");
-  }
-
-  @Test
   public void build_adds_DEFAULT_clause_on_varchar_column_on_Oracle() {
     verifyDefaultClauseOnVarcharColumn(ORACLE, "CREATE TABLE table_42 (status VARCHAR2 (1 CHAR) DEFAULT 'P' NOT NULL)");
   }
@@ -551,11 +523,6 @@ public class CreateTableBuilderTest {
   @Test
   public void build_adds_DEFAULT_clause_on_boolean_column_on_MSSQL() {
     verifyDefaultClauseOnBooleanColumn(MS_SQL, "CREATE TABLE table_42 (enabled BIT DEFAULT 1 NOT NULL)");
-  }
-
-  @Test
-  public void build_adds_DEFAULT_clause_on_boolean_column_on_MySQL() {
-    verifyDefaultClauseOnBooleanColumn(MY_SQL, "CREATE TABLE table_42 (enabled TINYINT(1) DEFAULT true NOT NULL) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_bin");
   }
 
   @Test

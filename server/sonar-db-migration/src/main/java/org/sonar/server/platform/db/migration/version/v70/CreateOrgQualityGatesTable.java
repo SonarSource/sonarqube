@@ -63,7 +63,7 @@ public class CreateOrgQualityGatesTable extends DdlChange {
         .build()
       );
 
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .addColumn(ORGANIZATION_UUID_COLUMN)
         .addColumn(QUALITY_GATE_UUID_COLUMN)
         .setUnique(true)

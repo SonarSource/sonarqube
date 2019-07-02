@@ -36,7 +36,7 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.dialect.H2;
-import org.sonar.db.dialect.MySql;
+import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.branch.BranchFeatureRule;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -212,7 +212,7 @@ public class GlobalActionTest {
   @Test
   public void return_if_production_database_or_not() {
     init();
-    when(dbClient.getDatabase().getDialect()).thenReturn(new MySql());
+    when(dbClient.getDatabase().getDialect()).thenReturn(new PostgreSql());
 
     assertJson(call()).isSimilarTo("{" +
       "  \"productionDatabase\": true" +
@@ -287,7 +287,7 @@ public class GlobalActionTest {
         .build()
     });
     when(server.getVersion()).thenReturn("6.2");
-    when(dbClient.getDatabase().getDialect()).thenReturn(new MySql());
+    when(dbClient.getDatabase().getDialect()).thenReturn(new PostgreSql());
     when(webServer.isStandalone()).thenReturn(true);
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
 

@@ -34,7 +34,7 @@ public class AddUniqueIndexOnUuidOfSnapshots extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable("snapshots")
       .setName("analyses_uuid")
       .addColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(50).setIgnoreOracleUnit(true).build())

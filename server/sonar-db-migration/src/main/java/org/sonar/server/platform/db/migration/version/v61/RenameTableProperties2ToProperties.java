@@ -46,7 +46,7 @@ public class RenameTableProperties2ToProperties extends DdlChange {
       .setNewName("properties")
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable("properties")
       .setName("properties_key")
       .addColumn(newVarcharColumnDefBuilder().setColumnName("prop_key").setLimit(512).setIsNullable(false).setIgnoreOracleUnit(true).build())

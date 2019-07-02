@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
@@ -81,18 +80,6 @@ public class AlterColumnsBuilderTest {
   public void update_not_nullable_column_on_postgres() {
     assertThat(createNotNullableBuilder(new PostgreSql()).build())
       .containsOnly("ALTER TABLE issues ALTER COLUMN name TYPE VARCHAR (10), ALTER COLUMN name SET NOT NULL");
-  }
-
-  @Test
-  public void update_columns_on_mysql() {
-    assertThat(createSampleBuilder(new MySql()).build())
-      .containsOnly("ALTER TABLE issues MODIFY COLUMN value DECIMAL (30,20) NULL, MODIFY COLUMN name VARCHAR (10) NULL");
-  }
-
-  @Test
-  public void update_not_nullable_column_on_mysql() {
-    assertThat(createNotNullableBuilder(new MySql()).build())
-      .containsOnly("ALTER TABLE issues MODIFY COLUMN name VARCHAR (10) NOT NULL");
   }
 
   @Test

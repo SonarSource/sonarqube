@@ -35,12 +35,10 @@ import org.dbunit.dataset.datatype.IDataTypeFactory;
 import org.dbunit.dataset.datatype.ToleratedDeltaMap;
 import org.dbunit.ext.h2.H2DataTypeFactory;
 import org.dbunit.ext.mssql.MsSqlDataTypeFactory;
-import org.dbunit.ext.mysql.MySqlDataTypeFactory;
 import org.dbunit.ext.oracle.Oracle10DataTypeFactory;
 import org.dbunit.ext.postgresql.PostgresqlDataTypeFactory;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.db.version.SqTables;
@@ -74,7 +72,6 @@ public abstract class DatabaseCommands {
     DatabaseCommands command = ImmutableMap.of(
       org.sonar.db.dialect.H2.ID, H2,
       MsSql.ID, MSSQL,
-      MySql.ID, MYSQL,
       Oracle.ID, ORACLE,
       PostgreSql.ID, POSTGRESQL).get(dialect.getId());
 
@@ -129,17 +126,6 @@ public abstract class DatabaseCommands {
     protected boolean shouldTruncate(Connection connection, String table) {
       // truncate all tables on mssql, else unexpected errors in some tests
       return true;
-    }
-  };
-
-  private static final DatabaseCommands MYSQL = new DatabaseCommands(new MySqlDataTypeFactory()) {
-    @Override
-    public void resetPrimaryKeys(DataSource dataSource) {
-    }
-
-    @Override
-    List<String> resetSequenceSql(String table, int minSequenceValue) {
-      return null;
     }
   };
 

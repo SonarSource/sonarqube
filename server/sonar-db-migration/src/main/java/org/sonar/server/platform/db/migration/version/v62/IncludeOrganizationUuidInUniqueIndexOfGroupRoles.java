@@ -43,7 +43,7 @@ public class IncludeOrganizationUuidInUniqueIndexOfGroupRoles extends DdlChange 
       .setName("uniq_group_roles")
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_GROUP_ROLES)
       .setName("uniq_group_roles")
       .setUnique(true)

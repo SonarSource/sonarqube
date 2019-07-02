@@ -36,7 +36,7 @@ public class MakeQualityProfileOrganizationUuidAndKeyUnique extends DdlChange {
   @Override
   public void execute(DdlChange.Context context) throws SQLException {
     context.execute(
-      new CreateIndexBuilder(getDialect())
+      new CreateIndexBuilder()
         .setTable("rules_profiles")
         .setName("uniq_qprof_org_and_key")
         .addColumn(

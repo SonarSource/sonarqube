@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -60,7 +59,6 @@ public class TinyIntColumnDefTest {
     assertThat(def.generateSqlType(new H2())).isEqualTo("TINYINT");
     assertThat(def.generateSqlType(new PostgreSql())).isEqualTo("SMALLINT");
     assertThat(def.generateSqlType(new MsSql())).isEqualTo("TINYINT");
-    assertThat(def.generateSqlType(new MySql())).isEqualTo("TINYINT(2)");
     assertThat(def.generateSqlType(new Oracle())).isEqualTo("NUMBER(3)");
   }
 

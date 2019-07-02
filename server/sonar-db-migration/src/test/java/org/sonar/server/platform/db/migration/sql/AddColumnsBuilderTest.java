@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
@@ -46,12 +45,6 @@ public class AddColumnsBuilderTest {
   public void add_columns_on_h2() {
     assertThat(createSampleBuilder(new H2()).build())
       .isEqualTo("ALTER TABLE issues ADD (date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL, col_with_default BOOLEAN DEFAULT false NOT NULL, varchar_col_with_default VARCHAR (3) DEFAULT 'foo' NOT NULL)");
-  }
-
-  @Test
-  public void add_columns_on_mysql() {
-    assertThat(createSampleBuilder(new MySql()).build())
-      .isEqualTo("ALTER TABLE issues ADD (date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL, col_with_default TINYINT(1) DEFAULT false NOT NULL, varchar_col_with_default VARCHAR (3) DEFAULT 'foo' NOT NULL)");
   }
 
   @Test

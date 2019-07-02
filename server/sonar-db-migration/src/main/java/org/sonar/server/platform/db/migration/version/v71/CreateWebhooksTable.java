@@ -93,7 +93,7 @@ public class CreateWebhooksTable extends DdlChange {
         .build()
       );
 
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .addColumn(ORGANIZATION_UUID_COLUMN)
         .setUnique(false)
         .setTable(TABLE_NAME)
@@ -101,7 +101,7 @@ public class CreateWebhooksTable extends DdlChange {
         .build()
       );
 
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .addColumn(PROJECT_UUID_COLUMN)
         .setUnique(false)
         .setTable(TABLE_NAME)

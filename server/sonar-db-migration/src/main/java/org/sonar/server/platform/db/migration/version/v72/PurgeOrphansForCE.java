@@ -56,7 +56,7 @@ public class PurgeOrphansForCE extends DataChange {
 
   private String buildDeleteFromQuery(String tableName, String alias, String whereClause) {
     String dialectId = getDialect().getId();
-    if ("mssql".equals(dialectId) || "mysql".equals(dialectId)) {
+    if ("mssql".equals(dialectId)) {
       return "delete " + alias + " from " + tableName + " as " + alias + " where " + whereClause;
     }
     return "delete from " + tableName + " " + alias + " where " + whereClause;

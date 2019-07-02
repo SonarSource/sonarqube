@@ -34,7 +34,7 @@ public class AddIndexOnActiveRuleParameters extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(
-      new CreateIndexBuilder(getDialect())
+      new CreateIndexBuilder()
         .setTable("active_rule_parameters")
         .setName("ix_arp_on_active_rule_id")
         .addColumn(newIntegerColumnDefBuilder().setColumnName("active_rule_id").setIsNullable(false).build())

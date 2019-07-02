@@ -29,7 +29,6 @@ import org.sonar.db.Database;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -76,11 +75,6 @@ public class DatabaseCharsetCheckerTest {
   @Test
   public void does_nothing_if_h2() {
     assertThat(underTest.getHandler(new H2())).isNull();
-  }
-
-  @Test
-  public void getHandler_returns_MysqlCharsetHandler_if_mysql() {
-    assertThat(underTest.getHandler(new MySql())).isInstanceOf(MysqlCharsetHandler.class);
   }
 
   @Test

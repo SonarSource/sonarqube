@@ -26,7 +26,6 @@ import javax.annotation.CheckForNull;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.def.ColumnDef;
@@ -37,9 +36,7 @@ import static org.sonar.server.platform.db.migration.def.Validations.validateTab
 
 /**
  * This builder have the main goal to change the name column.
- *
- * For MySQL the column definition is mandatory, however the change of column
- * is not supported on this class.
+ * <p>
  * In case of renaming and changing a column, this must be done in two separate steps,
  * first rename the column then update the types of this column with @see {@link AlterColumnsBuilder}
  */
@@ -79,8 +76,6 @@ public class RenameColumnsBuilder {
           case Oracle.ID:
           case PostgreSql.ID:
             return "ALTER TABLE " + tableName + " RENAME COLUMN " + r.getOldColumnName() + " TO " + r.getNewColumnName();
-          case MySql.ID:
-            return "ALTER TABLE " + tableName + " CHANGE " + r.getOldColumnName() + " " + r.getNewColumnName() + " " + r.generateSqlType(dialect);
           case MsSql.ID:
             return "EXEC sp_rename '" + tableName + "." + r.getOldColumnName() + "', '" + r.getNewColumnName() + "', 'COLUMN'";
           default:

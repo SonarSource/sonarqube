@@ -84,14 +84,14 @@ public class CreateAlmAppInstallsTable extends DdlChange {
         .addColumn(UPDATED_AT_COLUMN)
         .build());
 
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .addColumn(ALM_ID_COLUMN)
         .addColumn(OWNER_COLUMN)
         .setUnique(true)
         .setTable(TABLE_NAME)
         .setName("alm_app_installs_owner")
         .build());
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .addColumn(ALM_ID_COLUMN)
         .addColumn(INSTALL_COLUMN)
         .setUnique(true)

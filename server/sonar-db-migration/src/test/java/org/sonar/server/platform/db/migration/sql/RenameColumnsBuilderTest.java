@@ -33,7 +33,6 @@ import org.junit.runner.RunWith;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
@@ -61,7 +60,6 @@ public class RenameColumnsBuilderTest {
   public static final DatabaseAndResult[] DATABASES = {
     new DatabaseAndResult(new H2(), "ALTER TABLE ${table_name} ALTER COLUMN ${old_column_name} RENAME TO ${new_column_name}"),
     new DatabaseAndResult(new PostgreSql(), "ALTER TABLE ${table_name} RENAME COLUMN ${old_column_name} TO ${new_column_name}"),
-    new DatabaseAndResult(new MySql(), "ALTER TABLE ${table_name} CHANGE ${old_column_name} ${new_column_name} ${column_def}"),
     new DatabaseAndResult(new MsSql(), "EXEC sp_rename '${table_name}.${old_column_name}', '${new_column_name}', 'COLUMN'"),
     new DatabaseAndResult(new Oracle(), "ALTER TABLE ${table_name} RENAME COLUMN ${old_column_name} TO ${new_column_name}")
   };

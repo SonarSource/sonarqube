@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.step.DataChange;
@@ -54,7 +53,6 @@ public class DeletePersonMeasures extends DataChange {
 
   private String getDeleteSql() {
     switch (getDialect().getId()) {
-      case MySql.ID:
       case MsSql.ID:
         return "delete pm from project_measures pm " +
           "inner join projects c on c.uuid = pm.component_uuid " +

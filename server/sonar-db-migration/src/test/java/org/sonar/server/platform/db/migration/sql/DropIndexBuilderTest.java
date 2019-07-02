@@ -26,7 +26,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -41,7 +40,6 @@ public class DropIndexBuilderTest {
   public void drop_index_in_table() {
     verifySql(new H2(), "DROP INDEX IF EXISTS issues_key");
     verifySql(new MsSql(), "DROP INDEX issues_key ON issues");
-    verifySql(new MySql(), "DROP INDEX issues_key ON issues");
     verifySql(new Oracle(), "DROP INDEX issues_key");
     verifySql(new PostgreSql(), "DROP INDEX IF EXISTS issues_key");
   }

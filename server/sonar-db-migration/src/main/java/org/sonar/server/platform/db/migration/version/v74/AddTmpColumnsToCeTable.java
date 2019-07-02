@@ -54,13 +54,13 @@ abstract class AddTmpColumnsToCeTable extends DdlChange {
       .build());
 
     // create indexes
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(tableName)
       .setName(tableName + "_tmp_cpnt_uuid")
       .addColumn(COLUMN_TMP_COMPONENT_UUID)
       .setUnique(false)
       .build());
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(tableName)
       .setName(tableName + "_tmp_main_cpnt_uuid")
       .addColumn(COLUMN_TMP_MAIN_COMPONENT_UUID)

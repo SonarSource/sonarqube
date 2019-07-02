@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -34,12 +33,6 @@ public class DropTableBuilderTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
-  @Test
-  public void drop_tables_on_mysql() {
-    assertThat(new DropTableBuilder(new MySql(), "issues")
-      .build()).containsOnly("drop table if exists issues");
-  }
 
   @Test
   public void drop_tables_on_postgresql() {

@@ -23,7 +23,6 @@ import java.util.List;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -75,7 +74,6 @@ public class RenameTableBuilder {
   private List<String> createSqlStatement() {
     switch (dialect.getId()) {
       case H2.ID:
-      case MySql.ID:
       case PostgreSql.ID:
         return singletonList("ALTER TABLE " + name + " RENAME TO " + newName);
       case MsSql.ID:

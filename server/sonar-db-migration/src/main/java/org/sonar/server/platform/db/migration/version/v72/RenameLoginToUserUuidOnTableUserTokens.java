@@ -54,7 +54,7 @@ public class RenameLoginToUserUuidOnTableUserTokens extends DdlChange {
         userUuidColumn)
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(USER_TOKENS_TABLE)
       .setName("user_tokens_user_uuid_name")
       .setUnique(true)

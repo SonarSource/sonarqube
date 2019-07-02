@@ -23,7 +23,6 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -48,8 +47,6 @@ public class ClobColumnDef extends AbstractColumnDef {
     switch (dialect.getId()) {
       case MsSql.ID:
         return "NVARCHAR (MAX)";
-      case MySql.ID:
-        return "LONGTEXT";
       case Oracle.ID:
         return "CLOB";
       case H2.ID:

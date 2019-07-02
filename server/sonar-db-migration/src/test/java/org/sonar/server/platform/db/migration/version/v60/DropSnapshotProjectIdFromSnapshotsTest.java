@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.db.Database;
-import org.sonar.db.dialect.MySql;
+import org.sonar.db.dialect.MsSql;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static java.util.Arrays.asList;
@@ -41,9 +41,9 @@ public class DropSnapshotProjectIdFromSnapshotsTest {
   @Before
   public void setUp() {
     // Some databases have unique names of indexes, so table name is not declared
-    // when dropping an index ("drop index <index name>"). Because of that MySQL is
+    // when dropping an index ("drop index <index name>"). Because of that SQLServer is
     // used in the test so that the table name can also be verified
-    when(db.getDialect()).thenReturn(new MySql());
+    when(db.getDialect()).thenReturn(new MsSql());
   }
 
   @Test

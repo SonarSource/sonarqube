@@ -87,14 +87,14 @@ public class CreateTableOrgQProfiles extends DdlChange {
         .build());
 
     context.execute(
-      new CreateIndexBuilder(getDialect())
+      new CreateIndexBuilder()
         .setTable(TABLE_NAME)
         .setName("qprofiles_org_uuid")
         .addColumn(organizationColumn)
         .build());
 
     context.execute(
-      new CreateIndexBuilder(getDialect())
+      new CreateIndexBuilder()
         .setTable(TABLE_NAME)
         .setName("qprofiles_rp_uuid")
         .addColumn(rulesProfileUuid)

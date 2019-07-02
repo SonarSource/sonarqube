@@ -28,7 +28,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
@@ -49,7 +48,7 @@ public class FixMissingQualityProfilesOnOrganizations extends DataChange {
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
     this.configuration = configuration;
-    if (db.getDialect().getId().equals(MySql.ID) || db.getDialect().getId().equals(MsSql.ID)) {
+    if (db.getDialect().getId().equals(MsSql.ID)) {
       as = " AS ";
     } else {
       as = "";

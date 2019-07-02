@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -73,7 +72,6 @@ public class VarcharColumnDefTest {
 
     assertThat(def.generateSqlType(new H2())).isEqualTo("VARCHAR (10)");
     assertThat(def.generateSqlType(new PostgreSql())).isEqualTo("VARCHAR (10)");
-    assertThat(def.generateSqlType(new MySql())).isEqualTo("VARCHAR (10)");
     assertThat(def.generateSqlType(new MsSql())).isEqualTo("NVARCHAR (10)");
     assertThat(def.generateSqlType(new Oracle())).isEqualTo("VARCHAR2 (10 CHAR)");
   }

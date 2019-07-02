@@ -142,8 +142,6 @@ public interface ComponentMapper {
 
   long countGhostProjects(@Param("organizationUuid") String organizationUuid, @Nullable @Param("query") String query);
 
-  List<ComponentDto> selectComponentsHavingSameKeyOrderedById(String key);
-
   List<ComponentDto> selectProjectsByNameQuery(@Param("nameQuery") @Nullable String nameQuery, @Param("includeModules") boolean includeModules);
 
   void scrollForIndexing(@Param("projectUuid") @Nullable String projectUuid, ResultHandler<ComponentDto> handler);

@@ -49,7 +49,7 @@ public class MakeAnalysisUuidNotNullOnEvents extends DdlChange {
       .updateColumn(analysisUuidColumn)
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_EVENTS)
       .setName("events_analysis")
       .addColumn(analysisUuidColumn)

@@ -29,7 +29,7 @@ import org.sonar.api.utils.MessageException;
 
 public final class DialectUtils {
 
-  private static final Set<Supplier<Dialect>> DIALECTS = ImmutableSet.of(H2::new, MySql::new, Oracle::new, PostgreSql::new, MsSql::new);
+  private static final Set<Supplier<Dialect>> DIALECTS = ImmutableSet.of(H2::new, Oracle::new, PostgreSql::new, MsSql::new);
 
   private DialectUtils() {
     // only static stuff

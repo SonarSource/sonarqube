@@ -226,10 +226,6 @@ public class ComponentDao implements Dao {
     return executeLargeInputs(allKeys, subKeys -> mapper(session).selectByKeysAndBranch(subKeys, pullRequestId));
   }
 
-  public List<ComponentDto> selectComponentsHavingSameKeyOrderedById(DbSession session, String key) {
-    return mapper(session).selectComponentsHavingSameKeyOrderedById(key);
-  }
-
   /**
    * List of ancestors, ordered from root to parent. The list is empty
    * if the component is a tree root. Disabled components are excluded by design

@@ -44,7 +44,7 @@ public class MakeUuidNotNullOnEvents extends DdlChange {
       .updateColumn(uuidColumn)
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE)
       .setName("events_uuid")
       .setUnique(true)

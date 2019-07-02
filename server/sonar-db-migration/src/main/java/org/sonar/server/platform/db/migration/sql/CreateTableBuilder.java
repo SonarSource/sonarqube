@@ -37,7 +37,6 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
@@ -127,7 +126,6 @@ public class CreateTableBuilder {
     appendColumns(res, dialect, columnDefs);
     appendPkConstraint(res);
     res.append(')');
-    appendCollationClause(res, dialect);
     return res.toString();
   }
 
@@ -212,9 +210,6 @@ public class CreateTableBuilder {
         case MsSql.ID:
           res.append(" IDENTITY (1,1)");
           break;
-        case MySql.ID:
-          res.append(" AUTO_INCREMENT");
-          break;
         case H2.ID:
           res.append(" AUTO_INCREMENT (1,1)");
           break;
@@ -252,12 +247,6 @@ public class CreateTableBuilder {
       if (columnDefIterator.hasNext()) {
         res.append(',');
       }
-    }
-  }
-
-  private static void appendCollationClause(StringBuilder res, Dialect dialect) {
-    if (MySql.ID.equals(dialect.getId())) {
-      res.append(" ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_bin");
     }
   }
 

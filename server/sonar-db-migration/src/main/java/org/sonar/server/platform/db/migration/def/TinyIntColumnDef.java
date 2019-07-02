@@ -24,7 +24,6 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -51,9 +50,6 @@ public class TinyIntColumnDef extends AbstractColumnDef {
         return "SMALLINT";
       case Oracle.ID:
         return "NUMBER(3)";
-      case MySql.ID:
-        // do not use TINYINT(1) as it's considered as booleans by connector/J.
-        return "TINYINT(2)";
       case MsSql.ID:
       case H2.ID:
         return "TINYINT";

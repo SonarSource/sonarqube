@@ -43,7 +43,7 @@ public class AddIndexRulesProfileUuidOnQProfileChanges extends DdlChange {
       .setIsNullable(false)
       .build();
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setName(NEW_INDEX_NAME)
       .setTable(TABLE_NAME)
       .addColumn(rulesProfileUuid)

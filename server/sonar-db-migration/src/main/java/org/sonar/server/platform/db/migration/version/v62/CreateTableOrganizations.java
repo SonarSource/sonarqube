@@ -53,7 +53,7 @@ public class CreateTableOrganizations extends DdlChange {
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("updated_at").setIsNullable(false).build())
         .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_NAME)
       .setName("organization_key")
       .addColumn(keeColumn)

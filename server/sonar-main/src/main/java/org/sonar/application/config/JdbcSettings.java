@@ -47,7 +47,7 @@ public class JdbcSettings implements Consumer<Props> {
   private static final int JDBC_EMBEDDED_PORT_DEFAULT_VALUE = 9092;
 
   enum Provider {
-    H2("lib/jdbc/h2"), SQLSERVER("lib/jdbc/mssql"), MYSQL("lib/jdbc/mysql"), ORACLE("extensions/jdbc-driver/oracle"),
+    H2("lib/jdbc/h2"), SQLSERVER("lib/jdbc/mssql"), ORACLE("extensions/jdbc-driver/oracle"),
     POSTGRESQL("lib/jdbc/postgresql");
 
     final String path;
@@ -61,8 +61,6 @@ public class JdbcSettings implements Consumer<Props> {
   public void accept(Props props) {
     File homeDir = props.nonNullValueAsFile(PATH_HOME.getKey());
     Provider provider = resolveProviderAndEnforceNonnullJdbcUrl(props);
-    String url = props.value(JDBC_URL.getKey());
-    checkUrlParameters(provider, url);
     String driverPath = driverPath(homeDir, provider);
     props.set(JDBC_DRIVER_PATH.getKey(), driverPath);
   }
@@ -122,15 +120,6 @@ public class JdbcSettings implements Consumer<Props> {
       host = ip.getHostAddress();
     }
     return format("jdbc:h2:tcp://%s:%d/sonar", host, embeddedDatabasePort);
-  }
-
-  void checkUrlParameters(Provider provider, String url) {
-    if (Provider.MYSQL.equals(provider)) {
-      checkRequiredParameter(url, "useUnicode=true");
-      checkRequiredParameter(url, "characterEncoding=utf8");
-      checkRecommendedParameter(url, "rewriteBatchedStatements=true");
-      checkRecommendedParameter(url, "useConfigs=maxPerformance");
-    }
   }
 
   private static void warnIfUrlIsSet(int port, String existing, String expectedUrl) {

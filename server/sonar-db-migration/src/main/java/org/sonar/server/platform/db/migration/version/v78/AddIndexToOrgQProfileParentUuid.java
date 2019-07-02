@@ -36,7 +36,7 @@ public class AddIndexToOrgQProfileParentUuid extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .addColumn(newVarcharColumnDefBuilder()
         .setColumnName("parent_uuid")
         .setLimit(255)

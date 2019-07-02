@@ -35,7 +35,7 @@ public class RecreateIndexManualMeasuresComponentUuid extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable("manual_measures")
       .setName("manual_measures_component_uuid")
       .setUnique(false)

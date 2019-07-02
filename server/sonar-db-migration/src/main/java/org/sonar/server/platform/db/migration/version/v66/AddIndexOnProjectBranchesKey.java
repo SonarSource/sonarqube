@@ -33,7 +33,7 @@ public class AddIndexOnProjectBranchesKey extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(
-      new CreateIndexBuilder(getDialect())
+      new CreateIndexBuilder()
         .setTable("project_branches")
         .setName("project_branches_kee")
         .setUnique(true)

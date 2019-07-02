@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -78,11 +77,6 @@ public class BlobColumnDefTest {
   @Test
   public void generateSqlType_for_MsSql() {
     assertThat(underTest.generateSqlType(new MsSql())).isEqualTo("VARBINARY(MAX)");
-  }
-
-  @Test
-  public void generateSqlType_for_MySql() {
-    assertThat(underTest.generateSqlType(new MySql())).isEqualTo("LONGBLOB");
   }
 
   @Test

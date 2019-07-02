@@ -904,7 +904,7 @@ public class CreateInitialSchema extends DdlChange {
   }
 
   private void addIndex(Context context, String table, String index, boolean unique, ColumnDef... columns) throws SQLException {
-    CreateIndexBuilder builder = new CreateIndexBuilder(getDialect())
+    CreateIndexBuilder builder = new CreateIndexBuilder()
       .setTable(table)
       .setName(index)
       .setUnique(unique);

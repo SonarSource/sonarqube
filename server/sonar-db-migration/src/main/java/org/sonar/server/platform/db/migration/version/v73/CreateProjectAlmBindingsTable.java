@@ -97,14 +97,14 @@ public class CreateProjectAlmBindingsTable extends DdlChange {
         .addColumn(UPDATED_AT_COLUMN)
         .build());
 
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .addColumn(ALM_ID_COLUMN)
         .addColumn(REPO_ID_COLUMN)
         .setUnique(true)
         .setTable(TABLE_NAME)
         .setName(TABLE_NAME + "_alm_repo")
         .build());
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .addColumn(PROJECT_UUID_COLUMN)
         .setUnique(true)
         .setTable(TABLE_NAME)

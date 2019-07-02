@@ -46,7 +46,7 @@ public class MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex extends 
       .updateColumn(analysisUuid)
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_DUPLICATIONS_INDEX)
       .setName("duplication_analysis_component")
       .addColumn(analysisUuid)

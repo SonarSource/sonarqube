@@ -60,7 +60,7 @@ public class CreateTableProperties2 extends DdlChange {
       .build();
     context.execute(stmts);
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_NAME)
       .setName("properties2_key")
       .addColumn(propKey)

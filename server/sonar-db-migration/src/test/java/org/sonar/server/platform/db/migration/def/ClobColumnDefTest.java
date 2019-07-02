@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -65,11 +64,6 @@ public class ClobColumnDefTest {
   @Test
   public void generate_sql_type_on_h2() {
     assertThat(underTest.generateSqlType(new H2())).isEqualTo("CLOB(2147483647)");
-  }
-
-  @Test
-  public void generate_sql_type_on_mysql() {
-    assertThat(underTest.generateSqlType(new MySql())).isEqualTo("LONGTEXT");
   }
 
   @Test

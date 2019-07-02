@@ -318,14 +318,6 @@ public class MyBatis implements Startable {
     return newScrollingSelectStatement(session, sql, fetchSize);
   }
 
-  /**
-   * Create a PreparedStatement for SELECT requests with scrolling of results row by row (only one row
-   * in memory at a time)
-   */
-  public PreparedStatement newScrollingSingleRowSelectStatement(DbSession session, String sql) {
-    int fetchSize = database.getDialect().getScrollSingleRowFetchSize();
-    return newScrollingSelectStatement(session, sql, fetchSize);
-  }
 
   private static PreparedStatement newScrollingSelectStatement(DbSession session, String sql, int fetchSize) {
     try {

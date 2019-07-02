@@ -55,7 +55,7 @@ public class CreatePermTemplatesCharacteristics extends DdlChange {
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("updated_at").setIsNullable(false).build())
         .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_NAME)
       .setName("uniq_perm_tpl_charac")
       .setUnique(true)

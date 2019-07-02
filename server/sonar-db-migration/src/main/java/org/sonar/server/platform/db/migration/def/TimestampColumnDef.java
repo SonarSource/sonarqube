@@ -23,7 +23,6 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -33,8 +32,7 @@ import static org.sonar.server.platform.db.migration.def.Validations.validateCol
  * Used to define TIMESTAMP columns.
  *
  * @deprecated implemented for compatibility with old tables, but {@link BigIntegerColumnDef}
- * must be used for storing datetimes as bigints (no problems regarding timezone
- * nor MySQL precision).
+ * must be used for storing datetimes as bigints (no problems regarding timezone).
  */
 @Immutable
 @Deprecated
@@ -52,7 +50,6 @@ public class TimestampColumnDef extends AbstractColumnDef {
   public String generateSqlType(Dialect dialect) {
     switch (dialect.getId()) {
       case MsSql.ID:
-      case MySql.ID:
         return "DATETIME";
       case Oracle.ID:
         return "TIMESTAMP (6)";

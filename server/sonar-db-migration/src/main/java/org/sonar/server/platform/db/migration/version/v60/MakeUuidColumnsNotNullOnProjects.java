@@ -45,7 +45,7 @@ public class MakeUuidColumnsNotNullOnProjects extends DdlChange {
       .updateColumn(rootUuid)
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_PROJECTS)
       .setName("projects_root_uuid")
       .addColumn(rootUuid)

@@ -88,7 +88,7 @@ public class CreateInternalComponentPropertiesTable  extends DdlChange {
         .addColumn(CREATED_AT_COLUMN)
         .build());
 
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .addColumn(COMPONENT_UUID_COLUMN)
         .addColumn(KEE_COLUMN)
         .setUnique(true)

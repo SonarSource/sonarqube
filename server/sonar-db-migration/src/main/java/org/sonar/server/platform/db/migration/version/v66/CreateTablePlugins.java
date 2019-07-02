@@ -71,7 +71,7 @@ public class CreateTablePlugins extends DdlChange {
         .build());
 
     context.execute(
-      new CreateIndexBuilder(getDialect())
+      new CreateIndexBuilder()
         .setTable(TABLE_NAME)
         .setName("plugins_key")
         .addColumn(keyColumn)

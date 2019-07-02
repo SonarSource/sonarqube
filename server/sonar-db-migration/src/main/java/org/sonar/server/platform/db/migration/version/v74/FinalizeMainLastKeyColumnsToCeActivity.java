@@ -116,26 +116,26 @@ public class FinalizeMainLastKeyColumnsToCeActivity extends DdlChange {
       .build());
 
     // create indexes
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_NAME)
       .setName(TABLE_NAME + "_islast_key")
       .addColumn(COLUMN_IS_LAST_KEY)
       .setUnique(false)
       .build());
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_NAME)
       .setName(TABLE_NAME + "_islast")
       .addColumn(COLUMN_IS_LAST)
       .addColumn(COLUMN_STATUS)
       .setUnique(false)
       .build());
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_NAME)
       .setName(TABLE_NAME + "_main_islast_key")
       .addColumn(COLUMN_MAIN_IS_LAST_KEY)
       .setUnique(false)
       .build());
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_NAME)
       .setName(TABLE_NAME + "_main_islast")
       .addColumn(COLUMN_MAIN_IS_LAST)

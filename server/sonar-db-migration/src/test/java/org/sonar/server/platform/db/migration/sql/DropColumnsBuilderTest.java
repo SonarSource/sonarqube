@@ -22,19 +22,12 @@ package org.sonar.server.platform.db.migration.sql;
 import org.junit.Test;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DropColumnsBuilderTest {
-
-  @Test
-  public void drop_columns_on_mysql() {
-    assertThat(new DropColumnsBuilder(new MySql(), "issues", "date_in_ms", "name").build())
-      .containsOnly("ALTER TABLE issues DROP COLUMN date_in_ms, DROP COLUMN name");
-  }
 
   @Test
   public void drop_columns_on_oracle() {

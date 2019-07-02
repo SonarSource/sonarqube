@@ -23,7 +23,6 @@ import java.util.List;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -47,7 +46,6 @@ public class DropTableBuilder {
       case Oracle.ID:
         return forOracle(tableName);
       case H2.ID:
-      case MySql.ID:
       case PostgreSql.ID:
         return singletonList("drop table if exists " + tableName);
       case MsSql.ID:

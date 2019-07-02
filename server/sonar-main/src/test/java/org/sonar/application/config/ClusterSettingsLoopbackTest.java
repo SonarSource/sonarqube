@@ -99,7 +99,7 @@ public class ClusterSettingsLoopbackTest {
       .set(CLUSTER_HZ_HOSTS.getKey(), nonLoopbackLocal.getHostAddress())
       .set(CLUSTER_SEARCH_HOSTS.getKey(), nonLoopbackLocal.getHostAddress())
       .set("sonar.auth.jwtBase64Hs256Secret", "abcde")
-      .set(JDBC_URL.getKey(), "jdbc:mysql://localhost:3306/sonar");
+      .set(JDBC_URL.getKey(), "jdbc:postgresql://localhost:3306/sonar");
   }
 
   private TestAppSettings newSettingsForSearchNode() {

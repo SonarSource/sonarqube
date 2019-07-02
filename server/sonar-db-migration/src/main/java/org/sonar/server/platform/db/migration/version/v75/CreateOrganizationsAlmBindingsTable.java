@@ -90,14 +90,14 @@ public class CreateOrganizationsAlmBindingsTable extends DdlChange {
         .addColumn(CREATED_AT_COLUMN)
         .build());
 
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .addColumn(ORGANIZATION_UUID_COLUMN)
         .setUnique(true)
         .setTable(TABLE_NAME)
         .setName("org_alm_bindings_org")
         .build());
 
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .addColumn(ALM_APP_INSTALL_UUID_COLUMN)
         .setUnique(true)
         .setTable(TABLE_NAME)

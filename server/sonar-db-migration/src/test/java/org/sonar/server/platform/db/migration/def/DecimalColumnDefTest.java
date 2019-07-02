@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -118,7 +117,6 @@ public class DecimalColumnDefTest {
     assertThat(def.generateSqlType(new H2())).isEqualTo("DOUBLE");
     assertThat(def.generateSqlType(new PostgreSql())).isEqualTo("NUMERIC (30,20)");
     assertThat(def.generateSqlType(new MsSql())).isEqualTo("DECIMAL (30,20)");
-    assertThat(def.generateSqlType(new MySql())).isEqualTo("DECIMAL (30,20)");
     assertThat(def.generateSqlType(new Oracle())).isEqualTo("NUMERIC (30,20)");
   }
 

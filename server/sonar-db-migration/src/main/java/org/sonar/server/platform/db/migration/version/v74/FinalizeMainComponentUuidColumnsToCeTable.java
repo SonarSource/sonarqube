@@ -75,13 +75,13 @@ public abstract class FinalizeMainComponentUuidColumnsToCeTable extends DdlChang
       .build());
 
     // recreate indexes on renamed columns
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(tableName)
       .setName(tableName + "_component")
       .addColumn(COLUMN_COMPONENT_UUID)
       .setUnique(false)
       .build());
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(tableName)
       .setName(tableName + "_main_component")
       .addColumn(COLUMN_MAIN_COMPONENT_UUID)

@@ -76,7 +76,7 @@ public class CreateDeprecatedRuleKeysTable extends DdlChange {
         .build()
       );
 
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .setTable(DEPRECATED_RULE_KEYS)
         .addColumn(OLD_REPOSITORY_KEY_COLUMN)
         .addColumn(OLD_RULE_KEY_COLUMN)
@@ -85,7 +85,7 @@ public class CreateDeprecatedRuleKeysTable extends DdlChange {
         .build()
       );
 
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .setTable(DEPRECATED_RULE_KEYS)
         .addColumn(RULE_ID_COLUMN)
         .setUnique(true)

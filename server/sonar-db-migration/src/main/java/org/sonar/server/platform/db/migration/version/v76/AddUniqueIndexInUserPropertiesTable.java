@@ -38,7 +38,7 @@ public class AddUniqueIndexInUserPropertiesTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .addColumn(newVarcharColumnDefBuilder()
         .setColumnName("user_uuid")
         .setIsNullable(false)

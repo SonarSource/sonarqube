@@ -53,7 +53,7 @@ public class MakeSomeColumnsOfUsersNotNullable extends DdlChange {
       .updateColumn(notNullableColumn("external_identity_provider", 100))
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(USERS_TABLE)
       .setName(USERS_LOGIN_INDEX)
       .addColumn(notNullableColumn("login", 255))

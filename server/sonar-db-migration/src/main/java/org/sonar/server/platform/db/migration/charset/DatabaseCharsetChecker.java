@@ -27,15 +27,14 @@ import org.sonar.db.Database;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 /**
- * On fresh installations, checks that all db columns are UTF8. On all installations on MySQL or MSSQL,
+ * On fresh installations, checks that all db columns are UTF8. On MSSQL,
  * whatever fresh or upgrade, fixes case-insensitive columns by converting them to
  * case-sensitive.
- *
+ * <p>
  * See SONAR-6171 and SONAR-7549
  */
 public class DatabaseCharsetChecker {
@@ -79,8 +78,6 @@ public class DatabaseCharsetChecker {
         return new OracleCharsetHandler(sqlExecutor);
       case PostgreSql.ID:
         return new PostgresCharsetHandler(sqlExecutor, new PostgresMetadataReader(sqlExecutor));
-      case MySql.ID:
-        return new MysqlCharsetHandler(sqlExecutor);
       case MsSql.ID:
         return new MssqlCharsetHandler(sqlExecutor, new MssqlMetadataReader(sqlExecutor));
       default:

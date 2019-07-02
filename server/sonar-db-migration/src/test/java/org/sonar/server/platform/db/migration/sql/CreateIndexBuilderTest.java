@@ -19,17 +19,10 @@
  */
 package org.sonar.server.platform.db.migration.sql;
 
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.db.dialect.Dialect;
-import org.sonar.db.dialect.H2;
-import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
-import org.sonar.db.dialect.Oracle;
-import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
@@ -41,7 +34,7 @@ public class CreateIndexBuilderTest {
 
   @Test
   public void create_index_on_single_column() {
-    verifySql(new CreateIndexBuilder(new H2())
+    verifySql(new CreateIndexBuilder()
       .setTable("issues")
       .setName("issues_key")
       .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build()),
@@ -50,7 +43,7 @@ public class CreateIndexBuilderTest {
 
   @Test
   public void create_unique_index_on_single_column() {
-    verifySql(new CreateIndexBuilder(new H2())
+    verifySql(new CreateIndexBuilder()
       .setTable("issues")
       .setName("issues_key")
       .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
@@ -60,7 +53,7 @@ public class CreateIndexBuilderTest {
 
   @Test
   public void create_index_on_multiple_columns() {
-    verifySql(new CreateIndexBuilder(new H2())
+    verifySql(new CreateIndexBuilder()
       .setTable("rules")
       .setName("rules_key")
       .addColumn(newVarcharColumnDefBuilder().setColumnName("repository").setLimit(10).build())
@@ -70,7 +63,7 @@ public class CreateIndexBuilderTest {
 
   @Test
   public void create_unique_index_on_multiple_columns() {
-    verifySql(new CreateIndexBuilder(new H2())
+    verifySql(new CreateIndexBuilder()
       .setTable("rules")
       .setName("rules_key")
       .addColumn(newVarcharColumnDefBuilder().setColumnName("repository").setLimit(10).build())
@@ -80,22 +73,12 @@ public class CreateIndexBuilderTest {
   }
 
   @Test
-  public void index_length_is_not_specified_on_big_varchar_columns_if_not_mysql() {
-    Arrays.<Dialect>asList(new H2(), new MsSql(), new PostgreSql(), new Oracle())
-      .forEach(dialect -> verifySql(new CreateIndexBuilder(dialect)
-        .setTable("issues")
-        .setName("issues_key")
-        .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(4000).build()),
-        "CREATE INDEX issues_key ON issues (kee)"));
-  }
-
-  @Test
-  public void index_length_is_limited_to_255_on_big_varchar_columns_if_mysql() {
-    verifySql(new CreateIndexBuilder(new MySql())
+  public void index_length_is_not_specified_on_big_varchar_columns() {
+    verifySql(new CreateIndexBuilder()
       .setTable("issues")
       .setName("issues_key")
       .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(4000).build()),
-      "CREATE INDEX issues_key ON issues (kee(255))");
+      "CREATE INDEX issues_key ON issues (kee)");
   }
 
   @Test
@@ -103,7 +86,7 @@ public class CreateIndexBuilderTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("Table name cannot be null");
 
-    new CreateIndexBuilder(new H2())
+    new CreateIndexBuilder()
       .setName("issues_key")
       .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
       .build();
@@ -114,7 +97,7 @@ public class CreateIndexBuilderTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("Index name cannot be null");
 
-    new CreateIndexBuilder(new H2())
+    new CreateIndexBuilder()
       .setTable("issues")
       .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
       .build();
@@ -125,7 +108,7 @@ public class CreateIndexBuilderTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("at least one column must be specified");
 
-    new CreateIndexBuilder(new H2())
+    new CreateIndexBuilder()
       .setTable("issues")
       .setName("issues_key")
       .build();
@@ -136,7 +119,7 @@ public class CreateIndexBuilderTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Table name must be lower case and contain only alphanumeric chars or '_', got '(not valid)'");
 
-    new CreateIndexBuilder(new H2())
+    new CreateIndexBuilder()
       .setTable("(not valid)")
       .setName("issues_key")
       .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
@@ -148,7 +131,7 @@ public class CreateIndexBuilderTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("Column cannot be null");
 
-    new CreateIndexBuilder(new H2())
+    new CreateIndexBuilder()
       .setTable("issues")
       .setName("issues_key")
       .addColumn(null)

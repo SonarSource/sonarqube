@@ -28,14 +28,14 @@ public class DialectUtilsTest {
 
   @Test
   public void testFindById() {
-    Dialect d = DialectUtils.find("mysql", null);
-    assertThat(d).isInstanceOf(MySql.class);
+    Dialect d = DialectUtils.find("postgresql", null);
+    assertThat(d).isInstanceOf(PostgreSql.class);
   }
 
   @Test
   public void testFindByJdbcUrl() {
-    Dialect d = DialectUtils.find(null, "jdbc:mysql:foo:bar");
-    assertThat(d).isInstanceOf(MySql.class);
+    Dialect d = DialectUtils.find(null, "jdbc:postgresql:foo:bar");
+    assertThat(d).isInstanceOf(PostgreSql.class);
   }
 
   @Test(expected = MessageException.class)

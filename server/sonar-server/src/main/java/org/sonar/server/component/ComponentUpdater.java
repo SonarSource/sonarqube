@@ -21,7 +21,6 @@ package org.sonar.server.component;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -58,8 +57,8 @@ public class ComponentUpdater {
   private final ProjectIndexers projectIndexers;
 
   public ComponentUpdater(DbClient dbClient, I18n i18n, System2 system2,
-    PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
-    ProjectIndexers projectIndexers) {
+                          PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
+                          ProjectIndexers projectIndexers) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.system2 = system2;
@@ -90,7 +89,6 @@ public class ComponentUpdater {
     if (isRootProject(componentDto)) {
       createMainBranch(dbSession, componentDto.uuid());
     }
-    removeDuplicatedProjects(dbSession, componentDto.getDbKey());
     handlePermissionTemplate(dbSession, componentDto, userId);
     return componentDto;
   }
@@ -139,19 +137,6 @@ public class ComponentUpdater {
       .setMergeBranchUuid(null)
       .setProjectUuid(componentUuid);
     dbClient.branchDao().upsert(session, branch);
-  }
-
-  /**
-   * On MySQL, as PROJECTS.KEE is not unique, if the same project is provisioned multiple times, then it will be duplicated in the database.
-   * So, after creating a project, we commit, and we search in the db if their are some duplications and we remove them.
-   *
-   * SONAR-6332
-   */
-  private void removeDuplicatedProjects(DbSession session, String projectKey) {
-    List<ComponentDto> duplicated = dbClient.componentDao().selectComponentsHavingSameKeyOrderedById(session, projectKey);
-    for (int i = 1; i < duplicated.size(); i++) {
-      dbClient.componentDao().delete(session, duplicated.get(i).getId());
-    }
   }
 
   private void handlePermissionTemplate(DbSession dbSession, ComponentDto componentDto, @Nullable Integer userId) {

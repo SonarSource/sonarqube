@@ -46,12 +46,12 @@ public class MakeComponentUuidColumnsNotNullOnSnapshots extends DdlChange {
       .updateColumn(rootComponentUuid)
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_SNAPSHOTS)
       .setName("snapshot_component")
       .addColumn(componentUuid)
       .build());
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_SNAPSHOTS)
       .setName("snapshot_root_component")
       .addColumn(rootComponentUuid)

@@ -107,7 +107,7 @@ public class AddEventComponentChanges extends DdlChange {
         .addColumn(COLUMN_CREATED_AT)
         .build());
 
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .setTable(TABLE_NAME)
         .setName(TABLE_NAME + "_unique")
         .addColumn(COLUMN_EVENT_UUID)
@@ -115,13 +115,13 @@ public class AddEventComponentChanges extends DdlChange {
         .addColumn(COLUMN_COMPONENT_UUID)
         .setUnique(true)
         .build());
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .setTable(TABLE_NAME)
         .setName("event_cpnt_changes_cpnt")
         .addColumn(COLUMN_EVENT_COMPONENT_UUID)
         .setUnique(false)
         .build());
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .setTable(TABLE_NAME)
         .setName("event_cpnt_changes_analysis")
         .addColumn(COLUMN_EVENT_ANALYSIS_UUID)

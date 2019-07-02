@@ -99,7 +99,7 @@ public class CreateTableLiveMeasures extends DdlChange {
         .build())
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .addColumn(projectUuidCol)
       .setUnique(false)
       .setTable(TABLE_NAME)

@@ -57,14 +57,6 @@
       and pb.branch_type='PULL_REQUEST'
   </select>
 
-  <select id="selectComponentsHavingSameKeyOrderedById" parameterType="String" resultType="Component">
-    select
-    <include refid="componentColumns"/>
-    from projects p
-    where p.kee=#{key,jdbcType=VARCHAR}
-    order BY p.id ASC
-  </select>
-
   <select id="selectById" parameterType="long" resultType="Component">
     SELECT
     <include refid="componentColumns"/>

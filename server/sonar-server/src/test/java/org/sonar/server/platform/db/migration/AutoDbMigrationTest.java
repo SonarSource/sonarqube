@@ -33,7 +33,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
@@ -79,11 +78,6 @@ public class AutoDbMigrationTest {
 
     verify(noRealH2Creation).installH2();
     verifyInfoLog();
-  }
-
-  @Test
-  public void start_runs_MigrationEngine_on_mysql_if_fresh_install() {
-    start_runs_MigrationEngine_for_dialect_if_fresh_install(new MySql());
   }
 
   @Test

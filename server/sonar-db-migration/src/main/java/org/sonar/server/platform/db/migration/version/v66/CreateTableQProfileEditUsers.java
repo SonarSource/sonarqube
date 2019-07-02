@@ -64,14 +64,14 @@ public class CreateTableQProfileEditUsers extends DdlChange {
     );
 
     context.execute(
-      new CreateIndexBuilder(getDialect())
+      new CreateIndexBuilder()
         .setTable(TABLE_NAME)
         .setName(TABLE_NAME + "_qprofile")
         .addColumn(qProfileUuidColumn)
         .setUnique(false)
         .build());
     context.execute(
-      new CreateIndexBuilder(getDialect())
+      new CreateIndexBuilder()
         .setTable(TABLE_NAME)
         .setName(TABLE_NAME + "_unique")
         .addColumn(userLoginColumn)

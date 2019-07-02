@@ -41,7 +41,7 @@ public class AddUniqueIndexOnRulesParameters extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable("rules_parameters")
       .setName("rules_parameters_unique")
       .setUnique(true)

@@ -27,7 +27,6 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -51,7 +50,6 @@ public class DropColumnsBuilder {
   public List<String> build() {
     switch (dialect.getId()) {
       case PostgreSql.ID:
-      case MySql.ID:
         StringBuilder sql = new StringBuilder().append(ALTER_TABLE).append(tableName).append(" ");
         dropColumns(sql, "DROP COLUMN ", columns);
         return Collections.singletonList(sql.toString());

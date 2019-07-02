@@ -34,13 +34,6 @@ public class JdbcUrlSanitizerTest {
   }
 
   @Test
-  public void sanitize_mysql_url() {
-    verifyJdbcUrl("jdbc:mysql://127.0.0.1:3306/sonarqube?useUnicode=true&characterEncoding=utf8", "jdbc:mysql://127.0.0.1:3306/sonarqube");
-    verifyJdbcUrl("jdbc:mysql://127.0.0.1:3306/sonarqube", "jdbc:mysql://127.0.0.1:3306/sonarqube");
-    verifyJdbcUrl("jdbc:mysql://127.0.0.1:3306/SONARQUBE", "jdbc:mysql://127.0.0.1:3306/sonarqube");
-  }
-
-  @Test
   public void sanitize_oracle_url() {
     verifyJdbcUrl("sonar.jdbc.url=jdbc:oracle:thin:@localhost:1521/XE", "sonar.jdbc.url=jdbc:oracle:thin:@localhost:1521/xe");
     verifyJdbcUrl("sonar.jdbc.url=jdbc:oracle:thin:@localhost/XE", "sonar.jdbc.url=jdbc:oracle:thin:@localhost/xe");

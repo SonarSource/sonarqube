@@ -37,7 +37,7 @@ public class AddSnapshotIsLastIndex extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(
-      new CreateIndexBuilder(getDialect())
+      new CreateIndexBuilder()
         .setTable(TABLE_NAME)
         .setName(INDEX_NAME)
         .setUnique(false)

@@ -74,26 +74,26 @@ public class AddTmpLastKeyColumnsToCeActivity extends DdlChange {
       .build());
 
     // create indexes
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_NAME)
       .setName(TABLE_NAME + "_t_islast_key")
       .addColumn(COLUMN_TMP_IS_LAST_KEY)
       .setUnique(false)
       .build());
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_NAME)
       .setName(TABLE_NAME + "_t_islast")
       .addColumn(COLUMN_TMP_IS_LAST)
       .addColumn(COLUMN_STATUS)
       .setUnique(false)
       .build());
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_NAME)
       .setName(TABLE_NAME + "_t_main_islast_key")
       .addColumn(COLUMN_TMP_MAIN_IS_LAST_KEY)
       .setUnique(false)
       .build());
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_NAME)
       .setName(TABLE_NAME + "_t_main_islast")
       .addColumn(COLUMN_TMP_MAIN_IS_LAST)

@@ -71,7 +71,7 @@ public class CreateTableDefaultQProfiles extends DdlChange {
         .build());
 
     context.execute(
-      new CreateIndexBuilder(getDialect())
+      new CreateIndexBuilder()
         .setTable("default_qprofiles")
         .setName("uniq_default_qprofiles_uuid")
         .addColumn(profileUuidColumn)

@@ -19,16 +19,15 @@
  */
 package org.sonar.server.platform.db.migration.version.v66;
 
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
-
 import java.sql.SQLException;
-
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
+
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class CreateTableCeTaskCharacteristics extends DdlChange {
   private static final String TABLE_NAME = "ce_task_characteristics";
@@ -73,7 +72,7 @@ public class CreateTableCeTaskCharacteristics extends DdlChange {
         .build());
 
     context.execute(
-      new CreateIndexBuilder(getDialect())
+      new CreateIndexBuilder()
         .setTable(TABLE_NAME)
         .setName("ce_characteristics_" + ceTaskUuidColumn.getName())
         .addColumn(ceTaskUuidColumn)

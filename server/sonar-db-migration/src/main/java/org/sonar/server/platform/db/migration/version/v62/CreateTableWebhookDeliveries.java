@@ -62,13 +62,13 @@ public class CreateTableWebhookDeliveries extends DdlChange {
         .build());
 
     context.execute(
-      new CreateIndexBuilder(getDialect())
+      new CreateIndexBuilder()
         .setTable(TABLE_NAME)
         .setName("component_uuid")
         .addColumn(componentUuidColumn)
         .build());
     context.execute(
-      new CreateIndexBuilder(getDialect())
+      new CreateIndexBuilder()
         .setTable(TABLE_NAME)
         .setName("ce_task_uuid")
         .addColumn(ceTaskUuidColumn)

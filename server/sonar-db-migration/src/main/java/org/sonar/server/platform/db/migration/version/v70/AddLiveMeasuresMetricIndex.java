@@ -41,7 +41,7 @@ public class AddLiveMeasuresMetricIndex extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .addColumn(newVarcharColumnDefBuilder()
         .setColumnName("component_uuid")
         .setIsNullable(false)

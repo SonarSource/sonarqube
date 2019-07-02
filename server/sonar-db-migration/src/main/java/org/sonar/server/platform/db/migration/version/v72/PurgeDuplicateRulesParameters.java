@@ -40,10 +40,10 @@ public class PurgeDuplicateRulesParameters extends DataChange {
   private static final String REMOVE_DUPLICATE_ACTIVE_RULE_PARAMS_SQL_FOR_GENERIC =
     "DELETE FROM active_rule_parameters arp WHERE arp.rules_parameter_id NOT IN (SELECT * FROM (SELECT MIN(id) FROM rules_parameters GROUP BY rule_id, name) temp)";
 
-  private static final String REMOVE_DUPLICATE_RULES_PARAMS_SQL_FOR_MYSQL_MSSQL =
+  private static final String REMOVE_DUPLICATE_RULES_PARAMS_SQL_FOR_MSSQL =
     "DELETE p1 FROM rules_parameters as p1 WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM rules_parameters GROUP BY rule_id, name) temp)";
 
-  private static final String REMOVE_DUPLICATE_ACTIVE_RULE_PARAMS_SQL_FOR_MYSQL_MSSQL =
+  private static final String REMOVE_DUPLICATE_ACTIVE_RULE_PARAMS_SQL_FOR_MSSQL =
     "DELETE arp FROM active_rule_parameters as arp WHERE arp.rules_parameter_id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM rules_parameters GROUP BY rule_id, name) temp)";
 
   public PurgeDuplicateRulesParameters(Database db) {
@@ -56,9 +56,8 @@ public class PurgeDuplicateRulesParameters extends DataChange {
     String removeDuplicateActiveRuleParamsSql;
     switch (getDialect().getId()) {
       case "mssql":
-      case "mysql":
-        removeDuplicateRulesParamsSql = REMOVE_DUPLICATE_RULES_PARAMS_SQL_FOR_MYSQL_MSSQL;
-        removeDuplicateActiveRuleParamsSql = REMOVE_DUPLICATE_ACTIVE_RULE_PARAMS_SQL_FOR_MYSQL_MSSQL;
+        removeDuplicateRulesParamsSql = REMOVE_DUPLICATE_RULES_PARAMS_SQL_FOR_MSSQL;
+        removeDuplicateActiveRuleParamsSql = REMOVE_DUPLICATE_ACTIVE_RULE_PARAMS_SQL_FOR_MSSQL;
         break;
       default:
         removeDuplicateRulesParamsSql = REMOVE_DUPLICATE_RULES_PARAMS_SQL_FOR_GENERIC;

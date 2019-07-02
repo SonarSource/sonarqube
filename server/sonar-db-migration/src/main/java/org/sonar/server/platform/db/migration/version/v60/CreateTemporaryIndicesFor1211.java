@@ -37,12 +37,12 @@ public class CreateTemporaryIndicesFor1211 extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable("ce_activity")
       .setName(INDEX_ON_CE_ACTIVITY)
       .addColumn(newIntegerColumnDefBuilder().setColumnName("snapshot_id").build())
       .build());
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable("duplications_index")
       .setName(INDEX_ON_DUPLICATIONS_INDEX)
       .addColumn(newIntegerColumnDefBuilder().setColumnName("project_snapshot_id").build())

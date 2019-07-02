@@ -33,7 +33,7 @@ public class AddIndexLoadedTemplatesType extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(
-      new CreateIndexBuilder(getDialect())
+      new CreateIndexBuilder()
         .setTable("loaded_templates")
         .setName("ix_loaded_templates_type")
         .addColumn(VarcharColumnDef.newVarcharColumnDefBuilder()

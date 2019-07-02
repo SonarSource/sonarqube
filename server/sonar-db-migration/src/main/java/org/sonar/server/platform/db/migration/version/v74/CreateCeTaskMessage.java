@@ -72,7 +72,7 @@ public class CreateCeTaskMessage extends DdlChange {
         .addColumn(COLUMN_CREATED_AT)
         .build());
 
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .setTable(TABLE_NAME)
         .setName(TABLE_NAME + "_task")
         .addColumn(COLUMN_TASK_UUID)

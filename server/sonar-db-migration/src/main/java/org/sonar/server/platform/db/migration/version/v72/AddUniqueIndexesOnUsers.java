@@ -35,14 +35,14 @@ public class AddUniqueIndexesOnUsers extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable("users")
       .setName("users_uuid")
       .setUnique(true)
       .addColumn(notNullableColumn("uuid", 255))
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable("users")
       .setName("uniq_external_id")
       .setUnique(true)

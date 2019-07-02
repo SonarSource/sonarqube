@@ -43,7 +43,7 @@ public class MakeIndexOnOrganizationsKeeUnique extends DdlChange {
       .setName(INDEX_NAME)
       .build());
 
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable(TABLE_ORGANIZATIONS)
       .setName(INDEX_NAME)
       .addColumn(newVarcharColumnDefBuilder()

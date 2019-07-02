@@ -36,7 +36,7 @@ public class AddIndexOnAnalysisUuidOfMeasures extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     // this index must be present for the performance of next migration
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable("project_measures")
       .setName("measures_analysis_metric")
       .addColumn(newVarcharColumnDefBuilder().setColumnName("analysis_uuid").setLimit(50).setIgnoreOracleUnit(true).build())

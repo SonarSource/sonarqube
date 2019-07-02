@@ -34,7 +34,7 @@ public class AddIndexOnOrganizationUuidOfProjects extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable("projects")
       .setName("projects_organization")
       .addColumn(newVarcharColumnDefBuilder()

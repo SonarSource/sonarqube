@@ -78,7 +78,7 @@ public class CreateProjectMappingsTable extends DdlChange {
         .addColumn(CREATED_AT_COLUMN)
         .build());
 
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .addColumn(KEY_TYPE_COLUMN)
         .addColumn(KEE_COLUMN)
         .setUnique(true)
@@ -86,7 +86,7 @@ public class CreateProjectMappingsTable extends DdlChange {
         .setName("key_type_kee")
         .build());
 
-      context.execute(new CreateIndexBuilder(getDialect())
+      context.execute(new CreateIndexBuilder()
         .addColumn(PROJECT_UUID)
         .setUnique(false)
         .setTable(TABLE_NAME)

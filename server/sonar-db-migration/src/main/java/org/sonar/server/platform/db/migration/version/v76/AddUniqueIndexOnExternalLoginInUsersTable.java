@@ -37,7 +37,7 @@ public class AddUniqueIndexOnExternalLoginInUsersTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable("users")
       .setName("uniq_external_login")
       .setUnique(true)

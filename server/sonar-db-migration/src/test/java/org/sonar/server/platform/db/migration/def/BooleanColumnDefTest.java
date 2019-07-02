@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
@@ -70,7 +69,6 @@ public class BooleanColumnDefTest {
     assertThat(def.generateSqlType(new H2())).isEqualTo("BOOLEAN");
     assertThat(def.generateSqlType(new PostgreSql())).isEqualTo("BOOLEAN");
     assertThat(def.generateSqlType(new MsSql())).isEqualTo("BIT");
-    assertThat(def.generateSqlType(new MySql())).isEqualTo("TINYINT(1)");
     assertThat(def.generateSqlType(new Oracle())).isEqualTo("NUMBER(1)");
   }
 

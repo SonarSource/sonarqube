@@ -35,7 +35,7 @@ public class RecreateIndexEventsComponentUuid extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new CreateIndexBuilder(getDialect())
+    context.execute(new CreateIndexBuilder()
       .setTable("events")
       .setName("events_component_uuid")
       .setUnique(false)

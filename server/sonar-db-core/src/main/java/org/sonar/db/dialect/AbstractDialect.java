@@ -78,16 +78,6 @@ abstract class AbstractDialect implements Dialect {
   }
 
   @Override
-  public int getScrollDefaultFetchSize() {
-    return 200;
-  }
-
-  @Override
-  public int getScrollSingleRowFetchSize() {
-    return 1;
-  }
-
-  @Override
   public boolean supportsUpsert() {
     return false;
   }

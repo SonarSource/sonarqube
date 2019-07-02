@@ -22,10 +22,7 @@ package org.sonar.server.platform.db.migration.sql;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.sonar.db.dialect.Dialect;
-import org.sonar.db.dialect.MySql;
 import org.sonar.server.platform.db.migration.def.ColumnDef;
-import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
@@ -35,17 +32,10 @@ import static org.sonar.server.platform.db.migration.def.Validations.validateTab
 
 public class CreateIndexBuilder {
 
-  private static final int MAX_LENGTH_ON_MYSQL = 255;
-
-  private final Dialect dialect;
   private final List<ColumnDef> columns = new ArrayList<>();
   private String tableName;
   private String indexName;
   private boolean unique = false;
-
-  public CreateIndexBuilder(Dialect dialect) {
-    this.dialect = dialect;
-  }
 
   /**
    * Required name of table on which index is created
@@ -100,22 +90,8 @@ public class CreateIndexBuilder {
     sql.append(" ON ");
     sql.append(tableName);
     sql.append(" (");
-    sql.append(columns.stream().map(this::columnSql).collect(Collectors.joining(", ")));
+    sql.append(columns.stream().map(ColumnDef::getName).collect(Collectors.joining(", ")));
     sql.append(")");
     return sql.toString();
-  }
-
-  private String columnSql(ColumnDef column) {
-    String length = "";
-    // Index of varchar column is limited to 767 bytes on mysql (<= 255 UTF-8 characters)
-    // See http://jira.sonarsource.com/browse/SONAR-4137 and
-    // http://dev.mysql.com/doc/refman/5.6/en/innodb-restrictions.html
-    if (dialect.getId().equals(MySql.ID) && column instanceof VarcharColumnDef) {
-      VarcharColumnDef varcharColumn = (VarcharColumnDef) column;
-      if (varcharColumn.getColumnSize() > MAX_LENGTH_ON_MYSQL) {
-        length = "(" + MAX_LENGTH_ON_MYSQL + ")";
-      }
-    }
-    return column.getName() + length;
   }
 }
