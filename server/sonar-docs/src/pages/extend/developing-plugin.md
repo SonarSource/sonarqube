@@ -421,7 +421,26 @@ The rules are:
     @Deprecated
     public void foo() {
     ```
+
 ## API Changes
+
+### Release 7.9
+No changes
+
+### Release 7.8
+
+![](/images/check.svg) Added
+* `org.sonar.api.web.WebAnalytics`
+
+![](/images/exclamation.svg) Deprecated
+* `org.sonar.api.i18n.I18`
+* `org.sonar.api.SonarQubeVersion` use `org.sonar.api.SonarRuntime` instead
+* `org.sonar.api.profiles.XMLProfileParser`
+* `org.sonar.api.notifications.NotificationChannel`
+
+![](/images/cross.svg) Removed
+* Pico components relying on reflection to have their `start` or `stop` method called. Make your component implements `org.sonar.api.Startable` instead.
+
 ### Release 7.7
 
 ![](/images/check.svg) Added
