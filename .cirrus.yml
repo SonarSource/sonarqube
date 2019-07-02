@@ -79,7 +79,7 @@ deploy_docs_task:
 
 validate_task:
   depends_on: build
-  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master" && $CIRRUS_TAG != "nightly-build"
+  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master" && $CIRRUS_BRANCH != "nightly-build"
   timeout_in: 90m
   gke_container:
     dockerfile: private/docker/Dockerfile-build
@@ -114,7 +114,7 @@ validate_task:
 
 qa_task:
   depends_on: build
-  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master" && $CIRRUS_TAG != "nightly-build"
+  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master" && $CIRRUS_BRANCH != "nightly-build"
   gke_container:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
@@ -172,7 +172,7 @@ promote_task:
     - build
     - validate
     - qa
-  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master" && $CIRRUS_TAG != "nightly-build"
+  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master" && $CIRRUS_BRANCH != "nightly-build"
   gke_container:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
@@ -194,7 +194,7 @@ test_sql_mssql2017_task:
   depends_on: build
   # Comment the following line and commit with message "DO NOT MERGE" in order to run
   # this task on your branch
-  only_if: $CIRRUS_TAG == "nightly-build"
+  only_if: $CIRRUS_BRANCH == "nightly-build"
   gke_container:
     image: gradle:5.4.1-jdk11
     cluster_name: cirrus-euw3a-cluster
@@ -225,13 +225,12 @@ test_sql_mssql2017_task:
       path: "**/test-results/**/*.xml"
       format: junit
 
-
 # this is the oldest compatible version of PostgreSQL
 test_sql_postgres93_task:
   depends_on: build
   # Comment the following line and commit with message "DO NOT MERGE" in order to run
   # this task on your branch
-  only_if: $CIRRUS_TAG == "nightly-build"
+  only_if: $CIRRUS_BRANCH == "nightly-build"
   gke_container:
     image: gradle:5.4.1-jdk11
     cluster_name: cirrus-euw3a-cluster
@@ -265,7 +264,7 @@ test_sql_oracle12_task:
   depends_on: build
   # Comment the following line and commit with message "DO NOT MERGE" in order to run
   # this task on your branch
-  only_if: $CIRRUS_TAG == "nightly-build"
+  only_if: $CIRRUS_BRANCH == "nightly-build"
   gke_container:
     image: gradle:5.4.1-jdk11
     cluster_name: cirrus-euw3a-cluster
@@ -298,7 +297,7 @@ test_upgrade_mssql2017_task:
   depends_on: build
   # Comment the following line and commit with message "DO NOT MERGE" in order to run
   # this task on your branch
-  only_if: $CIRRUS_TAG == "nightly-build"
+  only_if: $CIRRUS_BRANCH == "nightly-build"
   gke_container:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
@@ -343,7 +342,7 @@ test_upgrade_oracle12_task:
   depends_on: build
   # Comment the following line and commit with message "DO NOT MERGE" in order to run
   # this task on your branch
-  only_if: $CIRRUS_TAG == "nightly-build"
+  only_if: $CIRRUS_BRANCH == "nightly-build"
   gke_container:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
