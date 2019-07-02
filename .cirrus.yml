@@ -196,7 +196,9 @@ test_sql_mssql2017_task:
   # this task on your branch
   only_if: $CIRRUS_TAG == "nightly-build"
   gke_container:
-    image: gradle:5.4.1-jdk11
+    dockerfile: private/docker/Dockerfile-build
+    builder_image_project: ci-cd-215716
+    builder_image_name: docker-builder-v1
     cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
@@ -233,7 +235,9 @@ test_sql_postgres93_task:
   # this task on your branch
   only_if: $CIRRUS_TAG == "nightly-build"
   gke_container:
-    image: gradle:5.4.1-jdk11
+    dockerfile: private/docker/Dockerfile-build
+    builder_image_project: ci-cd-215716
+    builder_image_name: docker-builder-v1
     cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
@@ -267,7 +271,9 @@ test_sql_oracle12_task:
   # this task on your branch
   only_if: $CIRRUS_TAG == "nightly-build"
   gke_container:
-    image: gradle:5.4.1-jdk11
+    dockerfile: private/docker/Dockerfile-build
+    builder_image_project: ci-cd-215716
+    builder_image_name: docker-builder-v1
     cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
