@@ -190,43 +190,6 @@ promote_task:
   script:
     - ./private/cirrus/cirrus-promote.sh
 
-test_sql_mysql57_task:
-  depends_on: build
-  # Comment the following line and commit with message "DO NOT MERGE" in order to run
-  # this task on your branch
-  only_if: $CIRRUS_TAG == "nightly-build"
-  gke_container:
-    image: gradle:5.4.1-jdk11
-    cluster_name: cirrus-euw3a-cluster
-    zone: europe-west3-a
-    namespace: default
-    cpu: 1
-    memory: 10Gb
-    additional_containers:
-      - name: mysql
-        image: mysql:5.7 # see https://github.com/mysql/mysql-docker
-        port: 3306
-        cpu: 1
-        memory: 1Gb
-        env:
-          MYSQL_ROOT_PASSWORD: sonarsource
-          MYSQL_DATABASE: sonar
-          MYSQL_USER: sonar
-          MYSQL_PASSWORD: sonar
-  gradle_cache:
-    folder: ~/.gradle/caches
-  script:
-    - ./private/cirrus/cirrus-db-unit-test.sh mysql57
-  cleanup_before_cache_script:
-    - ./private/cirrus/cleanup-gradle-cache.sh
-  on_failure:
-    reports_artifacts:
-      path: "**/build/reports/**/*"
-    junit_artifacts:
-      path: "**/test-results/**/*.xml"
-      format: junit
-
-
 test_sql_mssql2017_task:
   depends_on: build
   # Comment the following line and commit with message "DO NOT MERGE" in order to run
@@ -330,53 +293,6 @@ test_sql_oracle12_task:
     junit_artifacts:
       path: "**/test-results/**/*.xml"
       format: junit
-
-
-test_upgrade_mysql57_task:
-  depends_on: build
-  # Comment the following line and commit with message "DO NOT MERGE" in order to run
-  # this task on your branch
-  only_if: $CIRRUS_TAG == "nightly-build"
-  gke_container:
-    dockerfile: private/docker/Dockerfile-build
-    builder_image_project: ci-cd-215716
-    builder_image_name: docker-builder-v1
-    cluster_name: cirrus-euw3a-cluster
-    zone: europe-west3-a
-    namespace: default
-    cpu: 1.5
-    memory: 6Gb
-    additional_containers:
-      - name: mysql
-        image: mysql:5.7 # see https://github.com/mysql/mysql-docker
-        port: 3306
-        cpu: 1
-        memory: 1Gb
-        env:
-          MYSQL_ROOT_PASSWORD: sonarsource
-          MYSQL_DATABASE: sonar
-          MYSQL_USER: sonar
-          MYSQL_PASSWORD: sonar
-  env:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
-    matrix:
-      QA_CATEGORY: Upgrade
-  gradle_cache:
-    folder: ~/.gradle/caches
-  script:
-    - ./private/cirrus/cirrus-qa.sh mysql57
-  cleanup_before_cache_script:
-    - ./private/cirrus/cleanup-gradle-cache.sh
-  on_failure:
-    reports_artifacts:
-      path: "**/build/reports/**/*"
-    junit_artifacts:
-      path: "**/test-results/**/*.xml"
-      format: junit
-
 
 test_upgrade_mssql2017_task:
   depends_on: build
