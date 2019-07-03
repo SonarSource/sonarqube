@@ -24,23 +24,25 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.Pagination;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -49,30 +51,24 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
-import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileFactoryImpl;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.index.UserQuery;
-import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -81,89 +77,68 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
+import static org.sonar.server.organization.ws.OrganizationDeleter.PAGE_SIZE;
 
 @RunWith(DataProviderRunner.class)
-public class DeleteActionTest {
+public class OrganizationDeleterTest {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public final DbTester db = DbTester.create(new System2()).setDisableDefaultOrganization(true);
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP).setAllQualifiers(PROJECT, VIEW, APP);
-  private ComponentCleanerService spiedComponentCleanerService = spy(new ComponentCleanerService(db.getDbClient(), resourceTypes, mock(ProjectIndexers.class)));
-  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
-  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private QProfileFactory qProfileFactory = new QProfileFactoryImpl(dbClient, mock(UuidFactory.class), System2.INSTANCE, mock(ActiveRuleIndexer.class));
-  private UserIndex userIndex = new UserIndex(es.client(), System2.INSTANCE);
-  private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
-  private BillingValidationsProxy billingValidationsProxy = mock(BillingValidationsProxy.class);
-  private OrganizationDeleter organizationDeleter = new OrganizationDeleter(dbClient, spiedComponentCleanerService, userIndexer, qProfileFactory, projectLifeCycleListeners, billingValidationsProxy);
-  private WsActionTester wsTester = new WsActionTester(new DeleteAction(userSession, dbClient, defaultOrganizationProvider, organizationFlags, organizationDeleter));
+  @Rule
+  public final EsTester es = EsTester.create();
+  private final EsClient esClient = es.client();
+
+  private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP).setAllQualifiers(PROJECT, VIEW, APP);
+  private final ComponentCleanerService componentCleanerService = spy(new ComponentCleanerService(db.getDbClient(), resourceTypes, mock(ProjectIndexers.class)));
+  private final UserIndex userIndex = new UserIndex(esClient, System2.INSTANCE);
+  private final UserIndexer userIndexer = new UserIndexer(dbClient, esClient);
+  private final ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
+  private final BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
+
+  private final OrganizationDeleter underTest = new OrganizationDeleter(dbClient, componentCleanerService, userIndexer,
+    new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), new System2(), new ActiveRuleIndexer(dbClient, esClient)),
+    projectLifeCycleListeners,
+    billingValidations);
 
   @Test
-  public void definition() {
-    WebService.Action action = wsTester.getDef();
-    assertThat(action.key()).isEqualTo("delete");
-    assertThat(action.isPost()).isTrue();
-    assertThat(action.description()).isEqualTo("Delete an organization.<br/>" +
-      "Require 'Administer System' permission on the specified organization. Organization support must be enabled.");
-    assertThat(action.isInternal()).isTrue();
-    assertThat(action.since()).isEqualTo("6.2");
-    assertThat(action.handler()).isNotNull();
-    assertThat(action.params()).hasSize(1);
-    assertThat(action.responseExample()).isNull();
+  public void delete_specified_organization() {
+    OrganizationDto organization = db.organizations().insert();
 
-    assertThat(action.param("organization"))
-      .matches(param -> param.isRequired())
-      .matches(param -> "foo-company".equals(param.exampleValue()))
-      .matches(param -> "Organization key".equals(param.description()));
+    underTest.delete(dbSession, organization);
+
+    verifyOrganizationDoesNotExist(organization);
+    verify(projectLifeCycleListeners).onProjectsDeleted(emptySet());
   }
 
   @Test
-  public void organization_deletion_also_ensure_that_webhooks_of_this_organization_if_they_exist_are_cleared() {
+  public void delete_webhooks_of_organization_if_exist() {
     OrganizationDto organization = db.organizations().insert();
     db.webhooks().insertWebhook(organization);
     ComponentDto project = db.components().insertPrivateProject(organization);
     WebhookDto projectWebhook = db.webhooks().insertWebhook(project);
     db.webhookDelivery().insert(projectWebhook);
-    userSession.logIn().addPermission(ADMINISTER, organization);
 
-    wsTester.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .execute();
+    underTest.delete(dbSession, organization);
 
     assertThat(db.countRowsOfTable(db.getSession(), "webhooks")).isZero();
     assertThat(db.countRowsOfTable(db.getSession(), "webhook_deliveries")).isZero();
   }
 
   @Test
-  public void organization_deletion_also_ensure_that_homepage_on_this_organization_if_it_exists_is_cleared() {
+  public void clear_user_homepage_on_organization_if_exists() {
     OrganizationDto organization = db.organizations().insert();
     UserDto user = dbClient.userDao().insert(dbSession, newUserDto().setHomepageType("ORGANIZATION").setHomepageParameter(organization.getUuid()));
     dbSession.commit();
 
-    userSession.logIn().addPermission(ADMINISTER, organization);
-
-    wsTester.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .execute();
+    underTest.delete(dbSession, organization);
 
     UserDto userReloaded = dbClient.userDao().selectUserById(dbSession, user.getId());
     assertThat(userReloaded.getHomepageType()).isNull();
@@ -171,18 +146,14 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void organization_deletion_also_ensure_that_homepage_on_project_belonging_to_this_organization_if_it_exists_is_cleared() {
+  public void clear_project_homepage_on_organization_if_exists() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
     UserDto user = dbClient.userDao().insert(dbSession,
       newUserDto().setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
     dbSession.commit();
 
-    userSession.logIn().addPermission(ADMINISTER, organization);
-
-    wsTester.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .execute();
+    underTest.delete(dbSession, organization);
 
     UserDto userReloaded = dbClient.userDao().selectUserById(dbSession, user.getId());
     assertThat(userReloaded.getHomepageType()).isNull();
@@ -191,145 +162,8 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void fail_with_IllegalStateException_if_organization_support_is_disabled() {
-    organizationFlags.setEnabled(false);
-    userSession.logIn();
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Organization support is disabled");
-
-    try {
-      wsTester.newRequest().execute();
-    } finally {
-      verifyZeroInteractions(projectLifeCycleListeners);
-    }
-  }
-
-  @Test
-  public void fail_with_UnauthorizedException_if_user_is_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    try {
-      wsTester.newRequest()
-        .execute();
-    } finally {
-      verifyNoMoreInteractions(projectLifeCycleListeners);
-    }
-  }
-
-  @Test
-  public void fail_with_IAE_if_key_param_is_missing() {
-    logInAsSystemAdministrator();
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'organization' parameter is missing");
-
-    try {
-      wsTester.newRequest().execute();
-    } finally {
-      verifyZeroInteractions(projectLifeCycleListeners);
-    }
-  }
-
-  @Test
-  public void fail_with_IAE_if_key_is_the_one_of_default_organization() {
-    logInAsSystemAdministrator();
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default Organization can't be deleted");
-
-    try {
-      sendRequest(db.getDefaultOrganization());
-    } finally {
-      verifyZeroInteractions(projectLifeCycleListeners);
-    }
-  }
-
-  @Test
-  public void fail_with_NotFoundException_if_organization_with_specified_key_does_not_exist() {
-    logInAsSystemAdministrator();
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Organization with key 'foo' not found");
-
-    try {
-      sendRequest("foo");
-    } finally {
-      verifyZeroInteractions(projectLifeCycleListeners);
-    }
-  }
-
-  @Test
-  public void fail_with_ForbiddenException_when_user_is_not_administrator_of_specified_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.logIn();
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    try {
-      sendRequest(organization);
-    } finally {
-      verifyZeroInteractions(projectLifeCycleListeners);
-    }
-  }
-
-  @Test
-  public void fail_with_ForbiddenException_when_user_is_system_administrator() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.logIn().setSystemAdministrator();
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    try {
-      sendRequest(organization);
-    } finally {
-      verifyZeroInteractions(projectLifeCycleListeners);
-    }
-  }
-
-  @Test
-  public void fail_with_ForbiddenException_when_user_is_administrator_of_other_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    logInAsAdministrator(db.getDefaultOrganization());
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    try {
-      sendRequest(organization);
-    } finally {
-      verifyZeroInteractions(projectLifeCycleListeners);
-    }
-  }
-
-  @Test
-  public void delete_specified_organization_if_exists_and_user_is_administrator_of_it() {
-    OrganizationDto organization = db.organizations().insert();
-    logInAsAdministrator(organization);
-
-    sendRequest(organization);
-
-    verifyOrganizationDoesNotExist(organization);
-    verify(projectLifeCycleListeners).onProjectsDeleted(emptySet());
-  }
-
-  @Test
-  public void delete_specified_organization_if_exists_and_user_is_organization_administrator() {
-    OrganizationDto organization = db.organizations().insert();
-    logInAsAdministrator(organization);
-
-    sendRequest(organization);
-
-    verifyOrganizationDoesNotExist(organization);
-    verify(projectLifeCycleListeners).onProjectsDeleted(emptySet());
-  }
-
-  @Test
   @UseDataProvider("OneOrMoreIterations")
-  public void delete_components_of_specified_organization(int numberOfIterations) {
+  public void delete_components(int numberOfIterations) {
     OrganizationDto organization = db.organizations().insert();
     Set<ComponentDto> projects = IntStream.range(0, numberOfIterations).mapToObj(i -> {
       ComponentDto project = db.components().insertPrivateProject(organization);
@@ -340,9 +174,8 @@ public class DeleteActionTest {
       return project;
     }).collect(toSet());
 
-    logInAsAdministrator(organization);
 
-    sendRequest(organization);
+    underTest.delete(dbSession, organization);
 
     verifyOrganizationDoesNotExist(organization);
     assertThat(db.countRowsOfTable(db.getSession(), "projects")).isZero();
@@ -362,9 +195,8 @@ public class DeleteActionTest {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
     ComponentDto branch = db.components().insertProjectBranch(project);
-    logInAsAdministrator(organization);
 
-    sendRequest(organization);
+    underTest.delete(dbSession, organization);
 
     verifyOrganizationDoesNotExist(organization);
     assertThat(db.countRowsOfTable(db.getSession(), "projects")).isZero();
@@ -373,7 +205,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void delete_permissions_templates_and_permissions_and_groups_of_specified_organization() {
+  public void delete_permissions_templates_and_permissions_and_groups() {
     OrganizationDto org = db.organizations().insert();
     OrganizationDto otherOrg = db.organizations().insert();
 
@@ -402,9 +234,8 @@ public class DeleteActionTest {
 
     PermissionTemplateDto templateDto = db.permissionTemplates().insertTemplate(org);
     PermissionTemplateDto otherTemplateDto = db.permissionTemplates().insertTemplate(otherOrg);
-    logInAsAdministrator(org);
 
-    sendRequest(org);
+    underTest.delete(dbSession, org);
 
     verifyOrganizationDoesNotExist(org);
     assertThat(dbClient.groupDao().selectByIds(dbSession, of(group1.getId(), otherGroup1.getId(), group2.getId(), otherGroup2.getId())))
@@ -426,7 +257,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void delete_members_of_specified_organization() {
+  public void delete_members() {
     OrganizationDto org = db.organizations().insert();
     OrganizationDto otherOrg = db.organizations().insert();
     UserDto user1 = db.users().insertUser();
@@ -435,9 +266,8 @@ public class DeleteActionTest {
     db.organizations().addMember(otherOrg, user1);
     db.organizations().addMember(org, user2);
     userIndexer.commitAndIndex(db.getSession(), asList(user1, user2));
-    logInAsAdministrator(org);
 
-    sendRequest(org);
+    underTest.delete(dbSession, org);
 
     verifyOrganizationDoesNotExist(org);
     assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), org.getUuid(), user1.getId())).isNotPresent();
@@ -449,15 +279,13 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void delete_quality_profiles_of_specified_organization() {
+  public void delete_quality_profiles() {
     OrganizationDto org = db.organizations().insert();
     OrganizationDto otherOrg = db.organizations().insert();
     QProfileDto profileInOrg = db.qualityProfiles().insert(org);
     QProfileDto profileInOtherOrg = db.qualityProfiles().insert(otherOrg);
 
-    logInAsAdministrator(org);
-
-    sendRequest(org);
+    underTest.delete(dbSession, org);
 
     verifyOrganizationDoesNotExist(org);
     assertThat(db.select("select uuid as \"profileKey\" from org_qprofiles"))
@@ -474,9 +302,8 @@ public class DeleteActionTest {
     db.qualityGates().associateQualityGateToOrganization(builtInQualityGate, otherOrganization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     QGateWithOrgDto qualityGateInOtherOrg = db.qualityGates().insertQualityGate(otherOrganization);
-    logInAsAdministrator(organization);
 
-    sendRequest(organization);
+    underTest.delete(dbSession, organization);
 
     verifyOrganizationDoesNotExist(organization);
     assertThat(db.select("select uuid as \"uuid\" from quality_gates"))
@@ -500,13 +327,12 @@ public class DeleteActionTest {
       db.components().insertPrivateProject(organization),
       db.components().insertPrivateProject(organization)
     };
-    logInAsAdministrator(organization);
     RuntimeException expectedException = new RuntimeException("Faking deletion of 2nd project throwing an exception");
     doThrow(expectedException)
-      .when(spiedComponentCleanerService).delete(any(), eq(projects[failingProjectIndex]));
+      .when(componentCleanerService).delete(any(), eq(projects[failingProjectIndex]));
 
     try {
-      sendRequest(organization);
+      underTest.delete(dbSession, organization);
       fail("A RuntimeException should have been thrown");
     } catch (RuntimeException e) {
       assertThat(e).isSameAs(expectedException);
@@ -517,20 +343,18 @@ public class DeleteActionTest {
   @Test
   public void call_billing_validation_on_delete() {
     OrganizationDto organization = db.organizations().insert();
-    logInAsAdministrator(organization);
 
-    sendRequest(organization);
+    underTest.delete(dbSession, organization);
 
-    verify(billingValidationsProxy).onDelete(any(BillingValidations.Organization.class));
+    verify(billingValidations).onDelete(any(BillingValidations.Organization.class));
   }
 
   @Test
   public void delete_organization_alm_binding() {
     OrganizationDto organization = db.organizations().insert();
     db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall(), true);
-    logInAsAdministrator(organization);
 
-    sendRequest(organization);
+    underTest.delete(dbSession, organization);
 
     assertThat(db.getDbClient().organizationAlmBindingDao().selectByOrganization(db.getSession(), organization)).isNotPresent();
   }
@@ -544,25 +368,45 @@ public class DeleteActionTest {
     };
   }
 
+
+  @Test
+  @UseDataProvider("queriesAndUnmatchedOrganizationKeys")
+  public void delete_organizations_matched_by_query(OrganizationQuery query, Collection<String> unmatchedOrgKeys) {
+    db.organizations().insert(o -> o.setKey("org1"));
+    db.organizations().insert(o -> o.setKey("org2"));
+    db.organizations().insert(o -> o.setKey("org3"));
+
+    underTest.deleteByQuery(query);
+
+    assertThat(dbClient.organizationDao().selectByQuery(db.getSession(), OrganizationQuery.returnAll(), Pagination.all()))
+      .extracting(OrganizationDto::getKey)
+      .containsExactlyInAnyOrderElementsOf(unmatchedOrgKeys);
+  }
+
+  @DataProvider
+  public static Object[][] queriesAndUnmatchedOrganizationKeys() {
+    return new Object[][] {
+      {OrganizationQuery.returnAll(), Collections.emptyList()},
+      {OrganizationQuery.newOrganizationQueryBuilder().setKeys(singleton("nonexistent")).build(), Arrays.asList("org1", "org2", "org3")},
+      {OrganizationQuery.newOrganizationQueryBuilder().setKeys(singleton("org1")).build(), Arrays.asList("org2", "org3")},
+    };
+  }
+
+  @Test
+  public void delete_organizations_for_all_query_pages() {
+    int orgsCountGreaterThanPageSize = PAGE_SIZE + 1;
+
+    IntStream.range(0, orgsCountGreaterThanPageSize).forEach(ignored -> db.organizations().insert());
+
+    OrganizationQuery query = OrganizationQuery.returnAll();
+    assertThat(dbClient.organizationDao().countByQuery(db.getSession(), query)).isEqualTo(orgsCountGreaterThanPageSize);
+
+    underTest.deleteByQuery(query);
+
+    assertThat(dbClient.organizationDao().countByQuery(db.getSession(), query)).isZero();
+  }
+
   private void verifyOrganizationDoesNotExist(OrganizationDto organization) {
     assertThat(db.getDbClient().organizationDao().selectByKey(dbSession, organization.getKey())).isEmpty();
-  }
-
-  private void sendRequest(OrganizationDto organization) {
-    sendRequest(organization.getKey());
-  }
-
-  private void sendRequest(String organizationKey) {
-    wsTester.newRequest()
-      .setParam(PARAM_ORGANIZATION, organizationKey)
-      .execute();
-  }
-
-  private void logInAsSystemAdministrator() {
-    userSession.logIn().setSystemAdministrator();
-  }
-
-  private void logInAsAdministrator(OrganizationDto organization) {
-    userSession.logIn().addPermission(ADMINISTER, organization);
   }
 }
