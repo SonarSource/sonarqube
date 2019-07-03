@@ -24,15 +24,16 @@ The SonarScanner is the scanner to use when there is no specific scanner for you
 ```
 * Add the `$install_directory/bin` directory to your path.
 * Verify your installation by opening a new shell and executing the command `sonar-scanner -h` (`sonar-scanner.bat -h` on Windows). You should get output like this:
-```
-usage: sonar-scanner [options]
+
+   ```
+   usage: sonar-scanner [options]
   
-Options:
- -D,--define <arg>     Define property
- -h,--help             Display help information
- -v,--version          Display version information
- -X,--debug            Produce execution debug output
-```
+   Options:
+     -D,--define <arg>     Define property
+     -h,--help             Display help information
+     -v,--version          Display version information
+     -X,--debug            Produce execution debug output
+   ```
 
 If you need more debug information you can add one of the following to your command line: `-X`, `--verbose`, or `-Dsonar.verbose=true`.
 
