@@ -147,6 +147,14 @@
           and s.islast = ${_true}
         )
       </if>
+      <if test="query.withoutProjects">
+        and not exists(
+          select 1
+          from projects p
+          where p.organization_uuid = org.uuid
+          and p.enabled = ${_true}
+        )
+      </if>
       <if test="query.analyzedAfter != null">
         and exists(
         select 1

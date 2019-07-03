@@ -35,6 +35,7 @@ public class OrganizationQuery {
   private final boolean onlyTeam;
   private final boolean onlyPersonal;
   private final boolean withAnalyses;
+  private final boolean withoutProjects;
   @Nullable
   private final Long analyzedAfter;
 
@@ -48,6 +49,10 @@ public class OrganizationQuery {
     }
     this.withAnalyses = builder.withAnalyses;
     this.analyzedAfter = builder.analyzedAfter;
+    this.withoutProjects = builder.withoutProjects;
+    if ((this.withAnalyses || this.analyzedAfter != null) && this.withoutProjects) {
+      throw new IllegalArgumentException("withoutProjects cannot be used together with withAnalyses or analyzedAfter");
+    }
   }
 
   @CheckForNull
@@ -77,6 +82,10 @@ public class OrganizationQuery {
     return analyzedAfter;
   }
 
+  public boolean isWithoutProjects() {
+    return withoutProjects;
+  }
+
   public static OrganizationQuery returnAll() {
     return NO_FILTER;
   }
@@ -92,6 +101,7 @@ public class OrganizationQuery {
     private boolean onlyTeam = false;
     private boolean onlyPersonal = false;
     private boolean withAnalyses = false;
+    private boolean withoutProjects = false;
     @Nullable
     private Long analyzedAfter;
 
@@ -130,6 +140,11 @@ public class OrganizationQuery {
 
     public Builder setAnalyzedAfter(long l) {
       this.analyzedAfter = l;
+      return this;
+    }
+
+    public Builder setWithoutProjects() {
+      this.withoutProjects = true;
       return this;
     }
 

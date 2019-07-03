@@ -630,6 +630,25 @@ public class OrganizationDaoTest {
   }
 
   @Test
+  public void selectByQuery_filter_on_withoutProjects() {
+    assertThat(selectUuidsByQuery(q -> q.setWithoutProjects(), forPage(1).andSize(100)))
+      .isEmpty();
+
+    // has projects
+    OrganizationDto orgWithProjects = db.organizations().insert();
+    db.components().insertPrivateProject(orgWithProjects);
+    db.components().insertPrivateProject(orgWithProjects, p -> p.setEnabled(false));
+    // has no projects
+    OrganizationDto orgWithoutProjects = db.organizations().insert();
+    // has only disabled projects
+    OrganizationDto orgWithOnlyDisabledProjects = db.organizations().insert();
+    db.components().insertPrivateProject(orgWithOnlyDisabledProjects, p -> p.setEnabled(false));
+
+    assertThat(selectUuidsByQuery(q -> q.setWithoutProjects(), forPage(1).andSize(100)))
+      .containsExactlyInAnyOrder(orgWithoutProjects.getUuid(), orgWithOnlyDisabledProjects.getUuid());
+  }
+
+  @Test
   public void getDefaultTemplates_returns_empty_when_table_is_empty() {
     assertThat(underTest.getDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid())).isEmpty();
   }
