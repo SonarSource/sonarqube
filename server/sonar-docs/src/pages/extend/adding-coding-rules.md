@@ -114,8 +114,8 @@ Note that fields "title", "description" and "message" have a different format wh
 
 * The title of the rule should match the pattern "X should [ not ] Y" for most rules. Note that the "should [ not ]" pattern is too strong for Finding rules, which are about observations on the code. Finding titles should be neutral, such as "Track x".
 * All other things being equal, the positive form is preferred. E.G.
-   * X should Y is preferred to 
-   * X should not Z
+   * "X should Y" is preferred to 
+   * "X should not Z"
 * Titles should be written in plural form if at all possible. E.G.
    * ![](/images/check.svg)Flibbers should gibbet
    * ![](/images/cross.svg)A Flibber should gibbet
@@ -126,7 +126,7 @@ Note that fields "title", "description" and "message" have a different format wh
 Noncompliant Title Examples:
 
 * File should not have too many lines of code  // Noncompliant; singular form used
-* Avoid file with too many lines of code  // Noncompliant; doesn't follow "x should (not) y" pattern
+* Avoid file with too many lines of code  // Noncompliant; doesn't follow "x should [not] y" pattern
 * Too many lines of code  // Noncompliant
 * Don't use "System.(out/err)"  // Noncompliant
 * Parameters in an overriding virtual function should either use the same default arguments as the function they override, or not specify any default arguments  // Noncompliant; waaaay too long
