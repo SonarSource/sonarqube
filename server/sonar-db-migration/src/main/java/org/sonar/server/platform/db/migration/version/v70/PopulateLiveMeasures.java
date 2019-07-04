@@ -54,9 +54,9 @@ public class PopulateLiveMeasures extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
-    boolean firstAttempt = isFirstAttempt(context);
-    if (!firstAttempt) {
-      LOG.info("Retry detected (non empty table live_measures_p). Handle it");
+    ATTEMPT attempt = isFirstAttempt(context);
+    if (attempt != ATTEMPT.FIRST) {
+      LOG.info("Retry detected (non empty table live_measures_p or live_measures). Handling it");
     }
 
     long now = system2.now();
@@ -67,32 +67,44 @@ public class PopulateLiveMeasures extends DataChange {
       " from snapshots s" +
       " where" +
       "   s.islast = ?" +
-      (firstAttempt ? "" : "   and not exists (select 1 from live_measures_p lmp where lmp.project_uuid=s.component_uuid)");
+      (attempt == ATTEMPT.ONE_PROJECT_OR_MORE ? "   and not exists (select 1 from live_measures_p lmp where lmp.project_uuid=s.component_uuid)" : "");
     try (Connection connection = createReadUncommittedConnection();
       Select select = SelectImpl.create(db, connection, statement).setBoolean(1, true)) {
       List<Row> rows = new ArrayList<>(projectBatchSize);
       select.scroll(t -> {
         rows.add(new Row(t.getString(1), t.getString(2)));
         if (rows.size() == projectBatchSize) {
-          processProjectBatch(context, rows, firstAttempt, now);
+          processProjectBatch(context, rows, attempt, now);
 
           rows.clear();
         }
       });
 
       if (!rows.isEmpty()) {
-        processProjectBatch(context, rows, firstAttempt, now);
+        processProjectBatch(context, rows, attempt, now);
       }
     }
   }
 
-  private static boolean isFirstAttempt(Context context) throws SQLException {
-    try (Select select = context.prepareSelect("select count(1) from live_measures_p")) {
-      return select.get(t -> t.getLong(1)) == 0;
+  private static ATTEMPT isFirstAttempt(Context context) throws SQLException {
+    try (
+      Select selectFromTempTable = context.prepareSelect("select count(1) from live_measures_p");
+      Select selectFromLiveMeasures = context.prepareSelect("select count(1) from live_measures")
+    ) {
+      boolean projectsProcessed = selectFromTempTable.get(t -> t.getLong(1)) > 0;
+      if (projectsProcessed) {
+        return ATTEMPT.ONE_PROJECT_OR_MORE;
+      }
+      // we will count at most the data of one project => table should have little content => bad performance risk is low
+      return selectFromLiveMeasures.get(t -> t.getLong(1)) == 0 ? ATTEMPT.FIRST : ATTEMPT.PARTIAL;
     }
   }
 
-  private static void processProjectBatch(Context context, List<Row> rows, boolean firstAttempt, long now) throws SQLException {
+  private enum ATTEMPT {
+    FIRST, PARTIAL, ONE_PROJECT_OR_MORE
+  }
+
+  private static void processProjectBatch(Context context, List<Row> rows, ATTEMPT attempt, long now) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.rowPluralName("live measures");
     setSelect(rows, massUpdate);
@@ -104,7 +116,7 @@ public class PopulateLiveMeasures extends DataChange {
     massUpdate.update("insert into live_measures_p (project_uuid) values (?)")
       // we want to commit each project finished asap to avoid restarting them over in case of interruption
       .setBatchSize(1);
-    LiveMeasurePopulationMultiHandler handler = new LiveMeasurePopulationMultiHandler(firstAttempt, rows, now);
+    LiveMeasurePopulationMultiHandler handler = new LiveMeasurePopulationMultiHandler(attempt == ATTEMPT.FIRST, rows, now);
     massUpdate.execute(handler);
 
     Set<String> notCommittedProjectUuids = handler.notCommittedProjectUuids;

@@ -90,7 +90,7 @@ public class ColumnDef {
     @Override
     public ColumnDef convert(ResultSet rs) throws SQLException {
       String nullableText = rs.getString(7);
-      boolean nullable = "YES".equalsIgnoreCase(nullableText);
+      boolean nullable = "FIRST".equalsIgnoreCase(nullableText);
 
       return new ColumnDef(
         rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getLong(6), nullable);

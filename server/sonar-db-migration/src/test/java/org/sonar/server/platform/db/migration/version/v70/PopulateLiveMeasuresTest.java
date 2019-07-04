@@ -87,7 +87,7 @@ public class PopulateLiveMeasuresTest {
   }
 
   @Test
-  public void do_not_fail_if_live_measure_of_component_already_partially_inserted() throws SQLException {
+  public void migration_is_reentrant_on_partially_processed_1st_project() throws SQLException {
     generateProjectMeasures();
 
     db.executeInsert(
@@ -102,6 +102,14 @@ public class PopulateLiveMeasuresTest {
 
     underTest.execute();
 
+    assertThat(getLiveMeasures()).extracting(
+      field("COMPONENT_UUID"),
+      field("PROJECT_UUID"),
+      field("METRIC_ID"),
+      field("VALUE"),
+      field("TEXT_VALUE"),
+      field("VARIATION"),
+      field("MEASURE_DATA")).containsExactlyInAnyOrder(generateLiveMeasures());
   }
 
   private Function<Map<String, Object>, Object> field(String name) {
