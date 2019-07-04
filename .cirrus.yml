@@ -190,7 +190,7 @@ promote_task:
   script:
     - ./private/cirrus/cirrus-promote.sh
 
-test_sql_mssql2017_task:
+sql_mssql2017_task:
   depends_on: build
   # Comment the following line and commit with message "DO NOT MERGE" in order to run
   # this task on your branch
@@ -228,7 +228,7 @@ test_sql_mssql2017_task:
       format: junit
 
 # this is the oldest compatible version of PostgreSQL
-test_sql_postgres93_task:
+sql_postgres93_task:
   depends_on: build
   # Comment the following line and commit with message "DO NOT MERGE" in order to run
   # this task on your branch
@@ -264,7 +264,7 @@ test_sql_postgres93_task:
       path: "**/test-results/**/*.xml"
       format: junit
 
-test_sql_oracle12_task:
+sql_oracle12_task:
   depends_on: build
   # Comment the following line and commit with message "DO NOT MERGE" in order to run
   # this task on your branch
@@ -299,7 +299,7 @@ test_sql_oracle12_task:
       path: "**/test-results/**/*.xml"
       format: junit
 
-test_upgrade_mssql2017_task:
+upgd_mssql2017_task:
   depends_on: build
   # Comment the following line and commit with message "DO NOT MERGE" in order to run
   # this task on your branch
@@ -344,7 +344,7 @@ test_upgrade_mssql2017_task:
       format: junit
 
 
-test_upgrade_oracle12_task:
+upgd_oracle12_task:
   depends_on: build
   # Comment the following line and commit with message "DO NOT MERGE" in order to run
   # this task on your branch
