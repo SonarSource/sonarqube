@@ -89,7 +89,8 @@ public class MassUpdate {
 
     progress.start();
     try {
-      select.scroll(row -> callSingleHandler(handler, updates.iterator().next(), row));
+      UpsertImpl update = updates.iterator().next();
+      select.scroll(row -> callSingleHandler(handler, update, row));
       closeStatements();
 
       // log the total number of processed rows
