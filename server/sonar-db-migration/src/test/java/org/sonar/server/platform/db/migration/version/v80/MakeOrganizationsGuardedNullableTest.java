@@ -17,29 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration;
+package org.sonar.server.platform.db.migration.version.v80;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+import static java.sql.Types.BOOLEAN;
 
-public class MigrationConfigurationModuleTest {
-  private MigrationConfigurationModule underTest = new MigrationConfigurationModule();
+public class MakeOrganizationsGuardedNullableTest {
+
+  private static final String TABLE_NAME = "organizations";
+
+  @Rule
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(MakeOrganizationsGuardedNullable.class, "organizations.sql");
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private MakeOrganizationsGuardedNullable underTest = new MakeOrganizationsGuardedNullable(dbTester.database());
 
   @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
+  public void column_is_made_nullable() throws SQLException {
+    underTest.execute();
 
-    underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER
-        // DbVersion classes
-        + 21
-        // Others
-        + 4);
+    dbTester.assertColumnDefinition(TABLE_NAME, "guarded", BOOLEAN, null, true);
   }
 
 }
