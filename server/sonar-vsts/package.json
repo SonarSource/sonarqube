@@ -12,7 +12,8 @@
     "react": "16.8.5",
     "react-dom": "16.8.5",
     "regenerator-runtime": "0.13.2",
-    "whatwg-fetch": "2.0.4"
+    "whatwg-fetch": "2.0.4",
+    "snyk": "^1.189.0"
   },
   "devDependencies": {
     "@babel/core": "7.4.0",
@@ -80,7 +81,9 @@
     "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report.json src/main/js",
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
-    "validate-ci": "yarn lint-report && yarn ts-check && yarn format-check && yarn test --coverage"
+    "validate-ci": "yarn lint-report && yarn ts-check && yarn format-check && yarn test --coverage",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "engines": {
     "node": ">=8"
@@ -145,5 +148,6 @@
     "jsxBracketSameLine": true,
     "printWidth": 100,
     "singleQuote": true
-  }
+  },
+  "snyk": true
 }
