@@ -85,7 +85,7 @@ The COBOL analyzer supports the following dialects:
 
 ### Making Copybooks Available to the Analysis
 
-Copybooks are, by definition, COBOL files that are not syntactically valid by themselves. However, copybooks are usually needed to properly parse COBOL programs. Thus, paths to the copybooks must be listed through the `sonar.cobol.copy.directories property`.
+Copybooks are, by definition, COBOL files that are not syntactically valid by themselves. However, copybooks are usually needed to properly parse COBOL programs. Thus, paths to the copybooks must be listed through the `sonar.cobol.copy.directories` property.
 
 ### Raising Issues Against Copybooks
 
@@ -98,13 +98,6 @@ sonar.cobol.copy.suffixes=cpy
 sonar.cobol.copy.directories=copy1,commonCopy
 ```
 
-Note that it is possible to analyze a cobol project without file suffixes, and for projects without suffixes, the two suffix-related properties are not required. E.G.:
-
-```
-sonar.sources=cobol,copy1,commonCopy
-sonar.cobol.copy.directories=copy1,commonCopy
-```
-
 In the case where a number of projects share a common set of copybooks, it may not be desirable to increment each project’s technical debt with the issues from the common copybooks. In such cases, the directory holding the common copybooks should be listed in `sonar.cobol.copy.directories` (as before) but left out of sonar.sources, E.G.:
 
 ```
@@ -112,6 +105,14 @@ sonar.sources=cobol,copy1
 sonar.cobol.file.suffixes=cbl,cpy
 sonar.cobol.copy.suffixes=cpy
 sonar.cobol.copy.directories=copy1,commonCopy
+```
+
+### Analyzing without file suffixes
+
+Note that it is possible to analyze a COBOL project without file suffixes. To do this, remove the two suffix-related properties from your configuration and substitute the following setting for `sonar.lang.patterns.cobol`:
+
+```
+sonar.lang.patterns.cobol=**/*
 ```
 
 ### Switching Off Issues
