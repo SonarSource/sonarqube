@@ -23,9 +23,12 @@ import java.sql.Connection;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.Dialect;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class UpsertImplTest {
 
@@ -68,6 +71,8 @@ public class UpsertImplTest {
   }
 
   private UpsertImpl create() throws Exception {
-    return UpsertImpl.create(mock(Connection.class), "sql");
+    Database database = mock(Database.class);
+    when(database.getDialect()).thenReturn(mock(Dialect.class));
+    return UpsertImpl.create(database, mock(Connection.class), "sql");
   }
 }
