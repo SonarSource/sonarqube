@@ -22,6 +22,8 @@ package org.sonar.server.platform.db.migration.step;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.Dialect;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -32,8 +34,8 @@ public class UpsertImpl extends BaseSqlStatement<Upsert> implements Upsert {
   private int maxBatchSize = MAX_BATCH_SIZE;
   private long batchCount = 0L;
 
-  private UpsertImpl(PreparedStatement pstmt) {
-    super(pstmt);
+  private UpsertImpl(Dialect dialect, PreparedStatement pstmt) {
+    super(dialect, pstmt);
   }
 
   @Override
@@ -80,7 +82,7 @@ public class UpsertImpl extends BaseSqlStatement<Upsert> implements Upsert {
     return this;
   }
 
-  public static UpsertImpl create(Connection connection, String sql) throws SQLException {
-    return new UpsertImpl(connection.prepareStatement(sql));
+  public static UpsertImpl create(Database db, Connection connection, String sql) throws SQLException {
+    return new UpsertImpl(db.getDialect(), connection.prepareStatement(sql));
   }
 }

@@ -27,11 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.dbutils.DbUtils;
 import org.sonar.db.Database;
+import org.sonar.db.dialect.Dialect;
 
 public class SelectImpl extends BaseSqlStatement<Select> implements Select {
 
-  private SelectImpl(PreparedStatement pstmt) {
-    super(pstmt);
+  private SelectImpl(Dialect dialect, PreparedStatement pstmt) {
+    super(dialect, pstmt);
   }
 
   @Override
@@ -93,6 +94,6 @@ public class SelectImpl extends BaseSqlStatement<Select> implements Select {
     // TODO use DbClient#newScrollingSelectStatement()
     PreparedStatement pstmt = connection.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
     pstmt.setFetchSize(db.getDialect().getScrollDefaultFetchSize());
-    return new SelectImpl(pstmt);
+    return new SelectImpl(db.getDialect(), pstmt);
   }
 }

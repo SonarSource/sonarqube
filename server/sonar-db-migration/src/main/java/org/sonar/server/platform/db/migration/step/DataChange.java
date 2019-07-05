@@ -83,7 +83,7 @@ public abstract class DataChange implements MigrationStep {
     }
 
     public Upsert prepareUpsert(String sql) throws SQLException {
-      return UpsertImpl.create(writeConnection, sql);
+      return UpsertImpl.create(db, writeConnection, sql);
     }
 
     public MassUpdate prepareMassUpdate() {
