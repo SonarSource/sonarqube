@@ -33,7 +33,6 @@ import org.apache.commons.dbcp2.BasicDataSourceFactory;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.Dialect;
@@ -97,21 +96,8 @@ public class DefaultDatabase implements Database {
     doCompleteProperties(properties);
 
     String jdbcUrl = properties.getProperty(JDBC_URL.getKey());
-    failIfMySql(jdbcUrl);
     dialect = DialectUtils.find(properties.getProperty(SONAR_JDBC_DIALECT), jdbcUrl);
     properties.setProperty(SONAR_JDBC_DRIVER, dialect.getDefaultDriverClassName());
-  }
-
-  private static void failIfMySql(String jdbcUrl) {
-    if (StringUtils.startsWithIgnoreCase(jdbcUrl, "jdbc:mysql")) {
-      throw MessageException.of("\n" +
-        "#############################################################################################################\n" +
-        "#         End of Life of MySQL Support : SonarQube 7.9 and future versions do not support MySQL.            #\n" +
-        "#         Please migrate to a supported database. Get more details at                                       #\n" +
-        "#         https://community.sonarsource.com/t/end-of-life-of-mysql-support                                  #\n" +
-        "#         and https://github.com/SonarSource/mysql-migrator                                                 #\n" +
-        "#############################################################################################################\n");
-    }
   }
 
   private void initDataSource() throws Exception {

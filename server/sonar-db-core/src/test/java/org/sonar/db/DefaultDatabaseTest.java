@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.MessageException;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.process.logging.LogbackHelper;
 
@@ -153,18 +152,6 @@ public class DefaultDatabaseTest {
     database.initSettings();
 
     assertThat(database.getProperties().getProperty("sonar.jdbc.driverClassName")).isEqualTo("org.postgresql.Driver");
-  }
-
-  @Test
-  public void fail_when_mysql_is_used() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty("sonar.jdbc.url", "jdbc:mysql://localhost/sonar");
-
-    DefaultDatabase database = new DefaultDatabase(logbackHelper, settings);
-
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("End of Life of MySQL Support");
-    database.start();
   }
 
   @DataProvider
