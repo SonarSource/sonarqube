@@ -32,7 +32,7 @@ In case you find a vulnerability, please follow our [Responsible Vulnerability D
 
 ## Communications
 
-All communications are done over TLS 1.2:
+All communications are done over TLS and support TLS 1.2:
 * Navigating in the Web application
 * Using WS APIs
 * Running analysis (by the scanners) from CI services and pushing analysis reports to SonarCloud
