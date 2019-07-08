@@ -158,9 +158,9 @@ public class AlmAppInstallDaoTest {
     AlmAppInstallDto install = insertAlmAppInstall(organization);
     db.commit();
 
-    assertThat(underTest.selectByOrganization(db.getSession(), GITHUB, organization).get().getUuid()).isEqualTo(install.getUuid());
-    assertThat(underTest.selectByOrganization(db.getSession(), BITBUCKETCLOUD, organization)).isEmpty();
-    assertThat(underTest.selectByOrganization(db.getSession(), GITHUB, new OrganizationDto().setUuid("other-organization"))).isEmpty();
+    assertThat(underTest.selectByOrganization(db.getSession(), organization).filter(o -> o.getAlm() == GITHUB).get().getUuid()).isEqualTo(install.getUuid());
+    assertThat(underTest.selectByOrganization(db.getSession(), organization).filter(o -> o.getAlm() == BITBUCKETCLOUD)).isEmpty();
+    assertThat(underTest.selectByOrganization(db.getSession(), new OrganizationDto().setUuid("other-organization")).filter(o -> o.getAlm() == GITHUB)).isEmpty();
   }
 
   @Test

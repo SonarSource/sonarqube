@@ -66,9 +66,9 @@ public class AlmAppInstallDao implements Dao {
     return Optional.ofNullable(mapper.selectByInstallationId(alm.getId(), installationId));
   }
 
-  public Optional<AlmAppInstallDto> selectByOrganization(DbSession dbSession, ALM alm, OrganizationDto organization) {
+  public Optional<AlmAppInstallDto> selectByOrganization(DbSession dbSession, OrganizationDto organization) {
     AlmAppInstallMapper mapper = getMapper(dbSession);
-    return Optional.ofNullable(mapper.selectByOrganizationUuid(alm.getId(), organization.getUuid()));
+    return Optional.ofNullable(mapper.selectByOrganizationUuid(organization.getUuid()));
   }
 
   public List<AlmAppInstallDto> selectByOrganizations(DbSession dbSession, List<OrganizationDto> organizations) {

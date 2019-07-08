@@ -46,8 +46,7 @@
     alm_app_installs aai
     inner join organization_alm_bindings oab on oab.alm_app_install_uuid = aai.uuid
     where
-    oab.alm_id = #{alm, jdbcType=VARCHAR}
-    and oab.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    oab.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByOrganizationUuids" parameterType="String" resultType="org.sonar.db.alm.AlmAppInstallDto">

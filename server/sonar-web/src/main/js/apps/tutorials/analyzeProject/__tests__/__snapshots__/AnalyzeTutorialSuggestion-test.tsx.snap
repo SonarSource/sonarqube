@@ -5,27 +5,24 @@ exports[`renders bitbucket tutorial correctly 1`] = `
   className="big-spacer-bottom"
   variant="info"
 >
-  <p>
-    onboarding.project_analysis.commands_for_analysis
-  </p>
-  <p>
-    onboarding.project_analysis.suggestions.bitbucket
-  </p>
   <FormattedMessage
-    defaultMessage="onboarding.project_analysis.simply_link"
-    id="onboarding.project_analysis.simply_link"
+    defaultMessage="onboarding.project_analysis.suggestions.bitbucket"
+    id="onboarding.project_analysis.suggestions.bitbucket"
     values={
       Object {
         "link": <a
-          href="/documentation/integrations/bitbucketcloud/#analyzing-with-pipelines"
+          href="/documentation/integrations/bitbucketcloud/"
           rel="noopener noreferrer"
           target="_blank"
         >
-          onboarding.project_analysis.guide_to_integrate_pipelines
+          onboarding.project_analysis.guide_to_integrate_bitbucket_cloud
         </a>,
       }
     }
   />
+  <p>
+    onboarding.project_analysis.suggestions.bitbucket_extra
+  </p>
 </Alert>
 `;
 

@@ -27,25 +27,21 @@ import { Alert } from '../../../components/ui/Alert';
 export function TutorialSuggestionBitbucket() {
   return (
     <Alert className="big-spacer-bottom" variant="info">
-      <p>{translate('onboarding.project_analysis.commands_for_analysis')}</p>
-      <p>{translate('onboarding.project_analysis.suggestions.bitbucket')}</p>
       <FormattedMessage
-        defaultMessage={translate('onboarding.project_analysis.simply_link')}
-        id={'onboarding.project_analysis.simply_link'}
+        defaultMessage={translate('onboarding.project_analysis.suggestions.bitbucket')}
+        id={'onboarding.project_analysis.suggestions.bitbucket'}
         values={{
           link: (
             <a
-              href={
-                getBaseUrl() +
-                '/documentation/integrations/bitbucketcloud/#analyzing-with-pipelines'
-              }
+              href={getBaseUrl() + '/documentation/integrations/bitbucketcloud/'}
               rel="noopener noreferrer"
               target="_blank">
-              {translate('onboarding.project_analysis.guide_to_integrate_pipelines')}
+              {translate('onboarding.project_analysis.guide_to_integrate_bitbucket_cloud')}
             </a>
           )
         }}
       />
+      <p>{translate('onboarding.project_analysis.suggestions.bitbucket_extra')}</p>
     </Alert>
   );
 }
