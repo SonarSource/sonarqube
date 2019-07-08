@@ -20,7 +20,7 @@ If you want to start the project from scratch, use the following Maven pom.xml t
 | <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 |   <modelVersion>4.0.0</modelVersion>
 |   <groupId>YOUR_GROUP_ID</groupId>
-|   <!-- it's recommended to follow the pattern "sonar-{key}-plugin", for example "sonar-php-plugin" -->
+|   <!-- it's recommended to follow the pattern "sonar-{key}-plugin", for example "sonar-myphp-plugin" -->
 |   <artifactId>YOUR_ARTIFACT_ID</artifactId>
 |   <version>YOUR_VERSION</version>
 |   
