@@ -43,10 +43,14 @@ import org.sonar.server.project.ProjectLifeCycleListenersImpl;
 import org.sonar.server.qualityprofile.QProfileFactoryImpl;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 
 public class DeleteEmptyPersonalOrgsActionTest {
@@ -65,6 +69,7 @@ public class DeleteEmptyPersonalOrgsActionTest {
   @Rule
   public final ExpectedException expectedException = ExpectedException.none();
 
+  private SystemPasscode passcode = mock(SystemPasscode.class);
   private final OrganizationDeleter organizationDeleter = new OrganizationDeleter(dbClient,
     new ComponentCleanerService(dbClient, new ResourceTypesRule(), new ProjectIndexersImpl()),
     new UserIndexer(dbClient, esClient),
@@ -72,7 +77,7 @@ public class DeleteEmptyPersonalOrgsActionTest {
     new ProjectLifeCycleListenersImpl(new ProjectLifeCycleListener[0]),
     new BillingValidationsProxyImpl());
 
-  private final DeleteEmptyPersonalOrgsAction underTest = new DeleteEmptyPersonalOrgsAction(userSession, organizationDeleter);
+  private final DeleteEmptyPersonalOrgsAction underTest = new DeleteEmptyPersonalOrgsAction(passcode, userSession, organizationDeleter);
   private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -87,6 +92,21 @@ public class DeleteEmptyPersonalOrgsActionTest {
 
   @Test
   public void delete_empty_personal_orgs() {
+    UserDto admin = db.users().insertUser();
+    db.users().insertPermissionOnUser(admin, ADMINISTER);
+    userSession.logIn().setSystemAdministrator();
+
+    doRun();
+  }
+
+  @Test
+  public void authenticate_with_system_passcode() {
+    when(passcode.isValid(any())).thenReturn(true);
+
+    doRun();
+  }
+
+  private void doRun() {
     OrganizationDto emptyPersonal = db.organizations().insert(o -> o.setGuarded(true));
     db.users().insertUser(u -> u.setOrganizationUuid(emptyPersonal.getUuid()));
 
@@ -99,9 +119,6 @@ public class DeleteEmptyPersonalOrgsActionTest {
     OrganizationDto nonEmptyRegular = db.organizations().insert();
     db.components().insertPublicProject(nonEmptyRegular);
 
-    UserDto admin = db.users().insertUser();
-    db.users().insertPermissionOnUser(admin, ADMINISTER);
-    userSession.logIn().setSystemAdministrator();
     ws.newRequest().execute();
 
     List<String> notDeleted = Arrays.asList(

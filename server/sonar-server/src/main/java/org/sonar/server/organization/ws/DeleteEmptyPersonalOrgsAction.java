@@ -25,6 +25,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.organization.OrganizationQuery;
+import org.sonar.server.user.AbstractUserSession;
+import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
 
 public class DeleteEmptyPersonalOrgsAction implements OrganizationsWsAction {
@@ -33,10 +35,12 @@ public class DeleteEmptyPersonalOrgsAction implements OrganizationsWsAction {
 
   private static final String ACTION = "delete_empty_personal_orgs";
 
+  private final SystemPasscode passcode;
   private final UserSession userSession;
   private final OrganizationDeleter organizationDeleter;
 
-  public DeleteEmptyPersonalOrgsAction(UserSession userSession, OrganizationDeleter organizationDeleter) {
+  public DeleteEmptyPersonalOrgsAction(SystemPasscode passcode, UserSession userSession, OrganizationDeleter organizationDeleter) {
+    this.passcode = passcode;
     this.userSession = userSession;
     this.organizationDeleter = organizationDeleter;
   }
@@ -52,7 +56,9 @@ public class DeleteEmptyPersonalOrgsAction implements OrganizationsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkIsSystemAdministrator();
+    if (!passcode.isValid(request) && !userSession.isSystemAdministrator()) {
+      throw AbstractUserSession.insufficientPrivilegesException();
+    }
 
     LOGGER.info("deleting empty personal organizations");
 
@@ -62,6 +68,8 @@ public class DeleteEmptyPersonalOrgsAction implements OrganizationsWsAction {
       .build();
 
     organizationDeleter.deleteByQuery(query);
+
+    LOGGER.info("Deleted empty personal organizations");
 
     response.noContent();
   }
