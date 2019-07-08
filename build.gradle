@@ -311,7 +311,7 @@ subprojects {
     }
     jacoco {
       enabled = true // do not disable recording of code coverage, so that remote Gradle cache entry can be used locally
-      includes = ['com.sonar.*', 'com.sonarsource.*', 'org.sonar.*', 'org.sonarqube.*', 'org.sonarsource.*', 'io.sonarcloud.*']
+      includes = ['com.sonar.*', 'com.sonarsource.*', 'org.sonar.*', 'org.sonarqube.*', 'org.sonarsource.*']
     }
     if (project.hasProperty('maxParallelTests')) {
       maxParallelForks = project.maxParallelTests as int
