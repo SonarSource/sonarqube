@@ -3,10 +3,19 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 7.9.1 LTS Upgrade Notes  
+**Upgrade on Microsoft SQL Server fixed**  
+Upgrade failure and performance issues with Microsoft SQL Server have been fixed ([SONAR-12260](https://jira.sonarsource.com/browse/SONAR-12260), [SONAR-12251](https://jira.sonarsource.com/browse/SONAR-12251)).
+
+**Pylint execution on Windows fixed**  
+Automatic execution of Pylint during python analysis on Windows has been fixed. Note that automatic execution of pylint during analysis remains deprecated on all OSes. ([SONAR-12274](https://jira.sonarsource.com/browse/SONAR-12274)).
+
+[Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=15029)
+
+
 ## Release 7.9 LTS Upgrade Notes  
-[[warning]]
-| **Risk of slow upgrade with Microsoft SQL Server**  
-| A possible performance issue has been detected with SonarQube upgrade on Microsoft SQL Server. Root-cause analysis is ongoing to eliminate any environment-related issue. If an implementation issue is confirmed then a bug fix will be quickly released in a 7.9.1 version. Reference ticket for this investigation is [SONAR-12251](https://jira.sonarsource.com/browse/SONAR-12251).
+**Upgrade can fail on Microsoft SQL Server**  
+Migration from SonarQube v6.7.x to v7.9 fails on Microsoft SQL Server ([SONAR-12260](https://jira.sonarsource.com/browse/SONAR-12260)). 
 
 **MySQL No Longer Supported**  
 SonarQube no longer supports MySQL. To migrate from MySQL to a supported database, see the free [MySQL Migrator tool](https://github.com/SonarSource/mysql-migrator).
@@ -15,7 +24,7 @@ SonarQube no longer supports MySQL. To migrate from MySQL to a supported databas
 The SonarQube server now requires Java 11. Analyses may continue to use Java 8 if necessary.
 
 **Pylint should be run manually**  
-Running Pylint automatically during python analysis has been deprecated, and is broken in this version on Windows. If needed, Pylint must be run ahead of time and the resulting report passed in to analysis. This [will be fixed](https://jira.sonarsource.com/browse/SONARPY-339) in a future version of SonarPython.
+Running Pylint automatically during python analysis has been deprecated. Additionally, it is broken in this version on Windows. If needed, Pylint must be run ahead of time and the resulting report passed in to analysis. 
 
 [Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=14945)
 
