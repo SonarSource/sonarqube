@@ -28,9 +28,9 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.scanner.ProjectInfo;
-import org.sonar.api.impl.fs.DefaultInputProject;
-import org.sonar.api.impl.fs.DefaultTextPointer;
-import org.sonar.api.impl.fs.DefaultTextRange;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
+import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 
 @ThreadSafe

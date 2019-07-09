@@ -31,9 +31,9 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.scm.BlameCommand.BlameInput;
 import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
-import org.sonar.api.impl.fs.DefaultFileSystem;
-import org.sonar.api.impl.fs.DefaultInputFile;
-import org.sonar.api.impl.fs.TestInputFileBuilder;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.xoo.Xoo;
 

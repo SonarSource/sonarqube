@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.impl.sensor.DefaultPostJobDescriptor;
+import org.sonar.api.batch.postjob.internal.DefaultPostJobDescriptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

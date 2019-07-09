@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.impl.config.MapSettings;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 

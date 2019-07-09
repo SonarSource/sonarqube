@@ -30,7 +30,7 @@ import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.issue.DefaultFilterableIssue;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssuePattern;

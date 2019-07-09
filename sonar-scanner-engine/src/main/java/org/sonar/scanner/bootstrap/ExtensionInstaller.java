@@ -25,7 +25,7 @@ import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.impl.context.PluginContextImpl;
+import org.sonar.api.internal.PluginContextImpl;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;

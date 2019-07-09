@@ -24,7 +24,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.UriReader;
 import org.sonar.process.ProcessProperties;

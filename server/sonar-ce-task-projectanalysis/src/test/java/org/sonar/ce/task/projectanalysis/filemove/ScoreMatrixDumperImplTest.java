@@ -34,7 +34,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.filemove.ScoreMatrix.ScoreFile;
 

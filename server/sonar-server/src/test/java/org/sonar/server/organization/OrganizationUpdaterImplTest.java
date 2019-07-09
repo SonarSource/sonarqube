@@ -19,7 +19,6 @@
  */
 package org.sonar.server.organization;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -27,13 +26,11 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.impl.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -44,7 +41,6 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationDto.Subscription;
-import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.qualitygate.QualityGateDto;

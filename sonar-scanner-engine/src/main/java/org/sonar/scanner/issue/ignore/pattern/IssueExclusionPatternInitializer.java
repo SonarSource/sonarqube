@@ -78,7 +78,7 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
     allFilePatterns = Collections.unmodifiableList(allFilePatterns);
   }
 
-  private String nullToEmpty(@Nullable String str) {
+  private static String nullToEmpty(@Nullable String str) {
     if (str == null) {
       return "";
     }

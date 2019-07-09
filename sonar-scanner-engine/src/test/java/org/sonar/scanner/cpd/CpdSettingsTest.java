@@ -23,7 +23,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.impl.fs.DefaultInputProject;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;

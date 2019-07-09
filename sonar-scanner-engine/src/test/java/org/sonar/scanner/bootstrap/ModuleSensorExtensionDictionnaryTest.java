@@ -33,7 +33,7 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.impl.sensor.DefaultSensorDescriptor;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.sensor.ModuleSensorContext;
 import org.sonar.scanner.sensor.ModuleSensorExtensionDictionnary;

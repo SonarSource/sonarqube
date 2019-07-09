@@ -50,7 +50,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.scanner.bootstrap.ScannerPluginInstaller.InstalledPlugin;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClientFactories;

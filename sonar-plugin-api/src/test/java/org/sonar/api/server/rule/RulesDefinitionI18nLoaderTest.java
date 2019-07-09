@@ -21,7 +21,7 @@ package org.sonar.api.server.rule;
 
 import org.junit.Test;
 import org.sonar.api.i18n.RuleI18n;
-import org.sonar.api.impl.server.RuleDefinitionContext;
+import org.sonar.api.impl.server.RulesDefinitionContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -37,7 +37,7 @@ public class RulesDefinitionI18nLoaderTest {
     when(i18n.getName("squid", "S0001")).thenReturn("SOne");
     when(i18n.getDescription("squid", "S0001")).thenReturn("S One");
 
-    RulesDefinition.Context context = new RuleDefinitionContext();
+    RulesDefinition.Context context = new RulesDefinitionContext();
     RulesDefinition.NewRepository repo = context.createRepository("squid", "java");
     // rule without description
     repo.createRule("S0001");
@@ -54,7 +54,7 @@ public class RulesDefinitionI18nLoaderTest {
   public void do_not_override_if_no_bundle() {
     // i18n returns null values
 
-    RulesDefinition.Context context = new RuleDefinitionContext();
+    RulesDefinition.Context context = new RulesDefinitionContext();
     RulesDefinition.NewRepository repo = context.createRepository("squid", "java");
     repo.createRule("S0001").setName("SOne").setHtmlDescription("S One");
 
@@ -71,7 +71,7 @@ public class RulesDefinitionI18nLoaderTest {
     when(i18n.getName("squid", "S0001")).thenReturn("SOne");
     when(i18n.getDescription("squid", "S0001")).thenReturn("S One");
 
-    RulesDefinition.Context context = new RuleDefinitionContext();
+    RulesDefinition.Context context = new RulesDefinitionContext();
     RulesDefinition.NewRepository repo = context.createRepository("squid", "java");
     repo.createRule("S0001").setName("Bad").setHtmlDescription("Bad");
 
@@ -87,7 +87,7 @@ public class RulesDefinitionI18nLoaderTest {
   public void complete_param_description() {
     when(i18n.getParamDescription("squid", "S0001", "max")).thenReturn("Maximum");
 
-    RulesDefinition.Context context = new RuleDefinitionContext();
+    RulesDefinition.Context context = new RulesDefinitionContext();
     RulesDefinition.NewRepository repo = context.createRepository("squid", "java");
     repo.createRule("S0001").setName("SOne").setHtmlDescription("S One").createParam("max");
 

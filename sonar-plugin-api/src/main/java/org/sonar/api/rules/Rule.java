@@ -32,7 +32,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
 
 import static java.util.Arrays.asList;

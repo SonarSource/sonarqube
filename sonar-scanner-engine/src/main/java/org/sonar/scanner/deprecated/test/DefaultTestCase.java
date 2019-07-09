@@ -25,7 +25,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.test.CoverageBlock;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.TestPlan;

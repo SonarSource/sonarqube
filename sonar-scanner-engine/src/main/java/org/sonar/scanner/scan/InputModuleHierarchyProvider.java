@@ -26,8 +26,8 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.impl.fs.DefaultInputModule;
-import org.sonar.api.impl.fs.DefaultInputProject;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
 
 public class InputModuleHierarchyProvider extends ProviderAdapter {

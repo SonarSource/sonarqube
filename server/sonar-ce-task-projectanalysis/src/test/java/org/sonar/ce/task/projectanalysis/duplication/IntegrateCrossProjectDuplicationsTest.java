@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;

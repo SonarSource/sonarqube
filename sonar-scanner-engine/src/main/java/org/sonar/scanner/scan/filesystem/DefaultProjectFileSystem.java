@@ -19,9 +19,9 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import org.sonar.api.impl.fs.DefaultFileSystem;
-import org.sonar.api.impl.fs.DefaultInputProject;
-import org.sonar.api.impl.fs.predicates.DefaultFilePredicates;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
+import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
 
 public class DefaultProjectFileSystem extends DefaultFileSystem {
 

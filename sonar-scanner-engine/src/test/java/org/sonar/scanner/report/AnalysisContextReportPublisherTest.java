@@ -38,7 +38,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
-import org.sonar.api.impl.fs.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.ProjectServerSettings;

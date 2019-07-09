@@ -20,7 +20,7 @@
 package org.sonar.scanner.scan.filesystem;
 
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.impl.fs.predicates.AbstractFilePredicate;
+import org.sonar.api.batch.fs.internal.predicates.AbstractFilePredicate;
 
 /**
  * Additional {@link org.sonar.api.batch.fs.FilePredicate}s that are

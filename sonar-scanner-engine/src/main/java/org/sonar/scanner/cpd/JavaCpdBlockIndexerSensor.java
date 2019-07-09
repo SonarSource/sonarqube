@@ -43,7 +43,7 @@ import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 /**
  * Special case for Java that use a dedicated block indexer.

@@ -34,9 +34,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.duplications.block.Block;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.api.impl.fs.DefaultInputFile;
-import org.sonar.api.impl.fs.TestInputFileBuilder;
-import org.sonar.api.impl.sensor.SensorContextTester;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;

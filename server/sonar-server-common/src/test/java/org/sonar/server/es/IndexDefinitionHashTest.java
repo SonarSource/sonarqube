@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.IndexType.IndexMainType;
 import org.sonar.server.es.newindex.SettingsConfiguration;
 import org.sonar.server.es.newindex.TestNewIndex;

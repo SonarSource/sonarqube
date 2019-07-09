@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.authentication.BasicAuthentication;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationException;

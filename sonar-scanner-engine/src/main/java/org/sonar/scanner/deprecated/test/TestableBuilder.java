@@ -25,7 +25,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.scanner.deprecated.perspectives.PerspectiveBuilder;
-import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 public class TestableBuilder extends PerspectiveBuilder<MutableTestable> {
 

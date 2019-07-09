@@ -26,7 +26,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;

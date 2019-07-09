@@ -52,7 +52,7 @@ import org.simpleframework.http.Response;
 import org.simpleframework.http.core.Container;
 import org.simpleframework.transport.connect.SocketConnection;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.SonarException;
 

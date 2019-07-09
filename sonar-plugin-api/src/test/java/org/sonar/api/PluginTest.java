@@ -21,9 +21,9 @@ package org.sonar.api;
 
 import java.util.Arrays;
 import org.junit.Test;
-import org.sonar.api.impl.config.MapSettings;
-import org.sonar.api.impl.context.PluginContextImpl;
-import org.sonar.api.impl.context.SonarRuntimeImpl;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.internal.PluginContextImpl;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;

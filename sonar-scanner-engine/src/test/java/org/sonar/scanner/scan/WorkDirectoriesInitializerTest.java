@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.impl.fs.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 
 import static org.assertj.core.api.Assertions.assertThat;

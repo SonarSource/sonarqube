@@ -35,7 +35,7 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.log.LogTester;

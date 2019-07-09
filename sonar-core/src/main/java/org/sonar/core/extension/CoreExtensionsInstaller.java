@@ -29,7 +29,7 @@ import java.util.function.Predicate;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;

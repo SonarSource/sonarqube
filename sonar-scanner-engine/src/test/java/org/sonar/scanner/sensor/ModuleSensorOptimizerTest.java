@@ -26,13 +26,13 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.NewActiveRule;
-import org.sonar.api.impl.config.MapSettings;
-import org.sonar.api.impl.fs.DefaultFileSystem;
-import org.sonar.api.impl.fs.TestInputFileBuilder;
-import org.sonar.api.impl.sensor.DefaultSensorDescriptor;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.impl.rule.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

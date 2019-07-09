@@ -32,10 +32,10 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.impl.fs.DefaultInputFile;
-import org.sonar.api.impl.fs.DefaultInputModule;
-import org.sonar.api.impl.fs.DefaultInputProject;
-import org.sonar.api.impl.fs.TestInputFileBuilder;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -41,7 +41,7 @@ import org.sonar.api.utils.PathUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.xoo.XooPlugin;

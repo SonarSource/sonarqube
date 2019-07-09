@@ -20,7 +20,7 @@
 package org.sonar.scanner.sensor;
 
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.impl.sensor.DefaultSensorDescriptor;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.scanner.sensor.ProjectSensor;
 
 public abstract class AbstractSensorWrapper<G extends ProjectSensor> {

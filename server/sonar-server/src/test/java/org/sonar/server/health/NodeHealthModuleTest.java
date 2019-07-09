@@ -26,7 +26,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.ComponentContainer;

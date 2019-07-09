@@ -26,7 +26,7 @@ import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
 

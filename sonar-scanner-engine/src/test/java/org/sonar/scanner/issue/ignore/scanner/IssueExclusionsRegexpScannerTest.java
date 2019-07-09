@@ -34,9 +34,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.sonar.api.impl.fs.DefaultInputFile;
-import org.sonar.api.impl.fs.FileMetadata;
-import org.sonar.api.impl.fs.TestInputFileBuilder;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader.DoubleRegexpMatcher;
 

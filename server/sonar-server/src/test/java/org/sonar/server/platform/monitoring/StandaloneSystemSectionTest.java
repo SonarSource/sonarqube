@@ -22,7 +22,7 @@ package org.sonar.server.platform.monitoring;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.utils.log.LoggerLevel;

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.es.metadata;
 
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.IndexDefinition;
 
 class MetadataIndexDefinitionBridge implements IndexDefinition {

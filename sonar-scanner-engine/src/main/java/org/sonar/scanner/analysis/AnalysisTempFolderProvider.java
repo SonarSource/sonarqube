@@ -25,7 +25,7 @@ import java.nio.file.Path;
 import org.picocontainer.ComponentLifecycle;
 import org.picocontainer.PicoContainer;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.impl.fs.DefaultInputProject;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.utils.TempFolder;
 

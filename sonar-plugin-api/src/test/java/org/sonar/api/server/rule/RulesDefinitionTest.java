@@ -41,7 +41,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.impl.server.RuleDefinitionContext;
+import org.sonar.api.impl.server.RulesDefinitionContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -49,7 +49,7 @@ import static org.junit.Assert.fail;
 @RunWith(DataProviderRunner.class)
 public class RulesDefinitionTest {
 
-  RulesDefinition.Context context = new RuleDefinitionContext();
+  RulesDefinition.Context context = new RulesDefinitionContext();
 
   @Rule
   public LogTester logTester = new LogTester();

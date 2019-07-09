@@ -46,7 +46,7 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;

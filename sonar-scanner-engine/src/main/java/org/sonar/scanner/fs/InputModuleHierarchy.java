@@ -22,7 +22,7 @@ package org.sonar.scanner.fs;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.impl.fs.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 
 @Immutable
 public interface InputModuleHierarchy {

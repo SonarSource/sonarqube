@@ -23,8 +23,8 @@ import java.util.SortedSet;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
-import org.sonar.api.impl.fs.SensorStrategy;
-import org.sonar.api.impl.fs.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.SensorStrategy;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 
 @ScannerSide
 public class ModuleInputComponentStore extends DefaultFileSystem.Cache {

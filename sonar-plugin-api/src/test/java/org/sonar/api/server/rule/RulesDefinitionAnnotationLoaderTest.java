@@ -25,7 +25,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RulesDefinition.NewRule;
 import org.sonar.check.Priority;
-import org.sonar.api.impl.server.RuleDefinitionContext;
+import org.sonar.api.impl.server.RulesDefinitionContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,7 +58,7 @@ public class RulesDefinitionAnnotationLoaderTest {
 
   @Test
   public void override_annotation_programmatically() {
-    RulesDefinition.Context context = new RuleDefinitionContext();
+    RulesDefinition.Context context = new RulesDefinitionContext();
     RulesDefinition.NewRepository newRepository = context.createRepository("squid", "java");
     NewRule newRule = annotationLoader.loadRule(newRepository, RuleWithProperty.class);
     newRule.setName("Overridden name");
@@ -145,7 +145,7 @@ public class RulesDefinitionAnnotationLoaderTest {
   }
 
   private RulesDefinition.Repository load(Class annotatedClass) {
-    RulesDefinition.Context context = new RuleDefinitionContext();
+    RulesDefinition.Context context = new RulesDefinitionContext();
     RulesDefinition.NewExtendedRepository newRepository = context.createRepository("squid", "java");
     annotationLoader.load(newRepository, annotatedClass);
     newRepository.done();

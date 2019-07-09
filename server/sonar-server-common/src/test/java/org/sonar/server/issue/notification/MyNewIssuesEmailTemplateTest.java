@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.platform.Server;
 import org.sonar.server.l18n.I18nRule;

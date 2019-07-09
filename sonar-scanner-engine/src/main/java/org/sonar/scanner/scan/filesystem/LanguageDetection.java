@@ -32,7 +32,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.impl.fs.PathPattern;
+import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.repository.language.Language;

@@ -21,7 +21,8 @@ package org.sonar.api.batch.rule;
 
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.impl.rule.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
 

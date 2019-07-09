@@ -25,7 +25,7 @@ import java.util.SortedSet;
 import org.sonar.api.test.CoverageBlock;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.TestCase;
-import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 public class DefaultTestable implements MutableTestable {
 

@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;

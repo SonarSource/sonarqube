@@ -30,10 +30,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.sensor.error.AnalysisError;
-import org.sonar.api.impl.fs.DefaultInputFile;
-import org.sonar.api.impl.fs.DefaultTextPointer;
-import org.sonar.api.impl.fs.TestInputFileBuilder;
-import org.sonar.api.impl.sensor.SensorContextTester;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

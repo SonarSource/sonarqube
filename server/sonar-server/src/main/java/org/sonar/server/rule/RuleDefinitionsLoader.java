@@ -20,7 +20,7 @@
 package org.sonar.server.rule;
 
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.impl.server.RuleDefinitionContext;
+import org.sonar.api.impl.server.RulesDefinitionContext;
 import org.sonar.server.plugins.ServerPluginRepository;
 
 /**
@@ -51,7 +51,7 @@ public class RuleDefinitionsLoader {
   }
 
   public RulesDefinition.Context load() {
-    RulesDefinition.Context context = new RuleDefinitionContext();
+    RulesDefinition.Context context = new RulesDefinitionContext();
     for (RulesDefinition pluginDefinition : pluginDefs) {
       context.setCurrentPluginKey(serverPluginRepository.getPluginKey(pluginDefinition));
       pluginDefinition.define(context);

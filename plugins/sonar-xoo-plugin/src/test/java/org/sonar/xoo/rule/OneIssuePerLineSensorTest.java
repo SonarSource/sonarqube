@@ -27,11 +27,11 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.impl.fs.DefaultInputFile;
-import org.sonar.api.impl.fs.TestInputFileBuilder;
-import org.sonar.api.impl.sensor.DefaultSensorDescriptor;
-import org.sonar.api.impl.sensor.SensorContextTester;
-import org.sonar.api.impl.context.SonarRuntimeImpl;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 import org.sonar.xoo.Xoo;
 

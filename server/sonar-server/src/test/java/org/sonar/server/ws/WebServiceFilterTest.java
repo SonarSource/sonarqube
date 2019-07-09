@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.impl.context.SonarRuntimeImpl;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;

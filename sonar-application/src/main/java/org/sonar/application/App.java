@@ -21,7 +21,7 @@ package org.sonar.application;
 
 import java.io.IOException;
 import org.sonar.api.SonarEdition;
-import org.sonar.api.impl.context.MetadataLoader;
+import org.sonar.api.internal.MetadataLoader;
 import org.sonar.application.command.CommandFactory;
 import org.sonar.application.command.CommandFactoryImpl;
 import org.sonar.application.command.JavaVersion;

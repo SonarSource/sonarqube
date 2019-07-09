@@ -30,14 +30,14 @@ import org.sonar.api.server.rule.RulesDefinition;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class DefaultNewRepository implements RulesDefinition.NewRepository {
-  private final RuleDefinitionContext context;
+  private final RulesDefinitionContext context;
   private final String key;
   private final boolean isExternal;
   private final String language;
   private String name;
   private final Map<String, RulesDefinition.NewRule> newRules = new HashMap<>();
 
-  DefaultNewRepository(RuleDefinitionContext context, String key, String language, boolean isExternal) {
+  DefaultNewRepository(RulesDefinitionContext context, String key, String language, boolean isExternal) {
     this.context = context;
     this.key = key;
     this.name = key;

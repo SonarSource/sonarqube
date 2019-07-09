@@ -41,7 +41,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
-import org.sonar.api.impl.fs.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;

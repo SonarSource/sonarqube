@@ -26,7 +26,7 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.mockito.verification.Timeout;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.Notification;
 
 import static java.util.Collections.singleton;

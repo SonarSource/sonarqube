@@ -28,7 +28,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 import static java.util.stream.Collectors.toList;
 

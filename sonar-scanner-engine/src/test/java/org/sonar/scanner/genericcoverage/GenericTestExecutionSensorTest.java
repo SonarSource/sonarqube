@@ -35,7 +35,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.scan.ProjectConfiguration;
-import org.sonar.api.impl.sensor.SensorContextTester;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

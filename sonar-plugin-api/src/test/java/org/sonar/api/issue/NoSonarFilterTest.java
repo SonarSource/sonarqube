@@ -22,9 +22,9 @@ package org.sonar.api.issue;
 import java.util.Arrays;
 import java.util.HashSet;
 import org.junit.Test;
-import org.sonar.api.impl.fs.DefaultInputFile;
-import org.sonar.api.impl.fs.TestInputFileBuilder;
-import org.sonar.api.impl.issue.DefaultNoSonarFilter;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

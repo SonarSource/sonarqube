@@ -28,7 +28,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.impl.fs.PathPattern;
+import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 

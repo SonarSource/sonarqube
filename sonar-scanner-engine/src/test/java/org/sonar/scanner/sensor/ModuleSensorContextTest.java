@@ -31,13 +31,13 @@ import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.impl.config.MapSettings;
-import org.sonar.api.impl.fs.DefaultFileSystem;
-import org.sonar.api.impl.fs.DefaultInputProject;
-import org.sonar.api.impl.context.SonarRuntimeImpl;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Version;
-import org.sonar.api.impl.rule.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

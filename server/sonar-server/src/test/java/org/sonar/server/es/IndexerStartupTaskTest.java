@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexImpl;
 import org.sonar.server.es.newindex.FakeIndexDefinition;

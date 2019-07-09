@@ -28,7 +28,7 @@ import java.util.Map.Entry;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.impl.sensor.DefaultMeasure;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.utils.KeyValueFormat;

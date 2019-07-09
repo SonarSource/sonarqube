@@ -27,7 +27,7 @@ import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.api.impl.fs.DefaultInputProject;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.api.impl.utils.ScannerUtils;
 

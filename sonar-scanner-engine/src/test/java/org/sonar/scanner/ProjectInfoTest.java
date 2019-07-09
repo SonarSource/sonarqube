@@ -35,7 +35,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.impl.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;

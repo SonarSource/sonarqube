@@ -52,7 +52,7 @@ import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
-import static org.sonar.api.impl.config.MultivalueProperty.parseAsCsv;
+import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
 
 /**
  * Class that creates a project definition based on a set of properties.

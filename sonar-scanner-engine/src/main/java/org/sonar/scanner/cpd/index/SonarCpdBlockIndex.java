@@ -34,7 +34,7 @@ import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
 import org.sonar.scanner.cpd.CpdSettings;
-import org.sonar.api.impl.fs.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.report.ReportPublisher;
