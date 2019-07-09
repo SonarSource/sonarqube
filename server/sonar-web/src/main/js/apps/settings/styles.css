@@ -26,13 +26,15 @@
 }
 
 .settings-definition {
+  margin: 0 -20px;
+  padding: 10px 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0);
+  border-bottom: 1px solid rgba(0, 0, 0, 0);
   display: flex;
   align-items: stretch;
 }
 
 .settings-definition-changed {
-  margin: -10px -20px;
-  padding: 9px 20px;
   border-top: 1px solid #faebcc;
   border-bottom: 1px solid #faebcc;
   background-color: #fcf8e3;
