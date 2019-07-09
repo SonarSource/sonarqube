@@ -69,7 +69,7 @@ dependencies {
   bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin:5.2.1.7778@jar'
   bundledPlugin 'org.sonarsource.ldap:sonar-ldap-plugin:2.2.0.608@jar'
   bundledPlugin 'org.sonarsource.php:sonar-php-plugin:3.2.0.4868@jar'
-  bundledPlugin 'org.sonarsource.python:sonar-python-plugin:1.14.0.3086@jar'
+  bundledPlugin 'org.sonarsource.python:sonar-python-plugin:1.14.1.3143@jar'
   bundledPlugin "org.sonarsource.slang:sonar-kotlin-plugin:${slangVersion}@jar"
   bundledPlugin "org.sonarsource.slang:sonar-ruby-plugin:${slangVersion}@jar"
   bundledPlugin 'org.sonarsource.scm.git:sonar-scm-git-plugin:1.8.0.1574@jar'
