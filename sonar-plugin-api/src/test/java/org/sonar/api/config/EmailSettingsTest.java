@@ -55,18 +55,6 @@ public class EmailSettingsTest {
   }
 
   @Test
-  public void getInstanceName_returns_sonarqube_when_not_on_SonarCloud() {
-    assertThat(underTest.getInstanceName()).isEqualTo("SonarQube");
-  }
-
-  @Test
-  public void getInstanceName_returns_sonarcloud_on_SonarCloud() {
-    settings.setProperty("sonar.sonarcloud.enabled", true);
-
-    assertThat(underTest.getInstanceName()).isEqualTo("SonarCloud");
-  }
-
-  @Test
   public void return_definitions() {
     assertThat(EmailSettings.definitions()).hasSize(8);
   }

@@ -98,10 +98,6 @@ public class EmailSettings {
     return server.getPublicRootUrl();
   }
 
-  public String getInstanceName() {
-    return config.getBoolean("sonar.sonarcloud.enabled").orElse(false) ? "SonarCloud" : "SonarQube";
-  }
-
   private String get(String key, String defaultValue) {
     return config.get(key).orElse(defaultValue);
   }

@@ -227,11 +227,9 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   private void format_set_html_message_with_footer(Change change, String issueStatus, Function<HtmlParagraphAssert, HtmlListAssert> skipContent) {
     String wordingNotification = randomAlphabetic(20);
     String host = randomAlphabetic(15);
-    String instance = randomAlphabetic(17);
     when(i18n.message(Locale.ENGLISH, "notification.dispatcher.ChangesOnMyIssue", "notification.dispatcher.ChangesOnMyIssue"))
       .thenReturn(wordingNotification);
     when(emailSettings.getServerBaseURL()).thenReturn(host);
-    when(emailSettings.getInstanceName()).thenReturn(instance);
     Project project = newProject("foo");
     Rule rule = newRule("bar");
     Set<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(4))
@@ -249,7 +247,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
         // skip content
         HtmlListAssert htmlListAssert = skipContent.apply(htmlAssert);
 
-        String footerText = "You received this email because you are subscribed to \"" + wordingNotification + "\" notifications from " + instance + "."
+        String footerText = "You received this email because you are subscribed to \"" + wordingNotification + "\" notifications from SonarQube."
           + " Click here to edit your email preferences.";
         htmlListAssert.hasEmptyParagraph()
           .hasParagraph(footerText)

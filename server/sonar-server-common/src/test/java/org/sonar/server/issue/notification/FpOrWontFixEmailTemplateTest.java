@@ -134,15 +134,13 @@ public class FpOrWontFixEmailTemplateTest {
   public void formats_returns_html_message_with_only_footer_and_header_when_no_issue(Change change, FpOrWontFix fpOrWontFix, String fpOrWontFixLabel) {
     String wordingNotification = randomAlphabetic(20);
     String host = randomAlphabetic(15);
-    String instance = randomAlphabetic(17);
     when(i18n.message(Locale.ENGLISH, "notification.dispatcher.NewFalsePositiveIssue", "notification.dispatcher.NewFalsePositiveIssue"))
       .thenReturn(wordingNotification);
     when(emailSettings.getServerBaseURL()).thenReturn(host);
-    when(emailSettings.getInstanceName()).thenReturn(instance);
 
     EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, Collections.emptySet(), fpOrWontFix));
 
-    String footerText = "You received this email because you are subscribed to \"" + wordingNotification + "\" notifications from " + instance + "."
+    String footerText = "You received this email because you are subscribed to \"" + wordingNotification + "\" notifications from SonarQube."
       + " Click here to edit your email preferences.";
     HtmlFragmentAssert.assertThat(emailMessage.getMessage())
       .hasParagraph("Hi,")
