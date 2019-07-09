@@ -125,9 +125,6 @@ public class ProcessProperties {
     SONAR_ANALYTICS_GTM_TRACKING_ID("sonar.analytics.gtm.trackingId", ""),
     ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS("sonar.onboardingTutorial.showToNewUsers", "true"),
 
-    BITBUCKETCLOUD_APP_KEY("sonar.bitbucketcloud.appKey", "sonarcloud"),
-    BITBUCKETCLOUD_ENDPOINT("sonar.bitbucketcloud.endpoint", "https://api.bitbucket.org"),
-
     /**
      * Used by Orchestrator to ask for shutdown of monitor process
      */
