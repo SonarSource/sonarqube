@@ -26,15 +26,11 @@ import java.sql.Types;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.apache.commons.dbutils.DbUtils;
-import org.sonar.db.dialect.Dialect;
-import org.sonar.db.dialect.MsSql;
 
 class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD> {
-  private final Dialect dialect;
   protected PreparedStatement pstmt;
 
-  protected BaseSqlStatement(Dialect dialect, PreparedStatement pstmt) {
-    this.dialect = dialect;
+  protected BaseSqlStatement(PreparedStatement pstmt) {
     this.pstmt = pstmt;
   }
 
@@ -99,7 +95,7 @@ class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD
   @SuppressWarnings("unchecked")
   public CHILD setDouble(int columnIndex, @Nullable Double value) throws SQLException {
     if (value == null) {
-      pstmt.setNull(columnIndex, MsSql.ID.equals(dialect.getId()) ? Types.DOUBLE : Types.DECIMAL);
+      pstmt.setNull(columnIndex, Types.DOUBLE);
     } else {
       pstmt.setDouble(columnIndex, value);
     }

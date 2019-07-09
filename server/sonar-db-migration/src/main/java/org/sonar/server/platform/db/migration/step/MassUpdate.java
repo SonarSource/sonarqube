@@ -73,7 +73,7 @@ public class MassUpdate {
   }
 
   public Upsert update(String sql) throws SQLException {
-    UpsertImpl upsert = UpsertImpl.create(db, writeConnection, sql);
+    UpsertImpl upsert = UpsertImpl.create(writeConnection, sql);
     this.updates.add(upsert);
     return upsert;
   }
