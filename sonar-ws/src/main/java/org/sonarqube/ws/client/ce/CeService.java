@@ -57,6 +57,7 @@ public class CeService extends BaseService {
     return call(
       new GetRequest(path("activity"))
         .setParam("componentId", request.getComponentId())
+        .setParam("component", request.getComponent())
         .setParam("maxExecutedAt", request.getMaxExecutedAt())
         .setParam("minSubmittedAt", request.getMinSubmittedAt())
         .setParam("onlyCurrents", request.getOnlyCurrents())
@@ -109,8 +110,7 @@ public class CeService extends BaseService {
     call(
       new PostRequest(path("cancel"))
         .setParam("id", request.getId())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -123,8 +123,7 @@ public class CeService extends BaseService {
   public void cancelAll() {
     call(
       new PostRequest(path("cancel_all"))
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -165,8 +164,7 @@ public class CeService extends BaseService {
   public void pause() {
     call(
       new PostRequest(path("pause"))
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -179,8 +177,7 @@ public class CeService extends BaseService {
   public void resume() {
     call(
       new PostRequest(path("resume"))
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**

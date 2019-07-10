@@ -31,6 +31,7 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class ActivityRequest {
 
+  private String component;
   private String componentId;
   private String maxExecutedAt;
   private String minSubmittedAt;
@@ -50,6 +51,18 @@ public class ActivityRequest {
 
   public String getComponentId() {
     return componentId;
+  }
+
+  /**
+   * Example value: "sample:src/main/xoo/sample/Sample2.xoo"
+   */
+  public ActivityRequest setComponent(String component) {
+    this.component = component;
+    return this;
+  }
+
+  public String getComponent() {
+    return component;
   }
 
   /**

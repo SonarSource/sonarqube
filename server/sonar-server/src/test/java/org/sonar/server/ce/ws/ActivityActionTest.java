@@ -250,7 +250,7 @@ public class ActivityActionTest {
   }
 
   @Test
-  public void project_administrator_can_access_his_project_activity() {
+  public void project_administrator_can_access_his_project_activity_using_component_id() {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
     // no need to be a system admin
@@ -259,6 +259,23 @@ public class ActivityActionTest {
     insertActivity("T2", project2, FAILED);
 
     ActivityResponse activityResponse = call(ws.newRequest().setParam("componentId", project1.uuid()));
+
+    assertThat(activityResponse.getTasksCount()).isEqualTo(1);
+    assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T1");
+    assertThat(activityResponse.getTasks(0).getStatus()).isEqualTo(Ce.TaskStatus.SUCCESS);
+    assertThat(activityResponse.getTasks(0).getComponentId()).isEqualTo(project1.uuid());
+  }
+
+  @Test
+  public void project_administrator_can_access_his_project_activity_using_component_key() {
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    // no need to be a system admin
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project1);
+    insertActivity("T1", project1, SUCCESS);
+    insertActivity("T2", project2, FAILED);
+
+    ActivityResponse activityResponse = call(ws.newRequest().setParam("component", project1.getDbKey()));
 
     assertThat(activityResponse.getTasksCount()).isEqualTo(1);
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T1");
@@ -454,6 +471,30 @@ public class ActivityActionTest {
       .containsExactlyInAnyOrder(
         tuple("T1", branch, false, Ce.TaskStatus.IN_PROGRESS),
         tuple("T2", branch, false, Ce.TaskStatus.PENDING));
+  }
+
+  @Test
+  public void fail_if_both_component_id_and_component_key_provided() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("componentId and component must not be set at the same time");
+
+    ws.newRequest()
+      .setParam("componentId", "ID1")
+      .setParam("component", "apache")
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute();
+  }
+
+  @Test
+  public void fail_if_both_filters_on_component_key_and_name() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("component and q must not be set at the same time");
+
+    ws.newRequest()
+      .setParam("q", "apache")
+      .setParam("component", "apache")
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute();
   }
 
   @Test

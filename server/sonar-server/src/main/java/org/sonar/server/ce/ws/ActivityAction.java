@@ -60,6 +60,7 @@ import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.Pagination.forPage;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MAX_EXECUTED_AT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
@@ -94,8 +95,10 @@ public class ActivityAction implements CeWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("activity")
       .setDescription(format("Search for tasks.<br> " +
+        "Either %s or %s can be provided, but not both.<br> " +
         "Requires the system administration permission, " +
-        "or project administration permission if %s is set.", PARAM_COMPONENT_ID))
+        "or project administration permission if %s or %s is set.",
+        PARAM_COMPONENT_ID, PARAM_COMPONENT, PARAM_COMPONENT_ID, PARAM_COMPONENT))
       .setResponseExample(getClass().getResource("activity-example.json"))
       .setHandler(this)
       .setChangelog(
@@ -108,7 +111,14 @@ public class ActivityAction implements CeWsAction {
 
     action.createParam(PARAM_COMPONENT_ID)
       .setDescription("Id of the component (project) to filter on")
+      .setDeprecatedSince("8.0")
       .setExampleValue(Uuids.UUID_EXAMPLE_03);
+
+    action.createParam(PARAM_COMPONENT)
+      .setDescription("Key of the component (project) to filter on")
+      .setExampleValue("projectKey")
+      .setSince("8.0");
+
     action.createParam(TEXT_QUERY)
       .setDescription(format("Limit search to: <ul>" +
         "<li>component names that contain the supplied string</li>" +
@@ -177,10 +187,19 @@ public class ActivityAction implements CeWsAction {
   @CheckForNull
   private ComponentDto loadComponent(DbSession dbSession, Request request) {
     String componentId = request.getComponentId();
-    if (componentId == null) {
-      return null;
+    String componentKey = request.getComponent();
+
+    Optional<ComponentDto> foundComponent;
+
+    if (componentId != null) {
+      foundComponent = dbClient.componentDao().selectByUuid(dbSession, componentId);
+      return checkFoundWithOptional(foundComponent, "Component '%s' does not exist", componentId);
+    } else if (componentKey != null) {
+      foundComponent = dbClient.componentDao().selectByKey(dbSession, componentKey);
+      return checkFoundWithOptional(foundComponent, "Component '%s' does not exist", componentKey);
     }
-    return checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, componentId), "Component '%s' does not exist", componentId);
+
+    return null;
   }
 
   private void checkPermission(@Nullable ComponentDto component) {
@@ -275,6 +294,7 @@ public class ActivityAction implements CeWsAction {
   private static Request toSearchWsRequest(org.sonar.api.server.ws.Request request) {
     Request activityWsRequest = new Request()
       .setComponentId(request.param(PARAM_COMPONENT_ID))
+      .setComponent(request.param(PARAM_COMPONENT))
       .setQ(request.param(TEXT_QUERY))
       .setStatus(request.paramAsStrings(PARAM_STATUS))
       .setType(request.param(PARAM_TYPE))
@@ -285,12 +305,20 @@ public class ActivityAction implements CeWsAction {
 
     checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getQ() == null, "%s and %s must not be set at the same time",
       PARAM_COMPONENT_ID, TEXT_QUERY);
+
+    checkRequest(activityWsRequest.getComponent() == null || activityWsRequest.getQ() == null, "%s and %s must not be set at the same time",
+      PARAM_COMPONENT, TEXT_QUERY);
+
+    checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getComponent() == null, "%s and %s must not be set at the same time",
+      PARAM_COMPONENT_ID, PARAM_COMPONENT);
+
     return activityWsRequest;
   }
 
   private static class Request {
 
     private String componentId;
+    private String component;
     private String maxExecutedAt;
     private String minSubmittedAt;
     private String onlyCurrents;
@@ -314,6 +342,19 @@ public class ActivityAction implements CeWsAction {
     @CheckForNull
     private String getComponentId() {
       return componentId;
+    }
+
+    /**
+     * Example value: "sample:src/main/xoo/sample/Sample2.xoo"
+     */
+    private Request setComponent(@Nullable String component) {
+      this.component = component;
+      return this;
+    }
+
+    @CheckForNull
+    private String getComponent() {
+      return component;
     }
 
     /**
