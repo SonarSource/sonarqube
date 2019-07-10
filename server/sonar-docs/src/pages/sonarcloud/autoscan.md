@@ -19,7 +19,7 @@ SonarCloud can autonomously scan your code, by simply reading it from your repos
 
 Once activated, SonarCloud will automatically analyze: 
 * the default branch of the repository
-* the pull requests (PR) on that default branch
+* the pull requests (PR)
 
 It will take care of doing it whenever you push on your repository.
 

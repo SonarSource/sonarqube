@@ -23,26 +23,6 @@ import { Alert } from '../../../../components/ui/Alert';
 import DocTooltip from '../../../../components/docs/DocTooltip';
 import { translate } from '../../../../helpers/l10n';
 
-const caveats = {
-  default: `
-No visual feedback (yet) in the UI.  
-Only Pull Requests from the same repository are analyzed.  
-Not supported: code coverage, import of external rule engine reports.
-
----
-
-[Read more](https://sonarcloud.io/documentation/autoscan/) and join [the forum](https://community.sonarsource.com/tags/c/help/sc/autoscan) to ask your questions
-`
-};
-
-const limitedScope = {
-  default: `
-The following languages are currently supported:
-
-ABAP, Apex, CSS, Flex, Go, HTML, JS, Kotlin, PHP, Python, Ruby, Scala, Swift, TypeScript, TSQL, XML.
-`
-};
-
 export function AutoScanAlert() {
   return (
     <Alert className="big-spacer-top" variant="info">
@@ -54,13 +34,17 @@ export function AutoScanAlert() {
             caveats: (
               <>
                 <strong>{translate('onboarding.analysis.with.autoscan.alert.caveats')}</strong>{' '}
-                <DocTooltip doc={Promise.resolve(caveats)} />
+                <DocTooltip
+                  doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/autoscan/caveats.md')}
+                />
               </>
             ),
             scopes: (
               <>
                 <strong>{translate('onboarding.analysis.with.autoscan.alert.scopes')}</strong>{' '}
-                <DocTooltip doc={Promise.resolve(limitedScope)} />
+                <DocTooltip
+                  doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/autoscan/limited-scope.md')}
+                />
               </>
             )
           }}
