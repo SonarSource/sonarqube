@@ -126,7 +126,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
       return true;
     }
 
-    if (!(o instanceof DefaultIndexedFile)) {
+    if (o == null || o.getClass() != this.getClass()) {
       return false;
     }
 

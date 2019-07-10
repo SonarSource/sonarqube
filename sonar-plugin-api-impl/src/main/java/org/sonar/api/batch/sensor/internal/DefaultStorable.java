@@ -28,8 +28,8 @@ import static org.sonar.api.utils.Preconditions.checkState;
 
 public abstract class DefaultStorable {
 
-  protected final transient SensorStorage storage;
-  private transient boolean saved = false;
+  protected final SensorStorage storage;
+  private boolean saved = false;
 
   public DefaultStorable() {
     this.storage = null;

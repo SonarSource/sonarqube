@@ -85,6 +85,9 @@ public abstract class ValidatingRequest extends Request {
   @Override
   public List<String> multiParam(String key) {
     WebService.Param definition = action.param(key);
+    if (definition == null) {
+      throw new IllegalArgumentException("Parameter '" + key + "' not found for action '" + action.key() + "'");
+    }
     List<String> values = readMultiParamOrDefaultValue(key, definition);
     return validateValues(values, definition);
   }
@@ -224,7 +227,7 @@ public abstract class ValidatingRequest extends Request {
     checkArgument(valueAsInt <= maximumValue, "'%s' value (%s) must be less than %s", key, valueAsInt, maximumValue);
   }
 
-  private static void validateRequiredValue(String key, WebService.Param definition, String value) {
+  private static void validateRequiredValue(String key, WebService.Param definition, @Nullable String value) {
     boolean required = definition.isRequired();
     if (required) {
       checkArgument(value != null, format(MSG_PARAMETER_MISSING, key));

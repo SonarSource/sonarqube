@@ -51,7 +51,7 @@ public class DefaultTextPointer implements TextPointer {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof DefaultTextPointer)) {
+    if (obj == null || obj.getClass() != this.getClass()) {
       return false;
     }
     DefaultTextPointer other = (DefaultTextPointer) obj;

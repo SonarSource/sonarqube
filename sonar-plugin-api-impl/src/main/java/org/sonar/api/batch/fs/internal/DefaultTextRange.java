@@ -59,7 +59,7 @@ public class DefaultTextRange implements TextRange {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof DefaultTextRange)) {
+    if (obj == null || obj.getClass() != this.getClass()) {
       return false;
     }
     DefaultTextRange other = (DefaultTextRange) obj;

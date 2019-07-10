@@ -86,10 +86,10 @@ public class TestInputFileBuilder {
    * filePath must point to a file that is within the module base directory.
    */
   public TestInputFileBuilder(String projectKey, File moduleBaseDir, File filePath) {
-    String relativePath = moduleBaseDir.toPath().relativize(filePath.toPath()).toString();
+    String relativePathStr = moduleBaseDir.toPath().relativize(filePath.toPath()).toString();
     this.projectKey = projectKey;
     setModuleBaseDir(moduleBaseDir.toPath());
-    this.relativePath = PathUtils.sanitize(relativePath);
+    this.relativePath = PathUtils.sanitize(relativePathStr);
     this.id = batchId++;
   }
 
