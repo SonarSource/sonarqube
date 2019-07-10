@@ -6,7 +6,7 @@
       }
 
       .cls-1, .cls-2 {
-        stroke: #f60;
+        stroke: #f3702a;
       }
 
       .cls-1, .cls-2, .cls-3 {
