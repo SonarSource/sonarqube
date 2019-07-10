@@ -19,21 +19,24 @@
  */
 package org.sonar.scanner.issue.ignore;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.issue.DefaultFilterableIssue;
 
 public class IgnoreIssuesFilter implements IssueFilter {
 
-  private Multimap<InputComponent, WildcardPattern> rulePatternByComponent = LinkedHashMultimap.create();
+  private Map<InputComponent, List<WildcardPattern>> rulePatternByComponent = new HashMap<>();
 
   private static final Logger LOG = Loggers.get(IgnoreIssuesFilter.class);
 
@@ -56,12 +59,12 @@ public class IgnoreIssuesFilter implements IssueFilter {
     if ("*".equals(rulePattern.toString())) {
       inputFile.setIgnoreAllIssues(true);
     } else {
-      rulePatternByComponent.put(inputFile, rulePattern);
+      rulePatternByComponent.computeIfAbsent(inputFile, x -> new LinkedList<>()).add(rulePattern);
     }
   }
 
   private boolean hasRuleMatchFor(InputComponent component, FilterableIssue issue) {
-    for (WildcardPattern pattern : rulePatternByComponent.get(component)) {
+    for (WildcardPattern pattern : rulePatternByComponent.getOrDefault(component, Collections.emptyList())) {
       if (pattern.match(issue.ruleKey().toString())) {
         LOG.debug("Issue {} ignored by exclusion pattern {}", issue, pattern);
         return true;

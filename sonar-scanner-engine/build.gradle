@@ -19,7 +19,6 @@ dependencies {
   compile 'commons-codec:commons-codec'
   compile 'commons-lang:commons-lang'
   compile 'com.google.code.gson:gson'
-  compile 'com.google.guava:guava'
   compile 'org.apache.commons:commons-csv'
   compile 'org.freemarker:freemarker'
   compile 'org.slf4j:jcl-over-slf4j'

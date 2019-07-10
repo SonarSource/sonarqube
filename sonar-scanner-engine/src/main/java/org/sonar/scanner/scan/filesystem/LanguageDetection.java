@@ -19,14 +19,15 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import com.google.common.base.Joiner;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang.StringUtils;
@@ -116,7 +117,8 @@ public class LanguageDetection {
   }
 
   private static String getDetails(String detectedLanguage, PathPattern[] patterns) {
-    return getFileLangPatternPropKey(detectedLanguage) + " : " + Joiner.on(",").join(patterns);
+    return getFileLangPatternPropKey(detectedLanguage) + " : " +
+      Arrays.stream(patterns).map(PathPattern::toString).collect(Collectors.joining(","));
   }
 
   static String sanitizeExtension(String suffix) {

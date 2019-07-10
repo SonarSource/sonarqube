@@ -25,8 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-
 public abstract class AbstractPatternInitializer {
   private Configuration settings;
   private List<IssuePattern> multicriteriaPatterns;
@@ -65,7 +63,7 @@ public abstract class AbstractPatternInitializer {
       if (StringUtils.isBlank(ruleKeyPattern)) {
         throw MessageException.of("Issue exclusions are misconfigured. Rule key pattern is mandatory for each entry of '" + getMulticriteriaConfigurationKey() + "'");
       }
-      IssuePattern pattern = new IssuePattern(firstNonNull(filePathPattern, "*"), firstNonNull(ruleKeyPattern, "*"));
+      IssuePattern pattern = new IssuePattern(filePathPattern != null ? filePathPattern : "*", ruleKeyPattern != null ? ruleKeyPattern : "*");
 
       multicriteriaPatterns.add(pattern);
     }

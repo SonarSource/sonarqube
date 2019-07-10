@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.scan;
 
-import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -82,7 +81,8 @@ public class ProjectReactorValidator {
     validateLegacyBranch(validationMessages, deprecatedBranchName);
 
     if (!validationMessages.isEmpty()) {
-      throw MessageException.of("Validation of project reactor failed:\n  o " + Joiner.on("\n  o ").join(validationMessages));
+      throw MessageException.of("Validation of project reactor failed:\n  o " +
+        String.join("\n  o ", validationMessages));
     }
   }
 

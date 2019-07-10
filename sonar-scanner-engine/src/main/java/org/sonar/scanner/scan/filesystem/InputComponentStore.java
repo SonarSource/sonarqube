@@ -19,16 +19,14 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Table;
-import com.google.common.collect.TreeBasedTable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
@@ -41,6 +39,9 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.predicates.FileExtensionPredicate;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
+import static org.sonar.api.utils.Preconditions.checkNotNull;
+import static org.sonar.api.utils.Preconditions.checkState;
+
 /**
  * Store of all files and dirs. Inclusion and
  * exclusion patterns are already applied.
@@ -50,12 +51,12 @@ public class InputComponentStore extends DefaultFileSystem.Cache {
   private final SortedSet<String> globalLanguagesCache = new TreeSet<>();
   private final Map<String, SortedSet<String>> languagesCache = new HashMap<>();
   private final Map<String, InputFile> globalInputFileCache = new HashMap<>();
-  private final Table<String, String, InputFile> inputFileByModuleCache = TreeBasedTable.create();
+  private final Map<String, Map<String, InputFile>> inputFileByModuleCache = new LinkedHashMap<>();
   private final Map<InputFile, String> inputModuleKeyByFileCache = new HashMap<>();
   private final Map<String, DefaultInputModule> inputModuleCache = new HashMap<>();
   private final Map<String, InputComponent> inputComponents = new HashMap<>();
-  private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
-  private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
+  private final Map<String, Set<InputFile>> filesByNameCache = new HashMap<>();
+  private final Map<String, Set<InputFile>> filesByExtensionCache = new HashMap<>();
   private final BranchConfiguration branchConfiguration;
 
   public InputComponentStore(BranchConfiguration branchConfiguration) {
@@ -91,18 +92,18 @@ public class InputComponentStore extends DefaultFileSystem.Cache {
   }
 
   public Iterable<InputFile> filesByModule(String moduleKey) {
-    return inputFileByModuleCache.row(moduleKey).values();
+    return inputFileByModuleCache.getOrDefault(moduleKey, Collections.emptyMap()).values();
   }
 
   public InputComponentStore put(String moduleKey, InputFile inputFile) {
     DefaultInputFile file = (DefaultInputFile) inputFile;
     addToLanguageCache(moduleKey, file);
-    inputFileByModuleCache.put(moduleKey, file.getModuleRelativePath(), inputFile);
+    inputFileByModuleCache.computeIfAbsent(moduleKey, x -> new HashMap<>()).put(file.getModuleRelativePath(), inputFile);
     inputModuleKeyByFileCache.put(inputFile, moduleKey);
     globalInputFileCache.put(file.getProjectRelativePath(), inputFile);
     inputComponents.put(inputFile.key(), inputFile);
-    filesByNameCache.put(inputFile.filename(), inputFile);
-    filesByExtensionCache.put(FileExtensionPredicate.getExtension(inputFile), inputFile);
+    filesByNameCache.computeIfAbsent(inputFile.filename(), x -> new LinkedHashSet<>()).add(inputFile);
+    filesByExtensionCache.computeIfAbsent(FileExtensionPredicate.getExtension(inputFile), x -> new LinkedHashSet<>()).add(inputFile);
     return this;
   }
 
@@ -116,7 +117,8 @@ public class InputComponentStore extends DefaultFileSystem.Cache {
 
   @CheckForNull
   public InputFile getFile(String moduleKey, String relativePath) {
-    return inputFileByModuleCache.get(moduleKey, relativePath);
+    return inputFileByModuleCache.getOrDefault(moduleKey, Collections.emptyMap())
+      .get(relativePath);
   }
 
   @Override
@@ -132,21 +134,21 @@ public class InputComponentStore extends DefaultFileSystem.Cache {
 
   public void put(DefaultInputModule inputModule) {
     String key = inputModule.key();
-    Preconditions.checkNotNull(inputModule);
-    Preconditions.checkState(!inputComponents.containsKey(key), "Module '%s' already indexed", key);
-    Preconditions.checkState(!inputModuleCache.containsKey(key), "Module '%s' already indexed", key);
+    checkNotNull(inputModule);
+    checkState(!inputComponents.containsKey(key), "Module '%s' already indexed", key);
+    checkState(!inputModuleCache.containsKey(key), "Module '%s' already indexed", key);
     inputComponents.put(key, inputModule);
     inputModuleCache.put(key, inputModule);
   }
 
   @Override
   public Iterable<InputFile> getFilesByName(String filename) {
-    return filesByNameCache.get(filename);
+    return filesByNameCache.getOrDefault(filename, Collections.emptySet());
   }
 
   @Override
   public Iterable<InputFile> getFilesByExtension(String extension) {
-    return filesByExtensionCache.get(extension);
+    return filesByExtensionCache.getOrDefault(extension, Collections.emptySet());
   }
 
   @Override

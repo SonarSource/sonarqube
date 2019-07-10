@@ -19,27 +19,28 @@
  */
 package org.sonar.scanner.scan;
 
-import com.google.common.collect.ImmutableMultimap;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 
 @Immutable
 public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
   private final DefaultInputModule root;
   private final Map<DefaultInputModule, DefaultInputModule> parents;
-  private final ImmutableMultimap<DefaultInputModule, DefaultInputModule> children;
+  private final Map<DefaultInputModule, List<DefaultInputModule>> children;
 
   public DefaultInputModuleHierarchy(DefaultInputModule root) {
-    this.children = new ImmutableMultimap.Builder<DefaultInputModule, DefaultInputModule>().build();
+    this.children = Collections.emptyMap();
     this.parents = Collections.emptyMap();
     this.root = root;
   }
@@ -48,13 +49,13 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
    * Map of child->parent. Neither the Keys or values can be null.
    */
   public DefaultInputModuleHierarchy(DefaultInputModule root, Map<DefaultInputModule, DefaultInputModule> parents) {
-    ImmutableMultimap.Builder<DefaultInputModule, DefaultInputModule> childrenBuilder = new ImmutableMultimap.Builder<>();
+    Map<DefaultInputModule, List<DefaultInputModule>> childrenBuilder = new HashMap<>();
 
     for (Map.Entry<DefaultInputModule, DefaultInputModule> e : parents.entrySet()) {
-      childrenBuilder.put(e.getValue(), e.getKey());
+      childrenBuilder.computeIfAbsent(e.getValue(), x -> new ArrayList<>()).add(e.getKey());
     }
 
-    this.children = childrenBuilder.build();
+    this.children = Collections.unmodifiableMap(childrenBuilder);
     this.parents = Collections.unmodifiableMap(new HashMap<>(parents));
     this.root = root;
   }
@@ -66,7 +67,7 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
 
   @Override
   public Collection<DefaultInputModule> children(DefaultInputModule component) {
-    return children.get(component);
+    return children.getOrDefault(component, Collections.emptyList());
   }
 
   @Override

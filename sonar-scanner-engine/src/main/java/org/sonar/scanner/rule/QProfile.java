@@ -19,9 +19,7 @@
  */
 package org.sonar.scanner.rule;
 
-import com.google.common.base.MoreObjects;
 import java.util.Date;
-
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
@@ -74,11 +72,14 @@ public class QProfile {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-      .add("key", key)
-      .add("name", name)
-      .add("language", language)
-      .add("rulesUpdatedAt", rulesUpdatedAt)
+    return new StringBuilder()
+      .append(this.getClass().getSimpleName())
+      .append("{")
+      .append("key=").append(key)
+      .append("name=").append(name)
+      .append("language=").append(language)
+      .append("rulesUpdatedAt=").append(rulesUpdatedAt)
+      .append("}")
       .toString();
   }
 

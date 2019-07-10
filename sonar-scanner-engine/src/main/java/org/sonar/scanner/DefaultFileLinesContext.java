@@ -19,9 +19,7 @@
  */
 package org.sonar.scanner;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,6 +32,7 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.utils.KeyValueFormat;
 
 import static java.util.stream.Collectors.toMap;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class DefaultFileLinesContext implements FileLinesContext {
   private final InputFile inputFile;
@@ -60,8 +59,8 @@ public class DefaultFileLinesContext implements FileLinesContext {
   }
 
   private void checkLineRange(int line) {
-    Preconditions.checkArgument(line > 0, "Line number should be positive for file %s.", inputFile);
-    Preconditions.checkArgument(line <= inputFile.lines(), "Line %s is out of range for file %s. File has %s lines.", line, inputFile, inputFile.lines());
+    checkArgument(line > 0, "Line number should be positive for file %s.", inputFile);
+    checkArgument(line <= inputFile.lines(), "Line %s is out of range for file %s. File has %s lines.", line, inputFile, inputFile.lines());
   }
 
   @Override
@@ -96,7 +95,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
           .forMetric(metricFinder.findByKey(metricKey))
           .withValue(data)
           .save();
-        entry.setValue(ImmutableMap.copyOf(lines));
+        entry.setValue(Collections.unmodifiableMap(lines));
       }
     }
   }
@@ -117,14 +116,12 @@ public class DefaultFileLinesContext implements FileLinesContext {
    * @see #save()
    */
   private static boolean shouldSave(Map<Integer, Object> lines) {
-    return !(lines instanceof ImmutableMap);
+    return lines instanceof HashMap;
   }
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-      .add("map", map)
-      .toString();
+    return this.getClass().getSimpleName() + "{" + map.toString() + "}";
   }
 
 }

@@ -19,6 +19,8 @@
  */
 package org.sonar.api.utils;
 
+import javax.annotation.Nullable;
+
 public class Preconditions {
   private Preconditions() {
     // static only
@@ -45,6 +47,12 @@ public class Preconditions {
   public static void checkState(boolean condition, String message) {
     if (!condition) {
       throw new IllegalStateException(message);
+    }
+  }
+
+  public static void checkNotNull(@Nullable Object obj) {
+    if (obj == null) {
+      throw new NullPointerException();
     }
   }
 
