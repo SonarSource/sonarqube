@@ -21,7 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import WarningIcon from 'sonar-ui-common/components/icons/WarningIcon';
 import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 
 const AnalysisWarningsModal = lazyLoad(() =>
   import('../../../../components/common/AnalysisWarningsModal')
@@ -54,15 +54,18 @@ export default class ComponentNavWarnings extends React.PureComponent<Props, Sta
         <div className="badge badge-focus badge-medium display-inline-flex-center js-component-analysis-warnings flex-1">
           <WarningIcon className="spacer-right" />
           <FormattedMessage
-            defaultMessage={translate('component_navigation.last_analsys_had_warnings')}
-            id="component_navigation.last_analsys_had_warnings"
+            defaultMessage={translate('component_navigation.last_analysis_had_warnings')}
+            id="component_navigation.last_analysis_had_warnings"
             values={{
               warnings: (
                 <a href="#" onClick={this.handleClick}>
-                  {translateWithParameters(
-                    'component_navigation.x_warnings',
-                    String(this.props.warnings.length)
-                  )}
+                  <FormattedMessage
+                    defaultMessage={translate('component_navigation.x_warnings')}
+                    id="component_navigation.x_warnings"
+                    values={{
+                      warningsCount: this.props.warnings.length
+                    }}
+                  />
                 </a>
               )
             }}

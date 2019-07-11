@@ -9,15 +9,23 @@ exports[`should render 1`] = `
       className="spacer-right"
     />
     <FormattedMessage
-      defaultMessage="component_navigation.last_analsys_had_warnings"
-      id="component_navigation.last_analsys_had_warnings"
+      defaultMessage="component_navigation.last_analysis_had_warnings"
+      id="component_navigation.last_analysis_had_warnings"
       values={
         Object {
           "warnings": <a
             href="#"
             onClick={[Function]}
           >
-            component_navigation.x_warnings.1
+            <FormattedMessage
+              defaultMessage="component_navigation.x_warnings"
+              id="component_navigation.x_warnings"
+              values={
+                Object {
+                  "warningsCount": 1,
+                }
+              }
+            />
           </a>,
         }
       }
