@@ -19,11 +19,16 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import ActionsDropdown, {
+  ActionsDropdownItem,
+  ActionsDropdownDivider
+} from 'sonar-ui-common/components/controls/ActionsDropdown';
 import DeleteBranchModal from './DeleteBranchModal';
 import LeakPeriodForm from './LeakPeriodForm';
 import RenameBranchModal from './RenameBranchModal';
-import BranchStatus from '../../../components/common/BranchStatus';
 import BranchIcon from '../../../components/icons-components/BranchIcon';
+import BranchStatus from '../../../components/common/BranchStatus';
 import {
   isShortLivingBranch,
   isLongLivingBranch,
@@ -31,12 +36,7 @@ import {
   getBranchLikeDisplayName,
   isPullRequest
 } from '../../../helpers/branches';
-import { translate } from '../../../helpers/l10n';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import ActionsDropdown, {
-  ActionsDropdownItem,
-  ActionsDropdownDivider
-} from '../../../components/controls/ActionsDropdown';
 
 interface Props {
   branchLike: T.BranchLike;

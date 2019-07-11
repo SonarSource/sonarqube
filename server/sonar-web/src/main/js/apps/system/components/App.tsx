@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { withRouter, WithRouterProps } from 'react-router';
 import Helmet from 'react-helmet';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import ClusterSysInfos from './ClusterSysInfos';
 import PageHeader from './PageHeader';
 import StandaloneSysInfos from './StandaloneSysInfos';
 import SystemUpgradeNotif from './system-upgrade/SystemUpgradeNotif';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { translate } from '../../../helpers/l10n';
 import { getSystemInfo } from '../../../api/system';
 import {
   getServerId,

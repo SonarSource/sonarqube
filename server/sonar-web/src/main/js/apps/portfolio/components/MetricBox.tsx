@@ -19,16 +19,16 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import Level from 'sonar-ui-common/components/ui/Level';
 import Effort from './Effort';
 import HistoryButtonLink from './HistoryButtonLink';
 import MainRating from './MainRating';
 import MeasuresButtonLink from './MeasuresButtonLink';
 import RatingFreshness from './RatingFreshness';
 import { METRICS_PER_TYPE } from '../utils';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import Level from '../../../components/ui/Level';
 import Measure from '../../../components/measure/Measure';
-import { translate } from '../../../helpers/l10n';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 
 interface Props {

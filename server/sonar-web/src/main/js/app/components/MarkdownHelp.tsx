@@ -38,13 +38,13 @@ export default function MarkdownHelp() {
             </td>
           </tr>
           <tr>
-            <td>{'http://sonarqube.org'}</td>
+            <td>http://sonarqube.org</td>
             <td className="markdown">
-              <a href="http://sonarqube.org">{'http://sonarqube.org'}</a>
+              <a href="http://sonarqube.org">http://sonarqube.org</a>
             </td>
           </tr>
           <tr>
-            <td className="text-top">{'[SonarQube™ Home Page](http://www.sonarqube.org)'}</td>
+            <td className="text-top">[SonarQube™ Home Page](http://www.sonarqube.org)</td>
             <td className="markdown text-top">
               <a href="http://www.sonarqube.org" rel="noopener noreferrer" target="_blank">
                 SonarQube™ Home Page

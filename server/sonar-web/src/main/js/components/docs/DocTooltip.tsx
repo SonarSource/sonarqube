@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import HelpTooltip from '../controls/HelpTooltip';
-import { lazyLoad } from '../lazyLoad';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 
 const DocMarkdownBlock = lazyLoad(() => import('./DocMarkdownBlock'));
 

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import AnalysisWarningsModal from '../AnalysisWarningsModal';
-import { waitAndUpdate } from '../../../helpers/testUtils';
 import { getTask } from '../../../api/ce';
 
 jest.mock('../../../api/ce', () => ({

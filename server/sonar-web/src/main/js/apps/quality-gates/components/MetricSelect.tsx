@@ -19,8 +19,12 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
+import {
+  translate,
+  getLocalizedMetricName,
+  getLocalizedMetricDomain
+} from 'sonar-ui-common/helpers/l10n';
 import Select from '../../../components/controls/Select';
-import { translate, getLocalizedMetricName, getLocalizedMetricDomain } from '../../../helpers/l10n';
 
 interface Props {
   metrics: T.Metric[];

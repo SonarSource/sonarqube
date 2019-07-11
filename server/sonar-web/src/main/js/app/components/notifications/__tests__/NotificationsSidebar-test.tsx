@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
 import NotificationsSidebar, {
   Props,
   isUnread,
   Notification,
   Feature
 } from '../NotificationsSidebar';
-import { parseDate } from '../../../../helpers/dates';
 
 const news: Props['news'] = [
   {

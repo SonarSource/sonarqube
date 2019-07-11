@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import ClipboardButton from '../../../components/controls/ClipboardButton';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import { SubmitButton } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import ClipboardButton from 'sonar-ui-common/components/controls/ClipboardButton';
 
 interface Props {
   generateSecretKey: () => Promise<void>;

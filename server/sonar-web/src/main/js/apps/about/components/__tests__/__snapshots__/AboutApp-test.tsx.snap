@@ -1,38 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<AboutApp
-  appState={
-    Object {
-      "defaultOrganization": "foo",
-      "edition": "community",
-      "productionDatabase": true,
-      "qualifiers": Array [
-        "TRK",
-      ],
-      "settings": Object {},
-      "version": "1.0",
-    }
-  }
-  currentUser={
-    Object {
-      "isLoggedIn": false,
-    }
-  }
-  customText="Lorem ipsum"
-  fetchAboutPageSettings={
-    [MockFunction] {
-      "calls": Array [
-        Array [],
-      ],
-      "results": Array [
-        Object {
-          "type": "return",
-          "value": Promise {},
-        },
-      ],
-    }
-  }
+<GlobalContainer
   location={
     Object {
       "action": "PUSH",
@@ -45,974 +14,109 @@ exports[`should render correctly 1`] = `
     }
   }
 >
-  <GlobalContainer
-    location={
-      Object {
-        "action": "PUSH",
-        "hash": "",
-        "key": "key",
-        "pathname": "/path",
-        "query": Object {},
-        "search": "",
-        "state": Object {},
-      }
-    }
+  <div
+    className="page page-limited about-page"
+    id="about-page"
   >
+    <A11ySkipTarget
+      anchor="about_main"
+    />
     <div
-      className="page page-limited about-page"
-      id="about-page"
+      className="about-page-entry"
     >
-      <A11ySkipTarget
-        anchor="about_main"
-      >
-        <A11ySkipTargetInner
-          addA11ySkipLink={[Function]}
-          anchor="about_main"
-          removeA11ySkipLink={[Function]}
-        >
-          <span
-            id="a11y_target__about_main"
-          />
-        </A11ySkipTargetInner>
-      </A11ySkipTarget>
       <div
-        className="about-page-entry"
+        className="about-page-intro"
       >
-        <div
-          className="about-page-intro"
+        <h1
+          className="big-spacer-bottom"
         >
-          <h1
-            className="big-spacer-bottom"
-          >
-            layout.sonar.slogan
-          </h1>
-          <Link
-            className="button button-active big-spacer-right"
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to="/sessions/new"
-          >
-            <a
-              className="button button-active big-spacer-right"
-              onClick={[Function]}
-              style={Object {}}
-            >
-              layout.login
-            </a>
-          </Link>
-          <a
-            className="button"
-            href="https://redirect.sonarsource.com/doc/home.html"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            about_page.read_documentation
-          </a>
-        </div>
-        <div
-          className="about-page-instance"
+          layout.sonar.slogan
+        </h1>
+        <Link
+          className="button button-active big-spacer-right"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="/sessions/new"
         >
-          <AboutProjects
-            count={5}
-            loading={false}
-          >
-            <div
-              className="about-page-projects"
-            >
-              <div>
-                <div>
-                  <Link
-                    className="about-page-projects-link"
-                    onlyActiveOnIndex={false}
-                    style={Object {}}
-                    to="/projects"
-                  >
-                    <a
-                      className="about-page-projects-link"
-                      onClick={[Function]}
-                      style={Object {}}
-                    >
-                      5
-                    </a>
-                  </Link>
-                </div>
-                <div>
-                  about_page.projects_analyzed
-                </div>
-              </div>
-            </div>
-          </AboutProjects>
-          <EntryIssueTypes
-            bugs={10}
-            codeSmells={5}
-            loading={false}
-            securityHotspots={5}
-            vulnerabilities={0}
-          >
-            <div
-              className="about-page-projects"
-            >
-              <table
-                className="about-page-issue-types"
-              >
-                <tbody>
-                  <tr>
-                    <td
-                      className="about-page-issue-type-number"
-                    >
-                      <Link
-                        className="about-page-issue-type-link"
-                        onlyActiveOnIndex={false}
-                        style={Object {}}
-                        to={
-                          Object {
-                            "pathname": "/issues",
-                            "query": Object {
-                              "resolved": "false",
-                              "s": "CREATION_DATE",
-                              "types": "BUG",
-                            },
-                          }
-                        }
-                      >
-                        <a
-                          className="about-page-issue-type-link"
-                          onClick={[Function]}
-                          style={Object {}}
-                        >
-                          10
-                        </a>
-                      </Link>
-                    </td>
-                    <td>
-                      <span
-                        className="little-spacer-right"
-                      >
-                        <MOCKBugIcon />
-                      </span>
-                      issue.type.BUG.plural
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      className="about-page-issue-type-number"
-                    >
-                      <Link
-                        className="about-page-issue-type-link"
-                        onlyActiveOnIndex={false}
-                        style={Object {}}
-                        to={
-                          Object {
-                            "pathname": "/issues",
-                            "query": Object {
-                              "resolved": "false",
-                              "s": "CREATION_DATE",
-                              "types": "VULNERABILITY",
-                            },
-                          }
-                        }
-                      >
-                        <a
-                          className="about-page-issue-type-link"
-                          onClick={[Function]}
-                          style={Object {}}
-                        >
-                          0
-                        </a>
-                      </Link>
-                    </td>
-                    <td>
-                      <span
-                        className="little-spacer-right"
-                      >
-                        <MOCKVulnerabilityIcon />
-                      </span>
-                      issue.type.VULNERABILITY.plural
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      className="about-page-issue-type-number"
-                    >
-                      <Link
-                        className="about-page-issue-type-link"
-                        onlyActiveOnIndex={false}
-                        style={Object {}}
-                        to={
-                          Object {
-                            "pathname": "/issues",
-                            "query": Object {
-                              "resolved": "false",
-                              "s": "CREATION_DATE",
-                              "types": "CODE_SMELL",
-                            },
-                          }
-                        }
-                      >
-                        <a
-                          className="about-page-issue-type-link"
-                          onClick={[Function]}
-                          style={Object {}}
-                        >
-                          5
-                        </a>
-                      </Link>
-                    </td>
-                    <td>
-                      <span
-                        className="little-spacer-right"
-                      >
-                        <MOCKCodeSmellIcon />
-                      </span>
-                      issue.type.CODE_SMELL.plural
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      className="about-page-issue-type-number"
-                    >
-                      <Link
-                        className="about-page-issue-type-link"
-                        onlyActiveOnIndex={false}
-                        style={Object {}}
-                        to={
-                          Object {
-                            "pathname": "/issues",
-                            "query": Object {
-                              "resolved": "false",
-                              "s": "CREATION_DATE",
-                              "types": "SECURITY_HOTSPOT",
-                            },
-                          }
-                        }
-                      >
-                        <a
-                          className="about-page-issue-type-link"
-                          onClick={[Function]}
-                          style={Object {}}
-                        >
-                          5
-                        </a>
-                      </Link>
-                    </td>
-                    <td>
-                      <span
-                        className="little-spacer-right"
-                      >
-                        <MOCKSecurityHotspotIcon />
-                      </span>
-                      issue.type.SECURITY_HOTSPOT.plural
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </EntryIssueTypes>
-        </div>
+          layout.login
+        </Link>
+        <a
+          className="button"
+          href="https://redirect.sonarsource.com/doc/home.html"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          about_page.read_documentation
+        </a>
       </div>
       <div
-        className="about-page-section"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "Lorem ipsum",
-          }
-        }
-      />
-      <AboutLanguages>
-        <div
-          className="boxed-group"
-        >
-          <h2>
-            about_page.languages
-          </h2>
-          <div
-            className="boxed-group-inner"
-          >
-            <p
-              className="about-page-text"
-            >
-              about_page.languages.text
-            </p>
-            <ul
-              className="about-page-languages"
-            >
-              <li
-                key="0"
-              >
-                <a
-                  href="https://redirect.sonarsource.com/plugins/java.html"
-                >
-                  Java
-                </a>
-                <br />
-                <a
-                  href="https://redirect.sonarsource.com/plugins/vbnet.html"
-                >
-                  VB.NET
-                </a>
-              </li>
-              <li
-                key="1"
-              >
-                <a
-                  href="https://redirect.sonarsource.com/plugins/cpp.html"
-                >
-                  C/C++
-                </a>
-                <br />
-                <a
-                  href="https://redirect.sonarsource.com/plugins/plsql.html"
-                >
-                  PL/SQL
-                </a>
-              </li>
-              <li
-                key="2"
-              >
-                <a
-                  href="https://redirect.sonarsource.com/plugins/csharp.html"
-                >
-                  C#
-                </a>
-                <br />
-                <a
-                  href="https://redirect.sonarsource.com/plugins/tsql.html"
-                >
-                  T-SQL
-                </a>
-              </li>
-              <li
-                key="3"
-              >
-                <a
-                  href="https://redirect.sonarsource.com/plugins/cobol.html"
-                >
-                  COBOL
-                </a>
-                <br />
-                <a
-                  href="https://redirect.sonarsource.com/plugins/flex.html"
-                >
-                  Flex
-                </a>
-              </li>
-              <li
-                key="4"
-              >
-                <a
-                  href="https://redirect.sonarsource.com/plugins/abap.html"
-                >
-                  ABAP
-                </a>
-                <br />
-                <a
-                  href="https://redirect.sonarsource.com/plugins/python.html"
-                >
-                  Python
-                </a>
-              </li>
-              <li
-                key="5"
-              >
-                <a
-                  href="https://redirect.sonarsource.com/plugins/web.html"
-                >
-                  HTML
-                </a>
-                <br />
-                <a
-                  href="https://redirect.sonarsource.com/plugins/groovy.html"
-                >
-                  Groovy
-                </a>
-              </li>
-              <li
-                key="6"
-              >
-                <a
-                  href="https://redirect.sonarsource.com/plugins/rpg.html"
-                >
-                  RPG
-                </a>
-                <br />
-                <a
-                  href="https://redirect.sonarsource.com/plugins/php.html"
-                >
-                  PHP
-                </a>
-              </li>
-              <li
-                key="7"
-              >
-                <a
-                  href="https://redirect.sonarsource.com/plugins/javascript.html"
-                >
-                  JavaScript
-                </a>
-                <br />
-                <a
-                  href="https://redirect.sonarsource.com/plugins/swift.html"
-                >
-                  Swift
-                </a>
-              </li>
-              <li
-                key="8"
-              >
-                <a
-                  href="https://redirect.sonarsource.com/plugins/typescript.html"
-                >
-                  TypeScript
-                </a>
-                <br />
-                <a
-                  href="https://redirect.sonarsource.com/plugins/vb.html"
-                >
-                  Visual Basic
-                </a>
-              </li>
-              <li
-                key="9"
-              >
-                <a
-                  href="https://redirect.sonarsource.com/plugins/objectivec.html"
-                >
-                  Objective C
-                </a>
-                <br />
-                <a
-                  href="https://redirect.sonarsource.com/plugins/pli.html"
-                >
-                  PL/I
-                </a>
-              </li>
-              <li
-                key="10"
-              >
-                <a
-                  href="https://redirect.sonarsource.com/plugins/xml.html"
-                >
-                  XML
-                </a>
-                <br />
-              </li>
-            </ul>
-          </div>
-        </div>
-      </AboutLanguages>
-      <AboutQualityModel>
-        <div
-          className="boxed-group about-quality-model"
-        >
-          <h2>
-            about_page.quality_model
-          </h2>
-          <div
-            className="boxed-group-inner clearfix"
-          >
-            <div
-              className="flex-columns"
-            >
-              <div
-                className="flex-column flex-column-third"
-              >
-                <h3>
-                  metric_domain.Reliability
-                </h3>
-                <div
-                  className="pull-left little-spacer-right"
-                >
-                  <MOCKBugIcon />
-                </div>
-                <p
-                  className="about-page-text overflow-hidden"
-                >
-                  <strong>
-                    issue.type.BUG.plural
-                  </strong>
-                   
-                  about_page.quality_model.bugs
-                </p>
-              </div>
-              <div
-                className="flex-column flex-column-third"
-              >
-                <h3>
-                  metric_domain.Security
-                </h3>
-                <div
-                  className="pull-left little-spacer-right"
-                >
-                  <MOCKVulnerabilityIcon />
-                </div>
-                <p
-                  className="about-page-text overflow-hidden"
-                >
-                  <strong>
-                    issue.type.VULNERABILITY.plural
-                  </strong>
-                   
-                  about_page.quality_model.vulnerabilities
-                </p>
-                <br />
-                <div
-                  className="pull-left little-spacer-right"
-                >
-                  <MOCKSecurityHotspotIcon />
-                </div>
-                <p
-                  className="about-page-text overflow-hidden"
-                >
-                  <strong>
-                    issue.type.SECURITY_HOTSPOT.plural
-                  </strong>
-                   
-                  about_page.quality_model.security_hotspots
-                </p>
-              </div>
-              <div
-                className="flex-column flex-column-third"
-              >
-                <h3>
-                  metric_domain.Maintainability
-                </h3>
-                <div
-                  className="pull-left little-spacer-right"
-                >
-                  <MOCKCodeSmellIcon />
-                </div>
-                <p
-                  className="about-page-text overflow-hidden"
-                >
-                  <strong>
-                    issue.type.CODE_SMELL.plural
-                  </strong>
-                   
-                  about_page.quality_model.code_smells
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </AboutQualityModel>
-      <div
-        className="flex-columns"
+        className="about-page-instance"
       >
-        <div
-          className="flex-column flex-column-half about-page-group-boxes"
-        >
-          <AboutCleanCode>
-            <div
-              className="boxed-group"
-            >
-              <h2>
-                about_page.clean_code
-              </h2>
-              <div
-                className="boxed-group-inner"
-              >
-                <p
-                  className="about-page-text"
-                >
-                  about_page.clean_code.text
-                </p>
-                <ReadMore
-                  link="https://redirect.sonarsource.com/doc/issues.html"
-                >
-                  <div
-                    className="big-spacer-top"
-                  >
-                    <a
-                      className="about-page-link-more"
-                      href="https://redirect.sonarsource.com/doc/issues.html"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <span>
-                        about_page.read_more
-                      </span>
-                    </a>
-                  </div>
-                </ReadMore>
-              </div>
-            </div>
-          </AboutCleanCode>
-        </div>
-        <div
-          className="flex-column flex-column-half about-page-group-boxes"
-        >
-          <AboutLeakPeriod>
-            <div
-              className="boxed-group"
-            >
-              <h2>
-                about_page.fix_the_leak
-              </h2>
-              <div
-                className="boxed-group-inner"
-              >
-                <p
-                  className="about-page-text"
-                >
-                  about_page.fix_the_leak_on_new_code.text
-                </p>
-                <ReadMore
-                  link="https://redirect.sonarsource.com/doc/fix-the-leak.html"
-                >
-                  <div
-                    className="big-spacer-top"
-                  >
-                    <a
-                      className="about-page-link-more"
-                      href="https://redirect.sonarsource.com/doc/fix-the-leak.html"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <span>
-                        about_page.read_more
-                      </span>
-                    </a>
-                  </div>
-                </ReadMore>
-              </div>
-            </div>
-          </AboutLeakPeriod>
-        </div>
+        <AboutProjects
+          count={5}
+          loading={false}
+        />
+        <EntryIssueTypes
+          bugs={10}
+          codeSmells={5}
+          loading={false}
+          securityHotspots={5}
+          vulnerabilities={0}
+        />
       </div>
-      <div
-        className="flex-columns"
-      >
-        <div
-          className="flex-column flex-column-half about-page-group-boxes"
-        >
-          <AboutQualityGates>
-            <div
-              className="boxed-group"
-            >
-              <h2>
-                about_page.quality_gates
-              </h2>
-              <div
-                className="boxed-group-inner"
-              >
-                <p
-                  className="about-page-text"
-                >
-                  about_page.quality_gates.text
-                </p>
-                <ReadMore
-                  link="https://redirect.sonarsource.com/doc/quality-gates.html"
-                >
-                  <div
-                    className="big-spacer-top"
-                  >
-                    <a
-                      className="about-page-link-more"
-                      href="https://redirect.sonarsource.com/doc/quality-gates.html"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <span>
-                        about_page.read_more
-                      </span>
-                    </a>
-                  </div>
-                </ReadMore>
-              </div>
-            </div>
-          </AboutQualityGates>
-        </div>
-        <div
-          className="flex-column flex-column-half about-page-group-boxes"
-        >
-          <AboutStandards
-            appState={
-              Object {
-                "defaultOrganization": "foo",
-                "edition": "community",
-                "productionDatabase": true,
-                "qualifiers": Array [
-                  "TRK",
-                ],
-                "settings": Object {},
-                "version": "1.0",
-              }
-            }
-          >
-            <div
-              className="boxed-group"
-            >
-              <h2>
-                about_page.standards
-              </h2>
-              <div
-                className="boxed-group-inner"
-              >
-                <p
-                  className="about-page-text"
-                >
-                  about_page.standards.text
-                </p>
-                <div
-                  className="spacer-top"
-                >
-                  <ul
-                    className="list-inline"
-                  >
-                    <li>
-                      <Link
-                        className="link-with-icon"
-                        onlyActiveOnIndex={false}
-                        style={Object {}}
-                        to={
-                          Object {
-                            "pathname": "/coding_rules",
-                            "query": Object {
-                              "tags": "misra",
-                            },
-                          }
-                        }
-                      >
-                        <a
-                          className="link-with-icon"
-                          onClick={[Function]}
-                          style={Object {}}
-                        >
-                          <MOCKTagsIcon />
-                          <span
-                            className="little-spacer-left"
-                          >
-                            MISRA
-                          </span>
-                        </a>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        className="link-with-icon"
-                        onlyActiveOnIndex={false}
-                        style={Object {}}
-                        to={
-                          Object {
-                            "pathname": "/coding_rules",
-                            "query": Object {
-                              "tags": "cert",
-                            },
-                          }
-                        }
-                      >
-                        <a
-                          className="link-with-icon"
-                          onClick={[Function]}
-                          style={Object {}}
-                        >
-                          <MOCKTagsIcon />
-                          <span
-                            className="little-spacer-left"
-                          >
-                            CERT
-                          </span>
-                        </a>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        className="link-with-icon"
-                        onlyActiveOnIndex={false}
-                        style={Object {}}
-                        to={
-                          Object {
-                            "pathname": "/coding_rules",
-                            "query": Object {
-                              "tags": "cwe",
-                            },
-                          }
-                        }
-                      >
-                        <a
-                          className="link-with-icon"
-                          onClick={[Function]}
-                          style={Object {}}
-                        >
-                          <MOCKTagsIcon />
-                          <span
-                            className="little-spacer-left"
-                          >
-                            CWE
-                          </span>
-                        </a>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        className="link-with-icon"
-                        onlyActiveOnIndex={false}
-                        style={Object {}}
-                        to={
-                          Object {
-                            "pathname": "/coding_rules",
-                            "query": Object {
-                              "tags": "owasp-a1,owasp-a2,owasp-a3,owasp-a4,owasp-a5,owasp-a6,owasp-a7,owasp-a8,owasp-a9,owasp-a10",
-                            },
-                          }
-                        }
-                      >
-                        <a
-                          className="link-with-icon"
-                          onClick={[Function]}
-                          style={Object {}}
-                        >
-                          <MOCKTagsIcon />
-                          <span
-                            className="little-spacer-left"
-                          >
-                            OWASP Top 10
-                          </span>
-                        </a>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        className="link-with-icon"
-                        onlyActiveOnIndex={false}
-                        style={Object {}}
-                        to={
-                          Object {
-                            "pathname": "/coding_rules",
-                            "query": Object {
-                              "tags": "sans-top25-porous,sans-top25-risky,sans-top25-insecure",
-                            },
-                          }
-                        }
-                      >
-                        <a
-                          className="link-with-icon"
-                          onClick={[Function]}
-                          style={Object {}}
-                        >
-                          <MOCKTagsIcon />
-                          <span
-                            className="little-spacer-left"
-                          >
-                            SANS Top 25
-                          </span>
-                        </a>
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-                <ReadMore
-                  link="https://redirect.sonarsource.com/doc/rules.html"
-                >
-                  <div
-                    className="big-spacer-top"
-                  >
-                    <a
-                      className="about-page-link-more"
-                      href="https://redirect.sonarsource.com/doc/rules.html"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <span>
-                        about_page.read_more
-                      </span>
-                    </a>
-                  </div>
-                </ReadMore>
-              </div>
-            </div>
-          </AboutStandards>
-        </div>
-      </div>
-      <AboutScanners>
-        <div
-          className="boxed-group"
-        >
-          <h2>
-            about_page.scanners
-          </h2>
-          <div
-            className="boxed-group-inner"
-          >
-            <p
-              className="about-page-text"
-            >
-              about_page.scanners.text
-            </p>
-            <div
-              className="about-page-analyzers"
-            >
-              <a
-                className="about-page-analyzer-box"
-                href="https://redirect.sonarsource.com/doc/install-configure-scanner.html"
-                key="sonarqube"
-              >
-                <img
-                  alt="about_page.scanners.sonarqube"
-                  height={60}
-                  src="/images/scanner-logos/sonarqube.svg"
-                />
-              </a>
-              <a
-                className="about-page-analyzer-box"
-                href="https://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html"
-                key="msbuild"
-              >
-                <img
-                  alt="about_page.scanners.msbuild"
-                  height={60}
-                  src="/images/scanner-logos/msbuild.svg"
-                />
-              </a>
-              <a
-                className="about-page-analyzer-box"
-                href="https://redirect.sonarsource.com/doc/install-configure-scanner-maven.html"
-                key="maven"
-              >
-                <img
-                  alt="about_page.scanners.maven"
-                  height={60}
-                  src="/images/scanner-logos/maven.svg"
-                />
-              </a>
-              <a
-                className="about-page-analyzer-box"
-                href="https://redirect.sonarsource.com/doc/gradle.html"
-                key="gradle"
-              >
-                <img
-                  alt="about_page.scanners.gradle"
-                  height={60}
-                  src="/images/scanner-logos/gradle.svg"
-                />
-              </a>
-              <a
-                className="about-page-analyzer-box"
-                href="https://redirect.sonarsource.com/plugins/jenkins.html"
-                key="jenkins"
-              >
-                <img
-                  alt="about_page.scanners.jenkins"
-                  height={60}
-                  src="/images/scanner-logos/jenkins.svg"
-                />
-              </a>
-              <a
-                className="about-page-analyzer-box"
-                href="https://redirect.sonarsource.com/doc/install-configure-scanner-ant.html"
-                key="ant"
-              >
-                <img
-                  alt="about_page.scanners.ant"
-                  height={60}
-                  src="/images/scanner-logos/ant.svg"
-                />
-              </a>
-            </div>
-          </div>
-        </div>
-      </AboutScanners>
     </div>
-  </GlobalContainer>
-</AboutApp>
+    <div
+      className="about-page-section"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "Lorem ipsum",
+        }
+      }
+    />
+    <AboutLanguages />
+    <AboutQualityModel />
+    <div
+      className="flex-columns"
+    >
+      <div
+        className="flex-column flex-column-half about-page-group-boxes"
+      >
+        <AboutCleanCode />
+      </div>
+      <div
+        className="flex-column flex-column-half about-page-group-boxes"
+      >
+        <AboutLeakPeriod />
+      </div>
+    </div>
+    <div
+      className="flex-columns"
+    >
+      <div
+        className="flex-column flex-column-half about-page-group-boxes"
+      >
+        <AboutQualityGates />
+      </div>
+      <div
+        className="flex-column flex-column-half about-page-group-boxes"
+      >
+        <AboutStandards
+          appState={
+            Object {
+              "defaultOrganization": "foo",
+              "edition": "community",
+              "productionDatabase": true,
+              "qualifiers": Array [
+                "TRK",
+              ],
+              "settings": Object {},
+              "version": "1.0",
+            }
+          }
+        />
+      </div>
+    </div>
+    <AboutScanners />
+  </div>
+</GlobalContainer>
 `;

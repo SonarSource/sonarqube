@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import HomePageSelect from '../HomePageSelect';
 import { setHomePage } from '../../../api/users';
-import { click } from '../../../helpers/testUtils';
 import rootReducer, { getCurrentUser, Store } from '../../../store/rootReducer';
 import configureStore from '../../../store/utils/configureStore';
 

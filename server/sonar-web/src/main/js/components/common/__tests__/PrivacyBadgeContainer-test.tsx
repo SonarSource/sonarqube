@@ -61,7 +61,7 @@ function getWrapper(props = {}) {
       organization={organization}
       qualifier="TRK"
       userOrganizations={[organization]}
-      visibility={'private'}
+      visibility="private"
       {...props}
     />
   );

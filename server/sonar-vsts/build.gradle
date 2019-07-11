@@ -14,7 +14,6 @@ yarn_run {
   ['config', 'public', 'scripts', 'src',
     '../sonar-web/src/main/js/api',
     '../sonar-web/src/main/js/app',
-    '../sonar-web/src/main/js/components',
     '../sonar-web/src/main/js/helpers'
   ].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
@@ -40,12 +39,12 @@ build.dependsOn(yarn_run)
   ['config', 'src/main/js',
     '../sonar-web/src/main/js/api',
     '../sonar-web/src/main/js/app',
-    '../sonar-web/src/main/js/components',
     '../sonar-web/src/main/js/helpers'
   ].each {
     inputs.dir(it)
   }
   ['package.json', 'yarn.lock', 'tsconfig.json', '.eslintrc', '.eslintignore',
+    '../sonar-web/src/main/js/app/theme.js',
     '../sonar-web/package.json',
     '../sonar-web/yarn.lock'
   ].each {

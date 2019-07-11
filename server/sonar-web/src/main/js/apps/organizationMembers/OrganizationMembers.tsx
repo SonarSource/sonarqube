@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import MembersPageHeader from './MembersPageHeader';
 import MembersListHeader from './MembersListHeader';
 import MembersList from './MembersList';
 import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
-import ListFooter from '../../components/controls/ListFooter';
-import { translate } from '../../helpers/l10n';
 import { searchMembers, addMember, removeMember } from '../../api/organizations';
 import { searchUsersGroups, addUserToGroup, removeUserFromGroup } from '../../api/user_groups';
 

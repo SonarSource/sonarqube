@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { change, submit, click } from 'sonar-ui-common/helpers/testUtils';
 import Form from '../Form';
-import { change, submit, click } from '../../../../helpers/testUtils';
 
 it('should render form', async () => {
   const onClose = jest.fn();

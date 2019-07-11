@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from '../BulkChangeModal';
 import { mockIssue } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/issues', () => ({
   searchIssueTags: () => Promise.resolve([undefined, []])

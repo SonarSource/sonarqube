@@ -88,16 +88,12 @@ export default class Sidebar extends React.PureComponent<Props, State> {
 
   getNodeFromUrl = (url: string) => {
     return this.props.pages.find(p => {
-      if (p.fields && p.fields.slug) {
-        if (testPathAgainstUrl(p.fields.slug, url)) {
-          return true;
-        }
+      if (p.fields && p.fields.slug && testPathAgainstUrl(p.fields.slug, url)) {
+        return true;
       }
 
-      if (p.frontmatter && p.frontmatter.url) {
-        if (testPathAgainstUrl(p.frontmatter.url, url)) {
-          return true;
-        }
+      if (p.frontmatter && p.frontmatter.url && testPathAgainstUrl(p.frontmatter.url, url)) {
+        return true;
       }
 
       return false;

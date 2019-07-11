@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { difference, without } from 'lodash';
+import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
+import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import TagsSelector from '../../tags/TagsSelector';
 import { searchIssueTags } from '../../../api/issues';
-import { DropdownOverlay } from '../../controls/Dropdown';
-import { PopupPlacement } from '../../ui/popups';
 
 interface Props {
   organization: string;

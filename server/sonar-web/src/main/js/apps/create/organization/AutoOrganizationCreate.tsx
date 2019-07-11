@@ -19,18 +19,18 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { ClearButton } from 'sonar-ui-common/components/controls/buttons';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
 import AutoOrganizationBind from './AutoOrganizationBind';
 import OrganizationDetailsForm from './OrganizationDetailsForm';
 import OrganizationDetailsStep from './OrganizationDetailsStep';
 import PlanStep from './PlanStep';
 import { Step } from './utils';
-import { Alert } from '../../../components/ui/Alert';
-import { ClearButton } from '../../../components/ui/buttons';
-import RadioToggle from '../../../components/controls/RadioToggle';
 import { bindAlmOrganization } from '../../../api/alm-integration';
 import { sanitizeAlmId, getAlmMembersUrl, isGithub } from '../../../helpers/almIntegrations';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
 
 enum Filters {
   Bind = 'bind',

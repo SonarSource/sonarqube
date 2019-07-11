@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import HealthCauseItem from './HealthCauseItem';
 import StatusIndicator from '../../../../components/common/StatusIndicator';
-import Tooltip from '../../../../components/controls/Tooltip';
-import { translateWithParameters } from '../../../../helpers/l10n';
 
 interface Props {
   biggerHealth?: boolean;

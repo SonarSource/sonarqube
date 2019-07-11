@@ -5,7 +5,7 @@ exports[`should render correctly 1`] = `
   className="text-center"
 >
   <i
-    className="spinner spinner-margin"
+    className="spinner spacer"
   />
 </div>
 `;

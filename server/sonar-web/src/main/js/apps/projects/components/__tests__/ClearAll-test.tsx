@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import ClearAll from '../ClearAll';
-import { click } from '../../../../helpers/testUtils';
 
 it('renders', () => {
   expect(shallow(<ClearAll onClearAll={jest.fn()} />)).toMatchSnapshot();

@@ -25,7 +25,7 @@ jest.mock('../../../../api/quality-profiles', () => ({
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProfilePermissionsGroup from '../ProfilePermissionsGroup';
-import { click } from '../../../../helpers/testUtils';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 
 const removeGroup = require('../../../../api/quality-profiles').removeGroup as jest.Mock<any>;
 

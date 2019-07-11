@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import UserHolder from '../UserHolder';
 import { isSonarCloud } from '../../../../../helpers/system';
-import { waitAndUpdate } from '../../../../../helpers/testUtils';
 
 jest.mock('../../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
@@ -46,7 +46,7 @@ const userHolder = (
       },
       { key: 'baz', name: 'Baz', description: '' }
     ]}
-    selectedPermission={'bar'}
+    selectedPermission="bar"
     user={user}
   />
 );

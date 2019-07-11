@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import MeasureContent from '../MeasureContent';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { getComponentTree } from '../../../../api/components';
 import { mockComponentMeasure, mockRouter } from '../../../../helpers/testMocks';
 

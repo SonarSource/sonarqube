@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as differenceInDays from 'date-fns/difference_in_days';
+import { isValidDate, parseDate } from 'sonar-ui-common/helpers/dates';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
-import { differenceInDays, isValidDate, parseDate } from '../../../helpers/dates';
 
 interface Props {
   date?: string;

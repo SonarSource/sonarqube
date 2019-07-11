@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { installGlobal, DEFAULT_LANGUAGE, requestMessages } from '../helpers/l10n';
+import { installGlobal, DEFAULT_LANGUAGE, requestMessages } from 'sonar-ui-common/helpers/l10n';
+import { request, parseJSON } from 'sonar-ui-common/helpers/request';
 import { installExtensionsHandler, installWebAnalyticsHandler } from '../helpers/extensionsHandler';
-import { request, parseJSON } from '../helpers/request';
 import { getSystemStatus } from '../helpers/system';
 import './styles/sonar.css';
 

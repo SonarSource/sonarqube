@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { VISUALIZATIONS } from './utils';
-import { RawQuery } from '../../helpers/query';
 
 type Level = 'ERROR' | 'WARN' | 'OK';
 
@@ -45,7 +44,7 @@ export interface Query {
   [x: string]: string | number | string[] | undefined;
 }
 
-export function parseUrlQuery(urlQuery: RawQuery): Query {
+export function parseUrlQuery(urlQuery: T.RawQuery): Query {
   return {
     gate: getAsLevel(urlQuery['gate']),
     reliability: getAsNumericRating(urlQuery['reliability']),

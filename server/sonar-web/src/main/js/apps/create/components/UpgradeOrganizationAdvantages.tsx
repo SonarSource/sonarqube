@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import CheckIcon from '../../../components/icons-components/CheckIcon';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import * as theme from '../../../app/theme';
+import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { colors } from '../../../app/theme';
 
 const TRIAL_DURATION_DAYS = 14;
 
@@ -42,7 +42,7 @@ export default function UpgradeOrganizationAdvantages() {
 export function Advantage({ children }: { children: React.ReactNode }) {
   return (
     <li className="display-flex-center little-spacer-bottom">
-      <CheckIcon className="spacer-right" fill={theme.lightGreen} />
+      <CheckIcon className="spacer-right" fill={colors.lightGreen} />
       {children}
     </li>
   );

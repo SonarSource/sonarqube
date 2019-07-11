@@ -18,17 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
 import { groupBy, sortBy } from 'lodash';
-import { DropdownOverlay } from '../../controls/Dropdown';
-import QualifierIcon from '../../icons-components/QualifierIcon';
-import { PopupPlacement } from '../../ui/popups';
+import { Link } from 'react-router';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
+import { collapsedDirFromPath, fileFromPath } from 'sonar-ui-common/helpers/path';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
+import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { WorkspaceContextShape } from '../../workspace/context';
 import { isShortLivingBranch, isPullRequest } from '../../../helpers/branches';
-import { translate } from '../../../helpers/l10n';
-import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 import { getProjectUrl } from '../../../helpers/urls';
-import { Alert } from '../../ui/Alert';
 
 interface Props {
   blocks: T.DuplicationBlock[];

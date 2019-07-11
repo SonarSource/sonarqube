@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { keyBy } from 'lodash';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { withAppState } from '../hoc/withAppState';
-import DeferredSpinner from '../common/DeferredSpinner';
 import RuleDetailsMeta from '../../apps/coding-rules/components/RuleDetailsMeta';
 import RuleDetailsDescription from '../../apps/coding-rules/components/RuleDetailsDescription';
 import { getRuleDetails, getRulesApp } from '../../api/rules';

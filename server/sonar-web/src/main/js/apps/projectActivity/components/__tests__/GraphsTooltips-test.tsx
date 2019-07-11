@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
 import GraphsTooltips from '../GraphsTooltips';
 import { DEFAULT_GRAPH } from '../../utils';
-import { parseDate } from '../../../../helpers/dates';
 
 const SERIES_ISSUES = [
   {

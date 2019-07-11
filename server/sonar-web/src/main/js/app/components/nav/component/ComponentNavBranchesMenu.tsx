@@ -19,6 +19,11 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
+import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import ComponentNavBranchesMenuItem from './ComponentNavBranchesMenuItem';
 import {
   sortBranchesAsTree,
@@ -29,12 +34,7 @@ import {
   isPullRequest,
   isBranch
 } from '../../../../helpers/branches';
-import { scrollToElement } from '../../../../helpers/scrolling';
-import { translate } from '../../../../helpers/l10n';
 import { getBranchLikeUrl } from '../../../../helpers/urls';
-import SearchBox from '../../../../components/controls/SearchBox';
-import HelpTooltip from '../../../../components/controls/HelpTooltip';
-import { DropdownOverlay } from '../../../../components/controls/Dropdown';
 import { withRouter, Router } from '../../../../components/hoc/withRouter';
 
 interface Props {

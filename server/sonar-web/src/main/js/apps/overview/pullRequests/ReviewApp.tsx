@@ -20,14 +20,15 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { connect } from 'react-redux';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import AfterMergeEstimate from './AfterMergeEstimate';
 import LargeQualityGateBadge from './LargeQualityGateBadge';
 import IssueLabel from './IssueLabel';
 import IssueRating from './IssueRating';
 import MeasurementLabel from './MeasurementLabel';
-import { Alert } from '../../../components/ui/Alert';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
 import QualityGateConditions from '../qualityGate/QualityGateConditions';
 import { getMeasures } from '../../../api/measures';
 import { PR_METRICS, IssueType, MeasurementType } from '../utils';
@@ -35,7 +36,6 @@ import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches'
 import { isSameStatusConditionList } from '../../../helpers/qualityGates';
 import { Store, getBranchStatusByBranchLike } from '../../../store/rootReducer';
 import { fetchBranchStatus } from '../../../store/rootActions';
-import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
 interface OwnProps {

@@ -22,16 +22,16 @@ import * as classNames from 'classnames';
 import { WithRouterProps, withRouter } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import { sortBy } from 'lodash';
+import IdentityProviderLink from 'sonar-ui-common/components/controls/IdentityProviderLink';
+import { save } from 'sonar-ui-common/helpers/storage';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { serializeQuery, ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP } from './utils';
-import IdentityProviderLink from '../../../components/ui/IdentityProviderLink';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import Select from '../../../components/controls/Select';
-import { Alert } from '../../../components/ui/Alert';
-import { SubmitButton } from '../../../components/ui/buttons';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { save } from '../../../helpers/storage';
-import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
   almApplication: T.AlmApplication;
@@ -146,8 +146,10 @@ export class RemoteOrganizationChoose extends React.PureComponent<Props & WithRo
           <div className="display-flex-center">
             <div className="display-inline-block">
               <IdentityProviderLink
+                backgroundColor={almApplication.backgroundColor}
                 className="display-inline-block"
-                identityProvider={almApplication}
+                iconPath={almApplication.iconPath}
+                name={almApplication.name}
                 onClick={this.handleInstallAppClick}
                 small={true}
                 url={almApplication.installationUrl}>

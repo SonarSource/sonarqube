@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DropdownIcon from '../../icons-components/DropdownIcon';
-import IssueTypeIcon from '../../ui/IssueTypeIcon';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Toggler from 'sonar-ui-common/components/controls/Toggler';
+import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import SetTypePopup from '../popups/SetTypePopup';
-import Toggler from '../../controls/Toggler';
-import { ButtonLink } from '../../ui/buttons';
 import { setIssueType, IssueResponse } from '../../../api/issues';
-import { translate } from '../../../helpers/l10n';
-import { RawQuery } from '../../../helpers/query';
 
 interface Props {
   canSetType: boolean;
@@ -34,7 +33,7 @@ interface Props {
   setIssueProperty: (
     property: keyof T.Issue,
     popup: string,
-    apiCall: (query: RawQuery) => Promise<IssueResponse>,
+    apiCall: (query: T.RawQuery) => Promise<IssueResponse>,
     value: string
   ) => void;
   togglePopup: (popup: string, show?: boolean) => void;

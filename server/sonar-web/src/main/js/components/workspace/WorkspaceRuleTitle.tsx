@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import LightBulbIcon from 'sonar-ui-common/components/icons/LightBulbIcon';
 import { RuleDescriptor } from './context';
-import LightBulbIcon from '../icons-components/LightBulbIcon';
-import * as theme from '../../app/theme';
+import { colors } from '../../app/theme';
 
 interface Props {
   limited?: boolean;
@@ -31,7 +31,7 @@ export default function WorkspaceRuleTitle({ limited, rule }: Props) {
   const { name = '—' } = rule;
   return (
     <>
-      <LightBulbIcon className="little-spacer-right" fill={theme.blue} />
+      <LightBulbIcon className="little-spacer-right" fill={colors.blue} />
       {limited ? <span className="text-limited">{name}</span> : name}
     </>
   );

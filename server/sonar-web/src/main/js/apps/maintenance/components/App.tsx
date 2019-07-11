@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import Helmet from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
-import * as classNames from 'classnames';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl, getReturnUrl } from 'sonar-ui-common/helpers/urls';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { getMigrationStatus, getSystemStatus, migrateDatabase } from '../../../api/system';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
-import { Button } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
 import InstanceMessage from '../../../components/common/InstanceMessage';
-import { getBaseUrl, getReturnUrl } from '../../../helpers/urls';
 import { isSonarCloud } from '../../../helpers/system';
 import '../styles.css';
 

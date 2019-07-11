@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Button, EditButton } from 'sonar-ui-common/components/controls/buttons';
 import { quote } from '../../../utils';
 import SQScanner from '../SQScanner';
 import BuildWrapper from '../BuildWrapper';
-import { translate } from '../../../../../helpers/l10n';
 import CodeSnippet from '../../../../../components/common/CodeSnippet';
-import { Button, EditButton } from '../../../../../components/ui/buttons';
 import { ProjectAnalysisModes } from '../../ProjectAnalysisStepFromBuildTool';
 
 export interface Props {

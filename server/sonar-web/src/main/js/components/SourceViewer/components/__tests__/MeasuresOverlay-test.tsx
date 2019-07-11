@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate, click } from 'sonar-ui-common/helpers/testUtils';
 import MeasuresOverlay from '../MeasuresOverlay';
-import { waitAndUpdate, click } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/issues', () => ({
   getFacets: () =>

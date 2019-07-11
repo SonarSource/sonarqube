@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import SelectList, { Filter } from '../SelectList';
-import { waitAndUpdate } from '../../../helpers/testUtils';
 
 it('should display selected elements only by default', () => {
   const wrapper = shallowRender();

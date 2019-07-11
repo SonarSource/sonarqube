@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import App from '../App';
 import {
   grantPermissionToGroup,
@@ -27,7 +28,6 @@ import {
   revokePermissionFromUser
 } from '../../../../../api/permissions';
 import { mockOrganization } from '../../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../../helpers/testUtils';
 
 jest.mock('../../../../../api/permissions', () => ({
   getGlobalPermissionsGroups: jest.fn().mockResolvedValue({

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 import { isPermissionDefinitionGroup } from '../../utils';
-import Checkbox from '../../../../components/controls/Checkbox';
 
 interface Props {
   loading: string[];

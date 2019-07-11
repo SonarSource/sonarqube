@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
+import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
+import BulletListIcon from 'sonar-ui-common/components/icons/BulletListIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
 import LatestDeliveryForm from './LatestDeliveryForm';
-import BulletListIcon from '../../../components/icons-components/BulletListIcon';
-import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
-import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import { ButtonIcon } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   webhook: T.Webhook;

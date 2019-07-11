@@ -21,6 +21,8 @@ import * as React from 'react';
 import { times } from 'lodash';
 import { Location } from 'history';
 import { shallow, mount } from 'enzyme';
+import { get, remove } from 'sonar-ui-common/helpers/storage';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { CreateOrganization } from '../CreateOrganization';
 import {
   bindAlmOrganization,
@@ -30,7 +32,6 @@ import {
 } from '../../../../api/alm-integration';
 import { getSubscriptionPlans } from '../../../../api/billing';
 import { getOrganizations } from '../../../../api/organizations';
-import { get, remove } from '../../../../helpers/storage';
 import {
   mockRouter,
   mockOrganizationWithAdminActions,
@@ -39,7 +40,6 @@ import {
   mockLoggedInUser,
   mockLocation
 } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/billing', () => ({
   getSubscriptionPlans: jest
@@ -76,7 +76,7 @@ jest.mock('../../../../api/organizations', () => ({
   getOrganizations: jest.fn().mockResolvedValue({ organizations: [] })
 }));
 
-jest.mock('../../../../helpers/storage', () => ({
+jest.mock('sonar-ui-common/helpers/storage', () => ({
   get: jest.fn().mockReturnValue(undefined),
   remove: jest.fn()
 }));

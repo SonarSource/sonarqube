@@ -19,17 +19,17 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { isBitbucket, isGithub, isVSTS } from '../../../helpers/almIntegrations';
-import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
-import { Alert } from '../../../components/ui/Alert';
 
 export function TutorialSuggestionBitbucket() {
   return (
     <Alert className="big-spacer-bottom" variant="info">
       <FormattedMessage
         defaultMessage={translate('onboarding.project_analysis.suggestions.bitbucket')}
-        id={'onboarding.project_analysis.suggestions.bitbucket'}
+        id="onboarding.project_analysis.suggestions.bitbucket"
         values={{
           link: (
             <a
@@ -53,7 +53,7 @@ export function TutorialSuggestionGithub() {
       <p>{translate('onboarding.project_analysis.suggestions.github')}</p>
       <FormattedMessage
         defaultMessage={translate('onboarding.project_analysis.simply_link')}
-        id={'onboarding.project_analysis.simply_link'}
+        id="onboarding.project_analysis.simply_link"
         values={{
           link: (
             <a
@@ -74,7 +74,7 @@ export function TutorialSuggestionVSTS() {
     <Alert className="big-spacer-bottom" variant="info">
       <FormattedMessage
         defaultMessage={translate('onboarding.project_analysis.simply_link')}
-        id={'onboarding.project_analysis.simply_link'}
+        id="onboarding.project_analysis.simply_link"
         values={{
           link: (
             <a

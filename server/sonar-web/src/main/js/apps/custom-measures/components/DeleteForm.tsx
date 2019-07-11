@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SimpleModal from '../../../components/controls/SimpleModal';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 
 interface Props {
   measure: T.CustomMeasure;

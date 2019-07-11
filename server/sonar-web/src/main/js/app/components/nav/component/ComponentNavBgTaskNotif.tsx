@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
+import { hasMessage, translate } from 'sonar-ui-common/helpers/l10n';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import ComponentNavLicenseNotif from './ComponentNavLicenseNotif';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 import { getComponentBackgroundTaskUrl } from '../../../../helpers/urls';
-import { hasMessage, translate } from '../../../../helpers/l10n';
-import { Alert } from '../../../../components/ui/Alert';
 
 interface Props {
   component: T.Component;

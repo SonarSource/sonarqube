@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import ExtendProfileForm from '../ExtendProfileForm';
 import { createQualityProfile, changeProfileParent } from '../../../../api/quality-profiles';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
-import { click } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/quality-profiles', () => ({
   createQualityProfile: jest.fn().mockResolvedValue({ profile: { key: 'new-profile' } }),

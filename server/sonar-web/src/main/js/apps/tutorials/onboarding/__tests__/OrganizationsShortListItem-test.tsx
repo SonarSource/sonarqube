@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import { OrganizationsShortListItem } from '../OrganizationsShortListItem';
 import { mockRouter, mockOrganization } from '../../../../helpers/testMocks';
-import { click } from '../../../../helpers/testUtils';
 
 it('renders correctly', () => {
   expect(shallowRender()).toMatchSnapshot();

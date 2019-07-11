@@ -20,6 +20,8 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { keyBy } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ProfileRulesRowOfType from './ProfileRulesRowOfType';
 import ProfileRulesRowTotal from './ProfileRulesRowTotal';
 import ProfileRulesDeprecatedWarning from './ProfileRulesDeprecatedWarning';
@@ -27,9 +29,7 @@ import ProfileRulesSonarWayComparison from './ProfileRulesSonarWayComparison';
 import { searchRules, takeFacet } from '../../../api/rules';
 import { getQualityProfile } from '../../../api/quality-profiles';
 import { getRulesUrl } from '../../../helpers/urls';
-import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
-import { Button } from '../../../components/ui/buttons';
 import DocTooltip from '../../../components/docs/DocTooltip';
 
 const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];

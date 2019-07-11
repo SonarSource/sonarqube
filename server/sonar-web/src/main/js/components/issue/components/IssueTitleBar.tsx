@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import LinkIcon from 'sonar-ui-common/components/icons/LinkIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import IssueChangelog from './IssueChangelog';
 import IssueMessage from './IssueMessage';
 import SimilarIssuesFilter from './SimilarIssuesFilter';
-import LinkIcon from '../../icons-components/LinkIcon';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
-import { translate } from '../../../helpers/l10n';
 import { WorkspaceContext } from '../../workspace/context';
 
 interface Props {

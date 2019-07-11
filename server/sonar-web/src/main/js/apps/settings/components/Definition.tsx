@@ -19,7 +19,10 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
+import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
 import classNames from 'classnames';
+import { translateWithParameters, translate } from 'sonar-ui-common/helpers/l10n';
 import Input from './inputs/Input';
 import DefinitionActions from './DefinitionActions';
 import {
@@ -29,9 +32,6 @@ import {
   isDefaultOrInherited,
   sanitizeTranslation
 } from '../utils';
-import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
-import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
-import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { resetValue, saveValue, checkValue } from '../store/actions';
 import { cancelChange, changeValue, passValidation } from '../store/settingsPage';
 import {

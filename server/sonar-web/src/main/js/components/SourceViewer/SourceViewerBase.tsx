@@ -20,6 +20,8 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { intersection, uniqBy } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import SourceViewerCode from './SourceViewerCode';
 import SourceViewerHeader from './SourceViewerHeader';
 import SourceViewerHeaderSlim from './SourceViewerHeaderSlim';
@@ -38,7 +40,6 @@ import {
   locationsByLine,
   symbolsByLine
 } from './helpers/indexing';
-import { Alert } from '../ui/Alert';
 import {
   getComponentData,
   getComponentForSourceViewer,
@@ -46,7 +47,6 @@ import {
   getSources
 } from '../../api/components';
 import { isSameBranchLike, getBranchLikeQuery } from '../../helpers/branches';
-import { translate } from '../../helpers/l10n';
 import { WorkspaceContext } from '../workspace/context';
 import './styles.css';
 

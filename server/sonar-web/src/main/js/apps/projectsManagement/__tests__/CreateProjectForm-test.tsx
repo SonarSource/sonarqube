@@ -27,7 +27,7 @@ jest.mock('../../../api/components', () => ({
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import CreateProjectForm from '../CreateProjectForm';
-import { change, submit, waitAndUpdate } from '../../../helpers/testUtils';
+import { change, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 
 const createProject = require('../../../api/components').createProject as jest.Mock<any>;
 

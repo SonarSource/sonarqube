@@ -19,6 +19,8 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import { MetricProps } from './Form';
 import Header from './Header';
 import List from './List';
@@ -32,8 +34,6 @@ import {
   createMetric,
   MetricsResponse
 } from '../../../api/metrics';
-import ListFooter from '../../../components/controls/ListFooter';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {}
 

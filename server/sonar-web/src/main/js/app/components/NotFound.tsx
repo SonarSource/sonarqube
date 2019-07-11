@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import SimpleContainer from './SimpleContainer';
-import { translate } from '../../helpers/l10n';
 
 interface Props {
   withContainer?: boolean;

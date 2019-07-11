@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
 import ProjectActivityPageHeader from '../ProjectActivityPageHeader';
-import { parseDate } from '../../../../helpers/dates';
 
 it('should render correctly the list of series', () => {
   expect(

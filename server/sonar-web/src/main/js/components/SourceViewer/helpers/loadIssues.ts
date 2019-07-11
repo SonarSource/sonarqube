@@ -20,7 +20,6 @@
 import { searchIssues } from '../../../api/issues';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import { parseIssueFromResponse } from '../../../helpers/issues';
-import { RawQuery } from '../../../helpers/query';
 
 // maximum possible value
 const PAGE_SIZE = 500;
@@ -35,7 +34,11 @@ function buildQuery(component: string, branchLike: T.BranchLike | undefined) {
   };
 }
 
-export function loadPage(query: RawQuery, page: number, pageSize = PAGE_SIZE): Promise<T.Issue[]> {
+export function loadPage(
+  query: T.RawQuery,
+  page: number,
+  pageSize = PAGE_SIZE
+): Promise<T.Issue[]> {
   return searchIssues({
     ...query,
     p: page,
@@ -46,7 +49,7 @@ export function loadPage(query: RawQuery, page: number, pageSize = PAGE_SIZE): P
 }
 
 export function loadPageAndNext(
-  query: RawQuery,
+  query: T.RawQuery,
   toLine: number,
   page: number,
   pageSize = PAGE_SIZE

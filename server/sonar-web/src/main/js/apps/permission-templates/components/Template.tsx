@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import TemplateHeader from './TemplateHeader';
 import TemplateDetails from './TemplateDetails';
 import HoldersList from '../../permissions/shared/components/HoldersList';
@@ -28,7 +29,6 @@ import {
   PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE
 } from '../../permissions/utils';
 import * as api from '../../../api/permissions';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   organization: T.Organization | undefined;

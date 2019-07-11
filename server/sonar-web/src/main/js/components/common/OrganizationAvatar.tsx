@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import GenericAvatar from '../ui/GenericAvatar';
+import GenericAvatar from 'sonar-ui-common/components/ui/GenericAvatar';
 import './OrganizationAvatar.css';
 
 interface Props {

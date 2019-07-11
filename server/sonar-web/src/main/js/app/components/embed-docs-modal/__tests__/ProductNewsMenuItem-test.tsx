@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { ProductNewsMenuItem } from '../ProductNewsMenuItem';
 import { fetchPrismicRefs, fetchPrismicNews } from '../../../../api/news';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/news', () => ({
   fetchPrismicRefs: jest.fn().mockResolvedValue({ id: 'master', ref: 'master-ref' }),

@@ -20,14 +20,14 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import AnalyzeTutorial from '../../tutorials/analyzeProject/AnalyzeTutorial';
 import AnalyzeTutorialSonarCloud from '../../tutorials/analyzeProject/AnalyzeTutorialSonarCloud';
 import MetaContainer from '../meta/MetaContainer';
 import { isLongLivingBranch, isBranch, isMainBranch } from '../../../helpers/branches';
-import { translate } from '../../../helpers/l10n';
 import { isLoggedIn } from '../../../helpers/users';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
-import { Alert } from '../../../components/ui/Alert';
 import { isSonarCloud } from '../../../helpers/system';
 
 interface OwnProps {

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import ListItem from './ListItem';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   groups: T.Group[];

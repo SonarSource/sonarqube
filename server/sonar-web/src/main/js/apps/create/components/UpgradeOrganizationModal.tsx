@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Modal from 'sonar-ui-common/components/controls/Modal';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import BillingFormShim from './BillingFormShim';
 import UpgradeOrganizationAdvantages from './UpgradeOrganizationAdvantages';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import Modal from '../../../components/controls/Modal';
-import { ResetButtonLink } from '../../../components/ui/buttons';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { getExtensionStart } from '../../../helpers/extensions';
-import { translate } from '../../../helpers/l10n';
 
 const BillingForm = withCurrentUser(BillingFormShim);
 
@@ -75,7 +75,7 @@ export default class UpgradeOrganizationModal extends React.PureComponent<Props,
         noBackdrop={this.props.insideModal}
         onRequestClose={this.props.onClose}
         shouldCloseOnOverlayClick={false}
-        size={'medium'}>
+        size="medium">
         <div className="modal-head">
           <h2>{header}</h2>
         </div>

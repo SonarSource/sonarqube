@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import SortDescIcon from 'sonar-ui-common/components/icons/SortDescIcon';
 import { sortBy } from 'lodash';
+import SortAscIcon from 'sonar-ui-common/components/icons/SortAscIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
 import ProjectsSortingSelectOption, { Option } from './ProjectsSortingSelectOption';
-import * as theme from '../../../app/theme';
-import SortAscIcon from '../../../components/icons-components/SortAscIcon';
-import SortDescIcon from '../../../components/icons-components/SortDescIcon';
+import { colors } from '../../../app/theme';
 import Select from '../../../components/controls/Select';
-import Tooltip from '../../../components/controls/Tooltip';
-import { ButtonIcon } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
 import { SORTING_METRICS, SORTING_LEAK_METRICS, parseSorting } from '../utils';
 
 interface Props {
@@ -80,7 +80,7 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
           }>
           <ButtonIcon
             className="js-projects-sorting-invert spacer-left"
-            color={theme.gray60}
+            color={colors.gray60}
             onClick={this.handleDescToggle}>
             {sortDesc ? <SortDescIcon className="" /> : <SortAscIcon className="" />}
           </ButtonIcon>

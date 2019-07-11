@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { debounce, findLast, maxBy, minBy, sortBy } from 'lodash';
+import { save } from 'sonar-ui-common/helpers/storage';
 import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
 import GraphsZoom from './GraphsZoom';
 import GraphsHistory from './GraphsHistory';
-import { save } from '../../../helpers/storage';
 import {
   datesQueryChanged,
   generateSeries,

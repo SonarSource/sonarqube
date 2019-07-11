@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { DateSource, FormattedTime } from 'react-intl';
-import { parseDate } from '../../helpers/dates';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
 
 interface Props {
   children?: (formattedDate: string) => React.ReactNode;

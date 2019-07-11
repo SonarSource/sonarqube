@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import Projects from './Projects';
 import { getMyProjects } from '../../../api/components';
-import { translate } from '../../../helpers/l10n';
 
 interface State {
   loading: boolean;
@@ -67,7 +67,7 @@ export default class ProjectsContainer extends React.PureComponent<{}, State> {
       return (
         <div className="text-center">
           {helmet}
-          <i className="spinner spinner-margin" />
+          <i className="spinner spacer" />
         </div>
       );
     }

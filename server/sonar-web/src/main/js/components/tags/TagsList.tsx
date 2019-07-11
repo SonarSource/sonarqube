@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import DropdownIcon from '../icons-components/DropdownIcon';
-import TagsIcon from '../icons-components/TagsIcon';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import TagsIcon from 'sonar-ui-common/components/icons/TagsIcon';
 import './TagsList.css';
 
 interface Props {

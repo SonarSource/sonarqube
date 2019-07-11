@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import * as classNames from 'classnames';
-import GenericAvatar from './GenericAvatar';
+import GenericAvatar from 'sonar-ui-common/components/ui/GenericAvatar';
 import { getGlobalSettingValue, Store } from '../../store/rootReducer';
 
 interface Props {

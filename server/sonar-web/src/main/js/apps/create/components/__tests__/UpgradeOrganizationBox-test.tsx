@@ -19,16 +19,15 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { hasMessage } from 'sonar-ui-common/helpers/l10n';
+import { waitAndUpdate, click } from 'sonar-ui-common/helpers/testUtils';
 import UpgradeOrganizationBox from '../UpgradeOrganizationBox';
-import { hasMessage } from '../../../../helpers/l10n';
 import { getSubscriptionPlans } from '../../../../api/billing';
-import { waitAndUpdate, click } from '../../../../helpers/testUtils';
 
-jest.mock('../../../../helpers/l10n', () => {
-  const l10n = require.requireActual('../../../../helpers/l10n');
-  l10n.hasMessage = jest.fn().mockReturnValue(true);
-  return l10n;
-});
+jest.mock('sonar-ui-common/helpers/l10n', () => ({
+  ...jest.requireActual('sonar-ui-common/helpers/l10n'),
+  hasMessage: jest.fn().mockReturnValue(true)
+}));
 
 jest.mock('../../../../api/billing', () => ({
   getSubscriptionPlans: jest.fn().mockResolvedValue([{ maxNcloc: 100000, price: 10 }])

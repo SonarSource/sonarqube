@@ -18,17 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
 import * as classNames from 'classnames';
-import DeferredSpinner from '../common/DeferredSpinner';
+import { Link } from 'react-router';
+import ExpandSnippetIcon from 'sonar-ui-common/components/icons/ExpandSnippetIcon';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { collapsedDirFromPath, fileFromPath } from 'sonar-ui-common/helpers/path';
+import { getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
+import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import Favorite from '../controls/Favorite';
-import ExpandSnippetIcon from '../icons-components/ExpandSnippetIcon';
-import QualifierIcon from '../icons-components/QualifierIcon';
-import { ButtonIcon } from '../ui/buttons';
-import { translate } from '../../helpers/l10n';
-import { getPathUrlAsString, getBranchLikeUrl, getComponentIssuesUrl } from '../../helpers/urls';
-import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { isMainBranch, getBranchLikeQuery } from '../../helpers/branches';
+import { getBranchLikeUrl, getComponentIssuesUrl } from '../../helpers/urls';
 import './SourceViewerHeaderSlim.css';
 
 export interface Props {

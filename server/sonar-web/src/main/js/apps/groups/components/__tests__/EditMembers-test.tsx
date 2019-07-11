@@ -18,26 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import EditMembers from '../EditMembers';
-import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 
-jest.mock('../../../../components/icons-components/SearchIcon');
-jest.mock('../../../../components/icons-components/BulletListIcon');
-
-it('should edit members', async () => {
+it('should edit members', () => {
   const group = { id: 3, name: 'Foo', membersCount: 5 };
   const onEdit = jest.fn();
 
-  const wrapper = mount(<EditMembers group={group} onEdit={onEdit} organization="org" />);
+  const wrapper = shallow(<EditMembers group={group} onEdit={onEdit} organization="org" />);
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('ButtonIcon'));
   expect(wrapper).toMatchSnapshot();
 
-  await waitAndUpdate(wrapper);
-
-  click(wrapper.find('ResetButtonLink'));
+  wrapper.find('EditMembersModal').prop<Function>('onClose')();
   expect(onEdit).toBeCalled();
   expect(wrapper).toMatchSnapshot();
 });

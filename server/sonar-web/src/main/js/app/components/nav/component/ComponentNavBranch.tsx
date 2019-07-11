@@ -18,23 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import PlusCircleIcon from 'sonar-ui-common/components/icons/PlusCircleIcon';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Toggler from 'sonar-ui-common/components/controls/Toggler';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import ComponentNavBranchesMenu from './ComponentNavBranchesMenu';
-import DocTooltip from '../../../../components/docs/DocTooltip';
-import * as theme from '../../../theme';
 import BranchIcon from '../../../../components/icons-components/BranchIcon';
+import DocTooltip from '../../../../components/docs/DocTooltip';
+import { colors } from '../../../theme';
 import {
   isShortLivingBranch,
   isSameBranchLike,
   getBranchLikeDisplayName,
   isPullRequest
 } from '../../../../helpers/branches';
-import { translate } from '../../../../helpers/l10n';
-import PlusCircleIcon from '../../../../components/icons-components/PlusCircleIcon';
-import HelpTooltip from '../../../../components/controls/HelpTooltip';
-import Toggler from '../../../../components/controls/Toggler';
-import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import { isSonarCloud } from '../../../../helpers/system';
 import { getPortfolioAdminUrl } from '../../../../helpers/urls';
 import { withAppState } from '../../../../components/hoc/withAppState';
@@ -151,12 +151,12 @@ export class ComponentNavBranch extends React.PureComponent<Props, State> {
           <BranchIcon
             branchLike={currentBranchLike}
             className="little-spacer-right"
-            fill={theme.gray80}
+            fill={colors.gray80}
           />
           <span className="note">{displayName}</span>
           {configuration && configuration.showSettings && (
             <HelpTooltip className="spacer-left" overlay={this.renderOverlay()}>
-              <PlusCircleIcon className="text-middle" fill={theme.blue} size={12} />
+              <PlusCircleIcon className="text-middle" fill={colors.blue} size={12} />
             </HelpTooltip>
           )}
         </div>
@@ -168,13 +168,13 @@ export class ComponentNavBranch extends React.PureComponent<Props, State> {
             <BranchIcon
               branchLike={currentBranchLike}
               className="little-spacer-right"
-              fill={theme.gray80}
+              fill={colors.gray80}
             />
             <span className="note">{displayName}</span>
             <DocTooltip
               className="spacer-left"
               doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/branches/no-branch-support.md')}>
-              <PlusCircleIcon fill={theme.gray71} size={12} />
+              <PlusCircleIcon fill={colors.gray71} size={12} />
             </DocTooltip>
           </div>
         );
@@ -188,7 +188,7 @@ export class ComponentNavBranch extends React.PureComponent<Props, State> {
             <DocTooltip
               className="spacer-left"
               doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/branches/single-branch.md')}>
-              <PlusCircleIcon fill={theme.blue} size={12} />
+              <PlusCircleIcon fill={colors.blue} size={12} />
             </DocTooltip>
           </div>
         );

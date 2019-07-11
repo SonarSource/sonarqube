@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import SQScanner from './SQScanner';
 import BuildWrapper from './BuildWrapper';
 import CodeSnippet from '../../../../components/common/CodeSnippet';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
-import { translate } from '../../../../helpers/l10n';
 import { quote } from '../../utils';
 
 export interface Props {

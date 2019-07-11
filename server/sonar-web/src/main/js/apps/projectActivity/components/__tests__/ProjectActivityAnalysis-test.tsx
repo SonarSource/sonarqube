@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import ProjectActivityAnalysis from '../ProjectActivityAnalysis';
 import { mockParsedAnalysis, mockAnalysisEvent } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
-jest.mock('../../../../helpers/dates', () => ({
+jest.mock('sonar-ui-common/helpers/dates', () => ({
   parseDate: () => ({
     valueOf: () => 1546333200000,
     toISOString: () => '2019-01-01T09:00:00.000Z'

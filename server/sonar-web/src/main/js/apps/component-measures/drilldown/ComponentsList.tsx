@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getLocalizedMetricName } from 'sonar-ui-common/helpers/l10n';
 import ComponentsListRow from './ComponentsListRow';
 import EmptyResult from './EmptyResult';
 import { complementary } from '../config/complementary';
-import { getLocalizedMetricName } from '../../../helpers/l10n';
 import { View } from '../utils';
 
 interface Props {

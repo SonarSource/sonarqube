@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import OrganizationAvatarInput from '../components/OrganizationAvatarInput';
 import OrganizationKeyInput from '../components/OrganizationKeyInput';
 import OrganizationUrlInput from '../components/OrganizationUrlInput';
-import { ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
 
 type RequiredOrganization = Required<T.OrganizationBase>;
 

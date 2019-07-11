@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import { PageHeader } from '../PageHeader';
 import { mockLanguage, mockQualityProfile, mockRouter } from '../../../../helpers/testMocks';
-import { click } from '../../../../helpers/testUtils';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();

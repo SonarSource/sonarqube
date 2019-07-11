@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { ReactSelectProps, ReactCreatableSelectProps, ReactAsyncSelectProps } from 'react-select';
-import { ClearButton } from '../ui/buttons';
-import { lazyLoad } from '../lazyLoad';
+import { ClearButton } from 'sonar-ui-common/components/controls/buttons';
+import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import './react-select.css';
 
 const ReactSelectLib = import('react-select');

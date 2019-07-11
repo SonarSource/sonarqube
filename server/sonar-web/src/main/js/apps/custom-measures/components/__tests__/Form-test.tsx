@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { change, submit, click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import Form from '../Form';
-import { change, submit, click, waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/metrics', () => ({
   getAllMetrics: () =>

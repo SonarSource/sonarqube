@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
 import ProjectActivityDateInput from '../ProjectActivityDateInput';
-import { parseDate } from '../../../../helpers/dates';
 
 it('should render correctly the date inputs', () => {
   expect(

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import ClockIcon from 'sonar-ui-common/components/icons/ClockIcon';
+import FavoriteIcon from 'sonar-ui-common/components/icons/FavoriteIcon';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { Link } from 'react-router';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { ComponentResult } from './utils';
-import FavoriteIcon from '../../../components/icons-components/FavoriteIcon';
-import QualifierIcon from '../../../components/icons-components/QualifierIcon';
-import ClockIcon from '../../../components/icons-components/ClockIcon';
-import Tooltip from '../../../components/controls/Tooltip';
 import { getProjectUrl, getCodeUrl } from '../../../helpers/urls';
 
 interface Props {

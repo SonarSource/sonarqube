@@ -18,19 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import ActionsDropdown, {
+  ActionsDropdownItem,
+  ActionsDropdownDivider
+} from 'sonar-ui-common/components/controls/ActionsDropdown';
 import RenameProfileForm from './RenameProfileForm';
 import CopyProfileForm from './CopyProfileForm';
 import DeleteProfileForm from './DeleteProfileForm';
 import ExtendProfileForm from './ExtendProfileForm';
-import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { setDefaultProfile } from '../../../api/quality-profiles';
 import { getProfilePath, getProfileComparePath, getProfilesPath } from '../utils';
 import { Profile } from '../types';
-import ActionsDropdown, {
-  ActionsDropdownItem,
-  ActionsDropdownDivider
-} from '../../../components/controls/ActionsDropdown';
 import { withRouter, Router } from '../../../components/hoc/withRouter';
 
 interface Props {

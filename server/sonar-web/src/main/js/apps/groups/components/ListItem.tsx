@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DeleteForm from './DeleteForm';
-import EditMembers from './EditMembers';
-import Form from './Form';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { omitNil } from 'sonar-ui-common/helpers/request';
 import ActionsDropdown, {
   ActionsDropdownItem,
   ActionsDropdownDivider
-} from '../../../components/controls/ActionsDropdown';
-import { translate } from '../../../helpers/l10n';
-import { omitNil } from '../../../helpers/request';
+} from 'sonar-ui-common/components/controls/ActionsDropdown';
+import DeleteForm from './DeleteForm';
+import EditMembers from './EditMembers';
+import Form from './Form';
 
 interface Props {
   group: T.Group;

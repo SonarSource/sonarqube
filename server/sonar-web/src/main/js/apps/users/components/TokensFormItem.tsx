@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Button } from '../../../components/ui/buttons';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
+import { limitComponentName } from 'sonar-ui-common/helpers/path';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DateFromNowHourPrecision from '../../../components/intl/DateFromNowHourPrecision';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import Tooltip from '../../../components/controls/Tooltip';
-import { limitComponentName } from '../../../helpers/path';
 import { revokeToken } from '../../../api/user-tokens';
-import { translate } from '../../../helpers/l10n';
 
 export type TokenDeleteConfirmation = 'inline' | 'modal';
 
@@ -97,7 +97,7 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
         </td>
         <td className="thin nowrap text-right">
           <DeferredSpinner loading={loading}>
-            <i className="spinner-placeholder" />
+            <i className="deferred-spinner-placeholder" />
           </DeferredSpinner>
           {deleteConfirmation === 'modal' ? (
             <ConfirmButton

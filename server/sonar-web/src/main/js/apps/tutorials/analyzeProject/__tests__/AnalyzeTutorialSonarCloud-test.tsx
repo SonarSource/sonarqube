@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { get } from 'sonar-ui-common/helpers/storage';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import AnalyzeTutorialSonarCloud from '../AnalyzeTutorialSonarCloud';
 import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { get } from '../../../../helpers/storage';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { generateToken, getTokens } from '../../../../api/user-tokens';
 import { getUniqueTokenName } from '../../utils';
 
-jest.mock('../../../../helpers/storage', () => ({
+jest.mock('sonar-ui-common/helpers/storage', () => ({
   get: jest.fn(),
   remove: jest.fn(),
   save: jest.fn()

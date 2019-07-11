@@ -18,21 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import HistoryIcon from 'sonar-ui-common/components/icons/HistoryIcon';
 import { Link } from 'react-router';
+import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import Rating from 'sonar-ui-common/components/ui/Rating';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
-import HistoryIcon from '../../../components/icons-components/HistoryIcon';
-import Rating from '../../../components/ui/Rating';
 import Timeline from '../components/Timeline';
-import Tooltip from '../../../components/controls/Tooltip';
 import { getWrappedDisplayName } from '../../../components/hoc/utils';
 import {
-  formatMeasure,
   isDiffMetric,
   getPeriodValue,
   getShortType,
   getRatingTooltip
 } from '../../../helpers/measures';
-import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { getPeriodDate } from '../../../helpers/periods';
 import {
   getComponentDrilldownUrl,

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { submit } from 'sonar-ui-common/helpers/testUtils';
 import AutoOrganizationBind from '../AutoOrganizationBind';
-import { submit } from '../../../../helpers/testUtils';
 import { mockOrganization } from '../../../../helpers/testMocks';
 
 it('should render correctly', () => {

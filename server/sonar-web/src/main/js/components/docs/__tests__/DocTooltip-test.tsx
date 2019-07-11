@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import DocTooltip from '../DocTooltip';
-import { waitAndUpdate } from '../../../helpers/testUtils';
 
 it('should render', async () => {
   const wrapper = shallow(<DocTooltip doc={Promise.resolve({ default: 'this is *bold* text' })} />);

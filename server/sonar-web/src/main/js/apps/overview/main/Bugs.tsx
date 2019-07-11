@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import BugIcon from 'sonar-ui-common/components/icons/BugIcon';
+import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import enhance, { ComposedProps } from './enhance';
 import ApplicationLeakPeriodLegend from '../components/ApplicationLeakPeriodLegend';
-import BugIcon from '../../../components/icons-components/BugIcon';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import { getMetricName } from '../utils';
 import { isLongLivingBranch } from '../../../helpers/branches';
-import { translateWithParameters } from '../../../helpers/l10n';
 
 export class Bugs extends React.PureComponent<ComposedProps> {
   renderHeader() {

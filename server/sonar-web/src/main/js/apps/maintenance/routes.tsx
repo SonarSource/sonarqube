@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { IndexRoute } from 'react-router';
-import { lazyLoad } from '../../components/lazyLoad';
+import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 
 export const maintenanceRoutes = (
   <IndexRoute component={lazyLoad(() => import('./components/MaintenanceAppContainer'))} />

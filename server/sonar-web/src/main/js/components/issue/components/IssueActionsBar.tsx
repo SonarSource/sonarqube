@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import IssueAssign from './IssueAssign';
 import IssueCommentAction from './IssueCommentAction';
 import IssueSeverity from './IssueSeverity';
@@ -25,8 +26,6 @@ import IssueTags from './IssueTags';
 import IssueTransition from './IssueTransition';
 import IssueType from './IssueType';
 import { updateIssue } from '../actions';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { RawQuery } from '../../../helpers/query';
 import { IssueResponse } from '../../../api/issues';
 
 interface Props {
@@ -51,7 +50,7 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
   setIssueProperty = (
     property: keyof T.Issue,
     popup: string,
-    apiCall: (query: RawQuery) => Promise<IssueResponse>,
+    apiCall: (query: T.RawQuery) => Promise<IssueResponse>,
     value: string
   ) => {
     const { issue } = this.props;

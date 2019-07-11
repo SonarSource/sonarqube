@@ -17,16 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first */
-jest.mock('../../../../../helpers/l10n', () => {
-  const l10n = require.requireActual('../../../../../helpers/l10n');
-  l10n.hasMessage = jest.fn(() => true);
-  return l10n;
-});
-
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavBgTaskNotif from '../ComponentNavBgTaskNotif';
+
+jest.mock('sonar-ui-common/helpers/l10n', () => ({
+  ...jest.requireActual('sonar-ui-common/helpers/l10n'),
+  hasMessage: jest.fn().mockReturnValue(true)
+}));
 
 const component = {
   analysisDate: '2017-01-02T00:00:00.000Z',

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import CommentDeletePopup from '../CommentDeletePopup';
-import { click } from '../../../../helpers/testUtils';
 
 it('should render the comment delete popup correctly', () => {
   const onDelete = jest.fn();

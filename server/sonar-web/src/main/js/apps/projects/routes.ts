@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RouterState, RedirectFunction } from 'react-router';
+import { save } from 'sonar-ui-common/helpers/storage';
+import { isDefined } from 'sonar-ui-common/helpers/types';
+import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import DefaultPageSelectorContainer from './components/DefaultPageSelectorContainer';
 import FavoriteProjectsContainer from './components/FavoriteProjectsContainer';
 import { PROJECTS_DEFAULT_FILTER, PROJECTS_ALL } from './utils';
-import { save } from '../../helpers/storage';
-import { lazyLoad } from '../../components/lazyLoad';
-import { isDefined } from '../../helpers/types';
 
 const routes = [
   { indexRoute: { component: DefaultPageSelectorContainer } },

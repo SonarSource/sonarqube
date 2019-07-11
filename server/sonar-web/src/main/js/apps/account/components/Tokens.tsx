@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import TokensForm from '../../users/components/TokensForm';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   login: string;

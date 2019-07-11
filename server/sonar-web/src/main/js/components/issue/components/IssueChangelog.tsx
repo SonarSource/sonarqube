@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import ChangelogPopup from '../popups/ChangelogPopup';
 import DateFromNow from '../../intl/DateFromNow';
 import DateTimeFormatter from '../../intl/DateTimeFormatter';
-import DropdownIcon from '../../icons-components/DropdownIcon';
-import Toggler from '../../controls/Toggler';
-import Tooltip from '../../controls/Tooltip';
-import { ButtonLink } from '../../ui/buttons';
 
 interface Props {
   isOpen: boolean;

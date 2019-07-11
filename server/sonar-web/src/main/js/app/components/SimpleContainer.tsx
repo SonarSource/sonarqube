@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import NavBar from 'sonar-ui-common/components/ui/NavBar';
 import GlobalFooterContainer from './GlobalFooterContainer';
-import * as theme from '../theme';
-import NavBar from '../../components/nav/NavBar';
+import { rawSizes } from '../theme';
 
 interface Props {
   children?: React.ReactNode;
@@ -30,7 +30,7 @@ export default function SimpleContainer({ children }: Props) {
   return (
     <div className="global-container">
       <div className="page-wrapper" id="container">
-        <NavBar className="navbar-global" height={theme.globalNavHeightRaw} />
+        <NavBar className="navbar-global" height={rawSizes.globalNavHeightRaw} />
         {children}
       </div>
       <GlobalFooterContainer />

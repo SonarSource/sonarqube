@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { hasMessage } from 'sonar-ui-common/helpers/l10n';
 import SetTransitionPopup, { Props } from '../SetTransitionPopup';
-import { hasMessage } from '../../../../helpers/l10n';
 
-jest.mock('../../../../helpers/l10n', () => ({
-  ...jest.requireActual('../../../../helpers/l10n'),
+jest.mock('sonar-ui-common/helpers/l10n', () => ({
+  ...jest.requireActual('sonar-ui-common/helpers/l10n'),
   hasMessage: jest.fn().mockReturnValue(false)
 }));
 

@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
-import Rating from '../../../components/ui/Rating';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Rating from 'sonar-ui-common/components/ui/Rating';
 import Measure from '../../../components/measure/Measure';
-import { translate } from '../../../helpers/l10n';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 
 interface Props {

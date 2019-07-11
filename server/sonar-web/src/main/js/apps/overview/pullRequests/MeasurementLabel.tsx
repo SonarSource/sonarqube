@@ -20,9 +20,10 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
-import { translate } from '../../../helpers/l10n';
-import { formatMeasure, findMeasure } from '../../../helpers/measures';
+import { findMeasure } from '../../../helpers/measures';
 import { getLeakValue } from '../../../components/measure/utils';
 import { MEASUREMENTS_MAP, MeasurementType } from '../utils';
 

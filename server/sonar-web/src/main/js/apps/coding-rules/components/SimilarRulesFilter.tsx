@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import FilterIcon from 'sonar-ui-common/components/icons/FilterIcon';
+import TagsIcon from 'sonar-ui-common/components/icons/TagsIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import { Query } from '../query';
-import Dropdown from '../../../components/controls/Dropdown';
-import { translate } from '../../../helpers/l10n';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
-import FilterIcon from '../../../components/icons-components/FilterIcon';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
-import TagsIcon from '../../../components/icons-components/TagsIcon';
 
 interface Props {
   onFilterChange: (changes: Partial<Query>) => void;

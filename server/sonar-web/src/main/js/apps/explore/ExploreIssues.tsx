@@ -19,10 +19,9 @@
  */
 import * as React from 'react';
 import AppContainer from '../issues/components/AppContainer';
-import { RawQuery } from '../../helpers/query';
 
 interface Props {
-  location: { pathname: string; query: RawQuery };
+  location: { pathname: string; query: T.RawQuery };
 }
 
 export default function ExploreIssues(props: Props) {

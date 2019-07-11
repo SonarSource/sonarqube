@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { translate } from '../../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 
 interface Props {
   baseComponent?: T.ComponentMeasure;

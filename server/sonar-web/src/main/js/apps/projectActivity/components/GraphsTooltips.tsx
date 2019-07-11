@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { isDefined } from 'sonar-ui-common/helpers/types';
+import { Popup, PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import GraphsTooltipsContent from './GraphsTooltipsContent';
 import GraphsTooltipsContentEvents from './GraphsTooltipsContentEvents';
 import GraphsTooltipsContentCoverage from './GraphsTooltipsContentCoverage';
@@ -25,8 +27,6 @@ import GraphsTooltipsContentDuplication from './GraphsTooltipsContentDuplication
 import GraphsTooltipsContentIssues from './GraphsTooltipsContentIssues';
 import { DEFAULT_GRAPH, MeasureHistory, Serie } from '../utils';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import { Popup, PopupPlacement } from '../../../components/ui/popups';
-import { isDefined } from '../../../helpers/types';
 
 interface Props {
   events: T.AnalysisEvent[];

@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { FormikProps } from 'formik';
 import { isWebUri } from 'valid-url';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import InputValidationField from 'sonar-ui-common/components/controls/InputValidationField';
 import ValidationModal from '../../../components/controls/ValidationModal';
-import InputValidationField from '../../../components/controls/InputValidationField';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   onClose: () => void;

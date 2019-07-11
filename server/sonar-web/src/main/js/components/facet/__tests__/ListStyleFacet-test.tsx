@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import ListStyleFacet, { Props } from '../ListStyleFacet';
-import { waitAndUpdate } from '../../../helpers/testUtils';
 
 it('should render', () => {
   expect(shallowRender()).toMatchSnapshot();

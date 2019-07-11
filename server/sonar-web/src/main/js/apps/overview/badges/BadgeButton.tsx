@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { BadgeType } from './utils';
-import { Button } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   onClick: (type: BadgeType) => void;

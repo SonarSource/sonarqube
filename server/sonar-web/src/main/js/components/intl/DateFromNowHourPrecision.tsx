@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as differenceInHours from 'date-fns/difference_in_hours';
 import { DateSource } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DateFromNow from './DateFromNow';
 import DateTimeFormatter from './DateTimeFormatter';
-import Tooltip from '../controls/Tooltip';
-import { differenceInHours } from '../../helpers/dates';
-import { translate } from '../../helpers/l10n';
 
 interface Props {
   children?: (formattedDate: string) => React.ReactNode;

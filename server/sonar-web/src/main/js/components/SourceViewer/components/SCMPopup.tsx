@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { DropdownOverlay } from '../../controls/Dropdown';
+import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
+import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import DateFormatter from '../../intl/DateFormatter';
-import { PopupPlacement } from '../../ui/popups';
 
 interface Props {
   line: T.SourceLine;

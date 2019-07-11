@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DateFormatter from './DateFormatter';
 import DateTimeFormatter from './DateTimeFormatter';
-import Tooltip from '../controls/Tooltip';
-import { parseDate } from '../../helpers/dates';
 
 interface Props {
   className?: string;

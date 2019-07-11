@@ -20,6 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import BranchRow from './BranchRow';
 import LongBranchesPattern from './LongBranchesPattern';
 import {
@@ -28,10 +31,7 @@ import {
   isShortLivingBranch,
   isPullRequest
 } from '../../../helpers/branches';
-import { translate } from '../../../helpers/l10n';
 import { getValues } from '../../../api/settings';
-import { formatMeasure } from '../../../helpers/measures';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
 
 interface Props {
   branchLikes: T.BranchLike[];

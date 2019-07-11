@@ -18,16 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as differenceInDays from 'date-fns/difference_in_days';
 import { connect } from 'react-redux';
+import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { parseDate, toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
+import { save, get } from 'sonar-ui-common/helpers/storage';
+import { hasMessage } from 'sonar-ui-common/helpers/l10n';
 import { OnboardingContext } from './OnboardingContext';
-import { differenceInDays, parseDate, toShortNotSoISOString } from '../../helpers/dates';
 import { getCurrentUser, getAppState, Store } from '../../store/rootReducer';
 import { skipOnboarding } from '../../store/users';
 import { showLicense } from '../../api/marketplace';
-import { hasMessage } from '../../helpers/l10n';
-import { save, get } from '../../helpers/storage';
 import { isSonarCloud } from '../../helpers/system';
-import { lazyLoad } from '../../components/lazyLoad';
 import { isLoggedIn } from '../../helpers/users';
 import { withRouter, Router, Location } from '../../components/hoc/withRouter';
 

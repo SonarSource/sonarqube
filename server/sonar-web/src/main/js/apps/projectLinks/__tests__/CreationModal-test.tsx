@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { change, submit } from 'sonar-ui-common/helpers/testUtils';
 import CreationModal from '../CreationModal';
-import { change, submit } from '../../../helpers/testUtils';
 
 it('should create link', () => {
   const onClose = jest.fn();

@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { omit, sortBy, without } from 'lodash';
+import { highlightTerm } from 'sonar-ui-common/helpers/search';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { searchAssignees, Query, ReferencedUser, SearchedAssignee, Facet } from '../utils';
 import Avatar from '../../../components/ui/Avatar';
-import { translate } from '../../../helpers/l10n';
-import { highlightTerm } from '../../../helpers/search';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 
 export interface Props {

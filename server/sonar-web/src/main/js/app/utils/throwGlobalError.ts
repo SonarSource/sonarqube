@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { parseError } from 'sonar-ui-common/helpers/request';
 import getStore from './getStore';
-import { parseError } from '../../helpers/request';
 import { addGlobalErrorMessage } from '../../store/globalMessages';
 
 export default function throwGlobalError(error: { response: Response }): Promise<Response> {

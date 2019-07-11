@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import HelpTooltip from './HelpTooltip';
-import AlertErrorIcon from '../icons-components/AlertErrorIcon';
-import AlertSuccessIcon from '../icons-components/AlertSuccessIcon';
+import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
+import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 
 interface Props {
   description?: string;

@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import BadgeButton from '../BadgeButton';
 import { BadgeType } from '../utils';
-import { click } from '../../../../helpers/testUtils';
 
 it('should display correctly', () => {
   expect(getWrapper()).toMatchSnapshot();

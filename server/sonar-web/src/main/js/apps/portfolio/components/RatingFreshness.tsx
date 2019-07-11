@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Rating from 'sonar-ui-common/components/ui/Rating';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import Rating from '../../../components/ui/Rating';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   lastChange?: string;

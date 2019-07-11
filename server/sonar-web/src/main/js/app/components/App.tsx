@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import { fetchLanguages } from '../../store/rootActions';
 import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
 import { isSonarCloud } from '../../helpers/system';
-import { lazyLoad } from '../../components/lazyLoad';
 import { getCurrentUser, getAppState, getGlobalSettingValue, Store } from '../../store/rootReducer';
 import { isLoggedIn } from '../../helpers/users';
 

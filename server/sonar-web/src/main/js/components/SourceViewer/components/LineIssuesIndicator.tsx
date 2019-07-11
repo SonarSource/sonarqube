@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import IssueIcon from '../../icons-components/IssueIcon';
+import IssueIcon from 'sonar-ui-common/components/icons/IssueIcon';
 import { sortByType } from '../../../helpers/issues';
 
 interface Props {

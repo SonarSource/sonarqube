@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import * as theme from '../../app/theme';
-import ContextNavBar from '../../components/nav/ContextNavBar';
-import NavBarTabs from '../../components/nav/NavBarTabs';
-import { translate } from '../../helpers/l10n';
+import ContextNavBar from 'sonar-ui-common/components/ui/ContextNavBar';
+import NavBarTabs from 'sonar-ui-common/components/ui/NavBarTabs';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { rawSizes } from '../../app/theme';
 
 interface Props {
   children: JSX.Element;
@@ -31,7 +31,7 @@ interface Props {
 export default function Explore(props: Props) {
   return (
     <div id="explore">
-      <ContextNavBar height={theme.contextNavHeightRaw} id="explore-navigation">
+      <ContextNavBar height={rawSizes.contextNavHeightRaw} id="explore-navigation">
         <header className="navbar-context-header">
           <h1>{translate('explore')}</h1>
         </header>

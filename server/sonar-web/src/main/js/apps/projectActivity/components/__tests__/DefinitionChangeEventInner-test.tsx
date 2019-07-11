@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import { DefinitionChangeEventInner, DefinitionChangeEvent } from '../DefinitionChangeEventInner';
-import { click } from '../../../../helpers/testUtils';
 
 it('should render', () => {
   const event: DefinitionChangeEvent = {

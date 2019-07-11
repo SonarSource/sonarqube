@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { MetricProps } from './Form';
 import Item from './Item';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   domains?: string[];

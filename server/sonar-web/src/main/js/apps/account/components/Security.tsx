@@ -20,9 +20,9 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import Password from './Password';
 import Tokens from './Tokens';
-import { translate } from '../../../helpers/l10n';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 
 interface Props {

@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import Analysis from './Analysis';
 import { getProjectActivity } from '../../../api/projectActivity';
 import PreviewGraph from '../../../components/preview-graph/PreviewGraph';
-import { translate } from '../../../helpers/l10n';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
 import { getActivityUrl } from '../../../helpers/urls';
 

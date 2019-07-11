@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import BugIcon from 'sonar-ui-common/components/icons/BugIcon';
+import CodeSmellIcon from 'sonar-ui-common/components/icons/CodeSmellIcon';
+import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
+import Rating from 'sonar-ui-common/components/ui/Rating';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import Measure from '../../../components/measure/Measure';
-import BugIcon from '../../../components/icons-components/BugIcon';
-import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
-import Rating from '../../../components/ui/Rating';
-import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   measures: T.Dict<string>;

@@ -18,22 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
 import Helmet from 'react-helmet';
-import Details from './Details';
-import List from './List';
-import ListHeader from './ListHeader';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { fetchQualityGates } from '../../../api/quality-gates';
-import { translate } from '../../../helpers/l10n';
+import { WithRouterProps } from 'react-router';
 import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
   removeWhitePageClass
-} from '../../../helpers/pages';
+} from 'sonar-ui-common/helpers/pages';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import Details from './Details';
+import List from './List';
+import ListHeader from './ListHeader';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import { fetchQualityGates } from '../../../api/quality-gates';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import '../../../components/search-navigator.css';
 import '../styles.css';

@@ -20,11 +20,11 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { throttle } from 'lodash';
+import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 import DateFormatter from '../../../components/intl/DateFormatter';
-import Tooltip from '../../../components/controls/Tooltip';
-import { translate } from '../../../helpers/l10n';
-import { toShortNotSoISOString } from '../../../helpers/dates';
 import {
   activityQueryChanged,
   getAnalysesByVersionByDay,

@@ -51,7 +51,7 @@ const elementsContainer = (
     onToggleGroup={jest.fn(() => Promise.resolve())}
     onToggleUser={jest.fn(() => Promise.resolve())}
     permissions={permissions}
-    selectedPermission={'bar'}
+    selectedPermission="bar"
     users={users}
   />
 );

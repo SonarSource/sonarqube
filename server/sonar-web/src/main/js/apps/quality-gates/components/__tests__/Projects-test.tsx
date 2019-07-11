@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import Projects, { SearchParams } from '../Projects';
 import SelectList, { Filter } from '../../../../components/SelectList/SelectList';
 import { mockQualityGate } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 import {
   searchProjects,
   associateGateWithProject,

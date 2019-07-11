@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import Modal from '../../components/controls/Modal';
-import { Button, ResetButtonLink } from '../../components/ui/buttons';
-import { translate } from '../../helpers/l10n';
-import { Alert } from '../../components/ui/Alert';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Button, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Modal from 'sonar-ui-common/components/controls/Modal';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 
 export interface Props {
   onClose: () => void;

@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { sortBy } from 'lodash';
 import * as classNames from 'classnames';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Query, FacetKey } from '../query';
 import { Profile } from '../../../api/quality-profiles';
 import DocTooltip from '../../../components/docs/DocTooltip';
@@ -27,7 +28,6 @@ import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   activation: boolean | undefined;

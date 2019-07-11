@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import Modal from '../../../components/controls/Modal';
-import { translate } from '../../../helpers/l10n';
-import { ResetButtonLink } from '../../../components/ui/buttons';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Modal from 'sonar-ui-common/components/controls/Modal';
 
 interface Props {
   onClose: () => void;
@@ -38,7 +38,7 @@ export default function LicensePromptModal({ onClose }: Props) {
       <div className="modal-body">
         <FormattedMessage
           defaultMessage={translate('license.prompt.description')}
-          id={'license.prompt.description'}
+          id="license.prompt.description"
           values={{
             url: (
               <Link onClick={onClose} to="/admin/extension/license/app">

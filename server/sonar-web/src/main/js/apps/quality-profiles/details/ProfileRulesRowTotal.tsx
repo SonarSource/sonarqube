@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { formatMeasure } from '../../../helpers/measures';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getRulesUrl } from '../../../helpers/urls';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   count: number | null;

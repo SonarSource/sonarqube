@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { change } from 'sonar-ui-common/helpers/testUtils';
 import InputForText from '../InputForText';
-import { change } from '../../../../../helpers/testUtils';
 import { DefaultSpecializedInputProps } from '../../../utils';
 
 it('should render textarea', () => {

@@ -18,18 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from '../../../components/controls/Modal';
-import { translate } from '../../../helpers/l10n';
+import { csvEscape } from 'sonar-ui-common/helpers/csv';
+import { latinize } from 'sonar-ui-common/helpers/strings';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Modal from 'sonar-ui-common/components/controls/Modal';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import MarkdownTips from '../../../components/common/MarkdownTips';
-import { SEVERITIES, RULE_TYPES, RULE_STATUSES } from '../../../helpers/constants';
 import Select from '../../../components/controls/Select';
-import TypeHelper from '../../../components/shared/TypeHelper';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
+import TypeHelper from '../../../components/shared/TypeHelper';
 import { createRule, updateRule } from '../../../api/rules';
-import { csvEscape } from '../../../helpers/csv';
-import { latinize } from '../../../helpers/strings';
-import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
-import { Alert } from '../../../components/ui/Alert';
+import { SEVERITIES, RULE_TYPES, RULE_STATUSES } from '../../../helpers/constants';
 
 interface Props {
   customRule?: T.RuleDetails;

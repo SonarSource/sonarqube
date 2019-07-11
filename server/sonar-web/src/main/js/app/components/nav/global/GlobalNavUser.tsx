@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { sortBy } from 'lodash';
 import { Link } from 'react-router';
-import * as theme from '../../../theme';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
+import { rawSizes } from '../../../theme';
 import Avatar from '../../../../components/ui/Avatar';
 import OrganizationListItem from '../../../../components/ui/OrganizationListItem';
-import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/urls';
-import Dropdown from '../../../../components/controls/Dropdown';
 import { isLoggedIn } from '../../../../helpers/users';
 import { withRouter, Router } from '../../../../components/hoc/withRouter';
 
@@ -102,7 +102,7 @@ export class GlobalNavUser extends React.PureComponent<Props> {
           <Avatar
             hash={currentUser.avatar}
             name={currentUser.name}
-            size={theme.globalNavContentHeightRaw}
+            size={rawSizes.globalNavContentHeightRaw}
           />
         </a>
       </Dropdown>

@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Rating from 'sonar-ui-common/components/ui/Rating';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
-import Rating from '../../../components/ui/Rating';
-import { translate } from '../../../helpers/l10n';
 import { Facet } from '../types';
-import { RawQuery } from '../../../helpers/query';
 
 interface Props {
   className?: string;
@@ -31,7 +30,7 @@ interface Props {
   headerDetail?: React.ReactNode;
   maxFacetValue?: number;
   name: string;
-  onQueryChange: (change: RawQuery) => void;
+  onQueryChange: (change: T.RawQuery) => void;
   organization?: { key: string };
   property: string;
   query: T.Dict<any>;

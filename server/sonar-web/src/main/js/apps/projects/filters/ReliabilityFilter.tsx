@@ -18,18 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import BugIcon from 'sonar-ui-common/components/icons/BugIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import IssuesFilter from './IssuesFilter';
 import { Facet } from '../types';
-import BugIcon from '../../../components/icons-components/BugIcon';
-import { translate } from '../../../helpers/l10n';
-import { RawQuery } from '../../../helpers/query';
 
 interface Props {
   className?: string;
   facet?: Facet;
   headerDetail?: React.ReactNode;
   maxFacetValue?: number;
-  onQueryChange: (change: RawQuery) => void;
+  onQueryChange: (change: T.RawQuery) => void;
   organization?: { key: string };
   query: T.Dict<any>;
   value?: any;

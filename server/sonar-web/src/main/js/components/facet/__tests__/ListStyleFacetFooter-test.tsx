@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import ListStyleFacetFooter from '../ListStyleFacetFooter';
-import { click } from '../../../helpers/testUtils';
 
 it('should not render "show more"', () => {
   expect(

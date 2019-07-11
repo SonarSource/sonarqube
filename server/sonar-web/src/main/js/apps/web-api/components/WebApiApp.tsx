@@ -19,8 +19,11 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
-import { Link, withRouter, WithRouterProps } from 'react-router';
 import { maxBy } from 'lodash';
+import { Link, withRouter, WithRouterProps } from 'react-router';
+import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import Domain from './Domain';
 import Menu from './Menu';
 import Search from './Search';
@@ -36,9 +39,6 @@ import {
   parseQuery,
   parseVersion
 } from '../utils';
-import { translate } from '../../../helpers/l10n';
-import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
-import { scrollToElement } from '../../../helpers/scrolling';
 import '../styles/web-api.css';
 
 type Props = WithRouterProps;

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import SCMPopup from './SCMPopup';
-import Toggler from '../../controls/Toggler';
 
 interface Props {
   line: T.SourceLine;

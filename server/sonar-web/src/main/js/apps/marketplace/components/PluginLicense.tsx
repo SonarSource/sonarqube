@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Tooltip from '../../../components/controls/Tooltip';
-import { translate } from '../../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 
 interface Props {
   license?: string;

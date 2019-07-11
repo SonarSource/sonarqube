@@ -20,11 +20,12 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import Measure from '../../../components/measure/Measure';
-import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
-import { getPeriodValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';
-import { translate } from '../../../helpers/l10n';
+import { getPeriodValue, isDiffMetric } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { getBranchLikeQuery, isPullRequest, isShortLivingBranch } from '../../../helpers/branches';
 

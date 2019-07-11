@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { toNotSoISOString } from 'sonar-ui-common/helpers/dates';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import Modal from 'sonar-ui-common/components/controls/Modal';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { getPermissionTemplates, bulkApplyTemplate } from '../../api/permissions';
-import { translate, translateWithParameters } from '../../helpers/l10n';
-import Modal from '../../components/controls/Modal';
 import Select from '../../components/controls/Select';
-import { ResetButtonLink, SubmitButton } from '../../components/ui/buttons';
-import { toNotSoISOString } from '../../helpers/dates';
-import { Alert } from '../../components/ui/Alert';
 
 export interface Props {
   analyzedBefore: Date | undefined;

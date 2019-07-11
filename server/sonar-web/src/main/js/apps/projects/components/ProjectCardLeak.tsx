@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import * as difference from 'date-fns/difference_in_milliseconds';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardLeakMeasures from './ProjectCardLeakMeasures';
 import ProjectCardOrganizationContainer from './ProjectCardOrganizationContainer';
@@ -27,7 +28,6 @@ import Favorite from '../../../components/controls/Favorite';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import TagsList from '../../../components/tags/TagsList';
 import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Project } from '../types';
 import { formatDuration } from '../utils';
 import { getProjectUrl } from '../../../helpers/urls';

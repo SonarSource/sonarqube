@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { EditButton } from 'sonar-ui-common/components/controls/buttons';
 import { quote } from '../../../utils';
 import SQScanner from '../SQScanner';
 import BuildWrapper from '../BuildWrapper';
-import { translate } from '../../../../../helpers/l10n';
 import CodeSnippet from '../../../../../components/common/CodeSnippet';
-import { EditButton } from '../../../../../components/ui/buttons';
 import { ClangGCCCommon } from '../Custom/ClangGCCCustom';
 
 export interface Props {
@@ -82,9 +82,9 @@ unzip build-wrapper-linux-x86.zip`;
     <div className="huge-spacer-top">
       {props.os === 'win' ? (
         <>
-          <SQScanner os={'ci'} />
+          <SQScanner os="ci" />
 
-          <BuildWrapper className="huge-spacer-top" os={'ci'} />
+          <BuildWrapper className="huge-spacer-top" os="ci" />
         </>
       ) : (
         <>
@@ -99,9 +99,9 @@ unzip build-wrapper-linux-x86.zip`;
       <ClangGCCCommon
         command1={command1}
         command2={command2}
-        renderCommand2={renderCommand2}
         onDone={props.onDone}
         os={props.os}
+        renderCommand2={renderCommand2}
       />
     </div>
   );

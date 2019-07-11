@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { times } from 'lodash';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import RemoteRepositories from '../RemoteRepositories';
 import { getRepositories } from '../../../../api/alm-integration';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 import {
   mockOrganizationWithAlm,
   mockOrganizationWithAdminActions

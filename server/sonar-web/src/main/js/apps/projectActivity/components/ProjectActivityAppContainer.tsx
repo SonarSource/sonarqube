@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { InjectedRouter } from 'react-router';
 import { Location } from 'history';
+import { InjectedRouter } from 'react-router';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
 import ProjectActivityApp from './ProjectActivityApp';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import { getAllMetrics } from '../../../api/metrics';
 import * as api from '../../../api/projectActivity';
 import * as actions from '../actions';
 import { getBranchLikeQuery } from '../../../helpers/branches';
-import { parseDate } from '../../../helpers/dates';
 import {
   customMetricsChanged,
   DEFAULT_GRAPH,
@@ -40,7 +40,6 @@ import {
   serializeQuery,
   serializeUrlQuery
 } from '../utils';
-import { RawQuery } from '../../../helpers/query';
 
 interface Props {
   branchLike?: T.BranchLike;
@@ -151,7 +150,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
     });
   };
 
-  fetchActivity = (project: string, p: number, ps: number, additional?: RawQuery) => {
+  fetchActivity = (project: string, p: number, ps: number, additional?: T.RawQuery) => {
     const parameters = { project, p, ps, ...getBranchLikeQuery(this.props.branchLike) };
     return api
       .getProjectActivity({ ...additional, ...parameters })

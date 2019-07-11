@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import OrganizationKeyInput from '../OrganizationKeyInput';
 import { getOrganization } from '../../../../api/organizations';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/organizations', () => ({
   getOrganization: jest.fn().mockResolvedValue(undefined)

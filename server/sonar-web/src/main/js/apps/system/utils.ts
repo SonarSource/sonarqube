@@ -22,10 +22,9 @@ import {
   cleanQuery,
   parseAsArray,
   parseAsString,
-  RawQuery,
   serializeStringArray
-} from '../../helpers/query';
-import { formatMeasure } from '../../helpers/measures';
+} from 'sonar-ui-common/helpers/query';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 
 export interface Query {
   expandedCards: string[];
@@ -219,13 +218,13 @@ export function groupSections(sysInfoData: T.SysInfoValueObject) {
 }
 
 export const parseQuery = memoize(
-  (urlQuery: RawQuery): Query => ({
+  (urlQuery: T.RawQuery): Query => ({
     expandedCards: parseAsArray(urlQuery.expand, parseAsString)
   })
 );
 
 export const serializeQuery = memoize(
-  (query: Query): RawQuery =>
+  (query: Query): T.RawQuery =>
     cleanQuery({
       expand: serializeStringArray(query.expandedCards)
     })

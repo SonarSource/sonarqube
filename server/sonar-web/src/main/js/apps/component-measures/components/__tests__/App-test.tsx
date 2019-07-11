@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { App } from '../App';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { getMeasuresAndMeta } from '../../../../api/measures';
 import {
   mockPullRequest,

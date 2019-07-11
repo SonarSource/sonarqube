@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { DocNavigationItem } from 'Docs/@types/types';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import Menu from './Menu';
 import SearchResults from './SearchResults';
 import { DocumentationEntry } from '../utils';
-import SearchBox from '../../../components/controls/SearchBox';
 
 interface Props {
   navigation: DocNavigationItem[];

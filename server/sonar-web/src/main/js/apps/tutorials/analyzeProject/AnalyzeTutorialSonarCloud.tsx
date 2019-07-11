@@ -19,6 +19,10 @@
  */
 import * as classnames from 'classnames';
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { get, remove, save } from 'sonar-ui-common/helpers/storage';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import BackButton from 'sonar-ui-common/components/controls/BackButton';
 import ConfigureWithAutoScan from './configurations/ConfigureWithAutoScan';
 import ConfigureWithTravis from './configurations/ConfigureWithTravis';
 import ConfigureWithLocalScanner from './configurations/ConfigureWithLocalScanner';
@@ -41,18 +45,14 @@ import {
 import { getUniqueTokenName } from '../utils';
 import AnalyzeTutorialDone from '../components/AnalyzeTutorialDone';
 import InstanceMessage from '../../../components/common/InstanceMessage';
-import BackButton from '../../../components/controls/BackButton';
 import TokenStep from '../components/TokenStep';
 import ProjectAnalysisStep from '../components/ProjectAnalysisStep';
 import { generateToken, getTokens } from '../../../api/user-tokens';
 import { getGithubLanguages } from '../../../api/alm-integration';
 import { isBitbucket, isGithub, isVSTS } from '../../../helpers/almIntegrations';
-import { translate } from '../../../helpers/l10n';
-import { get, remove, save } from '../../../helpers/storage';
 import { isSonarCloud } from '../../../helpers/system';
 import '../styles.css';
 import './AnalyzeTutorialSonarCloud.css';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
   component: T.Component;
@@ -195,7 +195,7 @@ export default class AnalyzeTutorialSonarCloud extends React.PureComponent<Props
   };
 
   spinner = () => (
-    <div className="display-flex-justify-center spinner-margin">
+    <div className="display-flex-justify-center spacer">
       <i className="spinner global-loading-spinner" />
     </div>
   );

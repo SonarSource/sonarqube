@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
 import RestartButton from '../../../../components/common/RestartButton';
-import { Alert } from '../../../../components/ui/Alert';
-import { Button } from '../../../../components/ui/buttons';
 import { cancelPendingPlugins, PluginPendingResult } from '../../../../api/plugins';
-import { translate } from '../../../../helpers/l10n';
 
 interface Props {
   fetchSystemStatus: () => void;

@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getHostUrl } from 'sonar-ui-common/helpers/urls';
 import OtherOtherCI from './OtherCI/OtherOtherCI';
 import ClangGCCOtherCI from './OtherCI/ClangGCCOtherCI';
 import { AnalysisCommandProps, AnalysisCommandRenderProps } from './utils';
 import { RenderCommandForGradle, RenderCommandForMaven } from './AnalysisCommandCustom';
-import { getHostUrl } from '../../../../helpers/urls';
 import { getProjectKey } from '../ProjectAnalysisStep';
 import { RenderOS, RenderOSProps } from '../LanguageForm';
 import { ProjectAnalysisModes } from '../ProjectAnalysisStepFromBuildTool';

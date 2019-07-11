@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { click } from '../../../../helpers/testUtils';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import UserGroups from '../UserGroups';
 
 const user = {

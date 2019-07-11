@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate, submit } from 'sonar-ui-common/helpers/testUtils';
 import SetupProjectBox from '../SetupProjectBox';
-import { waitAndUpdate, submit } from '../../../../helpers/testUtils';
 import { provisionProject } from '../../../../api/alm-integration';
 import { mockOrganizationWithAlm } from '../../../../helpers/testMocks';
 

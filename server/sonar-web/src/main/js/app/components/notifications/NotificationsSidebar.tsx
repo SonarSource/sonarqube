@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import * as differenceInSeconds from 'date-fns/difference_in_seconds';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ClearButton } from 'sonar-ui-common/components/controls/buttons';
+import Modal from 'sonar-ui-common/components/controls/Modal';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import DateFormatter from '../../../components/intl/DateFormatter';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import Modal from '../../../components/controls/Modal';
-import { ClearButton } from '../../../components/ui/buttons';
 import { PrismicFeatureNews } from '../../../api/news';
-import { differenceInSeconds } from '../../../helpers/dates';
-import { translate } from '../../../helpers/l10n';
 
 export interface Props {
   fetchMoreFeatureNews: () => void;
@@ -39,11 +39,12 @@ export interface Props {
 
 export default function NotificationsSidebar(props: Props) {
   const { loading, loadingMore, news, notificationsLastReadDate, paging } = props;
+  const header = translate('embed_docs.whats_new');
   return (
-    <Modal onRequestClose={props.onClose}>
+    <Modal contentLabel={header} onRequestClose={props.onClose}>
       <div className="notifications-sidebar">
         <div className="notifications-sidebar-top">
-          <h3>{translate('embed_docs.whats_new')}</h3>
+          <h3>{header}</h3>
           <ClearButton
             className="button-tiny"
             iconProps={{ size: 12, thin: true }}

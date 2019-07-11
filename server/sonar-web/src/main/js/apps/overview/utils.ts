@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { translate } from '../../helpers/l10n';
-import BugIcon from '../../components/icons-components/BugIcon';
-import CodeSmellIcon from '../../components/icons-components/CodeSmellIcon';
+import BugIcon from 'sonar-ui-common/components/icons/BugIcon';
+import CodeSmellIcon from 'sonar-ui-common/components/icons/CodeSmellIcon';
+import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
+import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
+import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import CoverageRating from '../../components/ui/CoverageRating';
-import DuplicationsRating from '../../components/ui/DuplicationsRating';
-import VulnerabilityIcon from '../../components/icons-components/VulnerabilityIcon';
-import SecurityHotspotIcon from '../../components/icons-components/SecurityHotspotIcon';
 
 export const METRICS = [
   // quality gate

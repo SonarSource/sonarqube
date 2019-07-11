@@ -21,7 +21,7 @@
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import ProfilePermissions from '../ProfilePermissions';
-import { click, waitAndUpdate } from '../../../../helpers/testUtils';
+import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 
 jest.mock('../../../../api/quality-profiles', () => ({
   searchUsers: jest.fn(() => Promise.resolve([])),

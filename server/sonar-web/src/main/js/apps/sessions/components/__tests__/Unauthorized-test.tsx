@@ -21,7 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import Unauthorized from '../Unauthorized';
 
-jest.mock('../../../../helpers/cookies', () => ({
+jest.mock('sonar-ui-common/helpers/cookies', () => ({
   getCookie: jest.fn().mockReturnValue('Foo')
 }));
 

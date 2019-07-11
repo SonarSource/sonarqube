@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getHostUrl } from 'sonar-ui-common/helpers/urls';
 import JavaMaven from './JavaMaven';
 import JavaGradle from './JavaGradle';
 import DotNet from './DotNet';
 import Msvc from './Msvc';
 import ClangGCC from './ClangGCC';
 import Other from './Other';
-import { getHostUrl } from '../../../../helpers/urls';
 import { LanguageConfig } from '../../utils';
 import { getProjectKey } from '../ProjectAnalysisStep';
 

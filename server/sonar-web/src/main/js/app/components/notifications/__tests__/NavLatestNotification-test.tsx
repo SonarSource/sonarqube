@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
 import NavLatestNotification from '../NavLatestNotification';
 import { PrismicFeatureNews } from '../../../../api/news';
-import { parseDate } from '../../../../helpers/dates';
 
 it('should render correctly if there are new features, and the user has not opted out', () => {
   const wrapper = shallowRender();

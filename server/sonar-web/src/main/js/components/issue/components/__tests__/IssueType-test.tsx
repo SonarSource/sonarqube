@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import IssueType from '../IssueType';
-import { click } from '../../../../helpers/testUtils';
 
 const issue: Pick<T.Issue, 'type'> = { type: 'BUG' };
 

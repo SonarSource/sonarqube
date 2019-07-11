@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import VisibleIcon from 'sonar-ui-common/components/icons/VisibleIcon';
 import { connect } from 'react-redux';
-import * as theme from '../../app/theme';
-import Tooltip from '../controls/Tooltip';
-import { translate } from '../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { colors } from '../../app/theme';
 import { isSonarCloud } from '../../helpers/system';
 import { isCurrentUserMemberOf, isPaidOrganization } from '../../helpers/organizations';
 import {
@@ -31,7 +32,6 @@ import {
   getMyOrganizations,
   Store
 } from '../../store/rootReducer';
-import VisibleIcon from '../icons-components/VisibleIcon';
 import DocTooltip from '../docs/DocTooltip';
 
 interface StateToProps {
@@ -71,7 +71,7 @@ export function PrivacyBadge({
 
   let icon = null;
   if (isPaidOrganization(organization) && visibility === 'public') {
-    icon = <VisibleIcon className="little-spacer-right" fill={theme.blue} />;
+    icon = <VisibleIcon className="little-spacer-right" fill={colors.blue} />;
   }
 
   const badge = (

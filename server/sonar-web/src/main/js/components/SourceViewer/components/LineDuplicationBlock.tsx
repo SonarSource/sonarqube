@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import Tooltip from '../../controls/Tooltip';
-import Toggler from '../../controls/Toggler';
-import { translate } from '../../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import Toggler from 'sonar-ui-common/components/controls/Toggler';
 
 interface Props {
   duplicated: boolean;

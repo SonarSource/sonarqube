@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click, change, submit } from 'sonar-ui-common/helpers/testUtils';
 import InputForPassword from '../InputForPassword';
-import { click, change, submit } from '../../../../../helpers/testUtils';
 import { DefaultSpecializedInputProps } from '../../../utils';
 
 it('should render lock icon, but no form', () => {

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import Search, { Props } from '../Search';
-import { click } from '../../../helpers/testUtils';
 
 const organization: T.Organization = { key: 'org', name: 'org', projectVisibility: 'public' };
 

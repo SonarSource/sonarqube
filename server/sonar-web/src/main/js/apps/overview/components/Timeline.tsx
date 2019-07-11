@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { max } from 'd3-array';
-import LineChart from '../../../components/charts/LineChart';
+import LineChart from 'sonar-ui-common/components/charts/LineChart';
 
 const HEIGHT = 80;
 

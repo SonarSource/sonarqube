@@ -21,12 +21,13 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import { injectIntl, InjectedIntlProps } from 'react-intl';
 import { connect } from 'react-redux';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import getStore from '../../utils/getStore';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { getExtensionStart } from '../../../helpers/extensions';
 import { addGlobalErrorMessage } from '../../../store/globalMessages';
-import { translate } from '../../../helpers/l10n';
 import { Store, getCurrentUser } from '../../../store/rootReducer';
+import * as theme from '../../theme';
 
 interface Props extends InjectedIntlProps {
   currentUser: T.CurrentUser;
@@ -72,6 +73,7 @@ export class Extension extends React.PureComponent<Props, State> {
       intl: this.props.intl,
       location: this.props.location,
       router: this.props.router,
+      theme,
       ...this.props.options
     });
 

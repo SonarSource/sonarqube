@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DetachIcon from '../../../components/icons-components/DetachIcon';
+import DetachIcon from 'sonar-ui-common/components/icons/DetachIcon';
 
 interface Props {
   title: string;

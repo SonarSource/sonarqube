@@ -19,32 +19,31 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
 import ProjectActivityAnalysesList from '../ProjectActivityAnalysesList';
 import { DEFAULT_GRAPH } from '../../utils';
-import * as dates from '../../../../helpers/dates';
 
-jest.mock('../../../../helpers/dates', () => {
-  const actual = require.requireActual('../../../../helpers/dates');
-  return Object.assign({}, actual, {
-    startOfDay: (date: Date) => {
-      const startDay = new Date(date);
-      startDay.setUTCHours(0, 0, 0, 0);
-      return startDay;
-    },
-    toShortNotSoISOString: (date: string) => 'ISO.' + date
-  });
+jest.mock('date-fns/start_of_day', () => (date: Date) => {
+  const startDay = new Date(date);
+  startDay.setUTCHours(0, 0, 0, 0);
+  return startDay;
+});
+
+jest.mock('sonar-ui-common/helpers/dates', () => {
+  const actual = require.requireActual('sonar-ui-common/helpers/dates');
+  return { ...actual, toShortNotSoISOString: (date: string) => 'ISO.' + date };
 });
 
 const ANALYSES = [
   {
     key: 'A1',
-    date: dates.parseDate('2016-10-27T16:33:50+0000'),
+    date: parseDate('2016-10-27T16:33:50+0000'),
     events: [{ key: 'E1', category: 'VERSION', name: '6.5-SNAPSHOT' }]
   },
-  { key: 'A2', date: dates.parseDate('2016-10-27T12:21:15+0000'), events: [] },
+  { key: 'A2', date: parseDate('2016-10-27T12:21:15+0000'), events: [] },
   {
     key: 'A3',
-    date: dates.parseDate('2016-10-26T12:17:29+0000'),
+    date: parseDate('2016-10-26T12:17:29+0000'),
     events: [
       { key: 'E2', category: 'VERSION', name: '6.4' },
       { key: 'E3', category: 'OTHER', name: 'foo' }
@@ -52,7 +51,7 @@ const ANALYSES = [
   },
   {
     key: 'A4',
-    date: dates.parseDate('2016-10-24T16:33:50+0000'),
+    date: parseDate('2016-10-24T16:33:50+0000'),
     events: [{ key: 'E1', category: 'QUALITY_GATE', name: 'Quality gate changed to red...' }]
   }
 ];
@@ -92,8 +91,8 @@ it('should correctly filter analyses by date range', () => {
   wrapper.setProps({
     query: {
       ...DEFAULT_PROPS.query,
-      from: dates.parseDate('2016-10-27T16:33:50+0000'),
-      to: dates.parseDate('2016-10-27T16:33:50+0000')
+      from: parseDate('2016-10-27T16:33:50+0000'),
+      to: parseDate('2016-10-27T16:33:50+0000')
     }
   });
   expect(wrapper).toMatchSnapshot();

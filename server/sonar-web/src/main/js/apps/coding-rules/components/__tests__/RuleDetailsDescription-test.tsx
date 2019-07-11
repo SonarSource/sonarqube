@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click, change, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import RuleDetailsDescription from '../RuleDetailsDescription';
-import { click, change, waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/rules', () => ({
   updateRule: jest.fn().mockResolvedValue('updatedrule')

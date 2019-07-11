@@ -18,17 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
-import * as classNames from 'classnames';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
-import ProjectEventIcon from '../../../components/icons-components/ProjectEventIcon';
-import { ResetButtonLink } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
+import LongLivingBranchIcon from 'sonar-ui-common/components/icons/LongLivingBranchIcon';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import ProjectEventIcon from 'sonar-ui-common/components/icons/ProjectEventIcon';
+import { limitComponentName } from 'sonar-ui-common/helpers/path';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import { getProjectUrl } from '../../../helpers/urls';
-import LongLivingBranchIcon from '../../../components/icons-components/LongLivingBranchIcon';
 import { isMainBranch } from '../../../helpers/branches';
-import { limitComponentName } from '../../../helpers/path';
 
 export type DefinitionChangeEvent = T.AnalysisEvent &
   Required<Pick<T.AnalysisEvent, 'definitionChange'>>;
@@ -119,7 +119,7 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
       return (
         <FormattedMessage
           defaultMessage={translate('event.definition_change.branch_replaced')}
-          id={'event.definition_change.branch_replaced'}
+          id="event.definition_change.branch_replaced"
           values={{
             project: this.renderProjectLink(project, project.newBranch),
             oldBranch: this.renderBranch(project.oldBranch),

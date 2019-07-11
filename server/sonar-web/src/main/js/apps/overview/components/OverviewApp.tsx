@@ -20,6 +20,8 @@
 import * as React from 'react';
 import { uniq } from 'lodash';
 import { connect } from 'react-redux';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import ApplicationQualityGate from '../qualityGate/ApplicationQualityGate';
 import Bugs from '../main/Bugs';
 import CodeSmells from '../main/CodeSmells';
@@ -31,7 +33,6 @@ import QualityGate from '../qualityGate/QualityGate';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getAllTimeMachineData } from '../../../api/time-machine';
-import { parseDate } from '../../../helpers/dates';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { METRICS, HISTORY_METRICS_LIST } from '../utils';
@@ -49,7 +50,6 @@ import {
 } from '../../../helpers/branches';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics, Store } from '../../../store/rootReducer';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import '../styles.css';
 
 interface Props {
@@ -224,7 +224,7 @@ export class OverviewApp extends React.PureComponent<Props, State> {
   renderLoading = () => {
     return (
       <div className="text-center">
-        <i className="spinner spinner-margin" />
+        <i className="spinner spacer" />
       </div>
     );
   };

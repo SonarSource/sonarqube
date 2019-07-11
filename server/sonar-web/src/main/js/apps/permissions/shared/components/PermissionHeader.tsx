@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import HelpTooltip from '../../../../components/controls/HelpTooltip';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../utils';
-import Tooltip from '../../../../components/controls/Tooltip';
-import { Alert } from '../../../../components/ui/Alert';
 
 interface Props {
   onSelectPermission?: (permission: string) => void;

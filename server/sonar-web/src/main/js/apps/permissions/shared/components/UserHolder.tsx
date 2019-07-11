@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { without } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import PermissionCell from './PermissionCell';
 import Avatar from '../../../../components/ui/Avatar';
-import { translate } from '../../../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../utils';
 import { isSonarCloud } from '../../../../helpers/system';
 

@@ -18,11 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { FormattedMessage } from 'react-intl';
 import * as key from 'keymaster';
 import Helmet from 'react-helmet';
 import { keyBy, omit, without } from 'lodash';
+import { FormattedMessage } from 'react-intl';
+import { connect } from 'react-redux';
+import {
+  addSideBarClass,
+  addWhitePageClass,
+  removeSideBarClass,
+  removeWhitePageClass
+} from 'sonar-ui-common/helpers/pages';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
 import IssuesList from './IssuesList';
 import IssuesSourceViewer from './IssuesSourceViewer';
@@ -33,14 +46,8 @@ import PageActions from './PageActions';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
 import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeader';
 import Sidebar from '../sidebar/Sidebar';
-import { Alert } from '../../../components/ui/Alert';
-import { Button } from '../../../components/ui/buttons';
-import Checkbox from '../../../components/controls/Checkbox';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import EmptySearch from '../../../components/common/EmptySearch';
 import FiltersHeader from '../../../components/common/FiltersHeader';
-import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
-import ListFooter from '../../../components/controls/ListFooter';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
@@ -76,14 +83,6 @@ import {
   isPullRequest,
   fillBranchLike
 } from '../../../helpers/branches';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import {
-  addSideBarClass,
-  addWhitePageClass,
-  removeSideBarClass,
-  removeWhitePageClass
-} from '../../../helpers/pages';
-import { RawQuery } from '../../../helpers/query';
 import { isSonarCloud } from '../../../helpers/system';
 import { fetchBranchStatus } from '../../../store/rootActions';
 import '../../../components/search-navigator.css';
@@ -105,7 +104,7 @@ interface Props {
   component?: T.Component;
   currentUser: T.CurrentUser;
   fetchBranchStatus: (branchLike: T.BranchLike, projectKey: string) => Promise<void>;
-  fetchIssues: (query: RawQuery, requestOrganizations?: boolean) => Promise<FetchIssuesPromise>;
+  fetchIssues: (query: T.RawQuery, requestOrganizations?: boolean) => Promise<FetchIssuesPromise>;
   hideAuthorFacet?: boolean;
   location: Pick<Location, 'pathname' | 'query'>;
   multiOrganizations?: boolean;
@@ -413,7 +412,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   fetchIssues = (
-    additional: RawQuery,
+    additional: T.RawQuery,
     requestFacets = false,
     requestOrganizations = true
   ): Promise<FetchIssuesPromise> => {

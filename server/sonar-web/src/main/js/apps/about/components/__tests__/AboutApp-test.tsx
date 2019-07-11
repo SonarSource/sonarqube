@@ -18,21 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
+import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { AboutApp } from '../AboutApp';
-import { addWhitePageClass, removeWhitePageClass } from '../../../../helpers/pages';
 import { searchProjects } from '../../../../api/components';
 import { getFacet } from '../../../../api/issues';
 import { mockLocation, mockAppState, mockCurrentUser } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
-jest.mock('../../../../components/icons-components/BugIcon');
-jest.mock('../../../../components/icons-components/VulnerabilityIcon');
-jest.mock('../../../../components/icons-components/CodeSmellIcon');
-jest.mock('../../../../components/icons-components/SecurityHotspotIcon');
-jest.mock('../../../../components/icons-components/TagsIcon');
-
-jest.mock('../../../../helpers/pages', () => ({
+jest.mock('sonar-ui-common/helpers/pages', () => ({
   addWhitePageClass: jest.fn(),
   removeWhitePageClass: jest.fn()
 }));
@@ -62,7 +56,7 @@ jest.mock('../../../../app/components/GlobalContainer', () => ({
 }));
 
 it('should render correctly', async () => {
-  const wrapper = mountRender();
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
   expect(wrapper).toMatchSnapshot();
@@ -72,16 +66,16 @@ it('should render correctly', async () => {
   expect(removeWhitePageClass).toBeCalled();
 });
 
-it('should load issues, projects, and custom text upon mounting', () => {
+it('should load issues, projects, and custom text upon shallowing', () => {
   const fetchAboutPageSettings = jest.fn();
-  mountRender({ fetchAboutPageSettings });
+  shallowRender({ fetchAboutPageSettings });
   expect(fetchAboutPageSettings).toBeCalled();
   expect(searchProjects).toBeCalled();
   expect(getFacet).toBeCalled();
 });
 
-function mountRender(props: Partial<AboutApp['props']> = {}) {
-  return mount(
+function shallowRender(props: Partial<AboutApp['props']> = {}) {
+  return shallow(
     <AboutApp
       appState={mockAppState()}
       currentUser={mockCurrentUser()}

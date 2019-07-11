@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { DeleteButton } from 'sonar-ui-common/components/controls/buttons';
 import PrimitiveInput from './PrimitiveInput';
 import { getEmptyValue, DefaultInputProps } from '../../utils';
-import { DeleteButton } from '../../../../components/ui/buttons';
 
 export default class MultiValueInput extends React.PureComponent<DefaultInputProps> {
   ensureValue = () => {

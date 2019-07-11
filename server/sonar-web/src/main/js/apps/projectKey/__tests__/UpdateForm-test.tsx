@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
+import { change, click } from 'sonar-ui-common/helpers/testUtils';
 import UpdateForm from '../UpdateForm';
-import { change, click } from '../../../helpers/testUtils';
 
 it('should render', () => {
   const wrapper = shallow(

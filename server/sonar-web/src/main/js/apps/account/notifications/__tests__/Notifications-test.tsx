@@ -21,7 +21,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { Notifications } from '../Notifications';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 
 jest.mock('../../../../api/notifications', () => ({
   addNotification: jest.fn(() => Promise.resolve()),

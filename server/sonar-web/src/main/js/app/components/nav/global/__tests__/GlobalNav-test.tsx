@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate, click } from 'sonar-ui-common/helpers/testUtils';
 import { GlobalNav } from '../GlobalNav';
 import { isSonarCloud } from '../../../../../helpers/system';
-import { waitAndUpdate, click } from '../../../../../helpers/testUtils';
 import {
   fetchPrismicRefs,
   fetchPrismicFeatureNews,

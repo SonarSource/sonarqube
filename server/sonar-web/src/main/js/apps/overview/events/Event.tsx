@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Level from 'sonar-ui-common/components/ui/Level';
 import { isRichQualityGateEvent } from '../../projectActivity/components/RichQualityGateEventInner';
-import Level from '../../../components/ui/Level';
-import { translate } from '../../../helpers/l10n';
 import { isDefinitionChangeEvent } from '../../projectActivity/components/DefinitionChangeEventInner';
 
 interface Props {

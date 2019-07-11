@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
+import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import Footer from './components/Footer';
 import { TopNavBar, FixedNavBar } from './components/NavBars';
-import { addWhitePageClass, removeWhitePageClass } from '../../../helpers/pages';
-import { scrollToElement } from '../../../helpers/scrolling';
-import { getBaseUrl } from '../../../helpers/urls';
 import './new_style.css';
 
 export default class Pricing extends React.PureComponent {

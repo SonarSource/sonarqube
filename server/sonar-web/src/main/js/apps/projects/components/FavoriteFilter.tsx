@@ -19,16 +19,15 @@
  */
 import * as React from 'react';
 import { IndexLink, Link } from 'react-router';
-import { translate } from '../../../helpers/l10n';
-import { save } from '../../../helpers/storage';
-import { RawQuery } from '../../../helpers/query';
+import { save } from 'sonar-ui-common/helpers/storage';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE, PROJECTS_ALL } from '../utils';
 import { isLoggedIn } from '../../../helpers/users';
 
 interface Props {
   currentUser: T.CurrentUser;
   organization?: { key: string };
-  query?: RawQuery;
+  query?: T.RawQuery;
 }
 
 export default class FavoriteFilter extends React.PureComponent<Props> {

@@ -19,8 +19,9 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { formatMeasure, findMeasure } from '../../../helpers/measures';
-import { translate } from '../../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { findMeasure } from '../../../helpers/measures';
 import { MEASUREMENTS_MAP, MeasurementType } from '../utils';
 
 interface Props {

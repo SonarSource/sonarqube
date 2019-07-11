@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import * as theme from '../../../app/theme';
-import { ClearButton } from '../../../components/ui/buttons';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
-import Tooltip from '../../../components/controls/Tooltip';
-import { translate } from '../../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ClearButton } from 'sonar-ui-common/components/controls/buttons';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
+import { colors } from '../../../app/theme';
 import { getAppState, Store } from '../../../store/rootReducer';
 
 export interface Props {
@@ -52,7 +52,7 @@ export function StatPendingCount({ isSystemAdmin, onCancelAllPending, pendingCou
             onConfirm={onCancelAllPending}>
             {({ onClick }) => (
               <Tooltip overlay={translate('background_tasks.cancel_all_tasks')}>
-                <ClearButton className="little-spacer-left" color={theme.red} onClick={onClick} />
+                <ClearButton className="little-spacer-left" color={colors.red} onClick={onClick} />
               </Tooltip>
             )}
           </ConfirmButton>

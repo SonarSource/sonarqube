@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as isSameDay from 'date-fns/is_same_day';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
 import DateFormatter from '../../../components/intl/DateFormatter';
-import { isSameDay, parseDate } from '../../../helpers/dates';
 
 interface Props {
   submittedAt: string;

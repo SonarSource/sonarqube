@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import { RichQualityGateEventInner, RichQualityGateEvent } from '../RichQualityGateEventInner';
-import { click } from '../../../../helpers/testUtils';
 
 const event: RichQualityGateEvent = {
   category: 'QUALITY_GATE',

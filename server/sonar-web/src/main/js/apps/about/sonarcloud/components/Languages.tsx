@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import SCChevronDownIcon from './SCChevronDownIcon';
 import { LANGUAGES } from '../utils';
-import { getBaseUrl } from '../../../../helpers/urls';
 
 interface State {
   height?: number;

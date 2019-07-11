@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
+import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
 import enhance, { ComposedProps } from './enhance';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
 import { getMetricName } from '../utils';
-import SecurityHotspotIcon from '../../../components/icons-components/SecurityHotspotIcon';
 
 export class VulnerabiltiesAndHotspots extends React.PureComponent<ComposedProps> {
   renderHeader() {

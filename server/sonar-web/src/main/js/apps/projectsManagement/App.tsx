@@ -20,15 +20,15 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { debounce, uniq, without } from 'lodash';
+import { toNotSoISOString } from 'sonar-ui-common/helpers/dates';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import Header from './Header';
 import Search from './Search';
 import Projects from './Projects';
 import CreateProjectForm from './CreateProjectForm';
-import ListFooter from '../../components/controls/ListFooter';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import { getComponents, Project } from '../../api/components';
-import { toNotSoISOString } from '../../helpers/dates';
-import { translate } from '../../helpers/l10n';
 
 export interface Props {
   currentUser: { login: string };

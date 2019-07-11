@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import GroupIcon from 'sonar-ui-common/components/icons/GroupIcon';
 import { debounce, identity } from 'lodash';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { User, Group } from './ProfilePermissions';
 import Select from '../../../components/controls/Select';
 import Avatar from '../../../components/ui/Avatar';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import GroupIcon from '../../../components/icons-components/GroupIcon';
 
 type Option = User | Group;
 type OptionWithValue = Option & { value: string };

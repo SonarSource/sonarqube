@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as differenceInDays from 'date-fns/difference_in_days';
 import { injectIntl, InjectedIntlProps } from 'react-intl';
+import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateTimeFormatter, { formatterOption } from '../../../components/intl/DateTimeFormatter';
-import Tooltip from '../../../components/controls/Tooltip';
 import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
-import { translateWithParameters } from '../../../helpers/l10n';
-import { differenceInDays } from '../../../helpers/dates';
 
 interface Props {
   period: T.Period;

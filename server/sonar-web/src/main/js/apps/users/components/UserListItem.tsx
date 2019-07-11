@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import BulletListIcon from 'sonar-ui-common/components/icons/BulletListIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
 import TokensFormModal from './TokensFormModal';
 import UserActions from './UserActions';
 import UserGroups from './UserGroups';
 import UserListItemIdentity from './UserListItemIdentity';
 import UserScmAccounts from './UserScmAccounts';
 import Avatar from '../../../components/ui/Avatar';
-import BulletListIcon from '../../../components/icons-components/BulletListIcon';
 import DateFromNowHourPrecision from '../../../components/intl/DateFromNowHourPrecision';
-import { ButtonIcon } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   identityProvider?: T.IdentityProvider;

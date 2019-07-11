@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import EditMembersModal, { SearchParams } from '../EditMembersModal';
 import SelectList, { Filter } from '../../../../components/SelectList/SelectList';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { getUsersInGroup, addUserToGroup, removeUserFromGroup } from '../../../../api/user_groups';
 
 jest.mock('../../../../api/user_groups', () => ({
@@ -135,7 +135,7 @@ function shallowRender(props: Partial<EditMembersModal['props']> = {}) {
     <EditMembersModal
       group={{ id: 1, name: 'foo', membersCount: 1 }}
       onClose={jest.fn()}
-      organization={'bar'}
+      organization="bar"
       {...props}
     />
   );

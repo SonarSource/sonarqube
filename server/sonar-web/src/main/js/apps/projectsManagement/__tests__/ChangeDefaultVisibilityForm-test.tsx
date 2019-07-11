@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import ChangeDefaultVisibilityForm from '../ChangeDefaultVisibilityForm';
-import { click } from '../../../helpers/testUtils';
 
 const organization: T.Organization = {
   canUpdateProjectsVisibilityToPrivate: true,

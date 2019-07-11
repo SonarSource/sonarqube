@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import SelectListListElement from '../SelectListListElement';
-import { waitAndUpdate } from '../../../helpers/testUtils';
 
 const listElement = (
   <SelectListListElement
-    element={'foo'}
-    key={'foo'}
+    element="foo"
+    key="foo"
     onSelect={jest.fn(() => Promise.resolve())}
     onUnselect={jest.fn(() => Promise.resolve())}
     renderElement={(foo: string) => foo}

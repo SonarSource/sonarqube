@@ -31,7 +31,7 @@ export default function BuildSystemForm({ build, setBuild }: Props) {
       checked={build}
       name="build"
       onCheck={setBuild}
-      optionLabelKey={'onboarding.build'}
+      optionLabelKey="onboarding.build"
       options={['maven', 'gradle', 'make', 'other']}
       titleLabelKey="onboarding.build"
     />

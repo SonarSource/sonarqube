@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import * as classNames from 'classnames';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import LoginForm from './LoginForm';
 import OAuthProviders from './OAuthProviders';
-import { getBaseUrl } from '../../../helpers/urls';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Alert } from '../../../components/ui/Alert';
 import './LoginSonarCloud.css';
 import { Store } from '../../../store/rootReducer';
 

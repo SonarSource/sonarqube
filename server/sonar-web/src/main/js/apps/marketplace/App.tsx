@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { sortBy, uniqBy } from 'lodash';
 import Helmet from 'react-helmet';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import Header from './Header';
 import EditionBoxes from './EditionBoxes';
 import Footer from './Footer';
@@ -35,7 +36,6 @@ import {
   PluginPendingResult,
   getInstalledPlugins
 } from '../../api/plugins';
-import { translate } from '../../helpers/l10n';
 import { withRouter, Location, Router } from '../../components/hoc/withRouter';
 import './style.css';
 

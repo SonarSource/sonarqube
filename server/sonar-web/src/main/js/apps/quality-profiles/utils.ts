@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as differenceInYears from 'date-fns/difference_in_years';
 import { sortBy } from 'lodash';
+import { isValidDate, parseDate } from 'sonar-ui-common/helpers/dates';
 import { Profile } from './types';
 import { Profile as BaseProfile } from '../../api/quality-profiles';
-import { differenceInYears, isValidDate, parseDate } from '../../helpers/dates';
 
 export function sortProfiles(profiles: BaseProfile[]): Profile[] {
   const result: Profile[] = [];

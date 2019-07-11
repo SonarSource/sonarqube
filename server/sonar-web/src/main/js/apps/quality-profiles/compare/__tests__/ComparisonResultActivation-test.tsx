@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import ComparisonResultActivation from '../ComparisonResultActivation';
 import { Profile } from '../../../../api/quality-profiles';
-import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/rules', () => ({
   getRuleDetails: jest.fn().mockResolvedValue({ key: 'foo' })

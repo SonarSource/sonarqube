@@ -20,18 +20,18 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
+import SeverityIcon from 'sonar-ui-common/components/icons/SeverityIcon';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
+import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import ActivationButton from './ActivationButton';
 import RuleInheritanceIcon from './RuleInheritanceIcon';
 import SimilarRulesFilter from './SimilarRulesFilter';
 import { Activation, Query } from '../query';
 import { Profile, deactivateRule } from '../../../api/quality-profiles';
-import { Button } from '../../../components/ui/buttons';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
-import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
-import SeverityIcon from '../../../components/icons-components/SeverityIcon';
 import TagsList from '../../../components/tags/TagsList';
-import Tooltip from '../../../components/controls/Tooltip';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 
 interface Props {

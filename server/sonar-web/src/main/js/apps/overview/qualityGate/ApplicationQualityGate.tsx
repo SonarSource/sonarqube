@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { keyBy } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import Level from 'sonar-ui-common/components/ui/Level';
 import ApplicationQualityGateProject from './ApplicationQualityGateProject';
-import Level from '../../../components/ui/Level';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { getApplicationQualityGate, ApplicationProject } from '../../../api/quality-gates';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   branch?: T.LongLivingBranch;

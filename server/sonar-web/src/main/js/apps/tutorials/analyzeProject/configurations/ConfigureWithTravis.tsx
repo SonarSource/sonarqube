@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { get, save } from 'sonar-ui-common/helpers/storage';
 import EncryptYourTokenStep from '../steps/EncryptYourTokenStep';
 import CreateSonarPropertiesStep from '../steps/CreateSonarPropertiesStep';
 import EditTravisYmlStep from '../steps/EditTravisYmlStep';
 import { isSonarCloud } from '../../../../helpers/system';
 import { PROJECT_STEP_PROGRESS, TutorialProps } from '../utils';
-import { translate } from '../../../../helpers/l10n';
-import { get, save } from '../../../../helpers/storage';
 
 enum Steps {
   ENCRYPT_TOKEN = 1,

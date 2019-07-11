@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import Event from './Event';
 import DateTooltipFormatter from '../../../components/intl/DateTooltipFormatter';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   analysis: T.Analysis;

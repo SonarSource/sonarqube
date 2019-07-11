@@ -20,22 +20,22 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { pickBy, sortBy } from 'lodash';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Modal from 'sonar-ui-common/components/controls/Modal';
+import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import Radio from 'sonar-ui-common/components/controls/Radio';
 import { searchAssignees } from '../utils';
 import Avatar from '../../../components/ui/Avatar';
-import Checkbox from '../../../components/controls/Checkbox';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import MarkdownTips from '../../../components/common/MarkdownTips';
-import Modal from '../../../components/controls/Modal';
-import Radio from '../../../components/controls/Radio';
 import SearchSelect from '../../../components/controls/SearchSelect';
 import Select from '../../../components/controls/Select';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import { Alert } from '../../../components/ui/Alert';
 import { searchIssueTags, bulkChangeIssues } from '../../../api/issues';
-import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isLoggedIn } from '../../../helpers/users';
 
 interface AssigneeOption {
@@ -263,7 +263,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       </div>
       <div className="modal-body">
         <div className="text-center">
-          <i className="spinner spinner-margin" />
+          <i className="spinner spacer" />
         </div>
       </div>
       <div className="modal-foot">
@@ -532,7 +532,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <Modal contentLabel="modal" onRequestClose={this.props.onClose} size={'small'}>
+      <Modal contentLabel="modal" onRequestClose={this.props.onClose} size="small">
         {this.state.loading ? this.renderLoading() : this.renderForm()}
       </Modal>
     );

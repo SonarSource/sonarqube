@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import BubbleChart from 'sonar-ui-common/components/charts/BubbleChart';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
-import BubbleChart from '../../../components/charts/BubbleChart';
-import { formatMeasure } from '../../../helpers/measures';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RATING_COLORS } from '../../../helpers/constants';
 import { getProjectUrl } from '../../../helpers/urls';
 import { Project } from '../types';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
 
 interface Metric {
   key: string;

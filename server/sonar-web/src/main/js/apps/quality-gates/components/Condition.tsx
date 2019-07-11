@@ -18,11 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import {
+  translate,
+  getLocalizedMetricName,
+  translateWithParameters
+} from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
+import ActionsDropdown, {
+  ActionsDropdownItem
+} from 'sonar-ui-common/components/controls/ActionsDropdown';
 import ConditionModal from './ConditionModal';
-import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
-import { translate, getLocalizedMetricName, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
-import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { deleteCondition } from '../../../api/quality-gates';
 
 interface Props {

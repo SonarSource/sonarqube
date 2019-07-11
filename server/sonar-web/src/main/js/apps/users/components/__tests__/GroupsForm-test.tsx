@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import GroupsForm, { SearchParams } from '../GroupsForm';
 import SelectList, { Filter } from '../../../../components/SelectList/SelectList';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { getUserGroups } from '../../../../api/users';
 import { addUserToGroup, removeUserFromGroup } from '../../../../api/user_groups';
 import { mockUser } from '../../../../helpers/testMocks';

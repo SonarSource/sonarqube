@@ -21,7 +21,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import App from '../App';
-import { click, waitAndUpdate } from '../../../../helpers/testUtils';
+import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 
 jest.mock('../../../../api/system', () => ({
   getMigrationStatus: jest.fn(),

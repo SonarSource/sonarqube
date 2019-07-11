@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import Tooltip from '../../../components/controls/Tooltip';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { getFacet } from '../../../api/issues';
 import { getIssuesUrl } from '../../../helpers/urls';
-import { formatMeasure } from '../../../helpers/measures';
-import { translate } from '../../../helpers/l10n';
 import { withAppState } from '../../../components/hoc/withAppState';
 
 interface Props {

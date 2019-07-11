@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   getSonarcloudAddonYml,
   RequirementJavaBuild,
   getSonarcloudAddonYmlRender
 } from '../AnalysisCommandTravis';
 import { Props } from '../JavaGradle';
-import { translate } from '../../../../../helpers/l10n';
 import CodeSnippet from '../../../../../components/common/CodeSnippet';
 
 export function JavaGradleTravisSonarCloud(props: Props) {

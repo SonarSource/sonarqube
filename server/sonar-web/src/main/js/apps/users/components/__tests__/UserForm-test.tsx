@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate, submit } from 'sonar-ui-common/helpers/testUtils';
 import UserForm from '../UserForm';
 import { mockUser } from '../../../../helpers/testMocks';
 import { createUser, updateUser } from '../../../../api/users';
-import { waitAndUpdate, submit } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/users', () => ({
   createUser: jest.fn().mockResolvedValue({}),
@@ -41,7 +41,8 @@ it('should render correctly', () => {
 it('should correctly show errors', async () => {
   (updateUser as jest.Mock).mockRejectedValue({
     response: {
-      status: 400
+      status: 400,
+      json: jest.fn().mockRejectedValue(undefined)
     }
   });
   const wrapper = shallowRender();

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import Workers from './Workers';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   component?: any;

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
 import App from '../App';
-import { addSideBarClass, removeSideBarClass } from '../../../../helpers/pages';
 import { isSonarCloud } from '../../../../helpers/system';
 
 jest.mock('../../../../components/common/ScreenPositionHelper', () => ({
@@ -86,7 +86,7 @@ jest.mock(
   { virtual: true }
 );
 
-jest.mock('../../../../helpers/pages', () => ({
+jest.mock('sonar-ui-common/helpers/pages', () => ({
   addSideBarClass: jest.fn(),
   removeSideBarClass: jest.fn()
 }));

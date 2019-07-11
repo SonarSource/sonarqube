@@ -18,18 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { sortBy } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import BulkApplyTemplateModal from './BulkApplyTemplateModal';
 import DeleteModal from './DeleteModal';
-import Checkbox from '../../components/controls/Checkbox';
-import QualifierIcon from '../../components/icons-components/QualifierIcon';
-import HelpTooltip from '../../components/controls/HelpTooltip';
 import DateInput from '../../components/controls/DateInput';
 import Select from '../../components/controls/Select';
-import SearchBox from '../../components/controls/SearchBox';
-import { Button } from '../../components/ui/buttons';
 import { Project } from '../../api/components';
-import { translate } from '../../helpers/l10n';
 
 export interface Props {
   analyzedBefore: Date | undefined;

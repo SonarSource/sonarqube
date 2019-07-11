@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import InstanceMessage from '../../../components/common/InstanceMessage';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { deleteOrganization } from '../actions';
-import { Button } from '../../../components/ui/buttons';
 import { getOrganizationBilling } from '../../../api/organizations';
 import { isSonarCloud } from '../../../helpers/system';
-import { Alert } from '../../../components/ui/Alert';
 import { withRouter, Router } from '../../../components/hoc/withRouter';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
 

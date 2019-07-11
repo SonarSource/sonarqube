@@ -20,14 +20,14 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import AdminContext, { defaultPendingPlugins, defaultSystemStatus } from './AdminContext';
 import SettingsNav from './nav/settings/SettingsNav';
 import { getAppState, Store } from '../../store/rootReducer';
 import { getSettingsNavigation } from '../../api/nav';
 import { setAdminPages } from '../../store/appState';
-import { translate } from '../../helpers/l10n';
 import { PluginPendingResult, getPendingPlugins } from '../../api/plugins';
-import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
+import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
 import { getSystemStatus, waitSystemUPStatus } from '../../api/system';
 
 interface Props {

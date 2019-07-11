@@ -19,5 +19,5 @@
       "*": ["./src/main/js/@types/*"]
     }
   },
-  "include": ["./src/main/js/**/*"]
+  "include": ["./src/main/js/**/*", "node_modules/sonar-ui-common/types.d.ts"]
 }

@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import OpenCloseIcon from 'sonar-ui-common/components/icons/OpenCloseIcon';
 import * as classNames from 'classnames';
 import { DocsNavigationBlock, DocNavigationItem } from 'Docs/@types/types';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import { MenuItem } from './MenuItem';
 import { isDocsNavigationBlock } from '../navTreeUtils';
 import { DocumentationEntry, getNodeFromUrl } from '../utils';
-import OpenCloseIcon from '../../../components/icons-components/OpenCloseIcon';
-import { ButtonLink } from '../../../components/ui/buttons';
 
 interface Props {
   block: DocsNavigationBlock;

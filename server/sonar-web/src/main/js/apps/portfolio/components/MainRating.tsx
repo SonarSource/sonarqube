@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import Rating from '../../../components/ui/Rating';
+import Rating from 'sonar-ui-common/components/ui/Rating';
 import { getMeasureTreemapUrl } from '../../../helpers/urls';
 
 interface Props {

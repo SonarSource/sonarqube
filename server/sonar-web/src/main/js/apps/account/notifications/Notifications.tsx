@@ -20,13 +20,13 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { groupBy, partition, uniq, uniqBy, uniqWith } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import GlobalNotifications from './GlobalNotifications';
 import Projects from './Projects';
 import { NotificationProject } from './types';
 import * as api from '../../../api/notifications';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import { translate } from '../../../helpers/l10n';
-import { Alert } from '../../../components/ui/Alert';
 import { withAppState } from '../../../components/hoc/withAppState';
 
 export interface Props {

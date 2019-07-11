@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import OrganizationMembers from '../OrganizationMembers';
 import { searchMembers, addMember, removeMember } from '../../../api/organizations';
 import { searchUsersGroups, addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
@@ -28,7 +29,6 @@ import {
   mockOrganizationWithAdminActions,
   mockOrganizationWithAlm
 } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../helpers/testUtils';
 
 jest.mock('../../../api/organizations', () => ({
   addMember: jest.fn().mockResolvedValue({ login: 'bar', name: 'Bar', groupCount: 1 }),

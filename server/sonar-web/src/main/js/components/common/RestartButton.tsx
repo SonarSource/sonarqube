@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import ConfirmButton from '../controls/ConfirmButton';
-import { translate } from '../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
 import { restart } from '../../api/system';
-import { Button } from '../ui/buttons';
 
 interface Props {
   className?: string;

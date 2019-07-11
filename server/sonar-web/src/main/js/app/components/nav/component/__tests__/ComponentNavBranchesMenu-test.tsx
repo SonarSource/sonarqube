@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { elementKeydown } from 'sonar-ui-common/helpers/testUtils';
 import { ComponentNavBranchesMenu } from '../ComponentNavBranchesMenu';
-import { elementKeydown } from '../../../../../helpers/testUtils';
 import {
   mockPullRequest,
   mockShortLivingBranch,

@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { SyncMemberForm } from '../SyncMemberForm';
 import { setOrganizationMemberSync, syncMembers } from '../../../api/organizations';
 import { mockOrganizationWithAlm } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../helpers/testUtils';
 
 jest.mock('../../../api/organizations', () => ({
   setOrganizationMemberSync: jest.fn().mockResolvedValue(undefined),

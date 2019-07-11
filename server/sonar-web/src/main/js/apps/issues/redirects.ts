@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Location } from 'sonar-ui-common/helpers/urls';
 import { parseQuery, areMyIssuesSelected, serializeQuery } from './utils';
-import { RawQuery } from '../../helpers/query';
-import { Location } from '../../helpers/urls';
 
 function parseHash(hash: string) {
-  const query: RawQuery = {};
+  const query: T.RawQuery = {};
   const parts = hash.split('|');
   parts.forEach(part => {
     const tokens = part.split('=');

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Option } from 'react-select';
-import { translate } from '../../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getProfilesPath, getProfilesForLanguagePath } from '../utils';
 import Select from '../../../components/controls/Select';
 import { withRouter, Router } from '../../../components/hoc/withRouter';

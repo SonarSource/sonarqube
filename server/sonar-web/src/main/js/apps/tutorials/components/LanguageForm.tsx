@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
 import { RenderOptions } from './RenderOptions';
 import NewProjectForm from './NewProjectForm';
-import RadioToggle from '../../../components/controls/RadioToggle';
-import { translate } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
 import { isLanguageConfigured, LanguageConfig } from '../utils';
 
@@ -45,9 +45,9 @@ export function RenderOS(props: RenderOSProps) {
       checked={props.os}
       name="os"
       onCheck={props.setOS}
-      optionLabelKey={'onboarding.language.os'}
+      optionLabelKey="onboarding.language.os"
       options={['linux', 'win', 'mac']}
-      titleLabelKey={'onboarding.language.os'}
+      titleLabelKey="onboarding.language.os"
     />
   );
 }
@@ -109,9 +109,9 @@ export default class LanguageForm extends React.PureComponent<Props, State> {
       checked={this.state.cFamilyCompiler}
       name="c-family-compiler"
       onCheck={this.handleCFamilyCompilerChange}
-      optionLabelKey={'onboarding.language.c-family.compiler'}
+      optionLabelKey="onboarding.language.c-family.compiler"
       options={['msvc', 'clang-gcc']}
-      titleLabelKey={'onboarding.language.c-family.compiler'}
+      titleLabelKey="onboarding.language.c-family.compiler"
     />
   );
 

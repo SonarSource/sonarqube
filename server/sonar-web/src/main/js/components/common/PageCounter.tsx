@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { formatMeasure } from '../../helpers/measures';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 
 interface Props {
   className?: string;

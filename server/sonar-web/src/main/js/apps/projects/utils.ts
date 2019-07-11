@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { uniq } from 'lodash';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { RequestData } from 'sonar-ui-common/helpers/request';
 import { Query, convertToFilter } from './query';
-import { translate, translateWithParameters } from '../../helpers/l10n';
-import { RequestData } from '../../helpers/request';
 import { getOrganizations } from '../../api/organizations';
 import { searchProjects, Facet } from '../../api/components';
 import { getMeasuresForProjects } from '../../api/measures';

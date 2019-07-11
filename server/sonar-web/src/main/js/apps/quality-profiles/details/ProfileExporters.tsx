@@ -19,7 +19,7 @@
  */
 import { stringify } from 'querystring';
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Profile, Exporter } from '../types';
 
 interface Props {

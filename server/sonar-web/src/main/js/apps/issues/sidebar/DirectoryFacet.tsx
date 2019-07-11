@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { omit } from 'lodash';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
+import { collapsePath } from 'sonar-ui-common/helpers/path';
+import { highlightTerm } from 'sonar-ui-common/helpers/search';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Query, Facet } from '../utils';
-import QualifierIcon from '../../../components/icons-components/QualifierIcon';
-import { translate } from '../../../helpers/l10n';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
-import { highlightTerm } from '../../../helpers/search';
 import { getTree, TreeComponent } from '../../../api/components';
-import { collapsePath } from '../../../helpers/path';
 
 interface Props {
   componentKey: string;

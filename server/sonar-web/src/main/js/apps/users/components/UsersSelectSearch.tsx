@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { debounce } from 'lodash';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import Avatar from '../../../components/ui/Avatar';
 import Select from '../../../components/controls/Select';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Option {
   login: string;

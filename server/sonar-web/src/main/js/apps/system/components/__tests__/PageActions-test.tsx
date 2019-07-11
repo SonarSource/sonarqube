@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import PageActions from '../PageActions';
-import { click } from '../../../../helpers/testUtils';
 
 jest.mock('../../utils', () => ({
   getFileNameSuffix: (suffix?: string) => `filesuffix(${suffix || ''})`

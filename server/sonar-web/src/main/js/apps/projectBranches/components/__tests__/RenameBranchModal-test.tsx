@@ -22,8 +22,8 @@ jest.mock('../../../../api/branches', () => ({ renameBranch: jest.fn() }));
 
 import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
+import { submit, doAsync, click, change, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import RenameBranchModal from '../RenameBranchModal';
-import { submit, doAsync, click, change, waitAndUpdate } from '../../../../helpers/testUtils';
 import { renameBranch } from '../../../../api/branches';
 
 beforeEach(() => {

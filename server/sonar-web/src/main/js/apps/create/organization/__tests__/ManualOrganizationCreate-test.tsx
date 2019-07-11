@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import ManualOrganizationCreate from '../ManualOrganizationCreate';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { Step } from '../utils';
 import { mockOrganization } from '../../../../helpers/testMocks';
 

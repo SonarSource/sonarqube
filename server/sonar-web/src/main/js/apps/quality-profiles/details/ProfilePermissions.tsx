@@ -19,6 +19,8 @@
  */
 import * as React from 'react';
 import { sortBy, uniqBy } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ProfilePermissionsUser from './ProfilePermissionsUser';
 import ProfilePermissionsGroup from './ProfilePermissionsGroup';
 import ProfilePermissionsForm from './ProfilePermissionsForm';
@@ -27,8 +29,6 @@ import {
   searchGroups,
   SearchUsersGroupsParameters
 } from '../../../api/quality-profiles';
-import { Button } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 
 export interface User {

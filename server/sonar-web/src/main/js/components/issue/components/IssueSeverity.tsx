@@ -18,13 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DropdownIcon from '../../icons-components/DropdownIcon';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import SetSeverityPopup from '../popups/SetSeverityPopup';
 import SeverityHelper from '../../shared/SeverityHelper';
-import Toggler from '../../controls/Toggler';
-import { ButtonLink } from '../../ui/buttons';
 import { setIssueSeverity, IssueResponse } from '../../../api/issues';
-import { RawQuery } from '../../../helpers/query';
 
 interface Props {
   canSetSeverity: boolean;
@@ -33,7 +32,7 @@ interface Props {
   setIssueProperty: (
     property: keyof T.Issue,
     popup: string,
-    apiCall: (query: RawQuery) => Promise<IssueResponse>,
+    apiCall: (query: T.RawQuery) => Promise<IssueResponse>,
     value: string
   ) => void;
   togglePopup: (popup: string, show?: boolean) => void;

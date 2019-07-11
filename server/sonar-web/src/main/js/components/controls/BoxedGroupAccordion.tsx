@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import OpenCloseIcon from '../icons-components/OpenCloseIcon';
+import OpenCloseIcon from 'sonar-ui-common/components/icons/OpenCloseIcon';
 
 interface Props {
   children: React.ReactNode;

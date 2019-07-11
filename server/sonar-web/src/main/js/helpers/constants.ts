@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as theme from '../app/theme';
+import { colors } from '../app/theme';
 
 export const SEVERITIES = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
 export const STATUSES = ['OPEN', 'REOPENED', 'CONFIRMED', 'RESOLVED', 'CLOSED'];
@@ -31,18 +31,24 @@ export const RULE_TYPES: T.RuleType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL', '
 export const RULE_STATUSES = ['READY', 'BETA', 'DEPRECATED'];
 
 export const CHART_COLORS_RANGE_PERCENT = [
-  theme.green,
-  theme.lightGreen,
-  theme.yellow,
-  theme.orange,
-  theme.red
+  colors.green,
+  colors.lightGreen,
+  colors.yellow,
+  colors.orange,
+  colors.red
 ];
 export const CHART_REVERSED_COLORS_RANGE_PERCENT = [
-  theme.red,
-  theme.orange,
-  theme.yellow,
-  theme.lightGreen,
-  theme.green
+  colors.red,
+  colors.orange,
+  colors.yellow,
+  colors.lightGreen,
+  colors.green
 ];
 
-export const RATING_COLORS = [theme.green, theme.lightGreen, theme.yellow, theme.orange, '#e00'];
+export const RATING_COLORS = [
+  colors.green,
+  colors.lightGreen,
+  colors.yellow,
+  colors.orange,
+  '#e00'
+];

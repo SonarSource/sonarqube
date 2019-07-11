@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import EmailAlreadyExists from '../EmailAlreadyExists';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/users', () => ({
   getIdentityProviders: () =>
@@ -42,7 +42,7 @@ jest.mock('../../../../api/users', () => ({
     })
 }));
 
-jest.mock('../../../../helpers/cookies', () => ({
+jest.mock('sonar-ui-common/helpers/cookies', () => ({
   getCookie: jest
     .fn()
     .mockReturnValue(

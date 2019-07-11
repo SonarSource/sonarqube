@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Modal from 'sonar-ui-common/components/controls/Modal';
 import { getTask } from '../../../api/ce';
-import { translate } from '../../../helpers/l10n';
-import Modal from '../../../components/controls/Modal';
 
 interface Props {
   onClose: () => void;
@@ -62,7 +62,7 @@ export default class ScannerContext extends React.PureComponent<Props, State> {
     const { scannerContext } = this.state;
 
     return (
-      <Modal contentLabel="scanner context" onRequestClose={this.props.onClose} size={'large'}>
+      <Modal contentLabel="scanner context" onRequestClose={this.props.onClose} size="large">
         <div className="modal-head">
           <h2>
             {translate('background_tasks.scanner_context')}

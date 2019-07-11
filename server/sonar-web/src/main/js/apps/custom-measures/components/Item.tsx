@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DeleteForm from './DeleteForm';
-import Form from './Form';
-import MeasureDate from './MeasureDate';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem
-} from '../../../components/controls/ActionsDropdown';
-import Tooltip from '../../../components/controls/Tooltip';
-import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
+} from 'sonar-ui-common/components/controls/ActionsDropdown';
+import DeleteForm from './DeleteForm';
+import Form from './Form';
+import MeasureDate from './MeasureDate';
 
 interface Props {
   measure: T.CustomMeasure;

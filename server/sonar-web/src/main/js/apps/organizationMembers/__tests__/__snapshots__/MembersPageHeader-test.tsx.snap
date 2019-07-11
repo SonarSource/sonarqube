@@ -8,11 +8,12 @@ exports[`should render correctly 1`] = `
     className="page-title"
   >
     organization.members.page
+    <DeferredSpinner
+      className="little-spacer-left"
+      loading={true}
+      timeout={100}
+    />
   </h1>
-  <DeferredSpinner
-    loading={true}
-    timeout={100}
-  />
   <div
     className="page-description"
   >
@@ -44,11 +45,12 @@ exports[`should render for Bitbucket bound organization 1`] = `
     className="page-title"
   >
     organization.members.page
+    <DeferredSpinner
+      className="little-spacer-left"
+      loading={false}
+      timeout={100}
+    />
   </h1>
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
-  />
   <div
     className="page-actions text-right"
   >
@@ -111,11 +113,12 @@ exports[`should render for GitHub bound organization without sync 1`] = `
     className="page-title"
   >
     organization.members.page
+    <DeferredSpinner
+      className="little-spacer-left"
+      loading={false}
+      timeout={100}
+    />
   </h1>
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
-  />
   <div
     className="page-actions text-right"
   >
@@ -209,11 +212,12 @@ exports[`should render for admin 1`] = `
     className="page-title"
   >
     organization.members.page
+    <DeferredSpinner
+      className="little-spacer-left"
+      loading={false}
+      timeout={100}
+    />
   </h1>
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
-  />
   <div
     className="page-actions text-right"
   >
@@ -270,11 +274,12 @@ exports[`should render for personal GitHub bound organization without sync 1`] =
     className="page-title"
   >
     organization.members.page
+    <DeferredSpinner
+      className="little-spacer-left"
+      loading={false}
+      timeout={100}
+    />
   </h1>
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
-  />
   <div
     className="page-actions text-right"
   >

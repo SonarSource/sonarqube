@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getTextColor } from '@sqhelpers/colors';
-import { getBaseUrl } from '@sqhelpers/urls';
+import ThemeContext from 'sonar-ui-common/components/ThemeContext';
+import { getTextColor } from 'sonar-ui-common/helpers/colors';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { getIdentityProviders } from '@sqapi/users';
 import LoginLink from './LoginLink';
 import SonarCloudIcon from './SonarCloudIcon';
-import * as theme from '../../../../../sonar-web/src/main/js/app/theme';
 
 interface Props {
   onReload: () => void;
@@ -69,27 +69,34 @@ export default class LoginForm extends React.PureComponent<Props, State> {
         {identityProviders && (
           <section className="oauth-providers">
             {vstsProvider && (
-              <LoginLink
-                onReload={onReload}
-                sessionUrl={`sessions/init/${vstsProvider.key}`}
-                style={{
-                  backgroundColor: vstsProvider.backgroundColor,
-                  color: getTextColor(vstsProvider.backgroundColor, theme.secondFontColor)
-                }}>
-                <img
-                  alt={vstsProvider.name}
-                  height="20"
-                  src={getBaseUrl() + vstsProvider.iconPath}
-                  width="20"
-                />
-                <span>{vstsProvider.name} log in</span>
-              </LoginLink>
+              <ThemeContext.Consumer>
+                {({ theme }) => (
+                  <LoginLink
+                    onReload={onReload}
+                    sessionUrl={`sessions/init/${vstsProvider.key}`}
+                    style={{
+                      backgroundColor: vstsProvider.backgroundColor,
+                      color: getTextColor(
+                        vstsProvider.backgroundColor,
+                        theme.colors.secondFontColor
+                      )
+                    }}>
+                    <img
+                      alt={vstsProvider.name}
+                      height="20"
+                      src={getBaseUrl() + vstsProvider.iconPath}
+                      width="20"
+                    />
+                    <span>{vstsProvider.name} log in</span>
+                  </LoginLink>
+                )}
+              </ThemeContext.Consumer>
             )}
           </section>
         )}
 
         <div className="text-center">
-          <LoginLink onReload={onReload} sessionUrl={'sessions/new'}>
+          <LoginLink onReload={onReload} sessionUrl="sessions/new">
             {vstsProvider ? 'More options' : 'Log in on SonarCloud'}
           </LoginLink>
         </div>

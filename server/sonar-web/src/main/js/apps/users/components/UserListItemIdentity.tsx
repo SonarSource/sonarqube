@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as theme from '../../../app/theme';
-import { getTextColor } from '../../../helpers/colors';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getTextColor } from 'sonar-ui-common/helpers/colors';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { colors } from '../../../app/theme';
 
 export interface Props {
   identityProvider?: T.IdentityProvider;
@@ -59,7 +59,7 @@ export function ExternalProvider({ identityProvider, user }: Props) {
         className="identity-provider"
         style={{
           backgroundColor: identityProvider.backgroundColor,
-          color: getTextColor(identityProvider.backgroundColor, theme.secondFontColor)
+          color: getTextColor(identityProvider.backgroundColor, colors.secondFontColor)
         }}>
         <img
           alt={identityProvider.name}

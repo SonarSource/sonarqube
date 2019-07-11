@@ -21,9 +21,9 @@ import * as React from 'react';
 import tooltipDCE from 'Docs/tooltips/editions/datacenter.md';
 import tooltipDE from 'Docs/tooltips/editions/developer.md';
 import tooltipEE from 'Docs/tooltips/editions/enterprise.md';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import { Edition, getEditionUrl } from '../utils';
-import { translate } from '../../../helpers/l10n';
-import { lazyLoad } from '../../../components/lazyLoad';
 
 const DocMarkdownBlock = lazyLoad(() => import('../../../components/docs/DocMarkdownBlock'));
 

@@ -23,8 +23,8 @@ import reactRenderer from 'remark-react';
 import { findDOMNode } from 'react-dom';
 import * as classNames from 'classnames';
 import { debounce, memoize } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import onlyToc from './plugins/remark-only-toc';
-import { translate } from '../../helpers/l10n';
 
 interface Props {
   content: string;

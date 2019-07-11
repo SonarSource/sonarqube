@@ -21,6 +21,9 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import { debounce, uniq } from 'lodash';
 import { connect } from 'react-redux';
+import { parseAsDate } from 'sonar-ui-common/helpers/query';
+import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import Header from './Header';
 import Footer from './Footer';
 import Stats from './Stats';
@@ -38,9 +41,6 @@ import {
 } from '../../../api/ce';
 import { updateTask, mapFiltersToParameters, Query } from '../utils';
 import { fetchOrganizations } from '../../../store/rootActions';
-import { translate } from '../../../helpers/l10n';
-import { parseAsDate } from '../../../helpers/query';
-import { toShortNotSoISOString } from '../../../helpers/dates';
 import '../background-tasks.css';
 
 interface Props {

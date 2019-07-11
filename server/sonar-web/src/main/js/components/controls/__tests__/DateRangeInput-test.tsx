@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
 import DateRangeInput from '../DateRangeInput';
-import { parseDate } from '../../../helpers/dates';
 
 const dateA = parseDate('2018-01-17T00:00:00.000Z');
 const dateB = parseDate('2018-02-05T00:00:00.000Z');

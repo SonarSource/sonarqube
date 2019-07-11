@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import { TypeFacet } from '../TypeFacet';
-import { click } from '../../../../helpers/testUtils';
 
 it('should render open by default', () => {
   expect(shallowRender({ types: ['VULNERABILITY', 'CODE_SMELL'] })).toMatchSnapshot();

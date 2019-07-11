@@ -25,7 +25,7 @@ import ProjectAnalysisStepFromBuildTool, {
 } from '../ProjectAnalysisStepFromBuildTool';
 import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
 
-jest.mock('../../../../helpers/storage', () => ({
+jest.mock('sonar-ui-common/helpers/storage', () => ({
   get: jest.fn().mockReturnValue(
     JSON.stringify({
       build: 'maven',

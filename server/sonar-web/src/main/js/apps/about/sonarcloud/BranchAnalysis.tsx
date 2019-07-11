@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import SQPageContainer from './components/SQPageContainer';
 import SQStartUsing from './components/SQStartUsing';
 import SQTopNav from './components/SQTopNav';
 import { isLoggedIn } from '../../../helpers/users';
-import { getBaseUrl } from '../../../helpers/urls';
 import './style.css';
 
 export default function BranchAnalysis() {

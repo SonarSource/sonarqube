@@ -49,6 +49,10 @@ th.hide-overflow {
   margin-top: -1px;
 }
 
+.spacer {
+  margin: 8px !important;
+}
+
 .spacer-left {
   margin-left: 8px !important;
 }
@@ -63,6 +67,10 @@ th.hide-overflow {
 
 .spacer-top {
   margin-top: 8px !important;
+}
+
+.big-spacer {
+  margin: 16px !important;
 }
 
 .big-spacer-left {
@@ -81,6 +89,10 @@ th.hide-overflow {
   margin-top: 16px !important;
 }
 
+.huge-spacer {
+  margin: 40px !important;
+}
+
 .huge-spacer-bottom {
   margin-bottom: 40px !important;
 }
@@ -95,6 +107,10 @@ th.hide-overflow {
 
 .huge-spacer-right {
   margin-right: 40px !important;
+}
+
+.little-spacer {
+  margin: 4px !important;
 }
 
 .little-spacer-left {

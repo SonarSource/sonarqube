@@ -20,11 +20,12 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getMetricName, ISSUETYPE_MAP, IssueType } from '../utils';
 import { getLeakValue } from '../../../components/measure/utils';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
-import { formatMeasure, findMeasure } from '../../../helpers/measures';
+import { findMeasure } from '../../../helpers/measures';
 import DocTooltip from '../../../components/docs/DocTooltip';
 
 export interface Props {

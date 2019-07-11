@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { WorkspaceComponentViewer, Props } from '../WorkspaceComponentViewer';
 import { mockPullRequest, mockIssue } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../helpers/testUtils';
 import { getParents } from '../../../api/components';
 
 jest.mock('../../../api/components', () => ({

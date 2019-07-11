@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { injectIntl, InjectedIntlProps } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Query } from '../query';
 import DateInput from '../../../components/controls/DateInput';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import { longFormatterOption } from '../../../components/intl/DateFormatter';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   onChange: (changes: Partial<Query>) => void;

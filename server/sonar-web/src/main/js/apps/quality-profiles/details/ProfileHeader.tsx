@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { Link, IndexLink } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import ProfileLink from '../components/ProfileLink';
 import ProfileActions from '../components/ProfileActions';
 import ProfileDate from '../components/ProfileDate';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
-import { translate } from '../../../helpers/l10n';
 import {
   isStagnant,
   getProfilesPath,

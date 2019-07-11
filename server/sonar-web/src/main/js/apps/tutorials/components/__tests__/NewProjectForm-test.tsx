@@ -19,15 +19,13 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { change, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import NewProjectForm from '../NewProjectForm';
-import { change, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/components', () => ({
   createProject: () => Promise.resolve(),
   deleteProject: () => Promise.resolve()
 }));
-
-jest.mock('../../../../components/icons-components/DeleteIcon');
 
 it('creates new project', async () => {
   const onDone = jest.fn();

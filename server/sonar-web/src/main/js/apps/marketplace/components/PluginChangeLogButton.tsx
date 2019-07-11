@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import EllipsisIcon from 'sonar-ui-common/components/icons/EllipsisIcon';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import PluginChangeLog from './PluginChangeLog';
-import Dropdown from '../../../components/controls/Dropdown';
-import EllipsisIcon from '../../../components/icons-components/EllipsisIcon';
-import { ButtonLink } from '../../../components/ui/buttons';
 import { Release, Update } from '../../../api/plugins';
 
 interface Props {

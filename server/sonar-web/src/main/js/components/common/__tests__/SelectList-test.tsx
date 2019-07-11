@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow, mount } from 'enzyme';
+import { click, keydown } from 'sonar-ui-common/helpers/testUtils';
 import SelectList from '../SelectList';
 import SelectListItem from '../SelectListItem';
-import { click, keydown } from '../../../helpers/testUtils';
 
 it('should render correctly without children', () => {
   const onSelect = jest.fn();

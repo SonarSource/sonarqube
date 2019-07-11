@@ -35,7 +35,6 @@ module.exports = ({ production = true }) => ({
     extensions: ['.ts', '.tsx', '.js', '.json'],
     alias: {
       '@sqapi': path.resolve(__dirname, '../../sonar-web/src/main/js/api'),
-      '@sqcomponents': path.resolve(__dirname, '../../sonar-web/src/main/js/components'),
       '@sqhelpers': path.resolve(__dirname, '../../sonar-web/src/main/js/helpers')
     }
   },

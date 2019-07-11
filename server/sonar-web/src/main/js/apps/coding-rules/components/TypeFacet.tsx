@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import Facet, { BasicProps } from './Facet';
-import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
-import { translate } from '../../../helpers/l10n';
 
 export default class TypeFacet extends React.PureComponent<BasicProps> {
   renderName = (type: string) => (

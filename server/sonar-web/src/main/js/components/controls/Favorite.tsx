@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import FavoriteBase from './FavoriteBase';
+import FavoriteBase from 'sonar-ui-common/components/controls/FavoriteBase';
 import { addFavorite, removeFavorite } from '../../api/favorites';
 
 interface Props {

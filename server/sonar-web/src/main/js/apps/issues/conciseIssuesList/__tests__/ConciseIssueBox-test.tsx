@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate, click } from 'sonar-ui-common/helpers/testUtils';
 import ConciseIssueBox from '../ConciseIssueBox';
 import { mockIssue } from '../../../../helpers/testMocks';
-import { waitAndUpdate, click } from '../../../../helpers/testUtils';
 
 it('should render correctly', async () => {
   const onClick = jest.fn();

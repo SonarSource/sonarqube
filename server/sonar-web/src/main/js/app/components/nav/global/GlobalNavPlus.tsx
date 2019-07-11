@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import PlusIcon from 'sonar-ui-common/components/icons/PlusIcon';
 import { Link, withRouter, WithRouterProps } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import CreateFormShim from '../../../../apps/portfolio/components/CreateFormShim';
-import Dropdown from '../../../../components/controls/Dropdown';
-import PlusIcon from '../../../../components/icons-components/PlusIcon';
 import { OnboardingContextShape } from '../../OnboardingContext';
 import { getComponentNavigation } from '../../../../api/nav';
 import { getExtensionStart } from '../../../../helpers/extensions';
-import { translate } from '../../../../helpers/l10n';
 import { isSonarCloud } from '../../../../helpers/system';
 import { getPortfolioAdminUrl, getPortfolioUrl } from '../../../../helpers/urls';
 import { hasGlobalPermission } from '../../../../helpers/users';

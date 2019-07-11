@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as startOfDay from 'date-fns/start_of_day';
 import { chunk, flatMap, groupBy, isEqual, sortBy } from 'lodash';
 import {
   cleanQuery,
@@ -25,12 +26,11 @@ import {
   parseAsString,
   serializeStringArray,
   serializeDate,
-  serializeString,
-  RawQuery
-} from '../../helpers/query';
-import { parseDate, startOfDay } from '../../helpers/dates';
-import { getLocalizedMetricName, translate } from '../../helpers/l10n';
-import { get } from '../../helpers/storage';
+  serializeString
+} from 'sonar-ui-common/helpers/query';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
+import { get } from 'sonar-ui-common/helpers/storage';
+import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
 
 export type ParsedAnalysis = T.Omit<T.Analysis, 'date'> & { date: Date };
 
@@ -264,7 +264,7 @@ function serializeGraph(value: string) {
   return value === DEFAULT_GRAPH ? undefined : value;
 }
 
-export function parseQuery(urlQuery: RawQuery): Query {
+export function parseQuery(urlQuery: T.RawQuery): Query {
   return {
     category: parseAsString(urlQuery['category']),
     customMetrics: parseAsArray(urlQuery['custom_metrics'], parseAsString),
@@ -276,7 +276,7 @@ export function parseQuery(urlQuery: RawQuery): Query {
   };
 }
 
-export function serializeQuery(query: Query): RawQuery {
+export function serializeQuery(query: Query): T.RawQuery {
   return cleanQuery({
     category: serializeString(query.category),
     from: serializeDate(query.from),
@@ -285,7 +285,7 @@ export function serializeQuery(query: Query): RawQuery {
   });
 }
 
-export function serializeUrlQuery(query: Query): RawQuery {
+export function serializeUrlQuery(query: Query): T.RawQuery {
   return cleanQuery({
     category: serializeString(query.category),
     custom_metrics: serializeStringArray(query.customMetrics),

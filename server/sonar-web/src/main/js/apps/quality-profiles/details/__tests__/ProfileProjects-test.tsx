@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import ProfileProjects from '../ProfileProjects';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/quality-profiles', () => ({
   getProfileProjects: jest.fn().mockResolvedValue({

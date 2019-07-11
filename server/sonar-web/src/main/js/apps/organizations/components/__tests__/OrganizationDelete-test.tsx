@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { OrganizationDelete } from '../OrganizationDelete';
 import { getOrganizationBilling } from '../../../../api/organizations';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { isSonarCloud } from '../../../../helpers/system';
 
 jest.mock('../../../../api/organizations', () => ({

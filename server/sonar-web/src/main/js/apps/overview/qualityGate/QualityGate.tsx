@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import Level from 'sonar-ui-common/components/ui/Level';
 import QualityGateConditions from './QualityGateConditions';
 import EmptyQualityGate from './EmptyQualityGate';
-import { translate } from '../../../helpers/l10n';
-import Level from '../../../components/ui/Level';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   branchLike?: T.BranchLike;

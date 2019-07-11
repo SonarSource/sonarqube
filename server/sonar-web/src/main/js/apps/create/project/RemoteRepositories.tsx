@@ -20,17 +20,17 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { keyBy } from 'lodash';
+import { isDefined } from 'sonar-ui-common/helpers/types';
+import { translateWithParameters, translate } from 'sonar-ui-common/helpers/l10n';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import AlmRepositoryItem from './AlmRepositoryItem';
 import SetupProjectBox from './SetupProjectBox';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import Checkbox from '../../../components/controls/Checkbox';
-import SearchBox from '../../../components/controls/SearchBox';
 import UpgradeOrganizationBox from '../components/UpgradeOrganizationBox';
-import { Alert } from '../../../components/ui/Alert';
 import { getRepositories } from '../../../api/alm-integration';
-import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { isPaidOrganization } from '../../../helpers/organizations';
-import { isDefined } from '../../../helpers/types';
 
 interface Props {
   almApplication: T.AlmApplication;

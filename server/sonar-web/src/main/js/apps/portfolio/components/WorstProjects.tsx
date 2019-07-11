@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { Link } from 'react-router';
 import { max } from 'lodash';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { SubComponent } from '../types';
-import * as theme from '../../../app/theme';
+import { colors } from '../../../app/theme';
 import Measure from '../../../components/measure/Measure';
-import QualifierIcon from '../../../components/icons-components/QualifierIcon';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
 import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
@@ -132,8 +132,8 @@ function renderNcloc(measures: T.Dict<string | undefined>, maxLoc: number) {
         <svg className="spacer-left" height="16" width="50">
           <rect
             className="bar-chart-bar"
+            fill={colors.blue}
             height="10"
-            fill={theme.blue}
             width={barWidth}
             x="0"
             y="3"

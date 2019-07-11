@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { post } from '../helpers/request';
+import { post } from 'sonar-ui-common/helpers/request';
 
 export function toggleIssueFilter(id: string): Promise<void> {
   return post('/issues/toggle_fav', { id });

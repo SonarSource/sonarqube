@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import IdentityProviderLink from 'sonar-ui-common/components/controls/IdentityProviderLink';
+import { save } from 'sonar-ui-common/helpers/storage';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import RemoteRepositories from './RemoteRepositories';
 import OrganizationInput from './OrganizationInput';
-import IdentityProviderLink from '../../../components/ui/IdentityProviderLink';
 import {
   ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP,
   ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP
 } from '../organization/utils';
-import { translate } from '../../../helpers/l10n';
-import { save } from '../../../helpers/storage';
 
 interface Props {
   almApplication: T.AlmApplication;
@@ -85,8 +85,10 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
             {translate('onboarding.create_project.install_app_description', almApplication.key)}
           </p>
           <IdentityProviderLink
+            backgroundColor={almApplication.backgroundColor}
             className="display-inline-block"
-            identityProvider={almApplication}
+            iconPath={almApplication.iconPath}
+            name={almApplication.name}
             onClick={this.handleInstallAppClick}
             small={true}
             url={almApplication.installationUrl}>

@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { stringify } from 'querystring';
-import { omitBy, isNil } from 'lodash';
+import { getBaseUrl, Location } from 'sonar-ui-common/helpers/urls';
 import {
   isShortLivingBranch,
   isPullRequest,
@@ -27,28 +26,7 @@ import {
 } from './branches';
 import { getProfilePath } from '../apps/quality-profiles/utils';
 
-interface Query {
-  [x: string]: string | undefined;
-}
-
-export interface Location {
-  pathname: string;
-  query?: Query;
-}
-
-export function getBaseUrl(): string {
-  return (window as any).baseUrl;
-}
-
-export function getHostUrl(): string {
-  return window.location.origin + getBaseUrl();
-}
-
-export function getPathUrlAsString(path: Location, internal = true): string {
-  return `${internal ? getBaseUrl() : getHostUrl()}${path.pathname}?${stringify(
-    omitBy(path.query, isNil)
-  )}`;
-}
+type Query = Location['query'];
 
 export function getProjectUrl(project: string, branch?: string): Location {
   return { pathname: '/dashboard', query: { id: project, branch } };
@@ -264,17 +242,4 @@ export function getHomePageUrl(homepage: T.HomePage) {
 
   // should never happen, but just in case...
   return '/projects';
-}
-
-export function getReturnUrl(location: { hash?: string; query?: { return_to?: string } }) {
-  const returnTo = location.query && location.query['return_to'];
-  if (isRelativeUrl(returnTo)) {
-    return returnTo + (location.hash ? location.hash : '');
-  }
-  return getBaseUrl() + '/';
-}
-
-export function isRelativeUrl(url?: string): boolean {
-  const regex = new RegExp(/^\/[^/\\]/);
-  return Boolean(url && regex.test(url));
 }

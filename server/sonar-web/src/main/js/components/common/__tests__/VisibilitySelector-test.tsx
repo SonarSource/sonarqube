@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import VisibilitySelector from '../VisibilitySelector';
-import { click } from '../../../helpers/testUtils';
 
 it('changes visibility', () => {
   const onChange = jest.fn();

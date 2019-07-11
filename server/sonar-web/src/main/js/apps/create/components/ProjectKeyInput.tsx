@@ -20,9 +20,9 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { debounce } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import ValidationInput from '../../../components/controls/ValidationInput';
 import { doesComponentExists } from '../../../api/components';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   className?: string;

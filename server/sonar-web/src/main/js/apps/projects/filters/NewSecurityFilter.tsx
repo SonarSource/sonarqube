@@ -18,17 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import IssuesFilter from './IssuesFilter';
-import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
-import { translate } from '../../../helpers/l10n';
 import { Facet } from '../types';
-import { RawQuery } from '../../../helpers/query';
 
 interface Props {
   className?: string;
   facet?: Facet;
   maxFacetValue?: number;
-  onQueryChange: (change: RawQuery) => void;
+  onQueryChange: (change: T.RawQuery) => void;
   organization?: { key: string };
   query: T.Dict<any>;
   value?: any;

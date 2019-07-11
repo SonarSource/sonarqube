@@ -54,7 +54,7 @@ it('should render AnalysisCommandCustom correctly', () => {
   const getBuildOptions = jest.fn().mockResolvedValue(null);
   const wrapper = shallow(
     <AnalysisCommandCommon
-      buildType={'maven'}
+      buildType="maven"
       component={mockComponent()}
       currentUser={mockLoggedInUser()}
       getBuildOptions={getBuildOptions}

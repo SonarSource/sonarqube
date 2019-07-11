@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { sanitize } from 'dompurify';
+import { EditButton, DeleteButton } from 'sonar-ui-common/components/controls/buttons';
+import Toggler from 'sonar-ui-common/components/controls/Toggler';
+import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import Avatar from '../../ui/Avatar';
-import Toggler from '../../controls/Toggler';
-import { EditButton, DeleteButton } from '../../ui/buttons';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
 import CommentPopup from '../popups/CommentPopup';
 import DateFromNow from '../../intl/DateFromNow';
-import { PopupPlacement } from '../../ui/popups';
 
 interface Props {
   comment: T.IssueComment;

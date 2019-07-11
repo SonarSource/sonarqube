@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { differenceWith, map, sortBy, uniqBy } from 'lodash';
+import { translate, getLocalizedMetricName } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import ModalButton from 'sonar-ui-common/components/controls/ModalButton';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import Condition from './Condition';
 import ConditionModal from './ConditionModal';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
-import ModalButton from '../../../components/controls/ModalButton';
-import { Button } from '../../../components/ui/buttons';
-import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   canEdit: boolean;

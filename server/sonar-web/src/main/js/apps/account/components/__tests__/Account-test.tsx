@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
 import { Account } from '../Account';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
-import handleRequiredAuthentication from '../../../../app/utils/handleRequiredAuthentication';
 
-jest.mock('../../../../app/utils/handleRequiredAuthentication', () => ({
+jest.mock('sonar-ui-common/helpers/handleRequiredAuthentication', () => ({
   default: jest.fn()
 }));
 

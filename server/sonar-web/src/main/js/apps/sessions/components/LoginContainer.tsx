@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { getReturnUrl } from 'sonar-ui-common/helpers/urls';
 import Login from './Login';
 import LoginSonarCloud from './LoginSonarCloud';
 import { doLogin } from '../../../store/rootActions';
 import { getIdentityProviders } from '../../../api/users';
-import { getReturnUrl } from '../../../helpers/urls';
 import { isSonarCloud } from '../../../helpers/system';
 
 interface OwnProps {

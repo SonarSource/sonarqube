@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { flatMap } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import FavoriteFilterContainer from './FavoriteFilterContainer';
 import ClearAll from './ClearAll';
 import LanguagesFilterContainer from '../filters/LanguagesFilterContainer';
@@ -36,17 +37,15 @@ import ReliabilityFilter from '../filters/ReliabilityFilter';
 import SecurityFilter from '../filters/SecurityFilter';
 import SizeFilter from '../filters/SizeFilter';
 import TagsFilter from '../filters/TagsFilter';
-import { translate } from '../../../helpers/l10n';
-import { RawQuery } from '../../../helpers/query';
 import { Facets } from '../types';
 import { hasFilterParams } from '../query';
 
 interface Props {
   facets?: Facets;
   onClearAll: () => void;
-  onQueryChange: (change: RawQuery) => void;
+  onQueryChange: (change: T.RawQuery) => void;
   organization?: { key: string };
-  query: RawQuery;
+  query: T.RawQuery;
   showFavoriteFilter: boolean;
   view: string;
   visualization: string;
@@ -59,7 +58,7 @@ export default function PageSidebar(props: Props) {
   const maxFacetValue = getMaxFacetValue(facets);
   const facetProps = { onQueryChange, maxFacetValue, organization, query };
 
-  let linkQuery: RawQuery | undefined = undefined;
+  let linkQuery: T.RawQuery | undefined = undefined;
   if (view !== 'overall') {
     linkQuery = { view };
 

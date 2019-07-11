@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { change } from 'sonar-ui-common/helpers/testUtils';
 import SimpleInput from '../SimpleInput';
-import { change } from '../../../../../helpers/testUtils';
 
 it('should render input', () => {
   const onChange = jest.fn();

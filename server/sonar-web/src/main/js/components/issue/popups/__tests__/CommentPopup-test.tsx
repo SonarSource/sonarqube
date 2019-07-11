@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import CommentPopup from '../CommentPopup';
-import { click } from '../../../../helpers/testUtils';
 
 it('should render the comment popup correctly without existing comment', () => {
   const element = shallow(

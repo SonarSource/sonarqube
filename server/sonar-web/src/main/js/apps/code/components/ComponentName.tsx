@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import * as theme from '../../../app/theme';
-import QualifierIcon from '../../../components/icons-components/QualifierIcon';
+import LongLivingBranchIcon from 'sonar-ui-common/components/icons/LongLivingBranchIcon';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { colors } from '../../../app/theme';
 import { getBranchLikeQuery } from '../../../helpers/branches';
-import LongLivingBranchIcon from '../../../components/icons-components/LongLivingBranchIcon';
-import { translate } from '../../../helpers/l10n';
 
 export function getTooltip(component: T.ComponentMeasure) {
   const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
@@ -71,7 +71,7 @@ export default function ComponentName({
       : '';
   const name = prefix ? (
     <span>
-      <span style={{ color: theme.secondFontColor }}>{prefix}</span>
+      <span style={{ color: colors.secondFontColor }}>{prefix}</span>
       <span>{component.name.substr(prefix.length)}</span>
     </span>
   ) : (

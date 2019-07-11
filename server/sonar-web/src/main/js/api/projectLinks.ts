@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { getJSON, post, postJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { getJSON, post, postJSON } from '../helpers/request';
 
 export function getProjectLinks(projectKey: string): Promise<T.ProjectLink[]> {
   return getJSON('/api/project_links/search', { projectKey }).then(r => r.links, throwGlobalError);

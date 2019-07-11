@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import StandardFacet from '../StandardFacet';
-import { click } from '../../../../helpers/testUtils';
 import { Query } from '../../utils';
 import { getStandards } from '../../../../helpers/security-standard';
 

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
+import { elementKeydown } from 'sonar-ui-common/helpers/testUtils';
 import { Search } from '../Search';
-import { elementKeydown } from '../../../../helpers/testUtils';
 
 it('selects results', () => {
   const form = shallowRender();

@@ -19,17 +19,17 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import ActionsDropdown, {
+  ActionsDropdownDivider,
+  ActionsDropdownItem
+} from 'sonar-ui-common/components/controls/ActionsDropdown';
 import Events from './Events';
 import AddEventForm from './forms/AddEventForm';
 import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
-import Tooltip from '../../../components/controls/Tooltip';
-import ActionsDropdown, {
-  ActionsDropdownDivider,
-  ActionsDropdownItem
-} from '../../../components/controls/ActionsDropdown';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { parseDate } from '../../../helpers/dates';
 import { ParsedAnalysis } from '../utils';
 
 interface Props {

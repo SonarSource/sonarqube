@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { WithRouterProps, withRouter } from 'react-router';
+import { save } from 'sonar-ui-common/helpers/storage';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import OrganizationSelect from '../components/OrganizationSelect';
 import { ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP } from '../organization/utils';
-import { translate } from '../../../helpers/l10n';
-import { save } from '../../../helpers/storage';
 
 interface Props {
   autoImport?: boolean;

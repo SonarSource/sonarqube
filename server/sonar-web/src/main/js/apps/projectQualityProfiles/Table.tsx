@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { groupBy, orderBy } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import ProfileRow from './ProfileRow';
 import { Profile } from '../../api/quality-profiles';
-import { translate } from '../../helpers/l10n';
 
 interface Props {
   allProfiles: Profile[];

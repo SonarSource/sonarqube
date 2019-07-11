@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import PinIcon from '../../../components/icons-components/PinIcon';
+import PinIcon from 'sonar-ui-common/components/icons/PinIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { WorkspaceContextShape } from '../../../components/workspace/context';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   branchLike?: T.BranchLike;

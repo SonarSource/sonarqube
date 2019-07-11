@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import CustomRuleFormModal from '../CustomRuleFormModal';
 import { createRule } from '../../../../api/rules';
 import { mockRule } from '../../../../helpers/testMocks';
-import { submit, waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/rules', () => ({ createRule: jest.fn() }));
 

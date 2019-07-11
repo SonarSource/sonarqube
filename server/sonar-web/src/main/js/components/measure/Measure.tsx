@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import Level from 'sonar-ui-common/components/ui/Level';
+import Rating from 'sonar-ui-common/components/ui/Rating';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getRatingTooltip } from './utils';
-import Rating from '../ui/Rating';
-import Level from '../ui/Level';
-import Tooltip from '../controls/Tooltip';
-import { formatMeasure } from '../../helpers/measures';
 
 interface Props {
   className?: string;
@@ -42,7 +42,7 @@ export default function Measure({
   value
 }: Props) {
   if (value === undefined) {
-    return <span>{'–'}</span>;
+    return <span>–</span>;
   }
 
   if (metricType === 'LEVEL') {

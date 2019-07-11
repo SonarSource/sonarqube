@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import ProjectsSortingSelect from '../ProjectsSortingSelect';
-import { click } from '../../../../helpers/testUtils';
 
 it('should render correctly for overall view', () => {
   expect(

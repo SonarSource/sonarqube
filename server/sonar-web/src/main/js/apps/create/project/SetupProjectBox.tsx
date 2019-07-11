@@ -20,10 +20,10 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { partition } from 'lodash';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import { SubmitButton } from '../../../components/ui/buttons';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { provisionProject } from '../../../api/alm-integration';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   onProjectCreate: (projectKeys: string[], organization: string) => void;

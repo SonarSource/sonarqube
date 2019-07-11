@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { sortBy } from 'lodash';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
-import Dropdown from '../../../components/controls/Dropdown';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import OrganizationListItem from '../../../components/ui/OrganizationListItem';
-import { Button } from '../../../components/ui/buttons';
 import { getMyOrganizations, Store } from '../../../store/rootReducer';
 import { isSonarCloud } from '../../../helpers/system';
-import { translate } from '../../../helpers/l10n';
 import { OnboardingContextShape } from '../../../app/components/OnboardingContext';
 
 interface OwnProps {

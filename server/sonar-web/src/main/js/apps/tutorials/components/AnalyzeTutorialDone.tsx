@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getBaseUrl } from '../../../helpers/urls';
-import { translate } from '../../../helpers/l10n';
-import BackButton from '../../../components/controls/BackButton';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import BackButton from 'sonar-ui-common/components/controls/BackButton';
 
 interface Props {
   setTutorialDone: (done: boolean) => void;

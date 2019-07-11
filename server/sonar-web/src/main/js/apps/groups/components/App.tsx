@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import Header from './Header';
 import List from './List';
-import ListFooter from '../../../components/controls/ListFooter';
-import SearchBox from '../../../components/controls/SearchBox';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { searchUsersGroups, deleteGroup, updateGroup, createGroup } from '../../../api/user_groups';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   organization?: Pick<T.Organization, 'key'>;

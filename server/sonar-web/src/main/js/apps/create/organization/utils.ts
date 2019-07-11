@@ -18,16 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { memoize } from 'lodash';
-import { translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
-import {
-  RawQuery,
-  parseAsOptionalString,
-  cleanQuery,
-  serializeString
-} from '../../../helpers/query';
+import { parseAsOptionalString, cleanQuery, serializeString } from 'sonar-ui-common/helpers/query';
+import { decodeJwt } from 'sonar-ui-common/helpers/strings';
+import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { isBitbucket, isGithub } from '../../../helpers/almIntegrations';
-import { decodeJwt } from '../../../helpers/strings';
 
 export const ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP =
   'sonarcloud.import_org.binding_in_progress';
@@ -57,7 +52,7 @@ export interface Query {
 }
 
 export const parseQuery = memoize(
-  (urlQuery: RawQuery = {}): Query => {
+  (urlQuery: T.RawQuery = {}): Query => {
     let almInstallId = undefined;
     let almKey = undefined;
 
@@ -78,7 +73,7 @@ export const parseQuery = memoize(
   }
 );
 
-export const serializeQuery = (query: Query): RawQuery =>
+export const serializeQuery = (query: Query): T.RawQuery =>
   cleanQuery({
     installation_id: isGithub(query.almKey) ? serializeString(query.almInstallId) : undefined,
     clientKey: isBitbucket(query.almKey) ? serializeString(query.almInstallId) : undefined

@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { lazyLoad } from '../lazyLoad';
-import * as theme from '../../app/theme';
+import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { colors } from '../../app/theme';
 
-const DonutChart = lazyLoad(() => import('../charts/DonutChart'));
+const DonutChart = lazyLoad(() => import('sonar-ui-common/components/charts/DonutChart'));
 
 const SIZE_TO_WIDTH_MAPPING = { small: 16, normal: 24, big: 40, huge: 60 };
 
@@ -39,8 +39,8 @@ export default function CoverageRating({ muted = false, size = 'normal', value }
   if (value != null) {
     const numberValue = Number(value);
     data = [
-      { value: numberValue, fill: muted ? theme.gray71 : theme.green },
-      { value: 100 - numberValue, fill: muted ? theme.barBackgroundColor : theme.red }
+      { value: numberValue, fill: muted ? colors.gray71 : colors.green },
+      { value: 100 - numberValue, fill: muted ? colors.barBackgroundColor : colors.red }
     ];
   }
 

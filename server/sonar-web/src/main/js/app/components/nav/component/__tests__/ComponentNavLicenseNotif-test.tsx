@@ -19,15 +19,14 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { ComponentNavLicenseNotif } from '../ComponentNavLicenseNotif';
 import { isValidLicense } from '../../../../../api/marketplace';
-import { waitAndUpdate } from '../../../../../helpers/testUtils';
 
-jest.mock('../../../../../helpers/l10n', () => {
-  const l10n = require.requireActual('../../../../../helpers/l10n');
-  l10n.hasMessage = jest.fn(() => true);
-  return l10n;
-});
+jest.mock('sonar-ui-common/helpers/l10n', () => ({
+  ...jest.requireActual('sonar-ui-common/helpers/l10n'),
+  hasMessage: jest.fn().mockReturnValue(true)
+}));
 
 jest.mock('../../../../../api/marketplace', () => ({
   isValidLicense: jest.fn().mockResolvedValue({ isValidLicense: false })

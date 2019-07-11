@@ -18,10 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 declare namespace T {
-  export type Dict<T> = { [key: string]: T };
-
-  export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-
   // Type ordered alphabetically to prevent merge conflicts
 
   export interface A11ySkipLink {
@@ -375,7 +371,7 @@ declare namespace T {
     tags?: string[];
     textRange?: TextRange;
     transitions: string[];
-    type: IssueType;
+    type: T.IssueType;
   }
 
   export interface IssueComment {
@@ -390,8 +386,6 @@ declare namespace T {
     markdown: string;
     updatable: boolean;
   }
-
-  export type IssueType = 'BUG' | 'VULNERABILITY' | 'CODE_SMELL' | 'SECURITY_HOTSPOT';
 
   export interface IssuesByLine {
     [key: number]: Issue[];

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { get, save } from 'sonar-ui-common/helpers/storage';
 import Step from './Step';
 import BuildSystemForm from './BuildSystemForm';
 import AnalysisCommandCustom from './commands/AnalysisCommandCustom';
 import AnalysisCommandOtherCI from './commands/AnalysisCommandOtherCI';
-import { translate } from '../../../helpers/l10n';
-import { get, save } from '../../../helpers/storage';
 import { PROJECT_STEP_PROGRESS } from '../analyzeProject/utils';
 
 export enum ProjectAnalysisModes {

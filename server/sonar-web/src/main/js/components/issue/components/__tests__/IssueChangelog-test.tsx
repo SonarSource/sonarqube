@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import IssueChangelog from '../IssueChangelog';
-import { click } from '../../../../helpers/testUtils';
 
 const issue = {
   key: 'issuekey',

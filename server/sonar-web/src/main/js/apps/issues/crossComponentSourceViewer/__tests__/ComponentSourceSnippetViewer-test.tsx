@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { times } from 'lodash';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import ComponentSourceSnippetViewer from '../ComponentSourceSnippetViewer';
 import {
   mockMainBranch,
@@ -30,7 +31,6 @@ import {
   mockSourceLine,
   mockShortLivingBranch
 } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { getSources } from '../../../../api/components';
 
 jest.mock('../../../../api/components', () => ({

@@ -21,9 +21,9 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router';
 import { Location } from 'history';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import SQPageContainer from './components/SQPageContainer';
 import Select from '../../../components/controls/Select';
-import { Alert } from '../../../components/ui/Alert';
 import { isLoggedIn } from '../../../helpers/users';
 import './style.css';
 

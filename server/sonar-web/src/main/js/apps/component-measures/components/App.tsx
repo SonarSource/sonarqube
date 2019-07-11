@@ -19,10 +19,21 @@
  */
 import * as React from 'react';
 import * as key from 'keymaster';
+import { keyBy } from 'lodash';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
 import Helmet from 'react-helmet';
-import { keyBy } from 'lodash';
+import {
+  addSideBarClass,
+  addWhitePageClass,
+  removeSideBarClass,
+  removeWhitePageClass
+} from 'sonar-ui-common/helpers/pages';
+import {
+  getLocalizedMetricDomain,
+  translateWithParameters,
+  translate
+} from 'sonar-ui-common/helpers/l10n';
 import MeasureContent from './MeasureContent';
 import MeasuresEmpty from './MeasuresEmpty';
 import MeasureOverviewContainer from './MeasureOverviewContainer';
@@ -48,17 +59,6 @@ import {
   isPullRequest
 } from '../../../helpers/branches';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import {
-  getLocalizedMetricDomain,
-  translateWithParameters,
-  translate
-} from '../../../helpers/l10n';
-import {
-  addSideBarClass,
-  addWhitePageClass,
-  removeSideBarClass,
-  removeWhitePageClass
-} from '../../../helpers/pages';
 import '../../../components/search-navigator.css';
 import '../style.css';
 import { getAllMetrics } from '../../../api/metrics';
@@ -295,7 +295,7 @@ export class App extends React.PureComponent<Props, State> {
 
   render() {
     if (this.state.loading) {
-      return <i className="spinner spinner-margin" />;
+      return <i className="spinner spacer" />;
     }
 
     const { branchLike } = this.props;

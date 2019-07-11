@@ -34,7 +34,7 @@ exports[`should render correctly 1`] = `
       timeout={100}
     >
       <i
-        className="spinner-placeholder"
+        className="deferred-spinner-placeholder"
       />
     </DeferredSpinner>
     <Button
@@ -82,7 +82,7 @@ exports[`should render correctly 2`] = `
       timeout={100}
     >
       <i
-        className="spinner-placeholder"
+        className="deferred-spinner-placeholder"
       />
     </DeferredSpinner>
     <ConfirmButton

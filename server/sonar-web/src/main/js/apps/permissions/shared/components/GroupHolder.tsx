@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import GroupIcon from 'sonar-ui-common/components/icons/GroupIcon';
 import { without } from 'lodash';
 import PermissionCell from './PermissionCell';
-import GroupIcon from '../../../../components/icons-components/GroupIcon';
 import { isPermissionDefinitionGroup } from '../../utils';
 
 interface Props {

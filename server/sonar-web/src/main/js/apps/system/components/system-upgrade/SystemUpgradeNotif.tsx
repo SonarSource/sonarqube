@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import SystemUpgradeForm from './SystemUpgradeForm';
 import { sortUpgrades, groupUpgrades } from '../../utils';
 import { getSystemUpgrades } from '../../../../api/system';
-import { Button } from '../../../../components/ui/buttons';
-import { translate } from '../../../../helpers/l10n';
-import { Alert } from '../../../../components/ui/Alert';
 
 interface State {
   systemUpgrades: T.SystemUpgrade[][];

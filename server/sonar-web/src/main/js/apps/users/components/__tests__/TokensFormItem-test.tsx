@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import TokensFormItem from '../TokensFormItem';
 import { revokeToken } from '../../../../api/user-tokens';
-import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../components/intl/DateFormatter');
 jest.mock('../../../../components/intl/DateFromNow');

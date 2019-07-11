@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { A11yContextShape } from '../A11yContext';
 import A11yProvider from '../A11yProvider';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 const link1 = { key: 'link1', label: 'Link 1', weight: 0 };
 const link2 = { key: 'link2', label: 'Link 2', weight: -10 };

@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { sortBy, without, omit } from 'lodash';
+import { highlightTerm } from 'sonar-ui-common/helpers/search';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
-import { translate } from '../../../helpers/l10n';
-import { highlightTerm } from '../../../helpers/search';
 import {
   getStandards,
   renderCWECategory,

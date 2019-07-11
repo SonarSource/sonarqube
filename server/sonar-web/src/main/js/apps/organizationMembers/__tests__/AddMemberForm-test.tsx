@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { click, submit } from '../../../helpers/testUtils';
+import { click, submit } from 'sonar-ui-common/helpers/testUtils';
 import AddMemberForm from '../AddMemberForm';
 import { searchMembers } from '../../../api/organizations';
 

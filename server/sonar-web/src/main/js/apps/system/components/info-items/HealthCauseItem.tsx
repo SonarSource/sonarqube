@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { Alert } from '../../../../components/ui/Alert';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 
 interface Props {
   className?: string;

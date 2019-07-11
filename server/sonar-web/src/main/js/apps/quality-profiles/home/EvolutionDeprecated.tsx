@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { sortBy } from 'lodash';
+import { translateWithParameters, translate } from 'sonar-ui-common/helpers/l10n';
 import ProfileLink from '../components/ProfileLink';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
-import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 
 interface Props {

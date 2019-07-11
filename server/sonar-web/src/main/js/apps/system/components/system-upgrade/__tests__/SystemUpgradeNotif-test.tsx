@@ -20,7 +20,7 @@
 /* eslint-disable import/order */
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
-import { click, waitAndUpdate } from '../../../../../helpers/testUtils';
+import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import SystemUpgradeNotif from '../SystemUpgradeNotif';
 
 jest.mock('../../../../../api/system', () => ({

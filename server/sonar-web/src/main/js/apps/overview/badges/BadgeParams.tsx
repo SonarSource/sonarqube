@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
 import { BadgeColors, BadgeType, BadgeOptions, BadgeFormats } from './utils';
 import Select from '../../../components/controls/Select';
 import { fetchWebApi } from '../../../api/web-api';
-import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 
 interface Props {
   className?: string;

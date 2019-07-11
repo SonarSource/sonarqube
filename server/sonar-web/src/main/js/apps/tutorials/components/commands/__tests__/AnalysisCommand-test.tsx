@@ -25,7 +25,7 @@ jest.mock('../../../../../helpers/system', () => ({
   isSonarCloud: jest.fn().mockReturnValue(true)
 }));
 
-jest.mock('../../../../../helpers/urls', () => ({
+jest.mock('sonar-ui-common/helpers/urls', () => ({
   getHostUrl: () => 'HOST'
 }));
 

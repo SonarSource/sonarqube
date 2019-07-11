@@ -20,9 +20,9 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { difference } from 'lodash';
+import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import MultiSelectOption from './MultiSelectOption';
-import SearchBox from '../controls/SearchBox';
-import { translateWithParameters } from '../../helpers/l10n';
 
 interface Props {
   allowNewElements?: boolean;

@@ -26,5 +26,5 @@ it('should render correctly', () => {
 });
 
 function shallowRender(props: Partial<RestartButton['props']> = {}) {
-  return shallow(<RestartButton fetchSystemStatus={jest.fn()} systemStatus={'UP'} {...props} />);
+  return shallow(<RestartButton fetchSystemStatus={jest.fn()} systemStatus="UP" {...props} />);
 }

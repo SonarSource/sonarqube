@@ -17,10 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { searchMembers } from '../../api/organizations';
-import { searchUsers } from '../../api/users';
-import { formatMeasure } from '../../helpers/measures';
-import { get, save } from '../../helpers/storage';
 import {
   queriesEqual,
   cleanQuery,
@@ -30,10 +26,13 @@ import {
   serializeString,
   serializeStringArray,
   parseAsDate,
-  serializeDateShort,
-  RawQuery
-} from '../../helpers/query';
-import { scrollToElement } from '../../helpers/scrolling';
+  serializeDateShort
+} from 'sonar-ui-common/helpers/query';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
+import { get, save } from 'sonar-ui-common/helpers/storage';
+import { searchMembers } from '../../api/organizations';
+import { searchUsers } from '../../api/users';
 
 export interface Query {
   assigned: boolean;
@@ -76,7 +75,7 @@ export const STANDARD_TYPES: T.StandardType[] = [
 const parseAsSort = (sort: string) => (sort === 'CREATION_DATE' ? 'CREATION_DATE' : '');
 const ISSUES_DEFAULT = 'sonarqube.issues.default';
 
-export function parseQuery(query: RawQuery): Query {
+export function parseQuery(query: T.RawQuery): Query {
   return {
     assigned: parseAsBoolean(query.assigned),
     assignees: parseAsArray(query.assignees, parseAsString),
@@ -107,13 +106,13 @@ export function parseQuery(query: RawQuery): Query {
   };
 }
 
-export function getOpen(query: RawQuery): string {
+export function getOpen(query: T.RawQuery): string {
   return query.open;
 }
 
-export const areMyIssuesSelected = (query: RawQuery) => query.myIssues === 'true';
+export const areMyIssuesSelected = (query: T.RawQuery) => query.myIssues === 'true';
 
-export function serializeQuery(query: Query): RawQuery {
+export function serializeQuery(query: Query): T.RawQuery {
   const filter = {
     assigned: query.assigned ? undefined : 'false',
     assignees: serializeStringArray(query.assignees),
@@ -145,7 +144,7 @@ export function serializeQuery(query: Query): RawQuery {
   return cleanQuery(filter);
 }
 
-export const areQueriesEqual = (a: RawQuery, b: RawQuery) =>
+export const areQueriesEqual = (a: T.RawQuery, b: T.RawQuery) =>
   queriesEqual(parseQuery(a), parseQuery(b));
 
 export interface RawFacet {

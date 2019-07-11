@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import classNames from 'classnames';
-import Tooltip from '../controls/Tooltip';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 
 interface Props {
   active?: string;

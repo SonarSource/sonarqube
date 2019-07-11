@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import ApplicationLeakPeriodLegend from '../ApplicationLeakPeriodLegend';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/application', () => ({
   getApplicationLeak: jest.fn(() =>

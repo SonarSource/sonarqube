@@ -65,7 +65,9 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
     if (!locations || locations.length < 15) {
       // if there are no locations, or there are just few
       // then ensuse that the whole box is visible
-      if (this.rootElement) this.props.scroll(this.rootElement);
+      if (this.rootElement) {
+        this.props.scroll(this.rootElement);
+      }
     } else if (this.messageElement) {
       // otherwise scroll until the the message element is located on top
       this.props.scroll(this.messageElement, window.innerHeight - 250);

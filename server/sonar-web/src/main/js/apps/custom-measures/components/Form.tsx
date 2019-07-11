@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import Select from '../../../components/controls/Select';
-import SimpleModal from '../../../components/controls/SimpleModal';
-import { Alert } from '../../../components/ui/Alert';
-import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { getAllMetrics } from '../../../api/metrics';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   confirmButtonText: string;

@@ -20,11 +20,11 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { without } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import PageHeader from './PageHeader';
 import AllHoldersList from './AllHoldersList';
 import * as api from '../../../../api/permissions';
 import Suggestions from '../../../../app/components/embed-docs-modal/Suggestions';
-import { translate } from '../../../../helpers/l10n';
 import '../../styles.css';
 
 interface Props {

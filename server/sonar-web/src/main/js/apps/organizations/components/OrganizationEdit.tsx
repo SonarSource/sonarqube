@@ -21,14 +21,14 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import OrganizationBind from './OrganizationBind';
 import OrganizationDelete from './OrganizationDelete';
 import { updateOrganization } from '../actions';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
-import { SubmitButton } from '../../../components/ui/buttons';
 import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
-import { translate } from '../../../helpers/l10n';
 
 interface DispatchProps {
   updateOrganization: (organization: string, changes: T.OrganizationBase) => Promise<any>;

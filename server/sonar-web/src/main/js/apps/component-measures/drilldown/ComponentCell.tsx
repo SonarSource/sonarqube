@@ -19,17 +19,17 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import LinkIcon from '../../../components/icons-components/LinkIcon';
-import QualifierIcon from '../../../components/icons-components/QualifierIcon';
-import LongLivingBranchIcon from '../../../components/icons-components/LongLivingBranchIcon';
-import { splitPath } from '../../../helpers/path';
+import LinkIcon from 'sonar-ui-common/components/icons/LinkIcon';
+import LongLivingBranchIcon from 'sonar-ui-common/components/icons/LongLivingBranchIcon';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
+import { splitPath } from 'sonar-ui-common/helpers/path';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
 import {
-  getPathUrlAsString,
   getBranchLikeUrl,
   getComponentDrilldownUrlWithSelection,
   getProjectUrl
 } from '../../../helpers/urls';
-import { translate } from '../../../helpers/l10n';
 import { View } from '../utils';
 
 interface Props {

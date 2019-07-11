@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { uniq } from 'lodash';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { getLocations, getSelectedLocation } from '../utils';
-import { scrollToElement } from '../../../helpers/scrolling';
 import CrossComponentSourceViewer from '../crossComponentSourceViewer/CrossComponentSourceViewer';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 

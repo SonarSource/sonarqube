@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import SizeRating from 'sonar-ui-common/components/ui/SizeRating';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import LanguageDistributionContainer from '../../../components/charts/LanguageDistributionContainer';
-import SizeRating from '../../../components/ui/SizeRating';
-import { formatMeasure } from '../../../helpers/measures';
 import { getMetricName } from '../utils';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   branchLike?: T.BranchLike;

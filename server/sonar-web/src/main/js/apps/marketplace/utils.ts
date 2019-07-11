@@ -19,9 +19,9 @@
  */
 import { stringify } from 'querystring';
 import { memoize } from 'lodash';
+import { cleanQuery, parseAsString, serializeString } from 'sonar-ui-common/helpers/query';
+import { omitNil } from 'sonar-ui-common/helpers/request';
 import { Plugin, PluginAvailable, PluginInstalled, PluginPending } from '../../api/plugins';
-import { cleanQuery, parseAsString, RawQuery, serializeString } from '../../helpers/query';
-import { omitNil } from '../../helpers/request';
 
 export enum EditionKey {
   community = 'community',
@@ -114,14 +114,14 @@ export function isPluginPending(plugin: Plugin): plugin is PluginPending {
 
 export const DEFAULT_FILTER = 'all';
 export const parseQuery = memoize(
-  (urlQuery: RawQuery): Query => ({
+  (urlQuery: T.RawQuery): Query => ({
     filter: parseAsString(urlQuery['filter']) || DEFAULT_FILTER,
     search: parseAsString(urlQuery['search'])
   })
 );
 
 export const serializeQuery = memoize(
-  (query: Query): RawQuery =>
+  (query: Query): T.RawQuery =>
     cleanQuery({
       filter: query.filter === DEFAULT_FILTER ? undefined : serializeString(query.filter),
       search: query.search ? serializeString(query.search) : undefined

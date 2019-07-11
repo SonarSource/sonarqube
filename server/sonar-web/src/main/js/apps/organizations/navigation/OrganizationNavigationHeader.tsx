@@ -18,20 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { Link } from 'react-router';
 import { sortBy } from 'lodash';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
-import Dropdown from '../../../components/controls/Dropdown';
-import Tooltip from '../../../components/controls/Tooltip';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import OrganizationListItem from '../../../components/ui/OrganizationListItem';
 import {
   sanitizeAlmId,
   hasAdvancedALMIntegration,
   getUserAlmKey
 } from '../../../helpers/almIntegrations';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
 
 export interface Props {
   currentUser: T.CurrentUser;

@@ -19,6 +19,8 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import Header from './Header';
 import List from './List';
 import {
@@ -28,8 +30,6 @@ import {
   deleteCustomMeasure
 } from '../../../api/measures';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import ListFooter from '../../../components/controls/ListFooter';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   component: { key: string };

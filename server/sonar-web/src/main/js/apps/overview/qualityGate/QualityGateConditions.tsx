@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import ChevronDownIcon from 'sonar-ui-common/components/icons/ChevronDownIcon';
 import { sortBy } from 'lodash';
+import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import QualityGateCondition from './QualityGateCondition';
-import ChevronDownIcon from '../../../components/icons-components/ChevronDownIcon';
-import { ButtonLink } from '../../../components/ui/buttons';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
-import { translateWithParameters } from '../../../helpers/l10n';
 
 const LEVEL_ORDER = ['ERROR', 'WARN'];
 

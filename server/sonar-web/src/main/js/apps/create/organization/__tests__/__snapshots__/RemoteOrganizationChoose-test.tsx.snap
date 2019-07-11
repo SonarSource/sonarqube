@@ -81,16 +81,10 @@ exports[`should display unbound installations 1`] = `
         className="display-inline-block"
       >
         <IdentityProviderLink
+          backgroundColor="blue"
           className="display-inline-block"
-          identityProvider={
-            Object {
-              "backgroundColor": "blue",
-              "iconPath": "icon/path",
-              "installationUrl": "https://alm.application.url",
-              "key": "github",
-              "name": "GitHub",
-            }
-          }
+          iconPath="icon/path"
+          name="GitHub"
           onClick={[Function]}
           small={true}
           url="https://alm.application.url"
@@ -184,16 +178,10 @@ exports[`should render 1`] = `
         className="display-inline-block"
       >
         <IdentityProviderLink
+          backgroundColor="blue"
           className="display-inline-block"
-          identityProvider={
-            Object {
-              "backgroundColor": "blue",
-              "iconPath": "icon/path",
-              "installationUrl": "https://alm.application.url",
-              "key": "github",
-              "name": "GitHub",
-            }
-          }
+          iconPath="icon/path"
+          name="GitHub"
           onClick={[Function]}
           small={true}
           url="https://alm.application.url"

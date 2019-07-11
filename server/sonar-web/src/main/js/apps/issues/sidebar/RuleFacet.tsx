@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { omit } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { Query, ReferencedRule, Facet } from '../utils';
 import { searchRules } from '../../../api/rules';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   fetching: boolean;

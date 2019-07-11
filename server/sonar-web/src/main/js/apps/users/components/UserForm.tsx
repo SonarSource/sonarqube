@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { uniq } from 'lodash';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { parseError } from 'sonar-ui-common/helpers/request';
+import { Button, ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import UserScmAccountInput from './UserScmAccountInput';
 import { createUser, updateUser } from '../../../api/users';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import SimpleModal from '../../../components/controls/SimpleModal';
-import { Button, ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { parseError } from '../../../helpers/request';
-import { Alert } from '../../../components/ui/Alert';
 
 export interface Props {
   onClose: () => void;

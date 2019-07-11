@@ -21,19 +21,19 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { orderBy, without } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
+import NewsBox from 'sonar-ui-common/components/ui/NewsBox';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
-import NewsBox from '../../../components/ui/NewsBox';
 import { formatFacetStat, Query } from '../utils';
 import { getCurrentUser, getCurrentUserSetting, Store } from '../../../store/rootReducer';
 import { setCurrentUserSetting } from '../../../store/users';
 import { ISSUE_TYPES } from '../../../helpers/constants';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   fetching: boolean;

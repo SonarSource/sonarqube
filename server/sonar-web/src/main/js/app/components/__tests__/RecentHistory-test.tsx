@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { get, remove, save } from 'sonar-ui-common/helpers/storage';
 import RecentHistory, { History } from '../RecentHistory';
-import { get, remove, save } from '../../../helpers/storage';
 
-jest.mock('../../../helpers/storage', () => ({
+jest.mock('sonar-ui-common/helpers/storage', () => ({
   get: jest.fn(),
   remove: jest.fn(),
   save: jest.fn()

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { change } from 'sonar-ui-common/helpers/testUtils';
 import ThresholdInput from '../ThresholdInput';
-import { change } from '../../../../helpers/testUtils';
 
 describe('on strings', () => {
   const metric = { id: '1', key: 'foo', name: 'Foo', type: 'INTEGER' };

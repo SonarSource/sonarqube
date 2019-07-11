@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import LineIssuesIndicator from '../LineIssuesIndicator';
-import { click } from '../../../../helpers/testUtils';
 import { mockIssue } from '../../../../helpers/testMocks';
 
 it('should render correctly', () => {

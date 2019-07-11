@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { Button, DeleteButton } from 'sonar-ui-common/components/controls/buttons';
+import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { generateToken, getTokens, revokeToken } from '../../../../api/user-tokens';
 import { getUniqueTokenName } from '../../utils';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import ConfirmModal from '../../../../components/controls/ConfirmModal';
-import { Button, DeleteButton } from '../../../../components/ui/buttons';
 import { RenderOptions } from '../../components/RenderOptions';
-import { Alert } from '../../../../components/ui/Alert';
 
 export enum TokenMode {
   use_existing_token = 'use_existing_token',
@@ -193,7 +193,7 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
           <>
             <RenderOptions
               checked={mode}
-              name={'token-mode'}
+              name="token-mode"
               onCheck={this.setMode}
               optionLabelKey="onboarding.token"
               options={[TokenMode.use_existing_token, TokenMode.generate_token]}

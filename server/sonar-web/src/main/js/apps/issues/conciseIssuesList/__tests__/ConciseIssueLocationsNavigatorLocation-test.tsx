@@ -34,8 +34,8 @@ const shallowRender = (props: Partial<ConciseIssueLocationsNavigatorLocation['pr
   return shallow(
     <ConciseIssueLocationsNavigatorLocation
       index={0}
-      issueType={'BUG'}
-      message={''}
+      issueType="BUG"
+      message=""
       onClick={jest.fn()}
       scroll={jest.fn()}
       selected={true}

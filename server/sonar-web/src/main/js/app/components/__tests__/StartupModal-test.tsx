@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as differenceInDays from 'date-fns/difference_in_days';
 import { shallow, ShallowWrapper } from 'enzyme';
+import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
+import { hasMessage } from 'sonar-ui-common/helpers/l10n';
+import { save, get } from 'sonar-ui-common/helpers/storage';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { StartupModal, ModalKey } from '../StartupModal';
 import { showLicense } from '../../../api/marketplace';
-import { save, get } from '../../../helpers/storage';
-import { hasMessage } from '../../../helpers/l10n';
-import { waitAndUpdate } from '../../../helpers/testUtils';
-import { differenceInDays, toShortNotSoISOString } from '../../../helpers/dates';
 import { EditionKey } from '../../../apps/marketplace/utils';
 import { mockOrganization, mockRouter } from '../../../helpers/testMocks';
 
@@ -32,20 +33,21 @@ jest.mock('../../../api/marketplace', () => ({
   showLicense: jest.fn().mockResolvedValue(undefined)
 }));
 
-jest.mock('../../../helpers/storage', () => ({
+jest.mock('sonar-ui-common/helpers/storage', () => ({
   get: jest.fn(),
   save: jest.fn()
 }));
 
-jest.mock('../../../helpers/l10n', () => ({
+jest.mock('sonar-ui-common/helpers/l10n', () => ({
   hasMessage: jest.fn().mockReturnValue(true)
 }));
 
-jest.mock('../../../helpers/dates', () => ({
-  differenceInDays: jest.fn().mockReturnValue(1),
+jest.mock('sonar-ui-common/helpers/dates', () => ({
   parseDate: jest.fn().mockReturnValue('parsed-date'),
   toShortNotSoISOString: jest.fn().mockReturnValue('short-not-iso-date')
 }));
+
+jest.mock('date-fns/difference_in_days', () => jest.fn().mockReturnValue(1));
 
 const LOGGED_IN_USER: T.LoggedInUser = {
   groups: [],

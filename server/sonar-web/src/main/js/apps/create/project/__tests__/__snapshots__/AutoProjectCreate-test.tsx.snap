@@ -76,16 +76,10 @@ exports[`should display the provider app install button 1`] = `
     onboarding.create_project.install_app_description.github
   </p>
   <IdentityProviderLink
+    backgroundColor="blue"
     className="display-inline-block"
-    identityProvider={
-      Object {
-        "backgroundColor": "blue",
-        "iconPath": "icon/path",
-        "installationUrl": "https://alm.installation.url",
-        "key": "github",
-        "name": "GitHub",
-      }
-    }
+    iconPath="icon/path"
+    name="GitHub"
     onClick={[Function]}
     small={true}
     url="https://alm.installation.url"

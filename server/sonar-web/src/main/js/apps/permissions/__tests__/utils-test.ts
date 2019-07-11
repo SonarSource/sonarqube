@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { resetBundle } from 'sonar-ui-common/helpers/l10n';
 import { convertToPermissionDefinitions } from '../utils';
 import { isSonarCloud } from '../../../helpers/system';
-import { resetBundle } from '../../../helpers/l10n';
 
 jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 

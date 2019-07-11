@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
+import { keydown, KEYCODE_MAP } from 'sonar-ui-common/helpers/testUtils';
 import withKeyboardNavigation, { WithKeyboardNavigationProps } from '../withKeyboardNavigation';
 import { mockComponent } from '../../../helpers/testMocks';
-import { keydown, KEYCODE_MAP } from '../../../helpers/testUtils';
 
 class X extends React.Component<{
   components?: T.ComponentMeasure[];

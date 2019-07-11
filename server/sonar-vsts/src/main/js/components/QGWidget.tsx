@@ -19,8 +19,9 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { getPathUrlAsString, getProjectUrl } from '@sqhelpers/urls';
-import Tooltip from '@sqcomponents/controls/Tooltip';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
+import { getProjectUrl } from '@sqhelpers/urls';
 import SonarCloudIcon from './SonarCloudIcon';
 
 interface Props {

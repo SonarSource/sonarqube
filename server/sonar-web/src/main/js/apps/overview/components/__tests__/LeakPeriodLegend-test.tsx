@@ -18,91 +18,42 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as differenceInDays from 'date-fns/difference_in_days';
 import { InjectedIntlProps } from 'react-intl';
 import { shallow } from 'enzyme';
 import { LeakPeriodLegend } from '../LeakPeriodLegend';
-import { differenceInDays } from '../../../../helpers/dates';
 
-jest.mock('../../../../helpers/dates', () => {
-  const dates = require.requireActual('../../../../helpers/dates');
-  dates.differenceInDays = jest.fn().mockReturnValue(10);
-  return dates;
-});
+jest.mock('date-fns/difference_in_days', () => jest.fn().mockReturnValue(10));
 
 it('10 days', () => {
-  expect(
-    getWrapper({
-      mode: 'days',
-      parameter: '10'
-    })
-  ).toMatchSnapshot();
+  expect(getWrapper({ mode: 'days', parameter: '10' })).toMatchSnapshot();
 });
 
 it('date', () => {
-  expect(
-    getWrapper({
-      mode: 'date',
-      parameter: '2013-01-01'
-    })
-  ).toMatchSnapshot();
+  expect(getWrapper({ mode: 'date', parameter: '2013-01-01' })).toMatchSnapshot();
 });
 
 it('version', () => {
-  expect(
-    findLegend(
-      getWrapper({
-        mode: 'version',
-        parameter: '0.1'
-      })
-    )
-  ).toMatchSnapshot();
+  expect(findLegend(getWrapper({ mode: 'version', parameter: '0.1' }))).toMatchSnapshot();
 });
 
 it('previous_version', () => {
-  expect(
-    findLegend(
-      getWrapper({
-        mode: 'previous_version'
-      })
-    )
-  ).toMatchSnapshot();
+  expect(findLegend(getWrapper({ mode: 'previous_version' }))).toMatchSnapshot();
 });
 
 it('previous_analysis', () => {
-  expect(
-    findLegend(
-      getWrapper({
-        mode: 'previous_analysis'
-      })
-    )
-  ).toMatchSnapshot();
+  expect(findLegend(getWrapper({ mode: 'previous_analysis' }))).toMatchSnapshot();
 });
 
 it('manual_baseline', () => {
-  expect(
-    findLegend(
-      getWrapper({
-        mode: 'manual_baseline'
-      })
-    )
-  ).toMatchSnapshot();
-  expect(
-    findLegend(
-      getWrapper({
-        mode: 'manual_baseline',
-        parameter: '1.1.2'
-      })
-    )
-  ).toMatchSnapshot();
+  expect(findLegend(getWrapper({ mode: 'manual_baseline' }))).toMatchSnapshot();
+  expect(findLegend(getWrapper({ mode: 'manual_baseline', parameter: '1.1.2' }))).toMatchSnapshot();
 });
 
 it('should render a more precise date', () => {
   (differenceInDays as jest.Mock<any>).mockReturnValueOnce(0);
   expect(
-    getWrapper({
-      date: '2018-08-17T00:00:00+0200',
-      mode: 'previous_version'
-    })
+    getWrapper({ date: '2018-08-17T00:00:00+0200', mode: 'previous_version' })
   ).toMatchSnapshot();
 });
 

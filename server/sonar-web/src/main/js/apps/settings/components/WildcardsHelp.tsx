@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 
 export default function WildcardsHelp() {
   return (
@@ -53,65 +53,65 @@ export default function WildcardsHelp() {
         </thead>
         <tbody>
           <tr>
-            <td>{'**/foo/*.js'}</td>
+            <td>**/foo/*.js</td>
             <td>
               <ul>
-                <li>{'src/foo/bar.js'}</li>
-                <li>{'lib/ui/foo/bar.js'}</li>
+                <li>src/foo/bar.js</li>
+                <li>lib/ui/foo/bar.js</li>
               </ul>
             </td>
             <td>
               <ul>
-                <li>{'src/bar.js'}</li>
-                <li>{'src/foo2/bar.js'}</li>
-              </ul>
-            </td>
-          </tr>
-          <tr>
-            <td>{'src/foo/*bar*.js'}</td>
-            <td>
-              <ul>
-                <li>{'src/foo/bar.js'}</li>
-                <li>{'src/foo/bar1.js'}</li>
-                <li>{'src/foo/bar123.js'}</li>
-                <li>{'src/foo/123bar123.js'}</li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>{'src/foo/ui/bar.js'}</li>
-                <li>{'src/bar.js'}</li>
+                <li>src/bar.js</li>
+                <li>src/foo2/bar.js</li>
               </ul>
             </td>
           </tr>
           <tr>
-            <td>{'src/foo/**'}</td>
+            <td>src/foo/*bar*.js</td>
             <td>
               <ul>
-                <li>{'src/foo/bar.js'}</li>
-                <li>{'src/foo/ui/bar.js'}</li>
+                <li>src/foo/bar.js</li>
+                <li>src/foo/bar1.js</li>
+                <li>src/foo/bar123.js</li>
+                <li>src/foo/123bar123.js</li>
               </ul>
             </td>
             <td>
               <ul>
-                <li>{'src/bar/foo/bar.js'}</li>
-                <li>{'src/bar.js'}</li>
+                <li>src/foo/ui/bar.js</li>
+                <li>src/bar.js</li>
               </ul>
             </td>
           </tr>
           <tr>
-            <td>{'**/foo?.js'}</td>
+            <td>src/foo/**</td>
             <td>
               <ul>
-                <li>{'src/foo1.js'}</li>
-                <li>{'src/bar/foo1.js'}</li>
+                <li>src/foo/bar.js</li>
+                <li>src/foo/ui/bar.js</li>
               </ul>
             </td>
             <td>
               <ul>
-                <li>{'src/foo.js'}</li>
-                <li>{'src/foo12.js'}</li>
-                <li>{'src/12foo3.js'}</li>
+                <li>src/bar/foo/bar.js</li>
+                <li>src/bar.js</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td>**/foo?.js</td>
+            <td>
+              <ul>
+                <li>src/foo1.js</li>
+                <li>src/bar/foo1.js</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>src/foo.js</li>
+                <li>src/foo12.js</li>
+                <li>src/12foo3.js</li>
               </ul>
             </td>
           </tr>

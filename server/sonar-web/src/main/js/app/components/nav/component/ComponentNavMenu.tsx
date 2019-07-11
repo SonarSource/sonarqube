@@ -18,19 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import NavBarTabs from 'sonar-ui-common/components/ui/NavBarTabs';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
-import Dropdown from '../../../../components/controls/Dropdown';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import { withAppState } from '../../../../components/hoc/withAppState';
-import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
-import NavBarTabs from '../../../../components/nav/NavBarTabs';
 import {
   isShortLivingBranch,
   isPullRequest,
   isMainBranch,
   getBranchLikeQuery
 } from '../../../../helpers/branches';
-import { translate } from '../../../../helpers/l10n';
 import { isSonarCloud } from '../../../../helpers/system';
 
 const SETTINGS_URLS = [

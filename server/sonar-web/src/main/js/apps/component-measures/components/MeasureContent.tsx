@@ -19,11 +19,13 @@
  */
 import * as React from 'react';
 import { InjectedRouter } from 'react-router';
+import PageActions from 'sonar-ui-common/components/ui/PageActions';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { RequestData } from 'sonar-ui-common/helpers/request';
 import Breadcrumbs from './Breadcrumbs';
 import MeasureContentHeader from './MeasureContentHeader';
 import MeasureHeader from './MeasureHeader';
 import MeasureViewSelect from './MeasureViewSelect';
-import PageActions from '../../../components/ui/PageActions';
 import { complementary } from '../config/complementary';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
@@ -33,10 +35,8 @@ import { Query, View, isFileType, enhanceComponent, isViewType } from '../utils'
 import { getComponentTree } from '../../../api/components';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
 import { isDiffMetric, getPeriodValue } from '../../../helpers/measures';
-import { RequestData } from '../../../helpers/request';
 import { getProjectUrl } from '../../../helpers/urls';
 import { getMeasures } from '../../../api/measures';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   branchLike?: T.BranchLike;
@@ -147,17 +147,15 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     this.setState({ loadingMoreComponents: true });
     getComponentTree(strategy, baseComponent.key, metricKeys, opts).then(
       r => {
-        if (metric.key === this.props.requestedMetric.key) {
-          if (this.mounted) {
-            this.setState(state => ({
-              components: [
-                ...state.components,
-                ...r.components.map(component => enhanceComponent(component, metric, metrics))
-              ],
-              loadingMoreComponents: false,
-              paging: r.paging
-            }));
-          }
+        if (this.mounted && metric.key === this.props.requestedMetric.key) {
+          this.setState(state => ({
+            components: [
+              ...state.components,
+              ...r.components.map(component => enhanceComponent(component, metric, metrics))
+            ],
+            loadingMoreComponents: false,
+            paging: r.paging
+          }));
         }
       },
       () => {

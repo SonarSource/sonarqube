@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
 import Nav from './Nav';
 import UserCard from './UserCard';
 import { getCurrentUser, areThereCustomOrganizations, Store } from '../../../store/rootReducer';
-import { translate } from '../../../helpers/l10n';
-import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import '../account.css';

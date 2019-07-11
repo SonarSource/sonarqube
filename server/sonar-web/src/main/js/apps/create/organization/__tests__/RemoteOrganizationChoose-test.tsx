@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { submit } from 'sonar-ui-common/helpers/testUtils';
 import { RemoteOrganizationChoose } from '../RemoteOrganizationChoose';
 import { mockRouter, mockAlmOrganization } from '../../../../helpers/testMocks';
-import { submit } from '../../../../helpers/testUtils';
 
 it('should render', () => {
   expect(shallowRender()).toMatchSnapshot();

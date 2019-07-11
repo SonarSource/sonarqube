@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { ProfileActions } from '../ProfileActions';
 import { mockQualityProfile, mockRouter } from '../../../../helpers/testMocks';
-import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 
 const PROFILE = mockQualityProfile({
   activeRuleCount: 68,

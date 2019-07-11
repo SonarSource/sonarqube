@@ -21,15 +21,16 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import CountUp from 'react-countup';
 import { throttle } from 'lodash';
+import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
+import Rating from 'sonar-ui-common/components/ui/Rating';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { getBaseUrl, getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
 import { FeaturedProject } from '../utils';
 import CoverageRating from '../../../../components/ui/CoverageRating';
-import DuplicationsRating from '../../../../components/ui/DuplicationsRating';
 import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
 import ProjectCardLanguagesContainer from '../../../projects/components/ProjectCardLanguagesContainer';
-import Rating from '../../../../components/ui/Rating';
-import { formatMeasure } from '../../../../helpers/measures';
 import { getMetricName } from '../../../overview/utils';
-import { getProjectUrl, getBaseUrl, getPathUrlAsString } from '../../../../helpers/urls';
+import { getProjectUrl } from '../../../../helpers/urls';
 import './FeaturedProjects.css';
 
 interface Props {

@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as theme from '../../../../app/theme';
-import LockIcon from '../../../../components/icons-components/LockIcon';
-import { Button } from '../../../../components/ui/buttons';
-import { translate } from '../../../../helpers/l10n';
+import LockIcon from 'sonar-ui-common/components/icons/LockIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import { colors } from '../../../../app/theme';
 import { DefaultSpecializedInputProps } from '../../utils';
 
 interface State {
@@ -79,7 +79,7 @@ export default class InputForPassword extends React.PureComponent<
 
     return (
       <>
-        <LockIcon className="text-middle big-spacer-right" fill={theme.gray60} />
+        <LockIcon className="text-middle big-spacer-right" fill={colors.gray60} />
         <Button className="text-middle" onClick={this.handleChangeClick}>
           {translate('change_verb')}
         </Button>

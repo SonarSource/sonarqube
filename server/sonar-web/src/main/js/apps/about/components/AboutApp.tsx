@@ -22,6 +22,8 @@ import { connect } from 'react-redux';
 import { keyBy } from 'lodash';
 import { Link } from 'react-router';
 import { Location } from 'history';
+import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import AboutProjects from './AboutProjects';
 import AboutLanguages from './AboutLanguages';
 import AboutCleanCode from './AboutCleanCode';
@@ -42,8 +44,6 @@ import {
   getGlobalSettingValue,
   Store
 } from '../../../store/rootReducer';
-import { translate } from '../../../helpers/l10n';
-import { addWhitePageClass, removeWhitePageClass } from '../../../helpers/pages';
 import '../styles.css';
 
 interface Props {

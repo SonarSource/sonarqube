@@ -20,8 +20,10 @@
 import * as React from 'react';
 import { minBy } from 'lodash';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
+import AdvancedTimeline from 'sonar-ui-common/components/charts/AdvancedTimeline';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import PreviewGraphTooltips from './PreviewGraphTooltips';
-import AdvancedTimeline from '../charts/AdvancedTimeline';
 import {
   DEFAULT_GRAPH,
   generateSeries,
@@ -32,9 +34,8 @@ import {
   Serie,
   splitSeriesInGraphs
 } from '../../apps/projectActivity/utils';
-import { formatMeasure, getShortType } from '../../helpers/measures';
+import { getShortType } from '../../helpers/measures';
 import { getBranchLikeQuery } from '../../helpers/branches';
-import { translate } from '../../helpers/l10n';
 import { withRouter, Router } from '../hoc/withRouter';
 
 interface History {

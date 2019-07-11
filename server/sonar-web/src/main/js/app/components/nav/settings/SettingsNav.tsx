@@ -20,15 +20,15 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { IndexLink, Link } from 'react-router';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import ContextNavBar from 'sonar-ui-common/components/ui/ContextNavBar';
+import NavBarTabs from 'sonar-ui-common/components/ui/NavBarTabs';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import PendingPluginsActionNotif from './PendingPluginsActionNotif';
 import SystemRestartNotif from './SystemRestartNotif';
-import ContextNavBar from '../../../../components/nav/ContextNavBar';
-import Dropdown from '../../../../components/controls/Dropdown';
-import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
-import NavBarTabs from '../../../../components/nav/NavBarTabs';
-import * as theme from '../../../theme';
+import { rawSizes } from '../../../theme';
 import { PluginPendingResult } from '../../../../api/plugins';
-import { translate } from '../../../../helpers/l10n';
 
 interface Props {
   extensions: T.Extension[];
@@ -237,7 +237,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
       pendingPlugins.installing.length +
       pendingPlugins.removing.length +
       pendingPlugins.updating.length;
-
+    const contextNavHeight = rawSizes.contextNavHeightRaw;
     let notifComponent;
     if (this.props.systemStatus === 'RESTARTING') {
       notifComponent = <SystemRestartNotif />;
@@ -254,7 +254,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
 
     return (
       <ContextNavBar
-        height={notifComponent ? theme.contextNavHeightRaw + 30 : theme.contextNavHeightRaw}
+        height={notifComponent ? contextNavHeight + 30 : contextNavHeight}
         id="context-navigation"
         notif={notifComponent}>
         <header className="navbar-context-header">

@@ -19,22 +19,22 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
+import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
+import LinkIcon from 'sonar-ui-common/components/icons/LinkIcon';
+import RuleScopeIcon from 'sonar-ui-common/components/icons/RuleScopeIcon';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import RuleDetailsTagsPopup from './RuleDetailsTagsPopup';
 import SimilarRulesFilter from './SimilarRulesFilter';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import Dropdown from '../../../components/controls/Dropdown';
-import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
-import LinkIcon from '../../../components/icons-components/LinkIcon';
-import RuleScopeIcon from '../../../components/icons-components/RuleScopeIcon';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import TagsList from '../../../components/tags/TagsList';
-import Tooltip from '../../../components/controls/Tooltip';
-import { ButtonLink } from '../../../components/ui/buttons';
-import { PopupPlacement } from '../../../components/ui/popups';
 import { Query } from '../query';
 import { getRuleUrl } from '../../../helpers/urls';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   canWrite: boolean | undefined;

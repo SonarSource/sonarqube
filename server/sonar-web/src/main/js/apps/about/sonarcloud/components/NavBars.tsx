@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { throttle } from 'lodash';
-import { getBaseUrl } from '../../../../helpers/urls';
-import NavBar from '../../../../components/nav/NavBar';
+import NavBar from 'sonar-ui-common/components/ui/NavBar';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import './NavBars.css';
 
 interface Props {

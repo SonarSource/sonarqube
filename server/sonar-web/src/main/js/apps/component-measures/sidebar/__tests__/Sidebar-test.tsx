@@ -75,7 +75,7 @@ function shallowRender(props = {}) {
           leak: '0.0'
         }
       ]}
-      selectedMetric={'duplicated_lines_density'}
+      selectedMetric="duplicated_lines_density"
       showFullMeasures={true}
       updateQuery={() => {}}
       {...props}

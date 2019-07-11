@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as theme from '../../../app/theme';
+import { colors } from '../../../app/theme';
 
 interface Props {
   className?: string;
@@ -26,7 +26,7 @@ interface Props {
 }
 
 export default function RuleInheritanceIcon({ className, inheritance, ...other }: Props) {
-  const fill = inheritance === 'OVERRIDES' ? theme.red : theme.baseFontColor;
+  const fill = inheritance === 'OVERRIDES' ? colors.red : colors.baseFontColor;
 
   return (
     <svg

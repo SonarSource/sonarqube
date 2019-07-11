@@ -17,19 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as dates from 'sonar-ui-common/helpers/dates';
 import * as utils from '../utils';
-import * as dates from '../../../helpers/dates';
 
-jest.mock('../../../helpers/dates', () => {
-  const actual = require.requireActual('../../../helpers/dates');
-  return Object.assign({}, actual, {
-    startOfDay: jest.fn(date => {
-      const startDay = new Date(date);
-      startDay.setUTCHours(0, 0, 0, 0);
-      return startDay;
-    })
-  });
-});
+jest.mock('date-fns/start_of_day', () =>
+  jest.fn(date => {
+    const startDay = new Date(date);
+    startDay.setUTCHours(0, 0, 0, 0);
+    return startDay;
+  })
+);
 
 const ANALYSES = [
   {

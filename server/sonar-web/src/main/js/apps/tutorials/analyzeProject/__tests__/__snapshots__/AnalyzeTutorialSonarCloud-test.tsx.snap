@@ -285,7 +285,7 @@ exports[`renders for a manual project 1`] = `
 
 exports[`should have a spinner 1`] = `
 <div
-  className="display-flex-justify-center spinner-margin"
+  className="display-flex-justify-center spacer"
 >
   <i
     className="spinner global-loading-spinner"

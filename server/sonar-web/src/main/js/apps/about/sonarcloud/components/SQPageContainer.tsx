@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
+import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
 import Footer from './Footer';
 import GlobalContainer from '../../../../app/components/GlobalContainer';
 import { getCurrentUser, getMyOrganizations, Store } from '../../../../store/rootReducer';
-import { addWhitePageClass, removeWhitePageClass } from '../../../../helpers/pages';
 
 interface StateProps {
   currentUser: T.CurrentUser;

@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { ComponentDescriptor } from './context';
 import WorkspaceHeader, { Props as WorkspaceHeaderProps } from './WorkspaceHeader';
 import WorkspaceComponentTitle from './WorkspaceComponentTitle';
 import SourceViewer from '../SourceViewer/SourceViewer';
-import { scrollToElement } from '../../helpers/scrolling';
 import { isPullRequest, isShortLivingBranch } from '../../helpers/branches';
 import { fetchBranchStatus } from '../../store/rootActions';
 import { getParents } from '../../api/components';

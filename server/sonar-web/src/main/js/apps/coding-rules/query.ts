@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
-  RawQuery,
   parseAsString,
   parseAsArray,
   serializeString,
@@ -30,7 +29,7 @@ import {
   parseAsOptionalBoolean,
   serializeOptionalBoolean,
   parseAsOptionalString
-} from '../../helpers/query';
+} from 'sonar-ui-common/helpers/query';
 
 export interface Query {
   activation: boolean | undefined;
@@ -75,7 +74,7 @@ export interface Actives {
   };
 }
 
-export function parseQuery(query: RawQuery): Query {
+export function parseQuery(query: T.RawQuery): Query {
   return {
     activation: parseAsOptionalBoolean(query.activation),
     activationSeverities: parseAsArray(query.active_severities, parseAsString),
@@ -99,7 +98,7 @@ export function parseQuery(query: RawQuery): Query {
   };
 }
 
-export function serializeQuery(query: Query): RawQuery {
+export function serializeQuery(query: Query): T.RawQuery {
   return cleanQuery({
     activation: serializeOptionalBoolean(query.activation),
     active_severities: serializeStringArray(query.activationSeverities),
@@ -123,7 +122,7 @@ export function serializeQuery(query: Query): RawQuery {
   });
 }
 
-export function areQueriesEqual(a: RawQuery, b: RawQuery) {
+export function areQueriesEqual(a: T.RawQuery, b: T.RawQuery) {
   return queriesEqual(parseQuery(a), parseQuery(b));
 }
 
@@ -153,7 +152,7 @@ export function getAppFacet(serverFacet: string): FacetKey {
   return serverFacet === 'active_severities' ? 'activationSeverities' : (serverFacet as FacetKey);
 }
 
-export function getOpen(query: RawQuery) {
+export function getOpen(query: T.RawQuery) {
   return query.open;
 }
 

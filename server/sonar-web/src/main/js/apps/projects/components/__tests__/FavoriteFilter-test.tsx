@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first */
-jest.mock('../../../../helpers/storage', () => ({
-  save: jest.fn()
-}));
-
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { save } from 'sonar-ui-common/helpers/storage';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import FavoriteFilter from '../FavoriteFilter';
-import { save } from '../../../../helpers/storage';
-import { click } from '../../../../helpers/testUtils';
+
+jest.mock('sonar-ui-common/helpers/storage', () => ({
+  save: jest.fn()
+}));
 
 const currentUser = { isLoggedIn: true };
 const query = { size: 1 };

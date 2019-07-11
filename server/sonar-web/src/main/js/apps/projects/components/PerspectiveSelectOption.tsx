@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BubblesIcon from '../../../components/icons-components/BubblesIcon';
-import ListIcon from '../../../components/icons-components/ListIcon';
+import ListIcon from 'sonar-ui-common/components/icons/ListIcon';
+import BubblesIcon from 'sonar-ui-common/components/icons/BubblesIcon';
 
 export interface Option {
   label: string;

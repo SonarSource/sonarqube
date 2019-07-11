@@ -19,6 +19,9 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import CalendarIcon from 'sonar-ui-common/components/icons/CalendarIcon';
+import ChevronLeftIcon from 'sonar-ui-common/components/icons/ChevronLeftIcon';
+import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
 import { DayModifiers, Modifier, Modifiers } from 'react-day-picker';
 import { InjectedIntlProps, injectIntl } from 'react-intl';
 import { range } from 'lodash';
@@ -26,14 +29,15 @@ import * as addMonths from 'date-fns/add_months';
 import * as setMonth from 'date-fns/set_month';
 import * as setYear from 'date-fns/set_year';
 import * as subMonths from 'date-fns/sub_months';
-import OutsideClickHandler from './OutsideClickHandler';
+import {
+  getShortMonthName,
+  getWeekDayName,
+  getShortWeekDayName
+} from 'sonar-ui-common/helpers/l10n';
+import { ButtonIcon, ClearButton } from 'sonar-ui-common/components/controls/buttons';
+import OutsideClickHandler from 'sonar-ui-common/components/controls/OutsideClickHandler';
+import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import Select from './Select';
-import { lazyLoad } from '../lazyLoad';
-import CalendarIcon from '../icons-components/CalendarIcon';
-import ChevronLeftIcon from '../icons-components/ChevronLeftIcon';
-import ChevronRightIcon from '../icons-components/ChevronRightcon';
-import { ButtonIcon, ClearButton } from '../ui/buttons';
-import { getShortMonthName, getWeekDayName, getShortWeekDayName } from '../../helpers/l10n';
 import './DayPicker.css';
 import './styles.css';
 

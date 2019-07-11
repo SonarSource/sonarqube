@@ -26,7 +26,7 @@ jest.mock('../../../../api/quality-profiles', () => ({
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProfilePermissionsForm from '../ProfilePermissionsForm';
-import { submit } from '../../../../helpers/testUtils';
+import { submit } from 'sonar-ui-common/helpers/testUtils';
 
 const addUser = require('../../../../api/quality-profiles').addUser as jest.Mock<any>;
 const addGroup = require('../../../../api/quality-profiles').addGroup as jest.Mock<any>;

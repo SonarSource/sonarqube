@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import Risk from './Risk';
 import Reliability from './Reliability';
 import Security from './Security';
@@ -26,7 +27,6 @@ import Coverage from './Coverage';
 import Duplications from './Duplications';
 import { localizeSorting } from '../utils';
 import { Project } from '../types';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   displayOrganizations?: boolean;

@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { omit, uniqBy } from 'lodash';
+import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { get, save } from 'sonar-ui-common/helpers/storage';
 import { WorkspaceContext, ComponentDescriptor, RuleDescriptor } from './context';
 import WorkspacePortal from './WorkspacePortal';
-import { get, save } from '../../helpers/storage';
-import { lazyLoad } from '../lazyLoad';
 import './styles.css';
 
 const WORKSPACE = 'sonarqube-workspace';

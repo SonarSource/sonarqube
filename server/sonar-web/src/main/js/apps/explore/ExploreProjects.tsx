@@ -19,10 +19,9 @@
  */
 import * as React from 'react';
 import AllProjectsContainer from '../projects/components/AllProjectsContainer';
-import { RawQuery } from '../../helpers/query';
 
 interface Props {
-  location: { pathname: string; query: RawQuery };
+  location: { pathname: string; query: T.RawQuery };
 }
 
 export default function ExploreProjects(props: Props) {

@@ -21,9 +21,9 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { AllProjects } from '../AllProjects';
-import { get, save } from '../../../../helpers/storage';
+import { get, save } from 'sonar-ui-common/helpers/storage';
 import { isSonarCloud } from '../../../../helpers/system';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 
 jest.mock('../ProjectsList', () => ({
   // eslint-disable-next-line
@@ -52,7 +52,7 @@ jest.mock('../../utils', () => {
   return utils;
 });
 
-jest.mock('../../../../helpers/storage', () => ({
+jest.mock('sonar-ui-common/helpers/storage', () => ({
   get: jest.fn(() => null),
   save: jest.fn()
 }));

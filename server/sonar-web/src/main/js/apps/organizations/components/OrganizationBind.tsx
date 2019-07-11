@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import IdentityProviderLink from 'sonar-ui-common/components/controls/IdentityProviderLink';
+import { save } from 'sonar-ui-common/helpers/storage';
+import { translateWithParameters, translate } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import {
   BIND_ORGANIZATION_REDIRECT_TO_ORG_TIMESTAMP,
   BIND_ORGANIZATION_KEY
 } from '../../create/organization/utils';
-import IdentityProviderLink from '../../../components/ui/IdentityProviderLink';
 import { getAlmAppInfo } from '../../../api/alm-integration';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
-import { translateWithParameters, translate } from '../../../helpers/l10n';
-import { save } from '../../../helpers/storage';
-import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
   currentUser: T.LoggedInUser;
@@ -107,8 +107,10 @@ export default class OrganizationBind extends React.PureComponent<Props, State> 
             </p>
             {almApplication && (
               <IdentityProviderLink
+                backgroundColor={almApplication.backgroundColor}
                 className="display-inline-block"
-                identityProvider={almApplication}
+                iconPath={almApplication.iconPath}
+                name={almApplication.name}
                 onClick={this.handleInstallAppClick}
                 small={true}
                 url={almApplication.installationUrl}>

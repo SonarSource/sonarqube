@@ -22,13 +22,14 @@ import * as classNames from 'classnames';
 import { identity } from 'lodash';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import * as theme from '../../../app/theme';
-import Checkbox from '../../../components/controls/Checkbox';
-import CheckIcon from '../../../components/icons-components/CheckIcon';
-import Tooltip from '../../../components/controls/Tooltip';
-import { getBaseUrl, getProjectUrl } from '../../../helpers/urls';
-import { translate } from '../../../helpers/l10n';
-import LockIcon from '../../../components/icons-components/LockIcon';
+import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
+import LockIcon from 'sonar-ui-common/components/icons/LockIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
+import { colors } from '../../../app/theme';
+import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
   disabled: boolean;
@@ -77,7 +78,7 @@ export default class AlmRepositoryItem extends React.PureComponent<Props> {
             role="listitem">
             <div className="flex-1 display-flex-center">
               {disabled ? (
-                <LockIcon fill={theme.disableGrayText} />
+                <LockIcon fill={colors.disableGrayText} />
               ) : (
                 <Checkbox
                   checked={selected || alreadyImported}
@@ -100,7 +101,7 @@ export default class AlmRepositoryItem extends React.PureComponent<Props> {
 
             {repository.linkedProjectKey && (
               <span>
-                <CheckIcon className="little-spacer-right" fill={theme.green} />
+                <CheckIcon className="little-spacer-right" fill={colors.green} />
                 <FormattedMessage
                   defaultMessage={translate('onboarding.create_project.repository_imported')}
                   id="onboarding.create_project.repository_imported"

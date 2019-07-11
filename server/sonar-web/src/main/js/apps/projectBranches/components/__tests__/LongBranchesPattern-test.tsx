@@ -21,7 +21,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import LongBranchesPattern from '../LongBranchesPattern';
-import { click } from '../../../../helpers/testUtils';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 
 jest.mock('../../../../api/settings', () => ({
   getValues: jest.fn(() => Promise.resolve([]))

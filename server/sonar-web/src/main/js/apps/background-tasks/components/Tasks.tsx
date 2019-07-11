@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import Task from './Task';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   tasks: T.Task[];

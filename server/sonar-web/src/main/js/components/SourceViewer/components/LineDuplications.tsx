@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import Tooltip from '../../controls/Tooltip';
-import { translate } from '../../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 
 interface Props {
   line: T.SourceLine;

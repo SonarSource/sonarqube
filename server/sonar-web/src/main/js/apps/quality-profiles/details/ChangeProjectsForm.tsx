@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { find, without } from 'lodash';
 import * as React from 'react';
+import { find, without } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Modal from 'sonar-ui-common/components/controls/Modal';
+import SelectList, { Filter } from '../../../components/SelectList/SelectList';
+import { Profile } from '../types';
 import {
   associateProject,
   dissociateProject,
   getProfileProjects,
   ProfileProject
 } from '../../../api/quality-profiles';
-import Modal from '../../../components/controls/Modal';
-import SelectList, { Filter } from '../../../components/SelectList/SelectList';
-import { translate } from '../../../helpers/l10n';
-import { Profile } from '../types';
 
 interface Props {
   onClose: () => void;

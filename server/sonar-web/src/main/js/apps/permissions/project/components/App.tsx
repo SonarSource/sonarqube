@@ -20,13 +20,13 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { without } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import AllHoldersList from './AllHoldersList';
 import PageHeader from './PageHeader';
 import PublicProjectDisclaimer from './PublicProjectDisclaimer';
 import UpgradeOrganizationBox from '../../../create/components/UpgradeOrganizationBox';
 import VisibilitySelector from '../../../../components/common/VisibilitySelector';
 import * as api from '../../../../api/permissions';
-import { translate } from '../../../../helpers/l10n';
 import '../../styles.css';
 
 interface Props {

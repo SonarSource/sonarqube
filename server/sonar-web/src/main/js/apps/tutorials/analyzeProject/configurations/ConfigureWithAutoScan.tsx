@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import { Button, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import { AutoScanAlert } from './AutoScanAlert';
 import CodeSnippet from '../../../../components/common/CodeSnippet';
-import { translate } from '../../../../helpers/l10n';
-import { Button, ResetButtonLink } from '../../../../components/ui/buttons';
 import Step from '../../components/Step';
-import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import { TutorialProps } from '../utils';
 
 export default function ConfigureWithAutoScan({ onDone }: TutorialProps) {

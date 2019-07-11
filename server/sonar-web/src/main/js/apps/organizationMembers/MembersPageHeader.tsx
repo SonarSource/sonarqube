@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import AddMemberForm from './AddMemberForm';
 import SyncMemberForm from './SyncMemberForm';
-import DeferredSpinner from '../../components/common/DeferredSpinner';
 import DocTooltip from '../../components/docs/DocTooltip';
 import { sanitizeAlmId, isGithub } from '../../helpers/almIntegrations';
-import { translate, translateWithParameters } from '../../helpers/l10n';
-import { Alert } from '../../components/ui/Alert';
 
 export interface Props {
   handleAddMember: (member: T.OrganizationMember) => void;
@@ -48,8 +48,11 @@ export default function MembersPageHeader(props: Props) {
 
   return (
     <header className="page-header">
-      <h1 className="page-title">{translate('organization.members.page')}</h1>
-      <DeferredSpinner loading={props.loading} />
+      <h1 className="page-title">
+        {translate('organization.members.page')}
+        <DeferredSpinner className="little-spacer-left" loading={props.loading} />
+      </h1>
+
       {isAdmin && (
         <div className="page-actions text-right">
           {isSyncEligible && !showSyncNotif && (

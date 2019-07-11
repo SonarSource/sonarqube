@@ -20,19 +20,19 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { sortBy, without } from 'lodash';
+import { queriesEqual } from 'sonar-ui-common/helpers/query';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import FacetBox from './FacetBox';
 import FacetHeader from './FacetHeader';
 import FacetItem from './FacetItem';
 import FacetItemsList from './FacetItemsList';
 import ListStyleFacetFooter from './ListStyleFacetFooter';
 import MultipleSelectionHint from './MultipleSelectionHint';
-import { Alert } from '../ui/Alert';
-import ListFooter from '../controls/ListFooter';
-import SearchBox from '../controls/SearchBox';
-import Tooltip from '../controls/Tooltip';
-import { formatMeasure } from '../../helpers/measures';
-import { queriesEqual, RawQuery } from '../../helpers/query';
-import { translate } from '../../helpers/l10n';
 
 interface SearchResponse<S> {
   maxResults?: boolean;
@@ -60,7 +60,7 @@ export interface Props<S> {
   onToggle: (property: string) => void;
   open: boolean;
   property: string;
-  query?: RawQuery;
+  query?: T.RawQuery;
   renderFacetItem: (item: string) => React.ReactNode;
   renderSearchResult: (result: S, query: string) => React.ReactNode;
   searchPlaceholder: string;
@@ -156,7 +156,9 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   handleClear = () => {
     if (this.props.onClear) {
       this.props.onClear();
-    } else this.props.onChange({ [this.props.property]: [] });
+    } else {
+      this.props.onChange({ [this.props.property]: [] });
+    }
   };
 
   stopSearching = () => {

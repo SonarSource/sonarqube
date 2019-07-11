@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import GroupHolder from '../GroupHolder';
-import { waitAndUpdate } from '../../../../../helpers/testUtils';
 
 const group = {
   id: 'foobar',
@@ -43,7 +43,7 @@ const groupHolder = (
       },
       { key: 'baz', name: 'Baz', description: '' }
     ]}
-    selectedPermission={'bar'}
+    selectedPermission="bar"
   />
 );
 

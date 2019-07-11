@@ -18,11 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as key from 'keymaster';
+import { keyBy } from 'lodash';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
-import * as key from 'keymaster';
-import { keyBy } from 'lodash';
+import {
+  addSideBarClass,
+  addWhitePageClass,
+  removeSideBarClass,
+  removeWhitePageClass
+} from 'sonar-ui-common/helpers/pages';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import BulkChange from './BulkChange';
 import FacetsList from './FacetsList';
 import PageActions from './PageActions';
@@ -46,9 +56,7 @@ import {
 } from '../query';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import ListFooter from '../../../components/controls/ListFooter';
 import FiltersHeader from '../../../components/common/FiltersHeader';
-import SearchBox from '../../../components/controls/SearchBox';
 import { searchRules, getRulesApp } from '../../../api/rules';
 import { searchQualityProfiles, Profile } from '../../../api/quality-profiles';
 import {
@@ -64,16 +72,7 @@ import {
   shouldOpenStandardsChildFacet,
   STANDARDS
 } from '../../issues/utils';
-import { translate } from '../../../helpers/l10n';
 import { hasPrivateAccess } from '../../../helpers/organizations';
-import {
-  addSideBarClass,
-  addWhitePageClass,
-  removeSideBarClass,
-  removeWhitePageClass
-} from '../../../helpers/pages';
-import { RawQuery } from '../../../helpers/query';
-import { scrollToElement } from '../../../helpers/scrolling';
 import '../../../components/search-navigator.css';
 import '../styles.css';
 
@@ -255,7 +254,7 @@ export class App extends React.PureComponent<Props, State> {
     );
   };
 
-  makeFetchRequest = (query?: RawQuery) =>
+  makeFetchRequest = (query?: T.RawQuery) =>
     searchRules({ ...this.getSearchParameters(), ...query }).then(
       ({ actives: rawActives, facets: rawFacets, p, ps, rules, total }) => {
         const actives = rawActives && parseActives(rawActives);
@@ -265,7 +264,7 @@ export class App extends React.PureComponent<Props, State> {
       }
     );
 
-  fetchFirstRules = (query?: RawQuery) => {
+  fetchFirstRules = (query?: T.RawQuery) => {
     this.setState({ loading: true });
     this.makeFetchRequest(query).then(({ actives, facets, paging, rules }) => {
       if (this.mounted) {

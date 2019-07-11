@@ -21,7 +21,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { UsersApp } from '../UsersApp';
-import { waitAndUpdate } from '../../../helpers/testUtils';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { Location } from '../../../components/hoc/withRouter';
 
 jest.mock('../../../api/users', () => ({

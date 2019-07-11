@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import * as classNames from 'classnames';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import { translate } from '../../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 
 interface Props {
   allowMore: boolean;
@@ -65,7 +65,7 @@ export default class SearchShowMore extends React.PureComponent<Props> {
             <div className="pull-right text-muted-2 menu-footer-note">
               <FormattedMessage
                 defaultMessage={translate('search.show_more.hint')}
-                id={'search.show_more.hint'}
+                id="search.show_more.hint"
                 values={{
                   key: <span className="shortcut-button shortcut-button-small">Enter</span>
                 }}

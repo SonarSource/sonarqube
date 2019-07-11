@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import CrossComponentSourceViewerWrapper from '../CrossComponentSourceViewerWrapper';
 import {
   mockFlowLocation,
@@ -27,7 +28,6 @@ import {
   mockSourceLine,
   mockSourceViewerFile
 } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { getIssueFlowSnippets } from '../../../../api/issues';
 import { getDuplications } from '../../../../api/components';
 

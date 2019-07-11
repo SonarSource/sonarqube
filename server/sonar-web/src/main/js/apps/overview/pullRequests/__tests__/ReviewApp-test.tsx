@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { ReviewApp } from '../ReviewApp';
 import { getMeasures } from '../../../../api/measures';
 import {
@@ -26,7 +27,6 @@ import {
   mockPullRequest,
   mockQualityGateStatusCondition
 } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/measures', () => {
   const { mockMeasure } = require.requireActual('../../../../helpers/testMocks');

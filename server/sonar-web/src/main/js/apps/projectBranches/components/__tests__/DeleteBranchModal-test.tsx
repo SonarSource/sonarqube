@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
+import { submit, doAsync, click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import DeleteBranchModal from '../DeleteBranchModal';
-import { submit, doAsync, click, waitAndUpdate } from '../../../../helpers/testUtils';
 import { deleteBranch, deletePullRequest } from '../../../../api/branches';
 import { mockShortLivingBranch, mockPullRequest } from '../../../../helpers/testMocks';
 

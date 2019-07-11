@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
+import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import SelectListListContainer from './SelectListListContainer';
-import { translate } from '../../helpers/l10n';
-import ListFooter from '../controls/ListFooter';
-import RadioToggle from '../controls/RadioToggle';
-import SearchBox from '../controls/SearchBox';
 import './styles.css';
 
 export enum Filter {

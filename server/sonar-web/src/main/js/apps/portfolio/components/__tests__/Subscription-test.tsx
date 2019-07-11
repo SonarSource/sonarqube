@@ -28,7 +28,7 @@ jest.mock('../../../../api/report', () => {
 import * as React from 'react';
 import { shallow, mount } from 'enzyme';
 import { Subscription } from '../Subscription';
-import { click, waitAndUpdate } from '../../../../helpers/testUtils';
+import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { ReportStatus } from '../../../../api/report';
 
 const subscribe = require('../../../../api/report').subscribe as jest.Mock<any>;

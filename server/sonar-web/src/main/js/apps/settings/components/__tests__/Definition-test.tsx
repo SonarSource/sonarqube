@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { Definition } from '../Definition';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 const setting: T.Setting = {
   key: 'foo',

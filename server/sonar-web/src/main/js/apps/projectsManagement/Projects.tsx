@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import ProjectRow from './ProjectRow';
-import { translate } from '../../helpers/l10n';
 import { Project } from '../../api/components';
 
 interface Props {

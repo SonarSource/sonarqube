@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { throttle } from 'lodash';
 import CountUp from 'react-countup';
-import { formatMeasure } from '../../../../helpers/measures';
-import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/urls';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import './Statistics.css';
 
 interface Statistic {

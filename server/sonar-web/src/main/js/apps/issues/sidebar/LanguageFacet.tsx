@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { uniqBy, omit } from 'lodash';
 import { connect } from 'react-redux';
+import { highlightTerm } from 'sonar-ui-common/helpers/search';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { Query, ReferencedLanguage, Facet } from '../utils';
 import { getLanguages, Store } from '../../../store/rootReducer';
-import { translate } from '../../../helpers/l10n';
-import { highlightTerm } from '../../../helpers/search';
 
 interface InstalledLanguage {
   key: string;

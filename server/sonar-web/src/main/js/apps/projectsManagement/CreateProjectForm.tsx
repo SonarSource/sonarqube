@@ -20,14 +20,14 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Modal from 'sonar-ui-common/components/controls/Modal';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { createProject } from '../../api/components';
 import UpgradeOrganizationBox from '../create/components/UpgradeOrganizationBox';
 import VisibilitySelector from '../../components/common/VisibilitySelector';
-import Modal from '../../components/controls/Modal';
-import { SubmitButton, ResetButtonLink } from '../../components/ui/buttons';
-import { translate } from '../../helpers/l10n';
 import { getProjectUrl } from '../../helpers/urls';
-import { Alert } from '../../components/ui/Alert';
 
 interface Props {
   onClose: () => void;

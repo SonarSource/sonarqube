@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import ProjectKeyInput from '../ProjectKeyInput';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.useFakeTimers();
 

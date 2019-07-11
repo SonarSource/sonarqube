@@ -21,9 +21,9 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import OrganizationsList from './OrganizationsList';
 import { fetchIfAnyoneCanCreateOrganizations } from './actions';
-import { translate } from '../../../helpers/l10n';
 import {
   getAppState,
   getMyOrganizations,

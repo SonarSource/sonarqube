@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import { translate, hasMessage } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import RadioCard from 'sonar-ui-common/components/controls/RadioCard';
 import UpgradeOrganizationAdvantages from './UpgradeOrganizationAdvantages';
 import UpgradeOrganizationModal from './UpgradeOrganizationModal';
-import RadioCard from '../../../components/controls/RadioCard';
-import { Button } from '../../../components/ui/buttons';
 import { formatPrice } from '../organization/utils';
 import { getSubscriptionPlans } from '../../../api/billing';
-import { translate, hasMessage } from '../../../helpers/l10n';
 
 interface Props {
   className?: string;

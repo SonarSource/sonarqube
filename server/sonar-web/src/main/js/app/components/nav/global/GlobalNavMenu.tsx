@@ -20,13 +20,13 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
-import { translate } from '../../../../helpers/l10n';
-import { getQualityGatesUrl } from '../../../../helpers/urls';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import { isMySet } from '../../../../apps/issues/utils';
-import Dropdown from '../../../../components/controls/Dropdown';
-import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import { isSonarCloud } from '../../../../helpers/system';
 import { isLoggedIn } from '../../../../helpers/users';
+import { getQualityGatesUrl } from '../../../../helpers/urls';
 
 interface Props {
   appState: Pick<T.AppState, 'canAdmin' | 'globalPages' | 'organizationsEnabled' | 'qualifiers'>;

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { change, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import ManualProjectCreate from '../ManualProjectCreate';
-import { change, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 import { createProject } from '../../../../api/components';
 
 jest.mock('../../../../api/components', () => ({

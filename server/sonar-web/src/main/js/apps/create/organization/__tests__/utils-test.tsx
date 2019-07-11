@@ -19,7 +19,7 @@
  */
 import { formatPrice } from '../utils';
 
-jest.mock('../../../../helpers/urls', () => ({
+jest.mock('sonar-ui-common/helpers/urls', () => ({
   getHostUrl: () => 'http://host.url'
 }));
 

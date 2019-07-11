@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import AlertWarnIcon from '../../../components/icons-components/AlertWarnIcon';
-import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
-import { ClearButton } from '../../../components/ui/buttons';
+import AlertWarnIcon from 'sonar-ui-common/components/icons/AlertWarnIcon';
+import ChartLegendIcon from 'sonar-ui-common/components/icons/ChartLegendIcon';
+import { ClearButton } from 'sonar-ui-common/components/controls/buttons';
 
 interface Props {
   className?: string;

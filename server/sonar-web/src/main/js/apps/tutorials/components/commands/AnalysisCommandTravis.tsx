@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getHostUrl } from 'sonar-ui-common/helpers/urls';
 import { JavaMavenTravisSonarCloud } from './TravisSonarCloud/JavaMavenTravisSonarCloud';
 import { JavaGradleTravisSonarCloud } from './TravisSonarCloud/JavaGradleTravisSonarCloud';
 import { OtherTravisSonarCloud } from './TravisSonarCloud/OtherTravisSonarCloud';
 import { ClangGCCTravisSonarCloud } from './TravisSonarCloud/ClangGCCTravisSonarCloud';
-import { getHostUrl } from '../../../../helpers/urls';
-import CodeSnippet from '../../../../components/common/CodeSnippet';
-import { translate } from '../../../../helpers/l10n';
 import { getProjectKey } from '../ProjectAnalysisStep';
+import CodeSnippet from '../../../../components/common/CodeSnippet';
 
 interface Props {
   buildType: string | undefined;
@@ -81,7 +81,7 @@ export function RequirementJavaBuild() {
             target="_blank">
             {translate('onboarding.analysis.with.travis.environment.image.java')}
           </a>
-          <CodeSnippet isOneLine={true} noCopy={true} snippet={'language: java'} />
+          <CodeSnippet isOneLine={true} noCopy={true} snippet="language: java" />
         </div>
 
         <div className="display-flex-stretch">
@@ -99,7 +99,7 @@ export function RequirementJavaBuild() {
             target="_blank">
             {translate('onboarding.analysis.with.travis.environment.image.ci')}
           </a>
-          <CodeSnippet isOneLine={true} noCopy={true} snippet={'dist: trusty'} />
+          <CodeSnippet isOneLine={true} noCopy={true} snippet="dist: trusty" />
         </div>
       </div>
     </>
@@ -119,7 +119,7 @@ export function RequirementOtherBuild() {
         </a>
       </p>
 
-      <CodeSnippet isOneLine={true} noCopy={true} snippet={'dist: trusty'} />
+      <CodeSnippet isOneLine={true} noCopy={true} snippet="dist: trusty" />
     </>
   );
 }
@@ -180,7 +180,7 @@ export function RenderCommandForOther({ component, organization, token }: Render
     <OtherTravisSonarCloud
       host={getHostUrl()}
       organization={organization}
-      os={'linux'}
+      os="linux"
       projectKey={projectKey}
       token={token}
     />

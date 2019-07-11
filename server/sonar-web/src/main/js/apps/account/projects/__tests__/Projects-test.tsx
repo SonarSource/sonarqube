@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import Projects from '../Projects';
 import ProjectCard from '../ProjectCard';
-import ListFooter from '../../../../components/controls/ListFooter';
 
 const PROJECTS = [
   { key: 'key1', links: [], name: 'name1' },

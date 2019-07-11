@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import ContextNavBar from 'sonar-ui-common/components/ui/ContextNavBar';
 import ComponentNavHeader from './ComponentNavHeader';
 import ComponentNavMeta from './ComponentNavMeta';
 import ComponentNavMenu from './ComponentNavMenu';
 import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
 import RecentHistory from '../../RecentHistory';
-import * as theme from '../../../theme';
-import ContextNavBar from '../../../../components/nav/ContextNavBar';
+import { rawSizes } from '../../../theme';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 import './ComponentNav.css';
 
@@ -68,6 +68,7 @@ export default class ComponentNav extends React.PureComponent<Props> {
 
   render() {
     const { component, currentBranchLike, currentTask, isInProgress, isPending } = this.props;
+    const contextNavHeight = rawSizes.contextNavHeightRaw;
     let notifComponent;
     if (isInProgress || isPending || (currentTask && currentTask.status === STATUSES.FAILED)) {
       notifComponent = (
@@ -82,7 +83,7 @@ export default class ComponentNav extends React.PureComponent<Props> {
     }
     return (
       <ContextNavBar
-        height={notifComponent ? theme.contextNavHeightRaw + 30 : theme.contextNavHeightRaw}
+        height={notifComponent ? contextNavHeight + 30 : contextNavHeight}
         id="context-navigation"
         notif={notifComponent}>
         <div className="navbar-context-justified">

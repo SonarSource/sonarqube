@@ -19,11 +19,17 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { differenceInMinutes } from 'date-fns';
+import * as differenceInMinutes from 'date-fns/difference_in_minutes';
 import { times } from 'lodash';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { withRouter, WithRouterProps } from 'react-router';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
+import { get, remove } from 'sonar-ui-common/helpers/storage';
+import { slugify } from 'sonar-ui-common/helpers/strings';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import Tabs from 'sonar-ui-common/components/controls/Tabs';
 import { createOrganization } from './actions';
 import {
   ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP,
@@ -40,8 +46,6 @@ import AutoOrganizationCreate from './AutoOrganizationCreate';
 import ManualOrganizationCreate from './ManualOrganizationCreate';
 import RemoteOrganizationChoose from './RemoteOrganizationChoose';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import Tabs from '../../../components/controls/Tabs';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
 import { deleteOrganization } from '../../organizations/actions';
@@ -55,10 +59,6 @@ import {
 import { getSubscriptionPlans } from '../../../api/billing';
 import * as api from '../../../api/organizations';
 import { hasAdvancedALMIntegration, sanitizeAlmId } from '../../../helpers/almIntegrations';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { addWhitePageClass, removeWhitePageClass } from '../../../helpers/pages';
-import { get, remove } from '../../../helpers/storage';
-import { slugify } from '../../../helpers/strings';
 import { getOrganizationUrl } from '../../../helpers/urls';
 import { skipOnboarding } from '../../../store/users';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';

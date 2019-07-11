@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import Search from '../components/Search';
 import { STATUSES, CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS } from '../constants';
 import { formatDuration } from '../utils';
-import { click } from '../../../helpers/testUtils';
 
 describe('Constants', () => {
   it('should have STATUSES', () => {

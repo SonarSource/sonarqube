@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import HelpIcon from 'sonar-ui-common/components/icons/HelpIcon';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import HelpIcon from '../../../components/icons-components/HelpIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { getQualityGateUrl, getQualityGatesUrl } from '../../../helpers/urls';
 import { isSonarCloud } from '../../../helpers/system';
-import { translate } from '../../../helpers/l10n';
-import { transparentWhite } from '../../../app/theme';
+import { colors } from '../../../app/theme';
 
 interface Props {
   component: T.Component;
@@ -69,7 +69,7 @@ export default function LargeQualityGateBadge({ component, level }: Props) {
               }}
             />
           }>
-          <HelpIcon fill={transparentWhite} size={12} />
+          <HelpIcon fill={colors.transparentWhite} size={12} />
         </HelpTooltip>
       </div>
       {level !== undefined && (

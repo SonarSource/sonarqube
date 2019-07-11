@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import Header from './Header';
 import List from './List';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   organization: T.Organization | undefined;

@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button } from '../../ui/buttons';
-import { translate } from '../../../helpers/l10n';
-import { DropdownOverlay } from '../../controls/Dropdown';
-import { PopupPlacement } from '../../ui/popups';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
+import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 
 interface Props {
   onDelete: () => void;

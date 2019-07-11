@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import DocTooltip from '../../components/docs/DocTooltip';
-import { translate } from '../../helpers/l10n';
 
 export default function Header() {
   return (

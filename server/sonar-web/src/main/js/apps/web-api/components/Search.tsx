@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Checkbox from '../../../components/controls/Checkbox';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import { translate } from '../../../helpers/l10n';
-import SearchBox from '../../../components/controls/SearchBox';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import { Query } from '../utils';
 
 interface Props {

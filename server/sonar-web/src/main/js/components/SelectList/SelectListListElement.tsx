@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import Checkbox from '../controls/Checkbox';
+import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 
 interface Props {
   active?: boolean;

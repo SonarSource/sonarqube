@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import CodeSmellIcon from 'sonar-ui-common/components/icons/CodeSmellIcon';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import enhance, { ComposedProps } from './enhance';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { getMetricName } from '../utils';
-import { formatMeasure } from '../../../helpers/measures';
-import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 
 export class CodeSmells extends React.PureComponent<ComposedProps> {

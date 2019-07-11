@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { sortBy } from 'lodash';
+import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { translateWithParameters, translate } from 'sonar-ui-common/helpers/l10n';
 import { searchRules } from '../../../api/rules';
-import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
-import { toShortNotSoISOString } from '../../../helpers/dates';
-import { formatMeasure } from '../../../helpers/measures';
 
 const RULES_LIMIT = 10;
 

@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import IdentityProviderLink from '../../../components/ui/IdentityProviderLink';
-import { translateWithParameters } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import IdentityProviderLink from 'sonar-ui-common/components/controls/IdentityProviderLink';
+import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import './OAuthProviders.css';
 
 interface Props {
@@ -60,7 +60,9 @@ function OAuthProvider({ format, identityProvider, returnTo }: ItemProps) {
   return (
     <li>
       <IdentityProviderLink
-        identityProvider={identityProvider}
+        backgroundColor={identityProvider.backgroundColor}
+        iconPath={identityProvider.iconPath}
+        name={identityProvider.name}
         url={
           `${getBaseUrl()}/sessions/init/${identityProvider.key}` +
           `?return_to=${encodeURIComponent(returnTo)}`

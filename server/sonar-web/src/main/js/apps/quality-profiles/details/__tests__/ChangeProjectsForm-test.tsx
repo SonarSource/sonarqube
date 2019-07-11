@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import ChangeProjectsForm, { SearchParams } from '../ChangeProjectsForm';
 import SelectList, { Filter } from '../../../../components/SelectList/SelectList';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 import {
   getProfileProjects,
   associateProject,
@@ -124,6 +124,6 @@ it('should handle deselection properly', async () => {
 
 function shallowRender(props: Partial<ChangeProjectsForm['props']> = {}) {
   return shallow<ChangeProjectsForm>(
-    <ChangeProjectsForm onClose={jest.fn()} organization={'TEST'} profile={profile} {...props} />
+    <ChangeProjectsForm onClose={jest.fn()} organization="TEST" profile={profile} {...props} />
   );
 }

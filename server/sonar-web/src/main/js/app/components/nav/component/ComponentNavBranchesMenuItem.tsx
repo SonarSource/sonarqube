@@ -20,8 +20,9 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
-import BranchStatus from '../../../../components/common/BranchStatus';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import BranchIcon from '../../../../components/icons-components/BranchIcon';
+import BranchStatus from '../../../../components/common/BranchStatus';
 import {
   isShortLivingBranch,
   getBranchLikeDisplayName,
@@ -29,7 +30,6 @@ import {
   isMainBranch,
   isPullRequest
 } from '../../../../helpers/branches';
-import { translate } from '../../../../helpers/l10n';
 import { getBranchLikeUrl } from '../../../../helpers/urls';
 
 export interface Props {

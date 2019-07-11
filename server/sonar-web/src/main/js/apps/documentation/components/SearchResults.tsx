@@ -21,10 +21,10 @@ import * as React from 'react';
 import lunr, { LunrBuilder, LunrIndex, LunrToken } from 'lunr';
 import { sortBy } from 'lodash';
 import { DocNavigationItem } from 'Docs/@types/types';
+import { isDefined } from 'sonar-ui-common/helpers/types';
 import SearchResultEntry from './SearchResultEntry';
 import { getUrlsList } from '../navTreeUtils';
 import { DocumentationEntry } from '../utils';
-import { isDefined } from '../../../helpers/types';
 
 interface Props {
   navigation: DocNavigationItem[];

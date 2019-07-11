@@ -18,13 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import ActionsDropdown, {
+  ActionsDropdownItem
+} from 'sonar-ui-common/components/controls/ActionsDropdown';
+import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
+import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import ScannerContext from './ScannerContext';
 import Stacktrace from './Stacktrace';
 import { STATUSES } from '../constants';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
-import { lazyLoad } from '../../../components/lazyLoad';
-import ConfirmModal from '../../../components/controls/ConfirmModal';
 
 const AnalysisWarningsModal = lazyLoad(
   () => import('../../../components/common/AnalysisWarningsModal'),

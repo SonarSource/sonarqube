@@ -17,7 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, postJSON, post, requestTryAndRepeatUntil, getCorsJSON } from '../helpers/request';
+import {
+  getCorsJSON,
+  getJSON,
+  postJSON,
+  post,
+  requestTryAndRepeatUntil
+} from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { AlmLanguagesStats } from '../apps/tutorials/analyzeProject/utils';
 

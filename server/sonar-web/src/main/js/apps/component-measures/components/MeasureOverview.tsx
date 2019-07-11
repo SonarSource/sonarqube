@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import PageActions from 'sonar-ui-common/components/ui/PageActions';
 import Breadcrumbs from './Breadcrumbs';
 import LeakPeriodLegend from './LeakPeriodLegend';
 import MeasureContentHeader from './MeasureContentHeader';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import PageActions from '../../../components/ui/PageActions';
 import BubbleChart from '../drilldown/BubbleChart';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { getComponentLeaves } from '../../../api/components';
 import { enhanceComponent, getBubbleMetrics, isFileType, hasFullMeasures } from '../utils';

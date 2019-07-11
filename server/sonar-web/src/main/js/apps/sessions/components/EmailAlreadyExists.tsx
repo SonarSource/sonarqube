@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import * as theme from '../../../app/theme';
-import { Alert } from '../../../components/ui/Alert';
+import { getTextColor } from 'sonar-ui-common/helpers/colors';
+import { getCookie } from 'sonar-ui-common/helpers/cookies';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { colors } from '../../../app/theme';
 import { getIdentityProviders } from '../../../api/users';
-import { getCookie } from '../../../helpers/cookies';
-import { getBaseUrl } from '../../../helpers/urls';
-import { getTextColor } from '../../../helpers/colors';
-import { translate } from '../../../helpers/l10n';
 
 interface State {
   identityProviders: T.IdentityProvider[];
@@ -77,7 +77,7 @@ export default class EmailAlreadyExists extends React.PureComponent<{}, State> {
         className="identity-provider"
         style={{
           backgroundColor: identityProvider.backgroundColor,
-          color: getTextColor(identityProvider.backgroundColor, theme.secondFontColor)
+          color: getTextColor(identityProvider.backgroundColor, colors.secondFontColor)
         }}>
         <img
           alt={identityProvider.name}

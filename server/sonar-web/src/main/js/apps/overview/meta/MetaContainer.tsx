@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import MetaKey from './MetaKey';
 import MetaOrganizationKey from './MetaOrganizationKey';
 import MetaLinks from './MetaLinks';
@@ -28,7 +29,6 @@ import MetaSize from './MetaSize';
 import MetaTags from './MetaTags';
 import BadgesModal from '../badges/BadgesModal';
 import AnalysesList from '../events/AnalysesList';
-import { translate } from '../../../helpers/l10n';
 import { hasPrivateAccess } from '../../../helpers/organizations';
 import {
   getCurrentUser,

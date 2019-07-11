@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
 import Helmet from 'react-helmet';
+import { WithRouterProps } from 'react-router';
+import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import ManualProjectCreate from './ManualProjectCreate';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
-import { translate } from '../../../helpers/l10n';
-import { addWhitePageClass, removeWhitePageClass } from '../../../helpers/pages';
 import { getProjectUrl } from '../../../helpers/urls';
 import './style.css';
 

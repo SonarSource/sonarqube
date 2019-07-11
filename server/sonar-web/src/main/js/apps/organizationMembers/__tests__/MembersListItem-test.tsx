@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import MembersListItem from '../MembersListItem';
-import { click } from '../../../helpers/testUtils';
 import { mockOrganizationWithAdminActions, mockOrganization } from '../../../helpers/testMocks';
 
 it('should not render actions and groups for non admin', () => {

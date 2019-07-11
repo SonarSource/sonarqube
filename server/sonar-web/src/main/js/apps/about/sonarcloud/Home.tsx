@@ -20,6 +20,8 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { FixedNavBar, TopNavBar } from './components/NavBars';
 import FeaturedProjects from './components/FeaturedProjects';
 import Footer from './components/Footer';
@@ -28,8 +30,6 @@ import LoginButtons from './components/LoginButtons';
 import Statistics from './components/Statistics';
 import { requestHomepageData, HomepageData, FeaturedProject } from './utils';
 import { getGlobalSettingValue, Store } from '../../../store/rootReducer';
-import { addWhitePageClass, removeWhitePageClass } from '../../../helpers/pages';
-import { getBaseUrl } from '../../../helpers/urls';
 import './new_style.css';
 
 interface Props {

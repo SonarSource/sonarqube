@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import MeasuresButtonLink from './MeasuresButtonLink';
 import MetricBox from './MetricBox';
 import Report from './Report';
@@ -28,7 +29,6 @@ import { PORTFOLIO_METRICS, SUB_COMPONENTS_METRICS, convertMeasures } from '../u
 import Measure from '../../../components/measure/Measure';
 import { getChildren } from '../../../api/components';
 import { getMeasures } from '../../../api/measures';
-import { translate } from '../../../helpers/l10n';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics, Store } from '../../../store/rootReducer';
 import '../styles.css';
@@ -110,7 +110,7 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <div className="page page-limited">
         <div className="text-center">
-          <i className="spinner spinner-margin" />
+          <i className="spinner spacer" />
         </div>
       </div>
     );

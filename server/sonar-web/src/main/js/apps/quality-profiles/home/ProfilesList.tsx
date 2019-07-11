@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { groupBy, pick, sortBy } from 'lodash';
 import { Location } from 'history';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import ProfilesListRow from './ProfilesListRow';
 import ProfilesListHeader from './ProfilesListHeader';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Profile } from '../types';
-import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   languages: T.Language[];

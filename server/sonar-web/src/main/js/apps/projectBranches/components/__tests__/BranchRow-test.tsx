@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import BranchRow from '../BranchRow';
-import { click } from '../../../../helpers/testUtils';
 import { mockPullRequest, mockShortLivingBranch } from '../../../../helpers/testMocks';
 
 const mainBranch: T.MainBranch = { isMain: true, name: 'master' };

@@ -19,20 +19,19 @@
  */
 import * as React from 'react';
 import { difference, sortBy } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
 import SearchableFilterFooter from './SearchableFilterFooter';
 import SearchableFilterOption from './SearchableFilterOption';
 import { getLanguageByKey } from '../../../store/languages';
-import { translate } from '../../../helpers/l10n';
 import { Facet } from '../types';
-import { RawQuery } from '../../../helpers/query';
 
 interface Props {
   facet?: Facet;
   languages: T.Languages;
   maxFacetValue?: number;
-  onQueryChange: (change: RawQuery) => void;
+  onQueryChange: (change: T.RawQuery) => void;
   organization?: { key: string };
   property?: string;
   query: T.Dict<any>;

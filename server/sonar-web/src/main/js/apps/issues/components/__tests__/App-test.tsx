@@ -19,6 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
+import { waitAndUpdate, KEYCODE_MAP, keydown } from 'sonar-ui-common/helpers/testUtils';
 import { App } from '../App';
 import {
   mockLoggedInUser,
@@ -30,7 +32,6 @@ import {
   mockPullRequest,
   mockComponent
 } from '../../../../helpers/testMocks';
-import handleRequiredAuthentication from '../../../../app/utils/handleRequiredAuthentication';
 import {
   enableLocationsNavigator,
   selectNextLocation,
@@ -38,9 +39,8 @@ import {
   selectNextFlow,
   selectPreviousFlow
 } from '../../actions';
-import { waitAndUpdate, KEYCODE_MAP, keydown } from '../../../../helpers/testUtils';
 
-jest.mock('../../../../app/utils/handleRequiredAuthentication', () => ({
+jest.mock('sonar-ui-common/helpers/handleRequiredAuthentication', () => ({
   default: jest.fn()
 }));
 

@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { map } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import HealthItem from './HealthItem';
 import Section from './Section';
-import { Alert } from '../../../../components/ui/Alert';
 import BoxedGroupAccordion from '../../../../components/controls/BoxedGroupAccordion';
 import { LOGS_LEVELS, groupSections, getLogsLevel } from '../../utils';
-import { translate } from '../../../../helpers/l10n';
 
 interface Props {
   biggerHealth?: boolean;

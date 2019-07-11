@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { sortBy } from 'lodash';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
 import CustomRuleButton from './CustomRuleButton';
 import { searchRules, deleteRule } from '../../../api/rules';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
-import { Button } from '../../../components/ui/buttons';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 
 interface Props {

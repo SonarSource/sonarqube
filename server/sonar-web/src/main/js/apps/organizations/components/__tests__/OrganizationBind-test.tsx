@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { save } from 'sonar-ui-common/helpers/storage';
 import OrganizationBind from '../OrganizationBind';
 import {
   BIND_ORGANIZATION_REDIRECT_TO_ORG_TIMESTAMP,
   BIND_ORGANIZATION_KEY
 } from '../../../create/organization/utils';
 import { getAlmAppInfo } from '../../../../api/alm-integration';
-import { save } from '../../../../helpers/storage';
 import {
   mockAlmApplication,
   mockLoggedInUser,
@@ -35,7 +35,8 @@ import {
 jest.mock('../../../../api/alm-integration', () => ({
   getAlmAppInfo: jest.fn(() => Promise.resolve({ application: mockAlmApplication() }))
 }));
-jest.mock('../../../../helpers/storage', () => ({
+
+jest.mock('sonar-ui-common/helpers/storage', () => ({
   save: jest.fn()
 }));
 

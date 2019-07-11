@@ -18,20 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { memoize } from 'lodash';
-import { cleanQuery, parseAsString, RawQuery, serializeString } from '../../helpers/query';
+import { cleanQuery, parseAsString, serializeString } from 'sonar-ui-common/helpers/query';
 
 export interface Query {
   search: string;
 }
 
 export const parseQuery = memoize(
-  (urlQuery: RawQuery): Query => ({
+  (urlQuery: T.RawQuery): Query => ({
     search: parseAsString(urlQuery['search'])
   })
 );
 
 export const serializeQuery = memoize(
-  (query: Query): RawQuery =>
+  (query: Query): T.RawQuery =>
     cleanQuery({
       search: query.search ? serializeString(query.search) : undefined
     })

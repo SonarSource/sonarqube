@@ -25,7 +25,7 @@ jest.mock('../../../../api/quality-profiles', () => ({
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProfilePermissionsUser from '../ProfilePermissionsUser';
-import { click } from '../../../../helpers/testUtils';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 
 const removeUser = require('../../../../api/quality-profiles').removeUser as jest.Mock<any>;
 

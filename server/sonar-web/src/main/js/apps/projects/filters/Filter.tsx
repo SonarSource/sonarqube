@@ -19,17 +19,16 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { formatMeasure } from '../../../helpers/measures';
-import { translate } from '../../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { Facet } from '../types';
-import { RawQuery } from '../../../helpers/query';
 
 export type Option = string | number;
 
 interface Props {
   property: string;
   className?: string;
-  onQueryChange: (change: RawQuery) => void;
+  onQueryChange: (change: T.RawQuery) => void;
   options: Option[];
   query: T.Dict<any>;
   renderOption: (option: Option, isSelected: boolean) => React.ReactNode;

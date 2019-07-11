@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import ContextNavBar from 'sonar-ui-common/components/ui/ContextNavBar';
 import OrganizationNavigationHeader from './OrganizationNavigationHeader';
 import OrganizationNavigationMeta from './OrganizationNavigationMeta';
 import OrganizationNavigationMenuContainer from './OrganizationNavigationMenuContainer';
-import * as theme from '../../../app/theme';
-import ContextNavBar from '../../../components/nav/ContextNavBar';
+import { rawSizes } from '../../../app/theme';
 
 interface Props {
   currentUser: T.CurrentUser;
@@ -38,7 +38,7 @@ export default function OrganizationNavigation({
   userOrganizations
 }: Props) {
   return (
-    <ContextNavBar height={theme.contextNavHeightRaw} id="context-navigation">
+    <ContextNavBar height={rawSizes.contextNavHeightRaw} id="context-navigation">
       <div className="navbar-context-justified">
         <OrganizationNavigationHeader
           currentUser={currentUser}

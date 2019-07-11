@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { DraggableCore, DraggableData } from 'react-draggable';
-import { translate } from '../../helpers/l10n';
-import { ButtonIcon } from '../ui/buttons';
-import ClearIcon from '../icons-components/ClearIcon';
-import CollapseIcon from '../icons-components/CollapseIcon';
-import ExpandIcon from '../icons-components/ExpandIcon';
-import MinimizeIcon from '../icons-components/MinimizeIcon';
-import { IconProps } from '../icons-components/Icon';
+import { IconProps } from 'sonar-ui-common/components/icons/Icon';
+import ClearIcon from 'sonar-ui-common/components/icons/ClearIcon';
+import CollapseIcon from 'sonar-ui-common/components/icons/CollapseIcon';
+import ExpandIcon from 'sonar-ui-common/components/icons/ExpandIcon';
+import MinimizeIcon from 'sonar-ui-common/components/icons/MinimizeIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
 
 export interface Props {
   children: React.ReactNode;

@@ -18,9 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import LongLivingBranchIcon from 'sonar-ui-common/components/icons/LongLivingBranchIcon';
+import PullRequestIcon from 'sonar-ui-common/components/icons/PullRequestIcon';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
+import ShortLivingBranchIcon from 'sonar-ui-common/components/icons/ShortLivingBranchIcon';
 import { Link } from 'react-router';
 import TaskType from './TaskType';
-import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import Organization from '../../../components/shared/Organization';
 import {
   getProjectUrl,
@@ -28,9 +31,6 @@ import {
   getLongLivingBranchUrl,
   getPullRequestUrl
 } from '../../../helpers/urls';
-import ShortLivingBranchIcon from '../../../components/icons-components/ShortLivingBranchIcon';
-import LongLivingBranchIcon from '../../../components/icons-components/LongLivingBranchIcon';
-import PullRequestIcon from '../../../components/icons-components/PullRequestIcon';
 
 interface Props {
   task: T.Task;

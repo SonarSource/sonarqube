@@ -20,28 +20,25 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { keyBy, sortBy, groupBy } from 'lodash';
+import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
+import TagsIcon from 'sonar-ui-common/components/icons/TagsIcon';
+import { translate, getLocalizedMetricName } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Modal from 'sonar-ui-common/components/controls/Modal';
+import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
 import MeasuresOverlayMeasure from './MeasuresOverlayMeasure';
-import { ResetButtonLink } from '../../ui/buttons';
 import { getFacets } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
-import Modal from '../../controls/Modal';
 import Measure from '../../measure/Measure';
-import QualifierIcon from '../../icons-components/QualifierIcon';
 import SeverityHelper from '../../shared/SeverityHelper';
 import CoverageRating from '../../ui/CoverageRating';
-import DuplicationsRating from '../../ui/DuplicationsRating';
-import IssueTypeIcon from '../../ui/IssueTypeIcon';
 import { SEVERITIES, ISSUE_TYPES } from '../../../helpers/constants';
-import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
-import {
-  formatMeasure,
-  getDisplayMetrics,
-  enhanceMeasuresWithMetrics
-} from '../../../helpers/measures';
+import { getDisplayMetrics, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { getBranchLikeUrl } from '../../../helpers/urls';
 import { getBranchLikeQuery } from '../../../helpers/branches';
-import TagsIcon from '../../icons-components/TagsIcon';
 
 interface Props {
   branchLike: T.BranchLike | undefined;
@@ -381,7 +378,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
     const { loading } = this.state;
 
     return (
-      <Modal contentLabel="" onRequestClose={this.props.onClose} size={'large'}>
+      <Modal contentLabel="" onRequestClose={this.props.onClose} size="large">
         <div className="modal-container source-viewer-measures-modal">
           <div className="source-viewer-header-component source-viewer-measures-component">
             <div className="source-viewer-header-component-project">

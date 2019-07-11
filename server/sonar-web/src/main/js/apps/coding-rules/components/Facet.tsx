@@ -20,14 +20,14 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { orderBy, without, sortBy } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { FacetKey } from '../query';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
-import Tooltip from '../../../components/controls/Tooltip';
-import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
 
 export interface BasicProps {
   onChange: (changes: T.Dict<string | string[] | undefined>) => void;

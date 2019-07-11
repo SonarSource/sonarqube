@@ -20,10 +20,10 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { sortBy } from 'lodash';
-import Tooltip from '../../../components/controls/Tooltip';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DateTooltipFormatter from '../../../components/intl/DateTooltipFormatter';
 import { getApplicationLeak } from '../../../api/application';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import DateFromNow from '../../../components/intl/DateFromNow';
 
 interface Props {
@@ -88,7 +88,7 @@ export default class ApplicationLeakPeriodLegend extends React.Component<Props, 
         ))}
       </ul>
     ) : (
-      <i className="spinner spinner-margin" />
+      <i className="spinner spacer" />
     );
 
   render() {

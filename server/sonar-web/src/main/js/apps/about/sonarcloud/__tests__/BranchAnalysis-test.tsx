@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import BranchAnalysis from '../BranchAnalysis';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 // necessary to make the test run
 jest.mock('Docs/EmbedDocsSuggestions.json', () => {}, { virtual: true });

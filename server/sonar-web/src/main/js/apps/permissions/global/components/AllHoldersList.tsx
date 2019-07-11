@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import SearchForm from '../../shared/components/SearchForm';
 import HoldersList from '../../shared/components/HoldersList';
-import ListFooter from '../../../../components/controls/ListFooter';
 import {
   PERMISSIONS_ORDER_GLOBAL,
   convertToPermissionDefinitions,

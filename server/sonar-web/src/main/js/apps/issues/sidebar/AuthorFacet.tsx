@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { omit } from 'lodash';
+import { highlightTerm } from 'sonar-ui-common/helpers/search';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Query, Facet } from '../utils';
-import { translate } from '../../../helpers/l10n';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { searchIssueAuthors } from '../../../api/issues';
-import { highlightTerm } from '../../../helpers/search';
 
 interface Props {
   component: T.Component | undefined;

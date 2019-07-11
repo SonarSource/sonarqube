@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ConciseIssueLocationBadge from './ConciseIssueLocationBadge';
-import { Button } from '../../../components/ui/buttons';
 
 interface Props {
   issue: Pick<T.Issue, 'flows' | 'secondaryLocations'>;

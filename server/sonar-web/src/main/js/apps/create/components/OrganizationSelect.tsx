@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import Select from '../../../components/controls/Select';
-import { translate } from '../../../helpers/l10n';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
-import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
   hideIcons?: boolean;

@@ -15,11 +15,14 @@
     "baseUrl": "./",
     "paths": {
       "@sqapi/*": ["../sonar-web/src/main/js/api/*"],
-      "@sqcomponents/*": ["../sonar-web/src/main/js/components/*"],
       "@sqhelpers/*": ["../sonar-web/src/main/js/helpers/*"],
       "*": ["./node_modules/@types/*", "../sonar-web/node_modules/@types/*", "*"]
     },
     "sourceMap": true
   },
-  "include": ["./src/main/js/**/*", "../sonar-web/src/main/js/app/types.d.ts"]
+  "include": [
+    "./src/main/js/**/*",
+    "node_modules/sonar-ui-common/types.d.ts",
+    "../sonar-web/src/main/js/app/types.d.ts"
+  ]
 }

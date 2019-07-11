@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import OrganizationInput from './OrganizationInput';
 import { createProject } from '../../../api/components';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import { SubmitButton } from '../../../components/ui/buttons';
 import ProjectKeyInput from '../components/ProjectKeyInput';
 import VisibilitySelector from '../../../components/common/VisibilitySelector';
 import UpgradeOrganizationBox from '../components/UpgradeOrganizationBox';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import { translate } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
 import './ManualProjectCreate.css';
 
@@ -200,7 +200,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
               </label>
               <div className="little-spacer-top spacer-bottom">
                 <input
-                  className={'input-super-large'}
+                  className="input-super-large"
                   id="project-name"
                   maxLength={255}
                   minLength={1}

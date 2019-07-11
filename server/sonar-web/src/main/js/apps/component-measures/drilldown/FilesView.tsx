@@ -20,14 +20,15 @@
 import * as React from 'react';
 import * as key from 'keymaster';
 import { throttle } from 'lodash';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import ComponentsList from './ComponentsList';
-import ListFooter from '../../../components/controls/ListFooter';
-import { Button } from '../../../components/ui/buttons';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { isPeriodBestValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';
-import { scrollToElement } from '../../../helpers/scrolling';
-import { Alert } from '../../../components/ui/Alert';
 import { View } from '../utils';
+import { isPeriodBestValue, isDiffMetric } from '../../../helpers/measures';
 
 interface Props {
   branchLike?: T.BranchLike;

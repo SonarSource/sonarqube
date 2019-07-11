@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate, click } from 'sonar-ui-common/helpers/testUtils';
 import AutoOrganizationCreate from '../AutoOrganizationCreate';
 import { Step } from '../utils';
 import { bindAlmOrganization } from '../../../../api/alm-integration';
 import { mockAlmOrganization, mockAlmApplication } from '../../../../helpers/testMocks';
-import { waitAndUpdate, click } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/alm-integration', () => ({
   bindAlmOrganization: jest.fn().mockResolvedValue({})

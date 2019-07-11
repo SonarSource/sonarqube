@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { getGlobalSettingValue, Store } from '../../../../store/rootReducer';
-import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/urls';
 
 interface StateProps {
   customLogoUrl?: string;

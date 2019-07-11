@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { Location } from 'history';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
-import { scrollToElement } from '../../../helpers/scrolling';
 
 interface Props {
   branchLike?: T.BranchLike;

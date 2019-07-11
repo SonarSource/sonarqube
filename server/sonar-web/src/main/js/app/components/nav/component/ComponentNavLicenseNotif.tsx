@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { translate } from '../../../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { isValidLicense } from '../../../../api/marketplace';
 import { withAppState } from '../../../../components/hoc/withAppState';
-import { Alert } from '../../../../components/ui/Alert';
 
 interface Props {
   appState: Pick<T.AppState, 'canAdmin'>;

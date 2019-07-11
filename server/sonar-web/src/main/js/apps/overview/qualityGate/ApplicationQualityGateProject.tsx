@@ -20,8 +20,9 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
-import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
-import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
+import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { isDiffMetric } from '../../../helpers/measures';
 import { getProjectUrl } from '../../../helpers/urls';
 import './ApplicationQualityGateProject.css';
 import { ApplicationProject, ConditionAnalysis } from '../../../api/quality-gates';

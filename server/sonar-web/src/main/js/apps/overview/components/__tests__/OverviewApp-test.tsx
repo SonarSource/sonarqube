@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { OverviewApp } from '../OverviewApp';
 import { getMeasuresAndMeta } from '../../../../api/measures';
 import { getAllTimeMachineData } from '../../../../api/time-machine';
@@ -29,7 +30,6 @@ import {
   mockMeasure,
   mockLongLivingBranch
 } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/measures', () => {
   const { mockMeasure, mockMetric } = getMockHelpers();
@@ -44,7 +44,7 @@ jest.mock('../../../../api/measures', () => {
   };
 });
 
-jest.mock('../../../../helpers/dates', () => ({
+jest.mock('sonar-ui-common/helpers/dates', () => ({
   parseDate: jest.fn(date => date)
 }));
 

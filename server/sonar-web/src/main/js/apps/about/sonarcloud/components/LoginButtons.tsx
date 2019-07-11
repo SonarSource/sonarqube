@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getBaseUrl } from '../../../../helpers/urls';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import './LoginButtons.css';
 
 export default function LoginButtons() {

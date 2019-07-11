@@ -19,16 +19,20 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { Location } from 'sonar-ui-common/helpers/urls';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import BadgesModal from '../BadgesModal';
-import { click } from '../../../../helpers/testUtils';
 import { isSonarCloud } from '../../../../helpers/system';
-import { Location } from '../../../../helpers/urls';
 
-jest.mock('../../../../helpers/urls', () => ({
+jest.mock('sonar-ui-common/helpers/urls', () => ({
   getHostUrl: () => 'host',
-  getProjectUrl: () => ({ pathname: '/dashboard' } as Location),
   getPathUrlAsString: (l: Location) => l.pathname
 }));
+
+jest.mock('../../../../helpers/urls', () => ({
+  getProjectUrl: () => ({ pathname: '/dashboard' } as Location)
+}));
+
 jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
 const shortBranch: T.ShortLivingBranch = {

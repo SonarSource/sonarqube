@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import ClipboardButton from '../controls/ClipboardButton';
+import ClipboardButton from 'sonar-ui-common/components/controls/ClipboardButton';
 import './CodeSnippet.css';
 
 interface Props {

@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { MetaQualityProfiles } from '../MetaQualityProfiles';
 import { mockLanguage, mockQualityProfile } from '../../../../helpers/testMocks';
 import { searchRules } from '../../../../api/rules';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/rules', () => {
   return {

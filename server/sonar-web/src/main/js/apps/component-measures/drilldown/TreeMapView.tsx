@@ -18,17 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { isDefined } from 'sonar-ui-common/helpers/types';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
+import ColorGradientLegend from 'sonar-ui-common/components/charts/ColorGradientLegend';
+import TreeMap, { TreeMapItem } from 'sonar-ui-common/components/charts/TreeMap';
+import {
+  translate,
+  translateWithParameters,
+  getLocalizedMetricName
+} from 'sonar-ui-common/helpers/l10n';
 import EmptyResult from './EmptyResult';
-import * as theme from '../../../app/theme';
+import { colors } from '../../../app/theme';
 import ColorBoxLegend from '../../../components/charts/ColorBoxLegend';
-import ColorGradientLegend from '../../../components/charts/ColorGradientLegend';
-import QualifierIcon from '../../../components/icons-components/QualifierIcon';
-import TreeMap, { TreeMapItem } from '../../../components/charts/TreeMap';
-import { translate, translateWithParameters, getLocalizedMetricName } from '../../../helpers/l10n';
-import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
-import { isDefined } from '../../../helpers/types';
+import { isDiffMetric } from '../../../helpers/measures';
 
 interface Props {
   branchLike?: T.BranchLike;
@@ -42,8 +47,8 @@ interface State {
 }
 
 const HEIGHT = 500;
-const COLORS = [theme.green, theme.lightGreen, theme.yellow, theme.orange, theme.red];
-const LEVEL_COLORS = [theme.red, theme.orange, theme.green, theme.gray71];
+const COLORS = [colors.green, colors.lightGreen, colors.yellow, colors.orange, colors.red];
+const LEVEL_COLORS = [colors.red, colors.orange, colors.green, colors.gray71];
 
 export default class TreeMapView extends React.PureComponent<Props, State> {
   state: State;
@@ -83,8 +88,10 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
         }
         return {
           color:
-            colorValue !== undefined ? (colorScale as Function)(colorValue) : theme.secondFontColor,
-          icon: <QualifierIcon fill={theme.baseFontColor} qualifier={component.qualifier} />,
+            colorValue !== undefined
+              ? (colorScale as Function)(colorValue)
+              : colors.secondFontColor,
+          icon: <QualifierIcon fill={colors.baseFontColor} qualifier={component.qualifier} />,
           key: component.refKey || component.key,
           label: component.name,
           size: sizeValue,
@@ -167,7 +174,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
     return (
       <ColorGradientLegend
         className="measure-details-treemap-legend"
-        colorNA={theme.secondFontColor}
+        colorNA={colors.secondFontColor}
         colorScale={colorScale}
         height={20}
         width={200}

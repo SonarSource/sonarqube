@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import * as classNames from 'classnames';
+import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
+import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { DeleteButton, SubmitButton, Button } from 'sonar-ui-common/components/controls/buttons';
 import Step from './Step';
-import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
-import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
-import { DeleteButton, SubmitButton, Button } from '../../../components/ui/buttons';
 import { getTokens, generateToken, revokeToken } from '../../../api/user-tokens';
-import { translate } from '../../../helpers/l10n';
 import { getUniqueTokenName } from '../utils';
 
 interface Props {

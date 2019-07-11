@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import ProjectEventIcon from 'sonar-ui-common/components/icons/ProjectEventIcon';
 import { Option } from './ProjectActivityEventSelectOption';
-import ProjectEventIcon from '../../../components/icons-components/ProjectEventIcon';
 
 interface Props {
   children?: React.ReactNode;

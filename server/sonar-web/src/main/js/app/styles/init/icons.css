@@ -48,59 +48,6 @@ a[class*=' icon-'] {
 }
 
 /*
- * Checkbox
- */
-.icon-checkbox {
-  display: inline-block;
-  vertical-align: top;
-  padding: 1px 2px;
-  box-sizing: border-box;
-}
-
-.icon-checkbox:focus {
-  outline: none;
-}
-
-.icon-checkbox:before {
-  content: ' ';
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border: 1px solid var(--darkBlue);
-  border-radius: 2px;
-  transition: border-color 0.2s ease, background-color 0.2s ease, background-image 0.2s ease,
-    box-shadow 0.4s ease;
-}
-
-.icon-checkbox:not(.icon-checkbox-disabled):focus:before,
-.link-checkbox:not(.disabled):focus:focus .icon-checkbox:before {
-  box-shadow: 0 0 0 3px rgba(35, 106, 151, 0.25);
-}
-
-.icon-checkbox-checked:before {
-  background-color: var(--blue);
-  background-image: url('data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2014%2014%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20stroke-linejoin%3D%22round%22%20stroke-miterlimit%3D%221.414%22%3E%3Cpath%20d%3D%22M12%204.665c0%20.172-.06.318-.18.438l-5.55%205.55c-.12.12-.266.18-.438.18s-.318-.06-.438-.18L2.18%207.438C2.06%207.317%202%207.17%202%207s.06-.318.18-.44l.878-.876c.12-.12.267-.18.44-.18.17%200%20.317.06.437.18l1.897%201.903%204.233-4.24c.12-.12.266-.18.438-.18s.32.06.44.18l.876.88c.12.12.18.265.18.438z%22%20fill%3D%22%23fff%22%20fill-rule%3D%22nonzero%22%2F%3E%3C%2Fsvg%3E');
-  border-color: var(--blue);
-}
-
-.icon-checkbox-checked.icon-checkbox-single:before {
-  background-image: url('data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2014%2014%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20stroke-linejoin%3D%22round%22%20stroke-miterlimit%3D%221.414%22%3E%3Cpath%20d%3D%22M10%204.698C10%204.312%209.688%204%209.302%204H4.698C4.312%204%204%204.312%204%204.698v4.604c0%20.386.312.698.698.698h4.604c.386%200%20.698-.312.698-.698V4.698z%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fsvg%3E');
-}
-
-.icon-checkbox-disabled:before {
-  border: 1px solid var(--disableGrayText);
-  cursor: not-allowed;
-}
-
-.icon-checkbox-disabled.icon-checkbox-checked:before {
-  background-color: var(--disableGrayText);
-}
-
-.icon-checkbox-invisible {
-  visibility: hidden;
-}
-
-/*
  * Radio
  */
 .icon-radio {

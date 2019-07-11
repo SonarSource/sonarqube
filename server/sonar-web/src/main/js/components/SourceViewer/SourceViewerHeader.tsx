@@ -20,26 +20,21 @@
 import { stringify } from 'querystring';
 import * as React from 'react';
 import { Link } from 'react-router';
+import ListIcon from 'sonar-ui-common/components/icons/ListIcon';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
+import { collapsedDirFromPath, fileFromPath } from 'sonar-ui-common/helpers/path';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { omitNil } from 'sonar-ui-common/helpers/request';
+import { getBaseUrl, getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
+import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
+import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import MeasuresOverlay from './components/MeasuresOverlay';
-import Dropdown from '../controls/Dropdown';
 import Favorite from '../controls/Favorite';
-import ListIcon from '../icons-components/ListIcon';
-import QualifierIcon from '../icons-components/QualifierIcon';
-import { ButtonIcon } from '../ui/buttons';
-import { PopupPlacement } from '../ui/popups';
 import { WorkspaceContextShape } from '../workspace/context';
 import { getBranchLikeQuery, isMainBranch } from '../../helpers/branches';
-import { translate } from '../../helpers/l10n';
-import { formatMeasure } from '../../helpers/measures';
-import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
-import { omitNil } from '../../helpers/request';
-import {
-  getBranchLikeUrl,
-  getBaseUrl,
-  getCodeUrl,
-  getComponentIssuesUrl,
-  getPathUrlAsString
-} from '../../helpers/urls';
+import { getBranchLikeUrl, getCodeUrl, getComponentIssuesUrl } from '../../helpers/urls';
 
 interface Props {
   branchLike: T.BranchLike | undefined;

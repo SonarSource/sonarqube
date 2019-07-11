@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { JavaCustomProps, RenderCustomContent } from './JavaMavenCustom';
-import { translate } from '../../../../../helpers/l10n';
 import CodeSnippet from '../../../../../components/common/CodeSnippet';
 import { ProjectAnalysisModes } from '../../ProjectAnalysisStepFromBuildTool';
 

@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import ProductNewsMenuItem from './ProductNewsMenuItem';
 import { SuggestionsContext } from './SuggestionsContext';
-import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
 import { isSonarCloud } from '../../../helpers/system';
-import { DropdownOverlay } from '../../../components/controls/Dropdown';
 
 interface Props {
   onClose: () => void;

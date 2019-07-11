@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import LineSCM from '../LineSCM';
-import { click } from '../../../../helpers/testUtils';
 
 it('render scm details', () => {
   const line = { line: 3, scmAuthor: 'foo', scmDate: '2017-01-01' };

@@ -106,7 +106,7 @@ function shallowRender(props: Partial<DomainFacet['props']> = {}) {
       onChange={() => {}}
       onToggle={() => {}}
       open={true}
-      selected={'foo'}
+      selected="foo"
       showFullMeasures={true}
       {...props}
     />

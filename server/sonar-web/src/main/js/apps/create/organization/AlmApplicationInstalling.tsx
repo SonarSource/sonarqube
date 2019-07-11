@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default function AlmApplicationInstalling({ almKey }: { almKey?: string }) {
   return (

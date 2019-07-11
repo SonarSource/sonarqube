@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SearchBox from '../../../components/controls/SearchBox';
-import { translate } from '../../../helpers/l10n';
-import { RawQuery } from '../../../helpers/query';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 
 interface Props {
   className?: string;
   query: { search?: string };
-  onQueryChange: (change: RawQuery) => void;
+  onQueryChange: (change: T.RawQuery) => void;
   organization?: { key: string };
 }
 

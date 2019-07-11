@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import EncryptionForm from './EncryptionForm';
 import GenerateSecretKeyForm from './GenerateSecretKeyForm';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { checkSecretKey, generateSecretKey } from '../../../api/settings';
-import { translate } from '../../../helpers/l10n';
 
 interface State {
   loading: boolean;

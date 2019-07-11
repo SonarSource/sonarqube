@@ -25,8 +25,8 @@ jest.mock('../../../api/components', () => ({
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import DeleteModal, { Props } from '../DeleteModal';
-import { click } from '../../../helpers/testUtils';
-import { parseDate } from '../../../helpers/dates';
+import { click } from 'sonar-ui-common/helpers/testUtils';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
 
 const bulkDeleteProjects = require('../../../api/components').bulkDeleteProjects as jest.Mock<any>;
 

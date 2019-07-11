@@ -17,7 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first, import/order */
+import * as React from 'react';
+import { mount } from 'enzyme';
+import { get } from 'sonar-ui-common/helpers/storage';
+import { doAsync } from 'sonar-ui-common/helpers/testUtils';
+import { DefaultPageSelector } from '../DefaultPageSelector';
+import { searchProjects } from '../../../../api/components';
+
 jest.mock('../AllProjectsContainer', () => ({
   // eslint-disable-next-line
   default: function AllProjectsContainer() {
@@ -25,7 +31,7 @@ jest.mock('../AllProjectsContainer', () => ({
   }
 }));
 
-jest.mock('../../../../helpers/storage', () => ({
+jest.mock('sonar-ui-common/helpers/storage', () => ({
   get: jest.fn()
 }));
 
@@ -33,16 +39,8 @@ jest.mock('../../../../api/components', () => ({
   searchProjects: jest.fn()
 }));
 
-import * as React from 'react';
-import { mount } from 'enzyme';
-import { DefaultPageSelector } from '../DefaultPageSelector';
-import { doAsync } from '../../../../helpers/testUtils';
-
-const get = require('../../../../helpers/storage').get as jest.Mock<any>;
-const searchProjects = require('../../../../api/components').searchProjects as jest.Mock<any>;
-
 beforeEach(() => {
-  get.mockImplementation(() => '').mockClear();
+  (get as jest.Mock).mockImplementation(() => '').mockClear();
 });
 
 it('shows all projects with existing filter', () => {
@@ -58,21 +56,21 @@ it('shows all projects sorted by analysis date for anonymous', () => {
 });
 
 it('shows favorite projects', () => {
-  get.mockImplementation(() => 'favorite');
+  (get as jest.Mock).mockImplementation(() => 'favorite');
   const replace = jest.fn();
   mountRender(undefined, undefined, replace);
   expect(replace).lastCalledWith({ pathname: '/projects/favorite', query: {} });
 });
 
 it('shows all projects', () => {
-  get.mockImplementation(() => 'all');
+  (get as jest.Mock).mockImplementation(() => 'all');
   const replace = jest.fn();
   mountRender(undefined, undefined, replace);
   expect(replace).not.toBeCalled();
 });
 
 it('fetches favorites', () => {
-  searchProjects.mockImplementation(() => Promise.resolve({ paging: { total: 3 } }));
+  (searchProjects as jest.Mock).mockImplementation(() => Promise.resolve({ paging: { total: 3 } }));
   const replace = jest.fn();
   mountRender(undefined, undefined, replace);
   return doAsync().then(() => {

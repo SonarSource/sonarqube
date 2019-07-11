@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 import { Filter } from './SelectList';
 import SelectListListElement from './SelectListListElement';
-import Checkbox from '../controls/Checkbox';
-import DeferredSpinner from '../common/DeferredSpinner';
-import { translate } from '../../helpers/l10n';
 
 interface Props {
   allowBulkSelection?: boolean;

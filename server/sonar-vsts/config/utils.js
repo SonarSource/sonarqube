@@ -26,14 +26,27 @@ const cssLoader = () => ({
   }
 });
 
-const theme = require('../../sonar-web/src/main/js/app/theme');
-
 const customProperties = {};
-Object.keys(theme).forEach(key => {
-  if (typeof theme[key] === 'string') {
-    customProperties[`--${key}`] = theme[key];
-  }
-});
+const parseCustomProperties = theme => {
+  Object.keys(theme).forEach(key => {
+    if (typeof theme[key] === 'object') {
+      parseCustomProperties(theme[key]);
+    } else if (typeof theme[key] === 'string') {
+      if (!customProperties[`--${key}`]) {
+        customProperties[`--${key}`] = theme[key];
+      } else {
+        console.error(
+          `Custom CSS property "${key}" already exists with value "${
+            customProperties[`--${key}`]
+          }".`
+        );
+        process.exit(1);
+      }
+    }
+  });
+};
+
+parseCustomProperties(require('../../sonar-web/src/main/js/app/theme'));
 
 const postcssLoader = production => ({
   loader: 'postcss-loader',

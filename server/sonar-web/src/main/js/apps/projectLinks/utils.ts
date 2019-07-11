@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { partition, sortBy } from 'lodash';
-import { translate } from '../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 
 const PROVIDED_TYPES = ['homepage', 'ci', 'issue', 'scm', 'scm_dev'];
 type NameAndType = Pick<T.ProjectLink, 'name' | 'type'>;

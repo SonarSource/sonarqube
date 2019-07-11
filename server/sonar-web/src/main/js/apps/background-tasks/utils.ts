@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { STATUSES, CURRENTS, ALL_TYPES } from './constants';
-import { toShortNotSoISOString } from '../../helpers/dates';
 
 export interface Query {
   currents: string;

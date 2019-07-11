@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { differenceWith } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import ProjectNotifications from './ProjectNotifications';
 import { NotificationProject } from './types';
 import { getSuggestions } from '../../../api/components';
 import { AsyncSelect } from '../../../components/controls/Select';
 import Organization from '../../../components/shared/Organization';
-import { translate } from '../../../helpers/l10n';
 
 export interface Props {
   addNotification: (n: T.Notification) => void;

@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import ProjectEventIcon from 'sonar-ui-common/components/icons/ProjectEventIcon';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
-import Level from '../../../components/ui/Level';
-import ProjectEventIcon from '../../../components/icons-components/ProjectEventIcon';
-import { ResetButtonLink } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Level from 'sonar-ui-common/components/ui/Level';
 import { getProjectUrl } from '../../../helpers/urls';
 
 export type RichQualityGateEvent = T.AnalysisEvent & Required<Pick<T.AnalysisEvent, 'qualityGate'>>;

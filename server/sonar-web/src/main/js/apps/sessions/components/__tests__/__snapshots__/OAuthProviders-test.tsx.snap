@@ -39,14 +39,9 @@ exports[`should render correctly 1`] = `
 exports[`should render correctly 2`] = `
 <li>
   <IdentityProviderLink
-    identityProvider={
-      Object {
-        "backgroundColor": "#000",
-        "iconPath": "/some/path",
-        "key": "foo",
-        "name": "Foo",
-      }
-    }
+    backgroundColor="#000"
+    iconPath="/some/path"
+    name="Foo"
     url="/sessions/init/foo?return_to="
   >
     <span>
@@ -59,15 +54,9 @@ exports[`should render correctly 2`] = `
 exports[`should render correctly 3`] = `
 <li>
   <IdentityProviderLink
-    identityProvider={
-      Object {
-        "backgroundColor": "#00F",
-        "helpMessage": "Help message!",
-        "iconPath": "/icon/path",
-        "key": "bar",
-        "name": "Bar",
-      }
-    }
+    backgroundColor="#00F"
+    iconPath="/icon/path"
+    name="Bar"
     url="/sessions/init/bar?return_to="
   >
     <span>
@@ -84,14 +73,9 @@ exports[`should render correctly 3`] = `
 exports[`should use the custom label formatter 1`] = `
 <li>
   <IdentityProviderLink
-    identityProvider={
-      Object {
-        "backgroundColor": "#000",
-        "iconPath": "/some/path",
-        "key": "foo",
-        "name": "Foo",
-      }
-    }
+    backgroundColor="#000"
+    iconPath="/some/path"
+    name="Foo"
     url="/sessions/init/foo?return_to="
   >
     <span>

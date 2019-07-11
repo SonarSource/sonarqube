@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import enhance, { ComposedProps } from './enhance';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { getMetricName } from '../utils';
-import { formatMeasure, getPeriodValue } from '../../../helpers/measures';
-import { translate } from '../../../helpers/l10n';
-import DuplicationsRating from '../../../components/ui/DuplicationsRating';
+import { getPeriodValue } from '../../../helpers/measures';
 
 export class Duplications extends React.PureComponent<ComposedProps> {
   renderHeader() {

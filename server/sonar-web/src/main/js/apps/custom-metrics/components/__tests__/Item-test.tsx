@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import Item from '../Item';
-import { click } from '../../../../helpers/testUtils';
 
 const metric = { id: '3', key: 'foo', name: 'Foo', type: 'INT' };
 

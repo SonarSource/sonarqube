@@ -21,8 +21,8 @@
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import BulkApplyTemplateModal, { Props } from '../BulkApplyTemplateModal';
-import { click, waitAndUpdate } from '../../../helpers/testUtils';
-import { parseDate } from '../../../helpers/dates';
+import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
 
 jest.mock('../../../api/permissions', () => ({
   bulkApplyTemplate: jest.fn(() => Promise.resolve()),

@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { sortBy } from 'lodash';
 import { Link } from 'react-router';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import OrganizationsShortListItem from './OrganizationsShortListItem';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
   organizations: T.Organization[];

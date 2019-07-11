@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import MenuBlock from '../MenuBlock';
-import { click } from '../../../../helpers/testUtils';
 
 it('should render a closed menu block', () => {
   expect(shallowRender()).toMatchSnapshot();

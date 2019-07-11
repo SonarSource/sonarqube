@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { partition, sortBy } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import UserHolder from './UserHolder';
 import GroupHolder from './GroupHolder';
 import PermissionHeader from './PermissionHeader';
-import { translate } from '../../../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../utils';
 
 interface Props {

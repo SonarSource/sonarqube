@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
-import Histogram from './Histogram';
-import { formatMeasure } from '../../helpers/measures';
-import { translate } from '../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import Histogram from 'sonar-ui-common/components/charts/Histogram';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 
 interface Props {
   alignTicks?: boolean;

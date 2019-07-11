@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import { OrganizationEmpty } from '../OrganizationEmpty';
-import { click } from '../../../../helpers/testUtils';
 import {
   mockRouter,
   mockOrganization,

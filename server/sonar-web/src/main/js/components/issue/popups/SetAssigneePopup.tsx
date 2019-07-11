@@ -20,15 +20,15 @@
 import * as React from 'react';
 import { map } from 'lodash';
 import { connect } from 'react-redux';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
+import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import Avatar from '../../ui/Avatar';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
-import SearchBox from '../../controls/SearchBox';
 import { searchMembers } from '../../../api/organizations';
 import { searchUsers } from '../../../api/users';
-import { translate } from '../../../helpers/l10n';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
-import { DropdownOverlay } from '../../controls/Dropdown';
 import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
 

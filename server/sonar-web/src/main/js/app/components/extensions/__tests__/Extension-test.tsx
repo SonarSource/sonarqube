@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { Extension } from '../Extension';
 import { mockCurrentUser, mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import { getExtensionStart } from '../../../../helpers/extensions';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../helpers/extensions', () => ({
   getExtensionStart: jest.fn().mockResolvedValue(jest.fn())

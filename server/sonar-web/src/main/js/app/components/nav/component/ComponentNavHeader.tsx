@@ -18,16 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import ComponentNavBranch from './ComponentNavBranch';
-import QualifierIcon from '../../../../components/icons-components/QualifierIcon';
 import { getOrganizationByKey, Store } from '../../../../store/rootReducer';
 import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
 import OrganizationHelmet from '../../../../components/common/OrganizationHelmet';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
 import { sanitizeAlmId } from '../../../../helpers/almIntegrations';
-import { getProjectUrl, getBaseUrl } from '../../../../helpers/urls';
+import { getProjectUrl } from '../../../../helpers/urls';
 import { isSonarCloud } from '../../../../helpers/system';
 import { isMainBranch } from '../../../../helpers/branches';
 

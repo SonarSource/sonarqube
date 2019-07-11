@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Modal from 'sonar-ui-common/components/controls/Modal';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { Profile } from '../types';
 import { createQualityProfile, changeProfileParent } from '../../../api/quality-profiles';
-import Modal from '../../../components/controls/Modal';
-import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
   onClose: () => void;

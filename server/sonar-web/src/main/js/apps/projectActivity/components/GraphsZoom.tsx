@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
-import ZoomTimeLine from '../../../components/charts/ZoomTimeLine';
+import ZoomTimeLine from 'sonar-ui-common/components/charts/ZoomTimeLine';
 import { hasHistoryData, Serie } from '../utils';
 
 interface Props {

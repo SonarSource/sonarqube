@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { keyBy, pickBy, some } from 'lodash';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import OrganizationGroupCheckbox from '../organizations/components/OrganizationGroupCheckbox';
-import SimpleModal from '../../components/controls/SimpleModal';
-import { SubmitButton, ResetButtonLink } from '../../components/ui/buttons';
 import { getUserGroups, UserGroup } from '../../api/users';
-import { translate, translateWithParameters } from '../../helpers/l10n';
-import DeferredSpinner from '../../components/common/DeferredSpinner';
 
 interface Props {
   onClose: () => void;

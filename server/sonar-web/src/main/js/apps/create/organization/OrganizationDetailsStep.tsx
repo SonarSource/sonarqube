@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import Step from '../../tutorials/components/Step';
-import { translate } from '../../../helpers/l10n';
-import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 
 interface Props {
   children: React.ReactNode;

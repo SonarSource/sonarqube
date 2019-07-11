@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import GlobalFooterContainer from './GlobalFooterContainer';
-import { lazyLoad } from '../../components/lazyLoad';
 
 const PageTracker = lazyLoad(() => import('./PageTracker'));
 

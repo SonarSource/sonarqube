@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Dispatch } from 'redux';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import * as api from '../../api/organizations';
 import * as actions from '../../store/organizations';
 import { addGlobalSuccessMessage } from '../../store/globalMessages';
-import { translate } from '../../helpers/l10n';
 
 export function updateOrganization(key: string, changes: T.OrganizationBase) {
   return (dispatch: Dispatch<any>) => {

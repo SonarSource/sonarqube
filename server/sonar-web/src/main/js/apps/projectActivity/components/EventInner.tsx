@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import ProjectEventIcon from 'sonar-ui-common/components/icons/ProjectEventIcon';
 import * as classNames from 'classnames';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { isRichQualityGateEvent, RichQualityGateEventInner } from './RichQualityGateEventInner';
 import { isDefinitionChangeEvent, DefinitionChangeEventInner } from './DefinitionChangeEventInner';
 import { ComponentContext } from '../../../app/components/ComponentContext';
-import ProjectEventIcon from '../../../components/icons-components/ProjectEventIcon';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   event: T.AnalysisEvent;

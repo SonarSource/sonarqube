@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import ConfirmButton from '../../components/controls/ConfirmButton';
-import RadioCard from '../../components/controls/RadioCard';
-import { Alert } from '../../components/ui/Alert';
-import { Button } from '../../components/ui/buttons';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import RadioCard from 'sonar-ui-common/components/controls/RadioCard';
 import { setOrganizationMemberSync, syncMembers } from '../../api/organizations';
 import { sanitizeAlmId } from '../../helpers/almIntegrations';
-import { translate, translateWithParameters } from '../../helpers/l10n';
 import { fetchOrganization } from '../../store/rootActions';
 
 interface Props {
@@ -164,7 +164,7 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
         modalHeader={translate('organization.members.management.title')}
         modalHeaderDescription={this.renderModalDescription()}
         onConfirm={this.handleConfirm}
-        size={'medium'}>
+        size="medium">
         {({ onClick }) => <Button onClick={onClick}>{this.props.buttonText}</Button>}
       </ConfirmButton>
     );

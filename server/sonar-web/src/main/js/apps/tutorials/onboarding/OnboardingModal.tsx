@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import OnboardingProjectIcon from 'sonar-ui-common/components/icons/OnboardingProjectIcon';
+import OnboardingTeamIcon from 'sonar-ui-common/components/icons/OnboardingTeamIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Button, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Modal from 'sonar-ui-common/components/controls/Modal';
 import OrganizationsShortList from './OrganizationsShortList';
-import Modal from '../../../components/controls/Modal';
-import OnboardingProjectIcon from '../../../components/icons-components/OnboardingProjectIcon';
-import OnboardingTeamIcon from '../../../components/icons-components/OnboardingTeamIcon';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
-import { Button, ResetButtonLink } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
 export interface Props {

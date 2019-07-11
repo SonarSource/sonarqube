@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
-import { Alert } from '../../../components/ui/Alert';
-import { SubmitButton } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import Radio from 'sonar-ui-common/components/controls/Radio';
 import { giveDowngradeFeedback } from '../../../api/billing';
-import { getBaseUrl } from '../../../helpers/urls';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
-import Radio from '../../../components/controls/Radio';
 import './DowngradeFeedback.css';
 
 enum Reason {

@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { WebApiApp } from '../WebApiApp';
 import { fetchWebApi } from '../../../../api/web-api';
-import { addSideBarClass, removeSideBarClass } from '../../../../helpers/pages';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/web-api', () => ({
   fetchWebApi: jest.fn().mockResolvedValue([
@@ -37,7 +37,7 @@ jest.mock('../../../../api/web-api', () => ({
   ])
 }));
 
-jest.mock('../../../../helpers/pages', () => ({
+jest.mock('sonar-ui-common/helpers/pages', () => ({
   addSideBarClass: jest.fn(),
   removeSideBarClass: jest.fn()
 }));

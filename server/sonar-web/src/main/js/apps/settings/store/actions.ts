@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Dispatch } from 'redux';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { parseError } from 'sonar-ui-common/helpers/request';
 import { receiveValues } from './values';
 import { receiveDefinitions } from './definitions';
 import {
@@ -33,10 +35,8 @@ import {
   setSettingValue,
   resetSettingValue
 } from '../../../api/settings';
-import { parseError } from '../../../helpers/request';
 import { closeAllGlobalMessages } from '../../../store/globalMessages';
 import { isEmptyValue } from '../utils';
-import { translate } from '../../../helpers/l10n';
 import {
   getSettingsAppDefinition,
   getSettingsAppChangedValue,

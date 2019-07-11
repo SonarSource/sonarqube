@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import ChevronLeftIcon from 'sonar-ui-common/components/icons/ChevronLeftIcon';
+import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
+import SeverityIcon from 'sonar-ui-common/components/icons/SeverityIcon';
+import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import ComparisonEmpty from './ComparisonEmpty';
 import ComparisonResultActivation from './ComparisonResultActivation';
-import SeverityIcon from '../../../components/icons-components/SeverityIcon';
-import { translateWithParameters } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { CompareResponse, Profile } from '../../../api/quality-profiles';
-import ChevronRightIcon from '../../../components/icons-components/ChevronRightcon';
-import ChevronLeftIcon from '../../../components/icons-components/ChevronLeftIcon';
 
 type Params = T.Dict<string>;
 

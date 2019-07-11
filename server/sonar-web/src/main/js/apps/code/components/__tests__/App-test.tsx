@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { App } from '../App';
 import { retrieveComponent } from '../../utils';
 import { mockRouter, mockPullRequest, mockIssue } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../utils', () => ({
   retrieveComponent: jest.fn().mockResolvedValue({

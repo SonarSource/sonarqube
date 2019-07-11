@@ -18,19 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { WithRouterProps } from 'react-router';
-import Helmet from 'react-helmet';
+import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import Tabs from 'sonar-ui-common/components/controls/Tabs';
 import AutoProjectCreate from './AutoProjectCreate';
 import ManualProjectCreate from './ManualProjectCreate';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import Tabs from '../../../components/controls/Tabs';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
 import { getAlmAppInfo } from '../../../api/alm-integration';
 import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
-import { translate } from '../../../helpers/l10n';
-import { addWhitePageClass, removeWhitePageClass } from '../../../helpers/pages';
 import { getProjectUrl, getOrganizationUrl } from '../../../helpers/urls';
 import { skipOnboarding } from '../../../store/users';
 import './style.css';

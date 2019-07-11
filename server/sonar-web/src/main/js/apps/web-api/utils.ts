@@ -20,11 +20,10 @@
 import { memoize } from 'lodash';
 import {
   cleanQuery,
-  RawQuery,
   serializeString,
   parseAsOptionalBoolean,
   parseAsString
-} from '../../helpers/query';
+} from 'sonar-ui-common/helpers/query';
 
 export interface Query {
   search: string;
@@ -64,7 +63,7 @@ export const isDomainPathActive = (path: string, splat: string) => {
 };
 
 export const parseQuery = memoize(
-  (urlQuery: RawQuery): Query => ({
+  (urlQuery: T.RawQuery): Query => ({
     search: parseAsString(urlQuery['query']),
     deprecated: parseAsOptionalBoolean(urlQuery['deprecated']) || false,
     internal: parseAsOptionalBoolean(urlQuery['internal']) || false
@@ -72,7 +71,7 @@ export const parseQuery = memoize(
 );
 
 export const serializeQuery = memoize(
-  (query: Partial<Query>): RawQuery =>
+  (query: Partial<Query>): T.RawQuery =>
     cleanQuery({
       query: query.search ? serializeString(query.search) : undefined,
       deprecated: query.deprecated || undefined,

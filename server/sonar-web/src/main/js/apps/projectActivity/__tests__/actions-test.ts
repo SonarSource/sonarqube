@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { parseDate } from 'sonar-ui-common/helpers/dates';
 import * as actions from '../actions';
-import { parseDate } from '../../../helpers/dates';
 
 const ANALYSES = [
   {

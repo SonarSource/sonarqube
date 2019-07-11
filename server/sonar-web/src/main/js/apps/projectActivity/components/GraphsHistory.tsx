@@ -19,8 +19,9 @@
  */
 import * as React from 'react';
 import { isEqual } from 'lodash';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import GraphHistory from './GraphHistory';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import {
   getSeriesMetricType,
   hasHistoryData,
@@ -29,7 +30,6 @@ import {
   MeasureHistory,
   ParsedAnalysis
 } from '../utils';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   analyses: ParsedAnalysis[];

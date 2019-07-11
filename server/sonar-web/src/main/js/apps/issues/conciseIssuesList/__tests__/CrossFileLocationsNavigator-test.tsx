@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import CrossFileLocationsNavigator from '../CrossFileLocationsNavigator';
-import { click } from '../../../../helpers/testUtils';
 
 const location1: T.FlowLocation = {
   component: 'foo',

@@ -24,10 +24,10 @@ import * as setMonth from 'date-fns/set_month';
 import * as setYear from 'date-fns/set_year';
 import * as subDays from 'date-fns/sub_days';
 import * as subMonths from 'date-fns/sub_months';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
 import DateInput from '../DateInput';
-import { parseDate } from '../../../helpers/dates';
 
-jest.mock('../../lazyLoad', () => ({
+jest.mock('sonar-ui-common/components/lazyLoad', () => ({
   lazyLoad: () => {
     return function DayPicker() {
       return null;

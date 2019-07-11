@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { translate } from '../../../helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 
 interface Props {
   children?: React.ReactNode;
@@ -38,7 +38,7 @@ export default function PageHeader({ children, loading }: Props) {
       <p className="page-description">
         <FormattedMessage
           defaultMessage={translate('webhooks.description')}
-          id={'webhooks.description'}
+          id="webhooks.description"
           values={{
             url: (
               <Link to="/documentation/project-administration/webhooks/">

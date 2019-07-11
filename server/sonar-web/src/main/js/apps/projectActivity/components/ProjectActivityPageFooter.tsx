@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ListFooter from '../../../components/controls/ListFooter';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 
 interface Props {
   analyses: unknown[];

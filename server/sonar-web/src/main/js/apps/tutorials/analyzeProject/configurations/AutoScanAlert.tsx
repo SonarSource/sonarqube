@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Alert } from '../../../../components/ui/Alert';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DocTooltip from '../../../../components/docs/DocTooltip';
-import { translate } from '../../../../helpers/l10n';
 
 export function AutoScanAlert() {
   return (

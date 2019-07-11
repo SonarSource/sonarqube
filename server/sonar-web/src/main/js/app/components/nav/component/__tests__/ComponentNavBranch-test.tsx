@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import { ComponentNavBranch } from '../ComponentNavBranch';
-import { click } from '../../../../../helpers/testUtils';
 import { isSonarCloud } from '../../../../../helpers/system';
 import {
   mockPullRequest,

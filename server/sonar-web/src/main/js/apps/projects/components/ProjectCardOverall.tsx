@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardOverallMeasures from './ProjectCardOverallMeasures';
 import ProjectCardOrganizationContainer from './ProjectCardOrganizationContainer';
@@ -26,7 +27,6 @@ import Favorite from '../../../components/controls/Favorite';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import TagsList from '../../../components/tags/TagsList';
 import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Project } from '../types';
 import { getProjectUrl } from '../../../helpers/urls';
 import { isLoggedIn } from '../../../helpers/users';

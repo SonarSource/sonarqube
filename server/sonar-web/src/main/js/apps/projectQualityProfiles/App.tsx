@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import Header from './Header';
 import Table from './Table';
 import {
@@ -31,7 +32,6 @@ import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
-import { translate, translateWithParameters } from '../../helpers/l10n';
 
 interface Props {
   component: T.Component;
