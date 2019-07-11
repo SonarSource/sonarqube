@@ -1,5 +1,5 @@
 ---
-title: Supporting New Langauges
+title: Supporting New Languages
 url: /extend/new-languages/
 ---
 

@@ -29,7 +29,7 @@ Tools which meet certain requirements can be certified as [CWE Compatible](http:
 * Rules must be accurately linked to their related CWE items. To see the CWE mapping for a {instance} rule, consult the rule's See section at the bottom of the rule description.
 * You must be able to identify the relevant CWE from an Issue. To do so in the {instance} platform, consult the related rule.
 * The product documentation must include a description of CWE and CWE Compatibility.
-* The version of CWE supported must be listed. The {instance} langauge plugins support version 2.8.
+* The version of CWE supported must be listed. The {instance} language plugins support version 2.8.
 * In addition to searching rules by CWE id's, you can also search by the "cwe" rule tag.
 
 To see which CWE items are covered for a language, consult the links below.
