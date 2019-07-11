@@ -25,9 +25,12 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class DefaultNewRuleTest {
   @Rule
@@ -75,8 +78,44 @@ public class DefaultNewRuleTest {
 
     rule.addDeprecatedRuleKey("deprecatedrepo", "deprecatedkey");
     assertThat(rule.deprecatedRuleKeys()).containsOnly(RuleKey.of("deprecatedrepo", "deprecatedkey"));
+
+    rule.setStatus(RuleStatus.READY);
+    assertThat(rule.status()).isEqualTo(RuleStatus.READY);
+
+    rule.addCwe(12);
+    rule.addCwe(10);
+    assertThat(rule.securityStandards()).containsOnly("cwe:10", "cwe:12");
+
+    rule.setType(RuleType.SECURITY_HOTSPOT);
+    assertThat(rule.type()).isEqualTo(RuleType.SECURITY_HOTSPOT);
+
+    DebtRemediationFunction f = mock(DebtRemediationFunction.class);
+    rule.setDebtRemediationFunction(f);
+    assertThat(rule.debtRemediationFunction()).isEqualTo(f);
+
+    rule.setSeverity("MAJOR");
+    assertThat(rule.severity()).isEqualTo("MAJOR");
   }
 
+  @Test
+  public void validate_fails() {
+    rule.setHtmlDescription("html");
+    exception.expect(IllegalStateException.class);
+    rule.validate();
+  }
+
+  @Test
+  public void validate_succeeds() {
+    rule.setHtmlDescription("html");
+    rule.setName("name");
+    rule.validate();
+  }
+
+  @Test
+  public void set_markdown_description() {
+    rule.setMarkdownDescription("markdown");
+    assertThat(rule.markdownDescription()).isEqualTo("markdown");
+  }
   @Test
   public void fail_if_severity_is_invalid() {
     exception.expect(IllegalArgumentException.class);
