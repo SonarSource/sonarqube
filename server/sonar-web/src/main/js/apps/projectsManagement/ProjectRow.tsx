@@ -43,7 +43,7 @@ export default class ProjectRow extends React.PureComponent<Props> {
     const { organization, project, selected } = this.props;
 
     return (
-      <tr>
+      <tr data-project-key={project.key}>
         <td className="thin">
           <Checkbox checked={selected} onCheck={this.handleProjectCheck} />
         </td>

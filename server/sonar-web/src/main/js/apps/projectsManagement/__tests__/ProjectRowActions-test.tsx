@@ -21,53 +21,97 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import ProjectRowActions, { Props } from '../ProjectRowActions';
-import { Project } from '../../../api/components';
-
-jest.mock('../../../api/components', () => ({
-  getComponentShow: jest.fn(() => Promise.reject(undefined))
-}));
+import { mockLoggedInUser } from '../../../helpers/testMocks';
+import { getComponentNavigation } from '../../../api/nav';
 
 jest.mock('../../../api/nav', () => ({
-  getComponentNavigation: jest.fn(() => Promise.resolve())
+  getComponentNavigation: jest.fn().mockResolvedValue({})
 }));
 
-const project: Project = {
-  id: '',
-  key: 'project',
-  name: 'Project',
-  organization: 'org',
-  qualifier: 'TRK',
-  visibility: 'private'
-};
-
-it('restores access', async () => {
+it('renders correctly', () => {
   const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
-
-  wrapper.find('ActionsDropdown').prop<Function>('onOpen')();
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-
-  click(wrapper.find('.js-restore-access'));
-  wrapper.update();
   expect(wrapper).toMatchSnapshot();
 });
 
-it('applies permission template', () => {
-  const wrapper = shallowRender();
-  click(wrapper.find('.js-apply-template'));
-  expect(wrapper.find('ApplyTemplate')).toMatchSnapshot();
+describe('restore access', () => {
+  beforeAll(() => {
+    jest.resetAllMocks();
+    (getComponentNavigation as jest.Mock).mockResolvedValue({
+      configuration: {
+        showPermissions: false
+      }
+    });
+  });
+
+  it('shows the restore access action', async () => {
+    const wrapper = shallowRender();
+    wrapper.instance().handleDropdownOpen();
+    await waitAndUpdate(wrapper);
+
+    expect(getComponentNavigation).toBeCalledWith({ component: 'foo' });
+    expect(wrapper.find('.js-restore-access').exists()).toBe(true);
+  });
+
+  it('shows the restore access modal', async () => {
+    const wrapper = shallowRender();
+    wrapper.instance().handleDropdownOpen();
+    await waitAndUpdate(wrapper);
+
+    click(wrapper.find('.js-restore-access'));
+    expect(wrapper.find('RestoreAccessModal')).toMatchSnapshot();
+
+    wrapper.instance().handleRestoreAccessDone();
+    await waitAndUpdate(wrapper);
+    expect(wrapper.find('.js-restore-access').exists()).toBe(false);
+    expect(wrapper.find('RestoreAccessModal').exists()).toBe(false);
+  });
+});
+
+describe('permissions', () => {
+  beforeAll(() => {
+    jest.resetAllMocks();
+    (getComponentNavigation as jest.Mock).mockResolvedValue({
+      configuration: {
+        showPermissions: true
+      }
+    });
+  });
+
+  it('shows the update permissions action', async () => {
+    const wrapper = shallowRender();
+    wrapper.instance().handleDropdownOpen();
+    await waitAndUpdate(wrapper);
+    expect(wrapper.find('.js-edit-permissions').exists()).toBe(true);
+  });
+
+  it('shows the apply permission template modal', async () => {
+    const wrapper = shallowRender();
+    wrapper.instance().handleDropdownOpen();
+    await waitAndUpdate(wrapper);
+
+    click(wrapper.find('.js-apply-template'));
+    expect(wrapper.find('ApplyTemplate')).toMatchSnapshot();
+
+    wrapper.instance().handleApplyTemplateClose();
+    await waitAndUpdate(wrapper);
+    expect(wrapper.find('ApplyTemplate').exists()).toBe(false);
+  });
 });
 
 function shallowRender(props: Partial<Props> = {}) {
-  const wrapper = shallow(
+  return shallow<ProjectRowActions>(
     <ProjectRowActions
-      currentUser={{ login: 'admin' }}
+      currentUser={mockLoggedInUser()}
       organization="org"
-      project={project}
+      project={{
+        id: 'foo',
+        key: 'foo',
+        name: 'Foo',
+        organization: 'bar',
+        qualifier: 'TRK',
+        visibility: 'private'
+      }}
       {...props}
     />
   );
-  (wrapper.instance() as ProjectRowActions).mounted = true;
-  return wrapper;
 }

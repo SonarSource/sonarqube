@@ -1,15 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`applies permission template 1`] = `
+exports[`permissions shows the apply permission template modal 1`] = `
 <ApplyTemplate
   onClose={[Function]}
   organization="org"
   project={
     Object {
-      "id": "",
-      "key": "project",
-      "name": "Project",
-      "organization": "org",
+      "id": "foo",
+      "key": "foo",
+      "name": "Foo",
+      "organization": "bar",
       "qualifier": "TRK",
       "visibility": "private",
     }
@@ -17,7 +17,7 @@ exports[`applies permission template 1`] = `
 />
 `;
 
-exports[`restores access 1`] = `
+exports[`renders correctly 1`] = `
 <Fragment>
   <ActionsDropdown
     onOpen={[Function]}
@@ -32,63 +32,28 @@ exports[`restores access 1`] = `
 </Fragment>
 `;
 
-exports[`restores access 2`] = `
-<Fragment>
-  <ActionsDropdown
-    onOpen={[Function]}
-  >
-    <ActionsDropdownItem
-      className="js-restore-access"
-      onClick={[Function]}
-    >
-      global_permissions.restore_access
-    </ActionsDropdownItem>
-    <ActionsDropdownItem
-      className="js-apply-template"
-      onClick={[Function]}
-    >
-      projects_role.apply_template
-    </ActionsDropdownItem>
-  </ActionsDropdown>
-</Fragment>
-`;
-
-exports[`restores access 3`] = `
-<Fragment>
-  <ActionsDropdown
-    onOpen={[Function]}
-  >
-    <ActionsDropdownItem
-      className="js-restore-access"
-      onClick={[Function]}
-    >
-      global_permissions.restore_access
-    </ActionsDropdownItem>
-    <ActionsDropdownItem
-      className="js-apply-template"
-      onClick={[Function]}
-    >
-      projects_role.apply_template
-    </ActionsDropdownItem>
-  </ActionsDropdown>
-  <RestoreAccessModal
-    currentUser={
-      Object {
-        "login": "admin",
-      }
+exports[`restore access shows the restore access modal 1`] = `
+<RestoreAccessModal
+  currentUser={
+    Object {
+      "groups": Array [],
+      "isLoggedIn": true,
+      "login": "luke",
+      "name": "Skywalker",
+      "scmAccounts": Array [],
     }
-    onClose={[Function]}
-    onRestoreAccess={[Function]}
-    project={
-      Object {
-        "id": "",
-        "key": "project",
-        "name": "Project",
-        "organization": "org",
-        "qualifier": "TRK",
-        "visibility": "private",
-      }
+  }
+  onClose={[Function]}
+  onRestoreAccess={[Function]}
+  project={
+    Object {
+      "id": "foo",
+      "key": "foo",
+      "name": "Foo",
+      "organization": "bar",
+      "qualifier": "TRK",
+      "visibility": "private",
     }
-  />
-</Fragment>
+  }
+/>
 `;
