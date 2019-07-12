@@ -20,7 +20,8 @@
     "react-dom": "16.8.6",
     "react-helmet": "5.2.0",
     "react-typography": "0.16.19",
-    "typography": "0.16.19"
+    "typography": "0.16.19",
+    "snyk": "^1.193.0"
   },
   "devDependencies": {
     "@types/classnames": "2.2.7",
@@ -67,7 +68,9 @@
     "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report.json src",
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
-    "validate-ci": "yarn lint-report && yarn ts-check && yarn format-check && yarn test --coverage"
+    "validate-ci": "yarn lint-report && yarn ts-check && yarn format-check && yarn test --coverage",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "prettier": {
     "jsxBracketSameLine": true,
@@ -111,5 +114,6 @@
       "\\.js$": "babel-jest",
       "\\.(ts|tsx)$": "ts-jest"
     }
-  }
+  },
+  "snyk": true
 }
