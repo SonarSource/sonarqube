@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -27,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -131,9 +133,8 @@ public class ExportAction implements QProfileWsAction {
 
   private void writeResponse(DbSession dbSession, QProfileDto profile, @Nullable String exporterKey, Response response) throws IOException {
     Stream stream = response.stream();
-    try (
-      OutputStream output = response.stream().output();
-      Writer writer = new OutputStreamWriter(output, UTF_8)) {
+    ByteArrayOutputStream bufferStream = new ByteArrayOutputStream();
+    try (Writer writer = new OutputStreamWriter(bufferStream, UTF_8)) {
       if (exporterKey == null) {
         stream.setMediaType(MediaTypes.XML);
         backuper.backup(dbSession, profile, writer);
@@ -142,6 +143,9 @@ public class ExportAction implements QProfileWsAction {
         exporters.export(dbSession, profile, exporterKey, writer);
       }
     }
+
+    OutputStream output = response.stream().output();
+    IOUtils.write(bufferStream.toByteArray(), output);
   }
 
   private QProfileDto loadProfile(DbSession dbSession, OrganizationDto organization, @Nullable String key, @Nullable String language, @Nullable String name) {
