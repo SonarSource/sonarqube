@@ -36,7 +36,7 @@ export default function MembersListHeader({ handleSearch, organization, total }:
       <SearchBox
         minLength={2}
         onChange={handleSearch}
-        placeholder={translate('search.search_for_users')}
+        placeholder={translate('search.search_for_members')}
       />
       {total !== undefined && (
         <span className="pull-right little-spacer-top">
