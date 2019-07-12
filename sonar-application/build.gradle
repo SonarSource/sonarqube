@@ -135,7 +135,7 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
     from file('src/main/assembly/conf/sonar.properties')
       filter(ReplaceTokens, tokens: [
               'searchDefaultHeapSize': '512MB',
-              'searchJavaOpts'       : '-Xms512m -Xmx512m -XX:+HeapDumpOnOutOfMemoryError',
+              'searchJavaOpts'       : '-Xmx512m -Xms512m -XX:+HeapDumpOnOutOfMemoryError',
               'ceDefaultHeapSize'    : '512MB',
               'ceJavaOpts'           : '-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError',
               'webDefaultHeapSize'   : '512MB',
