@@ -66,7 +66,6 @@ import {
   ReferencedComponent,
   ReferencedLanguage,
   ReferencedRule,
-  ReferencedUser,
   saveMyIssues,
   serializeQuery,
   STANDARDS,
@@ -96,7 +95,7 @@ interface FetchIssuesPromise {
   languages: ReferencedLanguage[];
   paging: T.Paging;
   rules: ReferencedRule[];
-  users: ReferencedUser[];
+  users: T.UserBase[];
 }
 
 interface Props {
@@ -136,7 +135,7 @@ export interface State {
   referencedComponentsByKey: T.Dict<ReferencedComponent>;
   referencedLanguages: T.Dict<ReferencedLanguage>;
   referencedRules: T.Dict<ReferencedRule>;
-  referencedUsers: T.Dict<ReferencedUser>;
+  referencedUsers: T.Dict<T.UserBase>;
   selected?: string;
   selectedFlowIndex?: number;
   selectedLocationIndex?: number;

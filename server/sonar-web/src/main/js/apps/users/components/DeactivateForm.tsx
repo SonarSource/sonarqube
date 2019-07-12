@@ -26,7 +26,7 @@ import { deactivateUser } from '../../../api/users';
 export interface Props {
   onClose: () => void;
   onUpdateUsers: () => void;
-  user: T.User;
+  user: T.UserActive;
 }
 
 interface State {

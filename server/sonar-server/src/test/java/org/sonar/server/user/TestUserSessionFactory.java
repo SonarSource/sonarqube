@@ -98,11 +98,6 @@ public class TestUserSessionFactory implements UserSessionFactory {
     }
 
     @Override
-    public Optional<String> getPersonalOrganizationUuid() {
-      throw notImplemented();
-    }
-
-    @Override
     public boolean isLoggedIn() {
       return user != null;
     }

@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="page-wrapper-simple display-flex-column"
+>
+  <Alert
+    className="huge-spacer-bottom"
+    variant="success"
+  >
+    my_profile.delete_account.success
+  </Alert>
+  <div
+    className="page-simple text-center"
+  >
+    <p
+      className="big-spacer-bottom"
+    >
+      <h1>
+        my_profile.delete_account.feedback.reason.explanation
+      </h1>
+    </p>
+    <p
+      className="spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="my_profile.delete_account.feedback.call_to_action"
+        id="my_profile.delete_account.feedback.call_to_action"
+        values={
+          Object {
+            "link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to="/about/contact"
+            >
+              footer.contact_us
+            </Link>,
+          }
+        }
+      />
+    </p>
+    <p>
+      <Link
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/"
+      >
+        go_back_to_homepage
+      </Link>
+    </p>
+  </div>
+</div>
+`;

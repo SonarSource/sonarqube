@@ -33,14 +33,12 @@ const measure = {
 };
 
 it('should render', () => {
-  expect(
-    shallow(<Item measure={measure} onDelete={jest.fn()} onEdit={jest.fn()} />)
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('should edit metric', () => {
   const onEdit = jest.fn();
-  const wrapper = shallow(<Item measure={measure} onDelete={jest.fn()} onEdit={onEdit} />);
+  const wrapper = shallowRender({ onEdit });
 
   click(wrapper.find('.js-custom-measure-update'));
   wrapper.update();
@@ -55,7 +53,7 @@ it('should edit metric', () => {
 
 it('should delete custom measure', () => {
   const onDelete = jest.fn();
-  const wrapper = shallow(<Item measure={measure} onDelete={onDelete} onEdit={jest.fn()} />);
+  const wrapper = shallowRender({ onDelete });
 
   click(wrapper.find('.js-custom-measure-delete'));
   wrapper.update();
@@ -63,3 +61,13 @@ it('should delete custom measure', () => {
   wrapper.find('DeleteForm').prop<Function>('onSubmit')();
   expect(onDelete).toBeCalledWith('1');
 });
+
+it('should render correctly for deleted user', () => {
+  expect(
+    shallowRender({ measure: { ...measure, user: { active: false, login: 'user' } } })
+  ).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<Item['props']> = {}) {
+  return shallow(<Item measure={measure} onDelete={jest.fn()} onEdit={jest.fn()} {...props} />);
+}

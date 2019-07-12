@@ -37,7 +37,7 @@ public interface OrganizationUpdater {
   String PERM_TEMPLATE_DESCRIPTION_PATTERN = "Default permission template of organization %s";
 
   /**
-   * Create a new non guarded organization with the specified properties and of which the specified user will assign
+   * Create a new organization with the specified properties and of which the specified user will assign
    * Administer Organization permission.
    * <p>
    * This method does several operations at once:

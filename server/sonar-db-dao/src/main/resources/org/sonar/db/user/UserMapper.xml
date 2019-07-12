@@ -22,7 +22,6 @@
         u.onboarded as "onboarded",
         u.homepage_type as "homepageType",
         u.homepage_parameter as "homepageParameter",
-        u.organization_uuid as organizationUuid,
         u.last_connection_date as "lastConnectionDate",
         u.created_at as "createdAt",
         u.updated_at as "updatedAt"
@@ -173,8 +172,7 @@
         and u.login &lt;&gt; #{login}
     </select>
 
-    <update id="deactivateUser" parameterType="map">
-        update users set
+    <sql id="deactivateUserUpdatedFields">
         active = ${_false},
         email = null,
         scm_accounts = null,
@@ -182,6 +180,19 @@
         crypted_password = null,
         last_connection_date = null,
         updated_at = #{now, jdbcType=BIGINT}
+    </sql>
+
+    <update id="deactivateUser" parameterType="map">
+        update users set
+        <include refid="deactivateUserUpdatedFields"/>
+        where
+        login = #{login, jdbcType=VARCHAR}
+    </update>
+
+    <update id="deactivateSonarCloudUser" parameterType="map">
+        update users set
+        name = null,
+        <include refid="deactivateUserUpdatedFields"/>
         where
         login = #{login, jdbcType=VARCHAR}
     </update>
@@ -233,7 +244,6 @@
         onboarded,
         homepage_type,
         homepage_parameter,
-        organization_uuid,
         created_at,
         updated_at
         ) values (
@@ -254,7 +264,6 @@
         #{user.onboarded,jdbcType=BOOLEAN},
         #{user.homepageType,jdbcType=VARCHAR},
         #{user.homepageParameter,jdbcType=VARCHAR},
-        #{user.organizationUuid,jdbcType=VARCHAR},
         #{user.createdAt,jdbcType=BIGINT},
         #{user.updatedAt,jdbcType=BIGINT}
         )
@@ -277,7 +286,6 @@
         hash_method = #{user.hashMethod, jdbcType=VARCHAR},
         homepage_type = #{user.homepageType, jdbcType=VARCHAR},
         homepage_parameter = #{user.homepageParameter, jdbcType=VARCHAR},
-        organization_uuid = #{user.organizationUuid, jdbcType=VARCHAR},
         last_connection_date = #{user.lastConnectionDate,jdbcType=BIGINT},
         updated_at = #{user.updatedAt,jdbcType=BIGINT}
         where

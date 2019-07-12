@@ -34,14 +34,6 @@ it('should render correctly', () => {
   expect(getWrapper()).toMatchSnapshot();
 });
 
-it('should display change password action', () => {
-  expect(
-    getWrapper({ user: { ...user, local: true } })
-      .find('.js-user-change-password')
-      .exists()
-  ).toBeTruthy();
-});
-
 it('should open the update form', () => {
   const wrapper = getWrapper();
   click(wrapper.find('.js-user-update'));
@@ -50,7 +42,29 @@ it('should open the update form', () => {
       .first()
       .find('UserForm')
       .exists()
-  ).toBeTruthy();
+  ).toBe(true);
+});
+
+it('should open the password form', () => {
+  const wrapper = getWrapper({ user: { ...user, local: true } });
+  click(wrapper.find('.js-user-change-password'));
+  expect(
+    wrapper
+      .first()
+      .find('PasswordForm')
+      .exists()
+  ).toBe(true);
+});
+
+it('should open the deactivate form', () => {
+  const wrapper = getWrapper();
+  click(wrapper.find('.js-user-deactivate'));
+  expect(
+    wrapper
+      .first()
+      .find('DeactivateForm')
+      .exists()
+  ).toBe(true);
 });
 
 function getWrapper(props = {}) {

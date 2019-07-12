@@ -17,23 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first, import/order */
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import { click } from 'sonar-ui-common/helpers/testUtils';
+import ProfilePermissionsUser from '../ProfilePermissionsUser';
+import { removeUser } from '../../../../api/quality-profiles';
+
 jest.mock('../../../../api/quality-profiles', () => ({
   removeUser: jest.fn(() => Promise.resolve())
 }));
 
-import * as React from 'react';
-import { shallow } from 'enzyme';
-import ProfilePermissionsUser from '../ProfilePermissionsUser';
-import { click } from 'sonar-ui-common/helpers/testUtils';
-
-const removeUser = require('../../../../api/quality-profiles').removeUser as jest.Mock<any>;
-
 const profile = { language: 'js', name: 'Sonar way' };
-const user = { login: 'luke', name: 'Luke Skywalker' };
+const user: T.UserSelected = { login: 'luke', name: 'Luke Skywalker', selected: true };
 
 beforeEach(() => {
-  removeUser.mockClear();
+  jest.clearAllMocks();
 });
 
 it('renders', () => {

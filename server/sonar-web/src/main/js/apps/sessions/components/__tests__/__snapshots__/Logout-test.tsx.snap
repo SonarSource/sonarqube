@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should not redirect if logout fails 1`] = `
+<div
+  className="page page-limited"
+>
+  <Connect(GlobalMessages) />
+  <div
+    className="text-center"
+  >
+    logging_out
+  </div>
+</div>
+`;

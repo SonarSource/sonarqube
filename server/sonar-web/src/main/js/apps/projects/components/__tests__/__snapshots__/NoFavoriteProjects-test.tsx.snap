@@ -29,7 +29,7 @@ exports[`renders 1`] = `
 </div>
 `;
 
-exports[`renders for SonarCloud 1`] = `
+exports[`renders for SonarCloud with organizations 1`] = `
 <div
   className="projects-empty-list"
 >
@@ -93,6 +93,40 @@ exports[`renders for SonarCloud 1`] = `
           />
         </a>
       </Dropdown>
+      <Link
+        className="button big-spacer-left"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/explore/projects"
+      >
+        projects.no_favorite_projects.favorite_public_projects
+      </Link>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`renders for SonarCloud without organizations 1`] = `
+<div
+  className="projects-empty-list"
+>
+  <h3>
+    projects.no_favorite_projects
+  </h3>
+  <div
+    className="spacer-top"
+  >
+    <p>
+      projects.no_favorite_projects.how_to_add_projects
+    </p>
+    <div
+      className="huge-spacer-top"
+    >
+      <Button
+        onClick={[MockFunction]}
+      >
+        provisioning.analyze_new_project
+      </Button>
       <Link
         className="button big-spacer-left"
         onlyActiveOnIndex={false}

@@ -10,7 +10,6 @@
     org.default_quality_gate_uuid as "defaultQualityGateUuid",
     org.url as "url",
     org.avatar_url as "avatarUrl",
-    org.guarded as "guarded",
     org.subscription as "subscription",
     org.created_at as "createdAt",
     org.updated_at as "updatedAt"
@@ -121,22 +120,6 @@
             #{key, jdbcType=VARCHAR}
           </foreach>
       </if>
-      <if test="query.onlyTeam">
-        and not exists(
-          select 1
-          from users u
-          where u.organization_uuid = org.uuid
-          and u.active = ${_true}
-        )
-      </if>
-      <if test="query.onlyPersonal">
-        and exists(
-          select 1
-          from users u
-          where u.organization_uuid = org.uuid
-          and u.active = ${_true}
-        )
-      </if>
       <if test="query.withAnalyses">
         and exists(
           select 1
@@ -145,14 +128,6 @@
           where p.organization_uuid = org.uuid
           and p.enabled = ${_true}
           and s.islast = ${_true}
-        )
-      </if>
-      <if test="query.withoutProjects">
-        and not exists(
-          select 1
-          from projects p
-          where p.organization_uuid = org.uuid
-          and p.enabled = ${_true}
         )
       </if>
       <if test="query.analyzedAfter != null">
@@ -246,7 +221,6 @@
       description,
       url,
       avatar_url,
-      guarded,
       new_project_private,
       default_quality_gate_uuid,
       subscription,
@@ -261,7 +235,6 @@
       #{organization.description, jdbcType=VARCHAR},
       #{organization.url, jdbcType=VARCHAR},
       #{organization.avatarUrl, jdbcType=VARCHAR},
-      #{organization.guarded, jdbcType=BOOLEAN},
       #{newProjectPrivate, jdbcType=BOOLEAN},
       #{organization.defaultQualityGateUuid, jdbcType=VARCHAR},
       #{organization.subscription, jdbcType=VARCHAR},

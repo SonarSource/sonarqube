@@ -29,12 +29,12 @@ interface Props {
   doLogout: () => Promise<void>;
 }
 
-class Logout extends React.PureComponent<Props> {
+export class Logout extends React.PureComponent<Props> {
   componentDidMount() {
     this.props.doLogout().then(
       () => {
         RecentHistory.clear();
-        window.location.href = getBaseUrl() + '/';
+        window.location.replace(getBaseUrl() + '/');
       },
       () => {}
     );

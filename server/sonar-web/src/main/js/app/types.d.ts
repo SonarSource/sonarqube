@@ -239,12 +239,7 @@ declare namespace T {
     };
     projectKey: string;
     pending?: boolean;
-    user: {
-      active?: boolean;
-      email?: string;
-      login: string;
-      name: string;
-    };
+    user: T.UserBase;
     value: string;
     updatedAt?: string;
   }
@@ -333,7 +328,7 @@ declare namespace T {
   export interface Issue {
     actions: string[];
     assignee?: string;
-    assigneeActive?: string;
+    assigneeActive?: boolean;
     assigneeAvatar?: string;
     assigneeLogin?: string;
     assigneeName?: string;
@@ -372,6 +367,21 @@ declare namespace T {
     textRange?: TextRange;
     transitions: string[];
     type: T.IssueType;
+  }
+
+  export interface IssueChangelog {
+    avatar?: string;
+    creationDate: string;
+    diffs: IssueChangelogDiff[];
+    user: string;
+    isUserActive: boolean;
+    userName: string;
+  }
+
+  export interface IssueChangelogDiff {
+    key: string;
+    newValue?: string;
+    oldValue?: string;
   }
 
   export interface IssueComment {
@@ -423,17 +433,14 @@ declare namespace T {
     open?: boolean;
   }
 
-  export interface LoggedInUser extends CurrentUser {
-    avatar?: string;
-    email?: string;
+  export interface LoggedInUser extends CurrentUser, UserActive {
     externalIdentity?: string;
     externalProvider?: string;
     groups: string[];
     homepage?: HomePage;
     isLoggedIn: true;
     local?: boolean;
-    login: string;
-    name: string;
+    personalOrganization?: string;
     scmAccounts: string[];
     settings?: CurrentUserSetting[];
   }
@@ -527,10 +534,7 @@ declare namespace T {
     url?: string;
   }
 
-  export interface OrganizationMember {
-    login: string;
-    name: string;
-    avatar?: string;
+  export interface OrganizationMember extends UserActive {
     groupCount?: number;
   }
 
@@ -590,11 +594,7 @@ declare namespace T {
     permissions: string[];
   }
 
-  export interface PermissionUser {
-    avatar?: string;
-    email?: string;
-    login: string;
-    name: string;
+  export interface PermissionUser extends UserActive {
     permissions: string[];
   }
 
@@ -987,19 +987,31 @@ declare namespace T {
     endOffset: number;
   }
 
-  export interface User {
-    active: boolean;
-    avatar?: string;
-    email?: string;
+  export interface User extends UserBase {
     externalIdentity?: string;
     externalProvider?: string;
     groups?: string[];
     lastConnectionDate?: string;
     local: boolean;
-    login: string;
-    name: string;
     scmAccounts?: string[];
     tokensCount?: number;
+  }
+
+  export interface UserActive extends UserBase {
+    active?: true;
+    name: string;
+  }
+
+  export interface UserBase {
+    active?: boolean;
+    avatar?: string;
+    email?: string;
+    login: string;
+    name?: string;
+  }
+
+  export interface UserSelected extends UserActive {
+    selected: boolean;
   }
 
   export interface UserToken {

@@ -1,0 +1,128 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render content correctly 1`] = `
+<ShowOrganizationsToTransferOrDelete
+  organizations={
+    Array [
+      Object {
+        "key": "luke-leia",
+        "name": "Luke and Leia",
+      },
+    ]
+  }
+/>
+`;
+
+exports[`should render content correctly 2`] = `
+<ShowOrganizations
+  className="my-class"
+  organizations={
+    Array [
+      Object {
+        "key": "luke",
+        "name": "Luke Skywalker",
+      },
+    ]
+  }
+/>
+`;
+
+exports[`should render correctly ShowOrganizations 1`] = `
+<ul>
+  <li
+    className="spacer-bottom"
+  >
+    my_profile.delete_account.info
+  </li>
+  <li
+    className="spacer-bottom"
+  >
+    <FormattedMessage
+      defaultMessage="my_profile.delete_account.data.info"
+      id="my_profile.delete_account.data.info"
+      values={
+        Object {
+          "help": <a
+            href="/documentation/user-guide/user-account/#delete-your-user-account"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            learn_more
+          </a>,
+        }
+      }
+    />
+  </li>
+  <li
+    className="spacer-bottom"
+  >
+    <FormattedMessage
+      defaultMessage="my_profile.delete_account.info.orgs.members"
+      id="my_profile.delete_account.info.orgs.members"
+      values={
+        Object {
+          "organizations": <React.Fragment>
+            <span>
+              <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to="/organizations/luke"
+              >
+                Luke Skywalker
+              </Link>
+            </span>
+          </React.Fragment>,
+        }
+      }
+    />
+  </li>
+</ul>
+`;
+
+exports[`should render correctly ShowOrganizationsToTransferOrDelete 1`] = `
+<Fragment>
+  <p
+    className="big-spacer-bottom"
+  >
+    <FormattedMessage
+      defaultMessage="my_profile.delete_account.info.orgs_to_transfer_or_delete"
+      id="my_profile.delete_account.info.orgs_to_transfer_or_delete"
+      values={
+        Object {
+          "organizations": <React.Fragment>
+            <span>
+              <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to="/organizations/luke-leia"
+              >
+                Luke and Leia
+              </Link>
+            </span>
+          </React.Fragment>,
+        }
+      }
+    />
+  </p>
+  <Alert
+    className="big-spacer-bottom"
+    variant="warning"
+  >
+    <FormattedMessage
+      defaultMessage="my_profile.delete_account.info.orgs_to_transfer_or_delete.info"
+      id="my_profile.delete_account.info.orgs_to_transfer_or_delete.info"
+      values={
+        Object {
+          "link": <a
+            href="https://sieg.eu.ngrok.io/documentation/organizations/overview/#how-to-transfer-ownership-of-an-organization"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            my_profile.delete_account.info.orgs_to_transfer_or_delete.info.link
+          </a>,
+        }
+      }
+    />
+  </Alert>
+</Fragment>
+`;

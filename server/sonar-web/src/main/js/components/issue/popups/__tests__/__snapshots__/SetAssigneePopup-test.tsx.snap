@@ -1,0 +1,70 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<DropdownOverlay
+  noPadding={true}
+>
+  <div
+    className="multi-select"
+  >
+    <div
+      className="menu-search"
+    >
+      <SearchBox
+        autoFocus={true}
+        className="little-spacer-top"
+        minLength={2}
+        onChange={[Function]}
+        placeholder="search.search_for_users"
+        value=""
+      />
+    </div>
+    <SelectList
+      currentItem="luke"
+      items={
+        Array [
+          "luke",
+          "",
+        ]
+      }
+      onSelect={[MockFunction]}
+    >
+      <SelectListItem
+        item="luke"
+        key="luke"
+      >
+        <Connect(Avatar)
+          className="spacer-right"
+          name="Skywalker"
+          size={16}
+        />
+        <span
+          className="text-middle"
+          style={
+            Object {
+              "marginLeft": 24,
+            }
+          }
+        >
+          Skywalker
+        </span>
+      </SelectListItem>
+      <SelectListItem
+        item=""
+        key=""
+      >
+        <span
+          className="text-middle"
+          style={
+            Object {
+              "marginLeft": undefined,
+            }
+          }
+        >
+          unassigned
+        </span>
+      </SelectListItem>
+    </SelectList>
+  </div>
+</DropdownOverlay>
+`;

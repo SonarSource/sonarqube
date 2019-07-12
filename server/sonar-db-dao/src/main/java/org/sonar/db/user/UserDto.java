@@ -55,7 +55,6 @@ public class UserDto {
   private boolean local = true;
   private boolean root = false;
   private boolean onboarded = false;
-  private String organizationUuid;
 
   /**
    * Date of the last time the user has accessed to the server.
@@ -269,16 +268,6 @@ public class UserDto {
 
   public UserDto setOnboarded(boolean onboarded) {
     this.onboarded = onboarded;
-    return this;
-  }
-
-  @CheckForNull
-  public String getOrganizationUuid() {
-    return organizationUuid;
-  }
-
-  public UserDto setOrganizationUuid(@Nullable String organizationUuid) {
-    this.organizationUuid = organizationUuid;
     return this;
   }
 

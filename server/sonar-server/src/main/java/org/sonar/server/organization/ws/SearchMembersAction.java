@@ -137,9 +137,9 @@ public class SearchMembersAction implements OrganizationsWsAction {
         String login = userDto.getLogin();
         wsUser
           .clear()
-          .setLogin(login)
-          .setName(userDto.getName());
+          .setLogin(login);
         ofNullable(emptyToNull(userDto.getEmail())).ifPresent(text -> wsUser.setAvatar(avatarResolver.create(userDto)));
+        ofNullable(userDto.getName()).ifPresent(wsUser::setName);
         ofNullable(groupCountByLogin).ifPresent(count -> wsUser.setGroupCount(groupCountByLogin.count(login)));
         return wsUser;
       })

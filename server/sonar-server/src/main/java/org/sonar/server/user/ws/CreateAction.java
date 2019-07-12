@@ -150,8 +150,7 @@ public class CreateAction implements UsersWsAction {
         }));
       }
       checkArgument(!existingUser.isActive(), "An active user with login '%s' already exists", login);
-      return buildResponse(userUpdater.reactivateAndCommit(dbSession, existingUser, newUser.build(), u -> {
-      }));
+      return buildResponse(userUpdater.reactivateAndCommit(dbSession, existingUser, newUser.build(), u -> {}));
     }
   }
 

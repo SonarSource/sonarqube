@@ -31,7 +31,7 @@ import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import { getComponents, Project } from '../../api/components';
 
 export interface Props {
-  currentUser: { login: string };
+  currentUser: Pick<T.LoggedInUser, 'login'>;
   hasProvisionPermission?: boolean;
   onOrganizationUpgrade: () => void;
   onVisibilityChange: (visibility: T.Visibility) => void;

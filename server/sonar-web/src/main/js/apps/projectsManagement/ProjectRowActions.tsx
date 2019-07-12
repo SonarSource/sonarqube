@@ -29,7 +29,7 @@ import { getComponentNavigation } from '../../api/nav';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
 
 export interface Props {
-  currentUser: { login: string };
+  currentUser: Pick<T.LoggedInUser, 'login'>;
   organization: string | undefined;
   project: Project;
 }

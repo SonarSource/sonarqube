@@ -52,9 +52,9 @@ public class OrganizationsWsModule extends Module {
         CreateAction.class,
         OrganizationDeleter.class,
         DeleteAction.class,
-        DeleteEmptyPersonalOrgsAction.class,
         RemoveMemberAction.class,
-        UpdateAction.class);
+        UpdateAction.class,
+        PreventUserDeletionAction.class);
     }
   }
 

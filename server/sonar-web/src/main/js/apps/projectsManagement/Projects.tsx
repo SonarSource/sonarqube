@@ -24,7 +24,7 @@ import ProjectRow from './ProjectRow';
 import { Project } from '../../api/components';
 
 interface Props {
-  currentUser: { login: string };
+  currentUser: Pick<T.LoggedInUser, 'login'>;
   onProjectDeselected: (project: string) => void;
   onProjectSelected: (project: string) => void;
   organization: T.Organization;

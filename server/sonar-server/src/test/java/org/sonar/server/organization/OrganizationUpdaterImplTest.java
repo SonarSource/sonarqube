@@ -73,9 +73,6 @@ import static org.sonar.server.organization.OrganizationUpdater.NewOrganization.
 
 public class OrganizationUpdaterImplTest {
   private static final long A_DATE = 12893434L;
-  private static final String A_LOGIN = "a-login";
-  private static final String SLUG_OF_A_LOGIN = "slug-of-a-login";
-  private static final String A_NAME = "a name";
 
   private OrganizationUpdater.NewOrganization FULL_POPULATED_NEW_ORGANIZATION = newOrganizationBuilder()
     .setName("a-name")
@@ -116,7 +113,7 @@ public class OrganizationUpdaterImplTest {
     builtInQProfileRepositoryRule, defaultGroupCreator, permissionService);
 
   @Test
-  public void create_creates_unguarded_organization_with_properties_from_NewOrganization_arg() throws OrganizationUpdater.KeyConflictException {
+  public void create_creates_organization_with_properties_from_NewOrganization_arg() throws OrganizationUpdater.KeyConflictException {
     builtInQProfileRepositoryRule.initialize();
     UserDto user = db.users().insertUser();
     db.qualityGates().insertBuiltInQualityGate();
@@ -130,7 +127,6 @@ public class OrganizationUpdaterImplTest {
     assertThat(organization.getDescription()).isEqualTo(FULL_POPULATED_NEW_ORGANIZATION.getDescription());
     assertThat(organization.getUrl()).isEqualTo(FULL_POPULATED_NEW_ORGANIZATION.getUrl());
     assertThat(organization.getAvatarUrl()).isEqualTo(FULL_POPULATED_NEW_ORGANIZATION.getAvatar());
-    assertThat(organization.isGuarded()).isFalse();
     assertThat(organization.getSubscription()).isEqualTo(Subscription.FREE);
     assertThat(organization.getCreatedAt()).isEqualTo(A_DATE);
     assertThat(organization.getUpdatedAt()).isEqualTo(A_DATE);
@@ -175,7 +171,6 @@ public class OrganizationUpdaterImplTest {
     assertThat(organization.getDescription()).isNull();
     assertThat(organization.getUrl()).isNull();
     assertThat(organization.getAvatarUrl()).isNull();
-    assertThat(organization.isGuarded()).isFalse();
   }
 
   @Test

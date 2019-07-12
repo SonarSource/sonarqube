@@ -18,35 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { getIssueChangelog } from '../../../api/issues';
 import Avatar from '../../ui/Avatar';
 import DateTimeFormatter from '../../intl/DateTimeFormatter';
-import IssueChangelogDiff, { ChangelogDiff } from '../components/IssueChangelogDiff';
-
-interface Changelog {
-  avatar?: string;
-  creationDate: string;
-  diffs: ChangelogDiff[];
-  user: string;
-  userName: string;
-}
+import IssueChangelogDiff from '../components/IssueChangelogDiff';
 
 interface Props {
   issue: Pick<T.Issue, 'author' | 'creationDate' | 'key'>;
 }
 
 interface State {
-  changelogs: Changelog[];
+  changelog: T.IssueChangelog[];
 }
 
 export default class ChangelogPopup extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = {
-    changelogs: []
-  };
+  state: State = { changelog: [] };
 
   componentDidMount() {
     this.mounted = true;
@@ -59,9 +49,9 @@ export default class ChangelogPopup extends React.PureComponent<Props, State> {
 
   loadChangelog() {
     getIssueChangelog(this.props.issue.key).then(
-      changelogs => {
+      ({ changelog }) => {
         if (this.mounted) {
-          this.setState({ changelogs });
+          this.setState({ changelog });
         }
       },
       () => {}
@@ -85,23 +75,23 @@ export default class ChangelogPopup extends React.PureComponent<Props, State> {
                 </td>
               </tr>
 
-              {this.state.changelogs.map((item, idx) => (
+              {this.state.changelog.map((item, idx) => (
                 <tr key={idx}>
                   <td className="thin text-left text-top nowrap">
                     <DateTimeFormatter date={item.creationDate} />
                   </td>
                   <td className="text-left text-top">
-                    {item.userName && (
-                      <p>
-                        <Avatar
-                          className="little-spacer-right"
-                          hash={item.avatar}
-                          name={item.userName}
-                          size={16}
-                        />
-                        {item.userName}
-                      </p>
-                    )}
+                    <p>
+                      <Avatar
+                        className="little-spacer-right"
+                        hash={item.avatar}
+                        name={(item.isUserActive && item.userName) || item.user}
+                        size={16}
+                      />
+                      {item.isUserActive
+                        ? item.userName || item.user
+                        : translateWithParameters('user.x_deleted', item.user)}
+                    </p>
                     {item.diffs.map(diff => (
                       <IssueChangelogDiff diff={diff} key={diff.key} />
                     ))}

@@ -194,13 +194,8 @@ export interface SearchUsersGroupsParameters {
   selected?: 'all' | 'selected' | 'deselected';
 }
 
-export interface SearchUsersResponse {
-  users: Array<{
-    avatar?: string;
-    login: string;
-    name: string;
-    selected?: boolean;
-  }>;
+interface SearchUsersResponse {
+  users: T.UserSelected[];
   paging: T.Paging;
 }
 

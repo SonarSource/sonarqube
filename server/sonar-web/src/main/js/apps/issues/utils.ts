@@ -199,11 +199,6 @@ export interface ReferencedComponent {
   uuid: string;
 }
 
-export interface ReferencedUser {
-  avatar: string;
-  name: string;
-}
-
 export interface ReferencedLanguage {
   name: string;
 }
@@ -213,17 +208,11 @@ export interface ReferencedRule {
   name: string;
 }
 
-export interface SearchedAssignee {
-  avatar?: string;
-  login: string;
-  name: string;
-}
-
 export const searchAssignees = (
   query: string,
   organization: string | undefined,
   page = 1
-): Promise<{ paging: T.Paging; results: SearchedAssignee[] }> => {
+): Promise<{ paging: T.Paging; results: T.UserBase[] }> => {
   return organization
     ? searchMembers({ organization, p: page, ps: 50, q: query }).then(({ paging, users }) => ({
         paging,

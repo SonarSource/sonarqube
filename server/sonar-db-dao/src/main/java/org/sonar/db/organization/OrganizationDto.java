@@ -73,10 +73,6 @@ public class OrganizationDto {
 
   private Subscription subscription;
 
-  /**
-   * Flag indicated whether being root is required to be able to delete this organization.
-   */
-  private boolean guarded = false;
   private Integer defaultGroupId;
   private String defaultQualityGateUuid;
   private long createdAt;
@@ -136,15 +132,6 @@ public class OrganizationDto {
 
   public OrganizationDto setAvatarUrl(@Nullable String avatarUrl) {
     this.avatarUrl = avatarUrl;
-    return this;
-  }
-
-  public boolean isGuarded() {
-    return guarded;
-  }
-
-  public OrganizationDto setGuarded(boolean guarded) {
-    this.guarded = guarded;
     return this;
   }
 
@@ -220,7 +207,6 @@ public class OrganizationDto {
       ", description='" + description + '\'' +
       ", url='" + url + '\'' +
       ", avatarUrl='" + avatarUrl + '\'' +
-      ", guarded=" + guarded +
       ", defaultQualityGateUuid=" + defaultQualityGateUuid +
       ", subscription=" + subscription +
       ", createdAt=" + createdAt +

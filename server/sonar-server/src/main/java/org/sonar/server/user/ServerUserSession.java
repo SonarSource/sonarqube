@@ -133,11 +133,6 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
-  public Optional<String> getPersonalOrganizationUuid() {
-    return ofNullable(userDto).map(UserDto::getOrganizationUuid);
-  }
-
-  @Override
   protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
     if (permissionsByOrganizationUuid == null) {
       permissionsByOrganizationUuid = new HashMap<>();

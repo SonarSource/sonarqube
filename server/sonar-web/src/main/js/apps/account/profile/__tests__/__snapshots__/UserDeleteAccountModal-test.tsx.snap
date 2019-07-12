@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render modal correctly 1`] = `
+<ValidationModal
+  confirmButtonText="delete"
+  header="my_profile.delete_account.modal.header.label.luke"
+  initialValues={
+    Object {
+      "login": "",
+    }
+  }
+  isDestructive={true}
+  onClose={[MockFunction]}
+  onSubmit={[Function]}
+  validate={[Function]}
+>
+  <Component />
+</ValidationModal>
+`;

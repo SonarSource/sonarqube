@@ -19,18 +19,18 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import AssigneeFacet, { Props } from '../AssigneeFacet';
+import AssigneeFacet from '../AssigneeFacet';
 import { Query } from '../../utils';
 
 jest.mock('../../../../store/rootReducer', () => ({}));
 
 it('should render', () => {
-  expect(renderAssigneeFacet({ assignees: ['foo'] })).toMatchSnapshot();
+  expect(shallowRender({ assignees: ['foo'] })).toMatchSnapshot();
 });
 
 it('should select unassigned', () => {
   expect(
-    renderAssigneeFacet({ assigned: false })
+    shallowRender({ assigned: false })
       .find('ListStyleFacet')
       .prop('values')
   ).toEqual(['']);
@@ -38,7 +38,7 @@ it('should select unassigned', () => {
 
 it('should call onChange', () => {
   const onChange = jest.fn();
-  const wrapper = renderAssigneeFacet({ assignees: ['foo'], onChange });
+  const wrapper = shallowRender({ assignees: ['foo'], onChange });
   const itemOnClick = wrapper.find('ListStyleFacet').prop<Function>('onItemClick');
 
   itemOnClick('');
@@ -51,8 +51,39 @@ it('should call onChange', () => {
   expect(onChange).lastCalledWith({ assigned: true, assignees: ['baz', 'foo'] });
 });
 
-function renderAssigneeFacet(props?: Partial<Props>) {
-  return shallow(
+describe('test behavior', () => {
+  const instance = shallowRender({
+    assignees: ['foo', 'baz'],
+    referencedUsers: {
+      foo: { active: false, login: 'foo' },
+      baz: { active: true, login: 'baz', name: 'Name Baz' }
+    }
+  }).instance();
+
+  it('should correctly render assignee name', () => {
+    expect(instance.getAssigneeName('')).toBe('unassigned');
+    expect(instance.getAssigneeName('bar')).toBe('bar');
+    expect(instance.getAssigneeName('baz')).toBe('Name Baz');
+    expect(instance.getAssigneeName('foo')).toBe('user.x_deleted.foo');
+  });
+
+  it('should correctly render facet item', () => {
+    expect(instance.renderFacetItem('')).toBe('unassigned');
+    expect(instance.renderFacetItem('bar')).toBe('bar');
+    expect(instance.renderFacetItem('baz')).toMatchSnapshot();
+    expect(instance.renderFacetItem('foo')).toMatchSnapshot();
+  });
+
+  it('should correctly render search result correctly', () => {
+    expect(
+      instance.renderSearchResult({ active: true, login: 'bar', name: 'Name Bar' }, 'ba')
+    ).toMatchSnapshot();
+    expect(instance.renderSearchResult({ active: false, login: 'foo' }, 'fo')).toMatchSnapshot();
+  });
+});
+
+function shallowRender(props?: Partial<AssigneeFacet['props']>) {
+  return shallow<AssigneeFacet>(
     <AssigneeFacet
       assigned={true}
       assignees={[]}
@@ -63,7 +94,7 @@ function renderAssigneeFacet(props?: Partial<Props>) {
       open={true}
       organization={undefined}
       query={{} as Query}
-      referencedUsers={{ foo: { avatar: 'avatart-foo', name: 'name-foo' } }}
+      referencedUsers={{ foo: { avatar: 'avatart-foo', login: 'name-foo', name: 'Name Foo' } }}
       stats={{ '': 5, foo: 13, bar: 7, baz: 6 }}
       {...props}
     />

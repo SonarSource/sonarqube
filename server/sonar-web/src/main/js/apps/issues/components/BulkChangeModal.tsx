@@ -36,7 +36,7 @@ import Select from '../../../components/controls/Select';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { searchIssueTags, bulkChangeIssues } from '../../../api/issues';
-import { isLoggedIn } from '../../../helpers/users';
+import { isLoggedIn, isUserActive } from '../../../helpers/users';
 
 interface AssigneeOption {
   avatar?: string;
@@ -161,7 +161,11 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
   handleAssigneeSearch = (query: string) => {
     return searchAssignees(query, this.state.organization).then(({ results }) =>
-      results.map(r => ({ avatar: r.avatar, label: r.name, value: r.login }))
+      results.map(r => ({
+        avatar: r.avatar,
+        label: isUserActive(r) ? r.name : translateWithParameters('user.x_deleted', r.login),
+        value: r.login
+      }))
     );
   };
 

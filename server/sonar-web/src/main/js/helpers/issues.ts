@@ -25,10 +25,6 @@ interface Comment {
   [x: string]: any;
 }
 
-interface User {
-  login: string;
-}
-
 interface Rule {}
 
 interface Component {
@@ -83,7 +79,7 @@ function injectRelational(
   return newFields;
 }
 
-function injectCommentsRelational(issue: RawIssue, users?: User[]) {
+function injectCommentsRelational(issue: RawIssue, users?: T.UserBase[]) {
   if (!issue.comments) {
     return {};
   }
@@ -158,7 +154,7 @@ function orderLocations(locations: T.FlowLocation[]) {
 export function parseIssueFromResponse(
   issue: RawIssue,
   components?: Component[],
-  users?: User[],
+  users?: T.UserBase[],
   rules?: Rule[]
 ): T.Issue {
   const { secondaryLocations, flows } = splitFlows(issue, components);

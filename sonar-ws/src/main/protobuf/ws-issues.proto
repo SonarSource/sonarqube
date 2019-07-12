@@ -248,6 +248,7 @@ message ChangelogWsResponse {
     optional string creationDate = 4;
     repeated Diff diffs = 5;
     optional string avatar = 6;
+    optional bool isUserActive = 7;
 
     message Diff {
       optional string key = 1;

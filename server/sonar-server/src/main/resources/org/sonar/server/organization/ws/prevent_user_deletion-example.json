@@ -1,0 +1,12 @@
+{
+  "organizations": [
+    {
+      "key": "foo-company",
+      "name": "Foo Company"
+    },
+    {
+      "key": "bar-company",
+      "name": "Bar Company"
+    }
+  ]
+}

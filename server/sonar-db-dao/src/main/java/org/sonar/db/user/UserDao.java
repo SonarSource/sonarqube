@@ -135,6 +135,10 @@ public class UserDao implements Dao {
     mapper(dbSession).deactivateUser(user.getLogin(), system2.now());
   }
 
+  public void deactivateSonarCloudUser(DbSession dbSession, UserDto user) {
+    mapper(dbSession).deactivateSonarCloudUser(user.getLogin(), system2.now());
+  }
+
   public void cleanHomepage(DbSession dbSession, OrganizationDto organization) {
     mapper(dbSession).clearHomepages("ORGANIZATION", organization.getUuid(), system2.now());
   }

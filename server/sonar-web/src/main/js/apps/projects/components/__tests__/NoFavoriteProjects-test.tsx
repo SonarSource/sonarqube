@@ -31,7 +31,14 @@ it('renders', () => {
   ).toMatchSnapshot();
 });
 
-it('renders for SonarCloud', () => {
+it('renders for SonarCloud without organizations', () => {
+  (isSonarCloud as jest.Mock).mockImplementation(() => true);
+  expect(
+    shallow(<NoFavoriteProjects openProjectOnboarding={jest.fn()} organizations={[]} />)
+  ).toMatchSnapshot();
+});
+
+it('renders for SonarCloud with organizations', () => {
   (isSonarCloud as jest.Mock).mockImplementation(() => true);
   const organizations: T.Organization[] = [
     { actions: { admin: true }, key: 'org1', name: 'org1', projectVisibility: 'public' },

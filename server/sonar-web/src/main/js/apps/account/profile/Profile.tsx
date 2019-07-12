@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import UserExternalIdentity from './UserExternalIdentity';
+import UserDeleteAccount from './UserDeleteAccount';
 import UserGroups from './UserGroups';
 import UserScmAccounts from './UserScmAccounts';
 import { isSonarCloud } from '../../../helpers/system';
@@ -59,6 +60,14 @@ export function Profile({ currentUser }: Props) {
         <hr />
 
         <UserScmAccounts scmAccounts={currentUser.scmAccounts} user={currentUser} />
+
+        {isSonarCloud() && (
+          <>
+            <hr />
+
+            <UserDeleteAccount user={currentUser} />
+          </>
+        )}
       </div>
     </div>
   );

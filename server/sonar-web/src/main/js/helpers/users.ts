@@ -27,3 +27,7 @@ export function hasGlobalPermission(user: T.CurrentUser, permission: string): bo
 export function isLoggedIn(user: T.CurrentUser): user is T.LoggedInUser {
   return user.isLoggedIn;
 }
+
+export function isUserActive(user: T.UserBase): user is T.UserActive {
+  return user.active !== false && Boolean(user.name);
+}

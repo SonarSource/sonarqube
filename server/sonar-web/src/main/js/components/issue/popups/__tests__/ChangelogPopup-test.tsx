@@ -19,27 +19,61 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import ChangelogPopup from '../ChangelogPopup';
+import { getIssueChangelog } from '../../../../api/issues';
 
-it('should render the changelog popup correctly', () => {
-  const element = shallow(
+jest.mock('../../../../api/issues', () => ({
+  getIssueChangelog: jest.fn().mockResolvedValue({
+    changelog: [
+      {
+        creationDate: '2017-03-01T09:36:01+0100',
+        user: 'john.doe',
+        isUserActive: true,
+        userName: 'John Doe',
+        avatar: 'gravatarhash',
+        diffs: [{ key: 'severity', newValue: 'MINOR', oldValue: 'CRITICAL' }]
+      }
+    ]
+  })
+}));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+it('should render the changelog popup correctly', async () => {
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(getIssueChangelog).toBeCalledWith('issuekey');
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render the changelog popup when we have a deleted user', async () => {
+  (getIssueChangelog as jest.Mock).mockResolvedValueOnce({
+    changelog: [
+      {
+        creationDate: '2017-03-01T09:36:01+0100',
+        user: 'john.doe',
+        isUserActive: false,
+        diffs: [{ key: 'severity', newValue: 'MINOR', oldValue: 'CRITICAL' }]
+      }
+    ]
+  });
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<ChangelogPopup['props']> = {}) {
+  return shallow(
     <ChangelogPopup
       issue={{
         key: 'issuekey',
         author: 'john.david.dalton@gmail.com',
         creationDate: '2017-03-01T09:36:01+0100'
       }}
+      {...props}
     />
   );
-  element.setState({
-    changelogs: [
-      {
-        creationDate: '2017-03-01T09:36:01+0100',
-        userName: 'john.doe',
-        avatar: 'gravatarhash',
-        diffs: [{ key: 'severity', newValue: 'MINOR', oldValue: 'CRITICAL' }]
-      }
-    ]
-  });
-  expect(element).toMatchSnapshot();
-});
+}

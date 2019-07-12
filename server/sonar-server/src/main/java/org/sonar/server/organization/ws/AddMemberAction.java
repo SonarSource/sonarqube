@@ -111,9 +111,9 @@ public class AddMemberAction implements OrganizationsWsAction {
     AddMemberWsResponse.Builder response = AddMemberWsResponse.newBuilder();
     User.Builder wsUser = User.newBuilder()
       .setLogin(user.getLogin())
-      .setName(user.getName())
       .setGroupCount(groups);
     ofNullable(emptyToNull(user.getEmail())).ifPresent(text -> wsUser.setAvatar(avatarResolver.create(user)));
+    ofNullable(user.getName()).ifPresent(wsUser::setName);
     response.setUser(wsUser);
     return response.build();
   }

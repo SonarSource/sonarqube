@@ -1,0 +1,151 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<DropdownOverlay
+  noPadding={true}
+>
+  <header
+    className="menu-search"
+  >
+    <h6>
+      issue.filter_similar_issues
+    </h6>
+  </header>
+  <SelectList
+    className="issues-similar-issues-menu"
+    currentItem="type"
+    items={
+      Array [
+        "type",
+        "severity",
+        "status",
+        "resolution",
+        "assignee",
+        "rule",
+        "tag###test-tag",
+        "project",
+        "module",
+        "file",
+      ]
+    }
+    onSelect={[Function]}
+  >
+    <SelectListItem
+      item="type"
+    >
+      <IssueTypeIcon
+        className="little-spacer-right"
+        query="BUG"
+      />
+      issue.type.BUG
+    </SelectListItem>
+    <SelectListItem
+      item="severity"
+    >
+      <SeverityHelper
+        severity="MAJOR"
+      />
+    </SelectListItem>
+    <SelectListItem
+      item="status"
+    >
+      <StatusHelper
+        status="OPEN"
+      />
+    </SelectListItem>
+    <SelectListItem
+      item="resolution"
+    >
+      unresolved
+    </SelectListItem>
+    <SelectListItem
+      item="assignee"
+    >
+      unassigned
+    </SelectListItem>
+    <li
+      className="divider"
+    />
+    <SelectListItem
+      item="rule"
+    >
+      foo
+    </SelectListItem>
+    <SelectListItem
+      item="tag###test-tag"
+      key="tag###test-tag"
+    >
+      <TagsIcon
+        className="icon-half-transparent little-spacer-right text-middle"
+      />
+      <span
+        className="text-middle"
+      >
+        test-tag
+      </span>
+    </SelectListItem>
+    <li
+      className="divider"
+    />
+    <SelectListItem
+      item="project"
+    >
+      <QualifierIcon
+        className="little-spacer-right"
+        qualifier="TRK"
+      />
+      Foo
+    </SelectListItem>
+    <SelectListItem
+      item="module"
+    >
+      <QualifierIcon
+        className="little-spacer-right"
+        qualifier="BRC"
+      />
+      Foo
+    </SelectListItem>
+    <SelectListItem
+      item="file"
+    >
+      <QualifierIcon
+        className="little-spacer-right"
+        qualifier="FIL"
+      />
+      main.js
+    </SelectListItem>
+  </SelectList>
+</DropdownOverlay>
+`;
+
+exports[`should render correctly when assigned 1`] = `
+<SelectListItem
+  item="assignee"
+>
+  <span>
+    assigned_to
+    <Connect(Avatar)
+      className="little-spacer-left little-spacer-right"
+      name="Luke Skywalker"
+      size={16}
+    />
+    Luke Skywalker
+  </span>
+</SelectListItem>
+`;
+
+exports[`should render correctly when assigned 2`] = `
+<SelectListItem
+  item="assignee"
+>
+  <span>
+    assigned_to
+    <Connect(Avatar)
+      className="little-spacer-left little-spacer-right"
+      name="luke"
+      size={16}
+    />
+    user.x_deleted.luke
+  </span>
+</SelectListItem>
+`;

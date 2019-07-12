@@ -24,12 +24,7 @@ import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import SelectList, { Filter } from '../../../components/SelectList/SelectList';
-import {
-  addUserToGroup,
-  getUsersInGroup,
-  GroupUser,
-  removeUserFromGroup
-} from '../../../api/user_groups';
+import { addUserToGroup, getUsersInGroup, removeUserFromGroup } from '../../../api/user_groups';
 
 interface Props {
   group: T.Group;
@@ -50,7 +45,7 @@ interface State {
   lastSearchParams: SearchParams;
   listHasBeenTouched: boolean;
   loading: boolean;
-  users: GroupUser[];
+  users: T.UserSelected[];
   usersTotalCount?: number;
   selectedUsers: string[];
 }

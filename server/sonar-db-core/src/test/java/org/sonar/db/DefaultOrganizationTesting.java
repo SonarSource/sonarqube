@@ -46,7 +46,6 @@ public class DefaultOrganizationTesting {
       "UUID", uuid,
       "KEE", uuid,
       "NAME", uuid,
-      "GUARDED", String.valueOf(false),
       "CREATED_AT", "1000",
       "UPDATED_AT", "1000");
   }

@@ -26,7 +26,7 @@ import { grantPermissionToUser } from '../../api/permissions';
 import { Project } from '../../api/components';
 
 interface Props {
-  currentUser: { login: string };
+  currentUser: Pick<T.LoggedInUser, 'login'>;
   onClose: () => void;
   onRestoreAccess: () => void;
   project: Project;

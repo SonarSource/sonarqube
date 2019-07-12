@@ -57,6 +57,8 @@ exports[`should open the right popups when the buttons are clicked 3`] = `
           <CommentPopup
             comment={
               Object {
+                "author": "john.doe",
+                "authorActive": true,
                 "authorAvatar": "gravatarhash",
                 "authorName": "John Doe",
                 "createdAt": "2017-03-01T09:36:01+0100",
@@ -183,6 +185,8 @@ exports[`should render correctly a comment that is updatable 1`] = `
           <CommentPopup
             comment={
               Object {
+                "author": "john.doe",
+                "authorActive": true,
                 "authorAvatar": "gravatarhash",
                 "authorName": "John Doe",
                 "createdAt": "2017-03-01T09:36:01+0100",
@@ -224,5 +228,20 @@ exports[`should render correctly a comment that is updatable 1`] = `
       </Toggler>
     </div>
   </div>
+</div>
+`;
+
+exports[`should render correctly a comment with a deleted author 1`] = `
+<div
+  className="issue-comment-author"
+  title="user.x_deleted.john.doe"
+>
+  <Connect(Avatar)
+    className="little-spacer-right"
+    hash="gravatarhash"
+    name="john.doe"
+    size={16}
+  />
+  user.x_deleted.john.doe
 </div>
 `;

@@ -50,8 +50,6 @@ import org.sonar.db.Pagination;
 import org.sonar.db.alm.ALM;
 import org.sonar.db.alm.AlmAppInstallDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.dialect.Dialect;
-import org.sonar.db.dialect.Oracle;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.user.GroupDto;
@@ -86,7 +84,6 @@ public class OrganizationDaoTest {
     .setDescription("the description 1")
     .setUrl("the url 1")
     .setAvatarUrl("the avatar url 1")
-    .setGuarded(false)
     .setSubscription(FREE)
     .setDefaultQualityGateUuid("1");
   private static final OrganizationDto ORGANIZATION_DTO_2 = new OrganizationDto()
@@ -96,7 +93,6 @@ public class OrganizationDaoTest {
     .setDescription("the description 2")
     .setUrl("the url 2")
     .setAvatarUrl("the avatar url 2")
-    .setGuarded(true)
     .setSubscription(FREE)
     .setDefaultQualityGateUuid("1");
   private static final String PERMISSION_1 = "foo";
@@ -148,19 +144,10 @@ public class OrganizationDaoTest {
     assertThat(row.get("avatarUrl")).isEqualTo(organization.getAvatarUrl());
     assertThat(row.get("createdAt")).isEqualTo(organization.getCreatedAt());
     assertThat(row.get("updatedAt")).isEqualTo(organization.getUpdatedAt());
-    assertThat(row.get("guarded")).isEqualTo(toBool(organization.isGuarded()));
     assertThat(row.get("subscription")).isEqualTo(organization.getSubscription().name());
     assertThat(row.get("defaultTemplate")).isNull();
     assertThat(row.get("projectDefaultTemplate")).isNull();
     assertThat(row.get("viewDefaultTemplate")).isNull();
-  }
-
-  @Test
-  public void insert_persists_boolean_property_guarded_of_OrganizationDto() {
-    insertOrganization(ORGANIZATION_DTO_2);
-
-    Map<String, Object> row = selectSingleRow();
-    assertThat(row.get("guarded")).isEqualTo(toBool(ORGANIZATION_DTO_2.isGuarded()));
   }
 
   @Test
@@ -175,21 +162,12 @@ public class OrganizationDaoTest {
     assertThat(row.get("description")).isNull();
     assertThat(row.get("url")).isNull();
     assertThat(row.get("avatarUrl")).isNull();
-    assertThat(row.get("guarded")).isEqualTo(toBool(ORGANIZATION_DTO_1.isGuarded()));
     assertThat(row.get("userId")).isNull();
     assertThat(row.get("createdAt")).isEqualTo(SOME_DATE);
     assertThat(row.get("updatedAt")).isEqualTo(SOME_DATE);
     assertThat(row.get("defaultTemplate")).isNull();
     assertThat(row.get("projectDefaultTemplate")).isNull();
     assertThat(row.get("viewDefaultTemplate")).isNull();
-  }
-
-  private Object toBool(boolean guarded) {
-    Dialect dialect = db.database().getDialect();
-    if (dialect.getId().equals(Oracle.ID)) {
-      return guarded ? 1L : 0L;
-    }
-    return guarded;
   }
 
   @Test
@@ -585,20 +563,6 @@ public class OrganizationDaoTest {
   }
 
   @Test
-  public void selectByQuery_filter_on_type() {
-    OrganizationDto personalOrg1 = db.organizations().insert();
-    db.users().insertUser(u -> u.setOrganizationUuid(personalOrg1.getUuid()));
-    OrganizationDto personalOrg2 = db.organizations().insert();
-    db.users().insertUser(u -> u.setOrganizationUuid(personalOrg2.getUuid()));
-    OrganizationDto teamOrg1 = db.organizations().insert();
-
-    assertThat(selectUuidsByQuery(q -> q.setOnlyPersonal(), forPage(1).andSize(100)))
-      .containsExactlyInAnyOrder(personalOrg1.getUuid(), personalOrg2.getUuid());
-    assertThat(selectUuidsByQuery(q -> q.setOnlyTeam(), forPage(1).andSize(100)))
-      .containsExactlyInAnyOrder(teamOrg1.getUuid());
-  }
-
-  @Test
   public void selectByQuery_filter_on_withAnalyses() {
     assertThat(selectUuidsByQuery(q -> q.setWithAnalyses(), forPage(1).andSize(100)))
       .isEmpty();
@@ -627,25 +591,6 @@ public class OrganizationDaoTest {
     return underTest.selectByQuery(dbSession, builder.build(), pagination).stream()
       .map(OrganizationDto::getUuid)
       .collect(Collectors.toList());
-  }
-
-  @Test
-  public void selectByQuery_filter_on_withoutProjects() {
-    assertThat(selectUuidsByQuery(q -> q.setWithoutProjects(), forPage(1).andSize(100)))
-      .isEmpty();
-
-    // has projects
-    OrganizationDto orgWithProjects = db.organizations().insert();
-    db.components().insertPrivateProject(orgWithProjects);
-    db.components().insertPrivateProject(orgWithProjects, p -> p.setEnabled(false));
-    // has no projects
-    OrganizationDto orgWithoutProjects = db.organizations().insert();
-    // has only disabled projects
-    OrganizationDto orgWithOnlyDisabledProjects = db.organizations().insert();
-    db.components().insertPrivateProject(orgWithOnlyDisabledProjects, p -> p.setEnabled(false));
-
-    assertThat(selectUuidsByQuery(q -> q.setWithoutProjects(), forPage(1).andSize(100)))
-      .containsExactlyInAnyOrder(orgWithoutProjects.getUuid(), orgWithOnlyDisabledProjects.getUuid());
   }
 
   @Test
@@ -1155,7 +1100,6 @@ public class OrganizationDaoTest {
           "      default_perm_template_app," +
           "      default_perm_template_port," +
           "      new_project_private," +
-          "      guarded," +
           "      default_quality_gate_uuid," +
           "      subscription," +
           "      created_at," +
@@ -1163,7 +1107,6 @@ public class OrganizationDaoTest {
           "    )" +
           "    values" +
           "    (" +
-          "      ?," +
           "      ?," +
           "      ?," +
           "      ?," +
@@ -1183,11 +1126,10 @@ public class OrganizationDaoTest {
       preparedStatement.setString(5, view);
       preparedStatement.setString(6, view);
       preparedStatement.setBoolean(7, false);
-      preparedStatement.setBoolean(8, false);
-      preparedStatement.setString(9, "1");
-      preparedStatement.setString(10, FREE.name());
-      preparedStatement.setLong(11, 1000L);
-      preparedStatement.setLong(12, 2000L);
+      preparedStatement.setString(8, "1");
+      preparedStatement.setString(9, FREE.name());
+      preparedStatement.setLong(10, 1000L);
+      preparedStatement.setLong(11, 2000L);
       preparedStatement.execute();
     } catch (SQLException e) {
       throw new RuntimeException("dirty insert failed", e);
@@ -1210,7 +1152,6 @@ public class OrganizationDaoTest {
     assertThat(dto.getName()).isEqualTo(ORGANIZATION_DTO_1.getName());
     assertThat(dto.getDescription()).isEqualTo(ORGANIZATION_DTO_1.getDescription());
     assertThat(dto.getUrl()).isEqualTo(ORGANIZATION_DTO_1.getUrl());
-    assertThat(dto.isGuarded()).isEqualTo(ORGANIZATION_DTO_1.isGuarded());
     assertThat(dto.getAvatarUrl()).isEqualTo(ORGANIZATION_DTO_1.getAvatarUrl());
     assertThat(dto.getCreatedAt()).isEqualTo(ORGANIZATION_DTO_1.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isEqualTo(ORGANIZATION_DTO_1.getUpdatedAt());
@@ -1222,7 +1163,6 @@ public class OrganizationDaoTest {
     assertThat(dto.getName()).isEqualTo(expected.getName());
     assertThat(dto.getDescription()).isEqualTo(expected.getDescription());
     assertThat(dto.getUrl()).isEqualTo(expected.getUrl());
-    assertThat(dto.isGuarded()).isEqualTo(expected.isGuarded());
     assertThat(dto.getAvatarUrl()).isEqualTo(expected.getAvatarUrl());
     assertThat(dto.getSubscription()).isEqualTo(expected.getSubscription());
     assertThat(dto.getCreatedAt()).isEqualTo(expected.getCreatedAt());
@@ -1232,7 +1172,6 @@ public class OrganizationDaoTest {
   private Map<String, Object> selectSingleRow() {
     List<Map<String, Object>> rows = db.select("select" +
       " uuid as \"uuid\", kee as \"key\", name as \"name\",  description as \"description\", url as \"url\", avatar_url as \"avatarUrl\"," +
-      " guarded as \"guarded\"," +
       " subscription as \"subscription\"," +
       " created_at as \"createdAt\", updated_at as \"updatedAt\"," +
       " default_perm_template_project as \"projectDefaultPermTemplate\"," +

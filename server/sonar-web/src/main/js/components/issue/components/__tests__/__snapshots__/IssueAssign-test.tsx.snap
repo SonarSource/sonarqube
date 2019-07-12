@@ -18,7 +18,7 @@ exports[`should open the popup when the button is clicked 2`] = `
     onRequestClose={[Function]}
     open={true}
     overlay={
-      <Connect(SetAssigneePopup)
+      <Connect(withCurrentUser(SetAssigneePopup))
         issue={
           Object {
             "assignee": "john",
@@ -35,22 +35,20 @@ exports[`should open the popup when the button is clicked 2`] = `
       className="issue-action issue-action-with-options js-issue-assign"
       onClick={[Function]}
     >
-      <span>
-        <span
-          className="text-top"
-        >
-          <Connect(Avatar)
-            className="little-spacer-right"
-            hash="gravatarhash"
-            name="John Doe"
-            size={16}
-          />
-        </span>
-        <span
-          className="issue-meta-label"
-        >
-          John Doe
-        </span>
+      <span
+        className="text-top"
+      >
+        <Connect(Avatar)
+          className="little-spacer-right"
+          hash="gravatarhash"
+          name="John Doe"
+          size={16}
+        />
+      </span>
+      <span
+        className="issue-meta-label"
+      >
+        John Doe
       </span>
       <DropdownIcon
         className="little-spacer-left"
@@ -69,7 +67,7 @@ exports[`should render with the action 1`] = `
     onRequestClose={[Function]}
     open={false}
     overlay={
-      <Connect(SetAssigneePopup)
+      <Connect(withCurrentUser(SetAssigneePopup))
         issue={
           Object {
             "assignee": "john",
@@ -86,22 +84,20 @@ exports[`should render with the action 1`] = `
       className="issue-action issue-action-with-options js-issue-assign"
       onClick={[Function]}
     >
-      <span>
-        <span
-          className="text-top"
-        >
-          <Connect(Avatar)
-            className="little-spacer-right"
-            hash="gravatarhash"
-            name="John Doe"
-            size={16}
-          />
-        </span>
-        <span
-          className="issue-meta-label"
-        >
-          John Doe
-        </span>
+      <span
+        className="text-top"
+      >
+        <Connect(Avatar)
+          className="little-spacer-right"
+          hash="gravatarhash"
+          name="John Doe"
+          size={16}
+        />
+      </span>
+      <span
+        className="issue-meta-label"
+      >
+        John Doe
       </span>
       <DropdownIcon
         className="little-spacer-left"
@@ -112,7 +108,7 @@ exports[`should render with the action 1`] = `
 `;
 
 exports[`should render without the action when the correct rights are missing 1`] = `
-<span>
+<Fragment>
   <span
     className="text-top"
   >
@@ -128,5 +124,5 @@ exports[`should render without the action when the correct rights are missing 1`
   >
     John Doe
   </span>
-</span>
+</Fragment>
 `;

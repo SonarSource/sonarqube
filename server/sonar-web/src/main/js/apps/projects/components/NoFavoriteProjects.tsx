@@ -50,20 +50,25 @@ export function NoFavoriteProjects(props: StateProps & OwnProps) {
               {translate('provisioning.analyze_new_project')}
             </Button>
 
-            <Dropdown
-              className="display-inline-block big-spacer-left"
-              overlay={
-                <ul className="menu">
-                  {sortBy(props.organizations, org => org.name.toLowerCase()).map(organization => (
-                    <OrganizationListItem key={organization.key} organization={organization} />
-                  ))}
-                </ul>
-              }>
-              <a className="button" href="#">
-                {translate('projects.no_favorite_projects.favorite_projects_from_orgs')}
-                <DropdownIcon className="little-spacer-left" />
-              </a>
-            </Dropdown>
+            {props.organizations.length > 0 && (
+              <Dropdown
+                className="display-inline-block big-spacer-left"
+                overlay={
+                  <ul className="menu">
+                    {sortBy(props.organizations, org => org.name.toLowerCase()).map(
+                      organization => (
+                        <OrganizationListItem key={organization.key} organization={organization} />
+                      )
+                    )}
+                  </ul>
+                }>
+                <a className="button" href="#">
+                  {translate('projects.no_favorite_projects.favorite_projects_from_orgs')}
+                  <DropdownIcon className="little-spacer-left" />
+                </a>
+              </Dropdown>
+            )}
+
             <Link className="button big-spacer-left" to="/explore/projects">
               {translate('projects.no_favorite_projects.favorite_public_projects')}
             </Link>

@@ -90,6 +90,7 @@ public class ChangelogActionTest {
     assertThat(result.getChangelogList()).hasSize(1);
     assertThat(result.getChangelogList().get(0).getUser()).isNotNull().isEqualTo(user.getLogin());
     assertThat(result.getChangelogList().get(0).getUserName()).isNotNull().isEqualTo(user.getName());
+    assertThat(result.getChangelogList().get(0).getIsUserActive()).isTrue();
     assertThat(result.getChangelogList().get(0).getAvatar()).isNotNull().isEqualTo("93942e96f5acd83e2e047ad8fe03114d");
     assertThat(result.getChangelogList().get(0).getCreationDate()).isNotEmpty();
     assertThat(result.getChangelogList().get(0).getDiffsList()).extracting(Diff::getKey, Diff::getOldValue, Diff::getNewValue).containsOnly(tuple("severity", "MAJOR", "BLOCKER"));
@@ -192,6 +193,25 @@ public class ChangelogActionTest {
     assertThat(result.getChangelogList()).hasSize(1);
     assertThat(result.getChangelogList().get(0).hasUser()).isFalse();
     assertThat(result.getChangelogList().get(0).hasUserName()).isFalse();
+    assertThat(result.getChangelogList().get(0).hasAvatar()).isFalse();
+    assertThat(result.getChangelogList().get(0).getDiffsList()).isNotEmpty();
+  }
+
+  @Test
+  public void return_changelog_on_deactivated_user() {
+    UserDto user = db.users().insertDisabledUser();
+    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    userSession.logIn("john")
+      .addMembership(db.getDefaultOrganization())
+      .addProjectPermission(USER, project, file);
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(user.getUuid()).setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date()));
+
+    ChangelogWsResponse result = call(issueDto.getKey());
+
+    assertThat(result.getChangelogList()).hasSize(1);
+    assertThat(result.getChangelogList().get(0).getUser()).isEqualTo(user.getLogin());
+    assertThat(result.getChangelogList().get(0).getIsUserActive()).isFalse();
+    assertThat(result.getChangelogList().get(0).getUserName()).isEqualTo(user.getName());
     assertThat(result.getChangelogList().get(0).hasAvatar()).isFalse();
     assertThat(result.getChangelogList().get(0).getDiffsList()).isNotEmpty();
   }

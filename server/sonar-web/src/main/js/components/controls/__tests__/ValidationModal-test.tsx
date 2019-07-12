@@ -27,6 +27,7 @@ it('should render correctly', () => {
       confirmButtonText="confirm"
       header="title"
       initialValues={{ field: 'foo' }}
+      isDestructive={true}
       isInitialValid={true}
       onClose={jest.fn()}
       onSubmit={jest.fn()}

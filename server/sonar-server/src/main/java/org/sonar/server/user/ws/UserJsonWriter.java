@@ -28,6 +28,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Optional.ofNullable;
 import static org.sonar.server.ws.JsonWriterUtils.isFieldNeeded;
 import static org.sonar.server.ws.JsonWriterUtils.writeIfNeeded;
 
@@ -61,7 +62,7 @@ public class UserJsonWriter {
   public void write(JsonWriter json, UserDto user, Collection<String> groups, @Nullable Collection<String> fields) {
     json.beginObject();
     json.prop(FIELD_LOGIN, user.getLogin());
-    writeIfNeeded(json, user.getName(), FIELD_NAME, fields);
+    ofNullable(user.getName()).ifPresent(name -> writeIfNeeded(json, name, FIELD_NAME, fields));
     if (userSession.isLoggedIn()) {
       writeIfNeeded(json, user.getEmail(), FIELD_EMAIL, fields);
       writeIfNeeded(json, user.isActive(), FIELD_ACTIVE, fields);

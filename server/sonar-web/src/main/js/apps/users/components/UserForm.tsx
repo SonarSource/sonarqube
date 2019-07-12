@@ -22,11 +22,11 @@ import { uniq } from 'lodash';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { parseError } from 'sonar-ui-common/helpers/request';
 import { Button, ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import UserScmAccountInput from './UserScmAccountInput';
-import { createUser, updateUser } from '../../../api/users';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
+import { createUser, updateUser } from '../../../api/users';
 
 export interface Props {
   onClose: () => void;
@@ -41,7 +41,6 @@ interface State {
   name: string;
   password: string;
   scmAccounts: string[];
-  submitting: boolean;
 }
 
 export default class UserForm extends React.PureComponent<Props, State> {
@@ -54,10 +53,9 @@ export default class UserForm extends React.PureComponent<Props, State> {
       this.state = {
         email: user.email || '',
         login: user.login,
-        name: user.name,
+        name: user.name || '',
         password: '',
-        scmAccounts: user.scmAccounts || [],
-        submitting: false
+        scmAccounts: user.scmAccounts || []
       };
     } else {
       this.state = {
@@ -65,8 +63,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
         login: '',
         name: '',
         password: '',
-        scmAccounts: [],
-        submitting: false
+        scmAccounts: []
       };
     }
   }
@@ -84,7 +81,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
       return throwGlobalError(error);
     } else {
       return parseError(error).then(
-        errorMsg => this.setState({ error: errorMsg, submitting: false }),
+        errorMsg => this.setState({ error: errorMsg }),
         throwGlobalError
       );
     }
@@ -103,8 +100,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
     this.setState({ password: event.currentTarget.value });
 
   handleCreateUser = () => {
-    this.setState({ submitting: true });
-    createUser({
+    return createUser({
       email: this.state.email || undefined,
       login: this.state.login,
       name: this.state.name,
@@ -118,9 +114,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
 
   handleUpdateUser = () => {
     const { user } = this.props;
-
-    this.setState({ submitting: true });
-    updateUser({
+    return updateUser({
       email: user!.local ? this.state.email : undefined,
       login: this.state.login,
       name: user!.local ? this.state.name : undefined,

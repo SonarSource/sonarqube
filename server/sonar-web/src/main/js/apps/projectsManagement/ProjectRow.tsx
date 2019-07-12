@@ -27,7 +27,7 @@ import DateTooltipFormatter from '../../components/intl/DateTooltipFormatter';
 import { Project } from '../../api/components';
 
 interface Props {
-  currentUser: { login: string };
+  currentUser: Pick<T.LoggedInUser, 'login'>;
   onProjectCheck: (project: Project, checked: boolean) => void;
   organization: string | undefined;
   project: Project;

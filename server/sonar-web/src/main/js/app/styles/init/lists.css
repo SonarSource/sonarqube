@@ -28,6 +28,10 @@ ul {
   padding-left: 40px;
 }
 
+.list-styled.no-padding {
+  padding-left: calc(var(--gridSize) * 2);
+}
+
 ul.list-styled {
   list-style: disc;
 }

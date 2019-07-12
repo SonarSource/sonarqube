@@ -20,7 +20,7 @@
 /* eslint-disable react/jsx-sort-props */
 import * as React from 'react';
 import { render } from 'react-dom';
-import { Router, Route, IndexRoute, Redirect, RouteProps, RouteConfig } from 'react-router';
+import { IndexRoute, Redirect, Route, RouteConfig, RouteProps, Router } from 'react-router';
 import { Provider } from 'react-redux';
 import { IntlProvider } from 'react-intl';
 import { Location } from 'history';
@@ -201,6 +201,10 @@ export default function startReactApp(
                         component={lazyLoad(() =>
                           import('../../apps/feedback/downgrade/DowngradeFeedback')
                         )}
+                      />
+                      <Route
+                        path="account-deleted"
+                        component={lazyLoad(() => import('../components/AccountDeleted'))}
                       />
                     </>
                   )}

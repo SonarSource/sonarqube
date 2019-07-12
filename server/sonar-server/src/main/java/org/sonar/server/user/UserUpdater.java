@@ -397,7 +397,7 @@ public class UserUpdater {
           if (existingUser != null && matchingUser.getId().equals(existingUser.getId())) {
             continue;
           }
-          matchingUsersWithoutExistingUser.add(matchingUser.getName() + " (" + matchingUser.getLogin() + ")");
+          matchingUsersWithoutExistingUser.add(getNameOrLogin(matchingUser) + " (" + matchingUser.getLogin() + ")");
         }
         if (!matchingUsersWithoutExistingUser.isEmpty()) {
           messages.add(format("The scm account '%s' is already used by user(s) : '%s'", scmAccount, Joiner.on(", ").join(matchingUsersWithoutExistingUser)));
@@ -406,6 +406,11 @@ public class UserUpdater {
       }
     }
     return isValid;
+  }
+
+  private static String getNameOrLogin(UserDto user) {
+    String name = user.getName();
+    return name != null ? name : user.getLogin();
   }
 
   private static List<String> sanitizeScmAccounts(@Nullable List<String> scmAccounts) {

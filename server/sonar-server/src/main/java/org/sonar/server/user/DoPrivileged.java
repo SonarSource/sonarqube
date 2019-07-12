@@ -113,11 +113,6 @@ public final class DoPrivileged {
       }
 
       @Override
-      public Optional<String> getPersonalOrganizationUuid() {
-        return Optional.empty();
-      }
-
-      @Override
       protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
         return true;
       }

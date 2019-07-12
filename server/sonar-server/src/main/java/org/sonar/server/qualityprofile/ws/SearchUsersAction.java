@@ -156,8 +156,8 @@ public class SearchUsersAction implements QProfileWsAction {
   private SearchUsersResponse.User toUser(UserDto user, boolean isSelected) {
     SearchUsersResponse.User.Builder builder = SearchUsersResponse.User.newBuilder()
       .setLogin(user.getLogin())
-      .setName(user.getName())
       .setSelected(isSelected);
+    ofNullable(user.getName()).ifPresent(builder::setName);
     ofNullable(emptyToNull(user.getEmail())).ifPresent(e -> builder.setAvatar(avatarResolver.create(user)));
     return builder
       .build();

@@ -26,15 +26,14 @@ import {
   ResetButtonLink
 } from 'sonar-ui-common/components/controls/buttons';
 import SimpleModal, { ChildrenProps } from 'sonar-ui-common/components/controls/SimpleModal';
-import { User } from './ProfilePermissions';
 import { removeUser } from '../../../api/quality-profiles';
 import Avatar from '../../../components/ui/Avatar';
 
 interface Props {
-  onDelete: (user: User) => void;
+  onDelete: (user: T.UserSelected) => void;
   organization?: string;
   profile: { language: string; name: string };
-  user: User;
+  user: T.UserSelected;
 }
 
 interface State {

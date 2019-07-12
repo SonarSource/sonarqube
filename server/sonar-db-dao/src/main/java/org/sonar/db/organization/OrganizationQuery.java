@@ -32,27 +32,15 @@ public class OrganizationQuery {
   private final Set<String> keys;
   @Nullable
   private final Integer userId;
-  private final boolean onlyTeam;
-  private final boolean onlyPersonal;
   private final boolean withAnalyses;
-  private final boolean withoutProjects;
   @Nullable
   private final Long analyzedAfter;
 
   private OrganizationQuery(Builder builder) {
     this.keys = builder.keys;
     this.userId = builder.member;
-    this.onlyPersonal = builder.onlyPersonal;
-    this.onlyTeam = builder.onlyTeam;
-    if (this.onlyPersonal && this.onlyTeam) {
-      throw new IllegalArgumentException("Only one of onlyPersonal and onlyTeam can be true");
-    }
     this.withAnalyses = builder.withAnalyses;
     this.analyzedAfter = builder.analyzedAfter;
-    this.withoutProjects = builder.withoutProjects;
-    if ((this.withAnalyses || this.analyzedAfter != null) && this.withoutProjects) {
-      throw new IllegalArgumentException("withoutProjects cannot be used together with withAnalyses or analyzedAfter");
-    }
   }
 
   @CheckForNull
@@ -65,14 +53,6 @@ public class OrganizationQuery {
     return userId;
   }
 
-  public boolean isOnlyTeam() {
-    return onlyTeam;
-  }
-
-  public boolean isOnlyPersonal() {
-    return onlyPersonal;
-  }
-
   public boolean isWithAnalyses() {
     return withAnalyses;
   }
@@ -80,10 +60,6 @@ public class OrganizationQuery {
   @CheckForNull
   public Long getAnalyzedAfter() {
     return analyzedAfter;
-  }
-
-  public boolean isWithoutProjects() {
-    return withoutProjects;
   }
 
   public static OrganizationQuery returnAll() {
@@ -98,10 +74,7 @@ public class OrganizationQuery {
     private Set<String> keys;
     @Nullable
     private Integer member;
-    private boolean onlyTeam = false;
-    private boolean onlyPersonal = false;
     private boolean withAnalyses = false;
-    private boolean withoutProjects = false;
     @Nullable
     private Long analyzedAfter;
 
@@ -123,16 +96,6 @@ public class OrganizationQuery {
       return this;
     }
 
-    public Builder setOnlyTeam() {
-      this.onlyTeam = true;
-      return this;
-    }
-
-    public Builder setOnlyPersonal() {
-      this.onlyPersonal = true;
-      return this;
-    }
-
     public Builder setWithAnalyses() {
       this.withAnalyses = true;
       return this;
@@ -140,11 +103,6 @@ public class OrganizationQuery {
 
     public Builder setAnalyzedAfter(long l) {
       this.analyzedAfter = l;
-      return this;
-    }
-
-    public Builder setWithoutProjects() {
-      this.withoutProjects = true;
       return this;
     }
 

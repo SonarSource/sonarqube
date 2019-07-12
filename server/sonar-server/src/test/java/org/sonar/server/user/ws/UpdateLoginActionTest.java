@@ -120,24 +120,6 @@ public class UpdateLoginActionTest {
   }
 
   @Test
-  public void update_personal_organization_when_updating_login() {
-    userSession.logIn().setSystemAdministrator();
-    String oldLogin = "old_login";
-    OrganizationDto personalOrganization = db.organizations().insert(o -> o.setKey(oldLogin).setGuarded(true));
-    UserDto user = db.users().insertUser(u -> u.setLogin(oldLogin).setOrganizationUuid(personalOrganization.getUuid()));
-
-    ws.newRequest()
-      .setParam("login", oldLogin)
-      .setParam("newLogin", "new_login")
-      .execute();
-
-    UserDto userReloaded = db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid());
-    assertThat(userReloaded.getLogin()).isEqualTo("new_login");
-    OrganizationDto organizationReloaded = db.getDbClient().organizationDao().selectByUuid(db.getSession(), personalOrganization.getUuid()).get();
-    assertThat(organizationReloaded.getKey()).isEqualTo("new_login");
-  }
-
-  @Test
   public void fail_with_IAE_when_new_login_is_already_used() {
     userSession.logIn().setSystemAdministrator();
     UserDto user = db.users().insertUser();

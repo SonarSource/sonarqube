@@ -26,7 +26,7 @@ export interface IssueResponse {
   components?: Array<{ key: string; name: string }>;
   issue: RawIssue;
   rules?: Array<{}>;
-  users?: Array<{ login: string }>;
+  users?: Array<T.UserBase>;
 }
 
 interface IssuesResponse {
@@ -37,13 +37,9 @@ interface IssuesResponse {
     values: { count: number; val: string }[];
   }>;
   issues: RawIssue[];
-  paging: {
-    pageIndex: number;
-    pageSize: number;
-    total: number;
-  };
+  paging: T.Paging;
   rules?: Array<{}>;
-  users?: { login: string }[];
+  users?: Array<T.UserBase>;
 }
 
 type FacetName =
@@ -109,8 +105,8 @@ export function searchIssueTags(data: {
     .catch(throwGlobalError);
 }
 
-export function getIssueChangelog(issue: string): Promise<any> {
-  return getJSON('/api/issues/changelog', { issue }).then(r => r.changelog, throwGlobalError);
+export function getIssueChangelog(issue: string): Promise<{ changelog: T.IssueChangelog[] }> {
+  return getJSON('/api/issues/changelog', { issue }).catch(throwGlobalError);
 }
 
 export function getIssueFilters() {

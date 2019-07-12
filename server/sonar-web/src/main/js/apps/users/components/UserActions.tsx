@@ -26,6 +26,7 @@ import ActionsDropdown, {
 import DeactivateForm from './DeactivateForm';
 import PasswordForm from './PasswordForm';
 import UserForm from './UserForm';
+import { isUserActive } from '../../../helpers/users';
 
 interface Props {
   isCurrentUser: boolean;
@@ -40,10 +41,21 @@ interface State {
 export default class UserActions extends React.PureComponent<Props, State> {
   state: State = {};
 
-  handleOpenDeactivateForm = () => this.setState({ openForm: 'deactivate' });
-  handleOpenPasswordForm = () => this.setState({ openForm: 'password' });
-  handleOpenUpdateForm = () => this.setState({ openForm: 'update' });
-  handleCloseForm = () => this.setState({ openForm: undefined });
+  handleOpenDeactivateForm = () => {
+    this.setState({ openForm: 'deactivate' });
+  };
+
+  handleOpenPasswordForm = () => {
+    this.setState({ openForm: 'password' });
+  };
+
+  handleOpenUpdateForm = () => {
+    this.setState({ openForm: 'update' });
+  };
+
+  handleCloseForm = () => {
+    this.setState({ openForm: undefined });
+  };
 
   renderActions = () => {
     const { user } = this.props;
@@ -60,12 +72,14 @@ export default class UserActions extends React.PureComponent<Props, State> {
           </ActionsDropdownItem>
         )}
         <ActionsDropdownDivider />
-        <ActionsDropdownItem
-          className="js-user-deactivate"
-          destructive={true}
-          onClick={this.handleOpenDeactivateForm}>
-          {translate('users.deactivate')}
-        </ActionsDropdownItem>
+        {isUserActive(user) && (
+          <ActionsDropdownItem
+            className="js-user-deactivate"
+            destructive={true}
+            onClick={this.handleOpenDeactivateForm}>
+            {translate('users.deactivate')}
+          </ActionsDropdownItem>
+        )}
       </ActionsDropdown>
     );
   };
@@ -77,7 +91,7 @@ export default class UserActions extends React.PureComponent<Props, State> {
     return (
       <>
         {this.renderActions()}
-        {openForm === 'deactivate' && (
+        {openForm === 'deactivate' && isUserActive(user) && (
           <DeactivateForm
             onClose={this.handleCloseForm}
             onUpdateUsers={onUpdateUsers}

@@ -23,6 +23,8 @@ import { click } from 'sonar-ui-common/helpers/testUtils';
 import IssueCommentLine from '../IssueCommentLine';
 
 const comment: T.IssueComment = {
+  author: 'john.doe',
+  authorActive: true,
   authorAvatar: 'gravatarhash',
   authorName: 'John Doe',
   createdAt: '2017-03-01T09:36:01+0100',
@@ -32,32 +34,34 @@ const comment: T.IssueComment = {
   updatable: true
 };
 
-it('should render correctly a comment that is not updatable', () => {
-  const element = shallow(
-    <IssueCommentLine
-      comment={{ ...comment, updatable: false }}
-      onDelete={jest.fn()}
-      onEdit={jest.fn()}
-    />
-  );
-  expect(element).toMatchSnapshot();
+it('should render correctly a comment that is updatable', () => {
+  expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should render correctly a comment that is updatable', () => {
-  const element = shallow(
-    <IssueCommentLine comment={comment} onDelete={jest.fn()} onEdit={jest.fn()} />
-  );
-  expect(element).toMatchSnapshot();
+it('should render correctly a comment that is not updatable', () => {
+  expect(shallowRender({ comment: { ...comment, updatable: false } })).toMatchSnapshot();
 });
 
 it('should open the right popups when the buttons are clicked', () => {
-  const element = shallow(
-    <IssueCommentLine comment={comment} onDelete={jest.fn()} onEdit={jest.fn()} />
-  );
-  click(element.find('.js-issue-comment-edit'));
-  expect(element.state()).toMatchSnapshot();
-  click(element.find('.js-issue-comment-delete'));
-  expect(element.state()).toMatchSnapshot();
-  element.update();
-  expect(element).toMatchSnapshot();
+  const wrapper = shallowRender();
+  click(wrapper.find('.js-issue-comment-edit'));
+  expect(wrapper.state()).toMatchSnapshot();
+  click(wrapper.find('.js-issue-comment-delete'));
+  expect(wrapper.state()).toMatchSnapshot();
+  wrapper.update();
+  expect(wrapper).toMatchSnapshot();
 });
+
+it('should render correctly a comment with a deleted author', () => {
+  expect(
+    shallowRender({
+      comment: { ...comment, authorActive: false, authorName: undefined }
+    }).find('.issue-comment-author')
+  ).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<IssueCommentLine['props']> = {}) {
+  return shallow(
+    <IssueCommentLine comment={comment} onDelete={jest.fn()} onEdit={jest.fn()} {...props} />
+  );
+}

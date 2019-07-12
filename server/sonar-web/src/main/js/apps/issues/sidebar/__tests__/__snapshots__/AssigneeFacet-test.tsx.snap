@@ -38,3 +38,59 @@ exports[`should render 1`] = `
   }
 />
 `;
+
+exports[`test behavior should correctly render facet item 1`] = `
+<React.Fragment>
+  <Connect(Avatar)
+    className="little-spacer-right"
+    name="Name Baz"
+    size={16}
+  />
+  Name Baz
+</React.Fragment>
+`;
+
+exports[`test behavior should correctly render facet item 2`] = `
+<React.Fragment>
+  <Connect(Avatar)
+    className="little-spacer-right"
+    name="foo"
+    size={16}
+  />
+  user.x_deleted.foo
+</React.Fragment>
+`;
+
+exports[`test behavior should correctly render search result correctly 1`] = `
+<React.Fragment>
+  <Connect(Avatar)
+    className="little-spacer-right"
+    name="Name Bar"
+    size={16}
+  />
+  <React.Fragment>
+    Name 
+    <mark>
+      Ba
+    </mark>
+    r
+  </React.Fragment>
+</React.Fragment>
+`;
+
+exports[`test behavior should correctly render search result correctly 2`] = `
+<React.Fragment>
+  <Connect(Avatar)
+    className="little-spacer-right"
+    name="foo"
+    size={16}
+  />
+  <React.Fragment>
+    user.x_deleted.
+    <mark>
+      fo
+    </mark>
+    o
+  </React.Fragment>
+</React.Fragment>
+`;

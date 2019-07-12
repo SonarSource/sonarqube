@@ -42,10 +42,74 @@ exports[`should render the changelog popup correctly 1`] = `
               <Connect(Avatar)
                 className="little-spacer-right"
                 hash="gravatarhash"
+                name="John Doe"
+                size={16}
+              />
+              John Doe
+            </p>
+            <IssueChangelogDiff
+              diff={
+                Object {
+                  "key": "severity",
+                  "newValue": "MINOR",
+                  "oldValue": "CRITICAL",
+                }
+              }
+              key="severity"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</DropdownOverlay>
+`;
+
+exports[`should render the changelog popup when we have a deleted user 1`] = `
+<DropdownOverlay
+  placement="bottom-right"
+>
+  <div
+    className="menu is-container issue-changelog"
+  >
+    <table
+      className="spaced"
+    >
+      <tbody>
+        <tr>
+          <td
+            className="thin text-left text-top nowrap"
+          >
+            <DateTimeFormatter
+              date="2017-03-01T09:36:01+0100"
+            />
+          </td>
+          <td
+            className="text-left text-top"
+          >
+            created_by john.david.dalton@gmail.com
+          </td>
+        </tr>
+        <tr
+          key="0"
+        >
+          <td
+            className="thin text-left text-top nowrap"
+          >
+            <DateTimeFormatter
+              date="2017-03-01T09:36:01+0100"
+            />
+          </td>
+          <td
+            className="text-left text-top"
+          >
+            <p>
+              <Connect(Avatar)
+                className="little-spacer-right"
                 name="john.doe"
                 size={16}
               />
-              john.doe
+              user.x_deleted.john.doe
             </p>
             <IssueChangelogDiff
               diff={

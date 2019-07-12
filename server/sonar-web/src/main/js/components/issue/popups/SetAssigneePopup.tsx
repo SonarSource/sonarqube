@@ -19,25 +19,17 @@
  */
 import * as React from 'react';
 import { map } from 'lodash';
-import { connect } from 'react-redux';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import Avatar from '../../ui/Avatar';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
+import { withCurrentUser } from '../../hoc/withCurrentUser';
 import { searchMembers } from '../../../api/organizations';
 import { searchUsers } from '../../../api/users';
-import { getCurrentUser, Store } from '../../../store/rootReducer';
+import { isLoggedIn, isUserActive } from '../../../helpers/users';
 import { isSonarCloud } from '../../../helpers/system';
-import { isLoggedIn } from '../../../helpers/users';
-
-interface User {
-  avatar?: string;
-  email?: string;
-  login: string;
-  name: string;
-}
 
 interface Props {
   currentUser: T.CurrentUser;
@@ -48,13 +40,13 @@ interface Props {
 interface State {
   currentUser: string;
   query: string;
-  users: User[];
+  users: T.UserActive[];
 }
 
 const LIST_SIZE = 10;
 
-class SetAssigneePopup extends React.PureComponent<Props, State> {
-  defaultUsersArray: User[];
+export class SetAssigneePopup extends React.PureComponent<Props, State> {
+  defaultUsersArray: T.UserActive[];
 
   constructor(props: Props) {
     super(props);
@@ -83,10 +75,11 @@ class SetAssigneePopup extends React.PureComponent<Props, State> {
     searchUsers({ q: query, ps: LIST_SIZE }).then(this.handleSearchResult, () => {});
   };
 
-  handleSearchResult = (response: { users: T.OrganizationMember[] }) => {
+  handleSearchResult = ({ users }: { users: T.UserBase[] }) => {
+    const activeUsers = users.filter(isUserActive);
     this.setState({
-      users: response.users,
-      currentUser: response.users.length > 0 ? response.users[0].login : ''
+      users: activeUsers,
+      currentUser: activeUsers.length > 0 ? activeUsers[0].login : ''
     });
   };
 
@@ -130,7 +123,7 @@ class SetAssigneePopup extends React.PureComponent<Props, State> {
                 {!!user.login && (
                   <Avatar className="spacer-right" hash={user.avatar} name={user.name} size={16} />
                 )}
-                <span className="text-middle" style={{ marginLeft: !user.login ? 24 : undefined }}>
+                <span className="text-middle" style={{ marginLeft: user.login ? 24 : undefined }}>
                   {user.name}
                 </span>
               </SelectListItem>
@@ -142,8 +135,4 @@ class SetAssigneePopup extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state)
-});
-
-export default connect(mapStateToProps)(SetAssigneePopup);
+export default withCurrentUser(SetAssigneePopup);

@@ -96,11 +96,6 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
-  public Optional<String> getPersonalOrganizationUuid() {
-    return get().getPersonalOrganizationUuid();
-  }
-
-  @Override
   public boolean isLoggedIn() {
     return get().isLoggedIn();
   }

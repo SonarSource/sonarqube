@@ -127,7 +127,8 @@ public class ChangelogAction implements IssuesWsAction {
       UserDto user = userUUuid == null ? null : results.users.get(userUUuid);
       if (user != null) {
         changelogBuilder.setUser(user.getLogin());
-        changelogBuilder.setUserName(user.getName());
+        changelogBuilder.setIsUserActive(user.isActive());
+        ofNullable(user.getName()).ifPresent(changelogBuilder::setUserName);
         ofNullable(emptyToNull(user.getEmail())).ifPresent(email -> changelogBuilder.setAvatar(avatarFactory.create(user)));
       }
       change.diffs().entrySet().stream()

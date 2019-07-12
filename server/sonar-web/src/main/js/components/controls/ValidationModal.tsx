@@ -29,6 +29,7 @@ interface Props<V> extends ModalProps {
   confirmButtonText: string;
   header: string;
   initialValues: V;
+  isDestructive?: boolean;
   isInitialValid?: boolean;
   onClose: () => void;
   onSubmit: (data: V) => Promise<void>;
@@ -64,7 +65,9 @@ export default class ValidationModal<V> extends React.PureComponent<Props<V>> {
 
               <footer className="modal-foot">
                 <DeferredSpinner className="spacer-right" loading={props.isSubmitting} />
-                <SubmitButton disabled={props.isSubmitting || !props.isValid || !props.dirty}>
+                <SubmitButton
+                  className={this.props.isDestructive ? 'button-red' : undefined}
+                  disabled={props.isSubmitting || !props.isValid || !props.dirty}>
                   {this.props.confirmButtonText}
                 </SubmitButton>
                 <ResetButtonLink disabled={props.isSubmitting} onClick={this.props.onClose}>

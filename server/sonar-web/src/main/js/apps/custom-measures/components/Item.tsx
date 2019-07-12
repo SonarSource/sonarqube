@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import ActionsDropdown, {
@@ -28,6 +28,7 @@ import ActionsDropdown, {
 import DeleteForm from './DeleteForm';
 import Form from './Form';
 import MeasureDate from './MeasureDate';
+import { isUserActive } from '../../../helpers/users';
 
 interface Props {
   measure: T.CustomMeasure;
@@ -114,7 +115,11 @@ export default class Item extends React.PureComponent<Props, State> {
 
         <td>
           <MeasureDate measure={measure} /> {translate('by_')}{' '}
-          <span className="js-custom-measure-user">{measure.user.name}</span>
+          <span className="js-custom-measure-user">
+            {isUserActive(measure.user)
+              ? measure.user.name || measure.user.login
+              : translateWithParameters('user.x_deleted', measure.user.login)}
+          </span>
         </td>
 
         <td className="thin nowrap">

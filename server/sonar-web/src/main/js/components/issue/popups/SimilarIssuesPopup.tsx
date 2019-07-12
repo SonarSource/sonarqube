@@ -22,7 +22,7 @@ import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import TagsIcon from 'sonar-ui-common/components/icons/TagsIcon';
 import { fileFromPath, limitComponentName } from 'sonar-ui-common/helpers/path';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import Avatar from '../../ui/Avatar';
 import SelectList from '../../common/SelectList';
@@ -56,6 +56,8 @@ export default class SimilarIssuesPopup extends React.PureComponent<Props> {
       'file'
     ].filter(item => item) as string[];
 
+    const assignee = issue.assigneeName || issue.assignee;
+
     return (
       <DropdownOverlay noPadding={true}>
         <header className="menu-search">
@@ -87,16 +89,18 @@ export default class SimilarIssuesPopup extends React.PureComponent<Props> {
           </SelectListItem>
 
           <SelectListItem item="assignee">
-            {issue.assignee != null ? (
+            {assignee ? (
               <span>
                 {translate('assigned_to')}
                 <Avatar
                   className="little-spacer-left little-spacer-right"
                   hash={issue.assigneeAvatar}
-                  name={issue.assigneeName || issue.assignee}
+                  name={assignee}
                   size={16}
                 />
-                {issue.assigneeName || issue.assignee}
+                {issue.assigneeActive === false
+                  ? translateWithParameters('user.x_deleted', assignee)
+                  : assignee}
               </span>
             ) : (
               translate('unassigned')

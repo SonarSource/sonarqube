@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import Avatar from '../../ui/Avatar';
@@ -27,7 +27,10 @@ import SetAssigneePopup from '../popups/SetAssigneePopup';
 
 interface Props {
   isOpen: boolean;
-  issue: Pick<T.Issue, 'assignee' | 'assigneeAvatar' | 'assigneeName' | 'projectOrganization'>;
+  issue: Pick<
+    T.Issue,
+    'assignee' | 'assigneeActive' | 'assigneeAvatar' | 'assigneeName' | 'projectOrganization'
+  >;
   canAssign: boolean;
   onAssign: (login: string) => void;
   togglePopup: (popup: string, show?: boolean) => void;
@@ -44,9 +47,12 @@ export default class IssueAssign extends React.PureComponent<Props> {
 
   renderAssignee() {
     const { issue } = this.props;
-    return (
-      <span>
-        {issue.assignee && (
+    const assignee =
+      issue.assigneeActive !== false ? issue.assigneeName || issue.assignee : issue.assignee;
+
+    if (assignee) {
+      return (
+        <>
           <span className="text-top">
             <Avatar
               className="little-spacer-right"
@@ -55,12 +61,16 @@ export default class IssueAssign extends React.PureComponent<Props> {
               size={16}
             />
           </span>
-        )}
-        <span className="issue-meta-label">
-          {issue.assignee ? issue.assigneeName || issue.assignee : translate('unassigned')}
-        </span>
-      </span>
-    );
+          <span className="issue-meta-label">
+            {issue.assigneeActive === false
+              ? translateWithParameters('user.x_deleted', assignee)
+              : assignee}
+          </span>
+        </>
+      );
+    }
+
+    return <span className="issue-meta-label">{translate('unassigned')}</span>;
   }
 
   render() {

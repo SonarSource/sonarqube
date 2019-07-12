@@ -52,6 +52,12 @@ export function getOrganizationNavigation(key: string): Promise<GetOrganizationN
   );
 }
 
+export function getOrganizationsThatPreventDeletion(): Promise<{
+  organizations: T.Organization[];
+}> {
+  return getJSON('/api/organizations/prevent_user_deletion').catch(throwGlobalError);
+}
+
 export function createOrganization(
   data: T.OrganizationBase & { installationId?: string }
 ): Promise<T.Organization> {

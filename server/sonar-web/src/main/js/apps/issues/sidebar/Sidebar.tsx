@@ -32,14 +32,7 @@ import StandardFacet from './StandardFacet';
 import StatusFacet from './StatusFacet';
 import TagFacet from './TagFacet';
 import TypeFacet from './TypeFacet';
-import {
-  Query,
-  Facet,
-  ReferencedComponent,
-  ReferencedUser,
-  ReferencedLanguage,
-  ReferencedRule
-} from '../utils';
+import { Query, Facet, ReferencedComponent, ReferencedLanguage, ReferencedRule } from '../utils';
 
 export interface Props {
   component: T.Component | undefined;
@@ -57,7 +50,7 @@ export interface Props {
   referencedComponentsByKey: T.Dict<ReferencedComponent>;
   referencedLanguages: T.Dict<ReferencedLanguage>;
   referencedRules: T.Dict<ReferencedRule>;
-  referencedUsers: T.Dict<ReferencedUser>;
+  referencedUsers: T.Dict<T.UserBase>;
 }
 
 export default class Sidebar extends React.PureComponent<Props> {

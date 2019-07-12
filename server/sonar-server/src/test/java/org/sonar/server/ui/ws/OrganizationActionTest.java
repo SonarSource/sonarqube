@@ -81,7 +81,7 @@ public class OrganizationActionTest {
     initWithPages(
       Page.builder("my-plugin/org-page").setName("Organization page").setScope(ORGANIZATION).build(),
       Page.builder("my-plugin/org-admin-page").setName("Organization admin page").setScope(ORGANIZATION).setAdmin(true).build());
-    OrganizationDto organization = db.organizations().insert(dto -> dto.setGuarded(true));
+    OrganizationDto organization = db.organizations().insert();
     userSession.logIn()
       .addPermission(PROVISION_PROJECTS, organization);
 
@@ -214,7 +214,7 @@ public class OrganizationActionTest {
     initWithPages(
       Page.builder("my-plugin/org-page").setName("Organization page").setScope(ORGANIZATION).build(),
       Page.builder("my-plugin/org-admin-page").setName("Organization admin page").setScope(ORGANIZATION).setAdmin(true).build());
-    OrganizationDto organization = db.organizations().insert(dto -> dto.setGuarded(true));
+    OrganizationDto organization = db.organizations().insert();
     userSession.logIn()
       .addPermission(ADMINISTER, organization)
       .addPermission(PROVISION_PROJECTS, organization);

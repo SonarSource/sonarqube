@@ -19,12 +19,15 @@
  */
 package org.sonar.db.user;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.impl.utils.TestSystem2;
@@ -44,6 +47,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
+@RunWith(DataProviderRunner.class)
 public class UserDaoTest {
   private static final long NOW = 1_500_000_000_000L;
 
@@ -336,7 +340,6 @@ public class UserDaoTest {
       .setLocal(true)
       .setHomepageType("project")
       .setHomepageParameter("OB1")
-      .setOrganizationUuid("ORG_UUID")
       .setCreatedAt(date)
       .setUpdatedAt(date);
     underTest.insert(db.getSession(), userDto);
@@ -361,7 +364,6 @@ public class UserDaoTest {
     assertThat(user.isRoot()).isFalse();
     assertThat(user.getHomepageType()).isEqualTo("project");
     assertThat(user.getHomepageParameter()).isEqualTo("OB1");
-    assertThat(user.getOrganizationUuid()).isEqualTo("ORG_UUID");
   }
 
   @Test
@@ -383,8 +385,7 @@ public class UserDaoTest {
       .setEmail("jo@hn.com")
       .setActive(true)
       .setLocal(true)
-      .setOnboarded(false)
-      .setOrganizationUuid("OLD_ORG_UUID"));
+      .setOnboarded(false));
 
     underTest.update(db.getSession(), newUserDto()
       .setUuid(user.getUuid())
@@ -403,7 +404,6 @@ public class UserDaoTest {
       .setLocal(false)
       .setHomepageType("project")
       .setHomepageParameter("OB1")
-      .setOrganizationUuid("ORG_UUID")
       .setLastConnectionDate(10_000_000_000L));
 
     UserDto reloaded = underTest.selectByUuid(db.getSession(), user.getUuid());
@@ -425,7 +425,6 @@ public class UserDaoTest {
     assertThat(reloaded.isRoot()).isFalse();
     assertThat(reloaded.getHomepageType()).isEqualTo("project");
     assertThat(reloaded.getHomepageParameter()).isEqualTo("OB1");
-    assertThat(reloaded.getOrganizationUuid()).isEqualTo("ORG_UUID");
     assertThat(reloaded.getLastConnectionDate()).isEqualTo(10_000_000_000L);
   }
 
@@ -441,10 +440,40 @@ public class UserDaoTest {
 
     UserDto userReloaded = underTest.selectUserById(session, user.getId());
     assertThat(userReloaded.isActive()).isFalse();
-    assertThat(userReloaded.getLogin()).isNotNull();
-    assertThat(userReloaded.getExternalId()).isNotNull();
-    assertThat(userReloaded.getExternalLogin()).isNotNull();
-    assertThat(userReloaded.getExternalIdentityProvider()).isNotNull();
+    assertThat(userReloaded.getName()).isEqualTo(user.getName());
+    assertThat(userReloaded.getLogin()).isEqualTo(user.getLogin());
+    assertThat(userReloaded.getExternalId()).isEqualTo(user.getExternalId());
+    assertThat(userReloaded.getExternalLogin()).isEqualTo(user.getExternalLogin());
+    assertThat(userReloaded.getExternalIdentityProvider()).isEqualTo(user.getExternalIdentityProvider());
+    assertThat(userReloaded.getEmail()).isNull();
+    assertThat(userReloaded.getScmAccounts()).isNull();
+    assertThat(userReloaded.getSalt()).isNull();
+    assertThat(userReloaded.getCryptedPassword()).isNull();
+    assertThat(userReloaded.isRoot()).isFalse();
+    assertThat(userReloaded.getUpdatedAt()).isEqualTo(NOW);
+    assertThat(userReloaded.getHomepageType()).isNull();
+    assertThat(userReloaded.getHomepageParameter()).isNull();
+    assertThat(userReloaded.getLastConnectionDate()).isNull();
+    assertThat(underTest.selectUserById(session, otherUser.getId())).isNotNull();
+  }
+
+  @Test
+  public void deactivate_sonarcloud_user() {
+    UserDto user = insertActiveUser();
+    insertUserGroup(user);
+    UserDto otherUser = insertActiveUser();
+    underTest.update(db.getSession(), user.setLastConnectionDate(10_000_000_000L));
+    session.commit();
+
+    underTest.deactivateSonarCloudUser(session, user);
+
+    UserDto userReloaded = underTest.selectUserById(session, user.getId());
+    assertThat(userReloaded.isActive()).isFalse();
+    assertThat(userReloaded.getName()).isNull();
+    assertThat(userReloaded.getLogin()).isEqualTo(user.getLogin());
+    assertThat(userReloaded.getExternalId()).isEqualTo(user.getExternalId());
+    assertThat(userReloaded.getExternalLogin()).isEqualTo(user.getExternalLogin());
+    assertThat(userReloaded.getExternalIdentityProvider()).isEqualTo(user.getExternalIdentityProvider());
     assertThat(userReloaded.getEmail()).isNull();
     assertThat(userReloaded.getScmAccounts()).isNull();
     assertThat(userReloaded.getSalt()).isNull();

@@ -20,8 +20,9 @@
 import * as React from 'react';
 import { sanitize } from 'dompurify';
 import { EditButton, DeleteButton } from 'sonar-ui-common/components/controls/buttons';
-import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
+import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import Avatar from '../../ui/Avatar';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
 import CommentPopup from '../popups/CommentPopup';
@@ -77,16 +78,21 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
 
   render() {
     const { comment } = this.props;
+    const author = comment.authorName || comment.author;
+    const displayName =
+      comment.authorActive === false && author
+        ? translateWithParameters('user.x_deleted', author)
+        : author;
     return (
       <div className="issue-comment">
-        <div className="issue-comment-author" title={comment.authorName}>
+        <div className="issue-comment-author" title={displayName}>
           <Avatar
             className="little-spacer-right"
             hash={comment.authorAvatar}
-            name={comment.authorName || comment.author}
+            name={author}
             size={16}
           />
-          {comment.authorName || comment.author}
+          {displayName}
         </div>
         <div
           className="issue-comment-text markdown"

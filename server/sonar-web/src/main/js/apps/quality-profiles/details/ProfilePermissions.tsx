@@ -31,12 +31,6 @@ import {
 } from '../../../api/quality-profiles';
 import { Profile } from '../types';
 
-export interface User {
-  avatar?: string;
-  login: string;
-  name: string;
-}
-
 export interface Group {
   name: string;
 }
@@ -50,7 +44,7 @@ interface State {
   addUserForm: boolean;
   groups?: Group[];
   loading: boolean;
-  users?: User[];
+  users?: T.UserSelected[];
 }
 
 export default class ProfilePermissions extends React.PureComponent<Props, State> {
@@ -112,7 +106,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
     }
   };
 
-  handleUserAdd = (addedUser: User) => {
+  handleUserAdd = (addedUser: T.UserSelected) => {
     if (this.mounted) {
       this.setState((state: State) => ({
         addUserForm: false,
@@ -121,7 +115,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
     }
   };
 
-  handleUserDelete = (removedUser: User) => {
+  handleUserDelete = (removedUser: T.UserSelected) => {
     if (this.mounted) {
       this.setState((state: State) => ({
         users: state.users && state.users.filter(user => user !== removedUser)

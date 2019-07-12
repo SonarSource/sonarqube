@@ -100,22 +100,6 @@ public class SearchActionTest {
   }
 
   @Test
-  public void root_can_do_everything() {
-    OrganizationDto organization = db.organizations().insert();
-    OrganizationDto guardedOrganization = db.organizations().insert(dto -> dto.setGuarded(true));
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).setRoot();
-
-    SearchWsResponse result = call(ws.newRequest());
-
-    assertThat(result.getOrganizationsList())
-      .extracting(Organization::getKey, o -> o.getActions().getAdmin(), o -> o.getActions().getDelete(), o -> o.getActions().getProvision())
-      .containsExactlyInAnyOrder(
-        tuple(organization.getKey(), true, true, true),
-        tuple(guardedOrganization.getKey(), true, true, true));
-  }
-
-  @Test
   public void provision_action_available_for_each_organization() {
     OrganizationDto userProvisionOrganization = db.organizations().insert();
     OrganizationDto groupProvisionOrganization = db.organizations().insert();
@@ -402,8 +386,7 @@ public class SearchActionTest {
       .setDescription("The Bar company produces quality software too.")
       .setUrl("https://www.bar.com")
       .setAvatarUrl("https://www.bar.com/logo.png")
-      .setSubscription(PAID)
-      .setGuarded(false));
+      .setSubscription(PAID));
     OrganizationDto fooOrganization = db.organizations().insert(organization -> organization
       .setUuid(Uuids.UUID_EXAMPLE_01)
       .setKey("foo-company")
@@ -411,8 +394,7 @@ public class SearchActionTest {
       .setSubscription(FREE)
       .setDescription(null)
       .setUrl(null)
-      .setAvatarUrl(null)
-      .setGuarded(true));
+      .setAvatarUrl(null));
     UserDto user = db.users().insertUser();
     db.organizations().addMember(barOrganization, user);
     db.organizations().addMember(fooOrganization, user);

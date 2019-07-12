@@ -21,14 +21,8 @@ import * as React from 'react';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 
-export interface ChangelogDiff {
-  key: string;
-  newValue?: string;
-  oldValue?: string;
-}
-
 interface Props {
-  diff: ChangelogDiff;
+  diff: T.IssueChangelogDiff;
 }
 
 export default function IssueChangelogDiff({ diff }: Props) {

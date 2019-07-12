@@ -81,11 +81,7 @@ public class UpdateLoginAction implements UsersWsAction {
     String newLogin = request.mandatoryParam(PARAM_NEW_LOGIN);
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserDto user = getUser(dbSession, login);
-      userUpdater.updateAndCommit(
-        dbSession,
-        user,
-        new UpdateUser().setLogin(newLogin),
-        u -> updatePersonalOrganization(dbSession, u));
+      userUpdater.updateAndCommit(dbSession, user, new UpdateUser().setLogin(newLogin), u -> {});
       response.noContent();
     }
   }
@@ -96,15 +92,6 @@ public class UpdateLoginAction implements UsersWsAction {
       throw new NotFoundException(format("User '%s' doesn't exist", login));
     }
     return user;
-  }
-
-  private void updatePersonalOrganization(DbSession dbSession, UserDto user) {
-    String personalOrganizationUuid = user.getOrganizationUuid();
-    if (personalOrganizationUuid == null) {
-      return;
-    }
-    dbClient.organizationDao().selectByUuid(dbSession, personalOrganizationUuid)
-      .ifPresent(organization -> organizationUpdater.updateOrganizationKey(dbSession, organization, user.getLogin()));
   }
 
 }

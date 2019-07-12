@@ -1,0 +1,118 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div>
+  <h2
+    className="spacer-bottom"
+  >
+    my_profile.delete_account
+  </h2>
+  <DeferredSpinner
+    loading={true}
+    timeout={100}
+  />
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div>
+  <h2
+    className="spacer-bottom"
+  >
+    my_profile.delete_account
+  </h2>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
+  <UserDeleteAccountContent
+    className="list-styled no-padding big-spacer-top big-spacer-bottom"
+    organizationsSafeToDelete={
+      Array [
+        Object {
+          "key": "luke-leia",
+          "name": "Luke and Leia",
+        },
+        Object {
+          "key": "luke",
+          "name": "Luke Skywalker",
+        },
+      ]
+    }
+    organizationsToTransferOrDelete={Array []}
+  />
+  <Button
+    className="button-red"
+    disabled={false}
+    onClick={[Function]}
+    type="button"
+  >
+    delete
+  </Button>
+</div>
+`;
+
+exports[`should render correctly 3`] = `
+<div>
+  <h2
+    className="spacer-bottom"
+  >
+    my_profile.delete_account
+  </h2>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
+  <UserDeleteAccountContent
+    className="list-styled no-padding big-spacer-top big-spacer-bottom"
+    organizationsSafeToDelete={
+      Array [
+        Object {
+          "key": "luke-leia",
+          "name": "Luke and Leia",
+        },
+        Object {
+          "key": "luke",
+          "name": "Luke Skywalker",
+        },
+      ]
+    }
+    organizationsToTransferOrDelete={Array []}
+  />
+  <Button
+    className="button-red"
+    disabled={false}
+    onClick={[Function]}
+    type="button"
+  >
+    delete
+  </Button>
+  <Connect(withRouter(UserDeleteAccountModal))
+    label="my_profile.delete_account"
+    organizationsSafeToDelete={
+      Array [
+        Object {
+          "key": "luke-leia",
+          "name": "Luke and Leia",
+        },
+        Object {
+          "key": "luke",
+          "name": "Luke Skywalker",
+        },
+      ]
+    }
+    organizationsToTransferOrDelete={Array []}
+    toggleModal={[Function]}
+    user={
+      Object {
+        "externalIdentity": "luke",
+        "groups": Array [],
+        "isLoggedIn": true,
+        "login": "luke",
+        "name": "Skywalker",
+        "scmAccounts": Array [],
+      }
+    }
+  />
+</div>
+`;

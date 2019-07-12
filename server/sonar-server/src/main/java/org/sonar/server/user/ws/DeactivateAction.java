@@ -19,23 +19,26 @@
  */
 package org.sonar.server.user.ws;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.organization.OrganizationHelper;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndexer;
@@ -43,10 +46,13 @@ import org.sonar.server.user.index.UserIndexer;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
+import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class DeactivateAction implements UsersWsAction {
+
+  private static final Logger LOGGER = Loggers.get(DeactivateAction.class);
 
   private static final String PARAM_LOGIN = "login";
 
@@ -55,14 +61,16 @@ public class DeactivateAction implements UsersWsAction {
   private final UserSession userSession;
   private final UserJsonWriter userWriter;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final boolean isSonarCloud;
 
   public DeactivateAction(DbClient dbClient, UserIndexer userIndexer, UserSession userSession, UserJsonWriter userWriter,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
+    DefaultOrganizationProvider defaultOrganizationProvider, Configuration configuration) {
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
     this.userSession = userSession;
     this.userWriter = userWriter;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.isSonarCloud = configuration.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
   }
 
   @Override
@@ -82,10 +90,18 @@ public class DeactivateAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkIsSystemAdministrator();
+    String login;
 
-    String login = request.mandatoryParam(PARAM_LOGIN);
-    checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
+    if (isSonarCloud) {
+      login = request.mandatoryParam(PARAM_LOGIN);
+      if (!login.equals(userSession.getLogin()) && !userSession.checkLoggedIn().isSystemAdministrator()) {
+        throw new ForbiddenException("Insufficient privileges");
+      }
+    } else {
+      userSession.checkLoggedIn().checkIsSystemAdministrator();
+      login = request.mandatoryParam(PARAM_LOGIN);
+      checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
+    }
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
@@ -103,11 +119,21 @@ public class DeactivateAction implements UsersWsAction {
       dbClient.qProfileEditUsersDao().deleteByUser(dbSession, user);
       dbClient.organizationMemberDao().deleteByUserId(dbSession, userId);
       dbClient.userPropertiesDao().deleteByUser(dbSession, user);
-      dbClient.userDao().deactivateUser(dbSession, user);
+      deactivateUser(dbSession, user);
       userIndexer.commitAndIndex(dbSession, user);
+
+      LOGGER.info("Deactivate user: {}; by admin: {}", login, userSession.isSystemAdministrator());
     }
 
     writeResponse(response, login);
+  }
+
+  private void deactivateUser(DbSession dbSession, UserDto user) {
+    if (isSonarCloud) {
+      dbClient.userDao().deactivateSonarCloudUser(dbSession, user);
+    } else {
+      dbClient.userDao().deactivateUser(dbSession, user);
+    }
   }
 
   private void writeResponse(Response response, String login) {
@@ -129,38 +155,18 @@ public class DeactivateAction implements UsersWsAction {
   }
 
   private void ensureNotLastAdministrator(DbSession dbSession, UserDto user) {
-    List<String> problematicOrgs = selectOrganizationsWithNoMoreAdministrators(dbSession, user);
+    List<OrganizationDto> problematicOrgs = new OrganizationHelper(dbClient).selectOrganizationsWithLastAdmin(dbSession, user.getId());
     if (problematicOrgs.isEmpty()) {
       return;
     }
-    checkRequest(problematicOrgs.size() != 1 || !defaultOrganizationProvider.get().getUuid().equals(problematicOrgs.get(0)),
+    checkRequest(problematicOrgs.size() != 1 || !defaultOrganizationProvider.get().getUuid().equals(problematicOrgs.get(0).getUuid()),
       "User is last administrator, and cannot be deactivated");
     String keys = problematicOrgs
       .stream()
-      .map(orgUuid -> selectOrganizationByUuid(dbSession, orgUuid, user))
       .map(OrganizationDto::getKey)
       .sorted()
       .collect(Collectors.joining(", "));
     throw BadRequestException.create(format("User '%s' is last administrator of organizations [%s], and cannot be deactivated", user.getLogin(), keys));
   }
 
-  private List<String> selectOrganizationsWithNoMoreAdministrators(DbSession dbSession, UserDto user) {
-    Set<String> organizationUuids = dbClient.authorizationDao().selectOrganizationUuidsOfUserWithGlobalPermission(
-      dbSession, user.getId(), OrganizationPermission.ADMINISTER.getKey());
-    List<String> problematicOrganizations = new ArrayList<>();
-    for (String organizationUuid : organizationUuids) {
-      int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUser(dbSession,
-        organizationUuid, OrganizationPermission.ADMINISTER.getKey(), user.getId());
-      if (remaining == 0) {
-        problematicOrganizations.add(organizationUuid);
-      }
-    }
-    return problematicOrganizations;
-  }
-
-  private OrganizationDto selectOrganizationByUuid(DbSession dbSession, String orgUuid, UserDto user) {
-    return dbClient.organizationDao()
-      .selectByUuid(dbSession, orgUuid)
-      .orElseThrow(() -> new IllegalStateException("Organization with UUID " + orgUuid + " does not exist in DB but is referenced in permissions of user " + user.getLogin()));
-  }
 }
