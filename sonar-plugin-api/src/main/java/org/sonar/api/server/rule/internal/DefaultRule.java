@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.impl.server;
+package org.sonar.api.server.rule.internal;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +40,7 @@ import static java.lang.String.format;
 import static java.util.Collections.unmodifiableList;
 
 @Immutable
-public class DefaultRule implements RulesDefinition.Rule {
+public class DefaultRule extends RulesDefinition.Rule {
   private final String pluginKey;
   private final RulesDefinition.Repository repository;
   private final String repoKey;
@@ -91,6 +91,7 @@ public class DefaultRule implements RulesDefinition.Rule {
     this.deprecatedRuleKeys = Collections.unmodifiableSet(new TreeSet<>(newRule.deprecatedRuleKeys()));
   }
 
+  @Override
   public RulesDefinition.Repository repository() {
     return repository;
   }

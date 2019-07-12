@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.impl.server;
+package org.sonar.api.server.rule.internal;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,14 +30,14 @@ import org.sonar.api.server.rule.RulesDefinition;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class DefaultNewRepository implements RulesDefinition.NewRepository {
-  private final RulesDefinitionContext context;
+  private final RulesDefinition.Context context;
   private final String key;
   private final boolean isExternal;
   private final String language;
   private String name;
   private final Map<String, RulesDefinition.NewRule> newRules = new HashMap<>();
 
-  DefaultNewRepository(RulesDefinitionContext context, String key, String language, boolean isExternal) {
+  public DefaultNewRepository(RulesDefinition.Context context, String key, String language, boolean isExternal) {
     this.context = context;
     this.key = key;
     this.name = key;
@@ -55,15 +55,15 @@ public class DefaultNewRepository implements RulesDefinition.NewRepository {
     return key;
   }
 
-  String language() {
+  public String language() {
     return language;
   }
 
-  Map<String, RulesDefinition.NewRule> newRules() {
+  public Map<String, RulesDefinition.NewRule> newRules() {
     return newRules;
   }
 
-  String name() {
+  public String name() {
     return name;
   }
 

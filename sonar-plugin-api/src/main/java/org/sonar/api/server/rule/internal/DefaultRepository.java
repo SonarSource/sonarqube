@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.impl.server;
+package org.sonar.api.server.rule.internal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,14 +35,14 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 
 @Immutable
-class DefaultRepository implements RulesDefinition.Repository {
+public class DefaultRepository implements RulesDefinition.Repository {
   private final String key;
   private final String language;
   private final String name;
   private final boolean isExternal;
   private final Map<String, RulesDefinition.Rule> rulesByKey;
 
-  DefaultRepository(DefaultNewRepository newRepository, @Nullable RulesDefinition.Repository mergeInto) {
+  public DefaultRepository(DefaultNewRepository newRepository, @Nullable RulesDefinition.Repository mergeInto) {
     this.key = newRepository.key();
     this.language = newRepository.language();
     this.isExternal = newRepository.isExternal();

@@ -20,8 +20,11 @@
 package org.sonar.api.server.rule;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -34,7 +37,13 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.server.rule.internal.DefaultNewRepository;
+import org.sonar.api.server.rule.internal.DefaultRepository;
 import org.sonarsource.api.sonarlint.SonarLintSide;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 /**
  * Defines some coding rules of the same repository. For example the Java Findbugs plugin provides an implementation of
@@ -345,9 +354,77 @@ public interface RulesDefinition {
   }
 
   /**
+   * This implementation will be removed as soon as analyzers stop instantiating it.
+   * Use RulesDefinitionContext in sonar-plugin-api-impl.
+   */
+  class Context extends AbstractContext {
+    private final Map<String, Repository> repositoriesByKey = new HashMap<>();
+    private String currentPluginKey;
+
+    @Override
+    public RulesDefinition.NewRepository createRepository(String key, String language) {
+      return new DefaultNewRepository(this, key, language, false);
+    }
+
+    @Override
+    public RulesDefinition.NewRepository createExternalRepository(String engineId, String language) {
+      return new DefaultNewRepository(this, RuleKey.EXTERNAL_RULE_REPO_PREFIX + engineId, language, true);
+    }
+
+    @Override
+    @Deprecated
+    public RulesDefinition.NewRepository extendRepository(String key, String language) {
+      return createRepository(key, language);
+    }
+
+    @Override
+    @CheckForNull
+    public RulesDefinition.Repository repository(String key) {
+      return repositoriesByKey.get(key);
+    }
+
+    @Override
+    public List<RulesDefinition.Repository> repositories() {
+      return unmodifiableList(new ArrayList<>(repositoriesByKey.values()));
+    }
+
+    @Override
+    @Deprecated
+    public List<RulesDefinition.ExtendedRepository> extendedRepositories(String repositoryKey) {
+      return emptyList();
+    }
+
+    @Override
+    @Deprecated
+    public List<RulesDefinition.ExtendedRepository> extendedRepositories() {
+      return emptyList();
+    }
+
+    public void registerRepository(DefaultNewRepository newRepository) {
+      RulesDefinition.Repository existing = repositoriesByKey.get(newRepository.key());
+      if (existing != null) {
+        String existingLanguage = existing.language();
+        checkState(existingLanguage.equals(newRepository.language()),
+          "The rule repository '%s' must not be defined for two different languages: %s and %s",
+          newRepository.key(), existingLanguage, newRepository.language());
+      }
+      repositoriesByKey.put(newRepository.key(), new DefaultRepository(newRepository, existing));
+    }
+
+    public String currentPluginKey() {
+      return currentPluginKey;
+    }
+
+    @Override
+    public void setCurrentPluginKey(@Nullable String pluginKey) {
+      this.currentPluginKey = pluginKey;
+    }
+  }
+
+  /**
    * Instantiated by core but not by plugins, except for their tests.
    */
-  abstract class Context {
+  abstract class AbstractContext {
     /*
      * New builder for {@link org.sonar.api.server.rule.RulesDefinition.Repository}.
      * <br>
@@ -651,49 +728,49 @@ public interface RulesDefinition {
   }
 
   @Immutable
-  interface Rule {
+  abstract class Rule {
 
-    Repository repository();
+    public abstract Repository repository();
 
     /**
      * @since 6.6 the plugin the rule was declared in
      */
     @CheckForNull
-    String pluginKey();
+    public abstract String pluginKey();
 
-    String key();
+    public abstract String key();
 
-    String name();
+    public abstract String name();
 
     /**
      * @since 7.1
      */
-    RuleScope scope();
+    public abstract RuleScope scope();
 
     /**
      * @see NewRule#setType(RuleType)
      * @since 5.5
      */
-    RuleType type();
+    public abstract RuleType type();
 
-    String severity();
-
-    @CheckForNull
-    String htmlDescription();
+    public abstract String severity();
 
     @CheckForNull
-    String markdownDescription();
+    public abstract String htmlDescription();
 
-    boolean template();
+    @CheckForNull
+    public abstract String markdownDescription();
+
+    public abstract boolean template();
 
     /**
      * Should this rule be enabled by default. For example in SonarLint standalone.
      *
      * @since 6.0
      */
-    boolean activatedByDefault();
+    public abstract boolean activatedByDefault();
 
-    RuleStatus status();
+    public abstract RuleStatus status();
 
     /**
      * @see #type()
@@ -702,29 +779,29 @@ public interface RulesDefinition {
      */
     @CheckForNull
     @Deprecated
-    String debtSubCharacteristic();
+    public abstract String debtSubCharacteristic();
 
     @CheckForNull
-    DebtRemediationFunction debtRemediationFunction();
+    public abstract DebtRemediationFunction debtRemediationFunction();
 
     /**
      * @deprecated since 5.5, replaced by {@link #gapDescription()}
      */
     @Deprecated
     @CheckForNull
-    String effortToFixDescription();
+    public abstract String effortToFixDescription();
 
     @CheckForNull
-    String gapDescription();
+    public abstract String gapDescription();
 
     @CheckForNull
-    Param param(String key);
+    public abstract Param param(String key);
 
-    List<Param> params();
+    public abstract List<Param> params();
 
-    Set<String> tags();
+    public abstract Set<String> tags();
 
-    Set<String> securityStandards();
+    public abstract Set<String> securityStandards();
 
     /**
      * Deprecated rules keys for this rule.
@@ -784,13 +861,13 @@ public interface RulesDefinition {
      * @see NewRule#addDeprecatedRuleKey(String, String)
      * @since 7.1
      */
-    Set<RuleKey> deprecatedRuleKeys();
+    public abstract Set<RuleKey> deprecatedRuleKeys();
 
     /**
      * @see RulesDefinition.NewRule#setInternalKey(String)
      */
     @CheckForNull
-    String internalKey();
+    public abstract String internalKey();
 
   }
 

@@ -27,6 +27,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.internal.DefaultNewRepository;
+import org.sonar.api.server.rule.internal.DefaultRepository;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
@@ -75,7 +77,7 @@ public class RulesDefinitionContext extends RulesDefinition.Context {
     return emptyList();
   }
 
-  void registerRepository(DefaultNewRepository newRepository) {
+  public void registerRepository(DefaultNewRepository newRepository) {
     RulesDefinition.Repository existing = repositoriesByKey.get(newRepository.key());
     if (existing != null) {
       String existingLanguage = existing.language();

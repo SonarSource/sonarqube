@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.impl.server;
+package org.sonar.api.server.rule.internal;
 
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.impl.server;
+package org.sonar.api.server.rule.internal;
 
 import javax.annotation.Nullable;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -26,10 +26,10 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.MessageException;
 
 /**
- * Factory of {@link org.sonar.api.server.debt.DebtRemediationFunction} that keeps
+ * Factory of {@link DebtRemediationFunction} that keeps
  * a context of rule for better error messages. Used only when declaring rules.
  *
- * @see org.sonar.api.server.rule.RulesDefinition
+ * @see RulesDefinition
  */
 class DefaultDebtRemediationFunctions implements RulesDefinition.DebtRemediationFunctions {
 
