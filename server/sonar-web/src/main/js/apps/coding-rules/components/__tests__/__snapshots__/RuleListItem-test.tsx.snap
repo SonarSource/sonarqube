@@ -1,5 +1,92 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`renderActions should disable the button when I am on a built-in profile 1`] = `
+<td
+  className="coding-rule-table-meta-cell coding-rule-activation-actions"
+>
+  <Tooltip
+    overlay="coding_rules.need_extend_or_copy"
+  >
+    <Button
+      className="coding-rules-detail-quality-profile-deactivate button-red"
+      disabled={true}
+    >
+      coding_rules.deactivate
+    </Button>
+  </Tooltip>
+</td>
+`;
+
+exports[`renderActions should render the activate button 1`] = `
+<td
+  className="coding-rule-table-meta-cell coding-rule-activation-actions"
+>
+  <ActivationButton
+    buttonText="coding_rules.activate"
+    className="coding-rules-detail-quality-profile-activate"
+    modalHeader="coding_rules.activate_in_quality_profile"
+    onDone={[Function]}
+    organization="org"
+    profiles={
+      Array [
+        Object {
+          "actions": Object {
+            "edit": true,
+          },
+          "activeDeprecatedRuleCount": 2,
+          "activeRuleCount": 10,
+          "childrenCount": 0,
+          "depth": 1,
+          "isBuiltIn": false,
+          "isDefault": false,
+          "isInherited": false,
+          "key": "key",
+          "language": "js",
+          "languageName": "JavaScript",
+          "name": "name",
+          "organization": "foo",
+          "projectCount": 3,
+        },
+      ]
+    }
+    rule={
+      Object {
+        "isTemplate": false,
+        "key": "javascript:S1067",
+        "lang": "js",
+        "langName": "JavaScript",
+        "name": "Use foo",
+        "severity": "MAJOR",
+        "status": "READY",
+        "sysTags": Array [
+          "a",
+          "b",
+        ],
+        "tags": Array [
+          "x",
+        ],
+        "type": "CODE_SMELL",
+      }
+    }
+  />
+</td>
+`;
+
+exports[`renderActions should render the deactivate button 1`] = `
+<td
+  className="coding-rule-table-meta-cell coding-rule-activation-actions"
+>
+  <ConfirmButton
+    confirmButtonText="yes"
+    modalBody="coding_rules.deactivate.confirm"
+    modalHeader="coding_rules.deactivate"
+    onConfirm={[Function]}
+  >
+    [Function]
+  </ConfirmButton>
+</td>
+`;
+
 exports[`should render 1`] = `
 <div
   className="coding-rule"
@@ -113,7 +200,8 @@ exports[`should render deactivate button 2`] = `
   overlay="coding_rules.need_extend_or_copy"
 >
   <Button
-    className="coding-rules-detail-quality-profile-deactivate button-red disabled"
+    className="coding-rules-detail-quality-profile-deactivate button-red"
+    disabled={true}
   >
     coding_rules.deactivate
   </Button>

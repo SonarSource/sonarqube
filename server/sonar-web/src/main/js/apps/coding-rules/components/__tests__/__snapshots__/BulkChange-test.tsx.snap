@@ -48,6 +48,19 @@ exports[`should display BulkChangeModal 1`] = `
 />
 `;
 
+exports[`should not a disabled button when edition is not possible 1`] = `
+<Tooltip
+  overlay="coding_rules.can_not_bulk_change"
+>
+  <Button
+    className="js-bulk-change"
+    disabled={true}
+  >
+    bulk_change
+  </Button>
+</Tooltip>
+`;
+
 exports[`should render correctly 1`] = `
 <Fragment>
   <Dropdown

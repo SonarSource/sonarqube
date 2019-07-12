@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockEvent, mockRule } from '../../../../helpers/testMocks';
+import { mockEvent, mockQualityProfile, mockRule } from '../../../../helpers/testMocks';
 import RuleListItem from '../RuleListItem';
 
 it('should render', () => {
@@ -41,9 +41,84 @@ it('should render deactivate button', () => {
   expect(instance.renderDeactivateButton('', 'coding_rules.need_extend_or_copy')).toMatchSnapshot();
 });
 
+describe('renderActions', () => {
+  it('should be null when there is no selected profile', () => {
+    const wrapper = shallowRender({
+      isLoggedIn: true
+    });
+
+    expect(wrapper.instance().renderActions()).toBeNull();
+  });
+
+  it('should be null when I am not logged in', () => {
+    const wrapper = shallowRender({
+      isLoggedIn: false,
+      selectedProfile: mockQualityProfile()
+    });
+
+    expect(wrapper.instance().renderActions()).toBeNull();
+  });
+
+  it('should be null when the user does not have the sufficient permissions', () => {
+    const wrapper = shallowRender({
+      isLoggedIn: true,
+      selectedProfile: mockQualityProfile()
+    });
+
+    expect(wrapper.instance().renderActions()).toBeNull();
+  });
+
+  it('should disable the button when I am on a built-in profile', () => {
+    const wrapper = shallowRender({
+      selectedProfile: mockQualityProfile({
+        actions: {
+          copy: true
+        },
+        isBuiltIn: true
+      })
+    });
+
+    expect(wrapper.instance().renderActions()).toMatchSnapshot();
+  });
+
+  it('should render the deactivate button', () => {
+    const wrapper = shallowRender({
+      activation: {
+        inherit: 'NONE',
+        severity: 'warning'
+      },
+      selectedProfile: mockQualityProfile({
+        actions: {
+          edit: true
+        },
+        isBuiltIn: false
+      })
+    });
+
+    expect(wrapper.instance().renderActions()).toMatchSnapshot();
+  });
+
+  it('should render the activate button', () => {
+    const wrapper = shallowRender({
+      rule: mockRule({
+        isTemplate: false
+      }),
+      selectedProfile: mockQualityProfile({
+        actions: {
+          edit: true
+        },
+        isBuiltIn: false
+      })
+    });
+
+    expect(wrapper.instance().renderActions()).toMatchSnapshot();
+  });
+});
+
 function shallowRender(props?: Partial<RuleListItem['props']>) {
   return shallow<RuleListItem>(
     <RuleListItem
+      isLoggedIn={true}
       onActivate={jest.fn()}
       onDeactivate={jest.fn()}
       onFilterChange={jest.fn()}

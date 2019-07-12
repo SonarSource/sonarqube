@@ -37,11 +37,11 @@ it('should render correctly', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should not render anything', () => {
+it('should not a disabled button when edition is not possible', () => {
   const wrapper = shallowRender({
     referencedProfiles: { key: { ...profile, actions: { ...profile.actions, edit: false } } }
   });
-  expect(wrapper.type()).toBeNull();
+  expect(wrapper).toMatchSnapshot();
 });
 
 it('should display BulkChangeModal', () => {

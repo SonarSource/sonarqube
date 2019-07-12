@@ -36,6 +36,8 @@ import SimilarRulesFilter from './SimilarRulesFilter';
 
 interface Props {
   activation?: Activation;
+  canWrite?: boolean;
+  isLoggedIn: boolean;
   onActivate: (profile: string, rule: string, activation: Activation) => void;
   onDeactivate: (profile: string, rule: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
@@ -124,18 +126,23 @@ export default class RuleListItem extends React.PureComponent<Props> {
   };
 
   renderActions = () => {
-    const { activation, rule, selectedProfile } = this.props;
-    if (!selectedProfile) {
+    const { activation, isLoggedIn, rule, selectedProfile } = this.props;
+    if (!selectedProfile || !isLoggedIn) {
       return null;
     }
 
-    const canEdit = selectedProfile.actions && selectedProfile.actions.edit;
-    if (!canEdit || selectedProfile.isBuiltIn) {
+    const canCopy = selectedProfile.actions && selectedProfile.actions.copy;
+    if (selectedProfile.isBuiltIn && canCopy) {
       return (
         <td className="coding-rule-table-meta-cell coding-rule-activation-actions">
           {this.renderDeactivateButton('', 'coding_rules.need_extend_or_copy')}
         </td>
       );
+    }
+
+    const canEdit = selectedProfile.actions && selectedProfile.actions.edit;
+    if (!canEdit) {
+      return null;
     }
 
     return (
@@ -177,7 +184,9 @@ export default class RuleListItem extends React.PureComponent<Props> {
       </ConfirmButton>
     ) : (
       <Tooltip overlay={translate(overlayTranslationKey)}>
-        <Button className="coding-rules-detail-quality-profile-deactivate button-red disabled">
+        <Button
+          className="coding-rules-detail-quality-profile-deactivate button-red"
+          disabled={true}>
           {translate('coding_rules.deactivate')}
         </Button>
       </Tooltip>

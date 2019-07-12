@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Profile } from '../../../api/quality-profiles';
 import { Query } from '../query';
@@ -79,7 +80,13 @@ export default class BulkChange extends React.PureComponent<Props, State> {
       Boolean(profile.actions && profile.actions.edit)
     );
     if (!canBulkChange) {
-      return null;
+      return (
+        <Tooltip overlay={translate('coding_rules.can_not_bulk_change')}>
+          <Button className="js-bulk-change" disabled={true}>
+            {translate('bulk_change')}
+          </Button>
+        </Tooltip>
+      );
     }
 
     const { activation } = this.props.query;

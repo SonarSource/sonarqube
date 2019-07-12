@@ -1,0 +1,198 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renderBulkButton should show bulk change button when everything is fine 1`] = `
+<BulkChange
+  languages={
+    Object {
+      "js": Object {
+        "key": "js",
+        "name": "JavaScript",
+      },
+    }
+  }
+  organization="foo"
+  query={
+    Object {
+      "activation": undefined,
+      "activationSeverities": Array [],
+      "availableSince": undefined,
+      "compareToProfile": undefined,
+      "cwe": Array [],
+      "inheritance": undefined,
+      "languages": Array [],
+      "owaspTop10": Array [],
+      "profile": undefined,
+      "repositories": Array [],
+      "ruleKey": undefined,
+      "sansTop25": Array [],
+      "searchQuery": undefined,
+      "severities": Array [],
+      "sonarsourceSecurity": Array [],
+      "statuses": Array [],
+      "tags": Array [],
+      "template": undefined,
+      "types": Array [],
+    }
+  }
+  referencedProfiles={Object {}}
+  total={0}
+/>
+`;
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <Suggestions
+    suggestions="coding_rules"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="coding_rules.page"
+  >
+    <meta
+      content="noindex"
+      name="robots"
+    />
+  </HelmetWrapper>
+  <div
+    className="layout-page"
+    id="coding-rules-page"
+  >
+    <ScreenPositionHelper
+      className="layout-page-side-outer"
+    >
+      <Component />
+    </ScreenPositionHelper>
+    <div
+      className="layout-page-main"
+    >
+      <div
+        className="layout-page-header-panel layout-page-main-header"
+      >
+        <div
+          className="layout-page-header-panel-inner layout-page-main-header-inner"
+        >
+          <div
+            className="layout-page-main-inner"
+          >
+            <A11ySkipTarget
+              anchor="rules_main"
+            />
+            <PageActions
+              loading={true}
+              onReload={[Function]}
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        className="layout-page-main-inner"
+      />
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <Suggestions
+    suggestions="coding_rules"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="coding_rules.page"
+  >
+    <meta
+      content="noindex"
+      name="robots"
+    />
+  </HelmetWrapper>
+  <div
+    className="layout-page"
+    id="coding-rules-page"
+  >
+    <ScreenPositionHelper
+      className="layout-page-side-outer"
+    >
+      <Component />
+    </ScreenPositionHelper>
+    <div
+      className="layout-page-main"
+    >
+      <div
+        className="layout-page-header-panel layout-page-main-header"
+      >
+        <div
+          className="layout-page-header-panel-inner layout-page-main-header-inner"
+        >
+          <div
+            className="layout-page-main-inner"
+          >
+            <A11ySkipTarget
+              anchor="rules_main"
+            />
+            <BulkChange
+              languages={
+                Object {
+                  "js": Object {
+                    "key": "js",
+                    "name": "JavaScript",
+                  },
+                }
+              }
+              organization="foo"
+              query={
+                Object {
+                  "activation": undefined,
+                  "activationSeverities": Array [],
+                  "availableSince": undefined,
+                  "compareToProfile": undefined,
+                  "cwe": Array [],
+                  "inheritance": undefined,
+                  "languages": Array [],
+                  "owaspTop10": Array [],
+                  "profile": undefined,
+                  "repositories": Array [],
+                  "ruleKey": undefined,
+                  "sansTop25": Array [],
+                  "searchQuery": undefined,
+                  "severities": Array [],
+                  "sonarsourceSecurity": Array [],
+                  "statuses": Array [],
+                  "tags": Array [],
+                  "template": undefined,
+                  "types": Array [],
+                }
+              }
+              referencedProfiles={Object {}}
+              total={0}
+            />
+            <PageActions
+              loading={false}
+              onReload={[Function]}
+              paging={
+                Object {
+                  "pageIndex": 0,
+                  "pageSize": 100,
+                  "total": 0,
+                }
+              }
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        className="layout-page-main-inner"
+      >
+        <ListFooter
+          count={0}
+          loadMore={[Function]}
+          ready={true}
+          total={0}
+        />
+      </div>
+    </div>
+  </div>
+</Fragment>
+`;

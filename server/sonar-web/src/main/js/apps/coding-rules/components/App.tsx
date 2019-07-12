@@ -41,6 +41,8 @@ import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import '../../../components/search-navigator.css';
 import { hasPrivateAccess } from '../../../helpers/organizations';
+import { isSonarCloud } from '../../../helpers/system';
+import { isLoggedIn } from '../../../helpers/users';
 import {
   getAppState,
   getCurrentUser,
@@ -522,6 +524,28 @@ export class App extends React.PureComponent<Props, State> {
 
   isFiltered = () => Object.keys(serializeQuery(this.state.query)).length > 0;
 
+  renderBulkButton = () => {
+    const { currentUser, languages } = this.props;
+    const { canWrite, paging, query, referencedProfiles } = this.state;
+    const organization = this.props.organization && this.props.organization.key;
+
+    if (!isLoggedIn(currentUser) || (isSonarCloud() && !organization) || !canWrite) {
+      return null;
+    }
+
+    return (
+      paging && (
+        <BulkChange
+          languages={languages}
+          organization={organization}
+          query={query}
+          referencedProfiles={referencedProfiles}
+          total={paging.total}
+        />
+      )
+    );
+  };
+
   render() {
     const { paging, rules } = this.state;
     const selectedIndex = this.getSelectedIndex();
@@ -531,6 +555,7 @@ export class App extends React.PureComponent<Props, State> {
       this.props.organization,
       this.props.userOrganizations
     );
+
     return (
       <>
         <Suggestions suggestions="coding_rules" />
@@ -586,15 +611,7 @@ export class App extends React.PureComponent<Props, State> {
                       {translate('coding_rules.return_to_list')}
                     </a>
                   ) : (
-                    this.state.paging && (
-                      <BulkChange
-                        languages={this.props.languages}
-                        organization={organization}
-                        query={this.state.query}
-                        referencedProfiles={this.state.referencedProfiles}
-                        total={this.state.paging.total}
-                      />
-                    )
+                    this.renderBulkButton()
                   )}
                   <PageActions
                     loading={this.state.loading}
@@ -627,6 +644,8 @@ export class App extends React.PureComponent<Props, State> {
                   {rules.map(rule => (
                     <RuleListItem
                       activation={this.getRuleActivation(rule.key)}
+                      canWrite={this.state.canWrite}
+                      isLoggedIn={isLoggedIn(this.props.currentUser)}
                       key={rule.key}
                       onActivate={this.handleRuleActivate}
                       onDeactivate={this.handleRuleDeactivate}
