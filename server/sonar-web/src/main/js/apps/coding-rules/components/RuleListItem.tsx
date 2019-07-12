@@ -131,7 +131,11 @@ export default class RuleListItem extends React.PureComponent<Props> {
 
     const canEdit = selectedProfile.actions && selectedProfile.actions.edit;
     if (!canEdit || selectedProfile.isBuiltIn) {
-      return null;
+      return (
+        <td className="coding-rule-table-meta-cell coding-rule-activation-actions">
+          {this.renderDeactivateButton('', 'coding_rules.need_extend_or_copy')}
+        </td>
+      );
     }
 
     return (
@@ -153,7 +157,10 @@ export default class RuleListItem extends React.PureComponent<Props> {
     );
   };
 
-  renderDeactivateButton = (inherit: string) => {
+  renderDeactivateButton = (
+    inherit: string,
+    overlayTranslationKey = 'coding_rules.can_not_deactivate'
+  ) => {
     return inherit === 'NONE' ? (
       <ConfirmButton
         confirmButtonText={translate('yes')}
@@ -169,7 +176,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
         )}
       </ConfirmButton>
     ) : (
-      <Tooltip overlay={translate('coding_rules.can_not_deactivate')}>
+      <Tooltip overlay={translate(overlayTranslationKey)}>
         <Button className="coding-rules-detail-quality-profile-deactivate button-red disabled">
           {translate('coding_rules.deactivate')}
         </Button>

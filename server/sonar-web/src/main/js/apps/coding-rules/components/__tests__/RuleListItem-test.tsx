@@ -33,8 +33,16 @@ it('should open rule', () => {
   expect(onOpen).toBeCalledWith('javascript:S1067');
 });
 
+it('should render deactivate button', () => {
+  const wrapper = shallowRender();
+  const instance = wrapper.instance();
+
+  expect(instance.renderDeactivateButton('NONE')).toMatchSnapshot();
+  expect(instance.renderDeactivateButton('', 'coding_rules.need_extend_or_copy')).toMatchSnapshot();
+});
+
 function shallowRender(props?: Partial<RuleListItem['props']>) {
-  return shallow(
+  return shallow<RuleListItem>(
     <RuleListItem
       onActivate={jest.fn()}
       onDeactivate={jest.fn()}

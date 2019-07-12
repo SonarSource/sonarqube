@@ -96,3 +96,26 @@ exports[`should render 1`] = `
   </table>
 </div>
 `;
+
+exports[`should render deactivate button 1`] = `
+<ConfirmButton
+  confirmButtonText="yes"
+  modalBody="coding_rules.deactivate.confirm"
+  modalHeader="coding_rules.deactivate"
+  onConfirm={[Function]}
+>
+  [Function]
+</ConfirmButton>
+`;
+
+exports[`should render deactivate button 2`] = `
+<Tooltip
+  overlay="coding_rules.need_extend_or_copy"
+>
+  <Button
+    className="coding-rules-detail-quality-profile-deactivate button-red disabled"
+  >
+    coding_rules.deactivate
+  </Button>
+</Tooltip>
+`;
