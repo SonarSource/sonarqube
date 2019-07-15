@@ -7,10 +7,10 @@ dependencies {
 
   compile 'com.google.code.gson:gson'
   compile 'com.google.guava:guava'
+  compile 'commons-io:commons-io'
   compile 'org.apache.velocity:velocity:1.7'
   compile 'org.slf4j:log4j-over-slf4j'
   compile 'org.sonarsource.orchestrator:sonar-orchestrator'
-  compile project(':sonar-ws')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 }

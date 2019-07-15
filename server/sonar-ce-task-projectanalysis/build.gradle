@@ -25,16 +25,30 @@ dependencies {
   compile 'org.slf4j:jul-to-slf4j'
   compile 'org.slf4j:slf4j-api'
 
+  compile 'commons-codec:commons-codec'
+  compile 'commons-io:commons-io'
+  compile 'commons-lang:commons-lang'
+  compile 'com.google.code.gson:gson'
+  compile 'com.google.guava:guava'
+  compile 'com.google.code.findbugs:jsr305'
+  compile 'com.google.protobuf:protobuf-java'
+  compile 'com.googlecode.java-diff-utils:diffutils'
+  compile 'org.mybatis:mybatis'
+  compile 'org.picocontainer:picocontainer'
+  
+  compile project(':sonar-core')
+  compile project(':server:sonar-ce-task')
+  compile project(':server:sonar-db-core')
+  compile project(':server:sonar-db-dao')
+  compile project(':server:sonar-db-migration')
+  compile project(':server:sonar-process')
+  compile project(':server:sonar-server-common')
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compile project(':sonar-plugin-api-impl')
+  compile project(':sonar-duplications')
+  compile project(':sonar-scanner-protocol')
+
   compileOnly 'com.google.code.findbugs:jsr305'
-  compileOnly 'com.googlecode.java-diff-utils:diffutils'
-  compileOnly project(':sonar-core')
-  compileOnly project(':server:sonar-ce-task')
-  compileOnly project(':server:sonar-db-dao')
-  compileOnly project(':server:sonar-process')
-  compileOnly project(':server:sonar-server-common')
-  compileOnly project(':sonar-plugin-api')
-  compileOnly project(':sonar-plugin-api-impl')
-  compileOnly project(':sonar-duplications')
 
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.h2database:h2'
@@ -47,6 +61,7 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.reflections:reflections'
   testCompile project(':server:sonar-db-testing')
+  testCompile project(':sonar-testing-harness')
   testCompile project(path: ":server:sonar-ce-task", configuration: "tests")
   testCompile project(path: ":server:sonar-server", configuration: "tests")
   testCompile project(path: ":server:sonar-server-common", configuration: "tests")

@@ -8,7 +8,7 @@ dependencies {
   // please keep list ordered
 
   compile 'org.codehaus.sonar:sonar-channel'
-  compile project(':sonar-plugin-api')
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
@@ -16,6 +16,7 @@ dependencies {
   testCompile 'commons-io:commons-io'
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
+  testCompile 'org.hamcrest:hamcrest-core'
   testCompile 'org.mockito:mockito-core'
   testCompile 'pmd:pmd:4.3'
 }

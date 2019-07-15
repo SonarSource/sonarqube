@@ -9,7 +9,6 @@ dependencies {
 
   compile 'commons-lang:commons-lang'
   compile 'org.codehaus.sonar:sonar-channel'
-  compile 'org.slf4j:slf4j-api'
 
   testCompile 'ch.qos.logback:logback-classic'
   testCompile 'junit:junit'

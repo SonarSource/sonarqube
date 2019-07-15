@@ -8,25 +8,27 @@ dependencies {
   // please keep the list grouped by configuration and ordered by name
 
   compile 'ch.qos.logback:logback-classic'
+  compile 'ch.qos.logback:logback-core'
   compile 'commons-codec:commons-codec'
   compile 'commons-io:commons-io'
   compile 'commons-lang:commons-lang'
   compile 'com.google.code.gson:gson'
   compile 'com.google.guava:guava'
+  compile 'com.google.protobuf:protobuf-java'
   compile 'com.hazelcast:hazelcast'
   compile 'org.slf4j:jul-to-slf4j'
   compile 'org.slf4j:slf4j-api'
   compile project(':sonar-core')
-  
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+
   compileOnly 'com.google.code.findbugs:jsr305'
-  compileOnly 'com.google.protobuf:protobuf-java'
-  compileOnly 'org.nanohttpd:nanohttpd'
 
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.google.protobuf:protobuf-java'
   testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
-  testCompile 'org.eclipse.jetty:jetty-server'
+  testCompile 'org.hamcrest:hamcrest-core'
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.awaitility:awaitility'
   testCompile project(':sonar-testing-harness')

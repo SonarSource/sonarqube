@@ -10,16 +10,14 @@ dependencies {
   compile 'com.google.code.gson:gson'
   compile 'com.google.protobuf:protobuf-java'
   compile 'commons-io:commons-io'
-  compile 'net.jpountz.lz4:lz4'
+  compile 'commons-lang:commons-lang'
   compile project(':sonar-core')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
   testCompile 'com.google.guava:guava'
   testCompile 'junit:junit'
-  testCompile 'net.javacrumbs.json-unit:json-unit-assertj:0.0.15'
   testCompile 'org.assertj:assertj-core'
-  testCompile 'org.mockito:mockito-core'
 }
 
 //create a single Jar with all dependencies

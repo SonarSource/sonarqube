@@ -19,14 +19,14 @@
  */
 package org.sonar.scanner.protocol.input;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class MultiModuleProjectRepository implements ProjectRepositories {
-  private Map<String, SingleProjectRepository> repositoryPerModule = Maps.newHashMap();
+  private Map<String, SingleProjectRepository> repositoryPerModule = new HashMap<>();
 
   public MultiModuleProjectRepository addFileDataToModule(String moduleKey, @Nullable String path, FileData fileData) {
     if (path == null || (fileData.hash() == null && fileData.revision() == null)) {

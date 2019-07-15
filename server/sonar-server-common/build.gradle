@@ -16,17 +16,19 @@ dependencies {
   // please keep the list grouped by configuration and ordered by name
 
   compile 'org.apache.commons:commons-email'
+  compile 'commons-io:commons-io'
+  compile 'commons-lang:commons-lang'
   compile 'com.google.guava:guava'
   compile 'org.slf4j:slf4j-api'
   compile 'com.squareup.okhttp3:okhttp'
   compile 'org.elasticsearch.client:transport'
   compile project(':server:sonar-db-dao')
+  compile project(':server:sonar-db-migration')
+  compile project(':server:sonar-process')
   compile project(':sonar-core')
   compile project(':sonar-markdown')
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
   compile project(':sonar-ws')
-
-  compileOnly project(':sonar-plugin-api')
-  compileOnly project(':server:sonar-process')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
@@ -38,15 +40,18 @@ dependencies {
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.h2database:h2'
   testCompile 'com.squareup.okhttp3:mockwebserver'
+  testCompile 'com.squareup.okio:okio'
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'junit:junit'
   testCompile 'org.apache.logging.log4j:log4j-api'
   testCompile 'org.apache.logging.log4j:log4j-core'
   testCompile 'org.assertj:assertj-core'
-  testCompile 'org.assertj:assertj-guava'
+  testCompile 'org.hamcrest:hamcrest-core'
   testCompile 'org.mockito:mockito-core'
   testCompile project(':server:sonar-db-testing')
+  testCompile project(path: ':sonar-plugin-api', configuration: 'shadow')
   testCompile project(':sonar-plugin-api-impl')
+  testCompile project(':sonar-testing-harness')
 }
 
 task testJar(type: Jar) {

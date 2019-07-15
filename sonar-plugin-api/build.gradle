@@ -13,7 +13,6 @@ dependencies {
   compile 'commons-io:commons-io'
   compile 'commons-lang:commons-lang'
   compile 'com.google.code.gson:gson'
-  compile 'org.apache.commons:commons-csv'
 
   // shaded, but not relocated
   compile project(':sonar-check-api')
@@ -23,7 +22,6 @@ dependencies {
   shadow 'org.codehaus.woodstox:woodstox-core-lgpl'
 
   compileOnly 'ch.qos.logback:logback-classic'
-  compileOnly 'ch.qos.logback:logback-core'
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'javax.servlet:javax.servlet-api'
   compileOnly 'junit:junit'
@@ -34,7 +32,6 @@ dependencies {
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.mockito:mockito-core'
   testCompile project(':sonar-plugin-api-impl')
-
 }
 
 sourceSets {
@@ -61,13 +58,10 @@ shadowJar {
   configurations = [project.configurations.default]
   relocate('com.google', 'org.sonar.api.internal.google')
   relocate('org.apache.commons', 'org.sonar.api.internal.apachecommons')
-  dependencies {
-      exclude(dependency('org.codehaus.woodstox:woodstox-core-lgpl'))
-      exclude(dependency('org.codehaus.woodstox:stax2-api'))
-      exclude(dependency('org.codehaus.staxmate:staxmate'))
-   }
 }
 
+// only interested in shadowJar
+jar.enabled = false
 artifactoryPublish.skip = false
 
 publishing {

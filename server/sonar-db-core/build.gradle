@@ -9,16 +9,15 @@ dependencies {
 
   compile 'ch.qos.logback:logback-classic'
   compile 'ch.qos.logback:logback-core'
-  compile 'commons-codec:commons-codec'
-  compile 'org.apache.commons:commons-dbcp2'
+  compile 'com.google.guava:guava'
   compile 'commons-dbutils:commons-dbutils'
-  compile 'net.jpountz.lz4:lz4'
-  compile 'org.apache.commons:commons-csv'
+  compile 'commons-io:commons-io'
+  compile 'commons-lang:commons-lang'
+  compile 'org.apache.commons:commons-dbcp2'
   compile 'org.mybatis:mybatis'
+  compile 'org.picocontainer:picocontainer'
   compile 'org.slf4j:slf4j-api'
   compile project(':server:sonar-process')
-  compile project(':sonar-core')
-  compile project(':sonar-scanner-protocol')
   compile project(path: ':sonar-plugin-api', configuration: 'shadow')
   compile project(':sonar-plugin-api-impl')
 
@@ -61,9 +60,7 @@ task testJar(type: Jar) {
   from sourceSets.test.output
 }
 
-configurations {
-  tests
-}
+configurations { tests { extendsFrom testRuntime } }
 
 artifacts {
    tests testJar

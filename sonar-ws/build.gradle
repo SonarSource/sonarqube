@@ -14,15 +14,17 @@ dependencies {
 
   compile 'com.google.protobuf:protobuf-java'
   compile 'com.squareup.okhttp3:okhttp'
-  compileOnly 'javax.annotation:javax.annotation-api'
 
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
 
   testCompile 'com.squareup.okhttp3:mockwebserver'
+  testCompile 'com.squareup.okio:okio'
+  testCompile 'commons-io:commons-io'
   testCompile 'commons-lang:commons-lang'
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
+  testCompile 'org.hamcrest:hamcrest-core'
   testCompile 'org.mockito:mockito-core'
   testCompile project(':sonar-testing-harness')
 }

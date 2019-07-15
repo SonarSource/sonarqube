@@ -16,32 +16,47 @@ configurations {
 dependencies {
   // please keep the list ordered
 
+  compile 'ch.qos.logback:logback-classic'
+  compile 'ch.qos.logback:logback-core'
   compile 'commons-codec:commons-codec'
+  compile 'commons-io:commons-io'
   compile 'commons-lang:commons-lang'
   compile 'com.google.code.gson:gson'
   compile 'org.apache.commons:commons-csv'
   compile 'org.freemarker:freemarker'
+  compile 'com.google.protobuf:protobuf-java'
+  compile 'com.squareup.okhttp3:okhttp'
+  compile 'org.codehaus.staxmate:staxmate'
+  compile 'org.codehaus.woodstox:stax2-api'
+  compile 'org.codehaus.woodstox:woodstox-core-lgpl'
+  compile 'org.picocontainer:picocontainer'
   compile 'org.slf4j:jcl-over-slf4j'
   compile 'org.slf4j:jul-to-slf4j'
   compile 'org.slf4j:log4j-over-slf4j'
   compile 'org.slf4j:slf4j-api'
+  compile 'org.sonarsource.update-center:sonar-update-center-common'
+
   compile project(':sonar-core')
   compile project(':sonar-scanner-protocol')
   compile project(':sonar-ws')
   compile project(':sonar-duplications')
+
   compile project(':sonar-plugin-api-impl')
-  runtime project(path: ':sonar-plugin-api', configuration: 'shadow')
-  compileOnly project(path: ':sonar-plugin-api')
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
   testCompile 'com.squareup.okhttp3:mockwebserver'
+  testCompile 'com.squareup.okhttp3:okhttp'
+  testCompile 'com.squareup.okio:okio'
   testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'javax.servlet:javax.servlet-api'
+  testCompile 'commons-io:commons-io'
   testCompile 'junit:junit'
-  testCompile 'net.javacrumbs.json-unit:json-unit-assertj:0.0.15'
   testCompile 'org.assertj:assertj-core'
+  testCompile 'org.codehaus.staxmate:staxmate'
+  testCompile 'org.hamcrest:hamcrest-core'
   testCompile 'org.mockito:mockito-core'
+  testCompile 'stax:stax-api'
   testCompile project(':plugins:sonar-xoo-plugin')
   testCompile project(':sonar-plugin-api').sourceSets.test.output
 

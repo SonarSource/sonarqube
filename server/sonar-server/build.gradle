@@ -30,17 +30,13 @@ dependencies {
   compile 'ch.qos.logback:logback-core'
   compile 'com.google.code.gson:gson'
   compile 'com.google.protobuf:protobuf-java'
-  compile 'com.googlecode.java-diff-utils:diffutils'
-  compile 'com.hazelcast:hazelcast-client'
   compile 'commons-dbutils:commons-dbutils'
   compile 'io.jsonwebtoken:jjwt-api'
   compile 'io.jsonwebtoken:jjwt-impl'
-  compile 'javax.xml.bind:jaxb-api'
   compile 'org.apache.httpcomponents:httpclient'
   compile 'org.apache.logging.log4j:log4j-api'
   compile 'org.apache.tomcat.embed:tomcat-embed-core'
   compile 'org.apache.commons:commons-dbcp2'
-  compile 'org.elasticsearch.client:transport'
   compile 'org.picocontainer:picocontainer'
   compile 'org.slf4j:jul-to-slf4j'
   compile 'org.slf4j:slf4j-api'
@@ -55,11 +51,10 @@ dependencies {
   compile project(':server:sonar-process')
   compile project(':server:sonar-server-common')
   compile project(':sonar-core')
+  compile project(':sonar-duplications')
   compile project(':sonar-scanner-protocol')
   compile project(':sonar-markdown')
-  compile project(':sonar-duplications')
-  runtime project(path: ':sonar-plugin-api', configuration: 'shadow')
-  compileOnly project(path: ':sonar-plugin-api')
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
   compile project(':sonar-plugin-api-impl')
   compile project(':sonar-ws')
 
@@ -84,6 +79,7 @@ dependencies {
   testCompile 'org.subethamail:subethasmtp'
   testCompile project(':server:sonar-db-testing')
   testCompile project(path: ":server:sonar-server-common", configuration: "tests")
+  testCompile project(':sonar-testing-harness')
 
   runtime 'io.jsonwebtoken:jjwt-jackson'
 }

@@ -7,7 +7,14 @@ sonarqube {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
+  compile 'com.google.guava:guava'
+  compile 'commons-lang:commons-lang'
+  compile 'commons-codec:commons-codec'
+  compile 'org.picocontainer:picocontainer'
+  compile 'commons-dbutils:commons-dbutils'
+
   compile project(':server:sonar-db-core')
+  compile project(':server:sonar-process')
   compile project(':sonar-core')
 
   compileOnly 'com.google.code.findbugs:jsr305'
@@ -17,8 +24,9 @@ dependencies {
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.dbunit:dbunit'
-  testCompile 'org.mockito:mockito-core'
   testCompile 'org.mindrot:jbcrypt'
+  testCompile 'org.mockito:mockito-core'
+  testCompile project(':sonar-scanner-protocol')
   testCompile project(':sonar-testing-harness')
   testCompile project(':server:sonar-db-core').sourceSets.test.output
 

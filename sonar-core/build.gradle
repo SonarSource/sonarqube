@@ -9,9 +9,11 @@ dependencies {
 
   compile 'ch.qos.logback:logback-classic'
   compile 'ch.qos.logback:logback-core'
+  compile 'com.google.guava:guava'
   compile 'com.google.protobuf:protobuf-java'
   compile 'commons-codec:commons-codec'
-  compile 'org.apache.commons:commons-csv'
+  compile 'commons-io:commons-io'
+  compile 'commons-lang:commons-lang'
   compile 'org.codehaus.sonar:sonar-classloader'
   compile 'org.picocontainer:picocontainer'
   compile 'org.slf4j:slf4j-api'
@@ -24,6 +26,7 @@ dependencies {
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
+  testCompile 'org.hamcrest:hamcrest-core'
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.simpleframework:simple'
   testCompile project(':sonar-testing-harness')

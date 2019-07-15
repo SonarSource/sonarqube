@@ -33,12 +33,16 @@ ext {
 
 dependencies {
   // please keep list ordered
+  compile 'org.slf4j:slf4j-api'
 
   compile 'org.elasticsearch.client:transport'
   compile project(':server:sonar-ce')
   compile project(':server:sonar-main')
   compile project(':server:sonar-process')
   compile project(':server:sonar-server')
+  compile project(':sonar-core')
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compile project(':sonar-plugin-api-impl')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
@@ -73,10 +77,6 @@ dependencies {
   bundledPlugin "org.sonarsource.slang:sonar-scala-plugin:${slangVersion}@jar"
   bundledPlugin 'org.sonarsource.typescript:sonar-typescript-plugin:1.9.0.3766@jar'
   bundledPlugin 'org.sonarsource.xml:sonar-xml-plugin:2.0.1.2020@jar'
-
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.mockito:mockito-core'
 }
 
 jar {

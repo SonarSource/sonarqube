@@ -8,16 +8,25 @@ dependencies {
   // please keep the list grouped by configuration and ordered by name
 
   compile 'ch.qos.logback:logback-classic'
+  compile 'ch.qos.logback:logback-core'
+
   // Required by our usage of Guava for clustering : CeWorkerFactoryImpl.getClusteredWorkerUUIDs()
   compile 'com.google.guava:guava'
   compile 'com.hazelcast:hazelcast'
-  compile 'com.hazelcast:hazelcast-client'
+  compile 'commons-io:commons-io'
+  compile 'commons-lang:commons-lang'
+  compile 'io.netty:netty-common'
   compile 'org.apache.logging.log4j:log4j-to-slf4j'
   compile 'org.apache.logging.log4j:log4j-api'
   compile 'org.elasticsearch.client:transport'
+  compile 'org.elasticsearch:elasticsearch'
+  compile 'org.elasticsearch:elasticsearch-core'
+  compile 'org.elasticsearch.plugin:transport-netty4-client'
   compile 'org.slf4j:slf4j-api'
   compile 'org.yaml:snakeyaml'
+  
   compile project(':server:sonar-process')
+  compile project(':sonar-core')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
