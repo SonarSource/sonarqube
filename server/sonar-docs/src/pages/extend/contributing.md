@@ -7,7 +7,7 @@ Please be aware that we are not actively looking for feature contributions to So
 
 
 ## General guidelines
-* Choose an open ticket in [JIRA](https://jira.sonarsource.com/secure/Dashboard.jspa) or propose your change on the [SonarQube Community Forum](https://groups.google.com/forum/#!forum/sonarqube) - the discussion there is likely to result in an open JIRA ticket. ;-)
+* Choose an open ticket in [JIRA](https://jira.sonarsource.com/secure/Dashboard.jspa) or propose your change on the [SonarQube Community Forum](https://community.sonarsource.com) - the discussion there is likely to result in an open JIRA ticket. ;-)
 * Use the SonarSource conventions, which you'll find neatly packaged here: https://github.com/SonarSource/sonar-developer-toolset#the-almost-unbreakable-build
 * Use pull requests to submit your work
 
