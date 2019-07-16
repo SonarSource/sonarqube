@@ -58,11 +58,11 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleError = (error: { response: Response }) => {
-    if (!this.mounted || error.response.status !== 400) {
-      return throwGlobalError(error);
+  handleError = (response: Response) => {
+    if (!this.mounted || response.status !== 400) {
+      return throwGlobalError(response);
     } else {
-      return parseError(error).then(
+      return parseError(response).then(
         errorMsg => this.setState({ error: errorMsg, submitting: false }),
         throwGlobalError
       );

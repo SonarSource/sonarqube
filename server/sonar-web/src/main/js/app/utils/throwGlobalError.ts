@@ -21,15 +21,25 @@ import { parseError } from 'sonar-ui-common/helpers/request';
 import { addGlobalErrorMessage } from '../../store/globalMessages';
 import getStore from './getStore';
 
-export default function throwGlobalError(error: { response: Response }): Promise<Response> {
+export default function throwGlobalError(param: Response | any): Promise<Response | any> {
   const store = getStore();
 
-  // eslint-disable-next-line promise/no-promise-in-callback
-  parseError(error).then(
-    message => {
-      store.dispatch(addGlobalErrorMessage(message));
-    },
-    () => {}
-  );
-  return Promise.reject(error.response);
+  if (param.response instanceof Response) {
+    /* eslint-disable-next-line no-console */
+    console.warn('DEPRECATED: response should not be wrapped, pass it directly.');
+    param = param.response;
+  }
+
+  if (param instanceof Response) {
+    return parseError(param)
+      .then(
+        message => {
+          store.dispatch(addGlobalErrorMessage(message));
+        },
+        () => {}
+      )
+      .then(() => Promise.reject(param));
+  }
+
+  return Promise.reject(param);
 }

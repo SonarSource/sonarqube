@@ -21,13 +21,59 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockUser } from '../../../../helpers/testMocks';
 import PasswordForm from '../PasswordForm';
+import { changePassword } from '../../../../api/users';
+
+const password = 'new password asdf';
+
+jest.mock('../../../../api/users', () => ({
+  changePassword: jest.fn(() => Promise.resolve())
+}));
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
+it('should handle password change', async () => {
+  const onClose = jest.fn();
+  const wrapper = shallowRender({ onClose });
+
+  wrapper.setState({ newPassword: password, confirmPassword: password });
+  wrapper.instance().handleChangePassword({ preventDefault: jest.fn() } as any);
+
+  await new Promise(setImmediate);
+
+  expect(onClose).toHaveBeenCalled();
+});
+
+it('should handle password change error', async () => {
+  const wrapper = shallowRender();
+
+  (changePassword as jest.Mock).mockRejectedValue(new Response(undefined, { status: 400 }));
+
+  wrapper.setState({ newPassword: password, confirmPassword: password });
+  wrapper.instance().mounted = true;
+  wrapper.instance().handleChangePassword({ preventDefault: jest.fn() } as any);
+
+  await new Promise(setImmediate);
+
+  expect(wrapper.state('error')).toBe('default_error_message');
+});
+
+it('should handle form changes', () => {
+  const wrapper = shallowRender();
+
+  wrapper.instance().handleConfirmPasswordChange({ currentTarget: { value: 'pwd' } } as any);
+  expect(wrapper.state('confirmPassword')).toBe('pwd');
+
+  wrapper.instance().handleNewPasswordChange({ currentTarget: { value: 'pwd' } } as any);
+  expect(wrapper.state('newPassword')).toBe('pwd');
+
+  wrapper.instance().handleOldPasswordChange({ currentTarget: { value: 'pwd' } } as any);
+  expect(wrapper.state('oldPassword')).toBe('pwd');
+});
+
 function shallowRender(props: Partial<PasswordForm['props']> = {}) {
-  return shallow(
+  return shallow<PasswordForm>(
     <PasswordForm isCurrentUser={true} onClose={jest.fn()} user={mockUser()} {...props} />
   );
 }

@@ -39,12 +39,11 @@ it('should render correctly', () => {
 });
 
 it('should correctly show errors', async () => {
-  (updateUser as jest.Mock).mockRejectedValue({
-    response: {
-      status: 400,
-      json: jest.fn().mockRejectedValue(undefined)
-    }
-  });
+  const response = new Response(null, { status: 400 });
+  response.json = jest.fn().mockRejectedValue(undefined);
+
+  (updateUser as jest.Mock).mockRejectedValue(response);
+
   const wrapper = shallowRender();
   submit(wrapper.dive().find('form'));
   await waitAndUpdate(wrapper);

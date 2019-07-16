@@ -64,7 +64,6 @@ import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating
 import Level from 'sonar-ui-common/components/ui/Level';
 import Rating from 'sonar-ui-common/components/ui/Rating';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import * as request from 'sonar-ui-common/helpers/request';
 import NotFound from '../../../app/components/NotFound';
 import Favorite from '../../../components/controls/Favorite';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
@@ -92,6 +91,7 @@ import addGlobalSuccessMessage from '../../utils/addGlobalSuccessMessage';
 import throwGlobalError from '../../utils/throwGlobalError';
 import A11ySkipTarget from '../a11y/A11ySkipTarget';
 import Suggestions from '../embed-docs-modal/Suggestions';
+import request from './legacy/request-legacy';
 
 const exposeLibraries = () => {
   const global = window as any;

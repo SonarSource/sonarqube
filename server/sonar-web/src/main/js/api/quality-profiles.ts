@@ -19,15 +19,7 @@
  */
 import { map } from 'lodash';
 import { csvEscape } from 'sonar-ui-common/helpers/csv';
-import {
-  checkStatus,
-  getJSON,
-  parseJSON,
-  post,
-  postJSON,
-  request,
-  RequestData
-} from 'sonar-ui-common/helpers/request';
+import { getJSON, post, postJSON, RequestData } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface ProfileActions {
@@ -89,23 +81,11 @@ export function getQualityProfile(data: {
 }
 
 export function createQualityProfile(data: RequestData): Promise<any> {
-  return request('/api/qualityprofiles/create')
-    .setMethod('post')
-    .setData(data)
-    .submit()
-    .then(checkStatus)
-    .then(parseJSON)
-    .catch(throwGlobalError);
+  return postJSON('/api/qualityprofiles/create', data).catch(throwGlobalError);
 }
 
 export function restoreQualityProfile(data: RequestData): Promise<any> {
-  return request('/api/qualityprofiles/restore')
-    .setMethod('post')
-    .setData(data)
-    .submit()
-    .then(checkStatus)
-    .then(parseJSON)
-    .catch(throwGlobalError);
+  return postJSON('/api/qualityprofiles/restore', data).catch(throwGlobalError);
 }
 
 export interface ProfileProject {
@@ -125,7 +105,7 @@ export function getProfileInheritance(profileKey: string): Promise<any> {
   return getJSON('/api/qualityprofiles/inheritance', { profileKey }).catch(throwGlobalError);
 }
 
-export function setDefaultProfile(profileKey: string): Promise<void> {
+export function setDefaultProfile(profileKey: string) {
   return post('/api/qualityprofiles/set_default', { profileKey });
 }
 
@@ -142,9 +122,10 @@ export function deleteProfile(profileKey: string) {
 }
 
 export function changeProfileParent(profileKey: string, parentKey: string) {
-  return post('/api/qualityprofiles/change_parent', { profileKey, parentKey }).catch(
-    throwGlobalError
-  );
+  return post('/api/qualityprofiles/change_parent', {
+    profileKey,
+    parentKey
+  }).catch(throwGlobalError);
 }
 
 export function getImporters(): Promise<

@@ -42,10 +42,10 @@ export function isValidLicense(): Promise<{ isValidLicense: boolean }> {
 }
 
 export function showLicense(): Promise<License> {
-  return getJSON('/api/editions/show_license').catch((e: { response: Response }) => {
-    if (e.response && e.response.status === 404) {
+  return getJSON('/api/editions/show_license').catch((response: Response) => {
+    if (response && response.status === 404) {
       return Promise.resolve(undefined);
     }
-    return throwGlobalError(e);
+    return throwGlobalError(response);
   });
 }

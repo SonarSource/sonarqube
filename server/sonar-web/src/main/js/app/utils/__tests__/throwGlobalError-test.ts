@@ -20,9 +20,17 @@
 import getStore from '../getStore';
 import throwGlobalError from '../throwGlobalError';
 
+jest.useFakeTimers();
+
 it('should put the error message in the store', async () => {
-  const response: any = { json: jest.fn().mockResolvedValue({ errors: [{ msg: 'error 1' }] }) };
-  await throwGlobalError({ response }).catch(() => {});
+  const response = new Response();
+  response.json = jest.fn().mockResolvedValue({ errors: [{ msg: 'error 1' }] });
+
+  // We need to catch because throwGlobalError rethrows after displaying the message
+  await throwGlobalError(response)
+    .then(() => fail('Should throw'))
+    .catch(() => {});
+
   expect(getStore().getState().globalMessages[0]).toMatchObject({
     level: 'ERROR',
     message: 'error 1'
@@ -30,10 +38,42 @@ it('should put the error message in the store', async () => {
 });
 
 it('should put a default error messsage in the store', async () => {
-  const response: any = { json: jest.fn().mockResolvedValue({}) };
-  await throwGlobalError({ response }).catch(() => {});
+  const response = new Response();
+  response.json = jest.fn().mockResolvedValue({});
+
+  // We need to catch because throwGlobalError rethrows after displaying the message
+  await throwGlobalError(response)
+    .then(() => fail('Should throw'))
+    .catch(() => {});
+
   expect(getStore().getState().globalMessages[0]).toMatchObject({
     level: 'ERROR',
     message: 'default_error_message'
   });
+});
+
+it('should handle weird response types', () => {
+  const response = { weird: 'response type' };
+
+  return throwGlobalError(response)
+    .then(() => fail('Should throw'))
+    .catch(error => {
+      expect(error).toBe(response);
+    });
+});
+
+it('should unwrap response if necessary', async () => {
+  const response = new Response();
+  response.json = jest.fn().mockResolvedValue({});
+
+  /* eslint-disable-next-line no-console */
+  console.warn = jest.fn();
+
+  // We need to catch because throwGlobalError rethrows after displaying the message
+  await throwGlobalError({ response })
+    .then(() => fail('Should throw'))
+    .catch(() => {});
+
+  /* eslint-disable-next-line no-console */
+  expect(console.warn).toHaveBeenCalled();
 });

@@ -5849,6 +5849,11 @@ lodash@4.17.11, lodash@^4.15.0, lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.3
   resolved "https://repox.jfrog.io/repox/api/npm/npm/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
   integrity sha1-s56mIp72B+zYniyN8SU2iRysm40=
 
+lodash@4.17.14:
+  version "4.17.14"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/lodash/-/lodash-4.17.14.tgz#9ce487ae66c96254fe20b599f21b6816028078ba"
+  integrity sha1-nOSHrmbJYlT+ILWZ8htoFgKAeLo=
+
 loglevel@^1.4.1:
   version "1.6.3"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/loglevel/-/loglevel-1.6.3.tgz#77f2eb64be55a404c9fd04ad16d57c1d6d6b1280"
@@ -7358,7 +7363,7 @@ prop-types-exact@^1.2.0:
     object.assign "^4.1.0"
     reflect.ownkeys "^0.2.0"
 
-prop-types@^15.5.10, prop-types@^15.5.6, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@15.7.2, prop-types@^15.5.10, prop-types@^15.5.6, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha1-UsQedbjIfnK52TYOAga5ncv/psU=
@@ -8416,10 +8421,10 @@ sockjs@0.3.19:
     faye-websocket "^0.10.0"
     uuid "^3.0.1"
 
-sonar-ui-common@0.0.14:
-  version "0.0.14"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/sonar-ui-common/-/sonar-ui-common-0.0.14.tgz#56faa2ba62503c206e9894f55f36bd9ff4934257"
-  integrity sha1-VvqiumJQPCBumJT1Xza9n/STQlc=
+sonar-ui-common@0.0.18:
+  version "0.0.18"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/sonar-ui-common/-/sonar-ui-common-0.0.18.tgz#93b71859f83b85cc23e8c201bb9ed0420fcbb479"
+  integrity sha1-k7cYWfg7hcwj6MIBu57QQg/LtHk=
   dependencies:
     "@types/react-select" "1.2.6"
     classnames "2.2.6"
@@ -8433,7 +8438,8 @@ sonar-ui-common@0.0.14:
     date-fns "1.30.1"
     formik "1.2.0"
     history "3.3.0"
-    lodash "4.17.11"
+    lodash "4.17.14"
+    prop-types "15.7.2"
     react-draggable "3.2.1"
     react-intl "2.8.0"
     react-modal "3.8.2"

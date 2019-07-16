@@ -130,9 +130,9 @@ export function resetValue(key: string, component?: string) {
 }
 
 function handleError(key: string, dispatch: Dispatch) {
-  return (error: { response: Response }) => {
+  return (response: Response) => {
     dispatch(stopLoading(key));
-    return parseError(error).then(message => {
+    return parseError(response).then(message => {
       dispatch(failValidation(key, message));
       return Promise.reject();
     });
