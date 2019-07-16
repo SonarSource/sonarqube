@@ -22,8 +22,8 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import Select from 'sonar-ui-common/components/controls/Select';
 import { setWorkerCount } from '../../../api/ce';
-import Select from '../../../components/controls/Select';
 
 const MAX_WORKERS = 10;
 

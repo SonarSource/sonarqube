@@ -22,7 +22,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import Select from '../../../components/controls/Select';
+import Select from 'sonar-ui-common/components/controls/Select';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { activateRule, Profile } from '../../../api/quality-profiles';
 import { SEVERITIES } from '../../../helpers/constants';

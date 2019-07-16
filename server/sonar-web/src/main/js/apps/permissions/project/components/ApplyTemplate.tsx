@@ -23,7 +23,7 @@ import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/contro
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import Select from '../../../../components/controls/Select';
+import Select from 'sonar-ui-common/components/controls/Select';
 import { getPermissionTemplates, applyTemplateToProject } from '../../../../api/permissions';
 
 interface Props {

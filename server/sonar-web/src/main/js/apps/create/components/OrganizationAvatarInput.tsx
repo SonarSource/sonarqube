@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { isWebUri } from 'valid-url';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import ValidationInput from '../../../components/controls/ValidationInput';
+import ValidationInput from 'sonar-ui-common/components/controls/ValidationInput';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 
 interface Props {

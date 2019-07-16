@@ -18,15 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormikProps } from 'formik';
 import { isWebUri } from 'valid-url';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import InputValidationField from 'sonar-ui-common/components/controls/InputValidationField';
-import ValidationModal from '../../../components/controls/ValidationModal';
+import ValidationModal from 'sonar-ui-common/components/controls/ValidationModal';
 
 interface Props {
   onClose: () => void;
-  onDone: (data: { name: string; url: string }) => Promise<void>;
+  onDone: (data: Values) => Promise<void>;
   webhook?: T.Webhook;
 }
 
@@ -72,24 +71,16 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
         confirmButtonText={confirmButtonText}
         header={modalHeader}
         initialValues={{
-          name: webhook ? webhook.name : '',
-          secret: webhook ? webhook.secret : '',
-          url: webhook ? webhook.url : ''
+          name: (webhook && webhook.name) || '',
+          secret: (webhook && webhook.secret) || '',
+          url: (webhook && webhook.url) || ''
         }}
         isInitialValid={isUpdate}
         onClose={this.props.onClose}
         onSubmit={this.props.onDone}
         size="small"
         validate={this.handleValidate}>
-        {({
-          dirty,
-          errors,
-          handleBlur,
-          handleChange,
-          isSubmitting,
-          touched,
-          values
-        }: FormikProps<Values>) => (
+        {({ dirty, errors, handleBlur, handleChange, isSubmitting, touched, values }) => (
           <>
             <InputValidationField
               autoFocus={true}

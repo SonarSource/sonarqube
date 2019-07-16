@@ -24,9 +24,9 @@ import SortAscIcon from 'sonar-ui-common/components/icons/SortAscIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
+import Select from 'sonar-ui-common/components/controls/Select';
 import ProjectsSortingSelectOption, { Option } from './ProjectsSortingSelectOption';
 import { colors } from '../../../app/theme';
-import Select from '../../../components/controls/Select';
 import { SORTING_METRICS, SORTING_LEAK_METRICS, parseSorting } from '../utils';
 
 interface Props {

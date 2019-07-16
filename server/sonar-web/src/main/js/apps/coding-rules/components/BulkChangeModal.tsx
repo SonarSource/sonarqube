@@ -23,8 +23,8 @@ import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/contro
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import Select from 'sonar-ui-common/components/controls/Select';
 import { Query, serializeQuery } from '../query';
-import Select from '../../../components/controls/Select';
 import { Profile, bulkActivateRules, bulkDeactivateRules } from '../../../api/quality-profiles';
 
 interface Props {

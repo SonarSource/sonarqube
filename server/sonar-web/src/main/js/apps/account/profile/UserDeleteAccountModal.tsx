@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormikProps } from 'formik';
 import { connect } from 'react-redux';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import InputValidationField from 'sonar-ui-common/components/controls/InputValidationField';
+import ValidationModal from 'sonar-ui-common/components/controls/ValidationModal';
 import UserDeleteAccountContent from './UserDeleteAccountContent';
 import RecentHistory from '../../../app/components/RecentHistory';
-import ValidationModal from '../../../components/controls/ValidationModal';
 import { deactivateUser } from '../../../api/users';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { doLogout } from '../../../store/rootActions';
@@ -94,15 +93,7 @@ export class UserDeleteAccountModal extends React.PureComponent<DeleteModalProps
         onClose={toggleModal}
         onSubmit={this.handleSubmit}
         validate={this.handleValidate}>
-        {({
-          dirty,
-          errors,
-          handleBlur,
-          handleChange,
-          isSubmitting,
-          touched,
-          values
-        }: FormikProps<Values>) => (
+        {({ dirty, errors, handleBlur, handleChange, isSubmitting, touched, values }) => (
           <>
             <Alert className="big-spacer-bottom" variant="error">
               {translate('my_profile.warning_message')}

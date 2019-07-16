@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import Select from 'sonar-ui-common/components/controls/Select';
 import { Profile } from '../../api/quality-profiles';
-import Select from '../../components/controls/Select';
 
 interface Props {
   onChangeProfile: (oldProfile: string, newProfile: string) => Promise<void>;

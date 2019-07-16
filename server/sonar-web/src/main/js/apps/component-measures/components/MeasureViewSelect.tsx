@@ -22,7 +22,7 @@ import TreemapIcon from 'sonar-ui-common/components/icons/TreemapIcon';
 import ListIcon from 'sonar-ui-common/components/icons/ListIcon';
 import TreeIcon from 'sonar-ui-common/components/icons/TreeIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Select from '../../../components/controls/Select';
+import Select from 'sonar-ui-common/components/controls/Select';
 import { hasList, hasTree, hasTreemap, View } from '../utils';
 
 interface Props {

@@ -22,7 +22,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
-import Select, { Creatable } from '../../../components/controls/Select';
+import Select, { Creatable } from 'sonar-ui-common/components/controls/Select';
 
 export interface MetricProps {
   description: string;

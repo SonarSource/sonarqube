@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { differenceWith } from 'lodash';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { AsyncSelect } from 'sonar-ui-common/components/controls/Select';
 import ProjectNotifications from './ProjectNotifications';
 import { NotificationProject } from './types';
 import { getSuggestions } from '../../../api/components';
-import { AsyncSelect } from '../../../components/controls/Select';
 import Organization from '../../../components/shared/Organization';
 
 export interface Props {

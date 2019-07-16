@@ -24,7 +24,7 @@ import {
   getLocalizedMetricName,
   getLocalizedMetricDomain
 } from 'sonar-ui-common/helpers/l10n';
-import Select from '../../../components/controls/Select';
+import Select from 'sonar-ui-common/components/controls/Select';
 
 interface Props {
   metrics: T.Metric[];

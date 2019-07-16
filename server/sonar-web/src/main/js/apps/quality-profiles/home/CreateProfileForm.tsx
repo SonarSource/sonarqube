@@ -22,12 +22,12 @@ import { sortBy } from 'lodash';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
+import Select from 'sonar-ui-common/components/controls/Select';
 import {
   changeProfileParent,
   createQualityProfile,
   getImporters
 } from '../../../api/quality-profiles';
-import Select from '../../../components/controls/Select';
 import { Profile } from '../types';
 
 interface Props {

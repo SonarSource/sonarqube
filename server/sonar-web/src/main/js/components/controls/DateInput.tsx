@@ -37,7 +37,7 @@ import {
 import { ButtonIcon, ClearButton } from 'sonar-ui-common/components/controls/buttons';
 import OutsideClickHandler from 'sonar-ui-common/components/controls/OutsideClickHandler';
 import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
-import Select from './Select';
+import Select from 'sonar-ui-common/components/controls/Select';
 import './DayPicker.css';
 import './styles.css';
 

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import Select from 'sonar-ui-common/components/controls/Select';
 import PerspectiveSelectOption, { Option } from './PerspectiveSelectOption';
-import Select from '../../../components/controls/Select';
 import { VIEWS, VISUALIZATIONS } from '../utils';
 
 interface Props {

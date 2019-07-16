@@ -20,11 +20,11 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import Select from 'sonar-ui-common/components/controls/Select';
 import ProjectActivityEventSelectOption from './ProjectActivityEventSelectOption';
 import ProjectActivityEventSelectValue from './ProjectActivityEventSelectValue';
 import ProjectActivityDateInput from './ProjectActivityDateInput';
 import { EVENT_TYPES, APPLICATION_EVENT_TYPES, Query } from '../utils';
-import Select from '../../../components/controls/Select';
 
 interface Props {
   category?: string;

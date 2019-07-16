@@ -62,6 +62,8 @@ import ActionsDropdown, {
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
 import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
 import ReloadButton from 'sonar-ui-common/components/controls/ReloadButton';
+import Select from 'sonar-ui-common/components/controls/Select';
+import SearchSelect from 'sonar-ui-common/components/controls/SearchSelect';
 import throwGlobalError from '../../utils/throwGlobalError';
 import addGlobalSuccessMessage from '../../utils/addGlobalSuccessMessage';
 import Suggestions from '../embed-docs-modal/Suggestions';
@@ -86,11 +88,9 @@ import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Favorite from '../../../components/controls/Favorite';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import BranchIcon from '../../../components/icons-components/BranchIcon';
-import Select from '../../../components/controls/Select';
 import SelectList from '../../../components/SelectList/SelectList';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import NotFound from '../../../app/components/NotFound';
-import SearchSelect from '../../../components/controls/SearchSelect';
 import A11ySkipTarget from '../a11y/A11ySkipTarget';
 
 const exposeLibraries = () => {

@@ -21,7 +21,7 @@ import * as React from 'react';
 import { sortBy } from 'lodash';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import Select from '../../../components/controls/Select';
+import Select from 'sonar-ui-common/components/controls/Select';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
 
 interface Props {

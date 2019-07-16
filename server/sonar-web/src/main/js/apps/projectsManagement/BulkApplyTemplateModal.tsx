@@ -23,8 +23,8 @@ import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import Select from 'sonar-ui-common/components/controls/Select';
 import { getPermissionTemplates, bulkApplyTemplate } from '../../api/permissions';
-import Select from '../../components/controls/Select';
 
 export interface Props {
   analyzedBefore: Date | undefined;

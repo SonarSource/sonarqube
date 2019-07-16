@@ -20,10 +20,10 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { debounce } from 'lodash';
+import ValidationInput from 'sonar-ui-common/components/controls/ValidationInput';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
 import { getOrganization } from '../../../api/organizations';
-import ValidationInput from '../../../components/controls/ValidationInput';
 
 interface Props {
   initialValue?: string;

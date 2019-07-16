@@ -28,9 +28,9 @@ import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import Select from 'sonar-ui-common/components/controls/Select';
 import { serializeQuery, ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP } from './utils';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
-import Select from '../../../components/controls/Select';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
 
 interface Props {

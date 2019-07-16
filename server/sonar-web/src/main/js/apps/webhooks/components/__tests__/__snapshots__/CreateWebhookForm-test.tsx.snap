@@ -49,7 +49,7 @@ exports[`should render correctly when updating a webhook without secret 1`] = `
   initialValues={
     Object {
       "name": "foo",
-      "secret": undefined,
+      "secret": "",
       "url": "http://foo.bar",
     }
   }

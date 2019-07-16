@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import Select from 'sonar-ui-common/components/controls/Select';
 import AddGraphMetric from './forms/AddGraphMetric';
 import { isCustomGraph, GRAPH_TYPES } from '../utils';
-import Select from '../../../components/controls/Select';
 
 interface Props {
   addCustomMetric: (metric: string) => void;

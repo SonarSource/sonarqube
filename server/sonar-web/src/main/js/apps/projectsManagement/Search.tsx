@@ -25,10 +25,10 @@ import { Button } from 'sonar-ui-common/components/controls/buttons';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
+import Select from 'sonar-ui-common/components/controls/Select';
 import BulkApplyTemplateModal from './BulkApplyTemplateModal';
 import DeleteModal from './DeleteModal';
 import DateInput from '../../components/controls/DateInput';
-import Select from '../../components/controls/Select';
 import { Project } from '../../api/components';
 
 export interface Props {

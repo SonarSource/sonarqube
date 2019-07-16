@@ -956,22 +956,12 @@
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/d3-color/-/d3-color-1.2.2.tgz#80cf7cfff7401587b8f89307ba36fe4a576bc7cf"
   integrity sha1-gM98//dAFYe4+JMHujb+Sldrx88=
 
-"@types/d3-hierarchy@1.1.4":
-  version "1.1.4"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/d3-hierarchy/-/d3-hierarchy-1.1.4.tgz#b04dfcb1f2074da789ada10fe4942d13f0bce421"
-  integrity sha1-sE38sfIHTaeJraEP5JQtE/C85CE=
-
 "@types/d3-interpolate@*":
   version "1.3.1"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/d3-interpolate/-/d3-interpolate-1.3.1.tgz#1c280511f622de9b0b47d463fa55f9a4fd6f5fc8"
   integrity sha1-HCgFEfYi3psLR9Rj+lX5pP1vX8g=
   dependencies:
     "@types/d3-color" "*"
-
-"@types/d3-path@*":
-  version "1.0.8"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/d3-path/-/d3-path-1.0.8.tgz#48e6945a8ff43ee0a1ce85c8cfa2337de85c7c79"
-  integrity sha1-SOaUWo/0PuChzoXIz6IzfehcfHk=
 
 "@types/d3-scale@2.0.2":
   version "2.0.2"
@@ -989,13 +979,6 @@
   version "1.3.2"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/d3-selection/-/d3-selection-1.3.2.tgz#dd5661a560ba9ce3aba823c424b8d4a1bc7e833f"
   integrity sha1-3VZhpWC6nOOrqCPEJLjUobx+gz8=
-
-"@types/d3-shape@1.2.4":
-  version "1.2.4"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/d3-shape/-/d3-shape-1.2.4.tgz#e65585f2254d83ae42c47af2e730dd9b97952996"
-  integrity sha1-5lWF8iVNg65CxHry5zDdm5eVKZY=
-  dependencies:
-    "@types/d3-path" "*"
 
 "@types/d3-time@*":
   version "1.0.10"
@@ -9280,11 +9263,12 @@ sockjs@0.3.19:
     faye-websocket "^0.10.0"
     uuid "^3.0.1"
 
-sonar-ui-common@0.0.11:
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/sonar-ui-common/-/sonar-ui-common-0.0.11.tgz#b9aee225da16564d5b823ca2fb103f6d913db719"
-  integrity sha512-Q3Umwf+nVnH0J6XUR104PRpLN8aGAlqZHOA2oxaJVzhwT26o80A6i0i6PZAkzrbqQE4jhTRBQ396oalihI0s2g==
+sonar-ui-common@0.0.13:
+  version "0.0.13"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/sonar-ui-common/-/sonar-ui-common-0.0.13.tgz#b01255f32d7863e529117bfe715890edfcdb8c97"
+  integrity sha1-sBJV8y14Y+UpEXv+cViQ7fzbjJc=
   dependencies:
+    "@types/react-select" "1.2.6"
     classnames "2.2.6"
     clipboard "2.0.4"
     d3-array "1.2.4"
@@ -9294,12 +9278,14 @@ sonar-ui-common@0.0.11:
     d3-shape "1.2.2"
     d3-zoom "1.7.3"
     date-fns "1.30.1"
+    formik "1.2.0"
     history "3.3.0"
     lodash "4.17.11"
     react-draggable "3.2.1"
     react-intl "2.8.0"
     react-modal "3.8.2"
     react-router "3.2.1"
+    react-select "1.2.1"
     react-virtualized "9.21.0"
 
 sort-keys@^2.0.0:
