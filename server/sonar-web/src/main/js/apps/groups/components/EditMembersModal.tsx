@@ -23,9 +23,9 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import SelectList, {
-  Filter,
+  SelectListFilter,
   SelectListSearchParams
-} from '../../../components/SelectList/SelectList';
+} from 'sonar-ui-common/components/controls/SelectList';
 import { addUserToGroup, getUsersInGroup, removeUserFromGroup } from '../../../api/user_groups';
 
 interface Props {
@@ -154,7 +154,7 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
             needToReload={
               this.state.needToReload &&
               this.state.lastSearchParams &&
-              this.state.lastSearchParams.filter !== Filter.All
+              this.state.lastSearchParams.filter !== SelectListFilter.All
             }
             onSearch={this.fetchUsers}
             onSelect={this.handleSelect}

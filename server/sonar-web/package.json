@@ -35,7 +35,7 @@
     "regenerator-runtime": "0.13.2",
     "remark-custom-blocks": "2.3.0",
     "remark-slug": "5.1.0",
-    "sonar-ui-common": "0.0.13",
+    "sonar-ui-common": "0.0.14",
     "unist-util-visit": "1.4.0",
     "valid-url": "1.0.9",
     "whatwg-fetch": "2.0.4"

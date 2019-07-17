@@ -22,9 +22,9 @@ import { find, without } from 'lodash';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import SelectList, {
-  Filter,
+  SelectListFilter,
   SelectListSearchParams
-} from '../../../components/SelectList/SelectList';
+} from 'sonar-ui-common/components/controls/SelectList';
 import { getUserGroups, UserGroup } from '../../../api/users';
 import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
 
@@ -162,7 +162,7 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
             needToReload={
               this.state.needToReload &&
               this.state.lastSearchParams &&
-              this.state.lastSearchParams.filter !== Filter.All
+              this.state.lastSearchParams.filter !== SelectListFilter.All
             }
             onSearch={this.fetchUsers}
             onSelect={this.handleSelect}

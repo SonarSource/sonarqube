@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import SelectList, { SelectListFilter } from 'sonar-ui-common/components/controls/SelectList';
 import { waitAndUpdate, click } from 'sonar-ui-common/helpers/testUtils';
 import GroupsForm from '../GroupsForm';
-import SelectList, { Filter } from '../../../../components/SelectList/SelectList';
 import { getUserGroups } from '../../../../api/users';
 import { addUserToGroup, removeUserFromGroup } from '../../../../api/user_groups';
 import { mockUser } from '../../../../helpers/testMocks';
@@ -70,7 +70,7 @@ it('should render correctly', async () => {
     .props()
     .onSearch({
       query: '',
-      filter: Filter.Selected,
+      filter: SelectListFilter.Selected,
       page: 1,
       pageSize: 100
     });
@@ -88,7 +88,7 @@ it('should render correctly', async () => {
       p: 1,
       ps: 100,
       q: undefined,
-      selected: Filter.Selected
+      selected: SelectListFilter.Selected
     })
   );
   expect(wrapper.state().needToReload).toBe(false);

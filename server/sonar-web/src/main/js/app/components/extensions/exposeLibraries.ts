@@ -63,6 +63,7 @@ import ActionsDropdown, {
 import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
 import ReloadButton from 'sonar-ui-common/components/controls/ReloadButton';
 import Select from 'sonar-ui-common/components/controls/Select';
+import SelectList from 'sonar-ui-common/components/controls/SelectList';
 import SearchSelect from 'sonar-ui-common/components/controls/SearchSelect';
 import throwGlobalError from '../../utils/throwGlobalError';
 import addGlobalSuccessMessage from '../../utils/addGlobalSuccessMessage';
@@ -88,7 +89,6 @@ import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Favorite from '../../../components/controls/Favorite';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import BranchIcon from '../../../components/icons-components/BranchIcon';
-import SelectList from '../../../components/SelectList/SelectList';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import NotFound from '../../../app/components/NotFound';
 import A11ySkipTarget from '../a11y/A11ySkipTarget';
@@ -112,7 +112,11 @@ const exposeLibraries = () => {
     getRulesUrl
   };
   global.SonarMeasures = { ...measures, formatMeasure };
-  global.SonarRequest = { ...request, throwGlobalError, addGlobalSuccessMessage };
+  global.SonarRequest = {
+    ...request,
+    throwGlobalError,
+    addGlobalSuccessMessage
+  };
   global.SonarComponents = {
     A11ySkipTarget,
     ActionsDropdown,

@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import SelectList, { SelectListFilter } from 'sonar-ui-common/components/controls/SelectList';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import EditMembersModal from '../EditMembersModal';
-import SelectList, { Filter } from '../../../../components/SelectList/SelectList';
 import { getUsersInGroup, addUserToGroup, removeUserFromGroup } from '../../../../api/user_groups';
 
 const organization = 'orga';
@@ -53,7 +53,7 @@ it('should render modal properly', async () => {
     .props()
     .onSearch({
       query: '',
-      filter: Filter.Selected,
+      filter: SelectListFilter.Selected,
       page: 1,
       pageSize: 100
     });
@@ -72,7 +72,7 @@ it('should render modal properly', async () => {
       p: 1,
       ps: 100,
       q: undefined,
-      selected: Filter.Selected
+      selected: SelectListFilter.Selected
     })
   );
 

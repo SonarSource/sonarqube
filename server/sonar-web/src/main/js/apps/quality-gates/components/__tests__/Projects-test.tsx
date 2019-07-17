@@ -20,8 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import SelectList, { SelectListFilter } from 'sonar-ui-common/components/controls/SelectList';
 import Projects from '../Projects';
-import SelectList, { Filter } from '../../../../components/SelectList/SelectList';
 import { mockQualityGate } from '../../../../helpers/testMocks';
 import {
   searchProjects,
@@ -56,7 +56,7 @@ it('should render correctly', async () => {
     .props()
     .onSearch({
       query: '',
-      filter: Filter.Selected,
+      filter: SelectListFilter.Selected,
       page: 1,
       pageSize: 100
     });
@@ -74,7 +74,7 @@ it('should render correctly', async () => {
       page: 1,
       pageSize: 100,
       query: undefined,
-      selected: Filter.Selected
+      selected: SelectListFilter.Selected
     })
   );
   expect(wrapper.state().needToReload).toBe(false);

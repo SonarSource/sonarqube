@@ -12,7 +12,7 @@
     "react": "16.8.6",
     "react-dom": "16.8.6",
     "regenerator-runtime": "0.13.2",
-    "sonar-ui-common": "0.0.13",
+    "sonar-ui-common": "0.0.14",
     "whatwg-fetch": "2.0.4"
   },
   "devDependencies": {
