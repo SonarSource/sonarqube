@@ -1,0 +1,117 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<header
+  className="page-header quality-profile-header"
+>
+  <div
+    className="note spacer-bottom"
+  >
+    <IndexLink
+      className="text-muted"
+      to="/organizations/foo/quality_profiles"
+    >
+      quality_profiles.page
+    </IndexLink>
+     / 
+    <Link
+      className="text-muted"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/organizations/foo/quality_profiles",
+          "query": Object {
+            "language": "js",
+          },
+        }
+      }
+    >
+      JavaScript
+    </Link>
+  </div>
+  <h1
+    className="page-title"
+  >
+    <ProfileLink
+      className="link-base-color"
+      language="js"
+      name="name"
+      organization="foo"
+    >
+      <span>
+        name
+      </span>
+    </ProfileLink>
+  </h1>
+  <div
+    className="pull-right"
+  >
+    <ul
+      className="list-inline"
+      style={
+        Object {
+          "lineHeight": "24px",
+        }
+      }
+    >
+      <li
+        className="small spacer-right"
+      >
+        quality_profiles.updated_
+         
+        <ProfileDate />
+      </li>
+      <li
+        className="small big-spacer-right"
+      >
+        quality_profiles.used_
+         
+        <ProfileDate />
+      </li>
+      <li>
+        <Link
+          className="button"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/organizations/foo/quality_profiles/changelog",
+              "query": Object {
+                "language": "js",
+                "name": "name",
+              },
+            }
+          }
+        >
+          changelog
+        </Link>
+      </li>
+      <li>
+        <withRouter(ProfileActions)
+          className="pull-left"
+          organization="foo"
+          profile={
+            Object {
+              "activeDeprecatedRuleCount": 2,
+              "activeRuleCount": 10,
+              "childrenCount": 0,
+              "depth": 1,
+              "isBuiltIn": false,
+              "isDefault": false,
+              "isInherited": false,
+              "key": "key",
+              "language": "js",
+              "languageName": "JavaScript",
+              "name": "name",
+              "organization": "foo",
+              "projectCount": 3,
+            }
+          }
+          updateProfiles={[MockFunction]}
+        />
+      </li>
+    </ul>
+  </div>
+</header>
+`;

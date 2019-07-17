@@ -25,12 +25,7 @@ import ProfileActions from '../components/ProfileActions';
 import ProfileDate from '../components/ProfileDate';
 import ProfileLink from '../components/ProfileLink';
 import { Profile } from '../types';
-import {
-  getProfileChangelogPath,
-  getProfilesForLanguagePath,
-  getProfilesPath,
-  isStagnant
-} from '../utils';
+import { getProfileChangelogPath, getProfilesForLanguagePath, getProfilesPath } from '../utils';
 
 interface Props {
   profile: Profile;
@@ -39,33 +34,6 @@ interface Props {
 }
 
 export default class ProfileHeader extends React.PureComponent<Props> {
-  renderUpdateDate() {
-    const { profile } = this.props;
-    let inner = (
-      <span>
-        {translate('quality_profiles.updated_')} <ProfileDate date={profile.rulesUpdatedAt} />
-      </span>
-    );
-    if (isStagnant(profile)) {
-      inner = <span className="badge badge-normal-size badge-focus">{inner}</span>;
-    }
-    return <li className="small spacer-right">{inner}</li>;
-  }
-
-  renderUsageDate() {
-    const { profile } = this.props;
-    let inner = (
-      <span>
-        {translate('quality_profiles.used_')} <ProfileDate date={profile.lastUsed} />
-      </span>
-    );
-    if (!profile.lastUsed) {
-      inner = <span className="badge badge-normal-size badge-focus">{inner}</span>;
-    }
-
-    return <li className="small big-spacer-right">{inner}</li>;
-  }
-
   render() {
     const { organization, profile } = this.props;
 
@@ -98,8 +66,12 @@ export default class ProfileHeader extends React.PureComponent<Props> {
 
         <div className="pull-right">
           <ul className="list-inline" style={{ lineHeight: '24px' }}>
-            {this.renderUpdateDate()}
-            {this.renderUsageDate()}
+            <li className="small spacer-right">
+              {translate('quality_profiles.updated_')} <ProfileDate date={profile.rulesUpdatedAt} />
+            </li>
+            <li className="small big-spacer-right">
+              {translate('quality_profiles.used_')} <ProfileDate date={profile.lastUsed} />
+            </li>
             <li>
               <Link
                 className="button"
