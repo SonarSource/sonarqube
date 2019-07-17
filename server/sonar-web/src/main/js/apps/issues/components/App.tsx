@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as key from 'keymaster';
-import { keyBy, omit, without } from 'lodash';
+import { debounce, keyBy, omit, without } from 'lodash';
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
@@ -175,6 +175,7 @@ export class App extends React.PureComponent<Props, State> {
       referencedUsers: {},
       selected: getOpen(props.location.query)
     };
+    this.refreshBranchStatus = debounce(this.refreshBranchStatus, 1000);
   }
 
   componentDidMount() {

@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debounce } from 'lodash';
 import { InjectedRouter } from 'react-router';
 import { Dispatch } from 'redux';
 import * as auth from '../api/auth';
@@ -67,7 +66,7 @@ export const fetchOrganization = (key: string) => (dispatch: Dispatch) => {
 };
 
 export function fetchBranchStatus(branchLike: T.BranchLike, projectKey: string) {
-  return debounce((dispatch: Dispatch<any>) => {
+  return (dispatch: Dispatch<any>) => {
     getQualityGateProjectStatus({ projectKey, ...getBranchLikeQuery(branchLike) }).then(
       projectStatus => {
         const { ignoredConditions, status } = projectStatus;
@@ -80,7 +79,7 @@ export function fetchBranchStatus(branchLike: T.BranchLike, projectKey: string) 
         dispatch(addGlobalErrorMessage('Fetching Quality Gate status failed'));
       }
     );
-  }, 1000);
+  };
 }
 
 export function doLogin(login: string, password: string) {

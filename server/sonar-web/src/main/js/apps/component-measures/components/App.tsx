@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as key from 'keymaster';
-import { keyBy } from 'lodash';
+import { debounce, keyBy } from 'lodash';
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
@@ -82,11 +82,17 @@ interface State {
 
 export class App extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = {
-    loading: true,
-    measures: [],
-    metrics: {}
-  };
+  state: State;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      loading: true,
+      measures: [],
+      metrics: {}
+    };
+    this.refreshBranchStatus = debounce(this.refreshBranchStatus, 1000);
+  }
 
   componentDidMount() {
     this.mounted = true;

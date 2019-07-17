@@ -21,8 +21,6 @@ import { mockLongLivingBranch, mockQualityGateStatusCondition } from '../../help
 import { registerBranchStatusAction } from '../branches';
 import { fetchBranchStatus, registerBranchStatus } from '../rootActions';
 
-jest.useFakeTimers();
-
 jest.mock('../branches', () => ({
   ...require.requireActual('../branches'),
   registerBranchStatusAction: jest.fn()
@@ -65,8 +63,6 @@ describe('branch store actions', () => {
     const dispatch = jest.fn();
 
     fetchBranchStatus(branchLike, component)(dispatch);
-
-    jest.runAllTimers();
     await new Promise(setImmediate);
 
     expect(registerBranchStatusAction).toBeCalledWith(

@@ -19,6 +19,7 @@
  */
 import * as classNames from 'classnames';
 import { Location } from 'history';
+import { debounce } from 'lodash';
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
@@ -71,12 +72,18 @@ interface State {
 
 export class App extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = {
-    breadcrumbs: [],
-    loading: true,
-    page: 0,
-    total: 0
-  };
+  state: State;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      breadcrumbs: [],
+      loading: true,
+      page: 0,
+      total: 0
+    };
+    this.refreshBranchStatus = debounce(this.refreshBranchStatus, 1000);
+  }
 
   componentDidMount() {
     this.mounted = true;

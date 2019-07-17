@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { debounce } from 'lodash';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { getParents } from '../../api/components';
 import { isPullRequest, isShortLivingBranch } from '../../helpers/branches';
@@ -38,6 +39,11 @@ export interface Props extends T.Omit<WorkspaceHeaderProps, 'children' | 'onClos
 
 export class WorkspaceComponentViewer extends React.PureComponent<Props> {
   container?: HTMLElement | null;
+
+  constructor(props: Props) {
+    super(props);
+    this.refreshBranchStatus = debounce(this.refreshBranchStatus, 1000);
+  }
 
   componentDidMount() {
     if (document.documentElement) {
