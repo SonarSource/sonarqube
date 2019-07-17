@@ -119,9 +119,7 @@ export default function ComponentName({
             <span className="note">{component.branch}</span>
           </span>
         ) : (
-          <span className="spacer-left outline-badge flex-1">
-            {translate('branches.main_branch')}
-          </span>
+          <span className="spacer-left badge flex-1">{translate('branches.main_branch')}</span>
         )}
       </span>
     );

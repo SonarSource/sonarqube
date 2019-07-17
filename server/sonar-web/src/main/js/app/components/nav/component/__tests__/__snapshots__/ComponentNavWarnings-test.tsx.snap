@@ -3,7 +3,7 @@
 exports[`should render 1`] = `
 <Fragment>
   <div
-    className="badge badge-focus badge-medium display-inline-flex-center js-component-analysis-warnings flex-1"
+    className="badge display-inline-flex-center js-component-analysis-warnings flex-1"
   >
     <WarningIcon
       className="spacer-right"

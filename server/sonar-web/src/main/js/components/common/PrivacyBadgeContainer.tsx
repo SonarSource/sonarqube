@@ -76,7 +76,7 @@ export function PrivacyBadge({
 
   const badge = (
     <div
-      className={classNames('outline-badge', className, {
+      className={classNames('badge', className, {
         'badge-info': Boolean(icon),
         'badge-icon': Boolean(icon)
       })}>

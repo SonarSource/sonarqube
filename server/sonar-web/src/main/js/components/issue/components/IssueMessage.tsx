@@ -53,14 +53,12 @@ export default class IssueMessage extends React.PureComponent<Props> {
         {this.props.engine && (
           <Tooltip
             overlay={translateWithParameters('issue.from_external_rule_engine', this.props.engine)}>
-            <div className="outline-badge badge-tiny-height spacer-right text-top">
-              {this.props.engine}
-            </div>
+            <div className="badge spacer-right text-top">{this.props.engine}</div>
           </Tooltip>
         )}
         {this.props.manualVulnerability && (
           <Tooltip overlay={translate('issue.manual_vulnerability.description')}>
-            <div className="outline-badge badge-tiny-height spacer-right text-top">
+            <div className="badge spacer-right text-top">
               {translate('issue.manual_vulnerability')}
             </div>
           </Tooltip>

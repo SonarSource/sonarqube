@@ -132,7 +132,7 @@ foo:src/index.tsx"
     </span>
   </span>
   <span
-    className="spacer-left outline-badge flex-1"
+    className="spacer-left badge flex-1"
   >
     branches.main_branch
   </span>

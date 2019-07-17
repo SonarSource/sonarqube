@@ -19,20 +19,16 @@
  */
 .badge {
   display: inline-block;
-  vertical-align: middle;
-  height: var(--smallControlHeight);
-  line-height: calc(var(--smallControlHeight) - 1px);
-  padding: 0 var(--gridSize);
-  border-radius: 10px;
+  padding: 2px 4px;
+  background-color: var(--barBorderColor);
+  border-radius: 3px;
   font-size: var(--smallFontSize);
-  min-width: 10px;
-  letter-spacing: 0.03em;
-  color: #ffffff;
+  font-weight: normal;
+  color: var(--baseFontColor);
+  text-transform: uppercase;
   white-space: nowrap;
-  text-align: center;
-  background-color: var(--blue);
+  line-height: 1;
 }
-
 .badge:empty {
   display: none;
 }
@@ -42,15 +38,8 @@ a.badge:focus,
 a.badge:active {
   color: #ffffff;
 }
-
 a.badge {
   border-bottom: none;
-}
-
-.badge-medium {
-  height: var(--controlHeight);
-  line-height: calc(var(--controlHeight));
-  letter-spacing: 0.01em;
 }
 
 .list-group-item > .badge,
@@ -58,110 +47,35 @@ a.badge {
   float: right;
   margin: 3px;
 }
-
 .list-group-item > .badge + .badge,
 .list-group-item-heading > .badge + .badge {
   margin-right: 5px;
 }
 
-.badge-normal-size {
-  font-size: inherit;
-  letter-spacing: inherit;
+.badge-info {
+  background-color: var(--alertBackgroundInfo);
+  color: var(--alertTextInfo);
 }
 
-.badge-tiny-height {
-  height: var(--tinyControlHeight) !important;
-  line-height: var(--tinyControlHeight) !important;
+.badge-success {
+  background-color: var(--alertBackgroundSuccess);
+  color: var(--alertTextSuccess);
 }
 
-.badge-new {
-  height: 18px;
-  font-size: var(--verySmallFontSize);
-  text-transform: uppercase;
-  background-color: var(--lightBlue);
-  color: var(--veryDarkBlue);
-  font-weight: 600;
+.badge-warning {
+  background-color: var(--alertBackgroundWarning);
+  color: var(--alertTextWarning);
 }
 
-.badge-muted {
-  background-color: var(--gray80);
-  color: var(--secondFontColor);
-}
-
-.badge-success,
-.badge-ok {
-  background-color: var(--green);
-}
-
-.badge-warning,
-.badge-warn {
-  background-color: var(--orange);
-}
-
-.badge-danger,
 .badge-error {
-  background-color: var(--red);
-}
-
-.badge-danger-light {
-  border: 1px solid var(--alertBorderError) !important;
   background-color: var(--alertBackgroundError);
-  color: #a94442;
+  color: var(--alertTextError);
 }
 
-a.badge-danger-light:hover,
-a.badge-danger-light:focus,
-a.badge-danger-light:active {
-  color: #a94442;
-}
-
-.badge-focus {
-  border: 1px solid #faebcc;
-  background-color: #fcf8e3;
-  color: #8a6d3b;
-  font-weight: 400;
-}
-
-a.badge-focus:hover,
-a.badge-focus:focus,
-a.badge-focus:active {
-  color: #8a6d3b;
-}
-
-.badge-secondary {
-  background-color: var(--gray71);
-}
-
-.outline-badge {
-  display: inline-block;
-  vertical-align: middle;
-  height: var(--smallControlHeight);
-  line-height: calc(var(--smallControlHeight) - 1px);
-  padding: 0 var(--gridSize);
-  border: 1px solid var(--gray80);
-  border-radius: 10px;
-  box-sizing: border-box;
-  background-color: var(--gray80);
-  font-size: var(--smallFontSize);
-  font-weight: 400;
-  white-space: nowrap;
-}
-
-.outline-badge.active {
-  color: var(--baseFontColor);
-  border-color: var(--blue);
-  background-color: var(--lightBlue);
-}
-
-.outline-badge.badge-info {
-  border-color: var(--blue);
-  background-color: var(--lightBlue);
-}
-
-.outline-badge.badge-icon {
+/* TODO: remove after SC fork */
+.badge-icon {
   padding-left: calc(var(--gridSize) / 2);
 }
-
-.outline-badge.badge-icon svg {
+.badge-icon svg {
   height: calc(var(--smallControlHeight) - 2px);
 }

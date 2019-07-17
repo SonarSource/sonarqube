@@ -80,7 +80,7 @@ export default class ComponentCell extends React.PureComponent<Props> {
                 <span className="note">{component.branch}</span>
               </>
             ) : (
-              <span className="spacer-left outline-badge">{translate('branches.main_branch')}</span>
+              <span className="spacer-left badge">{translate('branches.main_branch')}</span>
             )}
           </>
         )}

@@ -17,30 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import DocTooltip from '../../../components/docs/DocTooltip';
+import BuiltInQualityGateBadge from '../BuiltInQualityGateBadge';
 
-interface Props {
-  className?: string;
-  tooltip?: boolean;
-}
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
 
-export default function BuiltInQualityProfileBadge({ className, tooltip = true }: Props) {
-  const badge = (
-    <div className={classNames('badge badge-info', className)}>
-      {translate('quality_profiles.built_in')}
-    </div>
-  );
-
-  if (tooltip) {
-    return (
-      <DocTooltip
-        doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/built-in-quality-profile.md')}>
-        {badge}
-      </DocTooltip>
-    );
-  }
-  return badge;
+function shallowRender(props = {}) {
+  return shallow(<BuiltInQualityGateBadge {...props} />);
 }

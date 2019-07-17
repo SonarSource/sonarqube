@@ -27,16 +27,10 @@ interface Props {
 }
 
 export default function BuiltInQualityGateBadge({ className }: Props) {
-  const badge = (
-    <div className={classNames('outline-badge', className)}>
-      {translate('quality_gates.built_in')}
-    </div>
-  );
-
   return (
     <DocTooltip
       doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/built-in-quality-gate.md')}>
-      {badge}
+      <div className={classNames('badge', className)}>{translate('quality_gates.built_in')}</div>
     </DocTooltip>
   );
 }

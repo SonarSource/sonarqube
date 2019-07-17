@@ -7,7 +7,7 @@ exports[`renders 1`] = `
   overlay="visibility.private.description.TRK"
 >
   <div
-    className="outline-badge"
+    className="badge"
   >
     visibility.private
   </div>
@@ -24,7 +24,7 @@ exports[`renders public 1`] = `
   }
 >
   <div
-    className="outline-badge"
+    className="badge"
   >
     visibility.public
   </div>
@@ -41,7 +41,7 @@ exports[`renders public with icon 1`] = `
   }
 >
   <div
-    className="outline-badge badge-info badge-icon"
+    className="badge badge-info badge-icon"
   >
     <VisibleIcon
       className="little-spacer-right"

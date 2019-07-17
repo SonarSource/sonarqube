@@ -10,7 +10,7 @@ exports[`should render correctly if there are new features, and the user has not
       className="navbar-latest-notification-wrapper"
     >
       <span
-        className="badge badge-new"
+        className="badge badge-info"
       >
         new
       </span>

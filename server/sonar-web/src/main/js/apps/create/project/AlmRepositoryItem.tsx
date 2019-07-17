@@ -95,7 +95,7 @@ export default class AlmRepositoryItem extends React.PureComponent<Props> {
               />
               <span className="spacer-left">{this.props.repository.label}</span>
               {repository.private && (
-                <div className="outline-badge spacer-left">{translate('visibility.private')}</div>
+                <div className="badge spacer-left">{translate('visibility.private')}</div>
               )}
             </div>
 

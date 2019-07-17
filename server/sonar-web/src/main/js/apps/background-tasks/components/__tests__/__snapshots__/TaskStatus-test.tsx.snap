@@ -35,7 +35,7 @@ exports[`renders 4`] = `
   className="thin spacer-right"
 >
   <span
-    className="badge badge-danger"
+    className="badge badge-error"
   >
     background_task.status.FAILED
   </span>
@@ -47,7 +47,7 @@ exports[`renders 5`] = `
   className="thin spacer-right"
 >
   <span
-    className="badge badge-muted"
+    className="badge"
   >
     background_task.status.CANCELED
   </span>

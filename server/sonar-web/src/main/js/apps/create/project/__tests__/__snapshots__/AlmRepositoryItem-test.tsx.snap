@@ -165,7 +165,7 @@ exports[`should render private repositories 1`] = `
           Awesome Project
         </span>
         <div
-          className="outline-badge spacer-left"
+          className="badge spacer-left"
         >
           visibility.private
         </div>

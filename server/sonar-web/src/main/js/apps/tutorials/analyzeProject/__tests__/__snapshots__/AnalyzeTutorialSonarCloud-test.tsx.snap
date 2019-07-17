@@ -103,7 +103,7 @@ exports[`renders for GitHub 1`] = `
           className="icon"
         >
           <div
-            className="badge badge-new"
+            className="badge badge-info"
           >
             BETA
           </div>

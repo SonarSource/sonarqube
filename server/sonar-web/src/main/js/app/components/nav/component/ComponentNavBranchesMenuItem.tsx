@@ -65,7 +65,7 @@ export default function ComponentNavBranchesMenuItem({ branchLike, ...props }: P
           />
           {displayName}
           {isMainBranch(branchLike) && (
-            <div className="outline-badge spacer-left">{translate('branches.main_branch')}</div>
+            <div className="badge spacer-left">{translate('branches.main_branch')}</div>
           )}
         </div>
         <div className="big-spacer-left note">

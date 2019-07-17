@@ -95,7 +95,7 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
         {profile.activeDeprecatedRuleCount > 0 && (
           <span className="spacer-right">
             <Tooltip overlay={translate('quality_profiles.deprecated_rules')}>
-              <Link className="badge badge-normal-size badge-danger-light" to={deprecatedRulesUrl}>
+              <Link className="badge badge-error" to={deprecatedRulesUrl}>
                 {profile.activeDeprecatedRuleCount}
               </Link>
             </Tooltip>

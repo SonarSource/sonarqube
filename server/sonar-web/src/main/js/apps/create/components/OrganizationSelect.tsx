@@ -77,9 +77,7 @@ export function getOptionRenderer(hideIcons?: boolean) {
           {organization.name}
           <span className="note little-spacer-left">{organization.key}</span>
         </span>
-        {isPaidOrg && (
-          <div className="outline-badge">{translate('organization.paid_plan.badge')}</div>
-        )}
+        {isPaidOrg && <div className="badge">{translate('organization.paid_plan.badge')}</div>}
       </div>
     );
   };

@@ -80,9 +80,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     return (
       <Tooltip overlay={translate('status')}>
         <li className="coding-rules-detail-property" data-meta="status">
-          <span className="badge badge-normal-size badge-danger-light">
-            {translate('rules.status', ruleDetails.status)}
-          </span>
+          <span className="badge badge-error">{translate('rules.status', ruleDetails.status)}</span>
         </li>
       </Tooltip>
     );
@@ -223,7 +221,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     return (
       <Tooltip overlay={translateWithParameters('coding_rules.external_rule.engine', engine)}>
         <li className="coding-rules-detail-property">
-          <div className="outline-badge badge-tiny-height spacer-left text-text-top">{engine}</div>
+          <div className="badge spacer-left text-text-top">{engine}</div>
         </li>
       </Tooltip>
     );

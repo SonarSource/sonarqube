@@ -60,7 +60,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
     const value =
       values.length === 1 ? values[0] : translateWithParameters('x_selected', values.length);
     return (
-      <span className="badge badge-secondary text-ellipsis" title={value}>
+      <span className="badge text-ellipsis" title={value}>
         {value}
       </span>
     );

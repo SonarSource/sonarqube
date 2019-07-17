@@ -69,8 +69,7 @@
 }
 
 @media (max-width: 1200px) {
-  .code-name-cell .badge,
-  .code-name-cell .outline-badge {
+  .code-name-cell .badge {
     display: none;
   }
 }

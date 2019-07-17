@@ -34,7 +34,7 @@ exports[`renders main branch 1`] = `
       />
       master
       <div
-        className="outline-badge spacer-left"
+        className="badge spacer-left"
       >
         branches.main_branch
       </div>

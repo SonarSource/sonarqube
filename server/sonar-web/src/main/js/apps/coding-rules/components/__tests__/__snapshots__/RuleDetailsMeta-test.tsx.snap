@@ -265,7 +265,7 @@ exports[`should display right meta info 3`] = `
         className="coding-rules-detail-property"
       >
         <div
-          className="outline-badge badge-tiny-height spacer-left text-text-top"
+          className="badge spacer-left text-text-top"
         >
           xoo
         </div>

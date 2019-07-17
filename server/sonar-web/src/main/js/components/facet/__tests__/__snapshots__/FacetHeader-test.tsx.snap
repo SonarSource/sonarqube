@@ -22,7 +22,7 @@ exports[`should clear 1`] = `
     className="search-navigator-facet-header-value spacer-left spacer-right "
   >
     <span
-      className="badge badge-secondary text-ellipsis"
+      className="badge text-ellipsis"
       title="x_selected.3"
     >
       x_selected.3
@@ -59,7 +59,7 @@ exports[`should render closed facet with value 1`] = `
     className="search-navigator-facet-header-value spacer-left spacer-right "
   >
     <span
-      className="badge badge-secondary text-ellipsis"
+      className="badge text-ellipsis"
       title="foo"
     >
       foo
@@ -114,7 +114,7 @@ exports[`should render open facet with value 1`] = `
     className="search-navigator-facet-header-value spacer-left spacer-right "
   >
     <span
-      className="badge badge-secondary text-ellipsis"
+      className="badge text-ellipsis"
       title="foo"
     >
       foo

@@ -39,7 +39,7 @@ export default function OrganizationCard({ organization }: Props) {
         <OrganizationLink className="spacer-left text-middle" organization={organization}>
           {organization.name}
         </OrganizationLink>
-        {actions.admin && <span className="outline-badge spacer-left">{translate('admin')}</span>}
+        {actions.admin && <span className="badge spacer-left">{translate('admin')}</span>}
       </h3>
 
       {!!organization.description && (

@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<DocTooltip
+  doc={Promise {}}
+>
+  <div
+    className="badge badge-info"
+  >
+    quality_profiles.built_in
+  </div>
+</DocTooltip>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="badge badge-info"
+>
+  quality_profiles.built_in
+</div>
+`;

@@ -51,7 +51,7 @@ export default class ComponentNavWarnings extends React.PureComponent<Props, Sta
   render() {
     return (
       <>
-        <div className="badge badge-focus badge-medium display-inline-flex-center js-component-analysis-warnings flex-1">
+        <div className="badge display-inline-flex-center js-component-analysis-warnings flex-1">
           <WarningIcon className="spacer-right" />
           <FormattedMessage
             defaultMessage={translate('component_navigation.last_analysis_had_warnings')}
