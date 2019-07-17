@@ -17,7 +17,7 @@ exports[`render correctly 1`] = `
       </h2>
     </div>
     <div
-      className="modal-body modal-container"
+      className="modal-body"
     >
       <Alert
         variant="info"

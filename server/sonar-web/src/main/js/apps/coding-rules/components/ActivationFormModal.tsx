@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as classNames from 'classnames';
 import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
@@ -159,7 +160,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
             <h2>{this.props.modalHeader}</h2>
           </div>
 
-          <div className="modal-body modal-container">
+          <div className={classNames('modal-body', { 'modal-container': params.length > 0 })}>
             {!isUpdateMode && activeInAllProfiles && (
               <Alert variant="info">{translate('coding_rules.active_in_all_profiles')}</Alert>
             )}
