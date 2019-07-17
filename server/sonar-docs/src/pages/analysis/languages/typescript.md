@@ -10,7 +10,7 @@ url: /analysis/languages/typescript/
 
 ## Prerequisites
 
-In order to analyze TypeScript code, you need to have Node.js >= 6 installed on the machine running the scan. Set property `sonar.typescript.node` to an absolute path to Node.js executable, if standard `node` is not available.
+In order to analyze TypeScript code, you need to have Node.js >= 8 installed on the machine running the scan. Set property `sonar.typescript.node` to an absolute path to Node.js executable, if standard `node` is not available.
 
 Also make sure to have [TypeScript](https://www.npmjs.com/package/typescript) as a project dependency or dev dependency. If it's not the case, add it:
 ```

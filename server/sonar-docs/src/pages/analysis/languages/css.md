@@ -9,7 +9,7 @@ url: /analysis/languages/css/
 
 
 ## Prerequisites
-In order to analyze CSS code, you need to have Node.js >= 6 installed on the machine running the scan. Set property `sonar.nodejs.executable` to an absolute path to Node.js executable, if standard `node` is not available.
+In order to analyze CSS code, you need to have Node.js >= 8 installed on the machine running the scan. Set property `sonar.nodejs.executable` to an absolute path to Node.js executable, if standard `node` is not available.
 
 If you have a community plugin that handles CSS installed on your SonarQube instance it will conflict with SonarCSS, so it should be removed.
 
