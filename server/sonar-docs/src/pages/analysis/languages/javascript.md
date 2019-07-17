@@ -10,7 +10,7 @@ url: /analysis/languages/javascript/
 
 ## Prerequisites
 
-In order to analyze JavaScript code, you need to have Node.js >= 6 installed on the machine running the scan. Set property `sonar.nodejs.executable` to an absolute path to Node.js executable, if standard `node` is not available.
+In order to analyze JavaScript code, you need to have Node.js >= 8 installed on the machine running the scan. Set property `sonar.nodejs.executable` to an absolute path to Node.js executable, if standard `node` is not available.
  
 ## Language-Specific Properties
 
