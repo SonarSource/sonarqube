@@ -17,11 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  extractStatusConditionsFromProjectStatus,
-  isSameStatusConditionList
-} from '../qualityGates';
-import { mockQualityGateProjectStatus, mockQualityGateStatusCondition } from '../testMocks';
+import { extractStatusConditionsFromProjectStatus } from '../qualityGates';
+import { mockQualityGateProjectStatus } from '../testMocks';
 
 describe('extractStatusConditionsFromProjectStatus', () => {
   it('should correclty extract the conditions for the project status', () => {
@@ -35,37 +32,5 @@ describe('extractStatusConditionsFromProjectStatus', () => {
         period: 1
       }
     ]);
-  });
-});
-
-describe('isSameStatusConditionList', () => {
-  it('should correctly return true if the conditions are the same', () => {
-    expect(isSameStatusConditionList()).toBe(true);
-    expect(isSameStatusConditionList([], [])).toBe(true);
-    expect(
-      isSameStatusConditionList(
-        [mockQualityGateStatusCondition()],
-        [mockQualityGateStatusCondition()]
-      )
-    ).toBe(true);
-  });
-
-  it('should correctly return false if any condition is different', () => {
-    expect(isSameStatusConditionList([mockQualityGateStatusCondition()])).toBe(false);
-    expect(isSameStatusConditionList(undefined, [mockQualityGateStatusCondition()])).toBe(false);
-    expect(isSameStatusConditionList([], [mockQualityGateStatusCondition()])).toBe(false);
-    expect(isSameStatusConditionList([mockQualityGateStatusCondition()], [])).toBe(false);
-    expect(
-      isSameStatusConditionList(
-        [mockQualityGateStatusCondition({ metric: 'foo' })],
-        [mockQualityGateStatusCondition({ metric: 'bar' })]
-      )
-    ).toBe(false);
-    expect(
-      isSameStatusConditionList(
-        [mockQualityGateStatusCondition({ metric: 'foo', level: '2.0' })],
-        [mockQualityGateStatusCondition({ metric: 'foo', level: '1.0' })]
-      )
-    ).toBe(false);
   });
 });

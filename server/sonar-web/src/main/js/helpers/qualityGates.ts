@@ -32,17 +32,3 @@ export function extractStatusConditionsFromProjectStatus(
       }))
     : [];
 }
-
-export function isSameStatusConditionList(
-  conditions: T.QualityGateStatusCondition[] = [],
-  prevConditions: T.QualityGateStatusCondition[] = []
-): boolean {
-  if (conditions.length !== prevConditions.length) {
-    return false;
-  } else {
-    const filtered = conditions.filter(c1 => {
-      return !prevConditions.find(c2 => c2.metric === c1.metric && c2.level === c1.level);
-    });
-    return filtered.length === 0;
-  }
-}

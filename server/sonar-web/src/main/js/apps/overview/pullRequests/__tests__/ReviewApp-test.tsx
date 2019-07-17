@@ -91,34 +91,6 @@ it('should render correctly for a failed QG', async () => {
   expect(wrapper.find('QualityGateConditions').exists()).toBe(true);
 });
 
-it('should correctly refresh data if certain props change', () => {
-  const wrapper = shallowRender({ conditions: [mockQualityGateStatusCondition()], status: 'OK' });
-
-  jest.clearAllMocks();
-  wrapper.setProps({
-    component: mockComponent({ key: 'foo' })
-  });
-  expect(getMeasures).toBeCalled();
-
-  jest.clearAllMocks();
-  wrapper.setProps({
-    branchLike: mockPullRequest({ key: '1002' })
-  });
-  expect(getMeasures).toBeCalled();
-
-  jest.clearAllMocks();
-  wrapper.setProps({
-    status: 'ERROR'
-  });
-  expect(getMeasures).toBeCalled();
-
-  jest.clearAllMocks();
-  wrapper.setProps({
-    conditions: [mockQualityGateStatusCondition({ metric: 'new_bugs' })]
-  });
-  expect(getMeasures).toBeCalled();
-});
-
 it('should correctly handle a WS failure', async () => {
   (getMeasures as jest.Mock).mockRejectedValue({});
   const fetchBranchStatus = jest.fn().mockRejectedValue({});

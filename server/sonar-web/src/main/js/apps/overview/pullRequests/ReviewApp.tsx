@@ -25,8 +25,7 @@ import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getMeasures } from '../../../api/measures';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
-import { isSameStatusConditionList } from '../../../helpers/qualityGates';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 import { fetchBranchStatus } from '../../../store/rootActions';
 import { getBranchStatusByBranchLike, Store } from '../../../store/rootReducer';
 import QualityGateConditions from '../qualityGate/QualityGateConditions';
@@ -71,17 +70,6 @@ export class ReviewApp extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     this.fetchBranchData();
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (
-      this.props.component.key !== prevProps.component.key ||
-      this.props.status !== prevProps.status ||
-      !isSameStatusConditionList(this.props.conditions, prevProps.conditions) ||
-      !isSameBranchLike(this.props.branchLike, prevProps.branchLike)
-    ) {
-      this.fetchBranchData();
-    }
   }
 
   componentWillUnmount() {
