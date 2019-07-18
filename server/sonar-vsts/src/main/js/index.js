@@ -21,10 +21,10 @@ import { parse } from 'querystring';
 import React from 'react';
 import { render } from 'react-dom';
 import ThemeContext from 'sonar-ui-common/components/ThemeContext';
+import * as theme from '../../../../sonar-web/src/main/js/app/theme';
 import Configuration from './components/Configuration';
 import Widget from './components/Widget';
 import { parseWidgetSettings } from './utils';
-import * as theme from '../../../../sonar-web/src/main/js/app/theme';
 import './vsts.css';
 
 const container = document.getElementById('content');

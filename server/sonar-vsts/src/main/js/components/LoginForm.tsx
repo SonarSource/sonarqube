@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { getIdentityProviders } from '@sqapi/users';
 import * as React from 'react';
 import ThemeContext from 'sonar-ui-common/components/ThemeContext';
 import { getTextColor } from 'sonar-ui-common/helpers/colors';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import { getIdentityProviders } from '@sqapi/users';
 import LoginLink from './LoginLink';
 import SonarCloudIcon from './SonarCloudIcon';
 
