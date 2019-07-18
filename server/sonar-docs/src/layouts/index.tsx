@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { graphql, StaticQuery } from 'gatsby';
 import * as React from 'react';
-import { StaticQuery, graphql } from 'gatsby';
+import { MarkdownRemark, MarkdownRemarkConnection } from '../@types/graphql-types';
 import Footer from '../components/Footer';
 import HeaderListProvider from '../components/HeaderListProvider';
 import HeadingsLink from '../components/HeadingsLink';
 import PluginMetaData from '../components/PluginMetaData';
 import Sidebar from '../components/Sidebar';
-import { MarkdownRemarkConnection, MarkdownRemark } from '../@types/graphql-types';
 import './layout.css';
 
 const version = process.env.GATSBY_DOCS_VERSION || '1.0';

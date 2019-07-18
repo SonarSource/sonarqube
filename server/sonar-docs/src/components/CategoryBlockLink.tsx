@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import classNames from 'classnames';
-import PageLink from './PageLink';
+import * as React from 'react';
+import { MarkdownRemark } from '../@types/graphql-types';
 import ChevronDownIcon from './icons/ChevronDownIcon';
 import ChevronUpIcon from './icons/ChevronUpIcon';
-import { MarkdownRemark } from '../@types/graphql-types';
+import PageLink from './PageLink';
 
 interface Props {
   children: (MarkdownRemark | JSX.Element)[];

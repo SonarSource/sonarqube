@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import classNames from 'classnames';
 import { Link } from 'gatsby';
-import { getMarkdownRemarkTitle, getMarkdownRemarkUrl } from './utils';
+import * as React from 'react';
 import { MarkdownRemark } from '../@types/graphql-types';
+import { getMarkdownRemarkTitle, getMarkdownRemarkUrl } from './utils';
 
 interface Props {
   className?: string;

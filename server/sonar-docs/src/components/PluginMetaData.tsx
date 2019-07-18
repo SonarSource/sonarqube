@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { createPortal } from 'react-dom';
+import { Dict, PluginMetaDataInfo } from '../@types/types';
 import PluginVersionMetaData from './PluginVersionMetaData';
 import { getPluginMetaData } from './utils';
-import { Dict, PluginMetaDataInfo } from '../@types/types';
 
 interface Props {
   location: Pick<Location, 'pathname'>;

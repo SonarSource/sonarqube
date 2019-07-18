@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { FetchMock } from 'jest-fetch-mock';
 import { shallow } from 'enzyme';
-import Sidebar from '../Sidebar';
+import { FetchMock } from 'jest-fetch-mock';
+import * as React from 'react';
 import { MarkdownRemark } from '../../@types/graphql-types';
+import Sidebar from '../Sidebar';
 
 jest.mock('../navTreeUtils', () => {
   return {

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { flatten } from 'lodash';
+import NavigationTree from '../../static/StaticNavigationTree.json';
 import {
   DocNavigationItem,
   DocsNavigationBlock,
   DocsNavigationExternalLink
 } from '../@types/types';
-import NavigationTree from '../../static/StaticNavigationTree.json';
 
 export function getNavTree() {
   return NavigationTree as DocNavigationItem[];

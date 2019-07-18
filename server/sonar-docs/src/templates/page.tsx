@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { graphql } from 'gatsby';
 import * as React from 'react';
 import Helmet from 'react-helmet';
-import { graphql } from 'gatsby';
+import { MarkdownHeading, MarkdownRemark, MarkdownRemarkConnection } from '../@types/graphql-types';
 import HeaderList from '../components/HeaderList';
-import { MarkdownRemark, MarkdownRemarkConnection, MarkdownHeading } from '../@types/graphql-types';
 
 interface Props {
   data: {

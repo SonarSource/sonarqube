@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { DocVersion } from '../@types/types';
 import ChevronDownIcon from './icons/ChevronDownIcon';
 import ChevronUpIcon from './icons/ChevronUpIcon';
 import OutsideClickHandler from './OutsideClickHandler';
-import { DocVersion } from '../@types/types';
 
 interface Props {
   isOnCurrentVersion: boolean;

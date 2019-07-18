@@ -17,24 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { Link } from 'gatsby';
+import * as React from 'react';
+import { MarkdownRemark } from '../@types/graphql-types';
+import { DocNavigationItem, DocVersion, SearchResult } from '../@types/types';
 import CategoryBlockLink from './CategoryBlockLink';
 import ExternalLink from './ExternalLink';
+import DownloadIcon from './icons/DownloadIcon';
+import {
+  getNavTree,
+  getOpenChainFromPath,
+  isDocsNavigationBlock,
+  isDocsNavigationExternalLink,
+  testPathAgainstUrl
+} from './navTreeUtils';
 import PageLink from './PageLink';
 import Search from './Search';
 import SearchEntryResult from './SearchEntryResult';
 import VersionSelect from './VersionSelect';
-import DownloadIcon from './icons/DownloadIcon';
-import {
-  getNavTree,
-  isDocsNavigationBlock,
-  isDocsNavigationExternalLink,
-  getOpenChainFromPath,
-  testPathAgainstUrl
-} from './navTreeUtils';
-import { MarkdownRemark } from '../@types/graphql-types';
-import { SearchResult, DocVersion, DocNavigationItem } from '../@types/types';
 
 interface Props {
   location: Location;
