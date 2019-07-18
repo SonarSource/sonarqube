@@ -2,12 +2,11 @@
 
 exports[`should render 1`] = `
 <Fragment>
-  <div
-    className="badge display-inline-flex-center js-component-analysis-warnings flex-1"
+  <Alert
+    className="js-component-analysis-warnings flex-1"
+    display="inline"
+    variant="warning"
   >
-    <WarningIcon
-      className="spacer-right"
-    />
     <FormattedMessage
       defaultMessage="component_navigation.last_analysis_had_warnings"
       id="component_navigation.last_analysis_had_warnings"
@@ -30,7 +29,7 @@ exports[`should render 1`] = `
         }
       }
     />
-  </div>
+  </Alert>
   <LazyLoader
     onClose={[Function]}
     warnings={

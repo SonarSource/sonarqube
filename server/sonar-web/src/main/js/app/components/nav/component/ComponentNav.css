@@ -33,6 +33,14 @@
   max-width: 650px;
 }
 
+.navbar-context-meta .alert {
+  margin-bottom: 0;
+}
+
+.navbar-context-meta .alert-content {
+  padding: 6px 8px;
+}
+
 .navbar-context-meta-branch-menu-title {
   padding-left: calc(3 * var(--gridSize));
 }
