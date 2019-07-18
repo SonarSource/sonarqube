@@ -32,7 +32,7 @@ From the "Register new GitHub App" page, follow these steps to create your GitHu
 
 After creating your app, you'll be prompted with a link to "generate a private key" at the top of the page. Click the link to download your `.pem` private key file. You can also download your `.pem` file by scrolling down to "Private Key" and clicking **Generate Private Key**.
 
-After downloading your `.pem` file, you'll need to set your private key in SonarQube global settings by copying and pasting the content of your private key file into the text box at [**Administration > Pull Requests > GitHub > GitHub App private key**](/#sonarqube-admin#/sonarqube/admin/settings?category=pull_request/).
+After downloading your `.pem` file, you'll need to set your private key in SonarQube global settings by copying and pasting the content of your private key file into the text box at [**Administration > Pull Requests > GitHub > GitHub App private key**](/#sonarqube-admin#/admin/settings?category=pull_request/).
 
 ### Configuring Your SonarQube Instance
 
@@ -40,13 +40,13 @@ You'll need to configure the following global settings in SonarQube.
 
 #### Setting Your GitHub Enterprise Instance API URL
 
-Enter your GitHub Enterprise Instance API URL in the text box at [**Administration > Pull Requests > GitHub > GitHub API URL**](/#sonarqube-admin#/sonarqube/admin/settings?category=pull_request/).
+Enter your GitHub Enterprise Instance API URL in the text box at [**Administration > Pull Requests > GitHub > GitHub API URL**](/#sonarqube-admin#/admin/settings?category=pull_request/).
 Your GitHub Enterprise instance API URL is formatted as follows: `https://<your-github-enterprise-address>/api/v3`
 
 #### Setting Your App Name and ID
  
-1. Enter your app name in the text box at [**Administration > Pull Requests > GitHub > GitHub App name**](/#sonarqube-admin#/sonarqube/admin/settings?category=pull_request/).
-2. Enter your app ID in the text box at [**Administration > Pull Requests > GitHub > GitHub App ID**](/#sonarqube-admin#/sonarqube/admin/settings?category=pull_request/). You can find your GitHub App ID on the app's settings page at `https://<your-github-enterprise>/settings/apps/<appname>`.
+1. Enter your app name in the text box at [**Administration > Pull Requests > GitHub > GitHub App name**](/#sonarqube-admin#/admin/settings?category=pull_request/).
+2. Enter your app ID in the text box at [**Administration > Pull Requests > GitHub > GitHub App ID**](/#sonarqube-admin#/admin/settings?category=pull_request/). You can find your GitHub App ID on the app's settings page at `https://<your-github-enterprise>/settings/apps/<appname>`.
 
 ### Installing Your App
 

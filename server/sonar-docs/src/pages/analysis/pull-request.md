@@ -79,13 +79,13 @@ To add PR decoration on Bitbucket <!-- sonarqube -->Server<!-- /sonarqube -->, y
 
 In your global settings, set the personal access token of the user that will be used to decorate the PRs in the SonarQube UI:
 
-* Set the token at [**Administration > General Settings > Pull Requests > Integration with Bitbucket Server > Personal access token**](/#sonarqube-admin#/sonarqube/admin/settings?category=pull_request/)
+* Set the token at [**Administration > General Settings > Pull Requests > Integration with Bitbucket Server > Personal access token**](/#sonarqube-admin#/admin/settings?category=pull_request/)
 * The user that will be used to decorate PRs needs write permission.
 
 
 #### Updating Your Bitbucket Server Settings
 
-In your global settings, set your Bitbucket Server URL (for example, `https://myinstance.mycompany.com/`) at [**Administration > General Settings > Pull Requests > Integration with Bitbucket Server > The URL of the Bitbucket Server**](/#sonarqube-admin#/sonarqube/admin/settings?category=pull_request/). This is the base URL for your Bitbucket Server instance.
+In your global settings, set your Bitbucket Server URL (for example, `https://myinstance.mycompany.com/`) at [**Administration > General Settings > Pull Requests > Integration with Bitbucket Server > The URL of the Bitbucket Server**](/#sonarqube-admin#/admin/settings?category=pull_request/). This is the base URL for your Bitbucket Server instance.
 
 In your project settings at **Administration > General Settings > Pull Requests > Integration with Bitbucket Server** update the following Bitbucket Server settings:
 
@@ -108,7 +108,7 @@ To add PR decoration on Azure DevOps <!-- sonarqube -->Server<!-- /sonarqube -->
 
 #### Setting Your Personal Access Token
 
-In <!-- sonarqube -->global and<!-- /sonarqube --> project settings, set the personal access token of the user that will be used to decorate the PRs in the SonarQube UI at [**Administration > General Settings > Pull Requests > Integration with VSTS / TFS > Personal access token**](/#sonarqube-admin#/sonarqube/admin/settings?category=pull_request/). 
+In <!-- sonarqube -->global and<!-- /sonarqube --> project settings, set the personal access token of the user that will be used to decorate the PRs in the SonarQube UI at [**Administration > General Settings > Pull Requests > Integration with VSTS / TFS > Personal access token**](/#sonarqube-admin#/admin/settings?category=pull_request/). 
 
 The user that will be used to decorate PRs needs to be authorized for the scope: 'Code (read and write)'.	
 
