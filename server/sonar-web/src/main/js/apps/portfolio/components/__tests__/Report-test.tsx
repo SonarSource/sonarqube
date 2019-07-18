@@ -24,8 +24,8 @@ jest.mock('../../../../api/report', () => {
   return report;
 });
 
-import * as React from 'react';
 import { mount, shallow } from 'enzyme';
+import * as React from 'react';
 import Report from '../Report';
 
 const getReportStatus = require('../../../../api/report').getReportStatus as jest.Mock<any>;

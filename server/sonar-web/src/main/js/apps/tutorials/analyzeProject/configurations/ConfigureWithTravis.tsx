@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { get, save } from 'sonar-ui-common/helpers/storage';
-import EncryptYourTokenStep from '../steps/EncryptYourTokenStep';
+import { isSonarCloud } from '../../../../helpers/system';
 import CreateSonarPropertiesStep from '../steps/CreateSonarPropertiesStep';
 import EditTravisYmlStep from '../steps/EditTravisYmlStep';
-import { isSonarCloud } from '../../../../helpers/system';
+import EncryptYourTokenStep from '../steps/EncryptYourTokenStep';
 import { PROJECT_STEP_PROGRESS, TutorialProps } from '../utils';
 
 enum Steps {

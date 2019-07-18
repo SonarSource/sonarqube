@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import MSBuildScanner from './MSBuildScanner';
 import CodeSnippet from '../../../../components/common/CodeSnippet';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
+import MSBuildScanner from './MSBuildScanner';
 
 export interface Props {
   host: string;

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { restart } from '../../api/system';
 
 interface Props {

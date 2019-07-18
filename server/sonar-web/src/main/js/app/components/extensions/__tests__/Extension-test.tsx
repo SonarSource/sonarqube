@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { Extension } from '../Extension';
-import { mockCurrentUser, mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import { getExtensionStart } from '../../../../helpers/extensions';
+import { mockCurrentUser, mockLocation, mockRouter } from '../../../../helpers/testMocks';
+import { Extension } from '../Extension';
 
 jest.mock('../../../../helpers/extensions', () => ({
   getExtensionStart: jest.fn().mockResolvedValue(jest.fn())

@@ -21,8 +21,8 @@ import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import { isSonarCloud } from '../../../helpers/system';
 import { hasPrivateAccess, isPaidOrganization } from '../../../helpers/organizations';
+import { isSonarCloud } from '../../../helpers/system';
 
 interface Props {
   currentUser: T.CurrentUser;

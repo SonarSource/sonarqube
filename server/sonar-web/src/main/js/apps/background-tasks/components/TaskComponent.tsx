@@ -18,19 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Link } from 'react-router';
 import LongLivingBranchIcon from 'sonar-ui-common/components/icons/LongLivingBranchIcon';
 import PullRequestIcon from 'sonar-ui-common/components/icons/PullRequestIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import ShortLivingBranchIcon from 'sonar-ui-common/components/icons/ShortLivingBranchIcon';
-import { Link } from 'react-router';
-import TaskType from './TaskType';
 import Organization from '../../../components/shared/Organization';
 import {
-  getProjectUrl,
-  getShortLivingBranchUrl,
   getLongLivingBranchUrl,
-  getPullRequestUrl
+  getProjectUrl,
+  getPullRequestUrl,
+  getShortLivingBranchUrl
 } from '../../../helpers/urls';
+import TaskType from './TaskType';
 
 interface Props {
   task: T.Task;

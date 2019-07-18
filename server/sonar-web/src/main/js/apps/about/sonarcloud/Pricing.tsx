@@ -23,7 +23,7 @@ import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import Footer from './components/Footer';
-import { TopNavBar, FixedNavBar } from './components/NavBars';
+import { FixedNavBar, TopNavBar } from './components/NavBars';
 import './new_style.css';
 
 export default class Pricing extends React.PureComponent {

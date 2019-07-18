@@ -18,17 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import TagsIcon from 'sonar-ui-common/components/icons/TagsIcon';
-import { fileFromPath, limitComponentName } from 'sonar-ui-common/helpers/path';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
-import Avatar from '../../ui/Avatar';
+import { fileFromPath, limitComponentName } from 'sonar-ui-common/helpers/path';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 import SeverityHelper from '../../shared/SeverityHelper';
 import StatusHelper from '../../shared/StatusHelper';
+import Avatar from '../../ui/Avatar';
 
 interface Props {
   issue: T.Issue;

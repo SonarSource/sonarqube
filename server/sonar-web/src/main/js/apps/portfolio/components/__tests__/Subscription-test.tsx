@@ -25,11 +25,11 @@ jest.mock('../../../../api/report', () => {
   return report;
 });
 
+import { mount, shallow } from 'enzyme';
 import * as React from 'react';
-import { shallow, mount } from 'enzyme';
-import { Subscription } from '../Subscription';
 import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { ReportStatus } from '../../../../api/report';
+import { Subscription } from '../Subscription';
 
 const subscribe = require('../../../../api/report').subscribe as jest.Mock<any>;
 const unsubscribe = require('../../../../api/report').unsubscribe as jest.Mock<any>;

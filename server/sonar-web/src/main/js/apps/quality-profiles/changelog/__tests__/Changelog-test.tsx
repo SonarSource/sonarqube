@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ProfileChangelogEvent } from '../../types';
 import Changelog from '../Changelog';
 import ChangesList from '../ChangesList';
-import { ProfileChangelogEvent } from '../../types';
 
 function createEvent(overrides?: Partial<ProfileChangelogEvent>): ProfileChangelogEvent {
   return {

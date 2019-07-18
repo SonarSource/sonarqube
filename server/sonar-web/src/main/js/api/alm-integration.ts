@@ -20,8 +20,8 @@
 import {
   getCorsJSON,
   getJSON,
-  postJSON,
   post,
+  postJSON,
   requestTryAndRepeatUntil
 } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';

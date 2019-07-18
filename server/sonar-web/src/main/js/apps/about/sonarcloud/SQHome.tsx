@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
 import Helmet from 'react-helmet';
+import { Link } from 'react-router';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { isLoggedIn } from '../../../helpers/users';
 import LoginButtons from './components/LoginButtons';
 import Pricing from './components/Pricing';
 import SQPageContainer from './components/SQPageContainer';
 import StartUsing from './components/StartUsing';
-import { LANGUAGES } from './utils';
-import { isLoggedIn } from '../../../helpers/users';
 import './style.css';
+import { LANGUAGES } from './utils';
 
 const NB_LANGUAGE_PER_ROW = 8;
 

@@ -18,6 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Profile } from '../../../api/quality-profiles';
+import StandardFacet from '../../issues/sidebar/StandardFacet';
+import { Facets, OpenFacets, Query } from '../query';
 import ActivationSeverityFacet from './ActivationSeverityFacet';
 import AvailableSinceFacet from './AvailableSinceFacet';
 import DefaultSeverityFacet from './DefaultSeverityFacet';
@@ -29,9 +32,6 @@ import StatusFacet from './StatusFacet';
 import TagFacet from './TagFacet';
 import TemplateFacet from './TemplateFacet';
 import TypeFacet from './TypeFacet';
-import StandardFacet from '../../issues/sidebar/StandardFacet';
-import { Facets, Query, OpenFacets } from '../query';
-import { Profile } from '../../../api/quality-profiles';
 
 interface Props {
   facets?: Facets;

@@ -20,10 +20,10 @@
 import * as React from 'react';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import Rating from 'sonar-ui-common/components/ui/Rating';
-import DrilldownLink from '../../../components/shared/DrilldownLink';
-import { getRatingName, ISSUETYPE_MAP, IssueType } from '../utils';
 import { getLeakValue, getRatingTooltip } from '../../../components/measure/utils';
+import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { findMeasure } from '../../../helpers/measures';
+import { getRatingName, IssueType, ISSUETYPE_MAP } from '../utils';
 
 interface Props {
   branchLike?: T.ShortLivingBranch | T.PullRequest;

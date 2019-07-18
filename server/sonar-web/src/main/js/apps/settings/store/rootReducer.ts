@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { combineReducers } from 'redux';
-import definitions, * as fromDefinitions from './definitions';
-import values, * as fromValues from './values';
-import settingsPage, * as fromSettingsPage from './settingsPage';
 import globalMessages, * as fromGlobalMessages from '../../../store/globalMessages';
+import definitions, * as fromDefinitions from './definitions';
+import settingsPage, * as fromSettingsPage from './settingsPage';
+import values, * as fromValues from './values';
 
 interface State {
   definitions: fromDefinitions.State;

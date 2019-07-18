@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
 import * as differenceInDays from 'date-fns/difference_in_days';
-import { injectIntl, InjectedIntlProps } from 'react-intl';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
+import { InjectedIntlProps, injectIntl } from 'react-intl';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import DateFromNow from '../../../components/intl/DateFromNow';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
+import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter, { formatterOption } from '../../../components/intl/DateTimeFormatter';
-import { getPeriodLabel, getPeriodDate } from '../../../helpers/periods';
+import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
 
 interface Props {
   className?: string;

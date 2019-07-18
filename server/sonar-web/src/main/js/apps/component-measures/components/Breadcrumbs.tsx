@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as key from 'keymaster';
-import Breadcrumb from './Breadcrumb';
+import * as React from 'react';
 import { getBreadcrumbs } from '../../../api/components';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
+import Breadcrumb from './Breadcrumb';
 
 interface Props {
   backToFirst: boolean;

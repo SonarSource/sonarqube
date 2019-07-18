@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { get } from 'sonar-ui-common/helpers/storage';
-import AllProjectsContainer from './AllProjectsContainer';
-import { PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE, PROJECTS_ALL } from '../utils';
 import { searchProjects } from '../../../api/components';
+import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
-import { withRouter, Location, Router } from '../../../components/hoc/withRouter';
+import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE } from '../utils';
+import AllProjectsContainer from './AllProjectsContainer';
 
 interface Props {
   currentUser: T.CurrentUser;

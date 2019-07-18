@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { RequirementOtherBuild } from '../AnalysisCommandTravis';
 import CodeSnippet from '../../../../../components/common/CodeSnippet';
+import { RequirementOtherBuild } from '../AnalysisCommandTravis';
 
 interface CommonTravisSonarCloudProps {
   command: string;

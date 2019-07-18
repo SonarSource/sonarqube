@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as utils from '../utils';
 import { searchProjects } from '../../../api/components';
-import { mockOrganization, mockComponent } from '../../../helpers/testMocks';
+import { mockComponent, mockOrganization } from '../../../helpers/testMocks';
+import * as utils from '../utils';
 
 jest.mock('../../../api/components', () => ({
   searchProjects: jest.fn().mockResolvedValue({ components: [], facets: [], paging: { total: 10 } })

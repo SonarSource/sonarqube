@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { groupBy, isEqual, sortBy } from 'lodash';
+import * as React from 'react';
+import { getSubCategoryDescription, getSubCategoryName, sanitizeTranslation } from '../utils';
 import DefinitionsList from './DefinitionsList';
 import EmailForm from './EmailForm';
-import { getSubCategoryName, getSubCategoryDescription, sanitizeTranslation } from '../utils';
 
 interface Props {
   category: string;

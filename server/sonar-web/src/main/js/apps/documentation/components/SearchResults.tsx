@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import lunr, { LunrBuilder, LunrIndex, LunrToken } from 'lunr';
-import { sortBy } from 'lodash';
 import { DocNavigationItem } from 'Docs/@types/types';
+import { sortBy } from 'lodash';
+import lunr, { LunrBuilder, LunrIndex, LunrToken } from 'lunr';
+import * as React from 'react';
 import { isDefined } from 'sonar-ui-common/helpers/types';
-import SearchResultEntry from './SearchResultEntry';
 import { getUrlsList } from '../navTreeUtils';
 import { DocumentationEntry } from '../utils';
+import SearchResultEntry from './SearchResultEntry';
 
 interface Props {
   navigation: DocNavigationItem[];

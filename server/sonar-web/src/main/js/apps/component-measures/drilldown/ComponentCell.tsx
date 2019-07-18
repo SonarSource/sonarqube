@@ -22,8 +22,8 @@ import { Link } from 'react-router';
 import LinkIcon from 'sonar-ui-common/components/icons/LinkIcon';
 import LongLivingBranchIcon from 'sonar-ui-common/components/icons/LongLivingBranchIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import { splitPath } from 'sonar-ui-common/helpers/path';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { splitPath } from 'sonar-ui-common/helpers/path';
 import { getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
 import {
   getBranchLikeUrl,

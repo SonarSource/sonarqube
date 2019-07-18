@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { omit } from 'lodash';
-import { highlightTerm } from 'sonar-ui-common/helpers/search';
+import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { Query, Facet } from '../utils';
-import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { highlightTerm } from 'sonar-ui-common/helpers/search';
 import { searchIssueAuthors } from '../../../api/issues';
+import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { Facet, Query } from '../utils';
 
 interface Props {
   component: T.Component | undefined;

@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
-import VisibleIcon from 'sonar-ui-common/components/icons/VisibleIcon';
+import * as React from 'react';
 import { connect } from 'react-redux';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import VisibleIcon from 'sonar-ui-common/components/icons/VisibleIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { colors } from '../../app/theme';
-import { isSonarCloud } from '../../helpers/system';
 import { isCurrentUserMemberOf, isPaidOrganization } from '../../helpers/organizations';
+import { isSonarCloud } from '../../helpers/system';
 import {
   getCurrentUser,
-  getOrganizationByKey,
   getMyOrganizations,
+  getOrganizationByKey,
   Store
 } from '../../store/rootReducer';
 import DocTooltip from '../docs/DocTooltip';

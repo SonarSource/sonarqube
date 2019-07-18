@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { groupLocationsByComponent, createSnippets, expandSnippet } from '../utils';
 import { mockFlowLocation, mockSnippetsByComponent } from '../../../../helpers/testMocks';
+import { createSnippets, expandSnippet, groupLocationsByComponent } from '../utils';
 
 describe('groupLocationsByComponent', () => {
   it('should handle empty args', () => {

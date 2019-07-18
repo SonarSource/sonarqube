@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { combineReducers } from 'redux';
 import { omit, uniq, without } from 'lodash';
+import { combineReducers } from 'redux';
 import { ActionType } from './utils/actions';
 
 type ReceiveOrganizationsAction =

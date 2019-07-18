@@ -19,20 +19,31 @@
  */
 import * as classnames from 'classnames';
 import * as React from 'react';
+import BackButton from 'sonar-ui-common/components/controls/BackButton';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { get, remove, save } from 'sonar-ui-common/helpers/storage';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import BackButton from 'sonar-ui-common/components/controls/BackButton';
+import { getGithubLanguages } from '../../../api/alm-integration';
+import { generateToken, getTokens } from '../../../api/user-tokens';
+import InstanceMessage from '../../../components/common/InstanceMessage';
+import { isBitbucket, isGithub, isVSTS } from '../../../helpers/almIntegrations';
+import { isSonarCloud } from '../../../helpers/system';
+import AnalyzeTutorialDone from '../components/AnalyzeTutorialDone';
+import ProjectAnalysisStep from '../components/ProjectAnalysisStep';
+import TokenStep from '../components/TokenStep';
+import '../styles.css';
+import { getUniqueTokenName } from '../utils';
+import './AnalyzeTutorialSonarCloud.css';
+import { TutorialSuggestionBitbucket, TutorialSuggestionVSTS } from './AnalyzeTutorialSuggestion';
 import ConfigureWithAutoScan from './configurations/ConfigureWithAutoScan';
-import ConfigureWithTravis from './configurations/ConfigureWithTravis';
 import ConfigureWithLocalScanner from './configurations/ConfigureWithLocalScanner';
 import ConfigureOtherCI from './configurations/ConfigureWithOtherCI';
-import { TutorialSuggestionBitbucket, TutorialSuggestionVSTS } from './AnalyzeTutorialSuggestion';
+import ConfigureWithTravis from './configurations/ConfigureWithTravis';
 import {
   Alm,
-  ALM_KEYS,
   AlmLanguagesStats,
   alms,
+  ALM_KEYS,
   AnalysisMode,
   autoScanMode,
   isAutoScannable,
@@ -42,17 +53,6 @@ import {
   PROJECT_STEP_PROGRESS,
   TutorialProps
 } from './utils';
-import { getUniqueTokenName } from '../utils';
-import AnalyzeTutorialDone from '../components/AnalyzeTutorialDone';
-import InstanceMessage from '../../../components/common/InstanceMessage';
-import TokenStep from '../components/TokenStep';
-import ProjectAnalysisStep from '../components/ProjectAnalysisStep';
-import { generateToken, getTokens } from '../../../api/user-tokens';
-import { getGithubLanguages } from '../../../api/alm-integration';
-import { isBitbucket, isGithub, isVSTS } from '../../../helpers/almIntegrations';
-import { isSonarCloud } from '../../../helpers/system';
-import '../styles.css';
-import './AnalyzeTutorialSonarCloud.css';
 
 interface Props {
   component: T.Component;

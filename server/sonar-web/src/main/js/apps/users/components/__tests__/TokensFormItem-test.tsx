@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import TokensFormItem from '../TokensFormItem';
 import { revokeToken } from '../../../../api/user-tokens';
+import TokensFormItem from '../TokensFormItem';
 
 jest.mock('../../../../components/intl/DateFormatter');
 jest.mock('../../../../components/intl/DateFromNow');

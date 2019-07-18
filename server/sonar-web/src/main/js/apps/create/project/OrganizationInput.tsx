@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { WithRouterProps, withRouter } from 'react-router';
-import { save } from 'sonar-ui-common/helpers/storage';
+import { withRouter, WithRouterProps } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { save } from 'sonar-ui-common/helpers/storage';
 import OrganizationSelect from '../components/OrganizationSelect';
 import { ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP } from '../organization/utils';
 

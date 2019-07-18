@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Project } from '../types';
 import ProjectCardLeak from './ProjectCardLeak';
 import ProjectCardOverall from './ProjectCardOverall';
-import { Project } from '../types';
 
 interface Props {
   currentUser: T.CurrentUser;

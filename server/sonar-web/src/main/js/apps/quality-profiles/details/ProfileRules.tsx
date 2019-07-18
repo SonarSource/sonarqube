@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { keyBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
-import { keyBy } from 'lodash';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
-import ProfileRulesRowOfType from './ProfileRulesRowOfType';
-import ProfileRulesRowTotal from './ProfileRulesRowTotal';
-import ProfileRulesDeprecatedWarning from './ProfileRulesDeprecatedWarning';
-import ProfileRulesSonarWayComparison from './ProfileRulesSonarWayComparison';
-import { searchRules, takeFacet } from '../../../api/rules';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getQualityProfile } from '../../../api/quality-profiles';
+import { searchRules, takeFacet } from '../../../api/rules';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import { getRulesUrl } from '../../../helpers/urls';
 import { Profile } from '../types';
-import DocTooltip from '../../../components/docs/DocTooltip';
+import ProfileRulesDeprecatedWarning from './ProfileRulesDeprecatedWarning';
+import ProfileRulesRowOfType from './ProfileRulesRowOfType';
+import ProfileRulesRowTotal from './ProfileRulesRowTotal';
+import ProfileRulesSonarWayComparison from './ProfileRulesSonarWayComparison';
 
 const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
 

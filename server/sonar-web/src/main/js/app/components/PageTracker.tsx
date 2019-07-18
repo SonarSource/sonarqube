@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
+import { connect } from 'react-redux';
 import { Location, withRouter } from '../../components/hoc/withRouter';
 import { gtm } from '../../helpers/analytics';
 import { installScript } from '../../helpers/extensions';
 import { getWebAnalyticsPageHandlerFromCache } from '../../helpers/extensionsHandler';
 import { getInstance } from '../../helpers/system';
-import { getGlobalSettingValue, Store, getAppState } from '../../store/rootReducer';
+import { getAppState, getGlobalSettingValue, Store } from '../../store/rootReducer';
 
 interface Props {
   location: Location;

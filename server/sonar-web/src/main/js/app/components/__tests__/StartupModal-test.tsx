@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as differenceInDays from 'date-fns/difference_in_days';
 import { shallow, ShallowWrapper } from 'enzyme';
+import * as React from 'react';
 import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { hasMessage } from 'sonar-ui-common/helpers/l10n';
-import { save, get } from 'sonar-ui-common/helpers/storage';
+import { get, save } from 'sonar-ui-common/helpers/storage';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { StartupModal, ModalKey } from '../StartupModal';
 import { showLicense } from '../../../api/marketplace';
 import { EditionKey } from '../../../apps/marketplace/utils';
 import { mockOrganization, mockRouter } from '../../../helpers/testMocks';
+import { ModalKey, StartupModal } from '../StartupModal';
 
 jest.mock('../../../api/marketplace', () => ({
   showLicense: jest.fn().mockResolvedValue(undefined)

@@ -17,13 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { minBy } from 'lodash';
+import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import AdvancedTimeline from 'sonar-ui-common/components/charts/AdvancedTimeline';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import PreviewGraphTooltips from './PreviewGraphTooltips';
 import {
   DEFAULT_GRAPH,
   generateSeries,
@@ -34,9 +33,10 @@ import {
   Serie,
   splitSeriesInGraphs
 } from '../../apps/projectActivity/utils';
-import { getShortType } from '../../helpers/measures';
 import { getBranchLikeQuery } from '../../helpers/branches';
-import { withRouter, Router } from '../hoc/withRouter';
+import { getShortType } from '../../helpers/measures';
+import { Router, withRouter } from '../hoc/withRouter';
+import PreviewGraphTooltips from './PreviewGraphTooltips';
 
 interface History {
   [x: string]: Array<{ date: Date; value?: string }>;

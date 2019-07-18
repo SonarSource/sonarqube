@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import slug from 'remark-slug';
 import util from 'mdast-util-toc';
+import slug from 'remark-slug';
 
 /**
  * This is a simplified version of the remark-toc plugin: https://github.com/remarkjs/remark-toc

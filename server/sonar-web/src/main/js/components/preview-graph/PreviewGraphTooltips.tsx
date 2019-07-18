@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { Popup, PopupPlacement } from 'sonar-ui-common/components/ui/popups';
-import PreviewGraphTooltipsContent from './PreviewGraphTooltipsContent';
-import DateFormatter from '../intl/DateFormatter';
 import { Serie } from '../../apps/projectActivity/utils';
+import DateFormatter from '../intl/DateFormatter';
+import PreviewGraphTooltipsContent from './PreviewGraphTooltipsContent';
 
 interface Props {
   formatValue: (value: number | string) => string;

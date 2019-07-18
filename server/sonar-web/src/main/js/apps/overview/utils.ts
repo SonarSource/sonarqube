@@ -19,8 +19,8 @@
  */
 import BugIcon from 'sonar-ui-common/components/icons/BugIcon';
 import CodeSmellIcon from 'sonar-ui-common/components/icons/CodeSmellIcon';
-import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
 import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
+import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
 import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import CoverageRating from '../../components/ui/CoverageRating';

@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import WarningIcon from 'sonar-ui-common/components/icons/WarningIcon';
 import { FormattedMessage } from 'react-intl';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import WarningIcon from 'sonar-ui-common/components/icons/WarningIcon';
 import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 
 const AnalysisWarningsModal = lazyLoad(() =>
   import('../../../../components/common/AnalysisWarningsModal')

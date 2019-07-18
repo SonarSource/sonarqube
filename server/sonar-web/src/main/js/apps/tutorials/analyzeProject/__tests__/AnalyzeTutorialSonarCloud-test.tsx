@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { get } from 'sonar-ui-common/helpers/storage';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import AnalyzeTutorialSonarCloud from '../AnalyzeTutorialSonarCloud';
-import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { generateToken, getTokens } from '../../../../api/user-tokens';
+import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { getUniqueTokenName } from '../../utils';
+import AnalyzeTutorialSonarCloud from '../AnalyzeTutorialSonarCloud';
 
 jest.mock('sonar-ui-common/helpers/storage', () => ({
   get: jest.fn(),

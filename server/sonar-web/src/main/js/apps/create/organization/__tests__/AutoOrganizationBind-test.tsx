@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { submit } from 'sonar-ui-common/helpers/testUtils';
-import AutoOrganizationBind from '../AutoOrganizationBind';
 import { mockOrganization } from '../../../../helpers/testMocks';
+import AutoOrganizationBind from '../AutoOrganizationBind';
 
 it('should render correctly', () => {
   const onBindOrganization = jest.fn().mockResolvedValue({});

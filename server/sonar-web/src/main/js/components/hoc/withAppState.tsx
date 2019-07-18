@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { getAppState, Store } from '../../store/rootReducer';
 import { getWrappedDisplayName } from './utils';
-import { Store, getAppState } from '../../store/rootReducer';
 
 export function withAppState<P>(
   WrappedComponent: React.ComponentClass<P & { appState: Partial<T.AppState> }>

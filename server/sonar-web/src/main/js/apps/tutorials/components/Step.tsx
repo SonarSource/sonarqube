@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable jsx-a11y/no-static-element-interactions, jsx-a11y/no-noninteractive-tabindex */
-import * as React from 'react';
 import * as classNames from 'classnames';
+import * as React from 'react';
 
 interface Props {
   finished?: boolean;

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable sonarjs/no-duplicate-string */
-import { InjectedRouter } from 'react-router';
-import { Store, createStore } from 'redux';
 import { Location } from 'history';
+import { InjectedRouter } from 'react-router';
+import { createStore, Store } from 'redux';
+import { DocumentationEntry } from '../apps/documentation/utils';
 import { ParsedAnalysis } from '../apps/projectActivity/utils';
 import { Profile } from '../apps/quality-profiles/types';
-import { DocumentationEntry } from '../apps/documentation/utils';
 
 export function mockAlmApplication(overrides: Partial<T.AlmApplication> = {}): T.AlmApplication {
   return {

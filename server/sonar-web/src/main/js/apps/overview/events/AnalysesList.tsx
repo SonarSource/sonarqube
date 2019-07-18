@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Analysis from './Analysis';
 import { getProjectActivity } from '../../../api/projectActivity';
 import PreviewGraph from '../../../components/preview-graph/PreviewGraph';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
 import { getActivityUrl } from '../../../helpers/urls';
+import Analysis from './Analysis';
 
 interface Props {
   branchLike?: T.BranchLike;

@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable import/order */
-import * as React from 'react';
 import { mount, shallow } from 'enzyme';
-import BulkApplyTemplateModal, { Props } from '../BulkApplyTemplateModal';
-import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import * as React from 'react';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
+import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import BulkApplyTemplateModal, { Props } from '../BulkApplyTemplateModal';
 
 jest.mock('../../../api/permissions', () => ({
   bulkApplyTemplate: jest.fn(() => Promise.resolve()),

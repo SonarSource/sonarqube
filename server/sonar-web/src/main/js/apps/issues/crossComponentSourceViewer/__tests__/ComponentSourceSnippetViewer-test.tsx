@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { shallow, mount, ReactWrapper } from 'enzyme';
+import { mount, ReactWrapper, shallow } from 'enzyme';
 import { times } from 'lodash';
+import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import ComponentSourceSnippetViewer from '../ComponentSourceSnippetViewer';
+import { getSources } from '../../../../api/components';
 import {
-  mockMainBranch,
-  mockIssue,
-  mockSourceViewerFile,
   mockFlowLocation,
+  mockIssue,
+  mockMainBranch,
+  mockShortLivingBranch,
   mockSnippetsByComponent,
   mockSourceLine,
-  mockShortLivingBranch
+  mockSourceViewerFile
 } from '../../../../helpers/testMocks';
-import { getSources } from '../../../../api/components';
+import ComponentSourceSnippetViewer from '../ComponentSourceSnippetViewer';
 
 jest.mock('../../../../api/components', () => ({
   getSources: jest.fn().mockResolvedValue([])

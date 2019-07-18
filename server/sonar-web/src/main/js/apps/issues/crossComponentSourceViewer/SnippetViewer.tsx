@@ -20,17 +20,17 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import ExpandSnippetIcon from 'sonar-ui-common/components/icons/ExpandSnippetIcon';
-import { scrollHorizontally } from 'sonar-ui-common/helpers/scrolling';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { inSnippet, LINES_BELOW_LAST } from './utils';
+import { scrollHorizontally } from 'sonar-ui-common/helpers/scrolling';
 import Line from '../../../components/SourceViewer/components/Line';
 import { symbolsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import { getSecondaryIssueLocationsForLine } from '../../../components/SourceViewer/helpers/issueLocations';
 import {
-  optimizeLocationMessage,
   optimizeHighlightedSymbols,
+  optimizeLocationMessage,
   optimizeSelectedIssue
 } from '../../../components/SourceViewer/helpers/lines';
+import { inSnippet, LINES_BELOW_LAST } from './utils';
 
 interface Props {
   branchLike: T.BranchLike | undefined;

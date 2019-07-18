@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import LanguageDistribution from './LanguageDistribution';
 import { getLanguages, Store } from '../../store/rootReducer';
+import LanguageDistribution from './LanguageDistribution';
 
 const mapStateToProps = (state: Store) => ({
   languages: getLanguages(state)

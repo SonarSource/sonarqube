@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { MetaQualityProfiles } from '../MetaQualityProfiles';
-import { mockLanguage, mockQualityProfile } from '../../../../helpers/testMocks';
 import { searchRules } from '../../../../api/rules';
+import { mockLanguage, mockQualityProfile } from '../../../../helpers/testMocks';
+import { MetaQualityProfiles } from '../MetaQualityProfiles';
 
 jest.mock('../../../../api/rules', () => {
   return {

@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
 import { sortBy, without } from 'lodash';
-import { queriesEqual } from 'sonar-ui-common/helpers/query';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import * as React from 'react';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { queriesEqual } from 'sonar-ui-common/helpers/query';
 import FacetBox from './FacetBox';
 import FacetHeader from './FacetHeader';
 import FacetItem from './FacetItem';

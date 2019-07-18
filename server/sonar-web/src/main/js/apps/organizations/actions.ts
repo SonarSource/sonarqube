@@ -20,8 +20,8 @@
 import { Dispatch } from 'redux';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import * as api from '../../api/organizations';
-import * as actions from '../../store/organizations';
 import { addGlobalSuccessMessage } from '../../store/globalMessages';
+import * as actions from '../../store/organizations';
 
 export function updateOrganization(key: string, changes: T.OrganizationBase) {
   return (dispatch: Dispatch<any>) => {

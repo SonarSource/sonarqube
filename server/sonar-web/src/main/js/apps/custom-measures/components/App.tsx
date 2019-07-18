@@ -19,17 +19,17 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import Header from './Header';
-import List from './List';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
-  getCustomMeasures,
   createCustomMeasure,
-  updateCustomMeasure,
-  deleteCustomMeasure
+  deleteCustomMeasure,
+  getCustomMeasures,
+  updateCustomMeasure
 } from '../../../api/measures';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import Header from './Header';
+import List from './List';
 
 interface Props {
   component: { key: string };

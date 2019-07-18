@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
+import { isLoggedIn } from '../../helpers/users';
 import { getWrappedDisplayName } from './utils';
 import { withCurrentUser } from './withCurrentUser';
-import { isLoggedIn } from '../../helpers/users';
 
 export function whenLoggedIn<P>(WrappedComponent: React.ComponentType<P>) {
   class Wrapper extends React.Component<P & { currentUser: T.CurrentUser }> {

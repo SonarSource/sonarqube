@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getMarketplaceNavigation } from '../../api/nav';
 import EditionBox from './components/EditionBox';
 import { EDITIONS } from './utils';
-import { getMarketplaceNavigation } from '../../api/nav';
 
 export interface Props {
   currentEdition?: T.EditionKey;

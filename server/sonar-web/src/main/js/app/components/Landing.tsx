@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { withRouter, WithRouterProps } from 'react-router';
-import { connect } from 'react-redux';
 import { Location } from 'history';
-import { getCurrentUser, Store } from '../../store/rootReducer';
+import * as React from 'react';
+import { connect } from 'react-redux';
+import { withRouter, WithRouterProps } from 'react-router';
 import { getHomePageUrl } from '../../helpers/urls';
 import { isLoggedIn } from '../../helpers/users';
+import { getCurrentUser, Store } from '../../store/rootReducer';
 
 interface StateProps {
   currentUser: T.CurrentUser | undefined;

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import WebhookItemLatestDelivery from './WebhookItemLatestDelivery';
 import WebhookActions from './WebhookActions';
+import WebhookItemLatestDelivery from './WebhookItemLatestDelivery';
 
 interface Props {
   onDelete: (webhook: string) => Promise<void>;

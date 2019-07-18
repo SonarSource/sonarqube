@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import OrganizationInput from './OrganizationInput';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createProject } from '../../../api/components';
-import ProjectKeyInput from '../components/ProjectKeyInput';
 import VisibilitySelector from '../../../components/common/VisibilitySelector';
-import UpgradeOrganizationBox from '../components/UpgradeOrganizationBox';
 import { isSonarCloud } from '../../../helpers/system';
+import ProjectKeyInput from '../components/ProjectKeyInput';
+import UpgradeOrganizationBox from '../components/UpgradeOrganizationBox';
 import './ManualProjectCreate.css';
+import OrganizationInput from './OrganizationInput';
 
 interface Props {
   currentUser: T.LoggedInUser;

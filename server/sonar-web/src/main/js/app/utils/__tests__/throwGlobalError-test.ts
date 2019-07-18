@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import throwGlobalError from '../throwGlobalError';
 import getStore from '../getStore';
+import throwGlobalError from '../throwGlobalError';
 
 it('should put the error message in the store', async () => {
   const response: any = { json: jest.fn().mockResolvedValue({ errors: [{ msg: 'error 1' }] }) };

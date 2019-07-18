@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { hasMessage } from 'sonar-ui-common/helpers/l10n';
-import { waitAndUpdate, click } from 'sonar-ui-common/helpers/testUtils';
-import UpgradeOrganizationBox from '../UpgradeOrganizationBox';
+import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getSubscriptionPlans } from '../../../../api/billing';
+import UpgradeOrganizationBox from '../UpgradeOrganizationBox';
 
 jest.mock('sonar-ui-common/helpers/l10n', () => ({
   ...jest.requireActual('sonar-ui-common/helpers/l10n'),

@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
 import { keyBy } from 'lodash';
-import { isDefined } from 'sonar-ui-common/helpers/types';
-import { translateWithParameters, translate } from 'sonar-ui-common/helpers/l10n';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import * as React from 'react';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
-import AlmRepositoryItem from './AlmRepositoryItem';
-import SetupProjectBox from './SetupProjectBox';
-import UpgradeOrganizationBox from '../components/UpgradeOrganizationBox';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { isDefined } from 'sonar-ui-common/helpers/types';
 import { getRepositories } from '../../../api/alm-integration';
 import { isPaidOrganization } from '../../../helpers/organizations';
+import UpgradeOrganizationBox from '../components/UpgradeOrganizationBox';
+import AlmRepositoryItem from './AlmRepositoryItem';
+import SetupProjectBox from './SetupProjectBox';
 
 interface Props {
   almApplication: T.AlmApplication;

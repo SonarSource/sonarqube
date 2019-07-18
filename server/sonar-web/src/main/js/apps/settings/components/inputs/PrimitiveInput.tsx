@@ -18,18 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import InputForString from './InputForString';
-import InputForText from './InputForText';
-import InputForPassword from './InputForPassword';
+import {
+  DefaultInputProps,
+  DefaultSpecializedInputProps,
+  getUniqueName,
+  isDefaultOrInherited
+} from '../../utils';
 import InputForBoolean from './InputForBoolean';
 import InputForNumber from './InputForNumber';
+import InputForPassword from './InputForPassword';
 import InputForSingleSelectList from './InputForSingleSelectList';
-import {
-  getUniqueName,
-  isDefaultOrInherited,
-  DefaultInputProps,
-  DefaultSpecializedInputProps
-} from '../../utils';
+import InputForString from './InputForString';
+import InputForText from './InputForText';
 
 const typeMapping: {
   [type in T.SettingType]?: React.ComponentType<DefaultSpecializedInputProps>

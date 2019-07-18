@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
+import * as React from 'react';
 import Helmet from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl, getReturnUrl } from 'sonar-ui-common/helpers/urls';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { getMigrationStatus, getSystemStatus, migrateDatabase } from '../../../api/system';
+import InstanceMessage from '../../../components/common/InstanceMessage';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
-import InstanceMessage from '../../../components/common/InstanceMessage';
 import { isSonarCloud } from '../../../helpers/system';
 import '../styles.css';
 

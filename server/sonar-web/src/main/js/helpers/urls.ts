@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getBaseUrl, Location } from 'sonar-ui-common/helpers/urls';
-import {
-  isShortLivingBranch,
-  isPullRequest,
-  isLongLivingBranch,
-  getBranchLikeQuery
-} from './branches';
 import { getProfilePath } from '../apps/quality-profiles/utils';
+import {
+  getBranchLikeQuery,
+  isLongLivingBranch,
+  isPullRequest,
+  isShortLivingBranch
+} from './branches';
 
 type Query = Location['query'];
 

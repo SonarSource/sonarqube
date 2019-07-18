@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import LoginForm from './LoginForm';
-import OAuthProviders from './OAuthProviders';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import './Login.css';
+import LoginForm from './LoginForm';
+import OAuthProviders from './OAuthProviders';
 
 interface Props {
   identityProviders: T.IdentityProvider[];

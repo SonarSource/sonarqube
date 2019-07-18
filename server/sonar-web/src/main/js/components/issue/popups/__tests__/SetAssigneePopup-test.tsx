@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { SetAssigneePopup } from '../SetAssigneePopup';
-import { mockLoggedInUser, mockUser } from '../../../../helpers/testMocks';
 import { searchMembers } from '../../../../api/organizations';
 import { searchUsers } from '../../../../api/users';
 import { isSonarCloud } from '../../../../helpers/system';
+import { mockLoggedInUser, mockUser } from '../../../../helpers/testMocks';
+import { SetAssigneePopup } from '../SetAssigneePopup';
 
 jest.mock('../../../../helpers/system', () => ({
   isSonarCloud: jest.fn().mockReturnValue(false)

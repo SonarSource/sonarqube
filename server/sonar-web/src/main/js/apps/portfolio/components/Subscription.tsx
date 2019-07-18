@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { ReportStatus, subscribe, unsubscribe } from '../../../api/report';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import { ReportStatus, subscribe, unsubscribe } from '../../../api/report';
 import { isLoggedIn } from '../../../helpers/users';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 

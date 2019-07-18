@@ -20,12 +20,12 @@
 import { map } from 'lodash';
 import { csvEscape } from 'sonar-ui-common/helpers/csv';
 import {
-  request,
   checkStatus,
-  parseJSON,
   getJSON,
+  parseJSON,
   post,
   postJSON,
+  request,
   RequestData
 } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';

@@ -21,12 +21,12 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import DetailsHeader from './DetailsHeader';
-import DetailsContent from './DetailsContent';
-import { getMetrics, Store } from '../../../store/rootReducer';
-import { fetchMetrics } from '../../../store/rootActions';
 import { fetchQualityGate } from '../../../api/quality-gates';
-import { checkIfDefault, addCondition, replaceCondition, deleteCondition } from '../utils';
+import { fetchMetrics } from '../../../store/rootActions';
+import { getMetrics, Store } from '../../../store/rootReducer';
+import { addCondition, checkIfDefault, deleteCondition, replaceCondition } from '../utils';
+import DetailsContent from './DetailsContent';
+import DetailsHeader from './DetailsHeader';
 
 interface OwnProps {
   id: string;

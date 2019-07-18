@@ -22,10 +22,10 @@ jest.mock('../../../../api/ce', () => ({
   setWorkerCount: () => Promise.resolve()
 }));
 
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import WorkersForm from '../WorkersForm';
+import * as React from 'react';
 import { submit } from 'sonar-ui-common/helpers/testUtils';
+import WorkersForm from '../WorkersForm';
 
 it('changes select', () => {
   const wrapper = shallow(<WorkersForm onClose={jest.fn()} workerCount={1} />);

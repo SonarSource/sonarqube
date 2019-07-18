@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as key from 'keymaster';
-import IssueView from './IssueView';
-import { updateIssue } from './actions';
+import * as React from 'react';
 import { setIssueAssignee } from '../../api/issues';
+import { updateIssue } from './actions';
 import './Issue.css';
+import IssueView from './IssueView';
 
 interface Props {
   branchLike?: T.BranchLike;

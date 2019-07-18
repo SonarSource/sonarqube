@@ -19,7 +19,7 @@
  */
 import { connect } from 'react-redux';
 import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
-import { getCurrentUser, areThereCustomOrganizations, Store } from '../../../store/rootReducer';
+import { areThereCustomOrganizations, getCurrentUser, Store } from '../../../store/rootReducer';
 
 const stateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state),

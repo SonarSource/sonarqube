@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as isSameMinute from 'date-fns/is_same_minute';
+import { sortBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
-import { sortBy } from 'lodash';
-import * as isSameMinute from 'date-fns/is_same_minute';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import ChangesList from './ChangesList';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { getRulesUrl } from '../../../helpers/urls';
 import { ProfileChangelogEvent } from '../types';
+import ChangesList from './ChangesList';
 
 interface Props {
   events: ProfileChangelogEvent[];

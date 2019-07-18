@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import { Link } from 'react-router';
+import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createProject } from '../../api/components';
-import UpgradeOrganizationBox from '../create/components/UpgradeOrganizationBox';
 import VisibilitySelector from '../../components/common/VisibilitySelector';
 import { getProjectUrl } from '../../helpers/urls';
+import UpgradeOrganizationBox from '../create/components/UpgradeOrganizationBox';
 
 interface Props {
   onClose: () => void;

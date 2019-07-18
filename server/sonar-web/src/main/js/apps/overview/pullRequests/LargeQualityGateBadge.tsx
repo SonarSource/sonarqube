@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import HelpIcon from 'sonar-ui-common/components/icons/HelpIcon';
 import * as classNames from 'classnames';
-import { Link } from 'react-router';
+import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Link } from 'react-router';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import { getQualityGateUrl, getQualityGatesUrl } from '../../../helpers/urls';
-import { isSonarCloud } from '../../../helpers/system';
+import HelpIcon from 'sonar-ui-common/components/icons/HelpIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { colors } from '../../../app/theme';
+import { isSonarCloud } from '../../../helpers/system';
+import { getQualityGatesUrl, getQualityGateUrl } from '../../../helpers/urls';
 
 interface Props {
   component: T.Component;

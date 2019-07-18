@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import PropertySetInput from './PropertySetInput';
+import { DefaultInputProps, isCategoryDefinition } from '../../utils';
 import MultiValueInput from './MultiValueInput';
 import PrimitiveInput from './PrimitiveInput';
-import { DefaultInputProps, isCategoryDefinition } from '../../utils';
+import PropertySetInput from './PropertySetInput';
 
 export default function Input(props: DefaultInputProps) {
   const { definition } = props.setting;

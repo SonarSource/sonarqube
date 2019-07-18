@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import InputForBoolean from '../InputForBoolean';
+import * as React from 'react';
 import { DefaultSpecializedInputProps } from '../../../utils';
+import InputForBoolean from '../InputForBoolean';
 
 it('should render Toggle', () => {
   const onChange = jest.fn();

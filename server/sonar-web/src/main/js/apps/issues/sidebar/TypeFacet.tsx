@@ -17,23 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { orderBy, without } from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { orderBy, without } from 'lodash';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import NewsBox from 'sonar-ui-common/components/ui/NewsBox';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
-import { formatFacetStat, Query } from '../utils';
+import { ISSUE_TYPES } from '../../../helpers/constants';
 import { getCurrentUser, getCurrentUserSetting, Store } from '../../../store/rootReducer';
 import { setCurrentUserSetting } from '../../../store/users';
-import { ISSUE_TYPES } from '../../../helpers/constants';
+import { formatFacetStat, Query } from '../utils';
 
 interface Props {
   fetching: boolean;

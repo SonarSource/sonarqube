@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { searchQualityProfiles, getExporters, Actions } from '../../../api/quality-profiles';
+import { Actions, getExporters, searchQualityProfiles } from '../../../api/quality-profiles';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { sortProfiles } from '../utils';
-import { Exporter, Profile } from '../types';
 import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
 import '../styles.css';
+import { Exporter, Profile } from '../types';
+import { sortProfiles } from '../utils';
 
 interface Props {
   children: React.ReactElement<any>;

@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { keyBy, pickBy, some } from 'lodash';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import * as React from 'react';
+import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import OrganizationGroupCheckbox from '../organizations/components/OrganizationGroupCheckbox';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getUserGroups, UserGroup } from '../../api/users';
+import OrganizationGroupCheckbox from '../organizations/components/OrganizationGroupCheckbox';
 
 interface Props {
   onClose: () => void;

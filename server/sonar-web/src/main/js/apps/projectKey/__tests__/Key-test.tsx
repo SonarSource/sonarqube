@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { WithRouterProps } from 'react-router';
-import { Key } from '../Key';
 import { changeKey } from '../../../api/components';
+import { Key } from '../Key';
 
 jest.mock('../../../api/components', () => ({
   changeKey: jest.fn().mockResolvedValue(undefined)

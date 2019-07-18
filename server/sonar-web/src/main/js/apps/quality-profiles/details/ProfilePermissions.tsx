@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { sortBy, uniqBy } from 'lodash';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
-import ProfilePermissionsUser from './ProfilePermissionsUser';
-import ProfilePermissionsGroup from './ProfilePermissionsGroup';
-import ProfilePermissionsForm from './ProfilePermissionsForm';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
-  searchUsers,
   searchGroups,
+  searchUsers,
   SearchUsersGroupsParameters
 } from '../../../api/quality-profiles';
 import { Profile } from '../types';
+import ProfilePermissionsForm from './ProfilePermissionsForm';
+import ProfilePermissionsGroup from './ProfilePermissionsGroup';
+import ProfilePermissionsUser from './ProfilePermissionsUser';
 
 export interface Group {
   name: string;

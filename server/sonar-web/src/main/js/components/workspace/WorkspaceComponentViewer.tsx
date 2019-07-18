@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
-import { ComponentDescriptor } from './context';
-import WorkspaceHeader, { Props as WorkspaceHeaderProps } from './WorkspaceHeader';
-import WorkspaceComponentTitle from './WorkspaceComponentTitle';
-import SourceViewer from '../SourceViewer/SourceViewer';
+import { getParents } from '../../api/components';
 import { isPullRequest, isShortLivingBranch } from '../../helpers/branches';
 import { fetchBranchStatus } from '../../store/rootActions';
-import { getParents } from '../../api/components';
+import SourceViewer from '../SourceViewer/SourceViewer';
+import { ComponentDescriptor } from './context';
+import WorkspaceComponentTitle from './WorkspaceComponentTitle';
+import WorkspaceHeader, { Props as WorkspaceHeaderProps } from './WorkspaceHeader';
 
 export interface Props extends T.Omit<WorkspaceHeaderProps, 'children' | 'onClose'> {
   component: ComponentDescriptor;

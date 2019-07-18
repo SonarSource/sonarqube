@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as difference from 'date-fns/difference_in_milliseconds';
 import * as React from 'react';
 import { Link } from 'react-router';
-import * as difference from 'date-fns/difference_in_milliseconds';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import ProjectCardQualityGate from './ProjectCardQualityGate';
-import ProjectCardLeakMeasures from './ProjectCardLeakMeasures';
-import ProjectCardOrganizationContainer from './ProjectCardOrganizationContainer';
+import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 import Favorite from '../../../components/controls/Favorite';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import TagsList from '../../../components/tags/TagsList';
-import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
-import { Project } from '../types';
-import { formatDuration } from '../utils';
 import { getProjectUrl } from '../../../helpers/urls';
 import { isLoggedIn } from '../../../helpers/users';
+import { Project } from '../types';
+import { formatDuration } from '../utils';
+import ProjectCardLeakMeasures from './ProjectCardLeakMeasures';
+import ProjectCardOrganizationContainer from './ProjectCardOrganizationContainer';
+import ProjectCardQualityGate from './ProjectCardQualityGate';
 
 interface Props {
   currentUser: T.CurrentUser;

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import SearchShowMore from './SearchShowMore';
-import { sortQualifiers, More, ComponentResult, Results } from './utils';
+import { ComponentResult, More, Results, sortQualifiers } from './utils';
 
 export interface Props {
   allowMore: boolean;

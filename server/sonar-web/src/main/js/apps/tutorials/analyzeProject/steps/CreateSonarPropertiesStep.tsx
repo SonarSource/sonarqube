@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../../components/common/CodeSnippet';
 import Step from '../../components/Step';
 import { StepProps } from '../../utils';

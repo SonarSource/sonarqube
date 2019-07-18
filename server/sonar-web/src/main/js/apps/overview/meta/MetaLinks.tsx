@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import MetaLink from './MetaLink';
-import { orderLinks } from '../../projectLinks/utils';
 import { getProjectLinks } from '../../../api/projectLinks';
+import { orderLinks } from '../../projectLinks/utils';
+import MetaLink from './MetaLink';
 
 interface Props {
   component: T.LightComponent;

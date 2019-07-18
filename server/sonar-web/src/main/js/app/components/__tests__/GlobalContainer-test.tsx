@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import GlobalContainer, { Props } from '../GlobalContainer';
+import * as React from 'react';
 import { mockLocation } from '../../../helpers/testMocks';
+import GlobalContainer, { Props } from '../GlobalContainer';
 
 jest.mock('../embed-docs-modal/SuggestionsProvider', () => {
   class SuggestionsProvider extends React.Component {

@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { sortBy } from 'lodash';
-import {
-  translate,
-  getLocalizedMetricName,
-  getLocalizedMetricDomain
-} from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import Select from 'sonar-ui-common/components/controls/Select';
+import {
+  getLocalizedMetricDomain,
+  getLocalizedMetricName,
+  translate
+} from 'sonar-ui-common/helpers/l10n';
 
 interface Props {
   metrics: T.Metric[];

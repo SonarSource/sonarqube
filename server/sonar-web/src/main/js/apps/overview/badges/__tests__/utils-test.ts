@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Location } from 'sonar-ui-common/helpers/urls';
-import { getBadgeUrl, BadgeOptions, BadgeType, getBadgeSnippet } from '../utils';
+import { BadgeOptions, BadgeType, getBadgeSnippet, getBadgeUrl } from '../utils';
 
 jest.mock('sonar-ui-common/helpers/urls', () => ({
   ...require.requireActual('sonar-ui-common/helpers/urls'),

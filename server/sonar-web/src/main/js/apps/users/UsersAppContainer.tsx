@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import UsersApp from './UsersApp';
 import { areThereCustomOrganizations, getCurrentUser, Store } from '../../store/rootReducer';
+import UsersApp from './UsersApp';
 
 const mapStateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state),

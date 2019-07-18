@@ -20,9 +20,9 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { WithRouterProps } from 'react-router';
-import ProfileNotFound from './ProfileNotFound';
 import ProfileHeader from '../details/ProfileHeader';
 import { Profile } from '../types';
+import ProfileNotFound from './ProfileNotFound';
 
 interface Props {
   children: React.ReactElement<any>;

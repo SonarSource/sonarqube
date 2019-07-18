@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { sortBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
-import { sortBy } from 'lodash';
-import { translateWithParameters, translate } from 'sonar-ui-common/helpers/l10n';
-import ProfileLink from '../components/ProfileLink';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
+import ProfileLink from '../components/ProfileLink';
 import { Profile } from '../types';
 
 interface Props {

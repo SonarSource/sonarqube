@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import GraphsLegendItem from './GraphsLegendItem';
 import { Serie } from '../utils';
+import GraphsLegendItem from './GraphsLegendItem';
 
 interface Props {
   series: Array<Pick<Serie, 'name' | 'translatedName'>>;

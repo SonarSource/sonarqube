@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import { Button, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 
 export interface Props {
   onClose: () => void;

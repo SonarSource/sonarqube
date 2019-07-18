@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { EditButton } from 'sonar-ui-common/components/controls/buttons';
-import { quote } from '../../../utils';
-import SQScanner from '../SQScanner';
-import BuildWrapper from '../BuildWrapper';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../../../components/common/CodeSnippet';
+import { quote } from '../../../utils';
+import BuildWrapper from '../BuildWrapper';
 import { ClangGCCCommon } from '../Custom/ClangGCCCustom';
+import SQScanner from '../SQScanner';
 
 export interface Props {
   host: string;

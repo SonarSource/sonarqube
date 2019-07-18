@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { InjectedRouter } from 'react-router';
-import MeasureOverview from './MeasureOverview';
 import { getComponentShow } from '../../../api/components';
+import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
 import { getProjectUrl } from '../../../helpers/urls';
 import { isViewType, Query } from '../utils';
-import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
+import MeasureOverview from './MeasureOverview';
 
 interface Props {
   branchLike?: T.BranchLike;

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ProfileRules from './ProfileRules';
-import ProfileProjects from './ProfileProjects';
-import ProfileInheritance from './ProfileInheritance';
-import ProfileExporters from './ProfileExporters';
-import ProfilePermissions from './ProfilePermissions';
 import { Exporter, Profile } from '../types';
+import ProfileExporters from './ProfileExporters';
+import ProfileInheritance from './ProfileInheritance';
+import ProfilePermissions from './ProfilePermissions';
+import ProfileProjects from './ProfileProjects';
+import ProfileRules from './ProfileRules';
 
 interface Props {
   exporters: Exporter[];

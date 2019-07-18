@@ -22,14 +22,14 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import OrganizationsList from './OrganizationsList';
-import { fetchIfAnyoneCanCreateOrganizations } from './actions';
 import {
   getAppState,
-  getMyOrganizations,
   getGlobalSettingValue,
+  getMyOrganizations,
   Store
 } from '../../../store/rootReducer';
+import { fetchIfAnyoneCanCreateOrganizations } from './actions';
+import OrganizationsList from './OrganizationsList';
 
 interface StateProps {
   anyoneCanCreate: boolean;

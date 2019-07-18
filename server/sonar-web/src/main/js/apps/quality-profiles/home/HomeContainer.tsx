@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import PageHeader from './PageHeader';
-import Evolution from './Evolution';
-import ProfilesList from './ProfilesList';
-import { Profile } from '../types';
 import { Actions } from '../../../api/quality-profiles';
+import { Profile } from '../types';
+import Evolution from './Evolution';
+import PageHeader from './PageHeader';
+import ProfilesList from './ProfilesList';
 
 interface Props {
   actions: Actions;

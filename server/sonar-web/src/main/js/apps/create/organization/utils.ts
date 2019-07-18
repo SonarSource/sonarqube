@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { memoize } from 'lodash';
-import { parseAsOptionalString, cleanQuery, serializeString } from 'sonar-ui-common/helpers/query';
-import { decodeJwt } from 'sonar-ui-common/helpers/strings';
 import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { cleanQuery, parseAsOptionalString, serializeString } from 'sonar-ui-common/helpers/query';
+import { decodeJwt } from 'sonar-ui-common/helpers/strings';
 import { isBitbucket, isGithub } from '../../../helpers/almIntegrations';
 
 export const ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP =

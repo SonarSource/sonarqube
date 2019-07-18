@@ -18,20 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import HistoryIcon from 'sonar-ui-common/components/icons/HistoryIcon';
 import { Link } from 'react-router';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import HistoryIcon from 'sonar-ui-common/components/icons/HistoryIcon';
+import Rating from 'sonar-ui-common/components/ui/Rating';
 import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import Rating from 'sonar-ui-common/components/ui/Rating';
-import DrilldownLink from '../../../components/shared/DrilldownLink';
-import Timeline from '../components/Timeline';
 import { getWrappedDisplayName } from '../../../components/hoc/utils';
+import DrilldownLink from '../../../components/shared/DrilldownLink';
+import { getBranchLikeQuery } from '../../../helpers/branches';
 import {
-  isDiffMetric,
   getPeriodValue,
+  getRatingTooltip,
   getShortType,
-  getRatingTooltip
+  isDiffMetric
 } from '../../../helpers/measures';
 import { getPeriodDate } from '../../../helpers/periods';
 import {
@@ -39,7 +39,7 @@ import {
   getComponentIssuesUrl,
   getMeasureHistoryUrl
 } from '../../../helpers/urls';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import Timeline from '../components/Timeline';
 
 export interface EnhanceProps {
   branchLike?: T.BranchLike;

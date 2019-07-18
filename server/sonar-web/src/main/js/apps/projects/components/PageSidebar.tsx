@@ -17,28 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { flatMap } from 'lodash';
+import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import FavoriteFilterContainer from './FavoriteFilterContainer';
-import ClearAll from './ClearAll';
-import LanguagesFilterContainer from '../filters/LanguagesFilterContainer';
 import CoverageFilter from '../filters/CoverageFilter';
 import DuplicationsFilter from '../filters/DuplicationsFilter';
+import LanguagesFilterContainer from '../filters/LanguagesFilterContainer';
 import MaintainabilityFilter from '../filters/MaintainabilityFilter';
 import NewCoverageFilter from '../filters/NewCoverageFilter';
 import NewDuplicationsFilter from '../filters/NewDuplicationsFilter';
+import NewLinesFilter from '../filters/NewLinesFilter';
 import NewMaintainabilityFilter from '../filters/NewMaintainabilityFilter';
 import NewReliabilityFilter from '../filters/NewReliabilityFilter';
 import NewSecurityFilter from '../filters/NewSecurityFilter';
-import NewLinesFilter from '../filters/NewLinesFilter';
 import QualityGateFilter from '../filters/QualityGateFilter';
 import ReliabilityFilter from '../filters/ReliabilityFilter';
 import SecurityFilter from '../filters/SecurityFilter';
 import SizeFilter from '../filters/SizeFilter';
 import TagsFilter from '../filters/TagsFilter';
-import { Facets } from '../types';
 import { hasFilterParams } from '../query';
+import { Facets } from '../types';
+import ClearAll from './ClearAll';
+import FavoriteFilterContainer from './FavoriteFilterContainer';
 
 interface Props {
   facets?: Facets;

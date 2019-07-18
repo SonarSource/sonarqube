@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import BillingFormShim from './BillingFormShim';
-import UpgradeOrganizationAdvantages from './UpgradeOrganizationAdvantages';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { getExtensionStart } from '../../../helpers/extensions';
+import BillingFormShim from './BillingFormShim';
+import UpgradeOrganizationAdvantages from './UpgradeOrganizationAdvantages';
 
 const BillingForm = withCurrentUser(BillingFormShim);
 

@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
+import * as React from 'react';
 import { Link } from 'react-router';
+import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
-import DrilldownLink from '../../../components/shared/DrilldownLink';
 import Measure from '../../../components/measure/Measure';
+import DrilldownLink from '../../../components/shared/DrilldownLink';
+import { getBranchLikeQuery, isPullRequest, isShortLivingBranch } from '../../../helpers/branches';
 import { getPeriodValue, isDiffMetric } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
-import { getBranchLikeQuery, isPullRequest, isShortLivingBranch } from '../../../helpers/branches';
 
 interface Props {
   branchLike?: T.BranchLike;

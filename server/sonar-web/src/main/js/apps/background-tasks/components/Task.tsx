@@ -20,9 +20,9 @@
 import * as React from 'react';
 import TaskActions from './TaskActions';
 import TaskComponent from './TaskComponent';
-import TaskExecutionTime from './TaskExecutionTime';
-import TaskDay from './TaskDay';
 import TaskDate from './TaskDate';
+import TaskDay from './TaskDay';
+import TaskExecutionTime from './TaskExecutionTime';
 import TaskId from './TaskId';
 import TaskStatus from './TaskStatus';
 import TaskSubmitter from './TaskSubmitter';

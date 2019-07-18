@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
-import { Link } from 'react-router';
+import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import LongLivingBranchIcon from 'sonar-ui-common/components/icons/LongLivingBranchIcon';
-import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import ProjectEventIcon from 'sonar-ui-common/components/icons/ProjectEventIcon';
-import { limitComponentName } from 'sonar-ui-common/helpers/path';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Link } from 'react-router';
 import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import { getProjectUrl } from '../../../helpers/urls';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import LongLivingBranchIcon from 'sonar-ui-common/components/icons/LongLivingBranchIcon';
+import ProjectEventIcon from 'sonar-ui-common/components/icons/ProjectEventIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { limitComponentName } from 'sonar-ui-common/helpers/path';
 import { isMainBranch } from '../../../helpers/branches';
+import { getProjectUrl } from '../../../helpers/urls';
 
 export type DefinitionChangeEvent = T.AnalysisEvent &
   Required<Pick<T.AnalysisEvent, 'definitionChange'>>;

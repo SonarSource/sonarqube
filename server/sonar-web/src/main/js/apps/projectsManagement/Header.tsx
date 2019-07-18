@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Button, EditButton } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { EditButton, Button } from 'sonar-ui-common/components/controls/buttons';
-import ChangeDefaultVisibilityForm from './ChangeDefaultVisibilityForm';
 import { isSonarCloud } from '../../helpers/system';
+import ChangeDefaultVisibilityForm from './ChangeDefaultVisibilityForm';
 
 export interface Props {
   hasProvisionPermission?: boolean;

@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouterState } from 'react-router';
-import { getCurrentUser, getOrganizationByKey, Store } from '../../../store/rootReducer';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { isLoggedIn } from '../../../helpers/users';
+import { getCurrentUser, getOrganizationByKey, Store } from '../../../store/rootReducer';
 
 interface StateToProps {
   currentUser: T.CurrentUser;

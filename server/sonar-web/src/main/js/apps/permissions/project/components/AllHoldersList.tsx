@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { without } from 'lodash';
+import * as React from 'react';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import SearchForm from '../../shared/components/SearchForm';
 import HoldersList from '../../shared/components/HoldersList';
-import { PERMISSIONS_ORDER_BY_QUALIFIER, convertToPermissionDefinitions } from '../../utils';
+import SearchForm from '../../shared/components/SearchForm';
+import { convertToPermissionDefinitions, PERMISSIONS_ORDER_BY_QUALIFIER } from '../../utils';
 
 interface Props {
   component: T.Component;

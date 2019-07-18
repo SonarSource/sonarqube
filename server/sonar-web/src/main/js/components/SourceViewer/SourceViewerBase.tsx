@@ -17,37 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
 import { intersection, uniqBy } from 'lodash';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import SourceViewerCode from './SourceViewerCode';
-import SourceViewerHeader from './SourceViewerHeader';
-import SourceViewerHeaderSlim from './SourceViewerHeaderSlim';
-import { SourceViewerContext } from './SourceViewerContext';
-import DuplicationPopup from './components/DuplicationPopup';
-import defaultLoadIssues from './helpers/loadIssues';
-import getCoverageStatus from './helpers/getCoverageStatus';
-import {
-  filterDuplicationBlocksByLine,
-  getDuplicationBlocksForIndex,
-  isDuplicationBlockInRemovedComponent
-} from './helpers/duplications';
-import {
-  duplicationsByLine,
-  issuesByLine,
-  locationsByLine,
-  symbolsByLine
-} from './helpers/indexing';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   getComponentData,
   getComponentForSourceViewer,
   getDuplications,
   getSources
 } from '../../api/components';
-import { isSameBranchLike, getBranchLikeQuery } from '../../helpers/branches';
+import { getBranchLikeQuery, isSameBranchLike } from '../../helpers/branches';
 import { WorkspaceContext } from '../workspace/context';
+import DuplicationPopup from './components/DuplicationPopup';
+import {
+  filterDuplicationBlocksByLine,
+  getDuplicationBlocksForIndex,
+  isDuplicationBlockInRemovedComponent
+} from './helpers/duplications';
+import getCoverageStatus from './helpers/getCoverageStatus';
+import {
+  duplicationsByLine,
+  issuesByLine,
+  locationsByLine,
+  symbolsByLine
+} from './helpers/indexing';
+import defaultLoadIssues from './helpers/loadIssues';
+import SourceViewerCode from './SourceViewerCode';
+import { SourceViewerContext } from './SourceViewerContext';
+import SourceViewerHeader from './SourceViewerHeader';
+import SourceViewerHeaderSlim from './SourceViewerHeaderSlim';
 import './styles.css';
 
 // TODO react-virtualized

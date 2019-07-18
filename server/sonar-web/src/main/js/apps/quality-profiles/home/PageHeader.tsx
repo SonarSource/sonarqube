@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import CreateProfileForm from './CreateProfileForm';
-import RestoreProfileForm from './RestoreProfileForm';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Actions } from '../../../api/quality-profiles';
+import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { Profile } from '../types';
 import { getProfilePath } from '../utils';
-import { Actions } from '../../../api/quality-profiles';
-import { withRouter, Router } from '../../../components/hoc/withRouter';
+import CreateProfileForm from './CreateProfileForm';
+import RestoreProfileForm from './RestoreProfileForm';
 
 interface Props {
   actions: Actions;

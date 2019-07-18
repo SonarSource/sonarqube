@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as differenceInDays from 'date-fns/difference_in_days';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import { parseDate, toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
-import { save, get } from 'sonar-ui-common/helpers/storage';
 import { hasMessage } from 'sonar-ui-common/helpers/l10n';
-import { OnboardingContext } from './OnboardingContext';
-import { getCurrentUser, getAppState, Store } from '../../store/rootReducer';
-import { skipOnboarding } from '../../store/users';
+import { get, save } from 'sonar-ui-common/helpers/storage';
 import { showLicense } from '../../api/marketplace';
+import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { isSonarCloud } from '../../helpers/system';
 import { isLoggedIn } from '../../helpers/users';
-import { withRouter, Router, Location } from '../../components/hoc/withRouter';
+import { getAppState, getCurrentUser, Store } from '../../store/rootReducer';
+import { skipOnboarding } from '../../store/users';
+import { OnboardingContext } from './OnboardingContext';
 
 const OnboardingModal = lazyLoad(() => import('../../apps/tutorials/onboarding/OnboardingModal'));
 const LicensePromptModal = lazyLoad(

@@ -17,27 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
-import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
-import { InjectedRouter } from 'react-router';
 import { Location } from 'history';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
+import Helmet from 'react-helmet';
+import { connect } from 'react-redux';
+import { InjectedRouter } from 'react-router';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import Components from './Components';
-import Breadcrumbs from './Breadcrumbs';
-import Search from './Search';
-import SourceViewerWrapper from './SourceViewerWrapper';
-import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
-import { retrieveComponentChildren, retrieveComponent, loadMoreChildren } from '../utils';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { fetchMetrics, fetchBranchStatus } from '../../../store/rootActions';
+import { isPullRequest, isSameBranchLike, isShortLivingBranch } from '../../../helpers/branches';
+import { getCodeUrl, getProjectUrl } from '../../../helpers/urls';
+import { fetchBranchStatus, fetchMetrics } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
-import { isSameBranchLike, isPullRequest, isShortLivingBranch } from '../../../helpers/branches';
-import { getProjectUrl, getCodeUrl } from '../../../helpers/urls';
+import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import '../code.css';
+import { loadMoreChildren, retrieveComponent, retrieveComponentChildren } from '../utils';
+import Breadcrumbs from './Breadcrumbs';
+import Components from './Components';
+import Search from './Search';
+import SourceViewerWrapper from './SourceViewerWrapper';
 
 interface StateToProps {
   metrics: T.Dict<T.Metric>;

@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as key from 'keymaster';
 import { throttle } from 'lodash';
-import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
+import * as React from 'react';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import ComponentsList from './ComponentsList';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
+import { isDiffMetric, isPeriodBestValue } from '../../../helpers/measures';
 import { View } from '../utils';
-import { isPeriodBestValue, isDiffMetric } from '../../../helpers/measures';
+import ComponentsList from './ComponentsList';
 
 interface Props {
   branchLike?: T.BranchLike;

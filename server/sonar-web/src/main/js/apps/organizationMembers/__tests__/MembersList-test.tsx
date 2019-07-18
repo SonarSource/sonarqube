@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import MembersList from '../MembersList';
+import * as React from 'react';
 import { mockLoggedInUser, mockOrganization } from '../../../helpers/testMocks';
+import MembersList from '../MembersList';
 
 const members = [
   { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 },

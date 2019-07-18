@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { ComponentContainer } from '../ComponentContainer';
 import { getBranches, getPullRequests } from '../../../api/branches';
 import { getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
@@ -28,14 +27,15 @@ import { getComponentNavigation } from '../../../api/nav';
 import { STATUSES } from '../../../apps/background-tasks/constants';
 import { isSonarCloud } from '../../../helpers/system';
 import {
-  mockLocation,
-  mockRouter,
   mockComponent,
-  mockPullRequest,
+  mockLocation,
   mockLongLivingBranch,
-  mockShortLivingBranch,
-  mockMainBranch
+  mockMainBranch,
+  mockPullRequest,
+  mockRouter,
+  mockShortLivingBranch
 } from '../../../helpers/testMocks';
+import { ComponentContainer } from '../ComponentContainer';
 
 jest.mock('../../../api/branches', () => {
   const { mockMainBranch, mockPullRequest } = require.requireActual('../../../helpers/testMocks');

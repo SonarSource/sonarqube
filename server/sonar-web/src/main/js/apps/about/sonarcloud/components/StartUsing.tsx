@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
 import { Link } from 'react-router';
+import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
 
 export default function StartUsing() {
   return (

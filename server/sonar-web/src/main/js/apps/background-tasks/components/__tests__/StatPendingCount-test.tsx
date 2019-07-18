@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import { StatPendingCount, Props } from '../StatPendingCount';
+import * as React from 'react';
+import { Props, StatPendingCount } from '../StatPendingCount';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();

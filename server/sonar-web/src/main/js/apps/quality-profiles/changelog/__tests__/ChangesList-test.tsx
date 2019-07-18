@@ -20,8 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import ChangesList from '../ChangesList';
-import SeverityChange from '../SeverityChange';
 import ParameterChange from '../ParameterChange';
+import SeverityChange from '../SeverityChange';
 
 it('should render changes', () => {
   const changes = { severity: 'BLOCKER', foo: 'bar' };

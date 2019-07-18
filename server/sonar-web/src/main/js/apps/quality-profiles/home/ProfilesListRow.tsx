@@ -19,16 +19,16 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import ProfileLink from '../components/ProfileLink';
-import ProfileDate from '../components/ProfileDate';
-import ProfileActions from '../components/ProfileActions';
-import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
-import { getRulesUrl } from '../../../helpers/urls';
-import { isStagnant } from '../utils';
-import { Profile } from '../types';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import DocTooltip from '../../../components/docs/DocTooltip';
+import { getRulesUrl } from '../../../helpers/urls';
+import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
+import ProfileActions from '../components/ProfileActions';
+import ProfileDate from '../components/ProfileDate';
+import ProfileLink from '../components/ProfileLink';
+import { Profile } from '../types';
+import { isStagnant } from '../utils';
 
 interface Props {
   organization: string | null;

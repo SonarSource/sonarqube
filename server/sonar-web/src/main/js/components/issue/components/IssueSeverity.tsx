@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
-import SetSeverityPopup from '../popups/SetSeverityPopup';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import { IssueResponse, setIssueSeverity } from '../../../api/issues';
 import SeverityHelper from '../../shared/SeverityHelper';
-import { setIssueSeverity, IssueResponse } from '../../../api/issues';
+import SetSeverityPopup from '../popups/SetSeverityPopup';
 
 interface Props {
   canSetSeverity: boolean;

@@ -23,10 +23,10 @@ jest.mock('../../../../api/settings', () => ({
   resetSettingValue: jest.fn(() => Promise.resolve())
 }));
 
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
+import { change, click, submit } from 'sonar-ui-common/helpers/testUtils';
 import SettingForm from '../SettingForm';
-import { change, submit, click } from 'sonar-ui-common/helpers/testUtils';
 
 const setSimpleSettingValue = require('../../../../api/settings')
   .setSimpleSettingValue as jest.Mock<any>;

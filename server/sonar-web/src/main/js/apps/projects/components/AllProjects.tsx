@@ -17,32 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { omitBy } from 'lodash';
 import * as React from 'react';
 import Helmet from 'react-helmet';
-import { omitBy } from 'lodash';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
 import { get, save } from 'sonar-ui-common/helpers/storage';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import PageHeader from './PageHeader';
-import ProjectsList from './ProjectsList';
-import PageSidebar from './PageSidebar';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import OrganizationEmpty from '../../organizations/components/OrganizationEmpty';
-import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import Visualizations from '../visualizations/Visualizations';
-import { Project, Facets } from '../types';
-import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
-import { parseUrlQuery, Query, hasFilterParams, hasVisualizationParams } from '../query';
+import { OnboardingContext } from '../../../app/components/OnboardingContext';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import '../../../components/search-navigator.css';
 import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
-import { OnboardingContext } from '../../../app/components/OnboardingContext';
-import { withRouter, Location, Router } from '../../../components/hoc/withRouter';
-import '../../../components/search-navigator.css';
+import OrganizationEmpty from '../../organizations/components/OrganizationEmpty';
+import { hasFilterParams, hasVisualizationParams, parseUrlQuery, Query } from '../query';
 import '../styles.css';
+import { Facets, Project } from '../types';
+import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
+import Visualizations from '../visualizations/Visualizations';
+import PageHeader from './PageHeader';
+import PageSidebar from './PageSidebar';
+import ProjectsList from './ProjectsList';
 
 interface Props {
   currentUser: T.CurrentUser;

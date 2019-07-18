@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import DowngradeFeedback, { LocationState } from '../DowngradeFeedback';
+import * as React from 'react';
 import { giveDowngradeFeedback } from '../../../../api/billing';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
+import DowngradeFeedback, { LocationState } from '../DowngradeFeedback';
 
 jest.mock('../../../../api/billing', () => ({
   giveDowngradeFeedback: jest.fn()

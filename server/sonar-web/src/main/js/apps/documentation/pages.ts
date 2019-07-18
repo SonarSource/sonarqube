@@ -19,9 +19,9 @@
  */
 import remark from 'remark';
 import visit from 'unist-util-visit';
-import { DocumentationEntry, DocumentationEntryScope } from './utils';
+import { filterContent, separateFrontMatter } from '../../helpers/markdown';
 import * as Docs from './documentation.directory-loader';
-import { separateFrontMatter, filterContent } from '../../helpers/markdown';
+import { DocumentationEntry, DocumentationEntryScope } from './utils';
 
 export default function getPages(): DocumentationEntry[] {
   return ((Docs as unknown) as Array<{ content: string; path: string }>).map(file => {

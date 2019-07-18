@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import App from './App';
 import { changeProjectDefaultVisibility } from '../../api/permissions';
-import { getAppState, getOrganizationByKey, getCurrentUser, Store } from '../../store/rootReducer';
-import { fetchOrganization } from '../../store/rootActions';
 import { receiveOrganizations } from '../../store/organizations';
+import { fetchOrganization } from '../../store/rootActions';
+import { getAppState, getCurrentUser, getOrganizationByKey, Store } from '../../store/rootReducer';
+import App from './App';
 
 interface StateProps {
   appState: { defaultOrganization: string; qualifiers: string[] };

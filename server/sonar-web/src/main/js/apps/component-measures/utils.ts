@@ -18,10 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { groupBy, memoize, sortBy, toPairs } from 'lodash';
-import { cleanQuery, parseAsString, serializeString } from 'sonar-ui-common/helpers/query';
 import { getLocalizedMetricName } from 'sonar-ui-common/helpers/l10n';
-import { domains } from './config/domains';
-import { bubbles } from './config/bubbles';
+import { cleanQuery, parseAsString, serializeString } from 'sonar-ui-common/helpers/query';
 import { enhanceMeasure } from '../../components/measure/utils';
 import {
   isLongLivingBranch,
@@ -30,6 +28,8 @@ import {
   isShortLivingBranch
 } from '../../helpers/branches';
 import { getDisplayMetrics, isDiffMetric } from '../../helpers/measures';
+import { bubbles } from './config/bubbles';
+import { domains } from './config/domains';
 
 export type View = 'list' | 'tree' | 'treemap';
 

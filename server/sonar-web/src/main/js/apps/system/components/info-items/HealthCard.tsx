@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { map } from 'lodash';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import * as React from 'react';
 import BoxedGroupAccordion from 'sonar-ui-common/components/controls/BoxedGroupAccordion';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getLogsLevel, groupSections, LOGS_LEVELS } from '../../utils';
 import HealthItem from './HealthItem';
 import Section from './Section';
-import { LOGS_LEVELS, groupSections, getLogsLevel } from '../../utils';
 
 interface Props {
   biggerHealth?: boolean;

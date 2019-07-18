@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { combineReducers } from 'redux';
 import { keyBy } from 'lodash';
-import { ActionType } from '../../../store/utils/actions';
+import { combineReducers } from 'redux';
 import { Action as AppStateAction, Actions as AppStateActions } from '../../../store/appState';
+import { ActionType } from '../../../store/utils/actions';
 
 enum Actions {
   receiveValues = 'RECEIVE_VALUES'

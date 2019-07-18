@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import EditionBox from '../EditionBox';
+import * as React from 'react';
 import { EditionKey } from '../../utils';
+import EditionBox from '../EditionBox';
 
 const DEFAULT_EDITION = {
   key: EditionKey.developer,

@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
+import * as React from 'react';
+import { getSources } from '../../../api/components';
+import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
+import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
+import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
+import { getBranchLikeQuery } from '../../../helpers/branches';
+import SnippetViewer from './SnippetViewer';
 import {
   createSnippets,
   expandSnippet,
   EXPAND_BY_LINES,
-  MERGE_DISTANCE,
-  linesForSnippets
+  linesForSnippets,
+  MERGE_DISTANCE
 } from './utils';
-import SnippetViewer from './SnippetViewer';
-import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
-import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
-import { getSources } from '../../../api/components';
-import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
-import { getBranchLikeQuery } from '../../../helpers/branches';
 
 interface Props {
   branchLike: T.BranchLike | undefined;

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getBranchStatusByBranchLike, Store } from '../rootReducer';
-import * as fromBranches from '../branches';
 import { mockPullRequest } from '../../helpers/testMocks';
+import * as fromBranches from '../branches';
+import { getBranchStatusByBranchLike, Store } from '../rootReducer';
 
 jest.mock('../branches', () => {
   return {

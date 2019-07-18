@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { map } from 'lodash';
 import * as React from 'react';
 import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
 import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
-import { map } from 'lodash';
-import HealthItem from './HealthItem';
 import { HEALTH_FIELD, STATE_FIELD } from '../../utils';
+import HealthItem from './HealthItem';
 
 export interface Props {
   name: string;

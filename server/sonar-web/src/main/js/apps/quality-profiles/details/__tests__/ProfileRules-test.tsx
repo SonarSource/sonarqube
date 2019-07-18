@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import ProfileRules from '../ProfileRules';
-import * as apiRules from '../../../../api/rules';
 import * as apiQP from '../../../../api/quality-profiles';
+import * as apiRules from '../../../../api/rules';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
+import ProfileRules from '../ProfileRules';
 
 const PROFILE = mockQualityProfile({
   activeRuleCount: 68,

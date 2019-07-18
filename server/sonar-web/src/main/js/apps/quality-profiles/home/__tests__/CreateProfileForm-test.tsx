@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import CreateProfileForm from '../CreateProfileForm';
+import * as React from 'react';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
+import CreateProfileForm from '../CreateProfileForm';
 
 jest.mock('../../../../api/quality-profiles', () => ({
   changeProfileParent: jest.fn(),

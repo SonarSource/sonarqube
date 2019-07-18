@@ -18,20 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import ActionsDropdown, {
-  ActionsDropdownItem,
-  ActionsDropdownDivider
+  ActionsDropdownDivider,
+  ActionsDropdownItem
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
-import RenameProfileForm from './RenameProfileForm';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { setDefaultProfile } from '../../../api/quality-profiles';
+import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { getRulesUrl } from '../../../helpers/urls';
+import { Profile } from '../types';
+import { getProfileComparePath, getProfilePath, getProfilesPath } from '../utils';
 import CopyProfileForm from './CopyProfileForm';
 import DeleteProfileForm from './DeleteProfileForm';
 import ExtendProfileForm from './ExtendProfileForm';
-import { getRulesUrl } from '../../../helpers/urls';
-import { setDefaultProfile } from '../../../api/quality-profiles';
-import { getProfilePath, getProfileComparePath, getProfilesPath } from '../utils';
-import { Profile } from '../types';
-import { withRouter, Router } from '../../../components/hoc/withRouter';
+import RenameProfileForm from './RenameProfileForm';
 
 interface Props {
   className?: string;

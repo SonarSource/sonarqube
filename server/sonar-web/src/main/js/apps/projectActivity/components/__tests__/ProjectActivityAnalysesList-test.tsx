@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
-import ProjectActivityAnalysesList from '../ProjectActivityAnalysesList';
 import { DEFAULT_GRAPH } from '../../utils';
+import ProjectActivityAnalysesList from '../ProjectActivityAnalysesList';
 
 jest.mock('date-fns/start_of_day', () => (date: Date) => {
   const startDay = new Date(date);

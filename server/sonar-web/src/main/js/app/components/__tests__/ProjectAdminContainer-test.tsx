@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { mount, shallow } from 'enzyme';
-import ProjectAdminContainer from '../ProjectAdminContainer';
+import * as React from 'react';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { mockComponent } from '../../../helpers/testMocks';
+import ProjectAdminContainer from '../ProjectAdminContainer';
 
 jest.mock('../../utils/handleRequiredAuthorization', () => {
   return { default: jest.fn() };

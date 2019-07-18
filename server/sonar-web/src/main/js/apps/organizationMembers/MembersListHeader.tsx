@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getAlmMembersUrl, sanitizeAlmId } from '../../helpers/almIntegrations';
 
 export interface Props {

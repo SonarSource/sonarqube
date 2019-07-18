@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { stringify } from 'querystring';
 import { memoize } from 'lodash';
+import { stringify } from 'querystring';
 import { cleanQuery, parseAsString, serializeString } from 'sonar-ui-common/helpers/query';
 import { omitNil } from 'sonar-ui-common/helpers/request';
 import { Plugin, PluginAvailable, PluginInstalled, PluginPending } from '../../api/plugins';

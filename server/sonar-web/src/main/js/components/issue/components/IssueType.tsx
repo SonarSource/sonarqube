@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { IssueResponse, setIssueType } from '../../../api/issues';
 import SetTypePopup from '../popups/SetTypePopup';
-import { setIssueType, IssueResponse } from '../../../api/issues';
 
 interface Props {
   canSetType: boolean;

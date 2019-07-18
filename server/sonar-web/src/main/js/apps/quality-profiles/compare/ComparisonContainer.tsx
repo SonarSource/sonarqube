@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { withRouter, WithRouterProps } from 'react-router';
+import { compareProfiles, CompareResponse } from '../../../api/quality-profiles';
+import { Profile } from '../types';
+import { getProfileComparePath } from '../utils';
 import ComparisonForm from './ComparisonForm';
 import ComparisonResults from './ComparisonResults';
-import { compareProfiles, CompareResponse } from '../../../api/quality-profiles';
-import { getProfileComparePath } from '../utils';
-import { Profile } from '../types';
 
 interface Props extends WithRouterProps {
   organization?: string;

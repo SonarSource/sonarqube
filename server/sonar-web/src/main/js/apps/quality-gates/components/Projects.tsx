@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { find, without } from 'lodash';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams
 } from 'sonar-ui-common/components/controls/SelectList';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   associateGateWithProject,
   dissociateGateWithProject,

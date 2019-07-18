@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { difference } from 'lodash';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import ActionsDropdown, {
   ActionsDropdownItem
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
-import DeleteForm from './DeleteForm';
-import Form from './Form';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
-  setDefaultPermissionTemplate,
   deletePermissionTemplate,
+  setDefaultPermissionTemplate,
   updatePermissionTemplate
 } from '../../../api/permissions';
-import { withRouter, Router } from '../../../components/hoc/withRouter';
+import { Router, withRouter } from '../../../components/hoc/withRouter';
+import DeleteForm from './DeleteForm';
+import Form from './Form';
 
 interface Props {
   fromDetails?: boolean;

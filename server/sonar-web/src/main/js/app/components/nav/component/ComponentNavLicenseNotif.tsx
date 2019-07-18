@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { isValidLicense } from '../../../../api/marketplace';
 import { withAppState } from '../../../../components/hoc/withAppState';
 

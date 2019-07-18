@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { copyQualityGate } from '../../../api/quality-gates';
+import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { getQualityGateUrl } from '../../../helpers/urls';
-import { withRouter, Router } from '../../../components/hoc/withRouter';
 
 interface Props {
   onClose: () => void;

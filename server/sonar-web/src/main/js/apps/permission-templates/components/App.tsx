@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Location } from 'history';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Location } from 'history';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Home from './Home';
-import Template from './Template';
-import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { sortPermissions, mergePermissionsToTemplates, mergeDefaultsToTemplates } from '../utils';
 import { getPermissionTemplates } from '../../../api/permissions';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
 import { getAppState, Store } from '../../../store/rootReducer';
 import '../../permissions/styles.css';
+import { mergeDefaultsToTemplates, mergePermissionsToTemplates, sortPermissions } from '../utils';
+import Home from './Home';
+import Template from './Template';
 
 interface Props {
   location: Location;

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { Button, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 
 interface Props {
   component: Pick<T.Component, 'key' | 'name'>;

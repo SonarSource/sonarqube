@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import AnalyzeTutorialSuggestion from './AnalyzeTutorialSuggestion';
+import InstanceMessage from '../../../components/common/InstanceMessage';
+import { isVSTS } from '../../../helpers/almIntegrations';
+import { isSonarCloud } from '../../../helpers/system';
 import ProjectAnalysisStep from '../components/ProjectAnalysisStep';
 import TokenStep from '../components/TokenStep';
-import { isVSTS } from '../../../helpers/almIntegrations';
-import InstanceMessage from '../../../components/common/InstanceMessage';
-import { isSonarCloud } from '../../../helpers/system';
 import '../styles.css';
+import AnalyzeTutorialSuggestion from './AnalyzeTutorialSuggestion';
 
 export enum Steps {
   ANALYSIS,

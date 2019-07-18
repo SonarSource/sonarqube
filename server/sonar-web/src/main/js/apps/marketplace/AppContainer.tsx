@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import App from './App';
-import { getAppState, getGlobalSettingValue, Store } from '../../store/rootReducer';
 import AdminContext from '../../app/components/AdminContext';
+import { getAppState, getGlobalSettingValue, Store } from '../../store/rootReducer';
+import App from './App';
 
 interface OwnProps {
   location: { pathname: string; query: T.RawQuery };

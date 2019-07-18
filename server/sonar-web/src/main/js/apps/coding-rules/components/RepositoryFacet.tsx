@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Facet, { BasicProps } from './Facet';
 import { getLanguages, Store } from '../../../store/rootReducer';
+import Facet, { BasicProps } from './Facet';
 
 interface StateProps {
   referencedLanguages: T.Dict<{ key: string; name: string }>;

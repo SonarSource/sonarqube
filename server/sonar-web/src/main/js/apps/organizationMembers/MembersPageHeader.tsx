@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import DocTooltip from '../../components/docs/DocTooltip';
+import { isGithub, sanitizeAlmId } from '../../helpers/almIntegrations';
 import AddMemberForm from './AddMemberForm';
 import SyncMemberForm from './SyncMemberForm';
-import DocTooltip from '../../components/docs/DocTooltip';
-import { sanitizeAlmId, isGithub } from '../../helpers/almIntegrations';
 
 export interface Props {
   handleAddMember: (member: T.OrganizationMember) => void;

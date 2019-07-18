@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { deactivateUser } from '../../../../api/users';
 import { mockLoggedInUser, mockRouter } from '../../../../helpers/testMocks';
 import { UserDeleteAccountModal } from '../UserDeleteAccountModal';
-import { deactivateUser } from '../../../../api/users';
 
 jest.mock('../../../../api/users', () => ({
   deactivateUser: jest.fn()

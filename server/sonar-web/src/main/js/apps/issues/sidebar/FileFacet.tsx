@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { omit } from 'lodash';
+import * as React from 'react';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { collapsePath } from 'sonar-ui-common/helpers/path';
 import { highlightTerm } from 'sonar-ui-common/helpers/search';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { Query, ReferencedComponent, Facet } from '../utils';
-import { TreeComponent, getTree } from '../../../api/components';
+import { getTree, TreeComponent } from '../../../api/components';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { Facet, Query, ReferencedComponent } from '../utils';
 
 interface Props {
   componentKey: string;

@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { partition, sortBy } from 'lodash';
+import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import UserHolder from './UserHolder';
+import { isPermissionDefinitionGroup } from '../../utils';
 import GroupHolder from './GroupHolder';
 import PermissionHeader from './PermissionHeader';
-import { isPermissionDefinitionGroup } from '../../utils';
+import UserHolder from './UserHolder';
 
 interface Props {
   filter?: string;

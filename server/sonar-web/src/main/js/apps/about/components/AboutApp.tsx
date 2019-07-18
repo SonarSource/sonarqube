@@ -17,34 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Location } from 'history';
+import { keyBy } from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { keyBy } from 'lodash';
 import { Link } from 'react-router';
-import { Location } from 'history';
-import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import AboutProjects from './AboutProjects';
-import AboutLanguages from './AboutLanguages';
-import AboutCleanCode from './AboutCleanCode';
-import AboutQualityModel from './AboutQualityModel';
-import AboutQualityGates from './AboutQualityGates';
-import AboutLeakPeriod from './AboutLeakPeriod';
-import AboutStandards from './AboutStandards';
-import AboutScanners from './AboutScanners';
-import EntryIssueTypes from './EntryIssueTypes';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import GlobalContainer from '../../../app/components/GlobalContainer';
+import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
 import { searchProjects } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
-import { fetchAboutPageSettings } from '../actions';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
+import GlobalContainer from '../../../app/components/GlobalContainer';
 import {
   getAppState,
   getCurrentUser,
   getGlobalSettingValue,
   Store
 } from '../../../store/rootReducer';
+import { fetchAboutPageSettings } from '../actions';
 import '../styles.css';
+import AboutCleanCode from './AboutCleanCode';
+import AboutLanguages from './AboutLanguages';
+import AboutLeakPeriod from './AboutLeakPeriod';
+import AboutProjects from './AboutProjects';
+import AboutQualityGates from './AboutQualityGates';
+import AboutQualityModel from './AboutQualityModel';
+import AboutScanners from './AboutScanners';
+import AboutStandards from './AboutStandards';
+import EntryIssueTypes from './EntryIssueTypes';
 
 interface Props {
   appState: Pick<T.AppState, 'defaultOrganization' | 'organizationsEnabled'>;

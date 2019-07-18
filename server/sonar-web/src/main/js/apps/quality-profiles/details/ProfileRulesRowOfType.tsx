@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import { getRulesUrl } from '../../../helpers/urls';
 
 interface Props {

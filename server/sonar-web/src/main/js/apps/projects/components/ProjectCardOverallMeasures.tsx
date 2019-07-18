@@ -25,9 +25,9 @@ import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating
 import Rating from 'sonar-ui-common/components/ui/Rating';
 import SizeRating from 'sonar-ui-common/components/ui/SizeRating';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import ProjectCardLanguagesContainer from './ProjectCardLanguagesContainer';
 import Measure from '../../../components/measure/Measure';
 import CoverageRating from '../../../components/ui/CoverageRating';
+import ProjectCardLanguagesContainer from './ProjectCardLanguagesContainer';
 
 interface Props {
   measures: T.Dict<string | undefined>;

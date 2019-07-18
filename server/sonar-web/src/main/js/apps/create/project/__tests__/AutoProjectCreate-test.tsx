@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import AutoProjectCreate from '../AutoProjectCreate';
+import * as React from 'react';
 import {
   mockOrganizationWithAdminActions,
   mockOrganizationWithAlm
 } from '../../../../helpers/testMocks';
+import AutoProjectCreate from '../AutoProjectCreate';
 
 const almApplication = {
   backgroundColor: 'blue',

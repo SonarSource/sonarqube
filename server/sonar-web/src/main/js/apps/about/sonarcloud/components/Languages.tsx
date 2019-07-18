@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import SCChevronDownIcon from './SCChevronDownIcon';
 import { LANGUAGES } from '../utils';
+import SCChevronDownIcon from './SCChevronDownIcon';
 
 interface State {
   height?: number;

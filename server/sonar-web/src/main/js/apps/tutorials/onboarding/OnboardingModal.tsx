@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Button, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Modal from 'sonar-ui-common/components/controls/Modal';
 import OnboardingProjectIcon from 'sonar-ui-common/components/icons/OnboardingProjectIcon';
 import OnboardingTeamIcon from 'sonar-ui-common/components/icons/OnboardingTeamIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { Button, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import Modal from 'sonar-ui-common/components/controls/Modal';
-import OrganizationsShortList from './OrganizationsShortList';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
 import '../styles.css';
+import OrganizationsShortList from './OrganizationsShortList';
 
 export interface Props {
   onClose: VoidFunction;

@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { uniq } from 'lodash';
+import * as React from 'react';
+import { Button, ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { parseError } from 'sonar-ui-common/helpers/request';
-import { Button, ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
-import UserScmAccountInput from './UserScmAccountInput';
-import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { createUser, updateUser } from '../../../api/users';
+import throwGlobalError from '../../../app/utils/throwGlobalError';
+import UserScmAccountInput from './UserScmAccountInput';
 
 export interface Props {
   onClose: () => void;

@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { debounce, uniq, without } from 'lodash';
 import * as React from 'react';
 import Helmet from 'react-helmet';
-import { debounce, uniq, without } from 'lodash';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import { toNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import Header from './Header';
-import Search from './Search';
-import Projects from './Projects';
-import CreateProjectForm from './CreateProjectForm';
-import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import { getComponents, Project } from '../../api/components';
+import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
+import CreateProjectForm from './CreateProjectForm';
+import Header from './Header';
+import Projects from './Projects';
+import Search from './Search';
 
 export interface Props {
   currentUser: Pick<T.LoggedInUser, 'login'>;

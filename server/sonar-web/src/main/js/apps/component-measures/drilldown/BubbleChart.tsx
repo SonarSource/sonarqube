@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { isDefined } from 'sonar-ui-common/helpers/types';
+import OriginalBubbleChart from 'sonar-ui-common/components/charts/BubbleChart';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import {
   getLocalizedMetricDomain,
   getLocalizedMetricName,
@@ -26,13 +27,12 @@ import {
   translateWithParameters
 } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import OriginalBubbleChart from 'sonar-ui-common/components/charts/BubbleChart';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import EmptyResult from './EmptyResult';
+import { isDefined } from 'sonar-ui-common/helpers/types';
 import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
+import { RATING_COLORS } from '../../../helpers/constants';
 import { isDiffMetric } from '../../../helpers/measures';
 import { getBubbleMetrics, getBubbleYDomain, isProjectOverview } from '../utils';
-import { RATING_COLORS } from '../../../helpers/constants';
+import EmptyResult from './EmptyResult';
 
 const HEIGHT = 500;
 

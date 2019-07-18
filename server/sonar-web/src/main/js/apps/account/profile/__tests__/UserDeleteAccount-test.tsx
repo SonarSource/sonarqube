@@ -20,9 +20,9 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { getOrganizationsThatPreventDeletion } from '../../../../api/organizations';
 import { mockLoggedInUser, mockOrganization } from '../../../../helpers/testMocks';
 import { UserDeleteAccount } from '../UserDeleteAccount';
-import { getOrganizationsThatPreventDeletion } from '../../../../api/organizations';
 
 jest.mock('../../../../api/organizations', () => ({
   getOrganizationsThatPreventDeletion: jest.fn().mockResolvedValue({ organizations: [] })

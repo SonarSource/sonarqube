@@ -17,55 +17,55 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as key from 'keymaster';
 import { keyBy } from 'lodash';
+import * as React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
-import Helmet from 'react-helmet';
+import {
+  getLocalizedMetricDomain,
+  translate,
+  translateWithParameters
+} from 'sonar-ui-common/helpers/l10n';
 import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
   removeWhitePageClass
 } from 'sonar-ui-common/helpers/pages';
-import {
-  getLocalizedMetricDomain,
-  translateWithParameters,
-  translate
-} from 'sonar-ui-common/helpers/l10n';
-import MeasureContent from './MeasureContent';
-import MeasuresEmpty from './MeasuresEmpty';
-import MeasureOverviewContainer from './MeasureOverviewContainer';
-import Sidebar from '../sidebar/Sidebar';
-import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import {
-  isProjectOverview,
-  hasBubbleChart,
-  parseQuery,
-  serializeQuery,
-  Query,
-  hasFullMeasures,
-  getMeasuresPageMetricKeys,
-  groupByDomains,
-  sortMeasures,
-  hasTreemap,
-  hasTree
-} from '../utils';
-import {
-  isSameBranchLike,
-  getBranchLikeQuery,
-  isShortLivingBranch,
-  isPullRequest
-} from '../../../helpers/branches';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import '../../../components/search-navigator.css';
-import '../style.css';
-import { getAllMetrics } from '../../../api/metrics';
 import { getMeasuresAndMeta } from '../../../api/measures';
+import { getAllMetrics } from '../../../api/metrics';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { enhanceMeasure } from '../../../components/measure/utils';
+import '../../../components/search-navigator.css';
+import {
+  getBranchLikeQuery,
+  isPullRequest,
+  isSameBranchLike,
+  isShortLivingBranch
+} from '../../../helpers/branches';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { fetchBranchStatus } from '../../../store/rootActions';
+import Sidebar from '../sidebar/Sidebar';
+import '../style.css';
+import {
+  getMeasuresPageMetricKeys,
+  groupByDomains,
+  hasBubbleChart,
+  hasFullMeasures,
+  hasTree,
+  hasTreemap,
+  isProjectOverview,
+  parseQuery,
+  Query,
+  serializeQuery,
+  sortMeasures
+} from '../utils';
+import MeasureContent from './MeasureContent';
+import MeasureOverviewContainer from './MeasureOverviewContainer';
+import MeasuresEmpty from './MeasuresEmpty';
 
 interface Props extends WithRouterProps {
   branchLike?: T.BranchLike;

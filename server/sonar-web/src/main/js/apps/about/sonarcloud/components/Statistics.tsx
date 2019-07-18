@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { throttle } from 'lodash';
+import * as React from 'react';
 import CountUp from 'react-countup';
-import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import './Statistics.css';
 
 interface Statistic {

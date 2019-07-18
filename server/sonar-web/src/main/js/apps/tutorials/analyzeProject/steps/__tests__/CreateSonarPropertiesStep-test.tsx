@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import CreateSonarPropertiesStep from '../CreateSonarPropertiesStep';
+import * as React from 'react';
 import { StepProps } from '../../../utils';
+import CreateSonarPropertiesStep from '../CreateSonarPropertiesStep';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();

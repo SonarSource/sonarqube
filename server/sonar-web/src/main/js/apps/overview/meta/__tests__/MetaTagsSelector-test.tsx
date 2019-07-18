@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable import/order, import/first */
-import * as React from 'react';
 import { mount, shallow } from 'enzyme';
+import * as React from 'react';
+import { searchProjectTags } from '../../../../api/components';
 import MetaTagsSelector from '../MetaTagsSelector';
 
 jest.mock('../../../../api/components', () => ({
@@ -31,8 +32,6 @@ jest.mock('lodash', () => {
   lodash.debounce = jest.fn(fn => fn);
   return lodash;
 });
-
-import { searchProjectTags } from '../../../../api/components';
 
 it('searches tags on mount', () => {
   (searchProjectTags as jest.Mock).mockImplementation(() =>

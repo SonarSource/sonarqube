@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { orderBy, without } from 'lodash';
+import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { formatFacetStat, Query } from '../utils';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
+import { formatFacetStat, Query } from '../utils';
 
 interface Props {
   fetching: boolean;

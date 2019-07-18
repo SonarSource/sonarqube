@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet';
-import { getBaseUrl, getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
 import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
-import OverviewApp from './OverviewApp';
+import { getBaseUrl, getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { withRouter, Router } from '../../../components/hoc/withRouter';
-import { getProjectUrl } from '../../../helpers/urls';
+import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { isPullRequest, isShortLivingBranch } from '../../../helpers/branches';
 import { isSonarCloud } from '../../../helpers/system';
-import { isShortLivingBranch, isPullRequest } from '../../../helpers/branches';
+import { getProjectUrl } from '../../../helpers/urls';
+import OverviewApp from './OverviewApp';
 
 const EmptyOverview = lazyLoad(() => import('./EmptyOverview'));
 const ReviewApp = lazyLoad(() => import('../pullRequests/ReviewApp'));

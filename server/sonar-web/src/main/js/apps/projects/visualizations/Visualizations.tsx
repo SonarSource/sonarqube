@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import Risk from './Risk';
-import Reliability from './Reliability';
-import Security from './Security';
-import Maintainability from './Maintainability';
+import { Project } from '../types';
+import { localizeSorting } from '../utils';
 import Coverage from './Coverage';
 import Duplications from './Duplications';
-import { localizeSorting } from '../utils';
-import { Project } from '../types';
+import Maintainability from './Maintainability';
+import Reliability from './Reliability';
+import Risk from './Risk';
+import Security from './Security';
 
 interface Props {
   displayOrganizations?: boolean;

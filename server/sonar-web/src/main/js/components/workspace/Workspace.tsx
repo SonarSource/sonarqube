@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { omit, uniqBy } from 'lodash';
+import * as React from 'react';
 import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import { get, save } from 'sonar-ui-common/helpers/storage';
-import { WorkspaceContext, ComponentDescriptor, RuleDescriptor } from './context';
-import WorkspacePortal from './WorkspacePortal';
+import { ComponentDescriptor, RuleDescriptor, WorkspaceContext } from './context';
 import './styles.css';
+import WorkspacePortal from './WorkspacePortal';
 
 const WORKSPACE = 'sonarqube-workspace';
 const WorkspaceNav = lazyLoad(() => import('./WorkspaceNav'));

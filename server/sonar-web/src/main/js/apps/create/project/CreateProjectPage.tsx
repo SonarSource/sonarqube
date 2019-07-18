@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
-import CreateProjectPageSonarCloud from './CreateProjectPageSonarCloud';
-import CreateProjectPageSonarQube from './CreateProjectPageSonarQube';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import { isSonarCloud } from '../../../helpers/system';
+import CreateProjectPageSonarCloud from './CreateProjectPageSonarCloud';
+import CreateProjectPageSonarQube from './CreateProjectPageSonarQube';
 
 export default function CreateProjectPage(props: WithRouterProps) {
   return (

@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
+import * as React from 'react';
 import { Link } from 'react-router';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import { isMySet } from '../../../../apps/issues/utils';
 import { isSonarCloud } from '../../../../helpers/system';
-import { isLoggedIn } from '../../../../helpers/users';
 import { getQualityGatesUrl } from '../../../../helpers/urls';
+import { isLoggedIn } from '../../../../helpers/users';
 
 interface Props {
   appState: Pick<T.AppState, 'canAdmin' | 'globalPages' | 'organizationsEnabled' | 'qualifiers'>;

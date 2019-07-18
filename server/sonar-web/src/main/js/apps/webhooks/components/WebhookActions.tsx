@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import ActionsDropdown, {
-  ActionsDropdownItem,
-  ActionsDropdownDivider
+  ActionsDropdownDivider,
+  ActionsDropdownItem
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import CreateWebhookForm from './CreateWebhookForm';
 import DeleteWebhookForm from './DeleteWebhookForm';
 import DeliveriesForm from './DeliveriesForm';

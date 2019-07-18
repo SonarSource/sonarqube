@@ -17,29 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { maxBy } from 'lodash';
 import * as React from 'react';
 import Helmet from 'react-helmet';
-import { maxBy } from 'lodash';
 import { Link, withRouter, WithRouterProps } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import Domain from './Domain';
-import Menu from './Menu';
-import Search from './Search';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { fetchWebApi } from '../../../api/web-api';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import '../styles/web-api.css';
 import {
   getActionKey,
   isDomainPathActive,
-  Query,
-  serializeQuery,
   parseQuery,
-  parseVersion
+  parseVersion,
+  Query,
+  serializeQuery
 } from '../utils';
-import '../styles/web-api.css';
+import Domain from './Domain';
+import Menu from './Menu';
+import Search from './Search';
 
 type Props = WithRouterProps;
 

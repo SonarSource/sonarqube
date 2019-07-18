@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import AppContainer from './components/AppContainer';
-import { isSonarCloud } from '../../helpers/system';
-import { isLoggedIn } from '../../helpers/users';
 import { withCurrentUser } from '../../components/hoc/withCurrentUser';
 import { Location } from '../../components/hoc/withRouter';
+import { isSonarCloud } from '../../helpers/system';
+import { isLoggedIn } from '../../helpers/users';
+import AppContainer from './components/AppContainer';
 
 export interface Props {
   currentUser: T.CurrentUser;

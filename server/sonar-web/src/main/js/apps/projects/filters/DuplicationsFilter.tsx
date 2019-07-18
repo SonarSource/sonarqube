@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
-import {
-  getDuplicationsRatingLabel,
-  getDuplicationsRatingAverageValue
-} from 'sonar-ui-common/helpers/ratings';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import {
+  getDuplicationsRatingAverageValue,
+  getDuplicationsRatingLabel
+} from 'sonar-ui-common/helpers/ratings';
+import { Facet } from '../types';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
-import { Facet } from '../types';
 
 export interface Props {
   className?: string;

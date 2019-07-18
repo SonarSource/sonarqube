@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as classNames from 'classnames';
 import * as React from 'react';
 import { Link } from 'react-router';
-import * as classNames from 'classnames';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import { getMetricName, ISSUETYPE_MAP, IssueType } from '../utils';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import { getLeakValue } from '../../../components/measure/utils';
 import { getBranchLikeQuery } from '../../../helpers/branches';
-import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { findMeasure } from '../../../helpers/measures';
-import DocTooltip from '../../../components/docs/DocTooltip';
+import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { getMetricName, IssueType, ISSUETYPE_MAP } from '../utils';
 
 export interface Props {
   branchLike?: T.ShortLivingBranch | T.PullRequest;

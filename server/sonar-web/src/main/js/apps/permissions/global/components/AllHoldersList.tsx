@@ -20,14 +20,14 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import SearchForm from '../../shared/components/SearchForm';
+import { getAppState, Store } from '../../../../store/rootReducer';
 import HoldersList from '../../shared/components/HoldersList';
+import SearchForm from '../../shared/components/SearchForm';
 import {
-  PERMISSIONS_ORDER_GLOBAL,
   convertToPermissionDefinitions,
+  PERMISSIONS_ORDER_GLOBAL,
   PERMISSIONS_ORDER_GLOBAL_GOV
 } from '../../utils';
-import { Store, getAppState } from '../../../../store/rootReducer';
 
 interface StateProps {
   appState: Pick<T.AppState, 'qualifiers'>;

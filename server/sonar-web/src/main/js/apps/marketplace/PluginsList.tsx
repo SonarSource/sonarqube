@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Plugin, PluginPending } from '../../api/plugins';
 import PluginAvailable from './components/PluginAvailable';
 import PluginInstalled from './components/PluginInstalled';
 import { isPluginAvailable, isPluginInstalled } from './utils';
-import { Plugin, PluginPending } from '../../api/plugins';
 
 interface Props {
   plugins: Plugin[];

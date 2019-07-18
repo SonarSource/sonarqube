@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { IconProps } from 'sonar-ui-common/components/icons/Icon';
-import ShortLivingBranchIcon from 'sonar-ui-common/components/icons/ShortLivingBranchIcon';
 import LongLivingBranchIcon from 'sonar-ui-common/components/icons/LongLivingBranchIcon';
 import PullRequestIcon from 'sonar-ui-common/components/icons/PullRequestIcon';
-import { isShortLivingBranch, isPullRequest } from '../../helpers/branches';
+import ShortLivingBranchIcon from 'sonar-ui-common/components/icons/ShortLivingBranchIcon';
+import { isPullRequest, isShortLivingBranch } from '../../helpers/branches';
 
 interface Props extends IconProps {
   branchLike: T.BranchLike;

@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import { hasMessage } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
+import { hasMessage } from 'sonar-ui-common/helpers/l10n';
 import NotificationsList from '../NotificationsList';
 
 jest.mock('sonar-ui-common/helpers/l10n', () => ({

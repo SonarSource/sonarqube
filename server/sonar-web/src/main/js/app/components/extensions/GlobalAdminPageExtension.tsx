@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Extension from './Extension';
-import NotFound from '../NotFound';
 import { getAppState, Store } from '../../../store/rootReducer';
+import NotFound from '../NotFound';
+import Extension from './Extension';
 
 interface Props {
   adminPages: T.Extension[] | undefined;

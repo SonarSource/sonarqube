@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import IdentityProviderLink from 'sonar-ui-common/components/controls/IdentityProviderLink';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { save } from 'sonar-ui-common/helpers/storage';
-import { translateWithParameters, translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import {
-  BIND_ORGANIZATION_REDIRECT_TO_ORG_TIMESTAMP,
-  BIND_ORGANIZATION_KEY
-} from '../../create/organization/utils';
 import { getAlmAppInfo } from '../../../api/alm-integration';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
+import {
+  BIND_ORGANIZATION_KEY,
+  BIND_ORGANIZATION_REDIRECT_TO_ORG_TIMESTAMP
+} from '../../create/organization/utils';
 
 interface Props {
   currentUser: T.LoggedInUser;

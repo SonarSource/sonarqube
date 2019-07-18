@@ -23,10 +23,10 @@ import ChevronLeftIcon from 'sonar-ui-common/components/icons/ChevronLeftIcon';
 import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
 import SeverityIcon from 'sonar-ui-common/components/icons/SeverityIcon';
 import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { CompareResponse, Profile } from '../../../api/quality-profiles';
+import { getRulesUrl } from '../../../helpers/urls';
 import ComparisonEmpty from './ComparisonEmpty';
 import ComparisonResultActivation from './ComparisonResultActivation';
-import { getRulesUrl } from '../../../helpers/urls';
-import { CompareResponse, Profile } from '../../../api/quality-profiles';
 
 type Params = T.Dict<string>;
 

@@ -18,26 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { withRouter, WithRouterProps } from 'react-router';
 import Helmet from 'react-helmet';
+import { withRouter, WithRouterProps } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getSystemInfo } from '../../../api/system';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import '../styles.css';
+import {
+  getClusterVersion,
+  getServerId,
+  getSystemLogsLevel,
+  getVersion,
+  isCluster,
+  parseQuery,
+  Query,
+  serializeQuery
+} from '../utils';
 import ClusterSysInfos from './ClusterSysInfos';
 import PageHeader from './PageHeader';
 import StandaloneSysInfos from './StandaloneSysInfos';
 import SystemUpgradeNotif from './system-upgrade/SystemUpgradeNotif';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { getSystemInfo } from '../../../api/system';
-import {
-  getServerId,
-  getSystemLogsLevel,
-  isCluster,
-  parseQuery,
-  Query,
-  serializeQuery,
-  getVersion,
-  getClusterVersion
-} from '../utils';
-import '../styles.css';
 
 type Props = WithRouterProps;
 

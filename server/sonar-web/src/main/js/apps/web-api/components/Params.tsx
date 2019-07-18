@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import InternalBadge from './InternalBadge';
 import DeprecatedBadge from './DeprecatedBadge';
+import InternalBadge from './InternalBadge';
 
 interface Props {
   params: T.WebApi.Param[];

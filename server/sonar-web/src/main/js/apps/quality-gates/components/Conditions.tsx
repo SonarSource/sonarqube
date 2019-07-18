@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { differenceWith, map, sortBy, uniqBy } from 'lodash';
-import { translate, getLocalizedMetricName } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ModalButton from 'sonar-ui-common/components/controls/ModalButton';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import Condition from './Condition';
 import ConditionModal from './ConditionModal';
-import DocTooltip from '../../../components/docs/DocTooltip';
 
 interface Props {
   canEdit: boolean;

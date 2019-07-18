@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Location } from 'history';
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import { Location } from 'history';
-import OrganizationNavigation from '../navigation/OrganizationNavigation';
-import NotFound from '../../../app/components/NotFound';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import NotFound from '../../../app/components/NotFound';
+import { fetchOrganization } from '../../../store/rootActions';
 import {
-  getOrganizationByKey,
   getCurrentUser,
   getMyOrganizations,
+  getOrganizationByKey,
   Store
 } from '../../../store/rootReducer';
-import { fetchOrganization } from '../../../store/rootActions';
+import OrganizationNavigation from '../navigation/OrganizationNavigation';
 
 interface OwnProps {
   children?: React.ReactNode;

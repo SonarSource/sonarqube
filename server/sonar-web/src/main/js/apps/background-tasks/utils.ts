@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
-import { STATUSES, CURRENTS, ALL_TYPES } from './constants';
+import { ALL_TYPES, CURRENTS, STATUSES } from './constants';
 
 export interface Query {
   currents: string;

@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
 import { throttle } from 'lodash';
+import * as React from 'react';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import {
   activityQueryChanged,
   getAnalysesByVersionByDay,
-  selectedDateQueryChanged,
+  ParsedAnalysis,
   Query,
-  ParsedAnalysis
+  selectedDateQueryChanged
 } from '../utils';
+import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 
 interface Props {
   addCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;

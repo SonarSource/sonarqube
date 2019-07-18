@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import { Link } from 'react-router';
 import { sortBy } from 'lodash';
+import * as React from 'react';
+import { Link } from 'react-router';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import OrganizationListItem from '../../../components/ui/OrganizationListItem';
 import {
-  sanitizeAlmId,
+  getUserAlmKey,
   hasAdvancedALMIntegration,
-  getUserAlmKey
+  sanitizeAlmId
 } from '../../../helpers/almIntegrations';
 
 export interface Props {

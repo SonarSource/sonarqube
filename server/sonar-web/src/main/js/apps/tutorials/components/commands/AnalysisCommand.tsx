@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
-import JavaMaven from './JavaMaven';
-import JavaGradle from './JavaGradle';
-import DotNet from './DotNet';
-import Msvc from './Msvc';
-import ClangGCC from './ClangGCC';
-import Other from './Other';
 import { LanguageConfig } from '../../utils';
 import { getProjectKey } from '../ProjectAnalysisStep';
+import ClangGCC from './ClangGCC';
+import DotNet from './DotNet';
+import JavaGradle from './JavaGradle';
+import JavaMaven from './JavaMaven';
+import Msvc from './Msvc';
+import Other from './Other';
 
 interface Props {
   component?: T.Component;

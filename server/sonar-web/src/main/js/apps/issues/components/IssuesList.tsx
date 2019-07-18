@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ListItem from './ListItem';
 import { Query, scrollToIssue } from '../utils';
+import ListItem from './ListItem';
 
 interface Props {
   branchLike: T.BranchLike | undefined;

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { registerBranchStatus, fetchBranchStatus } from '../rootActions';
 import { mockLongLivingBranch, mockQualityGateStatusCondition } from '../../helpers/testMocks';
 import { registerBranchStatusAction } from '../branches';
+import { fetchBranchStatus, registerBranchStatus } from '../rootActions';
 
 jest.useFakeTimers();
 

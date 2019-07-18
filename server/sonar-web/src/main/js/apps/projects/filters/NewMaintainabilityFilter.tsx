@@ -20,8 +20,8 @@
 import * as React from 'react';
 import CodeSmellIcon from 'sonar-ui-common/components/icons/CodeSmellIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import IssuesFilter from './IssuesFilter';
 import { Facet } from '../types';
+import IssuesFilter from './IssuesFilter';
 
 interface Props {
   className?: string;

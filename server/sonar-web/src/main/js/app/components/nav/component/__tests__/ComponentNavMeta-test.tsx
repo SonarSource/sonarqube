@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import { ComponentNavMeta, getCurrentPage, Props } from '../ComponentNavMeta';
+import * as React from 'react';
 import {
-  mockShortLivingBranch,
   mockComponent,
+  mockCurrentUser,
+  mockLoggedInUser,
   mockLongLivingBranch,
   mockPullRequest,
-  mockCurrentUser,
-  mockLoggedInUser
+  mockShortLivingBranch
 } from '../../../../../helpers/testMocks';
+import { ComponentNavMeta, getCurrentPage, Props } from '../ComponentNavMeta';
 
 describe('#ComponentNavMeta', () => {
   it('renders status of short-living branch', () => {

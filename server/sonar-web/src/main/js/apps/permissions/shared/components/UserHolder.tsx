@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { without } from 'lodash';
+import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import PermissionCell from './PermissionCell';
 import Avatar from '../../../../components/ui/Avatar';
-import { isPermissionDefinitionGroup } from '../../utils';
 import { isSonarCloud } from '../../../../helpers/system';
+import { isPermissionDefinitionGroup } from '../../utils';
+import PermissionCell from './PermissionCell';
 
 interface Props {
   onToggle: (user: T.PermissionUser, permission: string) => Promise<void>;

@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { connect } from 'react-redux';
 import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
-import Nav from './Nav';
-import UserCard from './UserCard';
-import { getCurrentUser, areThereCustomOrganizations, Store } from '../../../store/rootReducer';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import { areThereCustomOrganizations, getCurrentUser, Store } from '../../../store/rootReducer';
 import '../account.css';
+import Nav from './Nav';
+import UserCard from './UserCard';
 
 interface Props {
   currentUser: T.CurrentUser;

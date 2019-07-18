@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { mount, shallow } from 'enzyme';
-import { keydown, KEYCODE_MAP } from 'sonar-ui-common/helpers/testUtils';
-import withKeyboardNavigation, { WithKeyboardNavigationProps } from '../withKeyboardNavigation';
+import * as React from 'react';
+import { KEYCODE_MAP, keydown } from 'sonar-ui-common/helpers/testUtils';
 import { mockComponent } from '../../../helpers/testMocks';
+import withKeyboardNavigation, { WithKeyboardNavigationProps } from '../withKeyboardNavigation';
 
 class X extends React.Component<{
   components?: T.ComponentMeasure[];

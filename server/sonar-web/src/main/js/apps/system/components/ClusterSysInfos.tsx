@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { sortBy } from 'lodash';
+import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import HealthCard from './info-items/HealthCard';
 import {
   getAppNodes,
+  getClusterMainCardSection,
   getHealth,
   getHealthCauses,
-  getClusterMainCardSection,
   getNodeName,
   getSearchNodes,
   ignoreInfoFields
 } from '../utils';
+import HealthCard from './info-items/HealthCard';
 
 interface Props {
   expandedCards: string[];

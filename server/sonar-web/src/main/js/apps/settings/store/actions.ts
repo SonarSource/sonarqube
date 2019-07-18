@@ -20,7 +20,19 @@
 import { Dispatch } from 'redux';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { parseError } from 'sonar-ui-common/helpers/request';
-import { receiveValues } from './values';
+import {
+  getDefinitions,
+  getValues,
+  resetSettingValue,
+  setSettingValue
+} from '../../../api/settings';
+import { closeAllGlobalMessages } from '../../../store/globalMessages';
+import {
+  getSettingsAppChangedValue,
+  getSettingsAppDefinition,
+  Store
+} from '../../../store/rootReducer';
+import { isEmptyValue } from '../utils';
 import { receiveDefinitions } from './definitions';
 import {
   cancelChange,
@@ -29,19 +41,7 @@ import {
   startLoading,
   stopLoading
 } from './settingsPage';
-import {
-  getDefinitions,
-  getValues,
-  setSettingValue,
-  resetSettingValue
-} from '../../../api/settings';
-import { closeAllGlobalMessages } from '../../../store/globalMessages';
-import { isEmptyValue } from '../utils';
-import {
-  getSettingsAppDefinition,
-  getSettingsAppChangedValue,
-  Store
-} from '../../../store/rootReducer';
+import { receiveValues } from './values';
 
 export function fetchSettings(component?: string) {
   return (dispatch: Dispatch) => {

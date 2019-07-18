@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
-import { submit, doAsync, click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import DeleteBranchModal from '../DeleteBranchModal';
+import * as React from 'react';
+import { click, doAsync, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { deleteBranch, deletePullRequest } from '../../../../api/branches';
-import { mockShortLivingBranch, mockPullRequest } from '../../../../helpers/testMocks';
+import { mockPullRequest, mockShortLivingBranch } from '../../../../helpers/testMocks';
+import DeleteBranchModal from '../DeleteBranchModal';
 
 jest.mock('../../../../api/branches', () => ({
   deleteBranch: jest.fn(),

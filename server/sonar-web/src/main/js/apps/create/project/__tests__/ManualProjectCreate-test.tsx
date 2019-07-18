@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { change, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import ManualProjectCreate from '../ManualProjectCreate';
 import { createProject } from '../../../../api/components';
+import ManualProjectCreate from '../ManualProjectCreate';
 
 jest.mock('../../../../api/components', () => ({
   createProject: jest.fn().mockResolvedValue({ project: { key: 'bar', name: 'Bar' } })

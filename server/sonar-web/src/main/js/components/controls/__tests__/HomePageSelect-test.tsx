@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
-import HomePageSelect from '../HomePageSelect';
 import { setHomePage } from '../../../api/users';
 import rootReducer, { getCurrentUser, Store } from '../../../store/rootReducer';
 import configureStore from '../../../store/utils/configureStore';
+import HomePageSelect from '../HomePageSelect';
 
 jest.mock('../../../api/users', () => ({
   setHomePage: jest.fn(() => Promise.resolve())

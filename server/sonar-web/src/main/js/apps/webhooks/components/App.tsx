@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { createWebhook, deleteWebhook, searchWebhooks, updateWebhook } from '../../../api/webhooks';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import PageActions from './PageActions';
 import PageHeader from './PageHeader';
 import WebhooksList from './WebhooksList';
-import { createWebhook, deleteWebhook, searchWebhooks, updateWebhook } from '../../../api/webhooks';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 
 interface Props {
   component?: T.LightComponent;

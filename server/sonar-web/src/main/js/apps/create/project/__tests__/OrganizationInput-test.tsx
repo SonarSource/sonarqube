@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import { OrganizationInput } from '../OrganizationInput';
+import * as React from 'react';
 import {
-  mockRouter,
   mockOrganization,
-  mockOrganizationWithAlm
+  mockOrganizationWithAlm,
+  mockRouter
 } from '../../../../helpers/testMocks';
+import { OrganizationInput } from '../OrganizationInput';
 
 const organizations = [mockOrganization(), mockOrganizationWithAlm({ key: 'bar', name: 'Bar' })];
 

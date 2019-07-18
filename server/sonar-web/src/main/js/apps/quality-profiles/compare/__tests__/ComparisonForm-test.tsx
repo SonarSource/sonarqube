@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ComparisonForm from '../ComparisonForm';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
+import ComparisonForm from '../ComparisonForm';
 
 it('should render Select with right options', () => {
   const profile = mockQualityProfile();

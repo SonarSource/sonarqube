@@ -19,21 +19,21 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import {
+  createMetric,
+  deleteMetric,
+  getMetricDomains,
+  getMetrics,
+  getMetricTypes,
+  MetricsResponse,
+  updateMetric
+} from '../../../api/metrics';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { MetricProps } from './Form';
 import Header from './Header';
 import List from './List';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import {
-  getMetricDomains,
-  getMetricTypes,
-  getMetrics,
-  deleteMetric,
-  updateMetric,
-  createMetric,
-  MetricsResponse
-} from '../../../api/metrics';
 
 interface Props {}
 

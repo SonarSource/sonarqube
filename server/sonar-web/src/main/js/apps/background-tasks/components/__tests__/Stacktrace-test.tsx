@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable import/order */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import Stacktrace from '../Stacktrace';
+import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
+import Stacktrace from '../Stacktrace';
 
 jest.mock('../../../../api/ce', () => ({
   getTask: jest.fn(() => Promise.resolve({ errorStacktrace: 'stacktrace' }))

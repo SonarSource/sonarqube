@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link, IndexLink } from 'react-router';
+import { IndexLink, Link } from 'react-router';
 import NavBarTabs from 'sonar-ui-common/components/ui/NavBarTabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 

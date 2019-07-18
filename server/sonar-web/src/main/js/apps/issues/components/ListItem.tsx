@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ComponentBreadcrumbs from './ComponentBreadcrumbs';
-import { Query } from '../utils';
 import Issue from '../../../components/issue/Issue';
+import { Query } from '../utils';
+import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 
 interface Props {
   branchLike: T.BranchLike | undefined;

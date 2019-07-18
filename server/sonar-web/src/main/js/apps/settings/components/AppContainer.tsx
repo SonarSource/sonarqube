@@ -22,15 +22,15 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { WithRouterProps } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import { getSettingsAppDefaultCategory, Store } from '../../../store/rootReducer';
+import '../side-tabs.css';
+import { fetchSettings } from '../store/actions';
+import '../styles.css';
 import AllCategoriesList from './AllCategoriesList';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
 import PageHeader from './PageHeader';
 import WildcardsHelp from './WildcardsHelp';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { fetchSettings } from '../store/actions';
-import { getSettingsAppDefaultCategory, Store } from '../../../store/rootReducer';
-import '../styles.css';
-import '../side-tabs.css';
 
 interface Props {
   component?: T.Component;

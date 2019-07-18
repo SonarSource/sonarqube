@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
 import { connect } from 'react-redux';
+import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { fetchPrismicRefs, fetchPrismicNews, PrismicNews } from '../../../api/news';
-import { getGlobalSettingValue, Store } from '../../../store/rootReducer';
+import { fetchPrismicNews, fetchPrismicRefs, PrismicNews } from '../../../api/news';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import PlaceholderBar from '../../../components/ui/PlaceholderBar';
+import { getGlobalSettingValue, Store } from '../../../store/rootReducer';
 
 interface OwnProps {
   tag?: string;

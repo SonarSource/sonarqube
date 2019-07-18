@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { IndexLink, Link } from 'react-router';
-import { save } from 'sonar-ui-common/helpers/storage';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE, PROJECTS_ALL } from '../utils';
+import { save } from 'sonar-ui-common/helpers/storage';
 import { isLoggedIn } from '../../../helpers/users';
+import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE } from '../utils';
 
 interface Props {
   currentUser: T.CurrentUser;

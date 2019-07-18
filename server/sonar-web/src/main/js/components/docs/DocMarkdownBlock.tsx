@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
+import * as React from 'react';
 import remark from 'remark';
+import remarkCustomBlocks from 'remark-custom-blocks';
 import reactRenderer from 'remark-react';
 import slug from 'remark-slug';
-import remarkCustomBlocks from 'remark-custom-blocks';
+import 'sonar-ui-common/components/ui/Alert.css'; // eslint-disable-line import/extension
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
-import DocLink from './DocLink';
+import { filterContent, separateFrontMatter } from '../../helpers/markdown';
+import DocCollapsibleBlock from './DocCollapsibleBlock';
 import DocImg from './DocImg';
+import DocLink from './DocLink';
 import DocToc from './DocToc';
 import DocTooltipLink from './DocTooltipLink';
-import DocCollapsibleBlock from './DocCollapsibleBlock';
-import { separateFrontMatter, filterContent } from '../../helpers/markdown';
-import 'sonar-ui-common/components/ui/Alert.css'; // eslint-disable-line import/extension
 
 interface Props {
   childProps?: T.Dict<string>;

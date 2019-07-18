@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { mount, shallow } from 'enzyme';
-import App from '../App';
+import * as React from 'react';
 import { getValues } from '../../../../api/settings';
 import {
-  mockMainBranch,
   mockLongLivingBranch,
-  mockShortLivingBranch,
-  mockPullRequest
+  mockMainBranch,
+  mockPullRequest,
+  mockShortLivingBranch
 } from '../../../../helpers/testMocks';
+import App from '../App';
 
 jest.mock('../../../../api/settings', () => ({
   getValues: jest.fn(() => Promise.resolve([]))

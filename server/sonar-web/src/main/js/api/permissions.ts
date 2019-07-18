@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, post, postJSON, RequestData } from 'sonar-ui-common/helpers/request';
-import { BaseSearchProjectsParameters } from './components';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { BaseSearchProjectsParameters } from './components';
 
 const PAGE_SIZE = 100;
 

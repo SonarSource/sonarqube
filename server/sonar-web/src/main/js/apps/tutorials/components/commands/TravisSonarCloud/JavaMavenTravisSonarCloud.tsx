@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { Props } from '../JavaMaven';
+import CodeSnippet from '../../../../../components/common/CodeSnippet';
 import {
   getSonarcloudAddonYml,
-  RequirementJavaBuild,
-  getSonarcloudAddonYmlRender
+  getSonarcloudAddonYmlRender,
+  RequirementJavaBuild
 } from '../AnalysisCommandTravis';
-import CodeSnippet from '../../../../../components/common/CodeSnippet';
+import { Props } from '../JavaMaven';
 
 export function JavaMavenTravisSonarCloud(props: Props) {
   const command = `${getSonarcloudAddonYml(props.organization)}

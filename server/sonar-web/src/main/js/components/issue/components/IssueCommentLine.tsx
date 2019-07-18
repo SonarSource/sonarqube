@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { sanitize } from 'dompurify';
-import { EditButton, DeleteButton } from 'sonar-ui-common/components/controls/buttons';
+import * as React from 'react';
+import { DeleteButton, EditButton } from 'sonar-ui-common/components/controls/buttons';
+import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import Toggler from 'sonar-ui-common/components/controls/Toggler';
+import DateFromNow from '../../intl/DateFromNow';
 import Avatar from '../../ui/Avatar';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
 import CommentPopup from '../popups/CommentPopup';
-import DateFromNow from '../../intl/DateFromNow';
 
 interface Props {
   comment: T.IssueComment;

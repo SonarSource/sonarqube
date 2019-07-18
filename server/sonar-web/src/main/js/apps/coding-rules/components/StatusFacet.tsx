@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Facet, { BasicProps } from './Facet';
 import { RULE_STATUSES } from '../../../helpers/constants';
+import Facet, { BasicProps } from './Facet';
 
 export default class StatusFacet extends React.PureComponent<BasicProps> {
   renderName = (status: string) => translate('rules.status', status.toLowerCase());

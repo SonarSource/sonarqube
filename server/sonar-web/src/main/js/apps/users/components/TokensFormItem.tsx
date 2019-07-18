@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { limitComponentName } from 'sonar-ui-common/helpers/path';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
+import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { limitComponentName } from 'sonar-ui-common/helpers/path';
+import { revokeToken } from '../../../api/user-tokens';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DateFromNowHourPrecision from '../../../components/intl/DateFromNowHourPrecision';
-import { revokeToken } from '../../../api/user-tokens';
 
 export type TokenDeleteConfirmation = 'inline' | 'modal';
 

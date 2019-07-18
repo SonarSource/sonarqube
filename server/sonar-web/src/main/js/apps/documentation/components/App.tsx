@@ -17,22 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as navigationTreeSonarCloud from 'Docs/../static/SonarCloudNavigationTree.json';
+import * as navigationTreeSonarQube from 'Docs/../static/SonarQubeNavigationTree.json';
+import { DocNavigationItem } from 'Docs/@types/types';
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
-import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
-import { DocNavigationItem } from 'Docs/@types/types';
-import * as navigationTreeSonarQube from 'Docs/../static/SonarQubeNavigationTree.json';
-import * as navigationTreeSonarCloud from 'Docs/../static/SonarCloudNavigationTree.json';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Sidebar from './Sidebar';
-import getPages from '../pages';
+import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import NotFound from '../../../app/components/NotFound';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import DocMarkdownBlock from '../../../components/docs/DocMarkdownBlock';
 import { isSonarCloud } from '../../../helpers/system';
+import getPages from '../pages';
 import '../styles.css';
+import Sidebar from './Sidebar';
 
 interface Props {
   params: { splat?: string };

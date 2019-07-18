@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
+import * as React from 'react';
+import TypeHelper from '../../../components/shared/TypeHelper';
+import LocationNavigationKeyboardShortcuts from '../components/LocationNavigationKeyboardShortcuts';
 import ConciseIssueLocations from './ConciseIssueLocations';
 import ConciseIssueLocationsNavigator from './ConciseIssueLocationsNavigator';
-import LocationNavigationKeyboardShortcuts from '../components/LocationNavigationKeyboardShortcuts';
-import TypeHelper from '../../../components/shared/TypeHelper';
 
 interface Props {
   issue: T.Issue;

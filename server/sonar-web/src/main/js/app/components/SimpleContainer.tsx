@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import NavBar from 'sonar-ui-common/components/ui/NavBar';
-import GlobalFooterContainer from './GlobalFooterContainer';
 import { rawSizes } from '../theme';
+import GlobalFooterContainer from './GlobalFooterContainer';
 
 interface Props {
   children?: React.ReactNode;

@@ -20,9 +20,9 @@
 import { memoize } from 'lodash';
 import {
   cleanQuery,
-  serializeString,
   parseAsOptionalBoolean,
-  parseAsString
+  parseAsString,
+  serializeString
 } from 'sonar-ui-common/helpers/query';
 
 export interface Query {

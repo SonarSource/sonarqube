@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
-import JavaMavenCustom from './Custom/JavaMavenCustom';
-import JavaGradleCustom from './Custom/JavaGradleCustom';
-import ClangGCCCustom from './Custom/ClangGCCCustom';
-import OtherCustom from './Custom/OtherCustom';
-import { AnalysisCommandProps, AnalysisCommandRenderProps } from './utils';
-import { AnalysisCommandCommon } from './AnalysisCommandOtherCI';
+import { RenderOS, RenderOSProps } from '../LanguageForm';
 import { getProjectKey } from '../ProjectAnalysisStep';
 import { ProjectAnalysisModes } from '../ProjectAnalysisStepFromBuildTool';
-import { RenderOS, RenderOSProps } from '../LanguageForm';
+import { AnalysisCommandCommon } from './AnalysisCommandOtherCI';
+import ClangGCCCustom from './Custom/ClangGCCCustom';
+import JavaGradleCustom from './Custom/JavaGradleCustom';
+import JavaMavenCustom from './Custom/JavaMavenCustom';
+import OtherCustom from './Custom/OtherCustom';
+import { AnalysisCommandProps, AnalysisCommandRenderProps } from './utils';
 
 export function RenderCommandForMaven({
   component,

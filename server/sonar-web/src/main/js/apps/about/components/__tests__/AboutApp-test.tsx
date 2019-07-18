@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { AboutApp } from '../AboutApp';
 import { searchProjects } from '../../../../api/components';
 import { getFacet } from '../../../../api/issues';
-import { mockLocation, mockAppState, mockCurrentUser } from '../../../../helpers/testMocks';
+import { mockAppState, mockCurrentUser, mockLocation } from '../../../../helpers/testMocks';
+import { AboutApp } from '../AboutApp';
 
 jest.mock('sonar-ui-common/helpers/pages', () => ({
   addWhitePageClass: jest.fn(),

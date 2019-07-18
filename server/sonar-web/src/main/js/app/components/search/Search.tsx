@@ -17,24 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import ClockIcon from 'sonar-ui-common/components/icons/ClockIcon';
 import * as key from 'keymaster';
 import { debounce, keyBy, uniqBy } from 'lodash';
+import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { withRouter, WithRouterProps } from 'react-router';
-import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import OutsideClickHandler from 'sonar-ui-common/components/controls/OutsideClickHandler';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
-import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
-import { sortQualifiers, More, Results, ComponentResult } from './utils';
-import RecentHistory from '../RecentHistory';
+import ClockIcon from 'sonar-ui-common/components/icons/ClockIcon';
+import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { getSuggestions } from '../../../api/components';
-import { getProjectUrl, getCodeUrl } from '../../../helpers/urls';
+import { getCodeUrl, getProjectUrl } from '../../../helpers/urls';
+import RecentHistory from '../RecentHistory';
 import './Search.css';
+import { ComponentResult, More, Results, sortQualifiers } from './utils';
 
 const SearchResults = lazyLoad(() => import('./SearchResults'));
 const SearchResult = lazyLoad(() => import('./SearchResult'));

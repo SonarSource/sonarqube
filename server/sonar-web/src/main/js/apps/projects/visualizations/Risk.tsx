@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import BubbleChart from 'sonar-ui-common/components/charts/BubbleChart';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import { Project } from '../types';
 import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
 import { RATING_COLORS } from '../../../helpers/constants';
 import { getProjectUrl } from '../../../helpers/urls';
+import { Project } from '../types';
 
 const X_METRIC = 'sqale_index';
 const X_METRIC_TYPE = 'SHORT_WORK_DUR';

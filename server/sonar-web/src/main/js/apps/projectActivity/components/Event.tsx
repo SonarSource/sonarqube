@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { DeleteButton, EditButton } from 'sonar-ui-common/components/controls/buttons';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import EventInner from './EventInner';
 import ChangeEventForm from './forms/ChangeEventForm';
 import RemoveEventForm from './forms/RemoveEventForm';

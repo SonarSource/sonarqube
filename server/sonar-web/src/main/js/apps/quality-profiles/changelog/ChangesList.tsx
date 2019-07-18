@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SeverityChange from './SeverityChange';
 import ParameterChange from './ParameterChange';
+import SeverityChange from './SeverityChange';
 
 interface Props {
   changes: T.Dict<string | null>;

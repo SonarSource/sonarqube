@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import Line from './components/Line';
 import { getSecondaryIssueLocationsForLine } from './helpers/issueLocations';
 import {
-  optimizeSelectedIssue,
+  optimizeHighlightedSymbols,
   optimizeLocationMessage,
-  optimizeHighlightedSymbols
+  optimizeSelectedIssue
 } from './helpers/lines';
 
 const EMPTY_ARRAY: any[] = [];

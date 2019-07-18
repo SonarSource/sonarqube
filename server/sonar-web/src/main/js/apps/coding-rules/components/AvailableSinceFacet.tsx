@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { injectIntl, InjectedIntlProps } from 'react-intl';
+import { InjectedIntlProps, injectIntl } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { Query } from '../query';
 import DateInput from '../../../components/controls/DateInput';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import { longFormatterOption } from '../../../components/intl/DateFormatter';
+import { Query } from '../query';
 
 interface Props {
   onChange: (changes: Partial<Query>) => void;

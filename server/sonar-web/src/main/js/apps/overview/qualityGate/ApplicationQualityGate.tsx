@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { keyBy } from 'lodash';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import Level from 'sonar-ui-common/components/ui/Level';
-import ApplicationQualityGateProject from './ApplicationQualityGateProject';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ApplicationProject, getApplicationQualityGate } from '../../../api/quality-gates';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import { getApplicationQualityGate, ApplicationProject } from '../../../api/quality-gates';
+import ApplicationQualityGateProject from './ApplicationQualityGateProject';
 
 interface Props {
   branch?: T.LongLivingBranch;

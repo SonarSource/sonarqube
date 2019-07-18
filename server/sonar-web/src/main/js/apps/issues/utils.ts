@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  queriesEqual,
-  cleanQuery,
-  parseAsBoolean,
-  parseAsArray,
-  parseAsString,
-  serializeString,
-  serializeStringArray,
-  parseAsDate,
-  serializeDateShort
-} from 'sonar-ui-common/helpers/query';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import {
+  cleanQuery,
+  parseAsArray,
+  parseAsBoolean,
+  parseAsDate,
+  parseAsString,
+  queriesEqual,
+  serializeDateShort,
+  serializeString,
+  serializeStringArray
+} from 'sonar-ui-common/helpers/query';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { get, save } from 'sonar-ui-common/helpers/storage';
 import { searchMembers } from '../../api/organizations';

@@ -18,18 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { csvEscape } from 'sonar-ui-common/helpers/csv';
-import { latinize } from 'sonar-ui-common/helpers/strings';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import Select from 'sonar-ui-common/components/controls/Select';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { csvEscape } from 'sonar-ui-common/helpers/csv';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { latinize } from 'sonar-ui-common/helpers/strings';
+import { createRule, updateRule } from '../../../api/rules';
 import MarkdownTips from '../../../components/common/MarkdownTips';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import TypeHelper from '../../../components/shared/TypeHelper';
-import { createRule, updateRule } from '../../../api/rules';
-import { SEVERITIES, RULE_TYPES, RULE_STATUSES } from '../../../helpers/constants';
+import { RULE_STATUSES, RULE_TYPES, SEVERITIES } from '../../../helpers/constants';
 
 interface Props {
   customRule?: T.RuleDetails;

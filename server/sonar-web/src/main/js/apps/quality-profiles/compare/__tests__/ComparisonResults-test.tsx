@@ -20,9 +20,9 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { Link } from 'react-router';
-import ComparisonResults from '../ComparisonResults';
-import ComparisonEmpty from '../ComparisonEmpty';
 import { Profile } from '../../../../api/quality-profiles';
+import ComparisonEmpty from '../ComparisonEmpty';
+import ComparisonResults from '../ComparisonResults';
 
 it('should render ComparisonEmpty', () => {
   const output = shallow(

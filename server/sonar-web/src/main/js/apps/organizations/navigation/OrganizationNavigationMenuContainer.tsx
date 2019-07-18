@@ -22,11 +22,11 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import NavBarTabs from 'sonar-ui-common/components/ui/NavBarTabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import OrganizationNavigationExtensions from './OrganizationNavigationExtensions';
-import OrganizationNavigationAdministration from './OrganizationNavigationAdministration';
-import { getQualityGatesUrl } from '../../../helpers/urls';
 import { hasPrivateAccess, isCurrentUserMemberOf } from '../../../helpers/organizations';
+import { getQualityGatesUrl } from '../../../helpers/urls';
 import { getCurrentUser, getMyOrganizations, Store } from '../../../store/rootReducer';
+import OrganizationNavigationAdministration from './OrganizationNavigationAdministration';
+import OrganizationNavigationExtensions from './OrganizationNavigationExtensions';
 
 interface StateToProps {
   currentUser: T.CurrentUser;

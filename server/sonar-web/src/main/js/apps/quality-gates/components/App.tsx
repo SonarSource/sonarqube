@@ -20,23 +20,23 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { WithRouterProps } from 'react-router';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
   removeWhitePageClass
 } from 'sonar-ui-common/helpers/pages';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { fetchQualityGates } from '../../../api/quality-gates';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import '../../../components/search-navigator.css';
+import { getQualityGateUrl } from '../../../helpers/urls';
+import '../styles.css';
 import Details from './Details';
 import List from './List';
 import ListHeader from './ListHeader';
-import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { fetchQualityGates } from '../../../api/quality-gates';
-import { getQualityGateUrl } from '../../../helpers/urls';
-import '../../../components/search-navigator.css';
-import '../styles.css';
 
 interface Props extends WithRouterProps {
   organization?: Pick<T.Organization, 'key'>;

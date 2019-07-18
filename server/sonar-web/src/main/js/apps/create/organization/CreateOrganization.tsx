@@ -17,52 +17,52 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
 import * as differenceInMinutes from 'date-fns/difference_in_minutes';
 import { times } from 'lodash';
-import { connect } from 'react-redux';
+import * as React from 'react';
 import { Helmet } from 'react-helmet';
+import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
+import Tabs from 'sonar-ui-common/components/controls/Tabs';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
 import { get, remove } from 'sonar-ui-common/helpers/storage';
 import { slugify } from 'sonar-ui-common/helpers/strings';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import Tabs from 'sonar-ui-common/components/controls/Tabs';
-import { createOrganization } from './actions';
 import {
-  ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP,
-  parseQuery,
-  serializeQuery,
-  Query,
-  ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP,
-  Step,
-  BIND_ORGANIZATION_REDIRECT_TO_ORG_TIMESTAMP,
-  BIND_ORGANIZATION_KEY
-} from './utils';
+  bindAlmOrganization,
+  getAlmAppInfo,
+  getAlmOrganization,
+  GetAlmOrganizationResponse,
+  listUnboundApplications
+} from '../../../api/alm-integration';
+import { getSubscriptionPlans } from '../../../api/billing';
+import * as api from '../../../api/organizations';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
+import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
+import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
+import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
+import { hasAdvancedALMIntegration, sanitizeAlmId } from '../../../helpers/almIntegrations';
+import { getOrganizationUrl } from '../../../helpers/urls';
+import { skipOnboarding } from '../../../store/users';
+import { deleteOrganization } from '../../organizations/actions';
+import '../../tutorials/styles.css'; // TODO remove me
+import { createOrganization } from './actions';
 import AlmApplicationInstalling from './AlmApplicationInstalling';
 import AutoOrganizationCreate from './AutoOrganizationCreate';
 import ManualOrganizationCreate from './ManualOrganizationCreate';
 import RemoteOrganizationChoose from './RemoteOrganizationChoose';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
-import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
-import { deleteOrganization } from '../../organizations/actions';
 import {
-  getAlmAppInfo,
-  getAlmOrganization,
-  GetAlmOrganizationResponse,
-  listUnboundApplications,
-  bindAlmOrganization
-} from '../../../api/alm-integration';
-import { getSubscriptionPlans } from '../../../api/billing';
-import * as api from '../../../api/organizations';
-import { hasAdvancedALMIntegration, sanitizeAlmId } from '../../../helpers/almIntegrations';
-import { getOrganizationUrl } from '../../../helpers/urls';
-import { skipOnboarding } from '../../../store/users';
-import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
-import '../../tutorials/styles.css'; // TODO remove me
+  BIND_ORGANIZATION_KEY,
+  BIND_ORGANIZATION_REDIRECT_TO_ORG_TIMESTAMP,
+  ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP,
+  ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP,
+  parseQuery,
+  Query,
+  serializeQuery,
+  Step
+} from './utils';
 
 interface Props {
   createOrganization: (

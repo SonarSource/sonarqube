@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { difference, without } from 'lodash';
 import * as React from 'react';
-import { without, difference } from 'lodash';
-import TagsSelector from '../../../components/tags/TagsSelector';
 import { searchProjectTags } from '../../../api/components';
+import TagsSelector from '../../../components/tags/TagsSelector';
 
 interface Props {
   project: string;

@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { Link } from 'react-router';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
-import ProjectRowActions from './ProjectRowActions';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
+import { Project } from '../../api/components';
 import PrivacyBadgeContainer from '../../components/common/PrivacyBadgeContainer';
 import DateTooltipFormatter from '../../components/intl/DateTooltipFormatter';
-import { Project } from '../../api/components';
+import ProjectRowActions from './ProjectRowActions';
 
 interface Props {
   currentUser: Pick<T.LoggedInUser, 'login'>;

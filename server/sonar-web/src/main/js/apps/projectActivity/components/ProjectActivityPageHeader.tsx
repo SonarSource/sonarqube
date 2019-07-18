@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import Select from 'sonar-ui-common/components/controls/Select';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { APPLICATION_EVENT_TYPES, EVENT_TYPES, Query } from '../utils';
+import ProjectActivityDateInput from './ProjectActivityDateInput';
 import ProjectActivityEventSelectOption from './ProjectActivityEventSelectOption';
 import ProjectActivityEventSelectValue from './ProjectActivityEventSelectValue';
-import ProjectActivityDateInput from './ProjectActivityDateInput';
-import { EVENT_TYPES, APPLICATION_EVENT_TYPES, Query } from '../utils';
 
 interface Props {
   category?: string;

@@ -20,18 +20,18 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getChildren } from '../../../api/components';
+import { getMeasures } from '../../../api/measures';
+import Measure from '../../../components/measure/Measure';
+import { fetchMetrics } from '../../../store/rootActions';
+import { getMetrics, Store } from '../../../store/rootReducer';
+import '../styles.css';
+import { SubComponent } from '../types';
+import { convertMeasures, PORTFOLIO_METRICS, SUB_COMPONENTS_METRICS } from '../utils';
 import MeasuresButtonLink from './MeasuresButtonLink';
 import MetricBox from './MetricBox';
 import Report from './Report';
 import WorstProjects from './WorstProjects';
-import { SubComponent } from '../types';
-import { PORTFOLIO_METRICS, SUB_COMPONENTS_METRICS, convertMeasures } from '../utils';
-import Measure from '../../../components/measure/Measure';
-import { getChildren } from '../../../api/components';
-import { getMeasures } from '../../../api/measures';
-import { fetchMetrics } from '../../../store/rootActions';
-import { getMetrics, Store } from '../../../store/rootReducer';
-import '../styles.css';
 
 interface OwnProps {
   component: T.Component;

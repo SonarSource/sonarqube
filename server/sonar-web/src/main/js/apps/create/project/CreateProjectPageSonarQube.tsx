@@ -20,11 +20,11 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { WithRouterProps } from 'react-router';
-import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import ManualProjectCreate from './ManualProjectCreate';
+import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { getProjectUrl } from '../../../helpers/urls';
+import ManualProjectCreate from './ManualProjectCreate';
 import './style.css';
 
 interface Props {

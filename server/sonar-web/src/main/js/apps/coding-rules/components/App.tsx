@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as key from 'keymaster';
 import { keyBy } from 'lodash';
+import * as React from 'react';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   addSideBarClass,
   addWhitePageClass,
@@ -30,51 +33,48 @@ import {
   removeWhitePageClass
 } from 'sonar-ui-common/helpers/pages';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
+import { Profile, searchQualityProfiles } from '../../../api/quality-profiles';
+import { getRulesApp, searchRules } from '../../../api/rules';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import FiltersHeader from '../../../components/common/FiltersHeader';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import '../../../components/search-navigator.css';
+import { hasPrivateAccess } from '../../../helpers/organizations';
+import {
+  getAppState,
+  getCurrentUser,
+  getLanguages,
+  getMyOrganizations,
+  Store
+} from '../../../store/rootReducer';
+import {
+  shouldOpenSonarSourceSecurityFacet,
+  shouldOpenStandardsChildFacet,
+  shouldOpenStandardsFacet,
+  STANDARDS
+} from '../../issues/utils';
+import {
+  Activation,
+  Actives,
+  areQueriesEqual,
+  FacetKey,
+  Facets,
+  getAppFacet,
+  getOpen,
+  getServerFacet,
+  OpenFacets,
+  parseQuery,
+  Query,
+  serializeQuery,
+  shouldRequestFacet
+} from '../query';
+import '../styles.css';
 import BulkChange from './BulkChange';
 import FacetsList from './FacetsList';
 import PageActions from './PageActions';
 import RuleDetails from './RuleDetails';
 import RuleListItem from './RuleListItem';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import {
-  Facets,
-  Query,
-  parseQuery,
-  serializeQuery,
-  areQueriesEqual,
-  shouldRequestFacet,
-  FacetKey,
-  OpenFacets,
-  getServerFacet,
-  getAppFacet,
-  Actives,
-  Activation,
-  getOpen
-} from '../query';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import FiltersHeader from '../../../components/common/FiltersHeader';
-import { searchRules, getRulesApp } from '../../../api/rules';
-import { searchQualityProfiles, Profile } from '../../../api/quality-profiles';
-import {
-  getCurrentUser,
-  getLanguages,
-  getMyOrganizations,
-  Store,
-  getAppState
-} from '../../../store/rootReducer';
-import {
-  shouldOpenStandardsFacet,
-  shouldOpenSonarSourceSecurityFacet,
-  shouldOpenStandardsChildFacet,
-  STANDARDS
-} from '../../issues/utils';
-import { hasPrivateAccess } from '../../../helpers/organizations';
-import '../../../components/search-navigator.css';
-import '../styles.css';
 
 const PAGE_SIZE = 100;
 const LIMIT_BEFORE_LOAD_MORE = 5;

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 
 interface Props {

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Facet, { BasicProps } from './Facet';
 import DocTooltip from '../../../components/docs/DocTooltip';
+import Facet, { BasicProps } from './Facet';
 
 interface Props extends T.Omit<BasicProps, 'onChange' | 'values'> {
   onChange: (changes: { template: boolean | undefined }) => void;

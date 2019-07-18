@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Facet, { BasicProps } from './Facet';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { SEVERITIES } from '../../../helpers/constants';
+import Facet, { BasicProps } from './Facet';
 
 interface Props extends BasicProps {
   disabled: boolean;

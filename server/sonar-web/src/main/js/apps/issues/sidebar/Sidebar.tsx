@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Facet, Query, ReferencedComponent, ReferencedLanguage, ReferencedRule } from '../utils';
 import AssigneeFacet from './AssigneeFacet';
 import AuthorFacet from './AuthorFacet';
 import CreationDateFacet from './CreationDateFacet';
@@ -32,7 +33,6 @@ import StandardFacet from './StandardFacet';
 import StatusFacet from './StatusFacet';
 import TagFacet from './TagFacet';
 import TypeFacet from './TypeFacet';
-import { Query, Facet, ReferencedComponent, ReferencedLanguage, ReferencedRule } from '../utils';
 
 export interface Props {
   component: T.Component | undefined;

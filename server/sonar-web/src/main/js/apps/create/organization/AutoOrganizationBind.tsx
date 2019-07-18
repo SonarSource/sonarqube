@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import OrganizationSelect from '../components/OrganizationSelect';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { isGithub } from '../../../helpers/almIntegrations';
+import OrganizationSelect from '../components/OrganizationSelect';
 
 interface Props {
   almKey: string;

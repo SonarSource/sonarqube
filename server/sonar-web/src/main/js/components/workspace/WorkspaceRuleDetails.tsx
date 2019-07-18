@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { keyBy } from 'lodash';
+import * as React from 'react';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { withAppState } from '../hoc/withAppState';
-import RuleDetailsMeta from '../../apps/coding-rules/components/RuleDetailsMeta';
-import RuleDetailsDescription from '../../apps/coding-rules/components/RuleDetailsDescription';
 import { getRuleDetails, getRulesApp } from '../../api/rules';
+import RuleDetailsDescription from '../../apps/coding-rules/components/RuleDetailsDescription';
+import RuleDetailsMeta from '../../apps/coding-rules/components/RuleDetailsMeta';
 import '../../apps/coding-rules/styles.css';
+import { withAppState } from '../hoc/withAppState';
 
 interface Props {
   appState: Pick<T.AppState, 'organizationsEnabled'>;

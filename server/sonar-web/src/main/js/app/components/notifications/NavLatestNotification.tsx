@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as differenceInSeconds from 'date-fns/difference_in_seconds';
-import NotificationIcon from 'sonar-ui-common/components/icons/NotificationIcon';
+import * as React from 'react';
 import ClearIcon from 'sonar-ui-common/components/icons/ClearIcon';
+import NotificationIcon from 'sonar-ui-common/components/icons/NotificationIcon';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { PrismicFeatureNews } from '../../../api/news';

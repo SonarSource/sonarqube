@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ModalButton from 'sonar-ui-common/components/controls/ModalButton';
-import CreateQualityGateForm from './CreateQualityGateForm';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import DocTooltip from '../../../components/docs/DocTooltip';
+import CreateQualityGateForm from './CreateQualityGateForm';
 
 interface Props {
   canCreate: boolean;

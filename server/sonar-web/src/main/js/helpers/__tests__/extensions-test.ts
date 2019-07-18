@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import exposeLibraries from '../../app/components/extensions/exposeLibraries';
 import { getExtensionStart, installScript } from '../extensions';
 import { installExtensionsHandler } from '../extensionsHandler';
-import exposeLibraries from '../../app/components/extensions/exposeLibraries';
 
 jest.mock('../../app/components/extensions/exposeLibraries', () => ({
   default: jest.fn()

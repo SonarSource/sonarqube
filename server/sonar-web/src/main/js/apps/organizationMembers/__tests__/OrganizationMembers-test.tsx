@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import OrganizationMembers from '../OrganizationMembers';
-import { searchMembers, addMember, removeMember } from '../../../api/organizations';
-import { searchUsersGroups, addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
+import { addMember, removeMember, searchMembers } from '../../../api/organizations';
+import { addUserToGroup, removeUserFromGroup, searchUsersGroups } from '../../../api/user_groups';
 import {
   mockLoggedInUser,
   mockOrganization,
   mockOrganizationWithAdminActions,
   mockOrganizationWithAlm
 } from '../../../helpers/testMocks';
+import OrganizationMembers from '../OrganizationMembers';
 
 jest.mock('../../../api/organizations', () => ({
   addMember: jest.fn().mockResolvedValue({ login: 'bar', name: 'Bar', groupCount: 1 }),

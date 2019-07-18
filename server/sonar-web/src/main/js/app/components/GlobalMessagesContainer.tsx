@@ -19,8 +19,8 @@
  */
 import { connect } from 'react-redux';
 import GlobalMessages from 'sonar-ui-common/components/controls/GlobalMessages';
-import { getGlobalMessages, Store } from '../../store/rootReducer';
 import { closeGlobalMessage } from '../../store/globalMessages';
+import { getGlobalMessages, Store } from '../../store/rootReducer';
 
 const mapStateToProps = (state: Store) => ({
   messages: getGlobalMessages(state)

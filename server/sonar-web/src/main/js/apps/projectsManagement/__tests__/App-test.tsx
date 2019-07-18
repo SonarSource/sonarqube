@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable import/order */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import App, { Props } from '../App';
 
 jest.mock('lodash', () => {

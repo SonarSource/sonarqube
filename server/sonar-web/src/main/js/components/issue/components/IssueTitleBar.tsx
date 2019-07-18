@@ -21,12 +21,12 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import LinkIcon from 'sonar-ui-common/components/icons/LinkIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import IssueChangelog from './IssueChangelog';
-import IssueMessage from './IssueMessage';
-import SimilarIssuesFilter from './SimilarIssuesFilter';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { WorkspaceContext } from '../../workspace/context';
+import IssueChangelog from './IssueChangelog';
+import IssueMessage from './IssueMessage';
+import SimilarIssuesFilter from './SimilarIssuesFilter';
 
 interface Props {
   branchLike?: T.BranchLike;

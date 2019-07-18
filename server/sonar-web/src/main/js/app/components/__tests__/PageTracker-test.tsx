@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import { PageTracker } from '../PageTracker';
+import * as React from 'react';
 import { gtm } from '../../../helpers/analytics';
-import { mockLocation } from '../../../helpers/testMocks';
 import { installScript } from '../../../helpers/extensions';
 import { getWebAnalyticsPageHandlerFromCache } from '../../../helpers/extensionsHandler';
+import { mockLocation } from '../../../helpers/testMocks';
+import { PageTracker } from '../PageTracker';
 
 jest.mock('../../../helpers/extensions', () => ({
   installScript: jest.fn().mockResolvedValue({})

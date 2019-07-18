@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import EditTokenModal, { TokenMode } from '../EditTokenModal';
-import { mockComponent, mockEvent, mockLoggedInUser } from '../../../../../helpers/testMocks';
 import { generateToken, getTokens, revokeToken } from '../../../../../api/user-tokens';
+import { mockComponent, mockEvent, mockLoggedInUser } from '../../../../../helpers/testMocks';
 import { getUniqueTokenName } from '../../../utils';
+import EditTokenModal, { TokenMode } from '../EditTokenModal';
 
 jest.mock('../../../../../api/user-tokens', () => ({
   generateToken: jest.fn().mockResolvedValue({

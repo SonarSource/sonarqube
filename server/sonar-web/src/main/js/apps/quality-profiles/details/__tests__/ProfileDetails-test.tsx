@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import ProfileDetails from '../ProfileDetails';
+import * as React from 'react';
 import { Profile } from '../../types';
+import ProfileDetails from '../ProfileDetails';
 
 it('renders without permissions', () => {
   expect(

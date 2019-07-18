@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { omit, sortBy, without } from 'lodash';
 import * as React from 'react';
-import { sortBy, without, omit } from 'lodash';
-import { highlightTerm } from 'sonar-ui-common/helpers/search';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { highlightTerm } from 'sonar-ui-common/helpers/search';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
@@ -34,7 +34,7 @@ import {
   renderSansTop25Category,
   renderSonarSourceSecurityCategory
 } from '../../../helpers/security-standard';
-import { Query, STANDARDS, formatFacetStat, Facet } from '../utils';
+import { Facet, formatFacetStat, Query, STANDARDS } from '../utils';
 
 interface Props {
   cwe: string[];

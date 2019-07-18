@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SimpleInput from './SimpleInput';
 import { DefaultSpecializedInputProps } from '../../utils';
+import SimpleInput from './SimpleInput';
 
 export default function InputForNumber(props: DefaultSpecializedInputProps) {
   return <SimpleInput {...props} className="input-small" type="text" />;

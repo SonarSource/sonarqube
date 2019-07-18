@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { change, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import TokensForm from '../TokensForm';
 import { generateToken, getTokens } from '../../../../api/user-tokens';
+import TokensForm from '../TokensForm';
 
 jest.mock('../../../../api/user-tokens', () => ({
   generateToken: jest.fn().mockResolvedValue({

@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { getLocalizedMetricName } from 'sonar-ui-common/helpers/l10n';
-import ComponentsListRow from './ComponentsListRow';
-import EmptyResult from './EmptyResult';
 import { complementary } from '../config/complementary';
 import { View } from '../utils';
+import ComponentsListRow from './ComponentsListRow';
+import EmptyResult from './EmptyResult';
 
 interface Props {
   branchLike?: T.BranchLike;

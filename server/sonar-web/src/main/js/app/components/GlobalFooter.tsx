@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import GlobalFooterSonarCloud from './GlobalFooterSonarCloud';
-import GlobalFooterBranding from './GlobalFooterBranding';
-import InstanceMessage from '../../components/common/InstanceMessage';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { EDITIONS } from '../../apps/marketplace/utils';
+import InstanceMessage from '../../components/common/InstanceMessage';
 import { isSonarCloud } from '../../helpers/system';
+import GlobalFooterBranding from './GlobalFooterBranding';
+import GlobalFooterSonarCloud from './GlobalFooterSonarCloud';
 
 interface Props {
   hideLoggedInInfo?: boolean;

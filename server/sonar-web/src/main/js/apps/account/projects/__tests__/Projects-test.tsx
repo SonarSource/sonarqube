@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import Projects from '../Projects';
 import ProjectCard from '../ProjectCard';
+import Projects from '../Projects';
 
 const PROJECTS = [
   { key: 'key1', links: [], name: 'name1' },

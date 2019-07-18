@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { get, save } from 'sonar-ui-common/helpers/storage';
-import Step from './Step';
+import { PROJECT_STEP_PROGRESS } from '../analyzeProject/utils';
 import BuildSystemForm from './BuildSystemForm';
 import AnalysisCommandCustom from './commands/AnalysisCommandCustom';
 import AnalysisCommandOtherCI from './commands/AnalysisCommandOtherCI';
-import { PROJECT_STEP_PROGRESS } from '../analyzeProject/utils';
+import Step from './Step';
 
 export enum ProjectAnalysisModes {
   CI = 'CI',

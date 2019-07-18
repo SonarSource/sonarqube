@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { getOrganizationByKey, areThereCustomOrganizations, Store } from '../../store/rootReducer';
+import { areThereCustomOrganizations, getOrganizationByKey, Store } from '../../store/rootReducer';
 import OrganizationLink from '../ui/OrganizationLink';
 
 interface OwnProps {

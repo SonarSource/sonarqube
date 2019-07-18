@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import Level from 'sonar-ui-common/components/ui/Level';
-import { isRichQualityGateEvent } from '../../projectActivity/components/RichQualityGateEventInner';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { isDefinitionChangeEvent } from '../../projectActivity/components/DefinitionChangeEventInner';
+import { isRichQualityGateEvent } from '../../projectActivity/components/RichQualityGateEventInner';
 
 interface Props {
   event: T.AnalysisEvent;

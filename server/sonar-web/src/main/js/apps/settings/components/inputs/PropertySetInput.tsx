@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { DeleteButton } from 'sonar-ui-common/components/controls/buttons';
+import { DefaultInputProps, getEmptyValue, getUniqueName, isCategoryDefinition } from '../../utils';
 import PrimitiveInput from './PrimitiveInput';
-import { getEmptyValue, getUniqueName, DefaultInputProps, isCategoryDefinition } from '../../utils';
 
 export default class PropertySetInput extends React.PureComponent<DefaultInputProps> {
   ensureValue() {

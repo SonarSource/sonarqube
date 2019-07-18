@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import UserDeleteAccountModal from './UserDeleteAccountModal';
-import UserDeleteAccountContent from './UserDeleteAccountContent';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getOrganizationsThatPreventDeletion } from '../../../api/organizations';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
-import { getOrganizationsThatPreventDeletion } from '../../../api/organizations';
+import UserDeleteAccountContent from './UserDeleteAccountContent';
+import UserDeleteAccountModal from './UserDeleteAccountModal';
 
 interface Props {
   user: T.LoggedInUser;

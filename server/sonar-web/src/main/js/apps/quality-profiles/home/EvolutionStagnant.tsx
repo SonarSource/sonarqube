@@ -21,8 +21,8 @@ import * as React from 'react';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import ProfileLink from '../components/ProfileLink';
-import { isStagnant } from '../utils';
 import { Profile } from '../types';
+import { isStagnant } from '../utils';
 
 interface Props {
   organization: string | null;

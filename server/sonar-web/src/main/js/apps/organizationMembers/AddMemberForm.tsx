@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { SubmitButton, ResetButtonLink, Button } from 'sonar-ui-common/components/controls/buttons';
+import { Button, ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
-import UsersSelectSearch from '../users/components/UsersSelectSearch';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { searchMembers } from '../../api/organizations';
+import UsersSelectSearch from '../users/components/UsersSelectSearch';
 
 interface Props {
   addMember: (member: T.OrganizationMember) => void;

@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import ContextNavBar from 'sonar-ui-common/components/ui/ContextNavBar';
-import OrganizationNavigationHeader from './OrganizationNavigationHeader';
-import OrganizationNavigationMeta from './OrganizationNavigationMeta';
-import OrganizationNavigationMenuContainer from './OrganizationNavigationMenuContainer';
 import { rawSizes } from '../../../app/theme';
+import OrganizationNavigationHeader from './OrganizationNavigationHeader';
+import OrganizationNavigationMenuContainer from './OrganizationNavigationMenuContainer';
+import OrganizationNavigationMeta from './OrganizationNavigationMeta';
 
 interface Props {
   currentUser: T.CurrentUser;

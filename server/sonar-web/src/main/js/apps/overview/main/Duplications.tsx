@@ -21,11 +21,11 @@ import * as React from 'react';
 import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import enhance, { ComposedProps } from './enhance';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
-import { getMetricName } from '../utils';
 import { getPeriodValue } from '../../../helpers/measures';
+import { getMetricName } from '../utils';
+import enhance, { ComposedProps } from './enhance';
 
 export class Duplications extends React.PureComponent<ComposedProps> {
   renderHeader() {

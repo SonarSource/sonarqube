@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import ConfigureWithTravis from '../ConfigureWithTravis';
-import { TutorialProps } from '../../utils';
+import * as React from 'react';
 import { mockComponent, mockLoggedInUser } from '../../../../../helpers/testMocks';
+import { TutorialProps } from '../../utils';
+import ConfigureWithTravis from '../ConfigureWithTravis';
 
 jest.mock('sonar-ui-common/helpers/storage', () => ({
   get: jest.fn().mockReturnValue(

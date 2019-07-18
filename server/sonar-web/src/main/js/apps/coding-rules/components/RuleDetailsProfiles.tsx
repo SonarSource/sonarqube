@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { filter } from 'lodash';
+import * as React from 'react';
 import { Link } from 'react-router';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
-import ActivationButton from './ActivationButton';
-import RuleInheritanceIcon from './RuleInheritanceIcon';
-import { Profile, deactivateRule, activateRule } from '../../../api/quality-profiles';
-import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { activateRule, deactivateRule, Profile } from '../../../api/quality-profiles';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { getQualityProfileUrl } from '../../../helpers/urls';
+import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
+import ActivationButton from './ActivationButton';
+import RuleInheritanceIcon from './RuleInheritanceIcon';
 
 interface Props {
   activations: T.RuleActivation[] | undefined;

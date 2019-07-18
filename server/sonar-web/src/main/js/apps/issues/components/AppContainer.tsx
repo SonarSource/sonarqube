@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { uniq } from 'lodash';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
-import { uniq } from 'lodash';
 import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import { searchIssues } from '../../../api/issues';
 import { getOrganizations } from '../../../api/organizations';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
+import { parseIssueFromResponse } from '../../../helpers/issues';
+import { receiveOrganizations } from '../../../store/organizations';
 import {
-  getCurrentUser,
   areThereCustomOrganizations,
+  getCurrentUser,
   getMyOrganizations,
   Store
 } from '../../../store/rootReducer';
-import { parseIssueFromResponse } from '../../../helpers/issues';
-import { receiveOrganizations } from '../../../store/organizations';
 
 interface StateProps {
   currentUser: T.CurrentUser;

@@ -21,8 +21,8 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import SQPageContainer from './components/SQPageContainer';
 import { isLoggedIn } from '../../../helpers/users';
+import SQPageContainer from './components/SQPageContainer';
 import './style.css';
 
 const LANGUAGES = [

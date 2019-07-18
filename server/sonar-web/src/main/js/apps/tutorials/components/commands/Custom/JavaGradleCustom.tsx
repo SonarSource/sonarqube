@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { JavaCustomProps, RenderCustomContent } from './JavaMavenCustom';
 import CodeSnippet from '../../../../../components/common/CodeSnippet';
 import { ProjectAnalysisModes } from '../../ProjectAnalysisStepFromBuildTool';
+import { JavaCustomProps, RenderCustomContent } from './JavaMavenCustom';
 
 export default function JavaGradleCustom(props: JavaCustomProps) {
   const suffix = props.mode === ProjectAnalysisModes.CI ? '.ci' : '';

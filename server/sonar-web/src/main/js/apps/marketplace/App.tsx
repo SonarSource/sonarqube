@@ -17,27 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { sortBy, uniqBy } from 'lodash';
+import * as React from 'react';
 import Helmet from 'react-helmet';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Header from './Header';
-import EditionBoxes from './EditionBoxes';
-import Footer from './Footer';
-import PluginsList from './PluginsList';
-import Search from './Search';
-import { filterPlugins, parseQuery, Query, serializeQuery } from './utils';
-import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import {
   getAvailablePlugins,
+  getInstalledPlugins,
   getInstalledPluginsWithUpdates,
   getPluginUpdates,
   Plugin,
-  PluginPendingResult,
-  getInstalledPlugins
+  PluginPendingResult
 } from '../../api/plugins';
-import { withRouter, Location, Router } from '../../components/hoc/withRouter';
+import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
+import { Location, Router, withRouter } from '../../components/hoc/withRouter';
+import EditionBoxes from './EditionBoxes';
+import Footer from './Footer';
+import Header from './Header';
+import PluginsList from './PluginsList';
+import Search from './Search';
 import './style.css';
+import { filterPlugins, parseQuery, Query, serializeQuery } from './utils';
 
 export interface Props {
   currentEdition?: T.EditionKey;

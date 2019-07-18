@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as classNames from 'classnames';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import * as classNames from 'classnames';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import LoginForm from './LoginForm';
-import OAuthProviders from './OAuthProviders';
-import './LoginSonarCloud.css';
 import { Store } from '../../../store/rootReducer';
+import LoginForm from './LoginForm';
+import './LoginSonarCloud.css';
+import OAuthProviders from './OAuthProviders';
 
 interface Props {
   identityProviders: T.IdentityProvider[];

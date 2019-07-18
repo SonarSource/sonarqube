@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
-import StatusFilter from './StatusFilter';
-import TypesFilter from './TypesFilter';
-import CurrentsFilter from './CurrentsFilter';
-import DateFilter from './DateFilter';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { DEFAULT_FILTERS } from '../constants';
 import { Query } from '../utils';
+import CurrentsFilter from './CurrentsFilter';
+import DateFilter from './DateFilter';
+import StatusFilter from './StatusFilter';
+import TypesFilter from './TypesFilter';
 
 interface Props {
   component?: unknown;

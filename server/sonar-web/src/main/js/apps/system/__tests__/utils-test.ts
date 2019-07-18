@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable sonarjs/no-duplicate-string */
-import * as u from '../utils';
 import { mockClusterSysInfo, mockStandaloneSysInfo } from '../../../helpers/testMocks';
+import * as u from '../utils';
 
 describe('parseQuery', () => {
   it('should correctly parse the expand array', () => {

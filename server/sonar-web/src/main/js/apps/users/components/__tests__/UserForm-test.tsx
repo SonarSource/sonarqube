@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import { waitAndUpdate, submit } from 'sonar-ui-common/helpers/testUtils';
-import UserForm from '../UserForm';
-import { mockUser } from '../../../../helpers/testMocks';
+import * as React from 'react';
+import { submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { createUser, updateUser } from '../../../../api/users';
+import { mockUser } from '../../../../helpers/testMocks';
+import UserForm from '../UserForm';
 
 jest.mock('../../../../api/users', () => ({
   createUser: jest.fn().mockResolvedValue({}),

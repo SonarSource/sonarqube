@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { uniq } from 'lodash';
+import * as React from 'react';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
-import { getLocations, getSelectedLocation } from '../utils';
-import CrossComponentSourceViewer from '../crossComponentSourceViewer/CrossComponentSourceViewer';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
+import CrossComponentSourceViewer from '../crossComponentSourceViewer/CrossComponentSourceViewer';
+import { getLocations, getSelectedLocation } from '../utils';
 
 interface Props {
   branchLike: T.BranchLike | undefined;

@@ -17,26 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import ActionsDropdown, {
-  ActionsDropdownItem,
-  ActionsDropdownDivider
+  ActionsDropdownDivider,
+  ActionsDropdownItem
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import BranchStatus from '../../../components/common/BranchStatus';
+import BranchIcon from '../../../components/icons-components/BranchIcon';
+import DateFromNow from '../../../components/intl/DateFromNow';
+import {
+  getBranchLikeDisplayName,
+  isLongLivingBranch,
+  isMainBranch,
+  isPullRequest,
+  isShortLivingBranch
+} from '../../../helpers/branches';
 import DeleteBranchModal from './DeleteBranchModal';
 import LeakPeriodForm from './LeakPeriodForm';
 import RenameBranchModal from './RenameBranchModal';
-import BranchIcon from '../../../components/icons-components/BranchIcon';
-import BranchStatus from '../../../components/common/BranchStatus';
-import {
-  isShortLivingBranch,
-  isLongLivingBranch,
-  isMainBranch,
-  getBranchLikeDisplayName,
-  isPullRequest
-} from '../../../helpers/branches';
-import DateFromNow from '../../../components/intl/DateFromNow';
 
 interface Props {
   branchLike: T.BranchLike;

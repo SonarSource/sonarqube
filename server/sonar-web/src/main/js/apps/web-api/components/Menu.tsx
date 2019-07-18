@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as classNames from 'classnames';
 import * as React from 'react';
 import { Link } from 'react-router';
-import * as classNames from 'classnames';
+import { actionsFilter, isDomainPathActive, Query, serializeQuery } from '../utils';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
-import { isDomainPathActive, actionsFilter, Query, serializeQuery } from '../utils';
 
 interface Props {
   domains: T.WebApi.Domain[];

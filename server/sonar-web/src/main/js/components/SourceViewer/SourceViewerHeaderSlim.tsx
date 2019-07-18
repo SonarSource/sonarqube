@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
+import * as React from 'react';
 import { Link } from 'react-router';
+import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
 import ExpandSnippetIcon from 'sonar-ui-common/components/icons/ExpandSnippetIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from 'sonar-ui-common/helpers/path';
 import { getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
-import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import Favorite from '../controls/Favorite';
-import { isMainBranch, getBranchLikeQuery } from '../../helpers/branches';
+import { getBranchLikeQuery, isMainBranch } from '../../helpers/branches';
 import { getBranchLikeUrl, getComponentIssuesUrl } from '../../helpers/urls';
+import Favorite from '../controls/Favorite';
 import './SourceViewerHeaderSlim.css';
 
 export interface Props {

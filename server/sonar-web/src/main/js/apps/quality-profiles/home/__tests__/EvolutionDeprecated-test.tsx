@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import EvolutionDeprecated from '../EvolutionDeprecated';
+import * as React from 'react';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
+import EvolutionDeprecated from '../EvolutionDeprecated';
 
 it('should render correctly', () => {
   const wrapper = shallow(

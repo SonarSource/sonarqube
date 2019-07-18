@@ -18,17 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
-  parseAsString,
-  parseAsArray,
-  serializeString,
-  serializeStringArray,
   cleanQuery,
-  queriesEqual,
+  parseAsArray,
   parseAsDate,
-  serializeDateShort,
   parseAsOptionalBoolean,
+  parseAsOptionalString,
+  parseAsString,
+  queriesEqual,
+  serializeDateShort,
   serializeOptionalBoolean,
-  parseAsOptionalString
+  serializeString,
+  serializeStringArray
 } from 'sonar-ui-common/helpers/query';
 
 export interface Query {

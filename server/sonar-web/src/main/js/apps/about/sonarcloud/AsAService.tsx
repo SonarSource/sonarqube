@@ -20,10 +20,10 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { isLoggedIn } from '../../../helpers/users';
 import SQPageContainer from './components/SQPageContainer';
 import SQStartUsing from './components/SQStartUsing';
 import SQTopNav from './components/SQTopNav';
-import { isLoggedIn } from '../../../helpers/users';
 import './style.css';
 
 export default function AsAService() {

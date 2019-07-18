@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
+import * as React from 'react';
 import { connect } from 'react-redux';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import HomeIcon from 'sonar-ui-common/components/icons/HomeIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import { isLoggedIn } from '../../helpers/users';
 import { getCurrentUser, Store } from '../../store/rootReducer';
 import { setHomePage } from '../../store/users';
-import { isLoggedIn } from '../../helpers/users';
 
 interface StateProps {
   currentUser: T.CurrentUser;

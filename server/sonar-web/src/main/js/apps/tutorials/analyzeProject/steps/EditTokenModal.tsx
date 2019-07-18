@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { Button, DeleteButton } from 'sonar-ui-common/components/controls/buttons';
 import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { generateToken, getTokens, revokeToken } from '../../../../api/user-tokens';
-import { getUniqueTokenName } from '../../utils';
 import { RenderOptions } from '../../components/RenderOptions';
+import { getUniqueTokenName } from '../../utils';
 
 export enum TokenMode {
   use_existing_token = 'use_existing_token',

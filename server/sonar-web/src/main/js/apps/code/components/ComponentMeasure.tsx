@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import Measure from '../../../components/measure/Measure';
-import { isDiffMetric } from '../../../helpers/measures';
 import { getLeakValue } from '../../../components/measure/utils';
+import { isDiffMetric } from '../../../helpers/measures';
 
 interface Props {
   component: T.ComponentMeasure;

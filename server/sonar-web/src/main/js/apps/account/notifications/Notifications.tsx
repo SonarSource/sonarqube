@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { groupBy, partition, uniq, uniqBy, uniqWith } from 'lodash';
 import * as React from 'react';
 import Helmet from 'react-helmet';
-import { groupBy, partition, uniq, uniqBy, uniqWith } from 'lodash';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as api from '../../../api/notifications';
+import { withAppState } from '../../../components/hoc/withAppState';
 import GlobalNotifications from './GlobalNotifications';
 import Projects from './Projects';
 import { NotificationProject } from './types';
-import * as api from '../../../api/notifications';
-import { withAppState } from '../../../components/hoc/withAppState';
 
 export interface Props {
   appState: Pick<T.AppState, 'organizationsEnabled'>;

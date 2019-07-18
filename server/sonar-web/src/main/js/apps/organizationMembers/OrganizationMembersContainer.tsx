@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import OrganizationMembers from './OrganizationMembers';
-import { getOrganizationByKey, Store } from '../../store/rootReducer';
 import { withCurrentUser } from '../../components/hoc/withCurrentUser';
+import { getOrganizationByKey, Store } from '../../store/rootReducer';
+import OrganizationMembers from './OrganizationMembers';
 
 interface OwnProps {
   params: { organizationKey: string };

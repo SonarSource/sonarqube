@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { Location } from 'history';
+import * as React from 'react';
 import { InjectedRouter } from 'react-router';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
-import ProjectActivityApp from './ProjectActivityApp';
-import { getAllTimeMachineData } from '../../../api/time-machine';
 import { getAllMetrics } from '../../../api/metrics';
 import * as api from '../../../api/projectActivity';
-import * as actions from '../actions';
+import { getAllTimeMachineData } from '../../../api/time-machine';
 import { getBranchLikeQuery } from '../../../helpers/branches';
+import * as actions from '../actions';
 import {
   customMetricsChanged,
   DEFAULT_GRAPH,
@@ -34,12 +33,13 @@ import {
   getProjectActivityGraph,
   isCustomGraph,
   MeasureHistory,
-  parseQuery,
   ParsedAnalysis,
+  parseQuery,
   Query,
   serializeQuery,
   serializeUrlQuery
 } from '../utils';
+import ProjectActivityApp from './ProjectActivityApp';
 
 interface Props {
   branchLike?: T.BranchLike;

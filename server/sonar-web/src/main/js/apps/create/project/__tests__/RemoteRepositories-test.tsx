@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { times } from 'lodash';
 import { shallow } from 'enzyme';
+import { times } from 'lodash';
+import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import RemoteRepositories from '../RemoteRepositories';
 import { getRepositories } from '../../../../api/alm-integration';
 import {
-  mockOrganizationWithAlm,
-  mockOrganizationWithAdminActions
+  mockOrganizationWithAdminActions,
+  mockOrganizationWithAlm
 } from '../../../../helpers/testMocks';
+import RemoteRepositories from '../RemoteRepositories';
 
 jest.mock('../../../../api/alm-integration', () => ({
   getRepositories: jest.fn().mockResolvedValue({

@@ -18,23 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DetachIcon from 'sonar-ui-common/components/icons/DetachIcon';
 import { connect } from 'react-redux';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import ComponentNavWarnings from './ComponentNavWarnings';
+import DetachIcon from 'sonar-ui-common/components/icons/DetachIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import BranchStatus from '../../../../components/common/BranchStatus';
-import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import Favorite from '../../../../components/controls/Favorite';
 import HomePageSelect from '../../../../components/controls/HomePageSelect';
+import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import {
-  isShortLivingBranch,
   isLongLivingBranch,
   isMainBranch,
-  isPullRequest
+  isPullRequest,
+  isShortLivingBranch
 } from '../../../../helpers/branches';
 import { isLoggedIn } from '../../../../helpers/users';
 import { getCurrentUser, Store } from '../../../../store/rootReducer';
+import ComponentNavWarnings from './ComponentNavWarnings';
 
 export interface Props {
   branchLike?: T.BranchLike;

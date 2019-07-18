@@ -19,33 +19,33 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import NavBar from 'sonar-ui-common/components/ui/NavBar';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
-import GlobalNavBranding, { SonarCloudNavBranding } from './GlobalNavBranding';
-import GlobalNavMenu from './GlobalNavMenu';
-import GlobalNavExplore from './GlobalNavExplore';
-import GlobalNavUserContainer from './GlobalNavUserContainer';
-import Search from '../../search/Search';
-import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
-import { rawSizes } from '../../../theme';
 import {
-  fetchPrismicRefs,
   fetchPrismicFeatureNews,
+  fetchPrismicRefs,
   PrismicFeatureNews
 } from '../../../../api/news';
+import { isSonarCloud } from '../../../../helpers/system';
+import { isLoggedIn } from '../../../../helpers/users';
 import {
+  getAppState,
   getCurrentUser,
   getCurrentUserSetting,
-  getAppState,
   getGlobalSettingValue,
   Store
 } from '../../../../store/rootReducer';
-import { isSonarCloud } from '../../../../helpers/system';
-import { isLoggedIn } from '../../../../helpers/users';
-import { OnboardingContext } from '../../OnboardingContext';
 import { setCurrentUserSetting } from '../../../../store/users';
+import { rawSizes } from '../../../theme';
+import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
+import { OnboardingContext } from '../../OnboardingContext';
+import Search from '../../search/Search';
 import './GlobalNav.css';
+import GlobalNavBranding, { SonarCloudNavBranding } from './GlobalNavBranding';
+import GlobalNavExplore from './GlobalNavExplore';
+import GlobalNavMenu from './GlobalNavMenu';
+import GlobalNavUserContainer from './GlobalNavUserContainer';
 
 const GlobalNavPlus = lazyLoad(() => import('./GlobalNavPlus'), 'GlobalNavPlus');
 const NotificationsSidebar = lazyLoad(

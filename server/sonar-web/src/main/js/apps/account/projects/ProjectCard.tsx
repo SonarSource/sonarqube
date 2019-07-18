@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { translateWithParameters, translate } from 'sonar-ui-common/helpers/l10n';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import Level from 'sonar-ui-common/components/ui/Level';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import MetaLink from '../../overview/meta/MetaLink';

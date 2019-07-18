@@ -20,10 +20,10 @@
 import * as React from 'react';
 import CodeSmellIcon from 'sonar-ui-common/components/icons/CodeSmellIcon';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import enhance, { ComposedProps } from './enhance';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import { getMetricName } from '../utils';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
+import { getMetricName } from '../utils';
+import enhance, { ComposedProps } from './enhance';
 
 export class CodeSmells extends React.PureComponent<ComposedProps> {
   renderHeader() {

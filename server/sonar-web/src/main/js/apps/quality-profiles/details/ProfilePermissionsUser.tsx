@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   DeleteButton,
-  SubmitButton,
-  ResetButtonLink
+  ResetButtonLink,
+  SubmitButton
 } from 'sonar-ui-common/components/controls/buttons';
 import SimpleModal, { ChildrenProps } from 'sonar-ui-common/components/controls/SimpleModal';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { removeUser } from '../../../api/quality-profiles';
 import Avatar from '../../../components/ui/Avatar';
 

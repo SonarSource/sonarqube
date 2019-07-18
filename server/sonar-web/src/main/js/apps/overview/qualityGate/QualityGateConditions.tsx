@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import ChevronDownIcon from 'sonar-ui-common/components/icons/ChevronDownIcon';
 import { sortBy } from 'lodash';
-import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import QualityGateCondition from './QualityGateCondition';
+import ChevronDownIcon from 'sonar-ui-common/components/icons/ChevronDownIcon';
+import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getMeasuresAndMeta } from '../../../api/measures';
+import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
-import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
+import QualityGateCondition from './QualityGateCondition';
 
 const LEVEL_ORDER = ['ERROR', 'WARN'];
 

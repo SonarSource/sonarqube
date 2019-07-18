@@ -17,16 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { debounce, findLast, maxBy, minBy, sortBy } from 'lodash';
+import * as React from 'react';
 import { save } from 'sonar-ui-common/helpers/storage';
-import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
-import GraphsZoom from './GraphsZoom';
-import GraphsHistory from './GraphsHistory';
 import {
   datesQueryChanged,
   generateSeries,
   getDisplayedHistoryMetrics,
+  getProjectActivityGraph,
   getSeriesMetricType,
   historyQueryChanged,
   isCustomGraph,
@@ -37,9 +35,11 @@ import {
   PROJECT_ACTIVITY_GRAPH_CUSTOM,
   Query,
   Serie,
-  splitSeriesInGraphs,
-  getProjectActivityGraph
+  splitSeriesInGraphs
 } from '../utils';
+import GraphsHistory from './GraphsHistory';
+import GraphsZoom from './GraphsZoom';
+import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
 
 interface Props {
   analyses: ParsedAnalysis[];

@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
 import { identity } from 'lodash';
+import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
 import LockIcon from 'sonar-ui-common/components/icons/LockIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 import { colors } from '../../../app/theme';
 import { getProjectUrl } from '../../../helpers/urls';
 

@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import enhance, { ComposedProps } from './enhance';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
-import { getMetricName } from '../utils';
-import { getPeriodValue } from '../../../helpers/measures';
 import CoverageRating from '../../../components/ui/CoverageRating';
+import { getPeriodValue } from '../../../helpers/measures';
+import { getMetricName } from '../utils';
+import enhance, { ComposedProps } from './enhance';
 
 export class Coverage extends React.PureComponent<ComposedProps> {
   getCoverage() {

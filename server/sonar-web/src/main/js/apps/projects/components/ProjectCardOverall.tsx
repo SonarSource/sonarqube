@@ -20,16 +20,16 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import ProjectCardQualityGate from './ProjectCardQualityGate';
-import ProjectCardOverallMeasures from './ProjectCardOverallMeasures';
-import ProjectCardOrganizationContainer from './ProjectCardOrganizationContainer';
+import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 import Favorite from '../../../components/controls/Favorite';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import TagsList from '../../../components/tags/TagsList';
-import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
-import { Project } from '../types';
 import { getProjectUrl } from '../../../helpers/urls';
 import { isLoggedIn } from '../../../helpers/users';
+import { Project } from '../types';
+import ProjectCardOrganizationContainer from './ProjectCardOrganizationContainer';
+import ProjectCardOverallMeasures from './ProjectCardOverallMeasures';
+import ProjectCardQualityGate from './ProjectCardQualityGate';
 
 interface Props {
   currentUser: T.CurrentUser;

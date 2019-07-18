@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import { EmptyOverview, WarningMessage } from '../EmptyOverview';
+import * as React from 'react';
 import {
-  mockPullRequest,
+  mockComponent,
   mockLoggedInUser,
   mockMainBranch,
-  mockComponent
+  mockPullRequest
 } from '../../../../helpers/testMocks';
+import { EmptyOverview, WarningMessage } from '../EmptyOverview';
 
 const branch = mockMainBranch();
 const component = mockComponent({ version: '0.0.1' });

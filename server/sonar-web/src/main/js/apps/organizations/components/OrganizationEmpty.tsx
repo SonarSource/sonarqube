@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
 import OnboardingAddMembersIcon from 'sonar-ui-common/components/icons/OnboardingAddMembersIcon';
 import OnboardingProjectIcon from 'sonar-ui-common/components/icons/OnboardingProjectIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { OnboardingContextShape } from '../../../app/components/OnboardingContext';
-import { withRouter, Router } from '../../../components/hoc/withRouter';
+import { Router, withRouter } from '../../../components/hoc/withRouter';
 import '../../tutorials/styles.css';
 import './OrganizationEmpty.css';
 

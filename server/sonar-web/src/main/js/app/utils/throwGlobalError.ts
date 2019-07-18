@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { parseError } from 'sonar-ui-common/helpers/request';
-import getStore from './getStore';
 import { addGlobalErrorMessage } from '../../store/globalMessages';
+import getStore from './getStore';
 
 export default function throwGlobalError(error: { response: Response }): Promise<Response> {
   const store = getStore();

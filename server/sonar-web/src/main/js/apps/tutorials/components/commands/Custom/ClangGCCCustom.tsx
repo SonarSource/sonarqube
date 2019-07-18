@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Button, EditButton } from 'sonar-ui-common/components/controls/buttons';
-import { quote } from '../../../utils';
-import SQScanner from '../SQScanner';
-import BuildWrapper from '../BuildWrapper';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../../../components/common/CodeSnippet';
+import { quote } from '../../../utils';
 import { ProjectAnalysisModes } from '../../ProjectAnalysisStepFromBuildTool';
+import BuildWrapper from '../BuildWrapper';
+import SQScanner from '../SQScanner';
 
 export interface Props {
   host: string;

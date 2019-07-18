@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import Select from 'sonar-ui-common/components/controls/Select';
 import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import Select from 'sonar-ui-common/components/controls/Select';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getAllMetrics } from '../../../api/metrics';
 
 interface Props {

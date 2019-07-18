@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
+import { mockComponent, mockMeasure, mockShortLivingBranch } from '../../../../helpers/testMocks';
 import MeasurementLabel from '../MeasurementLabel';
-import { mockShortLivingBranch, mockComponent, mockMeasure } from '../../../../helpers/testMocks';
 
 it('should render correctly for coverage', () => {
   expect(shallowRender()).toMatchSnapshot();

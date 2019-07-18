@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { debounce } from 'lodash';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import Select from 'sonar-ui-common/components/controls/Select';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import Avatar from '../../../components/ui/Avatar';
 
 interface Option {

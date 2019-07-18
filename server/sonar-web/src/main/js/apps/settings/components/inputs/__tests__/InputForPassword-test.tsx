@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import { click, change, submit } from 'sonar-ui-common/helpers/testUtils';
-import InputForPassword from '../InputForPassword';
+import * as React from 'react';
+import { change, click, submit } from 'sonar-ui-common/helpers/testUtils';
 import { DefaultSpecializedInputProps } from '../../../utils';
+import InputForPassword from '../InputForPassword';
 
 it('should render lock icon, but no form', () => {
   const onChange = jest.fn();

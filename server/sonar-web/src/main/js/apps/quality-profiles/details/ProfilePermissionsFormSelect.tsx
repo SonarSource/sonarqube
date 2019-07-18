@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import GroupIcon from 'sonar-ui-common/components/icons/GroupIcon';
 import { debounce, identity } from 'lodash';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import Select from 'sonar-ui-common/components/controls/Select';
-import { Group } from './ProfilePermissions';
+import GroupIcon from 'sonar-ui-common/components/icons/GroupIcon';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import Avatar from '../../../components/ui/Avatar';
+import { Group } from './ProfilePermissions';
 
 type Option = T.UserSelected | Group;
 type OptionWithValue = Option & { value: string };

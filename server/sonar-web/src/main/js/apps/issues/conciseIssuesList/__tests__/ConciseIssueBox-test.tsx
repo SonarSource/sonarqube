@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import { waitAndUpdate, click } from 'sonar-ui-common/helpers/testUtils';
-import ConciseIssueBox from '../ConciseIssueBox';
+import * as React from 'react';
+import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockIssue } from '../../../../helpers/testMocks';
+import ConciseIssueBox from '../ConciseIssueBox';
 
 it('should render correctly', async () => {
   const onClick = jest.fn();

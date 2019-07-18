@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Location } from 'history';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Location } from 'history';
-import Extension from './Extension';
-import NotFound from '../NotFound';
 import { addGlobalErrorMessage } from '../../../store/globalMessages';
+import NotFound from '../NotFound';
+import Extension from './Extension';
 
 interface Props {
   component: T.Component;

@@ -19,23 +19,23 @@
  */
 import * as React from 'react';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import ComponentSourceSnippetViewer from './ComponentSourceSnippetViewer';
-import { groupLocationsByComponent } from './utils';
-import DuplicationPopup from '../../../components/SourceViewer/components/DuplicationPopup';
-import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
-import { WorkspaceContext } from '../../../components/workspace/context';
+import { getDuplications } from '../../../api/components';
 import { getIssueFlowSnippets } from '../../../api/issues';
+import DuplicationPopup from '../../../components/SourceViewer/components/DuplicationPopup';
 import {
   filterDuplicationBlocksByLine,
-  isDuplicationBlockInRemovedComponent,
-  getDuplicationBlocksForIndex
+  getDuplicationBlocksForIndex,
+  isDuplicationBlockInRemovedComponent
 } from '../../../components/SourceViewer/helpers/duplications';
 import {
   duplicationsByLine,
   issuesByComponentAndLine
 } from '../../../components/SourceViewer/helpers/indexing';
-import { getDuplications } from '../../../api/components';
+import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
+import { WorkspaceContext } from '../../../components/workspace/context';
 import { getBranchLikeQuery } from '../../../helpers/branches';
+import ComponentSourceSnippetViewer from './ComponentSourceSnippetViewer';
+import { groupLocationsByComponent } from './utils';
 
 interface Props {
   branchLike: T.Branch | T.PullRequest | undefined;

@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import Select from 'sonar-ui-common/components/controls/Select';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { GRAPH_TYPES, isCustomGraph } from '../utils';
 import AddGraphMetric from './forms/AddGraphMetric';
-import { isCustomGraph, GRAPH_TYPES } from '../utils';
 
 interface Props {
   addCustomMetric: (metric: string) => void;

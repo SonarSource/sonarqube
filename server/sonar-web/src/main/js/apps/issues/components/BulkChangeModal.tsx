@@ -17,26 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { pickBy, sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { pickBy, sortBy } from 'lodash';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { SubmitButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import Modal from 'sonar-ui-common/components/controls/Modal';
-import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import Modal from 'sonar-ui-common/components/controls/Modal';
 import Radio from 'sonar-ui-common/components/controls/Radio';
-import Select from 'sonar-ui-common/components/controls/Select';
 import SearchSelect from 'sonar-ui-common/components/controls/SearchSelect';
-import { searchAssignees } from '../utils';
-import Avatar from '../../../components/ui/Avatar';
+import Select from 'sonar-ui-common/components/controls/Select';
+import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { bulkChangeIssues, searchIssueTags } from '../../../api/issues';
+import throwGlobalError from '../../../app/utils/throwGlobalError';
 import MarkdownTips from '../../../components/common/MarkdownTips';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
-import throwGlobalError from '../../../app/utils/throwGlobalError';
-import { searchIssueTags, bulkChangeIssues } from '../../../api/issues';
+import Avatar from '../../../components/ui/Avatar';
 import { isLoggedIn, isUserActive } from '../../../helpers/users';
+import { searchAssignees } from '../utils';
 
 interface AssigneeOption {
   avatar?: string;

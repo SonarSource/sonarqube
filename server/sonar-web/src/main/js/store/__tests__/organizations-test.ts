@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import reducer, {
-  getOrganizationByKey,
   areThereCustomOrganizations,
-  getMyOrganizations,
-  State,
-  receiveOrganizations,
-  receiveMyOrganizations,
   createOrganization,
-  updateOrganization,
-  deleteOrganization
+  deleteOrganization,
+  getMyOrganizations,
+  getOrganizationByKey,
+  receiveMyOrganizations,
+  receiveOrganizations,
+  State,
+  updateOrganization
 } from '../organizations';
 
 const state0: State = { byKey: {}, my: [] };

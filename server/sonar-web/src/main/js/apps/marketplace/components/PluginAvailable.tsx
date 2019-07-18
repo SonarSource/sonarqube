@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { PluginAvailable as IPluginAvailable } from '../../../api/plugins';
 import PluginChangeLogButton from './PluginChangeLogButton';
 import PluginDescription from './PluginDescription';
 import PluginLicense from './PluginLicense';
 import PluginOrganization from './PluginOrganization';
 import PluginStatus from './PluginStatus';
 import PluginUrls from './PluginUrls';
-import { PluginAvailable as IPluginAvailable } from '../../../api/plugins';
 
 interface Props {
   plugin: IPluginAvailable;

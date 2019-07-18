@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { without } from 'lodash';
 import * as React from 'react';
 import GroupIcon from 'sonar-ui-common/components/icons/GroupIcon';
-import { without } from 'lodash';
-import PermissionCell from './PermissionCell';
 import { isPermissionDefinitionGroup } from '../../utils';
+import PermissionCell from './PermissionCell';
 
 interface Props {
   group: T.PermissionGroup;

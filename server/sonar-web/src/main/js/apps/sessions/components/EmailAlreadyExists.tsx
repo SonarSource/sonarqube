@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { getTextColor } from 'sonar-ui-common/helpers/colors';
 import { getCookie } from 'sonar-ui-common/helpers/cookies';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { colors } from '../../../app/theme';
 import { getIdentityProviders } from '../../../api/users';
+import { colors } from '../../../app/theme';
 
 interface State {
   identityProviders: T.IdentityProvider[];

@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import BuildSystemForm from '../../components/BuildSystemForm';
 import AnalysisCommandTravis from '../../components/commands/AnalysisCommandTravis';
 import Step from '../../components/Step';
-import BuildSystemForm from '../../components/BuildSystemForm';
 import { StepProps } from '../../utils';
 
 interface BuildProps {

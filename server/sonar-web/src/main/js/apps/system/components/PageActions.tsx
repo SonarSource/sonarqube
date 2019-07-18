@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Button, EditButton } from 'sonar-ui-common/components/controls/buttons';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import { EditButton, Button } from 'sonar-ui-common/components/controls/buttons';
-import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
-import ChangeLogLevelForm from './ChangeLogLevelForm';
 import AdminContext from '../../../app/components/AdminContext';
 import RestartButton from '../../../components/common/RestartButton';
 import { getFileNameSuffix } from '../utils';
+import ChangeLogLevelForm from './ChangeLogLevelForm';
 
 interface Props {
   canDownloadLogs: boolean;

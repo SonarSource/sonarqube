@@ -17,40 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { uniq } from 'lodash';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import ApplicationQualityGate from '../qualityGate/ApplicationQualityGate';
+import { getMeasuresAndMeta } from '../../../api/measures';
+import { getAllTimeMachineData } from '../../../api/time-machine';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
+import {
+  getBranchLikeDisplayName,
+  getBranchLikeQuery,
+  isLongLivingBranch,
+  isMainBranch,
+  isSameBranchLike
+} from '../../../helpers/branches';
+import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
+import { getLeakPeriod } from '../../../helpers/periods';
+import { fetchMetrics } from '../../../store/rootActions';
+import { getMetrics, Store } from '../../../store/rootReducer';
+import {
+  DEFAULT_GRAPH,
+  getDisplayedHistoryMetrics,
+  getProjectActivityGraph
+} from '../../projectActivity/utils';
 import Bugs from '../main/Bugs';
 import CodeSmells from '../main/CodeSmells';
 import Coverage from '../main/Coverage';
 import Duplications from '../main/Duplications';
 import VulnerabilitiesAndHotspots from '../main/VulnerabilitiesAndHotspots';
 import MetaContainer from '../meta/MetaContainer';
+import ApplicationQualityGate from '../qualityGate/ApplicationQualityGate';
 import QualityGate from '../qualityGate/QualityGate';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import { getMeasuresAndMeta } from '../../../api/measures';
-import { getAllTimeMachineData } from '../../../api/time-machine';
-import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
-import { getLeakPeriod } from '../../../helpers/periods';
-import { METRICS, HISTORY_METRICS_LIST } from '../utils';
-import {
-  DEFAULT_GRAPH,
-  getDisplayedHistoryMetrics,
-  getProjectActivityGraph
-} from '../../projectActivity/utils';
-import {
-  isSameBranchLike,
-  getBranchLikeQuery,
-  isLongLivingBranch,
-  isMainBranch,
-  getBranchLikeDisplayName
-} from '../../../helpers/branches';
-import { fetchMetrics } from '../../../store/rootActions';
-import { getMetrics, Store } from '../../../store/rootReducer';
 import '../styles.css';
+import { HISTORY_METRICS_LIST, METRICS } from '../utils';
 
 interface Props {
   branchLike?: T.BranchLike;

@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getCodeUrl } from '../../../helpers/urls';
 import { SourceViewerContext } from '../SourceViewerContext';
 

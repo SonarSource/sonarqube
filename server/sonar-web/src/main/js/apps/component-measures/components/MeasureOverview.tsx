@@ -20,15 +20,15 @@
 import * as React from 'react';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import PageActions from 'sonar-ui-common/components/ui/PageActions';
+import { getComponentLeaves } from '../../../api/components';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
+import SourceViewer from '../../../components/SourceViewer/SourceViewer';
+import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
+import BubbleChart from '../drilldown/BubbleChart';
+import { enhanceComponent, getBubbleMetrics, hasFullMeasures, isFileType } from '../utils';
 import Breadcrumbs from './Breadcrumbs';
 import LeakPeriodLegend from './LeakPeriodLegend';
 import MeasureContentHeader from './MeasureContentHeader';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import BubbleChart from '../drilldown/BubbleChart';
-import SourceViewer from '../../../components/SourceViewer/SourceViewer';
-import { getComponentLeaves } from '../../../api/components';
-import { enhanceComponent, getBubbleMetrics, isFileType, hasFullMeasures } from '../utils';
-import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
 
 interface Props {
   branchLike?: T.BranchLike;

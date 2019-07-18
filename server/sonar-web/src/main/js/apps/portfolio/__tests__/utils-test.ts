@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { convertMeasures } from '../utils';
 import { mockMeasure } from '../../../helpers/testMocks';
+import { convertMeasures } from '../utils';
 
 describe('convertMeasures', () => {
   it('should correctly transform a list of metrics to a dictionary', () => {

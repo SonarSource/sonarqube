@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import EvolutionDeprecated from './EvolutionDeprecated';
-import EvolutionStagnant from './EvolutionStagnant';
-import EvolutionRules from './EvolutionRules';
 import { Profile } from '../types';
+import EvolutionDeprecated from './EvolutionDeprecated';
+import EvolutionRules from './EvolutionRules';
+import EvolutionStagnant from './EvolutionStagnant';
 
 interface Props {
   organization: string | null;

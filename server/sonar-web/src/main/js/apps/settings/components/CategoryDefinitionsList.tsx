@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import SubCategoryDefinitionsList from './SubCategoryDefinitionsList';
-import { fetchValues } from '../store/actions';
 import { getSettingsAppSettingsForCategory, Store } from '../../../store/rootReducer';
+import { fetchValues } from '../store/actions';
+import SubCategoryDefinitionsList from './SubCategoryDefinitionsList';
 
 interface Props {
   category: string;

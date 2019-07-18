@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { getCurrentUser, Store } from '../../store/rootReducer';
 import { getWrappedDisplayName } from './utils';
-import { Store, getCurrentUser } from '../../store/rootReducer';
 
 export function withCurrentUser<P>(
   WrappedComponent: React.ComponentType<P & { currentUser: T.CurrentUser }>

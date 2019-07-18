@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import ProjectCardOrganization from './ProjectCardOrganization';
 import { areThereCustomOrganizations, Store } from '../../../store/rootReducer';
+import ProjectCardOrganization from './ProjectCardOrganization';
 
 const stateToProps = (state: Store) => ({
   organizationsEnabled: areThereCustomOrganizations(state)

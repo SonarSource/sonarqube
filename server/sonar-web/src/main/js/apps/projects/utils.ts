@@ -20,11 +20,11 @@
 import { uniq } from 'lodash';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { RequestData } from 'sonar-ui-common/helpers/request';
-import { Query, convertToFilter } from './query';
-import { getOrganizations } from '../../api/organizations';
-import { searchProjects, Facet } from '../../api/components';
+import { Facet, searchProjects } from '../../api/components';
 import { getMeasuresForProjects } from '../../api/measures';
-import { isDiffMetric, getPeriodValue } from '../../helpers/measures';
+import { getOrganizations } from '../../api/organizations';
+import { getPeriodValue, isDiffMetric } from '../../helpers/measures';
+import { convertToFilter, Query } from './query';
 
 interface SortingOption {
   class?: string;

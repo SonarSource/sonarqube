@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import CopyQualityGateForm from '../CopyQualityGateForm';
+import * as React from 'react';
 import { mockQualityGate } from '../../../../helpers/testMocks';
+import CopyQualityGateForm from '../CopyQualityGateForm';
 
 it('should render correctly', () => {
   expect(

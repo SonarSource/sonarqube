@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import GlobalNav from './nav/global/GlobalNav';
-import StartupModal from './StartupModal';
-import GlobalFooterContainer from './GlobalFooterContainer';
-import GlobalMessagesContainer from './GlobalMessagesContainer';
-import SuggestionsProvider from './embed-docs-modal/SuggestionsProvider';
+import Workspace from '../../components/workspace/Workspace';
 import A11yProvider from './a11y/A11yProvider';
 import A11ySkipLinks from './a11y/A11ySkipLinks';
-import Workspace from '../../components/workspace/Workspace';
+import SuggestionsProvider from './embed-docs-modal/SuggestionsProvider';
+import GlobalFooterContainer from './GlobalFooterContainer';
+import GlobalMessagesContainer from './GlobalMessagesContainer';
+import GlobalNav from './nav/global/GlobalNav';
+import StartupModal from './StartupModal';
 
 export interface Props {
   children: React.ReactNode;

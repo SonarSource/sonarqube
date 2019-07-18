@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
 import { isPermissionDefinitionGroup } from '../../utils';
 

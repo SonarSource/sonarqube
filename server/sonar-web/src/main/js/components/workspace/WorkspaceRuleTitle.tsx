@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import LightBulbIcon from 'sonar-ui-common/components/icons/LightBulbIcon';
-import { RuleDescriptor } from './context';
 import { colors } from '../../app/theme';
+import { RuleDescriptor } from './context';
 
 interface Props {
   limited?: boolean;

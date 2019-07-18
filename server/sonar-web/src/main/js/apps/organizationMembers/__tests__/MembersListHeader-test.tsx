@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import MembersListHeader, { Props } from '../MembersListHeader';
+import * as React from 'react';
 import { mockOrganization, mockOrganizationWithAlm } from '../../../helpers/testMocks';
+import MembersListHeader, { Props } from '../MembersListHeader';
 
 it('should render without the total', () => {
   expect(shallowRender({ total: undefined })).toMatchSnapshot();

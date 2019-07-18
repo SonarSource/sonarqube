@@ -19,8 +19,8 @@
  */
 import { Dispatch } from 'redux';
 import { getOrganizations } from '../../../api/organizations';
-import { receiveMyOrganizations } from '../../../store/organizations';
 import { getValues } from '../../../api/settings';
+import { receiveMyOrganizations } from '../../../store/organizations';
 import { receiveValues } from '../../settings/store/values';
 
 export const fetchMyOrganizations = () => (dispatch: Dispatch) => {

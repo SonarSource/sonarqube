@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { parseError } from 'sonar-ui-common/helpers/request';
-import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { sendTestEmail } from '../../../api/settings';
+import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 
 interface Props {
   currentUser: T.LoggedInUser;

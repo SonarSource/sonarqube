@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable import/order */
-import * as React from 'react';
 import { mount, shallow } from 'enzyme';
+import * as React from 'react';
 import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import SystemUpgradeNotif from '../SystemUpgradeNotif';
 

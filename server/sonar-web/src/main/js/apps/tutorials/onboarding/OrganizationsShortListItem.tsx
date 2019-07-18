@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { ListButton } from 'sonar-ui-common/components/controls/buttons';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
-import { withRouter, Router } from '../../../components/hoc/withRouter';
+import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { getOrganizationUrl } from '../../../helpers/urls';
 
 interface Props {

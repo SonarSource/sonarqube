@@ -21,23 +21,23 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
+import { hasPrivateAccess } from '../../../helpers/organizations';
+import {
+  getAppState,
+  getCurrentUser,
+  getMyOrganizations,
+  getOrganizationByKey,
+  Store
+} from '../../../store/rootReducer';
+import AnalysesList from '../events/AnalysesList';
 import MetaKey from './MetaKey';
-import MetaOrganizationKey from './MetaOrganizationKey';
 import MetaLinks from './MetaLinks';
+import MetaOrganizationKey from './MetaOrganizationKey';
 import MetaQualityGate from './MetaQualityGate';
 import MetaQualityProfiles from './MetaQualityProfiles';
 import MetaSize from './MetaSize';
 import MetaTags from './MetaTags';
-import AnalysesList from '../events/AnalysesList';
-import { hasPrivateAccess } from '../../../helpers/organizations';
-import {
-  getCurrentUser,
-  getMyOrganizations,
-  getOrganizationByKey,
-  Store,
-  getAppState
-} from '../../../store/rootReducer';
-import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 
 const BadgesModal = lazyLoad(() => import('../badges/BadgesModal'), 'BadgesModal');
 

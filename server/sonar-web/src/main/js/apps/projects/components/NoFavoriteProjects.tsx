@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import { Link } from 'react-router';
-import { connect } from 'react-redux';
 import { sortBy } from 'lodash';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
+import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
-import OrganizationListItem from '../../../components/ui/OrganizationListItem';
-import { getMyOrganizations, Store } from '../../../store/rootReducer';
-import { isSonarCloud } from '../../../helpers/system';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { OnboardingContextShape } from '../../../app/components/OnboardingContext';
+import OrganizationListItem from '../../../components/ui/OrganizationListItem';
+import { isSonarCloud } from '../../../helpers/system';
+import { getMyOrganizations, Store } from '../../../store/rootReducer';
 
 interface OwnProps {
   openProjectOnboarding: OnboardingContextShape;

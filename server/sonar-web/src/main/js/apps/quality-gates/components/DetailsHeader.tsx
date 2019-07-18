@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ModalButton from 'sonar-ui-common/components/controls/ModalButton';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { setQualityGateAsDefault } from '../../../api/quality-gates';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
-import RenameQualityGateForm from './RenameQualityGateForm';
 import CopyQualityGateForm from './CopyQualityGateForm';
 import DeleteQualityGateForm from './DeleteQualityGateForm';
-import { setQualityGateAsDefault } from '../../../api/quality-gates';
+import RenameQualityGateForm from './RenameQualityGateForm';
 
 interface Props {
   onSetDefault: () => void;

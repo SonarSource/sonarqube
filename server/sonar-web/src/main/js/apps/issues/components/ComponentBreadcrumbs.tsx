@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { collapsePath, limitComponentName } from 'sonar-ui-common/helpers/path';
-import { getSelectedLocation } from '../utils';
 import Organization from '../../../components/shared/Organization';
+import { getSelectedLocation } from '../utils';
 
 interface Props {
   component?: T.Component;

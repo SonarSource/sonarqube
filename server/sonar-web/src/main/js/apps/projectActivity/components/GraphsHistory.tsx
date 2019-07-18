@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { isEqual } from 'lodash';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import GraphHistory from './GraphHistory';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   getSeriesMetricType,
   hasHistoryData,
   isCustomGraph,
-  Serie,
   MeasureHistory,
-  ParsedAnalysis
+  ParsedAnalysis,
+  Serie
 } from '../utils';
+import GraphHistory from './GraphHistory';
 
 interface Props {
   analyses: ParsedAnalysis[];

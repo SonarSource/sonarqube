@@ -19,11 +19,11 @@
  */
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import {
-  shouldOpenSeverityFacet,
-  shouldOpenStandardsFacet,
   scrollToIssue,
+  shouldOpenSeverityFacet,
+  shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
-  shouldOpenSonarSourceSecurityFacet
+  shouldOpenStandardsFacet
 } from '../utils';
 
 jest.mock('sonar-ui-common/helpers/scrolling', () => ({

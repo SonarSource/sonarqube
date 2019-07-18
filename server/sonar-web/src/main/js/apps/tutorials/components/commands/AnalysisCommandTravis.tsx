@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
-import { JavaMavenTravisSonarCloud } from './TravisSonarCloud/JavaMavenTravisSonarCloud';
-import { JavaGradleTravisSonarCloud } from './TravisSonarCloud/JavaGradleTravisSonarCloud';
-import { OtherTravisSonarCloud } from './TravisSonarCloud/OtherTravisSonarCloud';
-import { ClangGCCTravisSonarCloud } from './TravisSonarCloud/ClangGCCTravisSonarCloud';
-import { getProjectKey } from '../ProjectAnalysisStep';
 import CodeSnippet from '../../../../components/common/CodeSnippet';
+import { getProjectKey } from '../ProjectAnalysisStep';
+import { ClangGCCTravisSonarCloud } from './TravisSonarCloud/ClangGCCTravisSonarCloud';
+import { JavaGradleTravisSonarCloud } from './TravisSonarCloud/JavaGradleTravisSonarCloud';
+import { JavaMavenTravisSonarCloud } from './TravisSonarCloud/JavaMavenTravisSonarCloud';
+import { OtherTravisSonarCloud } from './TravisSonarCloud/OtherTravisSonarCloud';
 
 interface Props {
   buildType: string | undefined;

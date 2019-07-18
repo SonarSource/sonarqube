@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import IdentityProviderLink from 'sonar-ui-common/components/controls/IdentityProviderLink';
-import { save } from 'sonar-ui-common/helpers/storage';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import RemoteRepositories from './RemoteRepositories';
-import OrganizationInput from './OrganizationInput';
+import { save } from 'sonar-ui-common/helpers/storage';
 import {
   ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP,
   ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP
 } from '../organization/utils';
+import OrganizationInput from './OrganizationInput';
+import RemoteRepositories from './RemoteRepositories';
 
 interface Props {
   almApplication: T.AlmApplication;

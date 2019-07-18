@@ -20,9 +20,9 @@
 import * as React from 'react';
 import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
 import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
-import enhance, { ComposedProps } from './enhance';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { getMetricName } from '../utils';
+import enhance, { ComposedProps } from './enhance';
 
 export class VulnerabiltiesAndHotspots extends React.PureComponent<ComposedProps> {
   renderHeader() {

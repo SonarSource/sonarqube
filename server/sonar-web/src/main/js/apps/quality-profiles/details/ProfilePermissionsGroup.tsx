@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import GroupIcon from 'sonar-ui-common/components/icons/GroupIcon';
 import { FormattedMessage } from 'react-intl';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { DeleteButton, Button, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import { Button, DeleteButton, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import SimpleModal, { ChildrenProps } from 'sonar-ui-common/components/controls/SimpleModal';
-import { Group } from './ProfilePermissions';
+import GroupIcon from 'sonar-ui-common/components/icons/GroupIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { removeGroup } from '../../../api/quality-profiles';
+import { Group } from './ProfilePermissions';
 
 interface Props {
   group: Group;

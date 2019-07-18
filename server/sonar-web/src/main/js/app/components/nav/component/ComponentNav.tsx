@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import ContextNavBar from 'sonar-ui-common/components/ui/ContextNavBar';
-import ComponentNavHeader from './ComponentNavHeader';
-import ComponentNavMeta from './ComponentNavMeta';
-import ComponentNavMenu from './ComponentNavMenu';
-import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
-import RecentHistory from '../../RecentHistory';
-import { rawSizes } from '../../../theme';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
+import { rawSizes } from '../../../theme';
+import RecentHistory from '../../RecentHistory';
 import './ComponentNav.css';
+import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
+import ComponentNavHeader from './ComponentNavHeader';
+import ComponentNavMenu from './ComponentNavMenu';
+import ComponentNavMeta from './ComponentNavMeta';
 
 interface Props {
   branchLikes: T.BranchLike[];

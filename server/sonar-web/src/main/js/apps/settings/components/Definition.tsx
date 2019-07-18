@@ -17,29 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
 import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
-import classNames from 'classnames';
-import { translateWithParameters, translate } from 'sonar-ui-common/helpers/l10n';
-import Input from './inputs/Input';
-import DefinitionActions from './DefinitionActions';
-import {
-  getPropertyName,
-  getPropertyDescription,
-  getSettingValue,
-  isDefaultOrInherited,
-  sanitizeTranslation
-} from '../utils';
-import { resetValue, saveValue, checkValue } from '../store/actions';
-import { cancelChange, changeValue, passValidation } from '../store/settingsPage';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import {
   getSettingsAppChangedValue,
   getSettingsAppValidationMessage,
   isSettingsAppLoading,
   Store
 } from '../../../store/rootReducer';
+import { checkValue, resetValue, saveValue } from '../store/actions';
+import { cancelChange, changeValue, passValidation } from '../store/settingsPage';
+import {
+  getPropertyDescription,
+  getPropertyName,
+  getSettingValue,
+  isDefaultOrInherited,
+  sanitizeTranslation
+} from '../utils';
+import DefinitionActions from './DefinitionActions';
+import Input from './inputs/Input';
 
 interface Props {
   cancelChange: (key: string) => void;

@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { WebApiApp } from '../WebApiApp';
 import { fetchWebApi } from '../../../../api/web-api';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
+import { WebApiApp } from '../WebApiApp';
 
 jest.mock('../../../../api/web-api', () => ({
   fetchWebApi: jest.fn().mockResolvedValue([

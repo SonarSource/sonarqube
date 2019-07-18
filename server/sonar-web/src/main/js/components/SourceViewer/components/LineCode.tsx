@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
-import LineIssuesList from './LineIssuesList';
+import * as React from 'react';
 import LocationIndex from '../../common/LocationIndex';
 import LocationMessage from '../../common/LocationMessage';
 import {
@@ -28,6 +27,7 @@ import {
   splitByTokens,
   Token
 } from '../helpers/highlight';
+import LineIssuesList from './LineIssuesList';
 
 interface Props {
   branchLike: T.BranchLike | undefined;

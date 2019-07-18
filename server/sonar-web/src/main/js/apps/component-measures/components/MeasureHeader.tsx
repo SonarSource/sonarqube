@@ -18,17 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Link } from 'react-router';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import HistoryIcon from 'sonar-ui-common/components/icons/HistoryIcon';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
-import { Link } from 'react-router';
 import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import LeakPeriodLegend from './LeakPeriodLegend';
 import LanguageDistributionContainer from '../../../components/charts/LanguageDistributionContainer';
 import Measure from '../../../components/measure/Measure';
-import { getMeasureHistoryUrl } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
+import { getMeasureHistoryUrl } from '../../../helpers/urls';
 import { hasFullMeasures } from '../utils';
+import LeakPeriodLegend from './LeakPeriodLegend';
 
 interface Props {
   branchLike?: T.BranchLike;

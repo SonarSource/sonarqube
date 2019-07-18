@@ -20,7 +20,7 @@
 import { stringify } from 'querystring';
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { Profile, Exporter } from '../types';
+import { Exporter, Profile } from '../types';
 
 interface Props {
   exporters: Exporter[];

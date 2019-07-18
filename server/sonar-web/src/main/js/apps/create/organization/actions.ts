@@ -19,8 +19,8 @@
  */
 import { Dispatch } from 'redux';
 import * as api from '../../../api/organizations';
-import * as actions from '../../../store/organizations';
 import { isGithub } from '../../../helpers/almIntegrations';
+import * as actions from '../../../store/organizations';
 
 export function createOrganization({
   alm,

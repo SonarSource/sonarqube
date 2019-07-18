@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
-  getComponentIssuesUrl,
   getComponentDrilldownUrl,
+  getComponentIssuesUrl,
   getQualityGatesUrl,
   getQualityGateUrl
 } from '../urls';

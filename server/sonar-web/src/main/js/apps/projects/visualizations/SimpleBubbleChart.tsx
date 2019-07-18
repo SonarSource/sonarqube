@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import BubbleChart from 'sonar-ui-common/components/charts/BubbleChart';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
 import { RATING_COLORS } from '../../../helpers/constants';
 import { getProjectUrl } from '../../../helpers/urls';

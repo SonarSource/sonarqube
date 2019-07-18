@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { OverviewApp } from '../OverviewApp';
 import { getMeasuresAndMeta } from '../../../../api/measures';
 import { getAllTimeMachineData } from '../../../../api/time-machine';
 import {
-  mockMainBranch,
   mockComponent,
-  mockMetric,
+  mockLongLivingBranch,
+  mockMainBranch,
   mockMeasure,
-  mockLongLivingBranch
+  mockMetric
 } from '../../../../helpers/testMocks';
+import { OverviewApp } from '../OverviewApp';
 
 jest.mock('../../../../api/measures', () => {
   const { mockMeasure, mockMetric } = getMockHelpers();

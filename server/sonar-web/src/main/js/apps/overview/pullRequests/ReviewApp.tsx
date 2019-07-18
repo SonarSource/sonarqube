@@ -17,26 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
+import * as React from 'react';
 import { connect } from 'react-redux';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import AfterMergeEstimate from './AfterMergeEstimate';
-import LargeQualityGateBadge from './LargeQualityGateBadge';
-import IssueLabel from './IssueLabel';
-import IssueRating from './IssueRating';
-import MeasurementLabel from './MeasurementLabel';
-import DocTooltip from '../../../components/docs/DocTooltip';
-import QualityGateConditions from '../qualityGate/QualityGateConditions';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getMeasures } from '../../../api/measures';
-import { PR_METRICS, IssueType, MeasurementType } from '../utils';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
 import { isSameStatusConditionList } from '../../../helpers/qualityGates';
-import { Store, getBranchStatusByBranchLike } from '../../../store/rootReducer';
 import { fetchBranchStatus } from '../../../store/rootActions';
+import { getBranchStatusByBranchLike, Store } from '../../../store/rootReducer';
+import QualityGateConditions from '../qualityGate/QualityGateConditions';
 import '../styles.css';
+import { IssueType, MeasurementType, PR_METRICS } from '../utils';
+import AfterMergeEstimate from './AfterMergeEstimate';
+import IssueLabel from './IssueLabel';
+import IssueRating from './IssueRating';
+import LargeQualityGateBadge from './LargeQualityGateBadge';
+import MeasurementLabel from './MeasurementLabel';
 
 interface OwnProps {
   branchLike: T.PullRequest | T.ShortLivingBranch;

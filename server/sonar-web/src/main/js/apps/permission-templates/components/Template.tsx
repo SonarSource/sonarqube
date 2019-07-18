@@ -20,15 +20,15 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import TemplateHeader from './TemplateHeader';
-import TemplateDetails from './TemplateDetails';
+import * as api from '../../../api/permissions';
 import HoldersList from '../../permissions/shared/components/HoldersList';
 import SearchForm from '../../permissions/shared/components/SearchForm';
 import {
   convertToPermissionDefinitions,
   PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE
 } from '../../permissions/utils';
-import * as api from '../../../api/permissions';
+import TemplateDetails from './TemplateDetails';
+import TemplateHeader from './TemplateHeader';
 
 interface Props {
   organization: T.Organization | undefined;

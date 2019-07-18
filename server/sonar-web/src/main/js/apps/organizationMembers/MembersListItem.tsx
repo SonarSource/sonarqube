@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
-import RemoveMemberForm from './RemoveMemberForm';
-import ManageMemberGroupsForm from './ManageMemberGroupsForm';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import Avatar from '../../components/ui/Avatar';
+import ManageMemberGroupsForm from './ManageMemberGroupsForm';
+import RemoveMemberForm from './RemoveMemberForm';
 
 interface Props {
   member: T.OrganizationMember;

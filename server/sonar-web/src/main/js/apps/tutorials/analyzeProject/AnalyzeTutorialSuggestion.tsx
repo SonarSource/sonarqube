@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { isBitbucket, isGithub, isVSTS } from '../../../helpers/almIntegrations';
 
 export function TutorialSuggestionBitbucket() {

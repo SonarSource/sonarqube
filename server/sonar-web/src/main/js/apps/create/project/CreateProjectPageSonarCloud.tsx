@@ -21,18 +21,18 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { WithRouterProps } from 'react-router';
-import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import Tabs from 'sonar-ui-common/components/controls/Tabs';
-import AutoProjectCreate from './AutoProjectCreate';
-import ManualProjectCreate from './ManualProjectCreate';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
+import { getAlmAppInfo } from '../../../api/alm-integration';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
-import { getAlmAppInfo } from '../../../api/alm-integration';
 import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
-import { getProjectUrl, getOrganizationUrl } from '../../../helpers/urls';
+import { getOrganizationUrl, getProjectUrl } from '../../../helpers/urls';
 import { skipOnboarding } from '../../../store/users';
+import AutoProjectCreate from './AutoProjectCreate';
+import ManualProjectCreate from './ManualProjectCreate';
 import './style.css';
 
 interface Props {

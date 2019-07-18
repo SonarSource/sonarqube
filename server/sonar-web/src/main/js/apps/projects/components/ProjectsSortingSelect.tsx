@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import SortDescIcon from 'sonar-ui-common/components/icons/SortDescIcon';
 import { sortBy } from 'lodash';
-import SortAscIcon from 'sonar-ui-common/components/icons/SortAscIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import * as React from 'react';
 import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
 import Select from 'sonar-ui-common/components/controls/Select';
-import ProjectsSortingSelectOption, { Option } from './ProjectsSortingSelectOption';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import SortAscIcon from 'sonar-ui-common/components/icons/SortAscIcon';
+import SortDescIcon from 'sonar-ui-common/components/icons/SortDescIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { colors } from '../../../app/theme';
-import { SORTING_METRICS, SORTING_LEAK_METRICS, parseSorting } from '../utils';
+import { parseSorting, SORTING_LEAK_METRICS, SORTING_METRICS } from '../utils';
+import ProjectsSortingSelectOption, { Option } from './ProjectsSortingSelectOption';
 
 interface Props {
   className?: string;

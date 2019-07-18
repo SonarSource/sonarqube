@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { getComponentDrilldownUrl, getComponentIssuesUrl } from '../../helpers/urls';
 import { getBranchLikeQuery } from '../../helpers/branches';
+import { getComponentDrilldownUrl, getComponentIssuesUrl } from '../../helpers/urls';
 
 const ISSUE_MEASURES = [
   'violations',

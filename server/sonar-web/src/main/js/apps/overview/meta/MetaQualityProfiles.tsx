@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as classNames from 'classnames';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import * as classNames from 'classnames';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import { getQualityProfileUrl } from '../../../helpers/urls';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { searchRules } from '../../../api/rules';
+import { getQualityProfileUrl } from '../../../helpers/urls';
 import { getLanguages, Store } from '../../../store/rootReducer';
 
 interface StateProps {

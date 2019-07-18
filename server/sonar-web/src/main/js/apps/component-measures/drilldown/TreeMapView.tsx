@@ -17,23 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import { isDefined } from 'sonar-ui-common/helpers/types';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
+import * as React from 'react';
+import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import ColorGradientLegend from 'sonar-ui-common/components/charts/ColorGradientLegend';
 import TreeMap, { TreeMapItem } from 'sonar-ui-common/components/charts/TreeMap';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import {
+  getLocalizedMetricName,
   translate,
-  translateWithParameters,
-  getLocalizedMetricName
+  translateWithParameters
 } from 'sonar-ui-common/helpers/l10n';
-import EmptyResult from './EmptyResult';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { isDefined } from 'sonar-ui-common/helpers/types';
 import { colors } from '../../../app/theme';
 import ColorBoxLegend from '../../../components/charts/ColorBoxLegend';
 import { isDiffMetric } from '../../../helpers/measures';
+import EmptyResult from './EmptyResult';
 
 interface Props {
   branchLike?: T.BranchLike;

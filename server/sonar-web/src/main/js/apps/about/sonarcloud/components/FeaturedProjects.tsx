@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
-import CountUp from 'react-countup';
 import { throttle } from 'lodash';
+import * as React from 'react';
+import CountUp from 'react-countup';
 import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
 import Rating from 'sonar-ui-common/components/ui/Rating';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getBaseUrl, getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
-import { FeaturedProject } from '../utils';
-import CoverageRating from '../../../../components/ui/CoverageRating';
 import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
-import ProjectCardLanguagesContainer from '../../../projects/components/ProjectCardLanguagesContainer';
-import { getMetricName } from '../../../overview/utils';
+import CoverageRating from '../../../../components/ui/CoverageRating';
 import { getProjectUrl } from '../../../../helpers/urls';
+import { getMetricName } from '../../../overview/utils';
+import ProjectCardLanguagesContainer from '../../../projects/components/ProjectCardLanguagesContainer';
+import { FeaturedProject } from '../utils';
 import './FeaturedProjects.css';
 
 interface Props {

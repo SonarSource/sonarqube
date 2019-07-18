@@ -19,16 +19,16 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import InstanceMessage from '../../../components/common/InstanceMessage';
-import { deleteOrganization } from '../actions';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getOrganizationBilling } from '../../../api/organizations';
-import { isSonarCloud } from '../../../helpers/system';
-import { withRouter, Router } from '../../../components/hoc/withRouter';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
+import InstanceMessage from '../../../components/common/InstanceMessage';
+import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { isSonarCloud } from '../../../helpers/system';
+import { deleteOrganization } from '../actions';
 
 interface DispatchToProps {
   deleteOrganization: (key: string) => Promise<void>;

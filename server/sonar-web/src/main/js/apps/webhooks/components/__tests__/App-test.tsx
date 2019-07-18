@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import App from '../App';
+import * as React from 'react';
 import {
   createWebhook,
   deleteWebhook,
   searchWebhooks,
   updateWebhook
 } from '../../../../api/webhooks';
+import App from '../App';
 
 jest.mock('../../../../api/webhooks', () => ({
   createWebhook: jest.fn(() =>

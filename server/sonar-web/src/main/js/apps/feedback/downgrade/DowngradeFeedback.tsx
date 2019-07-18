@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
+import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import Radio from 'sonar-ui-common/components/controls/Radio';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import Radio from 'sonar-ui-common/components/controls/Radio';
 import { giveDowngradeFeedback } from '../../../api/billing';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
 import './DowngradeFeedback.css';

@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import NotificationsList from './NotificationsList';
-import { NotificationProject } from './types';
 import Organization from '../../../components/shared/Organization';
 import { getProjectUrl } from '../../../helpers/urls';
+import NotificationsList from './NotificationsList';
+import { NotificationProject } from './types';
 
 interface Props {
   addNotification: (n: T.Notification) => void;

@@ -19,22 +19,22 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import LinkIcon from 'sonar-ui-common/components/icons/LinkIcon';
 import RuleScopeIcon from 'sonar-ui-common/components/icons/RuleScopeIcon';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
-import RuleDetailsTagsPopup from './RuleDetailsTagsPopup';
-import SimilarRulesFilter from './SimilarRulesFilter';
-import DateFormatter from '../../../components/intl/DateFormatter';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import DocTooltip from '../../../components/docs/DocTooltip';
+import DateFormatter from '../../../components/intl/DateFormatter';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import TagsList from '../../../components/tags/TagsList';
-import { Query } from '../query';
 import { getRuleUrl } from '../../../helpers/urls';
+import { Query } from '../query';
+import RuleDetailsTagsPopup from './RuleDetailsTagsPopup';
+import SimilarRulesFilter from './SimilarRulesFilter';
 
 interface Props {
   canWrite: boolean | undefined;

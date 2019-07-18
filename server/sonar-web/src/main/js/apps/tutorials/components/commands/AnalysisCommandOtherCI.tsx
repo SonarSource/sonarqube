@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
-import OtherOtherCI from './OtherCI/OtherOtherCI';
-import ClangGCCOtherCI from './OtherCI/ClangGCCOtherCI';
-import { AnalysisCommandProps, AnalysisCommandRenderProps } from './utils';
-import { RenderCommandForGradle, RenderCommandForMaven } from './AnalysisCommandCustom';
-import { getProjectKey } from '../ProjectAnalysisStep';
-import { RenderOS, RenderOSProps } from '../LanguageForm';
-import { ProjectAnalysisModes } from '../ProjectAnalysisStepFromBuildTool';
 import EditTokenModal from '../../analyzeProject/steps/EditTokenModal';
+import { RenderOS, RenderOSProps } from '../LanguageForm';
+import { getProjectKey } from '../ProjectAnalysisStep';
+import { ProjectAnalysisModes } from '../ProjectAnalysisStepFromBuildTool';
+import { RenderCommandForGradle, RenderCommandForMaven } from './AnalysisCommandCustom';
+import ClangGCCOtherCI from './OtherCI/ClangGCCOtherCI';
+import OtherOtherCI from './OtherCI/OtherOtherCI';
+import { AnalysisCommandProps, AnalysisCommandRenderProps } from './utils';
 
 export function RenderCommandForClangOrGCC({
   component,

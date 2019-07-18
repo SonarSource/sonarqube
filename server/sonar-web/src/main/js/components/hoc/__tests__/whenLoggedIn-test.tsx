@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
+import * as React from 'react';
 import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
-import { whenLoggedIn } from '../whenLoggedIn';
 import { mockStore } from '../../../helpers/testMocks';
+import { whenLoggedIn } from '../whenLoggedIn';
 
 jest.mock('sonar-ui-common/helpers/handleRequiredAuthentication', () => ({
   default: jest.fn()

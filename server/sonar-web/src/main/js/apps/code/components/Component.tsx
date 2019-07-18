@@ -19,11 +19,11 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import ComponentName from './ComponentName';
-import ComponentMeasure from './ComponentMeasure';
-import ComponentPin from './ComponentPin';
-import { WorkspaceContext } from '../../../components/workspace/context';
 import { withScrollTo } from '../../../components/hoc/withScrollTo';
+import { WorkspaceContext } from '../../../components/workspace/context';
+import ComponentMeasure from './ComponentMeasure';
+import ComponentName from './ComponentName';
+import ComponentPin from './ComponentPin';
 
 interface Props {
   branchLike?: T.BranchLike;

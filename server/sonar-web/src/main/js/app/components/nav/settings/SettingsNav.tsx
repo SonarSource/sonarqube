@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
+import * as React from 'react';
 import { IndexLink, Link } from 'react-router';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import ContextNavBar from 'sonar-ui-common/components/ui/ContextNavBar';
 import NavBarTabs from 'sonar-ui-common/components/ui/NavBarTabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
+import { PluginPendingResult } from '../../../../api/plugins';
+import { rawSizes } from '../../../theme';
 import PendingPluginsActionNotif from './PendingPluginsActionNotif';
 import SystemRestartNotif from './SystemRestartNotif';
-import { rawSizes } from '../../../theme';
-import { PluginPendingResult } from '../../../../api/plugins';
 
 interface Props {
   extensions: T.Extension[];

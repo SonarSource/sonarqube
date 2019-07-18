@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { resetBundle } from 'sonar-ui-common/helpers/l10n';
-import { convertToPermissionDefinitions } from '../utils';
 import { isSonarCloud } from '../../../helpers/system';
+import { convertToPermissionDefinitions } from '../utils';
 
 jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 

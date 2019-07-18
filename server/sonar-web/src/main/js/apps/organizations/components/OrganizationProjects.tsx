@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import AllProjectsContainer from '../../projects/components/AllProjectsContainer';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import AllProjectsContainer from '../../projects/components/AllProjectsContainer';
 
 interface Props {
   location: { pathname: string; query: T.Dict<string> };

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import FavoriteFilter from './FavoriteFilter';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
+import FavoriteFilter from './FavoriteFilter';
 
 function mapStateToProps(state: Store) {
   return { currentUser: getCurrentUser(state) };

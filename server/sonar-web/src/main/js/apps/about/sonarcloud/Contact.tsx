@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Location } from 'history';
 import * as React from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router';
-import { Location } from 'history';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import Select from 'sonar-ui-common/components/controls/Select';
-import SQPageContainer from './components/SQPageContainer';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { isLoggedIn } from '../../../helpers/users';
+import SQPageContainer from './components/SQPageContainer';
 import './style.css';
 
 const CATEGORIES = [

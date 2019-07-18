@@ -18,26 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import PlusCircleIcon from 'sonar-ui-common/components/icons/PlusCircleIcon';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import ComponentNavBranchesMenu from './ComponentNavBranchesMenu';
-import BranchIcon from '../../../../components/icons-components/BranchIcon';
+import Toggler from 'sonar-ui-common/components/controls/Toggler';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import PlusCircleIcon from 'sonar-ui-common/components/icons/PlusCircleIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import DocTooltip from '../../../../components/docs/DocTooltip';
-import { colors } from '../../../theme';
+import { withAppState } from '../../../../components/hoc/withAppState';
+import BranchIcon from '../../../../components/icons-components/BranchIcon';
 import {
-  isShortLivingBranch,
-  isSameBranchLike,
   getBranchLikeDisplayName,
-  isPullRequest
+  isPullRequest,
+  isSameBranchLike,
+  isShortLivingBranch
 } from '../../../../helpers/branches';
 import { isSonarCloud } from '../../../../helpers/system';
 import { getPortfolioAdminUrl } from '../../../../helpers/urls';
-import { withAppState } from '../../../../components/hoc/withAppState';
+import { colors } from '../../../theme';
+import ComponentNavBranchesMenu from './ComponentNavBranchesMenu';
 
 interface Props {
   appState: Pick<T.AppState, 'branchesEnabled'>;

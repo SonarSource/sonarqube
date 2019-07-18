@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import DefaultPageSelector from './DefaultPageSelector';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
+import DefaultPageSelector from './DefaultPageSelector';
 
 const stateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state)

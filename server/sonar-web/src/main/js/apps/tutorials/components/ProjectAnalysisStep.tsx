@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Step from './Step';
-import LanguageForm from './LanguageForm';
-import AnalysisCommand from './commands/AnalysisCommand';
 import { LanguageConfig } from '../utils';
+import AnalysisCommand from './commands/AnalysisCommand';
+import LanguageForm from './LanguageForm';
+import Step from './Step';
 
 interface Props {
   component?: T.Component;

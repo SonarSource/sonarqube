@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import UserExternalIdentity from './UserExternalIdentity';
+import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
+import { isSonarCloud } from '../../../helpers/system';
 import UserDeleteAccount from './UserDeleteAccount';
+import UserExternalIdentity from './UserExternalIdentity';
 import UserGroups from './UserGroups';
 import UserScmAccounts from './UserScmAccounts';
-import { isSonarCloud } from '../../../helpers/system';
-import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 
 export interface Props {
   currentUser: T.LoggedInUser;

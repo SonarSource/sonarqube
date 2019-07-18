@@ -20,18 +20,18 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import { getValues } from '../../../api/settings';
+import {
+  getBranchLikeKey,
+  isPullRequest,
+  isShortLivingBranch,
+  sortBranchesAsTree
+} from '../../../helpers/branches';
 import BranchRow from './BranchRow';
 import LongBranchesPattern from './LongBranchesPattern';
-import {
-  sortBranchesAsTree,
-  getBranchLikeKey,
-  isShortLivingBranch,
-  isPullRequest
-} from '../../../helpers/branches';
-import { getValues } from '../../../api/settings';
 
 interface Props {
   branchLikes: T.BranchLike[];

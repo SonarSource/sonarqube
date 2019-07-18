@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import ActionsCell from './ActionsCell';
 import NameCell from './NameCell';
 import PermissionCell from './PermissionCell';
-import ActionsCell from './ActionsCell';
 
 interface Props {
   organization: T.Organization | undefined;

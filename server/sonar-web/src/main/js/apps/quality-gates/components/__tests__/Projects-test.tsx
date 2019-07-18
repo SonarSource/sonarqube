@@ -19,15 +19,15 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import SelectList, { SelectListFilter } from 'sonar-ui-common/components/controls/SelectList';
-import Projects from '../Projects';
-import { mockQualityGate } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
-  searchProjects,
   associateGateWithProject,
-  dissociateGateWithProject
+  dissociateGateWithProject,
+  searchProjects
 } from '../../../../api/quality-gates';
+import { mockQualityGate } from '../../../../helpers/testMocks';
+import Projects from '../Projects';
 
 const qualityGate = mockQualityGate();
 const organization = 'TEST';

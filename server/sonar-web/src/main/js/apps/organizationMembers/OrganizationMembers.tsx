@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import MembersPageHeader from './MembersPageHeader';
-import MembersListHeader from './MembersListHeader';
-import MembersList from './MembersList';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { addMember, removeMember, searchMembers } from '../../api/organizations';
+import { addUserToGroup, removeUserFromGroup, searchUsersGroups } from '../../api/user_groups';
 import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
-import { searchMembers, addMember, removeMember } from '../../api/organizations';
-import { searchUsersGroups, addUserToGroup, removeUserFromGroup } from '../../api/user_groups';
+import MembersList from './MembersList';
+import MembersListHeader from './MembersListHeader';
+import MembersPageHeader from './MembersPageHeader';
 
 interface Props {
   currentUser: T.LoggedInUser;

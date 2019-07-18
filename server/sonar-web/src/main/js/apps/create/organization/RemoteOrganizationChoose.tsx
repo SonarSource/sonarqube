@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
-import { WithRouterProps, withRouter } from 'react-router';
-import { FormattedMessage } from 'react-intl';
 import { sortBy } from 'lodash';
-import IdentityProviderLink from 'sonar-ui-common/components/controls/IdentityProviderLink';
-import { save } from 'sonar-ui-common/helpers/storage';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { withRouter, WithRouterProps } from 'react-router';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import IdentityProviderLink from 'sonar-ui-common/components/controls/IdentityProviderLink';
 import Select from 'sonar-ui-common/components/controls/Select';
-import { serializeQuery, ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP } from './utils';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { save } from 'sonar-ui-common/helpers/storage';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
+import { ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP, serializeQuery } from './utils';
 
 interface Props {
   almApplication: T.AlmApplication;

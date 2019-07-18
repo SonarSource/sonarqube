@@ -17,13 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { times } from 'lodash';
+import { mount, shallow } from 'enzyme';
 import { Location } from 'history';
-import { shallow, mount } from 'enzyme';
+import { times } from 'lodash';
+import * as React from 'react';
 import { get, remove } from 'sonar-ui-common/helpers/storage';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { CreateOrganization } from '../CreateOrganization';
 import {
   bindAlmOrganization,
   getAlmAppInfo,
@@ -33,13 +32,14 @@ import {
 import { getSubscriptionPlans } from '../../../../api/billing';
 import { getOrganizations } from '../../../../api/organizations';
 import {
-  mockRouter,
+  mockAlmOrganization,
+  mockLocation,
+  mockLoggedInUser,
   mockOrganizationWithAdminActions,
   mockOrganizationWithAlm,
-  mockAlmOrganization,
-  mockLoggedInUser,
-  mockLocation
+  mockRouter
 } from '../../../../helpers/testMocks';
+import { CreateOrganization } from '../CreateOrganization';
 
 jest.mock('../../../../api/billing', () => ({
   getSubscriptionPlans: jest

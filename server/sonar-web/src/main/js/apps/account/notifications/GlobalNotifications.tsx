@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { isSonarCloud } from '../../../helpers/system';
 import NotificationsList from './NotificationsList';
 import SonarCloudNotifications from './SonarCloudNotifications';
-import { isSonarCloud } from '../../../helpers/system';
 
 interface Props {
   addNotification: (n: T.Notification) => void;

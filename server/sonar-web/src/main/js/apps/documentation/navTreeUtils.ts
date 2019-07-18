@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { flatten } from 'lodash';
+import NavigationTree from 'Docs/../static/SonarQubeNavigationTree.json';
 import {
   DocNavigationItem,
   DocsNavigationBlock,
   DocsNavigationExternalLink
 } from 'Docs/@types/types';
-import NavigationTree from 'Docs/../static/SonarQubeNavigationTree.json';
+import { flatten } from 'lodash';
 
 export function getNavTree() {
   return NavigationTree as DocNavigationItem[];

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { CommonTravisSonarCloud } from './utils';
 import { getSonarcloudAddonYml, getSonarcloudAddonYmlRender } from '../AnalysisCommandTravis';
 import { Props } from '../Other';
+import { CommonTravisSonarCloud } from './utils';
 
 export function OtherTravisSonarCloud(props: Props) {
   const command = `${getSonarcloudAddonYml(props.organization)}

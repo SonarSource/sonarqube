@@ -19,18 +19,18 @@
  */
 import * as startOfDay from 'date-fns/start_of_day';
 import { chunk, flatMap, groupBy, isEqual, sortBy } from 'lodash';
+import { parseDate } from 'sonar-ui-common/helpers/dates';
+import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
 import {
   cleanQuery,
   parseAsArray,
   parseAsDate,
   parseAsString,
-  serializeStringArray,
   serializeDate,
-  serializeString
+  serializeString,
+  serializeStringArray
 } from 'sonar-ui-common/helpers/query';
-import { parseDate } from 'sonar-ui-common/helpers/dates';
 import { get } from 'sonar-ui-common/helpers/storage';
-import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
 
 export type ParsedAnalysis = T.Omit<T.Analysis, 'date'> & { date: Date };
 

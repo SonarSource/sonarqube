@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import Notifications, { Props } from './Notifications';
 import { fetchOrganizations } from '../../../store/rootActions';
+import Notifications, { Props } from './Notifications';
 
 const mapDispatchToProps = { fetchOrganizations } as Pick<Props, 'fetchOrganizations'>;
 

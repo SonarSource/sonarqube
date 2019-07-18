@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
-import { injectIntl, InjectedIntlProps } from 'react-intl';
+import { InjectedIntlProps, injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import getStore from '../../utils/getStore';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { getExtensionStart } from '../../../helpers/extensions';
 import { addGlobalErrorMessage } from '../../../store/globalMessages';
-import { Store, getCurrentUser } from '../../../store/rootReducer';
+import { getCurrentUser, Store } from '../../../store/rootReducer';
 import * as theme from '../../theme';
+import getStore from '../../utils/getStore';
 
 interface Props extends InjectedIntlProps {
   currentUser: T.CurrentUser;

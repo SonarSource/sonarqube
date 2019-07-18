@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { uniq } from 'lodash';
-import { Dispatch, combineReducers } from 'redux';
-import { ActionType } from './utils/actions';
-import { isLoggedIn } from '../helpers/users';
+import { combineReducers, Dispatch } from 'redux';
 import * as api from '../api/users';
+import { isLoggedIn } from '../helpers/users';
+import { ActionType } from './utils/actions';
 
 const enum Actions {
   ReceiveCurrentUser = 'RECEIVE_CURRENT_USER',

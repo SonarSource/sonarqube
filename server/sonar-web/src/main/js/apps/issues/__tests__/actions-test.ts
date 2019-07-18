@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { selectFlow, selectLocation } from '../actions';
 import { mockIssue } from '../../../helpers/testMocks';
+import { selectFlow, selectLocation } from '../actions';
 
 describe('selectFlow', () => {
   it('should select flow and enable locations navigator', () => {

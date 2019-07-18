@@ -26,8 +26,8 @@ jest.mock('../../../../api/components', () => ({
   getChildren: jest.fn(() => Promise.resolve({ components: [], paging: { total: 0 } }))
 }));
 
+import { mount, shallow } from 'enzyme';
 import * as React from 'react';
-import { shallow, mount } from 'enzyme';
 import { App } from '../App';
 
 const getMeasures = require('../../../../api/measures').getMeasures as jest.Mock<any>;

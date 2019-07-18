@@ -20,13 +20,13 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import SelectList, { SelectListFilter } from 'sonar-ui-common/components/controls/SelectList';
-import { waitAndUpdate, click } from 'sonar-ui-common/helpers/testUtils';
-import ChangeProjectsForm from '../ChangeProjectsForm';
+import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
-  getProfileProjects,
   associateProject,
-  dissociateProject
+  dissociateProject,
+  getProfileProjects
 } from '../../../../api/quality-profiles';
+import ChangeProjectsForm from '../ChangeProjectsForm';
 
 const profile: any = { key: 'profFile_key' };
 const organization = 'TEST';

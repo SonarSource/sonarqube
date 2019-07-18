@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import TagsIcon from 'sonar-ui-common/components/icons/TagsIcon';
 import { Link } from 'react-router';
+import TagsIcon from 'sonar-ui-common/components/icons/TagsIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import ReadMore from './ReadMore';
 import { getRulesUrl } from '../../../helpers/urls';
+import ReadMore from './ReadMore';
 
 const link = 'https://redirect.sonarsource.com/doc/rules.html';
 

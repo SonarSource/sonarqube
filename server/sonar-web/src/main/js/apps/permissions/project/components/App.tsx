@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { without } from 'lodash';
 import * as React from 'react';
 import Helmet from 'react-helmet';
-import { without } from 'lodash';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as api from '../../../../api/permissions';
+import VisibilitySelector from '../../../../components/common/VisibilitySelector';
+import UpgradeOrganizationBox from '../../../create/components/UpgradeOrganizationBox';
+import '../../styles.css';
 import AllHoldersList from './AllHoldersList';
 import PageHeader from './PageHeader';
 import PublicProjectDisclaimer from './PublicProjectDisclaimer';
-import UpgradeOrganizationBox from '../../../create/components/UpgradeOrganizationBox';
-import VisibilitySelector from '../../../../components/common/VisibilitySelector';
-import * as api from '../../../../api/permissions';
-import '../../styles.css';
 
 interface Props {
   component: T.Component;

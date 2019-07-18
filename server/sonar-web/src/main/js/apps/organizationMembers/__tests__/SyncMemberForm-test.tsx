@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { SyncMemberForm } from '../SyncMemberForm';
 import { setOrganizationMemberSync, syncMembers } from '../../../api/organizations';
 import { mockOrganizationWithAlm } from '../../../helpers/testMocks';
+import { SyncMemberForm } from '../SyncMemberForm';
 
 jest.mock('../../../api/organizations', () => ({
   setOrganizationMemberSync: jest.fn().mockResolvedValue(undefined),

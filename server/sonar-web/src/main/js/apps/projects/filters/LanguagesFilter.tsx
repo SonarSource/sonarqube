@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { difference, sortBy } from 'lodash';
+import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getLanguageByKey } from '../../../store/languages';
+import { Facet } from '../types';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
 import SearchableFilterFooter from './SearchableFilterFooter';
 import SearchableFilterOption from './SearchableFilterOption';
-import { getLanguageByKey } from '../../../store/languages';
-import { Facet } from '../types';
 
 interface Props {
   facet?: Facet;

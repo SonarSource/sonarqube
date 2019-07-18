@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { DocNavigationItem } from 'Docs/@types/types';
-import MenuBlock from './MenuBlock';
-import { MenuItem } from './MenuItem';
-import { MenuExternalLink } from './MenuExternalLink';
+import * as React from 'react';
 import {
+  getOpenChainFromPath,
   isDocsNavigationBlock,
-  isDocsNavigationExternalLink,
-  getOpenChainFromPath
+  isDocsNavigationExternalLink
 } from '../navTreeUtils';
 import { DocumentationEntry, getNodeFromUrl } from '../utils';
+import MenuBlock from './MenuBlock';
+import { MenuExternalLink } from './MenuExternalLink';
+import { MenuItem } from './MenuItem';
 
 interface Props {
   navigation: DocNavigationItem[];

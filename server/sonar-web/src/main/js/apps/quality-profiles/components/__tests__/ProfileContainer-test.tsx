@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import Helmet from 'react-helmet';
 import { WithRouterProps } from 'react-router';
+import { mockQualityProfile } from '../../../../helpers/testMocks';
+import ProfileHeader from '../../details/ProfileHeader';
 import ProfileContainer from '../ProfileContainer';
 import ProfileNotFound from '../ProfileNotFound';
-import ProfileHeader from '../../details/ProfileHeader';
-import { mockQualityProfile } from '../../../../helpers/testMocks';
 
 const routerProps = { router: {} } as WithRouterProps;
 

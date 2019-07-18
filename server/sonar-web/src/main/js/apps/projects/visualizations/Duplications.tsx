@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import SimpleBubbleChart from './SimpleBubbleChart';
 import { Project } from '../types';
+import SimpleBubbleChart from './SimpleBubbleChart';
 
 interface Props {
   displayOrganizations: boolean;

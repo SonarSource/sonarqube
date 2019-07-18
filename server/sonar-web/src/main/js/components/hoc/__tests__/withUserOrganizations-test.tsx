@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import { withUserOrganizations } from '../withUserOrganizations';
+import * as React from 'react';
 import { mockStore } from '../../../helpers/testMocks';
+import { withUserOrganizations } from '../withUserOrganizations';
 
 jest.mock('../../../api/organizations', () => ({ getOrganizations: jest.fn() }));
 

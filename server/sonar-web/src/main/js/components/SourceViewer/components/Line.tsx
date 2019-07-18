@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
 import { times } from 'lodash';
+import * as React from 'react';
+import './Line.css';
+import LineCode from './LineCode';
+import LineCoverage from './LineCoverage';
+import LineDuplicationBlock from './LineDuplicationBlock';
+import LineDuplications from './LineDuplications';
+import LineIssuesIndicator from './LineIssuesIndicator';
 import LineNumber from './LineNumber';
 import LineSCM from './LineSCM';
-import LineCoverage from './LineCoverage';
-import LineDuplications from './LineDuplications';
-import LineDuplicationBlock from './LineDuplicationBlock';
-import LineIssuesIndicator from './LineIssuesIndicator';
-import LineCode from './LineCode';
-import './Line.css';
 
 interface Props {
   branchLike: T.BranchLike | undefined;

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
-import ActivationFormModal from './ActivationFormModal';
 import { Profile as BaseProfile } from '../../../api/quality-profiles';
+import ActivationFormModal from './ActivationFormModal';
 
 interface Props {
   activation?: T.RuleActivation;

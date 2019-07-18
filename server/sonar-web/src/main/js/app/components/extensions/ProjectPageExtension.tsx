@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Extension from './Extension';
 import NotFound from '../NotFound';
+import Extension from './Extension';
 
 interface Props {
   component: T.Component;

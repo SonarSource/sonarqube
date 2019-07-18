@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import SizeRating from 'sonar-ui-common/components/ui/SizeRating';
-import { getSizeRatingLabel, getSizeRatingAverageValue } from 'sonar-ui-common/helpers/ratings';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getSizeRatingAverageValue, getSizeRatingLabel } from 'sonar-ui-common/helpers/ratings';
+import { Facet } from '../types';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
-import { Facet } from '../types';
 
 export interface Props {
   className?: string;

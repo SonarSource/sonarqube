@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { getWrappedDisplayName } from './utils';
-import { Store, getMyOrganizations } from '../../store/rootReducer';
 import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
+import { getMyOrganizations, Store } from '../../store/rootReducer';
+import { getWrappedDisplayName } from './utils';
 
 interface OwnProps {
   fetchMyOrganizations: () => Promise<void>;

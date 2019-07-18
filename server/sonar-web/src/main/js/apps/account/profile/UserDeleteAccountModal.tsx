@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import InputValidationField from 'sonar-ui-common/components/controls/InputValidationField';
 import ValidationModal from 'sonar-ui-common/components/controls/ValidationModal';
-import UserDeleteAccountContent from './UserDeleteAccountContent';
-import RecentHistory from '../../../app/components/RecentHistory';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { deactivateUser } from '../../../api/users';
+import RecentHistory from '../../../app/components/RecentHistory';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { doLogout } from '../../../store/rootActions';
+import UserDeleteAccountContent from './UserDeleteAccountContent';
 
 interface Values {
   login: string;

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Location } from 'sonar-ui-common/helpers/urls';
-import { parseQuery, areMyIssuesSelected, serializeQuery } from './utils';
+import { areMyIssuesSelected, parseQuery, serializeQuery } from './utils';
 
 function parseHash(hash: string) {
   const query: T.RawQuery = {};

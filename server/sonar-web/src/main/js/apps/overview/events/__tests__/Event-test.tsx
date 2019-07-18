@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import Event from '../Event';
+import * as React from 'react';
 import { RichQualityGateEvent } from '../../../projectActivity/components/RichQualityGateEventInner';
+import Event from '../Event';
 
 const EVENT = { key: '1', category: 'OTHER', name: 'test' };
 const VERSION = { key: '2', category: 'VERSION', name: '6.5-SNAPSHOT' };

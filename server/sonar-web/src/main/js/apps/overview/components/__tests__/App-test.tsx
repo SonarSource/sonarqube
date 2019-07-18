@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import { App } from '../App';
+import * as React from 'react';
 import { isSonarCloud } from '../../../../helpers/system';
+import { App } from '../App';
 
 jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 

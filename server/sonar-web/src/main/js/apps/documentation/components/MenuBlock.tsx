@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import OpenCloseIcon from 'sonar-ui-common/components/icons/OpenCloseIcon';
 import * as classNames from 'classnames';
-import { DocsNavigationBlock, DocNavigationItem } from 'Docs/@types/types';
+import { DocNavigationItem, DocsNavigationBlock } from 'Docs/@types/types';
+import * as React from 'react';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import { MenuItem } from './MenuItem';
+import OpenCloseIcon from 'sonar-ui-common/components/icons/OpenCloseIcon';
 import { isDocsNavigationBlock } from '../navTreeUtils';
 import { DocumentationEntry, getNodeFromUrl } from '../utils';
+import { MenuItem } from './MenuItem';
 
 interface Props {
   block: DocsNavigationBlock;

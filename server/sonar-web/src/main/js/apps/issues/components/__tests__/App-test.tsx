@@ -17,28 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
-import { waitAndUpdate, KEYCODE_MAP, keydown } from 'sonar-ui-common/helpers/testUtils';
-import { App } from '../App';
+import { KEYCODE_MAP, keydown, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
-  mockLoggedInUser,
-  mockRouter,
+  mockComponent,
+  mockCurrentUser,
+  mockEvent,
   mockIssue,
   mockLocation,
-  mockEvent,
-  mockCurrentUser,
+  mockLoggedInUser,
   mockPullRequest,
-  mockComponent
+  mockRouter
 } from '../../../../helpers/testMocks';
 import {
   enableLocationsNavigator,
-  selectNextLocation,
-  selectPreviousLocation,
   selectNextFlow,
-  selectPreviousFlow
+  selectNextLocation,
+  selectPreviousFlow,
+  selectPreviousLocation
 } from '../../actions';
+import { App } from '../App';
 
 jest.mock('sonar-ui-common/helpers/handleRequiredAuthentication', () => ({
   default: jest.fn()

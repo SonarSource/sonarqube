@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { IssueResponse } from '../../../api/issues';
+import { updateIssue } from '../actions';
 import IssueAssign from './IssueAssign';
 import IssueCommentAction from './IssueCommentAction';
 import IssueSeverity from './IssueSeverity';
 import IssueTags from './IssueTags';
 import IssueTransition from './IssueTransition';
 import IssueType from './IssueType';
-import { updateIssue } from '../actions';
-import { IssueResponse } from '../../../api/issues';
 
 interface Props {
   issue: T.Issue;

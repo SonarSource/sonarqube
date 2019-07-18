@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, RedirectFunction } from 'react-router';
+import { RedirectFunction, RouterState } from 'react-router';
+import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import { save } from 'sonar-ui-common/helpers/storage';
 import { isDefined } from 'sonar-ui-common/helpers/types';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import DefaultPageSelectorContainer from './components/DefaultPageSelectorContainer';
 import FavoriteProjectsContainer from './components/FavoriteProjectsContainer';
-import { PROJECTS_DEFAULT_FILTER, PROJECTS_ALL } from './utils';
+import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER } from './utils';
 
 const routes = [
   { indexRoute: { component: DefaultPageSelectorContainer } },

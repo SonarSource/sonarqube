@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import PluginChangeLogItem from './PluginChangeLogItem';
 import { Release, Update } from '../../../api/plugins';
+import PluginChangeLogItem from './PluginChangeLogItem';
 
 export interface Props {
   release: Release;

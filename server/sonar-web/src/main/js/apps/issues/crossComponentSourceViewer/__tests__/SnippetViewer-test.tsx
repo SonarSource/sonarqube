@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { range } from 'lodash';
 import { shallow } from 'enzyme';
-import SnippetViewer from '../SnippetViewer';
+import { range } from 'lodash';
+import * as React from 'react';
 import {
-  mockSourceViewerFile,
-  mockMainBranch,
   mockIssue,
-  mockSourceLine
+  mockMainBranch,
+  mockSourceLine,
+  mockSourceViewerFile
 } from '../../../../helpers/testMocks';
+import SnippetViewer from '../SnippetViewer';
 
 it('should render correctly', () => {
   const snippet = range(5, 8).map(line => mockSourceLine({ line }));

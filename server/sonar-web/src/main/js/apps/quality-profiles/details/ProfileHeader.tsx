@@ -18,19 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link, IndexLink } from 'react-router';
+import { IndexLink, Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import ProfileLink from '../components/ProfileLink';
+import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import ProfileActions from '../components/ProfileActions';
 import ProfileDate from '../components/ProfileDate';
-import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
-import {
-  isStagnant,
-  getProfilesPath,
-  getProfilesForLanguagePath,
-  getProfileChangelogPath
-} from '../utils';
+import ProfileLink from '../components/ProfileLink';
 import { Profile } from '../types';
+import {
+  getProfileChangelogPath,
+  getProfilesForLanguagePath,
+  getProfilesPath,
+  isStagnant
+} from '../utils';
 
 interface Props {
   profile: Profile;

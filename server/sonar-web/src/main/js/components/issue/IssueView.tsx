@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import classNames from 'classnames';
+import * as React from 'react';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
+import { deleteIssueComment, editIssueComment } from '../../api/issues';
 import { updateIssue } from './actions';
-import IssueTitleBar from './components/IssueTitleBar';
 import IssueActionsBar from './components/IssueActionsBar';
 import IssueCommentLine from './components/IssueCommentLine';
-import { deleteIssueComment, editIssueComment } from '../../api/issues';
+import IssueTitleBar from './components/IssueTitleBar';
 
 interface Props {
   branchLike?: T.BranchLike;

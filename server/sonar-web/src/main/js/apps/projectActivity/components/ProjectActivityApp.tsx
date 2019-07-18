@@ -21,13 +21,13 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import ProjectActivityPageHeader from './ProjectActivityPageHeader';
-import ProjectActivityAnalysesList from './ProjectActivityAnalysesList';
-import ProjectActivityGraphs from './ProjectActivityGraphs';
-import { MeasureHistory, Query, ParsedAnalysis } from '../utils';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import { MeasureHistory, ParsedAnalysis, Query } from '../utils';
 import './projectActivity.css';
+import ProjectActivityAnalysesList from './ProjectActivityAnalysesList';
+import ProjectActivityGraphs from './ProjectActivityGraphs';
+import ProjectActivityPageHeader from './ProjectActivityPageHeader';
 
 interface Props {
   addCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import App from './App';
 import { getAppState, Store } from '../../../store/rootReducer';
+import App from './App';
 
 const mapStateToProps = (state: Store) => ({
   canAdmin: getAppState(state).canAdmin

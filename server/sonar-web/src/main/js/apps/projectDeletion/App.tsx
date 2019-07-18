@@ -20,8 +20,8 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Header from './Header';
 import Form from './Form';
+import Header from './Header';
 
 interface Props {
   component: Pick<T.Component, 'key' | 'name' | 'qualifier'>;

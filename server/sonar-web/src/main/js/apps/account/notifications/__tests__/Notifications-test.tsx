@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable import/order */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import { Notifications } from '../Notifications';
+import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { Notifications } from '../Notifications';
 
 jest.mock('../../../../api/notifications', () => ({
   addNotification: jest.fn(() => Promise.resolve()),

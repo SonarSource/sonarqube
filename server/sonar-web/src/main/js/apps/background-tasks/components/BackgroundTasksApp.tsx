@@ -17,31 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { debounce, uniq } from 'lodash';
 import * as React from 'react';
 import Helmet from 'react-helmet';
-import { debounce, uniq } from 'lodash';
 import { connect } from 'react-redux';
-import { parseAsDate } from 'sonar-ui-common/helpers/query';
 import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Header from './Header';
-import Footer from './Footer';
-import Stats from './Stats';
-import Search from './Search';
-import Tasks from './Tasks';
-import { DEFAULT_FILTERS, DEBOUNCE_DELAY, STATUSES, CURRENTS } from '../constants';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { Location, Router } from '../../../components/hoc/withRouter';
+import { parseAsDate } from 'sonar-ui-common/helpers/query';
 import {
-  getTypes,
+  cancelAllTasks,
+  cancelTask as cancelTaskAPI,
   getActivity,
   getStatus,
-  cancelAllTasks,
-  cancelTask as cancelTaskAPI
+  getTypes
 } from '../../../api/ce';
-import { updateTask, mapFiltersToParameters, Query } from '../utils';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import { Location, Router } from '../../../components/hoc/withRouter';
 import { fetchOrganizations } from '../../../store/rootActions';
 import '../background-tasks.css';
+import { CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS, STATUSES } from '../constants';
+import { mapFiltersToParameters, Query, updateTask } from '../utils';
+import Footer from './Footer';
+import Header from './Header';
+import Search from './Search';
+import Stats from './Stats';
+import Tasks from './Tasks';
 
 interface Props {
   component?: Pick<T.Component, 'key'> & { id: string }; // id should be removed when api/ce/activity accept a component key instead of an id

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as classNames from 'classnames';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import * as classNames from 'classnames';
 import GenericAvatar from 'sonar-ui-common/components/ui/GenericAvatar';
 import { getGlobalSettingValue, Store } from '../../store/rootReducer';
 

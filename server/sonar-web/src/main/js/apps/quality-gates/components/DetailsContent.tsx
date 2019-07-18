@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import Conditions from './Conditions';
 import Projects from './Projects';
-import DocTooltip from '../../../components/docs/DocTooltip';
 
 interface Props {
   isDefault?: boolean;

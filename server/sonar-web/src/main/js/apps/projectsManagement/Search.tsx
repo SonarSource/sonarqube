@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { sortBy } from 'lodash';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import Select from 'sonar-ui-common/components/controls/Select';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Project } from '../../api/components';
+import DateInput from '../../components/controls/DateInput';
 import BulkApplyTemplateModal from './BulkApplyTemplateModal';
 import DeleteModal from './DeleteModal';
-import DateInput from '../../components/controls/DateInput';
-import { Project } from '../../api/components';
 
 export interface Props {
   analyzedBefore: Date | undefined;

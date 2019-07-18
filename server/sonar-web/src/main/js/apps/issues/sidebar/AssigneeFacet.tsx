@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { omit, sortBy, without } from 'lodash';
-import { highlightTerm } from 'sonar-ui-common/helpers/search';
+import * as React from 'react';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { searchAssignees, Query, Facet } from '../utils';
-import Avatar from '../../../components/ui/Avatar';
+import { highlightTerm } from 'sonar-ui-common/helpers/search';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import Avatar from '../../../components/ui/Avatar';
 import { isUserActive } from '../../../helpers/users';
+import { Facet, Query, searchAssignees } from '../utils';
 
 interface Props {
   assigned: boolean;

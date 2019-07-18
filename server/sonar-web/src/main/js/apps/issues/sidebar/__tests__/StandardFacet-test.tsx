@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
-import StandardFacet from '../StandardFacet';
-import { Query } from '../../utils';
 import { getStandards } from '../../../../helpers/security-standard';
+import { Query } from '../../utils';
+import StandardFacet from '../StandardFacet';
 
 jest.mock('../../../../helpers/security-standard', () => ({
   ...require.requireActual('../../../../helpers/security-standard'),

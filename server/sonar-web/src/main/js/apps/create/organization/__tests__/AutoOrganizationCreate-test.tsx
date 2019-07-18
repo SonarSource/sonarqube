@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import { waitAndUpdate, click } from 'sonar-ui-common/helpers/testUtils';
+import * as React from 'react';
+import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { bindAlmOrganization } from '../../../../api/alm-integration';
+import { mockAlmApplication, mockAlmOrganization } from '../../../../helpers/testMocks';
 import AutoOrganizationCreate from '../AutoOrganizationCreate';
 import { Step } from '../utils';
-import { bindAlmOrganization } from '../../../../api/alm-integration';
-import { mockAlmOrganization, mockAlmApplication } from '../../../../helpers/testMocks';
 
 jest.mock('../../../../api/alm-integration', () => ({
   bindAlmOrganization: jest.fn().mockResolvedValue({})

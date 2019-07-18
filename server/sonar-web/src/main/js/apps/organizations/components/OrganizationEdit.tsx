@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { debounce } from 'lodash';
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import { debounce } from 'lodash';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import OrganizationBind from './OrganizationBind';
-import OrganizationDelete from './OrganizationDelete';
-import { updateOrganization } from '../actions';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
+import { updateOrganization } from '../actions';
+import OrganizationBind from './OrganizationBind';
+import OrganizationDelete from './OrganizationDelete';
 
 interface DispatchProps {
   updateOrganization: (organization: string, changes: T.OrganizationBase) => Promise<any>;

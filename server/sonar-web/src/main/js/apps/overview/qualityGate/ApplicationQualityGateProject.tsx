@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
+import * as React from 'react';
 import { Link } from 'react-router';
 import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { ApplicationProject, ConditionAnalysis } from '../../../api/quality-gates';
 import { isDiffMetric } from '../../../helpers/measures';
 import { getProjectUrl } from '../../../helpers/urls';
 import './ApplicationQualityGateProject.css';
-import { ApplicationProject, ConditionAnalysis } from '../../../api/quality-gates';
 
 interface Props {
   metrics: T.Dict<T.Metric>;

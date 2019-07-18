@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { mount } from 'enzyme';
+import * as React from 'react';
 import { A11ySkipTargetInner } from '../A11ySkipTarget';
 
 it('should render correctly, and (un)register the link when (un)mounted', () => {

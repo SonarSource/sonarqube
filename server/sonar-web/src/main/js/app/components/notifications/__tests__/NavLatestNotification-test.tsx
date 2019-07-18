@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
-import NavLatestNotification from '../NavLatestNotification';
 import { PrismicFeatureNews } from '../../../../api/news';
+import NavLatestNotification from '../NavLatestNotification';
 
 it('should render correctly if there are new features, and the user has not opted out', () => {
   const wrapper = shallowRender();

@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import * as classNames from 'classnames';
+import * as React from 'react';
 import IssueIcon from 'sonar-ui-common/components/icons/IssueIcon';
 import { sortByType } from '../../../helpers/issues';
 

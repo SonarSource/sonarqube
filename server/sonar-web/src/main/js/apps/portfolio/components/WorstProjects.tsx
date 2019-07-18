@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import { Link } from 'react-router';
 import { max } from 'lodash';
+import * as React from 'react';
+import { Link } from 'react-router';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import { SubComponent } from '../types';
 import { colors } from '../../../app/theme';
 import Measure from '../../../components/measure/Measure';
 import { getProjectUrl } from '../../../helpers/urls';
+import { SubComponent } from '../types';
 
 interface Props {
   component: string;

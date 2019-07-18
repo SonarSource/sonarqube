@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ClearButton } from 'sonar-ui-common/components/controls/buttons';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { colors } from '../../../app/theme';
 import { getAppState, Store } from '../../../store/rootReducer';
 

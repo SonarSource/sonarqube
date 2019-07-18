@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import ProjectOverviewFacet from './ProjectOverviewFacet';
-import DomainFacet from './DomainFacet';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import { groupByDomains, KNOWN_DOMAINS, PROJECT_OVERVEW, Query } from '../utils';
+import DomainFacet from './DomainFacet';
+import ProjectOverviewFacet from './ProjectOverviewFacet';
 
 interface Props {
   measures: T.MeasureEnhanced[];

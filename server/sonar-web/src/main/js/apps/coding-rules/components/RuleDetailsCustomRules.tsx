@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { sortBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
-import { sortBy } from 'lodash';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
-import CustomRuleButton from './CustomRuleButton';
-import { searchRules, deleteRule } from '../../../api/rules';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { deleteRule, searchRules } from '../../../api/rules';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { getRuleUrl } from '../../../helpers/urls';
+import CustomRuleButton from './CustomRuleButton';
 
 interface Props {
   canChange?: boolean;

@@ -20,8 +20,8 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Projects from './Projects';
 import { getMyProjects } from '../../../api/components';
+import Projects from './Projects';
 
 interface State {
   loading: boolean;

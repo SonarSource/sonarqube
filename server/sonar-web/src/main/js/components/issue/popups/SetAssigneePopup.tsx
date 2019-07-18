@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { map } from 'lodash';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
+import * as React from 'react';
 import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
-import Avatar from '../../ui/Avatar';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { searchMembers } from '../../../api/organizations';
+import { searchUsers } from '../../../api/users';
+import { isSonarCloud } from '../../../helpers/system';
+import { isLoggedIn, isUserActive } from '../../../helpers/users';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 import { withCurrentUser } from '../../hoc/withCurrentUser';
-import { searchMembers } from '../../../api/organizations';
-import { searchUsers } from '../../../api/users';
-import { isLoggedIn, isUserActive } from '../../../helpers/users';
-import { isSonarCloud } from '../../../helpers/system';
+import Avatar from '../../ui/Avatar';
 
 interface Props {
   currentUser: T.CurrentUser;
