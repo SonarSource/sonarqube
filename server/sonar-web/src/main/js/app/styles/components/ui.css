@@ -65,3 +65,19 @@
   font-size: var(--smallFontSize);
   color: #fff;
 }
+
+.analysis-version {
+  display: inline-block;
+  vertical-align: middle;
+  height: 20px;
+  padding: 0 8px;
+  background-color: var(--blue);
+  border-radius: 2px;
+  line-height: 20px;
+  font-size: var(--smallFontSize);
+  color: var(--sonarcloudBlack100);
+  white-space: nowrap;
+  text-align: center;
+  font-weight: bold;
+  letter-spacing: 0;
+}

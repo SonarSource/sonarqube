@@ -32,7 +32,7 @@ export default function Event({ event }: Props) {
   if (event.category === 'VERSION') {
     return (
       <span
-        className="overview-analysis-event badge"
+        className="overview-analysis-event analysis-version"
         title={`${translate('version')} ${event.name}`}>
         {event.name}
       </span>

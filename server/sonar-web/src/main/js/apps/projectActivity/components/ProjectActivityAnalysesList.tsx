@@ -197,7 +197,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
                   <Tooltip
                     mouseEnterDelay={0.5}
                     overlay={`${translate('version')} ${version.version}`}>
-                    <span className="badge">{version.version}</span>
+                    <span className="analysis-version">{version.version}</span>
                   </Tooltip>
                 </div>
               )}

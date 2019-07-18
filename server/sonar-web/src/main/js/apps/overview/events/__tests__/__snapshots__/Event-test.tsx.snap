@@ -2,7 +2,7 @@
 
 exports[`should render a version correctly 1`] = `
 <span
-  className="overview-analysis-event badge"
+  className="overview-analysis-event analysis-version"
   title="version 6.5-SNAPSHOT"
 >
   6.5-SNAPSHOT

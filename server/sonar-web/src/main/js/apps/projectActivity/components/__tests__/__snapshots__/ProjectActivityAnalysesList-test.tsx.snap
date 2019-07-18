@@ -21,7 +21,7 @@ exports[`should correctly filter analyses by category 1`] = `
         overlay="version 6.4"
       >
         <span
-          className="badge"
+          className="analysis-version"
         >
           6.4
         </span>
@@ -100,7 +100,7 @@ exports[`should correctly filter analyses by date range 1`] = `
         overlay="version 6.5-SNAPSHOT"
       >
         <span
-          className="badge"
+          className="analysis-version"
         >
           6.5-SNAPSHOT
         </span>
@@ -179,7 +179,7 @@ exports[`should render correctly 1`] = `
         overlay="version 6.5-SNAPSHOT"
       >
         <span
-          className="badge"
+          className="analysis-version"
         >
           6.5-SNAPSHOT
         </span>
@@ -265,7 +265,7 @@ exports[`should render correctly 1`] = `
         overlay="version 6.4"
       >
         <span
-          className="badge"
+          className="analysis-version"
         >
           6.4
         </span>

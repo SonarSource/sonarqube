@@ -215,12 +215,9 @@
   padding-top: 36px;
 }
 
-.project-activity-version-badge .badge {
+.project-activity-version-badge .analysis-version {
   max-width: 385px;
   border-radius: 0 2px 2px 0;
-  font-weight: bold;
-  font-size: var(--smallFontSize);
-  letter-spacing: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
