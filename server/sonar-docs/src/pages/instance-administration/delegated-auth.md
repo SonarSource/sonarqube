@@ -181,7 +181,7 @@ Property|Description|Default value|Required|Example for Active Directory
 `ldap.user.emailAttribute`|Attribute in LDAP defining the user’s email.|`mail`|No| 
 
 **Group Mapping**
-Only [groups](http://identitycontrol.blogspot.fr/2007/07/static-vs-dynamic-ldap-groups.html) are supported (not [roles](http://identitycontrol.blogspot.fr/2007/07/static-vs-dynamic-ldap-groups.html)). Only [static groups](http://identitycontrol.blogspot.fr/2007/07/static-vs-dynamic-ldap-groups.html) are supported (not [dynamic groups](http://identitycontrol.blogspot.fr/2007/07/static-vs-dynamic-ldap-groups.html)).
+Only groups (not roles) and static groups (not dynamic groups) are supported. Click [here](http://identitycontrol.blogspot.fr/2007/07/static-vs-dynamic-ldap-groups.html) for more information.
 
 For the delegation of authorization, [groups must be first defined in SonarQube](/instance-administration/security/). Then, the following properties must be defined to allow SonarQube to automatically synchronize the relationships between users and groups.
 
@@ -247,10 +247,3 @@ Note that all the LDAP servers must be available while (re)starting the SonarQub
 
 * Time out when running SonarQube analysis using LDAP
 Java parameters are documented here: http://docs.oracle.com/javase/jndi/tutorial/ldap/connect/config.html. Such parameters can be set in `sonar.web.javaAdditionalOpts` in _$SONARQUBE-HOME/conf/sonar.properties_.
-
-* Kerberos Troubleshooting resources
-   * [Enabling Kerberos Logging](http://support.microsoft.com/kb/262177/en-us)
-   * [Troubleshooting Kerberos Delegation](https://gallery.technet.microsoft.com/Troubleshooting-Kerberos-72837743)
-* Troubleshooting NTLM
-   * [Enabling NTLM Logging](http://blogs.technet.com/b/askds/archive/2009/10/08/ntlm-blocking-and-you-application-analysis-and-auditing-methodologies-in-windows-7.aspx)
-
