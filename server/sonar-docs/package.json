@@ -37,7 +37,7 @@
     "enzyme-adapter-react-16": "1.14.0",
     "enzyme-to-json": "3.3.5",
     "eslint": "5.16.0",
-    "eslint-config-sonarqube": "0.5.0",
+    "eslint-config-sonarqube": "0.5.1",
     "eslint-plugin-import": "2.18.0",
     "eslint-plugin-jsx-a11y": "6.2.1",
     "eslint-plugin-promise": "4.1.1",

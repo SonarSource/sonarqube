@@ -4146,10 +4146,10 @@ eslint-config-react-app@^3.0.0:
   dependencies:
     confusing-browser-globals "^1.0.6"
 
-eslint-config-sonarqube@0.5.0:
-  version "0.5.0"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/eslint-config-sonarqube/-/eslint-config-sonarqube-0.5.0.tgz#8b06475a46fe4a58c527894ab79e07acd8d8c345"
-  integrity sha1-iwZHWkb+SljFJ4lKt54HrNjYw0U=
+eslint-config-sonarqube@0.5.1:
+  version "0.5.1"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/eslint-config-sonarqube/-/eslint-config-sonarqube-0.5.1.tgz#787f7226aea228fcc299dd996d1cc07e2c9f786b"
+  integrity sha1-eH9yJq6iKPzCmd2ZbRzAfiyfeGs=
 
 eslint-import-resolver-node@^0.3.2:
   version "0.3.2"
