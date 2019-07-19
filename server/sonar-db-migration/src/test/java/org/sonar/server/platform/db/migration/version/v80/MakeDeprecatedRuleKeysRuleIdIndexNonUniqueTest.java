@@ -19,15 +19,24 @@
  */
 package org.sonar.server.platform.db.migration.version.v80;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-public class DbVersion80 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(3000, "Set Organizations#guarded column nullable", MakeOrganizationsGuardedNullable.class)
-      .add(3001, "Create ProjectQualityGates table", CreateProjectQualityGatesTable.class)
-      .add(3002, "Make index on DEPRECATED_RULE_KEYS.RULE_ID non unique", MakeDeprecatedRuleKeysRuleIdIndexNonUnique.class);
+public class MakeDeprecatedRuleKeysRuleIdIndexNonUniqueTest {
+
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(MakeDeprecatedRuleKeysRuleIdIndexNonUniqueTest.class, "deprecated_rule_keys.sql");
+
+  private MakeDeprecatedRuleKeysRuleIdIndexNonUnique underTest = new MakeDeprecatedRuleKeysRuleIdIndexNonUnique(db.database());
+
+  @Test
+  public void execute_makes_index_non_unique() throws SQLException {
+    db.assertUniqueIndex("deprecated_rule_keys", "rule_id_deprecated_rule_keys", "rule_id");
+
+    underTest.execute();
+
+    db.assertIndex("deprecated_rule_keys", "rule_id_deprecated_rule_keys", "rule_id");
   }
 }
