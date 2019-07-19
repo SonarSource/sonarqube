@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -106,6 +107,51 @@ public class SelectActionTest {
   }
 
   @Test
+  public void change_quality_gate_for_project() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    QGateWithOrgDto initialQualityGate = db.qualityGates().insertQualityGate(organization);
+    QGateWithOrgDto secondQualityGate = db.qualityGates().insertQualityGate(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
+
+    ws.newRequest()
+      .setParam("gateId", initialQualityGate.getId().toString())
+      .setParam("projectKey", project.getKey())
+      .setParam("organization", organization.getKey())
+      .execute();
+
+    ws.newRequest()
+      .setParam("gateId", secondQualityGate.getId().toString())
+      .setParam("projectKey", project.getKey())
+      .setParam("organization", organization.getKey())
+      .execute();
+
+    assertSelected(secondQualityGate, project);
+  }
+
+  @Test
+  public void select_same_quality_gate_for_project_twice() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    QGateWithOrgDto initialQualityGate = db.qualityGates().insertQualityGate(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
+
+    ws.newRequest()
+      .setParam("gateId", initialQualityGate.getId().toString())
+      .setParam("projectKey", project.getKey())
+      .setParam("organization", organization.getKey())
+      .execute();
+
+    ws.newRequest()
+      .setParam("gateId", initialQualityGate.getId().toString())
+      .setParam("projectKey", project.getKey())
+      .setParam("organization", organization.getKey())
+      .execute();
+
+    assertSelected(initialQualityGate, project);
+  }
+
+  @Test
   public void project_admin() {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
@@ -179,7 +225,7 @@ public class SelectActionTest {
     expectedException.expect(NotFoundException.class);
 
     ws.newRequest()
-      .setParam("gateId", String.valueOf("1"))
+      .setParam("gateId", "1")
       .setParam("projectKey", project.getKey())
       .setParam("organization", organization.getKey())
       .execute();
@@ -296,6 +342,11 @@ public class SelectActionTest {
 
   private void assertSelected(QualityGateDto qualityGate, ComponentDto project) {
     assertThat(dbClient.propertiesDao().selectProjectProperty(project.getId(), SONAR_QUALITYGATE_PROPERTY).getValue()).isEqualTo(qualityGate.getId().toString());
+    Optional<String> qGateUuid = db.qualityGates().selectQGateUuidByComponentUuid(project.uuid());
+    assertThat(qGateUuid)
+      .isNotNull()
+      .isNotEmpty()
+      .hasValue(qualityGate.getUuid());
   }
 
 }

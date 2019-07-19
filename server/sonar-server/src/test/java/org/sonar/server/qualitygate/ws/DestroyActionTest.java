@@ -119,6 +119,11 @@ public class DestroyActionTest {
       .isEmpty();
     assertThat(db.getDbClient().propertiesDao().selectProjectProperties(prj2.getDbKey()))
       .isEmpty();
+
+    assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByComponentUuid(dbSession, prj1.uuid()))
+      .isEmpty();
+    assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByComponentUuid(dbSession, prj2.uuid()))
+      .isEmpty();
   }
 
   @Test

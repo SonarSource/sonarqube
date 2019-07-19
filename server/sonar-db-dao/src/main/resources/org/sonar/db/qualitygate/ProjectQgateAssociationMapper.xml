@@ -36,4 +36,46 @@
     </where>
   </select>
 
+  <select id="selectQGateUuidByComponentUuid" parameterType="String" resultType="string">
+    SELECT quality_gate_uuid
+    FROM project_qgates
+    <where>
+      AND project_uuid=#{componentUuid}
+    </where>
+  </select>
+
+  <delete id="deleteByProjectUuid" parameterType="String">
+    DELETE
+    FROM project_qgates
+    WHERE
+    project_uuid=#{uuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteByQGateUuid" parameterType="String">
+    DELETE
+    FROM project_qgates
+    WHERE
+    quality_gate_uuid=#{uuid,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insertProjectQGateAssociation" parameterType="map">
+    INSERT into project_qgates
+    (
+    project_uuid,
+    quality_gate_uuid
+    )
+    VALUES (
+    #{projectUuid,jdbcType=VARCHAR},
+    #{qGateUuid,jdbcType=VARCHAR}
+    )
+  </insert>
+
+  <update id="updateProjectQGateAssociation" parameterType="map">
+    UPDATE project_qgates
+    SET
+    quality_gate_uuid=#{qGateUuid,jdbcType=VARCHAR}
+    WHERE
+    project_uuid = #{projectUuid,jdbcType=VARCHAR}
+  </update>
+
 </mapper>

@@ -77,17 +77,17 @@ public class ProjectQgateAssociationDaoTest {
       .qualityGate(qualityGate)
       .membership(ProjectQgateAssociationQuery.IN)
       .build()))
-        .extracting(ProjectQgateAssociationDto::getId, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
-        .containsExactlyInAnyOrder(
-          tuple(project1.getId(), project1.name(), qualityGate.getId().toString()),
-          tuple(project2.getId(), project2.name(), qualityGate.getId().toString()));
+      .extracting(ProjectQgateAssociationDto::getId, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
+      .containsExactlyInAnyOrder(
+        tuple(project1.getId(), project1.name(), qualityGate.getId().toString()),
+        tuple(project2.getId(), project2.name(), qualityGate.getId().toString()));
 
     assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate)
       .membership(ProjectQgateAssociationQuery.OUT)
       .build()))
-        .extracting(ProjectQgateAssociationDto::getId, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
-        .containsExactlyInAnyOrder(tuple(project3.getId(), project3.name(), null));
+      .extracting(ProjectQgateAssociationDto::getId, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
+      .containsExactlyInAnyOrder(tuple(project3.getId(), project3.name(), null));
   }
 
   @Test
@@ -104,15 +104,15 @@ public class ProjectQgateAssociationDaoTest {
       .qualityGate(qualityGate)
       .projectSearch("one")
       .build()))
-        .extracting(ProjectQgateAssociationDto::getId)
-        .containsExactlyInAnyOrder(project1.getId());
+      .extracting(ProjectQgateAssociationDto::getId)
+      .containsExactlyInAnyOrder(project1.getId());
 
     assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate)
       .projectSearch("project")
       .build()))
-        .extracting(ProjectQgateAssociationDto::getId)
-        .containsExactlyInAnyOrder(project1.getId(), project2.getId(), project3.getId());
+      .extracting(ProjectQgateAssociationDto::getId)
+      .containsExactlyInAnyOrder(project1.getId(), project2.getId(), project3.getId());
   }
 
   @Test
@@ -126,8 +126,8 @@ public class ProjectQgateAssociationDaoTest {
     assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate)
       .build()))
-        .extracting(ProjectQgateAssociationDto::getId)
-        .containsExactly(project1.getId(), project3.getId(), project2.getId());
+      .extracting(ProjectQgateAssociationDto::getId)
+      .containsExactly(project1.getId(), project3.getId(), project2.getId());
   }
 
   @Test
@@ -174,4 +174,63 @@ public class ProjectQgateAssociationDaoTest {
     assertThat(result).contains(qualityGate1.getId());
   }
 
+  @Test
+  public void select_qgate_uuid_by_component_uuid() {
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
+
+    db.qualityGates().associateProjectToQualityGate(project, qualityGate);
+
+    Optional<String> qGateUuid = underTest.selectQGateUuidByComponentUuid(dbSession, project.uuid());
+
+    assertThat(qGateUuid).contains(qualityGate.getUuid());
+  }
+
+
+  @Test
+  public void delete_by_project_uuid() {
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
+
+    db.qualityGates().associateProjectToQualityGate(project, qualityGate);
+
+    underTest.deleteByProjectUuid(dbSession, project.uuid());
+
+    Optional<String> deletedQualityGate = db.qualityGates().selectQGateUuidByComponentUuid(project.uuid());
+
+    assertThat(deletedQualityGate).isEmpty();
+  }
+
+  @Test
+  public void delete_by_qgate_uuid() {
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
+
+    db.qualityGates().associateProjectToQualityGate(project, qualityGate);
+
+    underTest.deleteByQGateUuid(dbSession, qualityGate.getUuid());
+
+    Optional<String> deletedQualityGate = db.qualityGates().selectQGateUuidByComponentUuid(project.uuid());
+
+    assertThat(deletedQualityGate).isEmpty();
+  }
+
+  @Test
+  public void update_project_qgate_association() {
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto firstQualityGate = db.qualityGates().insertQualityGate(organization);
+    QGateWithOrgDto secondQualityGate = db.qualityGates().insertQualityGate(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
+
+    db.qualityGates().associateProjectToQualityGate(project, firstQualityGate);
+
+    underTest.updateProjectQGateAssociation(dbSession, project.uuid(), secondQualityGate.getUuid());
+
+    Optional<String> updatedQualityGateUuid = db.qualityGates().selectQGateUuidByComponentUuid(project.uuid());
+
+    assertThat(updatedQualityGateUuid).contains(secondQualityGate.getUuid());
+  }
 }

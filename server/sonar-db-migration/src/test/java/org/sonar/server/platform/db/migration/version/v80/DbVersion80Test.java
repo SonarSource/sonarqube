@@ -21,7 +21,6 @@ package org.sonar.server.platform.db.migration.version.v80;
 
 import org.junit.Test;
 import org.sonar.server.platform.db.migration.version.DbVersion;
-import org.sonar.server.platform.db.migration.version.v79.DbVersion79;
 
 import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
 import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
@@ -36,7 +35,7 @@ public class DbVersion80Test {
 
   @Test
   public void verify_migration_count() {
-    verifyMigrationCount(underTest, 1);
+    verifyMigrationCount(underTest, 2);
   }
 
 }

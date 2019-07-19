@@ -72,6 +72,7 @@ public class DestroyAction implements QualityGatesWsAction {
       wsSupport.checkCanEdit(qualityGate);
 
       dbClient.propertiesDao().deleteByKeyAndValue(dbSession, SONAR_QUALITYGATE_PROPERTY, String.valueOf(qualityGate.getId()));
+      dbClient.projectQgateAssociationDao().deleteByQGateUuid(dbSession, qualityGate.getUuid());
       dbClient.qualityGateDao().delete(qualityGate, dbSession);
       dbSession.commit();
       response.noContent();

@@ -89,6 +89,7 @@ public class DeselectAction implements QualityGatesWsAction {
   private void dissociateProject(DbSession dbSession, OrganizationDto organization, ComponentDto project) {
     wsSupport.checkCanAdminProject(organization, project);
     dbClient.propertiesDao().deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, project.getId(), dbSession);
+    dbClient.projectQgateAssociationDao().deleteByProjectUuid(dbSession, project.uuid());
     dbSession.commit();
   }
 
@@ -106,7 +107,7 @@ public class DeselectAction implements QualityGatesWsAction {
 
     try {
       long dbId = Long.parseLong(projectId);
-      return Optional.ofNullable(dbClient.componentDao().selectById(dbSession, dbId).orElse(null));
+      return dbClient.componentDao().selectById(dbSession, dbId);
     } catch (NumberFormatException e) {
       return Optional.empty();
     }

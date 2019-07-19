@@ -21,6 +21,7 @@ package org.sonar.db.qualitygate;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 import java.util.function.Consumer;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -74,6 +75,9 @@ public class QualityGateDbTester {
       .setKey("sonar.qualitygate")
       .setResourceId(component.getId())
       .setValue(String.valueOf(qualityGate.getId())));
+
+    dbClient.projectQgateAssociationDao().insertProjectQGateAssociation(dbSession, component.uuid(), qualityGate.getUuid());
+
     db.commit();
   }
 
@@ -104,5 +108,9 @@ public class QualityGateDbTester {
     dbClient.gateConditionDao().insert(condition, dbSession);
     db.commit();
     return condition;
+  }
+
+  public Optional<String> selectQGateUuidByComponentUuid(String uuid) {
+    return dbClient.projectQgateAssociationDao().selectQGateUuidByComponentUuid(dbSession, uuid);
   }
 }

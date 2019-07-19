@@ -56,4 +56,6 @@ public interface QualityGateMapper {
   void update(QualityGateDto qGate);
 
   void ensureOneBuiltInQualityGate(String builtInQualityName);
+
+  QualityGateDto selectByProjectUuid(@Param("projectUuid") String projectUuid);
 }

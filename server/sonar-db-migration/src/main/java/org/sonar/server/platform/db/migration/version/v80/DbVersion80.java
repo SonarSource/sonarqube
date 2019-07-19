@@ -26,6 +26,7 @@ public class DbVersion80 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(3000, "Set Organizations#guarded column nullable", MakeOrganizationsGuardedNullable.class);
+      .add(3000, "Set Organizations#guarded column nullable", MakeOrganizationsGuardedNullable.class)
+      .add(3001, "Create ProjectQualityGates table", CreateProjectQualityGatesTable.class);
   }
 }

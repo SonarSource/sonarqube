@@ -31,6 +31,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
 
@@ -99,6 +100,16 @@ public class SelectAction implements QualityGatesWsAction {
         .setResourceId(project.getId())
         .setValue(String.valueOf(qualityGate.getId())));
 
+      QualityGateDto currentQualityGate = dbClient.qualityGateDao().selectByProjectUuid(dbSession, project.uuid());
+      if (currentQualityGate == null) {
+        // project uses the default profile
+        dbClient.projectQgateAssociationDao()
+          .insertProjectQGateAssociation(dbSession, project.uuid(), qualityGate.getUuid());
+      } else if (!qualityGate.getUuid().equals(currentQualityGate.getUuid())) {
+        dbClient.projectQgateAssociationDao()
+          .updateProjectQGateAssociation(dbSession, project.uuid(), qualityGate.getUuid());
+      }
+
       dbSession.commit();
     }
     response.noContent();
@@ -118,7 +129,7 @@ public class SelectAction implements QualityGatesWsAction {
 
     try {
       long dbId = Long.parseLong(projectId);
-      return Optional.ofNullable(dbClient.componentDao().selectById(dbSession, dbId).orElse(null));
+      return dbClient.componentDao().selectById(dbSession, dbId);
     } catch (NumberFormatException e) {
       return Optional.empty();
     }

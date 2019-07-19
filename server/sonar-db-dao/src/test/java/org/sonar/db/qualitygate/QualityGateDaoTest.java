@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
 import static java.lang.String.format;
@@ -108,6 +109,19 @@ public class QualityGateDaoTest {
     insertQualityGates();
     assertThat(underTest.selectById(dbSession, underTest.selectByName(dbSession, "Very strict").getId()).getName()).isEqualTo("Very strict");
     assertThat(underTest.selectById(dbSession, -1L)).isNull();
+  }
+
+  @Test
+  public void select_by_uuid() {
+    QGateWithOrgDto dto = qualityGateDbTester.insertQualityGate(db.getDefaultOrganization(), g -> g.setName("QG Name").setBuiltIn(false));
+    QualityGateDto qualityGateToAssociate = underTest.selectById(dbSession, dto.getId());
+    ComponentDto project = db.components().insertPrivateProject();
+
+    qualityGateDbTester.associateProjectToQualityGate(project, qualityGateToAssociate);
+
+    QualityGateDto qualityGateFromSelect = underTest.selectByProjectUuid(dbSession, project.uuid());
+
+    assertThat(qualityGateFromSelect.getUuid()).isEqualTo(qualityGateToAssociate.getUuid());
   }
 
   @Test

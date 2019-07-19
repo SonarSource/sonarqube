@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -77,7 +78,7 @@ public class DeselectActionTest {
       .setParam("organization", organization.getKey())
       .execute();
 
-    assertDeselected(project.getId());
+    assertDeselected(project);
   }
 
   @Test
@@ -93,7 +94,7 @@ public class DeselectActionTest {
       .setParam("organization", organization.getKey())
       .execute();
 
-    assertDeselected(project.getId());
+    assertDeselected(project);
   }
 
   @Test
@@ -109,7 +110,7 @@ public class DeselectActionTest {
       .setParam("organization", organization.getKey())
       .execute();
 
-    assertDeselected(project.getId());
+    assertDeselected(project);
   }
 
   @Test
@@ -125,7 +126,7 @@ public class DeselectActionTest {
       .setParam("organization", organization.getKey())
       .execute();
 
-    assertDeselected(project.getId());
+    assertDeselected(project);
   }
 
   @Test
@@ -134,7 +135,6 @@ public class DeselectActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     ComponentDto project = db.components().insertPrivateProject(organization);
-    String gateId = valueOf(qualityGate.getId());
     associateProjectToQualityGate(project, qualityGate);
     // Another project
     ComponentDto anotherProject = db.components().insertPrivateProject(organization);
@@ -145,8 +145,8 @@ public class DeselectActionTest {
       .setParam("organization", organization.getKey())
       .execute();
 
-    assertDeselected(project.getId());
-    assertSelected(gateId, anotherProject.getId());
+    assertDeselected(project);
+    assertSelected(qualityGate, anotherProject);
   }
 
   @Test
@@ -161,7 +161,7 @@ public class DeselectActionTest {
       .setParam("projectKey", project.getKey())
       .execute();
 
-    assertDeselected(project.getId());
+    assertDeselected(project);
   }
 
   @Test
@@ -304,14 +304,26 @@ public class DeselectActionTest {
       .setResourceId(project.getId())
       .setValue(qualityGate.getId().toString())
       .setKey(SONAR_QUALITYGATE_PROPERTY));
+    db.qualityGates().associateProjectToQualityGate(project, qualityGate);
     db.commit();
   }
 
-  private void assertDeselected(long projectId) {
-    assertThat(dbClient.propertiesDao().selectProjectProperty(projectId, SONAR_QUALITYGATE_PROPERTY)).isNull();
+  private void assertDeselected(ComponentDto project) {
+    Optional<String> qGateUuid = db.qualityGates().selectQGateUuidByComponentUuid(project.uuid());
+    assertThat(qGateUuid)
+      .isNotNull()
+      .isEmpty();
+
+    assertThat(dbClient.propertiesDao().selectProjectProperty(project.getId(), SONAR_QUALITYGATE_PROPERTY)).isNull();
   }
 
-  private void assertSelected(String qGateId, long projectId) {
-    assertThat(dbClient.propertiesDao().selectProjectProperty(projectId, SONAR_QUALITYGATE_PROPERTY).getValue()).isEqualTo(qGateId);
+  private void assertSelected(QGateWithOrgDto qualityGate, ComponentDto project) {
+    Optional<String> qGateUuid = db.qualityGates().selectQGateUuidByComponentUuid(project.uuid());
+    assertThat(qGateUuid)
+      .isNotNull()
+      .isNotEmpty()
+      .hasValue(qualityGate.getUuid());
+    String qGateId = dbClient.propertiesDao().selectProjectProperty(project.getId(), SONAR_QUALITYGATE_PROPERTY).getValue();
+    assertThat(qGateId).isEqualTo(String.valueOf(qualityGate.getId()));
   }
 }
