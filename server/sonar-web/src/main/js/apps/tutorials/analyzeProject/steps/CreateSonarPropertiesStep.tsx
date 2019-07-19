@@ -84,7 +84,7 @@ sonar.sources=.
           defaultMessage={translate('onboarding.analysis.with.travis.sonar.properties.title')}
           id="onboarding.analysis.with.travis.sonar.properties.title"
           values={{
-            filename: <code className="rule">sonar.properties</code>
+            filename: <code className="rule">sonar-project.properties</code>
           }}
         />
       }

@@ -17,7 +17,7 @@ exports[`should render correctly 1`] = `
           "filename": <code
             className="rule"
           >
-            sonar.properties
+            sonar-project.properties
           </code>,
         }
       }

@@ -56,7 +56,7 @@ export default function EncryptYourTokenStep({
     close();
   };
 
-  const command = `travis encrypt {token}`;
+  const command = `travis encrypt ${token}`;
   const renderCommand = () => (
     <div className="spacer-bottom">
       travis encrypt {token}
