@@ -17,31 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v79;
+package org.sonar.server.platform.db.migration.version.v00;
 
-import org.junit.Test;
+import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
+import org.sonar.server.platform.db.migration.version.DbVersion;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
-
-public class DbVersion79Test {
-  private DbVersion79 underTest = new DbVersion79();
-
-  @Test
-  public void verify_no_support_component() {
-    assertThat(underTest.getSupportComponents()).isEmpty();
+public class DbVersion00 implements DbVersion {
+  @Override
+  public void addSteps(MigrationStepRegistry registry) {
+    registry
+      .add(1, "Create initial schema", CreateInitialSchema.class)
+      .add(2, "Populate initial schema", PopulateInitialSchema.class);
   }
-
-  @Test
-  public void migrationNumber_starts_at_1153() {
-    verifyMinimumMigrationNumber(underTest, 1);
-  }
-
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 2);
-  }
-
-
 }

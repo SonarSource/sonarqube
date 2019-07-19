@@ -28,21 +28,19 @@ import org.apache.commons.lang.StringUtils;
 public class CoreDbTester extends AbstractDbTester<CoreTestDb> {
   private final DefaultOrganizationTesting defaultOrganizationTesting;
 
-  private CoreDbTester(String schemaPath) {
-    super(CoreTestDb.create(schemaPath));
+  private CoreDbTester(CoreTestDb testDb) {
+    super(testDb);
     this.defaultOrganizationTesting = new DefaultOrganizationTesting(this);
   }
 
   public static CoreDbTester createForSchema(Class testClass, String filename) {
     String path = StringUtils.replaceChars(testClass.getCanonicalName(), '.', '/');
     String schemaPath = path + "/" + filename;
-    return new CoreDbTester(schemaPath);
+    return new CoreDbTester(CoreTestDb.create(schemaPath));
   }
 
   public static CoreDbTester createEmpty() {
-    String path = StringUtils.replaceChars(CoreDbTester.class.getCanonicalName(), '.', '/');
-    String schemaPath = path + "/empty.sql";
-    return new CoreDbTester(schemaPath);
+    return new CoreDbTester(CoreTestDb.createEmpty());
   }
 
   @Override

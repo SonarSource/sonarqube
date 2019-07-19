@@ -22,6 +22,7 @@ package org.sonar.db;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -51,7 +52,7 @@ class TestDbImpl extends CoreTestDb {
     this.myBatis = myBatis;
   }
 
-  void init(@Nullable String schemaPath, MyBatisConfExtension[] confExtensions) {
+  private void init(@Nullable String schemaPath, MyBatisConfExtension[] confExtensions) {
     Function<Settings, Database> databaseCreator = settings -> {
       String dialect = settings.getString("sonar.jdbc.dialect");
       if (dialect != null && !"h2".equals(dialect)) {
@@ -59,15 +60,17 @@ class TestDbImpl extends CoreTestDb {
       }
       return new H2Database("h2Tests" + DigestUtils.md5Hex(StringUtils.defaultString(schemaPath)), schemaPath == null);
     };
-    Function<Database, Boolean> schemaPathExecutor = database -> {
-      if (schemaPath != null) {
-        // will fail if not H2
-        if (!database.getDialect().getId().equals("h2")) {
-          return false;
-        }
-        ((H2Database) database).executeScript(schemaPath);
+    Consumer<Database> schemaPathExecutor = database -> {
+      if (schemaPath == null) {
+        return;
       }
-      return true;
+
+      // scripts are assumed to be using H2 specific syntax, ignore the test if not on H2
+      if (!database.getDialect().getId().equals("h2")) {
+        database.stop();
+        throw new AssumptionViolatedException("This test is intended to be run on H2 only");
+      }
+      ((H2Database) database).executeScript(schemaPath);
     };
     BiConsumer<Database, Boolean> createMyBatis = (db, created) -> myBatis = newMyBatis(db, confExtensions);
     init(databaseCreator, schemaPathExecutor, createMyBatis);
@@ -80,7 +83,7 @@ class TestDbImpl extends CoreTestDb {
   }
 
   static TestDbImpl create(@Nullable String schemaPath, MyBatisConfExtension... confExtensions) {
-    MyBatisConfExtension[] extensionArray = confExtensions == null || confExtensions.length == 0 ? null : confExtensions;
+    MyBatisConfExtension[] extensionArray = confExtensions.length == 0 ? null : confExtensions;
     if (schemaPath == null) {
       if (defaultSchemaBaseTestDb == null) {
         defaultSchemaBaseTestDb = new TestDbImpl((String) null);

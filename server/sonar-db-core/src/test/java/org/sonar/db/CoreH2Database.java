@@ -19,20 +19,21 @@
  */
 package org.sonar.db;
 
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.io.output.NullWriter;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.jdbc.ScriptRunner;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 
 import static java.lang.String.format;
 
 /**
- * H2 in-memory database, used for unit tests only.
- *
- * @since 3.2
+ * H2 in-memory database, used for unit tests only against an empty DB or a provided H2 SQL script.
  */
 public class CoreH2Database implements Database {
   private final String name;
@@ -63,16 +64,30 @@ public class CoreH2Database implements Database {
   }
 
   public void executeScript(String classloaderPath) {
-    Connection connection = null;
-    try {
-      connection = datasource.getConnection();
-      CoreDdlUtils.executeScript(connection, classloaderPath);
-
+    try (Connection connection = datasource.getConnection()) {
+      executeScript(connection, classloaderPath);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to execute script: " + classloaderPath, e);
-    } finally {
-      DbUtils.closeQuietly(connection);
     }
+  }
+
+  private static void executeScript(Connection connection, String path) {
+    ScriptRunner scriptRunner = newScriptRunner(connection);
+    try {
+      scriptRunner.runScript(Resources.getResourceAsReader(path));
+      connection.commit();
+
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to restore: " + path, e);
+    }
+  }
+
+  private static ScriptRunner newScriptRunner(Connection connection) {
+    ScriptRunner scriptRunner = new ScriptRunner(connection);
+    scriptRunner.setDelimiter(";");
+    scriptRunner.setStopOnError(true);
+    scriptRunner.setLogWriter(new PrintWriter(new NullWriter()));
+    return scriptRunner;
   }
 
   @Override

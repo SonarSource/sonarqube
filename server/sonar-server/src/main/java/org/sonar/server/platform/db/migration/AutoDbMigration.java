@@ -19,148 +19,28 @@
  */
 package org.sonar.server.platform.db.migration;
 
-import com.google.common.annotations.VisibleForTesting;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import org.apache.commons.dbutils.DbUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.DdlUtils;
-import org.sonar.db.dialect.Dialect;
-import org.sonar.db.dialect.H2;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
-import org.sonar.server.platform.db.migration.step.MigrationSteps;
 
-import static org.sonar.server.property.InternalProperties.INSTALLATION_DATE;
-import static org.sonar.server.property.InternalProperties.INSTALLATION_VERSION;
-
-/**
- * FIXME fix this class to remove use of CoreDdlUtils.createSchema
- */
 public class AutoDbMigration implements Startable {
   private final DefaultServerUpgradeStatus serverUpgradeStatus;
-  private final DbClient dbClient;
   private final MigrationEngine migrationEngine;
-  private final MigrationSteps migrationSteps;
-  private final SonarRuntime sonarRuntime;
-  private final System2 system2;
 
-  public AutoDbMigration(DefaultServerUpgradeStatus serverUpgradeStatus, DbClient dbClient, MigrationEngine migrationEngine, MigrationSteps migrationSteps,
-    SonarRuntime sonarRuntime, System2 system2) {
+  public AutoDbMigration(DefaultServerUpgradeStatus serverUpgradeStatus, MigrationEngine migrationEngine) {
     this.serverUpgradeStatus = serverUpgradeStatus;
-    this.dbClient = dbClient;
     this.migrationEngine = migrationEngine;
-    this.migrationSteps = migrationSteps;
-    this.sonarRuntime = sonarRuntime;
-    this.system2 = system2;
-  }
-
-  private static void populateSchemaMigration(Connection connection, long maxMigrationNumber) {
-    try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES (?)")) {
-      batchExecute(
-        0, maxMigrationNumber + 1,
-        preparedStatement, connection,
-        (statement, counter) -> statement.setString(1, String.valueOf(counter)));
-    } catch (SQLException e) {
-      throw new RuntimeException("Failed to insert rows into table SCHEMA_MIGRATIONS", e);
-    }
-  }
-
-  /**
-   * see SONAR-8586
-   */
-  private static void hackFixForProjectMeasureTreeQueries(Connection connection) {
-    int metricId = 1;
-    try (PreparedStatement preparedStatement = connection.prepareStatement("insert into PROJECT_MEASURES (METRIC_ID,COMPONENT_UUID,ANALYSIS_UUID) values (?,?,?);")) {
-      batchExecute(
-        1, 1000,
-        preparedStatement, connection,
-        (stmt, counter) -> {
-          preparedStatement.setInt(1, metricId);
-          preparedStatement.setString(2, "foo_" + counter);
-          preparedStatement.setString(3, "bar_" + counter);
-        });
-    } catch (SQLException e) {
-      throw new RuntimeException("Failed to insert fake rows into table PROJECT_MEASURES", e);
-    }
-  }
-
-  /**
-   * @param start included
-   * @param end excluded
-   */
-  private static void batchExecute(long start, long end,
-    PreparedStatement preparedStatement, Connection connection,
-    Preparer preparer) throws SQLException {
-    for (long i = start; i < end; i++) {
-      preparer.prepare(preparedStatement, i);
-      preparedStatement.addBatch();
-      if (i % 250 == 0) {
-        preparedStatement.executeBatch();
-        connection.commit();
-      }
-    }
-    preparedStatement.executeBatch();
-    connection.commit();
   }
 
   @Override
   public void start() {
     if (serverUpgradeStatus.isFreshInstall()) {
       Loggers.get(getClass()).info("Automatically perform DB migration on fresh install");
-      Dialect dialect = dbClient.getDatabase().getDialect();
-      if (H2.ID.equals(dialect.getId())) {
-        installH2();
-      } else {
-        migrationEngine.execute();
-      }
+      migrationEngine.execute();
     } else if (serverUpgradeStatus.isUpgraded() && serverUpgradeStatus.isBlueGreen()) {
       Loggers.get(getClass()).info("Automatically perform DB migration on blue/green deployment");
       migrationEngine.execute();
-    }
-  }
-
-  @VisibleForTesting
-  void installH2() {
-    Connection connection = null;
-    try (DbSession session = dbClient.openSession(false)) {
-      connection = session.getConnection();
-      createH2Schema(connection, dbClient.getDatabase().getDialect().getId());
-    } finally {
-      DbUtils.closeQuietly(connection);
-    }
-  }
-
-  @VisibleForTesting
-  protected void createH2Schema(Connection connection, String dialectId) {
-    DdlUtils.createSchema(connection, dialectId, false);
-    populateInstallDateAndVersion(connection);
-    populateSchemaMigration(connection, migrationSteps.getMaxMigrationNumber());
-    hackFixForProjectMeasureTreeQueries(connection);
-  }
-
-  private void populateInstallDateAndVersion(Connection connection) {
-    insertInternalProperty(connection, INSTALLATION_DATE, String.valueOf(system2.now()));
-    insertInternalProperty(connection, INSTALLATION_VERSION, sonarRuntime.getApiVersion().toString());
-  }
-
-  private void insertInternalProperty(Connection connection, String key, String value) {
-    try (PreparedStatement preparedStatementDate = connection
-      .prepareStatement("insert into internal_properties (kee, is_empty, text_value, clob_value, created_at) values (?, ?, ?, ?, ?)")) {
-      preparedStatementDate.setString(1, key);
-      preparedStatementDate.setBoolean(2, false);
-      preparedStatementDate.setString(3, value);
-      preparedStatementDate.setString(4, null);
-      preparedStatementDate.setLong(5, system2.now());
-      preparedStatementDate.execute();
-    } catch (SQLException e) {
-      throw new RuntimeException("Failed to insert internal properties " + key, e);
     }
   }
 
@@ -169,8 +49,4 @@ public class AutoDbMigration implements Startable {
     // nothing to do
   }
 
-  @FunctionalInterface
-  private interface Preparer {
-    void prepare(PreparedStatement statement, long counter) throws SQLException;
-  }
 }

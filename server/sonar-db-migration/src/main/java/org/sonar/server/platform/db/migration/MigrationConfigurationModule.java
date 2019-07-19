@@ -24,7 +24,7 @@ import org.sonar.server.platform.db.migration.history.MigrationHistoryImpl;
 import org.sonar.server.platform.db.migration.history.MigrationHistoryMeddler;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistryImpl;
 import org.sonar.server.platform.db.migration.step.MigrationStepsProvider;
-import org.sonar.server.platform.db.migration.version.v79.DbVersion79;
+import org.sonar.server.platform.db.migration.version.v00.DbVersion00;
 import org.sonar.server.platform.db.migration.version.v80.DbVersion80;
 
 public class MigrationConfigurationModule extends Module {
@@ -32,7 +32,7 @@ public class MigrationConfigurationModule extends Module {
   protected void configureModule() {
     add(
       // DbVersion implementations
-      DbVersion79.class,
+      DbVersion00.class,
       DbVersion80.class,
 
       // migration steps

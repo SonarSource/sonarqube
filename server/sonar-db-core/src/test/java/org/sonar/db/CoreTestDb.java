@@ -26,7 +26,9 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -65,27 +67,35 @@ class CoreTestDb implements TestDb {
   }
 
   static CoreTestDb create(String schemaPath) {
+    requireNonNull(schemaPath, "schemaPath can't be null");
+
     return new CoreTestDb().init(schemaPath);
   }
 
-  private CoreTestDb init(String schemaPath) {
-    requireNonNull(schemaPath, "schemaPath can't be null");
+  static CoreTestDb createEmpty() {
+    return new CoreTestDb().init(null);
+  }
 
+  private CoreTestDb init(@Nullable String schemaPath) {
     Function<Settings, Database> databaseCreator = settings -> {
       String dialect = settings.getString("sonar.jdbc.dialect");
       if (dialect != null && !"h2".equals(dialect)) {
         return new DefaultDatabase(new LogbackHelper(), settings);
       }
-      return new CoreH2Database("h2Tests-" + DigestUtils.md5Hex(schemaPath));
+      return new CoreH2Database("h2Tests-" + (schemaPath == null ?  "empty" : DigestUtils.md5Hex(schemaPath)));
     };
-    Function<Database, Boolean> databaseInitializer = database -> {
-      // will fail if not H2
+    Consumer<Database> databaseInitializer = database -> {
+      if (schemaPath == null) {
+        return;
+      }
+
+      // scripts are assumed to be using H2 specific syntax, ignore the test if not on H2
       if (!database.getDialect().getId().equals("h2")) {
-        return false;
+        database.stop();
+        throw new AssumptionViolatedException("This test is intended to be run on H2 only");
       }
 
       ((CoreH2Database) database).executeScript(schemaPath);
-      return true;
     };
     BiConsumer<Database, Boolean> noPostStartAction = (db, created) -> {
     };
@@ -94,20 +104,17 @@ class CoreTestDb implements TestDb {
     return this;
   }
 
-  protected void init(Function<Settings, Database> databaseSupplier,
-    Function<Database, Boolean> databaseInitializer,
+  protected void init(Function<Settings, Database> databaseCreator,
+    Consumer<Database> databaseInitializer,
     BiConsumer<Database, Boolean> extendedStart) {
     if (db == null) {
       Settings settings = new MapSettings().addProperties(System.getProperties());
       loadOrchestratorSettings(settings);
       logJdbcSettings(settings);
-      db = databaseSupplier.apply(settings);
+      db = databaseCreator.apply(settings);
       db.start();
 
-      if (!databaseInitializer.apply(db)) {
-        db.stop();
-        throw new IllegalStateException("Can't apply init script");
-      }
+      databaseInitializer.accept(db);
       Loggers.get(getClass()).debug("Test Database: " + db);
 
       commands = DatabaseCommands.forDialect(db.getDialect());

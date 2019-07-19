@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
+import org.sonar.server.platform.db.migration.step.MigrationStepsExecutor;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutorImpl;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
@@ -38,14 +39,20 @@ import org.sonar.server.platform.db.migration.version.DbVersion;
  */
 public class MigrationContainerPopulatorImpl implements MigrationContainerPopulator {
   private final DbVersion[] dbVersions;
+  private final Class<? extends MigrationStepsExecutor> executorType;
 
   public MigrationContainerPopulatorImpl(DbVersion... dbVersions) {
+    this(MigrationStepsExecutorImpl.class, dbVersions);
+  }
+
+  protected MigrationContainerPopulatorImpl(Class<? extends MigrationStepsExecutor> executorType, DbVersion... dbVersions) {
     this.dbVersions = dbVersions;
+    this.executorType = executorType;
   }
 
   @Override
   public void populateContainer(MigrationContainer container) {
-    container.add(MigrationStepsExecutorImpl.class);
+    container.add(executorType);
     populateFromDbVersion(container);
     populateFromMigrationSteps(container);
   }

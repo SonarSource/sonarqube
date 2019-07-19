@@ -17,6 +17,7 @@ dependencies {
   compile project(path: ':sonar-plugin-api', configuration: 'shadow')
 
   compile project(':server:sonar-db-core')
+  compile project(':server:sonar-db-migration')
   compile project(':sonar-core')
 
   compileOnly 'com.google.code.findbugs:jsr305'
@@ -43,6 +44,12 @@ dependencies {
 test {
   systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
 }
+
+task dumpSchema(type:JavaExec) {
+    main = 'org.sonar.db.dump.DumpSQSchema'
+    classpath = sourceSets.test.runtimeClasspath
+}
+tasks.check.dependsOn dumpSchema
 
 task testJar(type: Jar) {
   classifier = 'tests'

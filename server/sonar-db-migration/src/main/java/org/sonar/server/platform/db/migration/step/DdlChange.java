@@ -41,7 +41,7 @@ public abstract class DdlChange implements MigrationStep {
   @Override
   public final void execute() throws SQLException {
     try (Connection writeConnection = createDdlConnection()) {
-      Context context = new Context(writeConnection);
+      Context context = new ContextImpl(writeConnection);
       execute(context);
     }
   }
@@ -62,22 +62,31 @@ public abstract class DdlChange implements MigrationStep {
     return db.getDialect();
   }
 
-  public static class Context {
+  public interface Context {
+    void execute(String sql);
+
+    void execute(String... sqls);
+
+    void execute(List<String> sqls);
+  }
+
+  private static class ContextImpl implements Context {
     private static final int ERROR_HANDLING_THRESHOLD = 10;
     // the tricky regexp is required to match "NULL" but not "NOT NULL"
     private final Pattern nullPattern = Pattern.compile("\\h?(?<!NOT )NULL");
     private final Pattern notNullPattern = Pattern.compile("\\h?NOT NULL");
     private final Connection writeConnection;
 
-    public Context(Connection writeConnection) {
+    private ContextImpl(Connection writeConnection) {
       this.writeConnection = writeConnection;
     }
 
-    public void execute(String sql) throws SQLException {
+    @Override
+    public void execute(String sql) {
       execute(sql, sql, 0);
     }
 
-    public void execute(String original, String sql, int errorCount) throws SQLException {
+    private void execute(String original, String sql, int errorCount) {
       try (Statement stmt = writeConnection.createStatement()) {
         stmt.execute(sql);
         writeConnection.commit();
@@ -108,11 +117,13 @@ public abstract class DdlChange implements MigrationStep {
       }
     }
 
-    public void execute(String... sqls) throws SQLException {
+    @Override
+    public void execute(String... sqls) {
       execute(asList(sqls));
     }
 
-    public void execute(List<String> sqls) throws SQLException {
+    @Override
+    public void execute(List<String> sqls) {
       for (String sql : sqls) {
         execute(sql);
       }

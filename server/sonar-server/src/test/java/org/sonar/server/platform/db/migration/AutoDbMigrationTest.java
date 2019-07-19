@@ -19,17 +19,13 @@
  */
 package org.sonar.server.platform.db.migration;
 
-import java.sql.Connection;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -37,13 +33,10 @@ import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
-import org.sonar.server.platform.db.migration.step.MigrationSteps;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -56,28 +49,11 @@ public class AutoDbMigrationTest {
   private DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
   private DefaultServerUpgradeStatus serverUpgradeStatus = mock(DefaultServerUpgradeStatus.class);
   private MigrationEngine migrationEngine = mock(MigrationEngine.class);
-  private MigrationSteps migrationSteps = mock(MigrationSteps.class);
-  private SonarRuntime sonarRuntime = mock(SonarRuntime.class);
-  private System2 system2 = mock(System2.class);
-  private AutoDbMigration underTest = new AutoDbMigration(serverUpgradeStatus, dbClient, migrationEngine, migrationSteps, sonarRuntime, system2);
-
-  private AutoDbMigration noRealH2Creation = spy(new AutoDbMigration(serverUpgradeStatus, dbClient, migrationEngine, migrationSteps, sonarRuntime, system2) {
-    @Override
-    protected void createH2Schema(Connection connection, String dialectId) {
-      // do nothing
-    }
-  });
+  private AutoDbMigration underTest = new AutoDbMigration(serverUpgradeStatus, migrationEngine);
 
   @Test
-  public void start_creates_schema_on_h2_if_fresh_install() {
-    mockDialect(new H2());
-    mockDbClientOpenSession();
-    mockFreshInstall(true);
-
-    noRealH2Creation.start();
-
-    verify(noRealH2Creation).installH2();
-    verifyInfoLog();
+  public void start_runs_MigrationEngine_on_h2_if_fresh_install() {
+    start_runs_MigrationEngine_for_dialect_if_fresh_install(new H2());
   }
 
   @Test
@@ -109,10 +85,8 @@ public class AutoDbMigrationTest {
   public void start_does_nothing_if_not_fresh_install() {
     mockFreshInstall(false);
 
-    noRealH2Creation.start();
+    underTest.start();
 
-    verify(noRealH2Creation).start();
-    verifyNoMoreInteractions(noRealH2Creation);
     verifyZeroInteractions(migrationEngine);
     assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
   }
@@ -152,13 +126,6 @@ public class AutoDbMigrationTest {
 
   private void mockDialect(Dialect dialect) {
     when(dbClient.getDatabase().getDialect()).thenReturn(dialect);
-  }
-
-  private void mockDbClientOpenSession() {
-    Connection connection = mock(Connection.class);
-    DbSession session = mock(DbSession.class);
-    when(session.getConnection()).thenReturn(connection);
-    when(dbClient.openSession(false)).thenReturn(session);
   }
 
   private void verifyInfoLog() {

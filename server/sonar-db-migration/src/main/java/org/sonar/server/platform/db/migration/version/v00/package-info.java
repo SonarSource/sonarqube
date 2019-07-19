@@ -17,24 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+@ParametersAreNonnullByDefault
+package org.sonar.server.platform.db.migration.version.v00;
 
-import org.assertj.core.api.Assertions;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class CoreDdlUtilsTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  @Test
-  public void shouldSupportOnlyH2() {
-    Assertions.assertThat(CoreDdlUtils.supportsDialect("h2")).isTrue();
-    assertThat(CoreDdlUtils.supportsDialect("postgresql")).isFalse();
-    assertThat(CoreDdlUtils.supportsDialect("oracle")).isFalse();
-    assertThat(CoreDdlUtils.supportsDialect("mssql")).isFalse();
-  }
-}

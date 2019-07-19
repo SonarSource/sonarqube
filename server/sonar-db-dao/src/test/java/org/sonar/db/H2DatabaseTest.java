@@ -20,6 +20,7 @@
 package org.sonar.db;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.junit.After;
 import org.junit.Before;
@@ -43,9 +44,19 @@ public class H2DatabaseTest {
   @Test
   public void shouldExecuteDdlAtStartup() throws SQLException {
     Connection connection = db.getDataSource().getConnection();
-    int tableCount = DdlUtilsTest.countTables(connection);
+    int tableCount = countTables(connection);
     connection.close();
 
     assertThat(tableCount).isGreaterThan(30);
+  }
+
+  private static int countTables(Connection connection) throws SQLException {
+    int count = 0;
+    ResultSet resultSet = connection.getMetaData().getTables("", null, null, new String[] {"TABLE"});
+    while (resultSet.next()) {
+      count++;
+    }
+    resultSet.close();
+    return count;
   }
 }

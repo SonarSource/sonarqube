@@ -21,58 +21,65 @@ package org.sonar.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import javax.sql.DataSource;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbutils.DbUtils;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.core.util.logs.Profiler;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
+import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
+import org.sonar.server.platform.db.migration.engine.MigrationContainer;
+import org.sonar.server.platform.db.migration.engine.MigrationContainerImpl;
+import org.sonar.server.platform.db.migration.engine.MigrationContainerPopulator;
+import org.sonar.server.platform.db.migration.engine.MigrationContainerPopulatorImpl;
+import org.sonar.server.platform.db.migration.history.MigrationHistoryTableImpl;
+import org.sonar.server.platform.db.migration.step.MigrationStep;
+import org.sonar.server.platform.db.migration.step.MigrationStepExecutionException;
+import org.sonar.server.platform.db.migration.step.MigrationSteps;
+import org.sonar.server.platform.db.migration.step.MigrationStepsExecutor;
+import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
+import org.sonar.server.platform.db.migration.version.DbVersion;
 
-import static java.lang.String.format;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
- * H2 in-memory database, used for unit tests only.
- *
- * @since 3.2
+ * H2 in-memory database, used for unit tests against an empty DB, a specific script or against SQ schema.
  */
-public class H2Database implements Database {
-  private final String name;
+public class H2Database extends CoreH2Database {
   private final boolean createSchema;
-  private BasicDataSource datasource;
 
   /**
    * IMPORTANT: change DB name in order to not conflict with {@link DefaultDatabaseTest}
    */
   public H2Database(String name, boolean createSchema) {
-    this.name = name;
+    super(name);
     this.createSchema = createSchema;
   }
 
   @Override
   public void start() {
-    startDatabase();
+    super.start();
     if (createSchema) {
       createSchema();
-    }
-  }
-
-  private void startDatabase() {
-    try {
-      datasource = new BasicDataSource();
-      datasource.setDriverClassName("org.h2.Driver");
-      datasource.setUsername("sonar");
-      datasource.setPassword("sonar");
-      datasource.setUrl("jdbc:h2:mem:" + name);
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to start H2", e);
     }
   }
 
   private void createSchema() {
     Connection connection = null;
     try {
-      connection = datasource.getConnection();
-      DdlUtils.createSchema(connection, "h2", true);
-
+      connection = getDataSource().getConnection();
+      NoopH2Database noopH2Database = new NoopH2Database();
+      // create and populate schema
+      createMigrationHistoryTable(noopH2Database);
+      executeDbMigrations(noopH2Database);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to create schema", e);
     } finally {
@@ -80,43 +87,101 @@ public class H2Database implements Database {
     }
   }
 
-  public void executeScript(String classloaderPath) {
-    Connection connection = null;
-    try {
-      connection = datasource.getConnection();
-      CoreDdlUtils.executeScript(connection, classloaderPath);
-
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to execute script: " + classloaderPath, e);
-    } finally {
-      DbUtils.closeQuietly(connection);
+  public static final class H2MigrationContainerPopulator extends MigrationContainerPopulatorImpl {
+    public H2MigrationContainerPopulator(DbVersion... dbVersions) {
+      super(H2StepExecutor.class, dbVersions);
     }
   }
 
-  @Override
-  public void stop() {
-    try {
-      datasource.close();
-    } catch (SQLException e) {
-      // Ignore error
+  public static final class H2StepExecutor implements MigrationStepsExecutor {
+    private static final String STEP_START_PATTERN = "{}...";
+    private static final String STEP_STOP_PATTERN = "{}: {}";
+
+    private final ComponentContainer componentContainer;
+
+    public H2StepExecutor(ComponentContainer componentContainer) {
+      this.componentContainer = componentContainer;
+    }
+
+    @Override
+    public void execute(List<RegisteredMigrationStep> steps) {
+      steps.forEach(step -> execute(step, componentContainer));
+    }
+
+    private void execute(RegisteredMigrationStep step, ComponentContainer componentContainer) {
+      MigrationStep migrationStep = componentContainer.getComponentByType(step.getStepClass());
+      checkState(migrationStep != null, "Can not find instance of " + step.getStepClass());
+
+      execute(step, migrationStep);
+    }
+
+    private void execute(RegisteredMigrationStep step, MigrationStep migrationStep) {
+      Profiler stepProfiler = Profiler.create(Loggers.get(H2Database.class));
+      stepProfiler.startInfo(STEP_START_PATTERN, step);
+      boolean done = false;
+      try {
+        migrationStep.execute();
+        done = true;
+      } catch (Exception e) {
+        throw new MigrationStepExecutionException(step, e);
+      } finally {
+        if (done) {
+          stepProfiler.stopInfo(STEP_STOP_PATTERN, step, "success");
+        } else {
+          stepProfiler.stopError(STEP_STOP_PATTERN, step, "failure");
+        }
+      }
     }
   }
 
-  public DataSource getDataSource() {
-    return datasource;
+  private void executeDbMigrations(NoopH2Database noopH2Database) {
+    ComponentContainer parentContainer = new ComponentContainer();
+    parentContainer.add(noopH2Database);
+    parentContainer.add(H2MigrationContainerPopulator.class);
+    MigrationConfigurationModule migrationConfigurationModule = new MigrationConfigurationModule();
+    migrationConfigurationModule.configure(parentContainer);
+
+    // dependencies required by DB migrations
+    parentContainer.add(SonarRuntimeImpl.forSonarQube(Version.create(8, 0), SonarQubeSide.SERVER, SonarEdition.COMMUNITY));
+    parentContainer.add(UuidFactoryFast.getInstance());
+    parentContainer.add(System2.INSTANCE);
+
+    parentContainer.startComponents();
+
+    MigrationContainer migrationContainer = new MigrationContainerImpl(parentContainer, parentContainer.getComponentByType(MigrationContainerPopulator.class));
+    MigrationSteps migrationSteps = migrationContainer.getComponentByType(MigrationSteps.class);
+    migrationContainer.getComponentByType(MigrationStepsExecutor.class)
+      .execute(migrationSteps.readAll());
   }
 
-  public Dialect getDialect() {
-    return new H2();
+  private void createMigrationHistoryTable(NoopH2Database noopH2Database) {
+    new MigrationHistoryTableImpl(noopH2Database).start();
   }
 
-  @Override
-  public void enableSqlLogging(boolean enable) {
-    throw new UnsupportedOperationException();
-  }
+  private class NoopH2Database implements Database {
+    @Override
+    public DataSource getDataSource() {
+      return H2Database.this.getDataSource();
+    }
 
-  @Override
-  public String toString() {
-    return format("H2 Database[%s]", name);
+    @Override
+    public Dialect getDialect() {
+      return new H2();
+    }
+
+    @Override
+    public void enableSqlLogging(boolean enable) {
+
+    }
+
+    @Override
+    public void start() {
+      // do nothing
+    }
+
+    @Override
+    public void stop() {
+      // do nothing
+    }
   }
 }
