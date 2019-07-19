@@ -30,24 +30,13 @@ import org.apache.ibatis.jdbc.ScriptRunner;
  *
  * @since 2.12
  */
-public final class DdlUtils {
+public final class CoreDdlUtils {
 
-  private DdlUtils() {
+  private CoreDdlUtils() {
   }
 
   public static boolean supportsDialect(String dialect) {
     return "h2".equals(dialect);
-  }
-
-  /**
-   * The connection is commited in this method but not closed.
-   */
-  public static void createSchema(Connection connection, String dialect, boolean createSchemaMigrations) {
-    if (createSchemaMigrations) {
-      executeScript(connection, "org/sonar/db/version/schema_migrations-" + dialect + ".ddl");
-    }
-    executeScript(connection, "org/sonar/db/version/schema-" + dialect + ".ddl");
-    executeScript(connection, "org/sonar/db/version/rows-" + dialect + ".sql");
   }
 
   public static void executeScript(Connection connection, String path) {

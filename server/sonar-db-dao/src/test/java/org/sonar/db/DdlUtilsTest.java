@@ -24,25 +24,12 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import org.assertj.core.api.Assertions;
 import org.h2.Driver;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DdlUtilsTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  @Test
-  public void shouldSupportOnlyH2() {
-    Assertions.assertThat(DdlUtils.supportsDialect("h2")).isTrue();
-    assertThat(DdlUtils.supportsDialect("postgresql")).isFalse();
-    assertThat(DdlUtils.supportsDialect("oracle")).isFalse();
-    assertThat(DdlUtils.supportsDialect("mssql")).isFalse();
-  }
 
   @Test
   public void shouldCreateSchema_with_schema_migrations() throws SQLException {
@@ -88,4 +75,5 @@ public class DdlUtilsTest {
       assertThat(resultSet.next()).isFalse();
     }
   }
+
 }

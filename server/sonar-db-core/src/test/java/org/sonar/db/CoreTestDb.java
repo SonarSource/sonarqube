@@ -23,19 +23,16 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiConsumer;
-import javax.annotation.Nullable;
+import java.util.function.Function;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.IDatabaseTester;
-import org.dbunit.dataset.datatype.IDataTypeFactory;
 import org.junit.AssumptionViolatedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
@@ -44,123 +41,125 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.H2;
 import org.sonar.process.logging.LogbackHelper;
 
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.process.ProcessProperties.Property.JDBC_USERNAME;
 
 /**
  * This class should be call using @ClassRule in order to create the schema once (if @Rule is used
  * the schema will be recreated before each test).
  */
-class CoreTestDb {
-
-  private static CoreTestDb DEFAULT;
-
-  private static final Logger LOG = Loggers.get(CoreTestDb.class);
+class CoreTestDb implements TestDb {
 
   private Database db;
   private DatabaseCommands commands;
   private IDatabaseTester tester;
-  private boolean isDefault;
 
   protected CoreTestDb() {
     // use static factory method
   }
-
-  protected CoreTestDb(CoreTestDb base) {
-    this.db = base.db;
-    this.isDefault = base.isDefault;
-    this.commands = base.commands;
-    this.tester = base.tester;
+  protected CoreTestDb(Database db, DatabaseCommands commands, IDatabaseTester tester) {
+    this.db = db;
+    this.commands = commands;
+    this.tester = tester;
   }
 
-  CoreTestDb init(@Nullable String schemaPath, BiConsumer<Database, Boolean> extendedStart) {
-    if (db == null) {
-      Settings settings = new MapSettings().addProperties(System.getProperties());
-      if (isNotEmpty(settings.getString("orchestrator.configUrl"))) {
-        loadOrchestratorSettings(settings);
-      }
-      String login = settings.getString(JDBC_USERNAME.getKey());
-      for (String key : settings.getKeysStartingWith("sonar.jdbc")) {
-        LOG.info(key + ": " + settings.getString(key));
-      }
+  static CoreTestDb create(String schemaPath) {
+    return new CoreTestDb().init(schemaPath);
+  }
+
+  private CoreTestDb init(String schemaPath) {
+    requireNonNull(schemaPath, "schemaPath can't be null");
+
+    Function<Settings, Database> databaseCreator = settings -> {
       String dialect = settings.getString("sonar.jdbc.dialect");
       if (dialect != null && !"h2".equals(dialect)) {
-        db = new DefaultDatabase(new LogbackHelper(), settings);
-      } else {
-        db = new H2Database("h2Tests" + DigestUtils.md5Hex(StringUtils.defaultString(schemaPath)), schemaPath == null);
+        return new DefaultDatabase(new LogbackHelper(), settings);
       }
+      return new CoreH2Database("h2Tests-" + DigestUtils.md5Hex(schemaPath));
+    };
+    Function<Database, Boolean> databaseInitializer = database -> {
+      // will fail if not H2
+      if (!database.getDialect().getId().equals("h2")) {
+        return false;
+      }
+
+      ((CoreH2Database) database).executeScript(schemaPath);
+      return true;
+    };
+    BiConsumer<Database, Boolean> noPostStartAction = (db, created) -> {
+    };
+
+    init(databaseCreator, databaseInitializer, noPostStartAction);
+    return this;
+  }
+
+  protected void init(Function<Settings, Database> databaseSupplier,
+    Function<Database, Boolean> databaseInitializer,
+    BiConsumer<Database, Boolean> extendedStart) {
+    if (db == null) {
+      Settings settings = new MapSettings().addProperties(System.getProperties());
+      loadOrchestratorSettings(settings);
+      logJdbcSettings(settings);
+      db = databaseSupplier.apply(settings);
       db.start();
-      if (schemaPath != null) {
-        // will fail if not H2
-        if (db.getDialect().getId().equals("h2")) {
-          ((H2Database) db).executeScript(schemaPath);
-        } else {
-          db.stop();
-        }
+
+      if (!databaseInitializer.apply(db)) {
+        db.stop();
+        throw new IllegalStateException("Can't apply init script");
       }
-      isDefault = (schemaPath == null);
-      LOG.debug("Test Database: " + db);
+      Loggers.get(getClass()).debug("Test Database: " + db);
 
       commands = DatabaseCommands.forDialect(db.getDialect());
+      String login = settings.getString(JDBC_USERNAME.getKey());
       tester = new DataSourceDatabaseTester(db.getDataSource(), commands.useLoginAsSchema() ? login : null);
 
       extendedStart.accept(db, true);
     } else {
       extendedStart.accept(db, false);
     }
-    return this;
   }
 
-  static CoreTestDb create(@Nullable String schemaPath) {
-    if (schemaPath == null) {
-      if (DEFAULT == null) {
-        DEFAULT = new CoreTestDb().init(null, (db, created) -> {
-        });
-      }
-      return DEFAULT;
-    }
-    return new CoreTestDb().init(schemaPath, (db, created) -> {
-    });
+  @Override
+  public Database getDatabase() {
+    return db;
   }
 
+  @Override
+  public DatabaseCommands getCommands() {
+    return commands;
+  }
+
+  @Override
+  public IDatabaseTester getDbUnitTester() {
+    return tester;
+  }
+
+  @Override
   public void start() {
-    if (!isDefault && !H2.ID.equals(db.getDialect().getId())) {
+    if (!H2.ID.equals(db.getDialect().getId())) {
       throw new AssumptionViolatedException("Test disabled because it supports only H2");
     }
   }
 
-  void stop() {
-    if (!isDefault) {
-      db.stop();
+  @Override
+  public void stop() {
+    db.stop();
+  }
+
+  private void logJdbcSettings(Settings settings) {
+    Logger logger = Loggers.get(getClass());
+    for (String key : settings.getKeysStartingWith("sonar.jdbc")) {
+      logger.info(key + ": " + settings.getString(key));
     }
   }
 
-  void truncateTables() {
-    try {
-      commands.truncateDatabase(db.getDataSource());
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to truncate db tables", e);
-    }
-  }
-
-  Database getDatabase() {
-    return db;
-  }
-
-  DatabaseCommands getCommands() {
-    return commands;
-  }
-
-  IDatabaseTester getDbUnitTester() {
-    return tester;
-  }
-
-  IDataTypeFactory getDbUnitFactory() {
-    return commands.getDbUnitFactory();
-  }
-
-  private void loadOrchestratorSettings(Settings settings) {
+  private static void loadOrchestratorSettings(Settings settings) {
     String url = settings.getString("orchestrator.configUrl");
+    if (isEmpty(url)) {
+      return;
+    }
+
     InputStream input = null;
     try {
       URI uri = new URI(url);

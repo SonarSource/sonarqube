@@ -76,8 +76,8 @@ import static java.sql.ResultSetMetaData.columnNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
-  protected static final Joiner COMMA_JOINER = Joiner.on(", ");
+public class AbstractDbTester<T extends TestDb> extends ExternalResource {
+  private static final Joiner COMMA_JOINER = Joiner.on(", ");
   protected final T db;
 
   public AbstractDbTester(T db) {

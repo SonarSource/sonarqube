@@ -63,7 +63,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
  * This class should be called using @Rule.
  * Data is truncated between each tests. The schema is created between each test.
  */
-public class DbTester extends AbstractDbTester<TestDb> {
+public class DbTester extends AbstractDbTester<TestDbImpl> {
 
   private final System2 system2;
   private DbClient client;
@@ -96,7 +96,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
   private final InternalComponentPropertyDbTester internalComponentPropertyTester;
 
   private DbTester(System2 system2, @Nullable String schemaPath, MyBatisConfExtension... confExtensions) {
-    super(TestDb.create(schemaPath, confExtensions));
+    super(TestDbImpl.create(schemaPath, confExtensions));
     this.system2 = system2;
 
     initDbClient();
@@ -374,7 +374,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
   }
 
   private static class DbTesterMyBatisConfExtension implements MyBatisConfExtension {
-    // do not replace with a lambda to allow cache of MyBatis instances in TestDb to work
+    // do not replace with a lambda to allow cache of MyBatis instances in TestDbImpl to work
     private final Class<?>[] mapperClasses;
 
     public DbTesterMyBatisConfExtension(Class<?> firstMapperClass, Class<?>... otherMapperClasses) {

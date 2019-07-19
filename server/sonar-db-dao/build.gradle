@@ -21,6 +21,7 @@ dependencies {
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
+  testCompile 'com.h2database:h2'
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'

@@ -24,6 +24,7 @@ dependencies {
   compileOnly 'com.google.code.findbugs:jsr305'
 
   testCompile 'com.google.code.findbugs:jsr305'
+  testCompile 'com.h2database:h2'
   testCompile 'com.microsoft.sqlserver:mssql-jdbc'
   testCompile 'com.oracle.jdbc:ojdbc8'
   testCompile 'com.tngtech.java:junit-dataprovider'

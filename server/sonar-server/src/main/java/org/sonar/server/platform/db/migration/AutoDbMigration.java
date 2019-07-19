@@ -41,7 +41,7 @@ import static org.sonar.server.property.InternalProperties.INSTALLATION_DATE;
 import static org.sonar.server.property.InternalProperties.INSTALLATION_VERSION;
 
 /**
- * FIXME fix this class to remove use of DdlUtils.createSchema
+ * FIXME fix this class to remove use of CoreDdlUtils.createSchema
  */
 public class AutoDbMigration implements Startable {
   private final DefaultServerUpgradeStatus serverUpgradeStatus;

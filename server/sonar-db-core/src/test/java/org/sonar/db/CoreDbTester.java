@@ -19,7 +19,6 @@
  */
 package org.sonar.db;
 
-import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -29,7 +28,7 @@ import org.apache.commons.lang.StringUtils;
 public class CoreDbTester extends AbstractDbTester<CoreTestDb> {
   private final DefaultOrganizationTesting defaultOrganizationTesting;
 
-  private CoreDbTester(@Nullable String schemaPath) {
+  private CoreDbTester(String schemaPath) {
     super(CoreTestDb.create(schemaPath));
     this.defaultOrganizationTesting = new DefaultOrganizationTesting(this);
   }

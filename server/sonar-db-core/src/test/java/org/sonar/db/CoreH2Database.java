@@ -34,25 +34,20 @@ import static java.lang.String.format;
  *
  * @since 3.2
  */
-public class H2Database implements Database {
+public class CoreH2Database implements Database {
   private final String name;
-  private final boolean createSchema;
   private BasicDataSource datasource;
 
   /**
    * IMPORTANT: change DB name in order to not conflict with {@link DefaultDatabaseTest}
    */
-  public H2Database(String name, boolean createSchema) {
+  public CoreH2Database(String name) {
     this.name = name;
-    this.createSchema = createSchema;
   }
 
   @Override
   public void start() {
     startDatabase();
-    if (createSchema) {
-      createSchema();
-    }
   }
 
   private void startDatabase() {
@@ -67,24 +62,11 @@ public class H2Database implements Database {
     }
   }
 
-  private void createSchema() {
-    Connection connection = null;
-    try {
-      connection = datasource.getConnection();
-      DdlUtils.createSchema(connection, "h2", true);
-
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to create schema", e);
-    } finally {
-      DbUtils.closeQuietly(connection);
-    }
-  }
-
   public void executeScript(String classloaderPath) {
     Connection connection = null;
     try {
       connection = datasource.getConnection();
-      DdlUtils.executeScript(connection, classloaderPath);
+      CoreDdlUtils.executeScript(connection, classloaderPath);
 
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to execute script: " + classloaderPath, e);
