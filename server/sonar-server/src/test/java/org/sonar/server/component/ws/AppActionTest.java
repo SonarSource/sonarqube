@@ -169,7 +169,7 @@ public class AppActionTest {
   }
 
   @Test
-  public void get_by_uuid() {
+  public void get_by_component() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, project));
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
@@ -177,7 +177,7 @@ public class AppActionTest {
     userSession.logIn("john").addProjectPermission(USER, project);
 
     String result = ws.newRequest()
-      .setParam("uuid", file.uuid())
+      .setParam("component", file.getDbKey())
       .execute()
       .getInput();
 
@@ -291,39 +291,85 @@ public class AppActionTest {
   @Test
   public void fail_if_no_parameter_provided() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'componentId' or 'component' must be provided");
+    expectedException.expectMessage("The 'component' parameter is missing");
 
     ws.newRequest().execute();
   }
 
   @Test
-  public void fail_if_both_componentId_and_branch_parameters_provided() {
+  public void component_and_branch_parameters_provided() {
     ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn("john").addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Parameter 'componentId' cannot be used at the same time as 'branch' or 'pullRequest'");
-
-    ws.newRequest()
-      .setParam("uuid", file.uuid())
+    String result = ws.newRequest()
+      .setParam("component", file.getDbKey())
       .setParam("branch", file.getBranch())
-      .execute();
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"key\": \"" + file.getKey() + "\",\n" +
+      "  \"branch\": \"" + file.getBranch() + "\",\n" +
+      "  \"uuid\": \"" + file.uuid() + "\",\n" +
+      "  \"path\": \"" + file.path() + "\",\n" +
+      "  \"name\": \"" + file.name() + "\",\n" +
+      "  \"longName\": \"" + file.longName() + "\",\n" +
+      "  \"q\": \"" + file.qualifier() + "\",\n" +
+      "  \"project\": \"" + project.getKey() + "\",\n" +
+      "  \"projectName\": \"" + project.longName() + "\",\n" +
+      "  \"fav\": false,\n" +
+      "  \"canMarkAsFavorite\": true,\n" +
+      "  \"measures\": {}\n" +
+      "}\n");
   }
 
   @Test
-  public void fail_if_both_componentId_and_pull_request_parameters_provided() {
+  public void component_and_pull_request_parameters_provided() {
     ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn("john").addProjectPermission(USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    String result = ws.newRequest()
+      .setParam("component", file.getDbKey())
+      .setParam("pullRequest", file.getPullRequest())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo("{\n" +
+      "  \"key\": \"" + file.getKey() + "\",\n" +
+      "  \"uuid\": \"" + file.uuid() + "\",\n" +
+      "  \"path\": \"" + file.path() + "\",\n" +
+      "  \"name\": \"" + file.name() + "\",\n" +
+      "  \"longName\": \"" + file.longName() + "\",\n" +
+      "  \"q\": \"" + file.qualifier() + "\",\n" +
+      "  \"project\": \"" + project.getKey() + "\",\n" +
+      "  \"projectName\": \"" + project.longName() + "\",\n" +
+      "  \"pullRequest\": \"" + file.getPullRequest() + "\",\n" +
+      "  \"fav\": false,\n" +
+      "  \"canMarkAsFavorite\": true,\n" +
+      "  \"measures\": {}\n" +
+      "}\n");
+  }
+
+  @Test
+  public void fail_if_component_and_pull_request_and_branch_parameters_provided() {
+    ComponentDto project = db.components().insertMainBranch();
+    userSession.logIn("john").addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Parameter 'componentId' cannot be used at the same time as 'branch' or 'pullRequest'");
+    expectedException.expectMessage("Either branch or pull request can be provided, not both");
 
     ws.newRequest()
-      .setParam("uuid", file.uuid())
-      .setParam("pullRequest", file.getPullRequest())
-      .execute();
+      .setParam("component", file.getDbKey())
+      .setParam("branch", "unknown_branch")
+      .setParam("pullRequest", "unknown_component")
+      .execute()
+      .getInput();
   }
 
   @Test
@@ -371,7 +417,21 @@ public class AppActionTest {
     assertThat(action.isInternal()).isTrue();
     assertThat(action.isPost()).isFalse();
     assertThat(action.handler()).isNotNull();
-    assertThat(action.params()).hasSize(4);
+    assertThat(action.responseExampleAsString()).isNotNull();
+
+    assertThat(action.params()).hasSize(3);
+
+    WebService.Param paramComponent = action.param(AppAction.PARAM_COMPONENT);
+    assertThat(paramComponent).isNotNull();
+    assertThat(paramComponent.isRequired()).isTrue();
+
+    WebService.Param paramBranch = action.param(MeasuresWsParameters.PARAM_BRANCH);
+    assertThat(paramBranch).isNotNull();
+    assertThat(paramBranch.isRequired()).isFalse();
+
+    WebService.Param paramPullRequest = action.param(MeasuresWsParameters.PARAM_PULL_REQUEST);
+    assertThat(paramPullRequest).isNotNull();
+    assertThat(paramPullRequest.isRequired()).isFalse();
   }
 
 }

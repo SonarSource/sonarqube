@@ -7,7 +7,6 @@
   "components": [
     {
       "organization": "my-org-1",
-      "id": "directory-uuid",
       "key": "directory-key",
       "qualifier": "DIR",
       "name": "Directory Name",
@@ -15,7 +14,6 @@
     },
     {
       "organization": "my-org-1",
-      "id": "file-uuid",
       "key": "file-key",
       "qualifier": "FIL",
       "name": "File Name",
@@ -24,7 +22,6 @@
     },
     {
       "organization": "my-org-1",
-      "id": "project-uuid",
       "key": "project-key",
       "qualifier": "TRK",
       "name": "Project Name",

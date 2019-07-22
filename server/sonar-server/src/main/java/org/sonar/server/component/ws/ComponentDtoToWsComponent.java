@@ -57,7 +57,6 @@ class ComponentDtoToWsComponent {
   private static Components.Component.Builder componentDtoToWsComponent(ComponentDto dto, String organizationDtoKey, Optional<SnapshotDto> lastAnalysis) {
     Components.Component.Builder wsComponent = Components.Component.newBuilder()
       .setOrganization(organizationDtoKey)
-      .setId(dto.uuid())
       .setKey(dto.getKey())
       .setName(dto.name())
       .setQualifier(dto.qualifier());

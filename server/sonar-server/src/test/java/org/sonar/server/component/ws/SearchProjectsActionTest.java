@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -153,12 +152,7 @@ public class SearchProjectsActionTest {
     assertThat(def.isPost()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
     assertThat(def.params().stream().map(Param::key).collect(toList())).containsOnly("organization", "filter", "facets", "s", "asc", "ps", "p", "f");
-    assertThat(def.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
-      tuple("6.4", "The 'languages' parameter accepts 'filter' to filter by language"),
-      tuple("6.4", "The 'visibility' field is added"),
-      tuple("6.5", "The 'filter' parameter now allows 'NO_DATA' as value for numeric metrics"),
-      tuple("6.5", "Added the option 'analysisDate' for the 'sort' parameter"),
-      tuple("6.5", "Value 'leakPeriodDate' is added to parameter 'f'"));
+    assertThat(def.changelog()).hasSize(1);
 
     Param organization = def.param("organization");
     assertThat(organization.isRequired()).isFalse();
@@ -235,8 +229,8 @@ public class SearchProjectsActionTest {
       .setParam(FACETS, COVERAGE)
       .executeProtobuf(SearchProjectsWsResponse.class);
 
-    assertThat(protobufResult.getComponentsList()).extracting(Component::getId)
-      .containsExactly(project1.uuid(), project2.uuid(), project3.uuid());
+    assertThat(protobufResult.getComponentsList()).extracting(Component::getKey)
+      .containsExactly(project1.getDbKey(), project2.getDbKey(), project3.getDbKey());
   }
 
   @Test

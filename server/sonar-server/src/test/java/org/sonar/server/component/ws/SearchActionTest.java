@@ -117,8 +117,11 @@ public class SearchActionTest {
     assertThat(action.since()).isEqualTo("6.3");
     assertThat(action.isPost()).isFalse();
     assertThat(action.isInternal()).isFalse();
-    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
-      tuple("7.6", "The use of 'BRC' as value for parameter 'qualifiers' is deprecated"));
+    assertThat(action.changelog())
+      .extracting(Change::getVersion, Change::getDescription)
+      .containsExactlyInAnyOrder(
+      tuple("7.6", "The use of 'BRC' as value for parameter 'qualifiers' is deprecated"),
+      tuple("8.0", "Field 'id' from response has been removed"));
     assertThat(action.responseExampleAsString()).isNotEmpty();
 
     assertThat(action.params()).hasSize(6);

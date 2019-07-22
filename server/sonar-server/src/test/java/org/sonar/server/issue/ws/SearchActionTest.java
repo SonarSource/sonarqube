@@ -671,7 +671,7 @@ public class SearchActionTest {
     indexIssues();
 
     TestResponse response = ws.newRequest()
-      .setParam("sort", IssueQuery.SORT_BY_UPDATE_DATE)
+      .setParam("s", IssueQuery.SORT_BY_UPDATE_DATE)
       .setParam("asc", "false")
       .execute();
 

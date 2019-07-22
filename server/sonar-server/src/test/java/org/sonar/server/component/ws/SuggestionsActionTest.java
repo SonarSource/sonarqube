@@ -120,8 +120,7 @@ public class SuggestionsActionTest {
       PARAM_QUERY,
       PARAM_RECENTLY_BROWSED);
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
-      tuple("7.6", "The use of 'BRC' as value for parameter 'more' is deprecated"),
-      tuple("6.4", "Parameter 's' is optional"));
+      tuple("7.6", "The use of 'BRC' as value for parameter 'more' is deprecated"));
 
     WebService.Param recentlyBrowsed = action.param(PARAM_RECENTLY_BROWSED);
     assertThat(recentlyBrowsed.since()).isEqualTo("6.4");

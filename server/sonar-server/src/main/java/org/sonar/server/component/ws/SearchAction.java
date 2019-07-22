@@ -88,7 +88,10 @@ public class SearchAction implements ComponentsWsAction {
       .setSince("6.3")
       .setDescription("Search for components")
       .addPagingParams(100, MAX_LIMIT)
-      .setChangelog(new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_QUALIFIERS)))
+      .setChangelog(
+        new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_QUALIFIERS)),
+        new Change("8.0", "Field 'id' from response has been removed")
+      )
       .setResponseExample(getClass().getResource("search-components-example.json"))
       .setHandler(this);
 
@@ -198,7 +201,6 @@ public class SearchAction implements ComponentsWsAction {
 
     Components.Component.Builder builder = Components.Component.newBuilder()
       .setOrganization(organization.getKey())
-      .setId(dto.uuid())
       .setKey(dto.getDbKey())
       .setProject(projectKey)
       .setName(dto.name())

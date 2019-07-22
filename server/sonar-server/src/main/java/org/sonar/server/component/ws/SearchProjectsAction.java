@@ -89,6 +89,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH_PROJECTS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 
@@ -121,13 +122,10 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setDescription("Search for projects")
       .addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE)
       .setInternal(true)
-      .setResponseExample(getClass().getResource("search_projects-example.json"))
       .setChangelog(
-        new Change("6.4", format("The '%s' parameter accepts '%s' to filter by language", FILTER_LANGUAGES, PARAM_FILTER)),
-        new Change("6.4", "The 'visibility' field is added"),
-        new Change("6.5", "The 'filter' parameter now allows 'NO_DATA' as value for numeric metrics"),
-        new Change("6.5", "Added the option 'analysisDate' for the 'sort' parameter"),
-        new Change("6.5", format("Value '%s' is added to parameter '%s'", LEAK_PERIOD_DATE, FIELDS)))
+        new Change("8.0", "Field 'id' from response has been removed")
+      )
+      .setResponseExample(getClass().getResource("search_projects-example.json"))
       .setHandler(this);
 
     action.createFieldsParam(POSSIBLE_FIELDS)
@@ -456,7 +454,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
       wsComponent
         .clear()
         .setOrganization(organizationDto.getKey())
-        .setId(dbComponent.uuid())
         .setKey(dbComponent.getDbKey())
         .setName(dbComponent.name())
         .setVisibility(Visibility.getLabel(dbComponent.isPrivate()));

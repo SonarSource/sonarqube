@@ -36,7 +36,6 @@ public class ComponentsWsParameters {
   public static final String PARAM_LANGUAGE = "language";
   public static final String PARAM_STRATEGY = "strategy";
   public static final String PARAM_FILTER = "filter";
-  public static final String PARAM_COMPONENT_ID = "componentId";
   public static final String PARAM_COMPONENT = "component";
   public static final String PARAM_BRANCH = "branch";
   public static final String PARAM_PULL_REQUEST = "pullRequest";

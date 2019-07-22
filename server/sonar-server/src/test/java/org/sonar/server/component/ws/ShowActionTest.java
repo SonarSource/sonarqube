@@ -55,7 +55,6 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PULL_REQUEST;
 
 public class ShowActionTest {
@@ -76,29 +75,13 @@ public class ShowActionTest {
     assertThat(action.description()).isNotNull();
     assertThat(action.responseExample()).isNotNull();
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
-      tuple("6.4", "Analysis date has been added to the response"),
-      tuple("6.4", "The field 'id' is deprecated in the response"),
-      tuple("6.4", "The 'visibility' field is added to the response"),
-      tuple("6.5", "Leak period date is added to the response"),
-      tuple("6.6", "'branch' is added to the response"),
-      tuple("6.6", "'version' is added to the response"),
       tuple("7.6", "The use of module keys in parameter 'component' is deprecated"));
-    assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("component", "componentId", "branch", "pullRequest");
-
-    WebService.Param componentId = action.param(PARAM_COMPONENT_ID);
-    assertThat(componentId.isRequired()).isFalse();
-    assertThat(componentId.description()).isNotNull();
-    assertThat(componentId.exampleValue()).isNotNull();
-    assertThat(componentId.deprecatedSince()).isEqualTo("6.4");
-    assertThat(componentId.deprecatedKey()).isEqualTo("id");
-    assertThat(componentId.deprecatedKeySince()).isEqualTo("6.4");
+    assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("component", "branch", "pullRequest");
 
     WebService.Param component = action.param(PARAM_COMPONENT);
-    assertThat(component.isRequired()).isFalse();
+    assertThat(component.isRequired()).isTrue();
     assertThat(component.description()).isNotNull();
     assertThat(component.exampleValue()).isNotNull();
-    assertThat(component.deprecatedKey()).isEqualTo("key");
-    assertThat(component.deprecatedKeySince()).isEqualTo("6.4");
 
     WebService.Param branch = action.param(PARAM_BRANCH);
     assertThat(branch.isInternal()).isTrue();
@@ -117,7 +100,7 @@ public class ShowActionTest {
     insertJsonExampleComponentsAndSnapshots();
 
     String response = ws.newRequest()
-      .setParam("id", "AVIF-FffA3Ax6PH2efPD")
+      .setParam("component", "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/Rule.java")
       .execute()
       .getInput();
 
@@ -130,7 +113,7 @@ public class ShowActionTest {
     insertJsonExampleComponentsAndSnapshots();
 
     String response = ws.newRequest()
-      .setParam("id", "AVIF-FffA3Ax6PH2efPD")
+      .setParam(PARAM_COMPONENT, "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/Rule.java")
       .execute()
       .getInput();
 
@@ -143,21 +126,9 @@ public class ShowActionTest {
     db.components().insertProjectAndSnapshot(project);
     userSession.logIn().addProjectPermission(USER, project);
 
-    ShowWsResponse response = newRequest("project-uuid", null);
+    ShowWsResponse response = newRequest(project.getDbKey());
 
-    assertThat(response.getComponent().getId()).isEqualTo("project-uuid");
-  }
-
-  @Test
-  public void show_provided_project() {
-    userSession.logIn().setRoot();
-    db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
-
-    ShowWsResponse response = newRequest("project-uuid", null);
-
-    assertThat(response.getComponent().getId()).isEqualTo("project-uuid");
-    assertThat(response.getComponent().hasAnalysisDate()).isFalse();
-    assertThat(response.getComponent().hasLeakPeriodDate()).isFalse();
+    assertThat(response.getComponent().getKey()).isEqualTo(project.getDbKey());
   }
 
   @Test
@@ -168,7 +139,7 @@ public class ShowActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
     userSession.addProjectPermission(USER, project);
 
-    ShowWsResponse response = newRequest(null, file.getDbKey());
+    ShowWsResponse response = newRequest(file.getDbKey());
 
     assertThat(response.getComponent().getKey()).isEqualTo(file.getDbKey());
     assertThat(response.getAncestorsList()).extracting(Component::getKey).containsOnly(directory.getDbKey(), module.getDbKey(), project.getDbKey());
@@ -180,7 +151,7 @@ public class ShowActionTest {
     db.components().insertComponent(newModuleDto(project));
     userSession.addProjectPermission(USER, project);
 
-    ShowWsResponse response = newRequest(null, project.getDbKey());
+    ShowWsResponse response = newRequest(project.getDbKey());
 
     assertThat(response.getComponent().getKey()).isEqualTo(project.getDbKey());
     assertThat(response.getAncestorsList()).isEmpty();
@@ -195,7 +166,7 @@ public class ShowActionTest {
       newAnalysis(project).setCreatedAt(3_000_000_000L).setLast(true));
     userSession.addProjectPermission(USER, project);
 
-    ShowWsResponse response = newRequest(null, project.getDbKey());
+    ShowWsResponse response = newRequest(project.getDbKey());
 
     assertThat(response.getComponent().getAnalysisDate()).isNotEmpty().isEqualTo(formatDateTime(new Date(3_000_000_000L)));
   }
@@ -210,7 +181,7 @@ public class ShowActionTest {
 
     userSession.addProjectPermission(USER, project);
 
-    ShowWsResponse response = newRequest(null, project.getDbKey());
+    ShowWsResponse response = newRequest(project.getDbKey());
 
     assertThat(response.getComponent().getLeakPeriodDate()).isNotEmpty().isEqualTo(formatDateTime(new Date(3_000_000_000L)));
   }
@@ -224,7 +195,7 @@ public class ShowActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
     userSession.addProjectPermission(USER, project);
 
-    ShowWsResponse response = newRequest(null, file.getDbKey());
+    ShowWsResponse response = newRequest(file.getDbKey());
 
     String expectedDate = formatDateTime(new Date(3_000_000_000L));
     assertThat(response.getAncestorsList()).extracting(Component::getAnalysisDate)
@@ -236,7 +207,7 @@ public class ShowActionTest {
     userSession.logIn().setRoot();
     ComponentDto privateProject = db.components().insertPrivateProject();
 
-    ShowWsResponse result = newRequest(null, privateProject.getDbKey());
+    ShowWsResponse result = newRequest(privateProject.getDbKey());
     assertThat(result.getComponent().hasVisibility()).isTrue();
     assertThat(result.getComponent().getVisibility()).isEqualTo("private");
   }
@@ -246,7 +217,7 @@ public class ShowActionTest {
     userSession.logIn().setRoot();
     ComponentDto publicProject = db.components().insertPublicProject();
 
-    ShowWsResponse result = newRequest(null, publicProject.getDbKey());
+    ShowWsResponse result = newRequest(publicProject.getDbKey());
     assertThat(result.getComponent().hasVisibility()).isTrue();
     assertThat(result.getComponent().getVisibility()).isEqualTo("public");
   }
@@ -256,7 +227,7 @@ public class ShowActionTest {
     userSession.logIn().setRoot();
     ComponentDto view = db.components().insertView();
 
-    ShowWsResponse result = newRequest(null, view.getDbKey());
+    ShowWsResponse result = newRequest(view.getDbKey());
     assertThat(result.getComponent().hasVisibility()).isTrue();
   }
 
@@ -266,7 +237,7 @@ public class ShowActionTest {
     ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(privateProject));
 
-    ShowWsResponse result = newRequest(null, module.getDbKey());
+    ShowWsResponse result = newRequest(module.getDbKey());
     assertThat(result.getComponent().hasVisibility()).isFalse();
   }
 
@@ -279,7 +250,7 @@ public class ShowActionTest {
     db.components().insertSnapshot(project, s -> s.setProjectVersion("1.1"));
     userSession.addProjectPermission(USER, project);
 
-    ShowWsResponse response = newRequest(null, file.getDbKey());
+    ShowWsResponse response = newRequest(file.getDbKey());
 
     assertThat(response.getComponent().getVersion()).isEqualTo("1.1");
     assertThat(response.getAncestorsList())
@@ -344,17 +315,18 @@ public class ShowActionTest {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
-    db.components().insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
+    ComponentDto componentDto = newPrivateProjectDto(db.organizations().insert(), "project-uuid");
+    db.components().insertProjectAndSnapshot(componentDto);
 
-    newRequest("project-uuid", null);
+    newRequest(componentDto.getDbKey());
   }
 
   @Test
   public void fail_if_component_does_not_exist() {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component id 'unknown-uuid' not found");
+    expectedException.expectMessage("Component key 'unknown-key' not found");
 
-    newRequest("unknown-uuid", null);
+    newRequest("unknown-key");
   }
 
   @Test
@@ -366,22 +338,7 @@ public class ShowActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component key 'file-key' not found");
 
-    newRequest(null, "file-key");
-  }
-
-  @Test
-  public void fail_when_componentId_and_branch_params_are_used_together() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Parameter 'componentId' cannot be used at the same time as 'branch' or 'pullRequest'");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, branch.uuid())
-      .setParam(PARAM_BRANCH, "my_branch")
-      .execute();
+    newRequest("file-key");
   }
 
   @Test
@@ -414,25 +371,8 @@ public class ShowActionTest {
       .executeProtobuf(ShowWsResponse.class);
   }
 
-  @Test
-  public void fail_when_using_branch_uuid() {
-    ComponentDto project = db.components().insertMainBranch();
-    userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component id '%s' not found", branch.uuid()));
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, branch.uuid())
-      .executeProtobuf(ShowWsResponse.class);
-  }
-
-  private ShowWsResponse newRequest(@Nullable String uuid, @Nullable String key) {
+  private ShowWsResponse newRequest(@Nullable String key) {
     TestRequest request = ws.newRequest();
-    if (uuid != null) {
-      request.setParam(PARAM_COMPONENT_ID, uuid);
-    }
     if (key != null) {
       request.setParam(PARAM_COMPONENT, key);
     }

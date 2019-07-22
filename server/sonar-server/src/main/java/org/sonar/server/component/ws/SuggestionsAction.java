@@ -119,8 +119,7 @@ public class SuggestionsAction implements ComponentsWsAction {
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "suggestions-example.json"))
       .setChangelog(
-        new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_MORE)),
-        new Change("6.4", "Parameter 's' is optional"));
+        new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_MORE)));
 
     action.createParam(PARAM_QUERY)
       .setRequired(false)

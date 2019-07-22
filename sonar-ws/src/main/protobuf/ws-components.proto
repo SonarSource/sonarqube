@@ -99,7 +99,6 @@ message ProvisionedWsResponse {
 
 message Component {
   optional string organization = 12;
-  optional string id = 1;
   optional string key = 2;
   optional string refId = 3;
   optional string refKey = 4;

@@ -31,9 +31,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
@@ -41,8 +38,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 
 public class AppAction implements ComponentsWsAction {
-  private static final String PARAM_COMPONENT_ID = "componentId";
-  private static final String PARAM_COMPONENT = "component";
+  static final String PARAM_COMPONENT = "component";
 
   private final DbClient dbClient;
 
@@ -61,6 +57,7 @@ public class AppAction implements ComponentsWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("app")
       .setDescription("Coverage data required for rendering the component viewer.<br>" +
+        "Either branch or pull request can be provided, not both<br>" +
         "Requires the following permission: 'Browse'.")
       .setResponseExample(getClass().getResource("app-example.json"))
       .setSince("4.4")
@@ -68,16 +65,10 @@ public class AppAction implements ComponentsWsAction {
       .setInternal(true)
       .setHandler(this);
 
-    action
-      .createParam(PARAM_COMPONENT_ID)
-      .setDescription("Component ID")
-      .setDeprecatedSince("6.4")
-      .setDeprecatedKey("uuid", "6.4")
-      .setExampleValue(UUID_EXAMPLE_01);
-
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
+      .setRequired(true)
       .setSince("6.4");
 
     action.createParam(PARAM_BRANCH)
@@ -98,27 +89,26 @@ public class AppAction implements ComponentsWsAction {
     try (DbSession session = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(session, request);
       userSession.checkComponentPermission(UserRole.USER, component);
+      writeJsonResponse(response, session, component);
+    }
+  }
 
-      JsonWriter json = response.newJsonWriter();
+  private ComponentDto loadComponent(DbSession dbSession, Request request) {
+    String branch = request.param(PARAM_BRANCH);
+    String pullRequest = request.param(PARAM_PULL_REQUEST);
+    String componentKey = request.mandatoryParam(PARAM_COMPONENT);
+
+    return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
+  }
+
+  private void writeJsonResponse(Response response, DbSession session, ComponentDto component) {
+    try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject();
       componentViewerJsonWriter.writeComponent(json, component, userSession, session);
       appendPermissions(json, userSession);
       componentViewerJsonWriter.writeMeasures(json, component, session);
       json.endObject();
-      json.close();
     }
-  }
-
-  private ComponentDto loadComponent(DbSession dbSession, Request request) {
-    String componentUuid = request.param(PARAM_COMPONENT_ID);
-    String branch = request.param(PARAM_BRANCH);
-    String pullRequest = request.param(PARAM_PULL_REQUEST);
-    checkArgument(componentUuid == null || (branch == null && pullRequest == null), "Parameter '%s' cannot be used at the same time as '%s' or '%s'", PARAM_COMPONENT_ID,
-      PARAM_BRANCH, PARAM_PULL_REQUEST);
-    if (branch == null && pullRequest == null) {
-      return componentFinder.getByUuidOrKey(dbSession, componentUuid, request.param(PARAM_COMPONENT), COMPONENT_ID_AND_COMPONENT);
-    }
-    return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, request.mandatoryParam(PARAM_COMPONENT), branch, pullRequest);
   }
 
   private static void appendPermissions(JsonWriter json, UserSession userSession) {

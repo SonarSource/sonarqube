@@ -37,21 +37,15 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Components.ShowWsResponse;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 
 public class ShowAction implements ComponentsWsAction {
   private final UserSession userSession;
@@ -67,32 +61,18 @@ public class ShowAction implements ComponentsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_SHOW)
-      .setDescription(format("Returns a component (file, directory, project, view…) and its ancestors. " +
+      .setDescription("Returns a component (file, directory, project, portfolio…) and its ancestors. " +
         "The ancestors are ordered from the parent to the root project. " +
-        "The '%s' or '%s' parameter must be provided.<br>" +
-        "Requires the following permission: 'Browse' on the project of the specified component.",
-        PARAM_COMPONENT_ID, PARAM_COMPONENT))
+        "Requires the following permission: 'Browse' on the project of the specified component.")
       .setResponseExample(getClass().getResource("show-example.json"))
       .setSince("5.4")
       .setChangelog(
-        new Change("6.4", "Analysis date has been added to the response"),
-        new Change("6.4", "The field 'id' is deprecated in the response"),
-        new Change("6.4", "The 'visibility' field is added to the response"),
-        new Change("6.5", "Leak period date is added to the response"),
-        new Change("6.6", "'branch' is added to the response"),
-        new Change("6.6", "'version' is added to the response"),
         new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setHandler(this);
 
-    action.createParam(PARAM_COMPONENT_ID)
-      .setDescription("Component id")
-      .setDeprecatedKey("id", "6.4")
-      .setDeprecatedSince("6.4")
-      .setExampleValue(UUID_EXAMPLE_01);
-
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
-      .setDeprecatedKey("key", "6.4")
+      .setRequired(true)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.createParam(PARAM_BRANCH)
@@ -128,16 +108,10 @@ public class ShowAction implements ComponentsWsAction {
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request request) {
-    String componentId = request.getId();
-    String componentKey = request.getKey();
+    String componentKey = request.getComponentKey();
     String branch = request.getBranch();
     String pullRequest = request.getPullRequest();
-    checkArgument(componentId == null || (branch == null && pullRequest == null), "Parameter '%s' cannot be used at the same time as '%s' or '%s'", PARAM_COMPONENT_ID,
-      PARAM_BRANCH, PARAM_PULL_REQUEST);
-    if (branch == null && pullRequest == null) {
-      return componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, COMPONENT_ID_AND_COMPONENT);
-    }
-    checkRequest(componentKey != null, "The '%s' parameter is missing", PARAM_COMPONENT);
+
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
 
@@ -154,35 +128,22 @@ public class ShowAction implements ComponentsWsAction {
 
   private static Request toShowWsRequest(org.sonar.api.server.ws.Request request) {
     return new Request()
-      .setId(request.param(PARAM_COMPONENT_ID))
-      .setKey(request.param(PARAM_COMPONENT))
+      .setComponentKey(request.mandatoryParam(PARAM_COMPONENT))
       .setBranch(request.param(PARAM_BRANCH))
       .setPullRequest(request.param(PARAM_PULL_REQUEST));
   }
 
   private static class Request {
-    private String id;
-    private String key;
+    private String componentKey;
     private String branch;
     private String pullRequest;
 
-    @CheckForNull
-    public String getId() {
-      return id;
+    public String getComponentKey() {
+      return componentKey;
     }
 
-    public Request setId(@Nullable String id) {
-      this.id = id;
-      return this;
-    }
-
-    @CheckForNull
-    public String getKey() {
-      return key;
-    }
-
-    public Request setKey(@Nullable String key) {
-      this.key = key;
+    public Request setComponentKey(String componentKey) {
+      this.componentKey = componentKey;
       return this;
     }
 

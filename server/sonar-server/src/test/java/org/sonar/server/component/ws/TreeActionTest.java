@@ -72,7 +72,6 @@ import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
@@ -101,25 +100,14 @@ public class TreeActionTest {
     assertThat(action.responseExample()).isNotNull();
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
       tuple("7.6", "The use of 'BRC' as value for parameter 'qualifiers' is deprecated"),
-      tuple("7.6", "The use of module keys in parameter 'component' is deprecated"),
-      tuple("6.4", "The field 'id' is deprecated in the response"));
-    assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("component", "componentId", "branch", "pullRequest", "qualifiers", "strategy",
+      tuple("7.6", "The use of module keys in parameter 'component' is deprecated"));
+    assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("component", "branch", "pullRequest", "qualifiers", "strategy",
       "q", "s", "p", "asc", "ps");
 
-    Param componentId = action.param(PARAM_COMPONENT_ID);
-    assertThat(componentId.isRequired()).isFalse();
-    assertThat(componentId.description()).isNotNull();
-    assertThat(componentId.exampleValue()).isNotNull();
-    assertThat(componentId.deprecatedSince()).isEqualTo("6.4");
-    assertThat(componentId.deprecatedKey()).isEqualTo("baseComponentId");
-    assertThat(componentId.deprecatedKeySince()).isEqualTo("6.4");
-
     Param component = action.param(PARAM_COMPONENT);
-    assertThat(component.isRequired()).isFalse();
+    assertThat(component.isRequired()).isTrue();
     assertThat(component.description()).isNotNull();
     assertThat(component.exampleValue()).isNotNull();
-    assertThat(component.deprecatedKey()).isEqualTo("baseComponentKey");
-    assertThat(component.deprecatedKeySince()).isEqualTo("6.4");
 
     Param branch = action.param(PARAM_BRANCH);
     assertThat(branch.isInternal()).isTrue();
@@ -133,8 +121,9 @@ public class TreeActionTest {
     logInWithBrowsePermission(project);
 
     String response = ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, project.uuid())
-      .execute().getInput();
+      .setParam(PARAM_COMPONENT, project.getDbKey())
+      .execute()
+      .getInput();
 
     JsonAssert.assertJson(response)
       .withStrictArrayOrder()
@@ -159,7 +148,7 @@ public class TreeActionTest {
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
-      .setParam(PARAM_COMPONENT_ID, "module-uuid-1")
+      .setParam(PARAM_COMPONENT, module.getDbKey())
       .setParam(Param.PAGE, "2")
       .setParam(Param.PAGE_SIZE, "3")
       .setParam(Param.TEXT_QUERY, "file-name")
@@ -168,7 +157,7 @@ public class TreeActionTest {
 
     assertThat(response.getComponentsCount()).isEqualTo(3);
     assertThat(response.getPaging().getTotal()).isEqualTo(8);
-    assertThat(response.getComponentsList()).extracting("id").containsExactly("file-uuid-6", "file-uuid-5", "file-uuid-4");
+    assertThat(response.getComponentsList()).extracting("key").containsExactly("file-key-6", "file-key-5", "file-key-4");
   }
 
   @Test
@@ -189,7 +178,7 @@ public class TreeActionTest {
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
-      .setParam(PARAM_COMPONENT_ID, "module-uuid-1")
+      .setParam(PARAM_COMPONENT, module.getDbKey())
       .setParam(Param.PAGE, "2")
       .setParam(Param.PAGE_SIZE, "3")
       .setParam(Param.TEXT_QUERY, "file-name")
@@ -198,7 +187,7 @@ public class TreeActionTest {
 
     assertThat(response.getComponentsCount()).isEqualTo(3);
     assertThat(response.getPaging().getTotal()).isEqualTo(9);
-    assertThat(response.getComponentsList()).extracting("id").containsExactly("file-uuid-4", "file-uuid-5", "file-uuid-6");
+    assertThat(response.getComponentsList()).extracting("key").containsExactly("file-key-4", "file-key-5", "file-key-6");
   }
 
   @Test
@@ -214,9 +203,9 @@ public class TreeActionTest {
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
       .setParam(PARAM_QUALIFIERS, FILE)
-      .setParam(PARAM_COMPONENT_ID, "project-uuid").executeProtobuf(TreeWsResponse.class);
+      .setParam(PARAM_COMPONENT, project.getDbKey()).executeProtobuf(TreeWsResponse.class);
 
-    assertThat(response.getComponentsList()).extracting("id").containsExactly("file-uuid-1", "file-uuid-2");
+    assertThat(response.getComponentsList()).extracting("key").containsExactly("file-key-1", "file-key-2");
   }
 
   @Test
@@ -235,12 +224,12 @@ public class TreeActionTest {
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "leaves")
-      .setParam(PARAM_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_COMPONENT, project.getDbKey())
       .setParam(PARAM_QUALIFIERS, FILE).executeProtobuf(TreeWsResponse.class);
 
     assertThat(response.getComponentsCount()).isEqualTo(3);
     assertThat(response.getPaging().getTotal()).isEqualTo(3);
-    assertThat(response.getComponentsList()).extracting("id").containsExactly("file-uuid-1", "file-uuid-2", "file-uuid-3");
+    assertThat(response.getComponentsList()).extracting("key").containsExactly("file-key-1", "file-key-2", "file-key-3");
   }
 
   @Test
@@ -258,9 +247,9 @@ public class TreeActionTest {
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
       .setParam(Param.SORT, "qualifier, name")
-      .setParam(PARAM_COMPONENT_ID, "project-uuid").executeProtobuf(TreeWsResponse.class);
+      .setParam(PARAM_COMPONENT, project.getDbKey()).executeProtobuf(TreeWsResponse.class);
 
-    assertThat(response.getComponentsList()).extracting("id").containsExactly("module-uuid-1", "path/directory/", "file-uuid-1", "file-uuid-2");
+    assertThat(response.getComponentsList()).extracting("key").containsExactly("MODULE_KEY_module-uuid-1", "KEY_project-uuid:directory-uuid-1", "file-key-1", "file-key-2");
   }
 
   @Test
@@ -278,10 +267,10 @@ public class TreeActionTest {
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
-      .setParam(PARAM_COMPONENT_ID, "view-uuid")
+      .setParam(PARAM_COMPONENT, view.getDbKey())
       .setParam(Param.TEXT_QUERY, "name").executeProtobuf(TreeWsResponse.class);
 
-    assertThat(response.getComponentsList()).extracting("id").containsExactly("project-uuid-1-copy", "sub-view-uuid");
+    assertThat(response.getComponentsList()).extracting("key").containsExactly("KEY_view-uuidproject-key-1", "sub-view-key");
     assertThat(response.getComponentsList()).extracting("refId").containsExactly("project-uuid-1", "");
     assertThat(response.getComponentsList()).extracting("refKey").containsExactly("project-key-1", "");
   }
@@ -315,9 +304,9 @@ public class TreeActionTest {
     logInWithBrowsePermission(project);
 
     TreeWsResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, "project-uuid").executeProtobuf(TreeWsResponse.class);
+      .setParam(PARAM_COMPONENT, project.getDbKey()).executeProtobuf(TreeWsResponse.class);
 
-    assertThat(response.getBaseComponent().getId()).isEqualTo("project-uuid");
+    assertThat(response.getBaseComponent().getKey()).isEqualTo(project.getDbKey());
     assertThat(response.getComponentsList()).isEmpty();
     assertThat(response.getPaging().getTotal()).isEqualTo(0);
     assertThat(response.getPaging().getPageSize()).isEqualTo(100);
@@ -330,16 +319,18 @@ public class TreeActionTest {
     db.components().insertProjectAndSnapshot(project);
     ComponentDto view = newView(db.getDefaultOrganization(), "view-uuid");
     db.components().insertViewAndSnapshot(view);
-    db.components().insertComponent(newProjectCopy("project-copy-uuid", project, view));
+    ComponentDto projectCopy = db.components().insertComponent(newProjectCopy("project-copy-uuid", project, view));
     userSession.logIn()
       .registerComponents(project, view);
 
-    TreeWsResponse response = ws.newRequest().setParam(PARAM_COMPONENT_ID, view.uuid()).executeProtobuf(TreeWsResponse.class);
+    TreeWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, view.getDbKey())
+      .executeProtobuf(TreeWsResponse.class);
 
-    assertThat(response.getBaseComponent().getId()).isEqualTo(view.uuid());
+    assertThat(response.getBaseComponent().getKey()).isEqualTo(view.getDbKey());
     assertThat(response.getComponentsCount()).isEqualTo(1);
-    assertThat(response.getComponents(0).getId()).isEqualTo("project-copy-uuid");
-    assertThat(response.getComponents(0).getRefId()).isEqualTo("project-uuid");
+    assertThat(response.getComponents(0).getKey()).isEqualTo(projectCopy.getDbKey());
+    assertThat(response.getComponents(0).getRefKey()).isEqualTo(project.getDbKey());
   }
 
   @Test
@@ -403,16 +394,16 @@ public class TreeActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_uuid() {
+  public void fail_when_using_branch_key() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component id '%s' not found", branch.uuid()));
+    expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, branch.uuid())
+      .setParam(PARAM_COMPONENT, branch.getDbKey())
       .executeProtobuf(Components.ShowWsResponse.class);
   }
 
@@ -426,7 +417,7 @@ public class TreeActionTest {
     expectedException.expect(ForbiddenException.class);
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_COMPONENT, project.getDbKey())
       .execute();
   }
 
@@ -434,11 +425,11 @@ public class TreeActionTest {
   public void fail_when_page_size_above_500() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("'ps' value (501) must be less than 500");
-    db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     db.commit();
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_COMPONENT, project.getDbKey())
       .setParam(Param.PAGE_SIZE, "501")
       .execute();
   }
@@ -447,11 +438,11 @@ public class TreeActionTest {
   public void fail_when_search_query_has_less_than_3_characters() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("'q' length (2) is shorter than the minimum authorized (3)");
-    db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
     db.commit();
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_COMPONENT, project.getDbKey())
       .setParam(Param.TEXT_QUERY, "fi")
       .execute();
   }
@@ -463,7 +454,7 @@ public class TreeActionTest {
     db.commit();
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_COMPONENT, "project-key")
       .setParam(Param.SORT, "unknown-sort")
       .execute();
   }
@@ -475,7 +466,7 @@ public class TreeActionTest {
     db.commit();
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_COMPONENT, "project-key")
       .setParam(PARAM_STRATEGY, "unknown-strategy")
       .execute();
   }
@@ -485,7 +476,7 @@ public class TreeActionTest {
     expectedException.expect(NotFoundException.class);
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_COMPONENT, "project-key")
       .execute();
   }
 
@@ -506,24 +497,9 @@ public class TreeActionTest {
   @Test
   public void fail_when_no_base_component_parameter() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'componentId' or 'component' must be provided");
+    expectedException.expectMessage("The 'component' parameter is missing");
 
     ws.newRequest().execute();
-  }
-
-  @Test
-  public void fail_when_componentId_and_branch_params_are_used_together() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Parameter 'componentId' cannot be used at the same time as 'branch' or 'pullRequest'");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, branch.uuid())
-      .setParam(PARAM_BRANCH, "my_branch")
-      .execute();
   }
 
   @Test
@@ -562,9 +538,10 @@ public class TreeActionTest {
     JsonParser jsonParser = new JsonParser();
     JsonElement jsonTree = jsonParser.parse(IOUtils.toString(getClass().getResource("tree-example.json"), UTF_8));
     JsonArray components = jsonTree.getAsJsonObject().getAsJsonArray("components");
-    for (JsonElement componentAsJsonElement : components) {
+    for (int i = 0; i < components.size(); i++) {
+      JsonElement componentAsJsonElement = components.get(i);
       JsonObject componentAsJsonObject = componentAsJsonElement.getAsJsonObject();
-      String uuid = getJsonField(componentAsJsonObject, "id");
+      String uuid = String.format("child-component-uuid-%d", i);
       db.components().insertComponent(newChildComponent(uuid, project, project)
         .setDbKey(getJsonField(componentAsJsonObject, "key"))
         .setName(getJsonField(componentAsJsonObject, "name"))

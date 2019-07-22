@@ -53,28 +53,23 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.TreeWsResponse;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static org.sonar.api.utils.Paging.offset;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
-import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
@@ -113,28 +108,21 @@ public class TreeAction implements ComponentsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_TREE)
-      .setDescription(format("Navigate through components based on the chosen strategy. The %s or the %s parameter must be provided.<br>" +
+      .setDescription(format("Navigate through components based on the chosen strategy.<br>" +
         "Requires the following permission: 'Browse' on the specified project.<br>" +
         "When limiting search with the %s parameter, directories are not returned.",
-        PARAM_COMPONENT_ID, PARAM_COMPONENT, Param.TEXT_QUERY))
+        Param.TEXT_QUERY))
       .setSince("5.4")
       .setResponseExample(getClass().getResource("tree-example.json"))
       .setChangelog(
         new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_QUALIFIERS)),
-        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
-        new Change("6.4", "The field 'id' is deprecated in the response"))
+        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE);
 
-    action.createParam(PARAM_COMPONENT_ID)
-      .setDescription("Base component id. The search is based on this component.")
-      .setDeprecatedKey("baseComponentId", "6.4")
-      .setDeprecatedSince("6.4")
-      .setExampleValue(UUID_EXAMPLE_02);
-
     action.createParam(PARAM_COMPONENT)
       .setDescription("Base component key. The search is based on this component.")
-      .setDeprecatedKey("baseComponentKey", "6.4")
+      .setRequired(true)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.createParam(PARAM_BRANCH)
@@ -200,16 +188,9 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request request) {
-    String componentId = request.getBaseComponentId();
     String componentKey = request.getComponent();
     String branch = request.getBranch();
     String pullRequest = request.getPullRequest();
-    checkArgument(componentId == null || (branch == null && pullRequest == null), "Parameter '%s' cannot be used at the same time as '%s' or '%s'", PARAM_COMPONENT_ID,
-      PARAM_BRANCH, PARAM_PULL_REQUEST);
-    if (branch == null && pullRequest == null) {
-      return componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, COMPONENT_ID_AND_COMPONENT);
-    }
-    checkRequest(componentKey != null, "The '%s' parameter is missing", PARAM_COMPONENT);
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
 
@@ -299,8 +280,7 @@ public class TreeAction implements ComponentsWsAction {
 
   private static Request toTreeWsRequest(org.sonar.api.server.ws.Request request) {
     return new Request()
-      .setBaseComponentId(request.param(PARAM_COMPONENT_ID))
-      .setComponent(request.param(PARAM_COMPONENT))
+      .setComponent(request.mandatoryParam(PARAM_COMPONENT))
       .setBranch(request.param(PARAM_BRANCH))
       .setPullRequest(request.param(PARAM_PULL_REQUEST))
       .setStrategy(request.mandatoryParam(PARAM_STRATEGY))
@@ -350,7 +330,6 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   private static class Request {
-    private String baseComponentId;
     private String component;
     private String branch;
     private String pullRequest;
@@ -362,25 +341,7 @@ public class TreeAction implements ComponentsWsAction {
     private Integer page;
     private Integer pageSize;
 
-    /**
-     * @deprecated since 6.4, please use {@link #getComponent()} instead
-     */
-    @Deprecated
-    @CheckForNull
-    private String getBaseComponentId() {
-      return baseComponentId;
-    }
-
-    /**
-     * @deprecated since 6.4, please use {@link #setComponent(String)} instead
-     */
-    @Deprecated
-    private Request setBaseComponentId(@Nullable String baseComponentId) {
-      this.baseComponentId = baseComponentId;
-      return this;
-    }
-
-    public Request setComponent(@Nullable String component) {
+    public Request setComponent(String component) {
       this.component = component;
       return this;
     }

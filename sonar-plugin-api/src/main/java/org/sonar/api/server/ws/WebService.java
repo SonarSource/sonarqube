@@ -470,7 +470,6 @@ public interface WebService extends Definable<WebService.Context> {
 
       return createParam(Param.SORT)
         .setDescription("Sort field")
-        .setDeprecatedKey("sort", "5.4")
         .setDefaultValue(defaultValue)
         .setPossibleValues(possibleValues);
     }

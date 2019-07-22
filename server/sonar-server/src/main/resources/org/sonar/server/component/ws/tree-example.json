@@ -6,15 +6,15 @@
   },
   "baseComponent": {
     "organization": "my-org-1",
-    "id": "MY_PROJECT_ID",
     "key": "MY_PROJECT_KEY",
-    "name": "Project Name",
-    "qualifier": "TRK"
+    "description": "DESCRIPTION_MY_PROJECT_ID",
+    "qualifier": "TRK",
+    "tags": [],
+    "visibility": "private"
   },
   "components": [
     {
       "organization": "my-org-1",
-      "id": "AVHE6Jo2EplJjXTo0Rzw",
       "key": "com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/BasicMarkdownParser.java",
       "name": "BasicMarkdownParser.java",
       "qualifier": "UTS",
@@ -23,7 +23,6 @@
     },
     {
       "organization": "my-org-1",
-      "id": "AVHE6Jo3EplJjXTo0Rzx",
       "key": "com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/BasicMarkdownParserTest.java",
       "name": "BasicMarkdownParserTest.java",
       "qualifier": "UTS",
@@ -32,7 +31,6 @@
     },
     {
       "organization": "my-org-1",
-      "id": "AVHE6Jo1EplJjXTo0Rzj",
       "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown",
       "name": "src/main/java/com/sonarsource/markdown",
       "qualifier": "DIR",
