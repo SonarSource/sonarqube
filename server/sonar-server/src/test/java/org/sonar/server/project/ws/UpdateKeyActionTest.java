@@ -44,7 +44,6 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
 
 public class UpdateKeyActionTest {
@@ -66,34 +65,10 @@ public class UpdateKeyActionTest {
     ComponentDto project = insertProject();
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    callByKey(project.getKey(), ANOTHER_KEY);
+    call(project.getKey(), ANOTHER_KEY);
 
     assertThat(selectByKey(project.getKey()).isPresent()).isFalse();
     assertThat(selectByKey(ANOTHER_KEY).get().uuid()).isEqualTo(project.uuid());
-  }
-
-  @Test
-  public void update_key_of_project_referenced_by_its_uuid() {
-    ComponentDto project = insertProject();
-    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
-
-    callByUuid(project.uuid(), ANOTHER_KEY);
-
-    assertThat(selectByKey(project.getKey()).isPresent()).isFalse();
-    assertThat(selectByKey(ANOTHER_KEY).get().uuid()).isEqualTo(project.uuid());
-  }
-
-  @Test
-  public void update_key_of_module_referenced_by_its_uuid() {
-    ComponentDto project = insertProject();
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
-    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
-
-    callByUuid(module.uuid(), ANOTHER_KEY);
-
-    assertThat(selectByKey(project.getKey()).isPresent()).isTrue();
-    assertThat(selectByKey(module.getKey()).isPresent()).isFalse();
-    assertThat(selectByKey(ANOTHER_KEY).get().uuid()).isEqualTo(module.uuid());
   }
 
   @Test
@@ -102,7 +77,7 @@ public class UpdateKeyActionTest {
     ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project).setEnabled(false));
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    callByKey(module.getKey(), ANOTHER_KEY);
+    call(module.getKey(), ANOTHER_KEY);
 
     assertThat(selectByKey(project.getKey()).isPresent()).isTrue();
     assertThat(selectByKey(module.getKey()).isPresent()).isFalse();
@@ -110,7 +85,6 @@ public class UpdateKeyActionTest {
     assertThat(loadedModule.uuid()).isEqualTo(module.uuid());
     assertThat(loadedModule.isEnabled()).isFalse();
   }
-
 
   @Test
   public void fail_if_not_authorized() {
@@ -120,7 +94,7 @@ public class UpdateKeyActionTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    callByKey(project.getKey(), ANOTHER_KEY);
+    call(project.getKey(), ANOTHER_KEY);
   }
 
   @Test
@@ -131,34 +105,22 @@ public class UpdateKeyActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'to' parameter is missing");
 
-    callByKey(project.getKey(), null);
+    call(project.getKey(), null);
   }
 
   @Test
-  public void fail_if_uuid_nor_key_provided() {
+  public void fail_if_key_not_provided() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'projectId' or 'from' must be provided");
+    expectedException.expectMessage("The 'from' parameter is missing");
 
-    call(null, null, ANOTHER_KEY);
-  }
-
-  @Test
-  public void fail_if_both_uuid_and_key_provided() {
-    ComponentDto project = insertProject();
-    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'projectId' or 'from' must be provided");
-
-
-    call(project.uuid(), project.getKey(), ANOTHER_KEY);
+    call(null, ANOTHER_KEY);
   }
 
   @Test
   public void fail_if_project_does_not_exist() {
     expectedException.expect(NotFoundException.class);
 
-    callByUuid("UNKNOWN_UUID", ANOTHER_KEY);
+    call("UNKNOWN_UUID", ANOTHER_KEY);
   }
 
   @Test
@@ -170,19 +132,7 @@ public class UpdateKeyActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component not found");
 
-    callByKey(branch.getDbKey(), ANOTHER_KEY);
-  }
-
-  @Test
-  public void fail_when_using_branch_uuid() {
-    ComponentDto project = db.components().insertMainBranch();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component not found");
-
-    callByUuid(branch.uuid(), ANOTHER_KEY);
+    call(branch.getDbKey(), ANOTHER_KEY);
   }
 
   @Test
@@ -192,31 +142,20 @@ public class UpdateKeyActionTest {
     assertThat(definition.since()).isEqualTo("6.1");
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.key()).isEqualTo("update_key");
-    assertThat(definition.changelog()).hasSize(2);
+    assertThat(definition.changelog()).hasSize(1);
     assertThat(definition.params())
-      .hasSize(3)
+      .hasSize(2)
       .extracting(Param::key)
-      .containsOnlyOnce("projectId", "from", "to");
+      .containsOnlyOnce("from", "to");
   }
 
   private ComponentDto insertProject() {
     return db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
   }
 
-  private void callByUuid(@Nullable String uuid, @Nullable String newKey) {
-    call(uuid, null, newKey);
-  }
-
-  private void callByKey(@Nullable String key, @Nullable String newKey) {
-    call(null, key, newKey);
-  }
-
-  private String call(@Nullable String uuid, @Nullable String key, @Nullable String newKey) {
+  private String call(@Nullable String key, @Nullable String newKey) {
     TestRequest request = ws.newRequest();
 
-    if (uuid != null) {
-      request.setParam(PARAM_PROJECT_ID, uuid);
-    }
     if (key != null) {
       request.setParam(PARAM_FROM, key);
     }

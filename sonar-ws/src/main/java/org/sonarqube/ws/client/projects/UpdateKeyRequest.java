@@ -32,7 +32,6 @@ import javax.annotation.Generated;
 public class UpdateKeyRequest {
 
   private String from;
-  private String projectId;
   private String to;
 
   /**
@@ -45,20 +44,6 @@ public class UpdateKeyRequest {
 
   public String getFrom() {
     return from;
-  }
-
-  /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy"
-   * @deprecated since 6.4
-   */
-  @Deprecated
-  public UpdateKeyRequest setProjectId(String projectId) {
-    this.projectId = projectId;
-    return this;
-  }
-
-  public String getProjectId() {
-    return projectId;
   }
 
   /**

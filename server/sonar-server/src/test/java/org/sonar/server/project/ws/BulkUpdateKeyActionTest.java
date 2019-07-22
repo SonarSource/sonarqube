@@ -58,7 +58,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_DRY_RUN;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
 
 public class BulkUpdateKeyActionTest {
@@ -122,7 +121,7 @@ public class BulkUpdateKeyActionTest {
     ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/File.xoo"));
     ComponentDto inactiveFile = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/InactiveFile.xoo").setEnabled(false));
 
-    BulkUpdateKeyWsResponse result = callByUuid(project.uuid(), FROM, TO);
+    BulkUpdateKeyWsResponse result = callByKey(project.getDbKey(), FROM, TO);
 
     assertThat(result.getKeysCount()).isEqualTo(2);
     assertThat(result.getKeysList()).extracting(Key::getKey, Key::getNewKey, Key::getDuplicate)
@@ -153,18 +152,6 @@ public class BulkUpdateKeyActionTest {
     expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
 
     callByKey(branch.getDbKey(), FROM, TO);
-  }
-
-  @Test
-  public void fail_to_bulk_update_key_using_branch_uuid() {
-    ComponentDto project = db.components().insertMainBranch();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    userSession.addProjectPermission(UserRole.USER, project);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component id '%s' not found", branch.uuid()));
-
-    callByUuid(branch.uuid(), FROM, TO);
   }
 
   @Test
@@ -228,26 +215,17 @@ public class BulkUpdateKeyActionTest {
   }
 
   @Test
-  public void fail_if_uuid_nor_key_provided() {
+  public void fail_if_key_not_provided() {
     expectedException.expect(IllegalArgumentException.class);
 
-    call(null, null, FROM, TO, false);
-  }
-
-  @Test
-  public void fail_if_uuid_and_key_provided() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    ComponentDto project = insertMyProject();
-
-    call(project.uuid(), project.getDbKey(), FROM, TO, false);
+    call(null, FROM, TO, false);
   }
 
   @Test
   public void fail_if_project_does_not_exist() {
     expectedException.expect(NotFoundException.class);
 
-    callDryRunByUuid("UNKNOWN_UUID", FROM, TO);
+    callDryRunByKey("UNKNOWN_KEY", FROM, TO);
   }
 
   @Test
@@ -257,7 +235,7 @@ public class BulkUpdateKeyActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    callDryRunByUuid(project.uuid(), FROM, TO);
+    callDryRunByKey(project.getDbKey(), FROM, TO);
   }
 
   @Test
@@ -273,22 +251,6 @@ public class BulkUpdateKeyActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_uuid() {
-    ComponentDto project = db.components().insertMainBranch();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component id '%s' not found", branch.uuid()));
-
-    ws.newRequest()
-      .setParam(PARAM_PROJECT_ID, branch.uuid())
-      .setParam(PARAM_FROM, "my_")
-      .setParam(PARAM_TO, "my_new_")
-      .execute();
-  }
-
-  @Test
   public void api_definition() {
     WebService.Action definition = ws.getDef();
 
@@ -296,37 +258,26 @@ public class BulkUpdateKeyActionTest {
     assertThat(definition.since()).isEqualTo("6.1");
     assertThat(definition.key()).isEqualTo("bulk_update_key");
     assertThat(definition.params())
-      .hasSize(5)
+      .hasSize(4)
       .extracting(WebService.Param::key)
-      .containsOnlyOnce("projectId", "project", "from", "to", "dryRun");
+      .containsOnlyOnce("project", "from", "to", "dryRun");
   }
 
   private ComponentDto insertMyProject() {
     return componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey(MY_PROJECT_KEY));
   }
 
-  private BulkUpdateKeyWsResponse callDryRunByUuid(@Nullable String uuid, @Nullable String from, @Nullable String to) {
-    return call(uuid, null, from, to, true);
-  }
-
   private BulkUpdateKeyWsResponse callDryRunByKey(@Nullable String key, @Nullable String from, @Nullable String to) {
-    return call(null, key, from, to, true);
-  }
-
-  private BulkUpdateKeyWsResponse callByUuid(@Nullable String uuid, @Nullable String from, @Nullable String to) {
-    return call(uuid, null, from, to, false);
+    return call(key, from, to, true);
   }
 
   private BulkUpdateKeyWsResponse callByKey(@Nullable String key, @Nullable String from, @Nullable String to) {
-    return call(null, key, from, to, false);
+    return call(key, from, to, false);
   }
 
-  private BulkUpdateKeyWsResponse call(@Nullable String uuid, @Nullable String key, @Nullable String from, @Nullable String to, @Nullable Boolean dryRun) {
+  private BulkUpdateKeyWsResponse call(@Nullable String key, @Nullable String from, @Nullable String to, @Nullable Boolean dryRun) {
     TestRequest request = ws.newRequest();
 
-    if (uuid != null) {
-      request.setParam(PARAM_PROJECT_ID, uuid);
-    }
     if (key != null) {
       request.setParam(PARAM_PROJECT, key);
     }

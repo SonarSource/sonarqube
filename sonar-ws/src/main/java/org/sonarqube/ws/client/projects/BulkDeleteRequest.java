@@ -34,7 +34,6 @@ public class BulkDeleteRequest {
   private String analyzedBefore;
   private String onProvisionedOnly;
   private String organization;
-  private List<String> projectIds;
   private List<String> projects;
   private String q;
   private List<String> qualifiers;
@@ -80,20 +79,6 @@ public class BulkDeleteRequest {
 
   public String getOrganization() {
     return organization;
-  }
-
-  /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy,AU-TpxcA-iU5OvuD2FLz"
-   * @deprecated since 6.4
-   */
-  @Deprecated
-  public BulkDeleteRequest setProjectIds(List<String> projectIds) {
-    this.projectIds = projectIds;
-    return this;
-  }
-
-  public List<String> getProjectIds() {
-    return projectIds;
   }
 
   /**

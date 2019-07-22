@@ -104,7 +104,7 @@ public class BulkDeleteActionTest {
     ComponentDto toKeep = db.components().insertPrivateProject(defaultOrganization);
 
     TestResponse result = ws.newRequest()
-      .setParam("projectIds", toDeleteInOrg1.uuid() + "," + toDeleteInOrg2.uuid())
+      .setParam(PARAM_PROJECTS, toDeleteInOrg1.getDbKey() + "," + toDeleteInOrg2.getDbKey())
       .execute();
 
     assertThat(result.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
@@ -135,7 +135,7 @@ public class BulkDeleteActionTest {
     db.components().insertPrivateProject(org1);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("At lease one parameter among analyzedBefore, projects, projectIds, and q must be provided");
+    expectedException.expectMessage("At lease one parameter among analyzedBefore, projects and q must be provided");
 
     try {
       ws.newRequest().execute();

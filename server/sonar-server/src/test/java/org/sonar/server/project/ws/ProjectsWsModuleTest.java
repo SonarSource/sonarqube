@@ -36,7 +36,7 @@ public class ProjectsWsModuleTest {
   public void verify_count_of_added_components_on_SonarQube() {
     ComponentContainer container = new ComponentContainer();
     new ProjectsWsModule(new ConfigurationBridge(settings)).configure(container);
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 15);
+    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 12);
   }
 
   @Test
@@ -45,7 +45,7 @@ public class ProjectsWsModuleTest {
     settings.setProperty(ProcessProperties.Property.SONARCLOUD_ENABLED.getKey(), true);
 
     new ProjectsWsModule(new ConfigurationBridge(settings)).configure(container);
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 14);
+    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 11);
   }
 
 }

@@ -54,7 +54,6 @@ public class ProjectsService extends BaseService {
         .setParam("analyzedBefore", request.getAnalyzedBefore())
         .setParam("onProvisionedOnly", request.getOnProvisionedOnly())
         .setParam("organization", request.getOrganization())
-        .setParam("projectIds", request.getProjectIds() == null ? null : request.getProjectIds().stream().collect(Collectors.joining(",")))
         .setParam("projects", request.getProjects() == null ? null : request.getProjects().stream().collect(Collectors.joining(",")))
         .setParam("q", request.getQ())
         .setParam("qualifiers", request.getQualifiers() == null ? null : request.getQualifiers().stream().collect(Collectors.joining(",")))
@@ -76,7 +75,6 @@ public class ProjectsService extends BaseService {
         .setParam("dryRun", request.getDryRun())
         .setParam("from", request.getFrom())
         .setParam("project", request.getProject())
-        .setParam("projectId", request.getProjectId())
         .setParam("to", request.getTo()),
       BulkUpdateKeyWsResponse.parser());
   }
@@ -110,73 +108,6 @@ public class ProjectsService extends BaseService {
     call(
       new PostRequest(path("delete"))
         .setParam("project", request.getProject())
-        .setParam("projectId", request.getProjectId())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/ghosts">Further information about this action online (including a response example)</a>
-   * @since 5.2
-   * @deprecated since 6.6
-   */
-  @Deprecated
-  public String ghosts(GhostsRequest request) {
-    return call(
-      new GetRequest(path("ghosts"))
-        .setParam("f", request.getF() == null ? null : request.getF().stream().collect(Collectors.joining(",")))
-        .setParam("organization", request.getOrganization())
-        .setParam("p", request.getP())
-        .setParam("ps", request.getPs())
-        .setParam("q", request.getQ())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/index">Further information about this action online (including a response example)</a>
-   * @since 2.10
-   * @deprecated since 6.3
-   */
-  @Deprecated
-  public String index(IndexRequest request) {
-    return call(
-      new GetRequest(path("index"))
-        .setParam("desc", request.getDesc())
-        .setParam("format", request.getFormat())
-        .setParam("libs", request.getLibs())
-        .setParam("project", request.getProject())
-        .setParam("search", request.getSearch())
-        .setParam("subprojects", request.getSubprojects())
-        .setParam("versions", request.getVersions())
-        .setParam("views", request.getViews())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/provisioned">Further information about this action online (including a response example)</a>
-   * @since 5.2
-   * @deprecated since 6.6
-   */
-  @Deprecated
-  public String provisioned(ProvisionedRequest request) {
-    return call(
-      new GetRequest(path("provisioned"))
-        .setParam("f", request.getF() == null ? null : request.getF().stream().collect(Collectors.joining(",")))
-        .setParam("organization", request.getOrganization())
-        .setParam("p", request.getP())
-        .setParam("ps", request.getPs())
-        .setParam("q", request.getQ())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
@@ -195,7 +126,6 @@ public class ProjectsService extends BaseService {
         .setParam("onProvisionedOnly", request.getOnProvisionedOnly())
         .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
-        .setParam("projectIds", request.getProjectIds() == null ? null : request.getProjectIds().stream().collect(Collectors.joining(",")))
         .setParam("projects", request.getProjects() == null ? null : request.getProjects().stream().collect(Collectors.joining(",")))
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ())
@@ -230,7 +160,6 @@ public class ProjectsService extends BaseService {
     call(
       new PostRequest(path("update_key"))
         .setParam("from", request.getFrom())
-        .setParam("projectId", request.getProjectId())
         .setParam("to", request.getTo())
         .setMediaType(MediaTypes.JSON)
       ).content();

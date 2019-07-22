@@ -69,7 +69,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("search_my_projects")
+    context.createAction("search_my_projects")
       .setDescription("Return list of projects for which the current user has 'Administer' permission. Maximum 1'000 projects are returned.")
       .setResponseExample(getClass().getResource("search_my_projects-example.json"))
       .addPagingParams(100, MAX_SIZE)
@@ -77,7 +77,6 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
       .setInternal(true)
       .setHandler(this);
 
-    action.setChangelog(new Change("6.4", "The 'id' field is deprecated in the response"));
   }
 
   @Override
@@ -134,7 +133,6 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
     public Project apply(ComponentDto dto) {
       Project.Builder project = Project.newBuilder();
       project
-        .setId(dto.uuid())
         .setKey(dto.getDbKey())
         .setName(dto.name());
       data.lastSnapshot(dto.uuid()).ifPresent(s -> {

@@ -313,14 +313,6 @@ public class ComponentDao implements Dao {
     return mapper(dbSession).selectProjectsByOrganization(organizationUuid);
   }
 
-  public List<ComponentDto> selectGhostProjects(DbSession session, String organizationUuid, @Nullable String query, int offset, int limit) {
-    return mapper(session).selectGhostProjects(organizationUuid, buildUpperLikeSql(query), new RowBounds(offset, limit));
-  }
-
-  public long countGhostProjects(DbSession session, String organizationUuid, @Nullable String query) {
-    return mapper(session).countGhostProjects(organizationUuid, buildUpperLikeSql(query));
-  }
-
   /**
    * Selects all components that are relevant for indexing. The result is not returned (since it is usually too big), but handed over to the <code>handler</code>
    *
@@ -353,11 +345,6 @@ public class ComponentDao implements Dao {
 
   public List<ComponentWithModuleUuidDto> selectEnabledComponentsWithModuleUuidFromProjectKey(DbSession dbSession, String projectKey) {
     return mapper(dbSession).selectEnabledComponentsWithModuleUuidFromProjectKey(projectKey);
-  }
-
-  public List<ComponentDto> selectProjectsByNameQuery(DbSession dbSession, @Nullable String nameQuery, boolean includeModules) {
-    String nameQueryForSql = nameQuery == null ? null : buildLikeValue(nameQuery, BEFORE_AND_AFTER).toUpperCase(Locale.ENGLISH);
-    return mapper(dbSession).selectProjectsByNameQuery(nameQueryForSql, includeModules);
   }
 
   /**

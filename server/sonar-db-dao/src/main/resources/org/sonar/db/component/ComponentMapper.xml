@@ -535,36 +535,6 @@
       projects root ON root.uuid=p.project_uuid AND root.kee=#{projectKey,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectGhostProjects" parameterType="map" resultType="Component">
-    select distinct
-      <include refid="componentColumns"/>
-    from projects p
-      <include refid="ghostProjectClauses"/>
-  </select>
-
-  <select id="countGhostProjects" parameterType="map" resultType="long">
-    select
-      count(distinct p.id)
-    from projects p
-      <include refid="ghostProjectClauses"/>
-  </select>
-
-  <sql id="ghostProjectClauses">
-    inner join snapshots s1 on s1.component_uuid = p.uuid and s1.status='U'
-    left join snapshots s2 on s2.component_uuid = p.uuid and s2.status='P'
-    where
-    s2.id is null
-    and p.qualifier='TRK'
-    and p.main_branch_project_uuid is null
-    and p.copy_component_uuid is null
-    <if test="query!=null">
-      and (
-      UPPER(p.name) like #{query} ESCAPE '/'
-      or UPPER(p.kee) like #{query} ESCAPE '/'
-      )
-    </if>
-  </sql>
-
   <select id="scrollForIndexing" parameterType="map" resultType="Component" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
       <include refid="componentColumns"/>
@@ -594,27 +564,6 @@
       and p.scope = 'FIL'
       and p.qualifier in ('FIL', 'UTS')
       and p.path is not null
-  </select>
-
-  <select id="selectProjectsByNameQuery" resultType="Component">
-    select
-    <include refid="componentColumns"/>
-    from projects p
-    <where>
-      p.enabled=${_true}
-      AND p.main_branch_project_uuid is null
-      AND p.copy_component_uuid is null
-      <if test="includeModules == false">
-        AND p.qualifier = 'TRK'
-      </if>
-      <if test="includeModules == true">
-        AND (p.qualifier = 'TRK' OR p.qualifier = 'BRC')
-      </if>
-      <if test="nameQuery != null">
-        AND UPPER(p.name) like #{nameQuery,jdbcType=VARCHAR} ESCAPE '/'
-      </if>
-    </where>
-    ORDER BY p.name
   </select>
 
   <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">

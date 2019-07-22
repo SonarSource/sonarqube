@@ -6,7 +6,6 @@
   },
   "projects": [
     {
-      "id": "AU-Tpxb--iU5OvuD2FLy",
       "key": "clang",
       "name": "Clang",
       "lastAnalysisDate": "2016-06-11T14:25:53+0000",
@@ -14,7 +13,6 @@
       "links": []
     },
     {
-      "id": "AU-TpxcA-iU5OvuD2FLz",
       "key": "net.java.openjdk:jdk7",
       "name": "JDK 7",
       "description": "JDK",

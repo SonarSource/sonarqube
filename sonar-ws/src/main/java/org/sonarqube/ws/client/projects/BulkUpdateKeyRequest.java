@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.projects;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -34,7 +33,6 @@ public class BulkUpdateKeyRequest {
   private String dryRun;
   private String from;
   private String project;
-  private String projectId;
   private String to;
 
   /**
@@ -69,6 +67,7 @@ public class BulkUpdateKeyRequest {
   }
 
   /**
+   * This is a mandatory parameter.
    * Example value: "my_old_project"
    */
   public BulkUpdateKeyRequest setProject(String project) {
@@ -78,20 +77,6 @@ public class BulkUpdateKeyRequest {
 
   public String getProject() {
     return project;
-  }
-
-  /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy"
-   * @deprecated since 6.4
-   */
-  @Deprecated
-  public BulkUpdateKeyRequest setProjectId(String projectId) {
-    this.projectId = projectId;
-    return this;
-  }
-
-  public String getProjectId() {
-    return projectId;
   }
 
   /**

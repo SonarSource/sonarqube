@@ -57,7 +57,6 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.component.TestComponentFinder.from;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
 
 public class DeleteActionTest {
 
@@ -86,34 +85,11 @@ public class DeleteActionTest {
       userSessionRule, projectLifeCycleListeners)));
 
   @Test
-  public void organization_administrator_deletes_project_by_id() throws Exception {
-    ComponentDto project = componentDbTester.insertPrivateProject();
-    userSessionRule.logIn().addPermission(ADMINISTER, project.getOrganizationUuid());
-
-    WsTester.TestRequest request = newRequest().setParam(PARAM_PROJECT_ID, project.uuid());
-    call(request);
-
-    assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
-    verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(project)));
-  }
-
-  @Test
   public void organization_administrator_deletes_project_by_key() throws Exception {
     ComponentDto project = componentDbTester.insertPrivateProject();
     userSessionRule.logIn().addPermission(ADMINISTER, project.getOrganizationUuid());
 
     call(newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
-
-    assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
-    verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(project)));
-  }
-
-  @Test
-  public void project_administrator_deletes_the_project_by_uuid() throws Exception {
-    ComponentDto project = componentDbTester.insertPrivateProject();
-    userSessionRule.logIn().addProjectPermission(ADMIN, project);
-
-    call(newRequest().setParam(PARAM_PROJECT_ID, project.uuid()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
     verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(project)));
@@ -186,7 +162,7 @@ public class DeleteActionTest {
       .addProjectPermission(UserRole.USER, project);
     expectedException.expect(ForbiddenException.class);
 
-    call(newRequest().setParam(PARAM_PROJECT_ID, project.uuid()));
+    call(newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
   }
 
   @Test
@@ -196,7 +172,7 @@ public class DeleteActionTest {
     userSessionRule.anonymous();
     expectedException.expect(UnauthorizedException.class);
 
-    call(newRequest().setParam(PARAM_PROJECT_ID, project.uuid()));
+    call(newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
   }
 
   @Test
@@ -209,18 +185,6 @@ public class DeleteActionTest {
     expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
 
     call(newRequest().setParam(PARAM_PROJECT, branch.getDbKey()));
-  }
-
-  @Test
-  public void fail_when_using_branch_uuid() throws Exception {
-    ComponentDto project = db.components().insertMainBranch();
-    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component id '%s' not found", branch.uuid()));
-
-    call(newRequest().setParam(PARAM_PROJECT_ID, branch.uuid()));
   }
 
   private String verifyDeletedKey() {

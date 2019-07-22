@@ -47,8 +47,6 @@ import static java.lang.String.format;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.project.ws.SearchAction.buildDbQuery;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
@@ -56,7 +54,6 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZE
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECTS;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_IDS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
@@ -81,34 +78,25 @@ public class BulkDeleteAction implements ProjectsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    String parameterRequiredMessage = format("At least one parameter is required among %s, %s, %s (deprecated since 6.4) and %s",
-      PARAM_ANALYZED_BEFORE, PARAM_PROJECTS, PARAM_PROJECT_IDS, Param.TEXT_QUERY);
+    String parameterRequiredMessage = format("At least one parameter is required among %s, %s and %s",
+      PARAM_ANALYZED_BEFORE, PARAM_PROJECTS, Param.TEXT_QUERY);
     WebService.NewAction action = context
       .createAction(ACTION)
       .setPost(true)
       .setDescription("Delete one or several projects.<br />" +
+        "Only the 1'000 first items in project filters are taken into account.<br />" +
         "Requires 'Administer System' permission.<br />" +
         parameterRequiredMessage)
       .setSince("5.2")
       .setHandler(this)
-      .setChangelog(
-        new Change("7.8", parameterRequiredMessage),
-        new Change("6.7.2", "Only the 1'000 first items in project filters are taken into account"));
+      .setChangelog(new Change("7.8", parameterRequiredMessage));
 
     support.addOrganizationParam(action);
 
     action
       .createParam(PARAM_PROJECTS)
       .setDescription("Comma-separated list of project keys")
-      .setDeprecatedKey("keys", "6.4")
       .setExampleValue(String.join(",", KEY_PROJECT_EXAMPLE_001, KEY_PROJECT_EXAMPLE_002));
-
-    action
-      .createParam(PARAM_PROJECT_IDS)
-      .setDescription("Comma-separated list of project ids. Only the 1'000 first ids are used. Others are silently ignored.")
-      .setDeprecatedKey("ids", "6.4")
-      .setDeprecatedSince("6.4")
-      .setExampleValue(String.join(",", UUID_EXAMPLE_01, UUID_EXAMPLE_02));
 
     action.createParam(Param.TEXT_QUERY)
       .setDescription("Limit to: <ul>" +
@@ -168,13 +156,12 @@ public class BulkDeleteAction implements ProjectsWsAction {
     boolean analyzedBeforePresent = !Strings.isNullOrEmpty(searchRequest.getAnalyzedBefore());
     List<String> projects = searchRequest.getProjects();
     boolean projectsPresent = projects != null && !projects.isEmpty();
-    List<String> projectIds = searchRequest.getProjectIds();
-    boolean projectIdsPresent = projectIds != null && !projectIds.isEmpty();
-    boolean queryPresent = !Strings.isNullOrEmpty(searchRequest.getQuery());
-    boolean atLeastOneParameterIsPresent = analyzedBeforePresent || projectsPresent || queryPresent || projectIdsPresent;
 
-    checkArgument(atLeastOneParameterIsPresent, format("At lease one parameter among %s, %s, %s, and %s must be provided",
-      PARAM_ANALYZED_BEFORE, PARAM_PROJECTS, PARAM_PROJECT_IDS, Param.TEXT_QUERY));
+    boolean queryPresent = !Strings.isNullOrEmpty(searchRequest.getQuery());
+    boolean atLeastOneParameterIsPresent = analyzedBeforePresent || projectsPresent || queryPresent;
+
+    checkArgument(atLeastOneParameterIsPresent, format("At lease one parameter among %s, %s and %s must be provided",
+      PARAM_ANALYZED_BEFORE, PARAM_PROJECTS, Param.TEXT_QUERY));
   }
 
   private static SearchRequest toSearchWsRequest(Request request) {
@@ -186,7 +173,6 @@ public class BulkDeleteAction implements ProjectsWsAction {
       .setAnalyzedBefore(request.param(PARAM_ANALYZED_BEFORE))
       .setOnProvisionedOnly(request.mandatoryParamAsBoolean(PARAM_ON_PROVISIONED_ONLY))
       .setProjects(restrictTo1000Values(request.paramAsStrings(PARAM_PROJECTS)))
-      .setProjectIds(restrictTo1000Values(request.paramAsStrings(PARAM_PROJECT_IDS)))
       .build();
   }
 

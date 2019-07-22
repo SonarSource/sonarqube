@@ -51,8 +51,6 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBIL
 
 public class CreateAction implements ProjectsWsAction {
 
-  private static final String DEPRECATED_PARAM_KEY = "key";
-
   private final ProjectsWsSupport support;
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -76,13 +74,10 @@ public class CreateAction implements ProjectsWsAction {
       .setHandler(this);
 
     action.setChangelog(
-      new Change("6.3", "The response format has been updated and does not contain the database ID anymore"),
-      new Change("6.3", "The 'key' parameter has been renamed 'project'"),
       new Change("7.1", "The 'visibility' parameter is public"));
 
     action.createParam(PARAM_PROJECT)
       .setDescription("Key of the project")
-      .setDeprecatedKey(DEPRECATED_PARAM_KEY, "6.3")
       .setRequired(true)
       .setMaximumLength(MAX_COMPONENT_KEY_LENGTH)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
@@ -123,7 +118,7 @@ public class CreateAction implements ProjectsWsAction {
 
       ComponentDto componentDto = componentUpdater.create(dbSession, newComponentBuilder()
         .setOrganizationUuid(organization.getUuid())
-        .setKey(request.getKey())
+        .setKey(request.getProjectKey())
         .setName(request.getName())
         .setDeprecatedBranch(request.getBranch())
         .setPrivate(changeToPrivate)
@@ -137,7 +132,7 @@ public class CreateAction implements ProjectsWsAction {
   private static CreateRequest toCreateRequest(Request request) {
     return CreateRequest.builder()
       .setOrganization(request.param(PARAM_ORGANIZATION))
-      .setKey(request.mandatoryParam(PARAM_PROJECT))
+      .setProjectKey(request.mandatoryParam(PARAM_PROJECT))
       .setName(abbreviate(request.mandatoryParam(PARAM_NAME), MAX_COMPONENT_NAME_LENGTH))
       .setBranch(request.param(PARAM_BRANCH))
       .setVisibility(request.param(PARAM_VISIBILITY))
@@ -157,7 +152,7 @@ public class CreateAction implements ProjectsWsAction {
   static class CreateRequest {
 
     private final String organization;
-    private final String key;
+    private final String projectKey;
     private final String name;
     private final String branch;
     @CheckForNull
@@ -165,7 +160,7 @@ public class CreateAction implements ProjectsWsAction {
 
     private CreateRequest(Builder builder) {
       this.organization = builder.organization;
-      this.key = builder.key;
+      this.projectKey = builder.projectKey;
       this.name = builder.name;
       this.branch = builder.branch;
       this.visibility = builder.visibility;
@@ -177,8 +172,8 @@ public class CreateAction implements ProjectsWsAction {
     }
 
     @CheckForNull
-    public String getKey() {
-      return key;
+    public String getProjectKey() {
+      return projectKey;
     }
 
     @CheckForNull
@@ -203,7 +198,7 @@ public class CreateAction implements ProjectsWsAction {
 
   static class Builder {
     private String organization;
-    private String key;
+    private String projectKey;
     private String name;
     private String branch;
     @CheckForNull
@@ -217,8 +212,8 @@ public class CreateAction implements ProjectsWsAction {
       return this;
     }
 
-    public Builder setKey(@Nullable String key) {
-      this.key = key;
+    public Builder setProjectKey(@Nullable String projectKey) {
+      this.projectKey = projectKey;
       return this;
     }
 

@@ -832,27 +832,6 @@ public class SearchActionTest {
   }
 
   @Test
-  public void deprecated_paging() {
-    RuleDto rule = newRule();
-    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-1"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
-    indexPermissions();
-    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
-    for (int i = 0; i < 12; i++) {
-      IssueDto issue = newDto(rule, file, project).setAssigneeUuid(null);
-      dbClient.issueDao().insert(session, issue);
-    }
-    session.commit();
-    indexIssues();
-
-    ws.newRequest()
-      .setParam(PARAM_PAGE_INDEX, "2")
-      .setParam(PARAM_PAGE_SIZE, "9")
-      .execute()
-      .assertJson(this.getClass(), "deprecated_paging.json");
-  }
-
-  @Test
   public void default_page_size_is_100() {
     ws.newRequest()
       .execute()

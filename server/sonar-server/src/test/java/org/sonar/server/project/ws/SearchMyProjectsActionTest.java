@@ -118,7 +118,6 @@ public class SearchMyProjectsActionTest {
     SearchMyProjectsWsResponse result = callWs();
 
     assertThat(result.getProjectsCount()).isEqualTo(1);
-    assertThat(result.getProjects(0).getId()).isEqualTo(jdk7.uuid());
   }
 
   @Test
@@ -148,8 +147,6 @@ public class SearchMyProjectsActionTest {
     SearchMyProjectsWsResponse result = callWs();
 
     assertThat(result.getProjectsCount()).isEqualTo(3);
-    assertThat(result.getProjectsList()).extracting(Project::getId)
-      .containsExactly(a_project.uuid(), b_project.uuid(), c_project.uuid());
   }
 
   @Test
@@ -181,7 +178,6 @@ public class SearchMyProjectsActionTest {
     SearchMyProjectsWsResponse result = callWs();
 
     assertThat(result.getProjectsCount()).isEqualTo(1);
-    assertThat(result.getProjects(0).getId()).isEqualTo(jdk7.uuid());
   }
 
   @Test
@@ -196,7 +192,6 @@ public class SearchMyProjectsActionTest {
     SearchMyProjectsWsResponse result = callWs();
 
     assertThat(result.getProjectsCount()).isEqualTo(1);
-    assertThat(result.getProjects(0).getId()).isEqualTo(jdk7.uuid());
   }
 
   @Test
@@ -227,7 +222,6 @@ public class SearchMyProjectsActionTest {
     SearchMyProjectsWsResponse result = callWs();
 
     assertThat(result.getProjectsCount()).isEqualTo(1);
-    assertThat(result.getProjects(0).getId()).isEqualTo(jdk7.uuid());
   }
 
   @Test
@@ -249,7 +243,6 @@ public class SearchMyProjectsActionTest {
     SearchMyProjectsWsResponse result = callWs();
 
     assertThat(result.getProjectsCount()).isEqualTo(3);
-    assertThat(result.getProjectsList()).extracting(Project::getId).containsOnly(jdk7.uuid(), cLang.uuid(), sonarqube.uuid());
   }
 
   @Test

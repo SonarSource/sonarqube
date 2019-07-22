@@ -378,13 +378,11 @@ public interface WebService extends Definable<WebService.Context> {
       return createParam(Param.PAGE)
         .setDescription(PAGE_PARAM_DESCRIPTION)
         .setExampleValue("42")
-        .setDeprecatedKey("pageIndex", "5.2")
         .setDefaultValue("1");
     }
 
     public NewParam createPageSize(int defaultPageSize, int maxPageSize) {
       return createParam(Param.PAGE_SIZE)
-        .setDeprecatedKey("pageSize", "5.2")
         .setDefaultValue(String.valueOf(defaultPageSize))
         .setMaximumValue(maxPageSize)
         .setDescription("Page size. Must be greater than 0 and less or equal than " + maxPageSize)

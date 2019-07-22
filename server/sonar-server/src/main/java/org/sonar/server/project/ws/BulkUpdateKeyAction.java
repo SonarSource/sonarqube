@@ -22,7 +22,6 @@ package org.sonar.server.project.ws;
 import com.google.common.collect.ImmutableList;
 import java.util.Comparator;
 import java.util.Map;
-import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -32,16 +31,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.BulkUpdateKeyWsResponse;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -49,7 +43,6 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_BULK_U
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_DRY_RUN;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
 
 public class BulkUpdateKeyAction implements ProjectsWsAction {
@@ -83,33 +76,22 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
         "  <li>%s: my_</li>" +
         "  <li>%s: my_new_</li>" +
         "</ul>" +
-        "Either '%s' or '%s' must be provided.<br> " +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System'</li>" +
         "<li>'Administer' rights on the specified project</li>" +
         "</ul>",
         PARAM_DRY_RUN,
-        PARAM_PROJECT, PARAM_FROM, PARAM_TO,
-        PARAM_PROJECT_ID, PARAM_PROJECT)
+        PARAM_PROJECT, PARAM_FROM, PARAM_TO)
       .setDeprecatedSince("7.6")
       .setSince("6.1")
       .setPost(true)
       .setResponseExample(getClass().getResource("bulk_update_key-example.json"))
       .setHandler(this);
 
-    action.setChangelog(
-      new Change("6.4", "Moved from api/components/bulk_update_key to api/projects/bulk_update_key"));
-
-    action.createParam(PARAM_PROJECT_ID)
-      .setDescription("Project or module ID")
-      .setDeprecatedKey("id", "6.4")
-      .setDeprecatedSince("6.4")
-      .setExampleValue(UUID_EXAMPLE_01);
-
     action.createParam(PARAM_PROJECT)
       .setDescription("Project or module key")
-      .setDeprecatedKey("key", "6.4")
+      .setRequired(true)
       .setExampleValue("my_old_project");
 
     action.createParam(PARAM_FROM)
@@ -137,7 +119,7 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
 
   private BulkUpdateKeyWsResponse doHandle(BulkUpdateKeyRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto projectOrModule = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.ID_AND_KEY);
+      ComponentDto projectOrModule = componentFinder.getByKey(dbSession, request.getProjectKey());
       checkIsProjectOrModule(projectOrModule);
       userSession.checkComponentPermission(UserRole.ADMIN, projectOrModule);
 
@@ -154,7 +136,7 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
   }
 
   private static void checkNoDuplicate(Map<String, Boolean> newKeysWithDuplicateMap) {
-    newKeysWithDuplicateMap.entrySet().forEach(entry -> checkRequest(!entry.getValue(), "Impossible to update key: a component with key \"%s\" already exists.", entry.getKey()));
+    newKeysWithDuplicateMap.forEach((key, value) -> checkRequest(!value, "Impossible to update key: a component with key \"%s\" already exists.", key));
   }
 
   private void bulkUpdateKey(DbSession dbSession, BulkUpdateKeyRequest request, ComponentDto projectOrModule) {
@@ -181,8 +163,7 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
 
   private static BulkUpdateKeyRequest toWsRequest(Request request) {
     return BulkUpdateKeyRequest.builder()
-      .setId(request.param(PARAM_PROJECT_ID))
-      .setKey(request.param(PARAM_PROJECT))
+      .setProjectKey(request.mandatoryParam(PARAM_PROJECT))
       .setFrom(request.mandatoryParam(PARAM_FROM))
       .setTo(request.mandatoryParam(PARAM_TO))
       .setDryRun(request.mandatoryParamAsBoolean(PARAM_DRY_RUN))
@@ -190,28 +171,20 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
   }
 
   private static class BulkUpdateKeyRequest {
-    private final String id;
-    private final String key;
+    private final String projectKey;
     private final String from;
     private final String to;
     private final boolean dryRun;
 
     public BulkUpdateKeyRequest(Builder builder) {
-      this.id = builder.id;
-      this.key = builder.key;
+      this.projectKey = builder.projectKey;
       this.from = builder.from;
       this.to = builder.to;
       this.dryRun = builder.dryRun;
     }
 
-    @CheckForNull
-    public String getId() {
-      return id;
-    }
-
-    @CheckForNull
-    public String getKey() {
-      return key;
+    public String getProjectKey() {
+      return projectKey;
     }
 
     public String getFrom() {
@@ -232,8 +205,7 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
   }
 
   public static class Builder {
-    private String id;
-    private String key;
+    private String projectKey;
     private String from;
     private String to;
     private boolean dryRun;
@@ -242,13 +214,8 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
       // enforce method constructor
     }
 
-    public Builder setId(@Nullable String id) {
-      this.id = id;
-      return this;
-    }
-
-    public Builder setKey(@Nullable String key) {
-      this.key = key;
+    public Builder setProjectKey(String projectKey) {
+      this.projectKey = projectKey;
       return this;
     }
 
@@ -268,6 +235,7 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
     }
 
     public BulkUpdateKeyRequest build() {
+      checkArgument(projectKey != null && !projectKey.isEmpty(), "The key must not be empty");
       checkArgument(from != null && !from.isEmpty(), "The string to match must not be empty");
       checkArgument(to != null && !to.isEmpty(), "The string replacement must not be empty");
       return new BulkUpdateKeyRequest(this);

@@ -40,7 +40,6 @@ class SearchRequest {
   private final String analyzedBefore;
   private final boolean onProvisionedOnly;
   private final List<String> projects;
-  private final List<String> projectIds;
 
   public SearchRequest(Builder builder) {
     this.organization = builder.organization;
@@ -52,7 +51,6 @@ class SearchRequest {
     this.analyzedBefore = builder.analyzedBefore;
     this.onProvisionedOnly = builder.onProvisionedOnly;
     this.projects = builder.projects;
-    this.projectIds = builder.projectIds;
   }
 
   @CheckForNull
@@ -98,11 +96,6 @@ class SearchRequest {
     return projects;
   }
 
-  @CheckForNull
-  public List<String> getProjectIds() {
-    return projectIds;
-  }
-
   public static Builder builder() {
     return new Builder();
   }
@@ -117,7 +110,6 @@ class SearchRequest {
     private String analyzedBefore;
     private boolean onProvisionedOnly = false;
     private List<String> projects;
-    private List<String> projectIds;
 
     public Builder setOrganization(@Nullable String organization) {
       this.organization = organization;
@@ -164,14 +156,8 @@ class SearchRequest {
       return this;
     }
 
-    public Builder setProjectIds(@Nullable List<String> projectIds) {
-      this.projectIds = projectIds;
-      return this;
-    }
-
     public SearchRequest build() {
       checkArgument(projects==null || !projects.isEmpty(), "Project key list must not be empty");
-      checkArgument(projectIds==null || !projectIds.isEmpty(), "Project id list must not be empty");
       checkArgument(pageSize == null || pageSize <= MAX_PAGE_SIZE, "Page size must not be greater than %s", MAX_PAGE_SIZE);
       return new SearchRequest(this);
     }

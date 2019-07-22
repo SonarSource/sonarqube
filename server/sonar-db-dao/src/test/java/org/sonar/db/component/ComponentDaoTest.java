@@ -1229,61 +1229,6 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_ghost_projects() {
-    OrganizationDto organization = db.organizations().insert();
-
-    // ghosts because has at least one snapshot with status U but none with status P
-    ComponentDto ghostProject = db.components().insertPrivateProject(organization);
-    db.components().insertSnapshot(ghostProject, dto -> dto.setStatus("U"));
-    db.components().insertSnapshot(ghostProject, dto -> dto.setStatus("U"));
-    ComponentDto ghostProject2 = db.components().insertPrivateProject(organization);
-    db.components().insertSnapshot(ghostProject2, dto -> dto.setStatus("U"));
-    ComponentDto disabledGhostProject = db.components().insertPrivateProject(dto -> dto.setEnabled(false));
-    db.components().insertSnapshot(disabledGhostProject, dto -> dto.setStatus("U"));
-
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
-    db.components().insertSnapshot(project1, dto -> dto.setStatus("P"));
-    db.components().insertSnapshot(project1, dto -> dto.setStatus("U"));
-    ComponentDto module = db.components().insertComponent(newModuleDto(project1));
-    ComponentDto dir = db.components().insertComponent(newDirectory(module, "foo"));
-    db.components().insertComponent(newFileDto(module, dir, "bar"));
-
-    ComponentDto provisionedProject = db.components().insertPrivateProject(organization);
-
-    // not a ghost because has at least one snapshot with status P
-    ComponentDto project2 = db.components().insertPrivateProject(organization);
-    db.components().insertSnapshot(project2, dto -> dto.setStatus("P"));
-
-    // not a ghost because it's not a project
-    ComponentDto view = db.components().insertView(organization);
-    db.components().insertSnapshot(view, dto -> dto.setStatus("U"));
-    db.components().insertComponent(newProjectCopy("do", project1, view));
-
-    assertThat(underTest.selectGhostProjects(dbSession, organization.getUuid(), null, 0, 10))
-      .extracting(ComponentDto::uuid)
-      .containsOnly(ghostProject.uuid(), ghostProject2.uuid(), disabledGhostProject.uuid());
-    assertThat(underTest.countGhostProjects(dbSession, organization.getUuid(), null)).isEqualTo(3);
-  }
-
-  @Test
-  public void dont_select_branch_ghost_projects() {
-    OrganizationDto organization = db.organizations().insert();
-
-    // ghosts because has at least one snapshot with status U but none with status P
-    ComponentDto ghostProject = db.components().insertPrivateProject(organization);
-    db.components().insertSnapshot(ghostProject, dto -> dto.setStatus("U"));
-    db.components().insertSnapshot(ghostProject, dto -> dto.setStatus("U"));
-    ComponentDto ghostBranchProject = db.components().insertProjectBranch(ghostProject);
-
-    db.components().insertSnapshot(ghostBranchProject, dto -> dto.setStatus("U"));
-
-    assertThat(underTest.selectGhostProjects(dbSession, organization.getUuid(), null, 0, 10))
-      .extracting(ComponentDto::uuid)
-      .containsOnly(ghostProject.uuid());
-    assertThat(underTest.countGhostProjects(dbSession, organization.getUuid(), null)).isEqualTo(1);
-  }
-
-  @Test
   public void selectByProjectUuid() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
@@ -1943,48 +1888,6 @@ public class ComponentDaoTest {
     List<ComponentDto> components = underTest.selectDescendants(dbSession, dbQuery);
     assertThat(components).extracting("uuid").containsOnly("project-copy-uuid", "subview-uuid");
     assertThat(components).extracting("organizationUuid").containsOnly(organizationDto.getUuid());
-  }
-
-  @Test
-  public void select_projects_by_name_ignore_branches() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project1 = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("project1"));
-    ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setName("project1"));
-    ComponentDto subModule1 = db.components().insertComponent(newModuleDto(module1).setName("project1"));
-
-    db.components().insertComponent(newFileDto(subModule1).setName("project1"));
-    db.components().insertProjectBranch(project1, b -> b.setKey("branch1"));
-
-    // check that branch is present with same name as main branch
-    assertThat(underTest.selectByKeyAndBranch(dbSession, project1.getKey(), "branch1").get().name()).isEqualTo("project1");
-
-    // branch is not returned
-    assertThat(underTest.selectProjectsByNameQuery(dbSession, null, false)).extracting(ComponentDto::uuid)
-      .containsOnly(project1.uuid());
-    assertThat(underTest.selectProjectsByNameQuery(dbSession, "project", false)).extracting(ComponentDto::uuid)
-      .containsOnly(project1.uuid());
-  }
-
-  @Test
-  public void select_projects_by_name_query() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project1 = db.components().insertComponent(newPrivateProjectDto(organizationDto).setName("project1"));
-    ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setName("module1"));
-    ComponentDto subModule1 = db.components().insertComponent(newModuleDto(module1).setName("subModule1"));
-    db.components().insertComponent(newFileDto(subModule1).setName("file"));
-    ComponentDto project2 = db.components().insertComponent(newPrivateProjectDto(organizationDto).setName("project2"));
-    ComponentDto project3 = db.components().insertComponent(newPrivateProjectDto(organizationDto).setName("project3"));
-
-    assertThat(underTest.selectProjectsByNameQuery(dbSession, null, false)).extracting(ComponentDto::uuid)
-      .containsOnly(project1.uuid(), project2.uuid(), project3.uuid());
-    assertThat(underTest.selectProjectsByNameQuery(dbSession, null, true)).extracting(ComponentDto::uuid)
-      .containsOnly(project1.uuid(), project2.uuid(), project3.uuid(), module1.uuid(), subModule1.uuid());
-    assertThat(underTest.selectProjectsByNameQuery(dbSession, "project1", false)).extracting(ComponentDto::uuid).containsOnly(project1.uuid());
-    assertThat(underTest.selectProjectsByNameQuery(dbSession, "ct1", false)).extracting(ComponentDto::uuid).containsOnly(project1.uuid());
-    assertThat(underTest.selectProjectsByNameQuery(dbSession, "pro", false)).extracting(ComponentDto::uuid).containsOnly(project1.uuid(), project2.uuid(), project3.uuid());
-    assertThat(underTest.selectProjectsByNameQuery(dbSession, "jec", false)).extracting(ComponentDto::uuid).containsOnly(project1.uuid(), project2.uuid(), project3.uuid());
-    assertThat(underTest.selectProjectsByNameQuery(dbSession, "1", true)).extracting(ComponentDto::uuid).containsOnly(project1.uuid(), module1.uuid(), subModule1.uuid());
-    assertThat(underTest.selectProjectsByNameQuery(dbSession, "unknown", true)).extracting(ComponentDto::uuid).isEmpty();
   }
 
   @Test

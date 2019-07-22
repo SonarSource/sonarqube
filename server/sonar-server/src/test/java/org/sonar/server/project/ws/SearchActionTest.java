@@ -287,38 +287,12 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_by_component_uuids() {
-    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
-    ComponentDto jdk = db.components().insertPrivateProject();
-    ComponentDto sonarqube = db.components().insertPrivateProject();
-    ComponentDto sonarlint = db.components().insertPrivateProject();
-
-    SearchWsResponse result = call(SearchRequest.builder()
-      .setProjectIds(Arrays.asList(jdk.uuid(), sonarqube.uuid()))
-      .build());
-
-    assertThat(result.getComponentsList()).extracting(Component::getKey)
-      .containsExactlyInAnyOrder(jdk.getKey(), sonarqube.getKey())
-      .doesNotContain(sonarlint.getKey());
-  }
-
-  @Test
   public void request_throws_IAE_if_more_than_1000_projects() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("'projects' can contains only 1000 values, got 1001");
 
     call(SearchRequest.builder()
       .setProjects(Collections.nCopies(1_001, "foo"))
-      .build());
-  }
-
-  @Test
-  public void request_throws_IAE_if_more_than_1000_project_ids() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'projectIds' can contains only 1000 values, got 1001");
-
-    call(SearchRequest.builder()
-      .setProjectIds(Collections.nCopies(1_001, "foo"))
       .build());
   }
 
@@ -356,7 +330,7 @@ public class SearchActionTest {
     assertThat(action.since()).isEqualTo("6.3");
     assertThat(action.handler()).isEqualTo(ws.getDef().handler());
     assertThat(action.params()).extracting(Param::key)
-      .containsExactlyInAnyOrder("organization", "q", "qualifiers", "p", "ps", "visibility", "analyzedBefore", "onProvisionedOnly", "projects", "projectIds");
+      .containsExactlyInAnyOrder("organization", "q", "qualifiers", "p", "ps", "visibility", "analyzedBefore", "onProvisionedOnly", "projects");
     assertThat(action.responseExample()).isEqualTo(getClass().getResource("search-example.json"));
 
     Param organization = action.param("organization");
@@ -443,7 +417,6 @@ public class SearchActionTest {
     ofNullable(wsRequest.getVisibility()).ifPresent(v -> request.setParam(PARAM_VISIBILITY, v));
     ofNullable(wsRequest.getAnalyzedBefore()).ifPresent(d -> request.setParam(PARAM_ANALYZED_BEFORE, d));
     ofNullable(wsRequest.getProjects()).ifPresent(l1 -> request.setParam(PARAM_PROJECTS, String.join(",", l1)));
-    ofNullable(wsRequest.getProjectIds()).ifPresent(l -> request.setParam(PARAM_PROJECT_IDS, String.join(",", l)));
     request.setParam(PARAM_ON_PROVISIONED_ONLY, String.valueOf(wsRequest.isOnProvisionedOnly()));
     return request.executeProtobuf(SearchWsResponse.class);
   }

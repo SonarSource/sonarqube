@@ -32,7 +32,6 @@ import javax.annotation.Generated;
 public class DeleteRequest {
 
   private String project;
-  private String projectId;
 
   /**
    * Example value: "my_project"
@@ -46,17 +45,4 @@ public class DeleteRequest {
     return project;
   }
 
-  /**
-   * Example value: "ce4c03d6-430f-40a9-b777-ad877c00aa4d"
-   * @deprecated since 6.4
-   */
-  @Deprecated
-  public DeleteRequest setProjectId(String projectId) {
-    this.projectId = projectId;
-    return this;
-  }
-
-  public String getProjectId() {
-    return projectId;
-  }
 }

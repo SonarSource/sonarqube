@@ -93,10 +93,6 @@ public class SearchAction implements ProjectsWsAction {
       .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this);
 
-    action.setChangelog(
-      new Change("6.4", "The 'uuid' field is deprecated in the response"),
-      new Change("6.7.2", format("Parameters %s and %s accept maximum %d values", PARAM_PROJECTS, PARAM_PROJECT_IDS, DatabaseUtils.PARTITION_SIZE_FOR_ORACLE)));
-
     action.createParam(Param.TEXT_QUERY)
       .setDescription("Limit search to: <ul>" +
         "<li>component names that contain the supplied string</li>" +
@@ -140,16 +136,6 @@ public class SearchAction implements ProjectsWsAction {
       .setMaxValuesAllowed(DatabaseUtils.PARTITION_SIZE_FOR_ORACLE)
       .setExampleValue(String.join(",", KEY_PROJECT_EXAMPLE_001, KEY_PROJECT_EXAMPLE_002));
 
-    action
-      .createParam(PARAM_PROJECT_IDS)
-      .setDescription("Comma-separated list of project ids")
-      .setSince("6.6")
-      // parameter added to match api/projects/bulk_delete parameters
-      .setDeprecatedSince("6.6")
-      // Limitation of ComponentDao#selectByQuery(), max 1000 values are accepted.
-      // Restricting size of HTTP parameter allows to not fail with SQL error
-      .setMaxValuesAllowed(DatabaseUtils.PARTITION_SIZE_FOR_ORACLE)
-      .setExampleValue(String.join(",", UUID_EXAMPLE_01, UUID_EXAMPLE_02));
   }
 
   @Override
@@ -169,7 +155,6 @@ public class SearchAction implements ProjectsWsAction {
       .setAnalyzedBefore(request.param(PARAM_ANALYZED_BEFORE))
       .setOnProvisionedOnly(request.mandatoryParamAsBoolean(PARAM_ON_PROVISIONED_ONLY))
       .setProjects(request.paramAsStrings(PARAM_PROJECTS))
-      .setProjectIds(request.paramAsStrings(PARAM_PROJECT_IDS))
       .build();
   }
 
@@ -202,7 +187,6 @@ public class SearchAction implements ProjectsWsAction {
     ofNullable(request.getAnalyzedBefore()).ifPresent(d -> query.setAnalyzedBefore(parseDateOrDateTime(d).getTime()));
     query.setOnProvisionedOnly(request.isOnProvisionedOnly());
     ofNullable(request.getProjects()).ifPresent(keys -> query.setComponentKeys(new HashSet<>(keys)));
-    ofNullable(request.getProjectIds()).ifPresent(uuids -> query.setComponentUuids(new HashSet<>(uuids)));
 
     return query.build();
   }
@@ -236,7 +220,6 @@ public class SearchAction implements ProjectsWsAction {
 
     Component.Builder builder = Component.newBuilder()
       .setOrganization(organization.getKey())
-      .setId(dto.uuid())
       .setKey(dto.getDbKey())
       .setName(dto.name())
       .setQualifier(dto.qualifier())

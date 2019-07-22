@@ -355,10 +355,8 @@ public class ProjectsActionTest {
     assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("key", "p", "ps", "q", "selected");
     Param profile = definition.param("key");
     assertThat(profile.deprecatedKey()).isNullOrEmpty();
-    Param page = definition.param("p");
-    assertThat(page.deprecatedKey()).isEqualTo("page");
-    Param pageSize = definition.param("ps");
-    assertThat(pageSize.deprecatedKey()).isEqualTo("pageSize");
+    assertThat(definition.param("p")).isNotNull();
+    assertThat(definition.param("ps")).isNotNull();
     Param query = definition.param("q");
     assertThat(query.deprecatedKey()).isEqualTo("query");
   }

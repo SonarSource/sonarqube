@@ -99,7 +99,7 @@ public class CreateActionTest {
     userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
     CreateWsResponse response = call(CreateRequest.builder()
-      .setKey(DEFAULT_PROJECT_KEY)
+      .setProjectKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
       .build());
 
@@ -116,7 +116,7 @@ public class CreateActionTest {
     userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
     CreateWsResponse response = call(CreateRequest.builder()
-      .setKey(DEFAULT_PROJECT_KEY)
+      .setProjectKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
       .setBranch("origin/master")
       .build());
@@ -127,29 +127,12 @@ public class CreateActionTest {
   }
 
   @Test
-  public void create_project_with_deprecated_parameter() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(PROVISION_PROJECTS, organization);
-
-    CreateWsResponse response = ws.newRequest()
-      .setMethod(POST.name())
-      .setParam("organization", organization.getKey())
-      .setParam("key", DEFAULT_PROJECT_KEY)
-      .setParam(PARAM_NAME, DEFAULT_PROJECT_NAME)
-      .executeProtobuf(CreateWsResponse.class);
-
-    assertThat(response.getProject())
-      .extracting(Project::getKey, Project::getName, Project::getQualifier, Project::getVisibility)
-      .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", "public");
-  }
-
-  @Test
   public void apply_project_visibility_public() {
     OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(PROVISION_PROJECTS, organization);
 
     CreateWsResponse result = ws.newRequest()
-      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
       .setParam("organization", organization.getKey())
       .setParam("visibility", "public")
@@ -164,7 +147,7 @@ public class CreateActionTest {
     userSession.addPermission(PROVISION_PROJECTS, organization);
 
     CreateWsResponse result = ws.newRequest()
-      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
       .setParam("organization", organization.getKey())
       .setParam("visibility", PRIVATE.getLabel())
@@ -180,7 +163,7 @@ public class CreateActionTest {
     userSession.addPermission(PROVISION_PROJECTS, organization);
 
     CreateWsResponse result = ws.newRequest()
-      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
       .setParam("organization", organization.getKey())
       .executeProtobuf(CreateWsResponse.class);
@@ -195,7 +178,7 @@ public class CreateActionTest {
     userSession.addPermission(PROVISION_PROJECTS, organization);
 
     CreateWsResponse result = ws.newRequest()
-      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
       .setParam("organization", organization.getKey())
       .executeProtobuf(CreateWsResponse.class);
@@ -211,7 +194,7 @@ public class CreateActionTest {
       .checkCanUpdateProjectVisibility(any(BillingValidations.Organization.class), eq(true));
 
     CreateWsResponse result = ws.newRequest()
-      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
       .setParam("organization", organization.getKey())
       .setParam("visibility", "public")
@@ -227,7 +210,7 @@ public class CreateActionTest {
     String longName = Strings.repeat("a", 1_000);
 
     ws.newRequest()
-      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", longName)
       .setParam("organization", organization.getKey())
       .executeProtobuf(CreateWsResponse.class);
@@ -244,7 +227,7 @@ public class CreateActionTest {
     userSession.logIn(user).addPermission(PROVISION_PROJECTS, organization);
 
     ws.newRequest()
-      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
       .setParam("organization", organization.getKey())
       .executeProtobuf(CreateWsResponse.class);
@@ -262,7 +245,7 @@ public class CreateActionTest {
     userSession.logIn(user).addPermission(PROVISION_PROJECTS, organization);
 
     ws.newRequest()
-      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
       .setParam("organization", organization.getKey())
       .executeProtobuf(CreateWsResponse.class);
@@ -282,7 +265,7 @@ public class CreateActionTest {
     expectedException.expectMessage("This organization cannot use project private");
 
     ws.newRequest()
-      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
       .setParam("organization", organization.getKey())
       .setParam("visibility", "private")
@@ -299,7 +282,7 @@ public class CreateActionTest {
 
     call(CreateRequest.builder()
       .setOrganization(organization.getKey())
-      .setKey(DEFAULT_PROJECT_KEY)
+      .setProjectKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
       .build());
   }
@@ -312,7 +295,7 @@ public class CreateActionTest {
     expectedException.expectMessage("Malformed key for Project: 'project Key'. It cannot be empty nor contain whitespaces.");
 
     call(CreateRequest.builder()
-      .setKey("project Key")
+      .setProjectKey("project Key")
       .setName(DEFAULT_PROJECT_NAME)
       .build());
   }
@@ -334,14 +317,14 @@ public class CreateActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'name' parameter is missing");
 
-    call(CreateRequest.builder().setKey(DEFAULT_PROJECT_KEY).build());
+    call(CreateRequest.builder().setProjectKey(DEFAULT_PROJECT_KEY).build());
   }
 
   @Test
   public void fail_when_missing_create_project_permission() {
     expectedException.expect(ForbiddenException.class);
 
-    call(CreateRequest.builder().setKey(DEFAULT_PROJECT_KEY).setName(DEFAULT_PROJECT_NAME).build());
+    call(CreateRequest.builder().setProjectKey(DEFAULT_PROJECT_KEY).setName(DEFAULT_PROJECT_NAME).build());
   }
 
   @Test
@@ -349,7 +332,7 @@ public class CreateActionTest {
     userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
     String result = ws.newRequest()
-      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
       .execute().getInput();
 
@@ -401,7 +384,7 @@ public class CreateActionTest {
     TestRequest httpRequest = ws.newRequest()
       .setMethod(POST.name());
     ofNullable(request.getOrganization()).ifPresent(org -> httpRequest.setParam("organization", org));
-    ofNullable(request.getKey()).ifPresent(key -> httpRequest.setParam("project", key));
+    ofNullable(request.getProjectKey()).ifPresent(key -> httpRequest.setParam("project", key));
     ofNullable(request.getName()).ifPresent(name -> httpRequest.setParam("name", name));
     ofNullable(request.getBranch()).ifPresent(branch -> httpRequest.setParam("branch", branch));
     return httpRequest.executeProtobuf(CreateWsResponse.class);

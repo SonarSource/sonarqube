@@ -39,13 +39,10 @@ public class ProjectsWsModule extends Module {
       ProjectsWsSupport.class,
       ProjectsWs.class,
       CreateAction.class,
-      IndexAction.class,
       BulkDeleteAction.class,
       DeleteAction.class,
       UpdateKeyAction.class,
       BulkUpdateKeyAction.class,
-      GhostsAction.class,
-      ProvisionedAction.class,
       SearchMyProjectsAction.class,
       SearchAction.class,
       UpdateVisibilityAction.class);
