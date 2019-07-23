@@ -23,7 +23,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -57,12 +60,12 @@ public class WebHooksImpl implements WebHooks {
 
   @Override
   public boolean isEnabled(ComponentDto projectDto) {
-    return readWebHooksFrom(projectDto.uuid())
+    return readWebHooksFrom(projectDto.uuid(), null)
       .findAny()
       .isPresent();
   }
 
-  private Stream<WebhookDto> readWebHooksFrom(String projectUuid) {
+  private Stream<WebhookDto> readWebHooksFrom(String projectUuid, @CheckForNull PostProjectAnalysisTask.LogStatistics taskLogStatistics) {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
       Optional<ComponentDto> optionalComponentDto = dbClient.componentDao().selectByUuid(dbSession, projectUuid);
@@ -74,9 +77,13 @@ public class WebHooksImpl implements WebHooks {
       }
 
       WebhookDao dao = dbClient.webhookDao();
-      return Stream.concat(
-        dao.selectByProject(dbSession, componentDto).stream(),
-        dao.selectByOrganizationUuid(dbSession, componentDto.getOrganizationUuid()).stream());
+      List<WebhookDto> projectWebhooks = dao.selectByProject(dbSession, componentDto);
+      List<WebhookDto> organizationWebhooks = dao.selectByOrganizationUuid(dbSession, componentDto.getOrganizationUuid());
+      if (taskLogStatistics != null) {
+        taskLogStatistics.add("globalWebhooks", organizationWebhooks.size());
+        taskLogStatistics.add("projectWebhooks", projectWebhooks.size());
+      }
+      return Stream.concat(projectWebhooks.stream(), organizationWebhooks.stream());
     }
   }
 
@@ -90,7 +97,17 @@ public class WebHooksImpl implements WebHooks {
 
   @Override
   public void sendProjectAnalysisUpdate(Analysis analysis, Supplier<WebhookPayload> payloadSupplier) {
-    List<Webhook> webhooks = readWebHooksFrom(analysis.getProjectUuid())
+    sendProjectAnalysisUpdateImpl(analysis, payloadSupplier, null);
+  }
+
+  @Override
+  public void sendProjectAnalysisUpdate(Analysis analysis, Supplier<WebhookPayload> payloadSupplier, PostProjectAnalysisTask.LogStatistics taskLogStatistics) {
+    sendProjectAnalysisUpdateImpl(analysis, payloadSupplier, taskLogStatistics);
+  }
+
+  private void sendProjectAnalysisUpdateImpl(Analysis analysis, Supplier<WebhookPayload> payloadSupplier,
+    @Nullable PostProjectAnalysisTask.LogStatistics taskLogStatistics) {
+    List<Webhook> webhooks = readWebHooksFrom(analysis.getProjectUuid(), taskLogStatistics)
       .map(dto -> new Webhook(dto.getUuid(), analysis.getProjectUuid(), analysis.getCeTaskUuid(), analysis.getAnalysisUuid(),
         dto.getName(), dto.getUrl(), dto.getSecret()))
       .collect(MoreCollectors.toList());

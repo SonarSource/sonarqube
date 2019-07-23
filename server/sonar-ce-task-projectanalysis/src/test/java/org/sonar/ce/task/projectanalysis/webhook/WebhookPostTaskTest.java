@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.ce.posttask.Branch;
 import org.sonar.api.ce.posttask.CeTask;
+import org.sonar.api.ce.posttask.PostProjectAnalysisTask.LogStatistics;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester;
 import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
@@ -141,7 +142,8 @@ public class WebhookPostTaskTest {
         eq(new WebHooks.Analysis(project.getUuid(),
           analysisUUid,
           ceTask.getId())),
-        supplierCaptor.capture());
+        supplierCaptor.capture(),
+        any(LogStatistics.class));
 
     assertThat(supplierCaptor.getValue().get()).isSameAs(webhookPayload);
 

@@ -35,7 +35,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
@@ -239,7 +238,7 @@ public class WebhookQGChangeEventListenerTest {
       supplier.get();
       return null;
     }).when(webHooks)
-      .sendProjectAnalysisUpdate(ArgumentMatchers.any(), ArgumentMatchers.any());
+      .sendProjectAnalysisUpdate(any(), any());
   }
 
   private void insertPropertiesFor(String snapshotUuid, Map<String, String> properties) {

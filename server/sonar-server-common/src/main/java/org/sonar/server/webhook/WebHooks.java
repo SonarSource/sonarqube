@@ -23,6 +23,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.config.Configuration;
 import org.sonar.db.component.ComponentDto;
 
@@ -35,7 +36,7 @@ public interface WebHooks {
    *
    * <p>
    * This can be used to not do consuming operations before calling
-   * {@link #sendProjectAnalysisUpdate(Analysis, Supplier)}
+   * {@link #sendProjectAnalysisUpdate(Analysis, Supplier, PostProjectAnalysisTask.LogStatistics)}
    */
   boolean isEnabled(ComponentDto projectDto);
 
@@ -44,6 +45,11 @@ public interface WebHooks {
    * {@link WebhookPayload} provided by the specified Supplier.
    */
   void sendProjectAnalysisUpdate(Analysis analysis, Supplier<WebhookPayload> payloadSupplier);
+
+  /**
+   * Override to be called from a {@link PostProjectAnalysisTask} implementation.
+   */
+  void sendProjectAnalysisUpdate(Analysis analysis, Supplier<WebhookPayload> payloadSupplier, PostProjectAnalysisTask.LogStatistics taskLogStatistics);
 
   final class Analysis {
     private final String projectUuid;

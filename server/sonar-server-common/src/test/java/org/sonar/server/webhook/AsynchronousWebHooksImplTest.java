@@ -24,15 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.ce.posttask.PostProjectAnalysisTask.LogStatistics;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.server.async.AsyncExecution;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +42,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.db.DbTester.create;
 import static org.sonar.db.webhook.WebhookTesting.newWebhook;
-import static org.sonar.server.organization.TestDefaultOrganizationProvider.from;
 
 public class AsynchronousWebHooksImplTest {
 
@@ -53,11 +51,8 @@ public class AsynchronousWebHooksImplTest {
   public DbTester db = create(system2);
   private WebhookDbTester webhookDbTester = db.webhooks();
   private ComponentDbTester componentDbTester = db.components();
-  private OrganizationDbTester organizationDbTester = db.organizations();
-  private DefaultOrganizationProvider defaultOrganizationProvider = from(db);
 
   private static final long NOW = 1_500_000_000_000L;
-
 
   private final TestWebhookCaller caller = new TestWebhookCaller();
   private final WebhookDeliveryStorage deliveryStorage = mock(WebhookDeliveryStorage.class);
@@ -69,7 +64,7 @@ public class AsynchronousWebHooksImplTest {
   @Test
   public void send_global_webhooks() {
 
-    OrganizationDto organizationDto = db.getDefaultOrganization() ;
+    OrganizationDto organizationDto = db.getDefaultOrganization();
     ComponentDto project = componentDbTester.insertPrivateProject(componentDto -> componentDto.setOrganizationUuid(organizationDto.getUuid()));
     webhookDbTester.insert(newWebhook(organizationDto).setName("First").setUrl("http://url1"));
     webhookDbTester.insert(newWebhook(organizationDto).setName("Second").setUrl("http://url2"));
@@ -77,7 +72,7 @@ public class AsynchronousWebHooksImplTest {
     caller.enqueueSuccess(NOW, 200, 1_234);
     caller.enqueueFailure(NOW, new IOException("Fail to connect"));
 
-    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(project.uuid(), "1", "#1"), () -> mock);
+    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(project.uuid(), "1", "#1"), () -> mock, mock(LogStatistics.class));
 
     assertThat(caller.countSent()).isZero();
     verifyZeroInteractions(deliveryStorage);

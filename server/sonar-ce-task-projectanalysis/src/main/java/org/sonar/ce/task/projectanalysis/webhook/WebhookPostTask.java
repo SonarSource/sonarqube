@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.webhook;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.ce.task.projectanalysis.api.posttask.QGToEvaluatedQG;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
@@ -29,6 +30,7 @@ import org.sonar.server.webhook.Branch;
 import org.sonar.server.webhook.CeTask;
 import org.sonar.server.webhook.Project;
 import org.sonar.server.webhook.WebHooks;
+import org.sonar.server.webhook.WebhookPayload;
 import org.sonar.server.webhook.WebhookPayloadFactory;
 
 public class WebhookPostTask implements PostProjectAnalysisTask {
@@ -47,13 +49,14 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
 
   @Override
   public void finished(Context context) {
-    ProjectAnalysis analysis = context.getProjectAnalysis();
-    webHooks.sendProjectAnalysisUpdate(
-      new WebHooks.Analysis(
-        analysis.getProject().getUuid(),
-        analysis.getAnalysis().map(org.sonar.api.ce.posttask.Analysis::getAnalysisUuid).orElse(null),
-        analysis.getCeTask().getId()),
-      () -> payloadFactory.create(convert(analysis)));
+    ProjectAnalysis projectAnalysis = context.getProjectAnalysis();
+    WebHooks.Analysis analysis = new WebHooks.Analysis(
+      projectAnalysis.getProject().getUuid(),
+      projectAnalysis.getAnalysis().map(org.sonar.api.ce.posttask.Analysis::getAnalysisUuid).orElse(null),
+      projectAnalysis.getCeTask().getId());
+    Supplier<WebhookPayload> payloadSupplier = () -> payloadFactory.create(convert(projectAnalysis));
+
+    webHooks.sendProjectAnalysisUpdate(analysis, payloadSupplier, context.getLogStatistics());
   }
 
   private static org.sonar.server.webhook.ProjectAnalysis convert(ProjectAnalysis projectAnalysis) {
