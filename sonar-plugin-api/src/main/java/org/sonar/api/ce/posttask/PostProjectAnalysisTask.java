@@ -51,8 +51,37 @@ public interface PostProjectAnalysisTask {
 
   /**
    * This method is called whenever the processing of a Project analysis has finished, whether successfully or not.
+   *
+   * @deprecated implement {@link #finished(Context)} instead
    */
-  void finished(ProjectAnalysis analysis);
+  @Deprecated
+  default void finished(ProjectAnalysis analysis) {
+    throw new IllegalStateException("Provide an implementation of method finished(Context)");
+  }
+
+  default void finished(Context context) {
+    finished(context.getProjectAnalysis());
+  }
+
+  interface Context {
+    ProjectAnalysis getProjectAnalysis();
+
+    LogStatistics getLogStatistics();
+  }
+
+  /**
+   * Each key-value paar will be added to the log describing the end of the
+   */
+  interface LogStatistics {
+    /**
+     * @return this
+     * @throws NullPointerException if key or value is null
+     * @throws IllegalArgumentException if key has already been set
+     * @throws IllegalArgumentException if key is "status", to avoid conflict with field with same name added by the executor
+     * @throws IllegalArgumentException if key is "time", to avoid conflict with the profiler field with same name
+     */
+    LogStatistics add(String key, Object value);
+  }
 
   /**
    * @since 5.5

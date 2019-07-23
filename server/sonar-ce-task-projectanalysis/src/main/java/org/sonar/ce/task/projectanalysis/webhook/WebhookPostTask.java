@@ -46,7 +46,8 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
   }
 
   @Override
-  public void finished(ProjectAnalysis analysis) {
+  public void finished(Context context) {
+    ProjectAnalysis analysis = context.getProjectAnalysis();
     webHooks.sendProjectAnalysisUpdate(
       new WebHooks.Analysis(
         analysis.getProject().getUuid(),

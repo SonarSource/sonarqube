@@ -20,12 +20,17 @@
 package org.sonar.api.ce.posttask;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -141,6 +146,44 @@ public class PostProjectAnalysisTaskTesterTest {
     underTest.execute();
   }
 
+  @Test
+  public void getLogStatistics_throws_ISE_if_called_before_execute() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("execute must be called first");
+
+    underTest.getLogStatistics();
+  }
+
+  @Test
+  public void getLogStatistics_returns_empty_if_no_log_statistic_added_by_tested_Task() {
+    underTest.withOrganization(organization).withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).withAnalysisUuid(analysisUuid).at(someDate);
+
+    underTest.execute();
+
+    assertThat(underTest.getLogStatistics()).isEmpty();
+  }
+
+  @Test
+  public void getLogStatistics_returns_log_statistics_added_by_tested_Task() {
+    Random random = new Random();
+    Map<String, Object> expected = new HashMap<>();
+    for (int i = 0; i < 1 + random.nextInt(10); i++) {
+      expected.put(String.valueOf(i), random.nextInt(100));
+    }
+    PostProjectAnalysisTask projectAnalysisTask = mock(PostProjectAnalysisTask.class);
+    doAnswer(i -> {
+      PostProjectAnalysisTask.Context context = i.getArgument(0);
+      expected.forEach((k,v) ->  context.getLogStatistics().add(k, v));
+      return null;
+    }).when(projectAnalysisTask).finished(any(PostProjectAnalysisTask.Context.class));
+    PostProjectAnalysisTaskTester underTest = PostProjectAnalysisTaskTester.of(projectAnalysisTask);
+    underTest.withOrganization(organization).withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).withAnalysisUuid(analysisUuid).at(someDate);
+
+    underTest.execute();
+
+    assertThat(underTest.getLogStatistics()).isEqualTo(expected);
+  }
+
   private static class CaptorPostProjectAnalysisTask implements PostProjectAnalysisTask {
     private ProjectAnalysis projectAnalysis;
 
@@ -150,8 +193,8 @@ public class PostProjectAnalysisTaskTesterTest {
     }
 
     @Override
-    public void finished(ProjectAnalysis analysis) {
-      this.projectAnalysis = analysis;
+    public void finished(Context context) {
+      this.projectAnalysis = context.getProjectAnalysis();
     }
   }
 }
