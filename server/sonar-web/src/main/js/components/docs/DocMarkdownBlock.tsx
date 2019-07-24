@@ -25,7 +25,6 @@ import reactRenderer from 'remark-react';
 import slug from 'remark-slug';
 import 'sonar-ui-common/components/ui/Alert.css'; // eslint-disable-line import/extension
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
-import { filterContent, separateFrontMatter } from '../../helpers/markdown';
 import DocCollapsibleBlock from './DocCollapsibleBlock';
 import DocImg from './DocImg';
 import DocLink from './DocLink';
@@ -35,10 +34,10 @@ import DocTooltipLink from './DocTooltipLink';
 interface Props {
   childProps?: T.Dict<string>;
   className?: string;
-  content: string | undefined;
-  displayH1?: boolean;
+  content: string;
   isTooltip?: boolean;
   stickyToc?: boolean;
+  title?: string;
 }
 
 export default class DocMarkdownBlock extends React.PureComponent<Props> {
@@ -58,9 +57,7 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
   };
 
   render() {
-    const { childProps, content, className, displayH1, stickyToc, isTooltip } = this.props;
-    const parsed = separateFrontMatter(content || '');
-    const filteredContent = filterContent(parsed.content);
+    const { childProps, content, className, title, stickyToc, isTooltip } = this.props;
 
     const md = remark();
 
@@ -92,10 +89,10 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
         className={classNames('markdown', className, { 'has-toc': stickyToc })}
         ref={ref => (this.node = ref)}>
         <div className="markdown-content">
-          {displayH1 && <h1 className="documentation-title">{parsed.frontmatter.title}</h1>}
-          {md.processSync(filteredContent).contents}
+          {title !== undefined && <h1 className="documentation-title">{title}</h1>}
+          {md.processSync(content).contents}
         </div>
-        {stickyToc && <DocToc content={filteredContent} onAnchorClick={this.handleAnchorClick} />}
+        {stickyToc && <DocToc content={content} onAnchorClick={this.handleAnchorClick} />}
       </div>
     );
   }

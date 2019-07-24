@@ -20,6 +20,7 @@
 import * as React from 'react';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { filterContent } from '../../helpers/markdown';
 
 const DocMarkdownBlock = lazyLoad(() => import('./DocMarkdownBlock'));
 
@@ -73,7 +74,7 @@ export default class DocTooltip extends React.PureComponent<Props, State> {
             <DocMarkdownBlock
               childProps={this.props.overlayProps}
               className="cut-margins"
-              content={this.state.content}
+              content={filterContent(this.state.content)}
               isTooltip={true}
             />
           </div>

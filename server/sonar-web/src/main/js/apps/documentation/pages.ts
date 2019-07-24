@@ -39,7 +39,7 @@ export default function getPages(): DocumentationEntry[] {
         ? (parsed.frontmatter.scope.toLowerCase() as DocumentationEntryScope)
         : undefined,
       text,
-      content: file.content
+      content
     };
   });
 }

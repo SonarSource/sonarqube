@@ -112,8 +112,8 @@ export default class App extends React.PureComponent<Props> {
               <DocMarkdownBlock
                 className="documentation-content cut-margins boxed-group-inner"
                 content={page.content}
-                displayH1={true}
                 stickyToc={true}
+                title={page.title}
               />
             </div>
           </div>
