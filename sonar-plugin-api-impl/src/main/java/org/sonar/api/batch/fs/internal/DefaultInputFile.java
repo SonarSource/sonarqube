@@ -340,7 +340,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
       "%s is not a valid line offset for %s. File %s has %s character(s) at line %s", pointer.lineOffset(), owner, this, lineLength, pointer.line());
   }
 
-  private int lineLength(int line) {
+  public int lineLength(int line) {
     return originalLineEndOffsets()[line - 1] - originalLineStartOffsets()[line - 1];
   }
 

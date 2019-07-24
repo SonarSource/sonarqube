@@ -30,11 +30,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
-import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.scm.ScmProvider;
+import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -113,8 +113,8 @@ public class ChangedLinesPublisherTest {
 
   @Test
   public void write_changed_files() {
-    DefaultInputFile fileWithChangedLines = createInputFile("path1");
-    DefaultInputFile fileWithoutChangedLines = createInputFile("path2");
+    DefaultInputFile fileWithChangedLines = createInputFile("path1", "l1\nl2\nl3\n");
+    DefaultInputFile fileWithoutChangedLines = createInputFile("path2", "l1\nl2\nl3\n");
     Set<Path> paths = new HashSet<>(Arrays.asList(BASE_DIR.resolve("path1"), BASE_DIR.resolve("path2")));
     Set<Integer> lines = new HashSet<>(Arrays.asList(1, 10));
     when(provider.branchChangedLines(TARGET_BRANCH, BASE_DIR, paths)).thenReturn(Collections.singletonMap(BASE_DIR.resolve("path1"), lines));
@@ -122,12 +122,43 @@ public class ChangedLinesPublisherTest {
 
     publisher.publish(writer);
 
-    assertPublished(fileWithChangedLines, lines);
+    assertPublished(fileWithChangedLines, new HashSet<>(Arrays.asList(1, 10)));
     assertPublished(fileWithoutChangedLines, Collections.emptySet());
   }
 
-  private DefaultInputFile createInputFile(String path) {
+  @Test
+  public void write_last_line_as_changed_if_all_other_lines_are_changed_and_last_line_is_empty() {
+    DefaultInputFile fileWithChangedLines = createInputFile("path1", "l1\nl2\nl3\n");
+    DefaultInputFile fileWithoutChangedLines = createInputFile("path2", "l1\nl2\nl3\n");
+    Set<Path> paths = new HashSet<>(Arrays.asList(BASE_DIR.resolve("path1"), BASE_DIR.resolve("path2")));
+    Set<Integer> lines = new HashSet<>(Arrays.asList(1, 2, 3));
+    when(provider.branchChangedLines(TARGET_BRANCH, BASE_DIR, paths)).thenReturn(Collections.singletonMap(BASE_DIR.resolve("path1"), lines));
+    when(inputComponentStore.allChangedFilesToPublish()).thenReturn(Arrays.asList(fileWithChangedLines, fileWithoutChangedLines));
+
+    publisher.publish(writer);
+
+    assertPublished(fileWithChangedLines, new HashSet<>(Arrays.asList(1, 2, 3, 4)));
+    assertPublished(fileWithoutChangedLines, Collections.emptySet());
+  }
+
+  @Test
+  public void dont_write_last_line_as_changed_if_its_not_empty() {
+    DefaultInputFile fileWithChangedLines = createInputFile("path1", "l1\nl2\nl3\nl4");
+    DefaultInputFile fileWithoutChangedLines = createInputFile("path2", "l1\nl2\nl3\nl4");
+    Set<Path> paths = new HashSet<>(Arrays.asList(BASE_DIR.resolve("path1"), BASE_DIR.resolve("path2")));
+    Set<Integer> lines = new HashSet<>(Arrays.asList(1, 2, 3));
+    when(provider.branchChangedLines(TARGET_BRANCH, BASE_DIR, paths)).thenReturn(Collections.singletonMap(BASE_DIR.resolve("path1"), lines));
+    when(inputComponentStore.allChangedFilesToPublish()).thenReturn(Arrays.asList(fileWithChangedLines, fileWithoutChangedLines));
+
+    publisher.publish(writer);
+
+    assertPublished(fileWithChangedLines, new HashSet<>(Arrays.asList(1, 2, 3)));
+    assertPublished(fileWithoutChangedLines, Collections.emptySet());
+  }
+
+  private DefaultInputFile createInputFile(String path, String contents) {
     return new TestInputFileBuilder("module", path)
+      .setContents(contents)
       .setProjectBaseDir(BASE_DIR)
       .setModuleBaseDir(BASE_DIR)
       .build();
