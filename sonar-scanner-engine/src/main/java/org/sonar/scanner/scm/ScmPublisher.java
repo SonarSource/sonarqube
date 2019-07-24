@@ -26,10 +26,10 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -68,14 +68,14 @@ public final class ScmPublisher {
 
     ScmProvider provider = configuration.provider();
     if (provider == null) {
-      LOG.info("No SCM system was detected. You can use the '" + CoreProperties.SCM_PROVIDER_KEY + "' property to explicitly specify it.");
+      LOG.info("SCM Publisher No SCM system was detected. You can use the '" + CoreProperties.SCM_PROVIDER_KEY + "' property to explicitly specify it.");
       return;
     }
 
     List<InputFile> filesToBlame = collectFilesToBlame(writer);
     if (!filesToBlame.isEmpty()) {
       String key = provider.key();
-      LOG.info("SCM provider for this project is: " + key);
+      LOG.info("SCM Publisher SCM provider for this project is: " + key);
       DefaultBlameOutput output = new DefaultBlameOutput(writer, filesToBlame);
       try {
         provider.blameCommand().blame(new DefaultBlameInput(fs, filesToBlame), output);

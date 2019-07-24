@@ -27,6 +27,7 @@ public class ProgressReport implements Runnable {
 
   private static final Logger LOG = Loggers.get(ProgressReport.class);
   private final long period;
+  private long startTime;
   private String message = "";
   private final Thread thread;
   private String stopMessage = null;
@@ -56,6 +57,7 @@ public class ProgressReport implements Runnable {
   public void start(String startMessage) {
     log(startMessage);
     thread.start();
+    startTime = currentTimeMillis();
   }
 
   public void message(String message) {
@@ -72,6 +74,12 @@ public class ProgressReport implements Runnable {
     }
   }
 
+  public void stopAndLogTotalTime(@Nullable String stopMessage) {
+    long stopTime = currentTimeMillis();
+    stopMessage += String.format(" (done) | time=%dms", timeDiff(stopTime, startTime));
+    stop(stopMessage);
+  }
+
   private static void log(String message) {
     synchronized (LOG) {
       LOG.info(message);
@@ -79,4 +87,11 @@ public class ProgressReport implements Runnable {
     }
   }
 
+  private static long currentTimeMillis() {
+    return System.currentTimeMillis();
+  }
+
+  private static long timeDiff(long endTime, long startTime) {
+    return endTime - startTime;
+  }
 }

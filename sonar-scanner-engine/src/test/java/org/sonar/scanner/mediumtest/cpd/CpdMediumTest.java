@@ -33,8 +33,8 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
@@ -222,7 +222,7 @@ public class CpdMediumTest {
     assertThat(result.inputFiles()).hasSize(2);
 
     assertThat(logTester.logs()).contains("Not enough content in 'src/sample2.xoo' to have CPD blocks, it will not be part of the duplication detection");
-    assertThat(logTester.logs()).contains("1 file had no CPD blocks");
+    assertThat(logTester.logs()).contains("CPD Executor 1 file had no CPD blocks");
 
   }
 

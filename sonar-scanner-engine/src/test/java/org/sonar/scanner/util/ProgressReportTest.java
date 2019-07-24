@@ -20,6 +20,7 @@
 package org.sonar.scanner.util;
 
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -63,6 +64,14 @@ public class ProgressReportTest {
       logged = logTester.logs().contains("Some message");
     }
     underTest.stop("stop");
+    assertThat(logTester.logs().stream().anyMatch(s -> Pattern.matches("stop", s))).isTrue();
+  }
+
+  @Test
+  public void do_log_with_time() {
+    underTest.start("start");
+    underTest.stopAndLogTotalTime("stop");
+    assertThat(logTester.logs().stream().anyMatch(s -> Pattern.matches("stop \\(done\\) \\| time=[0-9]+ms", s))).isTrue();
   }
 
   private static boolean isDaemon(String name) {

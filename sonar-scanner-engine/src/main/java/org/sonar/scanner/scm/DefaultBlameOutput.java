@@ -29,9 +29,9 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -57,7 +57,7 @@ class DefaultBlameOutput implements BlameOutput {
     count = 0;
     total = filesToBlame.size();
     progressReport = new ProgressReport("Report about progress of SCM blame", TimeUnit.SECONDS.toMillis(10));
-    progressReport.start(total + " files to be analyzed");
+    progressReport.start("SCM Publisher " + total + " " + pluralize(total) + " to be analyzed");
   }
 
   @Override
@@ -91,7 +91,7 @@ class DefaultBlameOutput implements BlameOutput {
     writer.writeComponentChangesets(scmBuilder.build());
     allFilesToBlame.remove(file);
     count++;
-    progressReport.message(count + "/" + total + " files analyzed");
+    progressReport.message(count + "/" + total + " " + pluralize(count) + " have been analyzed");
   }
 
   private static void validateLine(BlameLine line, int lineId, InputFile file) {
@@ -124,7 +124,7 @@ class DefaultBlameOutput implements BlameOutput {
   }
 
   public void finish(boolean success) {
-    progressReport.stop(count + "/" + total + " files analyzed");
+    progressReport.stopAndLogTotalTime("SCM Publisher " + count + "/" + total + " " + pluralize(count) + " have been analyzed");
     if (success && !allFilesToBlame.isEmpty()) {
       LOG.warn("Missing blame information for the following files:");
       for (InputFile f : allFilesToBlame) {
@@ -132,5 +132,9 @@ class DefaultBlameOutput implements BlameOutput {
       }
       LOG.warn("This may lead to missing/broken features in SonarQube");
     }
+  }
+
+  private static String pluralize(long filesCount) {
+    return filesCount == 1 ? "source file" : "source files";
   }
 }
