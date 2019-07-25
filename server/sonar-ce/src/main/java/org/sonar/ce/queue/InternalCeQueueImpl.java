@@ -104,11 +104,6 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   }
 
   @Override
-  public int clear() {
-    return cancelAll(true);
-  }
-
-  @Override
   public void remove(CeTask task, CeActivityDto.Status status, @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
     checkArgument(error == null || status == CeActivityDto.Status.FAILED, "Error can be provided only when status is FAILED");
 

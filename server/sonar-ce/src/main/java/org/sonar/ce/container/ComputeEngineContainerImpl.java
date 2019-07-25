@@ -59,7 +59,6 @@ import org.sonar.ce.monitoring.DistributedCEQueueStatusImpl;
 import org.sonar.ce.platform.CECoreExtensionsInstaller;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
 import org.sonar.ce.platform.DatabaseCompatibility;
-import org.sonar.ce.queue.CeQueueCleaner;
 import org.sonar.ce.queue.PurgeCeActivities;
 import org.sonar.ce.task.projectanalysis.ProjectAnalysisTaskModule;
 import org.sonar.ce.task.projectanalysis.analysis.ProjectConfigurationFactory;
@@ -117,7 +116,6 @@ import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.organization.BillingValidationsProxyImpl;
 import org.sonar.server.organization.DefaultOrganizationProviderImpl;
 import org.sonar.server.organization.OrganizationFlagsImpl;
-import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.ServerFileSystemImpl;
 import org.sonar.server.platform.ServerImpl;
@@ -330,7 +328,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // add ReadOnlyPropertiesDao at level2 again so that it shadows PropertiesDao
       ReadOnlyPropertiesDao.class,
-      DefaultServerUpgradeStatus.class,
 
       // plugins
       PluginClassloaderFactory.class,
@@ -485,8 +482,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   private static Object[] startupComponents() {
     return new Object[] {
       ServerLifecycleNotifier.class,
-      PurgeCeActivities.class,
-      CeQueueCleaner.class
+      PurgeCeActivities.class
     };
   }
 

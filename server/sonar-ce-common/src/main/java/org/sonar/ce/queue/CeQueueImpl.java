@@ -340,6 +340,11 @@ public class CeQueueImpl implements CeQueue {
     }
   }
 
+  @Override
+  public int clear() {
+    return cancelAll(true);
+  }
+
   CeTask convertToTask(DbSession dbSession, CeQueueDto taskDto, Map<String, String> characteristics, @Nullable ComponentDto component, @Nullable ComponentDto mainComponent) {
     CeTask.Builder builder = new CeTask.Builder()
       .setUuid(taskDto.getUuid())

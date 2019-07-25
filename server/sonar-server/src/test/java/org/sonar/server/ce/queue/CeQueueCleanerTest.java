@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.queue;
+package org.sonar.server.ce.queue;
 
 import java.util.Optional;
 import org.apache.commons.io.IOUtils;
@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.queue.CeQueue;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskInputDao;
@@ -44,7 +45,7 @@ public class CeQueueCleanerTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
-  private InternalCeQueue queue = mock(InternalCeQueue.class);
+  private CeQueue queue = mock(CeQueue.class);
   private MapSettings settings = new MapSettings();
 
   @Test

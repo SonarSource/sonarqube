@@ -50,16 +50,6 @@ public interface InternalCeQueue extends CeQueue {
   Optional<CeTask> peek(String workerUuid);
 
   /**
-   * Removes all the tasks from the queue, whatever their status. They are marked
-   * as {@link Status#CANCELED} in past activity.
-   * This method can NOT be called when  workers are being executed, as in progress
-   * tasks can't be killed.
-   *
-   * @return the number of canceled tasks
-   */
-  int clear();
-
-  /**
    * Removes a task from the queue and registers it to past activities. This method
    * is called by Compute Engine workers when task is processed and can include an option {@link CeTaskResult} object.
    *

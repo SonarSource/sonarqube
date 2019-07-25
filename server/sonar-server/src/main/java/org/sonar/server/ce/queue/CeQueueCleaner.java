@@ -17,34 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.queue;
+package org.sonar.server.ce.queue;
 
 import java.util.List;
 import org.picocontainer.Startable;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.ServerUpgradeStatus;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.queue.CeQueue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.process.ProcessProperties;
 
 /**
  * Cleans-up the Compute Engine queue.
- * CE workers must not be started before execution of this class.
  */
-@ComputeEngineSide
+@ServerSide
 public class CeQueueCleaner implements Startable {
 
   private static final Logger LOGGER = Loggers.get(CeQueueCleaner.class);
 
   private final DbClient dbClient;
   private final ServerUpgradeStatus serverUpgradeStatus;
-  private final InternalCeQueue queue;
+  private final CeQueue queue;
   private final Configuration configuration;
 
-  public CeQueueCleaner(DbClient dbClient, ServerUpgradeStatus serverUpgradeStatus, InternalCeQueue queue, Configuration configuration) {
+  public CeQueueCleaner(DbClient dbClient, ServerUpgradeStatus serverUpgradeStatus, CeQueue queue, Configuration configuration) {
     this.dbClient = dbClient;
     this.serverUpgradeStatus = serverUpgradeStatus;
     this.queue = queue;
