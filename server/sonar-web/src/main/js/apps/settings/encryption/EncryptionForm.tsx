@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import ClipboardButton from 'sonar-ui-common/components/controls/ClipboardButton';
+import { ClipboardButton } from 'sonar-ui-common/components/controls/clipboard';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { encryptValue } from '../../../api/settings';

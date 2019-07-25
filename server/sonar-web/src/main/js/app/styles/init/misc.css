@@ -433,10 +433,6 @@ td.big-spacer-top {
   cursor: not-allowed !important;
 }
 
-.no-select {
-  user-select: none !important;
-}
-
 .no-outline,
 .no-outline:focus {
   outline: none !important;

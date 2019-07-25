@@ -16,37 +16,39 @@ bar
       copyValue="foo
 bar"
     >
-      <Tooltip
-        overlay="copied_action"
-        visible={false}
-      >
-        <TooltipInner
-          mouseEnterDelay={0.1}
+      <ClipboardBase>
+        <Tooltip
           overlay="copied_action"
           visible={false}
         >
-          <Button
-            className="no-select"
-            data-clipboard-text="foo
-bar"
-            innerRef={[Function]}
-            onMouseEnter={[Function]}
-            onMouseLeave={[Function]}
+          <TooltipInner
+            mouseEnterDelay={0.1}
+            overlay="copied_action"
+            visible={false}
           >
-            <button
-              className="button no-select"
+            <Button
+              className="no-select"
               data-clipboard-text="foo
 bar"
-              onClick={[Function]}
+              innerRef={[Function]}
               onMouseEnter={[Function]}
               onMouseLeave={[Function]}
-              type="button"
             >
-              copy
-            </button>
-          </Button>
-        </TooltipInner>
-      </Tooltip>
+              <button
+                className="button no-select"
+                data-clipboard-text="foo
+bar"
+                onClick={[Function]}
+                onMouseEnter={[Function]}
+                onMouseLeave={[Function]}
+                type="button"
+              >
+                copy
+              </button>
+            </Button>
+          </TooltipInner>
+        </Tooltip>
+      </ClipboardBase>
     </ClipboardButton>
   </div>
 </CodeSnippet>
@@ -89,37 +91,39 @@ exports[`renders correctly with array snippet 1`] = `
       copyValue="foo \\\\
   bar"
     >
-      <Tooltip
-        overlay="copied_action"
-        visible={false}
-      >
-        <TooltipInner
-          mouseEnterDelay={0.1}
+      <ClipboardBase>
+        <Tooltip
           overlay="copied_action"
           visible={false}
         >
-          <Button
-            className="no-select"
-            data-clipboard-text="foo \\\\
-  bar"
-            innerRef={[Function]}
-            onMouseEnter={[Function]}
-            onMouseLeave={[Function]}
+          <TooltipInner
+            mouseEnterDelay={0.1}
+            overlay="copied_action"
+            visible={false}
           >
-            <button
-              className="button no-select"
+            <Button
+              className="no-select"
               data-clipboard-text="foo \\\\
   bar"
-              onClick={[Function]}
+              innerRef={[Function]}
               onMouseEnter={[Function]}
               onMouseLeave={[Function]}
-              type="button"
             >
-              copy
-            </button>
-          </Button>
-        </TooltipInner>
-      </Tooltip>
+              <button
+                className="button no-select"
+                data-clipboard-text="foo \\\\
+  bar"
+                onClick={[Function]}
+                onMouseEnter={[Function]}
+                onMouseLeave={[Function]}
+                type="button"
+              >
+                copy
+              </button>
+            </Button>
+          </TooltipInner>
+        </Tooltip>
+      </ClipboardBase>
     </ClipboardButton>
   </div>
 </CodeSnippet>
@@ -144,35 +148,37 @@ exports[`renders correctly with array snippet 2`] = `
     <ClipboardButton
       copyValue="foo bar"
     >
-      <Tooltip
-        overlay="copied_action"
-        visible={false}
-      >
-        <TooltipInner
-          mouseEnterDelay={0.1}
+      <ClipboardBase>
+        <Tooltip
           overlay="copied_action"
           visible={false}
         >
-          <Button
-            className="no-select"
-            data-clipboard-text="foo bar"
-            innerRef={[Function]}
-            onMouseEnter={[Function]}
-            onMouseLeave={[Function]}
+          <TooltipInner
+            mouseEnterDelay={0.1}
+            overlay="copied_action"
+            visible={false}
           >
-            <button
-              className="button no-select"
+            <Button
+              className="no-select"
               data-clipboard-text="foo bar"
-              onClick={[Function]}
+              innerRef={[Function]}
               onMouseEnter={[Function]}
               onMouseLeave={[Function]}
-              type="button"
             >
-              copy
-            </button>
-          </Button>
-        </TooltipInner>
-      </Tooltip>
+              <button
+                className="button no-select"
+                data-clipboard-text="foo bar"
+                onClick={[Function]}
+                onMouseEnter={[Function]}
+                onMouseLeave={[Function]}
+                type="button"
+              >
+                copy
+              </button>
+            </Button>
+          </TooltipInner>
+        </Tooltip>
+      </ClipboardBase>
     </ClipboardButton>
   </div>
 </CodeSnippet>

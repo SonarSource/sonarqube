@@ -21,6 +21,7 @@ import { stringify } from 'querystring';
 import * as React from 'react';
 import { Link } from 'react-router';
 import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
+import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import ListIcon from 'sonar-ui-common/components/icons/ListIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
@@ -142,10 +143,13 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
             <div className="component-name-path">
               <QualifierIcon qualifier={q} /> <span>{collapsedDirFromPath(path)}</span>
               <span className="component-name-file">{fileFromPath(path)}</span>
+              <span className="nudged-up spacer-left">
+                <ClipboardIconButton className="button-link link-no-underline" copyValue={path} />
+              </span>
               {this.props.sourceViewerFile.canMarkAsFavorite &&
                 (!this.props.branchLike || isMainBranch(this.props.branchLike)) && (
                   <Favorite
-                    className="component-name-favorite"
+                    className="component-name-favorite spacer-left"
                     component={key}
                     favorite={this.props.sourceViewerFile.fav || false}
                     qualifier={this.props.sourceViewerFile.q}

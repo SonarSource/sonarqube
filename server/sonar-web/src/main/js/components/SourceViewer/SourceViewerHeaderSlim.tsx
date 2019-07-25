@@ -21,6 +21,7 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import { Link } from 'react-router';
 import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
+import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
 import ExpandSnippetIcon from 'sonar-ui-common/components/icons/ExpandSnippetIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
@@ -60,7 +61,7 @@ export default function SourceViewerHeaderSlim({
 
   return (
     <div className="source-viewer-header-slim display-flex-row display-flex-space-between">
-      <div className="display-flex-row flex-1">
+      <div className="display-flex-center flex-1">
         <div>
           <a
             className="link-with-icon"
@@ -79,8 +80,13 @@ export default function SourceViewerHeaderSlim({
           <QualifierIcon qualifier={q} /> <span>{collapsedDirFromPath(path)}</span>
           <span className="component-name-file">{fileFromPath(path)}</span>
         </div>
+
+        <div className="spacer-left">
+          <ClipboardIconButton className="button-link link-no-underline" copyValue={path} />
+        </div>
+
         {sourceViewerFile.canMarkAsFavorite && (!branchLike || isMainBranch(branchLike)) && (
-          <div className="nudged-up">
+          <div className="nudged-up spacer-left">
             <Favorite
               className="component-name-favorite"
               component={key}

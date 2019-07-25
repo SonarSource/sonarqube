@@ -5,7 +5,7 @@ exports[`should render correctly 1`] = `
   className="source-viewer-header-slim display-flex-row display-flex-space-between"
 >
   <div
-    className="display-flex-row flex-1"
+    className="display-flex-center flex-1"
   >
     <div>
       <a
@@ -36,6 +36,14 @@ exports[`should render correctly 1`] = `
       >
         bar.ts
       </span>
+    </div>
+    <div
+      className="spacer-left"
+    >
+      <ClipboardIconButton
+        className="button-link link-no-underline"
+        copyValue="foo/bar.ts"
+      />
     </div>
   </div>
   <div
@@ -81,7 +89,7 @@ exports[`should render correctly for subproject 1`] = `
   className="source-viewer-header-slim display-flex-row display-flex-space-between"
 >
   <div
-    className="display-flex-row flex-1"
+    className="display-flex-center flex-1"
   >
     <div>
       <a
@@ -119,6 +127,14 @@ exports[`should render correctly for subproject 1`] = `
       >
         bar.ts
       </span>
+    </div>
+    <div
+      className="spacer-left"
+    >
+      <ClipboardIconButton
+        className="button-link link-no-underline"
+        copyValue="foo/bar.ts"
+      />
     </div>
   </div>
   <div
