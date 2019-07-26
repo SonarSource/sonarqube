@@ -19,8 +19,13 @@
  */
 package org.sonar.db.metric;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,6 +36,7 @@ import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 public class MetricDaoTest {
@@ -41,35 +47,27 @@ public class MetricDaoTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbSession dbSession = db.getSession();
-
   private MetricDao underTest = new MetricDao();
 
   @Test
-  public void select_by_key() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+  public void select_by_key_enabled_metric() {
+    MetricDto expected = db.measures().insertMetric(t -> t.setEnabled(true).setUserManaged(false));
 
-    MetricDto result = underTest.selectByKey(dbSession, "coverage");
-    assertThat(result.getId()).isEqualTo(2);
-    assertThat(result.getKey()).isEqualTo("coverage");
-    assertThat(result.getShortName()).isEqualTo("Coverage");
-    assertThat(result.getDescription()).isEqualTo("Coverage by unit tests");
-    assertThat(result.getDomain()).isEqualTo("Tests");
-    assertThat(result.getValueType()).isEqualTo("PERCENT");
-    assertThat(result.getDirection()).isEqualTo(1);
-    assertThat(result.isQualitative()).isTrue();
-    assertThat(result.isUserManaged()).isFalse();
-    assertThat(result.getWorstValue()).isEqualTo(0d);
-    assertThat(result.getBestValue()).isEqualTo(100d);
-    assertThat(result.isOptimizedBestValue()).isFalse();
-    assertThat(result.isDeleteHistoricalData()).isFalse();
-    assertThat(result.isHidden()).isFalse();
-    assertThat(result.isEnabled()).isTrue();
-    assertThat(result.getDecimalScale()).isEqualTo(3);
+    assertEquals(expected, underTest.selectByKey(dbSession, expected.getKey()));
+  }
 
-    // Disabled metrics are returned
-    result = underTest.selectByKey(dbSession, "disabled");
-    assertThat(result.getId()).isEqualTo(3);
-    assertThat(result.isEnabled()).isFalse();
+  @Test
+  public void select_by_key_disabled_metric() {
+    MetricDto expected = db.measures().insertMetric(t -> t.setEnabled(false).setUserManaged(false));
+
+    assertEquals(expected, underTest.selectByKey(dbSession, expected.getKey()));
+  }
+
+  @Test
+  public void select_by_key_manual_metric() {
+    MetricDto expected = db.measures().insertMetric(t -> t.setUserManaged(true));
+
+    assertEquals(expected, underTest.selectByKey(dbSession, expected.getKey()));
   }
 
   @Test
@@ -80,39 +78,43 @@ public class MetricDaoTest {
   }
 
   @Test
-  public void get_manual_metric() {
-    db.prepareDbUnit(getClass(), "manual_metric.xml");
-
-    MetricDto result = underTest.selectByKey(dbSession, "manual");
-    assertThat(result.getId()).isEqualTo(1);
-    assertThat(result.getKey()).isEqualTo("manual");
-    assertThat(result.getShortName()).isEqualTo("Manual metric");
-    assertThat(result.getDescription()).isEqualTo("Manual metric");
-    assertThat(result.getDomain()).isNullOrEmpty();
-    assertThat(result.getValueType()).isEqualTo("INT");
-    assertThat(result.getDirection()).isEqualTo(0);
-    assertThat(result.isQualitative()).isFalse();
-    assertThat(result.isUserManaged()).isTrue();
-    assertThat(result.getWorstValue()).isNull();
-    assertThat(result.getBestValue()).isNull();
-    assertThat(result.isOptimizedBestValue()).isFalse();
-    assertThat(result.isDeleteHistoricalData()).isFalse();
-    assertThat(result.isHidden()).isFalse();
-    assertThat(result.isEnabled()).isTrue();
-  }
-
-  @Test
   public void find_all_enabled() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    List<MetricDto> enabledMetrics = IntStream.range(0, 1 + new Random().nextInt(10))
+      .mapToObj(i -> MetricTesting.newMetricDto().setEnabled(true))
+      .collect(Collectors.toList());
+    List<MetricDto> disabledMetrics = IntStream.range(0, 1 + new Random().nextInt(10))
+      .mapToObj(i -> MetricTesting.newMetricDto().setEnabled(false))
+      .collect(Collectors.toList());
 
-    assertThat(underTest.selectEnabled(dbSession)).hasSize(2);
+    List<MetricDto> all = new ArrayList<>(enabledMetrics);
+    all.addAll(disabledMetrics);
+    Collections.shuffle(all);
+    all.forEach(metricDto -> db.getDbClient().metricDao().insert(db.getSession(), metricDto));
+    db.getSession().commit();
+
+    assertThat(underTest.selectEnabled(dbSession))
+      .extracting(MetricDto::getId)
+      .containsOnly(enabledMetrics.stream().map(MetricDto::getId).toArray(Integer[]::new));
   }
 
   @Test
   public void find_all() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    List<MetricDto> enabledMetrics = IntStream.range(0, 1 + new Random().nextInt(10))
+      .mapToObj(i -> MetricTesting.newMetricDto().setEnabled(true))
+      .collect(Collectors.toList());
+    List<MetricDto> disabledMetrics = IntStream.range(0, 1 + new Random().nextInt(10))
+      .mapToObj(i -> MetricTesting.newMetricDto().setEnabled(false))
+      .collect(Collectors.toList());
 
-    assertThat(underTest.selectAll(dbSession)).extracting("id").containsExactly(2, 3, 1);
+    List<MetricDto> all = new ArrayList<>(enabledMetrics);
+    all.addAll(disabledMetrics);
+    Collections.shuffle(all);
+    all.forEach(metricDto -> db.getDbClient().metricDao().insert(db.getSession(), metricDto));
+    db.getSession().commit();
+
+    assertThat(underTest.selectEnabled(dbSession))
+      .extracting(MetricDto::getId)
+      .containsOnly(enabledMetrics.stream().map(MetricDto::getId).toArray(Integer[]::new));
   }
 
   @Test
@@ -312,5 +314,24 @@ public class MetricDaoTest {
 
     assertThat(result).hasSize(1)
       .extracting("key").containsOnly("metric-key");
+  }
+
+  private void assertEquals(MetricDto expected, MetricDto result) {
+    assertThat(result.getKey()).isEqualTo(expected.getKey());
+    assertThat(result.getShortName()).isEqualTo(expected.getShortName());
+    assertThat(result.getDescription()).isEqualTo(expected.getDescription());
+    assertThat(result.getDomain()).isEqualTo(expected.getDomain());
+    assertThat(result.getValueType()).isEqualTo(expected.getValueType());
+    assertThat(result.getDirection()).isEqualTo(expected.getDirection());
+    assertThat(result.isQualitative()).isEqualTo(expected.isQualitative());
+    assertThat(result.isUserManaged()).isEqualTo(expected.isUserManaged());
+    assertThat(result.getWorstValue()).isCloseTo(expected.getWorstValue(), within(0.001d));
+    assertThat(result.getBestValue()).isCloseTo(expected.getBestValue(), within(0.001d));
+    assertThat(result.isOptimizedBestValue()).isEqualTo(expected.isOptimizedBestValue());
+    assertThat(result.isDeleteHistoricalData()).isEqualTo(expected.isDeleteHistoricalData());
+    assertThat(result.isHidden()).isEqualTo(expected.isHidden());
+    assertThat(result.isEnabled()).isEqualTo(expected.isEnabled());
+    assertThat(result.getDecimalScale()).isEqualTo(expected.getDecimalScale());
+    assertThat(result.isUserManaged()).isEqualTo(expected.isUserManaged());
   }
 }

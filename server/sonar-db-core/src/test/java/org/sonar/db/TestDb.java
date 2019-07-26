@@ -19,10 +19,6 @@
  */
 package org.sonar.db;
 
-import java.sql.SQLException;
-import org.dbunit.IDatabaseTester;
-import org.dbunit.dataset.datatype.IDataTypeFactory;
-
 public interface TestDb {
   void start();
 
@@ -30,19 +26,4 @@ public interface TestDb {
 
   Database getDatabase();
 
-  DatabaseCommands getCommands();
-
-  IDatabaseTester getDbUnitTester();
-
-  default void truncateTables() {
-    try {
-      getCommands().truncateDatabase(getDatabase().getDataSource());
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to truncate db tables", e);
-    }
-  }
-
-  default IDataTypeFactory getDbUnitFactory() {
-    return getCommands().getDbUnitFactory();
-  }
 }

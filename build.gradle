@@ -201,11 +201,6 @@ subprojects {
       dependency('org.codehaus.woodstox:stax2-api:3.1.4') {
         exclude 'stax:stax-api'
       }
-      dependency('org.dbunit:dbunit:2.4.5') {
-        exclude 'commons-lang:commons-lang'
-        exclude 'xerces:xmlParserAPIs'
-        exclude 'xerces:xercesImpl'
-      }
       dependencySet(group: 'org.eclipse.jetty', version: '9.4.6.v20170531') {
         entry 'jetty-proxy'
         entry 'jetty-server'

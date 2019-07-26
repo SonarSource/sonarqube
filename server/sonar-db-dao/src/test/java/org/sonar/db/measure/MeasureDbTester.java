@@ -22,6 +22,7 @@ package org.sonar.db.measure;
 import com.google.common.base.Preconditions;
 import java.util.Arrays;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -64,9 +65,14 @@ public class MeasureDbTester {
   }
 
   @SafeVarargs
-  public final CustomMeasureDto insertCustomMeasure(UserDto user, ComponentDto component, MetricDto metricDto, Consumer<CustomMeasureDto>... consumers) {
+  public final CustomMeasureDto insertCustomMeasure(@Nullable UserDto user, ComponentDto component, MetricDto metricDto, Consumer<CustomMeasureDto>... consumers) {
     Preconditions.checkArgument(metricDto.isUserManaged(),"Custom measure must be created from a custom metric");
-    CustomMeasureDto dto = newCustomMeasureDto().setUserUuid(user.getUuid()).setComponentUuid(component.uuid()).setMetricId(metricDto.getId());
+    CustomMeasureDto dto = newCustomMeasureDto()
+      .setComponentUuid(component.uuid())
+      .setMetricId(metricDto.getId());
+    if (user != null) {
+      dto.setUserUuid(user.getUuid());
+    }
     Arrays.stream(consumers).forEach(c -> c.accept(dto));
     dbClient.customMeasureDao().insert(dbSession, dto);
     dbSession.commit();

@@ -34,7 +34,6 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -71,16 +70,6 @@ public class SnapshotDao implements Dao {
 
   public List<SnapshotDto> selectAnalysesByQuery(DbSession session, SnapshotQuery query) {
     return mapper(session).selectSnapshotsByQuery(query);
-  }
-
-  @CheckForNull
-  public SnapshotDto selectAnalysisByQuery(DbSession session, SnapshotQuery query) {
-    List<SnapshotDto> dtos = mapper(session).selectSnapshotsByQuery(query);
-    if (dtos.isEmpty()) {
-      return null;
-    }
-    checkState(dtos.size() == 1, "Expected one analysis to be returned, got %s", dtos.size());
-    return dtos.get(0);
   }
 
   public Optional<SnapshotDto> selectOldestSnapshot(DbSession session, String componentUuid) {

@@ -19,16 +19,22 @@
  */
 package org.sonar.db.issue;
 
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class IssueChangeMapperTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
+  private IssueChangeMapper underTest = dbTester.getSession().getMapper(IssueChangeMapper.class);
 
   @Test
   public void insert_diff() {
@@ -41,10 +47,13 @@ public class IssueChangeMapperTest {
     dto.setCreatedAt(1_500_000_000_000L);
     dto.setUpdatedAt(1_500_000_000_000L);
     dto.setIssueChangeCreationDate(1_500_000_000_000L);
-    dbTester.getSession().getMapper(IssueChangeMapper.class).insert(dto);
+    underTest.insert(dto);
     dbTester.getSession().commit();
 
-    dbTester.assertDbUnit(getClass(), "insert_diff-result.xml", new String[]{"id"}, "issue_changes");
+    List<IssueChangeDto> dtos = underTest.selectByIssues(singletonList("ABCDE"));
+    assertThat(dtos).hasSize(1);
+    IssueChangeDto issueChangeDto = dtos.get(0);
+    assertEquals(dto, issueChangeDto);
   }
 
   @Test
@@ -58,9 +67,24 @@ public class IssueChangeMapperTest {
     dto.setCreatedAt(1_500_000_000_000L);
     dto.setUpdatedAt(1_500_000_000_000L);
     dto.setIssueChangeCreationDate(1_500_000_000_000L);
-    dbTester.getSession().getMapper(IssueChangeMapper.class).insert(dto);
+
+    underTest.insert(dto);
     dbTester.getSession().commit();
 
-    dbTester.assertDbUnit(getClass(), "insert_comment-result.xml", new String[]{"id"}, "issue_changes");
+    List<IssueChangeDto> dtos = underTest.selectByIssues(singletonList("ABCDE"));
+    assertThat(dtos).hasSize(1);
+    IssueChangeDto issueChangeDto = dtos.get(0);
+    assertEquals(dto, issueChangeDto);
+  }
+
+  private void assertEquals(IssueChangeDto expected, IssueChangeDto actual) {
+    assertThat(actual.getKey()).isEqualTo(expected.getKey());
+    assertThat(actual.getUserUuid()).isEqualTo(expected.getUserUuid());
+    assertThat(actual.getIssueKey()).isEqualTo(expected.getIssueKey());
+    assertThat(actual.getChangeType()).isEqualTo(expected.getChangeType());
+    assertThat(actual.getChangeData()).isEqualTo(expected.getChangeData());
+    assertThat(actual.getCreatedAt()).isEqualTo(expected.getCreatedAt());
+    assertThat(actual.getUpdatedAt()).isEqualTo(expected.getUpdatedAt());
+    assertThat(actual.getIssueChangeCreationDate()).isEqualTo(expected.getIssueChangeCreationDate());
   }
 }

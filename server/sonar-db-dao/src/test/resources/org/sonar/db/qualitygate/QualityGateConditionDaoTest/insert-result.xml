@@ -1,6 +1,0 @@
-<dataset>
-
-  <quality_gate_conditions id="1" qgate_id="1" metric_id="2" operator="GT" value_warning="10" value_error="20"
-                           period="3"/>
-
-</dataset>

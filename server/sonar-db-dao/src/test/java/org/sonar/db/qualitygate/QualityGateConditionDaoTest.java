@@ -19,19 +19,19 @@
  */
 package org.sonar.db.qualitygate;
 
+import java.util.Random;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.metric.MetricDto;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class QualityGateConditionDaoTest {
-
-  private static final String[] COLUMNS_WITHOUT_TIMESTAMPS = {
-    "id", "qgate_id", "metric_id", "operator", "value_error"
-  };
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -41,64 +41,106 @@ public class QualityGateConditionDaoTest {
 
   @Test
   public void testInsert() {
-    dbTester.prepareDbUnit(getClass(), "insert.xml");
-    QualityGateConditionDto newCondition = new QualityGateConditionDto()
-      .setQualityGateId(1L).setMetricId(2L).setOperator("GT").setErrorThreshold("20");
+    QualityGateConditionDto newCondition = insertQGCondition(1L, 2L, "GT", "20");
 
-    underTest.insert(newCondition, dbTester.getSession());
-    dbTester.commit();
-
-    dbTester.assertDbUnitTable(getClass(), "insert-result.xml", "quality_gate_conditions", "metric_id", "operator", "error_value");
     assertThat(newCondition.getId()).isNotNull();
+    QualityGateConditionDto actual = underTest.selectById(newCondition.getId(), dbSession);
+    assertEquals(actual, newCondition);
   }
 
   @Test
   public void testSelectForQualityGate() {
-    dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
-    assertThat(underTest.selectForQualityGate(dbSession, 1L)).hasSize(3);
-    assertThat(underTest.selectForQualityGate(dbSession, 2L)).hasSize(2);
+    long qg1Id = 1L;
+    long qg2Id = 2L;
+    int qg1Conditions = 1 + new Random().nextInt(5);
+    int qg2Conditions = 10 + new Random().nextInt(5);
+    IntStream.range(0, qg1Conditions).forEach(i -> insertQGCondition(qg1Id));
+    IntStream.range(0, qg2Conditions).forEach(i -> insertQGCondition(qg2Id));
+
+    assertThat(underTest.selectForQualityGate(dbSession, qg1Id)).hasSize(qg1Conditions);
+    assertThat(underTest.selectForQualityGate(dbSession, qg2Id)).hasSize(qg2Conditions);
+    assertThat(underTest.selectForQualityGate(dbSession, 5)).isEmpty();
   }
 
   @Test
   public void testSelectById() {
-    dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
-    QualityGateConditionDto selectById = underTest.selectById(1L, dbSession);
-    assertThat(selectById).isNotNull();
-    assertThat(selectById.getId()).isNotNull().isNotEqualTo(0L);
-    assertThat(selectById.getMetricId()).isEqualTo(2L);
-    assertThat(selectById.getOperator()).isEqualTo("<");
-    assertThat(selectById.getQualityGateId()).isEqualTo(1L);
-    assertThat(selectById.getErrorThreshold()).isEqualTo("20");
+    QualityGateConditionDto condition = insertQGCondition(1L, 2L, "GT", "20");
+
+    assertEquals(underTest.selectById(condition.getId(), dbSession), condition);
     assertThat(underTest.selectById(42L, dbSession)).isNull();
   }
 
   @Test
   public void testDelete() {
-    dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
+    QualityGateConditionDto condition1 = insertQGCondition(2L);
+    QualityGateConditionDto condition2 = insertQGCondition(3L);
 
-    underTest.delete(new QualityGateConditionDto().setId(1L), dbSession);
+    underTest.delete(condition1, dbSession);
     dbSession.commit();
 
-    dbTester.assertDbUnitTable(getClass(), "delete-result.xml", "quality_gate_conditions", COLUMNS_WITHOUT_TIMESTAMPS);
+    assertThat(underTest.selectById(condition1.getId(), dbSession)).isNull();
+    assertThat(underTest.selectById(condition2.getId(), dbSession)).isNotNull();
   }
 
   @Test
   public void testUpdate() {
-    dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
+    QualityGateConditionDto condition1 = insertQGCondition(2L);
+    QualityGateConditionDto condition2 = insertQGCondition(3L);
 
-    underTest.update(new QualityGateConditionDto().setId(1L).setMetricId(7L).setOperator(">").setErrorThreshold("80"), dbSession);
+    QualityGateConditionDto newCondition1 = new QualityGateConditionDto()
+      .setId(condition1.getId())
+      .setQualityGateId(condition1.getQualityGateId())
+      .setMetricId(7L)
+      .setOperator(">")
+      .setErrorThreshold("80");
+    underTest.update(newCondition1, dbSession);
     dbSession.commit();
 
-    dbTester.assertDbUnitTable(getClass(), "update-result.xml", "quality_gate_conditions", COLUMNS_WITHOUT_TIMESTAMPS);
+
+    assertEquals(underTest.selectById(condition1.getId(), dbSession), newCondition1);
+    assertEquals(underTest.selectById(condition2.getId(), dbSession), condition2);
   }
 
   @Test
   public void shouldCleanConditions() {
-    dbTester.prepareDbUnit(getClass(), "shouldCleanConditions.xml");
+    MetricDto enabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(true));
+    MetricDto disabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(false));
+    QualityGateConditionDto condition1 = insertQGCondition(1L, enabledMetric.getId());
+    QualityGateConditionDto condition2 = insertQGCondition(1L, disabledMetric.getId());
+    QualityGateConditionDto condition3 = insertQGCondition(1L, 299);
 
     underTest.deleteConditionsWithInvalidMetrics(dbTester.getSession());
     dbTester.commit();
 
-    dbTester.assertDbUnit(getClass(), "shouldCleanConditions-result.xml", new String[] {"created_at", "updated_at"}, "quality_gate_conditions");
+
+    assertThat(underTest.selectById(condition1.getId(), dbSession)).isNotNull();
+    assertThat(underTest.selectById(condition2.getId(), dbSession)).isNull();
+    assertThat(underTest.selectById(condition3.getId(), dbSession)).isNull();
+  }
+
+  private QualityGateConditionDto insertQGCondition(long qualityGateId) {
+    return insertQGCondition(qualityGateId, new Random().nextInt(100));
+  }
+
+  private QualityGateConditionDto insertQGCondition(long qualityGateId, int metricId) {
+    return insertQGCondition(qualityGateId, metricId, randomAlphabetic(2), randomAlphabetic(3));
+  }
+
+  private QualityGateConditionDto insertQGCondition(long qualityGateId, long metricId, String operator, String threshold) {
+    QualityGateConditionDto res = new QualityGateConditionDto()
+      .setQualityGateId(qualityGateId)
+      .setMetricId(metricId)
+      .setOperator(operator)
+      .setErrorThreshold(threshold);
+    underTest.insert(res, dbTester.getSession());
+    dbTester.commit();
+    return res;
+  }
+
+  private void assertEquals(QualityGateConditionDto actual, QualityGateConditionDto expected) {
+    assertThat(actual.getQualityGateId()).isEqualTo(expected.getQualityGateId());
+    assertThat(actual.getMetricId()).isEqualTo(expected.getMetricId());
+    assertThat(actual.getOperator()).isEqualTo(expected.getOperator());
+    assertThat(actual.getErrorThreshold()).isEqualTo(expected.getErrorThreshold());
   }
 }

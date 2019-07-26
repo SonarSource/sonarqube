@@ -1,6 +1,0 @@
-<dataset>
-
-  <plugins uuid="a" kee="java" base_plugin_key="[null]" file_hash="bd451e47a1aa76e73da0359cef63dd63" created_at="1" updated_at="1"/>
-  <plugins uuid="b" kee="javacustom" base_plugin_key="java2" file_hash="d22091cff5155e892cfe2f9dab51f811" created_at="1" updated_at="12345"/>
-
-</dataset>

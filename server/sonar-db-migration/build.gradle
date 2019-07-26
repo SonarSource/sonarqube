@@ -23,7 +23,6 @@ dependencies {
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
-  testCompile 'org.dbunit:dbunit'
   testCompile 'org.mindrot:jbcrypt'
   testCompile 'org.mockito:mockito-core'
   testCompile project(':sonar-scanner-protocol')

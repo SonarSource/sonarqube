@@ -1,9 +1,0 @@
-<dataset>
-
-  <metrics delete_historical_data="[false]" id="1" name="m1" val_type="FLOAT" description="desc1" domain="domain1"
-           short_name="One" qualitative="[true]" user_managed="[false]"
-           enabled="[false]"
-           worst_value="[null]"
-           optimized_best_value="[false]" best_value="[null]" direction="1" hidden="[false]" decimal_scale="[null]"/>
-
-</dataset>

@@ -25,9 +25,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.index.ComponentDoc;
 import org.sonar.server.component.index.ComponentIndexDefinition;
@@ -63,7 +65,7 @@ public class BackendCleanupTest {
 
   @Test
   public void clear_db() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    insertSomeData();
 
     underTest.clearDb();
 
@@ -87,7 +89,8 @@ public class BackendCleanupTest {
 
   @Test
   public void clear_all() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    insertSomeData();
+
     es.putDocuments(IssueIndexDefinition.TYPE_ISSUE, IssueDocTesting.newDoc());
     es.putDocuments(RuleIndexDefinition.TYPE_RULE, newRuleDoc());
     es.putDocuments(ComponentIndexDefinition.TYPE_COMPONENT, newComponentDoc());
@@ -106,7 +109,8 @@ public class BackendCleanupTest {
 
   @Test
   public void reset_data() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    insertSomeData();
+
     es.putDocuments(IssueIndexDefinition.TYPE_ISSUE, IssueDocTesting.newDoc());
     es.putDocuments(ViewIndexDefinition.TYPE_VIEW, new ViewDoc().setUuid("CDEF").setProjects(newArrayList("DEFG")));
     es.putDocuments(RuleIndexDefinition.TYPE_RULE, newRuleDoc());
@@ -129,6 +133,18 @@ public class BackendCleanupTest {
     // Rules should not be removed
     assertThat(dbTester.countRowsOfTable("rules")).isEqualTo(1);
     assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isEqualTo(1);
+  }
+
+  private void insertSomeData() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    dbTester.components().insertSnapshot(project);
+    dbTester.rules().insert();
+    dbTester.properties().insertProperty(new PropertyDto()
+      .setKey("sonar.profile.java")
+      .setValue("Sonar Way")
+      .setResourceId(project.getId())
+    );
   }
 
   private static RuleDoc newRuleDoc() {

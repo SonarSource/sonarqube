@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Clob;
 import java.sql.Connection;
@@ -49,20 +48,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.dbunit.Assertion;
-import org.dbunit.DatabaseUnitException;
-import org.dbunit.assertion.DiffCollectingFailureHandler;
-import org.dbunit.assertion.Difference;
-import org.dbunit.database.DatabaseConfig;
-import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.CompositeDataSet;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
-import org.dbunit.dataset.ReplacementDataSet;
-import org.dbunit.dataset.filter.DefaultColumnFilter;
-import org.dbunit.dataset.xml.FlatXmlDataSet;
-import org.dbunit.ext.mssql.InsertIdentityOperation;
-import org.dbunit.operation.DatabaseOperation;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -147,7 +132,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
     }
 
     String sql = "insert into " + table.toLowerCase(Locale.ENGLISH) + " (" +
-      COMMA_JOINER.join(valuesByColumn.keySet()) +
+      COMMA_JOINER.join(valuesByColumn.keySet().stream().map(t -> t.toLowerCase(Locale.ENGLISH)).toArray(String[]::new)) +
       ") values (" +
       COMMA_JOINER.join(Collections.nCopies(valuesByColumn.size(), '?')) +
       ")";
@@ -255,124 +240,6 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
       rows.add(columns);
     }
     return rows;
-  }
-
-  /**
-   * @deprecated do not use DBUnit
-   */
-  @Deprecated
-  public void prepareDbUnit(Class testClass, String... testNames) {
-    InputStream[] streams = new InputStream[testNames.length];
-    try {
-      for (int i = 0; i < testNames.length; i++) {
-        String path = "/" + testClass.getName().replace('.', '/') + "/" + testNames[i];
-        streams[i] = testClass.getResourceAsStream(path);
-        if (streams[i] == null) {
-          throw new IllegalStateException("DbUnit file not found: " + path);
-        }
-      }
-
-      prepareDbUnit(streams);
-      db.getCommands().resetPrimaryKeys(db.getDatabase().getDataSource());
-    } catch (SQLException e) {
-      throw translateException("Could not setup DBUnit data", e);
-    } finally {
-      for (InputStream stream : streams) {
-        IOUtils.closeQuietly(stream);
-      }
-    }
-  }
-
-  private void prepareDbUnit(InputStream... dataSetStream) {
-    IDatabaseConnection connection = null;
-    try {
-      IDataSet[] dataSets = new IDataSet[dataSetStream.length];
-      for (int i = 0; i < dataSetStream.length; i++) {
-        dataSets[i] = dbUnitDataSet(dataSetStream[i]);
-      }
-      db.getDbUnitTester().setDataSet(new CompositeDataSet(dataSets));
-      connection = dbUnitConnection();
-      new InsertIdentityOperation(DatabaseOperation.INSERT).execute(connection, db.getDbUnitTester().getDataSet());
-    } catch (Exception e) {
-      throw translateException("Could not setup DBUnit data", e);
-    } finally {
-      closeQuietly(connection);
-    }
-  }
-
-  /**
-   * @deprecated do not use DBUnit
-   */
-  @Deprecated
-  public void assertDbUnitTable(Class testClass, String filename, String table, String... columns) {
-    IDatabaseConnection connection = dbUnitConnection();
-    try {
-      IDataSet dataSet = connection.createDataSet();
-      String path = "/" + testClass.getName().replace('.', '/') + "/" + filename;
-      IDataSet expectedDataSet = dbUnitDataSet(testClass.getResourceAsStream(path));
-      ITable filteredTable = DefaultColumnFilter.includedColumnsTable(dataSet.getTable(table), columns);
-      ITable filteredExpectedTable = DefaultColumnFilter.includedColumnsTable(expectedDataSet.getTable(table), columns);
-      Assertion.assertEquals(filteredExpectedTable, filteredTable);
-    } catch (DatabaseUnitException e) {
-      fail(e.getMessage());
-    } catch (SQLException e) {
-      throw translateException("Error while checking results", e);
-    } finally {
-      closeQuietly(connection);
-    }
-  }
-
-  /**
-   * @deprecated do not use DBUnit
-   */
-  @Deprecated
-  public void assertDbUnit(Class testClass, String filename, String... tables) {
-    assertDbUnit(testClass, filename, new String[0], tables);
-  }
-
-  /**
-   * @deprecated do not use DBUnit
-   */
-  @Deprecated
-  public void assertDbUnit(Class testClass, String filename, String[] excludedColumnNames, String... tables) {
-    IDatabaseConnection connection = null;
-    try {
-      connection = dbUnitConnection();
-
-      IDataSet dataSet = connection.createDataSet();
-      String path = "/" + testClass.getName().replace('.', '/') + "/" + filename;
-      InputStream inputStream = testClass.getResourceAsStream(path);
-      if (inputStream == null) {
-        throw new IllegalStateException(String.format("File '%s' does not exist", path));
-      }
-      IDataSet expectedDataSet = dbUnitDataSet(inputStream);
-      for (String table : tables) {
-        DiffCollectingFailureHandler diffHandler = new DiffCollectingFailureHandler();
-
-        ITable filteredTable = DefaultColumnFilter.excludedColumnsTable(dataSet.getTable(table), excludedColumnNames);
-        ITable filteredExpectedTable = DefaultColumnFilter.excludedColumnsTable(expectedDataSet.getTable(table), excludedColumnNames);
-        Assertion.assertEquals(filteredExpectedTable, filteredTable, diffHandler);
-        // Evaluate the differences and ignore some column values
-        List diffList = diffHandler.getDiffList();
-        for (Object o : diffList) {
-          Difference diff = (Difference) o;
-          if (!"[ignore]".equals(diff.getExpectedValue())) {
-            throw new DatabaseUnitException(diff.toString());
-          }
-        }
-      }
-    } catch (DatabaseUnitException e) {
-      e.printStackTrace();
-      fail(e.getMessage());
-    } catch (Exception e) {
-      throw translateException("Error while checking results", e);
-    } finally {
-      closeQuietly(connection);
-    }
-  }
-
-  public void assertColumnDefinition(String table, String column, int expectedType, @Nullable Integer expectedSize) {
-    assertColumnDefinition(table, column, expectedType, expectedSize, null);
   }
 
   public void assertColumnDefinition(String table, String column, int expectedType, @Nullable Integer expectedSize, @Nullable Boolean isNullable) {
@@ -569,50 +436,11 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
     }
   }
 
-  private IDataSet dbUnitDataSet(InputStream stream) {
-    try {
-      ReplacementDataSet dataSet = new ReplacementDataSet(new FlatXmlDataSet(stream));
-      dataSet.addReplacementObject("[null]", null);
-      dataSet.addReplacementObject("[false]", Boolean.FALSE);
-      dataSet.addReplacementObject("[true]", Boolean.TRUE);
-
-      return dataSet;
-    } catch (Exception e) {
-      throw translateException("Could not read the dataset stream", e);
-    }
-  }
-
-  private IDatabaseConnection dbUnitConnection() {
-    try {
-      IDatabaseConnection connection = db.getDbUnitTester().getConnection();
-      connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, db.getDbUnitFactory());
-      return connection;
-    } catch (Exception e) {
-      throw translateException("Error while getting connection", e);
-    }
-  }
-
-  public static RuntimeException translateException(String msg, Exception cause) {
-    RuntimeException runtimeException = new RuntimeException(String.format("%s: [%s] %s", msg, cause.getClass().getName(), cause.getMessage()));
-    runtimeException.setStackTrace(cause.getStackTrace());
-    return runtimeException;
-  }
-
   private static void doClobFree(Clob clob) throws SQLException {
     try {
       clob.free();
     } catch (AbstractMethodError e) {
       // JTS driver do not implement free() as it's using JDBC 3.0
-    }
-  }
-
-  private void closeQuietly(@Nullable IDatabaseConnection connection) {
-    try {
-      if (connection != null) {
-        connection.close();
-      }
-    } catch (SQLException e) {
-      // ignore
     }
   }
 
@@ -626,10 +454,6 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
 
   public Database database() {
     return db.getDatabase();
-  }
-
-  public DatabaseCommands getCommands() {
-    return db.getCommands();
   }
 
   /**

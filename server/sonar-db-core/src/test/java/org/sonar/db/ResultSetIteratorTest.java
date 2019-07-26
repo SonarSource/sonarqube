@@ -38,7 +38,9 @@ public class ResultSetIteratorTest {
 
   @Test
   public void create_iterator_from_statement() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "feed.xml");
+    insert(10, "AB");
+    insert(20, "AB");
+    insert(30, "AB");
 
     try (Connection connection = dbTester.openConnection()) {
       PreparedStatement stmt = connection.prepareStatement("select * from issues order by id");
@@ -72,7 +74,9 @@ public class ResultSetIteratorTest {
 
   @Test
   public void iterate_empty_list() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "feed.xml");
+    insert(10, "AB");
+    insert(20, "AB");
+    insert(30, "AB");
 
     try (Connection connection = dbTester.openConnection()) {
       PreparedStatement stmt = connection.prepareStatement("select * from issues where id < 0");
@@ -84,7 +88,9 @@ public class ResultSetIteratorTest {
 
   @Test
   public void create_iterator_from_result_set() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "feed.xml");
+    insert(10, "AB");
+    insert(20, "AB");
+    insert(30, "AB");
 
     try (Connection connection = dbTester.openConnection()) {
       PreparedStatement stmt = connection.prepareStatement("select * from issues order by id");
@@ -120,7 +126,9 @@ public class ResultSetIteratorTest {
 
   @Test
   public void fail_to_read_row() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "feed.xml");
+    insert(10, "AB");
+    insert(20, "AB");
+    insert(30, "AB");
 
     try (Connection connection = dbTester.openConnection()) {
       PreparedStatement stmt = connection.prepareStatement("select * from issues order by id");
@@ -164,5 +172,13 @@ public class ResultSetIteratorTest {
       // column does not exist
       return rs.getInt(1234);
     }
+  }
+
+  private void insert(int id, String key) {
+    dbTester.executeInsert(
+      "ISSUES",
+      "ID", id,
+      "KEE", key
+    );
   }
 }

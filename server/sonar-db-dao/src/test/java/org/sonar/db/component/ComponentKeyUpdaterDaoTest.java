@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -57,19 +58,33 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void updateKey_changes_the_key_of_tree_of_components() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    populateSomeData();
 
     underTest.updateKey(dbSession, "B", "struts:core");
     dbSession.commit();
 
-    db.assertDbUnit(getClass(), "shouldUpdateKey-result.xml", "projects");
+    assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from projects"))
+      .extracting(t -> (String) t.get("UUID"), t -> (String) t.get("KEE"))
+      .containsOnly(
+        Tuple.tuple("A", "org.struts:struts"),
+        Tuple.tuple("B", "struts:core"),
+        Tuple.tuple("C", "struts:core:/src/org/struts"),
+        Tuple.tuple("D", "struts:core:/src/org/struts/RequestContext.java"),
+        Tuple.tuple("E", "org.struts:struts-ui"),
+        Tuple.tuple("F", "org.struts:struts-ui:/src/org/struts"),
+        Tuple.tuple("G", "org.struts:struts-ui:/src/org/struts/RequestContext.java"),
+        Tuple.tuple("H", "foo:struts-core"));
   }
 
   @Test
   public void updateKey_updates_disabled_components() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "A").setDbKey("my_project"));
-    ComponentDto directory = db.components().insertComponent(newDirectory(project, "/directory").setDbKey("my_project:directory"));
+    ComponentDto project = db.components().insertComponent(
+      newPrivateProjectDto(organizationDto, "A")
+        .setDbKey("my_project"));
+    ComponentDto directory = db.components().insertComponent(
+      newDirectory(project, "B")
+        .setDbKey("my_project:directory"));
     db.components().insertComponent(newFileDto(project, directory).setDbKey("my_project:directory/file"));
     ComponentDto inactiveDirectory = db.components().insertComponent(newDirectory(project, "/inactive_directory").setDbKey("my_project:inactive_directory").setEnabled(false));
     db.components().insertComponent(newFileDto(project, inactiveDirectory).setDbKey("my_project:inactive_directory/file").setEnabled(false));
@@ -232,7 +247,7 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void updateKey_throws_IAE_if_component_with_specified_key_does_not_exist() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    populateSomeData();
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Impossible to update key: a component with key \"org.struts:struts-ui\" already exists.");
@@ -257,27 +272,47 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void shouldBulkUpdateKey() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    populateSomeData();
 
     underTest.bulkUpdateKey(dbSession, "A", "org.struts", "org.apache.struts", doNotReturnAnyRekeyedResource());
     dbSession.commit();
 
-    db.assertDbUnit(getClass(), "shouldBulkUpdateKey-result.xml", "projects");
+    assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from projects"))
+      .extracting(t -> (String) t.get("UUID"), t -> (String) t.get("KEE"))
+      .containsOnly(
+        Tuple.tuple("A", "org.apache.struts:struts"),
+        Tuple.tuple("B", "org.apache.struts:struts-core"),
+        Tuple.tuple("C", "org.apache.struts:struts-core:/src/org/struts"),
+        Tuple.tuple("D", "org.apache.struts:struts-core:/src/org/struts/RequestContext.java"),
+        Tuple.tuple("E", "org.apache.struts:struts-ui"),
+        Tuple.tuple("F", "org.apache.struts:struts-ui:/src/org/struts"),
+        Tuple.tuple("G", "org.apache.struts:struts-ui:/src/org/struts/RequestContext.java"),
+        Tuple.tuple("H", "foo:struts-core"));
   }
 
   @Test
   public void shouldBulkUpdateKeyOnOnlyOneSubmodule() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    populateSomeData();
 
     underTest.bulkUpdateKey(dbSession, "A", "struts-ui", "struts-web", doNotReturnAnyRekeyedResource());
     dbSession.commit();
 
-    db.assertDbUnit(getClass(), "shouldBulkUpdateKeyOnOnlyOneSubmodule-result.xml", "projects");
+    assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from projects"))
+      .extracting(t -> (String) t.get("UUID"), t -> (String) t.get("KEE"))
+      .containsOnly(
+        Tuple.tuple("A", "org.struts:struts"),
+        Tuple.tuple("B", "org.struts:struts-core"),
+        Tuple.tuple("C", "org.struts:struts-core:/src/org/struts"),
+        Tuple.tuple("D", "org.struts:struts-core:/src/org/struts/RequestContext.java"),
+        Tuple.tuple("E", "org.struts:struts-web"),
+        Tuple.tuple("F", "org.struts:struts-web:/src/org/struts"),
+        Tuple.tuple("G", "org.struts:struts-web:/src/org/struts/RequestContext.java"),
+        Tuple.tuple("H", "foo:struts-core"));
   }
 
   @Test
   public void shouldFailBulkUpdateKeyIfKeyAlreadyExist() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    populateSomeData();
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Impossible to update key: a component with key \"foo:struts-core\" already exists.");
@@ -288,12 +323,30 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void shouldNotUpdateAllSubmodules() {
-    db.prepareDbUnit(getClass(), "shouldNotUpdateAllSubmodules.xml");
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPrivateProject(organization, t1 -> t1.setDbKey("org.struts:struts").setUuid("A"));
+    ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setDbKey("org.struts:struts-core").setUuid("B"));
+    ComponentDto directory1 = db.components().insertComponent(newDirectory(module1, "/src/org/struts").setUuid("C"));
+    db.components().insertComponent(ComponentTesting.newFileDto(module1, directory1).setDbKey("org.struts:struts-core:/src/org/struts/RequestContext.java").setUuid("D"));
+    ComponentDto module2 = db.components().insertComponent(newModuleDto(project1).setDbKey("foo:struts-ui").setUuid("E"));
+    ComponentDto directory2 = db.components().insertComponent(newDirectory(module2, "/src/org/struts").setUuid("F"));
+    db.components().insertComponent(ComponentTesting.newFileDto(module2, directory2).setDbKey("foo:struts-ui:/src/org/struts/RequestContext.java").setUuid("G"));
+    ComponentDto project2 = db.components().insertPublicProject(organization, t1 -> t1.setDbKey("foo:struts-core").setUuid("H"));
 
     underTest.bulkUpdateKey(dbSession, "A", "org.struts", "org.apache.struts", doNotReturnAnyRekeyedResource());
     dbSession.commit();
 
-    db.assertDbUnit(getClass(), "shouldNotUpdateAllSubmodules-result.xml", "projects");
+    assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from projects"))
+      .extracting(t -> (String) t.get("UUID"), t -> (String) t.get("KEE"))
+      .containsOnly(
+        Tuple.tuple("A", "org.apache.struts:struts"),
+        Tuple.tuple("B", "org.apache.struts:struts-core"),
+        Tuple.tuple("C", "org.apache.struts:struts-core:/src/org/struts"),
+        Tuple.tuple("D", "org.apache.struts:struts-core:/src/org/struts/RequestContext.java"),
+        Tuple.tuple("E", "foo:struts-ui"),
+        Tuple.tuple("F", "foo:struts-ui:/src/org/struts"),
+        Tuple.tuple("G", "foo:struts-ui:/src/org/struts/RequestContext.java"),
+        Tuple.tuple("H", "foo:struts-core"));
   }
 
   @Test
@@ -321,7 +374,7 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void check_component_keys() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    populateSomeData();
 
     Map<String, Boolean> result = underTest.checkComponentKeys(dbSession, newArrayList("foo:struts", "foo:struts-core", "foo:struts-ui"));
 
@@ -345,7 +398,7 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void simulate_bulk_update_key() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    populateSomeData();
 
     Map<String, String> result = underTest.simulateBulkUpdateKey(dbSession, "A", "org.struts", "foo");
 
@@ -388,5 +441,17 @@ public class ComponentKeyUpdaterDaoTest {
 
   private Predicate<RekeyedResource> doNotReturnAnyRekeyedResource() {
     return a -> false;
+  }
+
+  private void populateSomeData() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPrivateProject(organization, t -> t.setDbKey("org.struts:struts").setUuid("A"));
+    ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setDbKey("org.struts:struts-core").setUuid("B"));
+    ComponentDto directory1 = db.components().insertComponent(newDirectory(module1, "/src/org/struts").setUuid("C"));
+    db.components().insertComponent(ComponentTesting.newFileDto(module1, directory1).setDbKey("org.struts:struts-core:/src/org/struts/RequestContext.java").setUuid("D"));
+    ComponentDto module2 = db.components().insertComponent(newModuleDto(project1).setDbKey("org.struts:struts-ui").setUuid("E"));
+    ComponentDto directory2 = db.components().insertComponent(newDirectory(module2, "/src/org/struts").setUuid("F"));
+    db.components().insertComponent(ComponentTesting.newFileDto(module2, directory2).setDbKey("org.struts:struts-ui:/src/org/struts/RequestContext.java").setUuid("G"));
+    ComponentDto project2 = db.components().insertPublicProject(organization, t -> t.setDbKey("foo:struts-core").setUuid("H"));
   }
 }

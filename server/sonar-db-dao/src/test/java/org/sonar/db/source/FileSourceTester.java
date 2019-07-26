@@ -55,6 +55,7 @@ public class FileSourceTester {
     Arrays.stream(dtoPopulators).forEach(c -> c.accept(dto));
     db.getDbClient().fileSourceDao().insert(db.getSession(), dto);
     db.commit();
+    dto.setId(db.getDbClient().fileSourceDao().selectByFileUuid(db.getSession(), dto.getFileUuid()).getId());
     return dto;
   }
 

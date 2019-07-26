@@ -21,6 +21,8 @@ package org.sonar.db.event;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,8 +33,10 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.event.EventTesting.newEvent;
@@ -64,25 +68,46 @@ public class EventDaoTest {
 
   @Test
   public void select_by_component_uuid() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(organization);
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organization);
+    SnapshotDto analysis1 = dbTester.components().insertProjectAndSnapshot(project1);
+    SnapshotDto analysis2 = dbTester.components().insertProjectAndSnapshot(project2);
+    String[] eventUuids1 = IntStream.range(0, 1 + new Random().nextInt(10))
+      .mapToObj(i -> dbTester.events().insertEvent(newEvent(analysis1).setUuid("1_" + i)))
+      .map(EventDto::getUuid)
+      .toArray(String[]::new);
+    EventDto event2 = dbTester.events().insertEvent(new EventDto()
+      .setAnalysisUuid(analysis2.getUuid())
+      .setComponentUuid(analysis2.getComponentUuid())
+      .setName("name_2_")
+      .setUuid("2_")
+      .setCategory("cat_2_")
+      .setDescription("desc_2_")
+      .setData("dat_2_")
+      .setDate(2_000L)
+      .setCreatedAt(4_000L));
 
-    List<EventDto> dtos = underTest.selectByComponentUuid(dbTester.getSession(), "ABCD");
-    assertThat(dtos).hasSize(3);
+    assertThat(underTest.selectByComponentUuid(dbTester.getSession(), project1.uuid()))
+      .extracting(EventDto::getUuid)
+      .containsOnly(eventUuids1);
+    List<EventDto> events2 = underTest.selectByComponentUuid(dbTester.getSession(), project2.uuid());
+    assertThat(events2)
+      .extracting(EventDto::getUuid)
+      .containsOnly(event2.getUuid());
+    assertThat(underTest.selectByComponentUuid(dbTester.getSession(), "does not exist"))
+      .isEmpty();
 
-    dtos = underTest.selectByComponentUuid(dbTester.getSession(), "BCDE");
-    assertThat(dtos).hasSize(1);
-
-    EventDto dto = dtos.get(0);
-    assertThat(dto.getId()).isEqualTo(4L);
-    assertThat(dto.getUuid()).isEqualTo("E4");
-    assertThat(dto.getAnalysisUuid()).isEqualTo("uuid_1");
-    assertThat(dto.getComponentUuid()).isEqualTo("BCDE");
-    assertThat(dto.getName()).isEqualTo("1.0");
-    assertThat(dto.getCategory()).isEqualTo("Version");
-    assertThat(dto.getDescription()).isEqualTo("Version 1.0");
-    assertThat(dto.getData()).isEqualTo("some data");
-    assertThat(dto.getDate()).isEqualTo(1413407091086L);
-    assertThat(dto.getCreatedAt()).isEqualTo(1225630680000L);
+    EventDto dto = events2.get(0);
+    assertThat(dto.getUuid()).isEqualTo(event2.getUuid());
+    assertThat(dto.getAnalysisUuid()).isEqualTo(event2.getAnalysisUuid());
+    assertThat(dto.getComponentUuid()).isEqualTo(event2.getComponentUuid());
+    assertThat(dto.getName()).isEqualTo(event2.getName());
+    assertThat(dto.getCategory()).isEqualTo(event2.getCategory());
+    assertThat(dto.getDescription()).isEqualTo(event2.getDescription());
+    assertThat(dto.getData()).isEqualTo(event2.getData());
+    assertThat(dto.getDate()).isEqualTo(event2.getDate());
+    assertThat(dto.getCreatedAt()).isEqualTo(event2.getCreatedAt());
   }
 
   @Test
@@ -129,17 +154,22 @@ public class EventDaoTest {
 
   @Test
   public void return_different_categories() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(organization);
+    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
+    List<EventDto> events = IntStream.range(0, 1 + new Random().nextInt(10))
+      .mapToObj(i -> dbTester.events().insertEvent(newEvent(analysis).setCategory("cat_" + i)))
+      .collect(toList());
 
-    List<EventDto> dtos = underTest.selectByComponentUuid(dbTester.getSession(), "ABCD");
-    assertThat(dtos).extracting("category").containsOnly(EventDto.CATEGORY_ALERT, EventDto.CATEGORY_PROFILE, EventDto.CATEGORY_VERSION);
+    List<EventDto> dtos = underTest.selectByComponentUuid(dbTester.getSession(), project.uuid());
+    assertThat(dtos)
+      .extracting(EventDto::getCategory)
+      .containsOnly(events.stream().map(EventDto::getCategory).toArray(String[]::new));
   }
 
   @Test
   public void insert() {
-    dbTester.prepareDbUnit(getClass(), "empty.xml");
-
-    underTest.insert(dbTester.getSession(), new EventDto()
+    EventDto expected = new EventDto()
       .setUuid("E1")
       .setAnalysisUuid("uuid_1")
       .setComponentUuid("ABCD")
@@ -148,10 +178,21 @@ public class EventDaoTest {
       .setDescription("Version 1.0")
       .setData("some data")
       .setDate(1413407091086L)
-      .setCreatedAt(1225630680000L));
+      .setCreatedAt(1225630680000L);
+    underTest.insert(dbTester.getSession(), expected);
     dbTester.getSession().commit();
 
-    dbTester.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "events");
+    EventDto dto = underTest.selectByUuid(dbSession, expected.getUuid()).get();
+
+    assertThat(dto.getUuid()).isEqualTo(expected.getUuid());
+    assertThat(dto.getAnalysisUuid()).isEqualTo(expected.getAnalysisUuid());
+    assertThat(dto.getComponentUuid()).isEqualTo(expected.getComponentUuid());
+    assertThat(dto.getName()).isEqualTo(expected.getName());
+    assertThat(dto.getCategory()).isEqualTo(expected.getCategory());
+    assertThat(dto.getDescription()).isEqualTo(expected.getDescription());
+    assertThat(dto.getData()).isEqualTo(expected.getData());
+    assertThat(dto.getDate()).isEqualTo(expected.getDate());
+    assertThat(dto.getCreatedAt()).isEqualTo(expected.getCreatedAt());
   }
 
   @Test
@@ -168,9 +209,10 @@ public class EventDaoTest {
 
   @Test
   public void delete_by_id() {
-    dbTester.prepareDbUnit(getClass(), "delete.xml");
+    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()));
+    EventDto eventDto = dbTester.events().insertEvent(newEvent(analysis).setUuid("A1"));
 
-    underTest.delete(dbTester.getSession(), 1L);
+    underTest.delete(dbTester.getSession(), eventDto.getId());
     dbTester.getSession().commit();
 
     assertThat(dbTester.countRowsOfTable("events")).isEqualTo(0);

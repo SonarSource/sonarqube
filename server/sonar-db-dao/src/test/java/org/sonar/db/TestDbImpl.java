@@ -47,7 +47,7 @@ class TestDbImpl extends CoreTestDb {
   }
 
   private TestDbImpl(TestDbImpl base, MyBatis myBatis) {
-    super(base.getDatabase(), base.getCommands(), base.getDbUnitTester());
+    super(base.getDatabase());
     this.isDefault = base.isDefault;
     this.myBatis = myBatis;
   }

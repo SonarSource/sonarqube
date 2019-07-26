@@ -48,7 +48,6 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class PurgeDao implements Dao {
   private static final Logger LOG = Loggers.get(PurgeDao.class);
-  private static final String[] UNPROCESSED_STATUS = new String[] {"U"};
   private static final Set<String> QUALIFIERS_PROJECT_VIEW = ImmutableSet.of("TRK", "VW");
   private static final Set<String> QUALIFIERS_MODULE_SUBVIEW = ImmutableSet.of("BRC", "SVW");
   private static final String SCOPE_PROJECT = "PRJ";
@@ -77,7 +76,7 @@ public class PurgeDao implements Dao {
     purgeStaleBranches(commands, conf, mapper, rootUuid);
   }
 
-  private void purgeStaleBranches(PurgeCommands commands, PurgeConfiguration conf, PurgeMapper mapper, String rootUuid) {
+  private static void purgeStaleBranches(PurgeCommands commands, PurgeConfiguration conf, PurgeMapper mapper, String rootUuid) {
     Optional<Date> maxDate = conf.maxLiveDateOfInactiveShortLivingBranches();
     if (!maxDate.isPresent()) {
       // not available if branch plugin is not installed
@@ -125,10 +124,7 @@ public class PurgeDao implements Dao {
 
   private static void deleteAbortedAnalyses(String rootUuid, PurgeCommands commands) {
     LOG.debug("<- Delete aborted builds");
-    PurgeSnapshotQuery query = new PurgeSnapshotQuery(rootUuid)
-      .setIslast(false)
-      .setStatus(UNPROCESSED_STATUS);
-    commands.deleteAnalyses(query);
+    commands.deleteAbortedAnalyses(rootUuid);
   }
 
   private void deleteDataOfComponentsWithoutHistoricalData(DbSession dbSession, String rootUuid, Collection<String> scopesWithoutHistoricalData, PurgeCommands purgeCommands) {

@@ -19,12 +19,17 @@
  */
 package org.sonar.ce.task.projectanalysis.metric;
 
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.metric.MetricDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,27 +64,31 @@ public class MetricRepositoryImplTest {
     expectedException.expectMessage(String.format("Metric with key '%s' does not exist", SOME_KEY));
 
     underTest.start();
+
     underTest.getByKey(SOME_KEY);
   }
 
   @Test
   public void getByKey_throws_ISE_of_Metric_is_disabled() {
+    dbTester.measures().insertMetric(t -> t.setKey("complexity").setEnabled(false));
+
+    underTest.start();
+
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage(String.format("Metric with key '%s' does not exist", "complexity"));
 
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-
-    underTest.start();
     underTest.getByKey("complexity");
   }
 
   @Test
   public void getByKey_find_enabled_Metrics() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    MetricDto ncloc = dbTester.measures().insertMetric(t -> t.setKey("ncloc").setEnabled(true));
+    MetricDto coverage = dbTester.measures().insertMetric(t -> t.setKey("coverage").setEnabled(true));
 
     underTest.start();
-    assertThat(underTest.getByKey("ncloc").getId()).isEqualTo(1);
-    assertThat(underTest.getByKey("coverage").getId()).isEqualTo(2);
+
+    assertThat(underTest.getByKey("ncloc").getId()).isEqualTo(ncloc.getId());
+    assertThat(underTest.getByKey("coverage").getId()).isEqualTo(coverage.getId());
   }
 
   @Test
@@ -92,31 +101,35 @@ public class MetricRepositoryImplTest {
 
   @Test
   public void getById_throws_ISE_of_Metric_does_not_exist() {
+    underTest.start();
+
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage(String.format("Metric with id '%s' does not exist", SOME_ID));
 
-    underTest.start();
     underTest.getById(SOME_ID);
   }
 
   @Test
   public void getById_throws_ISE_of_Metric_is_disabled() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(String.format("Metric with id '%s' does not exist", 100));
-
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    dbTester.measures().insertMetric(t -> t.setKey("complexity").setEnabled(false));
 
     underTest.start();
-    underTest.getById(100);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(String.format("Metric with id '%s' does not exist", SOME_ID));
+
+    underTest.getById(SOME_ID);
   }
 
   @Test
   public void getById_find_enabled_Metrics() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    MetricDto ncloc = dbTester.measures().insertMetric(t -> t.setKey("ncloc").setEnabled(true));
+    MetricDto coverage = dbTester.measures().insertMetric(t -> t.setKey("coverage").setEnabled(true));
 
     underTest.start();
-    assertThat(underTest.getById(1).getKey()).isEqualTo("ncloc");
-    assertThat(underTest.getById(2).getKey()).isEqualTo("coverage");
+
+    assertThat(underTest.getById(ncloc.getId()).getKey()).isEqualTo("ncloc");
+    assertThat(underTest.getById(coverage.getId()).getKey()).isEqualTo("coverage");
   }
 
   @Test
@@ -136,29 +149,36 @@ public class MetricRepositoryImplTest {
 
   @Test
   public void getOptionalById_returns_empty_of_Metric_is_disabled() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    dbTester.measures().insertMetric(t -> t.setKey("complexity").setEnabled(false));
 
     underTest.start();
 
-    assertThat(underTest.getOptionalById(100)).isEmpty();
+    assertThat(underTest.getOptionalById(SOME_ID)).isEmpty();
   }
 
   @Test
   public void getOptionalById_find_enabled_Metrics() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    MetricDto ncloc = dbTester.measures().insertMetric(t -> t.setKey("ncloc").setEnabled(true));
+    MetricDto coverage = dbTester.measures().insertMetric(t -> t.setKey("coverage").setEnabled(true));
 
     underTest.start();
 
-    assertThat(underTest.getOptionalById(1).get().getKey()).isEqualTo("ncloc");
-    assertThat(underTest.getOptionalById(2).get().getKey()).isEqualTo("coverage");
+    assertThat(underTest.getOptionalById(ncloc.getId()).get().getKey()).isEqualTo("ncloc");
+    assertThat(underTest.getOptionalById(coverage.getId()).get().getKey()).isEqualTo("coverage");
   }
 
   @Test
   public void get_all_metrics() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    List<MetricDto> enabledMetrics = IntStream.range(0, 1 + new Random().nextInt(12))
+      .mapToObj(i -> dbTester.measures().insertMetric(t -> t.setKey("key_enabled_" + i).setEnabled(true)))
+      .collect(Collectors.toList());
+    IntStream.range(0, 1 + new Random().nextInt(12))
+      .forEach(i -> dbTester.measures().insertMetric(t -> t.setKey("key_disabled_" + i).setEnabled(false)));
 
     underTest.start();
-    assertThat(underTest.getAll()).extracting("key").containsOnly("ncloc", "coverage", "sqale_index", "development_cost");
+    assertThat(underTest.getAll())
+      .extracting(Metric::getKey)
+      .containsOnly(enabledMetrics.stream().map(MetricDto::getKey).toArray(String[]::new));
   }
 
 }

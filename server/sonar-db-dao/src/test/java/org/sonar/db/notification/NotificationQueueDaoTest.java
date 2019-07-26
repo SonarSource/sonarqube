@@ -20,25 +20,29 @@
 package org.sonar.db.notification;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.notification.NotificationQueueDto.toNotificationQueueDto;
 
 public class NotificationQueueDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  NotificationQueueDao dao = db.getDbClient().notificationQueueDao();
+  private NotificationQueueDao dao = db.getDbClient().notificationQueueDao();
 
   @Test
   public void should_insert_new_notification_queue() throws Exception {
-    NotificationQueueDto notificationQueueDto = NotificationQueueDto.toNotificationQueueDto(new Notification("email"));
+    NotificationQueueDto notificationQueueDto = toNotificationQueueDto(new Notification("email"));
 
     dao.insert(Arrays.asList(notificationQueueDto));
 
@@ -48,7 +52,7 @@ public class NotificationQueueDaoTest {
 
   @Test
   public void should_count_notification_queue() {
-    NotificationQueueDto notificationQueueDto = NotificationQueueDto.toNotificationQueueDto(new Notification("email"));
+    NotificationQueueDto notificationQueueDto = toNotificationQueueDto(new Notification("email"));
 
     assertThat(dao.count()).isEqualTo(0);
 
@@ -59,25 +63,41 @@ public class NotificationQueueDaoTest {
 
   @Test
   public void should_delete_notification() {
-    db.prepareDbUnit(getClass(), "should_delete_notification.xml");
+    List<NotificationQueueDto> notifs = IntStream.range(0, 30 + new Random().nextInt(20))
+      .mapToObj(i -> toNotificationQueueDto(new Notification("foo_" + i)))
+      .collect(toList());
+    dao.insert(notifs);
+    db.commit();
 
-    NotificationQueueDto dto1 = new NotificationQueueDto().setId(1L);
-    NotificationQueueDto dto3 = new NotificationQueueDto().setId(3L);
+    List<Long> ids = selectAllIds();
 
-    dao.delete(Arrays.asList(dto1, dto3));
+    dao.delete(ids.stream().limit(10).map(id -> new NotificationQueueDto().setId(id)).collect(toList()));
 
-    db.assertDbUnit(getClass(), "should_delete_notification-result.xml", "notifications");
+    assertThat(selectAllIds()).containsOnly(ids.stream().skip(10).toArray(Long[]::new));
   }
 
   @Test
   public void should_findOldest() {
-    db.prepareDbUnit(getClass(), "should_findOldest.xml");
+    List<NotificationQueueDto> notifs = IntStream.range(0, 20)
+      .mapToObj(i -> toNotificationQueueDto(new Notification("foo_" + i)))
+      .collect(toList());
+    dao.insert(notifs);
+    db.commit();
 
-    Collection<NotificationQueueDto> result = dao.selectOldest(3);
-    assertThat(result).hasSize(3);
-    assertThat(result).extracting("id").containsOnly(1L, 2L, 3L);
+    List<Long> ids = selectAllIds();
 
-    result = dao.selectOldest(6);
-    assertThat(result).hasSize(4);
+    assertThat(dao.selectOldest(3))
+      .extracting(NotificationQueueDto::getId)
+      .containsOnly(ids.stream().limit(3).toArray(Long[]::new));
+
+    assertThat(dao.selectOldest(22))
+      .extracting(NotificationQueueDto::getId)
+      .containsOnly(ids.toArray(new Long[0]));
+  }
+
+  private List<Long> selectAllIds() {
+    return db.select("select id as \"ID\" from notifications").stream()
+      .map(t -> (Long) t.get("ID"))
+      .collect(toList());
   }
 }

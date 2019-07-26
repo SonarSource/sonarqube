@@ -20,9 +20,13 @@
 package org.sonar.server.platform.db.migration.step;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,6 +41,7 @@ import static org.junit.Assert.fail;
 public class DataChangeTest {
 
   private static final int MAX_BATCH_SIZE = 250;
+  private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DataChangeTest.class, "schema.sql");
@@ -50,9 +55,9 @@ public class DataChangeTest {
 
   @Test
   public void query() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
-    final AtomicBoolean executed = new AtomicBoolean(false);
+    AtomicBoolean executed = new AtomicBoolean(false);
     new DataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
@@ -70,9 +75,9 @@ public class DataChangeTest {
 
   @Test
   public void read_column_types() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
-    final List<Object[]> persons = new ArrayList<>();
+    List<Object[]> persons = new ArrayList<>();
     new DataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
@@ -92,7 +97,7 @@ public class DataChangeTest {
 
   @Test
   public void parameterized_query() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
     final List<Long> ids = new ArrayList<>();
     new DataChange(db.database()) {
@@ -106,7 +111,7 @@ public class DataChangeTest {
 
   @Test
   public void display_current_row_details_if_error_during_get() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Error during processing of row: [id=2]");
@@ -127,7 +132,7 @@ public class DataChangeTest {
 
   @Test
   public void display_current_row_details_if_error_during_list() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Error during processing of row: [id=2]");
@@ -148,7 +153,7 @@ public class DataChangeTest {
 
   @Test
   public void bad_parameterized_query() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
     final List<Long> ids = new ArrayList<>();
     DataChange change = new DataChange(db.database()) {
@@ -166,7 +171,7 @@ public class DataChangeTest {
 
   @Test
   public void scroll() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
     final List<Long> ids = new ArrayList<>();
     new DataChange(db.database()) {
@@ -185,7 +190,7 @@ public class DataChangeTest {
 
   @Test
   public void insert() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
     new DataChange(db.database()) {
       @Override
@@ -200,12 +205,16 @@ public class DataChangeTest {
       }
     }.execute();
 
-    db.assertDbUnit(getClass(), "insert-result.xml", "persons");
+    assertThat(db.select("select id as \"ID\" from persons"))
+      .extracting(t -> t.get("ID"))
+      .containsOnly(1L, 2L, 3L, 10L);
+    assertInitialPersons();
+    assertPerson(10L, "kurt", 27L, true, null, 2.2d);
   }
 
   @Test
   public void batch_inserts() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
     new DataChange(db.database()) {
       @Override
@@ -233,7 +242,12 @@ public class DataChangeTest {
       }
     }.execute();
 
-    db.assertDbUnit(getClass(), "batch-insert-result.xml", "persons");
+    assertThat(db.select("select id as \"ID\" from persons"))
+      .extracting(t -> t.get("ID"))
+      .containsOnly(1L, 2L, 3L, 10L, 11L);
+    assertInitialPersons();
+    assertPerson(10L, "kurt", 27L, true, null, 2.2d);
+    assertPerson(11L, "courtney", 25L, false, null, 2.3d);
   }
 
   @Test
@@ -255,6 +269,9 @@ public class DataChangeTest {
       }
     }.execute();
     assertThat(db.countRowsOfTable("persons")).isEqualTo(7);
+    for (int i = 100; i < 107; i++) {
+      assertPerson(i, "kurt", 27L, true, null, 2.2d);
+    }
   }
 
   private boolean addBatchInsert(Upsert upsert, long id) throws SQLException {
@@ -269,7 +286,7 @@ public class DataChangeTest {
 
   @Test
   public void update_null() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
     new DataChange(db.database()) {
       @Override
@@ -288,7 +305,9 @@ public class DataChangeTest {
       }
     }.execute();
 
-    db.assertDbUnit(getClass(), "update-null-result.xml", "persons");
+    assertPerson(1L, "barbara", 56L, false, "2014-01-25", 1.5d);
+    assertPerson(2L, null, null, null, null, null);
+    assertPerson(3L, "morgan", 3L, true, "2014-01-25", 5.4d);
   }
 
   @Test
@@ -319,7 +338,7 @@ public class DataChangeTest {
 
   @Test
   public void scroll_and_update() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
     new DataChange(db.database()) {
       @Override
@@ -337,12 +356,14 @@ public class DataChangeTest {
       }
     }.execute();
 
-    db.assertDbUnit(getClass(), "scroll-and-update-result.xml", "persons");
+    assertPerson(1L, "login1", 11L, false, "2014-01-25", 1.5d);
+    assertPerson(2L, "login2", 12L, true, "2014-01-25", 5.2d);
+    assertPerson(3L, "login3", 13L, true, "2014-01-25", 5.4d);
   }
 
   @Test
   public void display_current_row_details_if_error_during_scroll() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Error during processing of row: [id=1]");
@@ -364,7 +385,7 @@ public class DataChangeTest {
 
   @Test
   public void mass_update() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
     new DataChange(db.database()) {
       @Override
@@ -386,12 +407,14 @@ public class DataChangeTest {
       }
     }.execute();
 
-    db.assertDbUnit(getClass(), "mass-update-result.xml", "persons");
+    assertPerson(1L, "barbara", 56L, false, "2014-01-25", 1.5d);
+    assertPerson(2L, "login2", 12L, true, "2014-01-25", 5.2d);
+    assertPerson(3L, "login3", 13L, true, "2014-01-25", 5.4d);
   }
 
   @Test
   public void display_current_row_details_if_error_during_mass_update() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Error during processing of row: [id=2]");
@@ -414,7 +437,7 @@ public class DataChangeTest {
 
   @Test
   public void mass_update_nothing() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
     new DataChange(db.database()) {
       @Override
@@ -431,12 +454,12 @@ public class DataChangeTest {
       }
     }.execute();
 
-    db.assertDbUnit(getClass(), "persons.xml", "persons");
+    assertInitialPersons();
   }
 
   @Test
   public void bad_mass_update() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
     DataChange change = new DataChange(db.database()) {
       @Override
@@ -462,9 +485,9 @@ public class DataChangeTest {
 
   @Test
   public void read_not_null_fields() throws Exception {
-    db.prepareDbUnit(getClass(), "persons.xml");
+    insertPersons();
 
-    final List<Object[]> persons = new ArrayList<>();
+    List<Object[]> persons = new ArrayList<>();
     new DataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
@@ -503,5 +526,40 @@ public class DataChangeTest {
         row.getNullableDouble(6),
       };
     }
+  }
+
+  private void insertPersons() throws ParseException {
+    insertPerson(1, "barbara", 56, false, "2014-01-25", 1.5d);
+    insertPerson(2, "emmerik", 14, true, "2014-01-25", 5.2d);
+    insertPerson(3, "morgan", 3, true, "2014-01-25", 5.4d);
+  }
+
+  private void assertInitialPersons() throws ParseException {
+    assertPerson(1L, "barbara", 56L, false, "2014-01-25", 1.5d);
+    assertPerson(2L, "emmerik", 14L, true, "2014-01-25", 5.2d);
+    assertPerson(3L, "morgan", 3L, true, "2014-01-25", 5.4d);
+  }
+
+  private void insertPerson(int id, String login, int age, boolean enabled, String updatedAt, double coeff) throws ParseException {
+    db.executeInsert("persons",
+      "ID", id,
+      "LOGIN", login,
+      "AGE", age,
+      "ENABLED", enabled,
+      "UPDATED_AT", dateFormat.parse(updatedAt),
+      "COEFF", coeff);
+  }
+
+  private void assertPerson(long id, @Nullable String login, @Nullable Long age, @Nullable Boolean enabled, @Nullable String updatedAt, @Nullable Double coeff) throws ParseException {
+    List<Map<String, Object>> rows = db
+      .select("select id as \"ID\", login as \"LOGIN\", age as \"AGE\", enabled as \"ENABLED\", coeff as \"COEFF\", updated_at as \"UPDATED\" from persons where id=" + id);
+    assertThat(rows).describedAs("id=" + id).hasSize(1);
+    Map<String, Object> row = rows.get(0);
+    assertThat(row.get("ID")).isEqualTo(id);
+    assertThat(row.get("LOGIN")).isEqualTo(login);
+    assertThat(row.get("AGE")).isEqualTo(age);
+    assertThat(row.get("ENABLED")).isEqualTo(enabled);
+    assertThat(row.get("UPDATED")).isEqualTo(updatedAt == null ? null : dateFormat.parse(updatedAt));
+    assertThat(row.get("COEFF")).isEqualTo(coeff);
   }
 }

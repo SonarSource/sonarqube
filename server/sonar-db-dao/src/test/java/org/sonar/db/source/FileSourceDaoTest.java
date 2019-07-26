@@ -61,34 +61,43 @@ public class FileSourceDaoTest {
 
   @Test
   public void select() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    FileSourceDto expected = dbTester.fileSources().insertFileSource(file);
 
-    FileSourceDto fileSourceDto = underTest.selectByFileUuid(dbSession, "FILE1_UUID");
+    FileSourceDto fileSourceDto = underTest.selectByFileUuid(dbSession, file.uuid());
 
-    assertThat(fileSourceDto.getBinaryData()).isNotEmpty();
-    assertThat(fileSourceDto.getDataHash()).isEqualTo("hash");
-    assertThat(fileSourceDto.getProjectUuid()).isEqualTo("PRJ_UUID");
-    assertThat(fileSourceDto.getFileUuid()).isEqualTo("FILE1_UUID");
-    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(1500000000000L);
-    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(1500000000000L);
-    assertThat(fileSourceDto.getRevision()).isEqualTo("123456789");
-    assertThat(fileSourceDto.getLineHashesVersion()).isEqualTo(0);
-
+    assertThat(fileSourceDto.getBinaryData()).isEqualTo(expected.getBinaryData());
+    assertThat(fileSourceDto.getDataHash()).isEqualTo(expected.getDataHash());
+    assertThat(fileSourceDto.getProjectUuid()).isEqualTo(expected.getProjectUuid());
+    assertThat(fileSourceDto.getFileUuid()).isEqualTo(expected.getFileUuid());
+    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(expected.getCreatedAt());
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(expected.getUpdatedAt());
+    assertThat(fileSourceDto.getRevision()).isEqualTo(expected.getRevision());
+    assertThat(fileSourceDto.getLineHashesVersion()).isEqualTo(expected.getLineHashesVersion());
+    assertThat(fileSourceDto.getLineHashes()).isEqualTo(expected.getLineHashes());
   }
 
   @Test
   public void select_line_hashes() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    FileSourceDto expected = dbTester.fileSources().insertFileSource(file);
 
     ReaderToStringConsumer fn = new ReaderToStringConsumer();
-    underTest.readLineHashesStream(dbSession, "FILE1_UUID", fn);
+    underTest.readLineHashesStream(dbSession, expected.getFileUuid(), fn);
 
-    assertThat(fn.result).isEqualTo("ABC\\nDEF\\nGHI");
+    assertThat(fn.result).isEqualTo(expected.getLineHashes().isEmpty() ? null : String.join("\n", expected.getLineHashes()));
   }
 
   @Test
   public void no_line_hashes_on_unknown_file() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    dbTester.fileSources().insertFileSource(file);
 
     ReaderToStringConsumer fn = new ReaderToStringConsumer();
     underTest.readLineHashesStream(dbSession, "unknown", fn);
@@ -156,8 +165,6 @@ public class FileSourceDaoTest {
 
   @Test
   public void selectLineHashes_does_not_fail_when_lineshashes_is_null() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-
     underTest.insert(dbSession, new FileSourceDto()
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
@@ -209,8 +216,6 @@ public class FileSourceDaoTest {
 
   @Test
   public void readLineHashesStream_does_not_fail_when_lineshashes_is_null() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-
     underTest.insert(dbSession, new FileSourceDto()
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
@@ -327,10 +332,13 @@ public class FileSourceDaoTest {
 
   @Test
   public void update() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    FileSourceDto expected = dbTester.fileSources().insertFileSource(file);
 
     underTest.update(dbSession, new FileSourceDto()
-      .setId(101L)
+      .setId(expected.getId())
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE1_UUID")
       .setBinaryData("updated data".getBytes())
@@ -342,8 +350,19 @@ public class FileSourceDaoTest {
       .setRevision("987654321"));
     dbSession.commit();
 
-    dbTester.assertDbUnitTable(getClass(), "update-result.xml", "file_sources", "project_uuid", "file_uuid",
-      "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "revision", "line_hashes_version");
+    FileSourceDto fileSourceDto = underTest.selectByFileUuid(dbSession, file.uuid());
+
+    assertThat(fileSourceDto.getProjectUuid()).isEqualTo(expected.getProjectUuid());
+    assertThat(fileSourceDto.getFileUuid()).isEqualTo(expected.getFileUuid());
+    assertThat(fileSourceDto.getBinaryData()).isEqualTo("updated data".getBytes());
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("NEW_DATA_HASH");
+    assertThat(fileSourceDto.getRawLineHashes()).isEqualTo("NEW_LINE_HASHES");
+    assertThat(fileSourceDto.getLineHashes()).isEqualTo(singletonList("NEW_LINE_HASHES"));
+    assertThat(fileSourceDto.getLineCount()).isEqualTo(1);
+    assertThat(fileSourceDto.getSrcHash()).isEqualTo("NEW_FILE_HASH");
+    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(expected.getCreatedAt());
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(1500000000002L);
+    assertThat(fileSourceDto.getRevision()).isEqualTo("987654321");
   }
 
   @Test

@@ -351,10 +351,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     return ((BasicDataSource) db.getDatabase().getDataSource()).getUrl();
   }
 
-  public DatabaseCommands getCommands() {
-    return db.getCommands();
-  }
-
   private static class DbSessionConnectionSupplier implements ConnectionSupplier {
     private final DbSession dbSession;
 

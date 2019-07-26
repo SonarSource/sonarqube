@@ -1,5 +1,0 @@
-<dataset>
-  <persons id="1" login="login1" age="11" enabled="[false]" coeff="1.5" updated_at="2014-01-25"/>
-  <persons id="2" login="login2" age="12" enabled="[true]" coeff="5.2" updated_at="2014-01-25"/>
-  <persons id="3" login="login3" age="13" enabled="[true]" coeff="5.4" updated_at="2014-01-25"/>
-</dataset>

@@ -20,6 +20,7 @@
 package org.sonar.db.plugin;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -39,7 +40,8 @@ public class PluginDaoTest {
 
   @Test
   public void selectByKey() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    insertPlugin("a", "java", null, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 1500000000000L, 1600000000000L);
+    insertPlugin("b", "javacustom", "java", "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", 1500000000000L, 1600000000000L);
 
     assertThat(underTest.selectByKey(db.getSession(), "java2")).isEmpty();
 
@@ -55,14 +57,16 @@ public class PluginDaoTest {
 
   @Test
   public void selectAll() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    insertPlugin("a", "java", null, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 1500000000000L, 1600000000000L);
+    insertPlugin("b", "javacustom", "java", "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", 1500000000000L, 1600000000000L);
 
     assertThat(underTest.selectAll(db.getSession())).hasSize(2);
   }
 
   @Test
   public void insert() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    insertPlugin("a", "java", null, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 1500000000000L, 1600000000000L);
+    insertPlugin("b", "javacustom", "java", "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", 1500000000000L, 1600000000000L);
 
     underTest.insert(db.getSession(), new PluginDto()
       .setUuid("c")
@@ -84,7 +88,8 @@ public class PluginDaoTest {
 
   @Test
   public void update() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    insertPlugin("a", "java", null, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 1500000000000L, 1600000000000L);
+    insertPlugin("b", "javacustom", "java", "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", 1500000000000L, 1600000000000L);
 
     PluginDto plugin = underTest.selectByKey(db.getSession(), "java").get();
 
@@ -101,5 +106,16 @@ public class PluginDaoTest {
     assertThat(plugin.getFileHash()).isEqualTo("abc");
     assertThat(plugin.getCreatedAt()).isEqualTo(1500000000000L);
     assertThat(plugin.getUpdatedAt()).isEqualTo(3L);
+  }
+
+  private void insertPlugin(String uuid, String key, @Nullable String basePluginKey, String fileHash, long createdAt, long updatedAt) {
+    db.executeInsert("PLUGINS",
+      "uuid", uuid,
+      "kee", key,
+      "base_plugin_key", basePluginKey,
+      "file_hash", fileHash,
+      "created_at", createdAt,
+      "updated_at", updatedAt);
+    db.commit();
   }
 }

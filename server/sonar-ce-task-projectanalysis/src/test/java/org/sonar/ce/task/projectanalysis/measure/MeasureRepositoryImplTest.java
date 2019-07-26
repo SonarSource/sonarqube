@@ -46,7 +46,11 @@ import org.sonar.ce.task.projectanalysis.metric.ReportMetricValidator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
 
@@ -58,6 +62,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 @RunWith(DataProviderRunner.class)
 public class MeasureRepositoryImplTest {
@@ -137,21 +142,30 @@ public class MeasureRepositoryImplTest {
 
   @Test
   public void getBaseMeasure_returns_Measure_if_measure_of_last_snapshot_only_in_DB() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-    dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_1, FILE_COMPONENT.getUuid(), LAST_ANALYSIS_UUID));
-    dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_2, FILE_COMPONENT.getUuid(), OTHER_ANALYSIS_UUID));
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    dbTester.components().insertComponent(newFileDto(project).setUuid(FILE_COMPONENT.getUuid()));
+    SnapshotDto lastAnalysis = dbTester.components().insertSnapshot(project, t -> t.setLast(true));
+    SnapshotDto oldAnalysis = dbTester.components().insertSnapshot(project, t -> t.setLast(false));
+    MetricDto metric1 = dbTester.measures().insertMetric(t -> t.setValueType(org.sonar.api.measures.Metric.ValueType.STRING.name()));
+    MetricDto metric2 = dbTester.measures().insertMetric(t -> t.setValueType(org.sonar.api.measures.Metric.ValueType.STRING.name()));
+    dbClient.measureDao().insert(dbSession, createMeasureDto(metric1.getId(), FILE_COMPONENT.getUuid(), lastAnalysis.getUuid()));
+    dbClient.measureDao().insert(dbSession, createMeasureDto(metric1.getId(), FILE_COMPONENT.getUuid(), oldAnalysis.getUuid()));
     dbSession.commit();
 
     // metric 1 is associated to snapshot with "last=true"
-    Optional<Measure> res = underTest.getBaseMeasure(FILE_COMPONENT, metric1);
-
-    assertThat(res).isPresent();
-    assertThat(res.get().getStringValue()).isEqualTo(SOME_DATA);
-
+    assertThat(underTest.getBaseMeasure(FILE_COMPONENT, metricOf(metric1)).get().getStringValue())
+      .isEqualTo(SOME_DATA);
     // metric 2 is associated to snapshot with "last=false" => not retrieved
-    res = underTest.getBaseMeasure(FILE_COMPONENT, metric2);
+    assertThat(underTest.getBaseMeasure(FILE_COMPONENT, metricOf(metric2))).isNotPresent();
+  }
 
-    assertThat(res).isNotPresent();
+  private Metric metricOf(MetricDto metricDto) {
+    Metric res = mock(Metric.class);
+    when(res.getKey()).thenReturn(metricDto.getKey());
+    when(res.getId()).thenReturn(metricDto.getId());
+    when(res.getType()).thenReturn(Metric.MetricType.valueOf(metricDto.getValueType()));
+    return res;
   }
 
   @Test
