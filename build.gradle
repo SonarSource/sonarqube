@@ -422,9 +422,14 @@ subprojects {
 // Yarn doesn't support concurrent access to its global cache,
 // i.e. parallel execution of several "yarn install" tasks,
 // since these tasks are independent, we can establish arbitrary total order
-// to prevent their concurrent execution:
+// to prevent their concurrent execution.
+// Note that "task1.mustRunAfter(task2)" ordering has an effect only when both
+// tasks are scheduled for execution, therefore should be established between
+// all pairs of "yarn install" tasks to define their total order and to prevent
+// their concurrent execution even in case when one or more of these tasks not
+// scheduled.
 def yarnInstallTasks = allprojects.findResults { it -> it.tasks.findByName('yarn') }
-yarnInstallTasks.eachWithIndex { it, i -> if (i > 0) it.mustRunAfter(yarnInstallTasks.get(i - 1)) }
+yarnInstallTasks.drop(1).eachWithIndex { it, i -> it.mustRunAfter(yarnInstallTasks[0..i]) }
 
 
 artifactory {
