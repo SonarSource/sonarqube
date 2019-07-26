@@ -19,20 +19,11 @@
  */
 package org.sonar.db;
 
-import java.io.File;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.util.Map;
-import java.util.Properties;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.text.StrSubstitutor;
 import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.IDatabaseTester;
 import org.junit.AssumptionViolatedException;
@@ -40,16 +31,20 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.db.dialect.H2;
-import org.sonar.process.logging.LogbackHelper;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.process.ProcessProperties.Property.JDBC_USERNAME;
 
 /**
  * This class should be call using @ClassRule in order to create the schema once (if @Rule is used
  * the schema will be recreated before each test).
+ * <p>
+ * <strong>Tests which rely on this class can only be run on H2</strong> because:
+ * <ul>
+ *   <li>resetting the schema for each test on non-H2 database is assumed to expensive and slow</li>
+ *   <li>when a specific schema is provided, this schema can't provide a syntax supported by all SGBDs and therefor only
+ *       H2 is targeted</li>
+ * </ul>
  */
 class CoreTestDb implements TestDb {
 
@@ -60,6 +55,7 @@ class CoreTestDb implements TestDb {
   protected CoreTestDb() {
     // use static factory method
   }
+
   protected CoreTestDb(Database db, DatabaseCommands commands, IDatabaseTester tester) {
     this.db = db;
     this.commands = commands;
@@ -77,22 +73,21 @@ class CoreTestDb implements TestDb {
   }
 
   private CoreTestDb init(@Nullable String schemaPath) {
+    Consumer<Settings> noExtraSettingsLoaded = settings -> {
+    };
     Function<Settings, Database> databaseCreator = settings -> {
       String dialect = settings.getString("sonar.jdbc.dialect");
+
+      // test relying on CoreTestDb can only run on H2
       if (dialect != null && !"h2".equals(dialect)) {
-        return new DefaultDatabase(new LogbackHelper(), settings);
+        throw new AssumptionViolatedException("This test is intended to be run on H2 only");
       }
-      return new CoreH2Database("h2Tests-" + (schemaPath == null ?  "empty" : DigestUtils.md5Hex(schemaPath)));
+
+      return new CoreH2Database("h2Tests-" + (schemaPath == null ? "empty" : DigestUtils.md5Hex(schemaPath)));
     };
     Consumer<Database> databaseInitializer = database -> {
       if (schemaPath == null) {
         return;
-      }
-
-      // scripts are assumed to be using H2 specific syntax, ignore the test if not on H2
-      if (!database.getDialect().getId().equals("h2")) {
-        database.stop();
-        throw new AssumptionViolatedException("This test is intended to be run on H2 only");
       }
 
       ((CoreH2Database) database).executeScript(schemaPath);
@@ -100,16 +95,17 @@ class CoreTestDb implements TestDb {
     BiConsumer<Database, Boolean> noPostStartAction = (db, created) -> {
     };
 
-    init(databaseCreator, databaseInitializer, noPostStartAction);
+    init(noExtraSettingsLoaded, databaseCreator, databaseInitializer, noPostStartAction);
     return this;
   }
 
-  protected void init(Function<Settings, Database> databaseCreator,
+  protected void init(Consumer<Settings> settingsLoader,
+    Function<Settings, Database> databaseCreator,
     Consumer<Database> databaseInitializer,
     BiConsumer<Database, Boolean> extendedStart) {
     if (db == null) {
       Settings settings = new MapSettings().addProperties(System.getProperties());
-      loadOrchestratorSettings(settings);
+      settingsLoader.accept(settings);
       logJdbcSettings(settings);
       db = databaseCreator.apply(settings);
       db.start();
@@ -144,9 +140,7 @@ class CoreTestDb implements TestDb {
 
   @Override
   public void start() {
-    if (!H2.ID.equals(db.getDialect().getId())) {
-      throw new AssumptionViolatedException("Test disabled because it supports only H2");
-    }
+    // everything is done in init
   }
 
   @Override
@@ -161,40 +155,4 @@ class CoreTestDb implements TestDb {
     }
   }
 
-  private static void loadOrchestratorSettings(Settings settings) {
-    String url = settings.getString("orchestrator.configUrl");
-    if (isEmpty(url)) {
-      return;
-    }
-
-    InputStream input = null;
-    try {
-      URI uri = new URI(url);
-
-      if (url.startsWith("file:")) {
-        File file = new File(uri);
-        input = FileUtils.openInputStream(file);
-      } else {
-        HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
-        int responseCode = connection.getResponseCode();
-        if (responseCode >= 400) {
-          throw new IllegalStateException("Fail to request: " + uri + ". Status code=" + responseCode);
-        }
-
-        input = connection.getInputStream();
-      }
-
-      Properties props = new Properties();
-      props.load(input);
-      settings.addProperties(props);
-      for (Map.Entry<String, String> entry : settings.getProperties().entrySet()) {
-        String interpolatedValue = StrSubstitutor.replace(entry.getValue(), System.getenv(), "${", "}");
-        settings.setProperty(entry.getKey(), interpolatedValue);
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException("Cannot load Orchestrator properties from:" + url, e);
-    } finally {
-      IOUtils.closeQuietly(input);
-    }
-  }
 }

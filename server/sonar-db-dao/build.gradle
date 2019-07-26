@@ -29,6 +29,7 @@ dependencies {
   testCompile 'org.assertj:assertj-guava'
   testCompile 'org.dbunit:dbunit'
   testCompile 'org.mockito:mockito-core'
+  testCompile 'org.sonarsource.orchestrator:sonar-orchestrator'
   testCompile project(':sonar-testing-harness')
   testCompile project(':server:sonar-db-core').sourceSets.test.output
   testCompile project(':sonar-plugin-api-impl')
@@ -50,6 +51,15 @@ task dumpSchema(type:JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
 }
 tasks.check.dependsOn dumpSchema
+
+task createDB(type:JavaExec) {
+    main = 'org.sonar.db.createdb.CreateDb'
+    classpath = sourceSets.test.runtimeClasspath
+    systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
+    if (!project.version.endsWith("-SNAPSHOT")) {
+        systemProperty 'sonar.runtimeVersion', project.version
+    }
+}
 
 task testJar(type: Jar) {
   classifier = 'tests'

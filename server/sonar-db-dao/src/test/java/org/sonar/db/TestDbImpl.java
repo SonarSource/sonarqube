@@ -53,6 +53,9 @@ class TestDbImpl extends CoreTestDb {
   }
 
   private void init(@Nullable String schemaPath, MyBatisConfExtension[] confExtensions) {
+    Consumer<Settings> loadOrchestratorSettings = settings -> {
+      OrchestratorSettingsUtils.loadOrchestratorSettings(settings);
+    };
     Function<Settings, Database> databaseCreator = settings -> {
       String dialect = settings.getString("sonar.jdbc.dialect");
       if (dialect != null && !"h2".equals(dialect)) {
@@ -73,7 +76,7 @@ class TestDbImpl extends CoreTestDb {
       ((SQDatabase) database).executeScript(schemaPath);
     };
     BiConsumer<Database, Boolean> createMyBatis = (db, created) -> myBatis = newMyBatis(db, confExtensions);
-    init(databaseCreator, schemaPathExecutor, createMyBatis);
+    init(loadOrchestratorSettings, databaseCreator, schemaPathExecutor, createMyBatis);
   }
 
   private static MyBatis newMyBatis(Database db, MyBatisConfExtension[] extensions) {
