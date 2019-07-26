@@ -804,15 +804,16 @@ public class FileSystemMediumTest {
   @Test
   public void scanProjectWithWrongCase() {
     // To please the quality gate, don't use assumeTrue, or the test will be reported as skipped
-    if (System2.INSTANCE.isOsWindows()) {
-      File projectDir = new File("test-resources/mediumtest/xoo/sample");
-      AnalysisResult result = tester
-        .newAnalysis(new File(projectDir, "sonar-project.properties"))
-        .property("sonar.sources", "XOURCES")
-        .property("sonar.tests", "TESTX")
-        .execute();
+    File projectDir = new File("test-resources/mediumtest/xoo/sample");
+    ScannerMediumTester.AnalysisBuilder analysis = tester
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.sources", "XOURCES")
+      .property("sonar.tests", "TESTX");
 
-      assertThat(result.inputFiles()).hasSize(3);
+    if (System2.INSTANCE.isOsWindows()) { // Windows is file path case-insensitive
+      AnalysisResult result = analysis.execute();
+
+      assertThat(result.inputFiles()).hasSize(8);
       assertThat(result.inputFiles()).extractingResultOf("relativePath").containsOnly(
         "testx/ClassOneTest.xoo.measures",
         "xources/hello/helloscala.xoo.measures",
@@ -822,6 +823,10 @@ public class FileSystemMediumTest {
         "xources/hello/helloscala.xoo",
         "testx/ClassOneTest.xoo.scm",
         "xources/hello/HelloJava.xoo");
+    } else { // Other OS are case-sensitive so an exception should be thrown
+      thrown.expect(MessageException.class);
+      thrown.expectMessage("The folder 'TESTX' does not exist for 'sample'");
+      analysis.execute();
     }
   }
 

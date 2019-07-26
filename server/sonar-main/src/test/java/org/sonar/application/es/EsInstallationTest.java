@@ -162,11 +162,7 @@ public class EsInstallationTest {
 
     EsInstallation underTest = new EsInstallation(props);
 
-    if (System.getProperty("os.name").startsWith("Windows")) {
-      assertThat(underTest.getExecutable()).isEqualTo(new File(sqHomeDir, "elasticsearch/bin/elasticsearch.bat"));
-    } else {
-      assertThat(underTest.getExecutable()).isEqualTo(new File(sqHomeDir, "elasticsearch/bin/elasticsearch"));
-    }
+    assertThat(underTest.getExecutable()).isEqualTo(new File(sqHomeDir, "elasticsearch/bin/elasticsearch"));
   }
 
   @Test
