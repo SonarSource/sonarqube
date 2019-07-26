@@ -28,8 +28,8 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class H2DatabaseTest {
-  H2Database db = new H2Database("sonar2", true);
+public class SQDatabaseForH2Test {
+  SQDatabase db = SQDatabase.newH2Database("sonar2", true);
 
   @Before
   public void startDb() {

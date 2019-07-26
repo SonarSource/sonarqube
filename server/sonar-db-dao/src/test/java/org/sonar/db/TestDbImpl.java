@@ -58,7 +58,7 @@ class TestDbImpl extends CoreTestDb {
       if (dialect != null && !"h2".equals(dialect)) {
         return new DefaultDatabase(new LogbackHelper(), settings);
       }
-      return new H2Database("h2Tests" + DigestUtils.md5Hex(StringUtils.defaultString(schemaPath)), schemaPath == null);
+      return SQDatabase.newH2Database("h2Tests" + DigestUtils.md5Hex(StringUtils.defaultString(schemaPath)), schemaPath == null);
     };
     Consumer<Database> schemaPathExecutor = database -> {
       if (schemaPath == null) {
@@ -70,7 +70,7 @@ class TestDbImpl extends CoreTestDb {
         database.stop();
         throw new AssumptionViolatedException("This test is intended to be run on H2 only");
       }
-      ((H2Database) database).executeScript(schemaPath);
+      ((SQDatabase) database).executeScript(schemaPath);
     };
     BiConsumer<Database, Boolean> createMyBatis = (db, created) -> myBatis = newMyBatis(db, confExtensions);
     init(databaseCreator, schemaPathExecutor, createMyBatis);

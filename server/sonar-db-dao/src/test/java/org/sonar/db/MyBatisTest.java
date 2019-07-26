@@ -31,11 +31,11 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 public class MyBatisTest {
-  private static H2Database database;
+  private static SQDatabase database;
 
   @BeforeClass
   public static void start() {
-    database = new H2Database("sonar2", true);
+    database = SQDatabase.newH2Database("sonar2", true);
     database.start();
   }
 

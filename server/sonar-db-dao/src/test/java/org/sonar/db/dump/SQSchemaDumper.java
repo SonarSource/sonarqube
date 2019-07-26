@@ -26,7 +26,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import org.sonar.db.H2Database;
+import org.sonar.db.SQDatabase;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -55,7 +55,7 @@ class SQSchemaDumper {
   }).thenComparing(String.CASE_INSENSITIVE_ORDER);
 
   String dumpToText() throws SQLException {
-    H2Database database = new H2Database("SQSchemaDumper", true);
+    SQDatabase database = SQDatabase.newH2Database("SQSchemaDumper", true);
     database.start();
 
     try (Connection connection = database.getDataSource().getConnection();
