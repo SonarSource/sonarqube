@@ -96,6 +96,8 @@ export class Extension extends React.PureComponent<Props, State> {
     if (this.stop) {
       this.stop();
       this.stop = undefined;
+    } else {
+      this.setState({ extensionElement: undefined });
     }
   }
 
