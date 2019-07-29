@@ -26,6 +26,7 @@ CSS|`sonar.css.stylelint.reportPaths`|Comma-delimited list of paths to [StyleLin
 Go|`sonar.go.govet.reportPaths`|Comma-delimited list of paths to [GoVet](https://golang.org/cmd/vet/) reports|
 Go|`sonar.go.golint.reportPaths`|Comma-delimited list of paths to [GoLint](https://github.com/golang/lint) reports|
 Go|`sonar.go.gometalinter.reportPaths`|Comma-delimited list of paths to [GoMetaLinter](https://github.com/alecthomas/gometalinter) reports|
+Go|`sonar.go.golangci-lint.reportPaths`|Comma-delimited list of paths to [golangci-lint](https://github.com/golangci/golangci-lint) reports in checkstyle format (use `--out-format checkstyle` golangci-lint option)|
 Java|`sonar.java.spotbugs.reportPaths`|Comma-delimited list of paths to reports from [SpotBugs](https://spotbugs.github.io/), FindSecBugs, or FindBugs|
 Java|`sonar.java.pmd.reportPaths`|Comma-delimited list of paths to reports from [PMD](http://maven.apache.org/plugins/maven-pmd-plugin/usage.html)
 Java|`sonar.java.checkstyle.reportPaths`|Comma-delimited list of paths to reports from [Checkstyle](http://maven.apache.org/plugins/maven-checkstyle-plugin/checkstyle-mojo)
