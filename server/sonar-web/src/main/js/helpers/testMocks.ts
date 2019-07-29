@@ -746,6 +746,28 @@ export function mockUser(overrides: Partial<T.User> = {}): T.User {
   };
 }
 
+export function mockDocumentationMarkdown(
+  overrides: Partial<{ content: string; title: string; key: string }> = {}
+): string {
+  const content =
+    overrides.content ||
+    `
+## Lorem Ipsum
+
+Donec at est elit. In finibus justo ut augue rhoncus, vitae consequat mauris mattis.
+Nunc ante est, volutpat ac volutpat ac, pharetra in libero.
+`;
+
+  const frontMatter = `
+---
+${overrides.title ? 'title: ' + overrides.title : ''}
+${overrides.key ? 'key: ' + overrides.key : ''}
+---`;
+
+  return `${frontMatter}
+${content}`;
+}
+
 export function mockDocumentationEntry(
   overrides: Partial<DocumentationEntry> = {}
 ): DocumentationEntry {

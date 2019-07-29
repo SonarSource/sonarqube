@@ -115,6 +115,30 @@ exports[`should render correctly for SonarQube 2`] = `
         </Link>
       </div>
       <Sidebar
+        navigation={
+          Array [
+            Object {
+              "children": Array [
+                "/lorem/ipsum/",
+                "/analysis/languages/csharp/",
+                Object {
+                  "children": Array [
+                    "/lorem/ipsum/dolor",
+                    Object {
+                      "children": Array [
+                        "/lorem/ipsum/sit",
+                      ],
+                      "title": "Grandchild category",
+                    },
+                    "/lorem/ipsum/amet",
+                  ],
+                  "title": "Child category",
+                },
+              ],
+              "title": "SonarQube",
+            },
+          ]
+        }
         pages={
           Array [
             Object {
@@ -124,6 +148,14 @@ exports[`should render correctly for SonarQube 2`] = `
               "text": "Lorem ipsum dolor sit amet fredum",
               "title": "Lorem",
               "url": "/lorem/ipsum",
+            },
+            Object {
+              "content": "Lorem ipsum dolor sit amet fredum",
+              "navTitle": undefined,
+              "relativeName": "Lorem",
+              "text": "Lorem ipsum dolor sit amet fredum",
+              "title": "Lorem",
+              "url": "/analysis/languages/csharp/",
             },
           ]
         }

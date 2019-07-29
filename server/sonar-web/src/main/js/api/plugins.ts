@@ -67,6 +67,7 @@ export interface PluginPending extends Plugin {
 }
 
 export interface PluginInstalled extends PluginPending {
+  documentationPath?: string;
   filename: string;
   hash: string;
   sonarLintSupported: boolean;

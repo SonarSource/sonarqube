@@ -19,19 +19,53 @@
  */
 import remark from 'remark';
 import visit from 'unist-util-visit';
-import { filterContent, separateFrontMatter } from '../../helpers/markdown';
+import { filterContent, ParsedContent, separateFrontMatter } from '../../helpers/markdown';
 import * as Docs from './documentation.directory-loader';
 import { DocumentationEntry, DocumentationEntryScope } from './utils';
 
-export default function getPages(): DocumentationEntry[] {
-  return ((Docs as unknown) as Array<{ content: string; path: string }>).map(file => {
-    const parsed = separateFrontMatter(file.content);
+const LANGUAGES_BASE_URL = 'analysis/languages';
+
+export default function getPages(overrides: string[] = []): DocumentationEntry[] {
+  const parsedOverrides: T.Dict<ParsedContent> = {};
+  overrides.forEach(override => {
+    const parsedOverride = separateFrontMatter(override);
+    if (parsedOverride && parsedOverride.frontmatter && parsedOverride.frontmatter.key) {
+      parsedOverrides[`${LANGUAGES_BASE_URL}/${parsedOverride.frontmatter.key}`] = parsedOverride;
+    }
+  });
+
+  // Merge with existing entries.
+  const pages = ((Docs as unknown) as Array<{ content: string; path: string }>).map(file => {
+    let parsed = separateFrontMatter(file.content);
+
+    if (parsedOverrides[file.path]) {
+      const parsedOverride = parsedOverrides[file.path];
+      parsed = {
+        content: parsedOverride.content,
+        frontmatter: { ...parsed.frontmatter, ...parsedOverride.frontmatter }
+      };
+      delete parsedOverrides[file.path];
+    }
+
+    return { parsed, file };
+  });
+
+  // Add new entries.
+  Object.keys(parsedOverrides).forEach(path => {
+    const parsed = parsedOverrides[path];
+    pages.push({
+      parsed,
+      file: { content: parsed.content, path }
+    });
+  });
+
+  return pages.map(({ parsed, file }) => {
     const content = filterContent(parsed.content);
     const text = getText(content);
 
     return {
       relativeName: file.path,
-      url: parsed.frontmatter.url || `/${file.path}`,
+      url: parsed.frontmatter.url || `/${file.path}/`,
       title: parsed.frontmatter.title,
       navTitle: parsed.frontmatter.nav || undefined,
       order: Number(parsed.frontmatter.order || -1),

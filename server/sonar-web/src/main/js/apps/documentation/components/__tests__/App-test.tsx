@@ -20,6 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
+import { request } from 'sonar-ui-common/helpers/request';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { isSonarCloud } from '../../../../helpers/system';
 import App from '../App';
 
@@ -38,13 +40,13 @@ jest.mock('../../../../helpers/system', () => ({
   isSonarCloud: jest.fn().mockReturnValue(false)
 }));
 
-jest.mock(
-  'Docs/../static/SonarQubeNavigationTree.json',
-  () => [
+jest.mock('Docs/../static/SonarQubeNavigationTree.json', () => ({
+  default: [
     {
       title: 'SonarQube',
       children: [
         '/lorem/ipsum/',
+        '/analysis/languages/csharp/',
         {
           title: 'Child category',
           children: [
@@ -58,13 +60,11 @@ jest.mock(
         }
       ]
     }
-  ],
-  { virtual: true }
-);
+  ]
+}));
 
-jest.mock(
-  'Docs/../static/SonarCloudNavigationTree.json',
-  () => [
+jest.mock('Docs/../static/SonarCloudNavigationTree.json', () => ({
+  default: [
     {
       title: 'SonarCloud',
       children: [
@@ -82,42 +82,73 @@ jest.mock(
         }
       ]
     }
-  ],
-  { virtual: true }
-);
+  ]
+}));
 
 jest.mock('sonar-ui-common/helpers/pages', () => ({
   addSideBarClass: jest.fn(),
   removeSideBarClass: jest.fn()
 }));
 
+jest.mock('sonar-ui-common/helpers/request', () => ({
+  request: jest.fn(() => ({
+    submit: jest.fn().mockResolvedValue({ status: 200, text: jest.fn().mockReturnValue('TEST') })
+  }))
+}));
+
 jest.mock('../../pages', () => {
   const { mockDocumentationEntry } = require.requireActual('../../../../helpers/testMocks');
   return {
-    default: () => [mockDocumentationEntry()]
+    default: () => [
+      mockDocumentationEntry(),
+      mockDocumentationEntry({ url: '/analysis/languages/csharp/' })
+    ]
   };
 });
 
-it('should render correctly for SonarQube', () => {
-  const wrapper = shallowRender();
+jest.mock('../../../../api/plugins', () => ({
+  getInstalledPlugins: jest
+    .fn()
+    .mockResolvedValue([
+      { key: 'csharp', documentationPath: 'static/documentation.md' },
+      { key: 'vbnet', documentationPath: 'Sstatic/documentation.md' },
+      { key: 'vbnett', documentationPath: undefined }
+    ])
+}));
 
-  expect(wrapper).toMatchSnapshot();
+it('should render correctly for SonarQube', async () => {
+  const wrapper = shallowRender();
+  expect(wrapper.find('DeferredSpinner').exists()).toBe(true);
   expect(addSideBarClass).toBeCalled();
 
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('ScreenPositionHelper').dive()).toMatchSnapshot();
 
   wrapper.unmount();
   expect(removeSideBarClass).toBeCalled();
 });
 
-it('should render correctly for SonarCloud', () => {
+it('should render correctly for SonarCloud', async () => {
   (isSonarCloud as jest.Mock).mockReturnValue(true);
-  expect(shallowRender()).toMatchSnapshot();
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
 });
 
-it("should show a 404 if the page doesn't exist", () => {
+it("should show a 404 if the page doesn't exist", async () => {
   const wrapper = shallowRender({ params: { splat: 'unknown' } });
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
+});
+
+it('should try to fetch language plugin documentation if documentationPath matches', async () => {
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  expect(request).toHaveBeenCalledWith('/static/csharp/documentation.md');
+  expect(request).not.toHaveBeenCalledWith('/static/vbnet/documentation.md');
+  expect(request).not.toHaveBeenCalledWith('/static/vbnett/documentation.md');
 });
 
 function shallowRender(props: Partial<App['props']> = {}) {

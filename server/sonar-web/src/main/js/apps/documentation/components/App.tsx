@@ -23,8 +23,12 @@ import { DocNavigationItem } from 'Docs/@types/types';
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
+import { isDefined } from 'sonar-ui-common/helpers/types';
+import { getInstalledPlugins } from '../../../api/plugins';
+import { getPluginStaticFileContent } from '../../../api/static';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import NotFound from '../../../app/components/NotFound';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
@@ -32,34 +36,105 @@ import DocMarkdownBlock from '../../../components/docs/DocMarkdownBlock';
 import { isSonarCloud } from '../../../helpers/system';
 import getPages from '../pages';
 import '../styles.css';
+import { DocumentationEntry } from '../utils';
 import Sidebar from './Sidebar';
 
 interface Props {
   params: { splat?: string };
 }
 
-export default class App extends React.PureComponent<Props> {
+interface State {
+  loading: boolean;
+  pages: DocumentationEntry[];
+  tree: DocNavigationItem[];
+}
+
+export default class App extends React.PureComponent<Props, State> {
   mounted = false;
-  pages = getPages();
+  state: State = {
+    loading: false,
+    pages: [],
+    tree: []
+  };
 
   componentDidMount() {
+    this.mounted = true;
     addSideBarClass();
-  }
 
-  componentWillUnmount() {
-    removeSideBarClass();
-  }
+    this.setState({ loading: true });
 
-  render() {
     const tree = isSonarCloud()
       ? ((navigationTreeSonarCloud as any).default as DocNavigationItem[])
       : ((navigationTreeSonarQube as any).default as DocNavigationItem[]);
+
+    this.getLanguagesOverrides().then(
+      overrides => {
+        if (this.mounted) {
+          this.setState({
+            loading: false,
+            pages: getPages(overrides),
+            tree
+          });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({
+            loading: false
+          });
+        }
+      }
+    );
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+    removeSideBarClass();
+  }
+
+  getLanguagesOverrides = () => {
+    const pluginStaticFileNameRegEx = new RegExp(`^static/(.*)`);
+
+    return getInstalledPlugins()
+      .then(plugins =>
+        Promise.all(
+          plugins.map(plugin => {
+            if (plugin.documentationPath) {
+              const matchArray = pluginStaticFileNameRegEx.exec(plugin.documentationPath);
+
+              if (matchArray && matchArray.length > 1) {
+                // eslint-disable-next-line promise/no-nesting
+                return getPluginStaticFileContent(plugin.key, matchArray[1]).then(
+                  content => content,
+                  () => undefined
+                );
+              }
+            }
+            return undefined;
+          })
+        )
+      )
+      .then(contents => contents.filter(isDefined));
+  };
+
+  render() {
+    const { loading, pages, tree } = this.state;
     const { splat = '' } = this.props.params;
-    const page = this.pages.find(p => p.url === '/' + splat);
+
+    if (loading) {
+      return (
+        <div className="page page-limited">
+          <DeferredSpinner />
+        </div>
+      );
+    }
+
+    const page = pages.find(p => p.url === '/' + splat);
     const mainTitle = translate(
       'documentation.page_title',
       isSonarCloud() ? 'sonarcloud' : 'sonarqube'
     );
+    const isIndex = splat === 'index';
 
     if (!page) {
       return (
@@ -72,8 +147,6 @@ export default class App extends React.PureComponent<Props> {
         </>
       );
     }
-
-    const isIndex = splat === 'index';
 
     return (
       <div className="layout-page">
@@ -97,7 +170,7 @@ export default class App extends React.PureComponent<Props> {
                       <h1>{translate('documentation.page')}</h1>
                     </Link>
                   </div>
-                  <Sidebar navigation={tree} pages={this.pages} splat={splat} />
+                  <Sidebar navigation={tree} pages={pages} splat={splat} />
                 </div>
               </div>
             </div>
