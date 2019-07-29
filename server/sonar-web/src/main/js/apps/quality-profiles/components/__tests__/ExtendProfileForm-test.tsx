@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
+import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { changeProfileParent, createQualityProfile } from '../../../../api/quality-profiles';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
 import ExtendProfileForm from '../ExtendProfileForm';
@@ -46,7 +46,7 @@ it('should correctly create a new profile and extend the existing one', async ()
 
   wrapper.setState({ name }).update();
   click(wrapper.find('SubmitButton'));
-  await Promise.resolve(setImmediate);
+  await waitAndUpdate(wrapper);
 
   const data = new FormData();
   data.append('language', profile.language);
