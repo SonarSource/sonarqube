@@ -19,13 +19,14 @@
  */
 package org.sonar.ce.task.projectanalysis.scm;
 
+import javax.annotation.concurrent.Immutable;
+
 import static com.google.common.base.Preconditions.checkState;
 
-public class GeneratedScmInfo implements ScmInfo {
-  private final ScmInfoImpl delegate;
-
-  public GeneratedScmInfo(Changeset[] lineChangeset) {
-    delegate = new ScmInfoImpl(lineChangeset);
+@Immutable
+public class GeneratedScmInfo {
+  private GeneratedScmInfo() {
+    // static only
   }
 
   public static ScmInfo create(long analysisDate, int lines) {
@@ -38,7 +39,7 @@ public class GeneratedScmInfo implements ScmInfo {
     for (int i = 0; i < lines; i++) {
       lineChangeset[i] = changeset;
     }
-    return new GeneratedScmInfo(lineChangeset);
+    return new ScmInfoImpl(lineChangeset);
   }
 
   public static ScmInfo create(long analysisDate, int[] matches, ScmInfo dbScmInfo) {
@@ -51,32 +52,12 @@ public class GeneratedScmInfo implements ScmInfo {
 
     for (int i = 0; i < matches.length; i++) {
       if (matches[i] > 0) {
-        changesets[i] = dbChangesets[matches[i]];
+        changesets[i] = dbChangesets[matches[i] - 1];
       } else {
         changesets[i] = changeset;
       }
     }
-    return new GeneratedScmInfo(changesets);
-  }
-
-  @Override
-  public Changeset getLatestChangeset() {
-    return delegate.getLatestChangeset();
-  }
-
-  @Override
-  public Changeset getChangesetForLine(int lineNumber) {
-    return delegate.getChangesetForLine(lineNumber);
-  }
-
-  @Override
-  public boolean hasChangesetForLine(int lineNumber) {
-    return delegate.hasChangesetForLine(lineNumber);
-  }
-
-  @Override
-  public Changeset[] getAllChangesets() {
-    return delegate.getAllChangesets();
+    return new ScmInfoImpl(changesets);
   }
 
 }

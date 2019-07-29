@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.scm;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
@@ -42,9 +43,9 @@ class DbScmInfo implements ScmInfo {
     this.fileHash = fileHash;
   }
 
-  public static Optional<DbScmInfo> create(List<DbFileSources.Line> lines, String fileHash) {
+  public static Optional<DbScmInfo> create(List<DbFileSources.Line> lines, int lineCount, String fileHash) {
     LineToChangeset lineToChangeset = new LineToChangeset();
-    Changeset[] lineChanges = new Changeset[lines.size()];
+    Changeset[] lineChanges = new Changeset[lineCount];
 
     boolean lineAdded = false;
 
@@ -91,7 +92,7 @@ class DbScmInfo implements ScmInfo {
    */
   private static class LineToChangeset implements Function<DbFileSources.Line, Changeset> {
     private final Changeset.Builder builder = Changeset.newChangesetBuilder();
-    private final HashMap<Changeset, Changeset> cache = new HashMap<>();
+    private final Map<Changeset, Changeset> cache = new HashMap<>();
 
     @Override
     @Nullable

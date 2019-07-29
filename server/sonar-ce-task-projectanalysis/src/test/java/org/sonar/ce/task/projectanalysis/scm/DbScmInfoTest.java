@@ -33,8 +33,8 @@ public class DbScmInfoTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void create_scm_info_with_some_changesets() throws Exception {
-    ScmInfo scmInfo = DbScmInfo.create(newFakeData(10).build().getLinesList(), "hash").get();
+  public void create_scm_info_with_some_changesets() {
+    ScmInfo scmInfo = DbScmInfo.create(newFakeData(10).build().getLinesList(), 10, "hash").get();
 
     assertThat(scmInfo.getAllChangesets()).hasSize(10);
   }
@@ -48,7 +48,7 @@ public class DbScmInfoTest {
     addLine(fileDataBuilder, 4, "john", 123456789L, "rev-1");
     fileDataBuilder.build();
 
-    ScmInfo scmInfo = DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get();
+    ScmInfo scmInfo = DbScmInfo.create(fileDataBuilder.getLinesList(), 4, "hash").get();
 
     assertThat(scmInfo.getAllChangesets()).hasSize(4);
 
@@ -59,14 +59,14 @@ public class DbScmInfoTest {
   }
 
   @Test
-  public void return_same_changeset_objects_for_lines_with_same_fields() throws Exception {
+  public void return_same_changeset_objects_for_lines_with_same_fields() {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(65L).setLine(1);
     fileDataBuilder.addLinesBuilder().setScmRevision("rev2").setScmDate(6541L).setLine(2);
     fileDataBuilder.addLinesBuilder().setScmRevision("rev1").setScmDate(6541L).setLine(3);
     fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(65L).setLine(4);
 
-    ScmInfo scmInfo = DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get();
+    ScmInfo scmInfo = DbScmInfo.create(fileDataBuilder.getLinesList(), 4, "hash").get();
 
     assertThat(scmInfo.getAllChangesets()).hasSize(4);
 
@@ -82,7 +82,7 @@ public class DbScmInfoTest {
     addLine(fileDataBuilder, 3, "john", 123456789L, "rev-1");
     fileDataBuilder.build();
 
-    ScmInfo scmInfo = DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get();
+    ScmInfo scmInfo = DbScmInfo.create(fileDataBuilder.getLinesList(), 3, "hash").get();
 
     Changeset latestChangeset = scmInfo.getLatestChangeset();
     assertThat(latestChangeset.getAuthor()).isEqualTo("henry");
@@ -95,40 +95,44 @@ public class DbScmInfoTest {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     fileDataBuilder.addLinesBuilder().setLine(1);
 
-    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), "hash")).isNotPresent();
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), 1, "hash")).isNotPresent();
   }
 
   @Test
-  public void should_support_some_lines_not_having_scm_info() throws Exception {
+  public void should_support_some_lines_not_having_scm_info() {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(543L).setLine(1);
     fileDataBuilder.addLinesBuilder().setLine(2);
     fileDataBuilder.build();
 
-    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get().getAllChangesets()).hasSize(1);
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), 2, "hash").get().getAllChangesets()).hasSize(2);
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), 2, "hash").get().hasChangesetForLine(1)).isTrue();
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), 2, "hash").get().hasChangesetForLine(2)).isFalse();
   }
 
   @Test
-  public void filter_out_entries_without_date() throws Exception {
+  public void filter_out_entries_without_date() {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(555L).setLine(1);
     fileDataBuilder.addLinesBuilder().setScmRevision("rev-1").setLine(2);
     fileDataBuilder.build();
 
-    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get().getAllChangesets()).hasSize(1);
-    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get().getChangesetForLine(1).getRevision()).isEqualTo("rev");
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), 2, "hash").get().getAllChangesets()).hasSize(2);
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), 2, "hash").get().getChangesetForLine(1).getRevision()).isEqualTo("rev");
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), 2, "hash").get().hasChangesetForLine(2)).isFalse();
+
   }
 
   @Test
-  public void should_support_having_no_author() throws Exception {
+  public void should_support_having_no_author() {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     // gets filtered out
     fileDataBuilder.addLinesBuilder().setScmAuthor("John").setLine(1);
     fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(555L).setLine(2);
     fileDataBuilder.build();
 
-    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get().getAllChangesets()).hasSize(1);
-    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), "hash").get().getChangesetForLine(2).getAuthor()).isNull();
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), 2, "hash").get().getAllChangesets()).hasSize(2);
+    assertThat(DbScmInfo.create(fileDataBuilder.getLinesList(), 2, "hash").get().getChangesetForLine(2).getAuthor()).isNull();
   }
 
   private static void addLine(DbFileSources.Data.Builder dataBuilder, Integer line, String author, Long date, String revision) {

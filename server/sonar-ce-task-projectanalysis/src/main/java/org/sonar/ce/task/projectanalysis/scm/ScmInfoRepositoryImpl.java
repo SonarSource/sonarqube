@@ -84,7 +84,7 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
 
   private static Optional<ScmInfo> getScmInfoFromReport(Component file, ScannerReport.Changesets changesets) {
     LOGGER.trace("Reading SCM info from report for file '{}'", file.getDbKey());
-    return Optional.of(new ReportScmInfo(changesets));
+    return Optional.of(ReportScmInfo.create(changesets));
   }
 
   private Optional<ScmInfo> generateScmInfoForAllFile(Component file) {

@@ -21,6 +21,9 @@ package org.sonar.ce.task.projectanalysis.scm;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.utils.Preconditions;
 
@@ -37,7 +40,7 @@ public class ScmInfoImpl implements ScmInfo {
   }
 
   private static Changeset computeLatestChangeset(Changeset[] lineChangesets) {
-    return Arrays.stream(lineChangesets).max(Comparator.comparingLong(Changeset::getDate))
+    return Arrays.stream(lineChangesets).filter(Objects::nonNull).max(Comparator.comparingLong(Changeset::getDate))
       .orElseThrow(() -> new IllegalStateException("Expecting at least one Changeset to be present"));
   }
 
@@ -48,6 +51,10 @@ public class ScmInfoImpl implements ScmInfo {
 
   @Override
   public Changeset getChangesetForLine(int lineNumber) {
+    if (lineNumber < 1 || lineNumber > lineChangesets.length) {
+      throw new IllegalArgumentException("There's no changeset on line " + lineNumber);
+
+    }
     Changeset changeset = lineChangesets[lineNumber - 1];
     if (changeset != null) {
       return changeset;
@@ -69,7 +76,7 @@ public class ScmInfoImpl implements ScmInfo {
   public String toString() {
     return "ScmInfoImpl{" +
       "latestChangeset=" + latestChangeset +
-      ", lineChangesets=" + lineChangesets +
-      '}';
+      ", lineChangesets={" + IntStream.range(0, lineChangesets.length).mapToObj(i -> i + 1 + "=" + lineChangesets[i]).collect(Collectors.joining(", "))
+      + "}}";
   }
 }

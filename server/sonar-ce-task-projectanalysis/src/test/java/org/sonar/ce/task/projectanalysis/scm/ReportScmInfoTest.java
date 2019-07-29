@@ -35,7 +35,7 @@ public class ReportScmInfoTest {
 
   @Test
   public void create_scm_info_with_some_changesets() {
-    ScmInfo scmInfo = new ReportScmInfo(ScannerReport.Changesets.newBuilder()
+    ScmInfo scmInfo = ReportScmInfo.create(ScannerReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
       .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor("john")
@@ -58,7 +58,7 @@ public class ReportScmInfoTest {
 
   @Test
   public void return_changeset_for_a_given_line() {
-    ScmInfo scmInfo = new ReportScmInfo(ScannerReport.Changesets.newBuilder()
+    ScmInfo scmInfo = ReportScmInfo.create(ScannerReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
       .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor("john")
@@ -86,7 +86,7 @@ public class ReportScmInfoTest {
 
   @Test
   public void return_latest_changeset() {
-    ScmInfo scmInfo = new ReportScmInfo(ScannerReport.Changesets.newBuilder()
+    ScmInfo scmInfo = ReportScmInfo.create(ScannerReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
       .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor("john")
@@ -114,14 +114,14 @@ public class ReportScmInfoTest {
   public void fail_with_ISE_when_no_changeset() {
     thrown.expect(IllegalStateException.class);
 
-    new ReportScmInfo(ScannerReport.Changesets.newBuilder().build());
+    ReportScmInfo.create(ScannerReport.Changesets.newBuilder().build());
   }
 
   @Test
   public void fail_with_NPE_when_report_is_null() {
     thrown.expect(NullPointerException.class);
 
-    new ReportScmInfo(null);
+    ReportScmInfo.create(null);
   }
 
   @Test
@@ -129,7 +129,7 @@ public class ReportScmInfoTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Changeset on line 1 must have a revision");
 
-    new ReportScmInfo(ScannerReport.Changesets.newBuilder()
+    ReportScmInfo.create(ScannerReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
       .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor("john")
@@ -144,7 +144,7 @@ public class ReportScmInfoTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Changeset on line 1 must have a date");
 
-    new ReportScmInfo(ScannerReport.Changesets.newBuilder()
+    ReportScmInfo.create(ScannerReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
       .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor("john")

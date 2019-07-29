@@ -19,8 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.scm;
 
-import java.util.Map;
-
 /**
  * Represents changeset information for a file. If SCM information is present, it will be the author, revision and date fetched from SCM
  * for every line. Otherwise, it's a date that corresponds the the analysis date in which the line was modified. 

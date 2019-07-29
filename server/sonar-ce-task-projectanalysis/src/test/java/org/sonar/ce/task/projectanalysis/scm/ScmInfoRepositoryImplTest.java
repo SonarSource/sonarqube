@@ -287,7 +287,7 @@ public class ScmInfoRepositoryImplTest {
       .setScmAuthor("author1")
       .setScmDate(10L)
       .build();
-    DbScmInfo scmInfo = DbScmInfo.create(Collections.singleton(line1), hash).get();
+    DbScmInfo scmInfo = DbScmInfo.create(Collections.singletonList(line1), 1, hash).get();
     when(dbLoader.getScmInfo(FILE)).thenReturn(Optional.of(scmInfo));
     return scmInfo;
   }

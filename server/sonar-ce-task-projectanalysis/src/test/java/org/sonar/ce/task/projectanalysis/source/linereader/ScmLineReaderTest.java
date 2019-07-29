@@ -19,9 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.source.linereader;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
-import java.util.Map;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfo;
@@ -34,12 +31,12 @@ public class ScmLineReaderTest {
 
   @Test
   public void set_scm() {
-    ScmInfo scmInfo = new ScmInfoImpl(Collections.singletonMap(1,
+    ScmInfo scmInfo = new ScmInfoImpl(new Changeset[] {
       Changeset.newChangesetBuilder()
         .setAuthor("john")
         .setDate(123_456_789L)
         .setRevision("rev-1")
-        .build()));
+        .build()});
 
     ScmLineReader lineScm = new ScmLineReader(scmInfo);
 
@@ -53,10 +50,10 @@ public class ScmLineReaderTest {
 
   @Test
   public void set_scm_with_minim_fields() {
-    ScmInfo scmInfo = new ScmInfoImpl(Collections.singletonMap(1,
+    ScmInfo scmInfo = new ScmInfoImpl(new Changeset[] {
       Changeset.newChangesetBuilder()
         .setDate(123456789L)
-        .build()));
+        .build()});
 
     ScmLineReader lineScm = new ScmLineReader(scmInfo);
 
@@ -102,16 +99,16 @@ public class ScmLineReaderTest {
     readLineAndAssertLatestChanges(lineScm, 8, changeset2, changeset1);
   }
 
-  private static Map<Integer, Changeset> setup8LinesChangeset(Changeset changeset0, Changeset changeset1, Changeset changeset2) {
-    return ImmutableMap.<Integer, Changeset>builder()
-      .put(1, changeset0)
-      .put(2, changeset1)
-      .put(3, changeset1)
-      .put(4, changeset2)
-      .put(5, changeset0)
-      .put(6, changeset1)
-      .put(7, changeset0)
-      .put(8, changeset0).build();
+  private static Changeset[] setup8LinesChangeset(Changeset changeset0, Changeset changeset1, Changeset changeset2) {
+    return new Changeset[] {
+      changeset0,
+      changeset1,
+      changeset1,
+      changeset2,
+      changeset0,
+      changeset1,
+      changeset0,
+      changeset0};
   }
 
   private void readLineAndAssertLatestChanges(ScmLineReader lineScm, int line, Changeset expectedChangeset, Changeset expectedChangesetWithRevision) {

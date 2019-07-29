@@ -55,7 +55,7 @@ public class ScmInfoDbLoader {
       if (dto == null) {
         return Optional.empty();
       }
-      return DbScmInfo.create(dto.getSourceData().getLinesList(), dto.getSrcHash());
+      return DbScmInfo.create(dto.getSourceData().getLinesList(), dto.getLineCount(), dto.getSrcHash());
     }
   }
 

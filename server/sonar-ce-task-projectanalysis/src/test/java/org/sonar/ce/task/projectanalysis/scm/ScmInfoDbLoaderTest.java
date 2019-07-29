@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.scm;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -142,7 +143,6 @@ public class ScmInfoDbLoaderTest {
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);
 
-
     assertThat(underTest.getScmInfo(FILE)).isEmpty();
     assertThat(logTester.logs(TRACE)).isEmpty();
   }
@@ -194,6 +194,7 @@ public class ScmInfoDbLoaderTest {
       builder.setScmRevision(revision);
     }
     dbTester.getDbClient().fileSourceDao().insert(dbTester.getSession(), new FileSourceDto()
+      .setLineHashes(Collections.singletonList("lineHash"))
       .setFileUuid(fileUuid)
       .setProjectUuid("PROJECT_UUID")
       .setSourceData(fileDataBuilder.build())
