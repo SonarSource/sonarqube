@@ -53,3 +53,7 @@ export function getMetrics(state: State) {
 export function getMetricsKey(state: State) {
   return state.keys;
 }
+
+export function getMetricByKey(state: State, key: string) {
+  return state.byKey[key];
+}

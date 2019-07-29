@@ -81,6 +81,10 @@ export function getMetricsKey(state: Store) {
   return fromMetrics.getMetricsKey(state.metrics);
 }
 
+export function getMetricByKey(state: Store, key: string) {
+  return fromMetrics.getMetricByKey(state.metrics, key);
+}
+
 export function getOrganizationByKey(state: Store, key: string) {
   return fromOrganizations.getOrganizationByKey(state.organizations, key);
 }

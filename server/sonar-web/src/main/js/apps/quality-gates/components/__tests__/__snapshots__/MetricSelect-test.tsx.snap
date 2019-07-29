@@ -9,12 +9,11 @@ exports[`should render correctly 1`] = `
     Array [
       Object {
         "domain": undefined,
-        "label": "metric 1",
-        "value": 0,
+        "label": "Coverage",
+        "value": "coverage",
       },
     ]
   }
   placeholder="search.search_for_metrics"
-  value={-1}
 />
 `;

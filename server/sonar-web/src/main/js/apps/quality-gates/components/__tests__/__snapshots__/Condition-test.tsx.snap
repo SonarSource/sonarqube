@@ -1,0 +1,189 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<tr>
+  <td
+    className="text-middle"
+  >
+    Coverage
+  </td>
+  <td
+    className="text-middle nowrap"
+  >
+    <span
+      className="note"
+    >
+      quality_gates.operator.LT
+    </span>
+  </td>
+  <td
+    className="text-middle nowrap"
+  >
+    10.0%
+  </td>
+</tr>
+`;
+
+exports[`should render correctly with edit rights 1`] = `
+<tr>
+  <td
+    className="text-middle"
+  >
+    Coverage
+  </td>
+  <td
+    className="text-middle nowrap"
+  >
+    <span
+      className="note"
+    >
+      quality_gates.operator.LT
+    </span>
+  </td>
+  <td
+    className="text-middle nowrap"
+  >
+    10.0%
+  </td>
+  <td
+    className="text-center thin"
+  >
+    <EditButton
+      data-test="quality-gates__condition-update"
+      onClick={[Function]}
+    />
+  </td>
+  <td
+    className="text-center thin"
+  >
+    <DeleteButton
+      data-test="quality-gates__condition-delete"
+      onClick={[Function]}
+    />
+  </td>
+</tr>
+`;
+
+exports[`should render the delete modal correctly 1`] = `
+<tr>
+  <td
+    className="text-middle"
+  >
+    Coverage
+  </td>
+  <td
+    className="text-middle nowrap"
+  >
+    <span
+      className="note"
+    >
+      quality_gates.operator.LT
+    </span>
+  </td>
+  <td
+    className="text-middle nowrap"
+  >
+    10.0%
+  </td>
+  <td
+    className="text-center thin"
+  >
+    <EditButton
+      data-test="quality-gates__condition-update"
+      onClick={[Function]}
+    />
+  </td>
+  <td
+    className="text-center thin"
+  >
+    <DeleteButton
+      data-test="quality-gates__condition-delete"
+      onClick={[Function]}
+    />
+  </td>
+  <ConfirmModal
+    confirmButtonText="delete"
+    confirmData={
+      Object {
+        "error": "10",
+        "id": 1,
+        "metric": "coverage",
+        "op": "LT",
+      }
+    }
+    header="quality_gates.delete_condition"
+    isDestructive={true}
+    onClose={[Function]}
+    onConfirm={[Function]}
+  >
+    quality_gates.delete_condition.confirm.message.Coverage
+  </ConfirmModal>
+</tr>
+`;
+
+exports[`should render the update modal correctly 1`] = `
+<tr>
+  <td
+    className="text-middle"
+  >
+    Coverage
+  </td>
+  <td
+    className="text-middle nowrap"
+  >
+    <span
+      className="note"
+    >
+      quality_gates.operator.LT
+    </span>
+  </td>
+  <td
+    className="text-middle nowrap"
+  >
+    10.0%
+  </td>
+  <td
+    className="text-center thin"
+  >
+    <EditButton
+      data-test="quality-gates__condition-update"
+      onClick={[Function]}
+    />
+  </td>
+  <td
+    className="text-center thin"
+  >
+    <DeleteButton
+      data-test="quality-gates__condition-delete"
+      onClick={[Function]}
+    />
+  </td>
+  <ConditionModal
+    condition={
+      Object {
+        "error": "10",
+        "id": 1,
+        "metric": "coverage",
+        "op": "LT",
+      }
+    }
+    header="quality_gates.update_condition"
+    metric={
+      Object {
+        "id": "coverage",
+        "key": "coverage",
+        "name": "Coverage",
+        "type": "PERCENT",
+      }
+    }
+    onAddCondition={[Function]}
+    onClose={[Function]}
+    qualityGate={
+      Object {
+        "id": 1,
+        "name": "qualitygate",
+      }
+    }
+  />
+</tr>
+`;

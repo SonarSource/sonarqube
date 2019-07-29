@@ -19,24 +19,15 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockMetric } from '../../../../helpers/testMocks';
-import MetricSelect from '../MetricSelect';
+import ListHeader from '../ListHeader';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+  const wrapper = shallowRender({ canCreate: true });
+  expect(wrapper.find('ModalButton').exists()).toBe(true);
+  expect(wrapper.find('ModalButton').dive()).toMatchSnapshot();
 });
 
-it('should correctly handle change', () => {
-  const onMetricChange = jest.fn();
-  const metric = mockMetric();
-  const metrics = [mockMetric({ key: 'duplication' }), metric];
-  const wrapper = shallowRender({ metrics, onMetricChange });
-  wrapper.instance().handleChange({ label: metric.name, value: metric.key });
-  expect(onMetricChange).toBeCalledWith(metric);
-});
-
-function shallowRender(props: Partial<MetricSelect['props']> = {}) {
-  return shallow<MetricSelect>(
-    <MetricSelect metrics={[mockMetric()]} onMetricChange={jest.fn()} {...props} />
-  );
+function shallowRender(props = {}) {
+  return shallow(<ListHeader canCreate={false} refreshQualityGates={jest.fn()} {...props} />);
 }

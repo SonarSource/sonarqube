@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<header
+  className="page-header"
+>
+  <div
+    className="display-flex-center"
+  >
+    <h1
+      className="page-title"
+    >
+      quality_gates.page
+    </h1>
+    <DocTooltip
+      className="spacer-left"
+      doc={Promise {}}
+    />
+  </div>
+</header>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <Button
+    data-test="quality-gates__add"
+    onClick={[Function]}
+  >
+    create
+  </Button>
+</Fragment>
+`;

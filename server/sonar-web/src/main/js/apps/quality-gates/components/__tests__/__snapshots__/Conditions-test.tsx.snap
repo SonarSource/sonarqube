@@ -1,0 +1,493 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="quality-gate-section"
+>
+  <header
+    className="display-flex-center spacer-bottom"
+  >
+    <h3>
+      quality_gates.conditions
+    </h3>
+    <DocTooltip
+      className="spacer-left"
+      doc={Promise {}}
+    />
+  </header>
+  <div
+    className="big-spacer-top"
+  >
+    <h4>
+      quality_gates.conditions.overall_code.long
+    </h4>
+    <p
+      className="spacer-top spacer-bottom"
+    >
+      quality_gates.conditions.overall_code.description
+    </p>
+    <table
+      className="data zebra"
+      data-test="quality-gates__conditions-overall"
+    >
+      <thead>
+        <tr>
+          <th
+            className="nowrap"
+            style={
+              Object {
+                "width": 300,
+              }
+            }
+          >
+            quality_gates.conditions.metric
+          </th>
+          <th
+            className="nowrap"
+          >
+            quality_gates.conditions.operator
+          </th>
+          <th
+            className="nowrap"
+          >
+            quality_gates.conditions.value
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <Condition
+          canEdit={false}
+          condition={
+            Object {
+              "error": "10",
+              "id": 1,
+              "metric": "coverage",
+              "op": "LT",
+            }
+          }
+          key="1"
+          metric={
+            Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            }
+          }
+          onRemoveCondition={[MockFunction]}
+          onSaveCondition={[MockFunction]}
+          qualityGate={
+            Object {
+              "id": 1,
+              "name": "qualitygate",
+            }
+          }
+        />
+        <Condition
+          canEdit={false}
+          condition={
+            Object {
+              "error": "10",
+              "id": 2,
+              "metric": "duplication",
+              "op": "LT",
+            }
+          }
+          key="2"
+          metric={
+            Object {
+              "id": "duplication",
+              "key": "duplication",
+              "name": "Duplication",
+              "type": "PERCENT",
+            }
+          }
+          onRemoveCondition={[MockFunction]}
+          onSaveCondition={[MockFunction]}
+          qualityGate={
+            Object {
+              "id": 1,
+              "name": "qualitygate",
+            }
+          }
+        />
+      </tbody>
+    </table>
+  </div>
+</div>
+`;
+
+exports[`should render correctly for no conditions 1`] = `
+<div
+  className="quality-gate-section"
+>
+  <header
+    className="display-flex-center spacer-bottom"
+  >
+    <h3>
+      quality_gates.conditions
+    </h3>
+    <DocTooltip
+      className="spacer-left"
+      doc={Promise {}}
+    />
+  </header>
+  <div
+    className="big-spacer-top"
+  >
+    quality_gates.no_conditions
+  </div>
+</div>
+`;
+
+exports[`should render correctly with new code conditions 1`] = `
+<div
+  className="quality-gate-section"
+>
+  <header
+    className="display-flex-center spacer-bottom"
+  >
+    <h3>
+      quality_gates.conditions
+    </h3>
+    <DocTooltip
+      className="spacer-left"
+      doc={Promise {}}
+    />
+  </header>
+  <div
+    className="big-spacer-top"
+  >
+    <h4>
+      quality_gates.conditions.new_code.long
+    </h4>
+    <p
+      className="spacer-top spacer-bottom"
+    >
+      quality_gates.conditions.new_code.description
+    </p>
+    <table
+      className="data zebra"
+      data-test="quality-gates__conditions-new"
+    >
+      <thead>
+        <tr>
+          <th
+            className="nowrap"
+            style={
+              Object {
+                "width": 300,
+              }
+            }
+          >
+            quality_gates.conditions.metric
+          </th>
+          <th
+            className="nowrap"
+          >
+            quality_gates.conditions.operator
+          </th>
+          <th
+            className="nowrap"
+          >
+            quality_gates.conditions.value
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <Condition
+          canEdit={false}
+          condition={
+            Object {
+              "error": "10",
+              "id": 3,
+              "metric": "new_coverage",
+              "op": "LT",
+            }
+          }
+          key="3"
+          metric={
+            Object {
+              "id": "new_coverage",
+              "key": "new_coverage",
+              "name": "Coverage on New Code",
+              "type": "PERCENT",
+            }
+          }
+          onRemoveCondition={[MockFunction]}
+          onSaveCondition={[MockFunction]}
+          qualityGate={
+            Object {
+              "id": 1,
+              "name": "qualitygate",
+            }
+          }
+        />
+        <Condition
+          canEdit={false}
+          condition={
+            Object {
+              "error": "10",
+              "id": 4,
+              "metric": "new_duplication",
+              "op": "LT",
+            }
+          }
+          key="4"
+          metric={
+            Object {
+              "id": "new_duplication",
+              "key": "new_duplication",
+              "name": "Duplication on New Code",
+              "type": "PERCENT",
+            }
+          }
+          onRemoveCondition={[MockFunction]}
+          onSaveCondition={[MockFunction]}
+          qualityGate={
+            Object {
+              "id": 1,
+              "name": "qualitygate",
+            }
+          }
+        />
+      </tbody>
+    </table>
+  </div>
+  <div
+    className="big-spacer-top"
+  >
+    <h4>
+      quality_gates.conditions.overall_code.long
+    </h4>
+    <p
+      className="spacer-top spacer-bottom"
+    >
+      quality_gates.conditions.overall_code.description
+    </p>
+    <table
+      className="data zebra"
+      data-test="quality-gates__conditions-overall"
+    >
+      <thead>
+        <tr>
+          <th
+            className="nowrap"
+            style={
+              Object {
+                "width": 300,
+              }
+            }
+          >
+            quality_gates.conditions.metric
+          </th>
+          <th
+            className="nowrap"
+          >
+            quality_gates.conditions.operator
+          </th>
+          <th
+            className="nowrap"
+          >
+            quality_gates.conditions.value
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <Condition
+          canEdit={false}
+          condition={
+            Object {
+              "error": "10",
+              "id": 1,
+              "metric": "coverage",
+              "op": "LT",
+            }
+          }
+          key="1"
+          metric={
+            Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            }
+          }
+          onRemoveCondition={[MockFunction]}
+          onSaveCondition={[MockFunction]}
+          qualityGate={
+            Object {
+              "id": 1,
+              "name": "qualitygate",
+            }
+          }
+        />
+        <Condition
+          canEdit={false}
+          condition={
+            Object {
+              "error": "10",
+              "id": 2,
+              "metric": "duplication",
+              "op": "LT",
+            }
+          }
+          key="2"
+          metric={
+            Object {
+              "id": "duplication",
+              "key": "duplication",
+              "name": "Duplication",
+              "type": "PERCENT",
+            }
+          }
+          onRemoveCondition={[MockFunction]}
+          onSaveCondition={[MockFunction]}
+          qualityGate={
+            Object {
+              "id": 1,
+              "name": "qualitygate",
+            }
+          }
+        />
+      </tbody>
+    </table>
+  </div>
+</div>
+`;
+
+exports[`should render the add conditions button and modal 1`] = `
+<div
+  className="quality-gate-section"
+>
+  <div
+    className="pull-right"
+  >
+    <ModalButton
+      modal={[Function]}
+    >
+      <Component />
+    </ModalButton>
+  </div>
+  <header
+    className="display-flex-center spacer-bottom"
+  >
+    <h3>
+      quality_gates.conditions
+    </h3>
+    <DocTooltip
+      className="spacer-left"
+      doc={Promise {}}
+    />
+  </header>
+  <div
+    className="big-spacer-top"
+  >
+    <h4>
+      quality_gates.conditions.overall_code.long
+    </h4>
+    <p
+      className="spacer-top spacer-bottom"
+    >
+      quality_gates.conditions.overall_code.description
+    </p>
+    <table
+      className="data zebra"
+      data-test="quality-gates__conditions-overall"
+    >
+      <thead>
+        <tr>
+          <th
+            className="nowrap"
+            style={
+              Object {
+                "width": 300,
+              }
+            }
+          >
+            quality_gates.conditions.metric
+          </th>
+          <th
+            className="nowrap"
+          >
+            quality_gates.conditions.operator
+          </th>
+          <th
+            className="nowrap"
+          >
+            quality_gates.conditions.value
+          </th>
+          <th
+            className="thin"
+          >
+            edit
+          </th>
+          <th
+            className="thin"
+          >
+            delete
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <Condition
+          canEdit={true}
+          condition={
+            Object {
+              "error": "10",
+              "id": 1,
+              "metric": "coverage",
+              "op": "LT",
+            }
+          }
+          key="1"
+          metric={
+            Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            }
+          }
+          onRemoveCondition={[MockFunction]}
+          onSaveCondition={[MockFunction]}
+          qualityGate={
+            Object {
+              "id": 1,
+              "name": "qualitygate",
+            }
+          }
+        />
+        <Condition
+          canEdit={true}
+          condition={
+            Object {
+              "error": "10",
+              "id": 2,
+              "metric": "duplication",
+              "op": "LT",
+            }
+          }
+          key="2"
+          metric={
+            Object {
+              "id": "duplication",
+              "key": "duplication",
+              "name": "Duplication",
+              "type": "PERCENT",
+            }
+          }
+          onRemoveCondition={[MockFunction]}
+          onSaveCondition={[MockFunction]}
+          qualityGate={
+            Object {
+              "id": 1,
+              "name": "qualitygate",
+            }
+          }
+        />
+      </tbody>
+    </table>
+  </div>
+</div>
+`;

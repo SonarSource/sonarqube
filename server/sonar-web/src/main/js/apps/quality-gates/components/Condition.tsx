@@ -18,9 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ActionsDropdown, {
-  ActionsDropdownItem
-} from 'sonar-ui-common/components/controls/ActionsDropdown';
+import { DeleteButton, EditButton } from 'sonar-ui-common/components/controls/buttons';
 import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
 import {
   getLocalizedMetricName,
@@ -29,6 +27,7 @@ import {
 } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { deleteCondition } from '../../../api/quality-gates';
+import { getLocalizedMetricNameNoDiffMetric } from '../utils';
 import ConditionModal from './ConditionModal';
 
 interface Props {
@@ -99,29 +98,30 @@ export default class Condition extends React.PureComponent<Props, State> {
     return (
       <tr>
         <td className="text-middle">
-          {getLocalizedMetricName(metric)}
+          {getLocalizedMetricNameNoDiffMetric(metric)}
           {metric.hidden && (
             <span className="text-danger little-spacer-left">{translate('deprecated')}</span>
           )}
         </td>
 
-        <td className="thin text-middle nowrap">{this.renderOperator()}</td>
+        <td className="text-middle nowrap">{this.renderOperator()}</td>
 
-        <td className="thin text-middle nowrap">{formatMeasure(condition.error, metric.type)}</td>
+        <td className="text-middle nowrap">{formatMeasure(condition.error, metric.type)}</td>
 
         {canEdit && (
-          <td className="thin text-middle nowrap">
-            <ActionsDropdown className="dropdown-menu-right">
-              <ActionsDropdownItem className="js-condition-update" onClick={this.handleOpenUpdate}>
-                {translate('update_details')}
-              </ActionsDropdownItem>
-              <ActionsDropdownItem
-                destructive={true}
-                id="condition-delete"
-                onClick={this.handleDeleteClick}>
-                {translate('delete')}
-              </ActionsDropdownItem>
-            </ActionsDropdown>
+          <>
+            <td className="text-center thin">
+              <EditButton
+                data-test="quality-gates__condition-update"
+                onClick={this.handleOpenUpdate}
+              />
+            </td>
+            <td className="text-center thin">
+              <DeleteButton
+                data-test="quality-gates__condition-delete"
+                onClick={this.handleDeleteClick}
+              />
+            </td>
             {this.state.modal && (
               <ConditionModal
                 condition={condition}
@@ -147,7 +147,7 @@ export default class Condition extends React.PureComponent<Props, State> {
                 )}
               </ConfirmModal>
             )}
-          </td>
+          </>
         )}
       </tr>
     );

@@ -1,31 +1,278 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should correctly switch scope 1`] = `
 <ConfirmModal
-  confirmButtonText="a"
+  confirmButtonText="header"
   confirmDisable={true}
-  header="a"
+  header="header"
   onClose={[MockFunction]}
   onConfirm={[Function]}
   size="small"
 >
+  <div
+    className="modal-field display-flex-center"
+  >
+    <Radio
+      checked={true}
+      onCheck={[Function]}
+      value="new"
+    >
+      <span
+        data-test="quality-gates__condition-scope-new"
+      >
+        quality_gates.conditions.new_code
+      </span>
+    </Radio>
+    <Radio
+      checked={false}
+      className="big-spacer-left"
+      onCheck={[Function]}
+      value="overall"
+    >
+      <span
+        data-test="quality-gates__condition-scope-overall"
+      >
+        quality_gates.conditions.overall_code
+      </span>
+    </Radio>
+  </div>
   <div
     className="modal-field"
   >
     <label
       htmlFor="condition-metric"
     >
-      quality_gates.conditions.metric
+      quality_gates.conditions.fails_when
     </label>
+    <MetricSelect
+      metrics={
+        Array [
+          Object {
+            "id": "new_coverage",
+            "key": "new_coverage",
+            "name": "Coverage on New Code",
+            "type": "PERCENT",
+          },
+          Object {
+            "id": "new_duplication",
+            "key": "new_duplication",
+            "name": "Duplication on New Code",
+            "type": "PERCENT",
+          },
+        ]
+      }
+      onMetricChange={[Function]}
+    />
+  </div>
+</ConfirmModal>
+`;
+
+exports[`should correctly switch scope 2`] = `
+<ConfirmModal
+  confirmButtonText="header"
+  confirmDisable={true}
+  header="header"
+  onClose={[MockFunction]}
+  onConfirm={[Function]}
+  size="small"
+>
+  <div
+    className="modal-field display-flex-center"
+  >
+    <Radio
+      checked={false}
+      onCheck={[Function]}
+      value="new"
+    >
+      <span
+        data-test="quality-gates__condition-scope-new"
+      >
+        quality_gates.conditions.new_code
+      </span>
+    </Radio>
+    <Radio
+      checked={true}
+      className="big-spacer-left"
+      onCheck={[Function]}
+      value="overall"
+    >
+      <span
+        data-test="quality-gates__condition-scope-overall"
+      >
+        quality_gates.conditions.overall_code
+      </span>
+    </Radio>
+  </div>
+  <div
+    className="modal-field"
+  >
+    <label
+      htmlFor="condition-metric"
+    >
+      quality_gates.conditions.fails_when
+    </label>
+    <MetricSelect
+      metrics={
+        Array [
+          Object {
+            "id": "coverage",
+            "key": "coverage",
+            "name": "Coverage",
+            "type": "PERCENT",
+          },
+          Object {
+            "id": "duplication",
+            "key": "duplication",
+            "name": "Duplication",
+            "type": "PERCENT",
+          },
+        ]
+      }
+      onMetricChange={[Function]}
+    />
+  </div>
+</ConfirmModal>
+`;
+
+exports[`should correctly switch scope 3`] = `
+<ConfirmModal
+  confirmButtonText="header"
+  confirmDisable={true}
+  header="header"
+  onClose={[MockFunction]}
+  onConfirm={[Function]}
+  size="small"
+>
+  <div
+    className="modal-field display-flex-center"
+  >
+    <Radio
+      checked={true}
+      onCheck={[Function]}
+      value="new"
+    >
+      <span
+        data-test="quality-gates__condition-scope-new"
+      >
+        quality_gates.conditions.new_code
+      </span>
+    </Radio>
+    <Radio
+      checked={false}
+      className="big-spacer-left"
+      onCheck={[Function]}
+      value="overall"
+    >
+      <span
+        data-test="quality-gates__condition-scope-overall"
+      >
+        quality_gates.conditions.overall_code
+      </span>
+    </Radio>
+  </div>
+  <div
+    className="modal-field"
+  >
+    <label
+      htmlFor="condition-metric"
+    >
+      quality_gates.conditions.fails_when
+    </label>
+    <MetricSelect
+      metrics={
+        Array [
+          Object {
+            "id": "new_coverage",
+            "key": "new_coverage",
+            "name": "Coverage on New Code",
+            "type": "PERCENT",
+          },
+          Object {
+            "id": "new_duplication",
+            "key": "new_duplication",
+            "name": "Duplication on New Code",
+            "type": "PERCENT",
+          },
+        ]
+      }
+      onMetricChange={[Function]}
+    />
+  </div>
+</ConfirmModal>
+`;
+
+exports[`should render correctly 1`] = `
+<ConfirmModal
+  confirmButtonText="header"
+  confirmDisable={true}
+  header="header"
+  onClose={[MockFunction]}
+  onConfirm={[Function]}
+  size="small"
+>
+  <div
+    className="modal-field display-flex-center"
+  >
+    <Radio
+      checked={true}
+      onCheck={[Function]}
+      value="new"
+    >
+      <span
+        data-test="quality-gates__condition-scope-new"
+      >
+        quality_gates.conditions.new_code
+      </span>
+    </Radio>
+    <Radio
+      checked={false}
+      className="big-spacer-left"
+      onCheck={[Function]}
+      value="overall"
+    >
+      <span
+        data-test="quality-gates__condition-scope-overall"
+      >
+        quality_gates.conditions.overall_code
+      </span>
+    </Radio>
+  </div>
+  <div
+    className="modal-field"
+  >
+    <label
+      htmlFor="condition-metric"
+    >
+      quality_gates.conditions.fails_when
+    </label>
+    <MetricSelect
+      metrics={
+        Array [
+          Object {
+            "id": "new_coverage",
+            "key": "new_coverage",
+            "name": "Coverage on New Code",
+            "type": "PERCENT",
+          },
+          Object {
+            "id": "new_duplication",
+            "key": "new_duplication",
+            "name": "Duplication on New Code",
+            "type": "PERCENT",
+          },
+        ]
+      }
+      onMetricChange={[Function]}
+    />
   </div>
 </ConfirmModal>
 `;
 
 exports[`should render correctly 2`] = `
 <ConfirmModal
-  confirmButtonText="a"
+  confirmButtonText="header"
   confirmDisable={false}
-  header="a"
+  header="header"
   onClose={[MockFunction]}
   onConfirm={[Function]}
   size="small"
@@ -36,8 +283,40 @@ exports[`should render correctly 2`] = `
     <label
       htmlFor="condition-metric"
     >
-      quality_gates.conditions.metric
+      quality_gates.conditions.fails_when
     </label>
+    <MetricSelect
+      metric={
+        Object {
+          "id": "coverage",
+          "key": "coverage",
+          "name": "Coverage",
+          "type": "PERCENT",
+        }
+      }
+      metrics={
+        Array [
+          Object {
+            "id": "new_coverage",
+            "key": "new_coverage",
+            "name": "Coverage on New Code",
+            "type": "PERCENT",
+          },
+          Object {
+            "id": "new_duplication",
+            "key": "new_duplication",
+            "name": "Duplication on New Code",
+            "type": "PERCENT",
+          },
+        ]
+      }
+      onMetricChange={[Function]}
+    />
+    <span
+      className="note"
+    >
+      Coverage
+    </span>
   </div>
   <div
     className="modal-field display-inline-block"
@@ -50,9 +329,9 @@ exports[`should render correctly 2`] = `
     <ConditionOperator
       metric={
         Object {
-          "id": "1",
-          "key": "foo",
-          "name": "Foo",
+          "id": "coverage",
+          "key": "coverage",
+          "name": "Coverage",
           "type": "PERCENT",
         }
       }
@@ -65,14 +344,14 @@ exports[`should render correctly 2`] = `
     <label
       htmlFor="condition-threshold"
     >
-      quality_gates.conditions.error
+      quality_gates.conditions.value
     </label>
     <ThresholdInput
       metric={
         Object {
-          "id": "1",
-          "key": "foo",
-          "name": "Foo",
+          "id": "coverage",
+          "key": "coverage",
+          "name": "Coverage",
           "type": "PERCENT",
         }
       }

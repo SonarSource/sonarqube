@@ -19,8 +19,10 @@
  */
 import * as React from 'react';
 import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
+import Radio from 'sonar-ui-common/components/controls/Radio';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
+import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
 import { createCondition, updateCondition } from '../../../api/quality-gates';
 import { getPossibleOperators } from '../utils';
 import ConditionOperator from './ConditionOperator';
@@ -43,26 +45,18 @@ interface State {
   errorMessage?: string;
   metric?: T.Metric;
   op?: string;
+  scope: 'new' | 'overall';
 }
 
 export default class ConditionModal extends React.PureComponent<Props, State> {
-  mounted = false;
-
   constructor(props: Props) {
     super(props);
     this.state = {
       error: props.condition ? props.condition.error : '',
+      scope: 'new',
       metric: props.metric ? props.metric : undefined,
       op: props.condition ? props.condition.op : undefined
     };
-  }
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
   }
 
   getSinglePossibleOperator(metric: T.Metric) {
@@ -86,6 +80,21 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     return Promise.reject();
   };
 
+  handleScopeChange = (scope: 'new' | 'overall') => {
+    this.setState(({ metric }) => {
+      const { metrics } = this.props;
+      let correspondingMetric;
+
+      if (metric && metrics) {
+        const correspondingMetricKey =
+          scope === 'new' ? `new_${metric.key}` : metric.key.replace(/^new_/, '');
+        correspondingMetric = metrics.find(m => m.key === correspondingMetricKey);
+      }
+
+      return { scope, metric: correspondingMetric };
+    });
+  };
+
   handleMetricChange = (metric: T.Metric) => {
     this.setState({ metric, op: undefined, error: '' });
   };
@@ -100,7 +109,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
 
   render() {
     const { header, metrics, onClose } = this.props;
-    const { op, error, metric } = this.state;
+    const { op, error, scope, metric } = this.state;
     return (
       <ConfirmModal
         confirmButtonText={header}
@@ -110,13 +119,44 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
         onConfirm={this.handleFormSubmit}
         size="small">
         {this.state.errorMessage && <Alert variant="error">{this.state.errorMessage}</Alert>}
+
+        {this.props.metric === undefined && (
+          <div className="modal-field display-flex-center">
+            <Radio checked={scope === 'new'} onCheck={this.handleScopeChange} value="new">
+              <span data-test="quality-gates__condition-scope-new">
+                {translate('quality_gates.conditions.new_code')}
+              </span>
+            </Radio>
+            <Radio
+              checked={scope === 'overall'}
+              className="big-spacer-left"
+              onCheck={this.handleScopeChange}
+              value="overall">
+              <span data-test="quality-gates__condition-scope-overall">
+                {translate('quality_gates.conditions.overall_code')}
+              </span>
+            </Radio>
+          </div>
+        )}
+
         <div className="modal-field">
-          <label htmlFor="condition-metric">{translate('quality_gates.conditions.metric')}</label>
-          {metrics && <MetricSelect metrics={metrics} onMetricChange={this.handleMetricChange} />}
+          <label htmlFor="condition-metric">
+            {translate('quality_gates.conditions.fails_when')}
+          </label>
+          {metrics && (
+            <MetricSelect
+              metric={metric}
+              metrics={metrics.filter(metric =>
+                scope === 'new' ? isDiffMetric(metric.key) : !isDiffMetric(metric.key)
+              )}
+              onMetricChange={this.handleMetricChange}
+            />
+          )}
           {this.props.metric && (
             <span className="note">{getLocalizedMetricName(this.props.metric)}</span>
           )}
         </div>
+
         {metric && (
           <>
             <div className="modal-field display-inline-block">
@@ -131,7 +171,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
             </div>
             <div className="modal-field display-inline-block spacer-left">
               <label htmlFor="condition-threshold">
-                {translate('quality_gates.conditions.error')}
+                {translate('quality_gates.conditions.value')}
               </label>
               <ThresholdInput
                 metric={metric}

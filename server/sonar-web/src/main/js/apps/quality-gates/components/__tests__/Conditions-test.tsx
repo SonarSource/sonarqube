@@ -19,60 +19,58 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockMetric, mockQualityGate } from '../../../../helpers/testMocks';
-import ConditionModal from '../ConditionModal';
+import { mockCondition, mockMetric, mockQualityGate } from '../../../../helpers/testMocks';
+import { Conditions } from '../Conditions';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ metric: mockMetric() })).toMatchSnapshot();
 });
 
-it('should correctly handle a metric selection', () => {
-  const wrapper = shallowRender();
-  const metric = mockMetric();
-
-  expect(wrapper.find('MetricSelect').prop('metric')).toBeUndefined();
-
-  wrapper.instance().handleMetricChange(metric);
-  expect(wrapper.find('MetricSelect').prop('metric')).toEqual(metric);
-});
-
-it('should correctly switch scope', () => {
+it('should render correctly with new code conditions', () => {
   const wrapper = shallowRender({
-    metrics: [
-      mockMetric({ id: 'new_coverage', key: 'new_coverage', name: 'Coverage on New Code' }),
-      mockMetric({
-        id: 'new_duplication',
-        key: 'new_duplication',
-        name: 'Duplication on New Code'
-      }),
-      mockMetric(),
-      mockMetric({ id: 'duplication', key: 'duplication', name: 'Duplication' })
+    conditions: [
+      mockCondition(),
+      mockCondition({ id: 2, metric: 'duplication' }),
+      mockCondition({ id: 3, metric: 'new_coverage' }),
+      mockCondition({ id: 4, metric: 'new_duplication' })
     ]
   });
   expect(wrapper).toMatchSnapshot();
+});
 
-  wrapper.instance().handleScopeChange('overall');
-  expect(wrapper).toMatchSnapshot();
-
-  wrapper.instance().handleScopeChange('new');
+it('should render correctly for no conditions', () => {
+  const wrapper = shallowRender({ conditions: [] });
   expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<ConditionModal['props']> = {}) {
-  return shallow<ConditionModal>(
-    <ConditionModal
-      header="header"
-      metrics={[
-        mockMetric({ id: 'new_coverage', key: 'new_coverage', name: 'Coverage on New Code' }),
-        mockMetric({
+it('should render the add conditions button and modal', () => {
+  const wrapper = shallowRender({ canEdit: true });
+  expect(wrapper).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<Conditions['props']> = {}) {
+  return shallow<Conditions>(
+    <Conditions
+      appState={{ branchesEnabled: true }}
+      canEdit={false}
+      conditions={[mockCondition(), mockCondition({ id: 2, metric: 'duplication' })]}
+      metrics={{
+        coverage: mockMetric(),
+        duplication: mockMetric({ id: 'duplication', key: 'duplication', name: 'Duplication' }),
+        new_coverage: mockMetric({
+          id: 'new_coverage',
+          key: 'new_coverage',
+          name: 'Coverage on New Code'
+        }),
+        new_duplication: mockMetric({
           id: 'new_duplication',
           key: 'new_duplication',
           name: 'Duplication on New Code'
         })
-      ]}
+      }}
       onAddCondition={jest.fn()}
-      onClose={jest.fn()}
+      onRemoveCondition={jest.fn()}
+      onSaveCondition={jest.fn()}
       qualityGate={mockQualityGate()}
       {...props}
     />

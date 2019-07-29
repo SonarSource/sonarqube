@@ -44,7 +44,7 @@ export default function ListHeader({ canCreate, refreshQualityGates, organizatio
               />
             )}>
             {({ onClick }) => (
-              <Button id="quality-gate-add" onClick={onClick}>
+              <Button data-test="quality-gates__add" onClick={onClick}>
                 {translate('create')}
               </Button>
             )}

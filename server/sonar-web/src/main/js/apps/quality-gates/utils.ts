@@ -17,6 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { getLocalizedMetricName } from 'sonar-ui-common/helpers/l10n';
+import getStore from '../../app/utils/getStore';
+import { isDiffMetric } from '../../helpers/measures';
+import { getMetricByKey } from '../../store/rootReducer';
+
 export function checkIfDefault(qualityGate: T.QualityGate, list: T.QualityGate[]): boolean {
   const finding = list.find(candidate => candidate.id === qualityGate.id);
   return (finding && finding.isDefault) || false;
@@ -55,4 +60,24 @@ export function getPossibleOperators(metric: T.Metric) {
   } else {
     return ['LT', 'GT'];
   }
+}
+
+export function metricKeyExists(key: string) {
+  return getMetricByKey(getStore().getState(), key) !== undefined;
+}
+
+function getNoDiffMetric(metric: T.Metric) {
+  const store = getStore().getState();
+  const regularMetricKey = metric.key.replace(/^new_/, '');
+  if (isDiffMetric(metric.key) && metricKeyExists(regularMetricKey)) {
+    return getMetricByKey(store, regularMetricKey);
+  } else if (metric.key === 'new_maintainability_rating') {
+    return getMetricByKey(store, 'sqale_rating') || metric;
+  } else {
+    return metric;
+  }
+}
+
+export function getLocalizedMetricNameNoDiffMetric(metric: T.Metric) {
+  return getLocalizedMetricName(getNoDiffMetric(metric));
 }

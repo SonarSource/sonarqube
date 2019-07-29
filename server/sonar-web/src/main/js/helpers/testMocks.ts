@@ -306,6 +306,16 @@ export function mockComponentMeasure(
   };
 }
 
+export function mockCondition(overrides: Partial<T.Condition> = {}): T.Condition {
+  return {
+    error: '10',
+    id: 1,
+    metric: 'coverage',
+    op: 'LT',
+    ...overrides
+  };
+}
+
 export function mockQualityGateStatusCondition(
   overrides: Partial<T.QualityGateStatusCondition> = {}
 ): T.QualityGateStatusCondition {

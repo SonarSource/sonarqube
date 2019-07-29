@@ -23,17 +23,20 @@ import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ModalButton from 'sonar-ui-common/components/controls/ModalButton';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
+import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
 import DocTooltip from '../../../components/docs/DocTooltip';
+import { withAppState } from '../../../components/hoc/withAppState';
 import Condition from './Condition';
 import ConditionModal from './ConditionModal';
 
 interface Props {
+  appState: Pick<T.AppState, 'branchesEnabled'>;
   canEdit: boolean;
   conditions: T.Condition[];
   metrics: T.Dict<T.Metric>;
   onAddCondition: (condition: T.Condition) => void;
-  onSaveCondition: (newCondition: T.Condition, oldCondition: T.Condition) => void;
   onRemoveCondition: (Condition: T.Condition) => void;
+  onSaveCondition: (newCondition: T.Condition, oldCondition: T.Condition) => void;
   organization?: string;
   qualityGate: T.QualityGate;
 }
@@ -41,19 +44,65 @@ interface Props {
 const FORBIDDEN_METRIC_TYPES = ['DATA', 'DISTRIB', 'STRING', 'BOOL'];
 const FORBIDDEN_METRICS = ['alert_status', 'releasability_rating', 'security_review_rating'];
 
-export default class Conditions extends React.PureComponent<Props> {
-  getConditionKey = (condition: T.Condition, index: number) => {
-    return condition.id ? condition.id : `new-${index}`;
+export class Conditions extends React.PureComponent<Props> {
+  renderConditionsTable = (conditions: T.Condition[], scope: 'new' | 'overall') => {
+    const {
+      qualityGate,
+      metrics,
+      canEdit,
+      onRemoveCondition,
+      onSaveCondition,
+      organization
+    } = this.props;
+    return (
+      <table className="data zebra" data-test={`quality-gates__conditions-${scope}`}>
+        <thead>
+          <tr>
+            <th className="nowrap" style={{ width: 300 }}>
+              {translate('quality_gates.conditions.metric')}
+            </th>
+            <th className="nowrap">{translate('quality_gates.conditions.operator')}</th>
+            <th className="nowrap">{translate('quality_gates.conditions.value')}</th>
+            {canEdit && (
+              <>
+                <th className="thin">{translate('edit')}</th>
+                <th className="thin">{translate('delete')}</th>
+              </>
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {conditions.map(condition => (
+            <Condition
+              canEdit={canEdit}
+              condition={condition}
+              key={condition.id}
+              metric={metrics[condition.metric]}
+              onRemoveCondition={onRemoveCondition}
+              onSaveCondition={onSaveCondition}
+              organization={organization}
+              qualityGate={qualityGate}
+            />
+          ))}
+        </tbody>
+      </table>
+    );
   };
 
   render() {
-    const { qualityGate, conditions, metrics, canEdit, organization } = this.props;
+    const { appState, conditions, metrics, canEdit } = this.props;
 
     const existingConditions = conditions.filter(condition => metrics[condition.metric]);
-
     const sortedConditions = sortBy(
       existingConditions,
       condition => metrics[condition.metric] && metrics[condition.metric].name
+    );
+
+    const sortedConditionsOnOverallMetrics = sortedConditions.filter(
+      condition => !isDiffMetric(condition.metric)
+    );
+    const sortedConditionsOnNewMetrics = sortedConditions.filter(condition =>
+      isDiffMetric(condition.metric)
     );
 
     const duplicates: T.Condition[] = [];
@@ -82,7 +131,7 @@ export default class Conditions extends React.PureComponent<Props> {
     );
 
     return (
-      <div className="quality-gate-section" id="quality-gate-conditions">
+      <div className="quality-gate-section">
         {canEdit && (
           <div className="pull-right">
             <ModalButton
@@ -97,11 +146,14 @@ export default class Conditions extends React.PureComponent<Props> {
                 />
               )}>
               {({ onClick }) => (
-                <Button onClick={onClick}>{translate('quality_gates.add_condition')}</Button>
+                <Button data-test="quality-gates__add-condition" onClick={onClick}>
+                  {translate('quality_gates.add_condition')}
+                </Button>
               )}
             </ModalButton>
           </div>
         )}
+
         <header className="display-flex-center spacer-bottom">
           <h3>{translate('quality_gates.conditions')}</h3>
           <DocTooltip
@@ -109,8 +161,6 @@ export default class Conditions extends React.PureComponent<Props> {
             doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/quality-gate-conditions.md')}
           />
         </header>
-
-        <div className="big-spacer-bottom">{translate('quality_gates.introduction')}</div>
 
         {uniqDuplicates.length > 0 && (
           <Alert variant="warning">
@@ -123,43 +173,40 @@ export default class Conditions extends React.PureComponent<Props> {
           </Alert>
         )}
 
-        {sortedConditions.length ? (
-          <table className="data zebra zebra-hover" id="quality-gate-conditions">
-            <thead>
-              <tr>
-                <th className="nowrap">
-                  <div className="display-inline-flex-center">
-                    {translate('quality_gates.conditions.metric')}
-                    <DocTooltip
-                      className="spacer-left"
-                      doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/metric.md')}
-                    />
-                  </div>
-                </th>
-                <th className="thin nowrap">{translate('quality_gates.conditions.operator')}</th>
-                <th className="thin nowrap">{translate('quality_gates.conditions.error')}</th>
-                {canEdit && <th />}
-              </tr>
-            </thead>
-            <tbody>
-              {sortedConditions.map((condition, index) => (
-                <Condition
-                  canEdit={canEdit}
-                  condition={condition}
-                  key={this.getConditionKey(condition, index)}
-                  metric={metrics[condition.metric]}
-                  onRemoveCondition={this.props.onRemoveCondition}
-                  onSaveCondition={this.props.onSaveCondition}
-                  organization={organization}
-                  qualityGate={qualityGate}
-                />
-              ))}
-            </tbody>
-          </table>
-        ) : (
+        {sortedConditionsOnNewMetrics.length > 0 && (
+          <div className="big-spacer-top">
+            <h4>{translate('quality_gates.conditions.new_code.long')}</h4>
+
+            {appState.branchesEnabled && (
+              <p className="spacer-top spacer-bottom">
+                {translate('quality_gates.conditions.new_code.description')}
+              </p>
+            )}
+
+            {this.renderConditionsTable(sortedConditionsOnNewMetrics, 'new')}
+          </div>
+        )}
+
+        {sortedConditionsOnOverallMetrics.length > 0 && (
+          <div className="big-spacer-top">
+            <h4>{translate('quality_gates.conditions.overall_code.long')}</h4>
+
+            {appState.branchesEnabled && (
+              <p className="spacer-top spacer-bottom">
+                {translate('quality_gates.conditions.overall_code.description')}
+              </p>
+            )}
+
+            {this.renderConditionsTable(sortedConditionsOnOverallMetrics, 'overall')}
+          </div>
+        )}
+
+        {existingConditions.length === 0 && (
           <div className="big-spacer-top">{translate('quality_gates.no_conditions')}</div>
         )}
       </div>
     );
   }
 }
+
+export default withAppState(Conditions);
