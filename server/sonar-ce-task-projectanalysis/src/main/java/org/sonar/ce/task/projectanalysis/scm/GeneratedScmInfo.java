@@ -19,29 +19,26 @@
  */
 package org.sonar.ce.task.projectanalysis.scm;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import static com.google.common.base.Preconditions.checkState;
 
 public class GeneratedScmInfo implements ScmInfo {
   private final ScmInfoImpl delegate;
 
-  public GeneratedScmInfo(Map<Integer, Changeset> changesets) {
-    delegate = new ScmInfoImpl(changesets);
+  public GeneratedScmInfo(Changeset[] lineChangeset) {
+    delegate = new ScmInfoImpl(lineChangeset);
   }
 
-  public static ScmInfo create(long analysisDate, Set<Integer> lines) {
-    checkState(!lines.isEmpty(), "No changesets");
+  public static ScmInfo create(long analysisDate, int lines) {
+    checkState(lines > 0, "No changesets");
 
     Changeset changeset = Changeset.newChangesetBuilder()
       .setDate(analysisDate)
       .build();
-    Map<Integer, Changeset> changesets = lines.stream()
-      .collect(Collectors.toMap(x -> x, i -> changeset));
-    return new GeneratedScmInfo(changesets);
+    Changeset[] lineChangeset = new Changeset[lines];
+    for (int i = 0; i < lines; i++) {
+      lineChangeset[i] = changeset;
+    }
+    return new GeneratedScmInfo(lineChangeset);
   }
 
   public static ScmInfo create(long analysisDate, int[] matches, ScmInfo dbScmInfo) {
@@ -49,14 +46,14 @@ public class GeneratedScmInfo implements ScmInfo {
       .setDate(analysisDate)
       .build();
 
-    Map<Integer, Changeset> dbChangesets = dbScmInfo.getAllChangesets();
-    Map<Integer, Changeset> changesets = new LinkedHashMap<>(matches.length);
+    Changeset[] dbChangesets = dbScmInfo.getAllChangesets();
+    Changeset[] changesets = new Changeset[matches.length];
 
     for (int i = 0; i < matches.length; i++) {
       if (matches[i] > 0) {
-        changesets.put(i + 1, dbChangesets.get(matches[i]));
+        changesets[i] = dbChangesets[matches[i]];
       } else {
-        changesets.put(i + 1, changeset);
+        changesets[i] = changeset;
       }
     }
     return new GeneratedScmInfo(changesets);
@@ -78,7 +75,7 @@ public class GeneratedScmInfo implements ScmInfo {
   }
 
   @Override
-  public Map<Integer, Changeset> getAllChangesets() {
+  public Changeset[] getAllChangesets() {
     return delegate.getAllChangesets();
   }
 

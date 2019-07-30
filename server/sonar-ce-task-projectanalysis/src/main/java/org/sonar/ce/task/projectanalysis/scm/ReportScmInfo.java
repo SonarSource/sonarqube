@@ -20,13 +20,9 @@
 package org.sonar.ce.task.projectanalysis.scm;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -43,13 +39,17 @@ class ReportScmInfo implements ScmInfo {
   ReportScmInfo(ScannerReport.Changesets changesets) {
     requireNonNull(changesets);
     this.delegate = convertToScmInfo(changesets);
-    checkState(!delegate.getAllChangesets().isEmpty(), "Report has no changesets");
   }
 
   private static ScmInfo convertToScmInfo(ScannerReport.Changesets changesets) {
-    return new ScmInfoImpl(IntStream.rangeClosed(1, changesets.getChangesetIndexByLineCount())
-      .boxed()
-      .collect(Collectors.toMap(x -> x, new LineIndexToChangeset(changesets), MoreCollectors.mergeNotSupportedMerger(), LinkedHashMap::new)));
+    Changeset[] lineChangesets = new Changeset[changesets.getChangesetIndexByLineCount()];
+    LineIndexToChangeset lineIndexToChangeset = new LineIndexToChangeset(changesets);
+
+    for (int i = 0; i < changesets.getChangesetIndexByLineCount(); i++) {
+      lineChangesets[i] = lineIndexToChangeset.apply(i);
+    }
+
+    return new ScmInfoImpl(lineChangesets);
   }
 
   @Override
@@ -68,7 +68,7 @@ class ReportScmInfo implements ScmInfo {
   }
 
   @Override
-  public Map<Integer, Changeset> getAllChangesets() {
+  public Changeset[] getAllChangesets() {
     return this.delegate.getAllChangesets();
   }
 
@@ -79,12 +79,12 @@ class ReportScmInfo implements ScmInfo {
 
     public LineIndexToChangeset(ScannerReport.Changesets changesets) {
       this.changesets = changesets;
-      changesetCache = new HashMap<>(changesets.getChangesetCount());
+      this.changesetCache = new HashMap<>(changesets.getChangesetCount());
     }
 
     @Override
     public Changeset apply(Integer lineNumber) {
-      int changesetIndex = changesets.getChangesetIndexByLine(lineNumber - 1);
+      int changesetIndex = changesets.getChangesetIndexByLine(lineNumber);
       return changesetCache.computeIfAbsent(changesetIndex, idx -> convert(changesets.getChangeset(changesetIndex), lineNumber));
     }
 
@@ -92,8 +92,8 @@ class ReportScmInfo implements ScmInfo {
       checkState(isNotEmpty(changeset.getRevision()), "Changeset on line %s must have a revision", line);
       checkState(changeset.getDate() != 0, "Changeset on line %s must have a date", line);
       return builder
-        .setRevision(changeset.getRevision())
-        .setAuthor(isNotEmpty(changeset.getAuthor()) ? changeset.getAuthor() : null)
+        .setRevision(changeset.getRevision().intern())
+        .setAuthor(isNotEmpty(changeset.getAuthor()) ? changeset.getAuthor().intern() : null)
         .setDate(changeset.getDate())
         .build();
     }

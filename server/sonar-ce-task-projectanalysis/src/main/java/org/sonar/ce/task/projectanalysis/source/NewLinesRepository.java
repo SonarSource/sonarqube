@@ -76,16 +76,17 @@ public class NewLinesRepository {
     }
 
     ScmInfo scmInfo = scmInfoOpt.get();
-    Map<Integer, Changeset> allChangesets = scmInfo.getAllChangesets();
+    Changeset[] allChangesets = scmInfo.getAllChangesets();
     Set<Integer> lines = new HashSet<>();
 
     // in SLB/PRs, we consider changes introduced in this analysis as new, hence subtracting 1.
     long referenceDate = analysisMetadataHolder.isSLBorPR() ? analysisMetadataHolder.getAnalysisDate() - 1 : periodHolder.getPeriod().getSnapshotDate();
-    for (Map.Entry<Integer, Changeset> e : allChangesets.entrySet()) {
-      if (isLineInPeriod(e.getValue().getDate(), referenceDate)) {
-        lines.add(e.getKey());
+    for (int i=0; i<allChangesets.length; i++) {
+      if (isLineInPeriod(allChangesets[i].getDate(), referenceDate)) {
+        lines.add(i+1);
       }
     }
+
     return Optional.of(lines);
   }
 

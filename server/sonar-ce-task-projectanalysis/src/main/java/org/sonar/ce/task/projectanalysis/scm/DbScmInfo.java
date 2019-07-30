@@ -20,8 +20,7 @@
 package org.sonar.ce.task.projectanalysis.scm;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
@@ -43,23 +42,26 @@ class DbScmInfo implements ScmInfo {
     this.fileHash = fileHash;
   }
 
-  public static Optional<DbScmInfo> create(Iterable<DbFileSources.Line> lines, String fileHash) {
+  public static Optional<DbScmInfo> create(List<DbFileSources.Line> lines, String fileHash) {
     LineToChangeset lineToChangeset = new LineToChangeset();
-    Map<Integer, Changeset> lineChanges = new LinkedHashMap<>();
+    Changeset[] lineChanges = new Changeset[lines.size()];
+
+    boolean lineAdded = false;
 
     for (DbFileSources.Line line : lines) {
       Changeset changeset = lineToChangeset.apply(line);
       if (changeset == null) {
         continue;
       }
-      lineChanges.put(line.getLine(), changeset);
+      lineChanges[line.getLine() - 1] = changeset;
+      lineAdded = true;
     }
-    if (lineChanges.isEmpty()) {
+    if (!lineAdded) {
       return Optional.empty();
     }
     return Optional.of(new DbScmInfo(new ScmInfoImpl(lineChanges), fileHash));
   }
-  
+
   public String fileHash() {
     return fileHash;
   }
@@ -80,12 +82,12 @@ class DbScmInfo implements ScmInfo {
   }
 
   @Override
-  public Map<Integer, Changeset> getAllChangesets() {
+  public Changeset[] getAllChangesets() {
     return delegate.getAllChangesets();
   }
 
   /**
-   * Transforms {@link org.sonar.db.protobuf.DbFileSources.Line} into {@link Changeset} 
+   * Transforms {@link org.sonar.db.protobuf.DbFileSources.Line} into {@link Changeset}
    */
   private static class LineToChangeset implements Function<DbFileSources.Line, Changeset> {
     private final Changeset.Builder builder = Changeset.newChangesetBuilder();
@@ -96,8 +98,8 @@ class DbScmInfo implements ScmInfo {
     public Changeset apply(@Nonnull DbFileSources.Line input) {
       if (input.hasScmDate()) {
         Changeset cs = builder
-          .setRevision(input.hasScmRevision() ? input.getScmRevision() : null)
-          .setAuthor(input.hasScmAuthor() ? input.getScmAuthor() : null)
+          .setRevision(input.hasScmRevision() ? input.getScmRevision().intern() : null)
+          .setAuthor(input.hasScmAuthor() ? input.getScmAuthor().intern() : null)
           .setDate(input.getScmDate())
           .build();
         if (cache.containsKey(cs)) {

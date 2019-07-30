@@ -47,6 +47,6 @@ public interface ScmInfo {
   /**
    * Return all ChangeSets, in order, for all lines that have changesets.
    */
-  Map<Integer, Changeset> getAllChangesets();
+  Changeset[] getAllChangesets();
 
 }
