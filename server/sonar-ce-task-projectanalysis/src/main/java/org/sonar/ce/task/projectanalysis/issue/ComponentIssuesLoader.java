@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -178,7 +179,7 @@ public class ComponentIssuesLoader {
       issue.setSelectedAt(System.currentTimeMillis());
       result.add(issue);
     });
-    return ImmutableList.copyOf(result);
+    return Collections.unmodifiableList(result);
   }
 
   private static void setChanges(Map<String, List<IssueChangeDto>> changeDtoByIssueKey, DefaultIssue i) {

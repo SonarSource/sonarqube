@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.source.linereader;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,7 +37,6 @@ import org.sonar.ce.task.projectanalysis.duplication.InnerDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.TextBlock;
 import org.sonar.db.protobuf.DbFileSources;
 
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.size;
 
 public class DuplicationLineReader implements LineReader {
@@ -86,9 +86,9 @@ public class DuplicationLineReader implements LineReader {
     List<TextBlock> duplicatedBlock = new ArrayList<>(size(duplications));
     for (Duplication duplication : duplications) {
       duplicatedBlock.add(duplication.getOriginal());
-      for (InnerDuplicate duplicate : from(duplication.getDuplicates()).filter(InnerDuplicate.class)) {
-        duplicatedBlock.add(duplicate.getTextBlock());
-      }
+      Arrays.stream(duplication.getDuplicates())
+        .filter(d -> d instanceof InnerDuplicate)
+        .forEach(duplicate -> duplicatedBlock.add(duplicate.getTextBlock()));
     }
     return duplicatedBlock;
   }

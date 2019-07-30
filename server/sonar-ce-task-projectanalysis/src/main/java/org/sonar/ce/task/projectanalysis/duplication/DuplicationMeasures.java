@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.duplication;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -124,7 +125,7 @@ public class DuplicationMeasures {
       for (Duplication duplication : duplications) {
         blocks++;
         addLines(duplication.getOriginal(), duplicatedLineNumbers);
-        InnerDuplicate[] innerDuplicates = duplication.getDuplicates().stream()
+        InnerDuplicate[] innerDuplicates = Arrays.stream(duplication.getDuplicates())
           .filter(x -> x instanceof InnerDuplicate)
           .map(d -> (InnerDuplicate) d)
           .toArray(InnerDuplicate[]::new);

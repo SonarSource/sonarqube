@@ -82,20 +82,17 @@ public class SymbolsLineReader implements LineReader {
   private void processSymbols(DbFileSources.Line.Builder lineBuilder) {
     int line = lineBuilder.getLine();
 
-    List<ScannerReport.Symbol> lineSymbols = new ArrayList<>(this.symbolsPerLine.get(line));
     // Sort symbols to have deterministic results and avoid false variation that would lead to an unnecessary update of the source files
     // data
-    lineSymbols.sort(SymbolsComparator.INSTANCE);
-
     StringBuilder symbolString = new StringBuilder();
-    for (ScannerReport.Symbol lineSymbol : lineSymbols) {
+    symbolsPerLine.get(line).stream().sorted(SymbolsComparator.INSTANCE).forEach(lineSymbol -> {
       int symbolId = idsBySymbol.get(lineSymbol);
 
       appendSymbol(symbolString, lineSymbol.getDeclaration(), line, symbolId, lineBuilder.getSource());
       for (ScannerReport.TextRange range : lineSymbol.getReferenceList()) {
         appendSymbol(symbolString, range, line, symbolId, lineBuilder.getSource());
       }
-    }
+    });
     if (symbolString.length() > 0) {
       lineBuilder.setSymbols(symbolString.toString());
     }

@@ -38,7 +38,7 @@ public final class Duplication {
     .thenComparing(DuplicateToFileKey.INSTANCE).thenComparing(DuplicateToTextBlock.INSTANCE);
 
   private final TextBlock original;
-  private final SortedSet<Duplicate> duplicates;
+  private final Duplicate[] duplicates;
 
   /**
    * @throws NullPointerException     if {@code original} is {@code null} or {@code duplicates} is {@code null} or {@code duplicates} contains {@code null}
@@ -48,8 +48,7 @@ public final class Duplication {
   public Duplication(TextBlock original, List<Duplicate> duplicates) {
     this.original = requireNonNull(original, "original TextBlock can not be null");
     validateDuplicates(original, duplicates);
-    this.duplicates = new TreeSet<>(DUPLICATE_COMPARATOR);
-    this.duplicates.addAll(duplicates);
+    this.duplicates = duplicates.stream().sorted(DUPLICATE_COMPARATOR).distinct().toArray(Duplicate[]::new);
   }
 
   private static void validateDuplicates(TextBlock original, List<Duplicate> duplicates) {
@@ -80,7 +79,7 @@ public final class Duplication {
    * </ul
    * <p>The returned set can not be empty and no inner duplicate can contain the original {@link TextBlock}.</p>
    */
-  public SortedSet<Duplicate> getDuplicates() {
+  public Duplicate[] getDuplicates() {
     return this.duplicates;
   }
 

@@ -43,7 +43,7 @@ public interface ScmInfo {
   boolean hasChangesetForLine(int lineNumber);
 
   /**
-   * Return all ChangeSets, in order, for all lines that have changesets.
+   * Return all ChangeSets, index by line number. Some values might be null.
    */
   Changeset[] getAllChangesets();
 

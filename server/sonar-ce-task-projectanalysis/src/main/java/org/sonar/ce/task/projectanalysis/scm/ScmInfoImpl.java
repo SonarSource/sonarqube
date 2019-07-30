@@ -64,7 +64,7 @@ public class ScmInfoImpl implements ScmInfo {
 
   @Override
   public boolean hasChangesetForLine(int lineNumber) {
-    return lineNumber - 1 < lineChangesets.length && lineChangesets[lineNumber - 1] != null;
+    return lineNumber > 0 && lineNumber - 1 < lineChangesets.length && lineChangesets[lineNumber - 1] != null;
   }
 
   @Override
