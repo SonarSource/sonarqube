@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.measure;
 
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
+import gnu.trove.map.hash.THashMap;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -28,7 +29,6 @@ import java.util.Set;
 import java.util.function.Function;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
-import vlsi.utils.CompactHashMap;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -40,7 +40,7 @@ import static java.util.Objects.requireNonNull;
  */
 public final class MapBasedRawMeasureRepository<T> implements MeasureRepository {
   private final Function<Component, T> componentToKey;
-  private final Map<T, Map<String, Measure>> measures = new CompactHashMap<>();
+  private final Map<T, Map<String, Measure>> measures = new THashMap<>();
 
   public MapBasedRawMeasureRepository(Function<Component, T> componentToKey) {
     this.componentToKey = requireNonNull(componentToKey);
@@ -141,7 +141,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     requireNonNull(overridePolicy);
 
     T componentKey = componentToKey.apply(component);
-    Map<String, Measure> measuresPerMetric = measures.computeIfAbsent(componentKey, key -> new CompactHashMap<>());
+    Map<String, Measure> measuresPerMetric = measures.computeIfAbsent(componentKey, key -> new THashMap<>());
     if (!measuresPerMetric.containsKey(metric.getKey()) || overridePolicy == OverridePolicy.OVERRIDE) {
       measuresPerMetric.put(metric.getKey(), measure);
     }

@@ -19,7 +19,7 @@ dependencies {
 
   compile 'org.slf4j:jul-to-slf4j'
   compile 'org.slf4j:slf4j-api'
-
+  compile 'net.sf.trove4j:core:3.1.0'
   compile 'commons-codec:commons-codec'
   compile 'commons-io:commons-io'
   compile 'commons-lang:commons-lang'
@@ -30,8 +30,7 @@ dependencies {
   compile 'com.googlecode.java-diff-utils:diffutils'
   compile 'org.mybatis:mybatis'
   compile 'org.picocontainer:picocontainer'
-  compile 'com.github.vlsi.compactmap:compactmap:1.3.0'
-  
+
   compile project(':sonar-core')
   compile project(':server:sonar-ce-task')
   compile project(':server:sonar-db-migration')

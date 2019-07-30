@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.scm;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.utils.log.Logger;
@@ -31,7 +32,6 @@ import org.sonar.ce.task.projectanalysis.component.Component.Status;
 import org.sonar.ce.task.projectanalysis.source.SourceHashRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesDiff;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import vlsi.utils.CompactHashMap;
 
 import static java.util.Objects.requireNonNull;
 
@@ -40,7 +40,7 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   private static final Logger LOGGER = Loggers.get(ScmInfoRepositoryImpl.class);
 
   private final BatchReportReader scannerReportReader;
-  private final Map<Component, Optional<ScmInfo>> scmInfoCache = new CompactHashMap<>();
+  private final Map<Component, Optional<ScmInfo>> scmInfoCache = new HashMap<>();
   private final ScmInfoDbLoader scmInfoDbLoader;
   private final AnalysisMetadataHolder analysisMetadata;
   private final SourceLinesDiff sourceLinesDiff;

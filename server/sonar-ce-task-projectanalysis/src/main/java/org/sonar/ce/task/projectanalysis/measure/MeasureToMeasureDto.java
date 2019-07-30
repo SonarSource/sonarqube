@@ -25,9 +25,7 @@ import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.ce.task.projectanalysis.metric.Metric;
 
 public class MeasureToMeasureDto {
 
