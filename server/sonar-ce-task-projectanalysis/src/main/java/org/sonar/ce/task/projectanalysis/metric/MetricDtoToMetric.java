@@ -21,8 +21,9 @@ package org.sonar.ce.task.projectanalysis.metric;
 
 import com.google.common.base.Function;
 import javax.annotation.Nonnull;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
+import org.sonar.ce.task.projectanalysis.util.cache.DoubleCache;
+import org.sonar.db.metric.MetricDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
@@ -43,6 +44,6 @@ public enum MetricDtoToMetric implements Function<MetricDto, Metric> {
     return new MetricImpl(
       metricDto.getId(), metricDto.getKey(), metricDto.getShortName(), metricType,
       decimalScale,
-      metricDto.getBestValue(), metricDto.isOptimizedBestValue());
+      DoubleCache.intern(metricDto.getBestValue()), metricDto.isOptimizedBestValue());
   }
 }

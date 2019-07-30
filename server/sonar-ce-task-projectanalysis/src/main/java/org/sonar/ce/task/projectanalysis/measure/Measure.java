@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.ce.task.projectanalysis.util.cache.DoubleCache;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -81,11 +82,10 @@ public final class Measure {
   @CheckForNull
   private final Double variation;
 
-  private Measure(ValueType valueType,
-    @Nullable Double value, @Nullable String data, @Nullable Level dataLevel,
+  private Measure(ValueType valueType, @Nullable Double value, @Nullable String data, @Nullable Level dataLevel,
     @Nullable QualityGateStatus qualityGateStatus, @Nullable Double variation) {
     this.valueType = valueType;
-    this.value = value;
+    this.value = DoubleCache.intern(value);
     this.data = data;
     this.dataLevel = dataLevel;
     this.qualityGateStatus = qualityGateStatus;
@@ -178,7 +178,7 @@ public final class Measure {
     /**
      * Sets the QualityGateStatus of the updated Measure to create.
      *
-     * @throws NullPointerException if the specified {@link QualityGateStatus} is {@code null}
+     * @throws NullPointerException          if the specified {@link QualityGateStatus} is {@code null}
      * @throws UnsupportedOperationException if the source measure already has a {@link QualityGateStatus}
      */
     public UpdateMeasureBuilder setQualityGateStatus(QualityGateStatus qualityGateStatus) {
