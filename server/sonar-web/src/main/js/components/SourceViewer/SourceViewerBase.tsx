@@ -263,7 +263,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
       );
     };
 
-    const onFailLoadComponent = ({ response }: { response: Response }) => {
+    const onFailLoadComponent = (response: Response) => {
       // TODO handle other statuses
       if (this.mounted) {
         if (response.status === 403) {
@@ -354,7 +354,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
 
   loadSources = (): Promise<T.SourceLine[]> => {
     return new Promise((resolve, reject) => {
-      const onFailLoadSources = ({ response }: { response: Response }) => {
+      const onFailLoadSources = (response: Response) => {
         // TODO handle other statuses
         if (this.mounted) {
           if ([403, 404].includes(response.status)) {

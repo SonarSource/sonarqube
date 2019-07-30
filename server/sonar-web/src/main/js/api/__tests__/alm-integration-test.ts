@@ -42,13 +42,13 @@ describe('getAlmOrganization', () => {
   });
 
   it('should reject with an error', () => {
-    const error = { response: { status: 401 } };
+    const error = { status: 401 };
     (getJSON as jest.Mock).mockRejectedValue(error);
     return expect(getAlmOrganization({ installationId: 'foo' })).rejects.toEqual(error);
   });
 
   it('should try until getting the organization', async () => {
-    (getJSON as jest.Mock).mockRejectedValue({ response: { status: 404 } });
+    (getJSON as jest.Mock).mockRejectedValue({ status: 404 });
     const spy = jest.fn();
     getAlmOrganization({ installationId: 'foo' }).then(spy);
     for (let i = 1; i < 5; i++) {
