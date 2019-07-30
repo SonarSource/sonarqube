@@ -20,8 +20,8 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Optional;
-import com.hazelcast.com.eclipsesource.json.Json;
-import com.hazelcast.com.eclipsesource.json.JsonObject;
+import com.hazelcast.internal.json.Json;
+import com.hazelcast.internal.json.JsonObject;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
