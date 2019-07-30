@@ -4,7 +4,7 @@
 
   <sql id="columns">
     uuid as "uuid",
-    snapshot_uuid as "snapshotUuid",
+    analysis_uuid as "analysisUuid",
     kee as "key",
     text_value as "textValue",
     clob_value as "clobValue",
@@ -12,25 +12,25 @@
     created_at as "createdAt"
   </sql>
 
-  <select id="selectBySnapshotUuid" parameterType="string" resultType="ScrapAnalysisProperty">
+  <select id="selectByAnalysisUuid" parameterType="string" resultType="ScrapAnalysisProperty">
     SELECT
       <include refid="columns"/>
     FROM
       analysis_properties
     WHERE
-      snapshot_uuid = #{snapshotUuid}
+      analysis_uuid = #{analysisUuid}
   </select>
 
   <insert id="insertAsEmpty" parameterType="map" useGeneratedKeys="false">
     INSERT INTO analysis_properties (
       uuid,
-      snapshot_uuid,
+      analysis_uuid,
       kee,
       is_empty,
       created_at
     ) VALUES (
       #{analysisPropertyDto.uuid, jdbcType=VARCHAR},
-      #{analysisPropertyDto.snapshotUuid, jdbcType=VARCHAR},
+      #{analysisPropertyDto.analysisUuid, jdbcType=VARCHAR},
       #{analysisPropertyDto.key, jdbcType=VARCHAR},
       ${_true},
       #{createdAt}
@@ -40,14 +40,14 @@
   <insert id="insertAsText" parameterType="map" useGeneratedKeys="false">
     INSERT INTO analysis_properties (
       uuid,
-      snapshot_uuid,
+      analysis_uuid,
       kee,
       text_value,
       is_empty,
       created_at
     ) VALUES (
       #{analysisPropertyDto.uuid, jdbcType=VARCHAR},
-      #{analysisPropertyDto.snapshotUuid, jdbcType=VARCHAR},
+      #{analysisPropertyDto.analysisUuid, jdbcType=VARCHAR},
       #{analysisPropertyDto.key, jdbcType=VARCHAR},
       #{analysisPropertyDto.value, jdbcType=VARCHAR},
       ${_false},
@@ -58,14 +58,14 @@
   <insert id="insertAsClob" parameterType="Map" useGeneratedKeys="false">
     INSERT INTO analysis_properties (
       uuid,
-      snapshot_uuid,
+      analysis_uuid,
       kee,
       clob_value,
       is_empty,
       created_at
     ) VALUES (
       #{analysisPropertyDto.uuid, jdbcType=VARCHAR},
-      #{analysisPropertyDto.snapshotUuid, jdbcType=VARCHAR},
+      #{analysisPropertyDto.analysisUuid, jdbcType=VARCHAR},
       #{analysisPropertyDto.key, jdbcType=VARCHAR},
       #{analysisPropertyDto.value, jdbcType=VARCHAR},
       ${_false},

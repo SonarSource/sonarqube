@@ -245,7 +245,7 @@ public class WebhookQGChangeEventListenerTest {
     List<AnalysisPropertyDto> analysisProperties = properties.entrySet().stream()
       .map(entry -> new AnalysisPropertyDto()
         .setUuid(UuidFactoryFast.getInstance().create())
-        .setSnapshotUuid(snapshotUuid)
+        .setAnalysisUuid(snapshotUuid)
         .setKey(entry.getKey())
         .setValue(entry.getValue()))
       .collect(toArrayList(properties.size()));

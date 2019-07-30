@@ -46,7 +46,7 @@
   />
 
   <analysis_properties uuid="u1"
-                       snapshot_uuid="u1"
+                       analysis_uuid="u1"
                        kee="key1"
                        clob_value="[null]"
                        text_value="value1"

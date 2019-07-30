@@ -64,55 +64,55 @@ public class AnalysisPropertyDtoTest {
   }
 
   @Test
-  public void null_snapshot_uuid_should_throw_NPE() {
+  public void null_analysis_uuid_should_throw_NPE() {
     underTest = new AnalysisPropertyDto();
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("snapshotUuid cannot be null");
+    expectedException.expectMessage("analysisUuid cannot be null");
 
-    underTest.setSnapshotUuid(null);
+    underTest.setAnalysisUuid(null);
   }
 
   @Test
   public void test_equality() {
     underTest = new AnalysisPropertyDto()
       .setUuid(randomAlphanumeric(40))
-      .setSnapshotUuid(randomAlphanumeric(40))
+      .setAnalysisUuid(randomAlphanumeric(40))
       .setKey(randomAlphanumeric(512))
       .setValue(randomAlphanumeric(10000));
 
     assertThat(underTest).isEqualTo(
       new AnalysisPropertyDto()
         .setUuid(underTest.getUuid())
-        .setSnapshotUuid(underTest.getSnapshotUuid())
+        .setAnalysisUuid(underTest.getAnalysisUuid())
         .setKey(underTest.getKey())
         .setValue(underTest.getValue()));
 
     assertThat(underTest).isNotEqualTo(
       new AnalysisPropertyDto()
         .setUuid("1" + underTest.getUuid())
-        .setSnapshotUuid(underTest.getSnapshotUuid())
+        .setAnalysisUuid(underTest.getAnalysisUuid())
         .setKey(underTest.getKey())
         .setValue(underTest.getValue()));
 
     assertThat(underTest).isNotEqualTo(
       new AnalysisPropertyDto()
         .setUuid(underTest.getUuid())
-        .setSnapshotUuid("1" + underTest.getSnapshotUuid())
+        .setAnalysisUuid("1" + underTest.getAnalysisUuid())
         .setKey(underTest.getKey())
         .setValue(underTest.getValue()));
 
     assertThat(underTest).isNotEqualTo(
       new AnalysisPropertyDto()
         .setUuid(underTest.getUuid())
-        .setSnapshotUuid(underTest.getSnapshotUuid())
+        .setAnalysisUuid(underTest.getAnalysisUuid())
         .setKey("1" + underTest.getKey())
         .setValue(underTest.getValue()));
 
     assertThat(underTest).isNotEqualTo(
       new AnalysisPropertyDto()
         .setUuid(underTest.getUuid())
-        .setSnapshotUuid(underTest.getSnapshotUuid())
+        .setAnalysisUuid(underTest.getAnalysisUuid())
         .setKey(underTest.getKey())
         .setValue("1" + underTest.getValue()));
   }
@@ -121,14 +121,14 @@ public class AnalysisPropertyDtoTest {
   public void test_hashcode() {
     underTest = new AnalysisPropertyDto()
       .setUuid(randomAlphanumeric(40))
-      .setSnapshotUuid(randomAlphanumeric(40))
+      .setAnalysisUuid(randomAlphanumeric(40))
       .setKey(randomAlphanumeric(512))
       .setValue(randomAlphanumeric(10000));
 
     assertThat(underTest.hashCode()).isEqualTo(
       new AnalysisPropertyDto()
         .setUuid(underTest.getUuid())
-        .setSnapshotUuid(underTest.getSnapshotUuid())
+        .setAnalysisUuid(underTest.getAnalysisUuid())
         .setKey(underTest.getKey())
         .setValue(underTest.getValue())
         .hashCode());
@@ -136,7 +136,7 @@ public class AnalysisPropertyDtoTest {
     assertThat(underTest.hashCode()).isNotEqualTo(
       new AnalysisPropertyDto()
         .setUuid("1" + underTest.getUuid())
-        .setSnapshotUuid(underTest.getSnapshotUuid())
+        .setAnalysisUuid(underTest.getAnalysisUuid())
         .setKey(underTest.getKey())
         .setValue(underTest.getValue())
         .hashCode());
@@ -144,7 +144,7 @@ public class AnalysisPropertyDtoTest {
     assertThat(underTest.hashCode()).isNotEqualTo(
       new AnalysisPropertyDto()
         .setUuid(underTest.getUuid())
-        .setSnapshotUuid("1" + underTest.getSnapshotUuid())
+        .setAnalysisUuid("1" + underTest.getAnalysisUuid())
         .setKey(underTest.getKey())
         .setValue(underTest.getValue())
         .hashCode());
@@ -152,7 +152,7 @@ public class AnalysisPropertyDtoTest {
     assertThat(underTest.hashCode()).isNotEqualTo(
       new AnalysisPropertyDto()
         .setUuid(underTest.getUuid())
-        .setSnapshotUuid(underTest.getSnapshotUuid())
+        .setAnalysisUuid(underTest.getAnalysisUuid())
         .setKey("1" + underTest.getKey())
         .setValue(underTest.getValue())
         .hashCode());
@@ -160,7 +160,7 @@ public class AnalysisPropertyDtoTest {
     assertThat(underTest.hashCode()).isNotEqualTo(
       new AnalysisPropertyDto()
         .setUuid(underTest.getUuid())
-        .setSnapshotUuid(underTest.getSnapshotUuid())
+        .setAnalysisUuid(underTest.getAnalysisUuid())
         .setKey(underTest.getKey())
         .setValue("1" + underTest.getValue())
         .hashCode());

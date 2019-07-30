@@ -24,7 +24,7 @@ import org.apache.ibatis.annotations.Param;
 
 public interface AnalysisPropertiesMapper {
 
-  List<AnalysisPropertyDto> selectBySnapshotUuid(@Param("snapshotUuid") String snapshotUuid);
+  List<AnalysisPropertyDto> selectByAnalysisUuid(@Param("analysisUuid") String analysisUuid);
 
   void insertAsEmpty(@Param("analysisPropertyDto") AnalysisPropertyDto analysisPropertyDto, @Param("createdAt") long createdAt);
 

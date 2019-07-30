@@ -81,10 +81,10 @@ public class PersistAnalysisPropertiesStepTest {
 
     assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(8);
     List<AnalysisPropertyDto> propertyDtos = dbTester.getDbClient()
-      .analysisPropertiesDao().selectBySnapshotUuid(dbTester.getSession(), SNAPSHOT_UUID);
+      .analysisPropertiesDao().selectByAnalysisUuid(dbTester.getSession(), SNAPSHOT_UUID);
 
     assertThat(propertyDtos)
-      .extracting(AnalysisPropertyDto::getSnapshotUuid, AnalysisPropertyDto::getKey, AnalysisPropertyDto::getValue)
+      .extracting(AnalysisPropertyDto::getAnalysisUuid, AnalysisPropertyDto::getKey, AnalysisPropertyDto::getValue)
       .containsExactlyInAnyOrder(
         tuple(SNAPSHOT_UUID, "sonar.analysis.branch", SMALL_VALUE2),
         tuple(SNAPSHOT_UUID, "sonar.analysis.empty_string", ""),

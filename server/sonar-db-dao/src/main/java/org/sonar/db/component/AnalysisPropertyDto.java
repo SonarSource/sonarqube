@@ -26,7 +26,7 @@ import static java.util.Objects.requireNonNull;
 public class AnalysisPropertyDto {
 
   private String uuid;
-  private String snapshotUuid;
+  private String analysisUuid;
   private String key;
   private String value;
   private Long createdAt;
@@ -42,13 +42,13 @@ public class AnalysisPropertyDto {
     return this;
   }
 
-  public String getSnapshotUuid() {
-    return snapshotUuid;
+  public String getAnalysisUuid() {
+    return analysisUuid;
   }
 
-  public AnalysisPropertyDto setSnapshotUuid(String snapshotUuid) {
-    requireNonNull(snapshotUuid, "snapshotUuid cannot be null");
-    this.snapshotUuid = snapshotUuid;
+  public AnalysisPropertyDto setAnalysisUuid(String analysisUuid) {
+    requireNonNull(analysisUuid, "analysisUuid cannot be null");
+    this.analysisUuid = analysisUuid;
     return this;
   }
 
@@ -84,7 +84,7 @@ public class AnalysisPropertyDto {
   @Override
   public String toString() {
     return "BranchDto{" + "uuid='" + uuid + '\'' +
-      ", snapshotUuid='" + snapshotUuid + '\'' +
+      ", analysisUuid='" + analysisUuid + '\'' +
       ", key='" + key + '\'' +
       ", value='" + value + "'" +
       ", createdAt=" + createdAt +
@@ -101,7 +101,7 @@ public class AnalysisPropertyDto {
     }
     AnalysisPropertyDto that = (AnalysisPropertyDto) o;
     return Objects.equals(uuid, that.uuid) &&
-      Objects.equals(snapshotUuid, that.snapshotUuid) &&
+      Objects.equals(analysisUuid, that.analysisUuid) &&
       Objects.equals(key, that.key) &&
       Objects.equals(value, that.value) &&
       Objects.equals(createdAt, that.createdAt);
@@ -109,6 +109,6 @@ public class AnalysisPropertyDto {
 
   @Override
   public int hashCode() {
-    return Objects.hash(uuid, snapshotUuid, key, value, createdAt);
+    return Objects.hash(uuid, analysisUuid, key, value, createdAt);
   }
 }

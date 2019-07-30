@@ -66,7 +66,7 @@ public class PersistAnalysisPropertiesStep implements ComputationStep {
               .setUuid(uuidFactory.create())
               .setKey(propertyKey)
               .setValue(contextProperty.getValue())
-              .setSnapshotUuid(analysisMetadataHolder.getUuid()));
+              .setAnalysisUuid(analysisMetadataHolder.getUuid()));
           }
         });
     }

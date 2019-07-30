@@ -36,9 +36,9 @@ public class AnalysisPropertiesDao implements Dao {
     this.system2 = system2;
   }
 
-  public List<AnalysisPropertyDto> selectBySnapshotUuid(DbSession session, String snapshotUuid) {
-    requireNonNull(snapshotUuid);
-    return getMapper(session).selectBySnapshotUuid(snapshotUuid);
+  public List<AnalysisPropertyDto> selectByAnalysisUuid(DbSession session, String analysisUuid) {
+    requireNonNull(analysisUuid);
+    return getMapper(session).selectByAnalysisUuid(analysisUuid);
   }
 
   public void insert(DbSession session, List<AnalysisPropertyDto> analysisPropertyDto) {
@@ -48,7 +48,7 @@ public class AnalysisPropertiesDao implements Dao {
   public void insert(DbSession session, AnalysisPropertyDto analysisPropertyDto) {
     requireNonNull(analysisPropertyDto.getUuid(), "uuid cannot be null");
     requireNonNull(analysisPropertyDto.getKey(), "key cannot be null");
-    requireNonNull(analysisPropertyDto.getSnapshotUuid(), "snapshot uuid cannot be null");
+    requireNonNull(analysisPropertyDto.getAnalysisUuid(), "analysis uuid cannot be null");
     requireNonNull(analysisPropertyDto.getValue(), "value cannot be null");
 
     String value = analysisPropertyDto.getValue();

@@ -49,7 +49,7 @@ public class AnalysisPropertiesDaoTest {
   @Test
   public void insert_with_null_uuid_throws_NPE() {
     AnalysisPropertyDto analysisPropertyDto = new AnalysisPropertyDto()
-      .setSnapshotUuid(randomAlphanumeric(10))
+      .setAnalysisUuid(randomAlphanumeric(10))
       .setKey(randomAlphanumeric(10))
       .setValue(randomAlphanumeric(10));
 
@@ -62,7 +62,7 @@ public class AnalysisPropertiesDaoTest {
   @Test
   public void insert_with_null_key_throws_NPE() {
     AnalysisPropertyDto analysisPropertyDto = new AnalysisPropertyDto()
-      .setSnapshotUuid(randomAlphanumeric(10))
+      .setAnalysisUuid(randomAlphanumeric(10))
       .setUuid(randomAlphanumeric(10))
       .setValue(randomAlphanumeric(10));
 
@@ -73,14 +73,14 @@ public class AnalysisPropertiesDaoTest {
   }
 
   @Test
-  public void insert_with_null_snapshot_uuid_throws_NPE() {
+  public void insert_with_null_analysis_uuid_throws_NPE() {
     AnalysisPropertyDto analysisPropertyDto = new AnalysisPropertyDto()
       .setUuid(randomAlphanumeric(10))
       .setKey(randomAlphanumeric(10))
       .setValue(randomAlphanumeric(10));
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("snapshot uuid cannot be null");
+    expectedException.expectMessage("analysis uuid cannot be null");
 
     underTest.insert(dbSession, analysisPropertyDto);
   }
@@ -88,7 +88,7 @@ public class AnalysisPropertiesDaoTest {
   @Test
   public void insert_with_null_value_throws_NPE() {
     AnalysisPropertyDto analysisPropertyDto = new AnalysisPropertyDto()
-      .setSnapshotUuid(randomAlphanumeric(10))
+      .setAnalysisUuid(randomAlphanumeric(10))
       .setUuid(randomAlphanumeric(10))
       .setKey(randomAlphanumeric(10));
 
@@ -140,22 +140,22 @@ public class AnalysisPropertiesDaoTest {
 
   @Test
   public void selectByAnalysisUuid_should_return_correct_values() {
-    String snapshotUuid = randomAlphanumeric(40);
+    String analysisUuid = randomAlphanumeric(40);
 
     List<AnalysisPropertyDto> propertyDtos = Arrays.asList(
-      newAnalysisPropertyDto(random.nextInt(8000), snapshotUuid),
-      newAnalysisPropertyDto(random.nextInt(8000), snapshotUuid),
-      newAnalysisPropertyDto(random.nextInt(8000), snapshotUuid),
-      newAnalysisPropertyDto(random.nextInt(8000), snapshotUuid),
-      newAnalysisPropertyDto(random.nextInt(8000), snapshotUuid),
-      newAnalysisPropertyDto(random.nextInt(8000), snapshotUuid),
-      newAnalysisPropertyDto(random.nextInt(8000), snapshotUuid),
-      newAnalysisPropertyDto(random.nextInt(8000), snapshotUuid));
+      newAnalysisPropertyDto(random.nextInt(8000), analysisUuid),
+      newAnalysisPropertyDto(random.nextInt(8000), analysisUuid),
+      newAnalysisPropertyDto(random.nextInt(8000), analysisUuid),
+      newAnalysisPropertyDto(random.nextInt(8000), analysisUuid),
+      newAnalysisPropertyDto(random.nextInt(8000), analysisUuid),
+      newAnalysisPropertyDto(random.nextInt(8000), analysisUuid),
+      newAnalysisPropertyDto(random.nextInt(8000), analysisUuid),
+      newAnalysisPropertyDto(random.nextInt(8000), analysisUuid));
 
     underTest.insert(dbSession, propertyDtos);
     assertThat(dbTester.countRowsOfTable(dbSession, "ANALYSIS_PROPERTIES")).isEqualTo(propertyDtos.size());
 
-    List<AnalysisPropertyDto> result = underTest.selectBySnapshotUuid(dbSession, snapshotUuid);
+    List<AnalysisPropertyDto> result = underTest.selectByAnalysisUuid(dbSession, analysisUuid);
     assertThat(result).containsExactlyInAnyOrder(propertyDtos.toArray(new AnalysisPropertyDto[0]));
   }
 
@@ -165,9 +165,9 @@ public class AnalysisPropertiesDaoTest {
     return analysisPropertyDto;
   }
 
-  private AnalysisPropertyDto newAnalysisPropertyDto(int valueLength, String snapshotUuid) {
+  private AnalysisPropertyDto newAnalysisPropertyDto(int valueLength, String analysisUuid) {
     return new AnalysisPropertyDto()
-      .setSnapshotUuid(snapshotUuid)
+      .setAnalysisUuid(analysisUuid)
       .setKey(randomAlphanumeric(512))
       .setUuid(randomAlphanumeric(40))
       .setValue(randomAlphanumeric(valueLength))
@@ -175,7 +175,7 @@ public class AnalysisPropertiesDaoTest {
   }
 
   private void compareFirstValueWith(AnalysisPropertyDto analysisPropertyDto) {
-    AnalysisPropertyDto dtoFromDatabase = underTest.selectBySnapshotUuid(dbSession, analysisPropertyDto.getSnapshotUuid()).get(0);
+    AnalysisPropertyDto dtoFromDatabase = underTest.selectByAnalysisUuid(dbSession, analysisPropertyDto.getAnalysisUuid()).get(0);
     assertThat(dtoFromDatabase).isEqualTo(analysisPropertyDto);
   }
 }

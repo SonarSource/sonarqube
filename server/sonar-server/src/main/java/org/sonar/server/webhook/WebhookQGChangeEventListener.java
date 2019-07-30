@@ -87,7 +87,7 @@ public class WebhookQGChangeEventListener implements QGChangeEventListener {
     ComponentDto project = event.getProject();
     BranchDto branch = event.getBranch();
     SnapshotDto analysis = event.getAnalysis();
-    Map<String, String> analysisProperties = dbClient.analysisPropertiesDao().selectBySnapshotUuid(dbSession, analysis.getUuid())
+    Map<String, String> analysisProperties = dbClient.analysisPropertiesDao().selectByAnalysisUuid(dbSession, analysis.getUuid())
       .stream()
       .collect(Collectors.toMap(AnalysisPropertyDto::getKey, AnalysisPropertyDto::getValue));
     String projectUuid = StringUtils.defaultString(project.getMainBranchProjectUuid(), project.projectUuid());
