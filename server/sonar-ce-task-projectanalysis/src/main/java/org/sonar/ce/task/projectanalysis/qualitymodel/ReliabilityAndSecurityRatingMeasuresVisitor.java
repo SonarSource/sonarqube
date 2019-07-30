@@ -20,13 +20,17 @@
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.formula.counter.RatingValue;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepository;
+import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
+import org.sonar.ce.task.projectanalysis.measure.RatingMeasures;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.measure.Rating;
@@ -83,7 +87,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
     processIssues(component, path);
     path.current().ratingValueByMetric.forEach((key, value) -> {
       Rating rating = value.getValue();
-      measureRepository.add(component, metricsByKey.get(key), newMeasureBuilder().create(rating.getIndex(), rating.name()));
+      measureRepository.add(component, metricsByKey.get(key), RatingMeasures.get(rating));
     });
     if (!path.isRoot()) {
       path.parent().add(path.current());

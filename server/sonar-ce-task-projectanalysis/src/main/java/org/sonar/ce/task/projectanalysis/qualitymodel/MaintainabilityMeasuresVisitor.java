@@ -27,6 +27,7 @@ import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.formula.counter.RatingValue;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
+import org.sonar.ce.task.projectanalysis.measure.RatingMeasures;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.measure.Rating;
@@ -127,7 +128,7 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
 
   private void addMaintainabilityRatingMeasure(Component component, double density) {
     Rating rating = ratingSettings.getDebtRatingGrid().getRatingForDensity(density);
-    measureRepository.add(component, maintainabilityRatingMetric, newMeasureBuilder().create(rating.getIndex(), rating.name()));
+    measureRepository.add(component, maintainabilityRatingMetric, RatingMeasures.get(rating));
   }
 
   private void addEffortToMaintainabilityRatingAMeasure(Component component, Path<Counter> path) {

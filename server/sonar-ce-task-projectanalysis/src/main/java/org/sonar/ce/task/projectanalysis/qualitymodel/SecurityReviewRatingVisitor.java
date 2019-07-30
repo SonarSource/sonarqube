@@ -26,6 +26,7 @@ import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
+import org.sonar.ce.task.projectanalysis.measure.RatingMeasures;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.measure.Rating;
@@ -77,7 +78,7 @@ public class SecurityReviewRatingVisitor extends TypeAwareVisitorAdapter {
     int ncloc = nclocMeasure.get().getIntValue();
     int securityHotspots = securityHostspotsMeasure.get().getIntValue();
     Rating rating = SecurityReviewRating.compute(ncloc, securityHotspots);
-    measureRepository.add(component, securityReviewRatingMetric, newMeasureBuilder().create(rating.getIndex(), rating.name()));
+    measureRepository.add(component, securityReviewRatingMetric, RatingMeasures.get(rating));
   }
 
 }
