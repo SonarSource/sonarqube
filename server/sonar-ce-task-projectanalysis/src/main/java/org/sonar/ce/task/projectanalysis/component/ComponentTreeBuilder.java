@@ -342,9 +342,10 @@ public class ComponentTreeBuilder {
   private static FileAttributes createFileAttributes(ScannerReport.Component component) {
     checkArgument(component.getType() == ScannerReport.Component.ComponentType.FILE);
     checkArgument(component.getLines() > 0, "File '%s' has no line", component.getProjectRelativePath());
+    String lang = trimToNull(component.getLanguage());
     return new FileAttributes(
       component.getIsTest(),
-      trimToNull(component.getLanguage()),
+      lang != null ? lang.intern() : null,
       component.getLines());
   }
 

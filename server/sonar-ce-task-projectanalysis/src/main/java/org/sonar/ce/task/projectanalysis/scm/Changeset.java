@@ -35,8 +35,8 @@ public final class Changeset {
   private final String author;
 
   private Changeset(Builder builder) {
-    this.revision = builder.revision == null ? null : builder.revision.intern();
-    this.author = builder.author == null ? null : builder.author.intern();
+    this.revision = builder.revision;
+    this.author = builder.author;
     this.date = builder.date;
   }
 

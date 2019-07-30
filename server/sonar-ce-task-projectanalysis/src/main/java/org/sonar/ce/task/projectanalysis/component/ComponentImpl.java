@@ -60,7 +60,7 @@ public class ComponentImpl implements Component {
     this.dbKey = builder.dbKey;
     this.key = MoreObjects.firstNonNull(builder.key, builder.dbKey);
     this.name = builder.name;
-    this.shortName = MoreObjects.firstNonNull(builder.shortName, builder.name);
+    this.shortName = MoreObjects.firstNonNull(builder.shortName, builder.name).intern();
     this.description = builder.description;
     this.uuid = builder.uuid;
     this.projectAttributes = builder.projectAttributes;
