@@ -37,6 +37,8 @@ public class Duration implements Serializable {
   public static final String MINUTE = "min";
 
   private static final short MINUTES_IN_ONE_HOUR = 60;
+  private static final Pattern PATTERN = Pattern.compile("\\s*+(?:(\\d++)\\s*+" + DAY + ")?+\\s*+(?:(\\d++)\\s*+" + HOUR + ")?+\\s*+(?:(\\d++)\\s*+" + MINUTE + ")?+\\s*+");
+
 
   private final long durationInMinutes;
 
@@ -65,8 +67,7 @@ public class Duration implements Serializable {
     int hours = 0;
     int minutes = 0;
     String sanitizedText = StringUtils.deleteWhitespace(text);
-    Pattern pattern = Pattern.compile("\\s*+(?:(\\d++)\\s*+" + DAY + ")?+\\s*+(?:(\\d++)\\s*+" + HOUR + ")?+\\s*+(?:(\\d++)\\s*+" + MINUTE + ")?+\\s*+");
-    Matcher matcher = pattern.matcher(text);
+    Matcher matcher = PATTERN.matcher(text);
 
     try {
       if (matcher.find()) {
