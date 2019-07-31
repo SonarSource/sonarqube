@@ -25,9 +25,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
+import org.sonar.ce.task.projectanalysis.analysis.Organization;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
@@ -35,6 +34,7 @@ import org.sonar.ce.task.projectanalysis.qualitygate.MutableQualityGateHolderRul
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGate;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateService;
 import org.sonar.ce.task.step.TestComputationStepContext;
+import org.sonar.server.project.Project;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,19 +50,18 @@ public class LoadQualityGateStepTest {
   public MutableQualityGateHolderRule mutableQualityGateHolder = new MutableQualityGateHolderRule();
 
   private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
-  private ConfigurationRepository settingsRepository = mock(ConfigurationRepository.class);
   private QualityGateService qualityGateService = mock(QualityGateService.class);
 
-  private LoadQualityGateStep underTest = new LoadQualityGateStep(settingsRepository, qualityGateService, mutableQualityGateHolder, analysisMetadataHolder);
+  private LoadQualityGateStep underTest = new LoadQualityGateStep(qualityGateService, mutableQualityGateHolder, analysisMetadataHolder);
 
   @Before
   public void setUp() {
     when(analysisMetadataHolder.isShortLivingBranch()).thenReturn(false);
+    when(analysisMetadataHolder.getOrganization()).thenReturn(mock(Organization.class));
   }
 
   @Test
   public void filter_conditions_on_short_living_branch() {
-    when(settingsRepository.getConfiguration()).thenReturn(new MapSettings().asConfig());
 
     Metric newMetric = new MetricImpl(1, "new_key", "name", Metric.MetricType.INT);
     Metric metric = new MetricImpl(2, "key", "name", Metric.MetricType.INT);
@@ -71,7 +70,7 @@ public class LoadQualityGateStepTest {
 
     when(analysisMetadataHolder.isSLBorPR()).thenReturn(true);
     QualityGate defaultGate = new QualityGate(1, "qg", Arrays.asList(variation, condition));
-    when(qualityGateService.findDefaultQualityGate(any())).thenReturn(defaultGate);
+    when(qualityGateService.findDefaultQualityGate(any(Organization.class))).thenReturn(defaultGate);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -80,8 +79,6 @@ public class LoadQualityGateStepTest {
 
   @Test
   public void filter_conditions_on_pull_request() {
-    when(settingsRepository.getConfiguration()).thenReturn(new MapSettings().asConfig());
-
     Metric newMetric = new MetricImpl(1, "new_key", "name", Metric.MetricType.INT);
     Metric metric = new MetricImpl(2, "key", "name", Metric.MetricType.INT);
     Condition variation = new Condition(newMetric, Condition.Operator.GREATER_THAN.getDbValue(), "1.0");
@@ -89,7 +86,7 @@ public class LoadQualityGateStepTest {
 
     when(analysisMetadataHolder.isSLBorPR()).thenReturn(true);
     QualityGate defaultGate = new QualityGate(1, "qg", Arrays.asList(variation, condition));
-    when(qualityGateService.findDefaultQualityGate(any())).thenReturn(defaultGate);
+    when(qualityGateService.findDefaultQualityGate(any(Organization.class))).thenReturn(defaultGate);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -98,9 +95,8 @@ public class LoadQualityGateStepTest {
 
   @Test
   public void execute_sets_default_QualityGate_when_project_has_no_settings() {
-    when(settingsRepository.getConfiguration()).thenReturn(new MapSettings().asConfig());
     QualityGate defaultGate = mock(QualityGate.class);
-    when(qualityGateService.findDefaultQualityGate(any())).thenReturn(defaultGate);
+    when(qualityGateService.findDefaultQualityGate(any(Organization.class))).thenReturn(defaultGate);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -108,21 +104,11 @@ public class LoadQualityGateStepTest {
   }
 
   @Test
-  public void execute_sets_default_QualityGate_when_property_value_is_not_a_long() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Unsupported value (10 sds) in property sonar.qualitygate");
-
-    when(settingsRepository.getConfiguration()).thenReturn(new MapSettings().setProperty("sonar.qualitygate", "10 sds").asConfig());
-
-    underTest.execute(new TestComputationStepContext());
-  }
-
-  @Test
   public void execute_sets_QualityGate_if_it_can_be_found_by_service() {
     QualityGate qualityGate = new QualityGate(10, "name", emptyList());
 
-    when(settingsRepository.getConfiguration()).thenReturn(new MapSettings().setProperty("sonar.qualitygate", 10).asConfig());
-    when(qualityGateService.findById(10)).thenReturn(Optional.of(qualityGate));
+    when(analysisMetadataHolder.getProject()).thenReturn(mock(Project.class));
+    when(qualityGateService.findQualityGate(any(Project.class))).thenReturn(Optional.of(qualityGate));
 
     underTest.execute(new TestComputationStepContext());
 

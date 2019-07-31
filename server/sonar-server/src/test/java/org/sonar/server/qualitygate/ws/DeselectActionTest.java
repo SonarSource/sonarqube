@@ -27,11 +27,9 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.TestComponentFinder;
@@ -47,7 +45,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
-import static org.sonar.server.qualitygate.QualityGateFinder.SONAR_QUALITYGATE_PROPERTY;
 
 public class DeselectActionTest {
 
@@ -59,7 +56,6 @@ public class DeselectActionTest {
   public DbTester db = DbTester.create();
 
   private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
   private TestDefaultOrganizationProvider organizationProvider = TestDefaultOrganizationProvider.from(db);
   private DeselectAction underTest = new DeselectAction(dbClient, TestComponentFinder.from(db),
     new QualityGatesWsSupport(db.getDbClient(), userSession, organizationProvider));
@@ -300,10 +296,6 @@ public class DeselectActionTest {
   }
 
   private void associateProjectToQualityGate(ComponentDto project, QualityGateDto qualityGate) {
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
-      .setResourceId(project.getId())
-      .setValue(qualityGate.getId().toString())
-      .setKey(SONAR_QUALITYGATE_PROPERTY));
     db.qualityGates().associateProjectToQualityGate(project, qualityGate);
     db.commit();
   }
@@ -313,8 +305,6 @@ public class DeselectActionTest {
     assertThat(qGateUuid)
       .isNotNull()
       .isEmpty();
-
-    assertThat(dbClient.propertiesDao().selectProjectProperty(project.getId(), SONAR_QUALITYGATE_PROPERTY)).isNull();
   }
 
   private void assertSelected(QGateWithOrgDto qualityGate, ComponentDto project) {
@@ -323,7 +313,5 @@ public class DeselectActionTest {
       .isNotNull()
       .isNotEmpty()
       .hasValue(qualityGate.getUuid());
-    String qGateId = dbClient.propertiesDao().selectProjectProperty(project.getId(), SONAR_QUALITYGATE_PROPERTY).getValue();
-    assertThat(qGateId).isEqualTo(String.valueOf(qualityGate.getId()));
   }
 }

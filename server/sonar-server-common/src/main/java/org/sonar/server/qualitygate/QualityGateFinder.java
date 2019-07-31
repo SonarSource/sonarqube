@@ -32,8 +32,6 @@ import static java.util.Optional.ofNullable;
 
 public class QualityGateFinder {
 
-  public static final String SONAR_QUALITYGATE_PROPERTY = "sonar.qualitygate";
-
   private final DbClient dbClient;
 
   public QualityGateFinder(DbClient dbClient) {
@@ -46,8 +44,8 @@ public class QualityGateFinder {
    * It will first try to get the quality gate explicitly defined on a project, if none it will try to return default quality gate of the organization
    */
   public Optional<QualityGateData> getQualityGate(DbSession dbSession, OrganizationDto organization, ComponentDto component) {
-    Optional<QualityGateData> res = dbClient.projectQgateAssociationDao().selectQGateIdByComponentId(dbSession, component.getId())
-      .map(qualityGateId -> dbClient.qualityGateDao().selectById(dbSession, qualityGateId))
+    Optional<QualityGateData> res = dbClient.projectQgateAssociationDao().selectQGateUuidByComponentUuid(dbSession, component.uuid())
+      .map(qualityGateUuid -> dbClient.qualityGateDao().selectByUuid(dbSession, qualityGateUuid))
       .map(qualityGateDto -> new QualityGateData(qualityGateDto, false));
     if (res.isPresent()) {
       return res;

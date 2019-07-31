@@ -30,7 +30,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.property.PropertyDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
@@ -71,13 +70,7 @@ public class QualityGateDbTester {
   }
 
   public void associateProjectToQualityGate(ComponentDto component, QualityGateDto qualityGate) {
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
-      .setKey("sonar.qualitygate")
-      .setResourceId(component.getId())
-      .setValue(String.valueOf(qualityGate.getId())));
-
     dbClient.projectQgateAssociationDao().insertProjectQGateAssociation(dbSession, component.uuid(), qualityGate.getUuid());
-
     db.commit();
   }
 
@@ -110,7 +103,7 @@ public class QualityGateDbTester {
     return condition;
   }
 
-  public Optional<String> selectQGateUuidByComponentUuid(String uuid) {
-    return dbClient.projectQgateAssociationDao().selectQGateUuidByComponentUuid(dbSession, uuid);
+  public Optional<String> selectQGateUuidByComponentUuid(String componentUuid) {
+    return dbClient.projectQgateAssociationDao().selectQGateUuidByComponentUuid(dbSession, componentUuid);
   }
 }

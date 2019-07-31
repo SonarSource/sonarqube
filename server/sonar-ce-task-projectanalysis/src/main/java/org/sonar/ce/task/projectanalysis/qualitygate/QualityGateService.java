@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.qualitygate;
 
 import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.analysis.Organization;
+import org.sonar.server.project.Project;
 
 public interface QualityGateService {
 
@@ -30,9 +31,14 @@ public interface QualityGateService {
   Optional<QualityGate> findById(long id);
 
   /**
-   * Retrieve the {@link QualityGate} from the database with the specified uuid.
+   * Retrieve the {@link QualityGate} from the database using organization.
    * @throws IllegalStateException if database is corrupted and default gate can't be found.
    */
   QualityGate findDefaultQualityGate(Organization organizationDto);
+
+  /**
+   * Retrieve the {@link QualityGate} from the database associated with project.
+   */
+  Optional<QualityGate> findQualityGate(Project project);
 
 }

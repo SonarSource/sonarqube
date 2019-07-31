@@ -21,32 +21,26 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.sonar.api.config.Configuration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
 import org.sonar.ce.task.projectanalysis.qualitygate.MutableQualityGateHolder;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGate;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateService;
 import org.sonar.ce.task.step.ComputationStep;
-
-import static org.apache.commons.lang.StringUtils.isBlank;
+import org.sonar.server.project.Project;
 
 /**
  * This step retrieves the QualityGate and stores it in
  * {@link MutableQualityGateHolder}.
  */
 public class LoadQualityGateStep implements ComputationStep {
-  private static final String PROPERTY_PROJECT_QUALITY_GATE = "sonar.qualitygate";
 
-  private final ConfigurationRepository configRepository;
   private final QualityGateService qualityGateService;
   private final MutableQualityGateHolder qualityGateHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public LoadQualityGateStep(ConfigurationRepository settingsRepository, QualityGateService qualityGateService, MutableQualityGateHolder qualityGateHolder,
-    AnalysisMetadataHolder analysisMetadataHolder) {
-    this.configRepository = settingsRepository;
+  public LoadQualityGateStep(QualityGateService qualityGateService, MutableQualityGateHolder qualityGateHolder,
+                             AnalysisMetadataHolder analysisMetadataHolder) {
     this.qualityGateService = qualityGateService;
     this.qualityGateHolder = qualityGateHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
@@ -73,20 +67,8 @@ public class LoadQualityGateStep implements ComputationStep {
   }
 
   private Optional<QualityGate> getProjectQualityGate() {
-    Configuration config = configRepository.getConfiguration();
-    String qualityGateSetting = config.get(PROPERTY_PROJECT_QUALITY_GATE).orElse(null);
-
-    if (isBlank(qualityGateSetting)) {
-      return Optional.empty();
-    }
-
-    try {
-      long qualityGateId = Long.parseLong(qualityGateSetting);
-      return qualityGateService.findById(qualityGateId);
-    } catch (NumberFormatException e) {
-      throw new IllegalStateException(
-        String.format("Unsupported value (%s) in property %s", qualityGateSetting, PROPERTY_PROJECT_QUALITY_GATE), e);
-    }
+    Project project = analysisMetadataHolder.getProject();
+    return qualityGateService.findQualityGate(project);
   }
 
   private QualityGate getOrganizationDefaultQualityGate() {

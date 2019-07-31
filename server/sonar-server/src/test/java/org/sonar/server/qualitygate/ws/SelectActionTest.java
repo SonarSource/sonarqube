@@ -42,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
-import static org.sonar.server.qualitygate.QualityGateFinder.SONAR_QUALITYGATE_PROPERTY;
 
 public class SelectActionTest {
 
@@ -341,7 +340,6 @@ public class SelectActionTest {
   }
 
   private void assertSelected(QualityGateDto qualityGate, ComponentDto project) {
-    assertThat(dbClient.propertiesDao().selectProjectProperty(project.getId(), SONAR_QUALITYGATE_PROPERTY).getValue()).isEqualTo(qualityGate.getId().toString());
     Optional<String> qGateUuid = db.qualityGates().selectQGateUuidByComponentUuid(project.uuid());
     assertThat(qGateUuid)
       .isNotNull()

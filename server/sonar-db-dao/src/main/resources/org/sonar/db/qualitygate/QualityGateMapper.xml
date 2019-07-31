@@ -43,6 +43,13 @@
     where name=#{name, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByUuid" parameterType="String" resultType="QualityGate">
+    select
+    <include refid="gateColumns"/>
+    from quality_gates
+    where uuid=#{uuid, jdbcType=VARCHAR}
+  </select>
+
   <select id="selectByUuidAndOrganization" parameterType="Map" resultType="org.sonar.db.qualitygate.QGateWithOrgDto">
     SELECT
       <include refid="qateWithOrgColumns"/>

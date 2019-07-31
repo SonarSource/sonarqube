@@ -29,13 +29,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
 
-import static org.sonar.server.qualitygate.QualityGateFinder.SONAR_QUALITYGATE_PROPERTY;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_SELECT;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
@@ -57,9 +55,9 @@ public class SelectAction implements QualityGatesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION_SELECT)
       .setDescription("Associate a project to a quality gate.<br>" +
-        "The '%s' or '%s' must be provided.<br>" +
-        "Project id as a numeric value is deprecated since 6.1. Please use the id similar to '%s'.<br>" +
-        "Requires the 'Administer Quality Gates' permission.",
+          "The '%s' or '%s' must be provided.<br>" +
+          "Project id as a numeric value is deprecated since 6.1. Please use the id similar to '%s'.<br>" +
+          "Requires the 'Administer Quality Gates' permission.",
         PARAM_PROJECT_ID, PARAM_PROJECT_KEY,
         Uuids.UUID_EXAMPLE_02)
       .setPost(true)
@@ -95,22 +93,17 @@ public class SelectAction implements QualityGatesWsAction {
       ComponentDto project = getProject(dbSession, organization, projectId, projectKey);
       wsSupport.checkCanAdminProject(organization, project);
 
-      dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
-        .setKey(SONAR_QUALITYGATE_PROPERTY)
-        .setResourceId(project.getId())
-        .setValue(String.valueOf(qualityGate.getId())));
-
       QualityGateDto currentQualityGate = dbClient.qualityGateDao().selectByProjectUuid(dbSession, project.uuid());
       if (currentQualityGate == null) {
         // project uses the default profile
         dbClient.projectQgateAssociationDao()
           .insertProjectQGateAssociation(dbSession, project.uuid(), qualityGate.getUuid());
+        dbSession.commit();
       } else if (!qualityGate.getUuid().equals(currentQualityGate.getUuid())) {
         dbClient.projectQgateAssociationDao()
           .updateProjectQGateAssociation(dbSession, project.uuid(), qualityGate.getUuid());
+        dbSession.commit();
       }
-
-      dbSession.commit();
     }
     response.noContent();
   }

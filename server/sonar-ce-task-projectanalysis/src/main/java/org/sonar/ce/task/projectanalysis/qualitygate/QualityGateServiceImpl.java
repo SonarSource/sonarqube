@@ -28,6 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.project.Project;
 
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 
@@ -60,6 +61,17 @@ public class QualityGateServiceImpl implements QualityGateService {
         throw new IllegalStateException("The default Quality gate is missing on organization " + organization.getKey());
       }
       return toQualityGate(dbSession, qualityGateDto);
+    }
+  }
+
+  @Override
+  public Optional<QualityGate> findQualityGate(Project project) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByProjectUuid(dbSession, project.getUuid());
+      if (qualityGateDto == null) {
+        return Optional.empty();
+      }
+      return Optional.of(toQualityGate(dbSession, qualityGateDto));
     }
   }
 

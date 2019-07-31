@@ -151,16 +151,16 @@ public class ProjectQgateAssociationDaoTest {
   }
 
   @Test
-  public void select_qgate_id_is_absent() {
+  public void select_qgate_uuid_is_absent() {
     ComponentDto project = db.components().insertPrivateProject();
 
-    Optional<Long> result = underTest.selectQGateIdByComponentId(dbSession, project.getId());
+    Optional<String> result = underTest.selectQGateUuidByComponentUuid(dbSession, project.uuid());
 
     assertThat(result.isPresent()).isFalse();
   }
 
   @Test
-  public void select_qgate_id() {
+  public void select_qgate_uuid() {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate1 = db.qualityGates().insertQualityGate(organization);
     QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization);
@@ -169,24 +169,10 @@ public class ProjectQgateAssociationDaoTest {
     db.qualityGates().associateProjectToQualityGate(project1, qualityGate1);
     db.qualityGates().associateProjectToQualityGate(project2, qualityGate2);
 
-    Optional<Long> result = underTest.selectQGateIdByComponentId(dbSession, project1.getId());
+    Optional<String> result = underTest.selectQGateUuidByComponentUuid(dbSession, project1.uuid());
 
-    assertThat(result).contains(qualityGate1.getId());
+    assertThat(result).contains(qualityGate1.getUuid());
   }
-
-  @Test
-  public void select_qgate_uuid_by_component_uuid() {
-    OrganizationDto organization = db.organizations().insert();
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
-
-    db.qualityGates().associateProjectToQualityGate(project, qualityGate);
-
-    Optional<String> qGateUuid = underTest.selectQGateUuidByComponentUuid(dbSession, project.uuid());
-
-    assertThat(qGateUuid).contains(qualityGate.getUuid());
-  }
-
 
   @Test
   public void delete_by_project_uuid() {

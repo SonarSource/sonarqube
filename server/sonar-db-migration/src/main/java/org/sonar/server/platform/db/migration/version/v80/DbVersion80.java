@@ -28,6 +28,7 @@ public class DbVersion80 implements DbVersion {
     registry
       .add(3000, "Set Organizations#guarded column nullable", MakeOrganizationsGuardedNullable.class)
       .add(3001, "Create ProjectQualityGates table", CreateProjectQualityGatesTable.class)
-      .add(3002, "Make index on DEPRECATED_RULE_KEYS.RULE_ID non unique", MakeDeprecatedRuleKeysRuleIdIndexNonUnique.class);
+      .add(3002, "Make index on DEPRECATED_RULE_KEYS.RULE_ID non unique", MakeDeprecatedRuleKeysRuleIdIndexNonUnique.class)
+      .add(3003, "Populate ProjectQualityGate table from Properties table", PopulateProjectQualityGatesTable.class);
   }
 }

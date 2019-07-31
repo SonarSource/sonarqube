@@ -39,7 +39,7 @@ public class ProjectQgateAssociationQuery {
   public static final String OUT = "deselected";
   public static final Set<String> AVAILABLE_MEMBERSHIP = ImmutableSet.of(ANY, IN, OUT);
 
-  private final String gateId;
+  private final String gateUuid;
   private final String organizationUuid;
   private final String membership;
 
@@ -55,7 +55,7 @@ public class ProjectQgateAssociationQuery {
   private final int pageIndex;
 
   private ProjectQgateAssociationQuery(Builder builder) {
-    this.gateId = Long.toString(builder.qualityGate.getId());
+    this.gateUuid = builder.qualityGate.getUuid();
     this.organizationUuid = builder.qualityGate.getOrganizationUuid();
     this.membership = builder.membership;
     this.projectSearch = builder.projectSearch;
@@ -69,8 +69,8 @@ public class ProjectQgateAssociationQuery {
     this.pageIndex = builder.pageIndex;
   }
 
-  public String gateId() {
-    return gateId;
+  public String gateUuid() {
+    return gateUuid;
   }
 
   public String organizationUuid() {

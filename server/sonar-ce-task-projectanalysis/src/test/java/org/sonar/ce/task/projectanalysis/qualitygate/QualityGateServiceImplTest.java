@@ -24,13 +24,16 @@ import java.util.Collections;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.ce.task.projectanalysis.analysis.Organization;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.db.DbClient;
+import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.project.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -116,5 +119,58 @@ public class QualityGateServiceImplTest {
     assertThat(res.get().getName()).isEqualTo(SOME_NAME);
     assertThat(res.get().getConditions()).containsOnly(
       new Condition(METRIC_2, CONDITION_2.getOperator(), CONDITION_2.getErrorThreshold()));
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void findDefaultQualityGate_by_organization_not_found() {
+    when(qualityGateDao.selectByOrganizationAndUuid(any(), any(), any())).thenReturn(null);
+
+    underTest.findDefaultQualityGate(mock(Organization.class));
+  }
+
+  @Test
+  public void findDefaultQualityGate_by_organization_found() {
+    QGateWithOrgDto qGateWithOrgDto = new QGateWithOrgDto();
+    qGateWithOrgDto.setId(QUALITY_GATE_DTO.getId());
+    qGateWithOrgDto.setName(QUALITY_GATE_DTO.getName());
+    when(qualityGateDao.selectByOrganizationAndUuid(any(), any(), any())).thenReturn(qGateWithOrgDto);
+    when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_ID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
+    when(metricRepository.getOptionalById(METRIC_ID_1)).thenReturn(Optional.empty());
+    when(metricRepository.getOptionalById(METRIC_ID_2)).thenReturn(Optional.of(METRIC_2));
+
+    QualityGate result = underTest.findDefaultQualityGate(mock(Organization.class));
+
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isEqualTo(QUALITY_GATE_DTO.getId());
+    assertThat(result.getName()).isNotBlank();
+    assertThat(result.getName()).isEqualTo(QUALITY_GATE_DTO.getName());
+  }
+
+  @Test
+  public void findQualityGate_by_project_not_found() {
+    when(qualityGateDao.selectByProjectUuid(any(), any())).thenReturn(null);
+    Optional<QualityGate> result = underTest.findQualityGate(mock(Project.class));
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void findQualityGate_by_project_found() {
+    QGateWithOrgDto qGateWithOrgDto = new QGateWithOrgDto();
+    qGateWithOrgDto.setId(QUALITY_GATE_DTO.getId());
+    qGateWithOrgDto.setName(QUALITY_GATE_DTO.getName());
+    when(qualityGateDao.selectByProjectUuid(any(), any())).thenReturn(qGateWithOrgDto);
+    when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_ID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
+    when(metricRepository.getOptionalById(METRIC_ID_1)).thenReturn(Optional.empty());
+    when(metricRepository.getOptionalById(METRIC_ID_2)).thenReturn(Optional.of(METRIC_2));
+
+    Optional<QualityGate> result = underTest.findQualityGate(mock(Project.class));
+
+    assertThat(result).isNotNull();
+    assertThat(result).isNotEmpty();
+
+    QualityGate resultData = result.get();
+    assertThat(resultData.getId()).isEqualTo(QUALITY_GATE_DTO.getId());
+    assertThat(resultData.getName()).isNotBlank();
+    assertThat(resultData.getName()).isEqualTo(QUALITY_GATE_DTO.getName());
   }
 }

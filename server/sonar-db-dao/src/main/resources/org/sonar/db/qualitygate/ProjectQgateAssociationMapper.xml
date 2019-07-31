@@ -4,9 +4,10 @@
 <mapper namespace="org.sonar.db.qualitygate.ProjectQgateAssociationMapper">
 
   <select id="selectProjects" parameterType="map" resultType="ProjectQgateAssociation">
-    SELECT proj.id as id, proj.kee as "key", proj.name as name, prop.text_value as gateId
+    SELECT proj.id as id, proj.kee as "key", proj.name as name, qg.id as gateId
     FROM projects proj
-    LEFT JOIN properties prop ON prop.resource_id=proj.id AND prop.prop_key='sonar.qualitygate' AND prop.text_value = #{query.gateId}
+    LEFT JOIN project_qgates prqg ON prqg.project_uuid=proj.uuid AND prqg.quality_gate_uuid = #{query.gateUuid, jdbcType=VARCHAR}
+    LEFT JOIN quality_gates qg ON qg.uuid = prqg.quality_gate_uuid
     where
     proj.qualifier = 'TRK'
     and proj.enabled = ${_true}
@@ -15,25 +16,16 @@
     and proj.organization_uuid=#{query.organizationUuid, jdbcType=VARCHAR}
     <choose>
       <when test="query.membership() == 'selected'">
-        and prop.text_value IS NOT NULL
+        and qg.id IS NOT NULL
       </when>
       <when test="query.membership() == 'deselected'">
-        and prop.text_value IS NULL
+        and qg.id IS NULL
       </when>
     </choose>
     <if test="query.projectSearch() != null">
       and (proj.kee = #{query.projectSearch} or upper(proj.name) like #{query.projectSearchUpperLikeSql} escape '/')
     </if>
     order by proj.name
-  </select>
-
-  <select id="selectQGateIdByComponentId" parameterType="long" resultType="string">
-    SELECT text_value
-    FROM properties
-    <where>
-      AND resource_id=#{componentId}
-      AND prop_key='sonar.qualitygate'
-    </where>
   </select>
 
   <select id="selectQGateUuidByComponentUuid" parameterType="String" resultType="string">

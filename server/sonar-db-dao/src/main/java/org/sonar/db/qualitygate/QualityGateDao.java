@@ -54,6 +54,11 @@ public class QualityGateDao implements Dao {
   }
 
   @CheckForNull
+  public QualityGateDto selectByUuid(DbSession session, String uuid) {
+    return mapper(session).selectByUuid(uuid);
+  }
+
+  @CheckForNull
   public QGateWithOrgDto selectByOrganizationAndUuid(DbSession dbSession, OrganizationDto organization, String qualityGateUuid) {
     return mapper(dbSession).selectByUuidAndOrganization(qualityGateUuid, organization.getUuid());
   }

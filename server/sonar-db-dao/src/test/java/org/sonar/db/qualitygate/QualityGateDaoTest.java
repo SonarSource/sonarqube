@@ -112,16 +112,10 @@ public class QualityGateDaoTest {
   }
 
   @Test
-  public void select_by_uuid() {
-    QGateWithOrgDto dto = qualityGateDbTester.insertQualityGate(db.getDefaultOrganization(), g -> g.setName("QG Name").setBuiltIn(false));
-    QualityGateDto qualityGateToAssociate = underTest.selectById(dbSession, dto.getId());
-    ComponentDto project = db.components().insertPrivateProject();
-
-    qualityGateDbTester.associateProjectToQualityGate(project, qualityGateToAssociate);
-
-    QualityGateDto qualityGateFromSelect = underTest.selectByProjectUuid(dbSession, project.uuid());
-
-    assertThat(qualityGateFromSelect.getUuid()).isEqualTo(qualityGateToAssociate.getUuid());
+  public void testSelectByUuid() {
+    insertQualityGates();
+    assertThat(underTest.selectByUuid(dbSession, underTest.selectByName(dbSession, "Very strict").getUuid()).getName()).isEqualTo("Very strict");
+    assertThat(underTest.selectByUuid(dbSession, "not-existing-uuid")).isNull();
   }
 
   @Test
@@ -173,6 +167,24 @@ public class QualityGateDaoTest {
 
     assertThat(underTest.selectDefault(dbSession, organization).getUuid()).isEqualTo(qualityGate.getUuid());
     assertThat(underTest.selectDefault(dbSession, otherOrganization).getUuid()).isEqualTo(otherQualityGate.getUuid());
+  }
+
+  @Test
+  public void select_by_project_uuid() {
+    OrganizationDto organization = db.organizations().insert();
+
+    ComponentDto project = db.components().insertPrivateProject(organization);
+
+    QGateWithOrgDto qualityGate1 = db.qualityGates().insertQualityGate(organization);
+    QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization);
+
+    OrganizationDto otherOrganization = db.organizations().insert();
+    QGateWithOrgDto qualityGate3 = db.qualityGates().insertQualityGate(otherOrganization);
+
+    db.qualityGates().associateProjectToQualityGate(project, qualityGate1);
+
+    assertThat(underTest.selectByProjectUuid(dbSession, project.uuid()).getUuid()).isEqualTo(qualityGate1.getUuid());
+    assertThat(underTest.selectByProjectUuid(dbSession, "not-existing-uuid")).isNull();
   }
 
   @Test

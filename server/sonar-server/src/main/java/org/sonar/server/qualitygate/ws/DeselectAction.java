@@ -32,7 +32,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 
-import static org.sonar.server.qualitygate.QualityGateFinder.SONAR_QUALITYGATE_PROPERTY;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -88,7 +87,6 @@ public class DeselectAction implements QualityGatesWsAction {
 
   private void dissociateProject(DbSession dbSession, OrganizationDto organization, ComponentDto project) {
     wsSupport.checkCanAdminProject(organization, project);
-    dbClient.propertiesDao().deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, project.getId(), dbSession);
     dbClient.projectQgateAssociationDao().deleteByProjectUuid(dbSession, project.uuid());
     dbSession.commit();
   }

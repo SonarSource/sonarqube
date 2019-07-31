@@ -113,11 +113,9 @@ public class DestroyActionTest {
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
-    assertThat(db.getDbClient().qualityGateDao().selectByOrganizationAndId(dbSession, organization, qualityGate.getId()))
-      .isNull();
-    assertThat(db.getDbClient().propertiesDao().selectProjectProperties(prj1.getDbKey()))
+    assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByComponentUuid(dbSession, prj1.uuid()))
       .isEmpty();
-    assertThat(db.getDbClient().propertiesDao().selectProjectProperties(prj2.getDbKey()))
+    assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByComponentUuid(dbSession, prj2.uuid()))
       .isEmpty();
 
     assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByComponentUuid(dbSession, prj1.uuid()))

@@ -31,16 +31,6 @@ public class ProjectQgateAssociationDao implements Dao {
   }
 
   /**
-   * @return quality gate id if a specific Quality Gate has been defined for the given component id. <br>
-   * Returns <code>{@link Optional#empty()}</code> otherwise (ex: default quality gate applies)
-   */
-  public Optional<Long> selectQGateIdByComponentId(DbSession dbSession, long componentId) {
-    String id = mapper(dbSession).selectQGateIdByComponentId(componentId);
-
-    return id == null ? Optional.empty() : Optional.of(Long.valueOf(id));
-  }
-
-  /**
    * @return quality gate uuid if a specific Quality Gate has been defined for the given component uuid. <br>
    * Returns <code>{@link Optional#empty()}</code> otherwise (ex: default quality gate applies)
    */
