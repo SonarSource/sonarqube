@@ -325,3 +325,11 @@ For example, for Sonar Java, use:
 ```
 
 You can include multiple boxes per page, if needed.
+
+## URL Rewrites
+The code in this section replaces 0-n pages that used to live on Confluence. To ease the transition (search results, user bookmarks, etc.) we've put server-level redirects in place from the old Confluence pages to the static site. Those redirects are maintained here:
+
+* https://github.com/SonarSource/marlin/blob/master/ansible/installs/prod/docs.yml
+* https://github.com/SonarSource/marlin/blob/master/ansible/installs/prod/docs3.yml
+* https://github.com/SonarSource/test-infra/blob/master/tests/docs_sonarqube_org_test.py
+
