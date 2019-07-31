@@ -19,9 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.collect.SetMultimap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
@@ -46,20 +45,15 @@ public interface MeasureRepository {
   Optional<Measure> getRawMeasure(Component component, Metric metric);
 
   /**
-   * Returns the {@link Measure}s for the specified {@link Component} and the specified {@link Metric}.
-   */
-  Set<Measure> getRawMeasures(Component component, Metric metric);
-
-  /**
    * Returns the {@link Measure}s for the specified {@link Component} mapped by their metric key.
    */
-  SetMultimap<String, Measure> getRawMeasures(Component component);
+  Map<String, Measure> getRawMeasures(Component component);
 
   /**
    * Adds the specified measure for the specified Component and Metric. There can be no more than one measure for a
    * specific combination of Component, Metric.
    *
-   * @throws NullPointerException if any of the arguments is null
+   * @throws NullPointerException          if any of the arguments is null
    * @throws UnsupportedOperationException when trying to add a measure when one already exists for the specified Component/Metric paar
    */
   void add(Component component, Metric metric, Measure measure);
@@ -68,7 +62,7 @@ public interface MeasureRepository {
    * Updates the specified measure for the specified Component and Metric. There can be no more than one measure for a
    * specific combination of Component, Metric.
    *
-   * @throws NullPointerException if any of the arguments is null
+   * @throws NullPointerException          if any of the arguments is null
    * @throws UnsupportedOperationException when trying to update a non existing measure
    */
   void update(Component component, Metric metric, Measure measure);

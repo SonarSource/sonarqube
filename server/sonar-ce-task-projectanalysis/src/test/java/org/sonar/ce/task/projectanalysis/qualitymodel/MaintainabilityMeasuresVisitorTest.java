@@ -124,7 +124,7 @@ public class MaintainabilityMeasuresVisitorTest {
 
     underTest.visit(root);
 
-    assertThat(toEntries(measureRepository.getRawMeasures(root)))
+    assertThat(measureRepository.getRawMeasures(root).entrySet().stream().map(e -> entryOf(e.getKey(), e.getValue())))
       .containsOnly(
         entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create("0")),
         entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(0d, 1)),

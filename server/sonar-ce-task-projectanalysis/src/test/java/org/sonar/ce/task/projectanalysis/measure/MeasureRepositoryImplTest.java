@@ -22,11 +22,11 @@ package org.sonar.ce.task.projectanalysis.measure;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.SetMultimap;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -394,23 +394,6 @@ public class MeasureRepositoryImplTest {
   }
 
   @Test
-  public void getRawMeasures_for_metric_throws_NPE_if_Component_arg_is_null() {
-    expectedException.expect(NullPointerException.class);
-    underTest.getRawMeasures(null, metric1);
-  }
-
-  @Test
-  public void getRawMeasures_for_metric_throws_NPE_if_Metric_arg_is_null() {
-    expectedException.expect(NullPointerException.class);
-    underTest.getRawMeasures(FILE_COMPONENT, null);
-  }
-
-  @Test
-  public void getRawMeasures_for_metric_returns_empty_if_repository_is_empty() {
-    assertThat(underTest.getRawMeasures(FILE_COMPONENT, metric1)).isEmpty();
-  }
-
-  @Test
   public void getRawMeasures_returns_added_measures_over_batch_measures() {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     when(reportMetricValidator.validate(METRIC_KEY_2)).thenReturn(true);
@@ -421,11 +404,11 @@ public class MeasureRepositoryImplTest {
     Measure addedMeasure = SOME_MEASURE;
     underTest.add(FILE_COMPONENT, metric1, addedMeasure);
 
-    SetMultimap<String, Measure> rawMeasures = underTest.getRawMeasures(FILE_COMPONENT);
+    Map<String, Measure> rawMeasures = underTest.getRawMeasures(FILE_COMPONENT);
 
     assertThat(rawMeasures.keySet()).hasSize(2);
-    assertThat(rawMeasures.get(METRIC_KEY_1)).containsOnly(addedMeasure);
-    assertThat(rawMeasures.get(METRIC_KEY_2)).extracting(Measure::getStringValue).containsOnly("some value");
+    assertThat(rawMeasures.get(METRIC_KEY_1)).isEqualTo(addedMeasure);
+    assertThat(rawMeasures.get(METRIC_KEY_2)).extracting(Measure::getStringValue).isEqualTo("some value");
   }
 
   private static MeasureDto createMeasureDto(int metricId, String componentUuid, String analysisUuid) {

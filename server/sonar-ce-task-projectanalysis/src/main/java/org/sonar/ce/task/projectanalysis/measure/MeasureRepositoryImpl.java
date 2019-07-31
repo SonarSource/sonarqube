@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.collect.SetMultimap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
@@ -47,7 +47,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   private final ReportMetricValidator reportMetricValidator;
 
   private MeasureDtoToMeasure measureTransformer = new MeasureDtoToMeasure();
-  private final Set<String> loadedComponents = new HashSet<>();
+  private final Set<Integer> loadedComponents = new HashSet<>();
 
   public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader, MetricRepository metricRepository,
     ReportMetricValidator reportMetricValidator) {
@@ -96,19 +96,14 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   }
 
   @Override
-  public Set<Measure> getRawMeasures(Component component, Metric metric) {
-    loadBatchMeasuresForComponent(component);
-    return delegate.getRawMeasures(component, metric);
-  }
-
-  @Override
-  public SetMultimap<String, Measure> getRawMeasures(Component component) {
+  public Map<String, Measure> getRawMeasures(Component component) {
     loadBatchMeasuresForComponent(component);
     return delegate.getRawMeasures(component);
   }
 
   private void loadBatchMeasuresForComponent(Component component) {
-    if (component.getReportAttributes().getRef() == null || loadedComponents.contains(component.getUuid())) {
+    Integer ref = component.getReportAttributes().getRef();
+    if (ref == null || !loadedComponents.add(ref)) {
       return;
     }
 
@@ -122,7 +117,6 @@ public class MeasureRepositoryImpl implements MeasureRepository {
         }
       }
     }
-    loadedComponents.add(component.getUuid());
   }
 
 }

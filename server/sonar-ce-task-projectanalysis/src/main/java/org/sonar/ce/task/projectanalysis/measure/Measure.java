@@ -571,9 +571,12 @@ public interface Measure {
       }
       Level level = source.getValueType() == ValueType.LEVEL ? source.getLevelValue() : null;
       QualityGateStatus status = source.hasQualityGateStatus() ? source.getQualityGateStatus() : qualityGateStatus;
-      boolean hasVar = source.hasVariation();
-
-      Double var = hasVar ? source.getVariation() : variation;
+      Double var;
+      if (source.hasVariation()) {
+        var = source.getVariation();
+      } else {
+        var = variation;
+      }
       return new MeasureImpl(source.getValueType(), value, source.getData(), level, status, var);
     }
   }

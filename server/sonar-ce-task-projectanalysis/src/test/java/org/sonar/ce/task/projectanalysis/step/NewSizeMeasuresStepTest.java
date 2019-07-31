@@ -381,11 +381,11 @@ public class NewSizeMeasuresStepTest {
   }
 
   private void assertNoRawMeasures(String metricKey) {
-    assertThat(measureRepository.getAddedRawMeasures(FILE_1_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(FILE_2_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(FILE_3_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(FILE_4_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(DIRECTORY_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF).get(metricKey)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_1_REF).get(metricKey)).isNull();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_2_REF).get(metricKey)).isNull();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_3_REF).get(metricKey)).isNull();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_4_REF).get(metricKey)).isNull();
+    assertThat(measureRepository.getAddedRawMeasures(DIRECTORY_REF).get(metricKey)).isNull();
+    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF).get(metricKey)).isNull();
   }
 }

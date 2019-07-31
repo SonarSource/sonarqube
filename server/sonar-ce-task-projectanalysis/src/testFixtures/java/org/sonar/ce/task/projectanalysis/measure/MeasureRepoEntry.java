@@ -19,13 +19,12 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.SetMultimap;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -40,7 +39,7 @@ import org.sonar.ce.task.projectanalysis.component.Component;
  * {@link Measure#equals(Object)} only care about the ruleId and characteristicId.
  * </p>
  * <p>
- * In order to explore the content of the SetMultimap, use {@link #toEntries(SetMultimap)} to convert it
+ * In order to explore the content of the Map, use {@link #toEntries(Map)} to convert it
  * to an Iterable of {@link MeasureRepoEntry} and then take benefit of AssertJ API, eg.:
  * <pre>
  * assertThat(MeasureRepoEntry.toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(
@@ -63,8 +62,8 @@ public final class MeasureRepoEntry {
     return EntryToMeasureRepoEntry.INSTANCE;
   }
 
-  public static Iterable<MeasureRepoEntry> toEntries(SetMultimap<String, Measure> data) {
-    return FluentIterable.from(data.entries()).transform(toMeasureRepoEntry()).toList();
+  public static Iterable<MeasureRepoEntry> toEntries(Map<String, Measure> data) {
+    return data.entrySet().stream().map(toMeasureRepoEntry()).collect(Collectors.toList());
   }
 
   public static MeasureRepoEntry entryOf(String metricKey, Measure measure) {

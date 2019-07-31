@@ -111,7 +111,8 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
 
     underTest.visit(root);
 
-    assertThat(toEntries(measureRepository.getRawMeasures(root)))
+    assertThat(measureRepository.getRawMeasures(root)
+      .entrySet().stream().map(e -> entryOf(e.getKey(), e.getValue())))
       .containsOnly(
         entryOf(RELIABILITY_RATING_KEY, createRatingMeasure(A)),
         entryOf(SECURITY_RATING_KEY, createRatingMeasure(A)));

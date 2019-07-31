@@ -340,15 +340,11 @@ public class DuplicationMeasuresTest {
     duplicationRepository.addDuplication(fileRef, original, duplicates);
   }
 
-  private void addRawMeasure(int componentRef, String metricKey, int value) {
-    measureRepository.addRawMeasure(componentRef, metricKey, newMeasureBuilder().create(value));
-  }
-
   private void assertNoRawMeasures(String metricKey) {
-    assertThat(measureRepository.getAddedRawMeasures(FILE_1_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(FILE_2_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(DIRECTORY_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF).get(metricKey)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_1_REF).get(metricKey)).isNull();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_2_REF).get(metricKey)).isNull();
+    assertThat(measureRepository.getAddedRawMeasures(DIRECTORY_REF).get(metricKey)).isNull();
+    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF).get(metricKey)).isNull();
   }
 
   private void assertNoRawMeasure(int componentRef, String metricKey) {

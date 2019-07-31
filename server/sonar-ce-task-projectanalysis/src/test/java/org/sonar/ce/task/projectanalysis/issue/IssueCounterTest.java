@@ -21,7 +21,10 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
@@ -32,6 +35,8 @@ import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.ce.task.projectanalysis.measure.Measure;
+import org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.projectanalysis.period.Period;
@@ -103,8 +108,6 @@ import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.entryOf;
-import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.toEntries;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class IssueCounterTest {
 
@@ -395,18 +398,21 @@ public class IssueCounterTest {
 
   @SafeVarargs
   private final void assertVariations(Component componentRef, MapEntry<String, Integer>... entries) {
-    assertThat(measureRepository.getRawMeasures(componentRef).entries()
+    assertThat(measureRepository.getRawMeasures(componentRef).entrySet()
       .stream()
       .filter(e -> e.getValue().hasVariation())
       .map(e -> entry(e.getKey(), (int) e.getValue().getVariation())))
-        .contains(entries);
+      .contains(entries);
   }
 
   @SafeVarargs
   private final void assertMeasures(Component componentRef, Map.Entry<String, Integer>... entries) {
-    assertThat(toEntries(measureRepository.getRawMeasures(componentRef)))
-      .containsAll(stream(entries).map(e -> entryOf(e.getKey(), newMeasureBuilder().create(e.getValue())))
-        .collect(toList()));
+    List<MeasureRepoEntry> expected = stream(entries)
+      .map(e -> entryOf(e.getKey(), newMeasureBuilder().create(e.getValue())))
+      .collect(Collectors.toList());
+
+    assertThat(measureRepository.getRawMeasures(componentRef).entrySet().stream().map(e -> entryOf(e.getKey(), e.getValue())))
+      .containsAll(expected);
   }
 
   private static DefaultIssue createIssue(@Nullable String resolution, String status, String severity) {

@@ -274,9 +274,9 @@ public class ReportCommentMeasuresStepTest {
   }
 
   private void assertNoNewMeasures(String metric) {
-    assertThat(measureRepository.getAddedRawMeasures(FILE_1_REF).get(metric)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(FILE_2_REF).get(metric)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(DIRECTORY_REF).get(metric)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF).get(metric)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_1_REF).get(metric)).isNull();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_2_REF).get(metric)).isNull();
+    assertThat(measureRepository.getAddedRawMeasures(DIRECTORY_REF).get(metric)).isNull();
+    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF).get(metric)).isNull();
   }
 }

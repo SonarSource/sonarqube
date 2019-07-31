@@ -19,8 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.collect.Multimap;
-import java.util.Collection;
 import java.util.Map;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
@@ -109,20 +107,24 @@ public class PersistMeasuresStep implements ComputationStep {
     }
 
     private void persistMeasures(Component component) {
-      Multimap<String, Measure> measures = measureRepository.getRawMeasures(component);
-      for (Map.Entry<String, Collection<Measure>> measuresByMetricKey : measures.asMap().entrySet()) {
-        String metricKey = measuresByMetricKey.getKey();
+      Map<String, Measure> measures = measureRepository.getRawMeasures(component);
+      MeasureDao measureDao = dbClient.measureDao();
+
+      for (Map.Entry<String, Measure> e : measures.entrySet()) {
+        Measure measure = e.getValue();
+        if (!NonEmptyMeasure.INSTANCE.test(measure)) {
+          continue;
+        }
+        String metricKey = e.getKey();
         Metric metric = metricRepository.getByKey(metricKey);
-        MeasureDao measureDao = dbClient.measureDao();
-        measuresByMetricKey.getValue().stream().filter(NonEmptyMeasure.INSTANCE).forEach(measure -> {
-          MeasureDto measureDto = measureToMeasureDto.toMeasureDto(measure, metric, component);
-          measureDao.insert(session, measureDto);
-          inserts++;
-        });
+        MeasureDto measureDto = measureToMeasureDto.toMeasureDto(measure, metric, component);
+        measureDao.insert(session, measureDto);
+        inserts++;
       }
     }
 
   }
+
 
   private enum NonEmptyMeasure implements Predicate<Measure> {
     INSTANCE;

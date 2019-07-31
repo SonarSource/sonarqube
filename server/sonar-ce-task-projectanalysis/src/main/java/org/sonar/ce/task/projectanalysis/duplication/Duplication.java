@@ -19,11 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.duplication;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -92,19 +90,19 @@ public final class Duplication {
       return false;
     }
     Duplication that = (Duplication) o;
-    return original.equals(that.original) && duplicates.equals(that.duplicates);
+    return original.equals(that.original) && Arrays.equals(duplicates, that.duplicates);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(original, duplicates);
+    return Arrays.deepHashCode(new Object[] {original, duplicates});
   }
 
   @Override
   public String toString() {
     return "Duplication{" +
       "original=" + original +
-      ", duplicates=" + duplicates +
+      ", duplicates=" + Arrays.toString(duplicates) +
       '}';
   }
 

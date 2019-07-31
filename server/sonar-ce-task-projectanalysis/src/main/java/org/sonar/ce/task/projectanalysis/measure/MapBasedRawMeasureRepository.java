@@ -19,13 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.collect.ImmutableSetMultimap;
-import com.google.common.collect.SetMultimap;
 import gnu.trove.map.hash.THashMap;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
@@ -103,26 +100,9 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
   }
 
   @Override
-  public Set<Measure> getRawMeasures(Component component, Metric metric) {
-    requireNonNull(metric);
-    requireNonNull(component);
-    Optional<Measure> measure = find(component, metric);
-    return measure.isPresent() ? Collections.singleton(measure.get()) : Collections.emptySet();
-  }
-
-  @Override
-  public SetMultimap<String, Measure> getRawMeasures(Component component) {
+  public Map<String, Measure> getRawMeasures(Component component) {
     T componentKey = componentToKey.apply(component);
-    Map<String, Measure> rawMeasures = measures.get(componentKey);
-    if (rawMeasures == null) {
-      return ImmutableSetMultimap.of();
-    }
-
-    ImmutableSetMultimap.Builder<String, Measure> builder = ImmutableSetMultimap.builder();
-    for (Map.Entry<String, Measure> entry : rawMeasures.entrySet()) {
-      builder.put(entry.getKey(), entry.getValue());
-    }
-    return builder.build();
+    return measures.getOrDefault(componentKey, Collections.emptyMap());
   }
 
   private Optional<Measure> find(Component component, Metric metric) {

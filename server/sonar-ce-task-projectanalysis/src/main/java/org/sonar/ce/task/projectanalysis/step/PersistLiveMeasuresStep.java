@@ -19,14 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.collect.Multimap;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -42,7 +41,6 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.measure.LiveMeasureComparator;
 import org.sonar.db.measure.LiveMeasureDto;
 
 import static java.util.Arrays.asList;
@@ -107,21 +105,20 @@ public class PersistLiveMeasuresStep implements ComputationStep {
     @Override
     public void visitAny(Component component) {
       List<Integer> metricIds = new ArrayList<>();
-      Multimap<String, Measure> measures = measureRepository.getRawMeasures(component);
+      Map<String, Measure> measures = measureRepository.getRawMeasures(component);
       List<LiveMeasureDto> dtos = new ArrayList<>();
-      for (Map.Entry<String, Collection<Measure>> measuresByMetricKey : measures.asMap().entrySet()) {
+      for (Map.Entry<String, Measure> measuresByMetricKey : measures.entrySet()) {
         String metricKey = measuresByMetricKey.getKey();
         if (NOT_TO_PERSIST_ON_FILE_METRIC_KEYS.contains(metricKey) && component.getType() == Component.Type.FILE) {
           continue;
         }
         Metric metric = metricRepository.getByKey(metricKey);
         Predicate<Measure> notBestValueOptimized = BestValueOptimization.from(metric, component).negate();
-        measuresByMetricKey.getValue().stream()
+        Measure m = measuresByMetricKey.getValue();
+        Stream.of(m)
           .filter(NonEmptyMeasure.INSTANCE)
           .filter(notBestValueOptimized)
           .map(measure -> measureToMeasureDto.toLiveMeasureDto(measure, metric, component))
-          // To prevent deadlock, live measures are ordered the same way as in LiveMeasureComputerImpl#refreshComponentsOnSameProject
-          .sorted(LiveMeasureComparator.INSTANCE)
           .forEach(lm -> {
             dtos.add(lm);
             metricIds.add(metric.getId());

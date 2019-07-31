@@ -292,11 +292,11 @@ public class ViewsDuplicationMeasuresTest {
   }
 
   private void assertNoRawMeasures(String metricKey) {
-    assertThat(measureRepository.getAddedRawMeasures(PROJECT_VIEW_1_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(PROJECT_VIEW_2_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(SUB_SUBVIEW_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(SUBVIEW_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF).get(metricKey)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(PROJECT_VIEW_1_REF).get(metricKey)).isNull();
+    assertThat(measureRepository.getAddedRawMeasures(PROJECT_VIEW_2_REF).get(metricKey)).isNull();
+    assertThat(measureRepository.getAddedRawMeasures(SUB_SUBVIEW_REF).get(metricKey)).isNull();
+    assertThat(measureRepository.getAddedRawMeasures(SUBVIEW_REF).get(metricKey)).isNull();
+    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF).get(metricKey)).isNull();
   }
 
   private void assertNoNewRawMeasuresOnProjectViews() {

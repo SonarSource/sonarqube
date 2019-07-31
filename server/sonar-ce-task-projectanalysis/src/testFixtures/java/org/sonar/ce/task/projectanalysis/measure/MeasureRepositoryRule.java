@@ -21,13 +21,11 @@ package org.sonar.ce.task.projectanalysis.measure;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSetMultimap;
-import com.google.common.collect.SetMultimap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -41,7 +39,6 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderComponentProvid
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Maps.filterKeys;
@@ -98,7 +95,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     return this;
   }
 
-  public SetMultimap<String, Measure> getRawMeasures(int componentRef) {
+  public Map<String, Measure> getRawMeasures(int componentRef) {
     return getRawMeasures(componentProvider.getByRef(componentRef));
   }
 
@@ -106,7 +103,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
    * Return measures that were added by the step (using {@link #add(Component, Metric, Measure)}).
    * It does not contain the one added in the test by {@link #addRawMeasure(int, String, Measure)}
    */
-  public SetMultimap<String, Measure> getAddedRawMeasures(int componentRef) {
+  public Map<String, Measure> getAddedRawMeasures(int componentRef) {
     checkAndInitProvidersState();
 
     return getAddedRawMeasures(componentProvider.getByRef(componentRef));
@@ -127,26 +124,22 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   public Optional<Measure> getAddedRawMeasure(int componentRef, String metricKey) {
     checkAndInitProvidersState();
 
-    Set<Measure> measures = getAddedRawMeasures(componentProvider.getByRef(componentRef)).get(metricKey);
-    if (measures.isEmpty()) {
-      return Optional.empty();
-    }
-    checkArgument(measures.size() == 1, String.format("There is more than one measure on metric '%s' for component '%s'", metricKey, componentRef));
-    return Optional.of(measures.iterator().next());
+    Measure measure = getAddedRawMeasures(componentProvider.getByRef(componentRef)).get(metricKey);
+    return Optional.ofNullable(measure);
   }
 
   /**
    * Return measures that were added by the step (using {@link #add(Component, Metric, Measure)}).
    * It does not contain the one added in the test by {@link #addRawMeasure(int, String, Measure)}
    */
-  public SetMultimap<String, Measure> getAddedRawMeasures(Component component) {
+  public Map<String, Measure> getAddedRawMeasures(Component component) {
     checkAndInitProvidersState();
 
-    ImmutableSetMultimap.Builder<String, Measure> builder = ImmutableSetMultimap.builder();
+    Map<String, Measure> builder = new HashMap<>();
     for (Map.Entry<InternalKey, Measure> entry : from(filterKeys(rawMeasures, hasComponentRef(component)).entrySet()).filter(isAddedMeasure)) {
       builder.put(entry.getKey().getMetricKey(), entry.getValue());
     }
-    return builder.build();
+    return builder;
   }
 
   public MeasureRepositoryRule addRawMeasure(int componentRef, String metricKey, Measure measure) {
@@ -174,17 +167,9 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   }
 
   @Override
-  public Set<Measure> getRawMeasures(Component component, Metric metric) {
-    return from(filterKeys(rawMeasures, hasComponentRef(component)).entrySet()).filter(new MatchMetric(metric)).transform(ToMeasure.INSTANCE).toSet();
-  }
-
-  @Override
-  public SetMultimap<String, Measure> getRawMeasures(Component component) {
-    ImmutableSetMultimap.Builder<String, Measure> builder = ImmutableSetMultimap.builder();
-    for (Map.Entry<InternalKey, Measure> entry : filterKeys(rawMeasures, hasComponentRef(component)).entrySet()) {
-      builder.put(entry.getKey().getMetricKey(), entry.getValue());
-    }
-    return builder.build();
+  public Map<String, Measure> getRawMeasures(Component component) {
+    return filterKeys(rawMeasures, hasComponentRef(component)).entrySet().stream()
+      .collect(Collectors.toMap(k -> k.getKey().getMetricKey(), e -> e.getValue()));
   }
 
   private HasComponentRefPredicate hasComponentRef(Component component) {

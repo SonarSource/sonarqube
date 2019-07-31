@@ -246,20 +246,4 @@ public class MapBasedRawMeasureRepositoryTest {
     assertThat(underTest.getRawMeasure(OTHER_COMPONENT, metric1)).isNotPresent();
     assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric2)).isNotPresent();
   }
-
-  @Test(expected = NullPointerException.class)
-  public void getRawMeasures_for_metric_throws_NPE_if_Component_arg_is_null() {
-    underTest.getRawMeasures(null, metric1);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void getRawMeasures_for_metric_throws_NPE_if_Metric_arg_is_null() {
-    underTest.getRawMeasures(FILE_COMPONENT, null);
-  }
-
-  @Test
-  public void getRawMeasures_for_metric_returns_empty_if_repository_is_empty() {
-    assertThat(underTest.getRawMeasures(FILE_COMPONENT, metric1)).isEmpty();
-  }
-
 }
