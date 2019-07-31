@@ -53,6 +53,7 @@ public class PluginWSCommons {
   private static final String PROPERTY_NAME = "name";
   private static final String PROPERTY_HASH = "hash";
   private static final String PROPERTY_FILENAME = "filename";
+  private static final String PROPERTY_DOCUMENTATION_PATH = "documentationPath";
   private static final String PROPERTY_SONARLINT_SUPPORTED = "sonarLintSupported";
   private static final String PROPERTY_DESCRIPTION = "description";
   private static final String PROPERTY_LICENSE = "license";
@@ -109,6 +110,7 @@ public class PluginWSCommons {
     json.prop(PROPERTY_HOMEPAGE_URL, pluginInfo.getHomepageUrl());
     json.prop(PROPERTY_ISSUE_TRACKER_URL, pluginInfo.getIssueTrackerUrl());
     json.prop(PROPERTY_IMPLEMENTATION_BUILD, pluginInfo.getImplementationBuild());
+    json.prop(PROPERTY_DOCUMENTATION_PATH, pluginInfo.getDocumentationPath());
     if (pluginDto != null) {
       json.prop(PROPERTY_UPDATED_AT, pluginDto.getUpdatedAt());
     }

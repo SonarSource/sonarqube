@@ -27,12 +27,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.jar.JarFile;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.updatecenter.common.PluginManifest;
 import org.sonar.updatecenter.common.Version;
@@ -40,6 +44,7 @@ import org.sonar.updatecenter.common.Version;
 import static java.util.Objects.requireNonNull;
 
 public class PluginInfo implements Comparable<PluginInfo> {
+  private static final Logger LOGGER = Loggers.get(PluginInfo.class);
 
   private static final Joiner SLASH_JOINER = Joiner.on(" / ").skipNulls();
 
@@ -140,6 +145,9 @@ public class PluginInfo implements Comparable<PluginInfo> {
   @CheckForNull
   private boolean sonarLintSupported;
 
+  @CheckForNull
+  private String documentationPath;
+
   private final Set<RequiredPlugin> requiredPlugins = new HashSet<>();
 
   public PluginInfo(String key) {
@@ -234,6 +242,10 @@ public class PluginInfo implements Comparable<PluginInfo> {
     return sonarLintSupported;
   }
 
+  public String getDocumentationPath() {
+    return documentationPath;
+  }
+
   @CheckForNull
   public String getBasePlugin() {
     return basePlugin;
@@ -260,6 +272,11 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
   public PluginInfo setMinimalSqVersion(@Nullable Version v) {
     this.minimalSqVersion = v;
+    return this;
+  }
+
+  public PluginInfo setDocumentationPath(@Nullable String documentationPath) {
+    this.documentationPath = documentationPath;
     return this;
   }
 
@@ -313,7 +330,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
   public PluginInfo setBasePlugin(@Nullable String s) {
     if ("l10nen".equals(s)) {
-      Loggers.get(PluginInfo.class).info("Plugin [{}] defines 'l10nen' as base plugin. " +
+      LOGGER.info("Plugin [{}] defines 'l10nen' as base plugin. " +
         "This metadata can be removed from manifest of l10n plugins since version 5.2.", key);
       basePlugin = null;
     } else {
@@ -411,6 +428,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     info.setName(manifest.getName());
     info.setMainClass(manifest.getMainClass());
     info.setVersion(Version.create(manifest.getVersion()));
+    info.setDocumentationPath(getDocumentationPath(jarFile));
 
     // optional fields
     info.setDescription(manifest.getDescription());
@@ -437,4 +455,16 @@ public class PluginInfo implements Comparable<PluginInfo> {
     }
     return info;
   }
+
+  private static String getDocumentationPath(File file) {
+    try (JarFile jarFile = new JarFile(file)) {
+      return Optional.ofNullable(jarFile.getEntry("static/documentation.md"))
+        .map(ZipEntry::getName)
+        .orElse(null);
+    } catch (IOException e) {
+      LOGGER.warn("Could not retrieve documentation path from " + file, e);
+    }
+    return null;
+  }
+
 }

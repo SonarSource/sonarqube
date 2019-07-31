@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -77,6 +78,7 @@ public class PendingAction implements PluginsWsAction {
       .setDescription("Get the list of plugins which will either be installed or removed at the next startup of the SonarQube instance, sorted by plugin name.<br/>" +
         "Require 'Administer System' permission.")
       .setSince("5.2")
+      .setChangelog(new Change("8.0", "The 'documentationPath' field is added"))
       .setHandler(this)
       .setResponseExample(getResource(this.getClass(), "example-pending_plugins.json"));
   }

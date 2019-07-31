@@ -197,6 +197,7 @@ public class InstalledActionTest {
       .setHomepageUrl("homepage_url")
       .setIssueTrackerUrl("issueTracker_url")
       .setImplementationBuild("sou_rev_sha1")
+      .setDocumentationPath("static/documentation.md")
       .setSonarLintSupported(true));
     when(pluginFileSystem.getInstalledFiles()).thenReturn(singletonList(plugin));
 
@@ -224,6 +225,7 @@ public class InstalledActionTest {
         "      \"issueTrackerUrl\": \"issueTracker_url\"," +
         "      \"implementationBuild\": \"sou_rev_sha1\"," +
         "      \"sonarLintSupported\": true," +
+        "      \"documentationPath\": \"static/documentation.md\"," +
         "      \"filename\": \"" + plugin.getLoadedJar().getFile().getName() + "\"," +
         "      \"hash\": \"" + plugin.getLoadedJar().getMd5() + "\"," +
         "      \"updatedAt\": 100" +
@@ -376,7 +378,7 @@ public class InstalledActionTest {
 
   @DataProvider
   public static Object[][] editionBundledLicenseValues() {
-    return new Object[][] {
+    return new Object[][]{
       {"sonarsource"},
       {"SonarSource"},
       {"SonaRSOUrce"},

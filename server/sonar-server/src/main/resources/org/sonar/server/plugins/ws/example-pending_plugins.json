@@ -11,7 +11,8 @@
       "organizationUrl": "http://www.sonarsource.com",
       "homepageUrl": "https://redirect.sonarsource.com/plugins/scmcvs.html",
       "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARSCCVS",
-      "implementationBuild": "f9735104bfa053abc50edad720c79d89a4f5cd72"
+      "implementationBuild": "f9735104bfa053abc50edad720c79d89a4f5cd72",
+      "documentationPath": "static/documentation.md"
     }
   ],
   "updating": [
@@ -41,7 +42,8 @@
       "organizationUrl": "http://www.sonarsource.com",
       "homepageUrl": "https://redirect.sonarsource.com/plugins/scmgit.html/sonar-scm-git-plugin",
       "issueTrackerUrl": "https://jira.sonarsource.com/browse/SONARSCGIT",
-      "implementationBuild": "a713dd64daf8719ba4e7f551f9a1966c62690c17"
+      "implementationBuild": "a713dd64daf8719ba4e7f551f9a1966c62690c17",
+      "documentationPath": "static/documentation.md"
     }
   ]
 }

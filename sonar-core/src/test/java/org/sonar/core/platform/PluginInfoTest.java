@@ -210,7 +210,7 @@ public class PluginInfoTest {
     manifest.setOrganization("SonarSource");
     manifest.setOrganizationUrl("http://sonarsource.com");
     manifest.setIssueTrackerUrl("http://jira.com");
-    manifest.setRequirePlugins(new String[] {"java:2.0", "pmd:1.3"});
+    manifest.setRequirePlugins(new String[]{"java:2.0", "pmd:1.3"});
     manifest.setSonarLintSupported(true);
 
     File jarFile = temp.newFile();
@@ -237,7 +237,7 @@ public class PluginInfoTest {
     manifest.setVersion("1.0");
     manifest.setName("Java");
     manifest.setMainClass("org.foo.FooPlugin");
-    manifest.setRequirePlugins(new String[] {"license:" + version});
+    manifest.setRequirePlugins(new String[]{"license:" + version});
 
     File jarFile = temp.newFile();
     PluginInfo pluginInfo = PluginInfo.create(jarFile, manifest);
@@ -252,7 +252,7 @@ public class PluginInfoTest {
     manifest.setVersion("1.0");
     manifest.setName("Java");
     manifest.setMainClass("org.foo.FooPlugin");
-    manifest.setRequirePlugins(new String[] {"java:2.0", "license:" + version, "pmd:1.3"});
+    manifest.setRequirePlugins(new String[]{"java:2.0", "license:" + version, "pmd:1.3"});
 
     File jarFile = temp.newFile();
     PluginInfo pluginInfo = PluginInfo.create(jarFile, manifest);
@@ -261,7 +261,7 @@ public class PluginInfoTest {
 
   @DataProvider
   public static Object[][] licenseVersions() {
-    return new Object[][] {
+    return new Object[][]{
       {"0.3"},
       {"7.2.0.1253"}
     };
@@ -273,11 +273,21 @@ public class PluginInfoTest {
     PluginInfo checkstyleInfo = PluginInfo.create(checkstyleJar);
 
     assertThat(checkstyleInfo.getName()).isEqualTo("Checkstyle");
+    assertThat(checkstyleInfo.getDocumentationPath()).isNull();
     assertThat(checkstyleInfo.getMinimalSqVersion()).isEqualTo(Version.create("2.8"));
   }
 
   @Test
-  public void test_toString() throws Exception {
+  public void create_from_file_with_documentation() {
+    File jarWithDocs = FileUtils.toFile(getClass().getResource("/org/sonar/core/platform/jar_with_documentation.jar"));
+    PluginInfo checkstyleInfo = PluginInfo.create(jarWithDocs);
+
+    assertThat(checkstyleInfo.getDocumentationPath()).isNotBlank();
+    assertThat(checkstyleInfo.getDocumentationPath()).isEqualTo("static/documentation.md");
+  }
+
+  @Test
+  public void test_toString() {
     PluginInfo pluginInfo = new PluginInfo("java").setVersion(Version.create("1.1"));
     assertThat(pluginInfo.toString()).isEqualTo("[java / 1.1]");
 

@@ -76,7 +76,8 @@ public class InstalledAction implements PluginsWsAction {
         new Change("6.6", "The 'fileHash' field is added"),
         new Change("6.6", "The 'sonarLintSupported' field is added"),
         new Change("6.6", "The 'updatedAt' field is added"),
-        new Change("7.0", "The fields 'compressedHash' and 'compressedFilename' are added"))
+        new Change("7.0", "The fields 'compressedHash' and 'compressedFilename' are added"),
+        new Change("8.0", "The 'documentationPath' field is added"))
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "example-installed_plugins.json"));
 
