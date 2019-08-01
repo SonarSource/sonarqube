@@ -127,6 +127,13 @@ public class System2 {
   }
 
   /**
+   * True if this is Mac system.
+   */
+  public boolean isOsMac() {
+    return SystemUtils.IS_OS_MAC;
+  }
+
+  /**
    * True if Java 7 or Java 8 runtime environment
    *
    * @since 4.3

@@ -84,6 +84,11 @@ public class System2Test {
   }
 
   @Test
+  public void testIsOsMac() {
+    assertThat(System2.INSTANCE.isOsMac()).isEqualTo(SystemUtils.IS_OS_MAC);
+  }
+
+  @Test
   public void isJavaAtLeast17_always_returns_true() {
     assertThat(System2.INSTANCE.isJavaAtLeast17()).isTrue();
   }

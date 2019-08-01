@@ -36,12 +36,12 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.PathUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.xoo.XooPlugin;
@@ -823,7 +823,20 @@ public class FileSystemMediumTest {
         "xources/hello/helloscala.xoo",
         "testx/ClassOneTest.xoo.scm",
         "xources/hello/HelloJava.xoo");
-    } else { // Other OS are case-sensitive so an exception should be thrown
+    } else if (System2.INSTANCE.isOsMac()) {
+      AnalysisResult result = analysis.execute();
+
+      assertThat(result.inputFiles()).hasSize(8);
+      assertThat(result.inputFiles()).extractingResultOf("relativePath").containsOnly(
+        "TESTX/ClassOneTest.xoo.measures",
+        "XOURCES/hello/helloscala.xoo.measures",
+        "XOURCES/hello/HelloJava.xoo.measures",
+        "TESTX/ClassOneTest.xoo",
+        "XOURCES/hello/HelloJava.xoo.scm",
+        "XOURCES/hello/helloscala.xoo",
+        "TESTX/ClassOneTest.xoo.scm",
+        "XOURCES/hello/HelloJava.xoo");
+    } else {
       thrown.expect(MessageException.class);
       thrown.expectMessage("The folder 'TESTX' does not exist for 'sample'");
       analysis.execute();
