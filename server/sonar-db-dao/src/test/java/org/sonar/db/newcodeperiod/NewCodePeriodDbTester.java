@@ -17,25 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v80;
+package org.sonar.db.newcodeperiod;
 
-import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.db.DbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class NewCodePeriodDbTester {
 
-public class DbVersion80Test {
-  private DbVersion underTest = new DbVersion80();
+  private final DbTester dbTester;
 
-  @Test
-  public void migrationNumber_starts_at_3000() {
-    verifyMinimumMigrationNumber(underTest, 3000);
+  public NewCodePeriodDbTester(DbTester dbTester) {
+    this.dbTester = dbTester;
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 8);
+  public NewCodePeriodDto insert(NewCodePeriodDto dto) {
+    dbTester.getDbClient().newCodePeriodDao().insert(dbTester.getSession(), dto);
+    dbTester.getSession().commit();
+    return dto;
   }
 
 }

@@ -49,6 +49,7 @@ import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
+import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.organization.OrganizationDao;
 import org.sonar.db.organization.OrganizationMemberDao;
@@ -122,6 +123,7 @@ public class DaoModule extends Module {
     LiveMeasureDao.class,
     MeasureDao.class,
     MetricDao.class,
+    NewCodePeriodDao.class,
     NotificationQueueDao.class,
     OrganizationAlmBindingDao.class,
     OrganizationDao.class,

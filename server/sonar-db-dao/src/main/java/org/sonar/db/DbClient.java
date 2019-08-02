@@ -47,6 +47,7 @@ import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
+import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.organization.OrganizationDao;
 import org.sonar.db.organization.OrganizationMemberDao;
@@ -152,6 +153,7 @@ public class DbClient {
   private final WebhookDeliveryDao webhookDeliveryDao;
   private final ProjectMappingsDao projectMappingsDao;
   private final OrganizationAlmBindingDao organizationAlmBindingDao;
+  private final NewCodePeriodDao newCodePeriodDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -224,6 +226,7 @@ public class DbClient {
     projectMappingsDao = getDao(map, ProjectMappingsDao.class);
     organizationAlmBindingDao = getDao(map, OrganizationAlmBindingDao.class);
     internalComponentPropertiesDao = getDao(map, InternalComponentPropertiesDao.class);
+    newCodePeriodDao = getDao(map, NewCodePeriodDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -490,5 +493,9 @@ public class DbClient {
 
   public InternalComponentPropertiesDao internalComponentPropertiesDao() {
     return internalComponentPropertiesDao;
+  }
+
+  public NewCodePeriodDao newCodePeriodDao() {
+    return newCodePeriodDao;
   }
 }

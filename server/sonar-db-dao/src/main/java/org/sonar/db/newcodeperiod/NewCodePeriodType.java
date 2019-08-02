@@ -17,25 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v80;
+package org.sonar.db.newcodeperiod;
 
-import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
-
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
-
-public class DbVersion80Test {
-  private DbVersion underTest = new DbVersion80();
-
-  @Test
-  public void migrationNumber_starts_at_3000() {
-    verifyMinimumMigrationNumber(underTest, 3000);
-  }
-
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 8);
-  }
-
+public enum NewCodePeriodType {
+  PREVIOUS_VERSION,
+  NUMBER_OF_DAYS,
+  DATE,
+  SPECIFIC_ANALYSIS
 }

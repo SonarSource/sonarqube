@@ -77,6 +77,7 @@ public final class SqTables {
     "live_measures",
     "manual_measures",
     "metrics",
+    "new_code_periods",
     "notifications",
     "organizations",
     "organization_alm_bindings",

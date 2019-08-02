@@ -80,6 +80,7 @@ import org.sonar.db.measure.MeasureMapper;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.measure.custom.CustomMeasureMapper;
 import org.sonar.db.metric.MetricMapper;
+import org.sonar.db.newcodeperiod.NewCodePeriodMapper;
 import org.sonar.db.notification.NotificationQueueDto;
 import org.sonar.db.notification.NotificationQueueMapper;
 import org.sonar.db.organization.OrganizationDto;
@@ -252,6 +253,7 @@ public class MyBatis implements Startable {
       IssueMapper.class,
       MeasureMapper.class,
       MetricMapper.class,
+      NewCodePeriodMapper.class,
       NotificationQueueMapper.class,
       OrganizationAlmBindingMapper.class,
       OrganizationMapper.class,

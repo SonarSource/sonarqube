@@ -39,6 +39,7 @@ import org.sonar.db.event.EventDbTester;
 import org.sonar.db.favorite.FavoriteDbTester;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.measure.MeasureDbTester;
+import org.sonar.db.newcodeperiod.NewCodePeriodDbTester;
 import org.sonar.db.notification.NotificationDbTester;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -84,6 +85,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   private final QualityGateDbTester qualityGateDbTester;
   private final IssueDbTester issueDbTester;
   private final RuleDbTester ruleDbTester;
+  private final NewCodePeriodDbTester newCodePeriodTester;
   private final NotificationDbTester notificationDbTester;
   private final RootFlagAssertions rootFlagAssertions;
   private final QualityProfileDbTester qualityProfileDbTester;
@@ -121,6 +123,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     this.webhookDeliveryDbTester = new WebhookDeliveryDbTester(this);
     this.almDbTester = new AlmDbTester(this);
     this.internalComponentPropertyTester = new InternalComponentPropertyDbTester(this);
+    this.newCodePeriodTester = new NewCodePeriodDbTester(this);
   }
 
   public static DbTester create() {
@@ -249,6 +252,10 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
   public RuleDbTester rules() {
     return ruleDbTester;
+  }
+
+  public NewCodePeriodDbTester newCodePeriods() {
+    return newCodePeriodTester;
   }
 
   public NotificationDbTester notifications() {

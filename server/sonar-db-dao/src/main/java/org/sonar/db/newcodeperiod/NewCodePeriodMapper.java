@@ -17,25 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v80;
+package org.sonar.db.newcodeperiod;
 
-import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.util.Optional;
+import org.apache.ibatis.annotations.Param;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public interface NewCodePeriodMapper {
 
-public class DbVersion80Test {
-  private DbVersion underTest = new DbVersion80();
+  Optional<NewCodePeriodDto> selectByUuid(String uuid);
 
-  @Test
-  public void migrationNumber_starts_at_3000() {
-    verifyMinimumMigrationNumber(underTest, 3000);
-  }
+  NewCodePeriodDto selectGlobal();
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 8);
-  }
+  void insert(NewCodePeriodDto dto);
 
+  void update(NewCodePeriodDto dto);
+
+  NewCodePeriodDto selectByProject(String projectUuid);
+
+  NewCodePeriodDto selectByBranch(@Param("projectUuid") String projectUuid, @Param("branchUuid") String branchUuid);
 }
