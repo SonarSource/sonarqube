@@ -71,7 +71,7 @@ public class IndexAction implements WsAction {
     }
     String localeParam = request.mandatoryParam(LOCALE_PARAM);
     Locale locale = Locale.forLanguageTag(localeParam);
-    checkArgument(!locale.getISO3Language().isEmpty(), "'%s' cannot be parsed as a BCP47 language tag", localeParam);
+    checkArgument(!locale.getISO3Language().isEmpty(), "Locale cannot be parsed as a BCP47 language tag");
 
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject();

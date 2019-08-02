@@ -134,7 +134,7 @@ public class IndexActionTest {
     when(i18n.getEffectiveLocale(UK)).thenReturn(UK);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'en_GB' cannot be parsed as a BCP47 language tag");
+    expectedException.expectMessage("Locale cannot be parsed as a BCP47 language tag");
     call("en_GB", null);
   }
 
