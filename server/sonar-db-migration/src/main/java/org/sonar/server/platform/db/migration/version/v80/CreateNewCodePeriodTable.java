@@ -69,7 +69,7 @@ public class CreateNewCodePeriodTable extends DdlChange {
 
   private static final VarcharColumnDef VALUE = newVarcharColumnDefBuilder()
     .setColumnName("value")
-    .setIsNullable(false)
+    .setIsNullable(true)
     .setLimit(40)
     .build();
 
