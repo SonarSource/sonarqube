@@ -30,7 +30,7 @@ SonarQube allows to analyze different languages depending on the Edition you are
 | [Swift](/analysis/languages/swift/)           |                        | ![](/images/check.svg) | ![](/images/check.svg)                    |
 | [TypeScript](/analysis/languages/typescript/) | ![](/images/check.svg) | ![](/images/check.svg) | ![](/images/check.svg)                    |
 | [TSQL](/analysis/languages/tsql/)             |                        | ![](/images/check.svg) | ![](/images/check.svg)                    |
-| [Visual Basic](/analysis/languages/vb/)       | ![](/images/check.svg) | ![](/images/check.svg) | ![](/images/check.svg)                    |
+| [VB.NET](/analysis/languages/vbnet/)          | ![](/images/check.svg) | ![](/images/check.svg) | ![](/images/check.svg)                    |
 | [VB6](/analysis/languages/vb6/)               |                        |                        | ![](/images/check.svg)                    |
 | [HTML](/analysis/languages/html/)             | ![](/images/check.svg) | ![](/images/check.svg) | ![](/images/check.svg)                    |
 | [XML](/analysis/languages/xml/)               | ![](/images/check.svg) | ![](/images/check.svg) | ![](/images/check.svg)                    |

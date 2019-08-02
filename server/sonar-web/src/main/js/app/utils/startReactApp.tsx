@@ -132,6 +132,10 @@ export default function startReactApp(
             <Redirect from="/component/index" to="/component" />
             <Redirect from="/component_issues" to="/project/issues" />
             <Redirect from="/dashboard/index" to="/dashboard" />
+            <Redirect
+              from="/documentation/analysis/languages/vb"
+              to="/documentation/analysis/languages/vbnet/"
+            />
             <Redirect from="/governance" to="/portfolio" />
             <Redirect from="/groups" to="/admin/groups" />
             <Redirect from="/extension/governance/portfolios" to="/portfolios" />

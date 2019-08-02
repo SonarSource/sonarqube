@@ -1,6 +1,6 @@
 ---
 title: VB.NET
-url: /analysis/languages/vb/
+url: /analysis/languages/vbnet/
 ---
 
 <!-- static -->
