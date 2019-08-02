@@ -21,6 +21,7 @@ package org.sonar.db.newcodeperiod;
 
 import java.util.Optional;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
@@ -29,9 +30,11 @@ import static java.util.Objects.requireNonNull;
 public class NewCodePeriodDao implements Dao {
 
   private final System2 system2;
+  private final UuidFactory uuidFactory;
 
-  public NewCodePeriodDao(System2 system2) {
+  public NewCodePeriodDao(System2 system2, UuidFactory uuidFactory) {
     this.system2 = system2;
+    this.uuidFactory = uuidFactory;
   }
 
   public Optional<NewCodePeriodDto> selectByUuid(DbSession dbSession, String uuid) {
@@ -44,9 +47,10 @@ public class NewCodePeriodDao implements Dao {
 
   public void insert(DbSession dbSession, NewCodePeriodDto dto) {
     requireNonNull(dto.getType(), "Type of NewCodePeriod must be specified.");
-    requireNonNull(dto.getValue(), "Value of NewCodePeriod must be specified.");
     long currentTime = system2.now();
-    mapper(dbSession).insert(dto.setCreatedAt(currentTime).setUpdatedAt(currentTime));
+    mapper(dbSession).insert(dto.setCreatedAt(currentTime)
+      .setUpdatedAt(currentTime)
+      .setUuid(uuidFactory.create()));
   }
 
   public void upsert(DbSession dbSession, NewCodePeriodDto dto) {
@@ -55,13 +59,13 @@ public class NewCodePeriodDao implements Dao {
     dto.setUpdatedAt(currentTime);
     if (mapper.update(dto) == 0) {
       dto.setCreatedAt(currentTime);
+      dto.setUuid(uuidFactory.create());
       mapper.insert(dto);
     }
   }
 
   public void update(DbSession dbSession, NewCodePeriodDto dto) {
     requireNonNull(dto.getType(), "Type of NewCodePeriod must be specified.");
-    requireNonNull(dto.getValue(), "Value of NewCodePeriod must be specified.");
     mapper(dbSession).update(dto.setUpdatedAt(system2.now()));
   }
 

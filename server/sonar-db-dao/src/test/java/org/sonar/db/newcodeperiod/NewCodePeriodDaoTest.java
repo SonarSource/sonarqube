@@ -24,10 +24,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class NewCodePeriodDaoTest {
 
@@ -38,13 +41,13 @@ public class NewCodePeriodDaoTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbSession dbSession = db.getSession();
-
-  private NewCodePeriodDao underTest = new NewCodePeriodDao(System2.INSTANCE);
+  private UuidFactory uuidFactory = mock(UuidFactory.class);
+  private NewCodePeriodDao underTest = new NewCodePeriodDao(System2.INSTANCE, uuidFactory);
 
   @Test
   public void insert_new_code_period() {
+    when(uuidFactory.create()).thenReturn("uuid-1");
     underTest.insert(dbSession, new NewCodePeriodDto()
-      .setUuid("uuid-1")
       .setProjectUuid("proj-uuid")
       .setBranchUuid("branch-uuid")
       .setType(NewCodePeriodType.NUMBER_OF_DAYS)
@@ -67,8 +70,9 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void update_new_code_period() {
+    when(uuidFactory.create()).thenReturn("uuid-1");
+
     NewCodePeriodDto dto = db.newCodePeriods().insert(new NewCodePeriodDto()
-      .setUuid("uuid-1")
       .setProjectUuid("proj-uuid")
       .setBranchUuid("branch-uuid")
       .setType(NewCodePeriodType.NUMBER_OF_DAYS)
@@ -96,8 +100,9 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void insert_with_upsert() {
+    when(uuidFactory.create()).thenReturn("uuid-1");
+
     underTest.upsert(dbSession, new NewCodePeriodDto()
-      .setUuid("uuid-1")
       .setProjectUuid("proj-uuid")
       .setBranchUuid("branch-uuid")
       .setType(NewCodePeriodType.NUMBER_OF_DAYS)
@@ -120,15 +125,15 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void update_with_upsert() {
+    when(uuidFactory.create()).thenReturn("uuid-1");
+
     db.newCodePeriods().insert(new NewCodePeriodDto()
-      .setUuid("uuid-1")
       .setProjectUuid("proj-uuid")
       .setBranchUuid("branch-uuid")
       .setType(NewCodePeriodType.NUMBER_OF_DAYS)
       .setValue("5"));
 
     underTest.upsert(dbSession, new NewCodePeriodDto()
-      .setUuid("uuid-1")
       .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
       .setValue("analysis-uuid"));
 
@@ -149,8 +154,9 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void select_by_project_and_branch_uuids() {
+    when(uuidFactory.create()).thenReturn("uuid-1");
+
     NewCodePeriodDto dto = db.newCodePeriods().insert(new NewCodePeriodDto()
-      .setUuid("uuid-1")
       .setProjectUuid("proj-uuid")
       .setBranchUuid("branch-uuid")
       .setType(NewCodePeriodType.NUMBER_OF_DAYS)
@@ -172,8 +178,9 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void select_by_project_uuid() {
+    when(uuidFactory.create()).thenReturn("uuid-1");
+
     NewCodePeriodDto dto = db.newCodePeriods().insert(new NewCodePeriodDto()
-      .setUuid("uuid-1")
       .setProjectUuid("proj-uuid")
       .setBranchUuid(null)
       .setType(NewCodePeriodType.NUMBER_OF_DAYS)
@@ -195,8 +202,9 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void select_global() {
+    when(uuidFactory.create()).thenReturn("uuid-1");
+
     db.newCodePeriods().insert(new NewCodePeriodDto()
-      .setUuid("uuid-1")
       .setProjectUuid(null)
       .setBranchUuid(null)
       .setType(NewCodePeriodType.NUMBER_OF_DAYS)
