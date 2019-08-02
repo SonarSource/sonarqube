@@ -30,7 +30,7 @@ public interface NewCodePeriodMapper {
 
   void insert(NewCodePeriodDto dto);
 
-  void update(NewCodePeriodDto dto);
+  int update(NewCodePeriodDto dto);
 
   NewCodePeriodDto selectByProject(String projectUuid);
 

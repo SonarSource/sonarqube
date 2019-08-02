@@ -49,6 +49,16 @@ public class NewCodePeriodDao implements Dao {
     mapper(dbSession).insert(dto.setCreatedAt(currentTime).setUpdatedAt(currentTime));
   }
 
+  public void upsert(DbSession dbSession, NewCodePeriodDto dto) {
+    NewCodePeriodMapper mapper = mapper(dbSession);
+    long currentTime = system2.now();
+    dto.setUpdatedAt(currentTime);
+    if (mapper.update(dto) == 0) {
+      dto.setCreatedAt(currentTime);
+      mapper.insert(dto);
+    }
+  }
+
   public void update(DbSession dbSession, NewCodePeriodDto dto) {
     requireNonNull(dto.getType(), "Type of NewCodePeriod must be specified.");
     requireNonNull(dto.getValue(), "Value of NewCodePeriod must be specified.");

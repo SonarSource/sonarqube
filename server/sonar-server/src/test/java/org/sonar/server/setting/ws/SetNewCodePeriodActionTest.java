@@ -19,6 +19,7 @@
  */
 package org.sonar.server.setting.ws;
 
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,6 +34,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -41,7 +43,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.assertj.core.api.Assertions.entry;
 
 public class SetNewCodePeriodActionTest {
   @Rule
@@ -55,7 +57,8 @@ public class SetNewCodePeriodActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private ComponentFinder componentFinder = TestComponentFinder.from(db);
-  private NewCodePeriodDao dao = mock(NewCodePeriodDao.class);
+  private NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE);
+  private DbTester dbTester = DbTester.create();
 
   private SetNewCodePeriodAction underTest = new SetNewCodePeriodAction(dbClient, userSession, componentFinder, dao);
   private WsActionTester ws = new WsActionTester(underTest);
@@ -118,7 +121,7 @@ public class SetNewCodePeriodActionTest {
 
     ws.newRequest()
       .setParam("projectKey", project.getKey())
-      .setParam("type", "analysis")
+      .setParam("type", "specific_analysis")
       .execute();
   }
 
@@ -146,7 +149,7 @@ public class SetNewCodePeriodActionTest {
     ws.newRequest()
       .setParam("projectKey", project.getKey())
       .setParam("branchKey", "master")
-      .setParam("type", "days")
+      .setParam("type", "number_of_days")
       .execute();
   }
 
@@ -159,7 +162,7 @@ public class SetNewCodePeriodActionTest {
 
     ws.newRequest()
       .setParam("projectKey", project.getKey())
-      .setParam("type", "analysis")
+      .setParam("type", "specific_analysis")
       .setParam("branchKey", "master")
       .execute();
   }
@@ -188,7 +191,7 @@ public class SetNewCodePeriodActionTest {
 
     ws.newRequest()
       .setParam("projectKey", project.getKey())
-      .setParam("type", "days")
+      .setParam("type", "number_of_days")
       .setParam("branchKey", "master")
       .setParam("value", "unknown")
       .execute();
@@ -203,7 +206,7 @@ public class SetNewCodePeriodActionTest {
 
     ws.newRequest()
       .setParam("projectKey", project.getKey())
-      .setParam("type", "analysis")
+      .setParam("type", "specific_analysis")
       .setParam("branchKey", "master")
       .setParam("value", "unknown")
       .execute();
@@ -310,8 +313,8 @@ public class SetNewCodePeriodActionTest {
     ws.newRequest()
       .setParam("type", "previous_version")
       .execute();
-    // TODO
 
+    assertTableContainsOnly(null, null, NewCodePeriodType.PREVIOUS_VERSION, null);
   }
 
   @Test
@@ -320,10 +323,10 @@ public class SetNewCodePeriodActionTest {
     logInAsProjectAdministrator(project);
     ws.newRequest()
       .setParam("projectKey", project.getKey())
-      .setParam("type", "days")
+      .setParam("type", "number_of_days")
       .setParam("value", "5")
       .execute();
-    // TODO
+    assertTableContainsOnly(project.getKey(), null, NewCodePeriodType.NUMBER_OF_DAYS, "5");
 
   }
 
@@ -339,11 +342,19 @@ public class SetNewCodePeriodActionTest {
 
     ws.newRequest()
       .setParam("projectKey", project.getKey())
-      .setParam("type", "analysis")
+      .setParam("type", "specific_analysis")
       .setParam("branchKey", "branch")
       .setParam("value", analysisBranch.getUuid())
       .execute();
-    // TODO
+
+    assertTableContainsOnly(project.getKey(), "branch", NewCodePeriodType.SPECIFIC_ANALYSIS, analysisBranch.getUuid());
+
+  }
+
+  private void assertTableContainsOnly(@Nullable String projectKey, @Nullable String branchKey, NewCodePeriodType type, @Nullable String value) {
+    dbTester.countRowsOfTable(dbSession, "new_code_period");
+    assertThat(dbTester.selectFirst(dbSession, "select projectKey, branchKey, type, value from new_code_period"))
+      .containsOnly(entry("projectKey", projectKey), entry("branchKey", branchKey), entry("type", type), entry("value", value));
   }
 
   private void logInAsProjectAdministrator(ComponentDto project) {

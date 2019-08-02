@@ -95,6 +95,59 @@ public class NewCodePeriodDaoTest {
   }
 
   @Test
+  public void insert_with_upsert() {
+    underTest.upsert(dbSession, new NewCodePeriodDto()
+      .setUuid("uuid-1")
+      .setProjectUuid("proj-uuid")
+      .setBranchUuid("branch-uuid")
+      .setType(NewCodePeriodType.NUMBER_OF_DAYS)
+      .setValue("5"));
+
+    Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, "uuid-1");
+
+    assertThat(resultOpt).isNotNull();
+    assertThat(resultOpt).isNotEmpty();
+
+    NewCodePeriodDto result = resultOpt.get();
+    assertThat(result.getUuid()).isEqualTo("uuid-1");
+    assertThat(result.getProjectUuid()).isEqualTo("proj-uuid");
+    assertThat(result.getBranchUuid()).isEqualTo("branch-uuid");
+    assertThat(result.getType()).isEqualTo(NewCodePeriodType.NUMBER_OF_DAYS);
+    assertThat(result.getValue()).isEqualTo("5");
+    assertThat(result.getCreatedAt()).isNotEqualTo(0);
+    assertThat(result.getUpdatedAt()).isNotEqualTo(0);
+  }
+
+  @Test
+  public void update_with_upsert() {
+    db.newCodePeriods().insert(new NewCodePeriodDto()
+      .setUuid("uuid-1")
+      .setProjectUuid("proj-uuid")
+      .setBranchUuid("branch-uuid")
+      .setType(NewCodePeriodType.NUMBER_OF_DAYS)
+      .setValue("5"));
+
+    underTest.upsert(dbSession, new NewCodePeriodDto()
+      .setUuid("uuid-1")
+      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+      .setValue("analysis-uuid"));
+
+    Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, "uuid-1");
+
+    assertThat(resultOpt).isNotNull();
+    assertThat(resultOpt).isNotEmpty();
+
+    NewCodePeriodDto result = resultOpt.get();
+    assertThat(result.getUuid()).isEqualTo("uuid-1");
+    assertThat(result.getProjectUuid()).isEqualTo("proj-uuid");
+    assertThat(result.getBranchUuid()).isEqualTo("branch-uuid");
+    assertThat(result.getType()).isEqualTo(NewCodePeriodType.SPECIFIC_ANALYSIS);
+    assertThat(result.getValue()).isEqualTo("analysis-uuid");
+    assertThat(result.getCreatedAt()).isNotEqualTo(0);
+    assertThat(result.getUpdatedAt()).isNotEqualTo(0);
+  }
+
+  @Test
   public void select_by_project_and_branch_uuids() {
     NewCodePeriodDto dto = db.newCodePeriods().insert(new NewCodePeriodDto()
       .setUuid("uuid-1")
