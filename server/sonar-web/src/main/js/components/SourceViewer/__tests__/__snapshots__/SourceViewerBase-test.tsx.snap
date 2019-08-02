@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<SourceViewerBase
+  branchLike={
+    Object {
+      "analysisDate": "2018-01-01",
+      "isMain": true,
+      "name": "master",
+    }
+  }
+  component="my-component"
+  displayAllIssues={false}
+  displayLocationMarkers={true}
+  loadComponent={[Function]}
+  loadIssues={[Function]}
+  loadSources={[Function]}
+/>
+`;

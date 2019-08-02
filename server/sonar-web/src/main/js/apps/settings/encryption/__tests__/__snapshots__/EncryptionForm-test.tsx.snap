@@ -1,0 +1,78 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  id="encryption-form-container"
+>
+  <div
+    className="spacer-bottom"
+  >
+    encryption.form_intro
+  </div>
+  <form
+    className="big-spacer-bottom"
+    id="encryption-form"
+    onSubmit={[Function]}
+  >
+    <textarea
+      autoFocus={true}
+      className="abs-width-600"
+      id="encryption-form-value"
+      onChange={[Function]}
+      required={true}
+      rows={5}
+      value=""
+    />
+    <div
+      className="spacer-top"
+    >
+      <SubmitButton
+        disabled={false}
+      >
+        encryption.encrypt
+      </SubmitButton>
+      <DeferredSpinner
+        className="spacer-left"
+        loading={false}
+        timeout={100}
+      />
+    </div>
+  </form>
+  <form
+    className="huge-spacer-top bordered-top"
+    id="encryption-new-key-form"
+    onSubmit={[Function]}
+  >
+    <p
+      className="big-spacer-top spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="encryption.form_note"
+        id="encryption.form_note"
+        values={
+          Object {
+            "moreInformationLink": <a
+              href="https://redirect.sonarsource.com/doc/settings-encryption.html"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              more_information
+            </a>,
+          }
+        }
+      />
+    </p>
+    <SubmitButton
+      disabled={false}
+    >
+      encryption.generate_new_secret_key
+       
+    </SubmitButton>
+    <DeferredSpinner
+      className="spacer-left"
+      loading={false}
+      timeout={100}
+    />
+  </form>
+</div>
+`;
