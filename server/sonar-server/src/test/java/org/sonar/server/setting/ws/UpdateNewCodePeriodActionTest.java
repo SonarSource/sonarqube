@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -45,7 +46,7 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
-public class SetNewCodePeriodActionTest {
+public class UpdateNewCodePeriodActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
@@ -57,28 +58,25 @@ public class SetNewCodePeriodActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private ComponentFinder componentFinder = TestComponentFinder.from(db);
-  private NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE);
-  private DbTester dbTester = DbTester.create();
+  private NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE, UuidFactoryFast.getInstance());
 
-  private SetNewCodePeriodAction underTest = new SetNewCodePeriodAction(dbClient, userSession, componentFinder, dao);
+  private UpdateNewCodePeriodAction underTest = new UpdateNewCodePeriodAction(dbClient, userSession, componentFinder, dao);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void test_definition() {
     WebService.Action definition = ws.getDef();
 
-    assertThat(definition.key()).isEqualTo("set_new_code_period");
+    assertThat(definition.key()).isEqualTo("update_new_code_period");
     assertThat(definition.isInternal()).isFalse();
-    //assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.since()).isEqualTo("8.0");
     assertThat(definition.isPost()).isFalse();
 
-    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("value", "type", "projectKey", "branchKey");
+    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("value", "type", "project", "branch");
     assertThat(definition.param("value").isRequired()).isFalse();
     assertThat(definition.param("type").isRequired()).isTrue();
-    assertThat(definition.param("projectKey").isRequired()).isFalse();
-    assertThat(definition.param("branchKey").isRequired()).isFalse();
-
+    assertThat(definition.param("project").isRequired()).isFalse();
+    assertThat(definition.param("branch").isRequired()).isFalse();
   }
 
   // validation of type
@@ -104,7 +102,7 @@ public class SetNewCodePeriodActionTest {
   @Test
   public void throw_IAE_if_type_is_invalid_for_global() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid type 'DATE'. Overall setting can only be set with types: [PREVIOUS_VERSION, DAYS]");
+    expectedException.expectMessage("Invalid type 'DATE'. Overall setting can only be set with types: [PREVIOUS_VERSION, NUMBER_OF_DAYS]");
 
     ws.newRequest()
       .setParam("type", "date")
@@ -117,10 +115,10 @@ public class SetNewCodePeriodActionTest {
     logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid type 'ANALYSIS'. Projects can only be set with types: [DATE, PREVIOUS_VERSION, DAYS]");
+    expectedException.expectMessage("Invalid type 'SPECIFIC_ANALYSIS'. Projects can only be set with types: [DATE, PREVIOUS_VERSION, NUMBER_OF_DAYS]");
 
     ws.newRequest()
-      .setParam("projectKey", project.getKey())
+      .setParam("project", project.getKey())
       .setParam("type", "specific_analysis")
       .execute();
   }
@@ -134,7 +132,7 @@ public class SetNewCodePeriodActionTest {
     expectedException.expectMessage("New Code Period type 'DATE' requires a value");
 
     ws.newRequest()
-      .setParam("projectKey", project.getKey())
+      .setParam("project", project.getKey())
       .setParam("type", "date")
       .execute();
   }
@@ -144,11 +142,11 @@ public class SetNewCodePeriodActionTest {
     ComponentDto project = componentDb.insertMainBranch();
     logInAsProjectAdministrator(project);
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("New Code Period type 'DAYS' requires a value");
+    expectedException.expectMessage("New Code Period type 'NUMBER_OF_DAYS' requires a value");
 
     ws.newRequest()
-      .setParam("projectKey", project.getKey())
-      .setParam("branchKey", "master")
+      .setParam("project", project.getKey())
+      .setParam("branch", "master")
       .setParam("type", "number_of_days")
       .execute();
   }
@@ -158,12 +156,12 @@ public class SetNewCodePeriodActionTest {
     ComponentDto project = componentDb.insertMainBranch();
     logInAsProjectAdministrator(project);
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("New Code Period type 'ANALYSIS' requires a value");
+    expectedException.expectMessage("New Code Period type 'SPECIFIC_ANALYSIS' requires a value");
 
     ws.newRequest()
-      .setParam("projectKey", project.getKey())
+      .setParam("project", project.getKey())
       .setParam("type", "specific_analysis")
-      .setParam("branchKey", "master")
+      .setParam("branch", "master")
       .execute();
   }
 
@@ -175,9 +173,9 @@ public class SetNewCodePeriodActionTest {
     expectedException.expectMessage("Failed to parse date: unknown");
 
     ws.newRequest()
-      .setParam("projectKey", project.getKey())
+      .setParam("project", project.getKey())
       .setParam("type", "date")
-      .setParam("branchKey", "master")
+      .setParam("branch", "master")
       .setParam("value", "unknown")
       .execute();
   }
@@ -190,9 +188,9 @@ public class SetNewCodePeriodActionTest {
     expectedException.expectMessage("Failed to parse number of days: unknown");
 
     ws.newRequest()
-      .setParam("projectKey", project.getKey())
+      .setParam("project", project.getKey())
       .setParam("type", "number_of_days")
-      .setParam("branchKey", "master")
+      .setParam("branch", "master")
       .setParam("value", "unknown")
       .execute();
   }
@@ -205,9 +203,9 @@ public class SetNewCodePeriodActionTest {
     expectedException.expectMessage("Analysis 'unknown' is not found");
 
     ws.newRequest()
-      .setParam("projectKey", project.getKey())
+      .setParam("project", project.getKey())
       .setParam("type", "specific_analysis")
-      .setParam("branchKey", "master")
+      .setParam("branch", "master")
       .setParam("value", "unknown")
       .execute();
   }
@@ -225,9 +223,9 @@ public class SetNewCodePeriodActionTest {
     expectedException.expectMessage("Analysis '" + analysisBranch.getUuid() + "' does not belong to branch 'master' of project '" + project.getKey() + "'");
 
     ws.newRequest()
-      .setParam("projectKey", project.getKey())
-      .setParam("type", "analysis")
-      .setParam("branchKey", "master")
+      .setParam("project", project.getKey())
+      .setParam("type", "specific_analysis")
+      .setParam("branch", "master")
       .setParam("value", analysisBranch.getUuid())
       .execute();
   }
@@ -239,7 +237,7 @@ public class SetNewCodePeriodActionTest {
     expectedException.expectMessage("If branch key is specified, project key needs to be specified too");
 
     ws.newRequest()
-      .setParam("branchKey", "branch")
+      .setParam("branch", "branch")
       .execute();
   }
 
@@ -250,7 +248,7 @@ public class SetNewCodePeriodActionTest {
 
     ws.newRequest()
       .setParam("type", "previous_version")
-      .setParam("projectKey", "unknown")
+      .setParam("project", "unknown")
       .execute();
   }
 
@@ -262,9 +260,9 @@ public class SetNewCodePeriodActionTest {
     expectedException.expectMessage("Component '" + project.getKey() + "' on branch 'unknown' not found");
 
     ws.newRequest()
-      .setParam("projectKey", project.getKey())
+      .setParam("project", project.getKey())
       .setParam("type", "previous_version")
-      .setParam("branchKey", "unknown")
+      .setParam("branch", "unknown")
       .execute();
   }
 
@@ -277,9 +275,9 @@ public class SetNewCodePeriodActionTest {
     expectedException.expectMessage("Not a long-living branch: 'branch'");
 
     ws.newRequest()
-      .setParam("projectKey", project.getKey())
+      .setParam("project", project.getKey())
       .setParam("type", "previous_version")
-      .setParam("branchKey", "branch")
+      .setParam("branch", "branch")
       .execute();
   }
 
@@ -291,7 +289,7 @@ public class SetNewCodePeriodActionTest {
     expectedException.expectMessage("Insufficient privileges");
 
     ws.newRequest()
-      .setParam("projectKey", project.getKey())
+      .setParam("project", project.getKey())
       .setParam("type", "previous_version")
       .execute();
   }
@@ -322,11 +320,11 @@ public class SetNewCodePeriodActionTest {
     ComponentDto project = componentDb.insertMainBranch();
     logInAsProjectAdministrator(project);
     ws.newRequest()
-      .setParam("projectKey", project.getKey())
+      .setParam("project", project.getKey())
       .setParam("type", "number_of_days")
       .setParam("value", "5")
       .execute();
-    assertTableContainsOnly(project.getKey(), null, NewCodePeriodType.NUMBER_OF_DAYS, "5");
+    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "5");
 
   }
 
@@ -341,20 +339,19 @@ public class SetNewCodePeriodActionTest {
     logInAsProjectAdministrator(project);
 
     ws.newRequest()
-      .setParam("projectKey", project.getKey())
+      .setParam("project", project.getKey())
       .setParam("type", "specific_analysis")
-      .setParam("branchKey", "branch")
+      .setParam("branch", "branch")
       .setParam("value", analysisBranch.getUuid())
       .execute();
 
-    assertTableContainsOnly(project.getKey(), "branch", NewCodePeriodType.SPECIFIC_ANALYSIS, analysisBranch.getUuid());
-
+    assertTableContainsOnly(project.uuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, analysisBranch.getUuid());
   }
 
-  private void assertTableContainsOnly(@Nullable String projectKey, @Nullable String branchKey, NewCodePeriodType type, @Nullable String value) {
-    dbTester.countRowsOfTable(dbSession, "new_code_period");
-    assertThat(dbTester.selectFirst(dbSession, "select projectKey, branchKey, type, value from new_code_period"))
-      .containsOnly(entry("projectKey", projectKey), entry("branchKey", branchKey), entry("type", type), entry("value", value));
+  private void assertTableContainsOnly(@Nullable String projectUuid, @Nullable String branchUuid, NewCodePeriodType type, @Nullable String value) {
+    assertThat(db.countRowsOfTable(dbSession, "new_code_periods")).isEqualTo(1);
+    assertThat(db.selectFirst(dbSession, "select project_uuid, branch_uuid, type, value from new_code_periods"))
+      .containsOnly(entry("PROJECT_UUID", projectUuid), entry("BRANCH_UUID", branchUuid), entry("TYPE", type.name()), entry("VALUE", value));
   }
 
   private void logInAsProjectAdministrator(ComponentDto project) {

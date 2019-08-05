@@ -50,7 +50,7 @@ public class CreateNewCodePeriodTableTest {
     dbTester.assertColumnDefinition(TABLE_NAME, "project_uuid", VARCHAR, 40, true);
     dbTester.assertColumnDefinition(TABLE_NAME, "branch_uuid", VARCHAR, 40, true);
     dbTester.assertColumnDefinition(TABLE_NAME, "type", VARCHAR, 30, false);
-    dbTester.assertColumnDefinition(TABLE_NAME, "value", VARCHAR, 40, false);
+    dbTester.assertColumnDefinition(TABLE_NAME, "value", VARCHAR, 40, true);
     dbTester.assertColumnDefinition(TABLE_NAME, "updated_at", BIGINT, 20, false);
     dbTester.assertColumnDefinition(TABLE_NAME, "created_at", BIGINT, 20, false);
 

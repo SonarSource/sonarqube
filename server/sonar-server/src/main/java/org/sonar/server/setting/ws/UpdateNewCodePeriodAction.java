@@ -50,9 +50,9 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 
-public class SetNewCodePeriodAction implements SettingsWsAction {
-  private static final String PARAM_BRANCH = "branchKey";
-  private static final String PARAM_PROJECT = "projectKey";
+public class UpdateNewCodePeriodAction implements SettingsWsAction {
+  private static final String PARAM_BRANCH = "branch";
+  private static final String PARAM_PROJECT = "project";
   private static final String PARAM_TYPE = "type";
   private static final String PARAM_VALUE = "value";
   private static final Set<NewCodePeriodType> OVERALL_TYPES = ImmutableSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS);
@@ -64,7 +64,7 @@ public class SetNewCodePeriodAction implements SettingsWsAction {
   private final ComponentFinder componentFinder;
   private final NewCodePeriodDao newCodePeriodDao;
 
-  public SetNewCodePeriodAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, NewCodePeriodDao newCodePeriodDao) {
+  public UpdateNewCodePeriodAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, NewCodePeriodDao newCodePeriodDao) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
@@ -73,15 +73,14 @@ public class SetNewCodePeriodAction implements SettingsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("set_new_code_period")
+    WebService.NewAction action = context.createAction("update_new_code_period")
       .setDescription("Updates the setting for the New Code Period.<br>" +
         "Requires one of the following permissions: " +
         "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified component</li>" +
+        "<li>'Administer System' to change the global setting</li>" +
+        "<li>'Administer' rights for a specified component</li>" +
         "</ul>")
       .setSince("8.0")
-      .setResponseExample(getClass().getResource("generate_secret_key-example.json"))
       .setHandler(this);
 
     action.createParam(PARAM_PROJECT)
@@ -116,15 +115,19 @@ public class SetNewCodePeriodAction implements SettingsWsAction {
       if (projectStr != null) {
         projectBranch = getProject(dbSession, projectStr, branchStr);
         userSession.checkComponentPermission(UserRole.ADMIN, projectBranch);
-        dto.setProjectUuid(projectBranch.projectUuid());
+        if (branchStr != null) {
+          dto.setBranchUuid(projectBranch.uuid());
+        }
+        // depending whether it's the main branch or not
+        dto.setProjectUuid(projectBranch.getMainBranchProjectUuid() != null ? projectBranch.getMainBranchProjectUuid() : projectBranch.uuid());
       } else {
         userSession.checkIsSystemAdministrator();
       }
 
       setValue(dbSession, dto, type, projectBranch, branchStr, valueStr);
 
-      // TODO upsert?
-      newCodePeriodDao.insert(dbSession, dto);
+      newCodePeriodDao.upsert(dbSession, dto);
+      dbSession.commit();
     }
   }
 

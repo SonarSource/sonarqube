@@ -64,11 +64,6 @@ public class NewCodePeriodDao implements Dao {
     }
   }
 
-  public void update(DbSession dbSession, NewCodePeriodDto dto) {
-    requireNonNull(dto.getType(), "Type of NewCodePeriod must be specified.");
-    mapper(dbSession).update(dto.setUpdatedAt(system2.now()));
-  }
-
   public Optional<NewCodePeriodDto> selectByProject(DbSession dbSession, String projectUuid) {
     requireNonNull(projectUuid, "Project uuid must be specified.");
     return Optional.ofNullable(mapper(dbSession).selectByProject(projectUuid));
