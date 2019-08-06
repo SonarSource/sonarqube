@@ -80,4 +80,13 @@
     AND branch_uuid=#{branchUuid, jdbcType=VARCHAR}
   </update>
 
+  <select id="countByProjectAnalysis" parameterType="map" resultType="java.lang.Long">
+    SELECT
+    count(1)
+    FROM new_code_periods ncp
+    WHERE
+    ncp.type='SPECIFIC_ANALYSIS'
+    AND ncp.value=#{projectAnalysisUuid, jdbcType=VARCHAR}
+  </select>
+
 </mapper>

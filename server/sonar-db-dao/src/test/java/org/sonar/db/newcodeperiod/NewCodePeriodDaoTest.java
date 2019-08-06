@@ -239,6 +239,26 @@ public class NewCodePeriodDaoTest {
   }
 
   @Test
+  public void exists_by_project_analysis_is_true() {
+    when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
+
+    underTest.insert(dbSession, new NewCodePeriodDto()
+      .setProjectUuid("proj-uuid")
+      .setBranchUuid("branch-uuid")
+      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+      .setValue("analysis-uuid"));
+
+    boolean exists = underTest.existsByProjectAnalysisUuid(dbSession, "analysis-uuid");
+    assertThat(exists).isTrue();
+  }
+
+  @Test
+  public void exists_by_project_analysis_is_false() {
+    boolean exists = underTest.existsByProjectAnalysisUuid(dbSession, "analysis-uuid");
+    assertThat(exists).isFalse();
+  }
+
+  @Test
   public void fail_select_by_project_and_branch_uuids_if_project_uuid_not_provided() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("Project uuid must be specified.");

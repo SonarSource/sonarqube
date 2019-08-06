@@ -85,6 +85,11 @@ public class NewCodePeriodDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).selectByBranch(projectUuid, branchUuid));
   }
 
+  public boolean existsByProjectAnalysisUuid(DbSession dbSession, String projectAnalysisUuid) {
+    requireNonNull(projectAnalysisUuid, "Project analysis uuid must be specified.");
+    return mapper(dbSession).countByProjectAnalysis(projectAnalysisUuid) > 0;
+  }
+
   public void deleteByProjectUuidAndBranchUuid(DbSession dbSession, String projectUuid, String branchUuid) {
     requireNonNull(projectUuid, "Project uuid must be specified.");
     mapper(dbSession).deleteByProjectAndBranch(projectUuid, branchUuid);

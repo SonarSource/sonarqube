@@ -86,14 +86,10 @@ public class DeleteAction implements ProjectAnalysesWsAction {
   }
 
   private void checkNotBaseline(DbSession dbSession, SnapshotDto analysis) {
-    dbClient.branchDao().selectByUuid(dbSession, analysis.getComponentUuid())
-      .ifPresent(branchDto -> {
-        dbClient.newCodePeriodDao().selectByBranch(dbSession, branchDto.getProjectUuid(), branchDto.getUuid())
-          .ifPresent(newCodePeriodDto ->
-            checkArgument(!newCodePeriodDto.getValue().equals(analysis.getUuid()),
-              "The analysis '%s' can not be deleted because it is set as a manual new code period baseline", analysis.getUuid())
-          );
-      });
+    boolean isSetAsBaseline = dbClient.newCodePeriodDao().existsByProjectAnalysisUuid(dbSession, analysis.getUuid());
+    checkArgument(!isSetAsBaseline,
+      "The analysis '%s' can not be deleted because it is set as a manual new code period baseline", analysis.getUuid());
+
   }
 
   private static NotFoundException analysisNotFoundException(String analysis) {
