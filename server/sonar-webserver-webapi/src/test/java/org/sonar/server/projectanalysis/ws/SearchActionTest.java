@@ -42,6 +42,7 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDao;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -50,6 +51,8 @@ import org.sonar.db.event.EventComponentChangeDto;
 import org.sonar.db.event.EventComponentChangeDto.ChangeCategory;
 import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventPurgeData;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -144,8 +147,13 @@ public class SearchActionTest {
       .setCreatedAt(parseDateTime("2015-11-11T10:00:00+0100").getTime())
       .setProjectVersion("1.2")
       .setBuildString("1.2.0.321"));
-    db.getDbClient().branchDao().insert(db.getSession(), newBranchDto(project, LONG)
-      .setManualBaseline(a1.getUuid()));
+    BranchDto branchDto = newBranchDto(project, LONG);
+    db.getDbClient().branchDao().insert(db.getSession(), branchDto);
+    db.newCodePeriods().insert(new NewCodePeriodDto()
+      .setProjectUuid(project.uuid())
+      .setBranchUuid(branchDto.getUuid())
+      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+      .setValue(a1.getUuid()));
     db.commit();
     db.events().insertEvent(newEvent(a1).setUuid("E11")
       .setName("Quality Gate is Red (was Orange)")

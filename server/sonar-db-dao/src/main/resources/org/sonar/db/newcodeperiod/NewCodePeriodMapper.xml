@@ -45,12 +45,13 @@
   </insert>
 
   <update id="update" parameterType="org.sonar.db.newcodeperiod.NewCodePeriodDto">
-    update new_code_periods
-    set
+    UPDATE new_code_periods
+    SET
     type=#{type, jdbcType=VARCHAR},
     value=#{value, jdbcType=VARCHAR},
     updated_at=#{updatedAt, jdbcType=TIMESTAMP}
-    where uuid=#{uuid}
+    WHERE
+    uuid=#{uuid, jdbcType=VARCHAR}
   </update>
 
   <select id="selectByProject" parameterType="map" resultType="org.sonar.db.newcodeperiod.NewCodePeriodDto">
@@ -70,5 +71,13 @@
     ncp.project_uuid=#{projectUuid, jdbcType=VARCHAR}
     AND ncp.branch_uuid=#{branchUuid, jdbcType=VARCHAR}
   </select>
+
+  <update id="deleteByProjectAndBranch" parameterType="map">
+    DELETE
+    FROM new_code_periods
+    WHERE
+    project_uuid=#{projectUuid, jdbcType=VARCHAR}
+    AND branch_uuid=#{branchUuid, jdbcType=VARCHAR}
+  </update>
 
 </mapper>

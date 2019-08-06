@@ -64,6 +64,7 @@ public class UnsetBaselineAction implements ProjectAnalysesWsAction {
         "</ul>")
       .setSince("7.7")
       .setPost(true)
+      .setDeprecatedSince("8.0")
       .setHandler(this);
 
     action.createParam(PARAM_PROJECT)
@@ -89,7 +90,9 @@ public class UnsetBaselineAction implements ProjectAnalysesWsAction {
       ComponentDto projectBranch = getProjectBranch(dbSession, projectKey, branchKey);
       userSession.checkComponentPermission(UserRole.ADMIN, projectBranch);
 
-      dbClient.branchDao().updateManualBaseline(dbSession, projectBranch.uuid(), null);
+      String projectUuid = projectBranch.getMainBranchProjectUuid() != null ? projectBranch.getMainBranchProjectUuid() : projectBranch.uuid();
+      String branchUuid = branchKey != null ? projectBranch.uuid() : null;
+      dbClient.newCodePeriodDao().deleteByProjectUuidAndBranchUuid(dbSession, projectUuid, branchUuid);
       dbSession.commit();
     }
   }

@@ -155,7 +155,9 @@ public class SearchAction implements ProjectAnalysesWsAction {
 
   private void addManualBaseline(SearchData.Builder data) {
     dbClient.branchDao().selectByUuid(data.getDbSession(), data.getProject().uuid())
-      .ifPresent(branchDto -> data.setManualBaseline(branchDto.getManualBaseline()));
+      .ifPresent(branchDto -> dbClient.newCodePeriodDao().selectByBranch(
+        data.getDbSession(), branchDto.getProjectUuid(), branchDto.getUuid())
+        .ifPresent(newCodePeriodDto -> data.setManualBaseline(newCodePeriodDto.getValue())));
   }
 
   private void addAnalyses(SearchData.Builder data) {

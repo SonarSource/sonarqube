@@ -28,8 +28,11 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -98,7 +101,13 @@ public class DeleteActionTest {
     String analysisUuid = RandomStringUtils.randomAlphabetic(12);
     ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setUuid(analysisUuid).setLast(false));
-    db.getDbClient().branchDao().insert(db.getSession(), newBranchDto(project, LONG).setManualBaseline(analysis.getUuid()));
+    BranchDto branch = newBranchDto(project, LONG);
+    db.getDbClient().branchDao().insert(db.getSession(), branch);
+    db.newCodePeriods().insert(new NewCodePeriodDto()
+      .setProjectUuid(project.uuid())
+      .setBranchUuid(branch.getUuid())
+      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+      .setValue(analysis.getUuid()));
     db.commit();
     logInAsProjectAdministrator(project);
 

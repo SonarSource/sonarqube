@@ -225,7 +225,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @DataProvider
   public static Object[][] branchTypesNotAllowedToHaveManualBaseline() {
-    return new Object[][] {
+    return new Object[][]{
       {BranchType.SHORT},
       {BranchType.PULL_REQUEST}
     };
@@ -337,7 +337,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @DataProvider
   public static Object[][] anyValidLeakPeriodSettingValue() {
-    return new Object[][] {
+    return new Object[][]{
       // days
       {"100"},
       // date
@@ -416,7 +416,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @DataProvider
   public static Object[][] projectVersionNullOrNot() {
-    return new Object[][] {
+    return new Object[][]{
       {null},
       {randomAlphabetic(15)},
     };
@@ -526,7 +526,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @DataProvider
   public static Object[][] zeroOrLess() {
-    return new Object[][] {
+    return new Object[][]{
       {0},
       {-1 - new Random().nextInt(30)}
     };
@@ -582,7 +582,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @DataProvider
   public static Object[][] stringConsideredAsVersions() {
-    return new Object[][] {
+    return new Object[][]{
       {randomAlphabetic(5)},
       {"1,3"},
       {"1.3"},

@@ -42,6 +42,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -50,6 +51,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_ANALYSIS;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_BRANCH;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_PROJECT;
@@ -74,7 +76,7 @@ public class SetBaselineActionTest {
 
   @Test
   @UseDataProvider("nullOrEmpty")
-  public void set_baseline_on_main_branch(@Nullable String branchName) {
+  public void set_baseline_on_project(@Nullable String branchName) {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     BranchDto branch = new BranchDto()
       .setBranchType(BranchType.LONG)
@@ -88,13 +90,14 @@ public class SetBaselineActionTest {
 
     call(project.getKey(), branchName, analysis.getUuid());
 
-    BranchDto loaded = dbClient.branchDao().selectByUuid(dbSession, branch.getUuid()).get();
-    assertThat(loaded.getManualBaseline()).isEqualTo(analysis.getUuid());
+    NewCodePeriodDto loaded = dbClient.newCodePeriodDao().selectByProject(dbSession, project.uuid()).get();
+    assertThat(loaded.getValue()).isEqualTo(analysis.getUuid());
+    assertThat(loaded.getType()).isEqualTo(SPECIFIC_ANALYSIS);
   }
 
   @DataProvider
   public static Object[][] nullOrEmpty() {
-    return new Object[][] {
+    return new Object[][]{
       {null},
       {""},
       {"     "},
@@ -112,8 +115,9 @@ public class SetBaselineActionTest {
 
     call(project.getKey(), branch.getKey(), analysis.getUuid());
 
-    BranchDto loaded = dbClient.branchDao().selectByUuid(dbSession, branch.getUuid()).get();
-    assertThat(loaded.getManualBaseline()).isEqualTo(analysis.getUuid());
+    NewCodePeriodDto loaded = dbClient.newCodePeriodDao().selectByBranch(dbSession, project.uuid(), branch.getUuid()).get();
+    assertThat(loaded.getValue()).isEqualTo(analysis.getUuid());
+    assertThat(loaded.getType()).isEqualTo(SPECIFIC_ANALYSIS);
   }
 
   @Test
@@ -146,7 +150,7 @@ public class SetBaselineActionTest {
       .put(PARAM_BRANCH, "branch key")
       .put(PARAM_ANALYSIS, "analysis uuid");
 
-    return new Object[][] {
+    return new Object[][]{
       {builder.put(PARAM_PROJECT, null).map, "The 'project' parameter is missing"},
       {builder.put(PARAM_PROJECT, "").map, "The 'project' parameter is missing"},
       {builder.put(PARAM_ANALYSIS, null).map, "The 'analysis' parameter is missing"},
@@ -180,7 +184,7 @@ public class SetBaselineActionTest {
   public static Object[][] nonexistentParamsAndFailureMessage() {
     MapBuilder builder = new MapBuilder();
 
-    return new Object[][] {
+    return new Object[][]{
       {builder.put(PARAM_PROJECT, "nonexistent").map, "Component 'nonexistent' on branch .* not found"},
       {builder.put(PARAM_BRANCH, "nonexistent").map, "Component .* on branch 'nonexistent' not found"},
       {builder.put(PARAM_ANALYSIS, "nonexistent").map, "Analysis 'nonexistent' is not found"},

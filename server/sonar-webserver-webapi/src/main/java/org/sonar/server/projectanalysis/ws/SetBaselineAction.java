@@ -32,6 +32,8 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
@@ -67,6 +69,7 @@ public class SetBaselineAction implements ProjectAnalysesWsAction {
         "  <li>'Administer' rights on the specified project</li>" +
         "</ul>")
       .setSince("7.7")
+      .setDeprecatedSince("8.0")
       .setPost(true)
       .setHandler(this);
 
@@ -99,7 +102,13 @@ public class SetBaselineAction implements ProjectAnalysesWsAction {
       ComponentDto projectBranch = getProjectBranch(dbSession, projectKey, branchKey);
       SnapshotDto analysis = getAnalysis(dbSession, analysisUuid);
       checkRequest(dbSession, projectBranch, branchKey, analysis);
-      dbClient.branchDao().updateManualBaseline(dbSession, projectBranch.uuid(), analysis.getUuid());
+
+      dbClient.newCodePeriodDao().upsert(dbSession, new NewCodePeriodDto()
+        .setProjectUuid(projectBranch.getMainBranchProjectUuid() != null ? projectBranch.getMainBranchProjectUuid() : projectBranch.uuid())
+        .setBranchUuid(branchKey != null ? projectBranch.uuid() : null)
+        .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+        .setValue(analysisUuid)
+      );
       dbSession.commit();
     }
   }
@@ -130,11 +139,11 @@ public class SetBaselineAction implements ProjectAnalysesWsAction {
 
     boolean analysisMatchesProjectBranch = project != null && projectBranch.uuid().equals(project.uuid());
     if (branchKey != null) {
-      checkArgument (analysisMatchesProjectBranch,
+      checkArgument(analysisMatchesProjectBranch,
         "Analysis '%s' does not belong to branch '%s' of project '%s'",
         analysis.getUuid(), branchKey, projectBranch.getKey());
     } else {
-      checkArgument (analysisMatchesProjectBranch,
+      checkArgument(analysisMatchesProjectBranch,
         "Analysis '%s' does not belong to project '%s'",
         analysis.getUuid(), projectBranch.getKey());
     }

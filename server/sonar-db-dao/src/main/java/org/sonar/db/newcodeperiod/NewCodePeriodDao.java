@@ -57,23 +57,37 @@ public class NewCodePeriodDao implements Dao {
     NewCodePeriodMapper mapper = mapper(dbSession);
     long currentTime = system2.now();
     dto.setUpdatedAt(currentTime);
-    if (mapper.update(dto) == 0) {
+    if (updateInternal(dbSession, dto) == 0) {
       dto.setCreatedAt(currentTime);
       dto.setUuid(uuidFactory.create());
       mapper.insert(dto);
     }
   }
 
+  public void update(DbSession dbSession, NewCodePeriodDto dto) {
+    requireNonNull(dto.getUuid(), "Uuid of NewCodePeriod must be specified.");
+    updateInternal(dbSession, dto);
+  }
+
+  private int updateInternal(DbSession dbSession, NewCodePeriodDto dto) {
+    requireNonNull(dto.getType(), "Type of NewCodePeriod must be specified.");
+    return mapper(dbSession).update(dto.setUpdatedAt(system2.now()));
+  }
+
   public Optional<NewCodePeriodDto> selectByProject(DbSession dbSession, String projectUuid) {
     requireNonNull(projectUuid, "Project uuid must be specified.");
     return Optional.ofNullable(mapper(dbSession).selectByProject(projectUuid));
-
   }
 
   public Optional<NewCodePeriodDto> selectByBranch(DbSession dbSession, String projectUuid, String branchUuid) {
     requireNonNull(projectUuid, "Project uuid must be specified.");
     requireNonNull(branchUuid, "Branch uuid must be specified.");
     return Optional.ofNullable(mapper(dbSession).selectByBranch(projectUuid, branchUuid));
+  }
+
+  public void deleteByProjectUuidAndBranchUuid(DbSession dbSession, String projectUuid, String branchUuid) {
+    requireNonNull(projectUuid, "Project uuid must be specified.");
+    mapper(dbSession).deleteByProjectAndBranch(projectUuid, branchUuid);
   }
 
   private static NewCodePeriodMapper mapper(DbSession session) {

@@ -52,6 +52,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.db.event.EventDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -84,7 +85,7 @@ public class LoadPeriodsStep implements ComputationStep {
   private final ConfigurationRepository configRepository;
 
   public LoadPeriodsStep(AnalysisMetadataHolder analysisMetadataHolder, TreeRootHolder treeRootHolder, PeriodHolderImpl periodsHolder,
-    System2 system2, DbClient dbClient, ConfigurationRepository configRepository) {
+                         System2 system2, DbClient dbClient, ConfigurationRepository configRepository) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.treeRootHolder = treeRootHolder;
     this.periodsHolder = periodsHolder;
@@ -134,7 +135,9 @@ public class LoadPeriodsStep implements ComputationStep {
   }
 
   private Period resolveByManualBaseline(DbSession dbSession, String projectUuid, BranchDto branchDto) {
-    String baselineAnalysisUuid = branchDto.getManualBaseline();
+    String baselineAnalysisUuid = dbClient.newCodePeriodDao().selectByBranch(dbSession, projectUuid, branchDto.getUuid())
+      .map(NewCodePeriodDto::getValue)
+      .orElse(null);
     if (baselineAnalysisUuid == null) {
       return null;
     }

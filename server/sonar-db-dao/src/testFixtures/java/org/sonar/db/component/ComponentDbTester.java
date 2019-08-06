@@ -25,6 +25,8 @@ import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -113,8 +115,8 @@ public class ComponentDbTester {
   }
 
   /**
-   * @deprecated since 6.6
    * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   * @deprecated since 6.6
    */
   @Deprecated
   public ComponentDto insertView() {
@@ -122,40 +124,40 @@ public class ComponentDbTester {
   }
 
   /**
-   * @deprecated since 6.6
    * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   * @deprecated since 6.6
    */
   public ComponentDto insertView(Consumer<ComponentDto> dtoPopulator) {
     return insertComponentImpl(ComponentTesting.newView(db.getDefaultOrganization()), false, dtoPopulator);
   }
 
   /**
-   * @deprecated since 6.6
    * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   * @deprecated since 6.6
    */
   public ComponentDto insertView(OrganizationDto organizationDto) {
     return insertComponentImpl(ComponentTesting.newView(organizationDto), false, noExtraConfiguration());
   }
 
   /**
-   * @deprecated since 6.6
    * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   * @deprecated since 6.6
    */
   public ComponentDto insertView(OrganizationDto organizationDto, Consumer<ComponentDto> dtoPopulator) {
     return insertComponentImpl(ComponentTesting.newView(organizationDto), false, dtoPopulator);
   }
 
   /**
-   * @deprecated since 6.6
    * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   * @deprecated since 6.6
    */
   public ComponentDto insertView(String uuid) {
     return insertComponentImpl(ComponentTesting.newView(db.getDefaultOrganization(), uuid), false, noExtraConfiguration());
   }
 
   /**
-   * @deprecated since 6.6
    * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   * @deprecated since 6.6
    */
   public ComponentDto insertView(OrganizationDto organizationDto, String uuid) {
     return insertComponentImpl(ComponentTesting.newView(organizationDto, uuid), false, noExtraConfiguration());
@@ -182,8 +184,8 @@ public class ComponentDbTester {
   }
 
   /**
-   * @deprecated since 6.6
    * @see #insertPublicApplication(OrganizationDto, Consumer[])
+   * @deprecated since 6.6
    */
   @SafeVarargs
   public final ComponentDto insertApplication(OrganizationDto organizationDto, Consumer<ComponentDto>... dtoPopulators) {
@@ -304,7 +306,11 @@ public class ComponentDbTester {
     BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(dbSession, longOrMainBranchOfProject.uuid())
       .orElseThrow(() -> new IllegalArgumentException("BranchDto not found for component " + longOrMainBranchOfProject));
     checkArgument(branchDto.getBranchType() == LONG, "must be a main or a Long Living branch");
-    db.getDbClient().branchDao().updateManualBaseline(dbSession, longOrMainBranchOfProject.uuid(), analysis.getUuid());
+    db.getDbClient().newCodePeriodDao().insert(dbSession, new NewCodePeriodDto()
+      .setProjectUuid(longOrMainBranchOfProject.uuid())
+      .setBranchUuid(branchDto.getUuid())
+      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+      .setValue(analysis.getUuid()));
     db.commit();
   }
 
@@ -314,7 +320,7 @@ public class ComponentDbTester {
     BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(dbSession, longOrMainBranchOfProject.uuid())
       .orElseThrow(() -> new IllegalArgumentException("BranchDto not found for component " + longOrMainBranchOfProject));
     checkArgument(branchDto.getBranchType() == LONG, "must be a main or a Long Living branch");
-    db.getDbClient().branchDao().updateManualBaseline(dbSession, longOrMainBranchOfProject.uuid(), null);
+    db.getDbClient().newCodePeriodDao().deleteByProjectUuidAndBranchUuid(dbSession, longOrMainBranchOfProject.uuid(), null);
     db.commit();
   }
 
