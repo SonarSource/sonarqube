@@ -34,7 +34,7 @@ public interface NewCodePeriodMapper {
 
   NewCodePeriodDto selectByProject(String projectUuid);
 
-  void deleteByProjectAndBranch(@Param("projectUuid") String projectUuid, @Param("branchUuid") String branchUuid);
+  void deleteByBranch(@Param("projectUuid") String projectUuid, @Param("branchUuid") String branchUuid);
 
   NewCodePeriodDto selectByBranch(@Param("projectUuid") String projectUuid, @Param("branchUuid") String branchUuid);
 

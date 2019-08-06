@@ -44,7 +44,7 @@
       and not exists(select e.id from events e where e.analysis_uuid=s.uuid)
   </select>
 
-  <select id="selectManualBaseline" parameterType="String" resultType="String">
+  <select id="selectSpecificAnalysisNewCodePeriod" parameterType="String" resultType="String">
     select
       value
     from

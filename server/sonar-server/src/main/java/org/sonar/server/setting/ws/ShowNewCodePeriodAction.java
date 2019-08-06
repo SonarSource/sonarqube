@@ -70,7 +70,7 @@ public class ShowNewCodePeriodAction implements SettingsWsAction {
         "<li>'Administer' rights on the specified component</li>" +
         "</ul>")
       .setSince("8.0")
-      .setResponseExample(getClass().getResource("generate_secret_key-example.json"))
+      .setResponseExample(getClass().getResource("show_new_code_period-example.json"))
       .setHandler(this);
 
     action.createParam(PARAM_PROJECT)

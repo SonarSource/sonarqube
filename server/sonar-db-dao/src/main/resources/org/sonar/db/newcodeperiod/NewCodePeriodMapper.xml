@@ -51,11 +51,23 @@
     value=#{value, jdbcType=VARCHAR},
     updated_at=#{updatedAt, jdbcType=TIMESTAMP}
     WHERE
-    uuid=#{uuid, jdbcType=VARCHAR}
-    OR
-    (project_uuid=#{projectUuid, jdbcType=VARCHAR}
+    <choose>
+      <when test="projectUuid != null">
+        project_uuid=#{projectUuid, jdbcType=VARCHAR}
+      </when>
+      <otherwise>
+        project_uuid IS NULL
+      </otherwise>
+    </choose>
     AND
-    branch_uuid=#{branchUuid, jdbcType=VARCHAR})
+    <choose>
+      <when test="branchUuid != null">
+        branch_uuid=#{branchUuid, jdbcType=VARCHAR}
+      </when>
+      <otherwise>
+        branch_uuid IS NULL
+      </otherwise>
+    </choose>
   </update>
 
   <select id="selectByProject" parameterType="map" resultType="org.sonar.db.newcodeperiod.NewCodePeriodDto">
@@ -76,7 +88,7 @@
     AND ncp.branch_uuid=#{branchUuid, jdbcType=VARCHAR}
   </select>
 
-  <update id="deleteByProjectAndBranch" parameterType="map">
+  <update id="deleteByBranch" parameterType="map">
     DELETE
     FROM new_code_periods
     WHERE

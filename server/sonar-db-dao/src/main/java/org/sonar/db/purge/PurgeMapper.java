@@ -99,7 +99,7 @@ public interface PurgeMapper {
   List<String> selectStaleShortLivingBranchesAndPullRequests(@Param("projectUuid") String projectUuid, @Param("toDate") Long toDate);
 
   @CheckForNull
-  String selectManualBaseline(@Param("projectUuid") String projectUuid);
+  String selectSpecificAnalysisNewCodePeriod(@Param("projectUuid") String projectUuid);
 
   List<IdUuidPair> selectDisabledComponentsWithoutIssues(@Param("projectUuid") String projectUuid);
 

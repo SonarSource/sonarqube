@@ -104,7 +104,7 @@ public class UnsetBaselineActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto projectAnalysis = db.components().insertSnapshot(project);
     SnapshotDto branchAnalysis = db.components().insertSnapshot(project);
-    db.components().setManualBaseline(project, projectAnalysis);
+    db.components().setSpecificAnalysisNewCodePeriod(project, projectAnalysis);
     logInAsProjectAdministrator(project);
 
     call(project.getKey(), null);
@@ -118,7 +118,7 @@ public class UnsetBaselineActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto projectAnalysis = db.components().insertSnapshot(branch);
     SnapshotDto branchAnalysis = db.components().insertSnapshot(project);
-    db.components().setManualBaseline(branch, branchAnalysis);
+    db.components().setSpecificAnalysisNewCodePeriod(branch, branchAnalysis);
     logInAsProjectAdministrator(project);
 
     call(project.getKey(), branch.getBranch());
@@ -176,7 +176,7 @@ public class UnsetBaselineActionTest {
 
   @DataProvider
   public static Object[][] nullOrEmptyOrValue() {
-    return new Object[][]{
+    return new Object[][] {
       {null},
       {""},
       {randomAlphabetic(10)},
@@ -195,7 +195,7 @@ public class UnsetBaselineActionTest {
 
   @DataProvider
   public static Object[][] nullOrEmpty() {
-    return new Object[][]{
+    return new Object[][] {
       {null},
       {""},
     };
@@ -203,7 +203,7 @@ public class UnsetBaselineActionTest {
 
   @DataProvider
   public static Object[][] nonexistentParamsAndFailureMessage() {
-    return new Object[][]{
+    return new Object[][] {
       {ImmutableMap.of(PARAM_PROJECT, "nonexistent"), "Component 'nonexistent' on branch .* not found"},
       {ImmutableMap.of(PARAM_BRANCH, "nonexistent"), "Component .* on branch 'nonexistent' not found"}
     };

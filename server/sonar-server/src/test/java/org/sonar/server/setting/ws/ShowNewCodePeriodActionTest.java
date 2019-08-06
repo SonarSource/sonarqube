@@ -126,7 +126,7 @@ public class ShowNewCodePeriodActionTest {
   }
 
   @Test
-  public void throw_NFE_if_no_project_permission() {
+  public void throw_FE_if_no_project_permission() {
     ComponentDto project = componentDb.insertMainBranch();
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");

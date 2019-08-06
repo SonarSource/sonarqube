@@ -300,27 +300,28 @@ public class ComponentDbTester {
     return branch;
   }
 
-  public final void setManualBaseline(ComponentDto longOrMainBranchOfProject, SnapshotDto analysis) {
+  public final void setSpecificAnalysisNewCodePeriod(ComponentDto longOrMainBranchOfProject, SnapshotDto analysis) {
     checkArgument(longOrMainBranchOfProject.isRoot());
 
     BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(dbSession, longOrMainBranchOfProject.uuid())
       .orElseThrow(() -> new IllegalArgumentException("BranchDto not found for component " + longOrMainBranchOfProject));
     checkArgument(branchDto.getBranchType() == LONG, "must be a main or a Long Living branch");
+
     db.getDbClient().newCodePeriodDao().insert(dbSession, new NewCodePeriodDto()
-      .setProjectUuid(longOrMainBranchOfProject.uuid())
+      .setProjectUuid(branchDto.getProjectUuid())
       .setBranchUuid(branchDto.getUuid())
       .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
       .setValue(analysis.getUuid()));
     db.commit();
   }
 
-  public final void unsetManualBaseline(ComponentDto longOrMainBranchOfProject) {
+  public final void unsetBranchNewCodePeriod(ComponentDto longOrMainBranchOfProject) {
     checkArgument(longOrMainBranchOfProject.isRoot());
 
     BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(dbSession, longOrMainBranchOfProject.uuid())
       .orElseThrow(() -> new IllegalArgumentException("BranchDto not found for component " + longOrMainBranchOfProject));
     checkArgument(branchDto.getBranchType() == LONG, "must be a main or a Long Living branch");
-    db.getDbClient().newCodePeriodDao().deleteByProjectUuidAndBranchUuid(dbSession, longOrMainBranchOfProject.uuid(), null);
+    db.getDbClient().newCodePeriodDao().deleteByBranch(dbSession, branchDto.getProjectUuid(), branchDto.getUuid());
     db.commit();
   }
 

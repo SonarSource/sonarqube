@@ -325,7 +325,24 @@ public class UpdateNewCodePeriodActionTest {
       .setParam("value", "5")
       .execute();
     assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "5");
+  }
 
+  @Test
+  public void set_project_twice_period_to_number_of_days() {
+    ComponentDto project = componentDb.insertMainBranch();
+    logInAsProjectAdministrator(project);
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("type", "previous_version")
+      .execute();
+    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.PREVIOUS_VERSION, null);
+
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("type", "number_of_days")
+      .setParam("value", "5")
+      .execute();
+    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "5");
   }
 
   @Test
@@ -346,6 +363,32 @@ public class UpdateNewCodePeriodActionTest {
       .execute();
 
     assertTableContainsOnly(project.uuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, analysisBranch.getUuid());
+  }
+
+  @Test
+  public void set_branch_period_twice_to_analysis() {
+    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
+
+    SnapshotDto analysisMaster = db.components().insertSnapshot(project);
+    SnapshotDto analysisBranch = db.components().insertSnapshot(branch);
+
+    logInAsProjectAdministrator(project);
+
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("type", "specific_analysis")
+      .setParam("branch", "branch")
+      .setParam("value", analysisBranch.getUuid())
+      .execute();
+
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("type", "previous_version")
+      .setParam("branch", "branch")
+      .execute();
+
+    assertTableContainsOnly(project.uuid(), branch.uuid(), NewCodePeriodType.PREVIOUS_VERSION, null);
   }
 
   private void assertTableContainsOnly(@Nullable String projectUuid, @Nullable String branchUuid, NewCodePeriodType type, @Nullable String value) {

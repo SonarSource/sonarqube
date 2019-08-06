@@ -263,7 +263,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void fail_with_ISE_when_manual_baseline_is_set_but_does_not_exist_in_DB(String leakPeriodSettingValue) {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertMainBranch(organization);
-    dbTester.components().setManualBaseline(project, new SnapshotDto().setUuid("nonexistent"));
+    dbTester.components().setSpecificAnalysisNewCodePeriod(project, new SnapshotDto().setUuid("nonexistent"));
     setBranchOf(project);
     setupRoot(project);
 
@@ -281,7 +281,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     ComponentDto project = dbTester.components().insertMainBranch(organization);
     ComponentDto otherProject = dbTester.components().insertMainBranch(organization);
     SnapshotDto otherProjectAnalysis = dbTester.components().insertSnapshot(otherProject);
-    dbTester.components().setManualBaseline(project, otherProjectAnalysis);
+    dbTester.components().setSpecificAnalysisNewCodePeriod(project, otherProjectAnalysis);
     setBranchOf(project);
     setupRoot(project);
 
@@ -305,7 +305,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     when(system2Mock.now()).thenReturn(november30th2008.getTime());
     when(analysisMetadataHolder.getAnalysisDate()).thenReturn(november30th2008.getTime());
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(false);
-    dbTester.components().setManualBaseline(project, manualBaselineAnalysis);
+    dbTester.components().setSpecificAnalysisNewCodePeriod(project, manualBaselineAnalysis);
     setBranchOf(project);
     setupRoot(project);
 
@@ -330,7 +330,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     when(system2Mock.now()).thenReturn(november30th2008.getTime());
     when(analysisMetadataHolder.getAnalysisDate()).thenReturn(november30th2008.getTime());
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(false);
-    dbTester.components().setManualBaseline(branch, manualBaselineAnalysis);
+    dbTester.components().setSpecificAnalysisNewCodePeriod(branch, manualBaselineAnalysis);
     setBranchOf(branch);
     setupRoot(branch);
 
@@ -361,7 +361,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertMainBranch(organization);
     SnapshotDto manualBaselineAnalysis = dbTester.components().insertSnapshot(project);
-    dbTester.components().setManualBaseline(project, manualBaselineAnalysis);
+    dbTester.components().setSpecificAnalysisNewCodePeriod(project, manualBaselineAnalysis);
     setBranchOf(project);
     setupRoot(project);
 
@@ -377,7 +377,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertMainBranch(organization);
     SnapshotDto manualBaselineAnalysis = dbTester.components().insertSnapshot(project, t -> t.setProjectVersion(version).setProjectVersion(version));
-    dbTester.components().setManualBaseline(project, manualBaselineAnalysis);
+    dbTester.components().setSpecificAnalysisNewCodePeriod(project, manualBaselineAnalysis);
     setBranchOf(project);
     setupRoot(project);
 
@@ -393,7 +393,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertMainBranch(organization);
     SnapshotDto manualBaselineAnalysis = dbTester.components().insertSnapshot(project, t -> t.setProjectVersion(projectVersion));
-    dbTester.components().setManualBaseline(project, manualBaselineAnalysis);
+    dbTester.components().setSpecificAnalysisNewCodePeriod(project, manualBaselineAnalysis);
     setBranchOf(project);
     setupRoot(project);
 
@@ -411,7 +411,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     ComponentDto project = dbTester.components().insertMainBranch(organization);
     SnapshotDto manualBaselineAnalysis = dbTester.components().insertSnapshot(project, t -> t.setProjectVersion(projectVersion));
     dbTester.events().insertEvent(EventTesting.newEvent(manualBaselineAnalysis).setCategory(CATEGORY_VERSION).setName(eventVersion));
-    dbTester.components().setManualBaseline(project, manualBaselineAnalysis);
+    dbTester.components().setSpecificAnalysisNewCodePeriod(project, manualBaselineAnalysis);
     setBranchOf(project);
     setupRoot(project);
 
@@ -829,7 +829,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   private void setupBranchWithNoManualBaseline(ComponentDto projectOrLongBranch) {
-    dbTester.components().unsetManualBaseline(projectOrLongBranch);
+    dbTester.components().unsetBranchNewCodePeriod(projectOrLongBranch);
     setBranchOf(projectOrLongBranch);
   }
 

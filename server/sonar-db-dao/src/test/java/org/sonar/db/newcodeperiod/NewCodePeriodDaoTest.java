@@ -149,6 +149,8 @@ public class NewCodePeriodDaoTest {
 
     underTest.upsert(dbSession, new NewCodePeriodDto()
       .setUuid(NEW_CODE_PERIOD_UUID)
+      .setProjectUuid("proj-uuid")
+      .setBranchUuid("branch-uuid")
       .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
       .setValue("analysis-uuid"));
 
@@ -262,7 +264,7 @@ public class NewCodePeriodDaoTest {
       .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
       .setValue("analysis-uuid"));
 
-    underTest.deleteByProjectUuidAndBranchUuid(dbSession, "proj-uuid", "branch-uuid");
+    underTest.deleteByBranch(dbSession, "proj-uuid", "branch-uuid");
     db.commit();
     assertNewCodePeriodRowCount(0);
   }

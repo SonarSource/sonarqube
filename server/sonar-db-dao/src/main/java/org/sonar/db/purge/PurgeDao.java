@@ -203,7 +203,7 @@ public class PurgeDao implements Dao {
     @Override
     public boolean test(PurgeableAnalysisDto purgeableAnalysisDto) {
       if (manualBaselineAnalysisUuid == null) {
-        manualBaselineAnalysisUuid = Optional.ofNullable(mapper.selectManualBaseline(componentUuid))
+        manualBaselineAnalysisUuid = Optional.ofNullable(mapper.selectSpecificAnalysisNewCodePeriod(componentUuid))
           .map(t -> new String[] {t})
           .orElse(NO_BASELINE);
       }

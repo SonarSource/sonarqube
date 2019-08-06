@@ -420,7 +420,7 @@ public class PurgeDaoTest {
 
   @Test
   public void selectPurgeableAnalyses() {
-    SnapshotDto[] analyses = new SnapshotDto[]{
+    SnapshotDto[] analyses = new SnapshotDto[] {
       newSnapshot()
         .setUuid("u1")
         .setComponentUuid(PROJECT_UUID)
@@ -1597,7 +1597,7 @@ public class PurgeDaoTest {
 
   @SafeVarargs
   private final void insertCeActivityAndChildDataWithDate(String ceActivityUuid, LocalDateTime dateTime,
-                                                          Consumer<CeQueueDto>... queueDtoConsumers) {
+    Consumer<CeQueueDto>... queueDtoConsumers) {
     long date = dateTime.toInstant(UTC).toEpochMilli();
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setUuid(ceActivityUuid);

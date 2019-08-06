@@ -76,7 +76,7 @@ public class DeleteAction implements ProjectAnalysesWsAction {
       userSession.checkComponentUuidPermission(UserRole.ADMIN, analysis.getComponentUuid());
 
       checkArgument(!analysis.getLast(), "The last analysis '%s' cannot be deleted", analysisUuid);
-      checkNotBaseline(dbSession, analysis);
+      checkNotUsedInNewCodePeriod(dbSession, analysis);
 
       analysis.setStatus(STATUS_UNPROCESSED);
       dbClient.snapshotDao().update(dbSession, analysis);
@@ -85,10 +85,10 @@ public class DeleteAction implements ProjectAnalysesWsAction {
     response.noContent();
   }
 
-  private void checkNotBaseline(DbSession dbSession, SnapshotDto analysis) {
+  private void checkNotUsedInNewCodePeriod(DbSession dbSession, SnapshotDto analysis) {
     boolean isSetAsBaseline = dbClient.newCodePeriodDao().existsByProjectAnalysisUuid(dbSession, analysis.getUuid());
     checkArgument(!isSetAsBaseline,
-      "The analysis '%s' can not be deleted because it is set as a manual new code period baseline", analysis.getUuid());
+      "The analysis '%s' can not be deleted because it is set as a new code period baseline", analysis.getUuid());
 
   }
 
