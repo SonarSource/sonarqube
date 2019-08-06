@@ -105,7 +105,7 @@ public class SetBaselineAction implements ProjectAnalysesWsAction {
 
       dbClient.newCodePeriodDao().upsert(dbSession, new NewCodePeriodDto()
         .setProjectUuid(projectBranch.getMainBranchProjectUuid() != null ? projectBranch.getMainBranchProjectUuid() : projectBranch.uuid())
-        .setBranchUuid(branchKey != null ? projectBranch.uuid() : null)
+        .setBranchUuid(projectBranch.uuid())
         .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
         .setValue(analysisUuid)
       );

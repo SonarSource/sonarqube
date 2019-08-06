@@ -52,6 +52,10 @@
     updated_at=#{updatedAt, jdbcType=TIMESTAMP}
     WHERE
     uuid=#{uuid, jdbcType=VARCHAR}
+    OR
+    (project_uuid=#{projectUuid, jdbcType=VARCHAR}
+    AND
+    branch_uuid=#{branchUuid, jdbcType=VARCHAR})
   </update>
 
   <select id="selectByProject" parameterType="map" resultType="org.sonar.db.newcodeperiod.NewCodePeriodDto">

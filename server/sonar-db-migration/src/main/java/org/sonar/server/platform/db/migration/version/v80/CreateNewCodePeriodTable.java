@@ -25,6 +25,7 @@ import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
@@ -101,6 +102,14 @@ public class CreateNewCodePeriodTable extends DdlChange {
       .addColumn(VALUE)
       .addColumn(UPDATED_AT)
       .addColumn(CREATED_AT)
+      .build());
+
+    context.execute(new CreateIndexBuilder()
+      .setTable(TABLE_NAME)
+      .setName("uniq_new_code_periods")
+      .setUnique(true)
+      .addColumn(PROJECT_UUID_COLUMN)
+      .addColumn(BRANCH_UUID_COLUMN)
       .build());
   }
 

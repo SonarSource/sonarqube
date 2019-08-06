@@ -45,6 +45,7 @@ public class CreateNewCodePeriodTableTest {
 
     dbTester.assertTableExists(TABLE_NAME);
     dbTester.assertPrimaryKey(TABLE_NAME, "pk_new_code_periods", "uuid");
+    dbTester.assertUniqueIndex(TABLE_NAME, "uniq_new_code_periods", "project_uuid", "branch_uuid");
 
     dbTester.assertColumnDefinition(TABLE_NAME, "uuid", VARCHAR, 40, false);
     dbTester.assertColumnDefinition(TABLE_NAME, "project_uuid", VARCHAR, 40, true);

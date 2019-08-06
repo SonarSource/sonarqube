@@ -76,7 +76,7 @@ public class SetBaselineActionTest {
 
   @Test
   @UseDataProvider("nullOrEmpty")
-  public void set_baseline_on_project(@Nullable String branchName) {
+  public void set_baseline_on_main_branch(@Nullable String branchName) {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     BranchDto branch = new BranchDto()
       .setBranchType(BranchType.LONG)
@@ -90,7 +90,7 @@ public class SetBaselineActionTest {
 
     call(project.getKey(), branchName, analysis.getUuid());
 
-    NewCodePeriodDto loaded = dbClient.newCodePeriodDao().selectByProject(dbSession, project.uuid()).get();
+    NewCodePeriodDto loaded = dbClient.newCodePeriodDao().selectByBranch(dbSession, project.uuid(), branch.getUuid()).get();
     assertThat(loaded.getValue()).isEqualTo(analysis.getUuid());
     assertThat(loaded.getType()).isEqualTo(SPECIFIC_ANALYSIS);
   }
