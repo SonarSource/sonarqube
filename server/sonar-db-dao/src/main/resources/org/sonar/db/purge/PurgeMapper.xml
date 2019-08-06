@@ -27,6 +27,7 @@
       s.id as "analysisId", s.uuid as "analysisUuid", s.created_at as "date", ${_true} as "hasEvents", islast as "isLast", ve.name as "version"
     from snapshots s
       left outer join events ve on ve.analysis_uuid=s.uuid and ve.category='Version'
+      left outer join new_code_periods npc on ve.analysis_uuid=s.uuid and ve.category='Version'
     where
       s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
       and s.status='P'
@@ -45,11 +46,12 @@
 
   <select id="selectManualBaseline" parameterType="String" resultType="String">
     select
-      manual_baseline_analysis_uuid
+      value
     from
-      project_branches pb
+      new_code_periods ncp
     where
-      pb.uuid=#{projectUuid,jdbcType=VARCHAR}
+      ncp.type='SPECIFIC_ANALYSIS'
+      AND ncp.branch_uuid=#{projectUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectStaleShortLivingBranchesAndPullRequests" parameterType="map" resultType="String">

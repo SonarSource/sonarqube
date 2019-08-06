@@ -9,8 +9,7 @@
     pb.key_type as keyType,
     pb.branch_type as branchType,
     pb.merge_branch_uuid as mergeBranchUuid,
-    pb.pull_request_binary as pullRequestBinary,
-    pb.manual_baseline_analysis_uuid as manualBaseline
+    pb.pull_request_binary as pullRequestBinary
   </sql>
 
   <insert id="insert" parameterType="map" useGeneratedKeys="false">
@@ -22,7 +21,6 @@
       branch_type,
       merge_branch_uuid,
       pull_request_binary,
-      manual_baseline_analysis_uuid,
       created_at,
       updated_at
     ) values (
@@ -33,7 +31,6 @@
       #{dto.branchType, jdbcType=VARCHAR},
       #{dto.mergeBranchUuid, jdbcType=VARCHAR},
       #{dto.pullRequestBinary, jdbcType=BINARY},
-      #{dto.manualBaseline, jdbcType=VARCHAR},
       #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
     )
@@ -46,16 +43,6 @@
       updated_at = #{now, jdbcType=BIGINT}
     where
       uuid = #{projectUuid, jdbcType=VARCHAR}
-  </update>
-
-  <update id="updateManualBaseline" parameterType="map" useGeneratedKeys="false">
-    update project_branches
-    set
-      manual_baseline_analysis_uuid = #{analysisUuid, jdbcType=VARCHAR},
-      updated_at = #{now, jdbcType=BIGINT}
-    where
-      uuid = #{uuid, jdbcType=VARCHAR}
-      and branch_type = 'LONG'
   </update>
 
   <update id="update" parameterType="map" useGeneratedKeys="false">

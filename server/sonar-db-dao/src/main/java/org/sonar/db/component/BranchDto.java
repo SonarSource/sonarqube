@@ -76,7 +76,7 @@ public class BranchDto {
    * UUID of the branch:
    * - in which the short-lived branch or pull request will be merged into
    * - that is the base of long-lived branch.
-   *
+   * <p>
    * Can be null if information is not known.
    */
   @Nullable
@@ -87,12 +87,6 @@ public class BranchDto {
    */
   @Nullable
   private byte[] pullRequestBinary;
-
-  /**
-   * The UUID of the analysis set by user as manual baseline for computation of the New Code Period, if any.
-   */
-  @Nullable
-  private String manualBaseline;
 
   public String getUuid() {
     return uuid;
@@ -195,18 +189,6 @@ public class BranchDto {
     }
   }
 
-  @CheckForNull
-  @Deprecated
-  public String getManualBaseline() {
-    return manualBaseline;
-  }
-
-  @Deprecated
-  public BranchDto setManualBaseline(@Nullable String manualBaseline) {
-    this.manualBaseline = manualBaseline == null || manualBaseline.isEmpty() ? null : manualBaseline;
-    return this;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -217,11 +199,10 @@ public class BranchDto {
     }
     BranchDto branchDto = (BranchDto) o;
     return Objects.equals(uuid, branchDto.uuid) &&
-        Objects.equals(projectUuid, branchDto.projectUuid) &&
-        Objects.equals(kee, branchDto.kee) &&
-        branchType == branchDto.branchType &&
-        Objects.equals(mergeBranchUuid, branchDto.mergeBranchUuid) &&
-        Objects.equals(manualBaseline, branchDto.manualBaseline);
+      Objects.equals(projectUuid, branchDto.projectUuid) &&
+      Objects.equals(kee, branchDto.kee) &&
+      branchType == branchDto.branchType &&
+      Objects.equals(mergeBranchUuid, branchDto.mergeBranchUuid);
   }
 
   @Override
@@ -231,15 +212,14 @@ public class BranchDto {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("BranchDto{");
-    sb.append("uuid='").append(uuid).append('\'');
-    sb.append(", projectUuid='").append(projectUuid).append('\'');
-    sb.append(", kee='").append(kee).append('\'');
-    sb.append(", keyType=").append(keyType);
-    sb.append(", branchType=").append(branchType);
-    sb.append(", mergeBranchUuid='").append(mergeBranchUuid).append('\'');
-    sb.append(", manualBaseline='").append(manualBaseline).append('\'');
-    sb.append('}');
-    return sb.toString();
+    return new StringBuilder("BranchDto{")
+      .append("uuid='").append(uuid).append('\'')
+      .append(", projectUuid='").append(projectUuid).append('\'')
+      .append(", kee='").append(kee).append('\'')
+      .append(", keyType=").append(keyType)
+      .append(", branchType=").append(branchType)
+      .append(", mergeBranchUuid='").append(mergeBranchUuid).append('\'')
+      .append('}')
+      .toString();
   }
 }

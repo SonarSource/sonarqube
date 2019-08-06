@@ -57,6 +57,8 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventTesting;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.organization.OrganizationDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -206,7 +208,12 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     SnapshotDto analysis3 = dbTester.components().insertSnapshot(branch, snapshot -> snapshot.setCreatedAt(1227157200000L).setLast(false)); // 2008-11-20
     SnapshotDto analysis4 = dbTester.components().insertSnapshot(branch, snapshot -> snapshot.setCreatedAt(1227358680000L).setLast(false)); // 2008-11-22
     SnapshotDto analysis5 = dbTester.components().insertSnapshot(branch, snapshot -> snapshot.setCreatedAt(1227934800000L).setLast(true)); // 2008-11-29
-    dbTester.getDbClient().branchDao().updateManualBaseline(dbTester.getSession(), branch.uuid(), analysis1.getUuid());
+    dbTester.newCodePeriods().insert(new NewCodePeriodDto()
+      .setProjectUuid(project.uuid())
+      .setBranchUuid(branch.uuid())
+      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+      .setValue(analysis1.getUuid()));
+
     dbTester.commit();
     when(system2Mock.now()).thenReturn(november30th2008.getTime());
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(false);

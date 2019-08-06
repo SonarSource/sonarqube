@@ -72,6 +72,8 @@ import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -418,7 +420,7 @@ public class PurgeDaoTest {
 
   @Test
   public void selectPurgeableAnalyses() {
-    SnapshotDto[] analyses = new SnapshotDto[] {
+    SnapshotDto[] analyses = new SnapshotDto[]{
       newSnapshot()
         .setUuid("u1")
         .setComponentUuid(PROJECT_UUID)
@@ -476,7 +478,13 @@ public class PurgeDaoTest {
       .setComponentUuid(project1.uuid())
       .setStatus(STATUS_PROCESSED)
       .setLast(false));
-    dbClient.branchDao().updateManualBaseline(dbSession, project1.uuid(), analysis1.getUuid());
+    dbClient.newCodePeriodDao().insert(dbSession,
+      new NewCodePeriodDto()
+        .setProjectUuid(project1.uuid())
+        .setBranchUuid(project1.uuid())
+        .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+        .setValue(analysis1.getUuid())
+    );
     ComponentDto project2 = db.components().insertPrivateProject();
     SnapshotDto analysis2 = db.components().insertSnapshot(newSnapshot()
       .setComponentUuid(project2.uuid())
@@ -497,7 +505,13 @@ public class PurgeDaoTest {
       .setComponentUuid(project.uuid())
       .setStatus(STATUS_PROCESSED)
       .setLast(false));
-    dbClient.branchDao().updateManualBaseline(dbSession, project.uuid(), analysisProject.getUuid());
+    dbClient.newCodePeriodDao().insert(dbSession,
+      new NewCodePeriodDto()
+        .setProjectUuid(project.uuid())
+        .setBranchUuid(project.uuid())
+        .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+        .setValue(analysisProject.getUuid())
+    );
     ComponentDto branch1 = db.components().insertProjectBranch(project);
     SnapshotDto analysisBranch1 = db.components().insertSnapshot(newSnapshot()
       .setComponentUuid(branch1.uuid())
@@ -508,7 +522,13 @@ public class PurgeDaoTest {
       .setComponentUuid(branch2.uuid())
       .setStatus(STATUS_PROCESSED)
       .setLast(false));
-    dbClient.branchDao().updateManualBaseline(dbSession, branch2.uuid(), analysisBranch2.getUuid());
+    dbClient.newCodePeriodDao().insert(dbSession,
+      new NewCodePeriodDto()
+        .setProjectUuid(project.uuid())
+        .setBranchUuid(branch2.uuid())
+        .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+        .setValue(analysisBranch2.getUuid())
+    );
     dbSession.commit();
 
     assertThat(underTest.selectPurgeableAnalyses(project.uuid(), dbSession))
@@ -1577,7 +1597,7 @@ public class PurgeDaoTest {
 
   @SafeVarargs
   private final void insertCeActivityAndChildDataWithDate(String ceActivityUuid, LocalDateTime dateTime,
-    Consumer<CeQueueDto>... queueDtoConsumers) {
+                                                          Consumer<CeQueueDto>... queueDtoConsumers) {
     long date = dateTime.toInstant(UTC).toEpochMilli();
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setUuid(ceActivityUuid);

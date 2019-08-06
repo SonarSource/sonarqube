@@ -21,14 +21,13 @@ package org.sonar.db.component;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.utils.System2;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbProjectBranches;
@@ -100,76 +99,19 @@ public class BranchDaoTest {
     assertThat(loaded.getBranchType()).isEqualTo(BranchType.LONG);
   }
 
-  @Test
-  @UseDataProvider("nullOrEmpty")
-  public void insert_null_or_empty_manual_baseline_analysis_uuid_is_null(@Nullable String nullOrEmpty) {
-    BranchDto dto = new BranchDto();
-    dto.setProjectUuid("U1");
-    dto.setUuid("U1");
-    dto.setBranchType(BranchType.LONG);
-    dto.setKey("foo");
-    dto.setManualBaseline(nullOrEmpty);
-
-    underTest.insert(dbSession, dto);
-
-    assertThat(underTest.selectByUuid(dbSession, dto.getUuid()).get().getManualBaseline()).isNull();
-  }
-
   @DataProvider
   public static Object[][] nullOrEmpty() {
-    return new Object[][] {
+    return new Object[][]{
       {null},
       {""}
     };
-  }
-
-  @Test
-  public void insert_manual_baseline_analysis_uuid() {
-    String manualBaselineAnalysisUuid = randomAlphabetic(12);
-    BranchDto dto = new BranchDto();
-    dto.setProjectUuid("U1");
-    dto.setUuid("U1");
-    dto.setBranchType(BranchType.LONG);
-    dto.setKey("foo");
-    dto.setManualBaseline(manualBaselineAnalysisUuid);
-
-    underTest.insert(dbSession, dto);
-
-    assertThat(underTest.selectByUuid(dbSession, dto.getUuid()).get().getManualBaseline()).isEqualTo(manualBaselineAnalysisUuid);
-  }
-
-  @Test
-  @UseDataProvider("oldAndNewValuesCombinations")
-  public void update_manualBaselineAnalysisUuid_if_new_value_is_different(@Nullable String oldValue, @Nullable String newValue) {
-    BranchDto dto = new BranchDto();
-    dto.setProjectUuid("U1");
-    dto.setUuid("U1");
-    dto.setBranchType(BranchType.LONG);
-    dto.setKey("foo");
-    dto.setManualBaseline(oldValue);
-    underTest.insert(dbSession, dto);
-
-    BranchDto otherDtoThatShouldNotChange = new BranchDto();
-    otherDtoThatShouldNotChange.setProjectUuid("U2");
-    otherDtoThatShouldNotChange.setUuid("U2");
-    otherDtoThatShouldNotChange.setBranchType(BranchType.LONG);
-    otherDtoThatShouldNotChange.setKey("branch");
-    otherDtoThatShouldNotChange.setManualBaseline(oldValue);
-    underTest.insert(dbSession, otherDtoThatShouldNotChange);
-
-    assertThat(underTest.updateManualBaseline(dbSession, dto.getUuid(), newValue)).isEqualTo(1);
-
-    assertThat(underTest.selectByUuid(dbSession, dto.getUuid()).get().getManualBaseline())
-      .isEqualTo(emptyToNull(newValue));
-    assertThat(underTest.selectByUuid(dbSession, otherDtoThatShouldNotChange.getUuid()).get().getManualBaseline())
-      .isEqualTo(emptyToNull(oldValue));
   }
 
   @DataProvider
   public static Object[][] oldAndNewValuesCombinations() {
     String value1 = randomAlphabetic(10);
     String value2 = randomAlphabetic(20);
-    return new Object[][] {
+    return new Object[][]{
       {null, value1},
       {"", value1},
       {value1, null},
@@ -181,26 +123,9 @@ public class BranchDaoTest {
     };
   }
 
-  @Test
-  @UseDataProvider("nonLongBranchType")
-  public void do_not_update_manual_baseline_of_non_long_branches(BranchType branchType) {
-    String analysisUuid = randomAlphabetic(12);
-    String otherAnalysisUuid = randomAlphabetic(12);
-    BranchDto noManualBaselineDto = ComponentTesting.newBranchDto(db.components().insertPrivateProject(), branchType);
-    BranchDto withManualBaselineDto = ComponentTesting.newBranchDto(db.components().insertPrivateProject(), branchType).setManualBaseline(analysisUuid);
-    underTest.insert(dbSession, noManualBaselineDto);
-    underTest.insert(dbSession, withManualBaselineDto);
-    dbSession.commit();
-
-    assertThat(underTest.updateManualBaseline(dbSession, noManualBaselineDto.getUuid(), null)).isZero();
-    assertThat(underTest.updateManualBaseline(dbSession, noManualBaselineDto.getUuid(), otherAnalysisUuid)).isZero();
-    assertThat(underTest.updateManualBaseline(dbSession, withManualBaselineDto.getUuid(), null)).isZero();
-    assertThat(underTest.updateManualBaseline(dbSession, withManualBaselineDto.getUuid(), otherAnalysisUuid)).isZero();
-  }
-
   @DataProvider
   public static Object[][] nonLongBranchType() {
-    return new Object[][] {
+    return new Object[][]{
       {BranchType.SHORT},
       {BranchType.PULL_REQUEST}
     };
@@ -427,7 +352,6 @@ public class BranchDaoTest {
     featureBranch.setBranchType(BranchType.SHORT);
     featureBranch.setKey("feature/foo");
     featureBranch.setMergeBranchUuid("U3");
-    featureBranch.setManualBaseline("analysisUUID");
     underTest.insert(dbSession, featureBranch);
 
     // select the feature branch
@@ -437,7 +361,6 @@ public class BranchDaoTest {
     assertThat(loaded.getProjectUuid()).isEqualTo(featureBranch.getProjectUuid());
     assertThat(loaded.getBranchType()).isEqualTo(featureBranch.getBranchType());
     assertThat(loaded.getMergeBranchUuid()).isEqualTo(featureBranch.getMergeBranchUuid());
-    assertThat(loaded.getManualBaseline()).isEqualTo(featureBranch.getManualBaseline());
 
     // select a branch on another project with same branch name
     assertThat(underTest.selectByBranchKey(dbSession, "U3", "feature/foo")).isEmpty();
@@ -459,7 +382,6 @@ public class BranchDaoTest {
     pullRequest.setBranchType(BranchType.PULL_REQUEST);
     pullRequest.setKey(pullRequestId);
     pullRequest.setMergeBranchUuid("U3");
-    pullRequest.setManualBaseline("analysisUUID");
     underTest.insert(dbSession, pullRequest);
 
     // select the feature branch
@@ -469,7 +391,6 @@ public class BranchDaoTest {
     assertThat(loaded.getProjectUuid()).isEqualTo(pullRequest.getProjectUuid());
     assertThat(loaded.getBranchType()).isEqualTo(pullRequest.getBranchType());
     assertThat(loaded.getMergeBranchUuid()).isEqualTo(pullRequest.getMergeBranchUuid());
-    assertThat(loaded.getManualBaseline()).isEqualTo(pullRequest.getManualBaseline());
 
     // select a branch on another project with same branch name
     assertThat(underTest.selectByPullRequestKey(dbSession, "U3", pullRequestId)).isEmpty();

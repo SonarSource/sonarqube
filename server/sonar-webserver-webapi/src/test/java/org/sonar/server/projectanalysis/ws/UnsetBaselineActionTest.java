@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,6 +39,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -174,7 +176,7 @@ public class UnsetBaselineActionTest {
 
   @DataProvider
   public static Object[][] nullOrEmptyOrValue() {
-    return new Object[][] {
+    return new Object[][]{
       {null},
       {""},
       {randomAlphabetic(10)},
@@ -193,7 +195,7 @@ public class UnsetBaselineActionTest {
 
   @DataProvider
   public static Object[][] nullOrEmpty() {
-    return new Object[][] {
+    return new Object[][]{
       {null},
       {""},
     };
@@ -201,7 +203,7 @@ public class UnsetBaselineActionTest {
 
   @DataProvider
   public static Object[][] nonexistentParamsAndFailureMessage() {
-    return new Object[][] {
+    return new Object[][]{
       {ImmutableMap.of(PARAM_PROJECT, "nonexistent"), "Component 'nonexistent' on branch .* not found"},
       {ImmutableMap.of(PARAM_BRANCH, "nonexistent"), "Component .* on branch 'nonexistent' not found"}
     };
@@ -273,10 +275,14 @@ public class UnsetBaselineActionTest {
 
   private void verifyManualBaseline(ComponentDto project, @Nullable SnapshotDto projectAnalysis) {
     BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(dbSession, project.uuid()).get();
+    Optional<NewCodePeriodDto> newCodePeriod = db.getDbClient().newCodePeriodDao().selectByBranch(dbSession, branchDto.getProjectUuid(), branchDto.getUuid());
     if (projectAnalysis == null) {
-      assertThat(branchDto.getManualBaseline()).isNull();
+      assertThat(newCodePeriod).isNotNull();
+      assertThat(newCodePeriod).isEmpty();
     } else {
-      assertThat(branchDto.getManualBaseline()).isEqualTo(projectAnalysis.getUuid());
+      assertThat(newCodePeriod).isNotNull();
+      assertThat(newCodePeriod).isNotEmpty();
+      assertThat(newCodePeriod.get().getValue()).isEqualTo(projectAnalysis.getUuid());
     }
   }
 

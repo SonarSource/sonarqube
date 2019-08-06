@@ -91,7 +91,7 @@ public class UnsetBaselineAction implements ProjectAnalysesWsAction {
       userSession.checkComponentPermission(UserRole.ADMIN, projectBranch);
 
       String projectUuid = projectBranch.getMainBranchProjectUuid() != null ? projectBranch.getMainBranchProjectUuid() : projectBranch.uuid();
-      String branchUuid = branchKey != null ? projectBranch.uuid() : null;
+      String branchUuid = projectBranch.uuid();
       dbClient.newCodePeriodDao().deleteByProjectUuidAndBranchUuid(dbSession, projectUuid, branchUuid);
       dbSession.commit();
     }
