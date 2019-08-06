@@ -253,6 +253,21 @@ public class NewCodePeriodDaoTest {
   }
 
   @Test
+  public void delete_by_project_uuid_and_branch_uuid() {
+    when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
+
+    underTest.insert(dbSession, new NewCodePeriodDto()
+      .setProjectUuid("proj-uuid")
+      .setBranchUuid("branch-uuid")
+      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+      .setValue("analysis-uuid"));
+
+    underTest.deleteByProjectUuidAndBranchUuid(dbSession, "proj-uuid", "branch-uuid");
+    db.commit();
+    assertNewCodePeriodRowCount(0);
+  }
+
+  @Test
   public void exists_by_project_analysis_is_false() {
     boolean exists = underTest.existsByProjectAnalysisUuid(dbSession, "analysis-uuid");
     assertThat(exists).isFalse();

@@ -50,6 +50,37 @@ public class BranchDtoTest {
   }
 
   @Test
+  public void verify_equals() {
+    underTest.setUuid("U1");
+    underTest.setProjectUuid("U2");
+    underTest.setKey("K1");
+    underTest.setBranchType(BranchType.LONG);
+    underTest.setMergeBranchUuid("U3");
+
+    assertThat(underTest.toString()).isEqualTo("BranchDto{uuid='U1', " +
+      "projectUuid='U2', kee='K1', keyType=null, branchType=LONG, mergeBranchUuid='U3'}");
+  }
+
+  @Test
+  public void verify_toString() {
+    underTest.setUuid("U1");
+    underTest.setProjectUuid("U2");
+    underTest.setKey("K1");
+    underTest.setBranchType(BranchType.LONG);
+    underTest.setMergeBranchUuid("U3");
+
+    BranchDto toCompare = new BranchDto();
+
+    toCompare.setUuid("U1");
+    toCompare.setProjectUuid("U2");
+    toCompare.setKey("K1");
+    toCompare.setBranchType(BranchType.LONG);
+    toCompare.setMergeBranchUuid("U3");
+
+    assertThat(underTest).isEqualTo(toCompare);
+  }
+
+  @Test
   public void encode_and_decode_pull_request_data() {
     String branch = "feature/pr1";
     String title = "Dummy Feature Title";
