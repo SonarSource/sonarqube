@@ -19,13 +19,41 @@
  */
 const { createFilePath, createRemoteFileNode } = require('gatsby-source-filesystem');
 const fs = require('fs-extra');
+const path = require('path');
+
+let overrides;
+
+function getPluginOverrideIfAvailable(content) {
+  if (overrides === undefined) {
+    const dir = path.normalize(`${__dirname}/../../build/tmp/plugin-documentation/`);
+    overrides = {};
+    if (fs.existsSync(dir)) {
+      fs.readdirSync(dir).forEach(filename => {
+        let content = fs.readFileSync(dir + filename, 'utf-8');
+        const regex = /^key\s*:\s*(.+)$/m;
+        const match = content.match(regex);
+        if (match && match[1]) {
+          const url = `/analysis/languages/${match[1]}/`;
+          content = content.replace(regex, `url: ${url}\n`);
+          overrides[url] = content;
+        }
+      });
+    }
+  }
+
+  const match = content.match(/^url\s*:\s*(.+)$/m);
+  if (match && match[1] && overrides[match[1]]) {
+    return overrides[match[1]];
+  }
+  return content;
+}
 
 function loadNodeContent(fileNode) {
   return Promise.resolve(loadNodeContentSync(fileNode));
 }
 
 function loadNodeContentSync(fileNode) {
-  const content = fs.readFileSync(fileNode.absolutePath, 'utf-8');
+  const content = getPluginOverrideIfAvailable(fs.readFileSync(fileNode.absolutePath, 'utf-8'));
   let newContent = cutSonarCloudContent(content);
   newContent = removeRemainingContentTags(newContent);
   newContent = handleIncludes(newContent, fileNode);

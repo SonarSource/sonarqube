@@ -30,7 +30,7 @@ module.exports = {
     'gatsby-plugin-react-helmet',
     {
       resolve: `sonarsource-source-filesystem`,
-      options: { name: 'src', path: `${__dirname}/src/` }
+      options: { name: 'src', path: `${__dirname}/src/pages/` }
     },
     {
       resolve: 'gatsby-plugin-typography',
