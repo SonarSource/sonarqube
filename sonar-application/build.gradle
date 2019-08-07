@@ -26,11 +26,6 @@ configurations {
   }
 }
 
-ext {
-  slangVersion = '1.5.0.315'
-  dotnetVersion = '7.15.0.8572'
-}
-
 dependencies {
   // please keep list ordered
   compile 'org.slf4j:slf4j-api'
@@ -58,25 +53,25 @@ dependencies {
 
   bundledPlugin 'org.sonarsource.auth.github:sonar-auth-github-plugin:1.5.0.870@jar'
   bundledPlugin 'org.sonarsource.auth.saml:sonar-auth-saml-plugin:1.1.0.181@jar'
-  bundledPlugin 'org.sonarsource.css:sonar-css-plugin:1.1.1.1010@jar'
-  bundledPlugin "org.sonarsource.dotnet:sonar-csharp-plugin:${dotnetVersion}@jar"
-  bundledPlugin "org.sonarsource.dotnet:sonar-vbnet-plugin:${dotnetVersion}@jar"
-  bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin:2.5.1.1831@jar'
-  bundledPlugin 'org.sonarsource.go:sonar-go-plugin:1.1.1.2000@jar'
-  bundledPlugin 'org.sonarsource.html:sonar-html-plugin:3.1.0.1615@jar'
-  bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.13.1.18282@jar'
+  bundledPlugin 'org.sonarsource.css:sonar-css-plugin@jar'
+  bundledPlugin "org.sonarsource.dotnet:sonar-csharp-plugin@jar"
+  bundledPlugin "org.sonarsource.dotnet:sonar-vbnet-plugin@jar"
+  bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin@jar'
+  bundledPlugin 'org.sonarsource.go:sonar-go-plugin@jar'
+  bundledPlugin 'org.sonarsource.html:sonar-html-plugin@jar'
+  bundledPlugin 'org.sonarsource.java:sonar-java-plugin@jar'
   bundledPlugin 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.0.2.475@jar'
-  bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin:5.2.1.7778@jar'
+  bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin@jar'
   bundledPlugin 'org.sonarsource.ldap:sonar-ldap-plugin:2.2.0.608@jar'
-  bundledPlugin 'org.sonarsource.php:sonar-php-plugin:3.2.0.4868@jar'
-  bundledPlugin 'org.sonarsource.python:sonar-python-plugin:1.14.1.3143@jar'
-  bundledPlugin "org.sonarsource.slang:sonar-kotlin-plugin:${slangVersion}@jar"
-  bundledPlugin "org.sonarsource.slang:sonar-ruby-plugin:${slangVersion}@jar"
+  bundledPlugin 'org.sonarsource.php:sonar-php-plugin@jar'
+  bundledPlugin 'org.sonarsource.python:sonar-python-plugin@jar'
+  bundledPlugin "org.sonarsource.slang:sonar-kotlin-plugin@jar"
+  bundledPlugin "org.sonarsource.slang:sonar-ruby-plugin@jar"
   bundledPlugin 'org.sonarsource.scm.git:sonar-scm-git-plugin:1.8.0.1574@jar'
   bundledPlugin 'org.sonarsource.scm.svn:sonar-scm-svn-plugin:1.9.0.1295@jar'
-  bundledPlugin "org.sonarsource.slang:sonar-scala-plugin:${slangVersion}@jar"
-  bundledPlugin 'org.sonarsource.typescript:sonar-typescript-plugin:1.9.0.3766@jar'
-  bundledPlugin 'org.sonarsource.xml:sonar-xml-plugin:2.0.1.2020@jar'
+  bundledPlugin "org.sonarsource.slang:sonar-scala-plugin@jar"
+  bundledPlugin 'org.sonarsource.typescript:sonar-typescript-plugin@jar'
+  bundledPlugin 'org.sonarsource.xml:sonar-xml-plugin@jar'
 }
 
 jar {
