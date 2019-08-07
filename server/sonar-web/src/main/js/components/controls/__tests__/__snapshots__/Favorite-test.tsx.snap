@@ -1,10 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders 1`] = `
-<FavoriteBase
-  addFavorite={[Function]}
+<FavoriteButton
   favorite={true}
   qualifier="TRK"
-  removeFavorite={[Function]}
+  toggleFavorite={[Function]}
 />
 `;

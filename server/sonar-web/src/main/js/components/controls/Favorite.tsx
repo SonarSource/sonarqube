@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import FavoriteBase from 'sonar-ui-common/components/controls/FavoriteBase';
+import FavoriteButton from 'sonar-ui-common/components/controls/FavoriteButton';
 import { addFavorite, removeFavorite } from '../../api/favorites';
 
 interface Props {
@@ -29,20 +29,62 @@ interface Props {
   handleFavorite?: (component: string, isFavorite: boolean) => void;
 }
 
-export default class Favorite extends React.PureComponent<Props> {
-  callback = (isFavorite: boolean) =>
-    this.props.handleFavorite && this.props.handleFavorite(this.props.component, isFavorite);
+interface State {
+  favorite: boolean;
+}
 
-  add = () => {
-    return addFavorite(this.props.component).then(() => this.callback(true));
-  };
+export default class Favorite extends React.PureComponent<Props, State> {
+  mounted = false;
 
-  remove = () => {
-    return removeFavorite(this.props.component).then(() => this.callback(false));
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      favorite: props.favorite
+    };
+  }
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentDidUpdate(_prevProps: Props, prevState: State) {
+    if (prevState.favorite !== this.props.favorite) {
+      this.setState({ favorite: this.props.favorite });
+    }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  toggleFavorite = () => {
+    const newFavorite = !this.state.favorite;
+    const apiMethod = newFavorite ? addFavorite : removeFavorite;
+
+    return apiMethod(this.props.component).then(() => {
+      if (this.mounted) {
+        this.setState({ favorite: newFavorite }, () => {
+          if (this.props.handleFavorite) {
+            this.props.handleFavorite(this.props.component, newFavorite);
+          }
+        });
+      }
+    });
   };
 
   render() {
-    const { component, handleFavorite, ...other } = this.props;
-    return <FavoriteBase {...other} addFavorite={this.add} removeFavorite={this.remove} />;
+    const { className, qualifier } = this.props;
+    const { favorite } = this.state;
+
+    return (
+      <FavoriteButton
+        className={className}
+        favorite={favorite}
+        qualifier={qualifier}
+        toggleFavorite={this.toggleFavorite}
+      />
+    );
   }
 }
+/*  */

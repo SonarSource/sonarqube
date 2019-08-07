@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import FavoriteButton from 'sonar-ui-common/components/controls/FavoriteButton';
 import Favorite from '../Favorite';
 
 jest.mock('../../../api/favorites', () => ({
@@ -33,15 +34,14 @@ it('renders', () => {
 it('calls handleFavorite when given', async () => {
   const handleFavorite = jest.fn();
   const wrapper = shallowRender(handleFavorite);
-  const favoriteBase = wrapper.find('FavoriteBase');
-  const addFavorite = favoriteBase.prop<Function>('addFavorite');
-  const removeFavorite = favoriteBase.prop<Function>('removeFavorite');
+  const favoriteBase = wrapper.find(FavoriteButton);
+  const toggleFavorite = favoriteBase.prop<Function>('toggleFavorite');
 
-  removeFavorite();
+  toggleFavorite();
   await new Promise(setImmediate);
   expect(handleFavorite).toHaveBeenCalledWith('foo', false);
 
-  addFavorite();
+  toggleFavorite();
   await new Promise(setImmediate);
   expect(handleFavorite).toHaveBeenCalledWith('foo', true);
 });
