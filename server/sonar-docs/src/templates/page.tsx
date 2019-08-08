@@ -167,7 +167,14 @@ function replaceDynamicLinks(content: string) {
  */
 function removeExtraHeadings(content: string, headings: MarkdownHeading[]) {
   return headings
-    .filter(heading => content.indexOf(`<div class="collapse"><h2>${heading.value}</h2>`) < 0)
+    .filter(
+      heading =>
+        content.indexOf(
+          `<div class="custom-block collapse"><div class="custom-block-body"><h2>${
+            heading.value
+          }</h2>`
+        ) < 0
+    )
     .filter(heading => !heading.value || !heading.value.match(/Table of content/i))
     .filter(heading => {
       const regex = new RegExp(
