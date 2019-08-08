@@ -20,7 +20,6 @@
 package org.sonar.server.ws;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import javax.servlet.FilterChain;
 import javax.servlet.ReadListener;
@@ -250,7 +249,7 @@ public class DeprecatedPropertiesWsFilterTest {
   }
 
   @Test
-  public void redirect_delete_api_properties_to_api_settings_reset() throws Exception {
+  public void redirect_delete_api_properties_to_api_settings_reset() {
     when(request.getRequestURI()).thenReturn("/api/properties/my.property");
     when(request.getParameter("resource")).thenReturn("my_project");
     when(request.getMethod()).thenReturn("DELETE");

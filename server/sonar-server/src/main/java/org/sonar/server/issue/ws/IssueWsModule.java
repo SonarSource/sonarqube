@@ -31,7 +31,6 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListenersImpl;
 import org.sonar.server.settings.ProjectConfigurationLoaderImpl;
 import org.sonar.server.webhook.WebhookQGChangeEventListener;
-import org.sonar.server.ws.WsResponseCommonFormat;
 
 public class IssueWsModule extends Module {
   @Override
@@ -50,7 +49,6 @@ public class IssueWsModule extends Module {
       SearchResponseLoader.class,
       SearchResponseFormat.class,
       OperationResponseWriter.class,
-      WsResponseCommonFormat.class,
       AddCommentAction.class,
       EditCommentAction.class,
       DeleteCommentAction.class,

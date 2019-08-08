@@ -30,9 +30,9 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.server.property.ws.PropertiesWs;
 
 import static java.util.stream.Stream.concat;
-import static org.sonar.server.property.ws.PropertiesWs.CONTROLLER_PROPERTIES;
 import static org.sonar.server.ws.WebServiceReroutingFilter.MOVED_WEB_SERVICES;
 
 /**
@@ -60,7 +60,7 @@ public class WebServiceFilter extends ServletFilter {
         .map(toPath()))
           .collect(MoreCollectors.toSet());
     this.excludeUrls = concat(concat(
-      Stream.of("/" + CONTROLLER_PROPERTIES + "*"),
+      Stream.of("/" + PropertiesWs.CONTROLLER_PROPERTIES + "*"),
       MOVED_WEB_SERVICES.stream()),
       webServiceEngine.controllers().stream()
         .flatMap(controller -> controller.actions().stream())

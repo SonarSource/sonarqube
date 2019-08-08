@@ -44,7 +44,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.es.Facets;
 import org.sonar.server.issue.workflow.Transition;
-import org.sonar.server.ws.WsResponseCommonFormat;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Actions;
@@ -77,13 +76,11 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 public class SearchResponseFormat {
 
   private final Durations durations;
-  private final WsResponseCommonFormat commonFormat;
   private final Languages languages;
   private final AvatarResolver avatarFactory;
 
-  public SearchResponseFormat(Durations durations, WsResponseCommonFormat commonFormat, Languages languages, AvatarResolver avatarFactory) {
+  public SearchResponseFormat(Durations durations, Languages languages, AvatarResolver avatarFactory) {
     this.durations = durations;
-    this.commonFormat = commonFormat;
     this.languages = languages;
     this.avatarFactory = avatarFactory;
   }
@@ -138,7 +135,14 @@ public class SearchResponseFormat {
     response.setP(paging.pageIndex());
     response.setPs(paging.pageSize());
     response.setTotal(paging.total());
-    response.setPaging(commonFormat.formatPaging(paging));
+    response.setPaging(formatPaging(paging));
+  }
+
+  private Common.Paging.Builder formatPaging(Paging paging) {
+    return Common.Paging.newBuilder()
+      .setPageIndex(paging.pageIndex())
+      .setPageSize(paging.pageSize())
+      .setTotal(paging.total());
   }
 
   private List<Issues.Issue> formatIssues(Set<SearchAdditionalField> fields, SearchResponseData data) {
@@ -316,9 +320,23 @@ public class SearchResponseFormat {
     Common.Rules.Builder wsRules = Common.Rules.newBuilder();
     List<RuleDefinitionDto> rules = firstNonNull(data.getRules(), emptyList());
     for (RuleDefinitionDto rule : rules) {
-      wsRules.addRules(commonFormat.formatRule(rule));
+      wsRules.addRules(formatRule(rule));
     }
     return wsRules;
+  }
+
+  private Common.Rule.Builder formatRule(RuleDefinitionDto rule) {
+    Common.Rule.Builder builder = Common.Rule.newBuilder()
+      .setKey(rule.getKey().toString())
+      .setName(nullToEmpty(rule.getName()))
+      .setStatus(Common.RuleStatus.valueOf(rule.getStatus().name()));
+
+    builder.setLang(nullToEmpty(rule.getLanguage()));
+    Language lang = languages.get(rule.getLanguage());
+    if (lang != null) {
+      builder.setLangName(lang.getName());
+    }
+    return builder;
   }
 
   private static List<Issues.Component> formatComponents(SearchResponseData data) {

@@ -37,15 +37,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.server.property.ws.IndexAction;
+import org.sonar.server.setting.ws.SettingsWsParameters;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.server.property.ws.PropertiesWs.CONTROLLER_PROPERTIES;
-import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
-import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEY;
-import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEYS;
-import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUE;
-import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUES;
 
 /**
  * This filter is used to execute deprecated api/properties WS, that were using REST
@@ -107,12 +103,12 @@ public class DeprecatedPropertiesWsFilter extends ServletFilter {
     }
 
     @Override
-    protected String readParam(String key) {
+    public String readParam(String key) {
       return restResponse.additionalParams.get(key);
     }
 
     @Override
-    protected List<String> readMultiParam(String key) {
+    public List<String> readMultiParam(String key) {
       return new ArrayList<>(restResponse.additionalMultiParams.get(key));
     }
 
@@ -219,20 +215,20 @@ public class DeprecatedPropertiesWsFilter extends ServletFilter {
     }
 
     private void redirectToSet(Optional<String> key, List<String> values, Optional<String> component) {
-      addParameterIfPresent(PARAM_KEY, key);
+      addParameterIfPresent(SettingsWsParameters.PARAM_KEY, key);
       if (values.size() == 1) {
-        additionalParams.put(PARAM_VALUE, values.get(0));
+        additionalParams.put(SettingsWsParameters.PARAM_VALUE, values.get(0));
       } else {
-        additionalMultiParams.putAll(PARAM_VALUES, values);
+        additionalMultiParams.putAll(SettingsWsParameters.PARAM_VALUES, values);
       }
-      addParameterIfPresent(PARAM_COMPONENT, component);
+      addParameterIfPresent(SettingsWsParameters.PARAM_COMPONENT, component);
       redirectedPath = "api/settings/set";
       redirectedMethod = "POST";
     }
 
     private void redirectToReset(Optional<String> key, Optional<String> component) {
-      addParameterIfPresent(PARAM_KEYS, key);
-      addParameterIfPresent(PARAM_COMPONENT, component);
+      addParameterIfPresent(SettingsWsParameters.PARAM_KEYS, key);
+      addParameterIfPresent(SettingsWsParameters.PARAM_COMPONENT, component);
       redirectedPath = "api/settings/reset";
       redirectedMethod = "POST";
     }

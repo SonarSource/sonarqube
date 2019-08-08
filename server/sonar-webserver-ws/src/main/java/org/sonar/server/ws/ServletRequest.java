@@ -84,7 +84,7 @@ public class ServletRequest extends ValidatingRequest {
   }
 
   @Override
-  protected String readParam(String key) {
+  public String readParam(String key) {
     return source.getParameter(key);
   }
 
@@ -94,7 +94,7 @@ public class ServletRequest extends ValidatingRequest {
   }
 
   @Override
-  protected List<String> readMultiParam(String key) {
+  public List<String> readMultiParam(String key) {
     String[] values = source.getParameterValues(key);
     return values == null ? emptyList() : ImmutableList.copyOf(values);
   }

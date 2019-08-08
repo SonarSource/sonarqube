@@ -62,6 +62,7 @@ import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.WsUtils;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptySortedSet;
@@ -76,10 +77,10 @@ import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesEx
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.checkComponentNotAModuleAndNotADirectory;
 
 public class ComponentAction implements NavigationWsAction {
 
+  private static final Set<String> MODULE_OR_DIR_QUALIFIERS = ImmutableSet.of(Qualifiers.MODULE, Qualifiers.DIRECTORY);
   static final String PARAM_COMPONENT = "component";
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_PULL_REQUEST = "pullRequest";
@@ -175,6 +176,10 @@ public class ComponentAction implements NavigationWsAction {
       writeBreadCrumbs(json, session, component);
       json.endObject().close();
     }
+  }
+
+  private static void checkComponentNotAModuleAndNotADirectory(ComponentDto component) {
+    WsUtils.checkRequest(!MODULE_OR_DIR_QUALIFIERS.contains(component.qualifier()), "Operation not supported for module or directory components");
   }
 
   private ComponentDto getRootProjectOrBranch(ComponentDto component, DbSession session) {
