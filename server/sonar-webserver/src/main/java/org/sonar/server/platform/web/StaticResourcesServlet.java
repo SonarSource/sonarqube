@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.plugins;
+package org.sonar.server.platform.web;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
@@ -34,7 +34,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.extension.CoreExtensionRepository;
-import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.PlatformImpl;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.lang.String.format;
@@ -130,11 +130,11 @@ public class StaticResourcesServlet extends HttpServlet {
 
   static class System {
     PluginRepository getPluginRepository() {
-      return Platform.getInstance().getContainer().getComponentByType(PluginRepository.class);
+      return PlatformImpl.getInstance().getContainer().getComponentByType(PluginRepository.class);
     }
 
     CoreExtensionRepository getCoreExtensionRepository() {
-      return Platform.getInstance().getContainer().getComponentByType(CoreExtensionRepository.class);
+      return PlatformImpl.getInstance().getContainer().getComponentByType(CoreExtensionRepository.class);
     }
 
     @CheckForNull

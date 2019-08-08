@@ -34,7 +34,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.ServletFilter;
-import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.PlatformImpl;
 
 /**
  * Inspired by http://stackoverflow.com/a/7592883/229031
@@ -56,7 +56,7 @@ public class MasterServletFilter implements Filter {
   public void init(FilterConfig config) {
     // Filters are already available in picocontainer unless a database migration is required. See
     // org.sonar.server.startup.RegisterServletFilters.
-    init(config, Platform.getInstance().getContainer().getComponentsByType(ServletFilter.class));
+    init(config, PlatformImpl.getInstance().getContainer().getComponentsByType(ServletFilter.class));
   }
 
   void init(FilterConfig config, List<ServletFilter> filters) {

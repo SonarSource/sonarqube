@@ -25,7 +25,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.PlatformImpl;
 
 public final class PlatformServletContextListener implements ServletContextListener {
   static final String STARTED_ATTRIBUTE = "sonarqube.started";
@@ -40,14 +40,14 @@ public final class PlatformServletContextListener implements ServletContextListe
         String key = paramKeys.nextElement();
         props.put(key, servletContext.getInitParameter(key));
       }
-      Platform.getInstance().init(props, servletContext);
-      Platform.getInstance().doStart();
+      PlatformImpl.getInstance().init(props, servletContext);
+      PlatformImpl.getInstance().doStart();
       event.getServletContext().setAttribute(STARTED_ATTRIBUTE, Boolean.TRUE);
     } catch (org.sonar.api.utils.MessageException | org.sonar.process.MessageException e) {
-      Loggers.get(Platform.class).error("Web server startup failed: " + e.getMessage());
+      Loggers.get(PlatformImpl.class).error("Web server startup failed: " + e.getMessage());
       stopQuietly();
     } catch (Throwable t) {
-      Loggers.get(Platform.class).error("Web server startup failed", t);
+      Loggers.get(PlatformImpl.class).error("Web server startup failed", t);
       stopQuietly();
       throw new AbortTomcatStartException();
     }
@@ -55,7 +55,7 @@ public final class PlatformServletContextListener implements ServletContextListe
 
   private void stopQuietly() {
     try {
-      Platform.getInstance().doStop();
+      PlatformImpl.getInstance().doStop();
     } catch (Exception e) {
       // ignored, but an error during startup generally prevents pico to be correctly stopped
     }
@@ -63,7 +63,7 @@ public final class PlatformServletContextListener implements ServletContextListe
 
   @Override
   public void contextDestroyed(ServletContextEvent event) {
-    Platform.getInstance().doStop();
+    PlatformImpl.getInstance().doStop();
   }
 
 }

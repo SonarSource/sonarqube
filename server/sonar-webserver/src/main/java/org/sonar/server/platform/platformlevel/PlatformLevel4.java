@@ -115,7 +115,6 @@ import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.monitoring.WebSystemInfoModule;
-import org.sonar.server.platform.web.WebPagesFilter;
 import org.sonar.server.platform.web.requestid.HttpRequestIdModule;
 import org.sonar.server.platform.ws.ChangeLogLevelActionModule;
 import org.sonar.server.platform.ws.DbMigrationStatusAction;
@@ -255,7 +254,6 @@ public class PlatformLevel4 extends PlatformLevel {
       ServerWs.class,
       BackendCleanup.class,
       IndexDefinitions.class,
-      WebPagesFilter.class,
       WebAnalyticsLoaderImpl.class,
 
       // batch

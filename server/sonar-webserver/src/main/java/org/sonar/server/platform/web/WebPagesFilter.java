@@ -30,7 +30,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.web.ServletFilter;
-import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.PlatformImpl;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
@@ -56,7 +56,7 @@ public class WebPagesFilter implements Filter {
   private WebPagesCache webPagesCache;
 
   public WebPagesFilter() {
-    this(Platform.getInstance().getContainer().getComponentByType(WebPagesCache.class));
+    this(PlatformImpl.getInstance().getContainer().getComponentByType(WebPagesCache.class));
   }
 
   @VisibleForTesting

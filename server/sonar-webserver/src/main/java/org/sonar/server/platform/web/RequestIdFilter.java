@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.web.requestid;
+package org.sonar.server.platform.web;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
@@ -28,6 +28,9 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.PlatformImpl;
+import org.sonar.server.platform.web.requestid.RequestIdGenerator;
+import org.sonar.server.platform.web.requestid.RequestIdMDCStorage;
 
 /**
  * A {@link Filter} that puts and removes the HTTP request ID from the {@link org.slf4j.MDC}.
@@ -37,7 +40,7 @@ public class RequestIdFilter implements Filter {
   private final Platform platform;
 
   public RequestIdFilter() {
-    this(Platform.getInstance());
+    this(PlatformImpl.getInstance());
   }
 
   @VisibleForTesting

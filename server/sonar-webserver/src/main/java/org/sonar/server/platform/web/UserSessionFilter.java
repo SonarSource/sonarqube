@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.user;
+package org.sonar.server.platform.web;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
@@ -36,6 +36,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.authentication.UserSessionInitializer;
 import org.sonar.server.organization.DefaultOrganizationCache;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.PlatformImpl;
 import org.sonar.server.setting.ThreadLocalSettings;
 
 public class UserSessionFilter implements Filter {
@@ -43,7 +44,7 @@ public class UserSessionFilter implements Filter {
   private final Platform platform;
 
   public UserSessionFilter() {
-    this.platform = Platform.getInstance();
+    this.platform = PlatformImpl.getInstance();
   }
 
   @VisibleForTesting

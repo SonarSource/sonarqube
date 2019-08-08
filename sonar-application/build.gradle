@@ -34,7 +34,7 @@ dependencies {
   compile project(':server:sonar-ce')
   compile project(':server:sonar-main')
   compile project(':server:sonar-process')
-  compile project(':server:sonar-server')
+  compile project(':server:sonar-webserver')
   compile project(':sonar-core')
   compile project(path: ':sonar-plugin-api', configuration: 'shadow')
   compile project(':sonar-plugin-api-impl')

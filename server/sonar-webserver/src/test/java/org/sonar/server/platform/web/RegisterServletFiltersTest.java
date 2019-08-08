@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.startup;
+package org.sonar.server.platform.web;
 
 import javax.servlet.ServletException;
 import org.junit.Test;
 import org.sonar.api.web.ServletFilter;
-import org.sonar.server.platform.web.MasterServletFilter;
-import org.sonar.server.platform.web.RegisterServletFilters;
 
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;

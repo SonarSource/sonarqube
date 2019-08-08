@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.web.requestid;
+package org.sonar.server.platform.web;
 
 import java.io.IOException;
 import javax.servlet.FilterChain;
@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.slf4j.MDC;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.web.requestid.RequestIdGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -48,7 +49,7 @@ public class RequestIdFilterTest {
   private RequestIdFilter underTest = new RequestIdFilter(platform);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     ComponentContainer container = new ComponentContainer();
     container.add(requestIdGenerator);
     when(platform.getContainer()).thenReturn(container);

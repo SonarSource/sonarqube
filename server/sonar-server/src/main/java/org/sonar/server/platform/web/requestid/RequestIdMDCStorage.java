@@ -29,7 +29,7 @@ import static java.util.Objects.requireNonNull;
 public class RequestIdMDCStorage implements AutoCloseable {
   public static final String HTTP_REQUEST_ID_MDC_KEY = "HTTP_REQUEST_ID";
 
-  RequestIdMDCStorage(String requestId) {
+  public RequestIdMDCStorage(String requestId) {
     MDC.put(HTTP_REQUEST_ID_MDC_KEY, requireNonNull(requestId, "Request ID can't be null"));
   }
 

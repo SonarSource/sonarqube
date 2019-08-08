@@ -14,7 +14,7 @@
   </filter>
   <filter>
     <filter-name>UserSessionFilter</filter-name>
-    <filter-class>org.sonar.server.user.UserSessionFilter</filter-class>
+    <filter-class>org.sonar.server.platform.web.UserSessionFilter</filter-class>
   </filter>
   <filter>
     <filter-name>SetCharacterEncodingFilter</filter-name>
@@ -38,7 +38,7 @@
   </filter>
   <filter>
     <filter-name>RequestUidFilter</filter-name>
-    <filter-class>org.sonar.server.platform.web.requestid.RequestIdFilter</filter-class>
+    <filter-class>org.sonar.server.platform.web.RequestIdFilter</filter-class>
   </filter>
   <filter>
     <filter-name>WebPagesFilter</filter-name>
@@ -89,7 +89,7 @@
 
   <servlet>
     <servlet-name>static</servlet-name>
-    <servlet-class>org.sonar.server.plugins.StaticResourcesServlet</servlet-class>
+    <servlet-class>org.sonar.server.platform.web.StaticResourcesServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>

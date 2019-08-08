@@ -55,7 +55,7 @@ public class WebPagesCacheTest {
   private WebPagesCache underTest = new WebPagesCache(platform, mapSettings.asConfig(), officialDistribution);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(servletContext.getContextPath()).thenReturn(TEST_CONTEXT);
     when(servletContext.getResourceAsStream("/index.html")).thenAnswer(
       (Answer<InputStream>) invocationOnMock -> toInputStream("Content of default index.html with context [%WEB_CONTEXT%], status [%SERVER_STATUS%], instance [%INSTANCE%]",

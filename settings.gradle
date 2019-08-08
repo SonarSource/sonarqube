@@ -17,6 +17,7 @@ include 'server:sonar-server'
 include 'server:sonar-server-common'
 include 'server:sonar-vsts'
 include 'server:sonar-web'
+include 'server:sonar-webserver'
 include 'server:sonar-webserver-ws'
 
 include 'sonar-application'

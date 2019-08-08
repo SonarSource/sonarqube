@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.platformlevel;
 
-import org.sonar.server.platform.ws.SafeModeHealthActionModule;
 import org.sonar.server.authentication.SafeModeUserSession;
 import org.sonar.server.organization.NoopDefaultOrganizationCache;
 import org.sonar.server.platform.ServerImpl;
@@ -27,11 +26,11 @@ import org.sonar.server.platform.db.migration.AutoDbMigration;
 import org.sonar.server.platform.db.migration.DatabaseMigrationImpl;
 import org.sonar.server.platform.db.migration.MigrationEngineModule;
 import org.sonar.server.platform.db.migration.NoopDatabaseMigrationImpl;
-import org.sonar.server.platform.web.WebPagesFilter;
 import org.sonar.server.platform.ws.DbMigrationStatusAction;
 import org.sonar.server.platform.ws.IndexAction;
 import org.sonar.server.platform.ws.L10nWs;
 import org.sonar.server.platform.ws.MigrateDbAction;
+import org.sonar.server.platform.ws.SafeModeHealthActionModule;
 import org.sonar.server.platform.ws.StatusAction;
 import org.sonar.server.platform.ws.SystemWs;
 import org.sonar.server.ws.WebServiceEngine;
@@ -47,7 +46,6 @@ public class PlatformLevelSafeMode extends PlatformLevel {
   protected void configureLevel() {
     add(
       ServerImpl.class,
-      WebPagesFilter.class,
 
       // l10n WS
       L10nWs.class,
