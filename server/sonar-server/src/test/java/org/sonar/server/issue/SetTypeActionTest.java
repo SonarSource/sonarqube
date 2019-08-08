@@ -34,7 +34,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.issue.ws.BulkChangeAction;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,7 +70,7 @@ public class SetTypeActionTest {
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     action.execute(ImmutableMap.of("type", VULNERABILITY.name()),
-      new BulkChangeAction.ActionContext(issue, IssueChangeContext.createUser(NOW, userSession.getUuid()), null));
+      new ActionContext(issue, IssueChangeContext.createUser(NOW, userSession.getUuid()), null));
 
     assertThat(issue.type()).isEqualTo(VULNERABILITY);
     assertThat(issue.isChanged()).isTrue();

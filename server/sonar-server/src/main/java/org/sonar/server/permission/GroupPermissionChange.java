@@ -20,7 +20,6 @@
 package org.sonar.server.permission;
 
 import javax.annotation.Nullable;
-import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
 public class GroupPermissionChange extends PermissionChange {
 

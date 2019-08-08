@@ -22,18 +22,12 @@ package org.sonar.server.updatecenter;
 import org.sonar.core.platform.Module;
 import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
-import org.sonar.server.updatecenter.ws.InstalledPluginsAction;
-import org.sonar.server.updatecenter.ws.UpdateCenterWs;
-import org.sonar.server.updatecenter.ws.UploadAction;
 
 public class UpdateCenterModule extends Module {
   @Override
   protected void configureModule() {
     add(
       UpdateCenterClient.class,
-      UpdateCenterMatrixFactory.class,
-      UploadAction.class,
-      InstalledPluginsAction.class,
-      UpdateCenterWs.class);
+      UpdateCenterMatrixFactory.class);
   }
 }

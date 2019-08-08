@@ -39,7 +39,6 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.es.TestProjectIndexers;
-import org.sonar.server.permission.ws.template.DefaultTemplatesResolverRule;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.singletonList;

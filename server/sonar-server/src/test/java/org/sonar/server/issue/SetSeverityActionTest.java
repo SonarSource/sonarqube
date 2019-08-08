@@ -35,7 +35,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.issue.ws.BulkChangeAction;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -71,7 +70,7 @@ public class SetSeverityActionTest {
     IssueDto issueDto = newIssue().setSeverity(MAJOR);
     DefaultIssue issue = issueDto.toDefaultIssue();
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
-    BulkChangeAction.ActionContext context = new BulkChangeAction.ActionContext(issue, IssueChangeContext.createUser(NOW, userSession.getUuid()), null);
+    Action.Context context = new ActionContext(issue, IssueChangeContext.createUser(NOW, userSession.getUuid()), null);
 
     action.execute(ImmutableMap.of("severity", MINOR), context);
 

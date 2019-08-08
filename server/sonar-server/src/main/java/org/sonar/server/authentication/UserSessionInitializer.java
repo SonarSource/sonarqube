@@ -37,9 +37,6 @@ import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
-import static org.sonar.server.authentication.ws.LoginAction.LOGIN_URL;
-import static org.sonar.server.authentication.ws.LogoutAction.LOGOUT_URL;
-import static org.sonar.server.authentication.ws.ValidateAction.VALIDATE_URL;
 
 @ServerSide
 public class UserSessionInitializer {
@@ -59,7 +56,7 @@ public class UserSessionInitializer {
     "/api/system/db_migration_status", "/api/system/status", "/api/system/migrate_db",
     "/api/server/version",
     "/api/users/identity_providers", "/api/l10n/index",
-    LOGIN_URL, LOGOUT_URL, VALIDATE_URL);
+    "/api/authentication/login", "/api/authentication/logout", "/api/authentication/validate");
 
   private static final Set<String> URL_USING_PASSCODE = ImmutableSet.of(
     "/api/ce/info", "/api/ce/pause", "/api/ce/resume", "/api/system/health", "/api/system/analytics", "/api/system/migrate_es");

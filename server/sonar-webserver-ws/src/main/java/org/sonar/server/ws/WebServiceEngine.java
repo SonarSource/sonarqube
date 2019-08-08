@@ -85,7 +85,7 @@ public class WebServiceEngine implements LocalConnector, Startable {
     return requireNonNull(context, "Web services has not yet been initialized");
   }
 
-  List<WebService.Controller> controllers() {
+  public List<WebService.Controller> controllers() {
     return getContext().controllers();
   }
 

@@ -42,8 +42,6 @@ import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
-import org.sonar.server.permission.ws.template.DefaultTemplatesResolver;
-import org.sonar.server.permission.ws.template.DefaultTemplatesResolverImpl;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;

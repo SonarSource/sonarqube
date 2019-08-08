@@ -20,23 +20,6 @@
 package org.sonar.server.qualitygate;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.qualitygate.ws.CopyAction;
-import org.sonar.server.qualitygate.ws.CreateAction;
-import org.sonar.server.qualitygate.ws.CreateConditionAction;
-import org.sonar.server.qualitygate.ws.DeleteConditionAction;
-import org.sonar.server.qualitygate.ws.DeselectAction;
-import org.sonar.server.qualitygate.ws.DestroyAction;
-import org.sonar.server.qualitygate.ws.GetByProjectAction;
-import org.sonar.server.qualitygate.ws.ListAction;
-import org.sonar.server.qualitygate.ws.ProjectStatusAction;
-import org.sonar.server.qualitygate.ws.QualityGatesWs;
-import org.sonar.server.qualitygate.ws.QualityGatesWsSupport;
-import org.sonar.server.qualitygate.ws.RenameAction;
-import org.sonar.server.qualitygate.ws.SearchAction;
-import org.sonar.server.qualitygate.ws.SelectAction;
-import org.sonar.server.qualitygate.ws.SetAsDefaultAction;
-import org.sonar.server.qualitygate.ws.ShowAction;
-import org.sonar.server.qualitygate.ws.UpdateConditionAction;
 
 public class QualityGateModule extends Module {
   @Override
@@ -46,24 +29,6 @@ public class QualityGateModule extends Module {
       QualityGateConditionsUpdater.class,
       QualityGateFinder.class,
       QualityGateEvaluatorImpl.class,
-      // WS
-      QualityGatesWsSupport.class,
-      QualityGatesWs.class,
-      ListAction.class,
-      SearchAction.class,
-      ShowAction.class,
-      CreateAction.class,
-      RenameAction.class,
-      CopyAction.class,
-      DestroyAction.class,
-      SetAsDefaultAction.class,
-      SelectAction.class,
-      DeselectAction.class,
-      CreateConditionAction.class,
-      DeleteConditionAction.class,
-      UpdateConditionAction.class,
-      ProjectStatusAction.class,
-      GetByProjectAction.class,
       ProjectsInWarningDaemon.class,
       ProjectsInWarning.class);
   }

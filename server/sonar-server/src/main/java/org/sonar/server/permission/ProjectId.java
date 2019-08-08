@@ -21,7 +21,6 @@ package org.sonar.server.permission;
 
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.permission.ws.ProjectWsRef;
 
 import static java.util.Objects.requireNonNull;
 
@@ -29,7 +28,6 @@ import static java.util.Objects.requireNonNull;
  * Reference to a project by its db id or uuid. The field "id" should
  * be removed as soon as backend is fully based on uuids.
  *
- * @see ProjectWsRef
  */
 @Immutable
 public class ProjectId {

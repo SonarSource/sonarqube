@@ -35,6 +35,7 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.LogOAuthWarning;
+import org.sonar.server.authentication.ws.AuthenticationWsModule;
 import org.sonar.server.badge.ws.ProjectBadgesWsModule;
 import org.sonar.server.batch.BatchWsModule;
 import org.sonar.server.branch.BranchFeatureProxyImpl;
@@ -68,6 +69,7 @@ import org.sonar.server.es.metadata.MetadataIndexImpl;
 import org.sonar.server.extension.CoreExtensionBootstraper;
 import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteModule;
+import org.sonar.server.favorite.ws.FavoriteWsModule;
 import org.sonar.server.health.NodeHealthModule;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
@@ -102,19 +104,21 @@ import org.sonar.server.organization.BillingValidationsProxyImpl;
 import org.sonar.server.organization.OrganizationUpdaterImpl;
 import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.organization.ws.OrganizationsWsModule;
+import org.sonar.server.permission.DefaultTemplatesResolverImpl;
 import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.ws.PermissionsWsModule;
-import org.sonar.server.permission.ws.template.DefaultTemplatesResolverImpl;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.ClusterVerification;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
-import org.sonar.server.platform.monitoring.WebSystemInfoModule;
+import org.sonar.server.platform.web.DeprecatedPropertiesWsFilter;
+import org.sonar.server.platform.web.WebServiceFilter;
+import org.sonar.server.platform.web.WebServiceReroutingFilter;
 import org.sonar.server.platform.web.requestid.HttpRequestIdModule;
 import org.sonar.server.platform.ws.ChangeLogLevelActionModule;
 import org.sonar.server.platform.ws.DbMigrationStatusAction;
@@ -128,6 +132,7 @@ import org.sonar.server.platform.ws.ServerWs;
 import org.sonar.server.platform.ws.StatusAction;
 import org.sonar.server.platform.ws.SystemWs;
 import org.sonar.server.platform.ws.UpgradesAction;
+import org.sonar.server.platform.ws.WebSystemInfoModule;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.plugins.ServerExtensionInstaller;
@@ -142,13 +147,14 @@ import org.sonar.server.plugins.ws.PluginsWs;
 import org.sonar.server.plugins.ws.UninstallAction;
 import org.sonar.server.plugins.ws.UpdatesAction;
 import org.sonar.server.project.ws.ProjectsWsModule;
-import org.sonar.server.projectanalysis.ProjectAnalysisModule;
+import org.sonar.server.projectanalysis.ws.ProjectAnalysisWsModule;
 import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.property.ws.PropertiesWs;
 import org.sonar.server.qualitygate.QualityGateModule;
 import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
+import org.sonar.server.qualitygate.ws.QualityGateWsModule;
 import org.sonar.server.qualityprofile.BuiltInQPChangeNotificationHandler;
 import org.sonar.server.qualityprofile.BuiltInQPChangeNotificationTemplate;
 import org.sonar.server.qualityprofile.BuiltInQProfileDefinitionsBridge;
@@ -193,6 +199,7 @@ import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.WebAnalyticsLoaderImpl;
 import org.sonar.server.ui.ws.NavigationWsModule;
 import org.sonar.server.updatecenter.UpdateCenterModule;
+import org.sonar.server.updatecenter.ws.UpdateCenterWsModule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserSessionFactoryImpl;
@@ -205,16 +212,14 @@ import org.sonar.server.usergroups.DefaultGroupCreatorImpl;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.usergroups.ws.UserGroupsModule;
 import org.sonar.server.usertoken.UserTokenModule;
+import org.sonar.server.usertoken.ws.UserTokenWsModule;
 import org.sonar.server.util.TypeValidationModule;
 import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.webhook.WebhookModule;
 import org.sonar.server.webhook.ws.WebhooksWsModule;
-import org.sonar.server.ws.DeprecatedPropertiesWsFilter;
 import org.sonar.server.ws.WebServiceEngine;
-import org.sonar.server.ws.WebServiceFilter;
-import org.sonar.server.ws.WebServiceReroutingFilter;
 import org.sonar.server.ws.ws.WebServicesWsModule;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
@@ -261,6 +266,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // update center
       UpdateCenterModule.class,
+      UpdateCenterWsModule.class,
 
       // organizations
       OrganizationValidationImpl.class,
@@ -327,6 +333,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TimeMachineWs.class,
 
       QualityGateModule.class,
+      QualityGateWsModule.class,
 
       // web services
       WebServiceEngine.class,
@@ -341,6 +348,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // authentication
       AuthenticationModule.class,
+      AuthenticationWsModule.class,
 
       // users
       UserSessionFactoryImpl.class,
@@ -352,6 +360,7 @@ public class PlatformLevel4 extends PlatformLevel {
       UserUpdater.class,
       UsersWsModule.class,
       UserTokenModule.class,
+      UserTokenWsModule.class,
 
       // groups
       UserGroupsModule.class,
@@ -386,6 +395,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ComponentViewerJsonWriter.class,
 
       FavoriteModule.class,
+      FavoriteWsModule.class,
 
       // views
       ViewIndexDefinition.class,
@@ -455,7 +465,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ProjectLinksModule.class,
 
       // Project Analyses
-      ProjectAnalysisModule.class,
+      ProjectAnalysisWsModule.class,
 
       // System
       ServerLogging.class,

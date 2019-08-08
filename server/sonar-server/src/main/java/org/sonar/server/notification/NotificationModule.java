@@ -29,8 +29,6 @@ public class NotificationModule extends Module {
     add(
       EmailSettings.class,
       NotificationService.class,
-      NotificationCenter.class,
-      NotificationUpdater.class,
       DefaultNotificationManager.class,
       NotificationDaemon.class,
       EmailNotificationChannel.class);

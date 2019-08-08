@@ -36,7 +36,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.issue.ws.BulkChangeAction;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.emptyMap;
@@ -70,7 +69,7 @@ public class AssignActionTest {
   public void setUp() throws Exception {
     issueOrganizationDto = db.organizations().insert();
     project = db.components().insertPrivateProject(issueOrganizationDto);
-    context = new BulkChangeAction.ActionContext(issue, issueChangeContext, project);
+    context = new ActionContext(issue, issueChangeContext, project);
   }
 
   @Test

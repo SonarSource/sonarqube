@@ -20,21 +20,11 @@
 package org.sonar.server.usertoken;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.usertoken.ws.GenerateAction;
-import org.sonar.server.usertoken.ws.RevokeAction;
-import org.sonar.server.usertoken.ws.SearchAction;
-import org.sonar.server.usertoken.ws.UserTokenSupport;
-import org.sonar.server.usertoken.ws.UserTokensWs;
 
 public class UserTokenModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      UserTokensWs.class,
-      UserTokenSupport.class,
-      GenerateAction.class,
-      RevokeAction.class,
-      SearchAction.class,
       UserTokenAuthentication.class,
       TokenGeneratorImpl.class);
   }

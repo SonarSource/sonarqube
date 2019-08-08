@@ -29,7 +29,7 @@ import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.permission.PermissionChange.Operation.ADD;
 import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
-import static org.sonar.server.permission.ws.RequestValidator.validateNotAnyoneAndAdminPermission;
+import static org.sonar.server.permission.RequestValidator.validateNotAnyoneAndAdminPermission;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class GroupPermissionChanger {
