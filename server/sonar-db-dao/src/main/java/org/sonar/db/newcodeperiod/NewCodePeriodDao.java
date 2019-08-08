@@ -41,8 +41,8 @@ public class NewCodePeriodDao implements Dao {
     return mapper(dbSession).selectByUuid(uuid);
   }
 
-  public NewCodePeriodDto selectGlobal(DbSession dbSession) {
-    return mapper(dbSession).selectGlobal();
+  public Optional<NewCodePeriodDto> selectGlobal(DbSession dbSession) {
+    return Optional.ofNullable(mapper(dbSession).selectGlobal());
   }
 
   public void insert(DbSession dbSession, NewCodePeriodDto dto) {

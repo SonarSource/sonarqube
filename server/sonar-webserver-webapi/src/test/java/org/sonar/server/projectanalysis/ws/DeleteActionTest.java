@@ -112,7 +112,7 @@ public class DeleteActionTest {
     logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The analysis '" + analysisUuid + "' can not be deleted because it is set as a manual new code period baseline");
+    expectedException.expectMessage("The analysis '" + analysisUuid + "' can not be deleted because it is set as a new code period baseline");
 
     call(analysisUuid);
   }

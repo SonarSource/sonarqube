@@ -154,7 +154,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(projectDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime());
     dbClient.snapshotDao().insert(dbTester.getSession(), snapshotDto);
     dbTester.getSession().commit();
-    periodsHolder.setPeriod(new Period(LEAK_PERIOD_MODE_DATE, "2015-01-01", analysisDate, "u1"));
+    periodsHolder.setPeriod(new Period(LEAK_PERIOD_MODE_DATE, "2015-01-01", analysisDate));
 
     Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
@@ -170,7 +170,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void only_persist_snapshots_with_leak_period_on_project_and_module() {
-    periodsHolder.setPeriod(new Period(LEAK_PERIOD_MODE_PREVIOUS_VERSION, null, analysisDate, "u1"));
+    periodsHolder.setPeriod(new Period(LEAK_PERIOD_MODE_PREVIOUS_VERSION, null, analysisDate));
 
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto projectDto = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD").setDbKey(PROJECT_KEY).setName("Project");

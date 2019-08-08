@@ -21,25 +21,16 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.analysis.Branch;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
@@ -47,21 +38,17 @@ import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.db.event.EventDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodParser;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
-import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD;
-import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
-import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DAYS;
-import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_MANUAL_BASELINE;
-import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_VERSION;
-import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_VERSION;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
@@ -78,20 +65,18 @@ public class LoadPeriodsStep implements ComputationStep {
   private static final Logger LOG = Loggers.get(LoadPeriodsStep.class);
 
   private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final NewCodePeriodDao newCodePeriodDao;
   private final TreeRootHolder treeRootHolder;
   private final PeriodHolderImpl periodsHolder;
-  private final System2 system2;
   private final DbClient dbClient;
-  private final ConfigurationRepository configRepository;
 
-  public LoadPeriodsStep(AnalysisMetadataHolder analysisMetadataHolder, TreeRootHolder treeRootHolder, PeriodHolderImpl periodsHolder,
-                         System2 system2, DbClient dbClient, ConfigurationRepository configRepository) {
+  public LoadPeriodsStep(AnalysisMetadataHolder analysisMetadataHolder, NewCodePeriodDao newCodePeriodDao, TreeRootHolder treeRootHolder,
+    PeriodHolderImpl periodsHolder, DbClient dbClient) {
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.newCodePeriodDao = newCodePeriodDao;
     this.treeRootHolder = treeRootHolder;
     this.periodsHolder = periodsHolder;
-    this.system2 = system2;
     this.dbClient = dbClient;
-    this.configRepository = configRepository;
   }
 
   @Override
@@ -106,169 +91,127 @@ public class LoadPeriodsStep implements ComputationStep {
       return;
     }
 
-    periodsHolder.setPeriod(resolvePeriod(treeRootHolder.getRoot()).orElse(null));
-  }
-
-  private Optional<Period> resolvePeriod(Component projectOrView) {
-    String currentVersion = projectOrView.getProjectAttributes().getProjectVersion();
-    Optional<String> propertyValue = configRepository.getConfiguration().get(LEAK_PERIOD)
-      .filter(t -> !t.isEmpty());
-    checkPeriodProperty(propertyValue.isPresent(), "", "property is undefined or value is empty");
+    String projectUuid = getProjectBranchUuid();
+    String branchUuid = treeRootHolder.getRoot().getUuid();
+    String projectVersion = treeRootHolder.getRoot().getProjectAttributes().getProjectVersion();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<Period> manualBaselineOpt = resolveByManualBaseline(dbSession, projectOrView.getUuid());
-      if (manualBaselineOpt.isPresent()) {
-        return manualBaselineOpt;
+      Optional<NewCodePeriodDto> dto = firstPresent(
+        () -> getBranchSetting(dbSession, projectUuid, branchUuid),
+        () -> getProjectSetting(dbSession, projectUuid),
+        () -> getGlobalSetting(dbSession));
+
+      Period period = dto.map(d -> toPeriod(d.getType(), d.getValue(), dbSession, projectVersion, branchUuid))
+        .orElseGet(() -> toPeriod(NewCodePeriodType.PREVIOUS_VERSION, null, dbSession, projectVersion, branchUuid));
+      periodsHolder.setPeriod(period);
+    }
+  }
+
+  private <T> Optional<T> firstPresent(Supplier<Optional<T>>... suppliers) {
+    for (Supplier<Optional<T>> supplier : suppliers) {
+      Optional<T> result = supplier.get();
+      if (result.isPresent()) {
+        return result;
       }
-      return resolve(dbSession, projectOrView.getUuid(), currentVersion, propertyValue.get());
+    }
+    return Optional.empty();
+  }
+
+  private Optional<NewCodePeriodDto> getBranchSetting(DbSession dbSession, String projectUuid, String branchUuid) {
+    return newCodePeriodDao.selectByBranch(dbSession, projectUuid, branchUuid);
+  }
+
+  private Optional<NewCodePeriodDto> getProjectSetting(DbSession dbSession, String projectUuid) {
+    return newCodePeriodDao.selectByProject(dbSession, projectUuid);
+  }
+
+  private Optional<NewCodePeriodDto> getGlobalSetting(DbSession dbSession) {
+    return newCodePeriodDao.selectGlobal(dbSession);
+  }
+
+  private Period toPeriod(NewCodePeriodType type, @Nullable String value, DbSession dbSession, String analysisProjectVersion, String rootUuid) {
+    switch (type) {
+      case NUMBER_OF_DAYS:
+        Integer days = NewCodePeriodParser.parseDays(value);
+        checkNotNullValue(value, type);
+        return resolveByDays(dbSession, rootUuid, days, value);
+      case PREVIOUS_VERSION:
+        return resolveByPreviousVersion(dbSession, rootUuid, analysisProjectVersion);
+      case SPECIFIC_ANALYSIS:
+        checkNotNullValue(value, type);
+        return resolveBySpecificAnalysis(dbSession, rootUuid, value);
+      default:
+        throw new IllegalStateException("Unexpected type: " + type);
     }
   }
 
-  private Optional<Period> resolveByManualBaseline(DbSession dbSession, String projectUuid) {
-    Branch branch = analysisMetadataHolder.getBranch();
-    if (branch.getType() != BranchType.LONG) {
-      return Optional.empty();
-    }
-
-    return dbClient.branchDao().selectByUuid(dbSession, projectUuid)
-      .map(branchDto -> resolveByManualBaseline(dbSession, projectUuid, branchDto));
+  private String getProjectBranchUuid() {
+    return analysisMetadataHolder.getProject().getUuid();
   }
 
-  private Period resolveByManualBaseline(DbSession dbSession, String projectUuid, BranchDto branchDto) {
-    String baselineAnalysisUuid = dbClient.newCodePeriodDao().selectByBranch(dbSession, projectUuid, branchDto.getUuid())
-      .map(NewCodePeriodDto::getValue)
-      .orElse(null);
-    if (baselineAnalysisUuid == null) {
-      return null;
-    }
-
-    LOG.debug("Resolving new code period by manual baseline");
-    SnapshotDto baseline = dbClient.snapshotDao().selectByUuid(dbSession, baselineAnalysisUuid)
-      .filter(t -> t.getComponentUuid().equals(projectUuid))
-      .orElseThrow(() -> new IllegalStateException("Analysis '" + baselineAnalysisUuid + "' of project '" + projectUuid
-        + "' defined as manual baseline does not exist"));
-    return newPeriod(LEAK_PERIOD_MODE_MANUAL_BASELINE, null, baseline);
+  private Period resolveBySpecificAnalysis(DbSession dbSession, String rootUuid, String value) {
+    SnapshotDto baseline = dbClient.snapshotDao().selectByUuid(dbSession, value)
+      .filter(t -> t.getComponentUuid().equals(rootUuid))
+      .orElseThrow(() -> new IllegalStateException("Analysis '" + value + "' of project '" + rootUuid
+        + "' defined as the baseline does not exist"));
+    LOG.debug("Resolving new code period with a specific analysis");
+    return newPeriod(NewCodePeriodType.SPECIFIC_ANALYSIS, value, Instant.ofEpochMilli(baseline.getCreatedAt()));
   }
 
-  private Optional<Period> resolve(DbSession dbSession, String projectUuid, String analysisProjectVersion, String propertyValue) {
-    Integer days = parseDaysQuietly(propertyValue);
-    if (days != null) {
-      return resolveByDays(dbSession, projectUuid, days, propertyValue);
-    }
-    Instant date = parseDate(propertyValue);
-    if (date != null) {
-      return resolveByDate(dbSession, projectUuid, date, propertyValue);
-    }
-
+  private Period resolveByPreviousVersion(DbSession dbSession, String projectUuid, String analysisProjectVersion) {
     List<EventDto> versions = dbClient.eventDao().selectVersionsByMostRecentFirst(dbSession, projectUuid);
     if (versions.isEmpty()) {
-      return resolveWhenNoExistingVersion(dbSession, projectUuid, analysisProjectVersion, propertyValue);
+      return findOldestAnalysis(dbSession, projectUuid);
     }
 
     String mostRecentVersion = Optional.ofNullable(versions.iterator().next().getName())
       .orElseThrow(() -> new IllegalStateException("selectVersionsByMostRecentFirst returned a DTO which didn't have a name"));
 
-    boolean previousVersionPeriod = LEAK_PERIOD_MODE_PREVIOUS_VERSION.equals(propertyValue);
-    if (previousVersionPeriod) {
-      if (versions.size() == 1) {
-        return resolvePreviousVersionWithOnlyOneExistingVersion(dbSession, projectUuid);
-      }
-      return resolvePreviousVersion(dbSession, analysisProjectVersion, versions, mostRecentVersion);
+    if (versions.size() == 1) {
+      return findOldestAnalysis(dbSession, projectUuid);
     }
-
-    return resolveVersion(dbSession, versions, propertyValue);
+    return resolvePreviousVersion(dbSession, analysisProjectVersion, versions, mostRecentVersion);
   }
 
-  @CheckForNull
-  private static Instant parseDate(String propertyValue) {
-    try {
-      LocalDate localDate = LocalDate.parse(propertyValue);
-      return localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
-    } catch (DateTimeParseException e) {
-      boolean invalidDate = e.getCause() == null || e.getCause() == e || !e.getCause().getMessage().contains("Invalid date");
-      checkPeriodProperty(invalidDate, propertyValue, "Invalid date");
-      return null;
-    }
-  }
-
-  private Optional<Period> resolveByDays(DbSession dbSession, String projectUuid, Integer days, String propertyValue) {
+  private Period resolveByDays(DbSession dbSession, String rootUuid, Integer days, String propertyValue) {
     checkPeriodProperty(days > 0, propertyValue, "number of days is <= 0");
     long analysisDate = analysisMetadataHolder.getAnalysisDate();
-    List<SnapshotDto> snapshots = dbClient.snapshotDao().selectAnalysesByQuery(dbSession, createCommonQuery(projectUuid).setCreatedBefore(analysisDate).setSort(BY_DATE, ASC));
-    ensureNotOnFirstAnalysis(!snapshots.isEmpty());
+    List<SnapshotDto> snapshots = dbClient.snapshotDao().selectAnalysesByQuery(dbSession, createCommonQuery(rootUuid)
+      .setCreatedBefore(analysisDate).setSort(BY_DATE, ASC));
 
+    ensureNotOnFirstAnalysis(!snapshots.isEmpty());
     Instant targetDate = DateUtils.addDays(Instant.ofEpochMilli(analysisDate), -days);
     LOG.debug("Resolving new code period by {} days: {}", days, supplierToString(() -> logDate(targetDate)));
     SnapshotDto snapshot = findNearestSnapshotToTargetDate(snapshots, targetDate);
-
-    return Optional.of(newPeriod(LEAK_PERIOD_MODE_DAYS, String.valueOf((int) days), snapshot));
+    return newPeriod(NewCodePeriodType.NUMBER_OF_DAYS, String.valueOf((int) days), Instant.ofEpochMilli(snapshot.getCreatedAt()));
   }
 
-  private Optional<Period> resolveByDate(DbSession dbSession, String projectUuid, Instant date, String propertyValue) {
-    Instant now = Instant.ofEpochMilli(system2.now());
-    checkPeriodProperty(date.compareTo(now) <= 0, propertyValue,
-      "date is in the future (now: '%s')", supplierToString(() -> logDate(now)));
-
-    LOG.debug("Resolving new code period by date: {}", supplierToString(() -> logDate(date)));
-    Optional<Period> period = findFirstSnapshot(dbSession, createCommonQuery(projectUuid).setCreatedAfter(date.toEpochMilli()).setSort(BY_DATE, ASC))
-      .map(dto -> newPeriod(LEAK_PERIOD_MODE_DATE, DateUtils.formatDate(date), dto));
-
-    checkPeriodProperty(period.isPresent(), propertyValue, "No analysis found created after date '%s'", supplierToString(() -> logDate(date)));
-    return period;
-  }
-
-  private Optional<Period> resolveWhenNoExistingVersion(DbSession dbSession, String projectUuid, String currentVersion, String propertyValue) {
-    LOG.debug("Resolving first analysis as new code period as there is no existing version");
-
-    boolean previousVersionPeriod = LEAK_PERIOD_MODE_PREVIOUS_VERSION.equals(propertyValue);
-    boolean currentVersionPeriod = currentVersion.equals(propertyValue);
-    checkPeriodProperty(previousVersionPeriod || currentVersionPeriod, propertyValue,
-      "No existing version. Property should be either '%s' or the current version '%s' (actual: '%s')",
-      LEAK_PERIOD_MODE_PREVIOUS_VERSION, currentVersion, propertyValue);
-
-    String periodMode = previousVersionPeriod ? LEAK_PERIOD_MODE_PREVIOUS_VERSION : LEAK_PERIOD_MODE_VERSION;
-    return findOldestAnalysis(dbSession, periodMode, projectUuid);
-  }
-
-  private Optional<Period> resolvePreviousVersionWithOnlyOneExistingVersion(DbSession dbSession, String projectUuid) {
-    LOG.debug("Resolving first analysis as new code period as there is only one existing version");
-    return findOldestAnalysis(dbSession, LEAK_PERIOD_MODE_PREVIOUS_VERSION, projectUuid);
-  }
-
-  private Optional<Period> findOldestAnalysis(DbSession dbSession, String periodMode, String projectUuid) {
-    Optional<Period> period = dbClient.snapshotDao().selectOldestSnapshot(dbSession, projectUuid)
-      .map(dto -> newPeriod(periodMode, null, dto));
-    ensureNotOnFirstAnalysis(period.isPresent());
-    return period;
-  }
-
-  private Optional<Period> resolvePreviousVersion(DbSession dbSession, String currentVersion, List<EventDto> versions, String mostRecentVersion) {
+  private Period resolvePreviousVersion(DbSession dbSession, String currentVersion, List<EventDto> versions, String mostRecentVersion) {
     EventDto previousVersion = versions.get(currentVersion.equals(mostRecentVersion) ? 1 : 0);
     LOG.debug("Resolving new code period by previous version: {}", previousVersion.getName());
-    return newPeriod(dbSession, LEAK_PERIOD_MODE_PREVIOUS_VERSION, previousVersion);
+    return newPeriod(dbSession, previousVersion);
   }
 
-  private Optional<Period> resolveVersion(DbSession dbSession, List<EventDto> versions, String propertyValue) {
-    LOG.debug("Resolving new code period by version: {}", propertyValue);
-    Optional<EventDto> version = versions.stream().filter(t -> propertyValue.equals(t.getName())).findFirst();
-    checkPeriodProperty(version.isPresent(), propertyValue,
-      "version is none of the existing ones: %s", supplierToString(() -> toVersions(versions)));
-
-    return newPeriod(dbSession, LEAK_PERIOD_MODE_VERSION, version.get());
+  private Period findOldestAnalysis(DbSession dbSession, String projectUuid) {
+    LOG.debug("Resolving first analysis as new code period as there is only one existing version");
+    Optional<Period> period = dbClient.snapshotDao().selectOldestSnapshot(dbSession, projectUuid)
+      .map(dto -> newPeriod(NewCodePeriodType.PREVIOUS_VERSION, null, Instant.ofEpochMilli(dto.getCreatedAt())));
+    ensureNotOnFirstAnalysis(period.isPresent());
+    return period.get();
   }
 
-  private Optional<Period> newPeriod(DbSession dbSession, String periodMode, EventDto previousVersion) {
+  private Period newPeriod(DbSession dbSession, EventDto previousVersion) {
     Optional<Period> period = dbClient.snapshotDao().selectByUuid(dbSession, previousVersion.getAnalysisUuid())
-      .map(dto -> newPeriod(periodMode, previousVersion.getName(), dto));
+      .map(dto -> newPeriod(NewCodePeriodType.PREVIOUS_VERSION, dto.getProjectVersion(), Instant.ofEpochMilli(dto.getCreatedAt())));
     if (!period.isPresent()) {
       throw new IllegalStateException(format("Analysis '%s' for version event '%s' has been deleted",
         previousVersion.getAnalysisUuid(), previousVersion.getName()));
     }
-    return period;
+    return period.get();
   }
 
-  private static String toVersions(List<EventDto> versions) {
-    return Arrays.toString(versions.stream().map(EventDto::getName).toArray(String[]::new));
+  private static Period newPeriod(NewCodePeriodType type, @Nullable String value, Instant instant) {
+    return new Period(type.name(), value, instant.toEpochMilli());
   }
 
   private static Object supplierToString(Supplier<String> s) {
@@ -280,37 +223,8 @@ public class LoadPeriodsStep implements ComputationStep {
     };
   }
 
-  private static Period newPeriod(String mode, @Nullable String modeParameter, SnapshotDto dto) {
-    return new Period(mode, modeParameter, dto.getCreatedAt(), dto.getUuid());
-  }
-
-  private static void checkPeriodProperty(boolean test, String propertyValue, String testDescription, Object... args) {
-    if (!test) {
-      LOG.debug("Invalid code period '{}': {}", propertyValue, supplierToString(() -> format(testDescription, args)));
-      throw MessageException.of(format("Invalid new code period. '%s' is not one of: " +
-        "integer > 0, date before current analysis j, \"previous_version\", or version string that exists in the project' \n" +
-        "Please contact a project administrator to correct this setting", propertyValue));
-    }
-  }
-
-  private Optional<SnapshotDto> findFirstSnapshot(DbSession session, SnapshotQuery query) {
-    return dbClient.snapshotDao().selectAnalysesByQuery(session, query)
-      .stream()
-      .findFirst();
-  }
-
-  private static void ensureNotOnFirstAnalysis(boolean expression) {
-    checkState(expression, "Attempting to resolve period while no analysis exist for project");
-  }
-
-  @CheckForNull
-  private static Integer parseDaysQuietly(String property) {
-    try {
-      return Integer.parseInt(property);
-    } catch (NumberFormatException e) {
-      // Nothing to, it means that the property is not a number of days
-      return null;
-    }
+  private static SnapshotQuery createCommonQuery(String projectUuid) {
+    return new SnapshotQuery().setComponentUuid(projectUuid).setStatus(STATUS_PROCESSED);
   }
 
   private static SnapshotDto findNearestSnapshotToTargetDate(List<SnapshotDto> snapshots, Instant targetDate) {
@@ -328,8 +242,21 @@ public class LoadPeriodsStep implements ComputationStep {
     return nearest;
   }
 
-  private static SnapshotQuery createCommonQuery(String projectUuid) {
-    return new SnapshotQuery().setComponentUuid(projectUuid).setStatus(STATUS_PROCESSED);
+  private static void checkPeriodProperty(boolean test, String propertyValue, String testDescription, Object... args) {
+    if (!test) {
+      LOG.debug("Invalid code period '{}': {}", propertyValue, supplierToString(() -> format(testDescription, args)));
+      throw MessageException.of(format("Invalid new code period. '%s' is not one of: " +
+        "integer > 0, date before current analysis j, \"previous_version\", or version string that exists in the project' \n" +
+        "Please contact a project administrator to correct this setting", propertyValue));
+    }
+  }
+
+  private static void ensureNotOnFirstAnalysis(boolean expression) {
+    checkState(expression, "Attempting to resolve period while no analysis exist for project");
+  }
+
+  private static void checkNotNullValue(@Nullable String value, NewCodePeriodType type) {
+    checkNotNull(value, "Value can't be null with type %s", type);
   }
 
   private static String logDate(Instant instant) {

@@ -129,7 +129,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
     Component view = ViewsComponent.builder(VIEW, "KEY_VIEW").setUuid("UUID_VIEW").addChildren(subView).build();
     treeRootHolder.setRoot(view);
 
-    periodsHolder.setPeriod(new Period(LEAK_PERIOD_MODE_DATE, "2015-01-01", analysisDate, "u1"));
+    periodsHolder.setPeriod(new Period(LEAK_PERIOD_MODE_DATE, "2015-01-01", analysisDate));
 
     underTest.execute(new TestComputationStepContext());
 

@@ -68,7 +68,7 @@ public class NewLinesRepositoryTest {
 
   @Test
   public void compute_new_lines_using_scm_info_for_period() {
-    periodHolder.setPeriod(new Period("", null, 1000L, ""));
+    periodHolder.setPeriod(new Period("", null, 1000L));
     scmInfoRepository.setScmInfo(FILE.getReportAttributes().getRef(), createChangesets(1100L, 900L, 1000L, 800L));
 
     Optional<Set<Integer>> newLines = repository.getNewLines(FILE);
@@ -108,7 +108,7 @@ public class NewLinesRepositoryTest {
 
   @Test
   public void return_empty_if_no_report_and_no_scm_info() {
-    periodHolder.setPeriod(new Period("", null, 1000L, ""));
+    periodHolder.setPeriod(new Period("", null, 1000L));
 
     Optional<Set<Integer>> newLines = repository.getNewLines(FILE);
 

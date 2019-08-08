@@ -34,13 +34,11 @@ public class Period {
   @CheckForNull
   private final String modeParameter;
   private final long snapshotDate;
-  private final String analysisUuid;
 
-  public Period(String mode, @Nullable String modeParameter, long snapshotDate, String analysisUuid) {
+  public Period(String mode, @Nullable String modeParameter, long snapshotDate) {
     this.mode = requireNonNull(mode);
     this.modeParameter = modeParameter;
     this.snapshotDate = snapshotDate;
-    this.analysisUuid = analysisUuid;
   }
 
   public String getMode() {
@@ -56,10 +54,6 @@ public class Period {
     return snapshotDate;
   }
 
-  public String getAnalysisUuid() {
-    return analysisUuid;
-  }
-
   @Override
   public boolean equals(@Nullable Object o) {
     if (this == o) {
@@ -70,14 +64,13 @@ public class Period {
     }
     Period period = (Period) o;
     return snapshotDate == period.snapshotDate
-      && Objects.equals(analysisUuid, period.analysisUuid)
       && mode.equals(period.mode)
       && Objects.equals(modeParameter, period.modeParameter);
   }
 
   @Override
   public int hashCode() {
-    return hash(mode, modeParameter, snapshotDate, analysisUuid);
+    return hash(mode, modeParameter, snapshotDate);
   }
 
   @Override
@@ -86,7 +79,6 @@ public class Period {
       .add("mode", mode)
       .add("modeParameter", modeParameter)
       .add("snapshotDate", snapshotDate)
-      .add("analysisUuid", analysisUuid)
       .toString();
   }
 }

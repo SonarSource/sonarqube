@@ -36,6 +36,7 @@ import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.component.BranchType;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -55,7 +56,7 @@ import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PRE
 
 public class NewEffortAggregatorTest {
 
-  private static final Period PERIOD = new Period(LEAK_PERIOD_MODE_PREVIOUS_VERSION, null, 1_500_000_000L, "U1");
+  private static final Period PERIOD = new Period(NewCodePeriodType.PREVIOUS_VERSION.name(), null, 1_500_000_000L);
   private static final long[] OLD_ISSUES_DATES = new long[] {
     PERIOD.getSnapshotDate(),
     PERIOD.getSnapshotDate() - 1,

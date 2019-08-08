@@ -40,6 +40,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -104,7 +105,7 @@ public class UnsetBaselineActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto projectAnalysis = db.components().insertSnapshot(project);
     SnapshotDto branchAnalysis = db.components().insertSnapshot(project);
-    db.components().setSpecificAnalysisNewCodePeriod(project, projectAnalysis);
+    db.newCodePeriods().insert(project.projectUuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, projectAnalysis.getUuid());
     logInAsProjectAdministrator(project);
 
     call(project.getKey(), null);
@@ -118,7 +119,8 @@ public class UnsetBaselineActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto projectAnalysis = db.components().insertSnapshot(branch);
     SnapshotDto branchAnalysis = db.components().insertSnapshot(project);
-    db.components().setSpecificAnalysisNewCodePeriod(branch, branchAnalysis);
+    db.newCodePeriods().insert(project.projectUuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, branchAnalysis.getUuid());
+
     logInAsProjectAdministrator(project);
 
     call(project.getKey(), branch.getBranch());

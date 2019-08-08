@@ -74,6 +74,11 @@ public class NewCodePeriodDaoTest {
   }
 
   @Test
+  public void select_global_with_no_value() {
+    assertThat(underTest.selectGlobal(dbSession)).isEmpty();
+  }
+
+  @Test
   public void update_new_code_period() {
     when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
 
@@ -230,7 +235,7 @@ public class NewCodePeriodDaoTest {
       .setType(NewCodePeriodType.NUMBER_OF_DAYS)
       .setValue("30"));
 
-    NewCodePeriodDto result = underTest.selectGlobal(dbSession);
+    NewCodePeriodDto result = underTest.selectGlobal(dbSession).get();
     assertThat(result.getUuid()).isEqualTo(NEW_CODE_PERIOD_UUID);
     assertThat(result.getProjectUuid()).isNull();
     assertThat(result.getBranchUuid()).isNull();

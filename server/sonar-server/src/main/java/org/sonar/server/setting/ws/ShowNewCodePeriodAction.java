@@ -118,7 +118,9 @@ public class ShowNewCodePeriodAction implements SettingsWsAction {
 
   private ShowNewCodePeriodResponse.Builder get(DbSession dbSession, @Nullable String projectUuid, @Nullable String branchUuid, boolean inherited) {
     if (projectUuid == null) {
-      return build(newCodePeriodDao.selectGlobal(dbSession), inherited);
+      Optional<NewCodePeriodDto> dto = newCodePeriodDao.selectGlobal(dbSession);
+      return dto.map(d -> build(d, inherited))
+        .orElseGet(() -> buildDefault(inherited));
     }
     if (branchUuid == null) {
       Optional<NewCodePeriodDto> dto = newCodePeriodDao.selectByProject(dbSession, projectUuid);
@@ -140,6 +142,12 @@ public class ShowNewCodePeriodAction implements SettingsWsAction {
       builder.setValue(dto.getValue());
     }
     return builder;
+  }
+
+  private ShowNewCodePeriodResponse.Builder buildDefault(boolean inherited) {
+    return ShowNewCodePeriodResponse.newBuilder()
+      .setType(convertType(NewCodePeriodType.PREVIOUS_VERSION))
+      .setInherited(inherited);
   }
 
   private Settings.NewCodePeriodType convertType(NewCodePeriodType type) {

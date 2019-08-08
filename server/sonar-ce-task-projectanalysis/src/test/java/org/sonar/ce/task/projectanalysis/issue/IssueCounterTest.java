@@ -440,7 +440,7 @@ public class IssueCounterTest {
   }
 
   private static Period newPeriod(long date) {
-    return new Period("mode", null, date, "U1");
+    return new Period("mode", null, date);
   }
 
 }

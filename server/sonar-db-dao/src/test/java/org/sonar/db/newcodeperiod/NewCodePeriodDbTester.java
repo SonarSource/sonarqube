@@ -19,6 +19,7 @@
  */
 package org.sonar.db.newcodeperiod;
 
+import javax.annotation.Nullable;
 import org.sonar.db.DbTester;
 
 public class NewCodePeriodDbTester {
@@ -32,6 +33,33 @@ public class NewCodePeriodDbTester {
   public NewCodePeriodDto insert(NewCodePeriodDto dto) {
     dbTester.getDbClient().newCodePeriodDao().insert(dbTester.getSession(), dto);
     dbTester.getSession().commit();
+    return dto;
+  }
+
+  public NewCodePeriodDto insert(@Nullable String projectUuid, @Nullable String branchUuid, NewCodePeriodType type, @Nullable String value) {
+    NewCodePeriodDto dto = new NewCodePeriodDto()
+      .setProjectUuid(projectUuid)
+      .setBranchUuid(branchUuid)
+      .setType(type)
+      .setValue(value);
+    insert(dto);
+    return dto;
+  }
+
+  public NewCodePeriodDto insert(@Nullable String projectUuid, NewCodePeriodType type, @Nullable String value) {
+    NewCodePeriodDto dto = new NewCodePeriodDto()
+      .setProjectUuid(projectUuid)
+      .setType(type)
+      .setValue(value);
+    insert(dto);
+    return dto;
+  }
+
+  public NewCodePeriodDto insert(NewCodePeriodType type, @Nullable String value) {
+    NewCodePeriodDto dto = new NewCodePeriodDto()
+      .setType(type)
+      .setValue(value);
+    insert(dto);
     return dto;
   }
 
