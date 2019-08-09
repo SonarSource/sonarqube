@@ -22,15 +22,16 @@ package org.sonarqube.ws.client.settings;
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.client.BaseService;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsConnector;
+import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.CheckSecretKeyWsResponse;
 import org.sonarqube.ws.Settings.EncryptWsResponse;
 import org.sonarqube.ws.Settings.GenerateSecretKeyWsResponse;
 import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsConnector;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings">Further information about this web service online</a>
@@ -43,9 +44,9 @@ public class SettingsService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a GET request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/check_secret_key">Further information about this action online (including a response example)</a>
    * @since 6.1
    */
@@ -56,9 +57,9 @@ public class SettingsService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a GET request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/encrypt">Further information about this action online (including a response example)</a>
    * @since 6.1
    */
@@ -70,9 +71,9 @@ public class SettingsService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a GET request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/generate_secret_key">Further information about this action online (including a response example)</a>
    * @since 6.1
    */
@@ -83,9 +84,9 @@ public class SettingsService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a GET request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/list_definitions">Further information about this action online (including a response example)</a>
    * @since 6.3
    */
@@ -99,9 +100,9 @@ public class SettingsService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a POST request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/reset">Further information about this action online (including a response example)</a>
    * @since 6.1
    */
@@ -113,13 +114,13 @@ public class SettingsService extends BaseService {
         .setParam("keys", request.getKeys() == null ? null : request.getKeys().stream().collect(Collectors.joining(",")))
         .setParam("pullRequest", request.getPullRequest())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a POST request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/set">Further information about this action online (including a response example)</a>
    * @since 6.1
    */
@@ -134,13 +135,46 @@ public class SettingsService extends BaseService {
         .setParam("value", request.getValue())
         .setParam("values", request.getValues() == null ? null : request.getValues())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a GET request.
+   *
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/show_new_code_period">Further information about this action online (including a response example)</a>
+   * @since 8.0
+   */
+  public Settings.ShowNewCodePeriodResponse showNewCodePeriod(ShowNewCodePeriodRequest request) {
+    return call(
+      new GetRequest(path("show_new_code_period"))
+        .setParam("branch", request.getBranch())
+        .setParam("project", request.getProject()),
+      Settings.ShowNewCodePeriodResponse.parser());
+  }
+
+  /**
+   * This is part of the internal API.
+   * This is a GET request.
+   *
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/update_new_code_period">Further information about this action online (including a response example)</a>
+   * @since 8.0
+   */
+  public void updateNewCodePeriod(UpdateNewCodePeriodRequest request) {
+    call(
+      new GetRequest(path("update_new_code_period"))
+        .setParam("branch", request.getBranch())
+        .setParam("project", request.getProject())
+        .setParam("type", request.getType())
+        .setParam("value", request.getValue())
+        .setMediaType(MediaTypes.JSON)
+    ).content();
+  }
+
+  /**
+   * This is part of the internal API.
+   * This is a GET request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/values">Further information about this action online (including a response example)</a>
    * @since 6.3
    */
