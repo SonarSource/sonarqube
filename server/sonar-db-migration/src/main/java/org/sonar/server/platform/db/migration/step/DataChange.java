@@ -21,7 +21,6 @@ package org.sonar.server.platform.db.migration.step;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.sonar.api.config.Configuration;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.Dialect;
 
@@ -61,10 +60,6 @@ public abstract class DataChange implements MigrationStep {
     Connection res = db.getDataSource().getConnection();
     res.setAutoCommit(false);
     return res;
-  }
-
-  protected static boolean isSonarCloud(Configuration configuration) {
-    return configuration.getBoolean("sonar.sonarcloud.enabled").orElse(false);
   }
 
   public static class Context {

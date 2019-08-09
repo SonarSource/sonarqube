@@ -20,7 +20,6 @@
 package org.sonar.server.notification.ws;
 
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.server.issue.notification.FPOrWontFixNotificationHandler;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
@@ -50,9 +49,7 @@ public class DispatchersImplTest {
     },
     new NotificationChannel[] {});
 
-  private final MapSettings settings = new MapSettings();
-
-  private DispatchersImpl underTest = new DispatchersImpl(notificationCenter, settings.asConfig());
+  private DispatchersImpl underTest = new DispatchersImpl(notificationCenter);
 
   @Test
   public void get_sorted_global_dispatchers() {
@@ -63,15 +60,6 @@ public class DispatchersImplTest {
   }
 
   @Test
-  public void get_global_dispatchers_on_sonarcloud() {
-    settings.setProperty("sonar.sonarcloud.enabled", "true");
-
-    underTest.start();
-
-    assertThat(underTest.getGlobalDispatchers()).containsOnly(MyNewIssuesNotificationHandler.KEY);
-  }
-
-  @Test
   public void get_sorted_project_dispatchers() {
     underTest.start();
 
@@ -79,13 +67,4 @@ public class DispatchersImplTest {
       QGChangeNotificationHandler.KEY, FPOrWontFixNotificationHandler.KEY, MyNewIssuesNotificationHandler.KEY);
   }
 
-  @Test
-  public void get_project_dispatchers_on_sonarcloud() {
-    settings.setProperty("sonar.sonarcloud.enabled", "true");
-
-    underTest.start();
-
-    assertThat(underTest.getProjectDispatchers()).containsOnly(
-      MyNewIssuesNotificationHandler.KEY, QGChangeNotificationHandler.KEY, FPOrWontFixNotificationHandler.KEY);
-  }
 }

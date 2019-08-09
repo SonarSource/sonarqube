@@ -42,17 +42,14 @@ import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
 import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoaderImpl;
 
 public class WebSystemInfoModule extends Module {
-  private final Configuration configuration;
   private final WebServer webServer;
 
-  public WebSystemInfoModule(Configuration configuration, WebServer webServer) {
-    this.configuration = configuration;
+  public WebSystemInfoModule(WebServer webServer) {
     this.webServer = webServer;
   }
 
   @Override
   protected void configureModule() {
-    boolean sonarcloud = configuration.getBoolean("sonar.sonarcloud.enabled").orElse(false);
     boolean standalone = webServer.isStandalone();
 
     add(
@@ -67,7 +64,7 @@ public class WebSystemInfoModule extends Module {
       InfoAction.class
 
       );
-    if (standalone || sonarcloud) {
+    if (standalone) {
       add(
         EsStateSection.class,
         StandaloneSystemSection.class,

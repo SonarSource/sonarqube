@@ -19,15 +19,9 @@
  */
 package org.sonar.server.platform.ws;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Collection;
-import javax.annotation.Nullable;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.picocontainer.ComponentAdapter;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.platform.WebServer;
 
@@ -36,19 +30,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
-@RunWith(DataProviderRunner.class)
 public class ChangeLogLevelActionModuleTest {
   private WebServer webServer = mock(WebServer.class);
-  private MapSettings settings = new MapSettings();
-  private ChangeLogLevelActionModule underTest = new ChangeLogLevelActionModule(webServer, settings.asConfig());
+  private ChangeLogLevelActionModule underTest = new ChangeLogLevelActionModule(webServer);
 
   @Test
-  @UseDataProvider("notOnSonarCloud")
-  public void provide_returns_ChangeLogLevelClusterService_if_cluster_not_on_SonarCloud(@Nullable Boolean sonarcloudOrNot) {
+  public void provide_returns_ChangeLogLevelClusterService_if_cluster_not_on_SonarCloud() {
     when(webServer.isStandalone()).thenReturn(false);
-    if (sonarcloudOrNot != null) {
-      settings.setProperty("sonar.sonarcloud.enabled", sonarcloudOrNot);
-    }
     ComponentContainer container = new ComponentContainer();
 
     underTest.configure(container);
@@ -62,23 +50,8 @@ public class ChangeLogLevelActionModuleTest {
   }
 
   @Test
-  public void provide_returns_ChangeLogLevelStandaloneService_on_SonarCloud() {
-    when(webServer.isStandalone()).thenReturn(false);
-    settings.setProperty("sonar.sonarcloud.enabled", true);
-    ComponentContainer container = new ComponentContainer();
-
-    underTest.configure(container);
-
-    verifyInStandaloneSQ(container);
-  }
-
-  @Test
-  @UseDataProvider("notOnSonarCloud")
-  public void provide_returns_ChangeLogLevelStandaloneService_if_SQ_standalone(@Nullable Boolean sonarcloudOrNot) {
+  public void provide_returns_ChangeLogLevelStandaloneService_if_SQ_standalone() {
     when(webServer.isStandalone()).thenReturn(true);
-    if (sonarcloudOrNot != null) {
-      settings.setProperty("sonar.sonarcloud.enabled", sonarcloudOrNot);
-    }
     ComponentContainer container = new ComponentContainer();
 
     underTest.configure(container);
@@ -94,14 +67,5 @@ public class ChangeLogLevelActionModuleTest {
       .contains(ChangeLogLevelStandaloneService.class, ChangeLogLevelAction.class)
       .doesNotContain(ChangeLogLevelClusterService.class);
   }
-
-  @DataProvider
-  public static Object[][] notOnSonarCloud() {
-    return new Object[][] {
-      {null},
-      {false}
-    };
-  }
-
 
 }

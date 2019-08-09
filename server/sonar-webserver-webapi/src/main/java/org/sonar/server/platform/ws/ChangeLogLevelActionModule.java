@@ -19,23 +19,20 @@
  */
 package org.sonar.server.platform.ws;
 
-import org.sonar.api.config.Configuration;
 import org.sonar.core.platform.Module;
 import org.sonar.server.platform.WebServer;
 
 public class ChangeLogLevelActionModule extends Module {
   private final WebServer webServer;
-  private final Configuration configuration;
 
-  public ChangeLogLevelActionModule(WebServer webServer, Configuration configuration) {
+  public ChangeLogLevelActionModule(WebServer webServer) {
     this.webServer = webServer;
-    this.configuration = configuration;
   }
 
   @Override
   protected void configureModule() {
     add(ChangeLogLevelAction.class);
-    if (configuration.getBoolean("sonar.sonarcloud.enabled").orElse(false) || webServer.isStandalone()) {
+    if (webServer.isStandalone()) {
       add(ChangeLogLevelStandaloneService.class);
     } else {
       add(ChangeLogLevelClusterService.class);
