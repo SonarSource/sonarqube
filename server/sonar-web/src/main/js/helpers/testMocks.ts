@@ -51,9 +51,19 @@ export function mockAlmOrganization(overrides: Partial<T.AlmOrganization> = {}):
   };
 }
 
+export function mockAnalysis(overrides: Partial<T.Analysis> = {}): T.Analysis {
+  return {
+    date: '2017-03-01T09:36:01+0100',
+    events: [],
+    key: 'foo',
+    projectVersion: '1.0',
+    ...overrides
+  };
+}
+
 export function mockParsedAnalysis(overrides: Partial<ParsedAnalysis> = {}): ParsedAnalysis {
   return {
-    date: new Date('2017-03-01T09:36:01+0100'),
+    date: new Date('2017-03-01T09:37:01+0100'),
     events: [],
     key: 'foo',
     projectVersion: '1.0',

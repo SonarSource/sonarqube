@@ -114,6 +114,13 @@ declare namespace T {
 
   export type BranchType = 'LONG' | 'SHORT';
 
+  export interface BranchWithNewCodePeriod extends Branch {
+    newCodePeriod?: {
+      type: NewCodePeriodSettingType;
+      value: string | null;
+    };
+  }
+
   export interface Breadcrumb {
     key: string;
     name: string;
@@ -499,10 +506,17 @@ declare namespace T {
     qualityGate?: string;
   }
 
+  export interface NewCodePeriodBranch {
+    projectKey: string;
+    branchKey: string;
+    inherited?: boolean;
+    type?: NewCodePeriodSettingType;
+    value?: string | null;
+  }
+
   export type NewCodePeriodSettingType =
     | 'PREVIOUS_VERSION'
     | 'NUMBER_OF_DAYS'
-    | 'DATE'
     | 'SPECIFIC_ANALYSIS';
 
   export interface Notification {

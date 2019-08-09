@@ -20,11 +20,13 @@ exports[`should render correctly 1`] = `
         id="project_baseline.page.description"
         values={
           Object {
-            "link": <a
-              href="/documentation/user-guide/fixing-the-water-leak/"
+            "link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to="/documentation/user-guide/fixing-the-water-leak/"
             >
               project_baseline.page.description.link
-            </a>,
+            </Link>,
           }
         }
       />
@@ -34,11 +36,13 @@ exports[`should render correctly 1`] = `
         id="project_baseline.page.description2"
         values={
           Object {
-            "link": <a
-              href="/admin/settings?category=new_code_period"
+            "link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to="/admin/settings?category=new_code_period"
             >
               project_baseline.page.description2.link
-            </a>,
+            </Link>,
           }
         }
       />

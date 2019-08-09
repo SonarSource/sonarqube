@@ -17,18 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from 'sonar-ui-common/helpers/request';
-import throwGlobalError from '../app/utils/throwGlobalError';
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import BaselineSettingAnalysis, { Props } from '../components/BaselineSettingAnalysis';
 
-export function getBranchAnalyses(
-  data: {
-    project: string;
-    category?: string;
-    from?: string;
-    to?: string;
-    p?: number;
-    ps?: number;
-  } & T.BranchParameters
-) {
-  return getJSON('/api/project_analyses/search', data).catch(throwGlobalError);
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should callback when clicked', () => {
+  const onSelect = jest.fn();
+  const wrapper = shallowRender({ onSelect, selected: false });
+
+  wrapper
+    .find('RadioCard')
+    .first()
+    .simulate('click');
+  expect(onSelect).toHaveBeenCalledWith('SPECIFIC_ANALYSIS');
+});
+
+function shallowRender(props: Partial<Props> = {}) {
+  return shallow(<BaselineSettingAnalysis onSelect={jest.fn()} selected={true} {...props} />);
 }

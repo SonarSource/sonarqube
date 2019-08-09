@@ -39,3 +39,9 @@ export function setNewCodePeriod(data: {
 export function resetNewCodePeriod(data: { project?: string; branch?: string }): Promise<void> {
   return post('/api/new_code_periods/unset', data).catch(throwGlobalError);
 }
+
+export function listBranchesNewCodePeriod(data: {
+  project: string;
+}): Promise<{ newCodePeriods: T.NewCodePeriodBranch[] }> {
+  return getJSON('/api/new_code_periods/list', data).catch(throwGlobalError);
+}

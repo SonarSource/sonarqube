@@ -19,14 +19,17 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getNewCodePeriod, resetNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
 import '../styles.css';
+import BranchList from './BranchList';
 import ProjectBaselineSelector from './ProjectBaselineSelector';
 
 interface Props {
+  branchLikes: T.BranchLike[];
   canAdmin?: boolean;
   component: T.Component;
 }
@@ -156,9 +159,9 @@ export default class App extends React.PureComponent<Props, State> {
             id="project_baseline.page.description"
             values={{
               link: (
-                <a href="/documentation/user-guide/fixing-the-water-leak/">
+                <Link to="/documentation/user-guide/fixing-the-water-leak/">
                   {translate('project_baseline.page.description.link')}
-                </a>
+                </Link>
               )
             }}
           />
@@ -169,9 +172,9 @@ export default class App extends React.PureComponent<Props, State> {
               id="project_baseline.page.description2"
               values={{
                 link: (
-                  <a href="/admin/settings?category=new_code_period">
+                  <Link to="/admin/settings?category=new_code_period">
                     {translate('project_baseline.page.description2.link')}
-                  </a>
+                  </Link>
                 )
               }}
             />
@@ -242,6 +245,8 @@ export default class App extends React.PureComponent<Props, State> {
               saving={saving}
               selected={selected}
             />
+
+            <BranchList branchLikes={this.props.branchLikes} component={this.props.component} />
           </div>
         )}
       </div>

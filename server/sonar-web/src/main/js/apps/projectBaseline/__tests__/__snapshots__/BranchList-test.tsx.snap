@@ -1,0 +1,118 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <table
+    className="data zebra"
+  >
+    <thead>
+      <tr>
+        <th>
+          branch_list.branch
+        </th>
+        <th
+          className="thin nowrap huge-spacer-right"
+        >
+          branch_list.current_setting
+        </th>
+        <th
+          className="thin nowrap"
+        >
+          branch_list.edit_settings
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        key="master"
+      >
+        <td
+          className="nowrap"
+        >
+          <BranchIcon
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "isMain": true,
+                "name": "master",
+                "newCodePeriod": Object {
+                  "type": "NUMBER_OF_DAYS",
+                  "value": "27",
+                },
+              }
+            }
+            className="little-spacer-right"
+          />
+          master
+          <div
+            className="badge spacer-left"
+          >
+            branches.main_branch
+          </div>
+        </td>
+        <td
+          className="huge-spacer-right nowrap"
+        >
+          baseline.number_days: 27
+        </td>
+        <td
+          className="text-right"
+        >
+          <ActionsDropdown>
+            <ActionsDropdownItem
+              onClick={[Function]}
+            >
+              edit
+            </ActionsDropdownItem>
+            <ActionsDropdownItem
+              onClick={[Function]}
+            >
+              reset_to_default
+            </ActionsDropdownItem>
+          </ActionsDropdown>
+        </td>
+      </tr>
+      <tr
+        key="branch-6.7"
+      >
+        <td
+          className="nowrap"
+        >
+          <BranchIcon
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "isMain": false,
+                "name": "branch-6.7",
+                "type": "LONG",
+              }
+            }
+            className="little-spacer-right"
+          />
+          branch-6.7
+        </td>
+        <td
+          className="huge-spacer-right nowrap"
+        >
+          <span
+            className="badge badge-info"
+          >
+            default
+          </span>
+        </td>
+        <td
+          className="text-right"
+        >
+          <ActionsDropdown>
+            <ActionsDropdownItem
+              onClick={[Function]}
+            >
+              edit
+            </ActionsDropdownItem>
+          </ActionsDropdown>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</Fragment>
+`;

@@ -28,8 +28,6 @@ import BaselineSettingDays from '../../projectBaseline/components/BaselineSettin
 import BaselineSettingPreviousVersion from '../../projectBaseline/components/BaselineSettingPreviousVersion';
 import { validateDays } from '../../projectBaseline/utils';
 
-interface Props {}
-
 interface State {
   currentSetting?: T.NewCodePeriodSettingType;
   days: string;
@@ -42,7 +40,7 @@ interface State {
 
 const DEFAULT_SETTING = 'PREVIOUS_VERSION';
 
-export default class NewCodePeriod extends React.PureComponent<Props, State> {
+export default class NewCodePeriod extends React.PureComponent<{}, State> {
   mounted = false;
   state: State = {
     loading: true,

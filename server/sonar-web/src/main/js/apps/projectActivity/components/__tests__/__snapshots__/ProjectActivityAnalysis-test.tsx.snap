@@ -361,7 +361,7 @@ exports[`should show the correct admin options 2`] = `
         addEventButtonText="project_activity.add_custom_event"
         analysis={
           Object {
-            "date": 2017-03-01T08:36:01.000Z,
+            "date": 2017-03-01T08:37:01.000Z,
             "events": Array [],
             "key": "foo",
             "projectVersion": "1.0",
@@ -442,7 +442,7 @@ exports[`should show the correct admin options 3`] = `
       <RemoveAnalysisForm
         analysis={
           Object {
-            "date": 2017-03-01T08:36:01.000Z,
+            "date": 2017-03-01T08:37:01.000Z,
             "events": Array [],
             "key": "foo",
             "projectVersion": "1.0",
@@ -526,7 +526,7 @@ exports[`should show the correct admin options 4`] = `
         addEventButtonText="project_activity.add_version"
         analysis={
           Object {
-            "date": 2017-03-01T08:36:01.000Z,
+            "date": 2017-03-01T08:37:01.000Z,
             "events": Array [],
             "key": "foo",
             "projectVersion": "1.0",

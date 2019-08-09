@@ -92,5 +92,7 @@ it('should handle errors gracefully', async () => {
 });
 
 function shallowRender(props: Partial<App['props']> = {}) {
-  return shallow<App>(<App canAdmin={true} component={mockComponent()} {...props} />);
+  return shallow<App>(
+    <App branchLikes={[]} canAdmin={true} component={mockComponent()} {...props} />
+  );
 }

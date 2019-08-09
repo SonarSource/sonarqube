@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <div
+    className="spacer-bottom"
+  >
+    baseline.analysis_from
+    <Select
+      autoBlur={true}
+      className="input-medium spacer-left"
+      clearable={false}
+      onChange={[Function]}
+      options={
+        Array [
+          Object {
+            "label": "baseline.branch_analyses.ranges.30days",
+            "value": 30,
+          },
+          Object {
+            "label": "baseline.branch_analyses.ranges.allTime",
+            "value": 0,
+          },
+        ]
+      }
+      searchable={false}
+      value={0}
+    />
+  </div>
+  <div
+    className="branch-analysis-list-wrapper"
+  >
+    <div
+      className="bordered branch-analysis-list"
+      onScroll={[Function]}
+    >
+      <div
+        className="big-spacer-top big-spacer-bottom strong"
+      >
+        baseline.no_analyses
+      </div>
+    </div>
+  </div>
+</Fragment>
+`;

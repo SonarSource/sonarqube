@@ -54,15 +54,15 @@
 }
 
 .branch-analysis-day {
-  margin-top: 8px;
-  margin-bottom: 24px;
+  margin-top: var(--gridSize);
+  margin-bottom: calc(3 * var(--gridSize));
 }
 
 .branch-analysis {
   display: flex;
   justify-content: space-between;
   cursor: pointer;
-  padding: 8px;
+  padding: var(--gridSize);
   border-top: 1px solid var(--barBorderColor);
   border-bottom: 1px solid var(--barBorderColor);
 }
@@ -85,18 +85,18 @@
 
 .branch-analysis-version-badge {
   margin-left: -12px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding-top: var(--gridSize);
+  padding-bottom: var(--gridSize);
   background-color: white;
 }
 
 .branch-analysis-version-badge.sticky,
 .branch-analysis-version-badge.first {
   position: absolute;
-  top: 25px;
+  top: 1px;
   left: 13px;
   right: 16px;
-  padding-top: 24px;
+  padding-top: calc(3 * var(--gridSize));
   z-index: var(--belowNormalZIndex);
 }
 

@@ -21,7 +21,13 @@ import { getJSON, post, postJSON, RequestData } from 'sonar-ui-common/helpers/re
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function getProjectActivity(
-  data: { project: string; category?: string; p?: number; ps?: number } & T.BranchParameters
+  data: {
+    project: string;
+    category?: string;
+    from?: string;
+    p?: number;
+    ps?: number;
+  } & T.BranchParameters
 ): Promise<{ analyses: T.Analysis[]; paging: T.Paging }> {
   return getJSON('/api/project_analyses/search', data).catch(throwGlobalError);
 }
