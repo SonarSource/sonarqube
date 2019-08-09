@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ul
+  className="side-tabs-menu"
+>
+  <li
+    key="COBOL"
+  >
+    <IndexLink
+      className=""
+      title="COBOL"
+      to={
+        Object {
+          "pathname": "/settings",
+          "query": Object {
+            "category": "cobol",
+            "id": undefined,
+          },
+        }
+      }
+    >
+      COBOL
+    </IndexLink>
+  </li>
+  <li
+    key="general"
+  >
+    <IndexLink
+      className=""
+      title="general"
+      to={
+        Object {
+          "pathname": "/settings",
+          "query": Object {
+            "category": undefined,
+            "id": undefined,
+          },
+        }
+      }
+    >
+      general
+    </IndexLink>
+  </li>
+  <li
+    key="new_code_period"
+  >
+    <IndexLink
+      className=""
+      title="settings.new_code_period.category"
+      to={
+        Object {
+          "pathname": "/settings",
+          "query": Object {
+            "category": "new_code_period",
+            "id": undefined,
+          },
+        }
+      }
+    >
+      settings.new_code_period.category
+    </IndexLink>
+  </li>
+</ul>
+`;

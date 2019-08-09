@@ -499,6 +499,12 @@ declare namespace T {
     qualityGate?: string;
   }
 
+  export type NewCodePeriodSettingType =
+    | 'PREVIOUS_VERSION'
+    | 'NUMBER_OF_DAYS'
+    | 'DATE'
+    | 'SPECIFIC_ANALYSIS';
+
   export interface Notification {
     channel: string;
     organization?: string;

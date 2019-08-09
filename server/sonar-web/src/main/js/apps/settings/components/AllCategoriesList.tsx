@@ -22,6 +22,7 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { IndexLink } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getSettingsAppAllCategories, Store } from '../../../store/rootReducer';
 import { getCategoryName } from '../utils';
 
@@ -36,6 +37,10 @@ interface Props {
   defaultCategory: string;
   selectedCategory: string;
 }
+
+const FIXED_CATEGORIES = [
+  { key: 'new_code_period', name: translate('settings.new_code_period.category') }
+];
 
 export class CategoriesList extends React.PureComponent<Props> {
   renderLink(category: Category) {
@@ -58,10 +63,12 @@ export class CategoriesList extends React.PureComponent<Props> {
   }
 
   render() {
-    const categoriesWithName = this.props.categories.map(key => ({
-      key,
-      name: getCategoryName(key)
-    }));
+    const categoriesWithName = this.props.categories
+      .map(key => ({
+        key,
+        name: getCategoryName(key)
+      }))
+      .concat(FIXED_CATEGORIES);
     const sortedCategories = sortBy(categoriesWithName, category => category.name.toLowerCase());
     return (
       <ul className="side-tabs-menu">

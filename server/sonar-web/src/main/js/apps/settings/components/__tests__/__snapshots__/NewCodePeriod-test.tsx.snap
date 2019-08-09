@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ul
+  className="settings-sub-categories-list"
+>
+  <li>
+    <ul
+      className="settings-definitions-list"
+    >
+      <li>
+        <div
+          className="settings-definition"
+        >
+          <div
+            className="settings-definition-left"
+          >
+            <h3
+              className="settings-definition-name"
+              title="settings.new_code_period.title"
+            >
+              settings.new_code_period.title
+            </h3>
+            <div
+              className="small big-spacer-top"
+            >
+              <FormattedMessage
+                defaultMessage="settings.new_code_period.description"
+                id="settings.new_code_period.description"
+                values={
+                  Object {
+                    "link": <a
+                      href="/documentation/user-guide/fixing-the-water-leak/"
+                    >
+                      learn_more
+                    </a>,
+                  }
+                }
+              />
+              <p
+                className="spacer-top"
+              >
+                settings.new_code_period.description2
+              </p>
+            </div>
+          </div>
+          <div
+            className="settings-definition-right"
+          >
+            <DeferredSpinner
+              timeout={100}
+            />
+          </div>
+        </div>
+      </li>
+    </ul>
+  </li>
+</ul>
+`;

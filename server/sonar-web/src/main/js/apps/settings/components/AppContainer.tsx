@@ -29,6 +29,7 @@ import { fetchSettings } from '../store/actions';
 import '../styles.css';
 import AllCategoriesList from './AllCategoriesList';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
+import NewCodePeriod from './NewCodePeriod';
 import PageHeader from './PageHeader';
 import WildcardsHelp from './WildcardsHelp';
 
@@ -96,7 +97,15 @@ export class App extends React.PureComponent<Props & WithRouterProps, State> {
             />
           </div>
           <div className="side-tabs-main">
-            <CategoryDefinitionsList category={selectedCategory} component={this.props.component} />
+            {selectedCategory === 'new_code_period' ? (
+              <NewCodePeriod />
+            ) : (
+              <CategoryDefinitionsList
+                category={selectedCategory}
+                component={this.props.component}
+              />
+            )}
+
             {selectedCategory === 'exclusions' && <WildcardsHelp />}
           </div>
         </div>
