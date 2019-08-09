@@ -88,12 +88,27 @@
     AND ncp.branch_uuid=#{branchUuid, jdbcType=VARCHAR}
   </select>
 
-  <update id="deleteByBranch" parameterType="map">
+  <update id="delete" parameterType="map">
     DELETE
     FROM new_code_periods
     WHERE
-    project_uuid=#{projectUuid, jdbcType=VARCHAR}
-    AND branch_uuid=#{branchUuid, jdbcType=VARCHAR}
+    <choose>
+      <when test="projectUuid != null">
+        project_uuid=#{projectUuid, jdbcType=VARCHAR}
+      </when>
+      <otherwise>
+        project_uuid IS NULL
+      </otherwise>
+    </choose>
+    AND
+    <choose>
+      <when test="branchUuid != null">
+        branch_uuid=#{branchUuid, jdbcType=VARCHAR}
+      </when>
+      <otherwise>
+        branch_uuid IS NULL
+      </otherwise>
+    </choose>
   </update>
 
   <select id="countByProjectAnalysis" parameterType="map" resultType="java.lang.Long">

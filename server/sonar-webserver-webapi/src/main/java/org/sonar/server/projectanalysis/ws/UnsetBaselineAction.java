@@ -92,7 +92,7 @@ public class UnsetBaselineAction implements ProjectAnalysesWsAction {
 
       String projectUuid = projectBranch.getMainBranchProjectUuid() != null ? projectBranch.getMainBranchProjectUuid() : projectBranch.uuid();
       String branchUuid = projectBranch.uuid();
-      dbClient.newCodePeriodDao().deleteByBranch(dbSession, projectUuid, branchUuid);
+      dbClient.newCodePeriodDao().delete(dbSession, projectUuid, branchUuid);
       dbSession.commit();
     }
   }

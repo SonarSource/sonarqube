@@ -269,7 +269,34 @@ public class NewCodePeriodDaoTest {
       .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
       .setValue("analysis-uuid"));
 
-    underTest.deleteByBranch(dbSession, "proj-uuid", "branch-uuid");
+    underTest.delete(dbSession, "proj-uuid", "branch-uuid");
+    db.commit();
+    assertNewCodePeriodRowCount(0);
+  }
+
+  @Test
+  public void delete_by_project_uuid() {
+    when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
+
+    underTest.insert(dbSession, new NewCodePeriodDto()
+      .setProjectUuid("proj-uuid")
+      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+      .setValue("analysis-uuid"));
+
+    underTest.delete(dbSession, "proj-uuid", null);
+    db.commit();
+    assertNewCodePeriodRowCount(0);
+  }
+
+  @Test
+  public void delete_global() {
+    when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
+
+    underTest.insert(dbSession, new NewCodePeriodDto()
+      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+      .setValue("analysis-uuid"));
+
+    underTest.delete(dbSession, null, null);
     db.commit();
     assertNewCodePeriodRowCount(0);
   }

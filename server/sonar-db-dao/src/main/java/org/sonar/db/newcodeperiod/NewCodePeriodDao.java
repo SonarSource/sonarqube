@@ -20,12 +20,14 @@
 package org.sonar.db.newcodeperiod;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class NewCodePeriodDao implements Dao {
 
@@ -85,10 +87,13 @@ public class NewCodePeriodDao implements Dao {
     return mapper(dbSession).countByProjectAnalysis(projectAnalysisUuid) > 0;
   }
 
-  public void deleteByBranch(DbSession dbSession, String projectUuid, String branchUuid) {
-    requireNonNull(projectUuid, "Project uuid must be specified.");
-    requireNonNull(branchUuid, "Branch uuid must be specified.");
-    mapper(dbSession).deleteByBranch(projectUuid, branchUuid);
+  /**
+   * Deletes an entry. It can be the global setting or a specific project or branch setting.
+   * Note that deleting project's setting doesn't delete the settings of the branches belonging to that project.
+   */
+  public void delete(DbSession dbSession, @Nullable String projectUuid, @Nullable String branchUuid) {
+    checkArgument(branchUuid == null || projectUuid != null, "branchUuid must be null if projectUuid is null");
+    mapper(dbSession).delete(projectUuid, branchUuid);
   }
 
   private static NewCodePeriodMapper mapper(DbSession session) {
