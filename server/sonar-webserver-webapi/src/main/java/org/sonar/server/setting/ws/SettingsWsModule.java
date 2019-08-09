@@ -37,6 +37,7 @@ public class SettingsWsModule extends Module {
       SettingsUpdater.class,
       SettingValidations.class,
       ShowNewCodePeriodAction.class,
-      UpdateNewCodePeriodAction.class);
+      UpdateNewCodePeriodAction.class,
+      DeleteNewCodePeriodAction.class);
   }
 }

@@ -19,8 +19,6 @@
  */
 package org.sonar.server.setting.ws;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -32,28 +30,17 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
-import org.sonar.db.newcodeperiod.NewCodePeriodDto;
-import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.sonar.db.newcodeperiod.NewCodePeriodType.DATE;
-import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
-import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
-import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 
 public class DeleteNewCodePeriodAction implements SettingsWsAction {
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_PROJECT = "project";
-  private static final String PARAM_TYPE = "type";
-  private static final String PARAM_VALUE = "value";
-  private static final Set<NewCodePeriodType> OVERALL_TYPES = ImmutableSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS);
-  private static final Set<NewCodePeriodType> PROJECT_TYPES = ImmutableSet.of(DATE, PREVIOUS_VERSION, NUMBER_OF_DAYS);
-  private static final Set<NewCodePeriodType> BRANCH_TYPES = ImmutableSet.of(DATE, PREVIOUS_VERSION, NUMBER_OF_DAYS, SPECIFIC_ANALYSIS);
 
   private final DbClient dbClient;
   private final UserSession userSession;
