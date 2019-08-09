@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="page page-limited"
+>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      project_baseline.page
+    </h1>
+    <p
+      className="page-description"
+    >
+      <FormattedMessage
+        defaultMessage="project_baseline.page.description"
+        id="project_baseline.page.description"
+        values={
+          Object {
+            "link": <a
+              href="/documentation/user-guide/fixing-the-water-leak/"
+            >
+              project_baseline.page.description.link
+            </a>,
+          }
+        }
+      />
+      <br />
+      <FormattedMessage
+        defaultMessage="project_baseline.page.description2"
+        id="project_baseline.page.description2"
+        values={
+          Object {
+            "link": <a
+              href="/admin/settings?category=new_code_period"
+            >
+              project_baseline.page.description2.link
+            </a>,
+          }
+        }
+      />
+    </p>
+  </header>
+  <DeferredSpinner
+    timeout={100}
+  />
+</div>
+`;

@@ -35,6 +35,7 @@ import { isSonarCloud } from '../../../../helpers/system';
 
 const SETTINGS_URLS = [
   '/project/admin',
+  '/project/baseline',
   '/project/branches',
   '/project/settings',
   '/project/quality_profiles',
@@ -223,6 +224,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
     return [
       this.renderSettingsLink(),
       this.renderBranchesLink(),
+      this.renderBaselineLink(),
       this.renderProfilesLink(),
       this.renderQualityGateLink(),
       this.renderCustomMeasuresLink(),
@@ -266,6 +268,18 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
           activeClassName="active"
           to={{ pathname: '/project/branches', query: { id: this.props.component.key } }}>
           {translate('project_branches.page')}
+        </Link>
+      </li>
+    );
+  }
+
+  renderBaselineLink() {
+    return (
+      <li key="baseline">
+        <Link
+          activeClassName="active"
+          to={{ pathname: '/project/baseline', query: { id: this.props.component.key } }}>
+          {translate('project_baseline.page')}
         </Link>
       </li>
     );

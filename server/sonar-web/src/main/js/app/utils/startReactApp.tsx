@@ -50,6 +50,7 @@ import permissionTemplatesRoutes from '../../apps/permission-templates/routes';
 import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/permissions/routes';
 import portfolioRoutes from '../../apps/portfolio/routes';
 import projectActivityRoutes from '../../apps/projectActivity/routes';
+import projectBaselineRoutes from '../../apps/projectBaseline/routes';
 import projectBranchesRoutes from '../../apps/projectBranches/routes';
 import projectQualityGateRoutes from '../../apps/projectQualityGate/routes';
 import projectQualityProfilesRoutes from '../../apps/projectQualityProfiles/routes';
@@ -268,6 +269,10 @@ export default function startReactApp(
                       <RouteWithChildRoutes
                         path="project/background_tasks"
                         childRoutes={backgroundTasksRoutes}
+                      />
+                      <RouteWithChildRoutes
+                        path="project/baseline"
+                        childRoutes={projectBaselineRoutes}
                       />
                       <RouteWithChildRoutes
                         path="project/branches"

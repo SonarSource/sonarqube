@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<form
+  className="project-baseline-selector"
+  onSubmit={[MockFunction]}
+>
+  <div
+    className="display-flex-row big-spacer-bottom"
+    role="radiogroup"
+  >
+    <BaselineSettingPreviousVersion
+      onSelect={[MockFunction]}
+      selected={false}
+    />
+    <BaselineSettingDays
+      days="12"
+      isChanged={false}
+      isValid={true}
+      onChangeDays={[MockFunction]}
+      onSelect={[MockFunction]}
+      selected={false}
+    />
+  </div>
+</form>
+`;

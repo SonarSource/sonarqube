@@ -1,0 +1,135 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2019 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+.project-baseline-selector {
+  height: 300px;
+}
+
+.branch-baseline-setting-modal {
+  height: 60vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.branch-analysis-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.branch-analysis-list {
+  overflow-y: auto;
+  padding-left: 12px;
+  padding-right: 15px;
+  min-height: 50px;
+}
+
+.branch-analysis-list > ul {
+  padding-top: 52px;
+}
+
+.branch-analysis-date {
+  margin-bottom: 16px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.branch-analysis-day {
+  margin-top: 8px;
+  margin-bottom: 24px;
+}
+
+.branch-analysis {
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 8px;
+  border-top: 1px solid var(--barBorderColor);
+  border-bottom: 1px solid var(--barBorderColor);
+}
+
+.branch-analysis + .branch-analysis {
+  border-top: none;
+}
+
+.branch-analysis:hover {
+  background-color: var(--lightBlue);
+}
+
+.branch-analysis > .project-activity-events {
+  flex: 1 0 50%;
+}
+
+.branch-analysis-time {
+  width: 150px;
+}
+
+.branch-analysis-version-badge {
+  margin-left: -12px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  background-color: white;
+}
+
+.branch-analysis-version-badge.sticky,
+.branch-analysis-version-badge.first {
+  position: absolute;
+  top: 25px;
+  left: 13px;
+  right: 16px;
+  padding-top: 24px;
+  z-index: var(--belowNormalZIndex);
+}
+
+.branch-analysis-version-badge.sticky + .branch-analysis-days-list {
+  padding-top: 36px;
+}
+
+.branch-analysis-version-badge .badge {
+  max-width: 385px;
+  border-radius: 0 2px 2px 0;
+  font-weight: bold;
+  font-size: var(--smallFontSize);
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-activity-event-icon.VERSION {
+  color: var(--blue);
+}
+
+.project-activity-event-icon.QUALITY_GATE {
+  color: var(--purple);
+}
+
+.project-activity-event-icon.QUALITY_PROFILE {
+  color: #cccccc;
+}
+
+.project-activity-event-icon.DEFINITION_CHANGE {
+  color: #33a759;
+}
+
+.project-activity-event-icon.OTHER {
+  color: #442d1b;
+}

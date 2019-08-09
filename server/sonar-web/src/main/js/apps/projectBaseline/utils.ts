@@ -17,25 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post } from 'sonar-ui-common/helpers/request';
-import throwGlobalError from '../app/utils/throwGlobalError';
+export function validateDays(days: string) {
+  const parsed = parseInt(days, 10);
 
-export function getNewCodePeriod(data?: {
-  project?: string;
-  branch?: string;
-}): Promise<{ type: T.NewCodePeriodSettingType; inherited?: boolean; value?: string }> {
-  return getJSON('/api/new_code_periods/show', data).catch(throwGlobalError);
-}
-
-export function setNewCodePeriod(data: {
-  project?: string;
-  branch?: string;
-  type: T.NewCodePeriodSettingType;
-  value: string | null;
-}): Promise<void> {
-  return post('/api/new_code_periods/set', data).catch(throwGlobalError);
-}
-
-export function resetNewCodePeriod(data: { project?: string; branch?: string }): Promise<void> {
-  return post('/api/new_code_periods/unset', data).catch(throwGlobalError);
+  return !(days.length < 1 || isNaN(parsed) || parsed < 1 || String(parsed) !== days);
 }
