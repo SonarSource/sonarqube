@@ -57,6 +57,22 @@ public class SettingsService extends BaseService {
   }
 
   /**
+   *
+   * This is part of the internal API.
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/delete_new_code_period">Further information about this action online (including a response example)</a>
+   * @since 8.0
+   */
+  public void deleteNewCodePeriod(DeleteNewCodePeriodRequest request) {
+    call(
+      new GetRequest(path("delete_new_code_period"))
+        .setParam("branch", request.getBranch())
+        .setParam("project", request.getProject())
+        .setMediaType(MediaTypes.JSON)
+    ).content();
+  }
+
+  /**
    * This is part of the internal API.
    * This is a GET request.
    *

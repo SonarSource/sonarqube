@@ -180,7 +180,7 @@ public class DeleteNewCodePeriodActionTest {
     ws.newRequest()
       .setParam("project", project.getKey())
       .execute();
-    assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.PREVIOUS_VERSION, null);
+    assertTableEmpty();
 
     ws.newRequest()
       .setParam("project", project.getKey())
