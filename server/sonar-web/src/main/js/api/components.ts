@@ -160,6 +160,10 @@ export function getFiles(data: GetTreeParams) {
   return getTree<TreeComponentWithPath>({ ...data, qualifiers: 'FIL' });
 }
 
+export function getDirectories(data: GetTreeParams) {
+  return getTree<TreeComponentWithPath>({ ...data, qualifiers: 'DIR' });
+}
+
 export function getComponentData(data: { component: string } & T.BranchParameters): Promise<any> {
   return getJSON('/api/components/show', data);
 }

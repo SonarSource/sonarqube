@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ListStyleFacet
+  facetHeader="issues.facet.directories"
+  fetching={false}
+  getFacetItemText={[Function]}
+  getSearchResultKey={[Function]}
+  getSearchResultText={[Function]}
+  loadSearchResultCount={[Function]}
+  maxInitialItems={15}
+  maxItems={100}
+  minSearchLength={3}
+  onChange={[MockFunction]}
+  onSearch={[Function]}
+  onToggle={[MockFunction]}
+  open={false}
+  property="directories"
+  query={Object {}}
+  renderFacetItem={[Function]}
+  renderSearchResult={[Function]}
+  searchPlaceholder="search.search_for_directories"
+  values={
+    Array [
+      "foo/",
+      "bar/baz/",
+    ]
+  }
+/>
+`;
+
+exports[`should render correctly 2`] = `
+<React.Fragment>
+  <QualifierIcon
+    className="little-spacer-right"
+    qualifier="DIR"
+  />
+  <React.Fragment>
+    <mark>
+      foo
+    </mark>
+    /bar
+  </React.Fragment>
+</React.Fragment>
+`;
+
+exports[`should render correctly 3`] = `
+<React.Fragment>
+  <QualifierIcon
+    className="little-spacer-right"
+    qualifier="DIR"
+  />
+  foo/bar
+</React.Fragment>
+`;

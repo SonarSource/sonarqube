@@ -23,48 +23,50 @@ import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { collapsePath } from 'sonar-ui-common/helpers/path';
 import { highlightTerm } from 'sonar-ui-common/helpers/search';
-import { getTree, TreeComponent } from '../../../api/components';
+import { getDirectories, TreeComponentWithPath } from '../../../api/components';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { Facet, Query } from '../utils';
 
 interface Props {
   componentKey: string;
-  fetching: boolean;
   directories: string[];
+  fetching: boolean;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
   query: Query;
-  stats: T.Dict<number> | undefined;
+  stats: Facet | undefined;
 }
 
 export default class DirectoryFacet extends React.PureComponent<Props> {
-  getFacetItemText = (directory: string) => {
-    return collapsePath(directory, 15);
+  getFacetItemText = (path: string) => {
+    return collapsePath(path, 15);
   };
 
-  getSearchResultKey = (directory: TreeComponent) => {
-    return directory.name;
+  getSearchResultKey = (directory: TreeComponentWithPath) => {
+    return directory.path;
   };
 
-  getSearchResultText = (directory: TreeComponent) => {
+  getSearchResultText = (directory: TreeComponentWithPath) => {
     return directory.name;
   };
 
   handleSearch = (query: string, page: number) => {
-    return getTree({
+    return getDirectories({
       component: this.props.componentKey,
       q: query,
-      qualifiers: 'DIR',
       p: page,
       ps: 30
-    }).then(({ components, paging }) => ({ paging, results: components }));
+    }).then(({ components, paging }) => ({
+      paging,
+      results: components.filter(dir => dir.path !== undefined)
+    }));
   };
 
-  loadSearchResultCount = (directories: TreeComponent[]) => {
+  loadSearchResultCount = (directories: TreeComponentWithPath[]) => {
     return this.props.loadSearchResultCount('directories', {
-      directories: directories.map(directory => directory.name)
+      directories: directories.map(directory => directory.path)
     });
   };
 
@@ -75,17 +77,17 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
     </>
   );
 
-  renderFacetItem = (directory: string) => {
-    return this.renderDirectory(collapsePath(directory, 15));
+  renderFacetItem = (path: string) => {
+    return this.renderDirectory(collapsePath(path, 15));
   };
 
-  renderSearchResult = (directory: TreeComponent, term: string) => {
-    return this.renderDirectory(highlightTerm(collapsePath(directory.name), term));
+  renderSearchResult = (directory: TreeComponentWithPath, term: string) => {
+    return this.renderDirectory(highlightTerm(collapsePath(directory.path, 15), term));
   };
 
   render() {
     return (
-      <ListStyleFacet<TreeComponent>
+      <ListStyleFacet<TreeComponentWithPath>
         facetHeader={translate('issues.facet.directories')}
         fetching={this.props.fetching}
         getFacetItemText={this.getFacetItemText}
