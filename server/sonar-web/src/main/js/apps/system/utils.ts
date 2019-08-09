@@ -25,6 +25,7 @@ import {
   parseAsString,
   serializeStringArray
 } from 'sonar-ui-common/helpers/query';
+import { SystemUpgrade } from '../../types/system';
 
 export interface Query {
   expandedCards: string[];
@@ -230,15 +231,15 @@ export const serializeQuery = memoize(
     })
 );
 
-export function sortUpgrades(upgrades: T.SystemUpgrade[]): T.SystemUpgrade[] {
+export function sortUpgrades(upgrades: SystemUpgrade[]): SystemUpgrade[] {
   return sortBy(upgrades, [
-    (upgrade: T.SystemUpgrade) => -Number(upgrade.version.split('.')[0]),
-    (upgrade: T.SystemUpgrade) => -Number(upgrade.version.split('.')[1] || 0),
-    (upgrade: T.SystemUpgrade) => -Number(upgrade.version.split('.')[2] || 0)
+    (upgrade: SystemUpgrade) => -Number(upgrade.version.split('.')[0]),
+    (upgrade: SystemUpgrade) => -Number(upgrade.version.split('.')[1] || 0),
+    (upgrade: SystemUpgrade) => -Number(upgrade.version.split('.')[2] || 0)
   ]);
 }
 
-export function groupUpgrades(upgrades: T.SystemUpgrade[]): T.SystemUpgrade[][] {
+export function groupUpgrades(upgrades: SystemUpgrade[]): SystemUpgrade[][] {
   const groupedVersions = groupBy(upgrades, upgrade => upgrade.version.split('.')[0]);
   const sortedMajor = sortBy(Object.keys(groupedVersions), key => -Number(key));
   return sortedMajor.map(key => groupedVersions[key]);

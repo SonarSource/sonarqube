@@ -19,11 +19,12 @@
  */
 import * as React from 'react';
 import { getMarketplaceNavigation } from '../../api/nav';
+import { getAllEditionsAbove } from '../../helpers/editions';
+import { EditionKey } from '../../types/editions';
 import EditionBox from './components/EditionBox';
-import { EDITIONS } from './utils';
 
 export interface Props {
-  currentEdition?: T.EditionKey;
+  currentEdition?: EditionKey;
 }
 
 interface State {
@@ -58,8 +59,7 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
   render() {
     const { currentEdition } = this.props;
     const { serverId, ncloc } = this.state;
-    const currentEditionIdx = EDITIONS.findIndex(edition => edition.key === currentEdition);
-    const visibleEditions = EDITIONS.slice(currentEditionIdx + 1);
+    const visibleEditions = getAllEditionsAbove(currentEdition);
 
     if (visibleEditions.length <= 0) {
       return null;

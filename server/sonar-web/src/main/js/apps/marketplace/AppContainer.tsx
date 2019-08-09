@@ -21,6 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import AdminContext from '../../app/components/AdminContext';
 import { getAppState, getGlobalSettingValue, Store } from '../../store/rootReducer';
+import { EditionKey } from '../../types/editions';
 import App from './App';
 
 interface OwnProps {
@@ -28,7 +29,7 @@ interface OwnProps {
 }
 
 interface StateToProps {
-  currentEdition?: T.EditionKey;
+  currentEdition?: EditionKey;
   standaloneMode?: boolean;
   updateCenterActive: boolean;
 }
@@ -36,7 +37,7 @@ interface StateToProps {
 const mapStateToProps = (state: Store) => {
   const updateCenterActive = getGlobalSettingValue(state, 'sonar.updatecenter.activate');
   return {
-    currentEdition: getAppState(state).edition,
+    currentEdition: getAppState(state).edition as EditionKey, // TODO: Fix once AppState is no longer ambiant.
     standaloneMode: getAppState(state).standalone,
     updateCenterActive: Boolean(updateCenterActive && updateCenterActive.value === 'true')
   };

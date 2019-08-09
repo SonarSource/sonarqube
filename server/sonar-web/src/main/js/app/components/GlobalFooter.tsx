@@ -21,16 +21,17 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { EDITIONS } from '../../apps/marketplace/utils';
 import InstanceMessage from '../../components/common/InstanceMessage';
+import { getEdition } from '../../helpers/editions';
 import { isSonarCloud } from '../../helpers/system';
+import { EditionKey } from '../../types/editions';
 import GlobalFooterBranding from './GlobalFooterBranding';
 import GlobalFooterSonarCloud from './GlobalFooterSonarCloud';
 
 interface Props {
   hideLoggedInInfo?: boolean;
   productionDatabase: boolean;
-  sonarqubeEdition?: T.EditionKey;
+  sonarqubeEdition?: EditionKey;
   sonarqubeVersion?: string;
 }
 
@@ -44,7 +45,7 @@ export default function GlobalFooter({
     return <GlobalFooterSonarCloud />;
   }
 
-  const currentEdition = EDITIONS.find(edition => edition.key === sonarqubeEdition);
+  const currentEdition = sonarqubeEdition && getEdition(sonarqubeEdition);
 
   return (
     <div className="page-footer page-container" id="footer">

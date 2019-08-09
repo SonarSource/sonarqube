@@ -17,21 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import { getAppState, Store } from '../../store/rootReducer';
-import { EditionKey } from '../../types/editions';
-import GlobalFooter from './GlobalFooter';
-
-interface StateProps {
-  productionDatabase: boolean;
-  sonarqubeEdition?: EditionKey;
-  sonarqubeVersion?: string;
+export interface SystemUpgradeDownloadUrls {
+  downloadDatacenterUrl?: string;
+  downloadDeveloperUrl?: string;
+  downloadEnterpriseUrl?: string;
+  downloadUrl: string;
 }
 
-const mapStateToProps = (state: Store): StateProps => ({
-  productionDatabase: getAppState(state).productionDatabase,
-  sonarqubeEdition: getAppState(state).edition as EditionKey, // TODO: Fix once AppState is no longer ambiant.
-  sonarqubeVersion: getAppState(state).version
-});
-
-export default connect(mapStateToProps)(GlobalFooter);
+export interface SystemUpgrade extends SystemUpgradeDownloadUrls {
+  changeLogUrl?: string;
+  description?: string;
+  releaseDate?: string;
+  version: string;
+}

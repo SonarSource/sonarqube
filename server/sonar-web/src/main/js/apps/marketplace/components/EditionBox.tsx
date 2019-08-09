@@ -23,12 +23,13 @@ import tooltipEE from 'Docs/tooltips/editions/enterprise.md';
 import * as React from 'react';
 import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { Edition, getEditionUrl } from '../utils';
+import { getEditionUrl } from '../../../helpers/editions';
+import { Edition, EditionKey } from '../../../types/editions';
 
 const DocMarkdownBlock = lazyLoad(() => import('../../../components/docs/DocMarkdownBlock'));
 
 interface Props {
-  currentEdition?: T.EditionKey;
+  currentEdition?: EditionKey;
   edition: Edition;
   ncloc?: number;
   serverId?: string;

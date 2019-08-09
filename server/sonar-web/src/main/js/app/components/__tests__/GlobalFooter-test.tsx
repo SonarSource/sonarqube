@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { EditionKey } from '../../../apps/marketplace/utils';
 import { isSonarCloud } from '../../../helpers/system';
+import { EditionKey } from '../../../types/editions';
 import GlobalFooter from '../GlobalFooter';
 
 jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));

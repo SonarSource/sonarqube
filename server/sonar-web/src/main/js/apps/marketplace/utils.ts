@@ -18,69 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { memoize } from 'lodash';
-import { stringify } from 'querystring';
 import { cleanQuery, parseAsString, serializeString } from 'sonar-ui-common/helpers/query';
-import { omitNil } from 'sonar-ui-common/helpers/request';
 import { Plugin, PluginAvailable, PluginInstalled, PluginPending } from '../../api/plugins';
-
-export enum EditionKey {
-  community = 'community',
-  developer = 'developer',
-  enterprise = 'enterprise',
-  datacenter = 'datacenter'
-}
-
-export interface Edition {
-  downloadUrl?: string;
-  homeUrl: string;
-  key: EditionKey;
-  name: string;
-}
 
 export interface Query {
   filter: string;
   search?: string;
-}
-
-export const EDITIONS: Edition[] = [
-  {
-    key: EditionKey.community,
-    name: 'Community Edition',
-    homeUrl: 'https://redirect.sonarsource.com/editions/community.html'
-  },
-  {
-    key: EditionKey.developer,
-    name: 'Developer Edition',
-    homeUrl: 'https://redirect.sonarsource.com/editions/developer.html',
-    downloadUrl:
-      'https://binaries.sonarsource.com/CommercialDistribution/editions/developer-edition-7.0.0.717.zip'
-  },
-  {
-    key: EditionKey.enterprise,
-    name: 'Enterprise Edition',
-    homeUrl: 'https://redirect.sonarsource.com/editions/enterprise.html',
-    downloadUrl:
-      'https://binaries.sonarsource.com/CommercialDistribution/editions/enterprise-edition-7.0.0.717.zip'
-  },
-  {
-    key: EditionKey.datacenter,
-    name: 'Data Center Edition',
-    homeUrl: 'https://redirect.sonarsource.com/editions/datacenter.html',
-    downloadUrl:
-      'https://binaries.sonarsource.com/CommercialDistribution/editions/datacenter-edition-7.0.0.717.zip'
-  }
-];
-
-export function getEditionUrl(
-  edition: Edition,
-  data: { serverId?: string; ncloc?: number; sourceEdition?: T.EditionKey }
-) {
-  let url = edition.homeUrl;
-  const query = stringify(omitNil(data));
-  if (query) {
-    url += '?' + query;
-  }
-  return url;
 }
 
 const EXCLUDED_PLUGINS = ['license'];

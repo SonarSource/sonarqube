@@ -19,9 +19,10 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { EditionKey } from '../../types/editions';
 
 interface Props {
-  currentEdition?: T.EditionKey;
+  currentEdition?: EditionKey;
 }
 
 export default function Header({ currentEdition }: Props) {

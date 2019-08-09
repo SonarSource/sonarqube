@@ -97,7 +97,7 @@ declare namespace T {
     branchesEnabled?: boolean;
     canAdmin?: boolean;
     defaultOrganization: string;
-    edition: EditionKey | undefined;
+    edition: 'community' | 'developer' | 'enterprise' | 'datacenter' | undefined;
     globalPages?: Extension[];
     organizationsEnabled?: boolean;
     productionDatabase: boolean;
@@ -274,8 +274,6 @@ declare namespace T {
     subProject?: string;
     subProjectName?: string;
   }
-
-  export type EditionKey = 'community' | 'developer' | 'enterprise' | 'datacenter';
 
   export type ExpandDirection = 'up' | 'down';
 
@@ -986,14 +984,6 @@ declare namespace T {
     | 'RESTARTING'
     | 'DB_MIGRATION_NEEDED'
     | 'DB_MIGRATION_RUNNING';
-
-  export interface SystemUpgrade {
-    version: string;
-    description: string;
-    releaseDate: string;
-    changeLogUrl: string;
-    downloadUrl: string;
-  }
 
   export interface Task {
     analysisId?: string;

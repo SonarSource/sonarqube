@@ -9,7 +9,7 @@ exports[`should display the edition 1`] = `
     className="marketplace-edition-action spacer-top"
   >
     <a
-      href="more_url?ncloc=1000&serverId=serverId&sourceEdition=community"
+      href="https://redirect.sonarsource.com/editions/developer.html?ncloc=1000&serverId=serverId&sourceEdition=community"
       rel="noopener noreferrer"
       target="_blank"
     >

@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { EditionKey } from '../../../types/editions';
 import EditionBoxes from '../EditionBoxes';
-import { EditionKey } from '../utils';
 
 it('should display the available edition boxes correctly', () => {
   expect(getWrapper()).toMatchSnapshot();

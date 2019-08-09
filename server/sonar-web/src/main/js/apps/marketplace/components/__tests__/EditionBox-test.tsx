@@ -19,22 +19,16 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { EditionKey } from '../../utils';
+import { getEdition } from '../../../../helpers/editions';
+import { EditionKey } from '../../../../types/editions';
 import EditionBox from '../EditionBox';
-
-const DEFAULT_EDITION = {
-  key: EditionKey.developer,
-  name: 'Developer',
-  downloadUrl: 'download_url',
-  homeUrl: 'more_url'
-};
 
 it('should display the edition', () => {
   expect(
     shallow(
       <EditionBox
         currentEdition={EditionKey.community}
-        edition={DEFAULT_EDITION}
+        edition={getEdition(EditionKey.developer)}
         ncloc={1000}
         serverId="serverId"
       />

@@ -30,6 +30,7 @@ import { isSonarCloud } from '../../helpers/system';
 import { isLoggedIn } from '../../helpers/users';
 import { getAppState, getCurrentUser, Store } from '../../store/rootReducer';
 import { skipOnboarding } from '../../store/users';
+import { EditionKey } from '../../types/editions';
 import { OnboardingContext } from './OnboardingContext';
 
 const OnboardingModal = lazyLoad(() => import('../../apps/tutorials/onboarding/OnboardingModal'));
@@ -40,7 +41,7 @@ const LicensePromptModal = lazyLoad(
 
 interface StateProps {
   canAdmin?: boolean;
-  currentEdition?: T.EditionKey;
+  currentEdition?: EditionKey;
   currentUser: T.CurrentUser;
 }
 
@@ -163,7 +164,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
 
 const mapStateToProps = (state: Store): StateProps => ({
   canAdmin: getAppState(state).canAdmin,
-  currentEdition: getAppState(state).edition,
+  currentEdition: getAppState(state).edition as EditionKey, // TODO: Fix once AppState is no longer ambiant.
   currentUser: getCurrentUser(state)
 });
 

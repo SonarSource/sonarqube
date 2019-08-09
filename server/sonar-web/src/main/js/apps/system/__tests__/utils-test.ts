@@ -19,6 +19,7 @@
  */
 /* eslint-disable sonarjs/no-duplicate-string */
 import { mockClusterSysInfo, mockStandaloneSysInfo } from '../../../helpers/testMocks';
+import { SystemUpgrade } from '../../../types/system';
 import * as u from '../utils';
 
 describe('parseQuery', () => {
@@ -80,7 +81,7 @@ describe('sortUpgrades', () => {
         { version: '5.10' },
         { version: '5.1' },
         { version: '5.4' }
-      ] as T.SystemUpgrade[])
+      ] as SystemUpgrade[])
     ).toEqual([{ version: '5.10' }, { version: '5.4.2' }, { version: '5.4' }, { version: '5.1' }]);
     expect(
       u.sortUpgrades([
@@ -88,7 +89,7 @@ describe('sortUpgrades', () => {
         { version: '5.1.2' },
         { version: '6.0' },
         { version: '6.9' }
-      ] as T.SystemUpgrade[])
+      ] as SystemUpgrade[])
     ).toEqual([{ version: '6.9' }, { version: '6.0' }, { version: '5.10' }, { version: '5.1.2' }]);
   });
 });
@@ -101,7 +102,7 @@ describe('groupUpgrades', () => {
         { version: '5.4.2' },
         { version: '5.4' },
         { version: '5.1' }
-      ] as T.SystemUpgrade[])
+      ] as SystemUpgrade[])
     ).toEqual([
       [{ version: '5.10' }, { version: '5.4.2' }, { version: '5.4' }, { version: '5.1' }]
     ]);
@@ -112,7 +113,7 @@ describe('groupUpgrades', () => {
         { version: '6.0' },
         { version: '5.10' },
         { version: '5.4.2' }
-      ] as T.SystemUpgrade[])
+      ] as SystemUpgrade[])
     ).toEqual([
       [{ version: '6.9' }, { version: '6.7' }, { version: '6.0' }],
       [{ version: '5.10' }, { version: '5.4.2' }]

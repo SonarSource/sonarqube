@@ -19,6 +19,7 @@
  */
 import { getJSON, post, postJSON, requestTryAndRepeatUntil } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { SystemUpgrade } from '../types/system';
 
 export function setLogLevel(level: string): Promise<void | Response> {
   return post('/api/system/change_log_level', { level }).catch(throwGlobalError);
@@ -33,7 +34,7 @@ export function getSystemStatus(): Promise<{ id: string; version: string; status
 }
 
 export function getSystemUpgrades(): Promise<{
-  upgrades: T.SystemUpgrade[];
+  upgrades: SystemUpgrade[];
   updateCenterRefresh: string;
 }> {
   return getJSON('/api/system/upgrades');

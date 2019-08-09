@@ -31,6 +31,7 @@ import {
 } from '../../api/plugins';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
+import { EditionKey } from '../../types/editions';
 import EditionBoxes from './EditionBoxes';
 import Footer from './Footer';
 import Header from './Header';
@@ -40,7 +41,7 @@ import './style.css';
 import { filterPlugins, parseQuery, Query, serializeQuery } from './utils';
 
 export interface Props {
-  currentEdition?: T.EditionKey;
+  currentEdition?: EditionKey;
   fetchPendingPlugins: () => void;
   pendingPlugins: PluginPendingResult;
   location: Location;
