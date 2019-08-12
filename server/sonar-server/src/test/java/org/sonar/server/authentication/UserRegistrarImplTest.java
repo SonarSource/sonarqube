@@ -98,7 +98,6 @@ public class UserRegistrarImplTest {
     userIndexer,
     organizationFlags,
     defaultOrganizationProvider,
-    organizationUpdater,
     new DefaultGroupFinder(db.getDbClient()),
     settings.asConfig(),
     localAuthentication);

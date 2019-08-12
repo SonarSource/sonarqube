@@ -100,7 +100,6 @@ public class UserRegistrarImplOrgMembershipSyncTest {
     userIndexer,
     organizationFlags,
     defaultOrganizationProvider,
-    organizationUpdater,
     new DefaultGroupFinder(db.getDbClient()),
     settings.asConfig(),
     localAuthentication);

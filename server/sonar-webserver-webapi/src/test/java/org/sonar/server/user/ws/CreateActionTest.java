@@ -37,7 +37,6 @@ import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.tester.UserSessionRule;
@@ -84,12 +83,11 @@ public class CreateActionTest {
   private GroupDto defaultGroupInDefaultOrg;
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
-  private OrganizationUpdater organizationUpdater = mock(OrganizationUpdater.class);
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
   private WsActionTester tester = new WsActionTester(new CreateAction(
     db.getDbClient(),
     new UserUpdater(system2, mock(NewUserNotifier.class), db.getDbClient(), userIndexer, organizationFlags, defaultOrganizationProvider,
-      organizationUpdater, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
+      new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
     userSessionRule));
 
   @Before

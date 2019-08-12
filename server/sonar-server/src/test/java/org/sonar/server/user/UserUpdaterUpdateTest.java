@@ -77,12 +77,11 @@ public class UserUpdaterUpdateTest {
   private NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
   private DbSession session = db.getSession();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private OrganizationUpdater organizationUpdater = mock(OrganizationUpdater.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private MapSettings settings = new MapSettings();
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
-  private UserUpdater underTest = new UserUpdater(system2, newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, organizationUpdater,
+  private UserUpdater underTest = new UserUpdater(system2, newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider,
     new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
 
   @Test

@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -65,7 +64,7 @@ public class UpdateLoginActionTest {
 
   private WsActionTester ws = new WsActionTester(new UpdateLoginAction(db.getDbClient(), userSession,
     new UserUpdater(system2, mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()),
-      null, null, null, null, null, null),
+      null, null, null, null, null),
     organizationUpdater));
 
   @Test
