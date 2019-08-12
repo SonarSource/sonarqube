@@ -65,34 +65,34 @@ The `PageDefinition` will register each key as an available route in SonarQube. 
 Each file *must* call the global `window.registerExtension()` function, and pass its *full key* as a first argument (`plugin_key/page_id`, e.g.: `governance/project_dump`). The second argument is the *start* callback. This function will be called once your page is started, and receive information about the current page as an argument (see below). The return value of the start callback depends on how you want to implement your page:
 
 * If you want to use [React](https://reactjs.org/), you should return a React Component:
-```
-// static/global_page.js
-import React from "react";
-import App from "./components/App";
-
-window.registerExtension('my_plugin/global_page', function (options) {
-  return <App options={options} />
-});
-```
+  ```
+  // static/global_page.js
+  import React from "react";
+  import App from "./components/App";
+  
+  window.registerExtension('my_plugin/global_page', function (options) {
+    return <App options={options} />
+  });
+  ```
 * If you want to use any other framework, you should perform any start logic directly inside the start function body, and **return a shutdown callback**:
-```
-// static/global_page.js
-const init = require("./my-app/init");
-
-window.registerExtension('my_plugin/global_page', function (options) {
-  // Start up my custom application, passing the DOM element which will serve as 
-  // the container.
-  init.boot(options.el, options.currentUser, options.component);
-
-  // Whenever the user leaves the page, cleanly shut everything down
-  // (i.e., remove event listeners, stop running timers, etc).
-  return function () {
-    init.removeEventListeners();
-    init.clearState();
-    init.shutdown();
-  };
-});
-```
+  ```
+  // static/global_page.js
+  const init = require("./my-app/init");
+  
+  window.registerExtension('my_plugin/global_page', function (options) {
+    // Start up my custom application, passing the DOM element which will serve as
+    // the container.
+    init.boot(options.el, options.currentUser, options.component);
+  
+    // Whenever the user leaves the page, cleanly shut everything down
+    // (i.e., remove event listeners, stop running timers, etc).
+    return function () {
+      init.removeEventListeners();
+      init.clearState();
+      init.shutdown();
+    };
+  });
+  ```
 
 The `options` object will contain the following:
 * `options.el`: a DOM node you must use to inject your content.
