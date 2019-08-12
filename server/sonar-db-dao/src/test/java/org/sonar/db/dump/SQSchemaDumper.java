@@ -31,7 +31,7 @@ import org.sonar.db.SQDatabase;
 import static com.google.common.base.Preconditions.checkState;
 
 class SQSchemaDumper {
-  private static final String LINE_SEPARATOR = "\n";
+  private static final String LINE_SEPARATOR = System.lineSeparator();
   private static final String HEADER = "" +
     "###############################################################" + LINE_SEPARATOR +
     "####  Description of SonarQube's schema in H2 SQL syntax   ####" + LINE_SEPARATOR +
