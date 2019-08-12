@@ -52,6 +52,7 @@ dependencies {
   compile project(':server:sonar-server-common')
   compile project(':server:sonar-webserver-auth')
   compile project(':server:sonar-webserver-common')
+  compile project(':server:sonar-webserver-es')
   compile project(':server:sonar-webserver-ws')
   compile project(':sonar-core')
   compile project(':sonar-duplications')
@@ -83,6 +84,7 @@ dependencies {
   testCompile project(':server:sonar-db-testing')
   testCompile project(path: ":server:sonar-server-common", configuration: "tests")
   testCompile project(path: ":server:sonar-webserver-auth", configuration: "tests")
+  testCompile project(path: ":server:sonar-webserver-es", configuration: "tests")
   testCompile project(path: ":server:sonar-webserver-ws", configuration: "tests")
   testCompile project(':sonar-testing-harness')
 

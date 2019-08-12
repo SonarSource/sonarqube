@@ -192,7 +192,7 @@ public class IndexCreatorTest {
   @Test
   public void start_makes_index_read_write_if_read_only() {
     FakeIndexDefinition fakeIndexDefinition = new FakeIndexDefinition();
-    IndexMainType fakeIndexMainType= FakeIndexDefinition.INDEX_TYPE.getMainType();
+    IndexMainType fakeIndexMainType = FakeIndexDefinition.INDEX_TYPE.getMainType();
     run(fakeIndexDefinition);
 
     IndexMainType mainType = MetadataIndexDefinition.TYPE_METADATA;

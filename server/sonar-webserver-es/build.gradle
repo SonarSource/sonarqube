@@ -1,6 +1,6 @@
 sonarqube {
   properties {
-    property 'sonar.projectName', "${projectTitle} :: WebServer :: WebAPI"
+    property 'sonar.projectName', "${projectTitle} :: WebServer :: ES"
   }
 }
 
@@ -14,12 +14,9 @@ dependencies {
   // please keep the list grouped by configuration and ordered by name
 
   compile 'com.google.guava:guava'
-  compile project(':server:sonar-db-dao')
-  compile project(':server:sonar-process')
-  compile project(':server:sonar-server')
+  compile project(':server:sonar-server-common')
   compile project(':server:sonar-webserver-auth')
-  compile project(':server:sonar-webserver-es')
-  compile project(':server:sonar-webserver-ws')
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
 
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'javax.servlet:javax.servlet-api'
@@ -32,11 +29,8 @@ dependencies {
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'org.mockito:mockito-core'
   testCompile project(':server:sonar-db-testing')
-  testCompile project(path: ":server:sonar-server", configuration: "tests")
-  testCompile project(path: ":server:sonar-server-common", configuration: "tests")
   testCompile project(path: ":server:sonar-webserver-auth", configuration: "tests")
-  testCompile project(path: ":server:sonar-webserver-es", configuration: "tests")
-  testCompile project(path: ":server:sonar-webserver-ws", configuration: "tests")
+  testCompile project(path: ":server:sonar-server-common", configuration: "tests")
   testCompile project(':sonar-testing-harness')
 }
 
