@@ -42,7 +42,7 @@ import org.sonar.server.exceptions.BadRequestException;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class SettingValidations {
   private final PropertyDefinitions definitions;

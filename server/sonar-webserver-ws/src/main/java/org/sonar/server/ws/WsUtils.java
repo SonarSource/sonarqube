@@ -19,22 +19,14 @@
  */
 package org.sonar.server.ws;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Message;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.List;
-import java.util.Set;
-import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.ProtobufJsonFormat;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -64,53 +56,6 @@ public class WsUtils {
     } finally {
       IOUtils.closeQuietly(output);
     }
-  }
-
-  /**
-   * @throws BadRequestException
-   */
-  public static void checkRequest(boolean expression, String message, Object... messageArguments) {
-    if (!expression) {
-      throw BadRequestException.create(format(message, messageArguments));
-    }
-  }
-
-  public static void checkRequest(boolean expression, List<String> messages) {
-    if (!expression) {
-      throw BadRequestException.create(messages);
-    }
-  }
-
-  /**
-   * @throws NotFoundException if the value if null
-   * @return the value
-   */
-  public static <T> T checkFound(@Nullable T value, String message, Object... messageArguments) {
-    if (value == null) {
-      throw new NotFoundException(format(message, messageArguments));
-    }
-
-    return value;
-  }
-
-  /**
-   * @throws NotFoundException if the value is not present
-   * @return the value
-   */
-  public static <T> T checkFoundWithOptional(Optional<T> value, String message, Object... messageArguments) {
-    if (!value.isPresent()) {
-      throw new NotFoundException(format(message, messageArguments));
-    }
-
-    return value.get();
-  }
-
-  public static <T> T checkFoundWithOptional(java.util.Optional<T> value, String message, Object... messageArguments) {
-    if (!value.isPresent()) {
-      throw new NotFoundException(format(message, messageArguments));
-    }
-
-    return value.get();
   }
 
   public static <T> T checkStateWithOptional(java.util.Optional<T> value, String message, Object... messageArguments) {

@@ -47,8 +47,8 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
-import static org.sonar.server.ws.WsUtils.checkFound;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.NotFoundException.checkFound;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class DeactivateAction implements UsersWsAction {
 

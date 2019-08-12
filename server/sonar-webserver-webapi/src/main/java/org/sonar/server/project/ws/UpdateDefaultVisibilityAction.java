@@ -32,7 +32,7 @@ import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 
 public class UpdateDefaultVisibilityAction implements ProjectsWsAction {
   static final String ACTION = "update_default_visibility";

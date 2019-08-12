@@ -23,6 +23,7 @@ import com.google.common.base.MoreObjects;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.util.Arrays.asList;
 
@@ -36,6 +37,18 @@ public class BadRequestException extends ServerException {
   private BadRequestException(List<String> errors) {
     super(HTTP_BAD_REQUEST, errors.get(0));
     this.errors = errors;
+  }
+
+  public static void checkRequest(boolean expression, String message, Object... messageArguments) {
+    if (!expression) {
+      throw create(format(message, messageArguments));
+    }
+  }
+
+  public static void checkRequest(boolean expression, List<String> messages) {
+    if (!expression) {
+      throw create(messages);
+    }
   }
 
   public static BadRequestException create(List<String> errorMessages) {

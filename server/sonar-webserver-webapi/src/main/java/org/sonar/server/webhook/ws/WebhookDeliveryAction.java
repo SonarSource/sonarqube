@@ -35,7 +35,7 @@ import org.sonarqube.ws.Webhooks;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.webhook.ws.WebhookWsSupport.copyDtoToProtobuf;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class WebhookDeliveryAction implements WebhooksWsAction {

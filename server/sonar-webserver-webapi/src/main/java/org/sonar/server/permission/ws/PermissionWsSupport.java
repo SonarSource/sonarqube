@@ -38,7 +38,7 @@ import org.sonar.server.usergroups.ws.GroupWsSupport;
 import org.sonarqube.ws.client.permission.PermissionsWsParameters;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;

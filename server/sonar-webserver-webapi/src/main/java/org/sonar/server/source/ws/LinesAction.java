@@ -44,8 +44,8 @@ import static org.sonar.server.component.ComponentFinder.ParamNames.UUID_AND_KEY
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_FILE_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class LinesAction implements SourcesWsAction {
 

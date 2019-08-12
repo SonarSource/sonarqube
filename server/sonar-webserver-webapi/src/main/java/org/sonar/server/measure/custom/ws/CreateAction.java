@@ -41,7 +41,7 @@ import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_A
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValueDescription.measureValueDescription;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class CreateAction implements CustomMeasuresWsAction {
   public static final String ACTION = "create";

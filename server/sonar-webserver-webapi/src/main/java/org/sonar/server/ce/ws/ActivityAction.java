@@ -67,8 +67,8 @@ import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_ONLY_CURRENTS;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_STATUS;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_TYPE;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ActivityAction implements CeWsAction {

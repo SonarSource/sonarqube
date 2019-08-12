@@ -41,7 +41,7 @@ import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.defineGroupWsParameters;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.defineLoginWsParameter;
-import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
 public class AddUserAction implements UserGroupsWsAction {
 

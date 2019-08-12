@@ -45,8 +45,8 @@ import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_C
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_PROJECT;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_TYPE;
-import static org.sonar.server.ws.WsUtils.checkFound;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.NotFoundException.checkFound;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class RemoveAction implements NotificationsWsAction {
   private final NotificationCenter notificationCenter;

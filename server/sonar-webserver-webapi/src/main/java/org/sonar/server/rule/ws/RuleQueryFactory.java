@@ -56,8 +56,8 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TEMPLATE_KEY;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
 import static org.sonar.server.util.EnumUtils.toEnums;
-import static org.sonar.server.ws.WsUtils.checkFound;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.exceptions.NotFoundException.checkFound;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 
 @ServerSide
 public class RuleQueryFactory {

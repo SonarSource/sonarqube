@@ -29,7 +29,7 @@ import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 
 @ServerSide
 public class ProjectsWsSupport {

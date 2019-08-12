@@ -30,7 +30,7 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.permission.PermissionChange.Operation.ADD;
 import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
 import static org.sonar.server.permission.RequestValidator.validateNotAnyoneAndAdminPermission;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class GroupPermissionChanger {
 

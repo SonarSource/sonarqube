@@ -54,7 +54,7 @@ import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toOneElement;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.ACTION_LIST;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
-import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ListAction implements NotificationsWsAction {

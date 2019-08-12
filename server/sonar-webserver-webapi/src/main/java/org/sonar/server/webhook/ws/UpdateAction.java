@@ -44,7 +44,7 @@ import static org.sonar.server.webhook.ws.WebhooksWsParameters.URL_PARAM_MAXIMUM
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.NAME_WEBHOOK_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.URL_WEBHOOK_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkStateWithOptional;
 
 public class UpdateAction implements WebhooksWsAction {

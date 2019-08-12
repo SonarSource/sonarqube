@@ -46,7 +46,7 @@ import org.sonar.server.user.UserSession;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 
 public class OrganizationAction implements NavigationWsAction {
 

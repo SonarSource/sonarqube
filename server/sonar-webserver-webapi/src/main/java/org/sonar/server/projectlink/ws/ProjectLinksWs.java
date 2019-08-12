@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.component.ComponentDto;
 
 import static java.lang.String.format;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class ProjectLinksWs implements WebService {
 

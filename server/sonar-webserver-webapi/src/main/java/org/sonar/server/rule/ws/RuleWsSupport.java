@@ -75,7 +75,7 @@ import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_CWE_M
 import static org.sonar.server.security.SecurityStandardHelper.SONARSOURCE_CWE_MAPPING;
 import static org.sonar.server.security.SecurityStandardHelper.SONARSOURCE_OTHER_CWES_CATEGORY;
 import static org.sonar.server.security.SecurityStandardHelper.UNKNOWN_STANDARD;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 
 @ServerSide
 public class RuleWsSupport {

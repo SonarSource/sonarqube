@@ -46,7 +46,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ASSIGN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;

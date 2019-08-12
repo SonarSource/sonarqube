@@ -48,7 +48,7 @@ import static java.util.Optional.ofNullable;
 import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;

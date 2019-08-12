@@ -22,7 +22,7 @@ package org.sonar.server.permission;
 import java.util.List;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class ApplyPermissionTemplateQuery {
 

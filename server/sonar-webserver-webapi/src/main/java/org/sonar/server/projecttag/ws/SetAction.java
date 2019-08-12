@@ -38,7 +38,7 @@ import static java.util.Collections.singletonList;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_TAGS_UPDATE;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class SetAction implements ProjectTagsWsAction {
   /**

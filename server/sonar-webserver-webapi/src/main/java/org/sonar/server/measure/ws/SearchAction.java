@@ -53,7 +53,7 @@ import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.updateMeasureBui
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PROJECT_KEYS;

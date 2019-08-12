@@ -28,7 +28,7 @@ import org.sonar.server.user.UserSession;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
-import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
 public class UserTokenSupport {
 

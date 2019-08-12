@@ -29,12 +29,12 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
 import org.sonarqube.ws.Permissions.UpdateTemplateWsResponse;
 
@@ -45,7 +45,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.RequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.ws.template.PermissionTemplateDtoToPermissionTemplateResponse.toPermissionTemplateResponse;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID;
@@ -143,7 +143,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
   }
 
   private void validateTemplateNameForUpdate(DbSession dbSession, String organizationUuid, String name, long id) {
-    WsUtils.checkRequest(!isBlank(name), "The template name must not be blank");
+    BadRequestException.checkRequest(!isBlank(name), "The template name must not be blank");
 
     PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, organizationUuid, name);
     checkRequest(permissionTemplateWithSameName == null || permissionTemplateWithSameName.getId() == id,

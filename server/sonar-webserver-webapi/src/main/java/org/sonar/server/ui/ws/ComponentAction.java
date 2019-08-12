@@ -53,6 +53,7 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
@@ -62,7 +63,6 @@ import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsUtils;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptySortedSet;
@@ -179,7 +179,7 @@ public class ComponentAction implements NavigationWsAction {
   }
 
   private static void checkComponentNotAModuleAndNotADirectory(ComponentDto component) {
-    WsUtils.checkRequest(!MODULE_OR_DIR_QUALIFIERS.contains(component.qualifier()), "Operation not supported for module or directory components");
+    BadRequestException.checkRequest(!MODULE_OR_DIR_QUALIFIERS.contains(component.qualifier()), "Operation not supported for module or directory components");
   }
 
   private ComponentDto getRootProjectOrBranch(ComponentDto component, DbSession session) {

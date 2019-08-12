@@ -42,7 +42,7 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.component.ComponentKeys.isValidProjectKey;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 @ServerSide
 public class ComponentService {

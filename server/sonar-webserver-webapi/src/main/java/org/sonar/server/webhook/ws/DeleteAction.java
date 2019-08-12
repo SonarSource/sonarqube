@@ -35,7 +35,7 @@ import static org.sonar.server.webhook.ws.WebhooksWsParameters.DELETE_ACTION;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkStateWithOptional;
 
 public class DeleteAction implements WebhooksWsAction {

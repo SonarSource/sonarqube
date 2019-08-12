@@ -42,7 +42,7 @@ import org.sonar.server.permission.PermissionTemplateService;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.core.component.ComponentKeys.isValidProjectKey;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class ComponentUpdater {
 

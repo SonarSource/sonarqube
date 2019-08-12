@@ -52,7 +52,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 /**
  * Activation and deactivation of rules in Quality profiles

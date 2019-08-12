@@ -56,7 +56,7 @@ import static org.sonar.server.measure.Rating.E;
 import static org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN;
 import static org.sonar.server.qualitygate.Condition.Operator.LESS_THAN;
 import static org.sonar.server.qualitygate.ValidRatingMetrics.isCoreRatingMetric;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class QualityGateConditionsUpdater {
 

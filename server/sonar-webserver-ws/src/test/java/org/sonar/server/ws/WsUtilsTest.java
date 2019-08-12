@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ws;
 
-import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -84,7 +83,7 @@ public class WsUtilsTest {
 
   @Test
   public void checkRequest_ok() {
-    WsUtils.checkRequest(true, "Missing param: %s", "foo");
+    BadRequestException.checkRequest(true, "Missing param: %s", "foo");
     // do not fail
   }
 
@@ -93,7 +92,7 @@ public class WsUtilsTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Missing param: foo");
 
-    WsUtils.checkRequest(false, "Missing param: %s", "foo");
+    BadRequestException.checkRequest(false, "Missing param: %s", "foo");
   }
 
 }

@@ -33,7 +33,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 
 public class ShowAction implements SourcesWsAction {
 

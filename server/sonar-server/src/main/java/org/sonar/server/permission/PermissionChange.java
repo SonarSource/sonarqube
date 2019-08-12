@@ -26,7 +26,7 @@ import org.sonar.db.permission.OrganizationPermission;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public abstract class PermissionChange {
 

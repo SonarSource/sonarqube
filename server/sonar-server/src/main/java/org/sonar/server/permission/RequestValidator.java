@@ -29,11 +29,10 @@ import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.ws.WsUtils;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
@@ -49,7 +48,7 @@ public class RequestValidator {
   }
 
   public String validateProjectPermission(String permission) {
-    WsUtils.checkRequest(permissionService.getAllProjectPermissions().contains(permission),
+    BadRequestException.checkRequest(permissionService.getAllProjectPermissions().contains(permission),
       String.format("The '%s' parameter for project permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION,
         allProjectsPermissionsOnOneLine, permission));
     return permission;

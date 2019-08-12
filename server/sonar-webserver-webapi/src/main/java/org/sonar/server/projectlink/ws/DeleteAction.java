@@ -26,8 +26,9 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ProjectLinkDto;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsUtils;
 
 import static org.sonar.db.component.ProjectLinkDto.PROVIDED_TYPES;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.ACTION_DELETE;
@@ -68,7 +69,7 @@ public class DeleteAction implements ProjectLinksWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectLinkDto link = dbClient.projectLinkDao().selectByUuid(dbSession, id);
 
-      link = WsUtils.checkFound(link, "Link with id '%s' not found", id);
+      link = NotFoundException.checkFound(link, "Link with id '%s' not found", id);
       checkProjectAdminPermission(link);
       checkNotProvided(link);
 
@@ -80,7 +81,7 @@ public class DeleteAction implements ProjectLinksWsAction {
   private static void checkNotProvided(ProjectLinkDto link) {
     String type = link.getType();
     boolean isProvided = type != null && PROVIDED_TYPES.contains(type);
-    WsUtils.checkRequest(!isProvided, "Provided link cannot be deleted.");
+    BadRequestException.checkRequest(!isProvided, "Provided link cannot be deleted.");
   }
 
   private void checkProjectAdminPermission(ProjectLinkDto link) {

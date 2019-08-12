@@ -43,8 +43,8 @@ import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentQuery;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.SearchWsResponse;
 
@@ -164,7 +164,7 @@ public class SearchAction implements ComponentsWsAction {
   private OrganizationDto getOrganization(DbSession dbSession, SearchRequest request) {
     String organizationKey = Optional.ofNullable(request.getOrganization())
       .orElseGet(defaultOrganizationProvider.get()::getKey);
-    return WsUtils.checkFoundWithOptional(
+    return NotFoundException.checkFoundWithOptional(
       dbClient.organizationDao().selectByKey(dbSession, organizationKey),
       "No organizationDto with key '%s'", organizationKey);
   }

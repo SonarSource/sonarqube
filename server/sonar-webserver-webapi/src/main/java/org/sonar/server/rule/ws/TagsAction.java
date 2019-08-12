@@ -32,9 +32,9 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.ws.WsUtils;
 
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
@@ -85,7 +85,7 @@ public class TagsAction implements RulesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String organizationOrDefaultKey = Optional.ofNullable(organizationKey)
         .orElseGet(defaultOrganizationProvider.get()::getKey);
-      return WsUtils.checkFoundWithOptional(
+      return NotFoundException.checkFoundWithOptional(
         dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
         "No organization with key '%s'", organizationOrDefaultKey);
     }

@@ -45,7 +45,7 @@ import static org.apache.commons.io.FileUtils.forceMkdir;
 import static org.apache.commons.io.FileUtils.toFile;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 /**
  * Downloads plugins from update center. Files are copied in the directory extensions/downloads and then

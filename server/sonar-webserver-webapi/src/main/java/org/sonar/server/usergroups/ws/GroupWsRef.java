@@ -29,7 +29,7 @@ import org.sonar.server.permission.GroupIdOrAnyone;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 /**
  * Reference to a user group <b>as declared by web service requests</b>. It is one, and only one,

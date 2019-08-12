@@ -54,7 +54,7 @@ import static org.sonar.api.server.ws.WebService.SelectionMode.SELECTED;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchMembersAction implements OrganizationsWsAction {

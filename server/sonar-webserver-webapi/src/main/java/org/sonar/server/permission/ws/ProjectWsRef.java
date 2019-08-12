@@ -23,7 +23,7 @@ import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 /**
  * Reference to a project <b>as defined by web service callers</b>. It allows to reference a project

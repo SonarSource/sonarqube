@@ -37,7 +37,7 @@ import static org.sonar.db.metric.MetricValidator.MAX_DESCRIPTION_LENGTH;
 import static org.sonar.db.metric.MetricValidator.MAX_DOMAIN_LENGTH;
 import static org.sonar.db.metric.MetricValidator.MAX_KEY_LENGTH;
 import static org.sonar.db.metric.MetricValidator.MAX_NAME_LENGTH;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class UpdateAction implements MetricsWsAction {
   private static final String ACTION = "update";

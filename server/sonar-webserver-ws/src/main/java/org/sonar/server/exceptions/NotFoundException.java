@@ -19,11 +19,47 @@
  */
 package org.sonar.server.exceptions;
 
+import com.google.common.base.Optional;
+import javax.annotation.Nullable;
+
+import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 public class NotFoundException extends ServerException {
 
   public NotFoundException(String message) {
     super(HTTP_NOT_FOUND, message);
+  }
+
+  /**
+   * @throws NotFoundException if the value if null
+   * @return the value
+   */
+  public static <T> T checkFound(@Nullable T value, String message, Object... messageArguments) {
+    if (value == null) {
+      throw new NotFoundException(format(message, messageArguments));
+    }
+
+    return value;
+  }
+
+  /**
+   * @throws NotFoundException if the value is not present
+   * @return the value
+   */
+  public static <T> T checkFoundWithOptional(Optional<T> value, String message, Object... messageArguments) {
+    if (!value.isPresent()) {
+      throw new NotFoundException(format(message, messageArguments));
+    }
+
+    return value.get();
+  }
+
+  public static <T> T checkFoundWithOptional(java.util.Optional<T> value, String message, Object... messageArguments) {
+    if (!value.isPresent()) {
+      throw new NotFoundException(format(message, messageArguments));
+    }
+
+    return value.get();
   }
 }

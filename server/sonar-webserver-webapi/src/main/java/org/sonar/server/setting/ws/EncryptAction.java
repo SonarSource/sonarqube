@@ -28,7 +28,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings.EncryptWsResponse;
 
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUE;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class EncryptAction implements SettingsWsAction {

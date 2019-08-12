@@ -37,7 +37,7 @@ import org.sonarqube.ws.Projects.BulkUpdateKeyWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_BULK_UPDATE_KEY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_DRY_RUN;

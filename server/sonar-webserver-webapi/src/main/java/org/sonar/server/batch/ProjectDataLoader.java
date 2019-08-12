@@ -41,7 +41,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 @ServerSide
 public class ProjectDataLoader {
