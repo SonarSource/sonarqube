@@ -59,11 +59,6 @@ public class RequestValidator {
       format("The '%s' parameter for global permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, GlobalPermissions.ALL_ON_ONE_LINE, permission));
   }
 
-  public static void validateNotAnyoneAndAdminPermission(String permission, GroupIdOrAnyone group) {
-    checkRequest(!GlobalPermissions.SYSTEM_ADMIN.equals(permission) || !group.isAnyone(),
-      format("It is not possible to add the '%s' permission to group 'Anyone'.", permission));
-  }
-
   public static void validateQualifier(@Nullable String qualifier, ResourceTypes resourceTypes) {
     if (qualifier == null) {
       return;

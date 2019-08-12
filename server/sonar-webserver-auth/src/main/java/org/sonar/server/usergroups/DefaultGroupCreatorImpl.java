@@ -28,7 +28,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public class DefaultGroupCreatorImpl implements DefaultGroupCreator {
 
-  static final String DEFAULT_GROUP_NAME = "Members";
+  public static final String DEFAULT_GROUP_NAME = "Members";
   private final DbClient dbClient;
 
   public DefaultGroupCreatorImpl(DbClient dbClient) {

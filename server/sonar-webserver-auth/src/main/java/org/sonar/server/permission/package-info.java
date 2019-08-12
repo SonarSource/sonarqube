@@ -17,40 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@ParametersAreNonnullByDefault
 package org.sonar.server.permission;
 
-import javax.annotation.concurrent.Immutable;
-import org.sonar.db.user.GroupDto;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import static java.util.Objects.requireNonNull;
-
-/**
- * Reference to a user group, as used internally by the backend. It does
- * not support reference to virtual groups "anyone".
- *
- * @see GroupWsRef
- * @see GroupIdOrAnyone
- */
-@Immutable
-public class GroupId {
-
-  private final int id;
-  private final String organizationUuid;
-
-  private GroupId(String organizationUuid, int id) {
-    this.id = id;
-    this.organizationUuid = requireNonNull(organizationUuid);
-  }
-
-  public int getId() {
-    return id;
-  }
-
-  public String getOrganizationUuid() {
-    return organizationUuid;
-  }
-
-  public static GroupId from(GroupDto dto) {
-    return new GroupId(dto.getOrganizationUuid(), dto.getId());
-  }
-}

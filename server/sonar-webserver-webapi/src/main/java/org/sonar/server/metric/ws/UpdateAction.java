@@ -31,7 +31,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.util.MetricKeyValidator;
 
 import static org.sonar.db.metric.MetricValidator.MAX_DESCRIPTION_LENGTH;
 import static org.sonar.db.metric.MetricValidator.MAX_DOMAIN_LENGTH;

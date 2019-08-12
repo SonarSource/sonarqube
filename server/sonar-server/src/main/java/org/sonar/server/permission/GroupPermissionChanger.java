@@ -21,16 +21,17 @@ package org.sonar.server.permission;
 
 import java.util.List;
 import java.util.Optional;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GroupPermissionDto;
 
+import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.permission.PermissionChange.Operation.ADD;
 import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
-import static org.sonar.server.permission.RequestValidator.validateNotAnyoneAndAdminPermission;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class GroupPermissionChanger {
 
@@ -115,6 +116,11 @@ public class GroupPermissionChanger {
       .setResourceId(change.getNullableProjectId());
     dbClient.groupPermissionDao().insert(dbSession, addedDto);
     return true;
+  }
+
+  private static void validateNotAnyoneAndAdminPermission(String permission, GroupIdOrAnyone group) {
+    checkRequest(!GlobalPermissions.SYSTEM_ADMIN.equals(permission) || !group.isAnyone(),
+      format("It is not possible to add the '%s' permission to group 'Anyone'.", permission));
   }
 
   private boolean removePermission(DbSession dbSession, GroupPermissionChange change) {

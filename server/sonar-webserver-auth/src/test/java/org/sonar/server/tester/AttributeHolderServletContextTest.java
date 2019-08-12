@@ -20,7 +20,6 @@
 package org.sonar.server.tester;
 
 import com.google.common.collect.ImmutableSet;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.EventListener;
