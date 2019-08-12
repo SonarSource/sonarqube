@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ParsedContent } from '../../../helpers/markdown';
 import { mockDocumentationMarkdown } from '../../../helpers/testMocks';
 
 jest.mock('remark', () => ({
@@ -86,10 +87,9 @@ it('should correctly handle overrides (replace & add)', () => {
     key: 'tata'
   };
 
-  const overrides: string[] = [
-    mockDocumentationMarkdown(overrideFooDoc),
-    mockDocumentationMarkdown(newDoc)
-  ];
+  const overrides: T.Dict<ParsedContent> = {};
+  overrides[foo.url] = { frontmatter: overrideFooDoc, content: overrideFooDoc.content };
+  overrides[`analysis/languages/${newDoc.key}`] = { frontmatter: newDoc, content: newDoc.content };
   const pages = getPages(overrides);
 
   expect(pages.length).toBe(3);
@@ -99,7 +99,7 @@ it('should correctly handle overrides (replace & add)', () => {
   expect(pages[2].title).toBe(newDoc.title);
 });
 
-function getPages(overrides: string[] = []) {
+function getPages(overrides: T.Dict<ParsedContent> = {}) {
   // This allows the use of out-of-scope data inside jest.mock
   // Usually, it is impossible as jest.mock'ed module is hoisted on the top of the file
   return require.requireActual('../pages').default(overrides);

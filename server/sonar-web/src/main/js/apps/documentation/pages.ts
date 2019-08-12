@@ -23,18 +23,10 @@ import { filterContent, ParsedContent, separateFrontMatter } from '../../helpers
 import * as Docs from './documentation.directory-loader';
 import { DocumentationEntry, DocumentationEntryScope } from './utils';
 
-const LANGUAGES_BASE_URL = 'analysis/languages';
-
-export default function getPages(overrides: string[] = []): DocumentationEntry[] {
-  const parsedOverrides: T.Dict<ParsedContent> = {};
-  overrides.forEach(override => {
-    const parsedOverride = separateFrontMatter(override);
-    if (parsedOverride && parsedOverride.frontmatter && parsedOverride.frontmatter.key) {
-      parsedOverrides[`${LANGUAGES_BASE_URL}/${parsedOverride.frontmatter.key}`] = parsedOverride;
-    }
-  });
-
-  // Merge with existing entries.
+export default function getPages(
+  parsedOverrides: T.Dict<ParsedContent> = {}
+): DocumentationEntry[] {
+  // Get entries, merge with overrides if applicable.
   const pages = ((Docs as unknown) as Array<{ content: string; path: string }>).map(file => {
     let parsed = separateFrontMatter(file.content);
 

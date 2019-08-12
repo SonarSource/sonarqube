@@ -33,7 +33,9 @@ import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import NotFound from '../../../app/components/NotFound';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import DocMarkdownBlock from '../../../components/docs/DocMarkdownBlock';
+import { ParsedContent, separateFrontMatter } from '../../../helpers/markdown';
 import { isSonarCloud } from '../../../helpers/system';
+import { getUrlsList } from '../navTreeUtils';
 import getPages from '../pages';
 import '../styles.css';
 import { DocumentationEntry } from '../utils';
@@ -48,6 +50,8 @@ interface State {
   pages: DocumentationEntry[];
   tree: DocNavigationItem[];
 }
+
+const LANGUAGES_BASE_URL = 'analysis/languages';
 
 export default class App extends React.PureComponent<Props, State> {
   mounted = false;
@@ -67,7 +71,7 @@ export default class App extends React.PureComponent<Props, State> {
       ? ((navigationTreeSonarCloud as any).default as DocNavigationItem[])
       : ((navigationTreeSonarQube as any).default as DocNavigationItem[]);
 
-    this.getLanguagesOverrides().then(
+    this.getLanguagePluginsDocumentation(tree).then(
       overrides => {
         if (this.mounted) {
           this.setState({
@@ -92,15 +96,13 @@ export default class App extends React.PureComponent<Props, State> {
     removeSideBarClass();
   }
 
-  getLanguagesOverrides = () => {
-    const pluginStaticFileNameRegEx = new RegExp(`^static/(.*)`);
-
+  getLanguagePluginsDocumentation = (tree: DocNavigationItem[]) => {
     return getInstalledPlugins()
       .then(plugins =>
         Promise.all(
           plugins.map(plugin => {
             if (plugin.documentationPath) {
-              const matchArray = pluginStaticFileNameRegEx.exec(plugin.documentationPath);
+              const matchArray = /^static\/(.*)/.exec(plugin.documentationPath);
 
               if (matchArray && matchArray.length > 1) {
                 // eslint-disable-next-line promise/no-nesting
@@ -114,7 +116,29 @@ export default class App extends React.PureComponent<Props, State> {
           })
         )
       )
-      .then(contents => contents.filter(isDefined));
+      .then(contents => contents.filter(isDefined))
+      .then(contents => {
+        const regex = new RegExp(`/${LANGUAGES_BASE_URL}/\\w+/$`);
+        const overridablePaths = getUrlsList(tree).filter(
+          path => regex.test(path) && path !== `/${LANGUAGES_BASE_URL}/overview/`
+        );
+
+        const parsedContent: T.Dict<ParsedContent> = {};
+
+        contents.forEach(content => {
+          const parsed = separateFrontMatter(content);
+          if (
+            parsed &&
+            parsed.frontmatter &&
+            parsed.frontmatter.key &&
+            overridablePaths.includes(`/${LANGUAGES_BASE_URL}/${parsed.frontmatter.key}/`)
+          ) {
+            parsedContent[`${LANGUAGES_BASE_URL}/${parsed.frontmatter.key}`] = parsed;
+          }
+        });
+
+        return parsedContent;
+      });
   };
 
   render() {

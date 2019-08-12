@@ -23,6 +23,7 @@ import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pag
 import { request } from 'sonar-ui-common/helpers/request';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { isSonarCloud } from '../../../../helpers/system';
+import getPages from '../../pages';
 import App from '../App';
 
 jest.mock('../../../../components/common/ScreenPositionHelper', () => ({
@@ -90,19 +91,27 @@ jest.mock('sonar-ui-common/helpers/pages', () => ({
   removeSideBarClass: jest.fn()
 }));
 
-jest.mock('sonar-ui-common/helpers/request', () => ({
-  request: jest.fn(() => ({
-    submit: jest.fn().mockResolvedValue({ status: 200, text: jest.fn().mockReturnValue('TEST') })
-  }))
-}));
+jest.mock('sonar-ui-common/helpers/request', () => {
+  const { mockDocumentationMarkdown } = require.requireActual('../../../../helpers/testMocks');
+  return {
+    request: jest.fn(() => ({
+      submit: jest.fn().mockResolvedValue({
+        status: 200,
+        text: jest.fn().mockResolvedValue(mockDocumentationMarkdown({ key: 'csharp' }))
+      })
+    }))
+  };
+});
 
 jest.mock('../../pages', () => {
   const { mockDocumentationEntry } = require.requireActual('../../../../helpers/testMocks');
   return {
-    default: () => [
-      mockDocumentationEntry(),
-      mockDocumentationEntry({ url: '/analysis/languages/csharp/' })
-    ]
+    default: jest
+      .fn()
+      .mockReturnValue([
+        mockDocumentationEntry(),
+        mockDocumentationEntry({ url: '/analysis/languages/csharp/' })
+      ])
   };
 });
 
@@ -115,6 +124,10 @@ jest.mock('../../../../api/plugins', () => ({
       { key: 'vbnett', documentationPath: undefined }
     ])
 }));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 it('should render correctly for SonarQube', async () => {
   const wrapper = shallowRender();
@@ -143,12 +156,19 @@ it("should show a 404 if the page doesn't exist", async () => {
 });
 
 it('should try to fetch language plugin documentation if documentationPath matches', async () => {
+  (isSonarCloud as jest.Mock).mockReturnValue(false);
+
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
   expect(request).toHaveBeenCalledWith('/static/csharp/documentation.md');
   expect(request).not.toHaveBeenCalledWith('/static/vbnet/documentation.md');
   expect(request).not.toHaveBeenCalledWith('/static/vbnett/documentation.md');
+  expect(getPages).toHaveBeenCalledWith(
+    expect.objectContaining({
+      'analysis/languages/csharp': expect.any(Object)
+    })
+  );
 });
 
 function shallowRender(props: Partial<App['props']> = {}) {
