@@ -87,7 +87,12 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
   }
 
   createSnippetsFromProps() {
-    const snippets = createSnippets(this.props.snippetGroup.locations, this.props.last);
+    const snippets = createSnippets(
+      this.props.snippetGroup.locations,
+      this.props.last,
+      this.props.issue.secondaryLocations.length > 0 ? this.props.issue : undefined
+    );
+
     this.setState({ snippets });
   }
 

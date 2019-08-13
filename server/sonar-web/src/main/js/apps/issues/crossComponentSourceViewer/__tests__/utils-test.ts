@@ -17,7 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mockFlowLocation, mockSnippetsByComponent } from '../../../../helpers/testMocks';
+import {
+  mockFlowLocation,
+  mockIssue,
+  mockSnippetsByComponent
+} from '../../../../helpers/testMocks';
 import { createSnippets, expandSnippet, groupLocationsByComponent } from '../utils';
 
 describe('groupLocationsByComponent', () => {
@@ -137,6 +141,24 @@ describe('createSnippets', () => {
     expect(results).toHaveLength(2);
     expect(results[0]).toEqual({ index: 0, start: 14, end: 24 });
     expect(results[1]).toEqual({ index: 1, start: 45, end: 49 });
+  });
+
+  it("should prepend the issue's main location if necessary", () => {
+    const results = createSnippets(
+      [
+        mockFlowLocation({
+          textRange: { startLine: 47, startOffset: 2, endLine: 47, endOffset: 3 }
+        }),
+        mockFlowLocation({
+          textRange: { startLine: 22, startOffset: 2, endLine: 22, endOffset: 3 }
+        })
+      ],
+      false,
+      mockIssue(false, { textRange: { startLine: 5, endLine: 5, startOffset: 0, endOffset: 0 } })
+    );
+
+    expect(results).toHaveLength(3);
+    expect(results[0]).toEqual({ index: 0, start: 3, end: 14 });
   });
 });
 

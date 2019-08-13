@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { mount, ReactWrapper, shallow } from 'enzyme';
-import { times } from 'lodash';
+import { range, times } from 'lodash';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getSources } from '../../../../api/components';
@@ -43,6 +43,29 @@ beforeEach(() => {
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should render correctly with secondary locations', () => {
+  // issue with secondary locations but no flows
+  const issue = mockIssue(true, {
+    flows: [],
+    textRange: { startLine: 5, endLine: 5, startOffset: 5, endOffset: 10 }
+  });
+
+  const snippetGroup: T.SnippetGroup = {
+    locations: [
+      mockFlowLocation({
+        component: 'a',
+        textRange: { startLine: 34, endLine: 34, startOffset: 0, endOffset: 0 }
+      }),
+      mockFlowLocation({
+        component: 'a',
+        textRange: { startLine: 54, endLine: 54, startOffset: 0, endOffset: 0 }
+      })
+    ],
+    ...mockSnippetsByComponent('a', [...range(3, 15), 32, 33, 34, 35, 36, 52, 53, 54, 55, 56])
+  };
+  expect(shallowRender({ issue, snippetGroup })).toMatchSnapshot();
 });
 
 it('should expand block', async () => {
