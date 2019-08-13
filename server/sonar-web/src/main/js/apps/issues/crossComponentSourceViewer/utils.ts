@@ -66,7 +66,9 @@ export function createSnippets(
       const startIndex = Math.max(1, loc.textRange.startLine - LINES_ABOVE);
       const endIndex =
         loc.textRange.endLine +
-        (issue || (last && index === locations.length - 1) ? LINES_BELOW_LAST : LINES_BELOW);
+        ((issue && index === 0) || (last && index === locations.length - 1)
+          ? LINES_BELOW_LAST
+          : LINES_BELOW);
 
       let firstCollision: { start: number; end: number } | undefined;
 

@@ -160,6 +160,23 @@ describe('createSnippets', () => {
     expect(results).toHaveLength(3);
     expect(results[0]).toEqual({ index: 0, start: 3, end: 14 });
   });
+
+  it('should handle last component', () => {
+    const results = createSnippets(
+      [
+        mockFlowLocation({
+          textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
+        }),
+        mockFlowLocation({
+          textRange: { startLine: 19, startOffset: 2, endLine: 19, endOffset: 3 }
+        })
+      ],
+      true
+    );
+
+    expect(results).toHaveLength(1);
+    expect(results[0]).toEqual({ index: 0, start: 14, end: 28 });
+  });
 });
 
 describe('expandSnippet', () => {

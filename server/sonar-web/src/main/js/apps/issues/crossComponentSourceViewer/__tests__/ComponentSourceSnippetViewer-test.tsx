@@ -65,7 +65,11 @@ it('should render correctly with secondary locations', () => {
     ],
     ...mockSnippetsByComponent('a', [...range(3, 15), 32, 33, 34, 35, 36, 52, 53, 54, 55, 56])
   };
-  expect(shallowRender({ issue, snippetGroup })).toMatchSnapshot();
+  const wrapper = shallowRender({ issue, snippetGroup });
+  expect(wrapper.state('snippets')).toHaveLength(3);
+  expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 3, end: 14 });
+  expect(wrapper.state('snippets')[1]).toEqual({ index: 1, start: 32, end: 36 });
+  expect(wrapper.state('snippets')[2]).toEqual({ index: 2, start: 52, end: 56 });
 });
 
 it('should expand block', async () => {
