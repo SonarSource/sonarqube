@@ -19,8 +19,21 @@
  */
 package org.sonar.server.platform.ws;
 
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.platform.Module;
+import org.sonar.server.health.DbConnectionNodeCheck;
+import org.sonar.server.health.EsStatusNodeCheck;
+import org.sonar.server.health.HealthCheckerImpl;
+import org.sonar.server.health.WebServerSafemodeNodeCheck;
 
-public interface SystemInfoWriter {
-  void write(JsonWriter json) throws Exception;
+public class SafeModeHealthCheckerModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(
+      // NodeHealthCheck implementations
+      WebServerSafemodeNodeCheck.class,
+      DbConnectionNodeCheck.class,
+      EsStatusNodeCheck.class,
+
+      HealthCheckerImpl.class);
+  }
 }

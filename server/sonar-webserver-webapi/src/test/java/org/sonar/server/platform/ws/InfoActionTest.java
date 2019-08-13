@@ -38,7 +38,7 @@ public class InfoActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private SystemInfoWriter jsonWriter = new SystemInfoWriter(null) {
+  private SystemInfoWriter jsonWriter = new AbstractSystemInfoWriter(null) {
     @Override
     public void write(JsonWriter json) {
       json.prop("key", "value");

@@ -30,12 +30,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
-public class WebSystemInfoModuleTest {
+public class ChangeLogLevelServiceModuleTest {
   private WebServer webServer = mock(WebServer.class);
-  private WebSystemInfoModule underTest = new WebSystemInfoModule(webServer);
+  private ChangeLogLevelServiceModule underTest = new ChangeLogLevelServiceModule(webServer);
 
   @Test
-  public void verify_system_info_configuration_in_cluster_mode() {
+  public void provide_returns_ChangeLogLevelClusterService_if_cluster_not_on_SonarCloud() {
     when(webServer.isStandalone()).thenReturn(false);
     ComponentContainer container = new ComponentContainer();
 
@@ -43,23 +43,29 @@ public class WebSystemInfoModuleTest {
 
     Collection<ComponentAdapter<?>> adapters = container.getPicoContainer().getComponentAdapters();
     assertThat(adapters)
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 18);
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 1)
+      .extracting(ComponentAdapter::getComponentKey)
+      .contains(ChangeLogLevelClusterService.class)
+      .doesNotContain(ChangeLogLevelStandaloneService.class);
   }
 
   @Test
-  public void verify_system_info_configuration_in_standalone_mode() {
+  public void provide_returns_ChangeLogLevelStandaloneService_if_SQ_standalone() {
     when(webServer.isStandalone()).thenReturn(true);
     ComponentContainer container = new ComponentContainer();
 
     underTest.configure(container);
 
-    verifyConfigurationStandaloneSQ(container);
+    verifyInStandaloneSQ(container);
   }
 
-  public void verifyConfigurationStandaloneSQ(ComponentContainer container) {
+  private void verifyInStandaloneSQ(ComponentContainer container) {
     Collection<ComponentAdapter<?>> adapters = container.getPicoContainer().getComponentAdapters();
     assertThat(adapters)
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 12);
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 1)
+      .extracting(ComponentAdapter::getComponentKey)
+      .contains(ChangeLogLevelStandaloneService.class)
+      .doesNotContain(ChangeLogLevelClusterService.class);
   }
 
 }

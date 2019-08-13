@@ -31,7 +31,7 @@ import org.sonar.server.telemetry.TelemetryDataLoader;
 
 import static java.util.Arrays.stream;
 
-public class StandaloneSystemInfoWriter extends SystemInfoWriter {
+public class StandaloneSystemInfoWriter extends AbstractSystemInfoWriter {
   private final CeHttpClient ceHttpClient;
   private final HealthChecker healthChecker;
   private final SystemInfoSection[] systemInfoSections;

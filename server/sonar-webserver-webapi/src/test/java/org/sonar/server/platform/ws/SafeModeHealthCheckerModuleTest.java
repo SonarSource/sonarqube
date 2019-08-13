@@ -33,19 +33,19 @@ import org.sonar.server.health.WebServerSafemodeNodeCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SafeModeHealthActionModuleTest {
-  private SafeModeHealthActionModule underTest = new SafeModeHealthActionModule();
+public class SafeModeHealthCheckerModuleTest {
+  private SafeModeHealthCheckerModule underTest = new SafeModeHealthCheckerModule();
 
   @Test
-  public void verify_action_and_HealthChecker() {
+  public void verify_HealthChecker() {
     ComponentContainer container = new ComponentContainer();
 
     underTest.configure(container);
 
     assertThat(classesAddedToContainer(container))
       .contains(HealthCheckerImpl.class)
-      .contains(HealthActionSupport.class)
-      .contains(SafeModeHealthAction.class)
+      .doesNotContain(HealthActionSupport.class)
+      .doesNotContain(SafeModeHealthAction.class)
       .doesNotContain(HealthAction.class);
   }
 

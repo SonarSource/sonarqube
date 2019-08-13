@@ -20,38 +20,25 @@
 package org.sonar.server.platform.ws;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.health.AppNodeClusterCheck;
-import org.sonar.server.health.CeStatusNodeCheck;
-import org.sonar.server.health.DbConnectionNodeCheck;
-import org.sonar.server.health.EsStatusClusterCheck;
-import org.sonar.server.health.EsStatusNodeCheck;
-import org.sonar.server.health.HealthCheckerImpl;
-import org.sonar.server.health.WebServerStatusNodeCheck;
-import org.sonar.server.platform.WebServer;
 
-public class HealthActionModule extends Module {
-  private final WebServer webServer;
-
-  public HealthActionModule(WebServer webServer) {
-    this.webServer = webServer;
-  }
+public class SystemWsModule extends Module {
 
   @Override
   protected void configureModule() {
-    // NodeHealthCheck implementations
-    add(WebServerStatusNodeCheck.class,
-      DbConnectionNodeCheck.class,
-      CeStatusNodeCheck.class);
-    if (webServer.isStandalone()) {
-      add(EsStatusNodeCheck.class);
-    } else {
-      // ClusterHealthCheck implementations
-      add(EsStatusClusterCheck.class,
-        AppNodeClusterCheck.class);
-    }
-
-    add(HealthCheckerImpl.class,
+    add(
+      ChangeLogLevelAction.class,
+      DbMigrationStatusAction.class,
       HealthActionSupport.class,
-      HealthAction.class);
+      HealthAction.class,
+      InfoAction.class,
+      LogsAction.class,
+      MigrateDbAction.class,
+      PingAction.class,
+      RestartAction.class,
+      StatusAction.class,
+      UpgradesAction.class,
+      SystemWs.class
+
+    );
   }
 }

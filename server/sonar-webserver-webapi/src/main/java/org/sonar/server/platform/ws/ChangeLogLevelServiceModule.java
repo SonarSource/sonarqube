@@ -19,8 +19,22 @@
  */
 package org.sonar.server.platform.ws;
 
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.platform.Module;
+import org.sonar.server.platform.WebServer;
 
-public interface SystemInfoWriter {
-  void write(JsonWriter json) throws Exception;
+public class ChangeLogLevelServiceModule extends Module {
+  private final WebServer webServer;
+
+  public ChangeLogLevelServiceModule(WebServer webServer) {
+    this.webServer = webServer;
+  }
+
+  @Override
+  protected void configureModule() {
+    if (webServer.isStandalone()) {
+      add(ChangeLogLevelStandaloneService.class);
+    } else {
+      add(ChangeLogLevelClusterService.class);
+    }
+  }
 }

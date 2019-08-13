@@ -41,12 +41,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class HealthActionModuleTest {
+public class HealthCheckerModuleTest {
   private WebServer webServer = mock(WebServer.class);
-  private HealthActionModule underTest = new HealthActionModule(webServer);
+  private HealthCheckerModule underTest = new HealthCheckerModule(webServer);
 
   @Test
-  public void verify_action_and_HealthChecker() {
+  public void verify_HealthChecker() {
     boolean standalone = new Random().nextBoolean();
     when(webServer.isStandalone()).thenReturn(standalone);
     ComponentContainer container = new ComponentContainer();
@@ -56,8 +56,8 @@ public class HealthActionModuleTest {
     assertThat(classesAddedToContainer(container))
       .describedAs("Verifying action and HealthChecker with standalone=%s", standalone)
       .contains(HealthCheckerImpl.class)
-      .contains(HealthActionSupport.class)
-      .contains(HealthAction.class)
+      .doesNotContain(HealthActionSupport.class)
+      .doesNotContain(HealthAction.class)
       .doesNotContain(SafeModeHealthAction.class);
   }
 

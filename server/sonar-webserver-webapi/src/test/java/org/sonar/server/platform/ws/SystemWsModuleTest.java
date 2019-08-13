@@ -19,23 +19,19 @@
  */
 package org.sonar.server.platform.ws;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.platform.WebServer;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-public class ChangeLogLevelActionModule extends Module {
-  private final WebServer webServer;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
-  public ChangeLogLevelActionModule(WebServer webServer) {
-    this.webServer = webServer;
+public class SystemWsModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new SystemWsModule().configure(container);
+    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 12);
   }
 
-  @Override
-  protected void configureModule() {
-    add(ChangeLogLevelAction.class);
-    if (webServer.isStandalone()) {
-      add(ChangeLogLevelStandaloneService.class);
-    } else {
-      add(ChangeLogLevelClusterService.class);
-    }
-  }
+
 }

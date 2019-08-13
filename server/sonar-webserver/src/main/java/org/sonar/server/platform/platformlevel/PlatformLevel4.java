@@ -120,19 +120,12 @@ import org.sonar.server.platform.web.DeprecatedPropertiesWsFilter;
 import org.sonar.server.platform.web.WebServiceFilter;
 import org.sonar.server.platform.web.WebServiceReroutingFilter;
 import org.sonar.server.platform.web.requestid.HttpRequestIdModule;
-import org.sonar.server.platform.ws.ChangeLogLevelActionModule;
-import org.sonar.server.platform.ws.DbMigrationStatusAction;
-import org.sonar.server.platform.ws.HealthActionModule;
+import org.sonar.server.platform.ws.ChangeLogLevelServiceModule;
+import org.sonar.server.platform.ws.HealthCheckerModule;
 import org.sonar.server.platform.ws.L10nWs;
-import org.sonar.server.platform.ws.LogsAction;
-import org.sonar.server.platform.ws.MigrateDbAction;
-import org.sonar.server.platform.ws.PingAction;
-import org.sonar.server.platform.ws.RestartAction;
 import org.sonar.server.platform.ws.ServerWs;
-import org.sonar.server.platform.ws.StatusAction;
-import org.sonar.server.platform.ws.SystemWs;
-import org.sonar.server.platform.ws.UpgradesAction;
-import org.sonar.server.platform.ws.WebSystemInfoModule;
+import org.sonar.server.platform.ws.SystemWsModule;
+import org.sonar.server.platform.ws.SystemInfoWriterModule;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.plugins.ServerExtensionInstaller;
@@ -469,16 +462,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // System
       ServerLogging.class,
-      RestartAction.class,
-      PingAction.class,
-      UpgradesAction.class,
-      StatusAction.class,
-      MigrateDbAction.class,
-      LogsAction.class,
-      ChangeLogLevelActionModule.class,
-      DbMigrationStatusAction.class,
-      HealthActionModule.class,
-      SystemWs.class,
+      ChangeLogLevelServiceModule.class,
+      HealthCheckerModule.class,
+      SystemWsModule.class,
 
       // Plugins WS
       PluginUpdateAggregator.class,
@@ -537,7 +523,7 @@ public class PlatformLevel4 extends PlatformLevel {
     );
 
     // system info
-    add(WebSystemInfoModule.class);
+    add(SystemInfoWriterModule.class);
 
     addAll(level4AddedComponents);
   }

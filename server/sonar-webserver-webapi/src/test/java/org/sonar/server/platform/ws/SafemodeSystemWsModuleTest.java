@@ -19,23 +19,18 @@
  */
 package org.sonar.server.platform.ws;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.health.DbConnectionNodeCheck;
-import org.sonar.server.health.EsStatusNodeCheck;
-import org.sonar.server.health.HealthCheckerImpl;
-import org.sonar.server.health.WebServerSafemodeNodeCheck;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-public class SafeModeHealthActionModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // NodeHealthCheck implementations
-      WebServerSafemodeNodeCheck.class,
-      DbConnectionNodeCheck.class,
-      EsStatusNodeCheck.class,
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
-      HealthCheckerImpl.class,
-      HealthActionSupport.class,
-      SafeModeHealthAction.class);
+public class SafemodeSystemWsModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new SafemodeSystemWsModule().configure(container);
+    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 6);
   }
+
 }

@@ -30,12 +30,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
-public class ChangeLogLevelActionModuleTest {
+public class SystemInfoWriterModuleTest {
   private WebServer webServer = mock(WebServer.class);
-  private ChangeLogLevelActionModule underTest = new ChangeLogLevelActionModule(webServer);
+  private SystemInfoWriterModule underTest = new SystemInfoWriterModule(webServer);
 
   @Test
-  public void provide_returns_ChangeLogLevelClusterService_if_cluster_not_on_SonarCloud() {
+  public void verify_system_info_configuration_in_cluster_mode() {
     when(webServer.isStandalone()).thenReturn(false);
     ComponentContainer container = new ComponentContainer();
 
@@ -43,29 +43,23 @@ public class ChangeLogLevelActionModuleTest {
 
     Collection<ComponentAdapter<?>> adapters = container.getPicoContainer().getComponentAdapters();
     assertThat(adapters)
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 2)
-      .extracting(ComponentAdapter::getComponentKey)
-      .contains(ChangeLogLevelClusterService.class, ChangeLogLevelAction.class)
-      .doesNotContain(ChangeLogLevelStandaloneService.class);
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 17);
   }
 
   @Test
-  public void provide_returns_ChangeLogLevelStandaloneService_if_SQ_standalone() {
+  public void verify_system_info_configuration_in_standalone_mode() {
     when(webServer.isStandalone()).thenReturn(true);
     ComponentContainer container = new ComponentContainer();
 
     underTest.configure(container);
 
-    verifyInStandaloneSQ(container);
+    verifyConfigurationStandaloneSQ(container);
   }
 
-  private void verifyInStandaloneSQ(ComponentContainer container) {
+  public void verifyConfigurationStandaloneSQ(ComponentContainer container) {
     Collection<ComponentAdapter<?>> adapters = container.getPicoContainer().getComponentAdapters();
     assertThat(adapters)
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 2)
-      .extracting(ComponentAdapter::getComponentKey)
-      .contains(ChangeLogLevelStandaloneService.class, ChangeLogLevelAction.class)
-      .doesNotContain(ChangeLogLevelClusterService.class);
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 11);
   }
 
 }

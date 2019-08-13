@@ -29,7 +29,7 @@ import org.sonar.server.platform.monitoring.cluster.NodeInfo;
 import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoader;
 import org.sonar.server.telemetry.TelemetryDataLoader;
 
-public class ClusterSystemInfoWriter extends SystemInfoWriter {
+public class ClusterSystemInfoWriter extends AbstractSystemInfoWriter {
   private final GlobalInfoLoader globalInfoLoader;
   private final AppNodesInfoLoader appNodesInfoLoader;
   private final SearchNodesInfoLoader searchNodesInfoLoader;

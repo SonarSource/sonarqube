@@ -19,8 +19,19 @@
  */
 package org.sonar.server.platform.ws;
 
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.platform.Module;
 
-public interface SystemInfoWriter {
-  void write(JsonWriter json) throws Exception;
+public class SafemodeSystemWsModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(
+      StatusAction.class,
+      MigrateDbAction.class,
+      DbMigrationStatusAction.class,
+      HealthActionSupport.class,
+      SafeModeHealthAction.class,
+      SystemWs.class
+
+    );
+  }
 }

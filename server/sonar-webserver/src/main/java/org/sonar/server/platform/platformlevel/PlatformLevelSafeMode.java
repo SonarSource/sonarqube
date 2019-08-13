@@ -27,13 +27,10 @@ import org.sonar.server.platform.db.migration.DatabaseMigrationImpl;
 import org.sonar.server.platform.db.migration.MigrationEngineModule;
 import org.sonar.server.platform.db.migration.NoopDatabaseMigrationImpl;
 import org.sonar.server.platform.web.WebServiceFilter;
-import org.sonar.server.platform.ws.DbMigrationStatusAction;
 import org.sonar.server.platform.ws.IndexAction;
 import org.sonar.server.platform.ws.L10nWs;
-import org.sonar.server.platform.ws.MigrateDbAction;
-import org.sonar.server.platform.ws.SafeModeHealthActionModule;
-import org.sonar.server.platform.ws.StatusAction;
-import org.sonar.server.platform.ws.SystemWs;
+import org.sonar.server.platform.ws.SafeModeHealthCheckerModule;
+import org.sonar.server.platform.ws.SafemodeSystemWsModule;
 import org.sonar.server.ws.WebServiceEngine;
 import org.sonar.server.ws.ws.WebServicesWsModule;
 
@@ -52,11 +49,8 @@ public class PlatformLevelSafeMode extends PlatformLevel {
       IndexAction.class,
 
       // Server WS
-      StatusAction.class,
-      MigrateDbAction.class,
-      DbMigrationStatusAction.class,
-      SafeModeHealthActionModule.class,
-      SystemWs.class,
+      SafeModeHealthCheckerModule.class,
+      SafemodeSystemWsModule.class,
 
       // Listing WS
       WebServicesWsModule.class,

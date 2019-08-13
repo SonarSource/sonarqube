@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.ws;
 
-import org.sonar.api.config.Configuration;
 import org.sonar.core.platform.Module;
 import org.sonar.process.systeminfo.JvmPropertiesSection;
 import org.sonar.process.systeminfo.JvmStateSection;
@@ -41,10 +40,10 @@ import org.sonar.server.platform.monitoring.cluster.NodeSystemSection;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
 import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoaderImpl;
 
-public class WebSystemInfoModule extends Module {
+public class SystemInfoWriterModule extends Module {
   private final WebServer webServer;
 
-  public WebSystemInfoModule(WebServer webServer) {
+  public SystemInfoWriterModule(WebServer webServer) {
     this.webServer = webServer;
   }
 
@@ -60,8 +59,7 @@ public class WebSystemInfoModule extends Module {
       EsIndexesSection.class,
       LoggingSection.class,
       PluginsSection.class,
-      SettingsSection.class,
-      InfoAction.class
+      SettingsSection.class
 
       );
     if (standalone) {
