@@ -34,7 +34,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
-import static org.apache.http.HttpStatus.SC_NO_CONTENT;
+import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.user.ws.SetHomepageAction.PARAM_COMPONENT;
 import static org.sonar.server.user.ws.SetHomepageAction.PARAM_TYPE;

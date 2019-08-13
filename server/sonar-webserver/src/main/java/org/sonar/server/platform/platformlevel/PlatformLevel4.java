@@ -29,6 +29,7 @@ import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
+import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
@@ -114,7 +115,7 @@ import org.sonar.server.permission.ws.PermissionsWsModule;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.ClusterVerification;
 import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.platform.SettingsChangeNotifier;
+import org.sonar.server.setting.SettingsChangeNotifier;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.web.DeprecatedPropertiesWsFilter;
 import org.sonar.server.platform.web.WebServiceFilter;
@@ -125,7 +126,7 @@ import org.sonar.server.platform.ws.HealthCheckerModule;
 import org.sonar.server.platform.ws.L10nWs;
 import org.sonar.server.platform.ws.ServerWs;
 import org.sonar.server.platform.ws.SystemWsModule;
-import org.sonar.server.platform.ws.SystemInfoWriterModule;
+import org.sonar.server.platform.SystemInfoWriterModule;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.plugins.ServerExtensionInstaller;
@@ -145,6 +146,7 @@ import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.property.ws.PropertiesWs;
+import org.sonar.server.qualitygate.ProjectsInWarningModule;
 import org.sonar.server.qualitygate.QualityGateModule;
 import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
 import org.sonar.server.qualitygate.ws.QualityGateWsModule;
@@ -180,6 +182,7 @@ import org.sonar.server.rule.ws.RuleWsSupport;
 import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.rule.ws.TagsAction;
 import org.sonar.server.setting.ws.SettingsWsModule;
+import org.sonar.server.setting.ProjectConfigurationLoaderImpl;
 import org.sonar.server.source.ws.SourceWsModule;
 import org.sonar.server.startup.LogServerId;
 import org.sonar.server.telemetry.TelemetryClient;
@@ -211,6 +214,7 @@ import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.webhook.WebhookModule;
+import org.sonar.server.webhook.WebhookQGChangeEventListener;
 import org.sonar.server.webhook.ws.WebhooksWsModule;
 import org.sonar.server.ws.WebServiceEngine;
 import org.sonar.server.ws.ws.WebServicesWsModule;
@@ -326,6 +330,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TimeMachineWs.class,
 
       QualityGateModule.class,
+      ProjectsInWarningModule.class,
       QualityGateWsModule.class,
 
       // web services
@@ -447,6 +452,7 @@ public class PlatformLevel4 extends PlatformLevel {
       EmailsWsModule.class,
 
       // Settings
+      ProjectConfigurationLoaderImpl.class,
       PersistentSettings.class,
       PropertiesWs.class,
       org.sonar.server.property.ws.IndexAction.class,
@@ -493,6 +499,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ReportAnalysisFailureNotificationModule.class,
       CeModule.class,
       CeWsModule.class,
+      ReportTaskProcessor.class,
 
       // SonarSource editions
       PlatformEditionProvider.class,
@@ -506,6 +513,7 @@ public class PlatformLevel4 extends PlatformLevel {
       RootWsModule.class,
 
       // webhooks
+      WebhookQGChangeEventListener.class,
       WebhookModule.class,
       WebhooksWsModule.class,
 

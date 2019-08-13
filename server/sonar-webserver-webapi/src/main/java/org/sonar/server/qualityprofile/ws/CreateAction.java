@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile.ws;
 
 import java.io.InputStream;
+import javax.annotation.Nullable;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -38,12 +39,10 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
 
-import javax.annotation.Nullable;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.server.language.LanguageParamUtils.getOrderedLanguageKeys;
 import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
-import static org.sonar.server.util.LanguageParamUtils.getOrderedLanguageKeys;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
@@ -86,7 +85,7 @@ public class CreateAction implements QProfileWsAction {
     NewAction create = controller.createAction(ACTION_CREATE)
       .setPost(true)
       .setDescription("Create a quality profile.<br>" +
-    "Requires to be logged in and the 'Administer Quality Profiles' permission.")
+        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
       .setResponseExample(getClass().getResource("create-example.json"))
       .setSince("5.2")
       .setHandler(this);

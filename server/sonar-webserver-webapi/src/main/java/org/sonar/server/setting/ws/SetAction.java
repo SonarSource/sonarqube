@@ -53,12 +53,13 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.scanner.protocol.GsonHelper;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.setting.ws.SettingValidations.SettingData;
+import org.sonar.server.setting.SettingsChangeNotifier;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_FIELD_VALUES;
@@ -67,7 +68,6 @@ import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_PULL_REQUES
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUE;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUES;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class SetAction implements SettingsWsAction {
   private static final Collector<CharSequence, ?, String> COMMA_JOINER = Collectors.joining(",");

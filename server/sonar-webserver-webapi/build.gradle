@@ -14,12 +14,15 @@ dependencies {
   // please keep the list grouped by configuration and ordered by name
 
   compile 'com.google.guava:guava'
+  compile project(':server:sonar-ce-common')
+  compile project(':server:sonar-ce-task')
   compile project(':server:sonar-db-dao')
   compile project(':server:sonar-process')
   compile project(':server:sonar-server')
   compile project(':server:sonar-webserver-auth')
   compile project(':server:sonar-webserver-es')
   compile project(':server:sonar-webserver-ws')
+  compile project(':sonar-scanner-protocol')
 
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'javax.servlet:javax.servlet-api'
@@ -30,11 +33,14 @@ dependencies {
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.h2database:h2'
   testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'com.squareup.okhttp3:mockwebserver'
+  testCompile 'javax.servlet:javax.servlet-api'
   testCompile 'org.mockito:mockito-core'
   testCompile project(':server:sonar-db-testing')
   testCompile project(path: ":server:sonar-server", configuration: "tests")
   testCompile project(path: ":server:sonar-server-common", configuration: "tests")
   testCompile project(path: ":server:sonar-webserver-auth", configuration: "tests")
+  testCompile project(path: ":server:sonar-webserver-common", configuration: "tests")
   testCompile project(path: ":server:sonar-webserver-es", configuration: "tests")
   testCompile project(path: ":server:sonar-webserver-ws", configuration: "tests")
   testCompile project(':sonar-testing-harness')

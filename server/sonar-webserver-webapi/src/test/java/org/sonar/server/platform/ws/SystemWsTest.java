@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.app.RestartFlagHolder;
+import org.sonar.server.platform.SystemInfoWriter;
 import org.sonar.server.platform.WebServer;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.user.UserSession;
@@ -36,7 +37,7 @@ public class SystemWsTest {
   public void define() {
     RestartAction action1 = new RestartAction(mock(UserSession.class), mock(ProcessCommandWrapper.class),
       mock(RestartFlagHolder.class), mock(WebServer.class));
-    InfoAction action2 = new InfoAction(new AnonymousMockUserSession(), mock(AbstractSystemInfoWriter.class));
+    InfoAction action2 = new InfoAction(new AnonymousMockUserSession(), mock(SystemInfoWriter.class));
     SystemWs ws = new SystemWs(action1, action2);
     WebService.Context context = new WebService.Context();
 

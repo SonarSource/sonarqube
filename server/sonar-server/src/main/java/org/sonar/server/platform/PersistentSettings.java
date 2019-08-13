@@ -25,6 +25,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.server.setting.SettingsChangeNotifier;
 
 public class PersistentSettings {
 

@@ -23,14 +23,12 @@ import org.sonar.core.platform.Module;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
-import org.sonar.server.issue.index.IssueQueryFactory;
-import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.TransitionService;
+import org.sonar.server.issue.WebIssueStorage;
+import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListenersImpl;
-import org.sonar.server.settings.ProjectConfigurationLoaderImpl;
-import org.sonar.server.webhook.WebhookQGChangeEventListener;
 
 public class IssueWsModule extends Module {
   @Override
@@ -63,8 +61,6 @@ public class IssueWsModule extends Module {
       AuthorsAction.class,
       ChangelogAction.class,
       BulkChangeAction.class,
-      ProjectConfigurationLoaderImpl.class,
-      WebhookQGChangeEventListener.class,
       QGChangeEventListenersImpl.class);
   }
 }

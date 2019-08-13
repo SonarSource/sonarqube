@@ -4,15 +4,6 @@ sonarqube {
   }
 }
 
-sourceSets {
-  test {
-    resources {
-      srcDirs += ['src/test/projects']
-    }
-  }
-}
-
-
 import org.apache.tools.ant.filters.ReplaceTokens
 processResources {
   filesMatching('build.properties') {
@@ -53,7 +44,6 @@ dependencies {
   compile project(':server:sonar-webserver-auth')
   compile project(':server:sonar-webserver-common')
   compile project(':server:sonar-webserver-es')
-  compile project(':server:sonar-webserver-ws')
   compile project(':sonar-core')
   compile project(':sonar-duplications')
   compile project(':sonar-scanner-protocol')

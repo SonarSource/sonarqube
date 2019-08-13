@@ -12,15 +12,25 @@ dependencies {
   compile 'com.google.guava:guava'
   compile 'org.apache.tomcat.embed:tomcat-embed-core'
   compile project(':sonar-core')
+  compile project(':server:sonar-ce-task-projectanalysis')
   compile project(':server:sonar-process')
   compile project(':server:sonar-server')
   compile project(':server:sonar-webserver-webapi')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
+  testCompile 'org.apache.logging.log4j:log4j-api'
+  testCompile 'org.apache.logging.log4j:log4j-core'
+  testCompile 'com.h2database:h2'
   testCompile 'com.google.code.findbugs:jsr305'
+  testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'org.mockito:mockito-core'
   testCompile 'org.eclipse.jetty:jetty-server'
   testCompile 'org.eclipse.jetty:jetty-servlet'
-  testCompile 'org.mockito:mockito-core'
+  testCompile project(':server:sonar-db-testing')
+  testCompile project(path: ":server:sonar-server-common", configuration: "tests")
+  testCompile project(path: ":server:sonar-webserver-auth", configuration: "tests")
+  testCompile project(path: ":server:sonar-webserver-common", configuration: "tests")
+  testCompile project(path: ":server:sonar-webserver-es", configuration: "tests")
   testCompile project(':sonar-testing-harness')
 }

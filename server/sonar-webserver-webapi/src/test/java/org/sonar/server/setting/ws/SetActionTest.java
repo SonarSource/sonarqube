@@ -57,7 +57,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.platform.SettingsChangeNotifier;
+import org.sonar.server.setting.SettingsChangeNotifier;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -96,8 +96,8 @@ public class SetActionTest {
   private SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
   private SettingValidations validations = new SettingValidations(definitions, dbClient, i18n);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private SetAction underTest = new SetAction(definitions, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier, validations,
-    new SettingsWsSupport(defaultOrganizationProvider, userSession));
+  private SetAction underTest = new SetAction(definitions, dbClient, componentFinder, userSession, settingsUpdater,
+    settingsChangeNotifier, validations, new SettingsWsSupport(defaultOrganizationProvider, userSession));
 
   private WsActionTester ws = new WsActionTester(underTest);
 
