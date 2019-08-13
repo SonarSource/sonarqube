@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.ce.task.projectanalysis.measure.Measure.ValueType;
-import org.sonar.server.util.WrapInSingleElementArray;
+import org.sonar.ce.task.projectanalysis.util.WrapInSingleElementArray;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;

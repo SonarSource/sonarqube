@@ -30,7 +30,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
-import org.sonar.server.util.WrapInSingleElementArray;
+import org.sonar.ce.task.projectanalysis.util.WrapInSingleElementArray;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
