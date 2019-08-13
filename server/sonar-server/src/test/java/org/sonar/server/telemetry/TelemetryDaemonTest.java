@@ -105,12 +105,12 @@ public class TelemetryDaemonTest {
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
 
-  private final TelemetryDataLoader communityDataLoader = new TelemetryDataLoader(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
+  private final TelemetryDataLoader communityDataLoader = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
     new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), internalProperties, null);
   private TelemetryDaemon communityUnderTest = new TelemetryDaemon(communityDataLoader, client, settings.asConfig(), internalProperties, lockManager, system2);
 
   private final LicenseReader licenseReader = mock(LicenseReader.class);
-  private final TelemetryDataLoader commercialDataLoader = new TelemetryDataLoader(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
+  private final TelemetryDataLoader commercialDataLoader = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
     new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), internalProperties, licenseReader);
   private TelemetryDaemon commercialUnderTest = new TelemetryDaemon(commercialDataLoader, client, settings.asConfig(), internalProperties, lockManager, system2);
 

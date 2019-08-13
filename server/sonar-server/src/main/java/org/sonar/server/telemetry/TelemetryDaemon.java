@@ -169,7 +169,7 @@ public class TelemetryDaemon implements Startable {
       .orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", SONAR_TELEMETRY_FREQUENCY_IN_SECONDS)));
   }
 
-  private int lockDuration(){
+  private int lockDuration() {
     return config.getInt(LOCK_DELAY_SEC).orElse(60);
   }
 }
