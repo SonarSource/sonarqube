@@ -23,6 +23,7 @@ import { collapsePath } from 'sonar-ui-common/helpers/path';
 import ConciseIssueLocationsNavigatorLocation from './ConciseIssueLocationsNavigatorLocation';
 
 interface Props {
+  isTaintAnalysis: boolean;
   issue: Pick<T.Issue, 'key' | 'type'>;
   locations: T.FlowLocation[];
   onLocationSelect: (index: number) => void;
@@ -111,7 +112,7 @@ export default class CrossFileLocationsNavigator extends React.PureComponent<Pro
     return (
       <ConciseIssueLocationsNavigatorLocation
         index={index}
-        issueType={this.props.issue.type}
+        isTaintAnalysis={this.props.isTaintAnalysis}
         key={index}
         message={message}
         onClick={this.props.onLocationSelect}

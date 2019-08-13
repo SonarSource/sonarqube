@@ -23,7 +23,7 @@ import LocationMessage from '../../../components/common/LocationMessage';
 
 interface Props {
   index: number;
-  issueType: T.IssueType;
+  isTaintAnalysis: boolean;
   message: string | undefined;
   onClick: (index: number) => void;
   scroll: (element: Element) => void;
@@ -63,7 +63,7 @@ export default class ConciseIssueLocationsNavigatorLocation extends React.PureCo
   }
 
   render() {
-    const { index, issueType, message, selected, totalCount } = this.props;
+    const { index, isTaintAnalysis, message, selected, totalCount } = this.props;
 
     return (
       <div className="little-spacer-top" ref={node => (this.node = node)}>
@@ -73,9 +73,7 @@ export default class ConciseIssueLocationsNavigatorLocation extends React.PureCo
           onClick={this.handleClick}>
           <LocationIndex selected={selected}>{index + 1}</LocationIndex>
           <LocationMessage selected={selected}>
-            {issueType === 'VULNERABILITY'
-              ? this.prefixMessage(index, message, totalCount)
-              : message}
+            {isTaintAnalysis ? this.prefixMessage(index, message, totalCount) : message}
           </LocationMessage>
         </a>
       </div>

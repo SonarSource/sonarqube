@@ -39,6 +39,9 @@ export default class ConciseIssueLocationsNavigator extends React.PureComponent<
       return null;
     }
 
+    const isTaintAnalysis =
+      this.props.issue.type === 'VULNERABILITY' && this.props.issue.flows.length > 0;
+
     const locationComponents = [
       this.props.issue.component,
       ...locations.map(location => location.component)
@@ -48,6 +51,7 @@ export default class ConciseIssueLocationsNavigator extends React.PureComponent<
     if (isCrossFile) {
       return (
         <CrossFileLocationsNavigator
+          isTaintAnalysis={isTaintAnalysis}
           issue={this.props.issue}
           locations={locations}
           onLocationSelect={this.props.onLocationSelect}
@@ -61,7 +65,7 @@ export default class ConciseIssueLocationsNavigator extends React.PureComponent<
           {locations.map((location, index) => (
             <ConciseIssueLocationsNavigatorLocation
               index={index}
-              issueType={this.props.issue.type}
+              isTaintAnalysis={isTaintAnalysis}
               key={index}
               message={location.msg}
               onClick={this.props.onLocationSelect}

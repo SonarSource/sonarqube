@@ -50,17 +50,7 @@ it('should render secondary locations in the same file', () => {
     flows: [],
     secondaryLocations: [location1, location2]
   });
-  expect(
-    shallow(
-      <ConciseIssueLocationsNavigator
-        issue={issue}
-        onLocationSelect={jest.fn()}
-        scroll={jest.fn()}
-        selectedFlowIndex={undefined}
-        selectedLocationIndex={undefined}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender({ issue })).toMatchSnapshot();
 });
 
 it('should render flow locations in the same file', () => {
@@ -70,17 +60,7 @@ it('should render flow locations in the same file', () => {
     flows: [[location1, location2]],
     secondaryLocations: []
   });
-  expect(
-    shallow(
-      <ConciseIssueLocationsNavigator
-        issue={issue}
-        onLocationSelect={jest.fn()}
-        scroll={jest.fn()}
-        selectedFlowIndex={undefined}
-        selectedLocationIndex={undefined}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender({ issue })).toMatchSnapshot();
 });
 
 it('should render selected flow locations in the same file', () => {
@@ -90,17 +70,7 @@ it('should render selected flow locations in the same file', () => {
     flows: [[location1, location2]],
     secondaryLocations: [location1]
   });
-  expect(
-    shallow(
-      <ConciseIssueLocationsNavigator
-        issue={issue}
-        onLocationSelect={jest.fn()}
-        scroll={jest.fn()}
-        selectedFlowIndex={0}
-        selectedLocationIndex={undefined}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender({ issue, selectedFlowIndex: 0 })).toMatchSnapshot();
 });
 
 it('should render flow locations in different file', () => {
@@ -110,17 +80,7 @@ it('should render flow locations in different file', () => {
     flows: [[location1, location3]],
     secondaryLocations: []
   });
-  expect(
-    shallow(
-      <ConciseIssueLocationsNavigator
-        issue={issue}
-        onLocationSelect={jest.fn()}
-        scroll={jest.fn()}
-        selectedFlowIndex={undefined}
-        selectedLocationIndex={undefined}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender({ issue })).toMatchSnapshot();
 });
 
 it('should not render locations', () => {
@@ -130,14 +90,31 @@ it('should not render locations', () => {
     flows: [],
     secondaryLocations: []
   });
-  const wrapper = shallow(
+  const wrapper = shallowRender({ issue });
+  expect(wrapper.type()).toBeNull();
+});
+
+it('should render taint analysis issues correctly', () => {
+  const issue = mockIssue(false, {
+    component: 'foo',
+    key: '',
+    flows: [[location1, location2, location3]],
+    secondaryLocations: [],
+    type: 'VULNERABILITY'
+  });
+
+  expect(shallowRender({ issue })).toMatchSnapshot();
+});
+
+function shallowRender(overrides: Partial<ConciseIssueLocationsNavigator['props']> = {}) {
+  return shallow<ConciseIssueLocationsNavigator>(
     <ConciseIssueLocationsNavigator
-      issue={issue}
+      issue={mockIssue()}
       onLocationSelect={jest.fn()}
       scroll={jest.fn()}
       selectedFlowIndex={undefined}
       selectedLocationIndex={undefined}
+      {...overrides}
     />
   );
-  expect(wrapper.type()).toBeNull();
-});
+}
