@@ -35,7 +35,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.startup.RegisterMetrics;
+import org.sonar.server.metric.MetricToDto;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -49,7 +49,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class ShowActionTest {
 
-  private static MetricDto dataMetric = RegisterMetrics.MetricToDto.INSTANCE.apply(CoreMetrics.DUPLICATIONS_DATA);
+  private static MetricDto dataMetric = MetricToDto.INSTANCE.apply(CoreMetrics.DUPLICATIONS_DATA);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

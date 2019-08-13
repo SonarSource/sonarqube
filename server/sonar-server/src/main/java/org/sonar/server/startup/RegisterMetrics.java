@@ -20,12 +20,10 @@
 package org.sonar.server.startup;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
 import org.picocontainer.Startable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -36,6 +34,7 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.server.metric.MetricToDto;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.concat;
@@ -137,29 +136,4 @@ public class RegisterMetrics implements Startable {
     }
   }
 
-  public enum MetricToDto implements Function<Metric, MetricDto> {
-    INSTANCE;
-    @Override
-    @Nonnull
-    public MetricDto apply(@Nonnull Metric metric) {
-      MetricDto dto = new MetricDto();
-      dto.setId(metric.getId());
-      dto.setKey(metric.getKey());
-      dto.setDescription(metric.getDescription());
-      dto.setShortName(metric.getName());
-      dto.setBestValue(metric.getBestValue());
-      dto.setDomain(metric.getDomain());
-      dto.setEnabled(metric.getEnabled());
-      dto.setDirection(metric.getDirection());
-      dto.setHidden(metric.isHidden());
-      dto.setQualitative(metric.getQualitative());
-      dto.setValueType(metric.getType().name());
-      dto.setOptimizedBestValue(metric.isOptimizedBestValue());
-      dto.setUserManaged(metric.getUserManaged());
-      dto.setWorstValue(metric.getWorstValue());
-      dto.setDeleteHistoricalData(metric.getDeleteHistoricalData());
-      dto.setDecimalScale(metric.getDecimalScale());
-      return dto;
-    }
-  }
 }
