@@ -17,13 +17,13 @@ dependencies {
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'junit:junit'
 
-  testCompile 'junit:junit'
-  testCompile 'com.google.code.findbugs:jsr305'
+  testCompileOnly 'com.google.code.findbugs:jsr305'
 
+  testCompile 'com.google.guava:guava'
   testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.mockito:mockito-core'
-  testCompile project(':server:sonar-server')
 }
 
 artifactoryPublish.skip = false

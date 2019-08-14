@@ -63,7 +63,6 @@ dependencies {
   testCompile project(':server:sonar-db-testing')
   testCompile project(':sonar-testing-harness')
   testCompile project(path: ":server:sonar-ce-task", configuration: "tests")
-  testCompile project(path: ":server:sonar-server", configuration: "tests")
   testCompile project(path: ":server:sonar-server-common", configuration: "tests")
 }
 

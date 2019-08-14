@@ -80,16 +80,3 @@ dependencies {
 
   runtime 'io.jsonwebtoken:jjwt-jackson'
 }
-
-task testJar(type: Jar) {
-  classifier = 'tests'
-  from sourceSets.test.output
-}
-
-configurations {
-  tests
-}
-
-artifacts {
- tests testJar
-}

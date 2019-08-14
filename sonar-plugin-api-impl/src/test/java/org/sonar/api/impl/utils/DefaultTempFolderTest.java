@@ -27,7 +27,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.server.util.TempFolderCleaner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,7 +50,7 @@ public class DefaultTempFolderTest {
     File file = underTest.newFile();
     assertThat(file).exists().isFile();
 
-    new TempFolderCleaner(underTest).stop();
+    underTest.clean();
     assertThat(rootTempFolder).doesNotExist();
   }
 
@@ -63,7 +62,7 @@ public class DefaultTempFolderTest {
     assertThat(dir).exists().isDirectory();
     assertThat(new File(rootTempFolder, "sample")).isEqualTo(dir);
 
-    new TempFolderCleaner(underTest).stop();
+    underTest.clean();
     assertThat(rootTempFolder).doesNotExist();
   }
 
