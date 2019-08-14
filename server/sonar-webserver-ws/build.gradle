@@ -17,7 +17,7 @@ dependencies {
 
   compile 'com.google.guava:guava'
   compile project(':sonar-core')
-  compile project(':server:sonar-webserver-common')
+  compile project(':server:sonar-webserver-api')
   compile project(path: ':sonar-plugin-api', configuration: 'shadow')
   compile project(':sonar-plugin-api-impl')
   compile project(':sonar-ws')

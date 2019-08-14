@@ -21,7 +21,7 @@ dependencies {
   compile project(':server:sonar-db-dao')
   compile project(':server:sonar-process')
   compile project(':server:sonar-server-common')
-  compile project(':server:sonar-webserver-common')
+  compile project(':server:sonar-webserver-api')
   compile project(path: ':sonar-plugin-api', configuration: 'shadow')
   compile project(':sonar-plugin-api-impl')
   compile 'org.mindrot:jbcrypt'
