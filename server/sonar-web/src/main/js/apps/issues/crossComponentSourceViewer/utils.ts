@@ -42,50 +42,68 @@ function collision([startA, endA]: number[], [startB, endB]: number[]) {
   return !(startA > endB + MERGE_DISTANCE || endA < startB - MERGE_DISTANCE);
 }
 
+function getPrimaryLocation(issue: T.Issue): T.FlowLocation {
+  return {
+    component: issue.component,
+    textRange: issue.textRange || {
+      endLine: 0,
+      endOffset: 0,
+      startLine: 0,
+      startOffset: 0
+    }
+  };
+}
+
 export function createSnippets(
   locations: T.FlowLocation[],
   componentLines: T.LineMap = {},
-  last: boolean
+  last: boolean,
+  issue?: T.Issue
 ): T.SourceLine[][] {
   return rangesToSnippets(
     // For each location's range (2 above and 2 below), and then compare with other ranges
     // to merge snippets that collide.
-    locations.reduce((snippets: Array<{ start: number; end: number }>, loc, index) => {
-      const startIndex = Math.max(1, loc.textRange.startLine - LINES_ABOVE);
-      const endIndex =
-        loc.textRange.endLine +
-        (last && index === locations.length - 1 ? LINES_BELOW_LAST : LINES_BELOW);
+    (issue ? [getPrimaryLocation(issue), ...locations] : locations).reduce(
+      (snippets: Array<{ start: number; end: number }>, loc, index) => {
+        const startIndex = Math.max(1, loc.textRange.startLine - LINES_ABOVE);
+        const endIndex =
+          loc.textRange.endLine +
+          ((issue && index === 0) || (last && index === locations.length - 1)
+            ? LINES_BELOW_LAST
+            : LINES_BELOW);
 
-      let firstCollision: { start: number; end: number } | undefined;
+        let firstCollision: { start: number; end: number } | undefined;
 
-      // Remove ranges that collide into the first collision
-      snippets = snippets.filter(snippet => {
-        if (collision([snippet.start, snippet.end], [startIndex, endIndex])) {
-          let keep = false;
-          // Check if we've already collided
-          if (!firstCollision) {
-            firstCollision = snippet;
-            keep = true;
+        // Remove ranges that collide into the first collision
+        snippets = snippets.filter(snippet => {
+          if (collision([snippet.start, snippet.end], [startIndex, endIndex])) {
+            let keep = false;
+            // Check if we've already collided
+            if (!firstCollision) {
+              firstCollision = snippet;
+              keep = true;
+            }
+            // Merge with first collision:
+            firstCollision.start = Math.min(startIndex, snippet.start, firstCollision.start);
+            firstCollision.end = Math.max(endIndex, snippet.end, firstCollision.end);
+
+            // remove the range if it was not the first collision
+            return keep;
           }
-          // Merge with first collision:
-          firstCollision.start = Math.min(startIndex, snippet.start, firstCollision.start);
-          firstCollision.end = Math.max(endIndex, snippet.end, firstCollision.end);
-
-          // remove the range if it was not the first collision
-          return keep;
-        }
-        return true;
-      });
-
-      if (firstCollision === undefined) {
-        snippets.push({
-          start: startIndex,
-          end: endIndex
+          return true;
         });
-      }
 
-      return snippets;
-    }, []),
+        if (firstCollision === undefined) {
+          snippets.push({
+            start: startIndex,
+            end: endIndex
+          });
+        }
+
+        return snippets;
+      },
+      []
+    ),
     componentLines
   );
 }

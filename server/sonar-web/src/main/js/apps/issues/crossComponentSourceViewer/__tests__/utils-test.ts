@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { keyBy, range } from 'lodash';
-import { groupLocationsByComponent, createSnippets, expandSnippet } from '../utils';
+import { createSnippets, expandSnippet, groupLocationsByComponent } from '../utils';
 import {
   mockFlowLocation,
+  mockIssue,
   mockSnippetsByComponent,
   mockSourceLine
 } from '../../../../helpers/testMocks';
@@ -146,6 +147,25 @@ describe('createSnippets', () => {
     expect(results).toHaveLength(2);
     expect(results[0]).toHaveLength(11);
     expect(results[1]).toHaveLength(5);
+  });
+
+  it("should prepend the issue's main location if necessary", () => {
+    const results = createSnippets(
+      [
+        mockFlowLocation({
+          textRange: { startLine: 47, startOffset: 2, endLine: 47, endOffset: 3 }
+        }),
+        mockFlowLocation({
+          textRange: { startLine: 22, startOffset: 2, endLine: 22, endOffset: 3 }
+        })
+      ],
+      mockSnippetsByComponent('', range(3, 15).concat(range(20, 25), range(45, 50))).sources,
+      false,
+      mockIssue(false, { textRange: { startLine: 5, endLine: 5, startOffset: 0, endOffset: 0 } })
+    );
+
+    expect(results).toHaveLength(3);
+    expect(results[0]).toHaveLength(12);
   });
 });
 

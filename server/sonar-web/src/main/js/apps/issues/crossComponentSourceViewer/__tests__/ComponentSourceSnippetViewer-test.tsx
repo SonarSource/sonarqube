@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { times } from 'lodash';
+import { range, times } from 'lodash';
 import ComponentSourceSnippetViewer from '../ComponentSourceSnippetViewer';
 import {
   mockMainBranch,
@@ -43,6 +43,33 @@ beforeEach(() => {
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should render correctly with secondary locations', () => {
+  // issue with secondary locations but no flows
+  const issue = mockIssue(true, {
+    flows: [],
+    textRange: { startLine: 5, endLine: 5, startOffset: 5, endOffset: 10 }
+  });
+
+  const snippetGroup: T.SnippetGroup = {
+    locations: [
+      mockFlowLocation({
+        component: 'a',
+        textRange: { startLine: 34, endLine: 34, startOffset: 0, endOffset: 0 }
+      }),
+      mockFlowLocation({
+        component: 'a',
+        textRange: { startLine: 54, endLine: 54, startOffset: 0, endOffset: 0 }
+      })
+    ],
+    ...mockSnippetsByComponent('a', [...range(3, 15), 32, 33, 34, 35, 36, 52, 53, 54, 55, 56])
+  };
+  const wrapper = shallowRender({ issue, snippetGroup });
+  expect(wrapper.state('snippets')).toHaveLength(3);
+  expect(wrapper.state('snippets')[0]).toHaveLength(12);
+  expect(wrapper.state('snippets')[1]).toHaveLength(5);
+  expect(wrapper.state('snippets')[2]).toHaveLength(5);
 });
 
 it('should expand block', async () => {

@@ -21,10 +21,10 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { createSnippets, expandSnippet, EXPAND_BY_LINES, MERGE_DISTANCE } from './utils';
 import SnippetViewer from './SnippetViewer';
-import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
-import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { getSources } from '../../../api/components';
+import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
+import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 
 interface Props {
@@ -83,7 +83,8 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
     const snippets = createSnippets(
       this.props.snippetGroup.locations,
       this.props.snippetGroup.sources,
-      this.props.last
+      this.props.last,
+      this.props.issue.secondaryLocations.length > 0 ? this.props.issue : undefined
     );
     this.setState({ snippets });
   }
