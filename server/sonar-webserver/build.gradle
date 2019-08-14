@@ -1,4 +1,4 @@
-description = 'SonarQube WebServer'
+description = 'SonarQube WebServer executable and Tomcat directly related code'
 
 sonarqube {
   properties {

@@ -17,34 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ce.ws;
+package org.sonar.server.ce;
 
+import org.sonar.ce.queue.CeQueueImpl;
+import org.sonar.ce.task.log.CeTaskLogging;
 import org.sonar.core.platform.Module;
-import org.sonar.server.ce.queue.BranchSupport;
-import org.sonar.server.ce.queue.ReportSubmitter;
+import org.sonar.server.ce.http.CeHttpClientImpl;
 
-public class CeWsModule extends Module {
+public class CeModule extends Module {
   @Override
   protected void configureModule() {
-    add(
-      BranchSupport.class,
-      ReportSubmitter.class,
+    add(CeTaskLogging.class,
+      CeHttpClientImpl.class,
 
-      CeWs.class,
-      ActivityAction.class,
-      ActivityStatusAction.class,
-      AnalysisStatusAction.class,
-      CancelAction.class,
-      CancelAllAction.class,
-      ComponentAction.class,
-      InfoAction.class,
-      IsQueueEmptyWs.class,
-      PauseAction.class,
-      ResumeAction.class,
-      SubmitAction.class,
-      TaskFormatter.class,
-      TaskAction.class,
-      TaskTypesAction.class,
-      WorkerCountAction.class);
+      // Queue
+      CeQueueImpl.class);
   }
 }

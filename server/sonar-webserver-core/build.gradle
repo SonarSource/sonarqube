@@ -1,3 +1,5 @@
+description = 'SonarQube WebServer-only code'
+
 sonarqube {
   properties {
     property 'sonar.projectName', "${projectTitle} :: Web Server :: Core"
@@ -73,6 +75,7 @@ dependencies {
   testCompile project(':server:sonar-db-testing')
   testCompile project(path: ":server:sonar-server-common", configuration: "tests")
   testCompile project(path: ":server:sonar-webserver-auth", configuration: "tests")
+  testCompile project(path: ":server:sonar-webserver-common", configuration: "tests")
   testCompile project(path: ":server:sonar-webserver-es", configuration: "tests")
   testCompile project(path: ":server:sonar-webserver-ws", configuration: "tests")
   testCompile project(':sonar-testing-harness')

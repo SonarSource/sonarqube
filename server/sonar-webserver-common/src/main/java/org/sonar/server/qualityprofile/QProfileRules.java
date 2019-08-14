@@ -30,7 +30,6 @@ import org.sonar.server.rule.index.RuleQuery;
 
 /**
  * Operations related to activation and deactivation of rules on user profiles.
- * Use {@link BuiltInQProfileUpdate} for built-in profiles.
  */
 @ServerSide
 public interface QProfileRules {

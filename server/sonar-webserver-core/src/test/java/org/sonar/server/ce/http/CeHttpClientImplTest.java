@@ -41,7 +41,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
-public class CeHttpClientTest {
+public class CeHttpClientImplTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
