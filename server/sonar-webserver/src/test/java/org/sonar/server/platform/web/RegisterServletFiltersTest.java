@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.web;
 
-import javax.servlet.ServletException;
 import org.junit.Test;
 import org.sonar.api.web.ServletFilter;
 
@@ -29,24 +28,24 @@ import static org.mockito.Mockito.verify;
 
 public class RegisterServletFiltersTest {
   @Test
-  public void should_not_fail_if_master_filter_is_not_up() throws ServletException {
-    MasterServletFilter.INSTANCE = null;
+  public void should_not_fail_if_master_filter_is_not_up() {
+    MasterServletFilter.setInstance(null);
     new RegisterServletFilters(new ServletFilter[2]).start();
   }
 
   @Test
-  public void should_register_filters_if_master_filter_is_up() throws ServletException {
-    MasterServletFilter.INSTANCE = mock(MasterServletFilter.class);
+  public void should_register_filters_if_master_filter_is_up() {
+    MasterServletFilter.setInstance(mock(MasterServletFilter.class));
     new RegisterServletFilters(new ServletFilter[2]).start();
 
-    verify(MasterServletFilter.INSTANCE).initFilters(anyList());
+    verify(MasterServletFilter.getInstance()).initFilters(anyList());
   }
 
   @Test
-  public void filters_should_be_optional() throws ServletException {
-    MasterServletFilter.INSTANCE = mock(MasterServletFilter.class);
+  public void filters_should_be_optional() {
+    MasterServletFilter.setInstance(mock(MasterServletFilter.class));
     new RegisterServletFilters().start();
     // do not fail
-    verify(MasterServletFilter.INSTANCE).initFilters(anyList());
+    verify(MasterServletFilter.getInstance()).initFilters(anyList());
   }
 }

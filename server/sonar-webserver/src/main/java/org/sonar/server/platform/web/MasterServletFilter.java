@@ -25,6 +25,8 @@ import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -41,7 +43,7 @@ import org.sonar.server.platform.PlatformImpl;
  */
 public class MasterServletFilter implements Filter {
 
-  public static volatile MasterServletFilter INSTANCE;
+  private static volatile MasterServletFilter INSTANCE;
   private ServletFilter[] filters;
   private FilterConfig config;
 
@@ -57,6 +59,16 @@ public class MasterServletFilter implements Filter {
     // Filters are already available in picocontainer unless a database migration is required. See
     // org.sonar.server.startup.RegisterServletFilters.
     init(config, PlatformImpl.getInstance().getContainer().getComponentsByType(ServletFilter.class));
+  }
+
+  @CheckForNull
+  public static MasterServletFilter getInstance() {
+    return INSTANCE;
+  }
+
+  @VisibleForTesting
+  static void setInstance(@Nullable MasterServletFilter instance) {
+    INSTANCE = instance;
   }
 
   void init(FilterConfig config, List<ServletFilter> filters) {

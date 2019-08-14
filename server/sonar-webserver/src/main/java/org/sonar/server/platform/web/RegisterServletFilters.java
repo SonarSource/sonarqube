@@ -39,11 +39,12 @@ public class RegisterServletFilters implements Startable {
 
   @Override
   public void start() {
-    if (MasterServletFilter.INSTANCE != null) {
+    MasterServletFilter masterServletFilter = MasterServletFilter.getInstance();
+    if (masterServletFilter != null) {
       // Probably a database upgrade. MasterSlaveFilter was instantiated by the servlet container
       // while picocontainer was not completely up.
       // See https://jira.sonarsource.com/browse/SONAR-3612
-      MasterServletFilter.INSTANCE.initFilters(Arrays.asList(filters));
+      masterServletFilter.initFilters(Arrays.asList(filters));
     }
   }
 

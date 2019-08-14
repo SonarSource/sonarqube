@@ -56,7 +56,7 @@ public class MasterServletFilterTest {
 
   @Before
   public void resetSingleton() {
-    MasterServletFilter.INSTANCE = null;
+    MasterServletFilter.setInstance(null);
   }
 
   @Test
