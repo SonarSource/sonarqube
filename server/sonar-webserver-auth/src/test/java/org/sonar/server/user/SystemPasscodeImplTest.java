@@ -23,9 +23,9 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.ws.SimpleGetRequest;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -93,7 +93,7 @@ public class SystemPasscodeImplTest {
   private void verifyIsValid(boolean expectedResult, String configuredPasscode, String header) {
     configurePasscode(configuredPasscode);
 
-    TestRequest request = new TestRequest();
+    SimpleGetRequest request = new SimpleGetRequest();
     request.setHeader("X-Sonar-Passcode", header);
 
     assertThat(underTest.isValid(request)).isEqualTo(expectedResult);

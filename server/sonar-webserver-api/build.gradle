@@ -44,7 +44,6 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile project(':server:sonar-db-testing')
   testCompile project(path: ":server:sonar-server-common", configuration: "tests")
-  testCompile project(path: ":server:sonar-webserver-ws", configuration: "tests")
   testCompile project(':sonar-testing-harness')
 }
 
