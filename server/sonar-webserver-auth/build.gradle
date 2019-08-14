@@ -29,7 +29,6 @@ dependencies {
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'javax.servlet:javax.servlet-api'
 
-  testCompile 'com.h2database:h2'
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'javax.servlet:javax.servlet-api'

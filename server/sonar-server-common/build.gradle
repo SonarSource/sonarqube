@@ -38,7 +38,6 @@ dependencies {
 
   testCompile 'ch.qos.logback:logback-core'
   testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.h2database:h2'
   testCompile 'com.squareup.okhttp3:mockwebserver'
   testCompile 'com.squareup.okio:okio'
   testCompile 'com.tngtech.java:junit-dataprovider'

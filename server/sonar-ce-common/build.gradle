@@ -54,6 +54,4 @@ dependencies {
   testCompile project(':sonar-plugin-api-impl')
   testCompile project(':server:sonar-db-testing')
   testCompile project(path: ":server:sonar-server-common", configuration: "tests")
-
-  testRuntime 'com.h2database:h2'
 }

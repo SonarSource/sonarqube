@@ -21,7 +21,6 @@ dependencies {
 
   testCompile 'org.apache.logging.log4j:log4j-api'
   testCompile 'org.apache.logging.log4j:log4j-core'
-  testCompile 'com.h2database:h2'
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'org.mockito:mockito-core'

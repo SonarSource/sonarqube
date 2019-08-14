@@ -6,7 +6,8 @@ sonarqube {
 
 dependencies {
   // please keep the list grouped by configuration and ordered by name
-  
+
+  compile 'com.h2database:h2'
   compile project(':server:sonar-db-core').sourceSets.test.output
   compile project(':server:sonar-db-dao').sourceSets.test.output
 }

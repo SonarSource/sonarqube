@@ -39,6 +39,4 @@ dependencies {
   
   testCompile project(':server:sonar-db-testing')
 
-  testRuntime 'com.h2database:h2'
-
 }

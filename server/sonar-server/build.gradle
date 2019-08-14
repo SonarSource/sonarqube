@@ -58,7 +58,6 @@ dependencies {
 
   testCompile 'com.github.kevinsawicki:http-request'
   testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.h2database:h2'
   testCompile 'com.squareup.okhttp3:mockwebserver'
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'junit:junit'
