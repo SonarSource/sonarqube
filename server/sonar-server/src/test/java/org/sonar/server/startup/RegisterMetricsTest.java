@@ -36,6 +36,7 @@ import org.sonar.db.metric.MetricDto;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class RegisterMetricsTest {
@@ -146,8 +147,8 @@ public class RegisterMetricsTest {
 
   @Test
   public void enable_disabled_metrics() {
-    MetricDto enabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(true));
-    MetricDto disabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(false));
+    MetricDto enabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(true).setUserManaged(false));
+    MetricDto disabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(false).setUserManaged(false));
 
     RegisterMetrics register = new RegisterMetrics(dbClient);
     register.register(asList(builderOf(enabledMetric).create(), builderOf(disabledMetric).create()));
@@ -155,6 +156,21 @@ public class RegisterMetricsTest {
     assertThat(selectAllMetrics().values())
       .extracting(MetricDto::isEnabled)
       .containsOnly(true, true);
+  }
+
+  @Test
+  public void does_not_enable_disabled_custom_metrics() {
+    MetricDto enabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(true).setUserManaged(true));
+    MetricDto disabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(false).setUserManaged(true));
+
+    RegisterMetrics register = new RegisterMetrics(dbClient);
+    register.register(asList(builderOf(enabledMetric).create(), builderOf(disabledMetric).create()));
+
+    assertThat(selectAllMetrics().values())
+      .extracting(MetricDto::getKey, MetricDto::isEnabled)
+      .containsOnly(
+        tuple(enabledMetric.getKey(), true),
+        tuple(disabledMetric.getKey(), false));
   }
 
   @Test
