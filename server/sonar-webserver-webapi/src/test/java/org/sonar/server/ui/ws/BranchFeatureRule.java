@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.branch;
+package org.sonar.server.ui.ws;
 
 import org.junit.rules.ExternalResource;
+import org.sonar.server.branch.BranchFeatureProxy;
 
 public class BranchFeatureRule extends ExternalResource implements BranchFeatureProxy {
 
