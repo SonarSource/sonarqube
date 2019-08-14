@@ -44,7 +44,6 @@ dependencies {
   compile project(':server:sonar-process')
   compile project(':server:sonar-server-common')
   compile project(':server:sonar-webserver-api')
-  compile project(':server:sonar-webserver-auth')
   compile project(':server:sonar-webserver-es')
   compile project(':sonar-core')
   compile project(':sonar-duplications')
