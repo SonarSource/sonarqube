@@ -75,9 +75,7 @@ export default function GlobalFooter({
           <a href="http://www.sonarqube.org">{translate('footer.community')}</a>
         </li>
         <li className="page-footer-menu-item">
-          <a href="https://redirect.sonarsource.com/doc/home.html">
-            {translate('footer.documentation')}
-          </a>
+          <Link to="/documentation">{translate('footer.documentation')}</Link>
         </li>
         <li className="page-footer-menu-item">
           <a href="https://redirect.sonarsource.com/doc/community.html">

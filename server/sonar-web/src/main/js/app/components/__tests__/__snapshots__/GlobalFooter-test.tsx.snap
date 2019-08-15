@@ -40,11 +40,13 @@ exports[`should display the sq version 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      <a
-        href="https://redirect.sonarsource.com/doc/home.html"
+      <Link
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/documentation"
       >
         footer.documentation
-      </a>
+      </Link>
     </li>
     <li
       className="page-footer-menu-item"
@@ -120,11 +122,13 @@ exports[`should not render the only logged in information 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      <a
-        href="https://redirect.sonarsource.com/doc/home.html"
+      <Link
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/documentation"
       >
         footer.documentation
-      </a>
+      </Link>
     </li>
     <li
       className="page-footer-menu-item"
@@ -185,11 +189,13 @@ exports[`should render the only logged in information 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      <a
-        href="https://redirect.sonarsource.com/doc/home.html"
+      <Link
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/documentation"
       >
         footer.documentation
-      </a>
+      </Link>
     </li>
     <li
       className="page-footer-menu-item"
