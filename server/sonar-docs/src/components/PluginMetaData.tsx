@@ -82,9 +82,22 @@ export default class PluginMetaData extends React.Component<Props, State> {
     const pageContainer = document.querySelector('.page-container');
 
     if (pageContainer) {
-      const iterator = document.createNodeIterator(pageContainer, NodeFilter.SHOW_COMMENT, {
-        acceptNode: (_: Node) => NodeFilter.FILTER_ACCEPT
-      });
+      // The following uses an older syntax for createNodeIterator() in order
+      // to support IE11
+      // - IE doesn't support the new { acceptNode: (node: Node) => number }
+      //   format for the 3rd parameter, and instead expects to get it passed
+      //   the function directly. Modern browsers support both paradigms as a
+      //   fallback, so we fallback to the old one.
+      // - IE11 requires the 4th argument.
+      // @ts-ignore: tsc requires an additional comment at the function call.
+      const iterator = document.createNodeIterator(
+        pageContainer,
+        NodeFilter.SHOW_COMMENT,
+        // @ts-ignore: IE11 doesn't support the { acceptNode: () => number } format.
+        (_: Node) => NodeFilter.FILTER_ACCEPT,
+        // @ts-ignore: IE11 requires the 4th argument.
+        false
+      );
 
       let node;
       const wrappers: Dict<HTMLDivElement> = {};

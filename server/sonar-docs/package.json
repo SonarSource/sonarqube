@@ -8,6 +8,7 @@
     "classnames": "2.2.6",
     "gatsby": "2.2.8",
     "gatsby-plugin-layout": "1.0.13",
+    "gatsby-plugin-polyfill-io": "1.1.0",
     "gatsby-plugin-react-helmet": "3.0.10",
     "gatsby-plugin-typescript": "2.0.11",
     "gatsby-plugin-typography": "2.2.10",
