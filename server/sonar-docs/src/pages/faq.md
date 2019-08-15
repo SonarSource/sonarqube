@@ -20,7 +20,7 @@ This can be automated by using the corresponding Web API: `api/projects/bulk_del
 Currently, the only way to force a reindex is to:
 
 * Stop your server
-* Remove the contents of the $SQ_HOME/data/es5 directory
+* Remove the contents of the $SQ_HOME/data/es6 directory
 * Start your server
 
 Before doing this, you should be aware first that processes are in place on the SonarQube side that out-of-sync indices are detected and corrected, and second that a full re-index can be quite lengthy depending on the size of your instance.
