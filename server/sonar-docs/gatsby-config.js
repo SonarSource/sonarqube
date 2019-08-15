@@ -29,6 +29,12 @@ module.exports = {
     `gatsby-plugin-layout`,
     'gatsby-plugin-react-helmet',
     {
+      resolve: `gatsby-plugin-polyfill-io`,
+      options: {
+        features: [`Promise`, `fetch`, `Object.assign`, `Symbol`, `Array.from`]
+      }
+    },
+    {
       resolve: `sonarsource-source-filesystem`,
       options: { name: 'src', path: `${__dirname}/src/` }
     },
