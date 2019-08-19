@@ -56,6 +56,8 @@ export default function IssueChangelogDiff({ diff }: Props) {
         )}
       </p>
     );
+  } else if (diff.key === 'line') {
+    return <p>{translateWithParameters('issue.changelog.line_removed_X', diff.oldValue || '')}</p>;
   }
 
   let message;

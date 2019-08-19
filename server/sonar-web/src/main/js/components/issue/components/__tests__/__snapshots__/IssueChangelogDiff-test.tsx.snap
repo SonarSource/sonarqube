@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<p>
+  issue.changelog.removed.issue.changelog.field.foo
+</p>
+`;
+
+exports[`should render correctly 2`] = `
+<p>
+  issue.change.file_move.foo/bar.js.bar/baz.js
+</p>
+`;
+
+exports[`should render correctly 3`] = `
+<p>
+  issue.change.from_long_branch.foo.bar
+</p>
+`;
+
+exports[`should render correctly 4`] = `
+<p>
+  issue.change.from_short_branch.foo.bar
+</p>
+`;
+
+exports[`should render correctly 5`] = `
+<p>
+  issue.changelog.line_removed_X.80
+</p>
+`;
+
+exports[`should render correctly 6`] = `
+<p>
+  issue.changelog.changed_to.issue.changelog.field.effort.work_duration.x_minutes.12
+</p>
+`;
+
+exports[`should render correctly 7`] = `
+<p>
+  issue.changelog.changed_to.issue.changelog.field.effort.work_duration.x_minutes.12 (issue.changelog.was.work_duration.x_minutes.10)
+</p>
+`;
+
+exports[`should render correctly 8`] = `
+<p>
+  issue.changelog.removed.issue.changelog.field.effort (issue.changelog.was.work_duration.x_minutes.10)
+</p>
+`;
