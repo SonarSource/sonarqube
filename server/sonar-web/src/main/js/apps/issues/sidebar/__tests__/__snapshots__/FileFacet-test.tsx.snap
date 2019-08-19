@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ListStyleFacet
+  facetHeader="issues.facet.files"
+  fetching={false}
+  getFacetItemText={[Function]}
+  getSearchResultKey={[Function]}
+  getSearchResultText={[Function]}
+  loadSearchResultCount={[Function]}
+  maxInitialItems={15}
+  maxItems={100}
+  minSearchLength={3}
+  onChange={[MockFunction]}
+  onSearch={[Function]}
+  onToggle={[MockFunction]}
+  open={false}
+  property="files"
+  query={Object {}}
+  renderFacetItem={[Function]}
+  renderSearchResult={[Function]}
+  searchPlaceholder="search.search_for_files"
+  values={
+    Array [
+      "foo",
+      "bar",
+    ]
+  }
+/>
+`;
+
+exports[`should render correctly 2`] = `
+<React.Fragment>
+  <QualifierIcon
+    className="little-spacer-right"
+    qualifier="FIL"
+  />
+  <React.Fragment>
+    <mark>
+      foo
+    </mark>
+    /bar.js
+  </React.Fragment>
+</React.Fragment>
+`;
+
+exports[`should render correctly 3`] = `
+<React.Fragment>
+  <QualifierIcon
+    className="little-spacer-right"
+    qualifier="FIL"
+  />
+  foo/bar.js
+</React.Fragment>
+`;

@@ -23,56 +23,75 @@ import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { collapsePath } from 'sonar-ui-common/helpers/path';
 import { highlightTerm } from 'sonar-ui-common/helpers/search';
-import { getTree, TreeComponent } from '../../../api/components';
+import { isDefined } from 'sonar-ui-common/helpers/types';
+import { getFiles, TreeComponentWithPath } from '../../../api/components';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { Facet, Query, ReferencedComponent } from '../utils';
 
 interface Props {
   componentKey: string;
   fetching: boolean;
-  files: string[];
+  fileUuids: string[];
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
   query: Query;
   referencedComponents: T.Dict<ReferencedComponent>;
-  stats: T.Dict<number> | undefined;
+  stats: Facet | undefined;
 }
 
 export default class FileFacet extends React.PureComponent<Props> {
-  getFile = (file: string) => {
+  getFilePath = (fileUuid: string) => {
     const { referencedComponents } = this.props;
-    return referencedComponents[file]
-      ? collapsePath(referencedComponents[file].path || '', 15)
-      : file;
+    return referencedComponents[fileUuid]
+      ? collapsePath(referencedComponents[fileUuid].path || '', 15)
+      : fileUuid;
   };
 
-  getFacetItemText = (file: string) => {
+  getReferencedComponent = (key: string) => {
     const { referencedComponents } = this.props;
-    return referencedComponents[file] ? referencedComponents[file].path || '' : file;
+    const fileUuid = Object.keys(referencedComponents).find(uuid => {
+      return referencedComponents[uuid].key === key;
+    });
+    return fileUuid ? referencedComponents[fileUuid] : undefined;
   };
 
-  getSearchResultKey = (file: TreeComponent) => {
-    return file.id;
+  getFacetItemText = (fileUuid: string) => {
+    const { referencedComponents } = this.props;
+    return referencedComponents[fileUuid] ? referencedComponents[fileUuid].path || '' : fileUuid;
   };
 
-  getSearchResultText = (file: TreeComponent) => {
-    return file.path || file.name;
+  getSearchResultKey = (file: TreeComponentWithPath) => {
+    const component = this.getReferencedComponent(file.key);
+    return component ? component.uuid : file.key;
+  };
+
+  getSearchResultText = (file: TreeComponentWithPath) => {
+    return file.path;
   };
 
   handleSearch = (query: string, page: number) => {
-    return getTree({
+    return getFiles({
       component: this.props.componentKey,
       q: query,
-      qualifiers: 'FIL',
       p: page,
       ps: 30
-    }).then(({ components, paging }) => ({ paging, results: components }));
+    }).then(({ components, paging }) => ({
+      paging,
+      results: components.filter(file => file.path !== undefined)
+    }));
   };
 
-  loadSearchResultCount = (files: TreeComponent[]) => {
-    return this.props.loadSearchResultCount('files', { files: files.map(file => file.id) });
+  loadSearchResultCount = (files: TreeComponentWithPath[]) => {
+    return this.props.loadSearchResultCount('files', {
+      files: files
+        .map(file => {
+          const component = this.getReferencedComponent(file.key);
+          return component && component.uuid;
+        })
+        .filter(isDefined)
+    });
   };
 
   renderFile = (file: React.ReactNode) => (
@@ -82,18 +101,18 @@ export default class FileFacet extends React.PureComponent<Props> {
     </>
   );
 
-  renderFacetItem = (file: string) => {
-    const name = this.getFile(file);
+  renderFacetItem = (fileUuid: string) => {
+    const name = this.getFilePath(fileUuid);
     return this.renderFile(name);
   };
 
-  renderSearchResult = (file: TreeComponent, term: string) => {
-    return this.renderFile(highlightTerm(collapsePath(file.path || file.name, 15), term));
+  renderSearchResult = (file: TreeComponentWithPath, term: string) => {
+    return this.renderFile(highlightTerm(collapsePath(file.path, 15), term));
   };
 
   render() {
     return (
-      <ListStyleFacet<TreeComponent>
+      <ListStyleFacet<TreeComponentWithPath>
         facetHeader={translate('issues.facet.files')}
         fetching={this.props.fetching}
         getFacetItemText={this.getFacetItemText}
@@ -111,7 +130,7 @@ export default class FileFacet extends React.PureComponent<Props> {
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_files')}
         stats={this.props.stats}
-        values={this.props.files}
+        values={this.props.fileUuids}
       />
     );
   }

@@ -127,7 +127,7 @@ export function getComponent(
 }
 
 export interface TreeComponent extends T.LightComponent {
-  id: string;
+  id?: string;
   name: string;
   path?: string;
   refId?: string;
@@ -136,19 +136,28 @@ export interface TreeComponent extends T.LightComponent {
   visibility: T.Visibility;
 }
 
-export function getTree(data: {
+export interface TreeComponentWithPath extends TreeComponent {
+  path: string;
+}
+
+type GetTreeParams = {
   asc?: boolean;
-  branch?: string;
   component: string;
   p?: number;
   ps?: number;
-  pullRequest?: string;
   q?: string;
-  qualifiers?: string;
   s?: string;
   strategy?: 'all' | 'leaves' | 'children';
-}): Promise<{ baseComponent: TreeComponent; components: TreeComponent[]; paging: T.Paging }> {
+} & T.BranchParameters;
+
+export function getTree<T = TreeComponent>(
+  data: GetTreeParams & { qualifiers?: string }
+): Promise<{ baseComponent: TreeComponent; components: T[]; paging: T.Paging }> {
   return getJSON('/api/components/tree', data).catch(throwGlobalError);
+}
+
+export function getFiles(data: GetTreeParams) {
+  return getTree<TreeComponentWithPath>({ ...data, qualifiers: 'FIL' });
 }
 
 export function getComponentData(data: { component: string } & T.BranchParameters): Promise<any> {

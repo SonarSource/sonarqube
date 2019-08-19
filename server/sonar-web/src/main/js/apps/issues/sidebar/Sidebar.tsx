@@ -36,7 +36,7 @@ import TypeFacet from './TypeFacet';
 
 export interface Props {
   component: T.Component | undefined;
-  facets: T.Dict<Facet>;
+  facets: T.Dict<Facet | undefined>;
   hideAuthorFacet?: boolean;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   loadingFacets: T.Dict<boolean>;
@@ -79,7 +79,7 @@ export default class Sidebar extends React.PureComponent<Props> {
         )}
         <FileFacet
           fetching={loadingFacets.files === true}
-          files={query.files}
+          fileUuids={query.files}
           open={!!openFacets.files}
           referencedComponents={this.props.referencedComponentsById}
           stats={facets.files}
