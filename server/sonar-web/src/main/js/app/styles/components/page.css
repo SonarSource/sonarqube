@@ -259,6 +259,7 @@
   flex-grow: 0;
   flex-shrink: 0;
   background-color: var(--barBackgroundColor);
+  z-index: 100;
 }
 
 .layout-page-side {
