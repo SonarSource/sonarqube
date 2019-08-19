@@ -313,6 +313,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
         issuePopup={this.props.issuePopup}
         issuesByLine={issuesByLine}
         last={last}
+        linePopup={this.props.linePopup}
         loadDuplications={this.loadDuplications}
         locations={this.props.locations}
         locationsByLine={locationsByLine}
