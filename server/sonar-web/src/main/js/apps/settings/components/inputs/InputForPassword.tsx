@@ -26,7 +26,6 @@ import { DefaultSpecializedInputProps } from '../../utils';
 
 interface State {
   changing: boolean;
-  value: string;
 }
 
 export default class InputForPassword extends React.PureComponent<
@@ -34,19 +33,26 @@ export default class InputForPassword extends React.PureComponent<
   State
 > {
   state: State = {
-    value: '',
-    changing: false
+    changing: !this.props.value
   };
 
-  componentDidUpdate(prevProps: DefaultSpecializedInputProps) {
-    if (!prevProps.hasValueChanged && this.props.hasValueChanged) {
-      this.setState({ changing: false, value: '' });
+  componentWillReceiveProps(nextProps: DefaultSpecializedInputProps) {
+    /*
+     * Reset `changing` if:
+     *  - the value is reset (valueChanged -> !valueChanged)
+     *     or
+     *  - the value changes from outside the input (i.e. store update/reset/cancel)
+     */
+    if (
+      (this.props.hasValueChanged || this.props.value !== nextProps.value) &&
+      !nextProps.hasValueChanged
+    ) {
+      this.setState({ changing: !nextProps.value });
     }
   }
 
   handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.props.onChange(event.target.value);
-    this.setState({ changing: true, value: event.target.value });
   };
 
   handleChangeClick = () => {
@@ -59,21 +65,19 @@ export default class InputForPassword extends React.PureComponent<
         <input className="hidden" type="password" />
         <input
           autoComplete="off"
-          autoFocus={this.state.changing}
+          autoFocus={this.state.changing && this.props.value}
           className="js-password-input settings-large-input text-top"
           name={this.props.name}
           onChange={this.handleInputChange}
           type="password"
-          value={this.state.value}
+          value={this.props.value}
         />
       </form>
     );
   }
 
   render() {
-    const hasValue = !!this.props.value;
-
-    if (this.state.changing || !hasValue) {
+    if (this.state.changing) {
       return this.renderInput();
     }
 

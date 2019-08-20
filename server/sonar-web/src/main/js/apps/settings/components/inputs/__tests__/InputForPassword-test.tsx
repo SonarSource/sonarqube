@@ -51,8 +51,39 @@ it('should set value', () => {
   expect(onChange).toBeCalledWith('secret');
 });
 
+it('should show form when empty, and enable handle typing', () => {
+  const input = shallowRender({ value: '' });
+  const onChange = (value: string) => input.setProps({ hasValueChanged: true, value });
+  input.setProps({ onChange });
+
+  expect(input.find('form').length).toBe(1);
+  change(input.find('input.js-password-input'), 'hello');
+  expect(input.find('form').length).toBe(1);
+  expect(input.find('input.js-password-input').prop('value')).toBe('hello');
+});
+
+it('should handle value reset', () => {
+  const input = shallowRender({ hasValueChanged: true, value: 'whatever' });
+  input.setState({ changing: true });
+
+  // reset
+  input.setProps({ hasValueChanged: false, value: 'original' });
+
+  expect(input.state('changing')).toBe(false);
+});
+
+it('should handle value reset to empty', () => {
+  const input = shallowRender({ hasValueChanged: true, value: 'whatever' });
+  input.setState({ changing: true });
+
+  // outside change
+  input.setProps({ hasValueChanged: false, value: '' });
+
+  expect(input.state('changing')).toBe(true);
+});
+
 function shallowRender(props: Partial<DefaultSpecializedInputProps> = {}) {
-  return shallow(
+  return shallow<InputForPassword>(
     <InputForPassword
       hasValueChanged={false}
       isDefault={false}
