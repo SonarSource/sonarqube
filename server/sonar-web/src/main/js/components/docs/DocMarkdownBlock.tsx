@@ -23,11 +23,11 @@ import remark from 'remark';
 import remarkCustomBlocks from 'remark-custom-blocks';
 import reactRenderer from 'remark-react';
 import slug from 'remark-slug';
-import 'sonar-ui-common/components/ui/Alert.css'; // eslint-disable-line import/extension
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import DocCollapsibleBlock from './DocCollapsibleBlock';
 import DocImg from './DocImg';
 import DocLink from './DocLink';
+import './DocMarkdownBlock.css';
 import DocToc from './DocToc';
 import DocTooltipLink from './DocTooltipLink';
 

@@ -1,0 +1,73 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2019 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+.alert {
+  margin-bottom: var(--gridSize);
+  border: 1px solid;
+  border-radius: 2px;
+}
+
+.alert.is-inline {
+  display: inline-flex;
+}
+
+.alert:empty {
+  display: none;
+}
+
+.alert-error {
+  border-color: var(--alertBorderError);
+  background-color: var(--alertBackgroundError);
+  color: var(--alertTextError);
+}
+
+.alert-error .alert-icon {
+  border-color: var(--alertBorderError);
+}
+
+.alert-warning {
+  border-color: var(--alertBorderWarning);
+  background-color: var(--alertBackgroundWarning);
+  color: var(--alertTextWarning);
+}
+
+.alert-warning .alert-icon {
+  border-color: var(--alertBorderWarning);
+}
+
+.alert-info {
+  border-color: var(--alertBorderInfo);
+  background-color: var(--alertBackgroundInfo);
+  color: var(--alertTextInfo);
+}
+
+.alert-info .alert-icon {
+  border-color: var(--alertBorderInfo);
+}
+
+.alert-success {
+  border-color: var(--alertBorderSuccess);
+  background-color: var(--alertBackgroundSuccess);
+  color: var(--alertTextSuccess);
+}
+
+.alert-success .alert-icon {
+  border-color: var(--alertBorderSuccess);
+}
