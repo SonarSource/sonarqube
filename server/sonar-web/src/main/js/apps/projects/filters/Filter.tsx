@@ -73,7 +73,7 @@ export default class Filter extends React.PureComponent<Props> {
     let urlOption;
 
     if (option) {
-      if (Array.isArray(value) && event.ctrlKey) {
+      if (Array.isArray(value) && (event.ctrlKey || event.metaKey)) {
         if (this.isSelected(option)) {
           urlOption = value.length > 1 ? value.filter(val => val !== option).join(',') : null;
         } else {
