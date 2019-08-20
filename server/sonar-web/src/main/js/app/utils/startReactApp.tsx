@@ -25,7 +25,7 @@ import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
 import { IndexRoute, Redirect, Route, RouteConfig, RouteProps, Router } from 'react-router';
 import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
-import ThemeContext from 'sonar-ui-common/components/ThemeContext';
+import { ThemeProvider } from 'sonar-ui-common/components/theme';
 import getHistory from 'sonar-ui-common/helpers/getHistory';
 import aboutRoutes from '../../apps/about/routes';
 import accountRoutes from '../../apps/account/routes';
@@ -97,7 +97,7 @@ export default function startReactApp(
   render(
     <Provider store={store}>
       <IntlProvider defaultLocale={lang} locale={lang}>
-        <ThemeContext.Provider value={{ theme }}>
+        <ThemeProvider theme={theme}>
           <Router history={history} onUpdate={handleUpdate}>
             <Route
               path="/account/issues"
@@ -340,7 +340,7 @@ export default function startReactApp(
               </Route>
             </Route>
           </Router>
-        </ThemeContext.Provider>
+        </ThemeProvider>
       </IntlProvider>
     </Provider>,
     el

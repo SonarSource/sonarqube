@@ -19,7 +19,7 @@
  */
 import { getIdentityProviders } from '@sqapi/users';
 import * as React from 'react';
-import ThemeContext from 'sonar-ui-common/components/ThemeContext';
+import { ThemeConsumer } from 'sonar-ui-common/components/theme';
 import { getTextColor } from 'sonar-ui-common/helpers/colors';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import LoginLink from './LoginLink';
@@ -69,8 +69,8 @@ export default class LoginForm extends React.PureComponent<Props, State> {
         {identityProviders && (
           <section className="oauth-providers">
             {vstsProvider && (
-              <ThemeContext.Consumer>
-                {({ theme }) => (
+              <ThemeConsumer>
+                {theme => (
                   <LoginLink
                     onReload={onReload}
                     sessionUrl={`sessions/init/${vstsProvider.key}`}
@@ -90,7 +90,7 @@ export default class LoginForm extends React.PureComponent<Props, State> {
                     <span>{vstsProvider.name} log in</span>
                   </LoginLink>
                 )}
-              </ThemeContext.Consumer>
+              </ThemeConsumer>
             )}
           </section>
         )}

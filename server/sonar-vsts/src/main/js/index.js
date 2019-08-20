@@ -20,7 +20,7 @@
 import { parse } from 'querystring';
 import React from 'react';
 import { render } from 'react-dom';
-import ThemeContext from 'sonar-ui-common/components/ThemeContext';
+import { ThemeProvider } from 'sonar-ui-common/components/theme';
 import * as theme from '../../../../sonar-web/src/main/js/app/theme';
 import Configuration from './components/Configuration';
 import Widget from './components/Widget';
@@ -47,9 +47,9 @@ if (query.type === 'authenticated') {
 
     if (query.type === 'configuration') {
       render(
-        <ThemeContext.Provider value={{ theme }}>
+        <ThemeProvider theme={theme}>
           <Configuration contribution={query.contribution} widgetHelpers={WidgetHelpers} />
-        </ThemeContext.Provider>,
+        </ThemeProvider>,
         container
       );
     } else {
@@ -66,9 +66,9 @@ function loadVSTSWidget(WidgetHelpers) {
   return widgetSettings => {
     try {
       render(
-        <ThemeContext.Provider value={{ theme }}>
+        <ThemeProvider theme={theme}>
           <Widget settings={parseWidgetSettings(widgetSettings)} />
-        </ThemeContext.Provider>,
+        </ThemeProvider>,
         container
       );
     } catch (error) {
