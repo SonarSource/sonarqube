@@ -12,7 +12,8 @@
     "react": "16.8.6",
     "react-dom": "16.8.6",
     "regenerator-runtime": "0.13.2",
-    "sonar-ui-common": "0.0.20",
+    "sonar-ui-common": "0.0.25",
+    "styled-components": "4.3.2",
     "whatwg-fetch": "2.0.4"
   },
   "devDependencies": {
@@ -31,6 +32,7 @@
     "@types/lodash": "4.14.123",
     "@types/react": "16.8.23",
     "@types/react-dom": "16.8.4",
+    "@types/styled-components": "4.1.8",
     "@typescript-eslint/parser": "1.5.0",
     "autoprefixer": "9.5.0",
     "babel-core": "7.0.0-bridge.0",

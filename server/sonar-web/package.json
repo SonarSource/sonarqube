@@ -35,7 +35,8 @@
     "regenerator-runtime": "0.13.2",
     "remark-custom-blocks": "2.3.0",
     "remark-slug": "5.1.0",
-    "sonar-ui-common": "0.0.20",
+    "sonar-ui-common": "0.0.25",
+    "styled-components": "4.3.2",
     "unist-util-visit": "1.4.0",
     "valid-url": "1.0.9",
     "whatwg-fetch": "2.0.4"
@@ -69,6 +70,7 @@
     "@types/react-router": "3.0.20",
     "@types/react-virtualized": "9.21.0",
     "@types/sanitize-html": "1.20.0",
+    "@types/styled-components": "4.1.8",
     "@types/valid-url": "1.0.2",
     "@typescript-eslint/parser": "1.5.0",
     "autoprefixer": "9.5.0",

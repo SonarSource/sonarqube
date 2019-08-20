@@ -64,7 +64,14 @@ module.exports = ({ production = true, release = false }) => {
       extensions: ['.ts', '.tsx', '.js', '.json'],
       // import from 'Docs/foo.md' is rewritten to import from 'sonar-docs/src/foo.md'
       alias: {
-        Docs: path.resolve(__dirname, '../../sonar-docs/src')
+        Docs: path.resolve(__dirname, '../../sonar-docs/src'),
+        // This avoid having multi instance of styled component when developing with yarn link on sonar-ui-common
+        // See https://www.styled-components.com/docs/faqs#how-can-i-fix-issues-when-using-npm-link-or-yarn-link
+        'styled-components': path.resolve(__dirname, '../node_modules/styled-components'),
+        // This avoid having multi instance of react when developing with yarn link on sonar-ui-common
+        // See https://reactjs.org/warnings/invalid-hook-call-warning.html
+        react: path.resolve(__dirname, '../node_modules/react'),
+        'react-dom': path.resolve(__dirname, '../node_modules/react-dom')
       }
     },
     optimization: {
@@ -199,6 +206,7 @@ module.exports = ({ production = true, release = false }) => {
               // ignore source maps and documentation chunk
               assetFilter: assetFilename =>
                 !assetFilename.endsWith('.map') && !assetFilename.startsWith('js/docs.'),
+              maxAssetSize: 300000,
               hints: 'error'
             }
           : undefined
