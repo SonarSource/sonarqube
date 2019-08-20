@@ -152,4 +152,7 @@ public interface PurgeMapper {
   void deleteLiveMeasuresByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void deleteLiveMeasuresByComponentUuids(@Param("componentUuids") List<String> componentUuids);
+
+  void deleteNewCodePeriodsByRootUuid(String rootUuid);
+
 }

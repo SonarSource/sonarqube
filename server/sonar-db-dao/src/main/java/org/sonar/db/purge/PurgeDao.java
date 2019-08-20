@@ -252,6 +252,7 @@ public class PurgeDao implements Dao {
     commands.deleteProjectMappings(rootUuid);
     commands.deleteProjectAlmBindings(rootUuid);
     commands.deletePermissions(rootId);
+    commands.deleteNewCodePeriods(rootUuid);
     commands.deleteBranch(rootUuid);
     commands.deleteComponents(rootUuid);
   }

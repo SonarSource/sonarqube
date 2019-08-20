@@ -37,6 +37,7 @@ import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
@@ -44,6 +45,7 @@ import org.sonar.db.dialect.Dialect;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.permission.OrganizationPermission;
@@ -55,6 +57,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
@@ -547,6 +550,75 @@ public class PurgeCommandsTest {
 
     assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(2);
     assertThat(dbTester.countRowsOfTable("user_roles")).isEqualTo(1);
+  }
+
+  @Test
+  public void deleteNewCodePeriodsByRootUuid_deletes_branch_new_code_periods() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    BranchDto branch = newBranchDto(project);
+    dbTester.components().insertProjectBranch(project, branch);
+
+    //global settings
+    dbTester.newCodePeriods().insert(NewCodePeriodType.PREVIOUS_VERSION, null);
+
+    //project settings
+    dbTester.newCodePeriods().insert(project.uuid(), NewCodePeriodType.DATE, "2019-01-01");
+
+    //branch settings
+    dbTester.newCodePeriods().insert(project.uuid(), branch.getUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "1");
+
+    PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
+    purgeCommands.deleteNewCodePeriods(branch.getUuid());
+
+    //should delete branch settings only
+    assertThat(dbTester.countRowsOfTable("new_code_periods")).isEqualTo(2);
+  }
+
+  @Test
+  public void deleteNewCodePeriodsByRootUuid_deletes_project_new_code_periods() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    BranchDto branch = newBranchDto(project);
+    dbTester.components().insertProjectBranch(project, branch);
+
+    //global settings
+    dbTester.newCodePeriods().insert(NewCodePeriodType.PREVIOUS_VERSION, null);
+
+    //project settings
+    dbTester.newCodePeriods().insert(project.uuid(), NewCodePeriodType.DATE, "2019-01-01");
+
+    //branch settings
+    dbTester.newCodePeriods().insert(project.uuid(), branch.getUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "1");
+
+    PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
+    purgeCommands.deleteNewCodePeriods(project.uuid());
+
+    //should delete branch and project settings only
+    assertThat(dbTester.countRowsOfTable("new_code_periods")).isEqualTo(1);
+  }
+
+  @Test
+  public void deleteNewCodePeriodsByRootUuid_should_not_delete_any_if_root_uuid_is_null() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    BranchDto branch = newBranchDto(project);
+    dbTester.components().insertProjectBranch(project, branch);
+
+    //global settings
+    dbTester.newCodePeriods().insert(NewCodePeriodType.PREVIOUS_VERSION, null);
+
+    //project settings
+    dbTester.newCodePeriods().insert(project.uuid(), NewCodePeriodType.DATE, "2019-01-01");
+
+    //branch settings
+    dbTester.newCodePeriods().insert(project.uuid(), branch.getUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "1");
+
+    PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
+    purgeCommands.deleteNewCodePeriods(null);
+
+    //should delete branch and project settings only
+    assertThat(dbTester.countRowsOfTable("new_code_periods")).isEqualTo(3);
   }
 
   private void addPermissions(OrganizationDto organization, ComponentDto root) {

@@ -447,4 +447,11 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
   }
+
+  void deleteNewCodePeriods(String rootUuid) {
+    profiler.start("deleteNewCodePeriods (new_code_periods)");
+    purgeMapper.deleteNewCodePeriodsByRootUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
 }

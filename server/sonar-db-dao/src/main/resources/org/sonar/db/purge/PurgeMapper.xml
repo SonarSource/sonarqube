@@ -503,6 +503,13 @@
       or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteNewCodePeriodsByRootUuid">
+    DELETE FROM new_code_periods
+    WHERE
+      branch_uuid=#{rootUuid,jdbcType=VARCHAR}
+      OR project_uuid=#{rootUuid,jdbcType=VARCHAR}
+  </delete>
+
   <delete id="deleteWebhooksByProjectUuid">
     delete from webhooks where project_uuid=#{projectUuid,jdbcType=VARCHAR}
   </delete>
