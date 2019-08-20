@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.setting.ws;
+package org.sonar.server.newcodeperiod.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,12 +42,12 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.Settings;
-import org.sonarqube.ws.Settings.ShowNewCodePeriodResponse;
+import org.sonarqube.ws.NewCodePeriods;
+import org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ShowNewCodePeriodActionTest {
+public class ShowActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
@@ -61,14 +61,14 @@ public class ShowNewCodePeriodActionTest {
   private ComponentFinder componentFinder = TestComponentFinder.from(db);
   private NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE, UuidFactoryFast.getInstance());
   private NewCodePeriodDbTester tester = new NewCodePeriodDbTester(db);
-  private ShowNewCodePeriodAction underTest = new ShowNewCodePeriodAction(dbClient, userSession, componentFinder, dao);
+  private ShowAction underTest = new ShowAction(dbClient, userSession, componentFinder, dao);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void test_definition() {
     WebService.Action definition = ws.getDef();
 
-    assertThat(definition.key()).isEqualTo("show_new_code_period");
+    assertThat(definition.key()).isEqualTo("show");
     assertThat(definition.isInternal()).isFalse();
     assertThat(definition.since()).isEqualTo("8.0");
     assertThat(definition.isPost()).isFalse();
@@ -140,10 +140,10 @@ public class ShowNewCodePeriodActionTest {
   public void show_global_setting() {
     tester.insert(new NewCodePeriodDto().setType(NewCodePeriodType.PREVIOUS_VERSION));
 
-    ShowNewCodePeriodResponse response = ws.newRequest()
-      .executeProtobuf(ShowNewCodePeriodResponse.class);
+    ShowWSResponse response = ws.newRequest()
+      .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, "", "", Settings.NewCodePeriodType.PREVIOUS_VERSION, "", false);
+    assertResponse(response, "", "", NewCodePeriods.NewCodePeriodType.PREVIOUS_VERSION, "", false);
   }
 
   @Test
@@ -156,11 +156,11 @@ public class ShowNewCodePeriodActionTest {
       .setType(NewCodePeriodType.NUMBER_OF_DAYS)
       .setValue("4"));
 
-    ShowNewCodePeriodResponse response = ws.newRequest()
+    ShowWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())
-      .executeProtobuf(ShowNewCodePeriodResponse.class);
+      .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, project.getKey(), "", Settings.NewCodePeriodType.NUMBER_OF_DAYS, "4", false);
+    assertResponse(response, project.getKey(), "", NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "4", false);
   }
 
   @Test
@@ -176,12 +176,12 @@ public class ShowNewCodePeriodActionTest {
       .setType(NewCodePeriodType.DATE)
       .setValue("2018-04-05"));
 
-    ShowNewCodePeriodResponse response = ws.newRequest()
+    ShowWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("branch", "branch")
-      .executeProtobuf(ShowNewCodePeriodResponse.class);
+      .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, project.getKey(), "branch", Settings.NewCodePeriodType.DATE, "2018-04-05", false);
+    assertResponse(response, project.getKey(), "branch", NewCodePeriods.NewCodePeriodType.DATE, "2018-04-05", false);
   }
 
   @Test
@@ -190,11 +190,11 @@ public class ShowNewCodePeriodActionTest {
     logInAsProjectAdministrator(project);
     tester.insert(new NewCodePeriodDto().setType(NewCodePeriodType.PREVIOUS_VERSION));
 
-    ShowNewCodePeriodResponse response = ws.newRequest()
+    ShowWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())
-      .executeProtobuf(ShowNewCodePeriodResponse.class);
+      .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, project.getKey(), "", Settings.NewCodePeriodType.PREVIOUS_VERSION, "", true);
+    assertResponse(response, project.getKey(), "", NewCodePeriods.NewCodePeriodType.PREVIOUS_VERSION, "", true);
   }
 
   @Test
@@ -209,12 +209,12 @@ public class ShowNewCodePeriodActionTest {
       .setType(NewCodePeriodType.DATE)
       .setValue("2018-04-05"));
 
-    ShowNewCodePeriodResponse response = ws.newRequest()
+    ShowWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("branch", "branch")
-      .executeProtobuf(ShowNewCodePeriodResponse.class);
+      .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, project.getKey(), "branch", Settings.NewCodePeriodType.DATE, "2018-04-05", true);
+    assertResponse(response, project.getKey(), "branch", NewCodePeriods.NewCodePeriodType.DATE, "2018-04-05", true);
   }
 
   @Test
@@ -224,15 +224,15 @@ public class ShowNewCodePeriodActionTest {
     ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
     tester.insert(new NewCodePeriodDto().setType(NewCodePeriodType.NUMBER_OF_DAYS).setValue("3"));
 
-    ShowNewCodePeriodResponse response = ws.newRequest()
+    ShowWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("branch", "branch")
-      .executeProtobuf(ShowNewCodePeriodResponse.class);
+      .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, project.getKey(), "branch", Settings.NewCodePeriodType.NUMBER_OF_DAYS, "3", true);
+    assertResponse(response, project.getKey(), "branch", NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "3", true);
   }
 
-  private void assertResponse(ShowNewCodePeriodResponse response, String projectKey, String branchKey, Settings.NewCodePeriodType type, String value, boolean inherited) {
+  private void assertResponse(ShowWSResponse response, String projectKey, String branchKey, NewCodePeriods.NewCodePeriodType type, String value, boolean inherited) {
     assertThat(response.getBranchKey()).isEqualTo(branchKey);
     assertThat(response.getProjectKey()).isEqualTo(projectKey);
     assertThat(response.getInherited()).isEqualTo(inherited);

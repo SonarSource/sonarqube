@@ -26,7 +26,7 @@ public class SettingsWsModule extends Module {
   protected void configureModule() {
     add(
       SettingsWs.class,
-      SetAction.class,
+      org.sonar.server.setting.ws.SetAction.class,
       SettingsWsSupport.class,
       ListDefinitionsAction.class,
       ValuesAction.class,
@@ -35,9 +35,6 @@ public class SettingsWsModule extends Module {
       GenerateSecretKeyAction.class,
       CheckSecretKeyAction.class,
       SettingsUpdater.class,
-      SettingValidations.class,
-      ShowNewCodePeriodAction.class,
-      UpdateNewCodePeriodAction.class,
-      DeleteNewCodePeriodAction.class);
+      SettingValidations.class);
   }
 }

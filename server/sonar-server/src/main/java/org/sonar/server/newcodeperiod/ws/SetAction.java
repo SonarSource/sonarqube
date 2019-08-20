@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.setting.ws;
+package org.sonar.server.newcodeperiod.ws;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -50,7 +50,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 
-public class UpdateNewCodePeriodAction implements SettingsWsAction {
+public class SetAction implements NewCodePeriodsWsAction {
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_PROJECT = "project";
   private static final String PARAM_TYPE = "type";
@@ -64,7 +64,7 @@ public class UpdateNewCodePeriodAction implements SettingsWsAction {
   private final ComponentFinder componentFinder;
   private final NewCodePeriodDao newCodePeriodDao;
 
-  public UpdateNewCodePeriodAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, NewCodePeriodDao newCodePeriodDao) {
+  public SetAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, NewCodePeriodDao newCodePeriodDao) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
@@ -73,8 +73,9 @@ public class UpdateNewCodePeriodAction implements SettingsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("update_new_code_period")
-      .setDescription("Updates the setting for the New Code Period.<br>" +
+    WebService.NewAction action = context.createAction("set")
+      .setPost(true)
+      .setDescription("Sets the setting for the New Code Period.<br>" +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System' to change the global setting</li>" +
@@ -132,7 +133,7 @@ public class UpdateNewCodePeriodAction implements SettingsWsAction {
   }
 
   private void setValue(DbSession dbSession, NewCodePeriodDto dto, NewCodePeriodType type, @Nullable ComponentDto projectBranch,
-    @Nullable String branch, @Nullable String value) {
+                        @Nullable String branch, @Nullable String value) {
     switch (type) {
       case PREVIOUS_VERSION:
         Preconditions.checkArgument(value == null, "Unexpected value for type '%s'", type);

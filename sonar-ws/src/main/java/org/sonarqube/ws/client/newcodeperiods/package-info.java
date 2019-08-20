@@ -17,18 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.setting.ws;
+@ParametersAreNonnullByDefault
+@Generated("sonar-ws-generator")
+package org.sonarqube.ws.client.newcodeperiods;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import javax.annotation.Generated;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class SettingsWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new SettingsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(11 + 2);
-  }
-}

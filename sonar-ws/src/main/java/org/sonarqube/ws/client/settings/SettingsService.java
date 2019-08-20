@@ -22,7 +22,6 @@ package org.sonarqube.ws.client.settings;
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.CheckSecretKeyWsResponse;
 import org.sonarqube.ws.Settings.EncryptWsResponse;
 import org.sonarqube.ws.Settings.GenerateSecretKeyWsResponse;
@@ -54,22 +53,6 @@ public class SettingsService extends BaseService {
     return call(
       new GetRequest(path("check_secret_key")),
       CheckSecretKeyWsResponse.parser());
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/delete_new_code_period">Further information about this action online (including a response example)</a>
-   * @since 8.0
-   */
-  public void deleteNewCodePeriod(DeleteNewCodePeriodRequest request) {
-    call(
-      new GetRequest(path("delete_new_code_period"))
-        .setParam("branch", request.getBranch())
-        .setParam("project", request.getProject())
-        .setMediaType(MediaTypes.JSON)
-    ).content();
   }
 
   /**
@@ -150,39 +133,6 @@ public class SettingsService extends BaseService {
         .setParam("pullRequest", request.getPullRequest())
         .setParam("value", request.getValue())
         .setParam("values", request.getValues() == null ? null : request.getValues())
-        .setMediaType(MediaTypes.JSON)
-    ).content();
-  }
-
-  /**
-   * This is part of the internal API.
-   * This is a GET request.
-   *
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/show_new_code_period">Further information about this action online (including a response example)</a>
-   * @since 8.0
-   */
-  public Settings.ShowNewCodePeriodResponse showNewCodePeriod(ShowNewCodePeriodRequest request) {
-    return call(
-      new GetRequest(path("show_new_code_period"))
-        .setParam("branch", request.getBranch())
-        .setParam("project", request.getProject()),
-      Settings.ShowNewCodePeriodResponse.parser());
-  }
-
-  /**
-   * This is part of the internal API.
-   * This is a GET request.
-   *
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/update_new_code_period">Further information about this action online (including a response example)</a>
-   * @since 8.0
-   */
-  public void updateNewCodePeriod(UpdateNewCodePeriodRequest request) {
-    call(
-      new GetRequest(path("update_new_code_period"))
-        .setParam("branch", request.getBranch())
-        .setParam("project", request.getProject())
-        .setParam("type", request.getType())
-        .setParam("value", request.getValue())
         .setMediaType(MediaTypes.JSON)
     ).content();
   }

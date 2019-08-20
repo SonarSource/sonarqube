@@ -44,21 +44,6 @@ message CheckSecretKeyWsResponse {
   bool secretKeyAvailable = 1;
 }
 
-message ShowNewCodePeriodResponse {
-  string projectKey = 1;
-  string branchKey = 2;
-  NewCodePeriodType type = 3;
-  string value = 4;
-  bool inherited = 5;
-}
-
-enum NewCodePeriodType {
-  PREVIOUS_VERSION = 0;
-  NUMBER_OF_DAYS = 1;
-  DATE = 2;
-  SPECIFIC_ANALYSIS = 3;
-}
-
 message Definition {
   string key = 1;
   oneof nameOneOf {string name = 2;}

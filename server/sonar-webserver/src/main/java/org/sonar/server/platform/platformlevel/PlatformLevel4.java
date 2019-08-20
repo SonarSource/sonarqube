@@ -100,6 +100,7 @@ import org.sonar.server.measure.ws.TimeMachineWs;
 import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.DefaultMetricFinder;
 import org.sonar.server.metric.ws.MetricsWsModule;
+import org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsModule;
 import org.sonar.server.notification.NotificationModule;
 import org.sonar.server.notification.ws.NotificationWsModule;
 import org.sonar.server.organization.BillingValidationsProxyImpl;
@@ -463,6 +464,9 @@ public class PlatformLevel4 extends PlatformLevel {
       SettingsWsModule.class,
 
       TypeValidationModule.class,
+
+      //New Code Periods
+      NewCodePeriodsWsModule.class,
 
       // Project Links
       ProjectLinksModule.class,

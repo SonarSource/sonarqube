@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.setting.ws;
+package org.sonar.server.newcodeperiod.ws;
 
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
@@ -38,7 +38,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 
-public class DeleteNewCodePeriodAction implements SettingsWsAction {
+public class UnsetAction implements NewCodePeriodsWsAction {
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_PROJECT = "project";
 
@@ -47,7 +47,7 @@ public class DeleteNewCodePeriodAction implements SettingsWsAction {
   private final ComponentFinder componentFinder;
   private final NewCodePeriodDao newCodePeriodDao;
 
-  public DeleteNewCodePeriodAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, NewCodePeriodDao newCodePeriodDao) {
+  public UnsetAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, NewCodePeriodDao newCodePeriodDao) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
@@ -56,8 +56,9 @@ public class DeleteNewCodePeriodAction implements SettingsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("delete_new_code_period")
-      .setDescription("Removes the New Code Period setting for a branch, project or global.<br>" +
+    WebService.NewAction action = context.createAction("unset")
+      .setPost(true)
+      .setDescription("Unset the New Code Period setting for a branch, project or global.<br>" +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System' to change the global setting</li>" +

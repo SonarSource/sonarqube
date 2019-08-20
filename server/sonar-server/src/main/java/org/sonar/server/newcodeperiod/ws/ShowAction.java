@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.setting.ws;
+package org.sonar.server.newcodeperiod.ws;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -36,15 +36,15 @@ import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Settings;
-import org.sonarqube.ws.Settings.ShowNewCodePeriodResponse;
+import org.sonarqube.ws.NewCodePeriods;
+import org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
-public class ShowNewCodePeriodAction implements SettingsWsAction {
+public class ShowAction implements NewCodePeriodsWsAction {
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_PROJECT = "project";
 
@@ -53,7 +53,7 @@ public class ShowNewCodePeriodAction implements SettingsWsAction {
   private final ComponentFinder componentFinder;
   private final NewCodePeriodDao newCodePeriodDao;
 
-  public ShowNewCodePeriodAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, NewCodePeriodDao newCodePeriodDao) {
+  public ShowAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, NewCodePeriodDao newCodePeriodDao) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
@@ -62,7 +62,7 @@ public class ShowNewCodePeriodAction implements SettingsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("show_new_code_period")
+    WebService.NewAction action = context.createAction("show")
       .setDescription("Shows a setting for the New Code Period.<br>" +
         "Requires one of the following permissions: " +
         "<ul>" +
@@ -104,7 +104,7 @@ public class ShowNewCodePeriodAction implements SettingsWsAction {
         projectUuid = projectBranch.getMainBranchProjectUuid() != null ? projectBranch.getMainBranchProjectUuid() : projectBranch.uuid();
       }
 
-      ShowNewCodePeriodResponse.Builder builder = get(dbSession, projectUuid, branchUuid, false);
+      ShowWSResponse.Builder builder = get(dbSession, projectUuid, branchUuid, false);
 
       if (projectStr != null) {
         builder.setProjectKey(projectStr);
@@ -116,7 +116,7 @@ public class ShowNewCodePeriodAction implements SettingsWsAction {
     }
   }
 
-  private ShowNewCodePeriodResponse.Builder get(DbSession dbSession, @Nullable String projectUuid, @Nullable String branchUuid, boolean inherited) {
+  private ShowWSResponse.Builder get(DbSession dbSession, @Nullable String projectUuid, @Nullable String branchUuid, boolean inherited) {
     if (projectUuid == null) {
       Optional<NewCodePeriodDto> dto = newCodePeriodDao.selectGlobal(dbSession);
       return dto.map(d -> build(d, inherited))
@@ -133,8 +133,8 @@ public class ShowNewCodePeriodAction implements SettingsWsAction {
       .orElseGet(() -> get(dbSession, projectUuid, null, true));
   }
 
-  private ShowNewCodePeriodResponse.Builder build(NewCodePeriodDto dto, boolean inherited) {
-    ShowNewCodePeriodResponse.Builder builder = ShowNewCodePeriodResponse.newBuilder()
+  private ShowWSResponse.Builder build(NewCodePeriodDto dto, boolean inherited) {
+    ShowWSResponse.Builder builder = ShowWSResponse.newBuilder()
       .setType(convertType(dto.getType()))
       .setInherited(inherited);
 
@@ -144,22 +144,22 @@ public class ShowNewCodePeriodAction implements SettingsWsAction {
     return builder;
   }
 
-  private ShowNewCodePeriodResponse.Builder buildDefault(boolean inherited) {
-    return ShowNewCodePeriodResponse.newBuilder()
+  private ShowWSResponse.Builder buildDefault(boolean inherited) {
+    return ShowWSResponse.newBuilder()
       .setType(convertType(NewCodePeriodType.PREVIOUS_VERSION))
       .setInherited(inherited);
   }
 
-  private Settings.NewCodePeriodType convertType(NewCodePeriodType type) {
+  private NewCodePeriods.NewCodePeriodType convertType(NewCodePeriodType type) {
     switch (type) {
       case NUMBER_OF_DAYS:
-        return Settings.NewCodePeriodType.NUMBER_OF_DAYS;
+        return NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS;
       case DATE:
-        return Settings.NewCodePeriodType.DATE;
+        return NewCodePeriods.NewCodePeriodType.DATE;
       case PREVIOUS_VERSION:
-        return Settings.NewCodePeriodType.PREVIOUS_VERSION;
+        return NewCodePeriods.NewCodePeriodType.PREVIOUS_VERSION;
       case SPECIFIC_ANALYSIS:
-        return Settings.NewCodePeriodType.SPECIFIC_ANALYSIS;
+        return NewCodePeriods.NewCodePeriodType.SPECIFIC_ANALYSIS;
       default:
         throw new IllegalStateException("Unexpected type: " + type);
     }

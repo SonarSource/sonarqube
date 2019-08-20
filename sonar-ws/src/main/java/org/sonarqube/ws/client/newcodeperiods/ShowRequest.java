@@ -17,18 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.setting.ws;
+package org.sonarqube.ws.client.newcodeperiods;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import javax.annotation.Generated;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * This is part of the internal API.
+ * This is a POST request.
+ *
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/new_code_periods/show">Further information about this action online (including a response example)</a>
+ * @since 8.0
+ */
+@Generated("sonar-ws-generator")
+public class ShowRequest {
 
-public class SettingsWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new SettingsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(11 + 2);
+  private String branch;
+  private String project;
+
+  /**
+   *
+   */
+  public ShowRequest setBranch(String branch) {
+    this.branch = branch;
+    return this;
+  }
+
+  public String getBranch() {
+    return branch;
+  }
+
+  /**
+   *
+   */
+  public ShowRequest setProject(String project) {
+    this.project = project;
+    return this;
+  }
+
+  public String getProject() {
+    return project;
   }
 }

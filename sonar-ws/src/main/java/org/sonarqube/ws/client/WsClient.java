@@ -40,6 +40,7 @@ import org.sonarqube.ws.client.languages.LanguagesService;
 import org.sonarqube.ws.client.measures.MeasuresService;
 import org.sonarqube.ws.client.metrics.MetricsService;
 import org.sonarqube.ws.client.navigation.NavigationService;
+import org.sonarqube.ws.client.newcodeperiods.NewCodePeriodsService;
 import org.sonarqube.ws.client.notifications.NotificationsService;
 import org.sonarqube.ws.client.organizations.OrganizationsService;
 import org.sonarqube.ws.client.permissions.PermissionsService;
@@ -133,6 +134,8 @@ public interface WsClient {
   MetricsService metrics();
 
   NavigationService navigation();
+
+  NewCodePeriodsService newCodePeriods();
 
   NotificationsService notifications();
 

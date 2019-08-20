@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.setting.ws;
+package org.sonar.server.newcodeperiod.ws;
 
 import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SettingsWsModuleTest {
+public class NewCodePeriodsWsModuleTest {
+
   @Test
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
-    new SettingsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(11 + 2);
+    new NewCodePeriodsWsModule().configure(container);
+    assertThat(container.size()).isEqualTo(6);
   }
+
 }

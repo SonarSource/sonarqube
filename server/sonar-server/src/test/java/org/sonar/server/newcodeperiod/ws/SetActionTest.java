@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.setting.ws;
+package org.sonar.server.newcodeperiod.ws;
 
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -46,7 +46,7 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
-public class UpdateNewCodePeriodActionTest {
+public class SetActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
@@ -60,17 +60,17 @@ public class UpdateNewCodePeriodActionTest {
   private ComponentFinder componentFinder = TestComponentFinder.from(db);
   private NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE, UuidFactoryFast.getInstance());
 
-  private UpdateNewCodePeriodAction underTest = new UpdateNewCodePeriodAction(dbClient, userSession, componentFinder, dao);
+  private SetAction underTest = new SetAction(dbClient, userSession, componentFinder, dao);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void test_definition() {
     WebService.Action definition = ws.getDef();
 
-    assertThat(definition.key()).isEqualTo("update_new_code_period");
+    assertThat(definition.key()).isEqualTo("set");
     assertThat(definition.isInternal()).isFalse();
     assertThat(definition.since()).isEqualTo("8.0");
-    assertThat(definition.isPost()).isFalse();
+    assertThat(definition.isPost()).isTrue();
 
     assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("value", "type", "project", "branch");
     assertThat(definition.param("value").isRequired()).isFalse();
