@@ -28,6 +28,7 @@ public class NewCodePeriodsWsModule extends Module {
       NewCodePeriodsWs.class,
       ShowAction.class,
       SetAction.class,
-      UnsetAction.class);
+      UnsetAction.class,
+      ListAction.class);
   }
 }

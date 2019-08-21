@@ -30,7 +30,7 @@ public class NewCodePeriodsWsModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new NewCodePeriodsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(6);
+    assertThat(container.size()).isEqualTo(7);
   }
 
 }
