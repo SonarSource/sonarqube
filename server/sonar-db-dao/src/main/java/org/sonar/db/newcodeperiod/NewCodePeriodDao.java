@@ -19,6 +19,7 @@
  */
 package org.sonar.db.newcodeperiod;
 
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
@@ -74,6 +75,11 @@ public class NewCodePeriodDao implements Dao {
   public Optional<NewCodePeriodDto> selectByProject(DbSession dbSession, String projectUuid) {
     requireNonNull(projectUuid, "Project uuid must be specified.");
     return Optional.ofNullable(mapper(dbSession).selectByProject(projectUuid));
+  }
+
+  public List<NewCodePeriodDto> selectAllByProject(DbSession dbSession, String projectUuid) {
+    requireNonNull(projectUuid, "Project uuid must be specified.");
+    return mapper(dbSession).selectAllByProject(projectUuid);
   }
 
   public Optional<NewCodePeriodDto> selectByBranch(DbSession dbSession, String projectUuid, String branchUuid) {

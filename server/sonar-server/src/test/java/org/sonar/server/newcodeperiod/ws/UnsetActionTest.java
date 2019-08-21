@@ -173,20 +173,22 @@ public class UnsetActionTest {
 
   @Test
   public void delete_project_period_twice() {
-    ComponentDto project = componentDb.insertMainBranch();
-    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid");
+    ComponentDto project1 = componentDb.insertMainBranch();
+    ComponentDto project2 = componentDb.insertMainBranch();
+    db.newCodePeriods().insert(project1.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid1");
+    db.newCodePeriods().insert(project2.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
 
-    logInAsProjectAdministrator(project);
+    logInAsProjectAdministrator(project1);
     ws.newRequest()
-      .setParam("project", project.getKey())
+      .setParam("project", project1.getKey())
       .execute();
-    assertTableEmpty();
+    assertTableContainsOnly(project2.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
 
     ws.newRequest()
-      .setParam("project", project.getKey())
+      .setParam("project", project1.getKey())
       .execute();
 
-    assertTableEmpty();
+    assertTableContainsOnly(project2.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
   }
 
   @Test

@@ -16,27 +16,30 @@
 // along with this program; if not, write to the Free Software Foundation,
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-syntax = "proto2";
+syntax = "proto3";
 
 package sonarqube.ws.batch;
 
 option java_package = "org.sonarqube.ws";
 option java_outer_classname = "NewCodePeriods";
-
 option optimize_for = SPEED;
 
 // WS api/new_code_periods/show
 message ShowWSResponse {
-    optional string projectKey = 1;
-    optional string branchKey = 2;
-    required NewCodePeriodType type = 3;
-    optional string value = 4;
-    required bool inherited = 5;
+    string projectKey = 1;
+    string branchKey = 2;
+    NewCodePeriodType type = 3;
+    string value = 4;
+    bool inherited = 5;
+}
+
+// WS api/new_code_periods/list
+message ListWSResponse {
+    repeated ShowWSResponse newCodePeriods = 1;
 }
 
 enum NewCodePeriodType {
     PREVIOUS_VERSION = 0;
     NUMBER_OF_DAYS = 1;
-    DATE = 2;
-    SPECIFIC_ANALYSIS = 3;
+    SPECIFIC_ANALYSIS = 2;
 }

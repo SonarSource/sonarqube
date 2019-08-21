@@ -17,29 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.newcodeperiod;
+@ParametersAreNonnullByDefault
+package org.sonar.server.newcodeperiod.ws;
 
-import java.util.List;
-import java.util.Optional;
-import org.apache.ibatis.annotations.Param;
-
-public interface NewCodePeriodMapper {
-
-  Optional<NewCodePeriodDto> selectByUuid(String uuid);
-
-  NewCodePeriodDto selectGlobal();
-
-  void insert(NewCodePeriodDto dto);
-
-  int update(NewCodePeriodDto dto);
-
-  NewCodePeriodDto selectByProject(String projectUuid);
-
-  void delete(@Param("projectUuid") String projectUuid, @Param("branchUuid") String branchUuid);
-
-  NewCodePeriodDto selectByBranch(@Param("projectUuid") String projectUuid, @Param("branchUuid") String branchUuid);
-
-  long countByProjectAnalysis(String projectAnalysisUuid);
-
-  List<NewCodePeriodDto> selectAllByProject(String projectUuid);
-}
+import javax.annotation.ParametersAreNonnullByDefault;

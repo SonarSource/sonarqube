@@ -39,15 +39,15 @@ public class NewCodePeriodDtoTest {
       .setBranchUuid("branchUuid")
       .setCreatedAt(currentTime)
       .setUpdatedAt(currentTime)
-      .setType(NewCodePeriodType.DATE)
-      .setValue("2018-01-02");
+      .setType(NewCodePeriodType.NUMBER_OF_DAYS)
+      .setValue("1");
 
     assertThat(newCodePeriodDto.getUuid()).isEqualTo("uuid");
     assertThat(newCodePeriodDto.getProjectUuid()).isEqualTo("projectUuid");
     assertThat(newCodePeriodDto.getBranchUuid()).isEqualTo("branchUuid");
     assertThat(newCodePeriodDto.getCreatedAt()).isEqualTo(currentTime);
     assertThat(newCodePeriodDto.getUpdatedAt()).isEqualTo(currentTime);
-    assertThat(newCodePeriodDto.getType()).isEqualTo(NewCodePeriodType.DATE);
-    assertThat(newCodePeriodDto.getValue()).isEqualTo("2018-01-02");
+    assertThat(newCodePeriodDto.getType()).isEqualTo(NewCodePeriodType.NUMBER_OF_DAYS);
+    assertThat(newCodePeriodDto.getValue()).isEqualTo("1");
   }
 }

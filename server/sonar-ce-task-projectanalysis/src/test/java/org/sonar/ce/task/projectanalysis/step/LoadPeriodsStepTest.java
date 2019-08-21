@@ -44,6 +44,7 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.ce.task.projectanalysis.period.NewCodePeriodResolver;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
 import org.sonar.ce.task.step.ComputationStep;
@@ -86,9 +87,10 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   private PeriodHolderImpl periodsHolder = new PeriodHolderImpl();
   private System2 system2Mock = mock(System2.class);
   private NewCodePeriodDao dao = new NewCodePeriodDao(system2Mock, new SequenceUuidFactory());
+  private NewCodePeriodResolver newCodePeriodResolver = new NewCodePeriodResolver(dbTester.getDbClient());
   private ZonedDateTime analysisDate = ZonedDateTime.of(2019, 3, 20, 5, 30, 40, 0, ZoneId.systemDefault());
 
-  private LoadPeriodsStep underTest = new LoadPeriodsStep(analysisMetadataHolder, dao, treeRootHolder, periodsHolder, dbTester.getDbClient());
+  private LoadPeriodsStep underTest = new LoadPeriodsStep(analysisMetadataHolder, dao, treeRootHolder, periodsHolder, dbTester.getDbClient(), newCodePeriodResolver);
 
   private OrganizationDto organization;
   private ComponentDto project;
@@ -373,7 +375,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @DataProvider
   public static Object[][] zeroOrLess() {
-    return new Object[][] {
+    return new Object[][]{
       {0},
       {-1 - new Random().nextInt(30)}
     };
@@ -381,7 +383,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @DataProvider
   public static Object[][] stringConsideredAsVersions() {
-    return new Object[][] {
+    return new Object[][]{
       {randomAlphabetic(5)},
       {"1,3"},
       {"1.3"},
@@ -393,7 +395,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @DataProvider
   public static Object[][] projectVersionNullOrNot() {
-    return new Object[][] {
+    return new Object[][]{
       {null},
       {randomAlphabetic(15)},
     };
@@ -401,7 +403,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @DataProvider
   public static Object[][] anyValidLeakPeriodSettingValue() {
-    return new Object[][] {
+    return new Object[][]{
       // days
       {"100"},
       // previous_version keyword

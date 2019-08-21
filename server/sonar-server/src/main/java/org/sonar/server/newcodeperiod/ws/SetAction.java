@@ -20,7 +20,7 @@
 package org.sonar.server.newcodeperiod.ws;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
+import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -44,7 +44,6 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.sonar.db.newcodeperiod.NewCodePeriodType.DATE;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
@@ -55,9 +54,9 @@ public class SetAction implements NewCodePeriodsWsAction {
   private static final String PARAM_PROJECT = "project";
   private static final String PARAM_TYPE = "type";
   private static final String PARAM_VALUE = "value";
-  private static final Set<NewCodePeriodType> OVERALL_TYPES = ImmutableSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS);
-  private static final Set<NewCodePeriodType> PROJECT_TYPES = ImmutableSet.of(DATE, PREVIOUS_VERSION, NUMBER_OF_DAYS);
-  private static final Set<NewCodePeriodType> BRANCH_TYPES = ImmutableSet.of(DATE, PREVIOUS_VERSION, NUMBER_OF_DAYS, SPECIFIC_ANALYSIS);
+  private static final Set<NewCodePeriodType> OVERALL_TYPES = EnumSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS);
+  private static final Set<NewCodePeriodType> PROJECT_TYPES = EnumSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS);
+  private static final Set<NewCodePeriodType> BRANCH_TYPES = EnumSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS, SPECIFIC_ANALYSIS);
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -144,14 +143,6 @@ public class SetAction implements NewCodePeriodsWsAction {
           dto.setValue(Integer.toString(NewCodePeriodParser.parseDays(value)));
         } catch (Exception e) {
           throw new IllegalArgumentException("Failed to parse number of days: " + value);
-        }
-        break;
-      case DATE:
-        requireValue(type, value);
-        try {
-          dto.setValue(NewCodePeriodParser.parseDate(value).toString());
-        } catch (Exception e) {
-          throw new IllegalArgumentException("Failed to parse date: " + value);
         }
         break;
       case SPECIFIC_ANALYSIS:

@@ -101,6 +101,7 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureToMeasureDto;
 import org.sonar.ce.task.projectanalysis.metric.MetricModule;
 import org.sonar.ce.task.projectanalysis.notification.NotificationFactory;
 import org.sonar.ce.task.projectanalysis.organization.DefaultOrganizationLoader;
+import org.sonar.ce.task.projectanalysis.period.NewCodePeriodResolver;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.EvaluationResultTextConverterImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateHolderImpl;
@@ -285,6 +286,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       BranchPersisterImpl.class,
       SiblingsIssuesLoader.class,
       SiblingsIssueMerger.class,
+      NewCodePeriodResolver.class,
 
       // filemove
       ScoreMatrixDumperImpl.class,

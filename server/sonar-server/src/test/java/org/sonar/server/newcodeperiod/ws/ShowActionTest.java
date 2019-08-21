@@ -173,15 +173,15 @@ public class ShowActionTest {
     tester.insert(new NewCodePeriodDto()
       .setProjectUuid(project.uuid())
       .setBranchUuid(branch.uuid())
-      .setType(NewCodePeriodType.DATE)
-      .setValue("2018-04-05"));
+      .setType(NewCodePeriodType.NUMBER_OF_DAYS)
+      .setValue("1"));
 
     ShowWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("branch", "branch")
       .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, project.getKey(), "branch", NewCodePeriods.NewCodePeriodType.DATE, "2018-04-05", false);
+    assertResponse(response, project.getKey(), "branch", NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "1", false);
   }
 
   @Test
@@ -206,15 +206,15 @@ public class ShowActionTest {
 
     tester.insert(new NewCodePeriodDto()
       .setProjectUuid(project.uuid())
-      .setType(NewCodePeriodType.DATE)
-      .setValue("2018-04-05"));
+      .setType(NewCodePeriodType.NUMBER_OF_DAYS)
+      .setValue("1"));
 
     ShowWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("branch", "branch")
       .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, project.getKey(), "branch", NewCodePeriods.NewCodePeriodType.DATE, "2018-04-05", true);
+    assertResponse(response, project.getKey(), "branch", NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "1", true);
   }
 
   @Test

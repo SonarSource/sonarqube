@@ -22,6 +22,5 @@ package org.sonar.db.newcodeperiod;
 public enum NewCodePeriodType {
   PREVIOUS_VERSION,
   NUMBER_OF_DAYS,
-  DATE,
   SPECIFIC_ANALYSIS
 }

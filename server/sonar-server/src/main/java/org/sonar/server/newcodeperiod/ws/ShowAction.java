@@ -37,12 +37,12 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.NewCodePeriods;
-import org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.NewCodePeriods.*;
 
 public class ShowAction implements NewCodePeriodsWsAction {
   private static final String PARAM_BRANCH = "branch";
@@ -154,8 +154,6 @@ public class ShowAction implements NewCodePeriodsWsAction {
     switch (type) {
       case NUMBER_OF_DAYS:
         return NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS;
-      case DATE:
-        return NewCodePeriods.NewCodePeriodType.DATE;
       case PREVIOUS_VERSION:
         return NewCodePeriods.NewCodePeriodType.PREVIOUS_VERSION;
       case SPECIFIC_ANALYSIS:

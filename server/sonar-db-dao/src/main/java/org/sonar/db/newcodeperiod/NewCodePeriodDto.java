@@ -30,6 +30,10 @@ public class NewCodePeriodDto {
   private long updatedAt;
   private long createdAt;
 
+  public static NewCodePeriodDto defaultInstance() {
+    return new NewCodePeriodDto().setType(NewCodePeriodType.PREVIOUS_VERSION);
+  }
+
   public long getCreatedAt() {
     return createdAt;
   }

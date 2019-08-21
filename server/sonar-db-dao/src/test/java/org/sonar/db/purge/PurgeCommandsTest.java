@@ -563,7 +563,7 @@ public class PurgeCommandsTest {
     dbTester.newCodePeriods().insert(NewCodePeriodType.PREVIOUS_VERSION, null);
 
     //project settings
-    dbTester.newCodePeriods().insert(project.uuid(), NewCodePeriodType.DATE, "2019-01-01");
+    dbTester.newCodePeriods().insert(project.uuid(), NewCodePeriodType.NUMBER_OF_DAYS, "20");
 
     //branch settings
     dbTester.newCodePeriods().insert(project.uuid(), branch.getUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "1");
@@ -586,7 +586,7 @@ public class PurgeCommandsTest {
     dbTester.newCodePeriods().insert(NewCodePeriodType.PREVIOUS_VERSION, null);
 
     //project settings
-    dbTester.newCodePeriods().insert(project.uuid(), NewCodePeriodType.DATE, "2019-01-01");
+    dbTester.newCodePeriods().insert(project.uuid(), NewCodePeriodType.NUMBER_OF_DAYS, "20");
 
     //branch settings
     dbTester.newCodePeriods().insert(project.uuid(), branch.getUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "1");
@@ -609,7 +609,7 @@ public class PurgeCommandsTest {
     dbTester.newCodePeriods().insert(NewCodePeriodType.PREVIOUS_VERSION, null);
 
     //project settings
-    dbTester.newCodePeriods().insert(project.uuid(), NewCodePeriodType.DATE, "2019-01-01");
+    dbTester.newCodePeriods().insert(project.uuid(), NewCodePeriodType.NUMBER_OF_DAYS, "20");
 
     //branch settings
     dbTester.newCodePeriods().insert(project.uuid(), branch.getUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "1");

@@ -102,10 +102,10 @@ public class SetActionTest {
   @Test
   public void throw_IAE_if_type_is_invalid_for_global() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid type 'DATE'. Overall setting can only be set with types: [PREVIOUS_VERSION, NUMBER_OF_DAYS]");
+    expectedException.expectMessage("Invalid type 'SPECIFIC_ANALYSIS'. Overall setting can only be set with types: [PREVIOUS_VERSION, NUMBER_OF_DAYS]");
 
     ws.newRequest()
-      .setParam("type", "date")
+      .setParam("type", "specific_analysis")
       .execute();
   }
 
@@ -115,25 +115,11 @@ public class SetActionTest {
     logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid type 'SPECIFIC_ANALYSIS'. Projects can only be set with types: [DATE, PREVIOUS_VERSION, NUMBER_OF_DAYS]");
+    expectedException.expectMessage("Invalid type 'SPECIFIC_ANALYSIS'. Projects can only be set with types: [PREVIOUS_VERSION, NUMBER_OF_DAYS]");
 
     ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("type", "specific_analysis")
-      .execute();
-  }
-
-  // validation of value
-  @Test
-  public void throw_IAE_if_no_value_for_date() {
-    ComponentDto project = componentDb.insertPublicProject();
-    logInAsProjectAdministrator(project);
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("New Code Period type 'DATE' requires a value");
-
-    ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("type", "date")
       .execute();
   }
 
@@ -162,21 +148,6 @@ public class SetActionTest {
       .setParam("project", project.getKey())
       .setParam("type", "specific_analysis")
       .setParam("branch", "master")
-      .execute();
-  }
-
-  @Test
-  public void throw_IAE_if_date_is_invalid() {
-    ComponentDto project = componentDb.insertMainBranch();
-    logInAsProjectAdministrator(project);
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Failed to parse date: unknown");
-
-    ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("type", "date")
-      .setParam("branch", "master")
-      .setParam("value", "unknown")
       .execute();
   }
 

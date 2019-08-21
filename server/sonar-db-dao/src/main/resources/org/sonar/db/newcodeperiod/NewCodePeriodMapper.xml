@@ -79,6 +79,14 @@
     AND ncp.branch_uuid is null
   </select>
 
+  <select id="selectAllByProject" parameterType="map" resultType="org.sonar.db.newcodeperiod.NewCodePeriodDto">
+    SELECT
+    <include refid="newCodePeriodMapperColumns"/>
+    FROM new_code_periods ncp
+    WHERE
+    ncp.project_uuid=#{projectUuid, jdbcType=VARCHAR}
+  </select>
+
   <select id="selectByBranch" parameterType="map" resultType="org.sonar.db.newcodeperiod.NewCodePeriodDto">
     SELECT
     <include refid="newCodePeriodMapperColumns"/>
