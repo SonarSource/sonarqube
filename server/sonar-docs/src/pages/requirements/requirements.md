@@ -14,11 +14,11 @@ The only prerequisite for running SonarQube is to have Java (Oracle JRE 11 or Op
 4. SonarQube does not support 32-bit systems on the server side. SonarQube does, however, support 32-bit systems on the scanner side.
 
 ### Enterprise Hardware Recommendations
-For large teams or Enterprise-scale installations of SonarQube, additional hardware is required. At the Enterprise level, monitoring your SonarQube instance/instance-administration/java-process-memory is essential and should guide further hardware upgrades as your instance grows. A starting configuration should include at least:
+For large teams or Enterprise-scale installations of SonarQube, additional hardware is required. At the Enterprise level, [monitoring your SonarQube instance](/instance-administration/monitoring/) is essential and should guide further hardware upgrades as your instance grows. A starting configuration should include at least:
 
 * 8 cores, to allow the main SonarQube platform to run with multiple Compute Engine workers
 * 16GB of RAM
-For additional requirements and recommendations relating to database and ElasticSearch, see Hardware Recommendations/requirements/hardware-recommendations.
+For additional requirements and recommendations relating to database and ElasticSearch, see [Hardware Recommendations](/requirements/hardware-recommendations/).
 
 ## Supported Platforms
 ### Java
