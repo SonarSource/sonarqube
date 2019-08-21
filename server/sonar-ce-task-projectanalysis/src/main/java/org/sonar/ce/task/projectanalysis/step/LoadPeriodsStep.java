@@ -89,7 +89,7 @@ public class LoadPeriodsStep implements ComputationStep {
     }
   }
 
-  private <T> Optional<T> firstPresent(Supplier<Optional<T>>... suppliers) {
+  private static <T> Optional<T> firstPresent(Supplier<Optional<T>>... suppliers) {
     for (Supplier<Optional<T>> supplier : suppliers) {
       Optional<T> result = supplier.get();
       if (result.isPresent()) {

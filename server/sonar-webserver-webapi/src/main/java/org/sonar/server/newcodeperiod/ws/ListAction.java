@@ -105,7 +105,7 @@ public class ListAction implements NewCodePeriodsWsAction {
     }
   }
 
-  private NewCodePeriods.ShowWSResponse build(String projectKey, String branchKey, NewCodePeriodType newCodePeriodType, @Nullable String value, boolean inherited) {
+  private static NewCodePeriods.ShowWSResponse build(String projectKey, String branchKey, NewCodePeriodType newCodePeriodType, @Nullable String value, boolean inherited) {
     NewCodePeriods.ShowWSResponse.Builder builder = newBuilder()
       .setType(convertType(newCodePeriodType))
       .setInherited(inherited)

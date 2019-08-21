@@ -20,8 +20,6 @@
 package org.sonar.server.setting.ws;
 
 import java.util.Optional;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
@@ -36,9 +34,6 @@ import static org.sonar.api.web.UserRole.ADMIN;
 
 @ServerSide
 public class SettingsWsSupport {
-
-  private static final Collector<CharSequence, ?, String> COMMA_JOINER = Collectors.joining(",");
-
   public static final String DOT_SECURED = ".secured";
 
   private final DefaultOrganizationProvider defaultOrganizationProvider;

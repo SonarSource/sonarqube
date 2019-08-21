@@ -227,7 +227,6 @@ public class PopulateNewCodePeriodTable extends DataChange {
   }
 
   private static List<EventDto> getVersionsByMostRecentFirst(Context context, String branchUuid) throws SQLException {
-    // TODO in LoadPeriodsStep we do a join with snapshots and see if the analysis is still unprocessed. Do we need to do it here?
     return context.prepareSelect("SELECT name, analysis_uuid FROM events "
       + "WHERE component_uuid = '" + branchUuid + "' AND category = 'Version' "
       + "ORDER BY created_at DESC")

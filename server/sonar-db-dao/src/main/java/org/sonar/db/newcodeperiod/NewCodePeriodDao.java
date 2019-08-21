@@ -31,7 +31,7 @@ import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class NewCodePeriodDao implements Dao {
-
+  private static final String MSG_PROJECT_UUID_NOT_SPECIFIED = "Project uuid must be specified.";
   private final System2 system2;
   private final UuidFactory uuidFactory;
 
@@ -73,23 +73,23 @@ public class NewCodePeriodDao implements Dao {
   }
 
   public Optional<NewCodePeriodDto> selectByProject(DbSession dbSession, String projectUuid) {
-    requireNonNull(projectUuid, "Project uuid must be specified.");
+    requireNonNull(projectUuid, MSG_PROJECT_UUID_NOT_SPECIFIED);
     return Optional.ofNullable(mapper(dbSession).selectByProject(projectUuid));
   }
 
   public List<NewCodePeriodDto> selectAllByProject(DbSession dbSession, String projectUuid) {
-    requireNonNull(projectUuid, "Project uuid must be specified.");
+    requireNonNull(projectUuid, MSG_PROJECT_UUID_NOT_SPECIFIED);
     return mapper(dbSession).selectAllByProject(projectUuid);
   }
 
   public Optional<NewCodePeriodDto> selectByBranch(DbSession dbSession, String projectUuid, String branchUuid) {
-    requireNonNull(projectUuid, "Project uuid must be specified.");
+    requireNonNull(projectUuid, MSG_PROJECT_UUID_NOT_SPECIFIED);
     requireNonNull(branchUuid, "Branch uuid must be specified.");
     return Optional.ofNullable(mapper(dbSession).selectByBranch(projectUuid, branchUuid));
   }
 
   public boolean existsByProjectAnalysisUuid(DbSession dbSession, String projectAnalysisUuid) {
-    requireNonNull(projectAnalysisUuid, "Project analysis uuid must be specified.");
+    requireNonNull(projectAnalysisUuid, MSG_PROJECT_UUID_NOT_SPECIFIED);
     return mapper(dbSession).countByProjectAnalysis(projectAnalysisUuid) > 0;
   }
 

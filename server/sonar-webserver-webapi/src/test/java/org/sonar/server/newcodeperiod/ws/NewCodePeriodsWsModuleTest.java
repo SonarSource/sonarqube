@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.newcodeperiod;
+package org.sonar.server.newcodeperiod.ws;
 
-import java.time.LocalDate;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-public class NewCodePeriodParser {
-  private NewCodePeriodParser() {
-    // static only
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class NewCodePeriodsWsModuleTest {
+
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new NewCodePeriodsWsModule().configure(container);
+    assertThat(container.size()).isEqualTo(7);
   }
 
-  public static LocalDate parseDate(String value) {
-    return LocalDate.parse(value);
-  }
-
-  public static int parseDays(String value) {
-    return Integer.parseInt(value);
-  }
 }

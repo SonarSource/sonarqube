@@ -78,10 +78,9 @@ public class SetAction implements SettingsWsAction {
   private final SettingsUpdater settingsUpdater;
   private final SettingsChangeNotifier settingsChangeNotifier;
   private final SettingValidations validations;
-  private final SettingsWsSupport settingsWsSupport;
 
   public SetAction(PropertyDefinitions propertyDefinitions, DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
-    SettingsUpdater settingsUpdater, SettingsChangeNotifier settingsChangeNotifier, SettingValidations validations, SettingsWsSupport settingsWsSupport) {
+    SettingsUpdater settingsUpdater, SettingsChangeNotifier settingsChangeNotifier, SettingValidations validations) {
     this.propertyDefinitions = propertyDefinitions;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
@@ -89,7 +88,6 @@ public class SetAction implements SettingsWsAction {
     this.settingsUpdater = settingsUpdater;
     this.settingsChangeNotifier = settingsChangeNotifier;
     this.validations = validations;
-    this.settingsWsSupport = settingsWsSupport;
   }
 
   @Override

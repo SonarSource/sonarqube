@@ -147,6 +147,7 @@ public class SetAction implements NewCodePeriodsWsAction {
         break;
       case SPECIFIC_ANALYSIS:
         requireValue(type, value);
+        requireBranch(type, projectBranch);
         SnapshotDto analysis = getAnalysis(dbSession, value, projectBranch, branch);
         dto.setValue(analysis.getUuid());
         break;
@@ -155,8 +156,12 @@ public class SetAction implements NewCodePeriodsWsAction {
     }
   }
 
-  private void requireValue(NewCodePeriodType type, @Nullable String value) {
+  private static void requireValue(NewCodePeriodType type, @Nullable String value) {
     Preconditions.checkArgument(value != null, "New Code Period type '%s' requires a value", type);
+  }
+
+  private static void requireBranch(NewCodePeriodType type, @Nullable ComponentDto projectBranch) {
+    Preconditions.checkArgument(projectBranch != null, "New Code Period type '%s' requires a branch", type);
   }
 
   private ComponentDto getProject(DbSession dbSession, String projectKey, @Nullable String branchKey) {
@@ -174,7 +179,7 @@ public class SetAction implements NewCodePeriodsWsAction {
     return project;
   }
 
-  private NewCodePeriodType validateType(String typeStr, boolean isOverall, boolean isBranch) {
+  private static NewCodePeriodType validateType(String typeStr, boolean isOverall, boolean isBranch) {
     NewCodePeriodType type;
     try {
       type = NewCodePeriodType.valueOf(typeStr.toUpperCase(Locale.US));

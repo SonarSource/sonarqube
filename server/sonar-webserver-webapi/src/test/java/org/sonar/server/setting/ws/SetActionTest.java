@@ -96,8 +96,7 @@ public class SetActionTest {
   private SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
   private SettingValidations validations = new SettingValidations(definitions, dbClient, i18n);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private SetAction underTest = new SetAction(definitions, dbClient, componentFinder, userSession, settingsUpdater,
-    settingsChangeNotifier, validations, new SettingsWsSupport(defaultOrganizationProvider, userSession));
+  private SetAction underTest = new SetAction(definitions, dbClient, componentFinder, userSession, settingsUpdater, settingsChangeNotifier, validations);
 
   private WsActionTester ws = new WsActionTester(underTest);
 

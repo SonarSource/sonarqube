@@ -21,6 +21,7 @@ package org.sonar.db.component;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -38,6 +39,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.tuple;
 
 @RunWith(DataProviderRunner.class)
 public class BranchDaoTest {
@@ -101,7 +103,7 @@ public class BranchDaoTest {
 
   @DataProvider
   public static Object[][] nullOrEmpty() {
-    return new Object[][]{
+    return new Object[][] {
       {null},
       {""}
     };
@@ -111,7 +113,7 @@ public class BranchDaoTest {
   public static Object[][] oldAndNewValuesCombinations() {
     String value1 = randomAlphabetic(10);
     String value2 = randomAlphabetic(20);
-    return new Object[][]{
+    return new Object[][] {
       {null, value1},
       {"", value1},
       {value1, null},
@@ -125,7 +127,7 @@ public class BranchDaoTest {
 
   @DataProvider
   public static Object[][] nonLongBranchType() {
-    return new Object[][]{
+    return new Object[][] {
       {BranchType.SHORT},
       {BranchType.PULL_REQUEST}
     };
@@ -364,6 +366,35 @@ public class BranchDaoTest {
 
     // select a branch on another project with same branch name
     assertThat(underTest.selectByBranchKey(dbSession, "U3", "feature/foo")).isEmpty();
+  }
+
+  @Test
+  public void selectByComponent() {
+    BranchDto mainBranch = new BranchDto();
+    mainBranch.setProjectUuid("U1");
+    mainBranch.setUuid("U1");
+    mainBranch.setBranchType(BranchType.LONG);
+    mainBranch.setKey("master");
+    underTest.insert(dbSession, mainBranch);
+
+    BranchDto featureBranch = new BranchDto();
+    featureBranch.setProjectUuid("U1");
+    featureBranch.setUuid("U2");
+    featureBranch.setBranchType(BranchType.SHORT);
+    featureBranch.setKey("feature/foo");
+    featureBranch.setMergeBranchUuid("U3");
+    underTest.insert(dbSession, featureBranch);
+
+    ComponentDto component = new ComponentDto().setProjectUuid(mainBranch.getUuid());
+
+    // select the component
+    Collection<BranchDto> branches = underTest.selectByComponent(dbSession, component);
+
+    assertThat(branches).hasSize(2);
+
+    assertThat(branches).extracting(BranchDto::getUuid, BranchDto::getKey, BranchDto::getProjectUuid, BranchDto::getBranchType, BranchDto::getMergeBranchUuid)
+      .containsOnly(tuple(mainBranch.getUuid(), mainBranch.getKey(), mainBranch.getProjectUuid(), mainBranch.getBranchType(), mainBranch.getMergeBranchUuid()),
+        tuple(featureBranch.getUuid(), featureBranch.getKey(), featureBranch.getProjectUuid(), featureBranch.getBranchType(), featureBranch.getMergeBranchUuid()));
   }
 
   @Test

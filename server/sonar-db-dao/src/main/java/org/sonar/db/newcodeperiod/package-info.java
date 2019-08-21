@@ -17,20 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@ParametersAreNonnullByDefault
 package org.sonar.db.newcodeperiod;
 
-import java.time.LocalDate;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public class NewCodePeriodParser {
-  private NewCodePeriodParser() {
-    // static only
-  }
-
-  public static LocalDate parseDate(String value) {
-    return LocalDate.parse(value);
-  }
-
-  public static int parseDays(String value) {
-    return Integer.parseInt(value);
-  }
-}

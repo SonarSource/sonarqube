@@ -150,7 +150,7 @@ public class ShowAction implements NewCodePeriodsWsAction {
       .setInherited(inherited);
   }
 
-  private NewCodePeriods.NewCodePeriodType convertType(NewCodePeriodType type) {
+  private static NewCodePeriods.NewCodePeriodType convertType(NewCodePeriodType type) {
     switch (type) {
       case NUMBER_OF_DAYS:
         return NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS;
