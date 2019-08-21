@@ -36,7 +36,3 @@ SonarQube allows to analyze different languages depending on the Edition you are
 | [XML](/analysis/languages/xml/)               | ![](/images/check.svg) | ![](/images/check.svg) | ![](/images/check.svg)                    |
 
 In this section you will find the documentation related to language analyzers made and supported by SonarSource.
-
-[[warning]]
-| This documentation is not updated automatically when you upgrade a given analyzer. It's required to upgrade SonarQube to get the latest version of analyzers's documentation. This will be improved in the future.
-
