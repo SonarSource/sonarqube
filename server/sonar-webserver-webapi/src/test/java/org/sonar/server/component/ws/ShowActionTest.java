@@ -172,7 +172,7 @@ public class ShowActionTest {
   }
 
   @Test
-  public void show_with_leak_period_date() {
+  public void show_with_new_code_period_date() {
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshots(
       newAnalysis(project).setPeriodDate(1_000_000_000L).setLast(false),

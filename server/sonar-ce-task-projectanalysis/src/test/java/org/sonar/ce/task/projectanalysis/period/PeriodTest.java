@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_VERSION;
 
 public class PeriodTest {
 

@@ -27,7 +27,6 @@ import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
@@ -52,12 +51,11 @@ import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT_KEY;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
-import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_VERSION;
 
 public class NewEffortAggregatorTest {
 
   private static final Period PERIOD = new Period(NewCodePeriodType.PREVIOUS_VERSION.name(), null, 1_500_000_000L);
-  private static final long[] OLD_ISSUES_DATES = new long[] {
+  private static final long[] OLD_ISSUES_DATES = new long[]{
     PERIOD.getSnapshotDate(),
     PERIOD.getSnapshotDate() - 1,
     PERIOD.getSnapshotDate() - 1_200_000L,

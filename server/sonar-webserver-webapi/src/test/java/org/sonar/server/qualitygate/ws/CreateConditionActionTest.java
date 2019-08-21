@@ -94,7 +94,7 @@ public class CreateConditionActionTest {
   }
 
   @Test
-  public void create_condition_over_leak_period() {
+  public void create_condition_over_new_code_period() {
     OrganizationDto organization = db.organizations().insert();
     logInAsQualityGateAdmin(organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);

@@ -62,7 +62,7 @@ public class SetBaselineAction implements ProjectAnalysesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set_baseline")
       .setDescription("Set an analysis as the baseline of the New Code Period on a project or a long-lived branch.<br/>" +
-        "This manually set baseline overrides the `sonar.leak.period` setting.<br/>" +
+        "This manually set baseline.<br/>" +
         "Requires one of the following permissions:" +
         "<ul>" +
         "  <li>'Administer System'</li>" +

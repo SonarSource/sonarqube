@@ -32,15 +32,7 @@ import static org.sonar.api.PropertyType.BOOLEAN;
 
 public class CorePropertyDefinitions {
 
-  public static final String LEAK_PERIOD = "sonar.leak.period";
-  public static final String LEAK_PERIOD_MODE_DATE = "date";
-  public static final String LEAK_PERIOD_MODE_VERSION = "version";
-  public static final String LEAK_PERIOD_MODE_DAYS = "days";
-  public static final String LEAK_PERIOD_MODE_PREVIOUS_VERSION = "previous_version";
-  public static final String LEAK_PERIOD_MODE_MANUAL_BASELINE = "manual_baseline";
   public static final String SONAR_ANALYSIS = "sonar.analysis.";
-
-  private static final String DEFAULT_LEAK_PERIOD = LEAK_PERIOD_MODE_PREVIOUS_VERSION;
 
   private static final String CATEGORY_ORGANIZATIONS = "organizations";
   public static final String ORGANIZATIONS_ANYONE_CAN_CREATE = "sonar.organizations.anyoneCanCreate";
@@ -139,24 +131,6 @@ public class CorePropertyDefinitions {
         .subCategory(CoreProperties.SUBCATEGORY_ISSUES)
         .onQualifiers(Qualifiers.PROJECT)
         .type(PropertyType.USER_LOGIN)
-        .build(),
-
-      // SCANNER
-      PropertyDefinition.builder(LEAK_PERIOD)
-        .name("New Code Period")
-        .deprecatedKey("sonar.timemachine.period1")
-        .description("Period used to compare measures and track new issues. Values are : " +
-          "<ul class='bullet'><li>Number of days before  analysis, for example 5.</li>" +
-          "<li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li>" +
-          "<li>'previous_version' to compare to the previous version in the project history</li>" +
-          "<li>A version, for example '1.2' or 'BASELINE'</li></ul>" +
-          "<p>When specifying a number of days or a date, the snapshot selected for comparison is the first one available inside the corresponding time range. </p>" +
-          "<p>This property has no effect when a baseline is manually set on a long-living branch, such as the main branch.<p/>" +
-          "<p>Changing this property only takes effect after subsequent project inspections.<p/>")
-        .defaultValue(DEFAULT_LEAK_PERIOD)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
-        .onQualifiers(Qualifiers.PROJECT)
         .build(),
 
       // CPD

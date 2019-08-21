@@ -63,10 +63,8 @@ import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.server.setting.ws.PropertySetExtractor.extractPropertySetKeys;
-import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEYS;
-import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.setting.ws.SettingsWsSupport.isSecured;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -87,7 +85,7 @@ public class ValuesAction implements SettingsWsAction {
   private final boolean isSonarCloud;
 
   public ValuesAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions,
-    SettingsWsSupport settingsWsSupport, Configuration configuration) {
+                      SettingsWsSupport settingsWsSupport, Configuration configuration) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
@@ -121,8 +119,6 @@ public class ValuesAction implements SettingsWsAction {
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-    settingsWsSupport.addBranchParam(action);
-    settingsWsSupport.addPullRequestParam(action);
   }
 
   @Override
@@ -159,7 +155,7 @@ public class ValuesAction implements SettingsWsAction {
     if (componentKey == null) {
       return Optional.empty();
     }
-    ComponentDto component = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, valuesRequest.getBranch(), valuesRequest.getPullRequest());
+    ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
     if (!userSession.hasComponentPermission(USER, component) &&
       !userSession.hasComponentPermission(UserRole.SCAN, component) &&
       !userSession.hasPermission(OrganizationPermission.SCAN, component.getOrganizationUuid())) {
@@ -358,30 +354,8 @@ public class ValuesAction implements SettingsWsAction {
   }
 
   private static class ValuesRequest {
-    private String branch;
-    private String pullRequest;
     private String component;
     private List<String> keys;
-
-    public ValuesRequest setBranch(@Nullable String branch) {
-      this.branch = branch;
-      return this;
-    }
-
-    @CheckForNull
-    public String getBranch() {
-      return branch;
-    }
-
-    public ValuesRequest setPullRequest(@Nullable String pullRequest) {
-      this.pullRequest = pullRequest;
-      return this;
-    }
-
-    @CheckForNull
-    public String getPullRequest() {
-      return pullRequest;
-    }
 
     public ValuesRequest setComponent(@Nullable String component) {
       this.component = component;
@@ -405,9 +379,7 @@ public class ValuesAction implements SettingsWsAction {
 
     private static ValuesRequest from(Request request) {
       ValuesRequest result = new ValuesRequest()
-        .setComponent(request.param(PARAM_COMPONENT))
-        .setBranch(request.param(PARAM_BRANCH))
-        .setPullRequest(request.param(PARAM_PULL_REQUEST));
+        .setComponent(request.param(PARAM_COMPONENT));
       if (request.hasParam(PARAM_KEYS)) {
         result.setKeys(request.paramAsStrings(PARAM_KEYS));
       }

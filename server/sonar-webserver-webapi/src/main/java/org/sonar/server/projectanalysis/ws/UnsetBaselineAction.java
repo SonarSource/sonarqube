@@ -56,7 +56,7 @@ public class UnsetBaselineAction implements ProjectAnalysesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("unset_baseline")
       .setDescription("Unset any manually-set New Code Period baseline on a project or a long-lived branch.<br/>" +
-        "Unsetting a manual baseline restores the use of the `sonar.leak.period` setting.<br/>" +
+        "Unsetting a manual baseline restores the use of the default new code period setting.<br/>" +
         "Requires one of the following permissions:" +
         "<ul>" +
         "  <li>'Administer System'</li>" +

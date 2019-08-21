@@ -345,7 +345,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     dbTester.events().insertEvent(newEvent(analysis).setName("0.9").setCategory(CATEGORY_VERSION));
     setupRoot(project, "1.1");
 
-    //settings.setProperty("sonar.leak.period", "previous_version");
+    dbTester.newCodePeriods().insert(NewCodePeriodType.PREVIOUS_VERSION, null);
+
     underTest.execute(new TestComputationStepContext());
 
     assertPeriod(NewCodePeriodType.PREVIOUS_VERSION, null, analysis.getCreatedAt());
@@ -354,10 +355,11 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @Test
   @UseDataProvider("anyValidLeakPeriodSettingValue")
-  public void leak_period_setting_is_ignored_for_SLB_or_PR(String leakPeriodSettingValue) {
+  public void leak_period_setting_is_ignored_for_SLB_or_PR(NewCodePeriodType type, @Nullable String value) {
     when(analysisMetadataHolder.isLongLivingBranch()).thenReturn(false);
 
-    //settings.setProperty("sonar.leak.period", leakPeriodSettingValue);
+    dbTester.newCodePeriods().insert(type, value);
+
     underTest.execute(new TestComputationStepContext());
 
     assertThat(periodsHolder.hasPeriod()).isFalse();
@@ -405,9 +407,9 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public static Object[][] anyValidLeakPeriodSettingValue() {
     return new Object[][]{
       // days
-      {"100"},
-      // previous_version keyword
-      {"previous_version"}
+      {NewCodePeriodType.NUMBER_OF_DAYS, "100"},
+      // previous_version
+      {NewCodePeriodType.PREVIOUS_VERSION, null}
     };
   }
 

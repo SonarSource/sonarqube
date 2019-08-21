@@ -42,10 +42,7 @@ import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.server.setting.ws.SettingsWs.SETTING_ON_BRANCHES;
-import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
-import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -58,7 +55,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
   private final SettingsWsSupport settingsWsSupport;
 
   public ListDefinitionsAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions,
-    SettingsWsSupport settingsWsSupport) {
+                               SettingsWsSupport settingsWsSupport) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
@@ -85,8 +82,6 @@ public class ListDefinitionsAction implements SettingsWsAction {
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-    settingsWsSupport.addBranchParam(action);
-    settingsWsSupport.addPullRequestParam(action);
   }
 
   @Override
@@ -101,7 +96,6 @@ public class ListDefinitionsAction implements SettingsWsAction {
     ListDefinitionsWsResponse.Builder wsResponse = ListDefinitionsWsResponse.newBuilder();
     propertyDefinitions.getAll().stream()
       .filter(definition -> qualifier.map(s -> definition.qualifiers().contains(s)).orElseGet(definition::global))
-      .filter(definition -> wsRequest.getBranch() == null || SETTING_ON_BRANCHES.contains(definition.key()))
       .filter(definition -> settingsWsSupport.isVisible(definition.key(), component))
       .sorted(comparing(PropertyDefinition::category, String::compareToIgnoreCase)
         .thenComparingInt(PropertyDefinition::index)
@@ -112,13 +106,11 @@ public class ListDefinitionsAction implements SettingsWsAction {
 
   private static ListDefinitionsRequest toWsRequest(Request request) {
     return new ListDefinitionsRequest()
-      .setComponent(request.param(PARAM_COMPONENT))
-      .setBranch(request.param(PARAM_BRANCH))
-      .setPullRequest(request.param(PARAM_PULL_REQUEST));
+      .setComponent(request.param(PARAM_COMPONENT));
   }
 
   private static Optional<String> getQualifier(Optional<ComponentDto> component) {
-    return component.isPresent() ? Optional.of(component.get().qualifier()) : Optional.empty();
+    return component.map(ComponentDto::qualifier);
   }
 
   private Optional<ComponentDto> loadComponent(ListDefinitionsRequest request) {
@@ -127,7 +119,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
       if (componentKey == null) {
         return Optional.empty();
       }
-      ComponentDto component = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, request.getBranch(), request.getPullRequest());
+      ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
       userSession.checkComponentPermission(USER, component);
       return Optional.of(component);
     }
@@ -168,10 +160,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
   }
 
   private static class ListDefinitionsRequest {
-
-    private String branch;
     private String component;
-    private String pullRequest;
 
     public ListDefinitionsRequest setComponent(@Nullable String component) {
       this.component = component;
@@ -182,25 +171,6 @@ public class ListDefinitionsAction implements SettingsWsAction {
     public String getComponent() {
       return component;
     }
-
-    public ListDefinitionsRequest setBranch(@Nullable String branch) {
-      this.branch = branch;
-      return this;
-    }
-
-    @CheckForNull
-    public String getBranch() {
-      return branch;
-    }
-
-    public ListDefinitionsRequest setPullRequest(@Nullable String pullRequest) {
-      this.pullRequest = pullRequest;
-      return this;
-    }
-
-    @CheckForNull
-    public String getPullRequest() {
-      return pullRequest;
-    }
   }
+
 }

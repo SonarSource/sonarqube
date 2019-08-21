@@ -126,7 +126,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
   }
 
   @Test
-  public void measures_on_leak_period_are_persisted() {
+  public void measures_on_new_code_period_are_persisted() {
     prepareProject();
     measureRepository.addRawMeasure(REF_1, INT_METRIC.getKey(), newMeasureBuilder().setVariation(42.0).createNoValue());
 

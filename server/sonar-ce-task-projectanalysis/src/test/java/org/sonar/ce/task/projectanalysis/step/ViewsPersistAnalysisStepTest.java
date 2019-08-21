@@ -46,7 +46,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;
-import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
@@ -119,7 +118,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
   }
 
   @Test
-  public void persist_snapshots_with_leak_period() {
+  public void persist_snapshots_with_new_code_period() {
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto viewDto = save(newView(organizationDto, "UUID_VIEW").setDbKey("KEY_VIEW"));
     ComponentDto subViewDto = save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
@@ -129,12 +128,12 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
     Component view = ViewsComponent.builder(VIEW, "KEY_VIEW").setUuid("UUID_VIEW").addChildren(subView).build();
     treeRootHolder.setRoot(view);
 
-    periodsHolder.setPeriod(new Period(LEAK_PERIOD_MODE_DATE, "2015-01-01", analysisDate));
+    periodsHolder.setPeriod(new Period("NUMBER_OF_DAYS", "30", analysisDate));
 
     underTest.execute(new TestComputationStepContext());
 
     SnapshotDto viewSnapshot = getUnprocessedSnapshot(viewDto.uuid());
-    assertThat(viewSnapshot.getPeriodMode()).isEqualTo(LEAK_PERIOD_MODE_DATE);
+    assertThat(viewSnapshot.getPeriodMode()).isEqualTo("NUMBER_OF_DAYS");
     assertThat(viewSnapshot.getPeriodDate()).isEqualTo(analysisDate);
     assertThat(viewSnapshot.getPeriodModeParameter()).isNotNull();
   }

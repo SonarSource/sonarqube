@@ -53,18 +53,15 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.scanner.protocol.GsonHelper;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.setting.SettingsChangeNotifier;
+import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
-import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_FIELD_VALUES;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEY;
-import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUE;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUES;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -99,13 +96,13 @@ public class SetAction implements SettingsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set")
       .setDescription("Update a setting value.<br>" +
-        "Either '%s' or '%s' must be provided.<br> " +
-        "The settings defined in conf/sonar.properties are read-only and can't be changed.<br/>" +
-        "Requires one of the following permissions: " +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified component</li>" +
-        "</ul>",
+          "Either '%s' or '%s' must be provided.<br> " +
+          "The settings defined in conf/sonar.properties are read-only and can't be changed.<br/>" +
+          "Requires one of the following permissions: " +
+          "<ul>" +
+          "<li>'Administer System'</li>" +
+          "<li>'Administer' rights on the specified component</li>" +
+          "</ul>",
         PARAM_VALUE, PARAM_VALUES)
       .setSince("6.1")
       .setChangelog(
@@ -136,9 +133,6 @@ public class SetAction implements SettingsWsAction {
       .setDescription("Component key")
       .setDeprecatedKey("componentKey", "6.3")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-
-    settingsWsSupport.addBranchParam(action);
-    settingsWsSupport.addPullRequestParam(action);
   }
 
   @Override
@@ -211,8 +205,6 @@ public class SetAction implements SettingsWsAction {
     SettingData settingData = new SettingData(settingKey, valuesFromRequest(request), component.orElse(null));
     ImmutableList.of(validations.scope(), validations.qualifier(), validations.valueType())
       .forEach(validation -> validation.accept(settingData));
-    component.map(ComponentDto::getBranch)
-      .ifPresent(b -> checkArgument(SettingsWs.SETTING_ON_BRANCHES.contains(settingKey), format("Setting '%s' cannot be set on a branch", settingKey)));
   }
 
   private static void validatePropertySet(SetRequest request, @Nullable PropertyDefinition definition) {
@@ -297,9 +289,7 @@ public class SetAction implements SettingsWsAction {
       .setValue(request.param(PARAM_VALUE))
       .setValues(request.multiParam(PARAM_VALUES))
       .setFieldValues(request.multiParam(PARAM_FIELD_VALUES))
-      .setComponent(request.param(PARAM_COMPONENT))
-      .setBranch(request.param(PARAM_BRANCH))
-      .setPullRequest(request.param(PARAM_PULL_REQUEST));
+      .setComponent(request.param(PARAM_COMPONENT));
     checkArgument(set.getValues() != null, "Setting values must not be null");
     checkArgument(set.getFieldValues() != null, "Setting fields values must not be null");
     return set;

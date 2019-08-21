@@ -247,7 +247,7 @@ public class QualityGateConditionsUpdaterTest {
   }
 
   @Test
-  public void fail_to_update_condition_on_rating_metric_on_leak_period() {
+  public void fail_to_update_condition_on_rating_metric_on_new_code_period() {
     MetricDto metric = insertMetric(RATING, SQALE_RATING_KEY);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,

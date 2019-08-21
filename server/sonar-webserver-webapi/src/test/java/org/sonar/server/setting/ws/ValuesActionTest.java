@@ -682,42 +682,6 @@ public class ValuesActionTest {
   }
 
   @Test
-  public void branch_values() {
-    ComponentDto project = db.components().insertMainBranch();
-    userSession.logIn().addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    definitions.addComponent(PropertyDefinition.builder("sonar.leak.period").onQualifiers(PROJECT).build());
-    propertyDb.insertProperties(newComponentPropertyDto(branch).setKey("sonar.leak.period").setValue("two"));
-
-    ValuesWsResponse result = newTester().newRequest()
-      .setParam("keys", "sonar.leak.period")
-      .setParam("component", branch.getKey())
-      .setParam("branch", branch.getBranch())
-      .executeProtobuf(ValuesWsResponse.class);
-
-    assertThat(result.getSettingsList()).hasSize(1);
-    assertSetting(result.getSettings(0), "sonar.leak.period", "two", false);
-  }
-
-  @Test
-  public void branch_values_inherit_from_project() {
-    ComponentDto project = db.components().insertMainBranch();
-    userSession.logIn().addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    definitions.addComponent(PropertyDefinition.builder("sonar.leak.period").onQualifiers(PROJECT).build());
-    propertyDb.insertProperties(newComponentPropertyDto(project).setKey("sonar.leak.period").setValue("two"));
-
-    ValuesWsResponse result = newTester().newRequest()
-      .setParam("keys", "sonar.leak.period")
-      .setParam("component", branch.getKey())
-      .setParam("branch", branch.getBranch())
-      .executeProtobuf(ValuesWsResponse.class);
-
-    assertThat(result.getSettingsList()).hasSize(1);
-    assertSetting(result.getSettings(0), "sonar.leak.period", "two", true);
-  }
-
-  @Test
   public void fail_when_user_has_not_project_browse_permission() {
     userSession.logIn("project-admin").addProjectPermission(CODEVIEWER, project);
     definitions.addComponent(PropertyDefinition.builder("foo").build());
@@ -750,23 +714,6 @@ public class ValuesActionTest {
     newTester().newRequest()
       .setParam("keys", "foo")
       .setParam("component", "unknown")
-      .execute();
-  }
-
-  @Test
-  public void fail_when_branch_not_found() {
-    ComponentDto project = db.components().insertMainBranch();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    String settingKey = "not_allowed_on_branch";
-    userSession.logIn().addProjectPermission(USER, project);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component '%s' on branch 'unknown' not found", branch.getKey()));
-
-    newTester().newRequest()
-      .setParam("keys", settingKey)
-      .setParam("component", branch.getKey())
-      .setParam("branch", "unknown")
       .execute();
   }
 
@@ -837,7 +784,7 @@ public class ValuesActionTest {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("keys", "component", "branch", "pullRequest");
+    assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("keys", "component");
   }
 
   @Test

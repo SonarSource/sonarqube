@@ -151,7 +151,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void return_measures_on_leak_period() {
+  public void return_measures_on_new_code_period() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
     userSession.addProjectPermission(UserRole.USER, project);

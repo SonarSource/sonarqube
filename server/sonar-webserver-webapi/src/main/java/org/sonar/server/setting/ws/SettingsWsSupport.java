@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.OrganizationPermission;
@@ -34,10 +33,6 @@ import org.sonar.server.user.UserSession;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
-import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_PULL_REQUEST;
-import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
-import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 
 @ServerSide
 public class SettingsWsSupport {
@@ -87,19 +82,4 @@ public class SettingsWsSupport {
       .orElse(false);
   }
 
-  WebService.NewParam addBranchParam(WebService.NewAction action) {
-    return action.createParam(PARAM_BRANCH)
-      .setDescription("Branch key. Only available on following settings : %s", SettingsWs.SETTING_ON_BRANCHES.stream().collect(COMMA_JOINER))
-      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
-      .setInternal(true)
-      .setSince("6.6");
-  }
-
-  WebService.NewParam addPullRequestParam(WebService.NewAction action) {
-    return action.createParam(PARAM_PULL_REQUEST)
-      .setDescription("Pull request. Only available on following settings : %s", SettingsWs.SETTING_ON_BRANCHES.stream().collect(COMMA_JOINER))
-      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001)
-      .setInternal(true)
-      .setSince("7.1");
-  }
 }

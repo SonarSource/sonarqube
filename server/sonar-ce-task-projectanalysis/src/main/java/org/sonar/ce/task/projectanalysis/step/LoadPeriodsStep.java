@@ -37,8 +37,8 @@ import org.sonar.db.newcodeperiod.NewCodePeriodDto;
  * Populates the {@link PeriodHolder}
  * <p/>
  * Here is how these periods are computed :
- * - Read the period property ${@link org.sonar.core.config.CorePropertyDefinitions#LEAK_PERIOD}
- * - Try to find the matching snapshots from the property
+ * - Read the new code period from DB
+ * - Try to find the matching snapshots from the setting
  * - If a snapshot is found, a period is set to the repository, otherwise fail with MessageException
  */
 public class LoadPeriodsStep implements ComputationStep {
