@@ -56,7 +56,7 @@ exports[`should render correctly 1`] = `
         id="extend-profile-submit"
         onClick={[Function]}
       >
-        copy
+        extend
       </SubmitButton>
       <ResetButtonLink
         id="extend-profile-cancel"

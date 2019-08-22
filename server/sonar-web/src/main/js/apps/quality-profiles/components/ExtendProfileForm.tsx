@@ -126,7 +126,7 @@ export default class ExtendProfileForm extends React.PureComponent<Props, State>
               disabled={this.state.loading || !this.canSubmit(this.state)}
               id="extend-profile-submit"
               onClick={this.handleFormSubmit}>
-              {translate('copy')}
+              {translate('extend')}
             </SubmitButton>
             <ResetButtonLink id="extend-profile-cancel" onClick={this.props.onClose}>
               {translate('cancel')}
