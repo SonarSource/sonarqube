@@ -34,6 +34,7 @@ public class DbVersion80 implements DbVersion {
       .add(3005, "Remove default quality gate property from Properties table", RemoveDefaultQualityGateFromPropertiesTable.class)
       .add(3006, "Create NEW_CODE_PERIOD table", CreateNewCodePeriodTable.class)
       .add(3007, "Populate NEW_CODE_PERIOD table", PopulateNewCodePeriodTable.class)
+      .add(3008, "Remove leak period properties", RemoveLeakPeriodProperties.class)
     ;
   }
 }

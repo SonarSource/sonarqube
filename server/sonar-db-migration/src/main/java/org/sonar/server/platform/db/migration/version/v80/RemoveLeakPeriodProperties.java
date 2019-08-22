@@ -19,23 +19,21 @@
  */
 package org.sonar.server.platform.db.migration.version.v80;
 
-import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class RemoveLeakPeriodProperties extends DataChange {
+  private static final String LEAK_PERIOD_PROP_KEY = "sonar.leak.period";
 
-public class DbVersion80Test {
-  private DbVersion underTest = new DbVersion80();
-
-  @Test
-  public void migrationNumber_starts_at_3000() {
-    verifyMinimumMigrationNumber(underTest, 3000);
+  public RemoveLeakPeriodProperties(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 9);
+  @Override
+  protected void execute(DataChange.Context context) throws SQLException {
+    context.prepareUpsert("delete from properties where prop_key='" + LEAK_PERIOD_PROP_KEY + "'")
+      .execute()
+      .commit();
   }
-
 }
