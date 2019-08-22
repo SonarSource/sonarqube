@@ -552,6 +552,19 @@ export function mockQualityProfile(overrides: Partial<Profile> = {}): Profile {
   };
 }
 
+export function mockQualityProfileInheritance(
+  overrides: Partial<T.ProfileInheritanceDetails> = {}
+): T.ProfileInheritanceDetails {
+  return {
+    activeRuleCount: 4,
+    isBuiltIn: false,
+    key: 'foo',
+    name: 'Foo',
+    overridingRuleCount: 0,
+    ...overrides
+  };
+}
+
 export function mockQualityGateProjectStatus(
   overrides: Partial<T.QualityGateProjectStatus> = {}
 ): T.QualityGateProjectStatus {

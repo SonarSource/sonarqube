@@ -101,7 +101,13 @@ export function getProfileProjects(
   return getJSON('/api/qualityprofiles/projects', data).catch(throwGlobalError);
 }
 
-export function getProfileInheritance(profileKey: string): Promise<any> {
+export function getProfileInheritance(
+  profileKey: string
+): Promise<{
+  ancestors: T.ProfileInheritanceDetails[];
+  children: T.ProfileInheritanceDetails[];
+  profile: T.ProfileInheritanceDetails;
+}> {
   return getJSON('/api/qualityprofiles/inheritance', { profileKey }).catch(throwGlobalError);
 }
 

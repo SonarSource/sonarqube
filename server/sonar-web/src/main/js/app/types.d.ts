@@ -614,6 +614,14 @@ declare namespace T {
     }>;
   }
 
+  export interface ProfileInheritanceDetails {
+    activeRuleCount: number;
+    isBuiltIn: boolean;
+    key: string;
+    name: string;
+    overridingRuleCount?: number;
+  }
+
   export interface ProjectLink {
     id: string;
     name?: string;

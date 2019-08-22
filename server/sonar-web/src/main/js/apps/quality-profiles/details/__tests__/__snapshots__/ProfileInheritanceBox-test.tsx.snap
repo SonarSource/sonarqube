@@ -1,0 +1,140 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<tr
+  data-test="quality-profiles__inheritance-current"
+>
+  <td>
+    <div
+      style={
+        Object {
+          "paddingLeft": 25,
+        }
+      }
+    >
+      <ProfileLink
+        className="text-middle"
+        language="foo"
+        name="Foo"
+        organization={null}
+      >
+        Foo
+      </ProfileLink>
+    </div>
+  </td>
+  <td>
+    quality_profile.x_active_rules.4
+  </td>
+  <td>
+    <p>
+      quality_profiles.x_overridden_rules.0
+    </p>
+  </td>
+</tr>
+`;
+
+exports[`should render correctly 2`] = `
+<tr
+  data-test="quality-profiles__inheritance-current"
+>
+  <td>
+    <div
+      style={
+        Object {
+          "paddingLeft": 75,
+        }
+      }
+    >
+      <ProfileLink
+        className="text-middle"
+        language="foo"
+        name="Foo"
+        organization={null}
+      >
+        Foo
+      </ProfileLink>
+      <BuiltInQualityProfileBadge
+        className="spacer-left"
+      />
+    </div>
+  </td>
+  <td>
+    quality_profile.x_active_rules.4
+  </td>
+  <td>
+    <p>
+      quality_profiles.x_overridden_rules.0
+    </p>
+  </td>
+</tr>
+`;
+
+exports[`should render correctly 3`] = `
+<tr
+  data-test="quality-profiles__inheritance-current"
+>
+  <td>
+    <div
+      style={
+        Object {
+          "paddingLeft": 25,
+        }
+      }
+    >
+      <ProfileLink
+        className="text-middle"
+        language="foo"
+        name="Foo"
+        organization={null}
+      >
+        Foo
+      </ProfileLink>
+      <HelpTooltip
+        className="spacer-left"
+        overlay="quality_profiles.extends_built_in"
+      />
+    </div>
+  </td>
+  <td>
+    quality_profile.x_active_rules.4
+  </td>
+  <td>
+    <p>
+      quality_profiles.x_overridden_rules.0
+    </p>
+  </td>
+</tr>
+`;
+
+exports[`should render correctly 4`] = `
+<tr
+  data-test="quality-profiles__inheritance-current"
+>
+  <td>
+    <div
+      style={
+        Object {
+          "paddingLeft": 25,
+        }
+      }
+    >
+      <ProfileLink
+        className="text-middle"
+        language="foo"
+        name="Foo"
+        organization={null}
+      >
+        Foo
+      </ProfileLink>
+    </div>
+  </td>
+  <td>
+    quality_profile.x_active_rules.4
+  </td>
+  <td>
+    <p>
+      quality_profiles.x_overridden_rules.10
+    </p>
+  </td>
+</tr>
+`;

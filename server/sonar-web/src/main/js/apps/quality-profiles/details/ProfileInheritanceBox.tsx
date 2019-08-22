@@ -30,20 +30,22 @@ interface Props {
   extendsBuiltIn?: boolean;
   language: string;
   organization: string | null;
-  profile: {
-    activeRuleCount: number;
-    isBuiltIn: boolean;
-    key: string;
-    language: string;
-    name: string;
-    overridingRuleCount?: number;
-  };
-  type: string;
+  profile: T.ProfileInheritanceDetails;
+  type?: string;
 }
 
-export default function ProfileInheritanceBox({ type, displayLink = true, ...props }: Props) {
-  const { profile, className, extendsBuiltIn } = props;
-  const offset = 25 * props.depth;
+export default function ProfileInheritanceBox(props: Props) {
+  const {
+    className,
+    depth,
+    extendsBuiltIn,
+    language,
+    organization,
+    profile,
+    displayLink = true,
+    type = 'current'
+  } = props;
+  const offset = 25 * depth;
 
   return (
     <tr className={className} data-test={`quality-profiles__inheritance-${type}`}>
@@ -52,9 +54,9 @@ export default function ProfileInheritanceBox({ type, displayLink = true, ...pro
           {displayLink ? (
             <ProfileLink
               className="text-middle"
-              language={props.language}
+              language={language}
               name={profile.name}
-              organization={props.organization}>
+              organization={organization}>
               {profile.name}
             </ProfileLink>
           ) : (

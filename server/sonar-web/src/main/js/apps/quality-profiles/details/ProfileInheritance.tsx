@@ -33,21 +33,12 @@ interface Props {
   updateProfiles: () => Promise<void>;
 }
 
-interface ProfileInheritanceDetails {
-  activeRuleCount: number;
-  isBuiltIn: boolean;
-  key: string;
-  language: string;
-  name: string;
-  overridingRuleCount?: number;
-}
-
 interface State {
-  ancestors?: Array<ProfileInheritanceDetails>;
-  children?: Array<ProfileInheritanceDetails>;
+  ancestors?: T.ProfileInheritanceDetails[];
+  children?: T.ProfileInheritanceDetails[];
   formOpen: boolean;
   loading: boolean;
-  profile?: ProfileInheritanceDetails;
+  profile?: T.ProfileInheritanceDetails;
 }
 
 export default class ProfileInheritance extends React.PureComponent<Props, State> {
@@ -78,9 +69,11 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
       r => {
         if (this.mounted) {
           const { ancestors, children } = r;
+          ancestors.reverse();
+
           this.setState({
             children,
-            ancestors: ancestors.reverse(),
+            ancestors,
             profile: r.profile,
             loading: false
           });
@@ -167,7 +160,6 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
                     language={profile.language}
                     organization={this.props.organization}
                     profile={this.state.profile}
-                    type="current"
                   />
                 )}
 
