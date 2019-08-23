@@ -155,60 +155,55 @@ export class ProfileActions extends React.PureComponent<Props, State> {
       <>
         <ActionsDropdown className={this.props.className}>
           {actions.edit && (
-            <ActionsDropdownItem id="quality-profile-activate-more-rules" to={activateMoreUrl}>
-              {translate('quality_profiles.activate_more_rules')}
+            <ActionsDropdownItem to={activateMoreUrl}>
+              <span data-test="quality-profiles__activate-more-rules">
+                {translate('quality_profiles.activate_more_rules')}
+              </span>
             </ActionsDropdownItem>
           )}
 
           {!profile.isBuiltIn && (
-            <ActionsDropdownItem
-              download={`${profile.key}.xml`}
-              id="quality-profile-backup"
-              to={backupUrl}>
-              {translate('backup_verb')}
+            <ActionsDropdownItem download={`${profile.key}.xml`} to={backupUrl}>
+              <span data-test="quality-profiles__backup">{translate('backup_verb')}</span>
             </ActionsDropdownItem>
           )}
 
           <ActionsDropdownItem
-            id="quality-profile-compare"
             to={getProfileComparePath(profile.name, profile.language, this.props.organization)}>
-            {translate('compare')}
+            <span data-test="quality-profiles__compare">{translate('compare')}</span>
           </ActionsDropdownItem>
 
           {actions.copy && (
             <>
-              <ActionsDropdownItem id="quality-profile-copy" onClick={this.handleCopyClick}>
-                {translate('copy')}
+              <ActionsDropdownItem onClick={this.handleCopyClick}>
+                <span data-test="quality-profiles__copy">{translate('copy')}</span>
               </ActionsDropdownItem>
 
-              <ActionsDropdownItem id="quality-profile-extend" onClick={this.handleExtendClick}>
-                {translate('extend')}
+              <ActionsDropdownItem onClick={this.handleExtendClick}>
+                <span data-test="quality-profiles__extend">{translate('extend')}</span>
               </ActionsDropdownItem>
             </>
           )}
 
           {actions.edit && (
-            <ActionsDropdownItem id="quality-profile-rename" onClick={this.handleRenameClick}>
-              {translate('rename')}
+            <ActionsDropdownItem onClick={this.handleRenameClick}>
+              <span data-test="quality-profiles__rename">{translate('rename')}</span>
             </ActionsDropdownItem>
           )}
 
           {actions.setAsDefault && (
-            <ActionsDropdownItem
-              id="quality-profile-set-as-default"
-              onClick={this.handleSetDefaultClick}>
-              {translate('set_as_default')}
+            <ActionsDropdownItem onClick={this.handleSetDefaultClick}>
+              <span data-test="quality-profiles__set-as-default">
+                {translate('set_as_default')}
+              </span>
             </ActionsDropdownItem>
           )}
 
           {actions.delete && <ActionsDropdownDivider />}
 
           {actions.delete && (
-            <ActionsDropdownItem
-              destructive={true}
-              id="quality-profile-delete"
-              onClick={this.handleDeleteClick}>
-              {translate('delete')}
+            <ActionsDropdownItem destructive={true} onClick={this.handleDeleteClick}>
+              <span data-test="quality-profiles__delete">{translate('delete')}</span>
             </ActionsDropdownItem>
           )}
         </ActionsDropdown>

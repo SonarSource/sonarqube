@@ -67,7 +67,7 @@ it('should copy profile', async () => {
     updateProfiles
   });
 
-  click(wrapper.find('[id="quality-profile-copy"]'));
+  click(wrapper.find('[data-test="quality-profiles__copy"]').parent());
   expect(wrapper.find('CopyProfileForm').exists()).toBe(true);
 
   wrapper.find('CopyProfileForm').prop<Function>('onCopy')(name);
@@ -91,7 +91,7 @@ it('should extend profile', async () => {
     updateProfiles
   });
 
-  click(wrapper.find('[id="quality-profile-extend"]'));
+  click(wrapper.find('[data-test="quality-profiles__extend"]').parent());
   expect(wrapper.find('ExtendProfileForm').exists()).toBe(true);
 
   wrapper.find('ExtendProfileForm').prop<Function>('onExtend')(name);

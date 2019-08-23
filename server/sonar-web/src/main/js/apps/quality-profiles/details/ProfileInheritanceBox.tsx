@@ -38,14 +38,15 @@ interface Props {
     name: string;
     overridingRuleCount?: number;
   };
+  type: string;
 }
 
-export default function ProfileInheritanceBox({ displayLink = true, ...props }: Props) {
+export default function ProfileInheritanceBox({ type, displayLink = true, ...props }: Props) {
   const { profile, className, extendsBuiltIn } = props;
   const offset = 25 * props.depth;
 
   return (
-    <tr className={className}>
+    <tr className={className} data-test={`quality-profiles__inheritance-${type}`}>
       <td>
         <div style={{ paddingLeft: offset }}>
           {displayLink ? (

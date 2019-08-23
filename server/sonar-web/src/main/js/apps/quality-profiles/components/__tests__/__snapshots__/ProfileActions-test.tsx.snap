@@ -4,7 +4,6 @@ exports[`renders with all permissions 1`] = `
 <Fragment>
   <ActionsDropdown>
     <ActionsDropdownItem
-      id="quality-profile-activate-more-rules"
       to={
         Object {
           "pathname": "/organizations/org/rules",
@@ -15,17 +14,23 @@ exports[`renders with all permissions 1`] = `
         }
       }
     >
-      quality_profiles.activate_more_rules
+      <span
+        data-test="quality-profiles__activate-more-rules"
+      >
+        quality_profiles.activate_more_rules
+      </span>
     </ActionsDropdownItem>
     <ActionsDropdownItem
       download="key.xml"
-      id="quality-profile-backup"
       to="/api/qualityprofiles/backup?profileKey=key"
     >
-      backup_verb
+      <span
+        data-test="quality-profiles__backup"
+      >
+        backup_verb
+      </span>
     </ActionsDropdownItem>
     <ActionsDropdownItem
-      id="quality-profile-compare"
       to={
         Object {
           "pathname": "/organizations/org/quality_profiles/compare",
@@ -36,39 +41,58 @@ exports[`renders with all permissions 1`] = `
         }
       }
     >
-      compare
+      <span
+        data-test="quality-profiles__compare"
+      >
+        compare
+      </span>
     </ActionsDropdownItem>
     <ActionsDropdownItem
-      id="quality-profile-copy"
       onClick={[Function]}
     >
-      copy
+      <span
+        data-test="quality-profiles__copy"
+      >
+        copy
+      </span>
     </ActionsDropdownItem>
     <ActionsDropdownItem
-      id="quality-profile-extend"
       onClick={[Function]}
     >
-      extend
+      <span
+        data-test="quality-profiles__extend"
+      >
+        extend
+      </span>
     </ActionsDropdownItem>
     <ActionsDropdownItem
-      id="quality-profile-rename"
       onClick={[Function]}
     >
-      rename
+      <span
+        data-test="quality-profiles__rename"
+      >
+        rename
+      </span>
     </ActionsDropdownItem>
     <ActionsDropdownItem
-      id="quality-profile-set-as-default"
       onClick={[Function]}
     >
-      set_as_default
+      <span
+        data-test="quality-profiles__set-as-default"
+      >
+        set_as_default
+      </span>
     </ActionsDropdownItem>
     <ActionsDropdownDivider />
     <ActionsDropdownItem
       destructive={true}
-      id="quality-profile-delete"
       onClick={[Function]}
     >
-      delete
+      <span
+        data-test="quality-profiles__delete"
+      >
+        delete
+      </span>
     </ActionsDropdownItem>
   </ActionsDropdown>
 </Fragment>
@@ -79,13 +103,15 @@ exports[`renders with no permissions 1`] = `
   <ActionsDropdown>
     <ActionsDropdownItem
       download="key.xml"
-      id="quality-profile-backup"
       to="/api/qualityprofiles/backup?profileKey=key"
     >
-      backup_verb
+      <span
+        data-test="quality-profiles__backup"
+      >
+        backup_verb
+      </span>
     </ActionsDropdownItem>
     <ActionsDropdownItem
-      id="quality-profile-compare"
       to={
         Object {
           "pathname": "/organizations/org/quality_profiles/compare",
@@ -96,7 +122,11 @@ exports[`renders with no permissions 1`] = `
         }
       }
     >
-      compare
+      <span
+        data-test="quality-profiles__compare"
+      >
+        compare
+      </span>
     </ActionsDropdownItem>
   </ActionsDropdown>
 </Fragment>
@@ -106,7 +136,6 @@ exports[`renders with permission to edit only 1`] = `
 <Fragment>
   <ActionsDropdown>
     <ActionsDropdownItem
-      id="quality-profile-activate-more-rules"
       to={
         Object {
           "pathname": "/organizations/org/rules",
@@ -117,17 +146,23 @@ exports[`renders with permission to edit only 1`] = `
         }
       }
     >
-      quality_profiles.activate_more_rules
+      <span
+        data-test="quality-profiles__activate-more-rules"
+      >
+        quality_profiles.activate_more_rules
+      </span>
     </ActionsDropdownItem>
     <ActionsDropdownItem
       download="key.xml"
-      id="quality-profile-backup"
       to="/api/qualityprofiles/backup?profileKey=key"
     >
-      backup_verb
+      <span
+        data-test="quality-profiles__backup"
+      >
+        backup_verb
+      </span>
     </ActionsDropdownItem>
     <ActionsDropdownItem
-      id="quality-profile-compare"
       to={
         Object {
           "pathname": "/organizations/org/quality_profiles/compare",
@@ -138,13 +173,20 @@ exports[`renders with permission to edit only 1`] = `
         }
       }
     >
-      compare
+      <span
+        data-test="quality-profiles__compare"
+      >
+        compare
+      </span>
     </ActionsDropdownItem>
     <ActionsDropdownItem
-      id="quality-profile-rename"
       onClick={[Function]}
     >
-      rename
+      <span
+        data-test="quality-profiles__rename"
+      >
+        rename
+      </span>
     </ActionsDropdownItem>
   </ActionsDropdown>
 </Fragment>
