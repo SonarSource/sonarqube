@@ -106,7 +106,7 @@ export function parseQuery(query: T.RawQuery): Query {
   };
 }
 
-export function getOpen(query: T.RawQuery): string {
+export function getOpen(query: T.RawQuery): string | undefined {
   return query.open;
 }
 

@@ -304,7 +304,7 @@ it('should correctly handle filter changes', () => {
 });
 
 it('should fetch issues until defined', async () => {
-  const mockDone = (_lastIssue: T.Issue, paging: T.Paging) =>
+  const mockDone = (_: T.Issue[], paging: T.Paging) =>
     paging.total <= paging.pageIndex * paging.pageSize;
 
   const wrapper = shallowRender({

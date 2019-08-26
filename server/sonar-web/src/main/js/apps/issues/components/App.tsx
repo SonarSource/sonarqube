@@ -116,6 +116,7 @@ interface Props {
 
 export interface State {
   bulkChangeModal: boolean;
+  cannotShowOpenIssue?: boolean;
   checkAll?: boolean;
   checked: string[];
   effortTotal?: number;
@@ -142,6 +143,7 @@ export interface State {
 }
 
 const DEFAULT_QUERY = { resolved: 'false' };
+const MAX_INITAL_FETCH = 1000;
 
 export class App extends React.PureComponent<Props, State> {
   mounted = false;
@@ -459,8 +461,25 @@ export class App extends React.PureComponent<Props, State> {
 
   fetchFirstIssues() {
     const prevQuery = this.props.location.query;
+    const openIssueKey = getOpen(this.props.location.query);
+    let fetchPromise;
+
     this.setState({ checked: [], loading: true });
-    return this.fetchIssues({}, true).then(
+    if (openIssueKey !== undefined) {
+      fetchPromise = this.fetchIssuesUntil(1, (pageIssues: T.Issue[], paging: T.Paging) => {
+        if (
+          paging.total <= paging.pageIndex * paging.pageSize ||
+          paging.pageIndex * paging.pageSize >= MAX_INITAL_FETCH
+        ) {
+          return true;
+        }
+        return pageIssues.some(issue => issue.key === openIssueKey);
+      });
+    } else {
+      fetchPromise = this.fetchIssues({}, true);
+    }
+
+    return fetchPromise.then(
       ({ effortTotal, facets, issues, paging, ...other }) => {
         if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
           const openIssue = this.getOpenIssue(this.props, issues);
@@ -469,6 +488,7 @@ export class App extends React.PureComponent<Props, State> {
             selected = openIssue ? openIssue.key : issues[0].key;
           }
           this.setState(state => ({
+            cannotShowOpenIssue: Boolean(openIssueKey && !openIssue),
             effortTotal,
             facets: { ...state.facets, ...parseFacets(facets) },
             loading: false,
@@ -502,24 +522,15 @@ export class App extends React.PureComponent<Props, State> {
 
   fetchIssuesUntil = (
     p: number,
-    done: (lastIssue: T.Issue, paging: T.Paging) => boolean
-  ): Promise<{ issues: T.Issue[]; paging: T.Paging }> => {
-    const recursiveFetch = (
-      p: number,
-      issues: T.Issue[]
-    ): Promise<{ issues: T.Issue[]; paging: T.Paging }> => {
-      return this.fetchIssuesPage(p)
-        .then(response => {
-          return {
-            issues: [...issues, ...response.issues],
-            paging: response.paging
-          };
-        })
-        .then(({ issues, paging }) => {
-          return done(issues[issues.length - 1], paging)
-            ? { issues, paging }
-            : recursiveFetch(p + 1, issues);
-        });
+    done: (pageIssues: T.Issue[], paging: T.Paging) => boolean
+  ): Promise<FetchIssuesPromise> => {
+    const recursiveFetch = (p: number, prevIssues: T.Issue[]): Promise<FetchIssuesPromise> => {
+      return this.fetchIssuesPage(p).then(({ issues: pageIssues, paging, ...other }) => {
+        const issues = [...prevIssues, ...pageIssues];
+        return done(pageIssues, paging)
+          ? { issues, paging, ...other }
+          : recursiveFetch(p + 1, issues);
+      });
     };
 
     return recursiveFetch(p, []);
@@ -562,7 +573,8 @@ export class App extends React.PureComponent<Props, State> {
 
     const isSameComponent = (issue: T.Issue) => issue.component === openIssue.component;
 
-    const done = (lastIssue: T.Issue, paging: T.Paging) => {
+    const done = (pageIssues: T.Issue[], paging: T.Paging) => {
+      const lastIssue = pageIssues[pageIssues.length - 1];
       if (paging.total <= paging.pageIndex * paging.pageSize) {
         return true;
       }
@@ -572,7 +584,7 @@ export class App extends React.PureComponent<Props, State> {
       return lastIssue.textRange !== undefined && lastIssue.textRange.endLine > to;
     };
 
-    if (done(issues[issues.length - 1], paging)) {
+    if (done(issues, paging)) {
       return Promise.resolve(issues.filter(isSameComponent));
     }
 
@@ -820,7 +832,7 @@ export class App extends React.PureComponent<Props, State> {
 
   handleReloadAndOpenFirst = () => {
     this.fetchFirstIssues().then(
-      issues => {
+      (issues: T.Issue[]) => {
         if (issues.length > 0) {
           this.openIssue(issues[0].key);
         }
@@ -1107,7 +1119,7 @@ export class App extends React.PureComponent<Props, State> {
   }
 
   renderPage() {
-    const { checkAll, issues, loading, openIssue, paging } = this.state;
+    const { cannotShowOpenIssue, checkAll, issues, loading, openIssue, paging } = this.state;
     return (
       <div className="layout-page-main-inner">
         {openIssue ? (
@@ -1132,6 +1144,14 @@ export class App extends React.PureComponent<Props, State> {
                   id="issue_bulk_change.max_issues_reached"
                   values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
                 />
+              </Alert>
+            )}
+            {cannotShowOpenIssue && (
+              <Alert className="big-spacer-bottom" variant="warning">
+                {translateWithParameters(
+                  'issues.cannot_open_issue_max_initial_X_fetched',
+                  MAX_INITAL_FETCH
+                )}
               </Alert>
             )}
             {this.renderList()}
