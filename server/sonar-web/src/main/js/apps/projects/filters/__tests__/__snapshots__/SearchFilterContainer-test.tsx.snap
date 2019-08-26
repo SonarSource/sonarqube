@@ -8,6 +8,7 @@ exports[`searches 1`] = `
     minLength={2}
     onChange={[Function]}
     placeholder="projects.search"
+    value=""
   />
 </div>
 `;

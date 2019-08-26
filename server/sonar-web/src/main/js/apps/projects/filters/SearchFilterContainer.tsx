@@ -22,15 +22,13 @@ import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
 interface Props {
-  className?: string;
   query: { search?: string };
-  onQueryChange: (change: T.RawQuery) => void;
-  organization?: { key: string };
+  onQueryChange: (change: { search?: string }) => void;
 }
 
 export default class SearchFilterContainer extends React.PureComponent<Props> {
-  handleSearch = (userQuery?: string) => {
-    this.props.onQueryChange({ search: userQuery });
+  handleSearch = (search?: string) => {
+    this.props.onQueryChange({ search });
   };
 
   render() {
@@ -40,6 +38,7 @@ export default class SearchFilterContainer extends React.PureComponent<Props> {
           minLength={2}
           onChange={this.handleSearch}
           placeholder={translate('projects.search')}
+          value={this.props.query.search || ''}
         />
       </div>
     );

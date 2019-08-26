@@ -82,11 +82,7 @@ export default function PageHeader(props: Props) {
         />
       )}
 
-      <SearchFilterContainer
-        onQueryChange={props.onQueryChange}
-        organization={props.organization}
-        query={props.query}
-      />
+      <SearchFilterContainer onQueryChange={props.onQueryChange} query={props.query} />
 
       <div
         className={classNames('projects-topbar-item', 'is-last', {
