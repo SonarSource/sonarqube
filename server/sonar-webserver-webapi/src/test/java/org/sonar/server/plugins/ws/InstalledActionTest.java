@@ -20,8 +20,8 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Optional;
-import com.hazelcast.com.eclipsesource.json.Json;
-import com.hazelcast.com.eclipsesource.json.JsonObject;
+import com.hazelcast.internal.json.Json;
+import com.hazelcast.internal.json.JsonObject;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -73,6 +73,20 @@ public class InstalledActionTest {
   private PluginFileSystem pluginFileSystem = mock(PluginFileSystem.class);
   private InstalledAction underTest = new InstalledAction(pluginFileSystem, updateCenterMatrixFactory, db.getDbClient());
   private WsActionTester tester = new WsActionTester(underTest);
+
+  @DataProvider
+  public static Object[][] editionBundledLicenseValues() {
+    return new Object[][] {
+      {"sonarsource"},
+      {"SonarSource"},
+      {"SonaRSOUrce"},
+      {"SONARSOURCE"},
+      {"commercial"},
+      {"Commercial"},
+      {"COMMERCIAL"},
+      {"COmmERCiaL"},
+    };
+  }
 
   @Test
   public void action_installed_is_defined() {
@@ -374,20 +388,6 @@ public class InstalledActionTest {
         "    }" +
         "  ]" +
         "}");
-  }
-
-  @DataProvider
-  public static Object[][] editionBundledLicenseValues() {
-    return new Object[][]{
-      {"sonarsource"},
-      {"SonarSource"},
-      {"SonaRSOUrce"},
-      {"SONARSOURCE"},
-      {"commercial"},
-      {"Commercial"},
-      {"COMMERCIAL"},
-      {"COmmERCiaL"},
-    };
   }
 
   @Test
