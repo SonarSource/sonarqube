@@ -19,15 +19,15 @@
  */
 .badge {
   display: inline-block;
-  padding: 2px 4px;
+  padding: 4px;
   background-color: var(--barBorderColor);
   border-radius: 3px;
   font-size: var(--smallFontSize);
-  font-weight: normal;
+  font-weight: 600;
   color: var(--baseFontColor);
   text-transform: uppercase;
   white-space: nowrap;
-  line-height: 1;
+  line-height: 8px;
 }
 .badge:empty {
   display: none;
@@ -70,12 +70,4 @@ a.badge {
 .badge-error {
   background-color: var(--alertBackgroundError);
   color: var(--alertTextError);
-}
-
-/* TODO: remove after SC fork */
-.badge-icon {
-  padding-left: calc(var(--gridSize) / 2);
-}
-.badge-icon svg {
-  height: calc(var(--smallControlHeight) - 2px);
 }

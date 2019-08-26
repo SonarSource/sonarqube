@@ -41,7 +41,7 @@ exports[`renders public with icon 1`] = `
   }
 >
   <div
-    className="badge badge-info badge-icon"
+    className="badge badge-info"
   >
     <VisibleIcon
       className="little-spacer-right"
