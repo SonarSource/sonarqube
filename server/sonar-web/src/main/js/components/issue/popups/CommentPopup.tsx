@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { Button, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import ClickEventBoundary from 'sonar-ui-common/components/controls/ClickEventBoundary';
 import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -73,35 +74,39 @@ export default class CommentPopup extends React.PureComponent<Props, State> {
     const { comment, autoTriggered } = this.props;
     return (
       <DropdownOverlay placement={this.props.placement}>
-        <div className="issue-comment-bubble-popup">
-          <div className="issue-comment-form-text">
-            <textarea
-              autoFocus={true}
-              onChange={this.handleCommentChange}
-              onKeyDown={this.handleKeyboard}
-              placeholder={this.props.placeholder}
-              rows={2}
-              value={this.state.textComment}
-            />
-          </div>
-          <div className="issue-comment-form-footer">
-            <div className="issue-comment-form-actions">
-              <Button
-                className="js-issue-comment-submit little-spacer-right"
-                disabled={this.state.textComment.trim().length < 1}
-                onClick={this.handleCommentClick}>
-                {comment && translate('save')}
-                {!comment && translate('issue.comment.submit')}
-              </Button>
-              <ResetButtonLink className="js-issue-comment-cancel" onClick={this.handleCancelClick}>
-                {autoTriggered ? translate('skip') : translate('cancel')}
-              </ResetButtonLink>
+        <ClickEventBoundary>
+          <div className="issue-comment-bubble-popup">
+            <div className="issue-comment-form-text">
+              <textarea
+                autoFocus={true}
+                onChange={this.handleCommentChange}
+                onKeyDown={this.handleKeyboard}
+                placeholder={this.props.placeholder}
+                rows={2}
+                value={this.state.textComment}
+              />
             </div>
-            <div className="issue-comment-form-tips">
-              <MarkdownTips />
+            <div className="issue-comment-form-footer">
+              <div className="issue-comment-form-actions">
+                <Button
+                  className="js-issue-comment-submit little-spacer-right"
+                  disabled={this.state.textComment.trim().length < 1}
+                  onClick={this.handleCommentClick}>
+                  {comment && translate('save')}
+                  {!comment && translate('issue.comment.submit')}
+                </Button>
+                <ResetButtonLink
+                  className="js-issue-comment-cancel"
+                  onClick={this.handleCancelClick}>
+                  {autoTriggered ? translate('skip') : translate('cancel')}
+                </ResetButtonLink>
+              </div>
+              <div className="issue-comment-form-tips">
+                <MarkdownTips />
+              </div>
             </div>
           </div>
-        </div>
+        </ClickEventBoundary>
       </DropdownOverlay>
     );
   }
