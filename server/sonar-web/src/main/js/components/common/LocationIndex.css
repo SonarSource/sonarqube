@@ -46,14 +46,7 @@
 }
 
 .location-index.is-leading:not(:first-child) {
-  position: absolute;
-  margin-left: -4px;
-  transform: translateX(-100%);
-}
-
-.location-index.is-leading + .is-leading {
-  position: relative;
-  transform: none;
+  margin-left: -22px;
 }
 
 .location-index[tabindex] {
