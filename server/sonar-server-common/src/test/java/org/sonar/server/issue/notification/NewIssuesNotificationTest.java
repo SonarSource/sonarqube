@@ -148,6 +148,7 @@ public class NewIssuesNotificationTest {
     RuleDefinitionDto rule2 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-universe").setName("Rule the Universe").setLanguage("Clojure"));
     IssueDto issue1 = db.issues().insert(rule1, project, file, i -> i.setType(BUG).setAssigneeUuid(maynard.getUuid()).setTags(asList("bug", "owasp")));
     IssueDto issue2 = db.issues().insert(rule2, project, directory, i -> i.setType(CODE_SMELL).setAssigneeUuid(keenan.getUuid()).setTags(singletonList("owasp")));
+
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
     IntStream.rangeClosed(1, 5).forEach(i -> stats.add(issue1.toDefaultIssue()));
     IntStream.rangeClosed(1, 3).forEach(i -> stats.add(issue2.toDefaultIssue()));
@@ -176,6 +177,91 @@ public class NewIssuesNotificationTest {
     assertThat(underTest.getFieldValue(RULE + ".2.label")).isEqualTo("Rule the Universe (Clojure)");
     assertThat(underTest.getFieldValue(RULE + ".2.count")).isEqualTo("3");
     assertThat(underTest.getDefaultMessage()).startsWith("8 new issues on " + project.longName());
+  }
+
+  @Test
+  public void set_statistics_when_no_issues_created_in_current_analysis() {
+    UserDto maynard = db.users().insertUser(u -> u.setLogin("maynard"));
+    UserDto keenan = db.users().insertUser(u -> u.setLogin("keenan"));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "path"));
+    ComponentDto file = db.components().insertComponent(newFileDto(directory));
+    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-world").setName("Rule the World").setLanguage("Java"));
+    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-universe").setName("Rule the Universe").setLanguage("Clojure"));
+    IssueDto issue1 = db.issues().insert(rule1, project, file, i -> i.setType(BUG).setAssigneeUuid(maynard.getUuid()).setTags(asList("bug", "owasp")));
+    IssueDto issue2 = db.issues().insert(rule2, project, directory, i -> i.setType(CODE_SMELL).setAssigneeUuid(keenan.getUuid()).setTags(singletonList("owasp")));
+
+    NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> false);
+    IntStream.rangeClosed(1, 5).forEach(i -> stats.add(issue1.toDefaultIssue()));
+    IntStream.rangeClosed(1, 3).forEach(i -> stats.add(issue2.toDefaultIssue()));
+    mockDetailsSupplierComponents(project, directory, file);
+    mockDetailsSupplierRules(rule1, rule2);
+    mockDetailsSupplierAssignees(maynard, keenan);
+
+    underTest.setStatistics(project.longName(), stats);
+
+    assertThat(underTest.getFieldValue(RULE_TYPE + ".BUG.count")).isEqualTo("0");
+    assertThat(underTest.getFieldValue(RULE_TYPE + ".CODE_SMELL.count")).isEqualTo("0");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".1.label")).isNull();
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".1.count")).isNull();
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.label")).isNull();
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.count")).isNull();
+    assertThat(underTest.getFieldValue(TAG + ".1.label")).isNull();
+    assertThat(underTest.getFieldValue(TAG + ".1.count")).isNull();
+    assertThat(underTest.getFieldValue(TAG + ".2.label")).isNull();
+    assertThat(underTest.getFieldValue(TAG + ".2.count")).isNull();
+    assertThat(underTest.getFieldValue(COMPONENT + ".1.label")).isNull();
+    assertThat(underTest.getFieldValue(COMPONENT + ".1.count")).isNull();
+    assertThat(underTest.getFieldValue(COMPONENT + ".2.label")).isNull();
+    assertThat(underTest.getFieldValue(COMPONENT + ".2.count")).isNull();
+    assertThat(underTest.getFieldValue(RULE + ".1.label")).isNull();
+    assertThat(underTest.getFieldValue(RULE + ".1.count")).isNull();
+    assertThat(underTest.getFieldValue(RULE + ".2.label")).isNull();
+    assertThat(underTest.getFieldValue(RULE + ".2.count")).isNull();
+    assertThat(underTest.getDefaultMessage()).startsWith("0 new issues on " + project.longName());
+  }
+
+  @Test
+  public void set_statistics_when_some_issues_are_no_created_in_current_analysis() {
+
+    UserDto maynard = db.users().insertUser(u -> u.setLogin("maynard"));
+    UserDto keenan = db.users().insertUser(u -> u.setLogin("keenan"));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "path"));
+    ComponentDto file = db.components().insertComponent(newFileDto(directory));
+    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-world").setName("Rule the World").setLanguage("Java"));
+    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setRepositoryKey("SonarQube").setRuleKey("rule1-the-universe").setName("Rule the Universe").setLanguage("Clojure"));
+    IssueDto issue1 = db.issues().insert(rule1, project, file, i -> i.setType(BUG).setAssigneeUuid(maynard.getUuid()).setTags(asList("bug", "owasp")));
+    IssueDto issue2 = db.issues().insert(rule2, project, directory, i -> i.setType(CODE_SMELL).setAssigneeUuid(keenan.getUuid()).setTags(singletonList("owasp")));
+
+    NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> i.key().equals(issue2.getKey()));
+    IntStream.rangeClosed(1, 5).forEach(i -> stats.add(issue1.toDefaultIssue()));
+    IntStream.rangeClosed(1, 3).forEach(i -> stats.add(issue2.toDefaultIssue()));
+    mockDetailsSupplierComponents(project, directory, file);
+    mockDetailsSupplierRules(rule1, rule2);
+    mockDetailsSupplierAssignees(maynard, keenan);
+
+    underTest.setStatistics(project.longName(), stats);
+
+    assertThat(underTest.getFieldValue(RULE_TYPE + ".BUG.count")).isEqualTo("0");
+    assertThat(underTest.getFieldValue(RULE_TYPE + ".CODE_SMELL.count")).isEqualTo("3");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".1.label")).isEqualTo(keenan.getName());
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".1.count")).isEqualTo("3");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.label")).isNull();
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.count")).isNull();
+    assertThat(underTest.getFieldValue(TAG + ".1.label")).isEqualTo("owasp");
+    assertThat(underTest.getFieldValue(TAG + ".1.count")).isEqualTo("3");
+    assertThat(underTest.getFieldValue(TAG + ".2.label")).isNull();
+    assertThat(underTest.getFieldValue(TAG + ".2.count")).isNull();
+    assertThat(underTest.getFieldValue(COMPONENT + ".1.label")).isEqualTo(directory.name());
+    assertThat(underTest.getFieldValue(COMPONENT + ".1.count")).isEqualTo("3");
+    assertThat(underTest.getFieldValue(COMPONENT + ".2.label")).isNull();
+    assertThat(underTest.getFieldValue(COMPONENT + ".2.count")).isNull();
+    assertThat(underTest.getFieldValue(RULE + ".1.label")).isEqualTo("Rule the Universe (Clojure)");
+    assertThat(underTest.getFieldValue(RULE + ".1.count")).isEqualTo("3");
+    assertThat(underTest.getFieldValue(RULE + ".2.label")).isNull();
+    assertThat(underTest.getFieldValue(RULE + ".2.count")).isNull();
+    assertThat(underTest.getDefaultMessage()).startsWith("3 new issues on " + project.longName());
   }
 
   private void mockDetailsSupplierAssignees(UserDto... users) {

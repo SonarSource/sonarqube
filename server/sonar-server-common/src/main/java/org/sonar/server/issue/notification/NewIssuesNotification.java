@@ -227,6 +227,7 @@ public class NewIssuesNotification extends Notification {
     return distributedMetricStatsInt.getForLabels()
       .entrySet()
       .stream()
+      .filter(i -> biggerCriteria.applyAsInt(i.getValue()) > 0)
       .sorted(comparator.reversed())
       .limit(5)
       .collect(MoreCollectors.toList(5));
