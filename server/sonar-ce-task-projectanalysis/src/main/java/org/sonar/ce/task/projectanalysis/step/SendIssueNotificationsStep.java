@@ -80,8 +80,6 @@ public class SendIssueNotificationsStep implements ComputationStep {
   private final NotificationFactory notificationFactory;
   private final DbClient dbClient;
 
-  private Map<String, Component> componentsByDbKey;
-
   public SendIssueNotificationsStep(IssueCache issueCache, TreeRootHolder treeRootHolder,
     NotificationService service, AnalysisMetadataHolder analysisMetadataHolder,
     NotificationFactory notificationFactory, DbClient dbClient) {
@@ -110,8 +108,8 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   private void doExecute(NotificationStatistics notificationStatistics, Component project) {
     long analysisDate = analysisMetadataHolder.getAnalysisDate();
-    Predicate<DefaultIssue> isOnLeakPredicate = i -> i.isNew() && i.creationDate().getTime() >= truncateToSeconds(analysisDate);
-    NewIssuesStatistics newIssuesStats = new NewIssuesStatistics(isOnLeakPredicate);
+    Predicate<DefaultIssue> onCurrentAnalysis = i -> i.isNew() && i.creationDate().getTime() >= truncateToSeconds(analysisDate);
+    NewIssuesStatistics newIssuesStats = new NewIssuesStatistics(onCurrentAnalysis);
     Map<String, UserDto> assigneesByUuid;
     try (DbSession dbSession = dbClient.openSession(false)) {
       Iterable<DefaultIssue> iterable = issueCache::traverse;
@@ -122,7 +120,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
     try (CloseableIterator<DefaultIssue> issues = issueCache.traverse()) {
       processIssues(newIssuesStats, issues, assigneesByUuid, notificationStatistics);
     }
-    if (newIssuesStats.hasIssuesOnLeak()) {
+    if (newIssuesStats.hasIssuesOnCurrentAnalysis()) {
       sendNewIssuesNotification(newIssuesStats, project, assigneesByUuid, analysisDate, notificationStatistics);
       sendMyNewIssuesNotification(newIssuesStats, project, assigneesByUuid, analysisDate, notificationStatistics);
     }
@@ -182,7 +180,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
       .setProjectVersion(project.getProjectAttributes().getProjectVersion())
       .setAnalysisDate(new Date(analysisDate))
       .setStatistics(project.getName(), globalStatistics)
-      .setDebt(Duration.create(globalStatistics.effort().getOnLeak()));
+      .setDebt(Duration.create(globalStatistics.effort().getOnCurrentAnalysis()));
     notificationStatistics.newIssuesDeliveries += service.deliverEmails(singleton(notification));
     notificationStatistics.newIssues++;
 
@@ -195,7 +193,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
     Map<String, UserDto> userDtoByUuid = loadUserDtoByUuid(statistics);
     Set<MyNewIssuesNotification> myNewIssuesNotifications = statistics.getAssigneesStatistics().entrySet()
       .stream()
-      .filter(e -> e.getValue().hasIssuesOnLeak())
+      .filter(e -> e.getValue().hasIssuesOnCurrentAnalysis())
       .map(e -> {
         String assigneeUuid = e.getKey();
         NewIssuesStatistics.Stats assigneeStatistics = e.getValue();
@@ -207,7 +205,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
           .setProjectVersion(project.getProjectAttributes().getProjectVersion())
           .setAnalysisDate(new Date(analysisDate))
           .setStatistics(project.getName(), assigneeStatistics)
-          .setDebt(Duration.create(assigneeStatistics.effort().getOnLeak()));
+          .setDebt(Duration.create(assigneeStatistics.effort().getOnCurrentAnalysis()));
 
         return myNewIssuesNotification;
       })
@@ -223,7 +221,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   private Map<String, UserDto> loadUserDtoByUuid(NewIssuesStatistics statistics) {
     List<Map.Entry<String, NewIssuesStatistics.Stats>> entriesWithIssuesOnLeak = statistics.getAssigneesStatistics().entrySet()
-      .stream().filter(e -> e.getValue().hasIssuesOnLeak()).collect(toList());
+      .stream().filter(e -> e.getValue().hasIssuesOnCurrentAnalysis()).collect(toList());
     List<String> assigneeUuids = entriesWithIssuesOnLeak.stream().map(Map.Entry::getKey).collect(toList());
     try (DbSession dbSession = dbClient.openSession(false)) {
       return dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, u -> u));

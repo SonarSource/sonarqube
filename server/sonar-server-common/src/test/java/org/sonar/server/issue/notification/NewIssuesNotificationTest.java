@@ -180,7 +180,7 @@ public class NewIssuesNotificationTest {
   }
 
   @Test
-  public void set_statistics_when_no_issues_created_in_current_analysis() {
+  public void set_statistics_when_no_issues_created_on_current_analysis() {
     UserDto maynard = db.users().insertUser(u -> u.setLogin("maynard"));
     UserDto keenan = db.users().insertUser(u -> u.setLogin("keenan"));
     ComponentDto project = db.components().insertPrivateProject();
@@ -222,7 +222,7 @@ public class NewIssuesNotificationTest {
   }
 
   @Test
-  public void set_statistics_when_some_issues_are_no_created_in_current_analysis() {
+  public void set_statistics_when_some_issues_are_no_created_on_current_analysis() {
 
     UserDto maynard = db.users().insertUser(u -> u.setLogin("maynard"));
     UserDto keenan = db.users().insertUser(u -> u.setLogin("keenan"));

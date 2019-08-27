@@ -158,7 +158,7 @@ public class NewIssuesNotification extends Notification {
   }
 
   public NewIssuesNotification setStatistics(String projectName, NewIssuesStatistics.Stats stats) {
-    setDefaultMessage(stats.getDistributedMetricStats(RULE_TYPE).getOnLeak() + " new issues on " + projectName + ".\n");
+    setDefaultMessage(stats.getDistributedMetricStats(RULE_TYPE).getOnCurrentAnalysis() + " new issues on " + projectName + ".\n");
 
     setRuleTypeStatistics(stats);
     setAssigneesStatistics(stats);
@@ -171,7 +171,7 @@ public class NewIssuesNotification extends Notification {
 
   private void setRuleStatistics(NewIssuesStatistics.Stats stats) {
     Metric metric = Metric.RULE;
-    List<Map.Entry<String, MetricStatsInt>> fiveBiggest = fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getOnLeak);
+    List<Map.Entry<String, MetricStatsInt>> fiveBiggest = fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getOnCurrentAnalysis);
     int i = 1;
     for (Map.Entry<String, MetricStatsInt> ruleStats : fiveBiggest) {
       String ruleKey = ruleStats.getKey();
@@ -179,7 +179,7 @@ public class NewIssuesNotification extends Notification {
         .orElseThrow(() -> new IllegalStateException(String.format("Rule with key '%s' does not exist", ruleKey)));
       String name = rule.getName() + " (" + rule.getLanguage() + ")";
       setFieldValue(metric + DOT + i + LABEL, name);
-      setFieldValue(metric + DOT + i + COUNT, String.valueOf(ruleStats.getValue().getOnLeak()));
+      setFieldValue(metric + DOT + i + COUNT, String.valueOf(ruleStats.getValue().getOnCurrentAnalysis()));
       i++;
     }
   }
@@ -187,13 +187,13 @@ public class NewIssuesNotification extends Notification {
   private void setComponentsStatistics(NewIssuesStatistics.Stats stats) {
     Metric metric = Metric.COMPONENT;
     int i = 1;
-    List<Map.Entry<String, MetricStatsInt>> fiveBiggest = fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getOnLeak);
+    List<Map.Entry<String, MetricStatsInt>> fiveBiggest = fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getOnCurrentAnalysis);
     for (Map.Entry<String, MetricStatsInt> componentStats : fiveBiggest) {
       String uuid = componentStats.getKey();
       String componentName = detailsSupplier.getComponentNameByUuid(uuid)
         .orElseThrow(() -> new IllegalStateException(String.format("Component with uuid '%s' not found", uuid)));
       setFieldValue(metric + DOT + i + LABEL, componentName);
-      setFieldValue(metric + DOT + i + COUNT, String.valueOf(componentStats.getValue().getOnLeak()));
+      setFieldValue(metric + DOT + i + COUNT, String.valueOf(componentStats.getValue().getOnCurrentAnalysis()));
       i++;
     }
   }
@@ -201,8 +201,8 @@ public class NewIssuesNotification extends Notification {
   private void setTagsStatistics(NewIssuesStatistics.Stats stats) {
     Metric metric = Metric.TAG;
     int i = 1;
-    for (Map.Entry<String, MetricStatsInt> tagStats : fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getOnLeak)) {
-      setFieldValue(metric + DOT + i + COUNT, String.valueOf(tagStats.getValue().getOnLeak()));
+    for (Map.Entry<String, MetricStatsInt> tagStats : fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getOnCurrentAnalysis)) {
+      setFieldValue(metric + DOT + i + COUNT, String.valueOf(tagStats.getValue().getOnCurrentAnalysis()));
       setFieldValue(metric + DOT + i + LABEL, tagStats.getKey());
       i++;
     }
@@ -210,14 +210,14 @@ public class NewIssuesNotification extends Notification {
 
   private void setAssigneesStatistics(NewIssuesStatistics.Stats stats) {
     Metric metric = Metric.ASSIGNEE;
-    List<Map.Entry<String, MetricStatsInt>> entries = fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getOnLeak);
+    List<Map.Entry<String, MetricStatsInt>> entries = fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getOnCurrentAnalysis);
 
     int i = 1;
     for (Map.Entry<String, MetricStatsInt> assigneeStats : entries) {
       String assigneeUuid = assigneeStats.getKey();
       String name = detailsSupplier.getUserNameByUuid(assigneeUuid).orElse(assigneeUuid);
       setFieldValue(metric + DOT + i + LABEL, name);
-      setFieldValue(metric + DOT + i + COUNT, String.valueOf(assigneeStats.getValue().getOnLeak()));
+      setFieldValue(metric + DOT + i + COUNT, String.valueOf(assigneeStats.getValue().getOnCurrentAnalysis()));
       i++;
     }
   }
@@ -240,11 +240,11 @@ public class NewIssuesNotification extends Notification {
 
   private void setRuleTypeStatistics(NewIssuesStatistics.Stats stats) {
     DistributedMetricStatsInt distributedMetricStats = stats.getDistributedMetricStats(RULE_TYPE);
-    setFieldValue(RULE_TYPE + COUNT, String.valueOf(distributedMetricStats.getOnLeak()));
+    setFieldValue(RULE_TYPE + COUNT, String.valueOf(distributedMetricStats.getOnCurrentAnalysis()));
     Arrays.stream(RuleType.values())
       .forEach(ruleType -> setFieldValue(
         RULE_TYPE + DOT + ruleType + COUNT,
-        String.valueOf(distributedMetricStats.getForLabel(ruleType.name()).map(MetricStatsInt::getOnLeak).orElse(0))));
+        String.valueOf(distributedMetricStats.getForLabel(ruleType.name()).map(MetricStatsInt::getOnCurrentAnalysis).orElse(0))));
   }
 
   @Override

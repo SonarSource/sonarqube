@@ -20,35 +20,35 @@
 package org.sonar.server.issue.notification;
 
 public class MetricStatsLong {
-  private long onLeak = 0;
-  private long offLeak = 0;
+  private long onCurrentAnalysis = 0;
+  private long offCurrentAnalysis = 0;
 
-  MetricStatsLong add(long toAdd, boolean onLeak) {
-    if (onLeak) {
-      this.onLeak += toAdd;
+  MetricStatsLong add(long toAdd, boolean onCurrentAnalysis) {
+    if (onCurrentAnalysis) {
+      this.onCurrentAnalysis += toAdd;
     } else {
-      this.offLeak += toAdd;
+      this.offCurrentAnalysis += toAdd;
     }
     return this;
   }
 
-  public long getOnLeak() {
-    return onLeak;
+  public long getOnCurrentAnalysis() {
+    return onCurrentAnalysis;
   }
 
-  public long getOffLeak() {
-    return offLeak;
+  public long getOffCurrentAnalysis() {
+    return offCurrentAnalysis;
   }
 
   public long getTotal() {
-    return onLeak + offLeak;
+    return onCurrentAnalysis + offCurrentAnalysis;
   }
 
   @Override
   public String toString() {
     return "MetricStatsLong{" +
-      "onLeak=" + onLeak +
-      ", offLeak=" + offLeak +
+      "on=" + onCurrentAnalysis +
+      ", off=" + offCurrentAnalysis +
       '}';
   }
 }

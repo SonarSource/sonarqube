@@ -28,9 +28,9 @@ public class DistributedMetricStatsInt {
   private MetricStatsInt globalStats = new MetricStatsInt();
   private Map<String, MetricStatsInt> statsPerLabel = new HashMap<>();
 
-  DistributedMetricStatsInt increment(String label, boolean onLeak) {
-    this.globalStats.increment(onLeak);
-    statsPerLabel.computeIfAbsent(label, l -> new MetricStatsInt()).increment(onLeak);
+  DistributedMetricStatsInt increment(String label, boolean onCurrentAnalysis) {
+    this.globalStats.increment(onCurrentAnalysis);
+    statsPerLabel.computeIfAbsent(label, l -> new MetricStatsInt()).increment(onCurrentAnalysis);
     return this;
   }
 
@@ -42,8 +42,8 @@ public class DistributedMetricStatsInt {
     return Optional.ofNullable(statsPerLabel.get(label));
   }
 
-  public int getOnLeak() {
-    return globalStats.getOnLeak();
+  public int getOnCurrentAnalysis() {
+    return globalStats.getOnCurrentAnalysis();
   }
 
   public int getTotal() {

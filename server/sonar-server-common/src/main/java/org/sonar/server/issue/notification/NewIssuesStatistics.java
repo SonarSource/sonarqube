@@ -34,20 +34,20 @@ import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RUL
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG;
 
 public class NewIssuesStatistics {
-  private final Predicate<DefaultIssue> onLeakPredicate;
+  private final Predicate<DefaultIssue> onCurrentAnalysisPredicate;
   private final Map<String, Stats> assigneesStatistics = new LinkedHashMap<>();
   private final Stats globalStatistics;
 
-  public NewIssuesStatistics(Predicate<DefaultIssue> onLeakPredicate) {
-    this.onLeakPredicate = onLeakPredicate;
-    this.globalStatistics = new Stats(onLeakPredicate);
+  public NewIssuesStatistics(Predicate<DefaultIssue> onCurrentAnalysisPredicate) {
+    this.onCurrentAnalysisPredicate = onCurrentAnalysisPredicate;
+    this.globalStatistics = new Stats(onCurrentAnalysisPredicate);
   }
 
   public void add(DefaultIssue issue) {
     globalStatistics.add(issue);
     String userUuid = issue.assignee();
     if (userUuid != null) {
-      assigneesStatistics.computeIfAbsent(userUuid, a -> new Stats(onLeakPredicate)).add(issue);
+      assigneesStatistics.computeIfAbsent(userUuid, a -> new Stats(onCurrentAnalysisPredicate)).add(issue);
     }
   }
 
@@ -63,8 +63,8 @@ public class NewIssuesStatistics {
     return globalStatistics.hasIssues();
   }
 
-  public boolean hasIssuesOnLeak() {
-    return globalStatistics.hasIssuesOnLeak();
+  public boolean hasIssuesOnCurrentAnalysis() {
+    return globalStatistics.hasIssuesOnCurrentAnalysis();
   }
 
   public enum Metric {
@@ -89,12 +89,12 @@ public class NewIssuesStatistics {
   }
 
   public static class Stats {
-    private final Predicate<DefaultIssue> onLeakPredicate;
+    private final Predicate<DefaultIssue> onCurrentAnalysisPredicate;
     private final Map<Metric, DistributedMetricStatsInt> distributions = new EnumMap<>(Metric.class);
     private MetricStatsLong effortStats = new MetricStatsLong();
 
-    public Stats(Predicate<DefaultIssue> onLeakPredicate) {
-      this.onLeakPredicate = onLeakPredicate;
+    public Stats(Predicate<DefaultIssue> onCurrentAnalysisPredicate) {
+      this.onCurrentAnalysisPredicate = onCurrentAnalysisPredicate;
       for (Metric metric : Metric.values()) {
         if (metric.isComputedByDistribution()) {
           distributions.put(metric, new DistributedMetricStatsInt());
@@ -103,26 +103,26 @@ public class NewIssuesStatistics {
     }
 
     public void add(DefaultIssue issue) {
-      boolean isOnLeak = onLeakPredicate.test(issue);
-      distributions.get(RULE_TYPE).increment(issue.type().name(), isOnLeak);
+      boolean onCurrentAnalysis = onCurrentAnalysisPredicate.test(issue);
+      distributions.get(RULE_TYPE).increment(issue.type().name(), onCurrentAnalysis);
       String componentUuid = issue.componentUuid();
       if (componentUuid != null) {
-        distributions.get(COMPONENT).increment(componentUuid, isOnLeak);
+        distributions.get(COMPONENT).increment(componentUuid, onCurrentAnalysis);
       }
       RuleKey ruleKey = issue.ruleKey();
       if (ruleKey != null) {
-        distributions.get(RULE).increment(ruleKey.toString(), isOnLeak);
+        distributions.get(RULE).increment(ruleKey.toString(), onCurrentAnalysis);
       }
       String assigneeUuid = issue.assignee();
       if (assigneeUuid != null) {
-        distributions.get(ASSIGNEE).increment(assigneeUuid, isOnLeak);
+        distributions.get(ASSIGNEE).increment(assigneeUuid, onCurrentAnalysis);
       }
       for (String tag : issue.tags()) {
-        distributions.get(TAG).increment(tag, isOnLeak);
+        distributions.get(TAG).increment(tag, onCurrentAnalysis);
       }
       Duration effort = issue.effort();
       if (effort != null) {
-        effortStats.add(effort.toMinutes(), isOnLeak);
+        effortStats.add(effort.toMinutes(), onCurrentAnalysis);
       }
     }
 
@@ -138,8 +138,8 @@ public class NewIssuesStatistics {
       return getDistributedMetricStats(RULE_TYPE).getTotal() > 0;
     }
 
-    public boolean hasIssuesOnLeak() {
-      return getDistributedMetricStats(RULE_TYPE).getOnLeak() > 0;
+    public boolean hasIssuesOnCurrentAnalysis() {
+      return getDistributedMetricStats(RULE_TYPE).getOnCurrentAnalysis() > 0;
     }
 
     @Override
