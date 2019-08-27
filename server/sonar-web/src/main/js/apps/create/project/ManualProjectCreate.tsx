@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as classNames from 'classnames';
+import { debounce } from 'lodash';
 import * as React from 'react';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import ValidationInput from 'sonar-ui-common/components/controls/ValidationInput';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { createProject } from '../../../api/components';
+import { createProject, doesComponentExists } from '../../../api/components';
 import VisibilitySelector from '../../../components/common/VisibilitySelector';
 import { isSonarCloud } from '../../../helpers/system';
-import ProjectKeyInput from '../components/ProjectKeyInput';
 import UpgradeOrganizationBox from '../components/UpgradeOrganizationBox';
 import './ManualProjectCreate.css';
 import OrganizationInput from './OrganizationInput';
@@ -42,10 +42,14 @@ interface Props {
 interface State {
   projectName: string;
   projectNameChanged: boolean;
+  projectNameError?: string;
   projectKey: string;
+  projectKeyError?: string;
   selectedOrganization?: T.Organization;
   selectedVisibility?: T.Visibility;
   submitting: boolean;
+  touched: boolean;
+  validating: boolean;
 }
 
 type ValidState = State & Required<Pick<State, 'projectKey' | 'projectName'>>;
@@ -60,8 +64,11 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       projectName: '',
       projectNameChanged: false,
       selectedOrganization: this.getInitialSelectedOrganization(props),
-      submitting: false
+      submitting: false,
+      touched: false,
+      validating: false
     };
+    this.checkFreeKey = debounce(this.checkFreeKey, 250);
   }
 
   componentDidMount() {
@@ -72,13 +79,46 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     this.mounted = false;
   }
 
+  checkFreeKey = (key: string) => {
+    return doesComponentExists({ component: key })
+      .then(alreadyExist => {
+        if (this.mounted && key === this.state.projectKey) {
+          if (!alreadyExist) {
+            this.setState({ projectKeyError: undefined, validating: false });
+          } else {
+            this.setState({
+              projectKeyError: translate('onboarding.create_project.project_key.taken'),
+              touched: true,
+              validating: false
+            });
+          }
+        }
+      })
+      .catch(() => {
+        if (this.mounted && key === this.state.projectKey) {
+          this.setState({ projectKeyError: undefined, validating: false });
+        }
+      });
+  };
+
   canChoosePrivate = (selectedOrganization: T.Organization | undefined) => {
     return Boolean(selectedOrganization && selectedOrganization.subscription === 'PAID');
   };
 
   canSubmit(state: State): state is ValidState {
+    const {
+      projectKey,
+      projectKeyError,
+      projectName,
+      projectNameError,
+      selectedOrganization
+    } = state;
     return Boolean(
-      state.projectKey && state.projectName && (!isSonarCloud() || state.selectedOrganization)
+      projectKeyError === undefined &&
+        projectNameError === undefined &&
+        projectKey.length > 0 &&
+        projectName.length > 0 &&
+        (!isSonarCloud() || selectedOrganization)
     );
   }
 
@@ -151,24 +191,67 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     );
   };
 
-  handleProjectNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const projectName = event.currentTarget.value;
-    this.setState({ projectName, projectNameChanged: true });
+  handleProjectKeyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const projectKey = event.currentTarget.value || '';
+    const projectKeyError = this.validateKey(projectKey);
+
+    this.setState(prevState => {
+      const projectName = prevState.projectNameChanged ? prevState.projectName : projectKey;
+      return {
+        projectKey,
+        projectKeyError,
+        projectName,
+        projectNameError: this.validateName(projectName),
+        touched: true,
+        validating: projectKeyError === undefined
+      };
+    });
+
+    if (projectKeyError === undefined) {
+      this.checkFreeKey(projectKey);
+    }
   };
 
-  handleProjectKeyChange = (projectKey: string) => {
-    this.setState(state => ({
-      projectKey,
-      projectName: state.projectNameChanged ? state.projectName : projectKey || ''
-    }));
+  handleProjectNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const projectName = event.currentTarget.value;
+    this.setState({
+      projectName,
+      projectNameChanged: true,
+      projectNameError: this.validateName(projectName)
+    });
   };
 
   handleVisibilityChange = (selectedVisibility: T.Visibility) => {
     this.setState({ selectedVisibility });
   };
 
+  validateKey = (projectKey: string) => {
+    return projectKey.length > 400 || !/^[\w-.:]*[a-zA-Z]+[\w-.:]*$/.test(projectKey)
+      ? translate('onboarding.create_project.project_key.error')
+      : undefined;
+  };
+
+  validateName = (projectName: string) => {
+    return projectName.length === 0 || projectName.length > 255
+      ? translate('onboarding.create_project.display_name.error')
+      : undefined;
+  };
+
   render() {
-    const { selectedOrganization, submitting } = this.state;
+    const {
+      projectKey,
+      projectKeyError,
+      projectName,
+      projectNameError,
+      selectedOrganization,
+      submitting,
+      touched,
+      validating
+    } = this.state;
+    const projectKeyIsInvalid = touched && projectKeyError !== undefined;
+    const projectKeyIsValid = touched && !validating && projectKeyError === undefined;
+    const projectNameIsInvalid = touched && projectNameError !== undefined;
+    const projectNameIsValid = touched && projectNameError === undefined;
     const canChoosePrivate = this.canChoosePrivate(selectedOrganization);
 
     return (
@@ -182,37 +265,56 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                 organizations={this.props.userOrganizations}
               />
             )}
-            <ProjectKeyInput
+
+            <ValidationInput
               className="form-field"
-              onChange={this.handleProjectKeyChange}
-              value={this.state.projectKey}
-            />
-            <div className="form-field">
-              <label htmlFor="project-name">
-                <span className="text-middle">
-                  <strong>{translate('onboarding.create_project.display_name')}</strong>
-                  <em className="mandatory">*</em>
-                </span>
-                <HelpTooltip
-                  className="spacer-left"
-                  overlay={translate('onboarding.create_project.display_name.help')}
-                />
-              </label>
-              <div className="little-spacer-top spacer-bottom">
-                <input
-                  className="input-super-large"
-                  id="project-name"
-                  maxLength={255}
-                  minLength={1}
-                  onChange={this.handleProjectNameChange}
-                  type="text"
-                  value={this.state.projectName}
-                />
-              </div>
-              <div className="note abs-width-400">
-                {translate('onboarding.create_project.display_name.description')}
-              </div>
-            </div>
+              description={translate('onboarding.create_project.project_key.description')}
+              error={projectKeyError}
+              help={translate('onboarding.create_project.project_key.help')}
+              id="project-key"
+              isInvalid={projectKeyIsInvalid}
+              isValid={projectKeyIsValid}
+              label={translate('onboarding.create_project.project_key')}
+              required={true}>
+              <input
+                autoFocus={true}
+                className={classNames('input-super-large', {
+                  'is-invalid': projectKeyIsInvalid,
+                  'is-valid': projectKeyIsValid
+                })}
+                id="project-key"
+                maxLength={400}
+                minLength={1}
+                onChange={this.handleProjectKeyChange}
+                type="text"
+                value={projectKey}
+              />
+            </ValidationInput>
+
+            <ValidationInput
+              className="form-field"
+              description={translate('onboarding.create_project.display_name.description')}
+              error={projectNameError}
+              help={translate('onboarding.create_project.display_name.help')}
+              id="project-name"
+              isInvalid={projectNameIsInvalid}
+              isValid={projectNameIsValid}
+              label={translate('onboarding.create_project.display_name')}
+              required={true}>
+              <input
+                className={classNames('input-super-large', {
+                  'is-invalid': projectNameIsInvalid,
+                  'is-valid': projectNameIsValid
+                })}
+                id="project-name"
+                maxLength={255}
+                minLength={1}
+                onChange={this.handleProjectNameChange}
+                type="text"
+                value={projectName}
+              />
+            </ValidationInput>
+
             {isSonarCloud() && selectedOrganization && (
               <div
                 className={classNames('visibility-select-wrapper', {
@@ -226,6 +328,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                 />
               </div>
             )}
+
             <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
               {translate('set_up')}
             </SubmitButton>

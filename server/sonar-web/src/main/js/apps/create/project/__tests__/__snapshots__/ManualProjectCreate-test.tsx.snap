@@ -28,53 +28,47 @@ exports[`should render correctly 1`] = `
           ]
         }
       />
-      <ProjectKeyInput
+      <ValidationInput
         className="form-field"
-        onChange={[Function]}
-        value=""
-      />
-      <div
-        className="form-field"
+        description="onboarding.create_project.project_key.description"
+        help="onboarding.create_project.project_key.help"
+        id="project-key"
+        isInvalid={false}
+        isValid={false}
+        label="onboarding.create_project.project_key"
+        required={true}
       >
-        <label
-          htmlFor="project-name"
-        >
-          <span
-            className="text-middle"
-          >
-            <strong>
-              onboarding.create_project.display_name
-            </strong>
-            <em
-              className="mandatory"
-            >
-              *
-            </em>
-          </span>
-          <HelpTooltip
-            className="spacer-left"
-            overlay="onboarding.create_project.display_name.help"
-          />
-        </label>
-        <div
-          className="little-spacer-top spacer-bottom"
-        >
-          <input
-            className="input-super-large"
-            id="project-name"
-            maxLength={255}
-            minLength={1}
-            onChange={[Function]}
-            type="text"
-            value=""
-          />
-        </div>
-        <div
-          className="note abs-width-400"
-        >
-          onboarding.create_project.display_name.description
-        </div>
-      </div>
+        <input
+          autoFocus={true}
+          className="input-super-large"
+          id="project-key"
+          maxLength={400}
+          minLength={1}
+          onChange={[Function]}
+          type="text"
+          value=""
+        />
+      </ValidationInput>
+      <ValidationInput
+        className="form-field"
+        description="onboarding.create_project.display_name.description"
+        help="onboarding.create_project.display_name.help"
+        id="project-name"
+        isInvalid={false}
+        isValid={false}
+        label="onboarding.create_project.display_name"
+        required={true}
+      >
+        <input
+          className="input-super-large"
+          id="project-name"
+          maxLength={255}
+          minLength={1}
+          onChange={[Function]}
+          type="text"
+          value=""
+        />
+      </ValidationInput>
       <SubmitButton
         disabled={true}
       >
