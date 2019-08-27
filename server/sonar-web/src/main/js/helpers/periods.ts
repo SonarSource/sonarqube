@@ -39,22 +39,33 @@ export function getPeriodLabel(
     return undefined;
   }
 
-  let parameter = period.modeParam || period.parameter;
-  if (period.mode === 'previous_version' && !parameter) {
-    return translate('overview.period.previous_version_only_date');
-  }
+  let parameter = period.modeParam || period.parameter || '';
 
-  if (period.mode === 'date' && parameter) {
-    parameter = dateFormatter(parameter);
-  } else if (period.mode === 'manual_baseline') {
-    if (!parameter) {
+  switch (period.mode) {
+    case 'SPECIFIC_ANALYSIS':
       parameter = dateFormatter(period.date);
-    } else {
-      return translateWithParameters('overview.period.previous_version', parameter);
-    }
+      break;
+    case 'PREVIOUS_VERSION':
+      parameter = parameter || dateFormatter(period.date);
+      break;
+    /*
+     * Handle legacy period modes, that predate MMF-1579
+     */
+    case 'previous_version':
+      if (!parameter) {
+        return translate('overview.period.previous_version_only_date');
+      }
+      break;
+    case 'date':
+      parameter = parameter && dateFormatter(parameter);
+      break;
+    case 'manual_baseline':
+      parameter = parameter || dateFormatter(period.date);
+      break;
+    default: // No change in the parameter
   }
 
-  return translateWithParameters(`overview.period.${period.mode}`, parameter || '');
+  return translateWithParameters(`overview.period.${period.mode.toLowerCase()}`, parameter);
 }
 
 export function getPeriodDate(period?: { date?: string }): Date | undefined {

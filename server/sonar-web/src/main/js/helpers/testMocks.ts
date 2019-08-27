@@ -523,6 +523,15 @@ export function mockOrganizationWithAlm(
   });
 }
 
+export function mockPeriod(overrides: Partial<T.Period> = {}): T.Period {
+  return {
+    date: '2019-04-23T02:12:32+0100',
+    index: 0,
+    mode: 'previous_version',
+    ...overrides
+  };
+}
+
 export function mockQualityGate(overrides: Partial<T.QualityGate> = {}): T.QualityGate {
   return {
     id: 1,

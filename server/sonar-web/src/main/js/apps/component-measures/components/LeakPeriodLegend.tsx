@@ -64,7 +64,7 @@ export class LeakPeriodLegend extends React.PureComponent<Props & InjectedIntlPr
       </div>
     );
 
-    if (period.mode === 'days') {
+    if (period.mode === 'days' || period.mode === 'NUMBER_OF_DAYS') {
       return label;
     }
 

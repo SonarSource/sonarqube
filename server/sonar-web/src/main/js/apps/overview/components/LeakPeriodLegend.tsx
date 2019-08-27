@@ -31,6 +31,11 @@ interface Props {
   period: T.Period;
 }
 
+const MODE_INCLUDES_TIME: T.Dict<boolean> = {
+  manual_baseline: true,
+  SPECIFIC_ANALYSIS: true
+};
+
 export class LeakPeriodLegend extends React.PureComponent<Props & InjectedIntlProps> {
   formatDate = (date: string) => {
     return this.props.intl.formatDate(date, longFormatterOption);
@@ -44,13 +49,13 @@ export class LeakPeriodLegend extends React.PureComponent<Props & InjectedIntlPr
     const { period } = this.props;
     const leakPeriodLabel = getPeriodLabel(
       period,
-      period.mode === 'manual_baseline' ? this.formatDateTime : this.formatDate
+      MODE_INCLUDES_TIME[period.mode] ? this.formatDateTime : this.formatDate
     );
     if (!leakPeriodLabel) {
       return null;
     }
 
-    if (period.mode === 'days') {
+    if (period.mode === 'days' || period.mode === 'NUMBER_OF_DAYS') {
       return (
         <div className="overview-legend overview-legend-spaced-line">
           {translateWithParameters('overview.new_code_period_x', leakPeriodLabel)}

@@ -578,7 +578,7 @@ declare namespace T {
   export interface Period {
     date: string;
     index: number;
-    mode: PeriodMode;
+    mode: PeriodMode | NewCodePeriodSettingType;
     modeParam?: string;
     parameter?: string;
   }
@@ -589,6 +589,10 @@ declare namespace T {
     value: string;
   }
 
+  /*
+   * These are old baseline setting types, necessary for
+   * backward compatibility.
+   */
   export type PeriodMode =
     | 'days'
     | 'date'
