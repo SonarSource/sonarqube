@@ -29,7 +29,6 @@ export interface ProjectBaselineSelectorProps {
   currentSetting?: T.NewCodePeriodSettingType;
   currentSettingValue?: string | number;
   days: string;
-  generalSetting?: { type: T.NewCodePeriodSettingType; value?: string };
   onSelectDays: (value: string) => void;
   onSelectSetting: (value: T.NewCodePeriodSettingType) => void;
   onSubmit: (e: React.SyntheticEvent<HTMLFormElement>) => void;

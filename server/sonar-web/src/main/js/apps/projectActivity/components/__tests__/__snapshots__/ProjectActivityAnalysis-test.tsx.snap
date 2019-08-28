@@ -221,6 +221,65 @@ exports[`should render correctly 3`] = `
 </Tooltip>
 `;
 
+exports[`should render correctly 4`] = `
+<Tooltip
+  mouseEnterDelay={0.5}
+  overlay={
+    <TimeFormatter
+      date={
+        Object {
+          "toISOString": [Function],
+          "valueOf": [Function],
+        }
+      }
+      long={true}
+    />
+  }
+  placement="left"
+>
+  <li
+    className="project-activity-analysis"
+    data-date={1546333200000}
+    onClick={[Function]}
+    tabIndex={0}
+  >
+    <div
+      className="project-activity-time spacer-right"
+    >
+      <TimeFormatter
+        date={
+          Object {
+            "toISOString": [Function],
+            "valueOf": [Function],
+          }
+        }
+        long={false}
+      >
+        <Component />
+      </TimeFormatter>
+    </div>
+    <div
+      className="baseline-marker"
+    >
+      <div
+        className="wedge"
+      />
+      <hr />
+      <div
+        className="label display-flex-center"
+      >
+        project_activity.new_code_period_start
+        <HelpTooltip
+          className="little-spacer-left"
+          overlay="project_activity.new_code_period_start.help"
+          placement="top"
+        />
+      </div>
+    </div>
+  </li>
+</Tooltip>
+`;
+
 exports[`should show the correct admin options 1`] = `
 <Tooltip
   mouseEnterDelay={0.5}

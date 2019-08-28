@@ -82,6 +82,9 @@ export default function ProjectActivityApp(props: Props) {
             deleteAnalysis={props.deleteAnalysis}
             deleteEvent={props.deleteEvent}
             initializing={props.initializing}
+            leakPeriodDate={
+              props.project.leakPeriodDate ? parseDate(props.project.leakPeriodDate) : undefined
+            }
             project={props.project}
             query={props.query}
             updateQuery={props.updateQuery}

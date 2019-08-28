@@ -104,7 +104,7 @@ describe('getSettingValue', () => {
 
   it('should work for Previous version', () => {
     wrapper.setState({ selected: 'PREVIOUS_VERSION' });
-    expect(wrapper.instance().getSettingValue()).toBeNull();
+    expect(wrapper.instance().getSettingValue()).toBeUndefined();
   });
 });
 

@@ -11,6 +11,11 @@ exports[`should render correctly 1`] = `
           branch_list.branch
         </th>
         <th
+          className="thin"
+        >
+           
+        </th>
+        <th
           className="thin nowrap huge-spacer-right"
         >
           branch_list.current_setting
@@ -36,6 +41,7 @@ exports[`should render correctly 1`] = `
                 "isMain": true,
                 "name": "master",
                 "newCodePeriod": Object {
+                  "effectiveValue": undefined,
                   "type": "NUMBER_OF_DAYS",
                   "value": "27",
                 },
@@ -50,6 +56,7 @@ exports[`should render correctly 1`] = `
             branches.main_branch
           </div>
         </td>
+        <td />
         <td
           className="huge-spacer-right nowrap"
         >
@@ -91,14 +98,17 @@ exports[`should render correctly 1`] = `
           />
           branch-6.7
         </td>
-        <td
-          className="huge-spacer-right nowrap"
-        >
+        <td>
           <span
             className="badge badge-info"
           >
             default
           </span>
+        </td>
+        <td
+          className="huge-spacer-right nowrap"
+        >
+          baseline.previous_version
         </td>
         <td
           className="text-right"

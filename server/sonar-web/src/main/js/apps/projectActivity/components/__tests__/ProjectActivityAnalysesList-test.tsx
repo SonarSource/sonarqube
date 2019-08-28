@@ -34,10 +34,12 @@ jest.mock('sonar-ui-common/helpers/dates', () => {
   return { ...actual, toShortNotSoISOString: (date: string) => 'ISO.' + date };
 });
 
+const DATE = parseDate('2016-10-27T16:33:50+0000');
+
 const ANALYSES = [
   {
     key: 'A1',
-    date: parseDate('2016-10-27T16:33:50+0000'),
+    date: DATE,
     events: [{ key: 'E1', category: 'VERSION', name: '6.5-SNAPSHOT' }]
   },
   { key: 'A2', date: parseDate('2016-10-27T12:21:15+0000'), events: [] },
@@ -66,6 +68,7 @@ const DEFAULT_PROPS: ProjectActivityAnalysesList['props'] = {
   deleteAnalysis: jest.fn().mockResolvedValue(undefined),
   deleteEvent: jest.fn().mockResolvedValue(undefined),
   initializing: false,
+  leakPeriodDate: parseDate('2016-10-27T12:21:15+0000'),
   project: { qualifier: 'TRK' },
   query: {
     category: '',
@@ -91,8 +94,8 @@ it('should correctly filter analyses by date range', () => {
   wrapper.setProps({
     query: {
       ...DEFAULT_PROPS.query,
-      from: parseDate('2016-10-27T16:33:50+0000'),
-      to: parseDate('2016-10-27T16:33:50+0000')
+      from: DATE,
+      to: DATE
     }
   });
   expect(wrapper).toMatchSnapshot();

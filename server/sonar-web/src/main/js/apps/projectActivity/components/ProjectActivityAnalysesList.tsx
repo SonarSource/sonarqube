@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as classNames from 'classnames';
+import { isEqual } from 'date-fns';
 import { throttle } from 'lodash';
 import * as React from 'react';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
@@ -45,6 +46,7 @@ interface Props {
   deleteAnalysis: (analysis: string) => Promise<void>;
   deleteEvent: (analysis: string, event: string) => Promise<void>;
   initializing: boolean;
+  leakPeriodDate?: Date;
   project: { qualifier: string };
   query: Query;
   updateQuery: (changes: Partial<Query>) => void;
@@ -155,6 +157,40 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
     this.props.updateQuery({ selectedDate: date });
   };
 
+  shouldRenderBaselineMarker(analysis: ParsedAnalysis): boolean {
+    return Boolean(
+      analysis.manualNewCodePeriodBaseline ||
+        (this.props.leakPeriodDate && isEqual(this.props.leakPeriodDate, analysis.date))
+    );
+  }
+
+  renderAnalysis(analysis: ParsedAnalysis) {
+    const firstAnalysisKey = this.props.analyses[0].key;
+
+    const selectedDate = this.props.query.selectedDate
+      ? this.props.query.selectedDate.valueOf()
+      : null;
+
+    return (
+      <ProjectActivityAnalysis
+        addCustomEvent={this.props.addCustomEvent}
+        addVersion={this.props.addVersion}
+        analysis={analysis}
+        canAdmin={this.props.canAdmin}
+        canCreateVersion={this.props.project.qualifier === 'TRK'}
+        canDeleteAnalyses={this.props.canDeleteAnalyses}
+        changeEvent={this.props.changeEvent}
+        deleteAnalysis={this.props.deleteAnalysis}
+        deleteEvent={this.props.deleteEvent}
+        isBaseline={this.shouldRenderBaselineMarker(analysis)}
+        isFirst={analysis.key === firstAnalysisKey}
+        key={analysis.key}
+        selected={analysis.date.valueOf() === selectedDate}
+        updateSelectedDate={this.updateSelectedDate}
+      />
+    );
+  }
+
   render() {
     const byVersionByDay = getAnalysesByVersionByDay(this.props.analyses, this.props.query);
     const hasFilteredData =
@@ -173,11 +209,6 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
         </div>
       );
     }
-
-    const firstAnalysisKey = this.props.analyses[0].key;
-    const selectedDate = this.props.query.selectedDate
-      ? this.props.query.selectedDate.valueOf()
-      : null;
 
     return (
       <ul
@@ -212,23 +243,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
                     </div>
                     <ul className="project-activity-analyses-list">
                       {version.byDay[day] != null &&
-                        version.byDay[day].map(analysis => (
-                          <ProjectActivityAnalysis
-                            addCustomEvent={this.props.addCustomEvent}
-                            addVersion={this.props.addVersion}
-                            analysis={analysis}
-                            canAdmin={this.props.canAdmin}
-                            canCreateVersion={this.props.project.qualifier === 'TRK'}
-                            canDeleteAnalyses={this.props.canDeleteAnalyses}
-                            changeEvent={this.props.changeEvent}
-                            deleteAnalysis={this.props.deleteAnalysis}
-                            deleteEvent={this.props.deleteEvent}
-                            isFirst={analysis.key === firstAnalysisKey}
-                            key={analysis.key}
-                            selected={analysis.date.valueOf() === selectedDate}
-                            updateSelectedDate={this.updateSelectedDate}
-                          />
-                        ))}
+                        version.byDay[day].map(analysis => this.renderAnalysis(analysis))}
                     </ul>
                   </li>
                 ))}

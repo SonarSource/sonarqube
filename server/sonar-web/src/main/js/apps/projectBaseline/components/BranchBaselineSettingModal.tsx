@@ -21,8 +21,10 @@ import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { toNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { setNewCodePeriod } from '../../../api/newCodePeriod';
+import { ParsedAnalysis } from '../../projectActivity/utils';
 import { validateDays } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
 import BaselineSettingDays from './BaselineSettingDays';
@@ -32,14 +34,12 @@ import BranchAnalysisList from './BranchAnalysisList';
 interface Props {
   branch: T.BranchWithNewCodePeriod;
   component: string;
-  onClose: (
-    branch?: string,
-    newSetting?: { type: T.NewCodePeriodSettingType; value: string | null }
-  ) => void;
+  onClose: (branch?: string, newSetting?: T.NewCodePeriod) => void;
 }
 
 interface State {
   analysis: string;
+  analysisDate?: Date;
   days: string;
   saving: boolean;
   selected?: T.NewCodePeriodSettingType;
@@ -80,7 +80,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
       case 'SPECIFIC_ANALYSIS':
         return this.state.analysis;
       default:
-        return null;
+        return undefined;
     }
   }
 
@@ -88,7 +88,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
     e.preventDefault();
 
     const { branch, component } = this.props;
-    const { selected: type } = this.state;
+    const { analysisDate, selected: type } = this.state;
 
     const value = this.getSettingValue();
 
@@ -104,7 +104,11 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
           this.setState({
             saving: false
           });
-          this.props.onClose(branch.name, { type, value });
+          this.props.onClose(branch.name, {
+            type,
+            value,
+            effectiveValue: analysisDate && toNotSoISOString(analysisDate)
+          });
         },
         () => {
           this.setState({
@@ -117,7 +121,8 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
 
   requestClose = () => this.props.onClose();
 
-  handleSelectAnalysis = (analysis: string) => this.setState({ analysis });
+  handleSelectAnalysis = (analysis: ParsedAnalysis) =>
+    this.setState({ analysis: analysis.key, analysisDate: analysis.date });
 
   handleSelectDays = (days: string) => this.setState({ days });
 

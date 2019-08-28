@@ -61,9 +61,6 @@
   flex-shrink: 0;
 }
 
-.project-activity-days-list {
-}
-
 .project-activity-day {
   margin-top: 8px;
   margin-bottom: 24px;
@@ -79,14 +76,11 @@
   font-weight: bold;
 }
 
-.project-activity-analyses-list {
-}
-
 .project-activity-analysis {
   position: relative;
   display: flex;
   min-height: var(--smallControlHeight);
-  padding: calc(0.5 * var(--gridSize));
+  padding: var(--gridSize) calc(0.5 * var(--gridSize));
   border-top: 1px solid var(--barBorderColor);
   border-bottom: 1px solid var(--barBorderColor);
   cursor: pointer;
@@ -293,4 +287,34 @@
 .project-activity-graph-tooltip-title,
 .project-activity-graph-tooltip-value {
   font-weight: bold;
+}
+
+.baseline-marker {
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.baseline-marker > .wedge {
+  border: 10px solid transparent;
+  border-left-color: var(--leakBorderColor);
+}
+
+.baseline-marker > hr {
+  border: none;
+  margin: 0 0 0 -11px;
+  background-color: var(--leakBorderColor);
+  height: 2px;
+  flex: 1 0 auto;
+}
+
+.baseline-marker > .label {
+  background-color: var(--leakColor);
+  border: 1px solid var(--leakBorderColor);
+  padding: 2px 8px;
+  font-size: var(--verySmallFontSize);
 }

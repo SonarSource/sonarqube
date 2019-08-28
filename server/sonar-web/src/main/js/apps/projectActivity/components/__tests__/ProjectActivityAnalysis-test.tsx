@@ -38,6 +38,7 @@ it('should render correctly', () => {
   expect(
     shallowRender({ analysis: mockParsedAnalysis({ buildString: '1.0.234' }) })
   ).toMatchSnapshot();
+  expect(shallowRender({ isBaseline: true })).toMatchSnapshot();
 });
 
 it('should show the correct admin options', () => {
@@ -87,6 +88,7 @@ function shallowRender(props: Partial<ProjectActivityAnalysis['props']> = {}) {
       changeEvent={jest.fn()}
       deleteAnalysis={jest.fn()}
       deleteEvent={jest.fn()}
+      isBaseline={false}
       isFirst={false}
       selected={false}
       updateSelectedDate={jest.fn()}

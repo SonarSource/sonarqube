@@ -25,12 +25,14 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../api/newCodePeriod';
 import BranchIcon from '../../../components/icons-components/BranchIcon';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { isLongLivingBranch, isMainBranch, sortBranchesAsTree } from '../../../helpers/branches';
 import BranchBaselineSettingModal from './BranchBaselineSettingModal';
 
 interface Props {
   branchLikes: T.BranchLike[];
   component: T.Component;
+  inheritedSetting: T.NewCodePeriod;
 }
 
 interface State {
@@ -78,10 +80,10 @@ export default class BranchList extends React.PureComponent<Props, State> {
           if (!newCodePeriod) {
             return b;
           }
-          const { type = 'PREVIOUS_VERSION', value = null } = newCodePeriod;
+          const { type = 'PREVIOUS_VERSION', value, effectiveValue } = newCodePeriod;
           return {
             ...b,
-            newCodePeriod: { type, value }
+            newCodePeriod: { type, value, effectiveValue }
           };
         });
 
@@ -93,10 +95,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
     );
   }
 
-  updateBranchNewCodePeriod = (
-    branch: string,
-    newSetting: { type: T.NewCodePeriodSettingType; value: string | null } | undefined
-  ) => {
+  updateBranchNewCodePeriod = (branch: string, newSetting: T.NewCodePeriod | undefined) => {
     const { branches } = this.state;
 
     const updated = branches.find(b => b.name === branch);
@@ -110,10 +109,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
     this.setState({ editedBranch: branch });
   };
 
-  closeEditModal = (
-    branch?: string,
-    newSetting?: { type: T.NewCodePeriodSettingType; value: string | null }
-  ) => {
+  closeEditModal = (branch?: string, newSetting?: T.NewCodePeriod) => {
     if (branch) {
       this.setState({
         branches: this.updateBranchNewCodePeriod(branch, newSetting),
@@ -133,13 +129,19 @@ export default class BranchList extends React.PureComponent<Props, State> {
     });
   }
 
-  renderNewCodePeriodSetting(newCodePeriod: {
-    type: T.NewCodePeriodSettingType;
-    value: string | null;
-  }) {
+  renderNewCodePeriodSetting(newCodePeriod: T.NewCodePeriod) {
     switch (newCodePeriod.type) {
       case 'SPECIFIC_ANALYSIS':
-        return `${translate('baseline.specific_analysis')}: ${newCodePeriod.value}`;
+        return (
+          <>
+            {`${translate('baseline.specific_analysis')}: `}
+            {newCodePeriod.effectiveValue ? (
+              <DateTimeFormatter date={newCodePeriod.effectiveValue} />
+            ) : (
+              '?'
+            )}
+          </>
+        );
       case 'NUMBER_OF_DAYS':
         return `${translate('baseline.number_days')}: ${newCodePeriod.value}`;
       case 'PREVIOUS_VERSION':
@@ -166,6 +168,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
           <thead>
             <tr>
               <th>{translate('branch_list.branch')}</th>
+              <th className="thin"> </th>
               <th className="thin nowrap huge-spacer-right">
                 {translate('branch_list.current_setting')}
               </th>
@@ -182,12 +185,15 @@ export default class BranchList extends React.PureComponent<Props, State> {
                     <div className="badge spacer-left">{translate('branches.main_branch')}</div>
                   )}
                 </td>
-                <td className="huge-spacer-right nowrap">
-                  {branch.newCodePeriod ? (
-                    this.renderNewCodePeriodSetting(branch.newCodePeriod)
-                  ) : (
+                <td>
+                  {!branch.newCodePeriod && (
                     <span className="badge badge-info">{translate('default')}</span>
                   )}
+                </td>
+                <td className="huge-spacer-right nowrap">
+                  {branch.newCodePeriod
+                    ? this.renderNewCodePeriodSetting(branch.newCodePeriod)
+                    : this.renderNewCodePeriodSetting(this.props.inheritedSetting)}
                 </td>
                 <td className="text-right">
                   <ActionsDropdown>

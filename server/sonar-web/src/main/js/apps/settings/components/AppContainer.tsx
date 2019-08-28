@@ -97,7 +97,7 @@ export class App extends React.PureComponent<Props & WithRouterProps, State> {
             />
           </div>
           <div className="side-tabs-main">
-            {selectedCategory === 'new_code_period' ? (
+            {!this.props.component && selectedCategory === 'new_code_period' ? (
               <NewCodePeriod />
             ) : (
               <CategoryDefinitionsList

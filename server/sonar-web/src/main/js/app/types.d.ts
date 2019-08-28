@@ -115,10 +115,7 @@ declare namespace T {
   export type BranchType = 'LONG' | 'SHORT';
 
   export interface BranchWithNewCodePeriod extends Branch {
-    newCodePeriod?: {
-      type: NewCodePeriodSettingType;
-      value: string | null;
-    };
+    newCodePeriod?: NewCodePeriod;
   }
 
   export interface Breadcrumb {
@@ -506,12 +503,19 @@ declare namespace T {
     qualityGate?: string;
   }
 
+  export interface NewCodePeriod {
+    type?: NewCodePeriodSettingType;
+    value?: string;
+    effectiveValue?: string;
+  }
+
   export interface NewCodePeriodBranch {
     projectKey: string;
     branchKey: string;
     inherited?: boolean;
     type?: NewCodePeriodSettingType;
-    value?: string | null;
+    value?: string;
+    effectiveValue?: string;
   }
 
   export type NewCodePeriodSettingType =

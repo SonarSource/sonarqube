@@ -36,9 +36,9 @@ interface Props {
 
 interface State {
   currentSetting?: T.NewCodePeriodSettingType;
-  currentSettingValue?: string | number;
+  currentSettingValue?: string;
   days: string;
-  generalSetting?: { type: T.NewCodePeriodSettingType; value?: string };
+  generalSetting?: T.NewCodePeriod;
   loading: boolean;
   saving: boolean;
   selected?: T.NewCodePeriodSettingType;
@@ -126,7 +126,7 @@ export default class App extends React.PureComponent<Props, State> {
     const { days, selected } = this.state;
 
     const type = selected;
-    const value = type === 'NUMBER_OF_DAYS' ? days : null;
+    const value = type === 'NUMBER_OF_DAYS' ? days : undefined;
 
     if (type) {
       this.setState({ saving: true });
@@ -184,7 +184,7 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 
-  renderGeneralSetting(generalSetting: { type: T.NewCodePeriodSettingType; value?: string }) {
+  renderGeneralSetting(generalSetting: T.NewCodePeriod) {
     if (generalSetting.type === 'NUMBER_OF_DAYS') {
       return `${translate('baseline.number_days')} (${translateWithParameters(
         'duration.days',
@@ -238,15 +238,26 @@ export default class App extends React.PureComponent<Props, State> {
               currentSetting={currentSetting}
               currentSettingValue={currentSettingValue}
               days={days}
-              generalSetting={generalSetting}
               onSelectDays={this.handleSelectDays}
               onSelectSetting={this.handleSelectSetting}
               onSubmit={this.handleSubmit}
               saving={saving}
               selected={selected}
             />
-
-            <BranchList branchLikes={this.props.branchLikes} component={this.props.component} />
+            {generalSetting && (
+              <BranchList
+                branchLikes={this.props.branchLikes}
+                component={this.props.component}
+                inheritedSetting={
+                  currentSetting
+                    ? {
+                        type: currentSetting,
+                        value: currentSettingValue
+                      }
+                    : generalSetting
+                }
+              />
+            )}
           </div>
         )}
       </div>

@@ -102,16 +102,32 @@ it('should render the right setting label', () => {
   expect(
     wrapper.instance().renderNewCodePeriodSetting({ type: 'NUMBER_OF_DAYS', value: '21' })
   ).toBe('baseline.number_days: 21');
+  expect(wrapper.instance().renderNewCodePeriodSetting({ type: 'PREVIOUS_VERSION' })).toBe(
+    'baseline.previous_version'
+  );
   expect(
-    wrapper.instance().renderNewCodePeriodSetting({ type: 'PREVIOUS_VERSION', value: null })
-  ).toBe('baseline.previous_version');
-  expect(
-    wrapper.instance().renderNewCodePeriodSetting({ type: 'SPECIFIC_ANALYSIS', value: 'A85835' })
-  ).toBe('baseline.specific_analysis: A85835');
+    wrapper.instance().renderNewCodePeriodSetting({
+      type: 'SPECIFIC_ANALYSIS',
+      value: 'A85835',
+      effectiveValue: '2018-12-02T13:01:12'
+    })
+  ).toMatchInlineSnapshot(`
+    <React.Fragment>
+      baseline.specific_analysis: 
+      <DateTimeFormatter
+        date="2018-12-02T13:01:12"
+      />
+    </React.Fragment>
+  `);
 });
 
 function shallowRender(props: Partial<BranchList['props']> = {}) {
   return shallow<BranchList>(
-    <BranchList branchLikes={[]} component={mockComponent()} {...props} />
+    <BranchList
+      branchLikes={[]}
+      component={mockComponent()}
+      inheritedSetting={{ type: 'PREVIOUS_VERSION' }}
+      {...props}
+    />
   );
 }

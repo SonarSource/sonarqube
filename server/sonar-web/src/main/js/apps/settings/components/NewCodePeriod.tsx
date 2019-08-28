@@ -90,7 +90,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
     const { days, selected } = this.state;
 
     const type = selected;
-    const value = type === 'NUMBER_OF_DAYS' ? days : null;
+    const value = type === 'NUMBER_OF_DAYS' ? days : undefined;
 
     if (type) {
       this.setState({ saving: true, success: false });

@@ -23,6 +23,7 @@ import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
@@ -42,6 +43,7 @@ interface Props {
   changeEvent: (event: string, name: string) => Promise<void>;
   deleteAnalysis: (analysis: string) => Promise<void>;
   deleteEvent: (analysis: string, event: string) => Promise<void>;
+  isBaseline: boolean;
   isFirst: boolean;
   selected: boolean;
   updateSelectedDate: (date: Date) => void;
@@ -51,7 +53,6 @@ interface State {
   addEventForm: boolean;
   addVersionForm: boolean;
   removeAnalysisForm: boolean;
-  suppressVersionTooltip?: boolean;
 }
 
 export default class ProjectActivityAnalysis extends React.PureComponent<Props, State> {
@@ -102,22 +103,31 @@ export default class ProjectActivityAnalysis extends React.PureComponent<Props, 
     this.setState({ addVersionForm: true });
   };
 
-  handleTimeTooltipHide = () => {
-    this.setState({ suppressVersionTooltip: false });
-  };
-
-  handleTimeTooltipShow = () => {
-    this.setState({ suppressVersionTooltip: true });
-  };
-
   closeAddVersionForm = () => {
     if (this.mounted) {
       this.setState({ addVersionForm: false });
     }
   };
 
+  renderBaselineMarker() {
+    return (
+      <div className="baseline-marker">
+        <div className="wedge" />
+        <hr />
+        <div className="label display-flex-center">
+          {translate('project_activity.new_code_period_start')}
+          <HelpTooltip
+            className="little-spacer-left"
+            overlay={translate('project_activity.new_code_period_start.help')}
+            placement="top"
+          />
+        </div>
+      </div>
+    );
+  }
+
   render() {
-    const { analysis, isFirst, canAdmin, canCreateVersion } = this.props;
+    const { analysis, isBaseline, isFirst, canAdmin, canCreateVersion } = this.props;
     const { date, events } = analysis;
     const parsedDate = parseDate(date);
     const hasVersion = events.find(event => event.category === 'VERSION') != null;
@@ -222,6 +232,8 @@ export default class ProjectActivityAnalysis extends React.PureComponent<Props, 
               isFirst={this.props.isFirst}
             />
           )}
+
+          {isBaseline && this.renderBaselineMarker()}
         </li>
       </Tooltip>
     );

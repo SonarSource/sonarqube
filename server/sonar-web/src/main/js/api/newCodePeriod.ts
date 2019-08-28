@@ -31,7 +31,7 @@ export function setNewCodePeriod(data: {
   project?: string;
   branch?: string;
   type: T.NewCodePeriodSettingType;
-  value: string | null;
+  value?: string;
 }): Promise<void> {
   return post('/api/new_code_periods/set', data).catch(throwGlobalError);
 }

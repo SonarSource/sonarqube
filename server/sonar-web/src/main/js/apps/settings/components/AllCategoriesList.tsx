@@ -68,7 +68,7 @@ export class CategoriesList extends React.PureComponent<Props> {
         key,
         name: getCategoryName(key)
       }))
-      .concat(FIXED_CATEGORIES);
+      .concat(!this.props.component ? FIXED_CATEGORIES : []);
     const sortedCategories = sortBy(categoriesWithName, category => category.name.toLowerCase());
     return (
       <ul className="side-tabs-menu">

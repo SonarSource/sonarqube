@@ -80,6 +80,7 @@ exports[`should render correctly 1`] = `
         deleteAnalysis={[MockFunction]}
         deleteEvent={[MockFunction]}
         initializing={false}
+        leakPeriodDate={2017-05-16T11:50:02.000Z}
         project={
           Object {
             "key": "foo",

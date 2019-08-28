@@ -108,7 +108,7 @@ it('should submit correctly', async () => {
   wrapper.find('form').simulate('submit', { preventDefault });
 
   expect(preventDefault).toBeCalledTimes(1);
-  expect(setNewCodePeriod).toBeCalledWith({ type: 'PREVIOUS_VERSION', value: null });
+  expect(setNewCodePeriod).toBeCalledWith({ type: 'PREVIOUS_VERSION', value: undefined });
   await waitAndUpdate(wrapper);
   expect(wrapper.state('currentSetting')).toEqual(wrapper.state('selected'));
 });

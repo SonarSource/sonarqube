@@ -36,7 +36,7 @@ interface Props {
   analysis: string;
   branch: string;
   component: string;
-  onSelectAnalysis: (analysis: string) => void;
+  onSelectAnalysis: (analysis: ParsedAnalysis) => void;
 }
 
 interface State {
@@ -216,7 +216,7 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
                                     })}
                                     data-date={parseDate(analysis.date).valueOf()}
                                     key={analysis.key}
-                                    onClick={() => this.props.onSelectAnalysis(analysis.key)}>
+                                    onClick={() => this.props.onSelectAnalysis(analysis)}>
                                     <div className="branch-analysis-time spacer-right">
                                       <TimeFormatter date={parseDate(analysis.date)} long={false}>
                                         {formattedTime => (
