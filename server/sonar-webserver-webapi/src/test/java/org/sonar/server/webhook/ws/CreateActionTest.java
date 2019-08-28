@@ -98,6 +98,27 @@ public class CreateActionTest {
   }
 
   @Test
+  public void create_a_webhook_with_400_length_project_key() {
+    String longProjectKey = generateStringWithLength(400);
+    ComponentDto project = componentDbTester.insertPrivateProject(componentDto -> componentDto.setDbKey(longProjectKey));
+
+    userSession.logIn().addProjectPermission(ADMIN, project);
+
+    CreateWsResponse response = wsActionTester.newRequest()
+      .setParam("project", longProjectKey)
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
+      .setParam("secret", "a_secret")
+      .executeProtobuf(CreateWsResponse.class);
+
+    assertThat(response.getWebhook()).isNotNull();
+    assertThat(response.getWebhook().getKey()).isNotNull();
+    assertThat(response.getWebhook().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
+    assertThat(response.getWebhook().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
+    assertThat(response.getWebhook().getSecret()).isEqualTo("a_secret");
+  }
+
+  @Test
   public void create_a_webhook_with_secret() {
     userSession.logIn().addPermission(ADMINISTER, defaultOrganizationProvider.get().getUuid());
 
@@ -349,6 +370,32 @@ public class CreateActionTest {
       .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
       .setParam(PROJECT_KEY_PARAM, project.getKey())
       .execute();
+  }
+
+
+  @Test
+  public void throw_IllegalArgumentException_if_project_key_greater_than_400() {
+    String longProjectKey = generateStringWithLength(401);
+    userSession.logIn().addPermission(ADMINISTER, defaultOrganizationProvider.get().getUuid());
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'project' length (401) is longer than the maximum authorized (400)");
+
+    wsActionTester.newRequest()
+      .setParam("project", longProjectKey)
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
+      .setParam("secret", "a_secret")
+      .executeProtobuf(CreateWsResponse.class);
+  }
+
+
+  private static String generateStringWithLength(int length) {
+    StringBuilder sb = new StringBuilder(length);
+    for (int i = 0; i < length; i++) {
+      sb.append("x");
+    }
+    return sb.toString();
   }
 
 }
