@@ -27,7 +27,7 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile project(':sonar-scanner-protocol')
   testCompile project(':sonar-testing-harness')
-  testCompile project(':server:sonar-db-core').sourceSets.test.output
+  testCompile testFixtures(project(':server:sonar-db-core'))
 
   testRuntime 'com.h2database:h2'
   testRuntime 'com.microsoft.sqlserver:mssql-jdbc'

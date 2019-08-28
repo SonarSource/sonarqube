@@ -28,8 +28,6 @@ dependencies {
   testCompile 'com.microsoft.sqlserver:mssql-jdbc'
   testCompile 'com.oracle.jdbc:ojdbc8'
   testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.postgresql:postgresql'
   testCompile project(':sonar-testing-harness')
@@ -38,22 +36,16 @@ dependencies {
   testRuntime 'com.microsoft.sqlserver:mssql-jdbc'
   testRuntime 'com.oracle.jdbc:ojdbc8'
   testRuntime 'org.postgresql:postgresql'
+
+  testFixturesApi 'junit:junit'
+  testFixturesApi 'org.assertj:assertj-core'
+
+  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
 }
 
 test {
   if (System.hasProperty('orchestrator.configUrl'))
     systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
-}
-
-task testJar(type: Jar) {
-  classifier = 'tests'
-  from sourceSets.test.output
-}
-
-configurations { tests { extendsFrom testRuntime } }
-
-artifacts {
-   tests testJar
 }
 
 artifactoryPublish.skip = false
@@ -66,7 +58,6 @@ publishing {
       if (release) {
         artifact sourcesJar
         artifact javadocJar
-        artifact testJar
       }
     }
   }
