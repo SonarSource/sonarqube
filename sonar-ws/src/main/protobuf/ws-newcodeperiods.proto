@@ -31,6 +31,7 @@ message ShowWSResponse {
     NewCodePeriodType type = 3;
     string value = 4;
     bool inherited = 5;
+    string effectiveValue = 6;
 }
 
 // WS api/new_code_periods/list

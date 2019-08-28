@@ -20,17 +20,21 @@
 package org.sonar.server.newcodeperiod.ws;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
@@ -83,34 +87,60 @@ public class ListAction implements NewCodePeriodsWsAction {
       Collection<BranchDto> branches = dbClient.branchDao().selectByComponent(dbSession, project).stream()
         .filter(b -> b.getBranchType() == LONG)
         .collect(toList());
-      Map<String, InheritedNewCodePeriod> newCodePeriodByBranchUuid = newCodePeriodDao
-        .selectAllByProject(dbSession, project.uuid())
+
+      List<NewCodePeriodDto> newCodePeriods = newCodePeriodDao.selectAllByProject(dbSession, project.uuid());
+
+      Map<String, InheritedNewCodePeriod> newCodePeriodByBranchUuid = newCodePeriods
         .stream()
         .collect(Collectors.toMap(NewCodePeriodDto::getBranchUuid, dto -> new InheritedNewCodePeriod(dto, dto.getBranchUuid() == null)));
 
-      InheritedNewCodePeriod projectDefault = newCodePeriodByBranchUuid.getOrDefault(null,
-        newCodePeriodDao.selectGlobal(dbSession)
-          .map(dto -> new InheritedNewCodePeriod(dto, true))
-          .orElse(new InheritedNewCodePeriod(NewCodePeriodDto.defaultInstance(), true))
-      );
+      InheritedNewCodePeriod projectDefault = newCodePeriodByBranchUuid.getOrDefault(null, getGlobalOrDefault(dbSession));
+
+      Map<String, String> analysis = newCodePeriods.stream()
+        .filter(newCodePeriodDto -> newCodePeriodDto.getType().equals(NewCodePeriodType.SPECIFIC_ANALYSIS))
+        .collect(Collectors.toMap(NewCodePeriodDto::getUuid, NewCodePeriodDto::getValue));
+
+      Map<String, Long> analysisUuidDateMap = dbClient.snapshotDao().selectByUuids(dbSession, new HashSet<>(analysis.values()))
+        .stream()
+        .collect(Collectors.toMap(SnapshotDto::getUuid, SnapshotDto::getCreatedAt));
 
       ListWSResponse.Builder builder = ListWSResponse.newBuilder();
       for (BranchDto branch : branches) {
         InheritedNewCodePeriod inherited = newCodePeriodByBranchUuid.getOrDefault(branch.getUuid(), projectDefault);
+
+        String effectiveValue = null;
+
+        //handles specific analysis only
+        Long analysisDate = analysisUuidDateMap.get(analysis.get(inherited.getUuid()));
+        if (analysisDate != null ) {
+          effectiveValue = DateUtils.formatDateTime(analysisDate);
+        }
+
         builder.addNewCodePeriods(
-          build(projectKey, branch.getKey(), inherited.getType(), inherited.getValue(), inherited.inherited));
+          build(projectKey, branch.getKey(), inherited.getType(), inherited.getValue(), inherited.inherited, effectiveValue));
       }
 
       writeProtobuf(builder.build(), request, response);
     }
   }
 
-  private static NewCodePeriods.ShowWSResponse build(String projectKey, String branchKey, NewCodePeriodType newCodePeriodType, @Nullable String value, boolean inherited) {
+  private InheritedNewCodePeriod getGlobalOrDefault(DbSession dbSession) {
+    return newCodePeriodDao.selectGlobal(dbSession)
+      .map(dto -> new InheritedNewCodePeriod(dto, true))
+      .orElse(new InheritedNewCodePeriod(NewCodePeriodDto.defaultInstance(), true));
+  }
+
+  private static NewCodePeriods.ShowWSResponse build(String projectKey, String branchKey, NewCodePeriodType newCodePeriodType,
+                                                     @Nullable String value, boolean inherited, @Nullable String effectiveValue) {
     NewCodePeriods.ShowWSResponse.Builder builder = newBuilder()
       .setType(convertType(newCodePeriodType))
       .setInherited(inherited)
       .setBranchKey(branchKey)
       .setProjectKey(projectKey);
+
+    if (effectiveValue != null) {
+      builder.setEffectiveValue(effectiveValue);
+    }
 
     if (value != null) {
       builder.setValue(value);
@@ -147,6 +177,10 @@ public class ListAction implements NewCodePeriodsWsAction {
 
     String getValue() {
       return newCodePeriod.getValue();
+    }
+
+    String getUuid() {
+      return newCodePeriod.getUuid();
     }
   }
 }

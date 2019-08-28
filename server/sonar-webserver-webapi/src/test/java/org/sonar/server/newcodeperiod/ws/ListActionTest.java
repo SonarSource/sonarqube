@@ -19,11 +19,13 @@
  */
 package org.sonar.server.newcodeperiod.ws;
 
+import java.time.Instant;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactoryFast;
@@ -32,6 +34,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodDbTester;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
@@ -47,6 +50,7 @@ import org.sonarqube.ws.NewCodePeriods.ListWSResponse;
 import org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
 public class ListActionTest {
   @Rule
@@ -304,6 +308,52 @@ public class ListActionTest {
       .filteredOn(ShowWSResponse::getInherited)
       .extracting(ShowWSResponse::getValue)
       .contains("project_uuid");
+  }
+
+  @Test
+  public void verify_specific_analysis_effective_value() {
+    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto branch = componentDb.insertProjectBranch(project, branchDto -> branchDto.setKey("PROJECT_BRANCH"));
+
+    SnapshotDto analysis = componentDb.insertSnapshot(newAnalysis(project)
+      .setUuid("A1")
+      .setCreatedAt(Instant.now().toEpochMilli())
+      .setProjectVersion("1.2")
+      .setBuildString("1.2.0.322")
+      .setRevision("bfe36592eb7f9f2708b5d358b5b5f33ed535c8cf")
+    );
+
+    componentDb.insertSnapshot(newAnalysis(project)
+      .setUuid("A2")
+      .setCreatedAt(Instant.now().toEpochMilli())
+      .setProjectVersion("1.2")
+      .setBuildString("1.2.0.322")
+      .setRevision("2d6d5d8d5fabe2223f07aa495e794d0401ff4b04")
+    );
+
+    tester.insert(new NewCodePeriodDto()
+      .setProjectUuid(project.uuid())
+      .setBranchUuid(branch.uuid())
+      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+      .setValue(analysis.getUuid()));
+
+    logInAsProjectAdministrator(project);
+
+    ListWSResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(ListWSResponse.class);
+
+    assertThat(response).isNotNull();
+    assertThat(response.getNewCodePeriodsCount()).isEqualTo(2);
+    assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getBranchKey)
+      .containsOnly("master", "PROJECT_BRANCH");
+
+    ShowWSResponse result = response.getNewCodePeriodsList().get(0);
+    assertThat(result.getType()).isEqualTo(NewCodePeriods.NewCodePeriodType.SPECIFIC_ANALYSIS);
+    assertThat(result.getValue()).isEqualTo("A1");
+    assertThat(result.getProjectKey()).isEqualTo(project.getKey());
+    assertThat(result.getBranchKey()).isEqualTo("PROJECT_BRANCH");
+    assertThat(result.getEffectiveValue()).isEqualTo(DateUtils.formatDateTime(analysis.getCreatedAt()));
   }
 
   private void createBranches(ComponentDto project, int numberOfBranches, BranchType branchType) {
