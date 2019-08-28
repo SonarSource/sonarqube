@@ -6,12 +6,6 @@ sonarqube {
   }
 }
 
-configurations {
-  tests
-
-  testCompile.extendsFrom tests
-}
-
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
@@ -30,14 +24,8 @@ dependencies {
   testCompile 'javax.servlet:javax.servlet-api'
   testCompile 'org.apache.tomcat.embed:tomcat-embed-core'
   testCompile 'org.mockito:mockito-core'
-  testCompile project(':sonar-testing-harness')
-}
 
-task testJar(type: Jar) {
-  classifier = 'tests'
-  from sourceSets.test.output
-}
+  testFixturesApi project(':sonar-testing-harness')
 
-artifacts {
-  tests testJar
+  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
 }

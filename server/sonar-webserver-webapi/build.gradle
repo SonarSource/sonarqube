@@ -37,7 +37,7 @@ dependencies {
   testCompile project(path: ":server:sonar-server-common", configuration: "tests")
   testCompile project(path: ":server:sonar-webserver-auth", configuration: "tests")
   testCompile project(path: ":server:sonar-webserver-es", configuration: "tests")
-  testCompile project(path: ":server:sonar-webserver-ws", configuration: "tests")
+  testCompile testFixtures(project(':server:sonar-webserver-ws'))
   testCompile project(':sonar-testing-harness')
 }
 
