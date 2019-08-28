@@ -21,20 +21,30 @@ package org.sonar.server.user.ws;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.RemovedWebServiceHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserPropertiesWsTest {
 
-  WsTester tester = new WsTester(new UserPropertiesWs());
+  private UserPropertiesWs underTest = new UserPropertiesWs();
 
   @Test
   public void define_ws() {
-    WebService.Controller controller = tester.controller("api/user_properties");
+    WebService.Context context = new WebService.Context();
+
+    underTest.define(context);
+
+    WebService.Controller controller = context.controller("api/user_properties");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.actions()).hasSize(1);
+
+    WebService.Action index = controller.action("index");
+    assertThat(index.since()).isEqualTo("2.6");
+    assertThat(index.deprecatedSince()).isEqualTo("6.3");
+    assertThat(index.handler()).isSameAs(RemovedWebServiceHandler.INSTANCE);
+    assertThat(index.responseExample()).isEqualTo(RemovedWebServiceHandler.INSTANCE.getResponseExample());
   }
 
 }

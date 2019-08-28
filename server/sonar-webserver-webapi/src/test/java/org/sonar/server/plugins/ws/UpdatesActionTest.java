@@ -26,8 +26,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
 
@@ -81,73 +81,64 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
   public ExpectedException expectedException = ExpectedException.none();
 
   private UpdatesAction underTest = new UpdatesAction(userSession, updateCenterFactory, new PluginUpdateAggregator());
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void action_updatable_is_defined() {
-    logInAsSystemAdministrator();
-
-    WsTester wsTester = new WsTester();
-    WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
-
-    underTest.define(newController);
-    newController.done();
-
-    WebService.Controller controller = wsTester.controller(DUMMY_CONTROLLER_KEY);
-    assertThat(controller.actions()).extracting("key").containsExactly("updates");
-
-    WebService.Action action = controller.actions().iterator().next();
+    WebService.Action action = tester.getDef();
     assertThat(action.isPost()).isFalse();
+    assertThat(action.key()).isEqualTo("updates");
     assertThat(action.description()).isNotEmpty();
     assertThat(action.responseExample()).isNotNull();
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() throws Exception {
+  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
     expectedException.expect(ForbiddenException.class);
 
-    underTest.handle(request, response);
+    tester.newRequest().execute();
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() throws Exception {
+  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
-    underTest.handle(request, response);
+    tester.newRequest().execute();
   }
 
   @Test
-  public void empty_array_is_returned_when_there_is_no_plugin_available() throws Exception {
+  public void empty_array_is_returned_when_there_is_no_plugin_available() {
     logInAsSystemAdministrator();
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
+    assertJson(response.getInput()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
   }
 
   @Test
-  public void verify_response_against_example() throws Exception {
+  public void verify_response_against_example() {
     logInAsSystemAdministrator();
     when(updateCenter.findPluginUpdates()).thenReturn(of(
       pluginUpdate(ABAP_32, COMPATIBLE),
       pluginUpdate(ABAP_31, INCOMPATIBLE),
       pluginUpdate(ANDROID_10, COMPATIBLE)));
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString())
+    assertJson(response.getInput())
       .isSimilarTo(new WsActionTester(underTest).getDef().responseExampleAsString());
   }
 
   @Test
-  public void status_COMPATIBLE_is_displayed_COMPATIBLE_in_JSON() throws Exception {
+  public void status_COMPATIBLE_is_displayed_COMPATIBLE_in_JSON() {
     logInAsSystemAdministrator();
     when(updateCenter.findPluginUpdates()).thenReturn(of(
       pluginUpdate(release(PLUGIN_1, "1.0.0"), COMPATIBLE)));
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).isSimilarTo(
+    response.assertJson(
       "{" +
         "  \"plugins\": [" +
         "   {" +
@@ -162,7 +153,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
   }
 
   @Test
-  public void plugins_are_sorted_by_name_and_made_unique() throws Exception {
+  public void plugins_are_sorted_by_name_and_made_unique() {
     logInAsSystemAdministrator();
     when(updateCenter.findPluginUpdates()).thenReturn(of(
       pluginUpdate("key2", "name2"),
@@ -170,9 +161,9 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
       pluginUpdate("key0", "name0"),
       pluginUpdate("key1", "name1")));
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
+    assertJson(response.getInput()).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"plugins\": [" +
         "    {" +

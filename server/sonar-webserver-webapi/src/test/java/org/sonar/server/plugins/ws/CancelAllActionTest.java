@@ -22,13 +22,13 @@ package org.sonar.server.plugins.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -36,8 +36,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class CancelAllActionTest {
-  private static final String DUMMY_CONTROLLER_KEY = "dummy";
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
@@ -46,22 +44,12 @@ public class CancelAllActionTest {
   private PluginDownloader pluginDownloader = mock(PluginDownloader.class);
   private PluginUninstaller pluginUninstaller = mock(PluginUninstaller.class);
   private CancelAllAction underTest = new CancelAllAction(pluginDownloader, pluginUninstaller, userSessionRule);
-
-  private Request request = mock(Request.class);
-  private WsTester.TestResponse response = new WsTester.TestResponse();
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void action_cancel_all_is_defined() {
-    WsTester wsTester = new WsTester();
-    WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
-
-    underTest.define(newController);
-    newController.done();
-
-    WebService.Controller controller = wsTester.controller(DUMMY_CONTROLLER_KEY);
-    assertThat(controller.actions()).extracting("key").containsExactly("cancel_all");
-
-    WebService.Action action = controller.actions().iterator().next();
+    WebService.Action action = tester.getDef();
+    assertThat(action.key()).isEqualTo("cancel_all");
     assertThat(action.isPost()).isTrue();
     assertThat(action.description()).isNotEmpty();
     assertThat(action.responseExample()).isNull();
@@ -70,32 +58,32 @@ public class CancelAllActionTest {
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() throws Exception {
+  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    underTest.handle(request, response);
+    tester.newRequest().execute();
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() throws Exception {
+  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
     userSessionRule.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    underTest.handle(request, response);
+    tester.newRequest().execute();
   }
 
   @Test
-  public void triggers_cancel_for_downloads_and_uninstalls() throws Exception {
+  public void triggers_cancel_for_downloads_and_uninstalls() {
     userSessionRule.logIn().setSystemAdministrator();
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
     verify(pluginDownloader, times(1)).cancelDownloads();
     verify(pluginUninstaller, times(1)).cancelUninstalls();
-    assertThat(response.outputAsString()).isEmpty();
+    assertThat(response.getInput()).isEmpty();
   }
 
 }

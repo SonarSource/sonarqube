@@ -20,25 +20,33 @@
 package org.sonar.server.favorite.ws;
 
 import org.junit.Test;
-import org.sonar.api.server.ws.WebService.Controller;
-import org.sonar.db.DbClient;
-import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.favorite.FavoriteUpdater;
-import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsTester;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class FavoritesWsTest {
 
-  private final FavoritesWsAction[] actions = {new AddAction(mock(UserSession.class), mock(DbClient.class), mock(FavoriteUpdater.class), mock(ComponentFinder.class))};
-  private WsTester ws = new WsTester(new FavoritesWs(actions));
+  private final FavoritesWsAction[] actions = {new FavoritesWsAction() {
+    @Override
+    public void define(WebService.NewController context) {
+      context.createAction("foo").setHandler(this);
+    }
 
-  private Controller underTest = ws.controller("api/favorites");
+    @Override
+    public void handle(Request request, Response response) {
+
+    }
+  }};
+  private FavoritesWs underTest = new FavoritesWs(actions);
 
   @Test
   public void definition() {
-    assertThat(underTest.path()).isEqualTo("api/favorites");
+    WebService.Context context = new WebService.Context();
+
+    underTest.define(context);
+
+    assertThat(context.controller("api/favorites")).isNotNull();
   }
 }

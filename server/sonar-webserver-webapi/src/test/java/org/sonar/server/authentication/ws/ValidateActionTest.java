@@ -28,12 +28,15 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.server.authentication.BasicAuthentication;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.ws.ServletFilterHandler;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -59,6 +62,21 @@ public class ValidateActionTest {
   public void setUp() throws Exception {
     PrintWriter writer = new PrintWriter(stringWriter);
     when(response.getWriter()).thenReturn(writer);
+  }
+
+  @Test
+  public void verify_definition() {
+    String controllerKey = "foo";
+    WebService.Context context = new WebService.Context();
+    WebService.NewController newController = context.createController(controllerKey);
+    underTest.define(newController);
+    newController.done();
+
+    WebService.Action validate = context.controller(controllerKey).action("validate");
+    assertThat(validate).isNotNull();
+    assertThat(validate.handler()).isInstanceOf(ServletFilterHandler.class);
+    assertThat(validate.responseExampleAsString()).isNotEmpty();
+    assertThat(validate.params()).isEmpty();
   }
 
   @Test

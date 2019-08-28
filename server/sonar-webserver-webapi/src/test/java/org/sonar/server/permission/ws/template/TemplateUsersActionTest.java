@@ -68,6 +68,18 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   @Test
+  public void define_template_users() {
+    WebService.Action action = wsTester.getDef();
+
+    assertThat(action).isNotNull();
+    assertThat(action.key()).isEqualTo("template_users");
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.since()).isEqualTo("5.2");
+    assertThat(action.param(PARAM_PERMISSION).isRequired()).isFalse();
+  }
+
+  @Test
   public void search_for_users_with_response_example() {
     UserDto user1 = insertUser(newUserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
     UserDto user2 = insertUser(newUserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));

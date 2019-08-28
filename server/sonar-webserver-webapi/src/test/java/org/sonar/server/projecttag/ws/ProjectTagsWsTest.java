@@ -23,22 +23,24 @@ import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.WsTester;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectTagsWsTest {
 
-  private WsTester ws = new WsTester(new ProjectTagsWs(singletonList(new FakeAction())));
-
-  private WebService.Controller underTest = ws.controller("api/project_tags");
+  private ProjectTagsWs underTest = new ProjectTagsWs(singletonList(new FakeAction()));
 
   @Test
   public void definition() {
-    assertThat(underTest.path()).isEqualTo("api/project_tags");
-    assertThat(underTest.since()).isEqualTo("6.4");
-    assertThat(underTest.description()).isNotEmpty();
+    WebService.Context context = new WebService.Context();
+
+    underTest.define(context);
+
+    WebService.Controller controller = context.controller("api/project_tags");
+    assertThat(controller.path()).isEqualTo("api/project_tags");
+    assertThat(controller.since()).isEqualTo("6.4");
+    assertThat(controller.description()).isNotEmpty();
   }
 
   private static class FakeAction implements ProjectTagsWsAction {

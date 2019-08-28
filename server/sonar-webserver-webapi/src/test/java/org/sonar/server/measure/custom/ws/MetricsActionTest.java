@@ -37,13 +37,12 @@ import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
-import static org.sonar.server.measure.custom.ws.CustomMeasuresWs.ENDPOINT;
-import static org.sonar.server.measure.custom.ws.MetricsAction.ACTION;
 
 public class MetricsActionTest {
   private static final String DEFAULT_PROJECT_UUID = "project-uuid";
@@ -61,34 +60,34 @@ public class MetricsActionTest {
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private ComponentDto defaultProject;
-  private WsTester ws;
+  private MetricsAction underTest = new MetricsAction(dbClient, userSession, TestComponentFinder.from(db));
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void setUp() throws Exception {
     defaultProject = insertDefaultProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, defaultProject);
-    ws = new WsTester(new CustomMeasuresWs(new MetricsAction(dbClient, userSession, TestComponentFinder.from(db))));
   }
 
   @Test
-  public void list_metrics() throws Exception {
+  public void list_metrics() {
     insertCustomMetric("metric-key-1");
     insertCustomMetric("metric-key-2");
     insertCustomMetric("metric-key-3");
 
-    String response = newRequest().outputAsString();
+    String response = newRequest().getInput();
 
     assertThat(response).contains("metric-key-1", "metric-key-2", "metric-key-3");
   }
 
   @Test
-  public void list_metrics_active_and_custom_only() throws Exception {
+  public void list_metrics_active_and_custom_only() {
     insertCustomMetric("metric-key-1");
     dbClient.metricDao().insert(dbSession, newMetricDto().setEnabled(true).setUserManaged(false).setKey("metric-key-2"));
     dbClient.metricDao().insert(dbSession, newMetricDto().setEnabled(false).setUserManaged(true).setKey("metric-key-3"));
     dbSession.commit();
 
-    String response = newRequest().outputAsString();
+    String response = newRequest().getInput();
 
     assertThat(response).contains("metric-key-1")
       .doesNotContain("metric-key-2")
@@ -96,7 +95,7 @@ public class MetricsActionTest {
   }
 
   @Test
-  public void list_metrics_where_no_existing_custom_measure() throws Exception {
+  public void list_metrics_where_no_existing_custom_measure() {
     MetricDto metric = insertCustomMetric("metric-key-1");
     insertCustomMetric("metric-key-2");
     insertProject("project-uuid-2", "project-key-2");
@@ -107,14 +106,14 @@ public class MetricsActionTest {
     dbClient.customMeasureDao().insert(dbSession, customMeasure);
     dbSession.commit();
 
-    String response = newRequest().outputAsString();
+    String response = newRequest().getInput();
 
     assertThat(response).contains("metric-key-2")
       .doesNotContain("metric-key-1");
   }
 
   @Test
-  public void list_metrics_based_on_project_key() throws Exception {
+  public void list_metrics_based_on_project_key() {
     MetricDto metric = insertCustomMetric("metric-key-1");
     insertCustomMetric("metric-key-2");
     insertProject("project-uuid-2", "project-key-2");
@@ -125,26 +124,26 @@ public class MetricsActionTest {
     dbClient.customMeasureDao().insert(dbSession, customMeasure);
     dbSession.commit();
 
-    String response = ws.newGetRequest(ENDPOINT, ACTION)
+    String response = tester.newRequest()
       .setParam(MetricsAction.PARAM_PROJECT_KEY, DEFAULT_PROJECT_KEY)
-      .execute().outputAsString();
+      .execute().getInput();
 
     assertThat(response).contains("metric-key-2")
       .doesNotContain("metric-key-1");
   }
 
   @Test
-  public void list_metrics_as_a_project_admin() throws Exception {
+  public void list_metrics_as_a_project_admin() {
     insertCustomMetric("metric-key-1");
     userSession.logIn("login").addProjectPermission(UserRole.ADMIN, defaultProject);
 
-    String response = newRequest().outputAsString();
+    String response = newRequest().getInput();
 
     assertThat(response).contains("metric-key-1");
   }
 
   @Test
-  public void response_with_correct_formatting() throws Exception {
+  public void response_with_correct_formatting() {
     dbClient.metricDao().insert(dbSession, newCustomMetric("custom-key-1")
       .setShortName("custom-name-1")
       .setDescription("custom-description-1")
@@ -171,7 +170,7 @@ public class MetricsActionTest {
       .setHidden(false));
     dbSession.commit();
 
-    WsTester.Result response = ws.newGetRequest(ENDPOINT, ACTION)
+    TestResponse response = tester.newRequest()
       .setParam(MetricsAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
       .execute();
 
@@ -179,14 +178,14 @@ public class MetricsActionTest {
   }
 
   @Test
-  public void fail_if_project_id_nor_project_key_provided() throws Exception {
+  public void fail_if_project_id_nor_project_key_provided() {
     expectedException.expect(IllegalArgumentException.class);
 
-    ws.newGetRequest(ENDPOINT, ACTION).execute();
+    tester.newRequest().execute();
   }
 
   @Test
-  public void fail_if_insufficient_privilege() throws Exception {
+  public void fail_if_insufficient_privilege() {
     expectedException.expect(ForbiddenException.class);
     userSession.logIn("login");
 
@@ -195,8 +194,8 @@ public class MetricsActionTest {
     newRequest();
   }
 
-  private WsTester.Result newRequest() throws Exception {
-    return ws.newGetRequest(ENDPOINT, ACTION)
+  private TestResponse newRequest() {
+    return tester.newRequest()
       .setParam(MetricsAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
       .execute();
   }

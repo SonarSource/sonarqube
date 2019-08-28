@@ -19,57 +19,37 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbClient;
-import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.UserSession;
-import org.sonar.server.usergroups.DefaultGroupFinder;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class UserGroupsWsTest {
 
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  private UserGroupsWs underTest = new UserGroupsWs(new UserGroupsWsAction() {
+    @Override
+    public void define(WebService.NewController context) {
+      context.createAction("foo").setHandler(this);
+    }
 
-  WebService.Controller controller;
+    @Override
+    public void handle(Request request, Response response)  {
 
-  @Before
-  public void setUp() {
-    GroupWsSupport wsSupport = mock(GroupWsSupport.class);
-    WsTester tester = new WsTester(new UserGroupsWs(
-      new SearchAction(mock(DbClient.class), mock(UserSession.class), wsSupport, mock(DefaultGroupFinder.class)),
-      new CreateAction(mock(DbClient.class), mock(UserSession.class), wsSupport)));
-    controller = tester.controller("api/user_groups");
-  }
+    }
+  });
 
   @Test
   public void define_controller() {
+    WebService.Context context = new WebService.Context();
+
+    underTest.define(context);
+
+    WebService.Controller controller = context.controller("api/user_groups");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("5.2");
-    assertThat(controller.actions()).hasSize(2);
-  }
-
-  @Test
-  public void define_search_action() {
-    WebService.Action action = controller.action("search");
-    assertThat(action).isNotNull();
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(5);
-  }
-
-  @Test
-  public void define_create_action() {
-    WebService.Action action = controller.action("create");
-    assertThat(action).isNotNull();
-    assertThat(action.isPost()).isTrue();
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(3);
+    assertThat(controller.actions()).hasSize(1);
   }
 }

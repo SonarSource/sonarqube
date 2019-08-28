@@ -36,11 +36,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.ws.WsAction;
 
 /**
  * @since 5.1
  */
-public class ListAction implements RequestHandler {
+public class ListAction implements RequestHandler, WsAction {
 
   private static final String MATCH_ALL = ".*";
   private final Languages languages;
@@ -63,7 +64,7 @@ public class ListAction implements RequestHandler {
     }
   }
 
-  void define(WebService.NewController controller) {
+  public void define(WebService.NewController controller) {
     NewAction action = controller.createAction("list")
       .setDescription("List supported programming languages")
       .setSince("5.1")

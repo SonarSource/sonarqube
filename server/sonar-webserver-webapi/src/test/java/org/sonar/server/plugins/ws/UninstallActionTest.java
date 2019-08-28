@@ -26,14 +26,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -43,7 +43,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(DataProviderRunner.class)
 public class UninstallActionTest {
-  private static final String DUMMY_CONTROLLER_KEY = "dummy";
   private static final String CONTROLLER_KEY = "api/plugins";
   private static final String ACTION_KEY = "uninstall";
   private static final String KEY_PARAM = "key";
@@ -57,44 +56,30 @@ public class UninstallActionTest {
   private ServerPluginRepository serverPluginRepository = mock(ServerPluginRepository.class);
   private PluginUninstaller pluginUninstaller = mock(PluginUninstaller.class);
   private UninstallAction underTest = new UninstallAction(serverPluginRepository, pluginUninstaller, userSessionRule);
-
-  private WsTester wsTester = new WsTester(new PluginsWs(underTest));
-  private Request invalidRequest = wsTester.newGetRequest(CONTROLLER_KEY, ACTION_KEY);
-  private Request validRequest = wsTester.newGetRequest(CONTROLLER_KEY, ACTION_KEY).setParam(KEY_PARAM, PLUGIN_KEY);
-  private WsTester.TestResponse response = new WsTester.TestResponse();
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() throws Exception {
+  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    underTest.handle(validRequest, response);
+    tester.newRequest().execute();
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() throws Exception {
+  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
     userSessionRule.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    underTest.handle(validRequest, response);
+    tester.newRequest().execute();
   }
 
   @Test
   public void action_uninstall_is_defined() {
-    logInAsSystemAdministrator();
-
-    WsTester wsTester = new WsTester();
-    WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
-
-    underTest.define(newController);
-    newController.done();
-
-    WebService.Controller controller = wsTester.controller(DUMMY_CONTROLLER_KEY);
-    assertThat(controller.actions()).extracting("key").containsExactly(ACTION_KEY);
-
-    WebService.Action action = controller.actions().iterator().next();
+    WebService.Action action = tester.getDef();
+    assertThat(action.key()).isEqualTo(ACTION_KEY);
     assertThat(action.isPost()).isTrue();
     assertThat(action.description()).isNotEmpty();
     assertThat(action.responseExample()).isNull();
@@ -107,27 +92,29 @@ public class UninstallActionTest {
   }
 
   @Test
-  public void IAE_is_raised_when_key_param_is_not_provided() throws Exception {
+  public void IAE_is_raised_when_key_param_is_not_provided() {
     logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
 
-    underTest.handle(invalidRequest, response);
+    tester.newRequest().execute();
   }
 
   @Test
-  public void do_not_attempt_uninstall_if_no_plugin_in_repository_for_specified_key() throws Exception {
+  public void do_not_attempt_uninstall_if_no_plugin_in_repository_for_specified_key() {
     logInAsSystemAdministrator();
     when(serverPluginRepository.getPluginInfo(PLUGIN_KEY)).thenReturn(null);
 
-    underTest.handle(validRequest, response);
+    tester.newRequest()
+      .setParam(KEY_PARAM, PLUGIN_KEY)
+      .execute();
 
     verifyZeroInteractions(pluginUninstaller);
   }
 
   @Test
   @UseDataProvider("editionBundledOrganizationAndLicense")
-  public void IAE_is_raised_when_plugin_is_installed_and_is_edition_bundled(String organization, String license) throws Exception {
+  public void IAE_is_raised_when_plugin_is_installed_and_is_edition_bundled(String organization, String license) {
     logInAsSystemAdministrator();
     when(serverPluginRepository.getPluginInfo(PLUGIN_KEY))
       .thenReturn(new PluginInfo(PLUGIN_KEY)
@@ -137,7 +124,9 @@ public class UninstallActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("SonarSource commercial plugin with key '" + PLUGIN_KEY + "' can only be uninstalled as part of a SonarSource edition");
 
-    underTest.handle(validRequest, response);
+    tester.newRequest()
+      .setParam(KEY_PARAM, PLUGIN_KEY)
+      .execute();
   }
 
   @DataProvider
@@ -150,14 +139,16 @@ public class UninstallActionTest {
   }
 
   @Test
-  public void if_plugin_is_installed_uninstallation_is_triggered() throws Exception {
+  public void if_plugin_is_installed_uninstallation_is_triggered() {
     logInAsSystemAdministrator();
     when(serverPluginRepository.getPluginInfo(PLUGIN_KEY)).thenReturn(new PluginInfo(PLUGIN_KEY));
 
-    underTest.handle(validRequest, response);
+    TestResponse response = tester.newRequest()
+      .setParam(KEY_PARAM, PLUGIN_KEY)
+      .execute();
 
     verify(pluginUninstaller).uninstall(PLUGIN_KEY);
-    assertThat(response.outputAsString()).isEmpty();
+    assertThat(response.getInput()).isEmpty();
   }
 
   private void logInAsSystemAdministrator() {

@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -52,6 +53,18 @@ public class RevokeActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private WsActionTester ws = new WsActionTester(new RevokeAction(dbClient, new UserTokenSupport(db.getDbClient(), userSession)));
+
+  @Test
+  public void revoke_action() {
+    WebService.Action action = ws.getDef();
+
+    assertThat(action).isNotNull();
+    assertThat(action.key()).isEqualTo("revoke");
+    assertThat(action.since()).isEqualTo("5.3");
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.param("login").isRequired()).isFalse();
+    assertThat(action.param("name").isRequired()).isTrue();
+  }
 
   @Test
   public void delete_token_in_db() {

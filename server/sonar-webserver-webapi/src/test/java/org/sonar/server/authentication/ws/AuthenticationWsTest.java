@@ -19,44 +19,36 @@
  */
 package org.sonar.server.authentication.ws;
 
-import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.ServletFilterHandler;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AuthenticationWsTest {
-
-  WsTester tester = new WsTester(new AuthenticationWs(Arrays.asList(
-    new LoginAction(null, null, null, null, null),
-    new LogoutAction(null, null),
-    new ValidateAction(null, null, null))));
+  private AuthenticationWs underTest = new AuthenticationWs(Collections.singletonList(new AuthenticationWsAction() {
+    @Override
+    public void define(WebService.NewController controller) {
+      controller.createAction("foo")
+        .setHandler((request, response) -> {
+          throw new UnsupportedOperationException("not implemented");
+        });
+    }
+  }));
 
   @Test
   public void define_ws() {
-    WebService.Controller controller = tester.controller("api/authentication");
+    WebService.Context context = new WebService.Context();
+
+    underTest.define(context);
+
+    WebService.Controller controller = context.controller("api/authentication");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(3);
+    assertThat(controller.actions()).hasSize(1);
 
-    WebService.Action validate = controller.action("validate");
-    assertThat(validate).isNotNull();
-    assertThat(validate.handler()).isInstanceOf(ServletFilterHandler.class);
-    assertThat(validate.responseExampleAsString()).isNotEmpty();
-    assertThat(validate.params()).isEmpty();
-
-    WebService.Action login = controller.action("login");
-    assertThat(login).isNotNull();
-    assertThat(login.handler()).isInstanceOf(ServletFilterHandler.class);
-    assertThat(login.isPost()).isTrue();
-    assertThat(login.params()).hasSize(2);
-
-    WebService.Action logout = controller.action("logout");
-    assertThat(logout).isNotNull();
-    assertThat(logout.handler()).isInstanceOf(ServletFilterHandler.class);
-    assertThat(logout.isPost()).isTrue();
-    assertThat(logout.params()).isEmpty();
+    WebService.Action fooAction = controller.action("foo");
+    assertThat(fooAction).isNotNull();
+    assertThat(fooAction.handler()).isNotNull();
   }
 }

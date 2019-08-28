@@ -23,9 +23,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -39,7 +36,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -48,38 +45,29 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ShowActionTest {
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  SourceService sourceService = mock(SourceService.class);
-
-  WsTester tester;
-
-  @Mock
-  DbClient dbClient;
-
-  @Mock
-  DbSession session;
-
-  @Mock
-  ComponentDao componentDao;
-
-  ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto());
-  ComponentDto file = ComponentTesting.newFileDto(project, null);
+  private SourceService sourceService = mock(SourceService.class);
+  private DbClient dbClient = mock(DbClient.class);
+  private DbSession session = mock(DbSession.class);
+  private ComponentDao componentDao = mock(ComponentDao.class);
+  private ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto());
+  private ComponentDto file = ComponentTesting.newFileDto(project, null);
+  private ShowAction underTest = new ShowAction(sourceService, dbClient, userSessionRule,
+    new ComponentFinder(dbClient, new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT)));
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new SourcesWs(new ShowAction(sourceService, dbClient, userSessionRule,
-      new ComponentFinder(dbClient, new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT)))));
   }
 
   @Test
-  public void show_source() throws Exception {
+  public void show_source() {
     String fileKey = "src/Foo.java";
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
@@ -91,12 +79,14 @@ public class ShowActionTest {
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {",
       "}")));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "show").setParam("key", fileKey);
-    request.execute().assertJson(getClass(), "show_source.json");
+    tester.newRequest()
+      .setParam("key", fileKey)
+      .execute()
+      .assertJson(getClass(), "show_source.json");
   }
 
   @Test
-  public void show_source_with_from_and_to_params() throws Exception {
+  public void show_source_with_from_and_to_params() {
     String fileKey = "src/Foo.java";
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
@@ -104,16 +94,16 @@ public class ShowActionTest {
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {")));
-    WsTester.TestRequest request = tester
-      .newGetRequest("api/sources", "show")
+    tester.newRequest()
       .setParam("key", fileKey)
       .setParam("from", "3")
-      .setParam("to", "5");
-    request.execute().assertJson(getClass(), "show_source_with_params_from_and_to.json");
+      .setParam("to", "5")
+      .execute()
+      .assertJson(getClass(), "show_source_with_params_from_and_to.json");
   }
 
   @Test
-  public void show_source_accept_from_less_than_one() throws Exception {
+  public void show_source_accept_from_less_than_one() {
     String fileKey = "src/Foo.java";
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
@@ -121,19 +111,18 @@ public class ShowActionTest {
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {")));
-    WsTester.TestRequest request = tester
-      .newGetRequest("api/sources", "show")
+    tester.newRequest()
       .setParam("key", fileKey)
       .setParam("from", "0")
-      .setParam("to", "5");
-    request.execute();
+      .setParam("to", "5")
+      .execute();
     verify(sourceService).getLinesAsHtml(session, file.uuid(), 1, 5);
   }
 
   @Test(expected = ForbiddenException.class)
-  public void require_code_viewer() throws Exception {
+  public void require_code_viewer() {
     String fileKey = "src/Foo.java";
     when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
-    tester.newGetRequest("api/sources", "show").setParam("key", fileKey).execute();
+    tester.newRequest().setParam("key", fileKey).execute();
   }
 }

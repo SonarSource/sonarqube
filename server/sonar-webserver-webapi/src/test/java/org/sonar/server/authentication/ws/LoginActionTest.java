@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -41,6 +42,7 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.TestUserSessionFactory;
 import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.ws.ServletFilterHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -83,6 +85,21 @@ public class LoginActionTest {
     threadLocalUserSession.unload();
     dbClient.userDao().insert(dbSession, user);
     dbSession.commit();
+  }
+
+  @Test
+  public void verify_definition() {
+    String controllerKey = "foo";
+    WebService.Context context = new WebService.Context();
+    WebService.NewController newController = context.createController(controllerKey);
+    underTest.define(newController);
+    newController.done();
+
+    WebService.Action login = context.controller(controllerKey).action("login");
+    assertThat(login).isNotNull();
+    assertThat(login.handler()).isInstanceOf(ServletFilterHandler.class);
+    assertThat(login.isPost()).isTrue();
+    assertThat(login.params()).hasSize(2);
   }
 
   @Test

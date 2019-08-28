@@ -27,6 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.tester.UserSessionRule;
@@ -62,6 +63,18 @@ public class UploadActionTest {
     pluginDirectory = folder.newFolder();
     when(fileSystem.getDownloadedPluginsDir()).thenReturn(pluginDirectory);
     wsTester = new WsActionTester(new UploadAction(userSession, fileSystem));
+  }
+
+  @Test
+  public void define_upload_action() {
+    WebService.Action action = wsTester.getDef();
+
+    assertThat(action).isNotNull();
+    assertThat(action.key()).isEqualTo("upload");
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.params()).hasSize(1);
   }
 
   @Test

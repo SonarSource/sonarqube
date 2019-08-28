@@ -64,6 +64,16 @@ public class SearchActionTest {
 
   private WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession, newGroupWsSupport(), new DefaultGroupFinder(db.getDbClient())));
 
+
+  @Test
+  public void define_search_action() {
+    WebService.Action action = ws.getDef();
+    assertThat(action).isNotNull();
+    assertThat(action.key()).isEqualTo("search");
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).hasSize(5);
+  }
+
   @Test
   public void search_without_parameters() {
     insertDefaultGroup(db.getDefaultOrganization(), "users", 0);

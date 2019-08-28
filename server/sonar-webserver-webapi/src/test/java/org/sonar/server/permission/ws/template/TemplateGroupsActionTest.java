@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
@@ -66,6 +67,17 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   @Override
   protected TemplateGroupsAction buildWsAction() {
     return new TemplateGroupsAction(db.getDbClient(), userSession, newPermissionWsSupport(), wsParameters, requestValidator);
+  }
+
+  @Test
+  public void define_template_groups() {
+    WebService.Action action = wsTester.getDef();
+
+    assertThat(action).isNotNull();
+    assertThat(action.key()).isEqualTo("template_groups");
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.since()).isEqualTo("5.2");
   }
 
   @Test

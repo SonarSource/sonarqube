@@ -19,7 +19,6 @@
  */
 package org.sonar.server.measure.custom.ws;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,7 +32,7 @@ import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,8 +40,6 @@ import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureD
 import static org.sonar.server.measure.custom.ws.DeleteAction.PARAM_ID;
 
 public class DeleteActionTest {
-
-  public static final String ACTION = "delete";
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -53,50 +50,46 @@ public class DeleteActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private WsTester ws;
-
-  @Before
-  public void setUp() {
-    ws = new WsTester(new CustomMeasuresWs(new DeleteAction(dbClient, userSession)));
-  }
+  private DeleteAction underTest = new DeleteAction(dbClient, userSession);
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
-  public void project_administrator_can_delete_custom_measures() throws Exception {
+  public void project_administrator_can_delete_custom_measures() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     long id = insertCustomMeasure(project);
 
-    newRequest().setParam(PARAM_ID, valueOf(id)).execute();
+    tester.newRequest().setParam(PARAM_ID, valueOf(id)).execute();
 
     assertThat(dbClient.customMeasureDao().selectById(dbSession, id)).isNull();
   }
 
   @Test
-  public void throw_RowNotFoundException_if_id_does_not_exist() throws Exception {
+  public void throw_RowNotFoundException_if_id_does_not_exist() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Custom measure with id '42' does not exist");
 
-    newRequest().setParam(PARAM_ID, "42").execute();
+    tester.newRequest().setParam(PARAM_ID, "42").execute();
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_system_administrator() throws Exception {
+  public void throw_ForbiddenException_if_not_system_administrator() {
     ComponentDto project = db.components().insertPrivateProject();
     long id = insertCustomMeasure(project);
     userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
-    newRequest().setParam(PARAM_ID, valueOf(id)).execute();
+    tester.newRequest().setParam(PARAM_ID, valueOf(id)).execute();
   }
 
   @Test
-  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+  public void throw_UnauthorizedException_if_not_logged_in() {
     ComponentDto project = db.components().insertPrivateProject();
     long id = insertCustomMeasure(project);
     userSession.anonymous();
 
     expectedException.expect(UnauthorizedException.class);
-    newRequest().setParam(PARAM_ID, valueOf(id)).execute();
+    tester.newRequest().setParam(PARAM_ID, valueOf(id)).execute();
   }
 
   private long insertCustomMeasure(ComponentDto component) {
@@ -106,7 +99,4 @@ public class DeleteActionTest {
     return dto.getId();
   }
 
-  private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest(CustomMeasuresWs.ENDPOINT, ACTION);
-  }
 }

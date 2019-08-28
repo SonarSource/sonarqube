@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,9 +50,12 @@ public class SourcesWsTest {
       })
       .toArray(SourcesWsAction[]::new);
 
-    WsTester underTest = new WsTester(new SourcesWs(actions));
+    SourcesWs underTest = new SourcesWs(actions);
+    WebService.Context context = new WebService.Context();
 
-    WebService.Controller controller = underTest.controller("api/sources");
+    underTest.define(context);
+
+    WebService.Controller controller = context.controller("api/sources");
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("4.2");
     assertThat(controller.description()).isNotEmpty();

@@ -20,7 +20,6 @@
 package org.sonar.server.metric.ws;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -30,7 +29,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.TestDBSessions;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -40,16 +40,11 @@ public class DomainsActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  WsTester ws;
-  DbClient dbClient;
-  DbSession dbSession;
 
-  @Before
-  public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new TestDBSessions(db.myBatis()), new MetricDao());
-    dbSession = dbClient.openSession(false);
-    ws = new WsTester(new MetricsWs(new DomainsAction(dbClient)));
-  }
+  private DbClient dbClient = new DbClient(db.database(), db.myBatis(), new TestDBSessions(db.myBatis()), new MetricDao());
+  private DbSession dbSession = dbClient.openSession(false);
+  private DomainsAction underTest = new DomainsAction(dbClient);
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @After
   public void tearDown() {
@@ -57,7 +52,7 @@ public class DomainsActionTest {
   }
 
   @Test
-  public void json_example_validated() throws Exception {
+  public void json_example_validated() {
     insertNewMetricDto(newEnabledMetric("API Compatibility"));
     insertNewMetricDto(newEnabledMetric("Issues"));
     insertNewMetricDto(newEnabledMetric("Rules"));
@@ -67,9 +62,9 @@ public class DomainsActionTest {
     insertNewMetricDto(newEnabledMetric(""));
     insertNewMetricDto(newMetricDto().setDomain("Domain of Deactivated Metric").setEnabled(false));
 
-    WsTester.Result result = ws.newGetRequest(MetricsWs.ENDPOINT, "domains").execute();
+    TestRequest result = tester.newRequest();
 
-    JsonAssert.assertJson(result.outputAsString()).isSimilarTo(getClass().getResource("example-domains.json"));
+    JsonAssert.assertJson(result.execute().getInput()).isSimilarTo(getClass().getResource("example-domains.json"));
   }
 
   private void insertNewMetricDto(MetricDto metric) {

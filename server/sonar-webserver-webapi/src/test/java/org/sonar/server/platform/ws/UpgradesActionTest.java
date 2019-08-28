@@ -22,12 +22,11 @@ package org.sonar.server.platform.ws;
 import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.Sonar;
@@ -43,7 +42,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class UpgradesActionTest {
-  private static final String DUMMY_CONTROLLER_KEY = "dummy";
   private static final String JSON_EMPTY_UPGRADE_LIST = "{" +
     "  \"upgrades\":" + "[]" +
     "}";
@@ -53,8 +51,7 @@ public class UpgradesActionTest {
   private UpdateCenter updateCenter = mock(UpdateCenter.class);
   private UpgradesAction underTest = new UpgradesAction(updateCenterFactory);
 
-  private Request request = mock(Request.class);
-  private WsTester.TestResponse response = new WsTester.TestResponse();
+  private WsActionTester tester = new WsActionTester(underTest);
 
   private static SonarUpdate createSonar_51_update() {
     Plugin brandingPlugin = Plugin.factory("branding")
@@ -99,47 +96,40 @@ public class UpgradesActionTest {
 
   @Test
   public void action_updates_is_defined() {
-    WsTester wsTester = new WsTester();
-    WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
+    WebService.Action def = tester.getDef();
 
-    underTest.define(newController);
-    newController.done();
+    assertThat(def.key()).isEqualTo("upgrades");
+    assertThat(def.isPost()).isFalse();
+    assertThat(def.description()).isNotEmpty();
+    assertThat(def.responseExample()).isNotNull();
 
-    WebService.Controller controller = wsTester.controller(DUMMY_CONTROLLER_KEY);
-    assertThat(controller.actions()).extracting("key").containsExactly("upgrades");
-
-    WebService.Action action = controller.actions().iterator().next();
-    assertThat(action.isPost()).isFalse();
-    assertThat(action.description()).isNotEmpty();
-    assertThat(action.responseExample()).isNotNull();
-
-    assertThat(action.params()).isEmpty();
+    assertThat(def.params()).isEmpty();
   }
 
   @Test
-  public void empty_array_is_returned_when_there_is_no_upgrade_available() throws Exception {
-    underTest.handle(request, response);
+  public void empty_array_is_returned_when_there_is_no_upgrade_available() {
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_UPGRADE_LIST);
+    assertJson(response.getInput()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_UPGRADE_LIST);
   }
 
   @Test
-  public void empty_array_is_returned_when_update_center_is_unavailable() throws Exception {
+  public void empty_array_is_returned_when_update_center_is_unavailable() {
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.absent());
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_UPGRADE_LIST);
+    assertJson(response.getInput()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_UPGRADE_LIST);
   }
 
   @Test
-  public void verify_JSON_response_against_example() throws Exception {
+  public void verify_JSON_response_against_example() {
     SonarUpdate sonarUpdate = createSonar_51_update();
     when(updateCenter.findSonarUpdates()).thenReturn(of(sonarUpdate));
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).withStrictArrayOrder()
-      .isSimilarTo(new WsActionTester(underTest).getDef().responseExampleAsString());
+    assertJson(response.getInput()).withStrictArrayOrder()
+      .isSimilarTo(tester.getDef().responseExampleAsString());
   }
 }

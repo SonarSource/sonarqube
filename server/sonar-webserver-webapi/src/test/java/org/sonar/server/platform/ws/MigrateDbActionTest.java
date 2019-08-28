@@ -32,15 +32,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.server.platform.db.migration.DatabaseMigration;
+import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState.Status;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
-import org.sonar.server.platform.db.migration.DatabaseMigrationState;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Predicates.not;
@@ -81,9 +81,7 @@ public class MigrateDbActionTest {
   private DatabaseMigration databaseMigration = mock(DatabaseMigration.class);
   private DatabaseMigrationState migrationState = mock(DatabaseMigrationState.class);
   private MigrateDbAction underTest = new MigrateDbAction(databaseVersion, database, migrationState, databaseMigration);
-
-  private Request request = mock(Request.class);
-  private WsTester.TestResponse response = new WsTester.TestResponse();
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void wireMocksTogether() {
@@ -92,140 +90,141 @@ public class MigrateDbActionTest {
   }
 
   @Test
-  public void ISE_is_thrown_when_version_can_not_be_retrieved_from_database() throws Exception {
+  public void ISE_is_thrown_when_version_can_not_be_retrieved_from_database() {
     reset(databaseVersion);
     when(databaseVersion.getVersion()).thenReturn(Optional.empty());
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Cannot connect to Database.");
 
-    underTest.handle(request, response);
+    tester.newRequest().execute();
   }
 
   @Test
-  public void verify_example() throws Exception {
+  public void verify_example() {
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(RUNNING);
     when(migrationState.getStartedAt()).thenReturn(DateUtils.parseDateTime("2015-02-23T18:54:23+0100"));
-    underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).isSimilarTo(getClass().getResource("example-migrate_db.json"));
+    TestResponse response = tester.newRequest().execute();
+
+    assertJson(response.getInput()).isSimilarTo(getClass().getResource("example-migrate_db.json"));
   }
 
   @Test
-  public void msg_is_operational_and_state_from_database_migration_when_databaseversion_status_is_UP_TO_DATE() throws Exception {
+  public void msg_is_operational_and_state_from_database_migration_when_databaseversion_status_is_UP_TO_DATE() {
     when(databaseVersion.getStatus()).thenReturn(DatabaseVersion.Status.UP_TO_DATE);
     when(migrationState.getStatus()).thenReturn(NONE);
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_NO_MIGRATION, MESSAGE_STATUS_NONE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_NO_MIGRATION, MESSAGE_STATUS_NONE));
   }
 
   // this test will raise a IllegalArgumentException when an unsupported value is added to the Status enum
   @Test
-  public void defensive_test_all_values_of_migration_Status_must_be_supported() throws Exception {
+  public void defensive_test_all_values_of_migration_Status_must_be_supported() {
     for (Status status : filter(Arrays.asList(DatabaseMigrationState.Status.values()), not(in(ImmutableList.of(NONE, RUNNING, FAILED, SUCCEEDED))))) {
       when(migrationState.getStatus()).thenReturn(status);
 
-      underTest.handle(request, response);
+      tester.newRequest().execute();
     }
   }
 
   @Test
-  public void state_from_database_migration_when_databaseversion_status_is_REQUIRES_DOWNGRADE() throws Exception {
+  public void state_from_database_migration_when_databaseversion_status_is_REQUIRES_DOWNGRADE() {
     when(databaseVersion.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_DOWNGRADE);
     when(migrationState.getStatus()).thenReturn(NONE);
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_NO_MIGRATION, MESSAGE_STATUS_NONE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_NO_MIGRATION, MESSAGE_STATUS_NONE));
   }
 
   @Test
   @UseDataProvider("statusRequiringDbMigration")
-  public void state_is_NONE_with_specific_msg_when_db_requires_upgrade_but_dialect_does_not_support_migration(DatabaseVersion.Status status) throws Exception {
+  public void state_is_NONE_with_specific_msg_when_db_requires_upgrade_but_dialect_does_not_support_migration(DatabaseVersion.Status status) {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(false);
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_NOT_SUPPORTED, MESSAGE_NO_MIGRATION_ON_EMBEDDED_DATABASE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_NOT_SUPPORTED, MESSAGE_NO_MIGRATION_ON_EMBEDDED_DATABASE));
   }
 
   @Test
   @UseDataProvider("statusRequiringDbMigration")
-  public void state_from_database_migration_when_dbmigration_status_is_RUNNING(DatabaseVersion.Status status) throws Exception {
+  public void state_from_database_migration_when_dbmigration_status_is_RUNNING(DatabaseVersion.Status status) {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(RUNNING);
     when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_MIGRATION_RUNNING, MESSAGE_STATUS_RUNNING, SOME_DATE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_MIGRATION_RUNNING, MESSAGE_STATUS_RUNNING, SOME_DATE));
   }
 
   @Test
   @UseDataProvider("statusRequiringDbMigration")
-  public void state_from_database_migration_and_msg_includes_error_when_dbmigration_status_is_FAILED(DatabaseVersion.Status status) throws Exception {
+  public void state_from_database_migration_and_msg_includes_error_when_dbmigration_status_is_FAILED(DatabaseVersion.Status status) {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(FAILED);
     when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
     when(migrationState.getError()).thenReturn(new UnsupportedOperationException(SOME_THROWABLE_MSG));
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_MIGRATION_FAILED, failedMsg(SOME_THROWABLE_MSG), SOME_DATE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_MIGRATION_FAILED, failedMsg(SOME_THROWABLE_MSG), SOME_DATE));
   }
 
   @Test
   @UseDataProvider("statusRequiringDbMigration")
-  public void state_from_database_migration_and_msg_has_default_msg_when_dbmigration_status_is_FAILED(DatabaseVersion.Status status) throws Exception {
+  public void state_from_database_migration_and_msg_has_default_msg_when_dbmigration_status_is_FAILED(DatabaseVersion.Status status) {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(FAILED);
     when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
     when(migrationState.getError()).thenReturn(null); // no failure throwable caught
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_MIGRATION_FAILED, failedMsg(DEFAULT_ERROR_MSG), SOME_DATE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_MIGRATION_FAILED, failedMsg(DEFAULT_ERROR_MSG), SOME_DATE));
   }
 
   @Test
   @UseDataProvider("statusRequiringDbMigration")
-  public void state_from_database_migration_and_msg_has_default_msg_when_dbmigration_status_is_SUCCEEDED(DatabaseVersion.Status status) throws Exception {
+  public void state_from_database_migration_and_msg_has_default_msg_when_dbmigration_status_is_SUCCEEDED(DatabaseVersion.Status status) {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(SUCCEEDED);
     when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_MIGRATION_SUCCEEDED, MESSAGE_STATUS_SUCCEEDED, SOME_DATE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_MIGRATION_SUCCEEDED, MESSAGE_STATUS_SUCCEEDED, SOME_DATE));
   }
 
   @Test
   @UseDataProvider("statusRequiringDbMigration")
-  public void start_migration_and_return_state_from_databasemigration_when_dbmigration_status_is_NONE(DatabaseVersion.Status status) throws Exception {
+  public void start_migration_and_return_state_from_databasemigration_when_dbmigration_status_is_NONE(DatabaseVersion.Status status) {
     when(databaseVersion.getStatus()).thenReturn(status);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(NONE);
     when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
     verify(databaseMigration).startIt();
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_MIGRATION_RUNNING, MESSAGE_STATUS_RUNNING, SOME_DATE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_MIGRATION_RUNNING, MESSAGE_STATUS_RUNNING, SOME_DATE));
   }
 
   @DataProvider
   public static Object[][] statusRequiringDbMigration() {
     return new Object[][] {
-        { DatabaseVersion.Status.FRESH_INSTALL },
-        { DatabaseVersion.Status.REQUIRES_UPGRADE },
+      {DatabaseVersion.Status.FRESH_INSTALL},
+      {DatabaseVersion.Status.REQUIRES_UPGRADE},
     };
   }
 

@@ -23,16 +23,19 @@ import com.google.protobuf.GeneratedMessageV3;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.CheckForNull;
 import org.sonar.test.JsonAssert;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestResponse {
 
   private final DumbResponse dumbResponse;
 
-  TestResponse(DumbResponse dumbResponse) {
+  public TestResponse(DumbResponse dumbResponse) {
     this.dumbResponse = dumbResponse;
   }
 
@@ -87,5 +90,9 @@ public class TestResponse {
       throw new IllegalStateException("Cannot find " + path);
     }
     JsonAssert.assertJson(getInput()).isSimilarTo(url);
+  }
+
+  public void assertNoContent() {
+    assertThat(getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
   }
 }

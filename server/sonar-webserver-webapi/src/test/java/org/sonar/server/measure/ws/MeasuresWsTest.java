@@ -21,19 +21,19 @@ package org.sonar.server.measure.ws;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MeasuresWsTest {
-  WsTester ws = new WsTester(
-    new MeasuresWs(
-      new ComponentAction(null, null, null)));
+  private MeasuresWs underTest = new MeasuresWs(new ComponentAction(null, null, null));
 
   @Test
   public void define_ws() {
-    WebService.Controller controller = ws.controller("api/measures");
+    WebService.Context context = new WebService.Context();
 
+    underTest.define(context);
+
+    WebService.Controller controller = context.controller("api/measures");
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("5.4");
   }

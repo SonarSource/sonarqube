@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
@@ -67,6 +68,18 @@ public class GenerateActionTest {
   public void setUp() {
     when(tokenGenerator.generate()).thenReturn("123456789");
     when(tokenGenerator.hash(anyString())).thenReturn("987654321");
+  }
+
+  @Test
+  public void generate_action() {
+    WebService.Action action = ws.getDef();
+
+    assertThat(action.key()).isEqualTo("generate");
+    assertThat(action.since()).isEqualTo("5.3");
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.param("login").isRequired()).isFalse();
+    assertThat(action.param("name").isRequired()).isTrue();
   }
 
   @Test

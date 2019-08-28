@@ -22,10 +22,9 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.impl.ws.SimpleGetRequest;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.impl.ws.SimpleGetRequest;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.language.LanguageTesting.newLanguage;
@@ -153,8 +152,8 @@ public class QProfileReferenceTest {
 
   @Test
   public void define_ws_parameters() {
-    WsTester wsTester = new WsTester();
-    WebService.NewController controller = wsTester.context().createController("api/qualityprofiles");
+    WebService.Context context = new WebService.Context();
+    WebService.NewController controller = context.createController("api/qualityprofiles");
     WebService.NewAction newAction = controller.createAction("do").setHandler((request, response) -> {
     });
 
@@ -162,7 +161,7 @@ public class QProfileReferenceTest {
     QProfileReference.defineParams(newAction, languages);
 
     controller.done();
-    WebService.Action action = wsTester.controller("api/qualityprofiles").action("do");
+    WebService.Action action = context.controller("api/qualityprofiles").action("do");
     assertThat(action.param("language")).isNotNull();
     assertThat(action.param("language").possibleValues()).containsOnly("java", "js");
     assertThat(action.param("key")).isNotNull();

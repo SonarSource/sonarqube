@@ -27,8 +27,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
@@ -67,27 +67,19 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   public ExpectedException expectedException = ExpectedException.none();
 
   private AvailableAction underTest = new AvailableAction(userSession, updateCenterFactory);
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void action_available_is_defined() {
-    logInAsSystemAdministrator();
-    WsTester wsTester = new WsTester();
-    WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
-
-    underTest.define(newController);
-    newController.done();
-
-    WebService.Controller controller = wsTester.controller(DUMMY_CONTROLLER_KEY);
-    assertThat(controller.actions()).extracting("key").containsExactly("available");
-
-    WebService.Action action = controller.actions().iterator().next();
+    WebService.Action action = tester.getDef();
+    assertThat(action.key()).isEqualTo("available");
     assertThat(action.isPost()).isFalse();
     assertThat(action.description()).isNotEmpty();
     assertThat(action.responseExample()).isNotNull();
   }
 
   @Test
-  public void verify_example() throws Exception {
+  public void verify_example() {
     logInAsSystemAdministrator();
     when(updateCenter.findAvailablePlugins()).thenReturn(of(
       pluginUpdate(release(Plugin.factory("abap")
@@ -113,56 +105,55 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
           .addOutgoingDependency(release(Plugin.factory("java").setName("Java").setDescription("SonarQube rule engine."), "0.3.6")),
         COMPATIBLE)));
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    WsActionTester actionTester = new WsActionTester(underTest);
-    assertJson(response.outputAsString()).isSimilarTo(actionTester.getDef().responseExampleAsString());
+    assertJson(response.getInput()).isSimilarTo(tester.getDef().responseExampleAsString());
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() throws Exception {
+  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
     expectedException.expect(ForbiddenException.class);
 
-    underTest.handle(request, response);
+    tester.newRequest().execute();
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() throws Exception {
+  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
 
-    underTest.handle(request, response);
+    tester.newRequest().execute();
   }
 
   @Test
-  public void empty_array_is_returned_when_there_is_no_plugin_available() throws Exception {
+  public void empty_array_is_returned_when_there_is_no_plugin_available() {
     logInAsSystemAdministrator();
-    underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
+    TestResponse response = tester.newRequest().execute();
+
+    assertJson(response.getInput()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
   }
 
   @Test
-  public void empty_array_is_returned_when_update_center_is_not_accessible() throws Exception {
+  public void empty_array_is_returned_when_update_center_is_not_accessible() {
     logInAsSystemAdministrator();
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.absent());
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
+    assertJson(response.getInput()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
   }
 
   @Test
-  public void verify_properties_displayed_in_json_per_plugin() throws Exception {
+  public void verify_properties_displayed_in_json_per_plugin() {
     logInAsSystemAdministrator();
     when(updateCenter.findAvailablePlugins()).thenReturn(of(
       pluginUpdate(FULL_PROPERTIES_PLUGIN_RELEASE, COMPATIBLE)));
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString())
-      .isSimilarTo(
+    response.assertJson(
         "{" +
           "  \"plugins\": [" +
           "    {" +
@@ -201,36 +192,36 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   }
 
   @Test
-  public void status_COMPATIBLE_is_displayed_COMPATIBLE_in_JSON() throws Exception {
+  public void status_COMPATIBLE_is_displayed_COMPATIBLE_in_JSON() {
     logInAsSystemAdministrator();
     checkStatusDisplayedInJson(COMPATIBLE, "COMPATIBLE");
   }
 
   @Test
-  public void status_INCOMPATIBLE_is_displayed_INCOMPATIBLE_in_JSON() throws Exception {
+  public void status_INCOMPATIBLE_is_displayed_INCOMPATIBLE_in_JSON() {
     logInAsSystemAdministrator();
     checkStatusDisplayedInJson(INCOMPATIBLE, "INCOMPATIBLE");
   }
 
   @Test
-  public void status_REQUIRE_SONAR_UPGRADE_is_displayed_REQUIRES_SYSTEM_UPGRADE_in_JSON() throws Exception {
+  public void status_REQUIRE_SONAR_UPGRADE_is_displayed_REQUIRES_SYSTEM_UPGRADE_in_JSON() {
     logInAsSystemAdministrator();
     checkStatusDisplayedInJson(REQUIRE_SONAR_UPGRADE, "REQUIRES_SYSTEM_UPGRADE");
   }
 
   @Test
-  public void status_DEPENDENCIES_REQUIRE_SONAR_UPGRADE_is_displayed_DEPS_REQUIRE_SYSTEM_UPGRADE_in_JSON() throws Exception {
+  public void status_DEPENDENCIES_REQUIRE_SONAR_UPGRADE_is_displayed_DEPS_REQUIRE_SYSTEM_UPGRADE_in_JSON() {
     logInAsSystemAdministrator();
     checkStatusDisplayedInJson(DEPENDENCIES_REQUIRE_SONAR_UPGRADE, "DEPS_REQUIRE_SYSTEM_UPGRADE");
   }
 
-  private void checkStatusDisplayedInJson(PluginUpdate.Status status, String expectedValue) throws Exception {
+  private void checkStatusDisplayedInJson(PluginUpdate.Status status, String expectedValue) {
     when(updateCenter.findAvailablePlugins()).thenReturn(of(
       pluginUpdate(release(PLUGIN_1, "1.0.0"), status)));
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).isSimilarTo(
+    response.assertJson(
       "{" +
         "  \"plugins\": [" +
         "    {" +

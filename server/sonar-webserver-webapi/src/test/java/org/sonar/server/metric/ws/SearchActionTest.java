@@ -20,7 +20,6 @@
 package org.sonar.server.metric.ws;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Param;
@@ -29,42 +28,39 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.metric.ws.SearchAction.PARAM_IS_CUSTOM;
 
-
 public class SearchActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  final DbSession dbSession = db.getSession();
-  WsTester ws;
 
-  @Before
-  public void setUp() {
-    ws = new WsTester(new MetricsWs(new SearchAction(dbClient)));
-  }
+  private DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private SearchAction underTest = new SearchAction(dbClient);
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
-  public void search_metrics_in_database() throws Exception {
+  public void search_metrics_in_database() {
     insertNewCustomMetric("1", "2", "3");
 
-    WsTester.Result result = newRequest().execute();
+    TestResponse result = tester.newRequest().execute();
 
     result.assertJson(getClass(), "search_metrics.json");
   }
 
   @Test
-  public void search_metrics_ordered_by_name_case_insensitive() throws Exception {
+  public void search_metrics_ordered_by_name_case_insensitive() {
     insertNewCustomMetric("3", "1", "2");
 
-    String firstResult = newRequest().setParam(Param.PAGE, "1").setParam(Param.PAGE_SIZE, "1").execute().outputAsString();
-    String secondResult = newRequest().setParam(Param.PAGE, "2").setParam(Param.PAGE_SIZE, "1").execute().outputAsString();
-    String thirdResult = newRequest().setParam(Param.PAGE, "3").setParam(Param.PAGE_SIZE, "1").execute().outputAsString();
+    String firstResult = tester.newRequest().setParam(Param.PAGE, "1").setParam(Param.PAGE_SIZE, "1").execute().getInput();
+    String secondResult = tester.newRequest().setParam(Param.PAGE, "2").setParam(Param.PAGE_SIZE, "1").execute().getInput();
+    String thirdResult = tester.newRequest().setParam(Param.PAGE, "3").setParam(Param.PAGE_SIZE, "1").execute().getInput();
 
     assertThat(firstResult).contains("custom-key-1").doesNotContain("custom-key-2").doesNotContain("custom-key-3");
     assertThat(secondResult).contains("custom-key-2").doesNotContain("custom-key-1").doesNotContain("custom-key-3");
@@ -72,36 +68,36 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_metrics_with_pagination() throws Exception {
+  public void search_metrics_with_pagination() {
     insertNewCustomMetric("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
 
-    WsTester.Result result = newRequest()
+    TestResponse result = tester.newRequest()
       .setParam(Param.PAGE, "3")
       .setParam(Param.PAGE_SIZE, "4")
       .execute();
 
-    assertThat(StringUtils.countMatches(result.outputAsString(), "custom-key")).isEqualTo(2);
+    assertThat(StringUtils.countMatches(result.getInput(), "custom-key")).isEqualTo(2);
   }
 
   @Test
-  public void list_metric_with_is_custom_true() throws Exception {
+  public void list_metric_with_is_custom_true() {
     insertNewCustomMetric("1", "2");
     insertNewNonCustomMetric("3");
 
-    String result = newRequest()
-      .setParam(PARAM_IS_CUSTOM, "true").execute().outputAsString();
+    String result = tester.newRequest()
+      .setParam(PARAM_IS_CUSTOM, "true").execute().getInput();
 
     assertThat(result).contains("custom-key-1", "custom-key-2")
       .doesNotContain("non-custom-key-3");
   }
 
   @Test
-  public void list_metric_with_is_custom_false() throws Exception {
+  public void list_metric_with_is_custom_false() {
     insertNewCustomMetric("1", "2");
     insertNewNonCustomMetric("3");
 
-    String result = newRequest()
-      .setParam(PARAM_IS_CUSTOM, "false").execute().outputAsString();
+    String result = tester.newRequest()
+      .setParam(PARAM_IS_CUSTOM, "false").execute().getInput();
 
     assertThat(result).doesNotContain("custom-key-1")
       .doesNotContain("custom-key-2")
@@ -109,10 +105,10 @@ public class SearchActionTest {
   }
 
   @Test
-  public void list_metric_with_chosen_fields() throws Exception {
+  public void list_metric_with_chosen_fields() {
     insertNewCustomMetric("1");
 
-    String result = newRequest().setParam(Param.FIELDS, "name").execute().outputAsString();
+    String result = tester.newRequest().setParam(Param.FIELDS, "name").execute().getInput();
 
     assertThat(result).contains("id", "key", "name", "type")
       .doesNotContain("domain")
@@ -150,7 +146,4 @@ public class SearchActionTest {
       .setEnabled(true);
   }
 
-  private WsTester.TestRequest newRequest() {
-    return ws.newGetRequest("api/metrics", "search");
-  }
 }

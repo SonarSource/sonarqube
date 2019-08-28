@@ -28,12 +28,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.ws.ServletFilterHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -60,6 +62,21 @@ public class LogoutActionTest {
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
   private LogoutAction underTest = new LogoutAction(jwtHttpHandler, authenticationEvent);
+
+  @Test
+  public void verify_definition() {
+    String controllerKey = "foo";
+    WebService.Context context = new WebService.Context();
+    WebService.NewController newController = context.createController(controllerKey);
+    underTest.define(newController);
+    newController.done();
+
+    WebService.Action logout = context.controller(controllerKey).action("logout");
+    assertThat(logout).isNotNull();
+    assertThat(logout.handler()).isInstanceOf(ServletFilterHandler.class);
+    assertThat(logout.isPost()).isTrue();
+    assertThat(logout.params()).isEmpty();
+  }
 
   @Test
   public void do_get_pattern() {

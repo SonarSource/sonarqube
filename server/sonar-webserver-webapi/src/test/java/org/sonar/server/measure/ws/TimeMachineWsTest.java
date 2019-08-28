@@ -19,25 +19,23 @@
  */
 package org.sonar.server.measure.ws;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TimeMachineWsTest {
 
-  WebService.Controller controller;
-
-  @Before
-  public void setUp() {
-    WsTester tester = new WsTester(new TimeMachineWs());
-    controller = tester.controller("api/timemachine");
-  }
+  private TimeMachineWs underTest = new TimeMachineWs();
 
   @Test
   public void define_controller() {
+    WebService.Context context = new WebService.Context();
+
+    underTest.define(context);
+
+    WebService.Controller controller = context.controller("api/timemachine");
+
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("2.10");
     assertThat(controller.description()).isNotEmpty();
@@ -46,6 +44,11 @@ public class TimeMachineWsTest {
 
   @Test
   public void define_index_action() {
+    WebService.Context context = new WebService.Context();
+
+    underTest.define(context);
+
+    WebService.Controller controller = context.controller("api/timemachine");
     WebService.Action action = controller.action("index");
     assertThat(action).isNotNull();
     assertThat(action.responseExampleAsString()).isNotEmpty();

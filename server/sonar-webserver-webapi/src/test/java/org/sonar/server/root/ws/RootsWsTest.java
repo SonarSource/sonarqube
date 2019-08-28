@@ -23,18 +23,20 @@ import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RootsWsTest {
   private RootsWs underTest = new RootsWs(new DummyRootsWsAction());
-  private WsTester wsTester = new WsTester(underTest);
 
   @Test
   public void verify_definition() {
-    assertThat(wsTester.context().controllers()).hasSize(1);
-    WebService.Controller controller = wsTester.context().controller("api/roots");
+    WebService.Context context = new WebService.Context();
+
+    underTest.define(context);
+
+    assertThat(context.controllers()).hasSize(1);
+    WebService.Controller controller = context.controller("api/roots");
     assertThat(controller.description()).isEqualTo("Manage root users");
     assertThat(controller.since()).isEqualTo("6.2");
   }

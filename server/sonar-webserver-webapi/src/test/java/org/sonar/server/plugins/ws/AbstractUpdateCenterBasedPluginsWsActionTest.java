@@ -20,12 +20,9 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Optional;
-import java.net.URL;
 import org.junit.Before;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
-import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
@@ -48,8 +45,6 @@ public abstract class AbstractUpdateCenterBasedPluginsWsActionTest {
 
   protected UpdateCenterMatrixFactory updateCenterFactory = mock(UpdateCenterMatrixFactory.class);
   protected UpdateCenter updateCenter = mock(UpdateCenter.class);
-  protected Request request = mock(Request.class);
-  protected WsTester.TestResponse response = new WsTester.TestResponse();
 
   protected static Release release(Plugin plugin1, String version) {
     return new Release(plugin1, create(version));
@@ -57,11 +52,6 @@ public abstract class AbstractUpdateCenterBasedPluginsWsActionTest {
 
   protected static PluginUpdate pluginUpdate(Release pluginRelease, PluginUpdate.Status compatible) {
     return PluginUpdate.createWithStatus(pluginRelease, compatible);
-  }
-
-  protected static URL resource(String s) {
-    Class<AvailableActionTest> clazz = AvailableActionTest.class;
-    return clazz.getResource(clazz.getSimpleName() + "/" + s);
   }
 
   protected static PluginUpdate pluginUpdate(String key, String name) {

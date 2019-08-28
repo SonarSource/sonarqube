@@ -21,8 +21,10 @@ package org.sonar.server.platform.ws;
 
 import org.junit.Test;
 import org.sonar.api.platform.Server;
+import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.DumbResponse;
+import org.sonar.server.ws.TestResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -31,11 +33,15 @@ import static org.mockito.Mockito.when;
 public class ServerWsTest {
 
   private Server server = mock(Server.class);
-  private WsTester tester = new WsTester(new ServerWs(server));
+  private ServerWs underTest = new ServerWs(server);
 
   @Test
   public void define_version_action() {
-    WebService.Controller controller = tester.controller("api/server");
+    WebService.Context context = new WebService.Context();
+
+    underTest.define(context);
+
+    WebService.Controller controller = context.controller("api/server");
     assertThat(controller.actions()).hasSize(1);
 
     WebService.Action versionAction = controller.action("version");
@@ -47,13 +53,20 @@ public class ServerWsTest {
   @Test
   public void returns_version_as_plain_text() throws Exception {
     when(server.getVersion()).thenReturn("6.4-SNAPSHOT");
-    WsTester.Result result = tester.newGetRequest("api/server", "version").execute();
-    assertThat(result.outputAsString()).isEqualTo("6.4-SNAPSHOT");
+
+    DumbResponse response = new DumbResponse();
+    underTest.handle(mock(Request.class), response);
+
+    assertThat(new TestResponse(response).getInput()).isEqualTo("6.4-SNAPSHOT");
   }
 
   @Test
   public void test_example_of_version() {
-    WebService.Action versionAction = tester.action("api/server", "version");
-    assertThat(versionAction.responseExampleAsString()).isEqualTo("6.3.0.1234");
+    WebService.Context context = new WebService.Context();
+    underTest.define(context);
+
+    WebService.Action action = context.controller("api/server").action("version");
+    assertThat(action).isNotNull();
+    assertThat(action.responseExampleAsString()).isEqualTo("6.3.0.1234");
   }
 }

@@ -26,18 +26,20 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleRepositoryDto;
-import org.sonar.server.ws.WsTester;
-import org.sonar.server.ws.WsTester.TestRequest;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Arrays.asList;
 
 public class RepositoriesActionTest {
 
   private static final String EMPTY_JSON_RESPONSE = "{\"repositories\":[]}";
-  private WsTester wsTester;
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  
+  private RepositoriesAction underTest = new RepositoriesAction(dbTester.getDbClient());
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
@@ -47,26 +49,24 @@ public class RepositoriesActionTest {
     RuleRepositoryDto repo3 = new RuleRepositoryDto("common-ws", "ws", "SonarQube Common");
     dbTester.getDbClient().ruleRepositoryDao().insertOrUpdate(dbSession, asList(repo1, repo2, repo3));
     dbSession.commit();
-
-    wsTester = new WsTester(new RulesWs(new RepositoriesAction(dbTester.getDbClient())));
   }
 
   @Test
-  public void should_list_repositories() throws Exception {
+  public void should_list_repositories() {
     newRequest().execute().assertJson(this.getClass(), "repositories.json");
     newRequest().setParam("language", "xoo").execute().assertJson(this.getClass(), "repositories_xoo.json");
     newRequest().setParam("language", "ws").execute().assertJson(this.getClass(), "repositories_ws.json");
   }
 
   @Test
-  public void filter_repositories_by_name() throws Exception {
+  public void filter_repositories_by_name() {
     newRequest().setParam("q", "common").execute().assertJson(this.getClass(), "repositories_common.json");
     newRequest().setParam("q", "squid").execute().assertJson(this.getClass(), "repositories_squid.json");
     newRequest().setParam("q", "sonar").execute().assertJson(this.getClass(), "repositories_sonar.json");
   }
 
   @Test
-  public void do_not_consider_query_as_regexp_when_filtering_repositories_by_name() throws Exception {
+  public void do_not_consider_query_as_regexp_when_filtering_repositories_by_name() {
     // invalid regexp : do not fail. Query is not a regexp.
     newRequest().setParam("q", "[").execute().assertJson(EMPTY_JSON_RESPONSE);
 
@@ -76,6 +76,6 @@ public class RepositoriesActionTest {
   }
 
   protected TestRequest newRequest() {
-    return wsTester.newGetRequest("api/rules", "repositories");
+    return tester.newRequest();
   }
 }

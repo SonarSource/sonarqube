@@ -29,7 +29,7 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.db.plugin.PluginDto;
 import org.sonar.server.plugins.InstalledPlugin;
 import org.sonar.server.plugins.InstalledPlugin.FileAndMd5;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.DumbResponse;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
@@ -49,11 +49,12 @@ public class PluginWSCommonsTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private WsTester.TestResponse response = new WsTester.TestResponse();
+  private DumbResponse response = new DumbResponse();
   private JsonWriter jsonWriter = response.newJsonWriter();
 
   @Test
   public void verify_properties_written_by_writePluginMetadata() {
+
     PluginWSCommons.writePluginInfo(jsonWriter, gitPluginInfo(), null, null, null);
 
     jsonWriter.close();

@@ -35,7 +35,8 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.metric.ws.CreateAction.PARAM_DESCRIPTION;
@@ -61,17 +62,17 @@ public class CreateActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private WsTester ws;
+  private CreateAction underTest = new CreateAction(dbClient, userSessionRule);
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
-    ws = new WsTester(new MetricsWs(new CreateAction(dbClient, userSessionRule)));
     userSessionRule.logIn().setSystemAdministrator();
   }
 
   @Test
-  public void insert_new_minimalist_metric() throws Exception {
-    newRequest()
+  public void insert_new_minimalist_metric() {
+    tester.newRequest()
       .setParam(PARAM_KEY, DEFAULT_KEY)
       .setParam(PARAM_NAME, DEFAULT_NAME)
       .setParam(PARAM_TYPE, DEFAULT_TYPE)
@@ -91,8 +92,8 @@ public class CreateActionTest {
   }
 
   @Test
-  public void insert_new_full_metric() throws Exception {
-    newRequest()
+  public void insert_new_full_metric() {
+    tester.newRequest()
       .setParam(PARAM_KEY, DEFAULT_KEY)
       .setParam(PARAM_NAME, DEFAULT_NAME)
       .setParam(PARAM_TYPE, DEFAULT_TYPE)
@@ -108,8 +109,8 @@ public class CreateActionTest {
   }
 
   @Test
-  public void return_metric_with_id() throws Exception {
-    WsTester.Result result = newRequest()
+  public void return_metric_with_id() {
+    TestResponse result = tester.newRequest()
       .setParam(PARAM_KEY, DEFAULT_KEY)
       .setParam(PARAM_NAME, DEFAULT_NAME)
       .setParam(PARAM_TYPE, DEFAULT_TYPE)
@@ -118,11 +119,11 @@ public class CreateActionTest {
       .execute();
 
     result.assertJson(getClass(), "metric.json");
-    assertThat(result.outputAsString()).matches(".*\"id\"\\s*:\\s*\"\\w+\".*");
+    assertThat(result.getInput()).matches(".*\"id\"\\s*:\\s*\"\\w+\".*");
   }
 
   @Test
-  public void update_existing_metric_when_custom_and_disabled() throws Exception {
+  public void update_existing_metric_when_custom_and_disabled() {
     MetricDto metricInDb = MetricTesting.newMetricDto()
       .setKey(DEFAULT_KEY)
       .setValueType(ValueType.BOOL.name())
@@ -131,7 +132,7 @@ public class CreateActionTest {
     dbClient.metricDao().insert(dbSession, metricInDb);
     dbSession.commit();
 
-    WsTester.Result result = newRequest()
+    TestResponse result = tester.newRequest()
       .setParam(PARAM_KEY, DEFAULT_KEY)
       .setParam(PARAM_NAME, DEFAULT_NAME)
       .setParam(PARAM_TYPE, DEFAULT_TYPE)
@@ -140,7 +141,7 @@ public class CreateActionTest {
       .execute();
 
     result.assertJson(getClass(), "metric.json");
-    result.outputAsString().matches("\"id\"\\s*:\\s*\"" + metricInDb.getId() + "\"");
+    result.getInput().matches("\"id\"\\s*:\\s*\"" + metricInDb.getId() + "\"");
     MetricDto metricAfterWs = dbClient.metricDao().selectByKey(dbSession, DEFAULT_KEY);
     assertThat(metricAfterWs.getId()).isEqualTo(metricInDb.getId());
     assertThat(metricAfterWs.getDomain()).isEqualTo(DEFAULT_DOMAIN);
@@ -150,7 +151,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_existing_activated_metric_with_same_key() throws Exception {
+  public void fail_when_existing_activated_metric_with_same_key() {
     expectedException.expect(ServerException.class);
     dbClient.metricDao().insert(dbSession, MetricTesting.newMetricDto()
       .setKey(DEFAULT_KEY)
@@ -159,14 +160,14 @@ public class CreateActionTest {
       .setEnabled(true));
     dbSession.commit();
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_KEY, DEFAULT_KEY)
       .setParam(PARAM_NAME, "any-name")
       .setParam(PARAM_TYPE, DEFAULT_TYPE).execute();
   }
 
   @Test
-  public void fail_when_existing_non_custom_metric_with_same_key() throws Exception {
+  public void fail_when_existing_non_custom_metric_with_same_key() {
     expectedException.expect(ServerException.class);
     dbClient.metricDao().insert(dbSession, MetricTesting.newMetricDto()
       .setKey(DEFAULT_KEY)
@@ -175,14 +176,14 @@ public class CreateActionTest {
       .setEnabled(false));
     dbSession.commit();
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_KEY, DEFAULT_KEY)
       .setParam(PARAM_NAME, "any-name")
       .setParam(PARAM_TYPE, DEFAULT_TYPE).execute();
   }
 
   @Test
-  public void fail_when_metric_type_is_changed_and_associated_measures_exist() throws Exception {
+  public void fail_when_metric_type_is_changed_and_associated_measures_exist() {
     expectedException.expect(ServerException.class);
     MetricDto metric = MetricTesting.newMetricDto()
       .setKey(DEFAULT_KEY)
@@ -193,7 +194,7 @@ public class CreateActionTest {
     dbClient.customMeasureDao().insert(dbSession, CustomMeasureTesting.newCustomMeasureDto().setMetricId(metric.getId()));
     dbSession.commit();
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_KEY, DEFAULT_KEY)
       .setParam(PARAM_NAME, "any-name")
       .setParam(PARAM_TYPE, ValueType.INT.name())
@@ -201,40 +202,40 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_missing_key() throws Exception {
+  public void fail_when_missing_key() {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_NAME, DEFAULT_NAME)
       .setParam(PARAM_TYPE, DEFAULT_TYPE).execute();
   }
 
   @Test
-  public void fail_when_missing_name() throws Exception {
+  public void fail_when_missing_name() {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_KEY, DEFAULT_KEY)
       .setParam(PARAM_TYPE, DEFAULT_TYPE).execute();
   }
 
   @Test
-  public void fail_when_missing_type() throws Exception {
+  public void fail_when_missing_type() {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_NAME, DEFAULT_NAME)
       .setParam(PARAM_KEY, DEFAULT_KEY).execute();
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_system_administrator() throws Exception {
+  public void throw_ForbiddenException_if_not_system_administrator() {
     userSessionRule.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_KEY, "any-key")
       .setParam(PARAM_NAME, "any-name")
       .setParam(PARAM_TYPE, DEFAULT_TYPE)
@@ -242,13 +243,13 @@ public class CreateActionTest {
   }
 
   @Test
-  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+  public void throw_UnauthorizedException_if_not_logged_in() {
     userSessionRule.anonymous();
 
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_KEY, "any-key")
       .setParam(PARAM_NAME, "any-name")
       .setParam(PARAM_TYPE, DEFAULT_TYPE)
@@ -256,11 +257,11 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_ill_formatted_key() throws Exception {
+  public void fail_when_ill_formatted_key() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Malformed metric key '123:456'. Allowed characters are alphanumeric, '-', '_', with at least one non-digit.");
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_KEY, "123:456")
       .setParam(PARAM_NAME, DEFAULT_NAME)
       .setParam(PARAM_TYPE, DEFAULT_TYPE)
@@ -268,10 +269,10 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_empty_name() throws Exception {
+  public void fail_when_empty_name() {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_KEY, DEFAULT_KEY)
       .setParam(PARAM_NAME, "")
       .setParam(PARAM_TYPE, DEFAULT_TYPE)
@@ -279,17 +280,14 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_empty_type() throws Exception {
+  public void fail_when_empty_type() {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_KEY, DEFAULT_KEY)
       .setParam(PARAM_NAME, DEFAULT_NAME)
       .setParam(PARAM_TYPE, "")
       .execute();
   }
 
-  private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest("api/metrics", "create");
-  }
 }

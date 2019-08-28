@@ -19,65 +19,37 @@
  */
 package org.sonar.server.usertoken.ws;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.server.usertoken.TokenGenerator;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class UserTokensWsTest {
-  static final String CONTROLLER_KEY = "api/user_tokens";
 
-  WsTester ws;
+  private UserTokensWs underTest = new UserTokensWs(new UserTokensWsAction() {
+    @Override
+    public void define(WebService.NewController context) {
+      context.createAction("foo").setHandler(this);
+    }
 
-  @Before
-  public void setUp() {
-    DbClient dbClient = mock(DbClient.class);
-    System2 system = mock(System2.class);
-    TokenGenerator tokenGenerator = mock(TokenGenerator.class);
-    UserTokenSupport userTokenSupport = mock(UserTokenSupport.class);
+    @Override
+    public void handle(Request request, Response response) {
 
-    ws = new WsTester(new UserTokensWs(
-      new GenerateAction(dbClient, system, tokenGenerator, userTokenSupport),
-      new RevokeAction(dbClient, userTokenSupport),
-      new SearchAction(dbClient, userTokenSupport)));
-  }
+    }
+  });
 
   @Test
-  public void generate_action() {
-    WebService.Action action = ws.action(CONTROLLER_KEY, "generate");
+  public void is_defined() {
+    WebService.Context context = new WebService.Context();
 
-    assertThat(action).isNotNull();
-    assertThat(action.since()).isEqualTo("5.3");
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.isPost()).isTrue();
-    assertThat(action.param("login").isRequired()).isFalse();
-    assertThat(action.param("name").isRequired()).isTrue();
-  }
+    underTest.define(context);
 
-  @Test
-  public void revoke_action() {
-    WebService.Action action = ws.action(CONTROLLER_KEY, "revoke");
-
-    assertThat(action).isNotNull();
-    assertThat(action.since()).isEqualTo("5.3");
-    assertThat(action.isPost()).isTrue();
-    assertThat(action.param("login").isRequired()).isFalse();
-    assertThat(action.param("name").isRequired()).isTrue();
-  }
-
-  @Test
-  public void search_action() {
-    WebService.Action action = ws.action(CONTROLLER_KEY, "search");
-
-    assertThat(action).isNotNull();
-    assertThat(action.since()).isEqualTo("5.3");
-    assertThat(action.isPost()).isFalse();
-    assertThat(action.param("login").isRequired()).isFalse();
+    WebService.Controller controller = context.controller("api/user_tokens");
+    assertThat(controller).isNotNull();
+    assertThat(controller.since()).isEqualTo("5.3");
+    assertThat(controller.description()).isNotEmpty();
+    assertThat(controller.actions()).hasSize(1);
   }
 }

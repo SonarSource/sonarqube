@@ -19,26 +19,22 @@
  */
 package org.sonar.server.metric.ws;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.measures.Metric;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TypesActionTest {
 
-  WsTester ws;
-
-  @Before
-  public void setUp() {
-    ws = new WsTester(new MetricsWs(new TypesAction()));
-  }
+  private TypesAction underTest = new TypesAction();
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
-  public void validate_content() throws Exception {
-    String response = ws.newGetRequest(MetricsWs.ENDPOINT, "types").execute().outputAsString();
+  public void validate_content() {
+    TestResponse response = tester.newRequest().execute();
 
-    assertThat(response).contains(Metric.ValueType.names());
+    assertThat(response.getInput()).contains(Metric.ValueType.names());
   }
 }

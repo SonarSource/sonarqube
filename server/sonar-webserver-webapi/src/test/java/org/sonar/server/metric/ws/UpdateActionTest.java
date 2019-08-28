@@ -33,7 +33,8 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
@@ -61,19 +62,19 @@ public class UpdateActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private WsTester ws;
+  private UpdateAction underTest = new UpdateAction(dbClient, userSessionRule);
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
-    ws = new WsTester(new MetricsWs(new UpdateAction(dbClient, userSessionRule)));
     userSessionRule.logIn().setSystemAdministrator();
   }
 
   @Test
-  public void update_all_fields() throws Exception {
+  public void update_all_fields() {
     int id = insertMetric(newDefaultMetric());
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_ID, String.valueOf(id))
       .setParam(PARAM_KEY, "another-key")
       .setParam(PARAM_NAME, "another-name")
@@ -92,12 +93,12 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void update_one_field() throws Exception {
+  public void update_one_field() {
     int id = insertMetric(newDefaultMetric());
     dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricId(id));
     dbSession.commit();
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_ID, String.valueOf(id))
       .setParam(PARAM_DESCRIPTION, "another-description")
       .execute();
@@ -112,97 +113,97 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void update_return_the_full_object_with_id() throws Exception {
+  public void update_return_the_full_object_with_id() {
     int id = insertMetric(newDefaultMetric().setDescription("another-description"));
 
-    WsTester.Result requestResult = newRequest()
+    TestResponse requestResult = tester.newRequest()
       .setParam(PARAM_ID, String.valueOf(id))
       .setParam(PARAM_DESCRIPTION, DEFAULT_DESCRIPTION)
       .execute();
     dbSession.commit();
 
     requestResult.assertJson(getClass(), "metric.json");
-    assertThat(requestResult.outputAsString()).matches(".*\"id\"\\s*:\\s*\"" + id + "\".*");
+    assertThat(requestResult.getInput()).matches(".*\"id\"\\s*:\\s*\"" + id + "\".*");
   }
 
   @Test
-  public void fail_when_changing_key_for_an_existing_one() throws Exception {
+  public void fail_when_changing_key_for_an_existing_one() {
     expectedException.expect(ServerException.class);
     expectedException.expectMessage("The key 'metric-key' is already used by an existing metric.");
     insertMetric(newDefaultMetric().setKey("metric-key"));
     int id = insertMetric(newDefaultMetric().setKey("another-key"));
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_ID, String.valueOf(id))
       .setParam(PARAM_KEY, "metric-key")
       .execute();
   }
 
   @Test
-  public void fail_when_metric_not_in_db() throws Exception {
+  public void fail_when_metric_not_in_db() {
     expectedException.expect(ServerException.class);
 
-    newRequest().setParam(PARAM_ID, "42").execute();
+    tester.newRequest().setParam(PARAM_ID, "42").execute();
   }
 
   @Test
-  public void fail_when_metric_is_deactivated() throws Exception {
+  public void fail_when_metric_is_deactivated() {
     expectedException.expect(ServerException.class);
     int id = insertMetric(newDefaultMetric().setEnabled(false));
 
-    newRequest().setParam(PARAM_ID, String.valueOf(id)).execute();
+    tester.newRequest().setParam(PARAM_ID, String.valueOf(id)).execute();
   }
 
   @Test
-  public void fail_when_metric_is_not_custom() throws Exception {
+  public void fail_when_metric_is_not_custom() {
     expectedException.expect(ServerException.class);
     int id = insertMetric(newDefaultMetric().setUserManaged(false));
 
-    newRequest().setParam(PARAM_ID, String.valueOf(id)).execute();
+    tester.newRequest().setParam(PARAM_ID, String.valueOf(id)).execute();
   }
 
   @Test
-  public void fail_when_custom_measures_and_type_changed() throws Exception {
+  public void fail_when_custom_measures_and_type_changed() {
     expectedException.expect(ServerException.class);
     int id = insertMetric(newDefaultMetric());
     dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricId(id));
     dbSession.commit();
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_ID, String.valueOf(id))
       .setParam(PARAM_TYPE, ValueType.BOOL.name())
       .execute();
   }
 
   @Test
-  public void fail_when_no_id() throws Exception {
+  public void fail_when_no_id() {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest().execute();
+    tester.newRequest().execute();
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_system_administrator() throws Exception {
+  public void throw_ForbiddenException_if_not_system_administrator() {
     userSessionRule.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    newRequest().execute();
+    tester.newRequest().execute();
   }
 
   @Test
-  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+  public void throw_UnauthorizedException_if_not_logged_in() {
     userSessionRule.anonymous();
 
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 
-    newRequest().execute();
+    tester.newRequest().execute();
   }
 
   @Test
-  public void fail_when_metric_key_is_not_well_formatted() throws Exception {
+  public void fail_when_metric_key_is_not_well_formatted() {
     int id = insertMetric(newDefaultMetric());
     dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricId(id));
     dbSession.commit();
@@ -210,7 +211,7 @@ public class UpdateActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Malformed metric key 'not well formatted key'. Allowed characters are alphanumeric, '-', '_', with at least one non-digit.");
 
-    newRequest()
+    tester.newRequest()
       .setParam(PARAM_ID, String.valueOf(id))
       .setParam(PARAM_KEY, "not well formatted key")
       .execute();
@@ -233,7 +234,4 @@ public class UpdateActionTest {
     return metricDto.getId();
   }
 
-  private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest("api/metrics", "update");
-  }
 }

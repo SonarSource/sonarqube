@@ -19,36 +19,33 @@
  */
 package org.sonar.server.metric.ws;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class MetricsWsTest {
 
-  WsTester ws;
-
-  @Before
-  public void setUp() {
-    DbClient dbClient = mock(DbClient.class);
-    UserSession userSession = mock(UserSession.class);
-    ws = new WsTester(new MetricsWs(
+  private DbClient dbClient = mock(DbClient.class);
+  private UserSession userSession = mock(UserSession.class);
+  private MetricsWs underTest = new MetricsWs(
       new SearchAction(dbClient),
       new CreateAction(dbClient, userSession),
       new UpdateAction(dbClient, userSession),
       new DeleteAction(dbClient, userSession),
       new TypesAction(),
-      new DomainsAction(dbClient)));
-  }
+      new DomainsAction(dbClient));
 
   @Test
   public void define_ws() {
-    WebService.Controller controller = ws.controller("api/metrics");
+    WebService.Context context = new WebService.Context();
+
+    underTest.define(context);
+
+    WebService.Controller controller = context.controller("api/metrics");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.actions()).hasSize(6);

@@ -19,80 +19,38 @@
  */
 package org.sonar.server.permission.ws;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.issue.AvatarResolverImpl;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.permission.PermissionService;
-import org.sonar.server.permission.PermissionServiceImpl;
-import org.sonar.server.permission.RequestValidator;
-import org.sonar.server.permission.ws.template.TemplateGroupsAction;
-import org.sonar.server.permission.ws.template.TemplateUsersAction;
-import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.usergroups.DefaultGroupFinder;
-import org.sonar.server.usergroups.ws.GroupWsSupport;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class PermissionsWsTest {
 
-  @Rule
-  public DbTester db = DbTester.create();
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  private PermissionsWs underTest = new PermissionsWs(new PermissionsWsAction() {
+    @Override
+    public void define(WebService.NewController context) {
+      context.createAction("foo").setHandler(this);
+    }
 
-  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private final GroupWsSupport groupWsSupport = new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()));
-  private final PermissionWsSupport wsSupport = new PermissionWsSupport(db.getDbClient(), new ComponentFinder(db.getDbClient(), resourceTypes), groupWsSupport);
+    @Override
+    public void handle(Request request, Response response) {
 
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-  private WsParameters wsParameters = new WsParameters(permissionService);
-  private RequestValidator requestValidator = new RequestValidator(permissionService);
-
-
-  private WsTester underTest = new WsTester(new PermissionsWs(
-    new TemplateUsersAction(db.getDbClient(), userSession, wsSupport, new AvatarResolverImpl(), wsParameters, requestValidator),
-    new TemplateGroupsAction(db.getDbClient(), userSession, wsSupport, wsParameters, requestValidator)));
+    }
+  });
 
   @Test
   public void define_controller() {
-    WebService.Controller controller = controller();
+    WebService.Context context = new WebService.Context();
+
+    underTest.define(context);
+
+    WebService.Controller controller = context.controller("api/permissions");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("3.7");
-    assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.actions()).hasSize(1);
   }
 
-  @Test
-  public void define_template_users() {
-    WebService.Action action = controller().action("template_users");
-
-    assertThat(action).isNotNull();
-    assertThat(action.isPost()).isFalse();
-    assertThat(action.isInternal()).isTrue();
-    assertThat(action.since()).isEqualTo("5.2");
-    assertThat(action.param(PARAM_PERMISSION).isRequired()).isFalse();
-  }
-
-  @Test
-  public void define_template_groups() {
-    WebService.Action action = controller().action("template_groups");
-
-    assertThat(action).isNotNull();
-    assertThat(action.isPost()).isFalse();
-    assertThat(action.isInternal()).isTrue();
-    assertThat(action.since()).isEqualTo("5.2");
-  }
-
-  private WebService.Controller controller() {
-    return underTest.controller("api/permissions");
-  }
 }

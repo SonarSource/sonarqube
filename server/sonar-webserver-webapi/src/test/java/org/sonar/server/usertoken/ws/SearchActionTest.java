@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -54,6 +55,17 @@ public class SearchActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private WsActionTester ws = new WsActionTester(new SearchAction(dbClient, new UserTokenSupport(db.getDbClient(), userSession)));
+
+  @Test
+  public void search_action() {
+    WebService.Action action = ws.getDef();
+
+    assertThat(action).isNotNull();
+    assertThat(action.key()).isEqualTo("search");
+    assertThat(action.since()).isEqualTo("5.3");
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.param("login").isRequired()).isFalse();
+  }
 
   @Test
   public void search_json_example() {

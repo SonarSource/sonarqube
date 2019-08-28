@@ -43,7 +43,9 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +57,6 @@ import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.component.TestComponentFinder.from;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 
 public class DeleteActionTest {
@@ -77,52 +78,51 @@ public class DeleteActionTest {
   private ComponentDbTester componentDbTester = new ComponentDbTester(db);
   private ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
   private ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
-  private WsTester ws = new WsTester(new ProjectsWs(
-    new DeleteAction(
-      componentCleanerService,
-      from(db),
-      dbClient,
-      userSessionRule, projectLifeCycleListeners)));
+  private DeleteAction underTest = new DeleteAction(
+    componentCleanerService,
+    from(db),
+    dbClient,
+    userSessionRule, projectLifeCycleListeners);
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
-  public void organization_administrator_deletes_project_by_key() throws Exception {
+  public void organization_administrator_deletes_project_by_key() {
     ComponentDto project = componentDbTester.insertPrivateProject();
     userSessionRule.logIn().addPermission(ADMINISTER, project.getOrganizationUuid());
 
-    call(newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
+    call(tester.newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
     verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(project)));
   }
 
   @Test
-  public void project_administrator_deletes_the_project_by_key() throws Exception {
+  public void project_administrator_deletes_the_project_by_key() {
     ComponentDto project = componentDbTester.insertPrivateProject();
     userSessionRule.logIn().addProjectPermission(ADMIN, project);
 
-    call(newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
+    call(tester.newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.getDbKey());
     verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(project)));
   }
 
   @Test
-  public void project_deletion_also_ensure_that_homepage_on_this_project_if_it_exists_is_cleared() throws Exception {
+  public void project_deletion_also_ensure_that_homepage_on_this_project_if_it_exists_is_cleared() {
     ComponentDto project = componentDbTester.insertPrivateProject();
     UserDto insert = dbClient.userDao().insert(dbSession,
       newUserDto().setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
     dbSession.commit();
-
     userSessionRule.logIn().addProjectPermission(ADMIN, project);
+    DeleteAction underTest = new DeleteAction(
+      new ComponentCleanerService(dbClient, new ResourceTypesRule().setAllQualifiers(PROJECT),
+        new TestProjectIndexers()),
+      from(db), dbClient, userSessionRule, projectLifeCycleListeners);
 
-    new WsTester(new ProjectsWs(
-      new DeleteAction(
-        new ComponentCleanerService(dbClient, new ResourceTypesRule().setAllQualifiers(PROJECT),
-          new TestProjectIndexers()),
-        from(db), dbClient, userSessionRule, projectLifeCycleListeners)))
-          .newPostRequest(CONTROLLER, ACTION)
-          .setParam(PARAM_PROJECT, project.getDbKey())
-          .execute();
+    new WsActionTester(underTest)
+      .newRequest()
+      .setParam(PARAM_PROJECT, project.getDbKey())
+      .execute();
 
     UserDto userReloaded = dbClient.userDao().selectUserById(dbSession, insert.getId());
     assertThat(userReloaded.getHomepageType()).isNull();
@@ -130,7 +130,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void project_deletion_also_ensure_that_webhooks_on_this_project_if_they_exists_are_deleted() throws Exception {
+  public void project_deletion_also_ensure_that_webhooks_on_this_project_if_they_exists_are_deleted() {
     ComponentDto project = componentDbTester.insertPrivateProject();
     webhookDbTester.insertWebhook(project);
     webhookDbTester.insertWebhook(project);
@@ -138,22 +138,22 @@ public class DeleteActionTest {
     webhookDbTester.insertWebhook(project);
 
     userSessionRule.logIn().addProjectPermission(ADMIN, project);
+    DeleteAction underTest = new DeleteAction(
+      new ComponentCleanerService(dbClient, new ResourceTypesRule().setAllQualifiers(PROJECT),
+        new TestProjectIndexers()),
+      from(db), dbClient, userSessionRule, projectLifeCycleListeners);
 
-    new WsTester(new ProjectsWs(
-      new DeleteAction(
-        new ComponentCleanerService(dbClient, new ResourceTypesRule().setAllQualifiers(PROJECT),
-          new TestProjectIndexers()),
-        from(db), dbClient, userSessionRule, projectLifeCycleListeners)))
-          .newPostRequest(CONTROLLER, ACTION)
-          .setParam(PARAM_PROJECT, project.getDbKey())
-          .execute();
+    new WsActionTester(underTest)
+      .newRequest()
+      .setParam(PARAM_PROJECT, project.getDbKey())
+      .execute();
 
     List<WebhookDto> webhookDtos = dbClient.webhookDao().selectByProject(dbSession, project);
     assertThat(webhookDtos).isEmpty();
   }
 
   @Test
-  public void return_403_if_not_project_admin_nor_org_admin() throws Exception {
+  public void return_403_if_not_project_admin_nor_org_admin() {
     ComponentDto project = componentDbTester.insertPrivateProject();
 
     userSessionRule.logIn()
@@ -162,21 +162,21 @@ public class DeleteActionTest {
       .addProjectPermission(UserRole.USER, project);
     expectedException.expect(ForbiddenException.class);
 
-    call(newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
+    call(tester.newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
   }
 
   @Test
-  public void return_401_if_not_logged_in() throws Exception {
+  public void return_401_if_not_logged_in() {
     ComponentDto project = componentDbTester.insertPrivateProject();
 
     userSessionRule.anonymous();
     expectedException.expect(UnauthorizedException.class);
 
-    call(newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
+    call(tester.newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
+  public void fail_when_using_branch_db_key() {
     ComponentDto project = db.components().insertMainBranch();
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
@@ -184,7 +184,7 @@ public class DeleteActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
 
-    call(newRequest().setParam(PARAM_PROJECT, branch.getDbKey()));
+    call(tester.newRequest().setParam(PARAM_PROJECT, branch.getDbKey()));
   }
 
   private String verifyDeletedKey() {
@@ -193,12 +193,8 @@ public class DeleteActionTest {
     return argument.getValue().getDbKey();
   }
 
-  private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest(CONTROLLER, ACTION);
-  }
-
-  private void call(WsTester.TestRequest request) throws Exception {
-    WsTester.Result result = request.execute();
+  private void call(TestRequest request) {
+    TestResponse result = request.execute();
     result.assertNoContent();
   }
 }

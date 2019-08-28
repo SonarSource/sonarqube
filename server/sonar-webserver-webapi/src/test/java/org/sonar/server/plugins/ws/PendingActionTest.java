@@ -25,7 +25,6 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -34,7 +33,8 @@ import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
@@ -61,49 +61,40 @@ public class PendingActionTest {
   private UpdateCenterMatrixFactory updateCenterMatrixFactory = mock(UpdateCenterMatrixFactory.class, RETURNS_DEEP_STUBS);
   private PendingAction underTest = new PendingAction(userSession, pluginDownloader, serverPluginRepository,
     pluginUninstaller, updateCenterMatrixFactory);
-  private Request request = mock(Request.class);
-  private WsTester.TestResponse response = new WsTester.TestResponse();
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void action_pending_is_defined() {
-    logInAsSystemAdministrator();
-    WsTester wsTester = new WsTester();
-    WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
-
-    underTest.define(newController);
-    newController.done();
-
-    WebService.Controller controller = wsTester.controller(DUMMY_CONTROLLER_KEY);
-    assertThat(controller.actions()).extracting("key").containsExactly("pending");
-
-    WebService.Action action = controller.actions().iterator().next();
+    WebService.Action action = tester.getDef();
     assertThat(action.isPost()).isFalse();
+    assertThat(action.key()).isEqualTo("pending");
     assertThat(action.description()).isNotEmpty();
     assertThat(action.responseExample()).isNotNull();
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() throws Exception {
+  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
     expectedException.expect(ForbiddenException.class);
 
-    underTest.handle(request, response);
+    tester.newRequest().execute();
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() throws Exception {
+  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
 
-    underTest.handle(request, response);
+    tester.newRequest().execute();
   }
 
   @Test
-  public void empty_arrays_are_returned_when_there_nothing_pending() throws Exception {
+  public void empty_arrays_are_returned_when_there_nothing_pending() {
     logInAsSystemAdministrator();
-    underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
+    TestResponse response = tester.newRequest().execute();
+
+    assertJson(response.getInput()).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"installing\": []," +
         "  \"removing\": []," +
@@ -112,13 +103,13 @@ public class PendingActionTest {
   }
 
   @Test
-  public void empty_arrays_are_returned_when_update_center_is_unavailable() throws Exception {
+  public void empty_arrays_are_returned_when_update_center_is_unavailable() {
     logInAsSystemAdministrator();
     when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.absent());
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
+    assertJson(response.getInput()).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"installing\": []," +
         "  \"removing\": []," +
@@ -127,14 +118,14 @@ public class PendingActionTest {
   }
 
   @Test
-  public void verify_properties_displayed_in_json_per_installing_plugin() throws Exception {
+  public void verify_properties_displayed_in_json_per_installing_plugin() {
     logInAsSystemAdministrator();
     newUpdateCenter("scmgit");
     when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(newScmGitPluginInfo()));
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).isSimilarTo(
+    response.assertJson(
       "{" +
         "  \"installing\": " +
         "  [" +
@@ -158,13 +149,13 @@ public class PendingActionTest {
   }
 
   @Test
-  public void verify_properties_displayed_in_json_per_removing_plugin() throws Exception {
+  public void verify_properties_displayed_in_json_per_removing_plugin() {
     logInAsSystemAdministrator();
     when(pluginUninstaller.getUninstalledPlugins()).thenReturn(of(newScmGitPluginInfo()));
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).isSimilarTo(
+    response.assertJson(
       "{" +
         "  \"installing\": []," +
         "  \"updating\": []," +
@@ -187,15 +178,15 @@ public class PendingActionTest {
   }
 
   @Test
-  public void verify_properties_displayed_in_json_per_updating_plugin() throws Exception {
+  public void verify_properties_displayed_in_json_per_updating_plugin() {
     logInAsSystemAdministrator();
     newUpdateCenter("scmgit");
     when(serverPluginRepository.getPluginInfos()).thenReturn(of(newScmGitPluginInfo()));
     when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(newScmGitPluginInfo()));
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).isSimilarTo(
+    response.assertJson(
       "{" +
         "  \"installing\": []," +
         "  \"removing\": []," +
@@ -209,7 +200,7 @@ public class PendingActionTest {
   }
 
   @Test
-  public void verify_properties_displayed_in_json_per_installing_removing_and_updating_plugins() throws Exception {
+  public void verify_properties_displayed_in_json_per_installing_removing_and_updating_plugins() {
     logInAsSystemAdministrator();
     PluginInfo installed = newPluginInfo("java");
     PluginInfo removedPlugin = newPluginInfo("js");
@@ -220,9 +211,9 @@ public class PendingActionTest {
     when(pluginUninstaller.getUninstalledPlugins()).thenReturn(of(removedPlugin));
     when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(newPlugin, installed));
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).isSimilarTo(
+    response.assertJson(
       "{" +
         "  \"installing\":" +
         "  [" +
@@ -246,16 +237,16 @@ public class PendingActionTest {
   }
 
   @Test
-  public void installing_plugins_are_sorted_by_name_then_key_and_are_unique() throws Exception {
+  public void installing_plugins_are_sorted_by_name_then_key_and_are_unique() {
     logInAsSystemAdministrator();
     when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(
       newPluginInfo(0).setName("Foo"),
       newPluginInfo(3).setName("Bar"),
       newPluginInfo(2).setName("Bar")));
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
+    assertJson(response.getInput()).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"installing\": " +
         "  [" +
@@ -278,16 +269,16 @@ public class PendingActionTest {
   }
 
   @Test
-  public void removing_plugins_are_sorted_and_unique() throws Exception {
+  public void removing_plugins_are_sorted_and_unique() {
     logInAsSystemAdministrator();
     when(pluginUninstaller.getUninstalledPlugins()).thenReturn(of(
       newPluginInfo(0).setName("Foo"),
       newPluginInfo(3).setName("Bar"),
       newPluginInfo(2).setName("Bar")));
 
-    underTest.handle(request, response);
+    TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
+    assertJson(response.getInput()).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"installing\": []," +
         "  \"updating\": []," +

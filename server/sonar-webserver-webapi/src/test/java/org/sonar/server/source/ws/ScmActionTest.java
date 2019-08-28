@@ -40,7 +40,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 
@@ -57,17 +57,16 @@ public class ScmActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private WsTester tester;
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
   private ComponentDto project;
   private ComponentDto file;
+  private ScmAction underTest = new ScmAction(dbClient, new SourceService(dbTester.getDbClient(), new HtmlSourceDecorator()),
+    userSessionRule, TestComponentFinder.from(dbTester));
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
-    tester = new WsTester(
-      new SourcesWs(new ScmAction(dbClient, new SourceService(dbTester.getDbClient(), new HtmlSourceDecorator()), userSessionRule, TestComponentFinder.from(dbTester))));
-
     project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), PROJECT_UUID);
     file = ComponentTesting.newFileDto(project, null, FILE_UUID).setDbKey(FILE_KEY);
     dbClient.componentDao().insert(dbTester.getSession(), project, file);
@@ -75,7 +74,7 @@ public class ScmActionTest {
   }
 
   @Test
-  public void show_scm() throws Exception {
+  public void show_scm() {
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
@@ -85,12 +84,14 @@ public class ScmActionTest {
         newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1)).build()));
     dbSession.commit();
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY);
-    request.execute().assertJson(getClass(), "show_scm.json");
+    tester.newRequest()
+      .setParam("key", FILE_KEY)
+      .execute()
+      .assertJson(getClass(), "show_scm.json");
   }
 
   @Test
-  public void show_scm_from_given_range_lines() throws Exception {
+  public void show_scm_from_given_range_lines() {
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
@@ -104,33 +105,16 @@ public class ScmActionTest {
         .build()));
     dbSession.commit();
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY).setParam("from", "2").setParam("to", "3");
-    request.execute().assertJson(getClass(), "show_scm_from_given_range_lines.json");
+    tester.newRequest()
+      .setParam("key", FILE_KEY)
+      .setParam("from", "2")
+      .setParam("to", "3")
+      .execute()
+      .assertJson(getClass(), "show_scm_from_given_range_lines.json");
   }
 
   @Test
-  public void not_group_lines_by_commit() throws Exception {
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
-
-    // lines 1 and 2 are the same commit, but not 3 (different date)
-    dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
-      .setProjectUuid(PROJECT_UUID)
-      .setFileUuid(FILE_UUID)
-      .setSourceData(DbFileSources.Data.newBuilder()
-        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1))
-        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 2))
-        .addLines(newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3))
-        .addLines(newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4))
-        .build()));
-    dbSession.commit();
-
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY).setParam("commits_by_line",
-      "true");
-    request.execute().assertJson(getClass(), "not_group_lines_by_commit.json");
-  }
-
-  @Test
-  public void group_lines_by_commit() throws Exception {
+  public void not_group_lines_by_commit() {
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     // lines 1 and 2 are the same commit, but not 3 (different date)
@@ -145,13 +129,38 @@ public class ScmActionTest {
         .build()));
     dbSession.commit();
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY).setParam("commits_by_line",
-      "false");
-    request.execute().assertJson(getClass(), "group_lines_by_commit.json");
+    tester.newRequest()
+      .setParam("key", FILE_KEY)
+      .setParam("commits_by_line","true")
+      .execute()
+      .assertJson(getClass(), "not_group_lines_by_commit.json");
   }
 
   @Test
-  public void accept_negative_value_in_from_parameter() throws Exception {
+  public void group_lines_by_commit() {
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
+
+    // lines 1 and 2 are the same commit, but not 3 (different date)
+    dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
+      .setProjectUuid(PROJECT_UUID)
+      .setFileUuid(FILE_UUID)
+      .setSourceData(DbFileSources.Data.newBuilder()
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1))
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 2))
+        .addLines(newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3))
+        .addLines(newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4))
+        .build()));
+    dbSession.commit();
+
+    tester.newRequest()
+      .setParam("key", FILE_KEY)
+      .setParam("commits_by_line","false")
+      .execute()
+      .assertJson(getClass(), "group_lines_by_commit.json");
+  }
+
+  @Test
+  public void accept_negative_value_in_from_parameter() {
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
@@ -165,13 +174,16 @@ public class ScmActionTest {
         .build()));
     dbSession.commit();
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY).setParam("from",
-      "-2").setParam("to", "3");
-    request.execute().assertJson(getClass(), "accept_negative_value_in_from_parameter.json");
+    tester.newRequest()
+      .setParam("key", FILE_KEY)
+      .setParam("from","-2")
+      .setParam("to", "3")
+      .execute()
+      .assertJson(getClass(), "accept_negative_value_in_from_parameter.json");
   }
 
   @Test
-  public void return_empty_value_when_no_scm() throws Exception {
+  public void return_empty_value_when_no_scm() {
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
@@ -180,20 +192,23 @@ public class ScmActionTest {
       .setSourceData(DbFileSources.Data.newBuilder().build()));
     dbSession.commit();
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY);
-    request.execute().assertJson(getClass(), "return_empty_value_when_no_scm.json");
+    tester.newRequest()
+      .setParam("key", FILE_KEY)
+      .execute()
+      .assertJson(getClass(), "return_empty_value_when_no_scm.json");
   }
 
   @Test(expected = ForbiddenException.class)
-  public void fail_without_code_viewer_permission() throws Exception {
+  public void fail_without_code_viewer_permission() {
     userSessionRule.addProjectPermission(UserRole.USER, project, file);
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY);
-    request.execute();
+    tester.newRequest()
+      .setParam("key", FILE_KEY)
+      .execute();
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
+  public void fail_when_using_branch_db_key() {
     ComponentDto project = dbTester.components().insertMainBranch();
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
@@ -201,7 +216,7 @@ public class ScmActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
 
-    tester.newGetRequest("api/sources", "scm")
+    tester.newRequest()
       .setParam("key", branch.getDbKey())
       .execute();
   }

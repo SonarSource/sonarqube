@@ -24,20 +24,22 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Controller;
-import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class NotificationsWsTest {
   private NotificationsWsAction action = new FakeNotificationAction();
   private NotificationsWsAction[] actions = {action};
-  private WsTester ws = new WsTester(new NotificationsWs(actions));
-
-  private Controller underTest = ws.controller("api/notifications");
+  private NotificationsWs underTest = new NotificationsWs(actions);
 
   @Test
   public void definition() {
-    assertThat(underTest.path()).isEqualTo("api/notifications");
+    WebService.Context context = new WebService.Context();
+
+    underTest.define(context);
+
+    Controller controller = context.controller("api/notifications");
+    assertThat(controller.path()).isEqualTo("api/notifications");
   }
 
   private static class FakeNotificationAction implements NotificationsWsAction {
