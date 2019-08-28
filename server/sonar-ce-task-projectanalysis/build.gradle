@@ -38,7 +38,6 @@ dependencies {
   
   compile project(':sonar-core')
   compile project(':server:sonar-ce-task')
-  compile project(':server:sonar-db-dao')
   compile project(':server:sonar-db-migration')
   compile project(':server:sonar-process')
   compile project(':server:sonar-server-common')

@@ -9,5 +9,5 @@ dependencies {
 
   compile 'com.h2database:h2'
   compile testFixtures(project(':server:sonar-db-core'))
-  compile project(':server:sonar-db-dao').sourceSets.test.output
+  compile testFixtures(project(':server:sonar-db-dao'))
 }

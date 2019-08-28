@@ -22,7 +22,6 @@ dependencies {
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
-  testCompile 'com.h2database:h2'
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
@@ -30,7 +29,6 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.sonarsource.orchestrator:sonar-orchestrator'
   testCompile project(':sonar-testing-harness')
-  testCompile testFixtures(project(':server:sonar-db-core'))
   testCompile project(':sonar-plugin-api-impl')
 
   testCompileOnly 'com.google.code.findbugs:jsr305'
@@ -39,6 +37,12 @@ dependencies {
   testRuntime 'com.microsoft.sqlserver:mssql-jdbc'
   testRuntime 'com.oracle.jdbc:ojdbc8'
   testRuntime 'org.postgresql:postgresql'
+
+  testFixturesApi testFixtures(project(':server:sonar-db-core'))
+
+  testFixturesImplementation 'com.h2database:h2'
+
+  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
 }
 
 test {

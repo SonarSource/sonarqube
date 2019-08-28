@@ -61,24 +61,24 @@ public class UserDbTester {
   // USERS
 
   public UserDto insertUser() {
-    return insertUser(newUserDto());
+    return insertUser(UserTesting.newUserDto());
   }
 
   public UserDto insertUser(String login) {
-    UserDto dto = newUserDto().setLogin(login).setActive(true);
+    UserDto dto = UserTesting.newUserDto().setLogin(login).setActive(true);
     return insertUser(dto);
   }
 
   @SafeVarargs
   public final UserDto insertUser(Consumer<UserDto>... populators) {
-    UserDto dto = newUserDto().setActive(true);
+    UserDto dto = UserTesting.newUserDto().setActive(true);
     stream(populators).forEach(p -> p.accept(dto));
     return insertUser(dto);
   }
 
   @SafeVarargs
   public final UserDto insertDisabledUser(Consumer<UserDto>... populators) {
-    UserDto dto = newDisabledUser();
+    UserDto dto = UserTesting.newDisabledUser();
     stream(populators).forEach(p -> p.accept(dto));
     return insertUser(dto);
   }
@@ -121,7 +121,7 @@ public class UserDbTester {
 
   @SafeVarargs
   public final UserPropertyDto insertUserSetting(UserDto user, Consumer<UserPropertyDto>... populators) {
-    UserPropertyDto dto = newUserSettingDto(user);
+    UserPropertyDto dto = UserTesting.newUserSettingDto(user);
     stream(populators).forEach(p -> p.accept(dto));
     dbClient.userPropertiesDao().insertOrUpdate(db.getSession(), dto);
     db.commit();
@@ -131,7 +131,7 @@ public class UserDbTester {
   // GROUPS
 
   public GroupDto insertGroup(OrganizationDto organization, String name) {
-    GroupDto group = newGroupDto().setName(name).setOrganizationUuid(organization.getUuid());
+    GroupDto group = GroupTesting.newGroupDto().setName(name).setOrganizationUuid(organization.getUuid());
     return insertGroup(group);
   }
 
@@ -139,7 +139,7 @@ public class UserDbTester {
    * Create group in default organization
    */
   public GroupDto insertGroup() {
-    GroupDto group = newGroupDto().setOrganizationUuid(db.getDefaultOrganization().getUuid());
+    GroupDto group = GroupTesting.newGroupDto().setOrganizationUuid(db.getDefaultOrganization().getUuid());
     return insertGroup(group);
   }
 
@@ -147,7 +147,7 @@ public class UserDbTester {
    * Create group in specified organization
    */
   public GroupDto insertGroup(OrganizationDto organizationDto) {
-    GroupDto group = newGroupDto().setOrganizationUuid(organizationDto.getUuid());
+    GroupDto group = GroupTesting.newGroupDto().setOrganizationUuid(organizationDto.getUuid());
     return insertGroup(group);
   }
 
@@ -170,11 +170,11 @@ public class UserDbTester {
   }
 
   public GroupDto insertDefaultGroup(OrganizationDto organization, String name) {
-    return insertDefaultGroup(newGroupDto().setName(name).setOrganizationUuid(organization.getUuid()));
+    return insertDefaultGroup(GroupTesting.newGroupDto().setName(name).setOrganizationUuid(organization.getUuid()));
   }
 
   public GroupDto insertDefaultGroup(OrganizationDto organization) {
-    return insertDefaultGroup(newGroupDto().setOrganizationUuid(organization.getUuid()));
+    return insertDefaultGroup(GroupTesting.newGroupDto().setOrganizationUuid(organization.getUuid()));
   }
 
   @CheckForNull
@@ -368,7 +368,7 @@ public class UserDbTester {
 
   @SafeVarargs
   public final UserTokenDto insertToken(UserDto user, Consumer<UserTokenDto>... populators) {
-    UserTokenDto dto = newUserToken().setUserUuid(user.getUuid());
+    UserTokenDto dto = UserTokenTesting.newUserToken().setUserUuid(user.getUuid());
     stream(populators).forEach(p -> p.accept(dto));
     db.getDbClient().userTokenDao().insert(db.getSession(), dto);
     db.commit();
