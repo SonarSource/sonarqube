@@ -4,12 +4,6 @@ sonarqube {
   }
 }
 
-configurations {
-  tests
-
-  testCompile.extendsFrom tests
-}
-
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
@@ -28,7 +22,6 @@ dependencies {
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'javax.servlet:javax.servlet-api'
 
-  testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'javax.servlet:javax.servlet-api'
   testCompile 'org.apache.logging.log4j:log4j-api'
@@ -38,14 +31,11 @@ dependencies {
   testCompile testFixtures(project(':server:sonar-server-common'))
   testCompile project(':sonar-testing-harness')
 
+  testCompileOnly  'com.google.code.findbugs:jsr305'
+
   runtime 'io.jsonwebtoken:jjwt-jackson'
-}
 
-task testJar(type: Jar) {
-  classifier = 'tests'
-  from sourceSets.test.output
-}
+  testFixturesApi 'junit:junit'
 
-artifacts {
-  tests testJar
+  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
 }

@@ -71,7 +71,7 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.subethamail:subethasmtp'
   testCompile testFixtures(project(':server:sonar-server-common'))
-  testCompile project(path: ":server:sonar-webserver-auth", configuration: "tests")
+  testCompile testFixtures(project(':server:sonar-webserver-auth'))
   testCompile project(path: ":server:sonar-webserver-es", configuration: "tests")
   testCompile testFixtures(project(':server:sonar-webserver-ws'))
   testCompile project(':sonar-testing-harness')

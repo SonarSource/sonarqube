@@ -26,6 +26,7 @@ import java.util.Optional;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.AbstractUserSession;
+import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
@@ -39,8 +40,8 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   private Integer userId;
   private String name;
   private List<GroupDto> groups = new ArrayList<>();
-  private IdentityProvider identityProvider;
-  private ExternalIdentity externalIdentity;
+  private UserSession.IdentityProvider identityProvider;
+  private UserSession.ExternalIdentity externalIdentity;
 
   public MockUserSession(String login) {
     super(MockUserSession.class);
@@ -59,7 +60,7 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     setUuid(userDto.getUuid());
     setUserId(userDto.getId());
     setName(userDto.getName());
-    AbstractUserSession.Identity identity = computeIdentity(userDto);
+    AbstractUserSession.Identity identity = AbstractUserSession.computeIdentity(userDto);
     this.identityProvider = identity.getIdentityProvider();
     this.externalIdentity = identity.getExternalIdentity();
   }
@@ -124,11 +125,11 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   }
 
   @Override
-  public Optional<IdentityProvider> getIdentityProvider() {
+  public Optional<UserSession.IdentityProvider> getIdentityProvider() {
     return Optional.ofNullable(identityProvider);
   }
 
-  public void setExternalIdentity(IdentityProvider identityProvider, ExternalIdentity externalIdentity) {
+  public void setExternalIdentity(UserSession.IdentityProvider identityProvider, UserSession.ExternalIdentity externalIdentity) {
     checkArgument(identityProvider != SONARQUBE);
     this.identityProvider = identityProvider;
     this.externalIdentity = requireNonNull(externalIdentity);
@@ -140,7 +141,7 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   }
 
   @Override
-  public Optional<ExternalIdentity> getExternalIdentity() {
+  public Optional<UserSession.ExternalIdentity> getExternalIdentity() {
     return Optional.ofNullable(externalIdentity);
   }
 
