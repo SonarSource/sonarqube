@@ -57,7 +57,7 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.reflections:reflections'
   testCompile project(':sonar-testing-harness')
-  testCompile project(path: ":server:sonar-ce-task", configuration: "tests")
+  testCompile testFixtures(project(':server:sonar-ce-task'))
   testCompile testFixtures(project(':server:sonar-server-common'))
 }
 

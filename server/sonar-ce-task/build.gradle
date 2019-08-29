@@ -24,8 +24,8 @@ dependencies {
 
   compile project(':server:sonar-server-common')
   compile project(':sonar-core')
-  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
 
+  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
   compileOnly 'com.google.code.findbugs:jsr305'
 
   testCompile 'ch.qos.logback:logback-access'
@@ -36,22 +36,13 @@ dependencies {
   testCompile 'junit:junit'
   testCompile 'org.apache.logging.log4j:log4j-api'
   testCompile 'org.apache.logging.log4j:log4j-core'
-  testCompile 'org.assertj:assertj-core'
   testCompile 'org.assertj:assertj-guava'
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.reflections:reflections'
   testCompile testFixtures(project(':server:sonar-db-dao'))
-}
 
-task testJar(type: Jar) {
-  classifier = 'tests'
-  from sourceSets.test.output
-}
+  testFixturesApi 'org.assertj:assertj-core'
+  testFixturesApi project(path: ':sonar-plugin-api', configuration: 'shadow')
 
-configurations {
-  tests
-}
-
-artifacts {
- tests testJar
+  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
 }
