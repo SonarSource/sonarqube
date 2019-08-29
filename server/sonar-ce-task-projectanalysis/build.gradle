@@ -14,11 +14,6 @@ sourceSets {
   }
 }
 
-configurations {
-  tests
-  testCompile.extendsFrom compileOnly
-}
-
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
@@ -54,18 +49,14 @@ dependencies {
   testCompile 'org.apache.logging.log4j:log4j-core'
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.assertj:assertj-guava'
-  testCompile 'org.mockito:mockito-core'
   testCompile 'org.reflections:reflections'
   testCompile project(':sonar-testing-harness')
-  testCompile testFixtures(project(':server:sonar-ce-task'))
   testCompile testFixtures(project(':server:sonar-server-common'))
-}
 
-task testJar(type: Jar) {
-  classifier = 'tests'
-  from sourceSets.test.output
-}
+  testFixturesApi 'junit:junit'
+  testFixturesApi 'org.assertj:assertj-core'
+  testFixturesApi 'org.mockito:mockito-core'
+  testFixturesApi testFixtures(project(':server:sonar-ce-task'))
 
-artifacts {
- tests testJar
+  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
 }
