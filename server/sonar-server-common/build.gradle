@@ -6,12 +6,6 @@ sonarqube {
   }
 }
 
-configurations {
-  tests
-
-  testCompile.extendsFrom tests
-}
-
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
@@ -32,10 +26,6 @@ dependencies {
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
-  // "tests" dependencies are pulled by other modules which depends on "tests" configuration, "testCompile" are not pulled
-  tests 'org.codelibs.elasticsearch.module:analysis-common'
-  tests 'org.elasticsearch:mocksocket'
-
   testCompile 'ch.qos.logback:logback-core'
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.squareup.okhttp3:mockwebserver'
@@ -51,13 +41,12 @@ dependencies {
   testCompile project(path: ':sonar-plugin-api', configuration: 'shadow')
   testCompile project(':sonar-plugin-api-impl')
   testCompile project(':sonar-testing-harness')
-}
+    
+  testFixturesApi 'junit:junit'
+  testFixturesApi testFixtures(project(':server:sonar-db-dao'))
 
-task testJar(type: Jar) {
-  classifier = 'tests'
-  from sourceSets.test.output
-}
+  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
 
-artifacts {
-  tests testJar
+  testFixturesImplementation 'org.codelibs.elasticsearch.module:analysis-common'
+  testFixturesImplementation 'org.elasticsearch:mocksocket'
 }

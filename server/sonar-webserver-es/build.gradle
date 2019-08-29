@@ -27,9 +27,8 @@ dependencies {
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'org.mockito:mockito-core'
-  testCompile testFixtures(project(':server:sonar-db-dao'))
   testCompile project(path: ":server:sonar-webserver-auth", configuration: "tests")
-  testCompile project(path: ":server:sonar-server-common", configuration: "tests")
+  testCompile testFixtures(project(':server:sonar-server-common'))
   testCompile project(':sonar-testing-harness')
 }
 

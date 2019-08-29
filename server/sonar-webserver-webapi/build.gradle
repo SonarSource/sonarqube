@@ -33,8 +33,7 @@ dependencies {
   testCompile 'com.squareup.okhttp3:mockwebserver'
   testCompile 'javax.servlet:javax.servlet-api'
   testCompile 'org.mockito:mockito-core'
-  testCompile testFixtures(project(':server:sonar-db-dao'))
-  testCompile project(path: ":server:sonar-server-common", configuration: "tests")
+  testCompile testFixtures(project(':server:sonar-server-common'))
   testCompile project(path: ":server:sonar-webserver-auth", configuration: "tests")
   testCompile project(path: ":server:sonar-webserver-es", configuration: "tests")
   testCompile testFixtures(project(':server:sonar-webserver-ws'))

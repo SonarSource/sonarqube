@@ -26,8 +26,7 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.eclipse.jetty:jetty-server'
   testCompile 'org.eclipse.jetty:jetty-servlet'
-  testCompile testFixtures(project(':server:sonar-db-dao'))
-  testCompile project(path: ":server:sonar-server-common", configuration: "tests")
+  testCompile testFixtures(project(':server:sonar-server-common'))
   testCompile project(path: ":server:sonar-webserver-auth", configuration: "tests")
   testCompile project(path: ":server:sonar-webserver-es", configuration: "tests")
   testCompile project(':sonar-testing-harness')

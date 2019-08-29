@@ -50,17 +50,15 @@ dependencies {
 
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'junit:junit'
   testCompile 'org.apache.logging.log4j:log4j-api'
   testCompile 'org.apache.logging.log4j:log4j-core'
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.assertj:assertj-guava'
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.reflections:reflections'
-  testCompile testFixtures(project(':server:sonar-db-dao'))
   testCompile project(':sonar-testing-harness')
   testCompile project(path: ":server:sonar-ce-task", configuration: "tests")
-  testCompile project(path: ":server:sonar-server-common", configuration: "tests")
+  testCompile testFixtures(project(':server:sonar-server-common'))
 }
 
 task testJar(type: Jar) {

@@ -51,6 +51,5 @@ dependencies {
   testCompile 'org.assertj:assertj-guava'
   testCompile 'org.hamcrest:hamcrest-all'
   testCompile project(':sonar-plugin-api-impl')
-  testCompile testFixtures(project(':server:sonar-db-dao'))
-  testCompile project(path: ":server:sonar-server-common", configuration: "tests")
+  testCompile testFixtures(project(':server:sonar-server-common'))
 }
