@@ -63,7 +63,7 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 public class SchedulerImplTest {
 
   @Rule
-  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(300));
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
