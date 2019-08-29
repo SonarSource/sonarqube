@@ -29,7 +29,7 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile testFixtures(project(':server:sonar-server-common'))
   testCompile testFixtures(project(':server:sonar-webserver-auth'))
-  testCompile project(path: ":server:sonar-webserver-es", configuration: "tests")
+  testCompile testFixtures(project(':server:sonar-webserver-es'))
   testCompile testFixtures(project(':server:sonar-webserver-ws'))
   testCompile project(':sonar-testing-harness')
 }

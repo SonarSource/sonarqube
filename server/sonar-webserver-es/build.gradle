@@ -4,12 +4,6 @@ sonarqube {
   }
 }
 
-configurations {
-  tests
-
-  testCompile.extendsFrom tests
-}
-
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
@@ -28,15 +22,7 @@ dependencies {
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'org.mockito:mockito-core'
   testCompile testFixtures(project(':server:sonar-webserver-auth'))
-  testCompile testFixtures(project(':server:sonar-server-common'))
   testCompile project(':sonar-testing-harness')
-}
-
-task testJar(type: Jar) {
-  classifier = 'tests'
-  from sourceSets.test.output
-}
-
-artifacts {
-  tests testJar
+    
+  testFixturesApi testFixtures(project(':server:sonar-server-common'))
 }
