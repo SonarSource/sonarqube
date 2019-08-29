@@ -28,6 +28,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class NewCodePeriodDao implements Dao {
@@ -45,7 +46,7 @@ public class NewCodePeriodDao implements Dao {
   }
 
   public Optional<NewCodePeriodDto> selectGlobal(DbSession dbSession) {
-    return Optional.ofNullable(mapper(dbSession).selectGlobal());
+    return ofNullable(mapper(dbSession).selectGlobal());
   }
 
   public void insert(DbSession dbSession, NewCodePeriodDto dto) {
@@ -53,7 +54,7 @@ public class NewCodePeriodDao implements Dao {
     long currentTime = system2.now();
     mapper(dbSession).insert(dto.setCreatedAt(currentTime)
       .setUpdatedAt(currentTime)
-      .setUuid(uuidFactory.create()));
+      .setUuid(ofNullable(dto.getUuid()).orElse(uuidFactory.create())));
   }
 
   public void upsert(DbSession dbSession, NewCodePeriodDto dto) {
@@ -74,7 +75,7 @@ public class NewCodePeriodDao implements Dao {
 
   public Optional<NewCodePeriodDto> selectByProject(DbSession dbSession, String projectUuid) {
     requireNonNull(projectUuid, MSG_PROJECT_UUID_NOT_SPECIFIED);
-    return Optional.ofNullable(mapper(dbSession).selectByProject(projectUuid));
+    return ofNullable(mapper(dbSession).selectByProject(projectUuid));
   }
 
   public List<NewCodePeriodDto> selectAllByProject(DbSession dbSession, String projectUuid) {
@@ -85,7 +86,7 @@ public class NewCodePeriodDao implements Dao {
   public Optional<NewCodePeriodDto> selectByBranch(DbSession dbSession, String projectUuid, String branchUuid) {
     requireNonNull(projectUuid, MSG_PROJECT_UUID_NOT_SPECIFIED);
     requireNonNull(branchUuid, "Branch uuid must be specified.");
-    return Optional.ofNullable(mapper(dbSession).selectByBranch(projectUuid, branchUuid));
+    return ofNullable(mapper(dbSession).selectByBranch(projectUuid, branchUuid));
   }
 
   public boolean existsByProjectAnalysisUuid(DbSession dbSession, String projectAnalysisUuid) {
