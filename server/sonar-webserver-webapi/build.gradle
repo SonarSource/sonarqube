@@ -4,12 +4,6 @@ sonarqube {
   }
 }
 
-configurations {
-  tests
-
-  testCompile.extendsFrom tests
-}
-
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
@@ -40,11 +34,3 @@ dependencies {
   testCompile project(':sonar-testing-harness')
 }
 
-task testJar(type: Jar) {
-  classifier = 'tests'
-  from sourceSets.test.output
-}
-
-artifacts {
-  tests testJar
-}
