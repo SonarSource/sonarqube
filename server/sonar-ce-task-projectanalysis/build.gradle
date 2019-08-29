@@ -57,7 +57,7 @@ dependencies {
   testCompile 'org.assertj:assertj-guava'
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.reflections:reflections'
-  testCompile project(':server:sonar-db-testing')
+  testCompile testFixtures(project(':server:sonar-db-dao'))
   testCompile project(':sonar-testing-harness')
   testCompile project(path: ":server:sonar-ce-task", configuration: "tests")
   testCompile project(path: ":server:sonar-server-common", configuration: "tests")

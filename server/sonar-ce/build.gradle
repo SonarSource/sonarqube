@@ -35,6 +35,6 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.slf4j:slf4j-api'
   
-  testCompile project(':server:sonar-db-testing')
+  testCompile testFixtures(project(':server:sonar-db-dao'))
 
 }
