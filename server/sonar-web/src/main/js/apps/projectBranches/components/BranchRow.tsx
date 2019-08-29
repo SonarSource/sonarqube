@@ -20,7 +20,6 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import ActionsDropdown, {
-  ActionsDropdownDivider,
   ActionsDropdownItem
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -29,13 +28,11 @@ import BranchIcon from '../../../components/icons-components/BranchIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import {
   getBranchLikeDisplayName,
-  isLongLivingBranch,
   isMainBranch,
   isPullRequest,
   isShortLivingBranch
 } from '../../../helpers/branches';
 import DeleteBranchModal from './DeleteBranchModal';
-import LeakPeriodForm from './LeakPeriodForm';
 import RenameBranchModal from './RenameBranchModal';
 
 interface Props {
@@ -46,14 +43,13 @@ interface Props {
 }
 
 interface State {
-  changingLeak: boolean;
   deleting: boolean;
   renaming: boolean;
 }
 
 export default class BranchRow extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { changingLeak: false, deleting: false, renaming: false };
+  state: State = { deleting: false, renaming: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -86,29 +82,11 @@ export default class BranchRow extends React.PureComponent<Props, State> {
     this.setState({ renaming: false });
   };
 
-  handleChangeLeakClick = () => {
-    this.setState({ changingLeak: true });
-  };
-
-  handleChangingLeakStop = () => {
-    if (this.mounted) {
-      this.setState({ changingLeak: false });
-    }
-  };
-
   renderActions() {
     const { branchLike, component } = this.props;
     return (
       <td className="thin nowrap text-right">
         <ActionsDropdown className="ig-spacer-left">
-          {isLongLivingBranch(branchLike) && (
-            <ActionsDropdownItem
-              className="js-change-leak-period"
-              onClick={this.handleChangeLeakClick}>
-              {translate('branches.set_new_code_period')}
-            </ActionsDropdownItem>
-          )}
-          {isLongLivingBranch(branchLike) && <ActionsDropdownDivider />}
           {isMainBranch(branchLike) ? (
             <ActionsDropdownItem className="js-rename" onClick={this.handleRenameClick}>
               {translate('branches.rename')}
@@ -140,14 +118,6 @@ export default class BranchRow extends React.PureComponent<Props, State> {
             component={component}
             onClose={this.handleRenamingStop}
             onRename={this.handleChange}
-          />
-        )}
-
-        {this.state.changingLeak && isLongLivingBranch(branchLike) && (
-          <LeakPeriodForm
-            branch={branchLike.name}
-            onClose={this.handleChangingLeakStop}
-            project={component}
           />
         )}
       </td>
