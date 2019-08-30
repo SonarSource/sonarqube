@@ -194,7 +194,6 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     } catch (RuntimeException e) {
       // failed to start command -> stop everything
       hardStop();
-      throw e;
     }
   }
 
