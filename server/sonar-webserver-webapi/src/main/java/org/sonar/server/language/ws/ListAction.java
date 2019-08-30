@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -41,7 +40,7 @@ import org.sonar.server.ws.WsAction;
 /**
  * @since 5.1
  */
-public class ListAction implements RequestHandler, WsAction {
+public class ListAction implements WsAction {
 
   private static final String MATCH_ALL = ".*";
   private final Languages languages;
