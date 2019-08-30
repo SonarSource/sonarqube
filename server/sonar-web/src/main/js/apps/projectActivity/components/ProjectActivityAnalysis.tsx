@@ -28,7 +28,6 @@ import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
-import { ParsedAnalysis } from '../utils';
 import Events from './Events';
 import AddEventForm from './forms/AddEventForm';
 import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
@@ -36,7 +35,7 @@ import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
 interface Props {
   addCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
   addVersion: (analysis: string, version: string) => Promise<void>;
-  analysis: ParsedAnalysis;
+  analysis: T.ParsedAnalysis;
   canAdmin?: boolean;
   canDeleteAnalyses?: boolean;
   canCreateVersion: boolean;

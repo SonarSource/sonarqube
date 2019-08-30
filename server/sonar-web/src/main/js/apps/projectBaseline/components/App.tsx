@@ -25,16 +25,19 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getNewCodePeriod, resetNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
 import '../styles.css';
+import { getSettingValue } from '../utils';
 import BranchList from './BranchList';
 import ProjectBaselineSelector from './ProjectBaselineSelector';
 
 interface Props {
   branchLikes: T.BranchLike[];
+  branchesEnabled?: boolean;
   canAdmin?: boolean;
   component: T.Component;
 }
 
 interface State {
+  analysis?: string;
   currentSetting?: T.NewCodePeriodSettingType;
   currentSettingValue?: string;
   days: string;
@@ -65,9 +68,34 @@ export default class App extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
+  getUpdatedState(params: {
+    currentSetting?: T.NewCodePeriodSettingType;
+    currentSettingValue?: string;
+    generalSetting: T.NewCodePeriod;
+  }) {
+    const { currentSetting, currentSettingValue, generalSetting } = params;
+
+    return {
+      loading: false,
+      currentSetting,
+      currentSettingValue,
+      generalSetting,
+      selected: currentSetting,
+      days: currentSetting === 'NUMBER_OF_DAYS' ? currentSettingValue || '30' : '',
+      analysis: (currentSetting === 'SPECIFIC_ANALYSIS' && currentSettingValue) || ''
+    };
+  }
+
   fetchLeakPeriodSetting() {
     this.setState({ loading: true });
-    Promise.all([getNewCodePeriod(), getNewCodePeriod({ project: this.props.component.key })]).then(
+
+    Promise.all([
+      getNewCodePeriod(),
+      getNewCodePeriod({
+        branch: this.props.branchesEnabled ? 'master' : undefined,
+        project: this.props.component.key
+      })
+    ]).then(
       ([generalSetting, setting]) => {
         if (this.mounted) {
           if (!generalSetting.type) {
@@ -75,22 +103,10 @@ export default class App extends React.PureComponent<Props, State> {
           }
           const currentSettingValue = setting.value;
           const currentSetting = setting.inherited ? undefined : setting.type || 'PREVIOUS_VERSION';
-          const newState = {
-            loading: false,
-            currentSetting,
-            currentSettingValue,
-            generalSetting,
-            selected: currentSetting
-          };
 
-          if (currentSetting === 'NUMBER_OF_DAYS') {
-            this.setState({
-              days: currentSettingValue || '30',
-              ...newState
-            });
-          } else {
-            this.setState(newState);
-          }
+          this.setState(
+            this.getUpdatedState({ generalSetting, currentSetting, currentSettingValue })
+          );
         }
       },
       () => {
@@ -115,6 +131,8 @@ export default class App extends React.PureComponent<Props, State> {
     );
   };
 
+  handleSelectAnalysis = (analysis: T.ParsedAnalysis) => this.setState({ analysis: analysis.key });
+
   handleSelectDays = (days: string) => this.setState({ days });
 
   handleSelectSetting = (selected?: T.NewCodePeriodSettingType) => this.setState({ selected });
@@ -123,10 +141,9 @@ export default class App extends React.PureComponent<Props, State> {
     e.preventDefault();
 
     const { component } = this.props;
-    const { days, selected } = this.state;
+    const { analysis, days, selected: type } = this.state;
 
-    const type = selected;
-    const value = type === 'NUMBER_OF_DAYS' ? days : undefined;
+    const value = getSettingValue({ type, analysis, days });
 
     if (type) {
       this.setState({ saving: true });
@@ -196,7 +213,9 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   render() {
+    const { branchLikes, branchesEnabled, component } = this.props;
     const {
+      analysis,
       currentSetting,
       days,
       generalSetting,
@@ -213,21 +232,23 @@ export default class App extends React.PureComponent<Props, State> {
           <DeferredSpinner />
         ) : (
           <div className="panel panel-white">
-            <h2>{translate('project_baseline.default_setting')}</h2>
-            <p>{translate('project_baseline.default_setting.description')}</p>
+            {branchesEnabled && (
+              <>
+                <h2>{translate('project_baseline.default_setting')}</h2>
+                <p>{translate('project_baseline.default_setting.description')}</p>
+              </>
+            )}
 
             {generalSetting && (
               <div className="text-right spacer-bottom">
                 {currentSetting && (
                   <>
-                    <Button
-                      className="spacer-right little-spacer-bottom"
-                      onClick={this.resetSetting}>
+                    <Button className="little-spacer-bottom" onClick={this.resetSetting}>
                       {translate('project_baseline.reset_to_general')}
                     </Button>
                   </>
                 )}
-                <div className="spacer-top spacer-right medium">
+                <div className="spacer-top medium">
                   <strong>{translate('project_baseline.general_setting')}: </strong>
                   {this.renderGeneralSetting(generalSetting)}
                 </div>
@@ -235,19 +256,23 @@ export default class App extends React.PureComponent<Props, State> {
             )}
 
             <ProjectBaselineSelector
+              analysis={analysis}
+              branchesEnabled={branchesEnabled}
+              component={component.key}
               currentSetting={currentSetting}
               currentSettingValue={currentSettingValue}
               days={days}
+              onSelectAnalysis={this.handleSelectAnalysis}
               onSelectDays={this.handleSelectDays}
               onSelectSetting={this.handleSelectSetting}
               onSubmit={this.handleSubmit}
               saving={saving}
               selected={selected}
             />
-            {generalSetting && (
+            {generalSetting && branchesEnabled && (
               <BranchList
-                branchLikes={this.props.branchLikes}
-                component={this.props.component}
+                branchLikes={branchLikes}
+                component={component}
                 inheritedSetting={
                   currentSetting
                     ? {

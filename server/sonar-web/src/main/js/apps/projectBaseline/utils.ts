@@ -22,3 +22,44 @@ export function validateDays(days: string) {
 
   return !(days.length < 1 || isNaN(parsed) || parsed < 1 || String(parsed) !== days);
 }
+
+export function getSettingValue({
+  analysis,
+  days,
+  type
+}: {
+  analysis?: string;
+  days?: string;
+  type?: T.NewCodePeriodSettingType;
+}) {
+  switch (type) {
+    case 'NUMBER_OF_DAYS':
+      return days;
+    case 'SPECIFIC_ANALYSIS':
+      return analysis;
+    default:
+      return undefined;
+  }
+}
+
+export function validateSetting(state: {
+  analysis?: string;
+  currentSetting?: T.NewCodePeriodSettingType;
+  currentSettingValue?: string;
+  days: string;
+  selected?: T.NewCodePeriodSettingType;
+}) {
+  const { analysis = '', currentSetting, currentSettingValue, days, selected } = state;
+
+  const isChanged =
+    selected !== currentSetting ||
+    (selected === 'NUMBER_OF_DAYS' && days !== currentSettingValue) ||
+    (selected === 'SPECIFIC_ANALYSIS' && analysis !== currentSettingValue);
+
+  const isValid =
+    selected === 'PREVIOUS_VERSION' ||
+    (selected === 'SPECIFIC_ANALYSIS' && analysis.length > 0) ||
+    (selected === 'NUMBER_OF_DAYS' && validateDays(days));
+
+  return { isChanged, isValid };
+}

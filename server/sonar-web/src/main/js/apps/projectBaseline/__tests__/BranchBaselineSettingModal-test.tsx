@@ -88,26 +88,6 @@ it('should disable the save button when date is invalid', () => {
   ).toBe(true);
 });
 
-describe('getSettingValue', () => {
-  const wrapper = shallowRender();
-  wrapper.setState({ analysis: 'analysis1', days: '35' });
-
-  it('should work for Days', () => {
-    wrapper.setState({ selected: 'NUMBER_OF_DAYS' });
-    expect(wrapper.instance().getSettingValue()).toBe('35');
-  });
-
-  it('should work for Analysis', () => {
-    wrapper.setState({ selected: 'SPECIFIC_ANALYSIS' });
-    expect(wrapper.instance().getSettingValue()).toBe('analysis1');
-  });
-
-  it('should work for Previous version', () => {
-    wrapper.setState({ selected: 'PREVIOUS_VERSION' });
-    expect(wrapper.instance().getSettingValue()).toBeUndefined();
-  });
-});
-
 function shallowRender(props: Partial<BranchBaselineSettingModal['props']> = {}) {
   return shallow<BranchBaselineSettingModal>(
     <BranchBaselineSettingModal

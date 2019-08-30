@@ -29,7 +29,6 @@ import {
   historyQueryChanged,
   isCustomGraph,
   MeasureHistory,
-  ParsedAnalysis,
   Point,
   PROJECT_ACTIVITY_GRAPH,
   PROJECT_ACTIVITY_GRAPH_CUSTOM,
@@ -42,7 +41,7 @@ import GraphsZoom from './GraphsZoom';
 import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
 
 interface Props {
-  analyses: ParsedAnalysis[];
+  analyses: T.ParsedAnalysis[];
   leakPeriodDate?: Date;
   loading: boolean;
   measuresHistory: MeasureHistory[];

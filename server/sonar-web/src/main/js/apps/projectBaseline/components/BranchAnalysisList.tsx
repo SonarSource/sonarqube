@@ -30,17 +30,17 @@ import { getProjectActivity } from '../../../api/projectActivity';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
 import Events from '../../projectActivity/components/Events';
-import { getAnalysesByVersionByDay, ParsedAnalysis } from '../../projectActivity/utils';
+import { getAnalysesByVersionByDay } from '../../projectActivity/utils';
 
 interface Props {
   analysis: string;
   branch: string;
   component: string;
-  onSelectAnalysis: (analysis: ParsedAnalysis) => void;
+  onSelectAnalysis: (analysis: T.ParsedAnalysis) => void;
 }
 
 interface State {
-  analyses: ParsedAnalysis[];
+  analyses: T.ParsedAnalysis[];
   loading: boolean;
   range: number;
   scroll: number;
@@ -90,7 +90,7 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
         analyses: result.analyses.map(analysis => ({
           ...analysis,
           date: parseDate(analysis.date)
-        })) as ParsedAnalysis[],
+        })) as T.ParsedAnalysis[],
         loading: false
       });
     });

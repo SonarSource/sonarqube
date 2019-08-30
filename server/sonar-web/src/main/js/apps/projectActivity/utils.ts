@@ -32,8 +32,6 @@ import {
 } from 'sonar-ui-common/helpers/query';
 import { get } from 'sonar-ui-common/helpers/storage';
 
-export type ParsedAnalysis = T.Omit<T.Analysis, 'date'> & { date: Date };
-
 export interface Query {
   category: string;
   customMetrics: string[];
@@ -193,12 +191,12 @@ export function getSeriesMetricType(series: Serie[]) {
 }
 
 interface AnalysesByDay {
-  byDay: T.Dict<ParsedAnalysis[]>;
+  byDay: T.Dict<T.ParsedAnalysis[]>;
   version: string | null;
   key: string | null;
 }
 
-export function getAnalysesByVersionByDay(analyses: ParsedAnalysis[], query: Query) {
+export function getAnalysesByVersionByDay(analyses: T.ParsedAnalysis[], query: Query) {
   return analyses.reduce<AnalysesByDay[]>((acc, analysis) => {
     let currentVersion = acc[acc.length - 1];
     const versionEvent = analysis.events.find(event => event.category === 'VERSION');

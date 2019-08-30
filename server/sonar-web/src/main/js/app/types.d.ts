@@ -52,13 +52,20 @@ declare namespace T {
     name: string;
   }
 
-  export interface Analysis {
+  interface BaseAnalysis {
     buildString?: string;
-    date: string;
     events: AnalysisEvent[];
     key: string;
     manualNewCodePeriodBaseline?: boolean;
     projectVersion?: string;
+  }
+
+  export interface Analysis extends BaseAnalysis {
+    date: string;
+  }
+
+  export interface ParsedAnalysis extends BaseAnalysis {
+    date: Date;
   }
 
   export interface AnalysisEvent {
@@ -507,6 +514,7 @@ declare namespace T {
     type?: NewCodePeriodSettingType;
     value?: string;
     effectiveValue?: string;
+    inherited?: boolean;
   }
 
   export interface NewCodePeriodBranch {

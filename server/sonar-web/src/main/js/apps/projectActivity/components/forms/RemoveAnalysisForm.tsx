@@ -20,10 +20,9 @@
 import * as React from 'react';
 import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { ParsedAnalysis } from '../../utils';
 
 interface Props {
-  analysis: ParsedAnalysis;
+  analysis: T.ParsedAnalysis;
   deleteAnalysis: (analysis: string) => Promise<void>;
   onClose: () => void;
 }

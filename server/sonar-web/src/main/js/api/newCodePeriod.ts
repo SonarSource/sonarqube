@@ -23,7 +23,7 @@ import throwGlobalError from '../app/utils/throwGlobalError';
 export function getNewCodePeriod(data?: {
   project?: string;
   branch?: string;
-}): Promise<{ type: T.NewCodePeriodSettingType; inherited?: boolean; value?: string }> {
+}): Promise<T.Omit<T.NewCodePeriod, 'effectiveValue'>> {
   return getJSON('/api/new_code_periods/show', data).catch(throwGlobalError);
 }
 

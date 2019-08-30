@@ -6,21 +6,96 @@ exports[`should render correctly 1`] = `
   onSubmit={[MockFunction]}
 >
   <div
-    className="display-flex-row big-spacer-bottom"
-    role="radiogroup"
+    className="branch-baseline-setting-modal"
   >
-    <BaselineSettingPreviousVersion
-      onSelect={[MockFunction]}
-      selected={false}
+    <div
+      className="display-flex-row big-spacer-bottom"
+      role="radiogroup"
+    >
+      <BaselineSettingPreviousVersion
+        onSelect={[MockFunction]}
+        selected={false}
+      />
+      <BaselineSettingDays
+        days="12"
+        isChanged={false}
+        isValid={false}
+        onChangeDays={[MockFunction]}
+        onSelect={[MockFunction]}
+        selected={false}
+      />
+    </div>
+  </div>
+  <div
+    className="big-spacer-top invisible"
+  >
+    <p
+      className="spacer-bottom"
+    >
+      baseline.next_analysis_notice
+    </p>
+    <DeferredSpinner
+      className="spacer-right"
+      loading={false}
+      timeout={100}
     />
-    <BaselineSettingDays
-      days="12"
-      isChanged={false}
-      isValid={true}
-      onChangeDays={[MockFunction]}
-      onSelect={[MockFunction]}
-      selected={false}
+    <SubmitButton
+      disabled={true}
+    >
+      save
+    </SubmitButton>
+  </div>
+</form>
+`;
+
+exports[`should render correctly 2`] = `
+<form
+  className="project-baseline-selector"
+  onSubmit={[MockFunction]}
+>
+  <div
+    className="branch-baseline-setting-modal"
+  >
+    <div
+      className="display-flex-row big-spacer-bottom"
+      role="radiogroup"
+    >
+      <BaselineSettingPreviousVersion
+        onSelect={[MockFunction]}
+        selected={false}
+      />
+      <BaselineSettingDays
+        days="12"
+        isChanged={false}
+        isValid={false}
+        onChangeDays={[MockFunction]}
+        onSelect={[MockFunction]}
+        selected={false}
+      />
+      <BaselineSettingAnalysis
+        onSelect={[MockFunction]}
+        selected={false}
+      />
+    </div>
+  </div>
+  <div
+    className="big-spacer-top invisible"
+  >
+    <p
+      className="spacer-bottom"
+    >
+      baseline.next_analysis_notice
+    </p>
+    <DeferredSpinner
+      className="spacer-right"
+      loading={false}
+      timeout={100}
     />
+    <SubmitButton
+      disabled={true}
+    >
+      save
+    </SubmitButton>
   </div>
 </form>
 `;

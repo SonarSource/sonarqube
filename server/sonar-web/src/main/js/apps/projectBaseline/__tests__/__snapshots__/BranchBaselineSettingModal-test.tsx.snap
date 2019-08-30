@@ -17,7 +17,7 @@ exports[`should render correctly 1`] = `
     onSubmit={[Function]}
   >
     <div
-      className="modal-body branch-baseline-setting-modal"
+      className="modal-body modal-container branch-baseline-setting-modal"
     >
       <div
         className="display-flex-row huge-spacer-bottom"

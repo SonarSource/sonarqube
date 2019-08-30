@@ -22,7 +22,6 @@ import { Location } from 'history';
 import { InjectedRouter } from 'react-router';
 import { createStore, Store } from 'redux';
 import { DocumentationEntry } from '../apps/documentation/utils';
-import { ParsedAnalysis } from '../apps/projectActivity/utils';
 import { Profile } from '../apps/quality-profiles/types';
 
 export function mockAlmApplication(overrides: Partial<T.AlmApplication> = {}): T.AlmApplication {
@@ -61,7 +60,7 @@ export function mockAnalysis(overrides: Partial<T.Analysis> = {}): T.Analysis {
   };
 }
 
-export function mockParsedAnalysis(overrides: Partial<ParsedAnalysis> = {}): ParsedAnalysis {
+export function mockParsedAnalysis(overrides: Partial<T.ParsedAnalysis> = {}): T.ParsedAnalysis {
   return {
     date: new Date('2017-03-01T09:37:01+0100'),
     events: [],

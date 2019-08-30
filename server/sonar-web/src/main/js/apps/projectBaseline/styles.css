@@ -18,13 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-.project-baseline-selector {
-  height: 300px;
+.project-baseline-selector > .branch-baseline-setting-modal {
+  max-height: 60vh;
+  padding-top: 2px;
 }
 
 .branch-baseline-setting-modal {
-  height: 60vh;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -34,6 +33,7 @@
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  min-height: 200px;
 }
 
 .branch-analysis-list {
@@ -100,10 +100,6 @@
   z-index: var(--belowNormalZIndex);
 }
 
-.branch-analysis-version-badge.sticky + .branch-analysis-days-list {
-  padding-top: 36px;
-}
-
 .branch-analysis-version-badge .badge {
   max-width: 385px;
   border-radius: 0 2px 2px 0;
@@ -132,4 +128,8 @@
 
 .project-activity-event-icon.OTHER {
   color: #442d1b;
+}
+
+.invisible {
+  visibility: hidden;
 }

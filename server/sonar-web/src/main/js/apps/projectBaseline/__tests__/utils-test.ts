@@ -17,13 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import { getAppState, Store } from '../../../store/rootReducer';
-import App from './App';
+import { getSettingValue } from '../utils';
 
-const mapStateToProps = (state: Store) => ({
-  branchesEnabled: getAppState(state).branchesEnabled,
-  canAdmin: getAppState(state).canAdmin
+describe('getSettingValue', () => {
+  it('should work for Days', () => {
+    expect(getSettingValue({ analysis: 'analysis', days: '35', type: 'NUMBER_OF_DAYS' })).toBe(
+      '35'
+    );
+  });
+
+  it('should work for Analysis', () => {
+    expect(getSettingValue({ analysis: 'analysis1', days: '35', type: 'SPECIFIC_ANALYSIS' })).toBe(
+      'analysis1'
+    );
+  });
+
+  it('should work for Previous version', () => {
+    expect(
+      getSettingValue({ analysis: 'analysis1', days: '35', type: 'PREVIOUS_VERSION' })
+    ).toBeUndefined();
+  });
 });
-
-export default connect(mapStateToProps)(App);

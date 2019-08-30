@@ -25,6 +25,7 @@ import ProjectBaselineSelector, {
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ branchesEnabled: false })).toMatchSnapshot();
 });
 
 it('should not show save button when unchanged', () => {
@@ -32,7 +33,12 @@ it('should not show save button when unchanged', () => {
     currentSetting: 'PREVIOUS_VERSION',
     selected: 'PREVIOUS_VERSION'
   });
-  expect(wrapper.find('SubmitButton')).toHaveLength(0);
+  expect(
+    wrapper
+      .find('SubmitButton')
+      .parent()
+      .hasClass('invisible')
+  ).toBe(true);
 });
 
 it('should show save button when changed', () => {
@@ -84,7 +90,10 @@ it('should disable the save button when date is invalid', () => {
 function shallowRender(props: Partial<ProjectBaselineSelectorProps> = {}) {
   return shallow(
     <ProjectBaselineSelector
+      branchesEnabled={true}
+      component=""
       days="12"
+      onSelectAnalysis={jest.fn()}
       onSelectDays={jest.fn()}
       onSelectSetting={jest.fn()}
       onSubmit={jest.fn()}

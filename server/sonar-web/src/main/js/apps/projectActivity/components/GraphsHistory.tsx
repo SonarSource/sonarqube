@@ -26,13 +26,12 @@ import {
   hasHistoryData,
   isCustomGraph,
   MeasureHistory,
-  ParsedAnalysis,
   Serie
 } from '../utils';
 import GraphHistory from './GraphHistory';
 
 interface Props {
-  analyses: ParsedAnalysis[];
+  analyses: T.ParsedAnalysis[];
   eventFilter: string;
   graph: string;
   graphs: Serie[][];

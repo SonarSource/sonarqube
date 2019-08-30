@@ -33,7 +33,6 @@ import {
   getProjectActivityGraph,
   isCustomGraph,
   MeasureHistory,
-  ParsedAnalysis,
   parseQuery,
   Query,
   serializeQuery,
@@ -49,7 +48,7 @@ interface Props {
 }
 
 export interface State {
-  analyses: ParsedAnalysis[];
+  analyses: T.ParsedAnalysis[];
   analysesLoading: boolean;
   graphLoading: boolean;
   initialized: boolean;
@@ -158,7 +157,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
         analyses: analyses.map(analysis => ({
           ...analysis,
           date: parseDate(analysis.date)
-        })) as ParsedAnalysis[],
+        })) as T.ParsedAnalysis[],
         paging
       }));
   };
@@ -204,8 +203,8 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
 
   loadAllActivities = (
     project: string,
-    prevResult?: { analyses: ParsedAnalysis[]; paging: T.Paging }
-  ): Promise<{ analyses: ParsedAnalysis[]; paging: T.Paging }> => {
+    prevResult?: { analyses: T.ParsedAnalysis[]; paging: T.Paging }
+  ): Promise<{ analyses: T.ParsedAnalysis[]; paging: T.Paging }> => {
     if (
       prevResult &&
       prevResult.paging.pageIndex * prevResult.paging.pageSize >= prevResult.paging.total

@@ -24,8 +24,7 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { toNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { setNewCodePeriod } from '../../../api/newCodePeriod';
-import { ParsedAnalysis } from '../../projectActivity/utils';
-import { validateDays } from '../utils';
+import { getSettingValue, validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
 import BaselineSettingDays from './BaselineSettingDays';
 import BaselineSettingPreviousVersion from './BaselineSettingPreviousVersion';
@@ -73,24 +72,13 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
       : null;
   }
 
-  getSettingValue() {
-    switch (this.state.selected) {
-      case 'NUMBER_OF_DAYS':
-        return this.state.days;
-      case 'SPECIFIC_ANALYSIS':
-        return this.state.analysis;
-      default:
-        return undefined;
-    }
-  }
-
   handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const { branch, component } = this.props;
-    const { analysisDate, selected: type } = this.state;
+    const { analysis, analysisDate, days, selected: type } = this.state;
 
-    const value = this.getSettingValue();
+    const value = getSettingValue({ type, analysis, days });
 
     if (type) {
       this.setState({ saving: true });
@@ -121,7 +109,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
 
   requestClose = () => this.props.onClose();
 
-  handleSelectAnalysis = (analysis: ParsedAnalysis) =>
+  handleSelectAnalysis = (analysis: T.ParsedAnalysis) =>
     this.setState({ analysis: analysis.key, analysisDate: analysis.date });
 
   handleSelectDays = (days: string) => this.setState({ days });
@@ -132,20 +120,18 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
     const { branch } = this.props;
     const { analysis, days, saving, selected } = this.state;
 
+    const header = translateWithParameters('baseline.new_code_period_for_branch_x', branch.name);
+
     const currentSetting = branch.newCodePeriod && branch.newCodePeriod.type;
     const currentSettingValue = branch.newCodePeriod && branch.newCodePeriod.value;
 
-    const header = translateWithParameters('baseline.new_code_period_for_branch_x', branch.name);
-
-    const isChanged =
-      selected !== currentSetting ||
-      (selected === 'NUMBER_OF_DAYS' && String(days) !== currentSettingValue) ||
-      (selected === 'SPECIFIC_ANALYSIS' && analysis !== currentSettingValue);
-
-    const isValid =
-      selected === 'PREVIOUS_VERSION' ||
-      (selected === 'SPECIFIC_ANALYSIS' && analysis.length > 0) ||
-      (selected === 'NUMBER_OF_DAYS' && validateDays(days));
+    const { isChanged, isValid } = validateSetting({
+      analysis,
+      currentSetting,
+      currentSettingValue,
+      days,
+      selected
+    });
 
     return (
       <Modal contentLabel={header} onRequestClose={this.requestClose} size="large">
@@ -153,7 +139,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
           <h2>{header}</h2>
         </header>
         <form onSubmit={this.handleSubmit}>
-          <div className="modal-body branch-baseline-setting-modal">
+          <div className="modal-body modal-container branch-baseline-setting-modal">
             <div className="display-flex-row huge-spacer-bottom" role="radiogroup">
               <BaselineSettingPreviousVersion
                 isDefault={false}
