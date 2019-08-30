@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { createUser, updateUser } from '../../../../api/users';
 import { mockUser } from '../../../../helpers/testMocks';
@@ -47,11 +48,12 @@ it('should correctly show errors', async () => {
   const wrapper = shallowRender();
   submit(wrapper.dive().find('form'));
   await waitAndUpdate(wrapper);
+
   expect(
     wrapper
       .dive()
-      .find('Alert')
-      .dive()
+      .find(Alert)
+      .children()
       .text()
   ).toMatch('default_error_message');
 });
@@ -63,8 +65,8 @@ it('should correctly disable name and email fields for non-local users', () => {
   expect(wrapper.find('Alert').exists()).toBe(true);
   expect(
     wrapper
-      .find('Alert')
-      .dive()
+      .find(Alert)
+      .children()
       .text()
   ).toMatch('users.cannot_update_delegated_user');
 });
