@@ -177,8 +177,13 @@ public class ManagedProcessHandler {
   }
 
   public void stopForcibly() {
-    eventWatcher.interrupt();
-    stopWatcher.interrupt();
+    Thread currentThread = Thread.currentThread();
+    if (currentThread != eventWatcher) {
+      eventWatcher.interrupt();
+    }
+    if (currentThread != stopWatcher) {
+      stopWatcher.interrupt();
+    }
     if (process != null) {
       process.destroyForcibly();
       waitForDown();
