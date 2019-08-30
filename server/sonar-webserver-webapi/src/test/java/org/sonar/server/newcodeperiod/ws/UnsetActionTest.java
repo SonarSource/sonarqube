@@ -19,13 +19,14 @@
  */
 package org.sonar.server.newcodeperiod.ws;
 
-import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -42,8 +43,13 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
+import javax.annotation.Nullable;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class UnsetActionTest {
   @Rule
@@ -58,8 +64,9 @@ public class UnsetActionTest {
   private DbSession dbSession = db.getSession();
   private ComponentFinder componentFinder = TestComponentFinder.from(db);
   private NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE, UuidFactoryFast.getInstance());
+  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
 
-  private UnsetAction underTest = new UnsetAction(dbClient, userSession, componentFinder, dao);
+  private UnsetAction underTest = new UnsetAction(dbClient, userSession, componentFinder, editionProvider, dao);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -207,6 +214,24 @@ public class UnsetActionTest {
       .execute();
 
     assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid1");
+  }
+
+  @Test
+  public void delete_branch_and_project_period_in_community_edition() {
+    ComponentDto project = componentDb.insertMainBranch();
+
+    db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid1");
+    db.newCodePeriods().insert(project.uuid(), project.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
+
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
+
+    logInAsProjectAdministrator(project);
+
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .execute();
+
+    assertTableEmpty();
   }
 
   private void assertTableEmpty() {

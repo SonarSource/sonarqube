@@ -19,13 +19,14 @@
  */
 package org.sonar.server.newcodeperiod.ws;
 
-import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -43,8 +44,13 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
+import javax.annotation.Nullable;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SetActionTest {
   @Rule
@@ -58,9 +64,10 @@ public class SetActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private ComponentFinder componentFinder = TestComponentFinder.from(db);
+  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE, UuidFactoryFast.getInstance());
 
-  private SetAction underTest = new SetAction(dbClient, userSession, componentFinder, dao);
+  private SetAction underTest = new SetAction(dbClient, userSession, componentFinder, editionProvider, dao);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -296,6 +303,19 @@ public class SetActionTest {
       .setParam("value", "5")
       .execute();
     assertTableContainsOnly(project.uuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "5");
+  }
+
+  @Test
+  public void never_set_project_value_in_community_edition() {
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
+    ComponentDto project = componentDb.insertMainBranch();
+    logInAsProjectAdministrator(project);
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("type", "number_of_days")
+      .setParam("value", "5")
+      .execute();
+    assertTableContainsOnly(project.uuid(), project.uuid(), NewCodePeriodType.NUMBER_OF_DAYS, "5");
   }
 
   @Test

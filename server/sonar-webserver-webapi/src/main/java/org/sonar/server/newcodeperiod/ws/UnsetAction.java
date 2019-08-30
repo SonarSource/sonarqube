@@ -19,11 +19,12 @@
  */
 package org.sonar.server.newcodeperiod.ws;
 
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -33,6 +34,8 @@ import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
+
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -45,12 +48,14 @@ public class UnsetAction implements NewCodePeriodsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
+  private final PlatformEditionProvider editionProvider;
   private final NewCodePeriodDao newCodePeriodDao;
 
-  public UnsetAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, NewCodePeriodDao newCodePeriodDao) {
+  public UnsetAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, PlatformEditionProvider editionProvider, NewCodePeriodDao newCodePeriodDao) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
+    this.editionProvider = editionProvider;
     this.newCodePeriodDao = newCodePeriodDao;
   }
 
@@ -87,10 +92,14 @@ public class UnsetAction implements NewCodePeriodsWsAction {
       String branchUuid = null;
       ComponentDto projectBranch = null;
 
+      // in CE set main branch value instead of project value
+      boolean isCommunityEdition = editionProvider.get().filter(t -> t == EditionProvider.Edition.COMMUNITY).isPresent();
+
       if (projectStr != null) {
         projectBranch = getProject(dbSession, projectStr, branchStr);
         userSession.checkComponentPermission(UserRole.ADMIN, projectBranch);
-        if (branchStr != null) {
+
+        if (branchStr != null || isCommunityEdition) {
           branchUuid = projectBranch.uuid();
         }
         // depending whether it's the main branch or not
@@ -100,6 +109,11 @@ public class UnsetAction implements NewCodePeriodsWsAction {
       }
 
       newCodePeriodDao.delete(dbSession, projectUuid, branchUuid);
+      if (isCommunityEdition && projectUuid != null) {
+        // also delete project default in case it was somehow set (downgrade from another edition, for example)
+        newCodePeriodDao.delete(dbSession, projectUuid, null);
+      }
+
       dbSession.commit();
     }
   }
