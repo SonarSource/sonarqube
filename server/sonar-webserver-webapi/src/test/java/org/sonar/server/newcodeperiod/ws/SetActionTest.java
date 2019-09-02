@@ -19,9 +19,15 @@
  */
 package org.sonar.server.newcodeperiod.ws;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -42,16 +48,15 @@ import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-
-import javax.annotation.Nullable;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@RunWith(DataProviderRunner.class)
 public class SetActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -306,16 +311,35 @@ public class SetActionTest {
   }
 
   @Test
-  public void never_set_project_value_in_community_edition() {
+  @UseDataProvider("provideNewCodePeriodTypeAndValue")
+  public void never_set_project_value_in_community_edition(NewCodePeriodType type, @Nullable String value) {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
     ComponentDto project = componentDb.insertMainBranch();
+
+    if (value != null && NewCodePeriodType.SPECIFIC_ANALYSIS.equals(type)) {
+      db.components().insertSnapshot(project, snapshotDto -> snapshotDto.setUuid(value));
+    }
+
     logInAsProjectAdministrator(project);
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("project", project.getKey())
-      .setParam("type", "number_of_days")
-      .setParam("value", "5")
-      .execute();
-    assertTableContainsOnly(project.uuid(), project.uuid(), NewCodePeriodType.NUMBER_OF_DAYS, "5");
+      .setParam("type", type.name());
+
+    if (value != null) {
+      request.setParam("value", value);
+    }
+
+    request.execute();
+    assertTableContainsOnly(project.uuid(), project.uuid(), type, value);
+  }
+
+  @DataProvider
+  public static Object[][] provideNewCodePeriodTypeAndValue() {
+    return new Object[][]{
+      {NewCodePeriodType.NUMBER_OF_DAYS, "5"},
+      {NewCodePeriodType.SPECIFIC_ANALYSIS, "analysis-uuid"},
+      {NewCodePeriodType.PREVIOUS_VERSION, null}
+    };
   }
 
   @Test

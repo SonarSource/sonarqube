@@ -19,6 +19,7 @@
  */
 package org.sonar.server.newcodeperiod.ws;
 
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -34,8 +35,6 @@ import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -90,7 +89,7 @@ public class UnsetAction implements NewCodePeriodsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String projectUuid = null;
       String branchUuid = null;
-      ComponentDto projectBranch = null;
+      ComponentDto projectBranch;
 
       // in CE set main branch value instead of project value
       boolean isCommunityEdition = editionProvider.get().filter(t -> t == EditionProvider.Edition.COMMUNITY).isPresent();

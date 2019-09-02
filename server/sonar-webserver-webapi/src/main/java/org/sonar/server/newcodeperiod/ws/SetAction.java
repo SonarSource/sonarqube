@@ -20,6 +20,10 @@
 package org.sonar.server.newcodeperiod.ws;
 
 import com.google.common.base.Preconditions;
+import java.util.EnumSet;
+import java.util.Locale;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -39,11 +43,6 @@ import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.Nullable;
-import java.util.EnumSet;
-import java.util.Locale;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -111,7 +110,9 @@ public class SetAction implements NewCodePeriodsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String typeStr = request.mandatoryParam(PARAM_TYPE);
       String valueStr = request.getParam(PARAM_VALUE).emptyAsNull().or(() -> null);
-      NewCodePeriodType type = validateType(typeStr, projectStr == null, branchStr != null);
+      boolean isCommunityEdition = editionProvider.get().filter(t -> t == EditionProvider.Edition.COMMUNITY).isPresent();
+
+      NewCodePeriodType type = validateType(typeStr, projectStr == null, branchStr != null || isCommunityEdition);
 
       NewCodePeriodDto dto = new NewCodePeriodDto();
       dto.setType(type);
@@ -121,7 +122,6 @@ public class SetAction implements NewCodePeriodsWsAction {
         projectBranch = getProject(dbSession, projectStr, branchStr);
         userSession.checkComponentPermission(UserRole.ADMIN, projectBranch);
         // in CE set main branch value instead of project value
-        boolean isCommunityEdition = editionProvider.get().filter(t -> t == EditionProvider.Edition.COMMUNITY).isPresent();
         if (branchStr != null || isCommunityEdition) {
           dto.setBranchUuid(projectBranch.uuid());
         }
