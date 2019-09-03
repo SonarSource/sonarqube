@@ -39,6 +39,7 @@ import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.util.GlobalLockManager;
+import org.sonar.server.util.GlobalLockManagerImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -65,7 +66,7 @@ public class ProjectsInWarningDaemonTest {
   private ProjectMeasuresIndex projectMeasuresIndex = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(null), System2.INSTANCE);
 
   private MapSettings settings = new MapSettings();
-  private GlobalLockManager lockManager = mock(GlobalLockManager.class);
+  private GlobalLockManager lockManager = mock(GlobalLockManagerImpl.class);
   private ProjectsInWarning projectsInWarning = new ProjectsInWarning();
 
   private ProjectsInWarningDaemon underTest = new ProjectsInWarningDaemon(db.getDbClient(), projectMeasuresIndex, settings.asConfig(), lockManager, projectsInWarning);

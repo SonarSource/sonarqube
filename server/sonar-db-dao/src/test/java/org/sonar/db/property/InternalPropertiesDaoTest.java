@@ -54,8 +54,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.property.InternalPropertiesDao.KEY_MAX_LENGTH;
-import static org.sonar.db.property.InternalPropertiesDao.LOCK_PREFIX;
 
 public class InternalPropertiesDaoTest {
 
@@ -409,7 +407,7 @@ public class InternalPropertiesDaoTest {
     when(system2.now()).thenReturn(now);
     assertThat(underTest.tryLock(dbSession, A_KEY, 60)).isTrue();
 
-    assertThat(underTest.selectByKey(dbSession, key(A_KEY))).contains(String.valueOf(now));
+    assertThat(underTest.selectByKey(dbSession, propertyKeyOf(A_KEY))).contains(String.valueOf(now));
   }
 
   @Test
@@ -424,7 +422,7 @@ public class InternalPropertiesDaoTest {
     when(system2.now()).thenReturn(now);
     assertThat(underTest.tryLock(dbSession, A_KEY, lockDurationSeconds)).isTrue();
 
-    assertThat(underTest.selectByKey(dbSession, key(A_KEY))).contains(String.valueOf(now));
+    assertThat(underTest.selectByKey(dbSession, propertyKeyOf(A_KEY))).contains(String.valueOf(now));
   }
 
   @Test
@@ -434,13 +432,13 @@ public class InternalPropertiesDaoTest {
     assertThat(underTest.tryLock(dbSession, A_KEY, 60)).isTrue();
     assertThat(underTest.tryLock(dbSession, A_KEY, 60)).isFalse();
 
-    assertThat(underTest.selectByKey(dbSession, key(A_KEY))).contains(String.valueOf(now));
+    assertThat(underTest.selectByKey(dbSession, propertyKeyOf(A_KEY))).contains(String.valueOf(now));
   }
 
   @Test
   public void tryLock_fails_if_it_would_insert_concurrently() {
     String name = randomAlphabetic(5);
-    String key = key(name);
+    String propertyKey = propertyKeyOf(name);
 
     long now = new Random().nextInt();
     when(system2.now()).thenReturn(now);
@@ -449,22 +447,22 @@ public class InternalPropertiesDaoTest {
     InternalPropertiesMapper mapperMock = mock(InternalPropertiesMapper.class);
     DbSession dbSessionMock = mock(DbSession.class);
     when(dbSessionMock.getMapper(InternalPropertiesMapper.class)).thenReturn(mapperMock);
-    when(mapperMock.selectAsText(ImmutableList.of(key)))
+    when(mapperMock.selectAsText(ImmutableList.of(propertyKey)))
       .thenReturn(ImmutableList.of());
-    doThrow(RuntimeException.class).when(mapperMock).insertAsText(eq(key), anyString(), anyLong());
+    doThrow(RuntimeException.class).when(mapperMock).insertAsText(eq(propertyKey), anyString(), anyLong());
 
     assertThat(underTest.tryLock(dbSessionMock, name, 60)).isFalse();
 
-    assertThat(underTest.selectByKey(dbSession, key)).contains(String.valueOf(now));
+    assertThat(underTest.selectByKey(dbSession, propertyKey)).contains(String.valueOf(now));
   }
 
   @Test
   public void tryLock_fails_if_concurrent_caller_succeeded_first() {
     int lockDurationSeconds = 60;
     String name = randomAlphabetic(5);
-    String key = key(name);
+    String propertyKey = propertyKeyOf(name);
 
-    long now = 123456;//new Random().nextInt();
+    long now = new Random().nextInt(4_889_989);
     long oldTimestamp = now - lockDurationSeconds * 1000;
     when(system2.now()).thenReturn(oldTimestamp);
     assertThat(underTest.tryLock(dbSession, name, lockDurationSeconds)).isTrue();
@@ -474,27 +472,36 @@ public class InternalPropertiesDaoTest {
     DbSession dbSessionMock = mock(DbSession.class);
     when(dbSessionMock.getMapper(InternalPropertiesMapper.class)).thenReturn(mapperMock);
     InternalPropertyDto dto = new InternalPropertyDto();
-    dto.setKey(key);
+    dto.setKey(propertyKey);
     dto.setValue(String.valueOf(oldTimestamp - 1));
-    when(mapperMock.selectAsText(ImmutableList.of(key)))
+    when(mapperMock.selectAsText(ImmutableList.of(propertyKey)))
       .thenReturn(ImmutableList.of(dto));
 
     assertThat(underTest.tryLock(dbSessionMock, name, lockDurationSeconds)).isFalse();
 
-    assertThat(underTest.selectByKey(dbSession, key)).contains(String.valueOf(oldTimestamp));
+    assertThat(underTest.selectByKey(dbSession, propertyKey)).contains(String.valueOf(oldTimestamp));
   }
 
   @Test
-  public void tryLock_throws_if_lock_name_would_produce_too_long_key() {
-    String tooLongName = randomAlphabetic(KEY_MAX_LENGTH - LOCK_PREFIX.length());
+  public void tryLock_throws_IAE_if_lock_name_is_empty() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("lock name can't be empty");
+
+    underTest.tryLock(dbSession, "", 60);
+  }
+
+  @Test
+  public void tryLock_throws_IAE_if_lock_name_length_is_16_or_more() {
+    String tooLongName = randomAlphabetic(16 + new Random().nextInt(30));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("lock name is too long");
+
     underTest.tryLock(dbSession, tooLongName, 60);
   }
 
-  private String key(String name) {
-    return LOCK_PREFIX + '.' + name;
+  private static String propertyKeyOf(String lockName) {
+    return "lock." + lockName;
   }
 
   private void expectKeyNullOrEmptyIAE() {

@@ -37,4 +37,8 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile testFixtures(project(':server:sonar-server-common'))
   testCompile project(':sonar-testing-harness')
+
+  testFixturesApi 'junit:junit'
+
+  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
 }

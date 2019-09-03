@@ -46,9 +46,11 @@ public class InternalPropertiesDao implements Dao {
   /**
    * A common prefix used by locks. {@see InternalPropertiesDao#tryLock}
    */
-  public static final String LOCK_PREFIX = "lock.";
+  private static final String LOCK_PREFIX = "lock.";
 
-  static final int KEY_MAX_LENGTH = 20;
+  private static final int KEY_MAX_LENGTH = 20;
+  public static final int LOCK_NAME_MAX_LENGTH = KEY_MAX_LENGTH - LOCK_PREFIX.length();
+
   private static final int TEXT_VALUE_MAX_LENGTH = 4000;
   private static final Optional<String> OPTIONAL_OF_EMPTY_STRING = Optional.of("");
 
@@ -190,13 +192,22 @@ public class InternalPropertiesDao implements Dao {
    * and the atomic replacement of the timestamp succeeds.
    *
    * The lock is considered released when the specified duration has elapsed.
+   *
+   * @throws IllegalArgumentException if name's length is > {@link #LOCK_NAME_MAX_LENGTH}
+   * @throws IllegalArgumentException if maxAgeInSeconds is <= 0
    */
   public boolean tryLock(DbSession dbSession, String name, int maxAgeInSeconds) {
-    String key = LOCK_PREFIX + '.' + name;
-    if (key.length() > KEY_MAX_LENGTH) {
+    if (name.isEmpty()) {
+      throw new IllegalArgumentException("lock name can't be empty");
+    }
+    if (name.length() > LOCK_NAME_MAX_LENGTH) {
       throw new IllegalArgumentException("lock name is too long");
     }
+    if (maxAgeInSeconds <= 0) {
+      throw new IllegalArgumentException("maxAgeInSeconds must be > 0");
+    }
 
+    String key = LOCK_PREFIX + name;
     long now = system2.now();
 
     Optional<String> timestampAsStringOpt = selectByKey(dbSession, key);

@@ -51,6 +51,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.GlobalLockManager;
+import org.sonar.server.util.GlobalLockManagerImpl;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Arrays.asList;
@@ -96,7 +97,7 @@ public class TelemetryDaemonTest {
 
   private TelemetryClient client = mock(TelemetryClient.class);
   private InternalProperties internalProperties = spy(new MapInternalProperties());
-  private final GlobalLockManager lockManager = mock(GlobalLockManager.class);
+  private final GlobalLockManager lockManager = mock(GlobalLockManagerImpl.class);
   private FakeServer server = new FakeServer();
   private PluginRepository pluginRepository = mock(PluginRepository.class);
   private TestSystem2 system2 = new TestSystem2().setNow(System.currentTimeMillis());

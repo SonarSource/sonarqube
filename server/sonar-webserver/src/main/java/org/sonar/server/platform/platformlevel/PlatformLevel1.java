@@ -29,6 +29,7 @@ import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
+import org.sonar.server.util.GlobalLockManagerImpl;
 import org.sonar.server.util.TempFolderCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
@@ -61,7 +62,6 @@ import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.setting.ThreadLocalSettings;
 import org.sonar.server.user.SystemPasscodeImpl;
 import org.sonar.server.user.ThreadLocalUserSession;
-import org.sonar.server.util.GlobalLockManager;
 import org.sonar.server.util.OkHttpClientProvider;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
@@ -129,7 +129,7 @@ public class PlatformLevel1 extends PlatformLevel {
       // issues
       IssueIndex.class,
 
-      GlobalLockManager.class,
+      GlobalLockManagerImpl.class,
 
       new OkHttpClientProvider(),
 

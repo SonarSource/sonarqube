@@ -19,41 +19,26 @@
  */
 package org.sonar.server.util;
 
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.server.ServerSide;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
+import org.sonar.db.property.InternalPropertiesDao;
 
-/**
- * Provide a simple mechanism to manage global locks across multiple nodes running in a cluster.
- * In the target use case multiple nodes try to execute something at around the same time,
- * and only the first should succeed, and the rest do nothing.
- */
-@ComputeEngineSide
-@ServerSide
-public class GlobalLockManager {
+public interface GlobalLockManager {
 
-  static final int DEFAULT_LOCK_DURATION_SECONDS = 180;
-
-  private final DbClient dbClient;
-
-  public GlobalLockManager(DbClient dbClient) {
-    this.dbClient = dbClient;
-  }
+  int LOCK_NAME_MAX_LENGTH = InternalPropertiesDao.LOCK_NAME_MAX_LENGTH;
+  int DEFAULT_LOCK_DURATION_SECONDS = 180;
 
   /**
-   * Try to acquire a lock on the given name in the default namespace,
+   * Try to acquire a lock on the given name for the {@link #DEFAULT_LOCK_DURATION_SECONDS default duration},
    * using the generic locking mechanism of {@see org.sonar.db.property.InternalPropertiesDao}.
+   *
+   * @throws IllegalArgumentException if name's length is > {@link #LOCK_NAME_MAX_LENGTH} or empty
    */
-  public boolean tryLock(String name) {
-    return tryLock(name, DEFAULT_LOCK_DURATION_SECONDS);
-  }
+  boolean tryLock(String name);
 
-  public boolean tryLock(String name, int durationSecond) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      boolean success = dbClient.internalPropertiesDao().tryLock(dbSession, name, durationSecond);
-      dbSession.commit();
-      return success;
-    }
-  }
+  /**
+   * Try to acquire a lock on the given name for the specified duration,
+   * using the generic locking mechanism of {@see org.sonar.db.property.InternalPropertiesDao}.
+   *
+   * @throws IllegalArgumentException if name's length is > {@link #LOCK_NAME_MAX_LENGTH} or empty
+   */
+  boolean tryLock(String name, int durationSecond);
 }
