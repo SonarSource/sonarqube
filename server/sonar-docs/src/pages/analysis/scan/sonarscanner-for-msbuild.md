@@ -4,11 +4,11 @@ url: /analysis/scan/sonarscanner-for-msbuild/
 ---
 
 [[info]]
-| **Download SonarScanner for MSBuild 4.6.2.2108** - Compatible with SonarQube 6.7+ (LTS)  
+| **Download SonarScanner for MSBuild 4.7.0.2295** - Compatible with SonarQube 6.7+ (LTS)  
 | By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://github.com/SonarSource/sonar-scanner-msbuild/issues) – [Source](https://github.com/SonarSource/sonar-scanner-msbuild)
 |
-| [.NET Framework 4.6+](https://github.com/SonarSource/sonar-scanner-msbuild/releases/download/4.6.2.2108/sonar-scanner-msbuild-4.6.2.2108-net46.zip) |
-| [.NET Core 2.0+](https://github.com/SonarSource/sonar-scanner-msbuild/releases/download/4.6.2.2108/sonar-scanner-msbuild-4.6.2.2108-netcoreapp2.0.zip) |
+| [.NET Framework 4.6+](https://github.com/SonarSource/sonar-scanner-msbuild/releases/download/4.7.0.2295/sonar-scanner-msbuild-4.7.0.2295-net46.zip) |
+| [.NET Core 2.0+](https://github.com/SonarSource/sonar-scanner-msbuild/releases/download/4.7.0.2295/sonar-scanner-msbuild-4.7.0.2295-netcoreapp2.0.zip) |
 | [.NET Core Global Tool](https://www.nuget.org/packages/dotnet-sonarscanner)
 
 
@@ -45,17 +45,21 @@ Consider setting file system permissions to restrict access to this file.:
 
 ### Installation of the SonarScanner for MSBuild .NET Core Global Tool
 ```
-dotnet tool install --global dotnet-sonarscanner --version 4.3.1
+dotnet tool install --global dotnet-sonarscanner --version 4.7.0
 ```
 The _--version_ argument is optional. If it is omitted the latest version will be installed.
 
 ### On Linux/OSX, if your SonarQube server is secured:
 
 1. Copy the server's CA certs to `/usr/local/share/ca-certificates`
-1. Run `sudo update-ca-certificates`
+2. Run `sudo update-ca-certificates`
 
 ## Use
 There are two versions of the SonarScanner for MSBuild.
+
+[[info]]
+| Since version 4.7.0 of the Scanner, you can invoke it using arguments with both dash (-) or forward-slash (/) separators.
+| Example : SonarScanner.MSBuild.exe begin /k:"project-key" or SonarScanner.MSBuild.exe begin -k:"project-key" will work.
 
 The first version is based on the “classic” .NET Framework. To use it, execute the following commands from the root folder of your project:
 ```
