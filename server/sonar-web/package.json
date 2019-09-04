@@ -39,7 +39,8 @@
     "styled-components": "4.3.2",
     "unist-util-visit": "1.4.0",
     "valid-url": "1.0.9",
-    "whatwg-fetch": "2.0.4"
+    "whatwg-fetch": "2.0.4",
+    "snyk": "^1.223.0"
   },
   "devDependencies": {
     "@babel/core": "7.4.0",
@@ -134,7 +135,9 @@
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
     "validate-ci": "yarn lint-report && yarn ts-check && yarn format-check && yarn test --coverage",
-    "precommit": "yarn ts-check && lint-staged"
+    "precommit": "yarn ts-check && lint-staged",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "engines": {
     "node": ">=8"
@@ -213,5 +216,6 @@
         "git add"
       ]
     }
-  }
+  },
+  "snyk": true
 }
