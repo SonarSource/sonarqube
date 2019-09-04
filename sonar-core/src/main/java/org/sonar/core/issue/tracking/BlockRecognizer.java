@@ -19,7 +19,7 @@
  */
 package org.sonar.core.issue.tracking;
 
-import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
@@ -140,7 +140,10 @@ class BlockRecognizer<RAW extends Trackable, BASE extends Trackable> {
   }
 
   private static <T extends Trackable> Multimap<Integer, T> groupByLine(Stream<T> trackables, BlockHashSequence hashSequence) {
-    Multimap<Integer, T> result = LinkedHashMultimap.create();
+    // must use a MultiMap implementation which is not based on a Set collection because when T is a DefaultIssue
+    // its hashcode method returns the same value for all instances because it is based only on the DefaultIssue's
+    // key field which is not yet set when we do Issue Tracking
+    Multimap<Integer, T> result = ArrayListMultimap.create();
     trackables.forEach(trackable -> {
       Integer line = trackable.getLine();
       if (hashSequence.hasLine(line)) {
