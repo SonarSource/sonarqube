@@ -91,10 +91,10 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-      .add("rawToBase", rawToBase)
-      .add("baseToRaw", baseToRaw)
-      .add("raws", raws)
-      .add("bases", bases)
+      .add("rawToBase", rawToBase.size())
+      .add("baseToRaw", baseToRaw.size())
+      .add("raws", raws.size())
+      .add("bases", bases.size())
       .toString();
   }
 }
