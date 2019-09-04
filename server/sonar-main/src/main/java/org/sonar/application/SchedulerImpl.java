@@ -243,8 +243,8 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   public void hardStop() {
     if (nodeLifecycle.tryToMoveTo(HARD_STOPPING)) {
       LOG.info("Hard stopping SonarQube");
+      hardStopImpl();
     }
-    hardStopImpl();
   }
 
   private void hardStopImpl() {
