@@ -284,10 +284,14 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   }
 
   private static void interrupt(@Nullable Thread thread) {
-    if (thread != null
-      // do not interrupt oneself
-      && Thread.currentThread() != thread) {
+    Thread currentThread = Thread.currentThread();
+    // prevent current thread from interrupting itself
+    if (thread != null && currentThread != thread) {
       thread.interrupt();
+      if (LOG.isTraceEnabled()) {
+        Exception e = new Exception("(capturing stacktrace for debugging purpose)");
+        LOG.trace("{} interrupted {}", currentThread.getName(), thread.getName(), e);
+      }
     }
   }
 
@@ -385,7 +389,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
 
   private void hardStopAsync() {
     if (hardStopperThread != null) {
-      LOG.debug("Hard stopper thread was not null (name is \"{}\")", hardStopperThread.getName(), new Exception());
+      logThreadRecreated("Hard stopper", hardStopperThread);
       hardStopperThread.interrupt();
     }
 
@@ -395,12 +399,20 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
 
   private void stopAsyncForRestart() {
     if (restartStopperThread != null) {
-      LOG.debug("Restart stopper thread was not null", new Exception());
+      logThreadRecreated("Restart stopper", restartStopperThread);
       restartStopperThread.interrupt();
     }
 
     restartStopperThread = new RestartStopperThread();
     restartStopperThread.start();
+  }
+
+  private static void logThreadRecreated(String threadType, Thread existingThread) {
+    if (LOG.isDebugEnabled()) {
+      Exception e = new Exception("(capturing stack trace for debugging purpose)");
+      LOG.debug("{} thread was not null (currentThread={},existingThread={})",
+        threadType, Thread.currentThread().getName(), existingThread.getName(), e);
+    }
   }
 
   private void restartAsync() {

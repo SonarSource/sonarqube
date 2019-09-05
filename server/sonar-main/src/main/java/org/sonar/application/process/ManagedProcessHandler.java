@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessId;
@@ -164,7 +165,8 @@ public class ManagedProcessHandler {
       process.waitFor(hardStopTimeout.getDuration(), hardStopTimeout.getUnit());
     } catch (InterruptedException e) {
       // can't wait for the termination of process. Let's assume it's down.
-      throw rethrowWithWarn(e, format("Interrupted while hard stopping process %s", processId));
+      throw rethrowWithWarn(e,
+        format("Interrupted while hard stopping process %s (currentThread=%s)", processId, Thread.currentThread().getName()));
     } catch (Throwable e) {
       LOG.error("Failed while asking for hard stop of process {}", processId, e);
     }
@@ -177,13 +179,8 @@ public class ManagedProcessHandler {
   }
 
   public void stopForcibly() {
-    Thread currentThread = Thread.currentThread();
-    if (currentThread != eventWatcher) {
-      eventWatcher.interrupt();
-    }
-    if (currentThread != stopWatcher) {
-      stopWatcher.interrupt();
-    }
+    interrupt(eventWatcher);
+    interrupt(stopWatcher);
     if (process != null) {
       process.destroyForcibly();
       waitForDown();
@@ -199,6 +196,18 @@ public class ManagedProcessHandler {
     }
     // will trigger state listeners
     lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.STOPPED);
+  }
+
+  private static void interrupt(@Nullable Thread thread) {
+    Thread currentThread = Thread.currentThread();
+    // prevent current thread from interrupting itself
+    if (thread != null && currentThread != thread) {
+      thread.interrupt();
+      if (LOG.isTraceEnabled()) {
+        Exception e = new Exception("(capturing stack trace for debugging purpose)");
+        LOG.trace("{} interrupted {}", currentThread.getName(), thread.getName(), e);
+      }
+    }
   }
 
   void refreshState() {

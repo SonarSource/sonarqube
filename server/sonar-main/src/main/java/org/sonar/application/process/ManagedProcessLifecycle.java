@@ -93,7 +93,7 @@ public class ManagedProcessLifecycle {
       res = true;
       listeners.forEach(listener -> listener.onProcessState(processId, to));
     }
-    LOG.trace("tryToMoveTo {} from {} to {} => {}", processId.getKey(), currentState, to, res);
+    LOG.debug("{} tryToMoveTo {} from {} to {} => {}", Thread.currentThread().getName(), processId.getKey(), currentState, to, res);
     return res;
   }
 }

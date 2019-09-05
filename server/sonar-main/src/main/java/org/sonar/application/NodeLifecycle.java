@@ -103,7 +103,7 @@ class NodeLifecycle {
       this.state = to;
       res = true;
     }
-    LOG.trace("tryToMoveTo from {} to {} => {}", currentState, to, res);
+    LOG.debug("{} tryToMoveTo from {} to {} => {}", Thread.currentThread().getName(), currentState, to, res);
     return res;
   }
 }
