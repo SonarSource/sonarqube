@@ -40,6 +40,7 @@ import org.sonar.application.process.ProcessLifecycleListener;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 
+import static org.sonar.application.NodeLifecycle.State.FINALIZE_STOPPING;
 import static org.sonar.application.NodeLifecycle.State.HARD_STOPPING;
 import static org.sonar.application.NodeLifecycle.State.RESTARTING;
 import static org.sonar.application.NodeLifecycle.State.STOPPED;
@@ -276,7 +277,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
    * the node state won't be updated on process stopped callback.
    */
   private void finalizeStop() {
-    if (nodeLifecycle.getState() != RESTARTING) {
+    if (nodeLifecycle.tryToMoveTo(FINALIZE_STOPPING)) {
       interrupt(restartStopperThread);
       interrupt(hardStopperThread);
       interrupt(restarterThread);

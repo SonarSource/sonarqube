@@ -28,12 +28,14 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Collections.emptySet;
+import static org.sonar.application.NodeLifecycle.State.FINALIZE_STOPPING;
+import static org.sonar.application.NodeLifecycle.State.HARD_STOPPING;
 import static org.sonar.application.NodeLifecycle.State.INIT;
 import static org.sonar.application.NodeLifecycle.State.OPERATIONAL;
 import static org.sonar.application.NodeLifecycle.State.RESTARTING;
 import static org.sonar.application.NodeLifecycle.State.STARTING;
 import static org.sonar.application.NodeLifecycle.State.STOPPED;
-import static org.sonar.application.NodeLifecycle.State.HARD_STOPPING;
 import static org.sonar.application.NodeLifecycle.State.STOPPING;
 
 /**
@@ -62,6 +64,9 @@ class NodeLifecycle {
     // at least one process is still stopping as part of a node hard stop
     HARD_STOPPING,
 
+    // a hard stop or regular stop *not part of a restart* is being finalized (clean up and log)
+    FINALIZE_STOPPING,
+
     // all processes are stopped
     STOPPED
   }
@@ -73,18 +78,19 @@ class NodeLifecycle {
   private static Map<State, Set<State>> buildTransitions() {
     Map<State, Set<State>> res = new EnumMap<>(State.class);
     res.put(INIT, toSet(STARTING));
-    res.put(STARTING, toSet(OPERATIONAL, RESTARTING, STOPPING, HARD_STOPPING, STOPPED));
-    res.put(OPERATIONAL, toSet(RESTARTING, STOPPING, HARD_STOPPING, STOPPED));
-    res.put(STOPPING, toSet(HARD_STOPPING, STOPPED));
-    res.put(RESTARTING, toSet(STARTING, HARD_STOPPING, STOPPED));
-    res.put(HARD_STOPPING, toSet(STOPPED));
-    res.put(STOPPED, toSet(STARTING));
+    res.put(STARTING, toSet(OPERATIONAL, RESTARTING, STOPPING, HARD_STOPPING));
+    res.put(OPERATIONAL, toSet(RESTARTING, STOPPING, HARD_STOPPING));
+    res.put(STOPPING, toSet(FINALIZE_STOPPING, HARD_STOPPING));
+    res.put(RESTARTING, toSet(STARTING, HARD_STOPPING));
+    res.put(HARD_STOPPING, toSet(FINALIZE_STOPPING));
+    res.put(FINALIZE_STOPPING, toSet(STOPPED));
+    res.put(STOPPED, emptySet());
     return Collections.unmodifiableMap(res);
   }
 
   private static Set<State> toSet(State... states) {
     if (states.length == 0) {
-      return Collections.emptySet();
+      return emptySet();
     }
     if (states.length == 1) {
       return Collections.singleton(states[0]);
