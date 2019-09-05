@@ -51,7 +51,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 processResources {
   filter ReplaceTokens, tokens: [
     // The build version is composed of 4 fields, including the semantic version and the build number provided by Travis.
-    'project.buildVersion': project.version.endsWith('SNAPSHOT') ? project.version : on3Digits(project.version) + '.' + System.getProperty("buildNumber"),
+    'project.buildVersion': project.version.endsWith('SNAPSHOT') ? project.version : on3Digits(project.version) + '.' + (System.getProperty("buildNumber") ?: '0'),
     'project.version.3digits': project.version.endsWith('SNAPSHOT') ? project.version : on3Digits(project.version)
   ]
 }
