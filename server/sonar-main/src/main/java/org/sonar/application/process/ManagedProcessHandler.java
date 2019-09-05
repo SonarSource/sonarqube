@@ -73,7 +73,8 @@ public class ManagedProcessHandler {
       this.process = commandLauncher.get();
     } catch (RuntimeException e) {
       LOG.error("Fail to launch process [{}]", processId.getKey(), e);
-      lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.STOPPED);
+      lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.STOPPING);
+      finalizeStop();
       throw e;
     }
     this.stdOutGobbler = new StreamGobbler(process.getInputStream(), processId.getKey());
@@ -179,6 +180,10 @@ public class ManagedProcessHandler {
   }
 
   private void finalizeStop() {
+    if (!lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.FINALIZE_STOPPING)) {
+      return;
+    }
+
     interrupt(eventWatcher);
     interrupt(stopWatcher);
     if (process != null) {

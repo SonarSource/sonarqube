@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessId;
 
+import static org.sonar.application.process.ManagedProcessLifecycle.State.FINALIZE_STOPPING;
 import static org.sonar.application.process.ManagedProcessLifecycle.State.HARD_STOPPING;
 import static org.sonar.application.process.ManagedProcessLifecycle.State.INIT;
 import static org.sonar.application.process.ManagedProcessLifecycle.State.STARTED;
@@ -40,7 +41,7 @@ import static org.sonar.application.process.ManagedProcessLifecycle.State.STOPPI
 public class ManagedProcessLifecycle {
 
   public enum State {
-    INIT, STARTING, STARTED, STOPPING, HARD_STOPPING, STOPPED
+    INIT, STARTING, STARTED, STOPPING, HARD_STOPPING, FINALIZE_STOPPING, STOPPED
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(ManagedProcessLifecycle.class);
@@ -51,22 +52,19 @@ public class ManagedProcessLifecycle {
   private State state;
 
   public ManagedProcessLifecycle(ProcessId processId, List<ProcessLifecycleListener> listeners) {
-    this(processId, listeners, INIT);
-  }
-
-  ManagedProcessLifecycle(ProcessId processId, List<ProcessLifecycleListener> listeners, State initialState) {
     this.processId = processId;
     this.listeners = listeners;
-    this.state = initialState;
+    this.state = INIT;
   }
 
   private static Map<State, Set<State>> buildTransitions() {
     Map<State, Set<State>> res = new EnumMap<>(State.class);
     res.put(INIT, toSet(STARTING));
-    res.put(STARTING, toSet(STARTED, STOPPING, HARD_STOPPING, STOPPED));
-    res.put(STARTED, toSet(STOPPING, HARD_STOPPING, STOPPED));
-    res.put(STOPPING, toSet(HARD_STOPPING, STOPPED));
-    res.put(HARD_STOPPING, toSet(STOPPED));
+    res.put(STARTING, toSet(STARTED, STOPPING, HARD_STOPPING));
+    res.put(STARTED, toSet(STOPPING, HARD_STOPPING));
+    res.put(STOPPING, toSet(HARD_STOPPING, FINALIZE_STOPPING));
+    res.put(HARD_STOPPING, toSet(FINALIZE_STOPPING));
+    res.put(FINALIZE_STOPPING, toSet(STOPPED));
     res.put(STOPPED, toSet());
     return Collections.unmodifiableMap(res);
   }
