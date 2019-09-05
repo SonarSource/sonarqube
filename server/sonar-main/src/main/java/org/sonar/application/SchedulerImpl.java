@@ -54,6 +54,8 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
 
   private static final Logger LOG = LoggerFactory.getLogger(SchedulerImpl.class);
   private static final ManagedProcessHandler.Timeout HARD_STOP_TIMEOUT = newTimeout(1, TimeUnit.MINUTES);
+  private static int hardStopperThreadIndex = 0;
+  private static int restartStopperThreadIndex = 0;
 
   private final AppSettings settings;
   private final AppReloader appReloader;
@@ -452,8 +454,9 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   }
 
   private class RestartStopperThread extends Thread {
+
     private RestartStopperThread() {
-      super("Restart stopper");
+      super("RestartStopper-" + restartStopperThreadIndex++);
     }
 
     @Override
@@ -465,7 +468,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   private class HardStopperThread extends Thread {
 
     private HardStopperThread() {
-      super("Hard stopper");
+      super("HardStopper-" + hardStopperThreadIndex++);
     }
 
     @Override
