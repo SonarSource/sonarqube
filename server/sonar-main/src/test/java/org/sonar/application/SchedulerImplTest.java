@@ -56,8 +56,8 @@ import static org.sonar.process.ProcessId.ELASTICSEARCH;
 import static org.sonar.process.ProcessId.WEB_SERVER;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 
 public class SchedulerImplTest {
@@ -119,6 +119,7 @@ public class SchedulerImplTest {
     web.operational = true;
     waitForAppStateOperational(appState, WEB_SERVER);
     TestManagedProcess ce = processLauncher.waitForProcess(COMPUTE_ENGINE);
+    ce.operational = true;
     assertThat(ce.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(3);
     assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand, ceCommand);
@@ -157,6 +158,7 @@ public class SchedulerImplTest {
     web.operational = true;
     waitForAppStateOperational(appState, WEB_SERVER);
     TestManagedProcess ce = processLauncher.waitForProcess(COMPUTE_ENGINE);
+    ce.operational = true;
     assertThat(ce.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(3);
     assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand, ceCommand);
@@ -440,7 +442,6 @@ public class SchedulerImplTest {
     private final ProcessId processId;
     private final CountDownLatch alive = new CountDownLatch(1);
     private boolean operational = false;
-    private boolean askedForStop = false;
     private boolean askedForRestart = false;
 
     private TestManagedProcess(ProcessId processId) {
@@ -468,7 +469,6 @@ public class SchedulerImplTest {
 
     @Override
     public void askForStop() {
-      this.askedForStop = true;
       destroyForcibly();
     }
 
