@@ -104,7 +104,7 @@ public class ManagedProcessHandler {
         hardStop();
       } else {
         // enforce stop and clean-up even if process has been quickly stopped
-        stopForcibly();
+        finalizeStop();
       }
     } else {
       // already stopping or stopped
@@ -123,7 +123,7 @@ public class ManagedProcessHandler {
         LOG.info("{} failed to stop in a quick fashion. Killing it.", processId.getKey());
       }
       // enforce stop and clean-up even if process has been quickly stopped
-      stopForcibly();
+      finalizeStop();
     } else {
       // already stopping or stopped
       waitForDown();
@@ -178,7 +178,7 @@ public class ManagedProcessHandler {
     return new InterruptedException(errorMessage);
   }
 
-  public void stopForcibly() {
+  private void finalizeStop() {
     interrupt(eventWatcher);
     interrupt(stopWatcher);
     if (process != null) {
@@ -253,7 +253,15 @@ public class ManagedProcessHandler {
         Thread.currentThread().interrupt();
         // stop watching process
       }
-      stopForcibly();
+      // since process is already stopped, this will only finalize the stop sequence
+      // call hardStop() rather than finalizeStop() directly because hardStop() checks lifeCycle state and this
+      // avoid running to concurrent stop finalization pieces of code
+      try {
+        hardStop();
+      } catch (InterruptedException e) {
+        LOG.debug("Interrupted while stopping [{}] after process ended", processId.getKey(), e);
+        Thread.currentThread().interrupt();
+      }
     }
   }
 

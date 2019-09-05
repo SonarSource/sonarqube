@@ -174,24 +174,6 @@ public class ManagedProcessHandlerTest {
   }
 
   @Test
-  public void stopForcibly_stops_the_process_without_graceful_request_for_stop() {
-    ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID).build();
-
-    try (TestManagedProcess testProcess = new TestManagedProcess()) {
-      underTest.start(() -> testProcess);
-
-      underTest.stopForcibly();
-      assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STOPPED);
-      assertThat(testProcess.askedForHardStop).isFalse();
-      assertThat(testProcess.destroyedForcibly).isTrue();
-
-      // second execution of stopForcibly does nothing. It's still stopped.
-      underTest.stopForcibly();
-      assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STOPPED);
-    }
-  }
-
-  @Test
   public void process_stops_after_graceful_request_for_stop() throws Exception {
     ProcessLifecycleListener listener = mock(ProcessLifecycleListener.class);
     ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID)
