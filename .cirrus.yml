@@ -19,7 +19,7 @@ env:
   BURGR_URL: ENCRYPTED[06b8fcc9aaa4b495043aa08bc4450b89588902ad9a60cc8525f53d14810aff84558812e4b7eb01131dd64f33916ac941]
   BURGR_USERNAME: ENCRYPTED[cf7bfb936025fb763013bbfef0ab5723c0d9b53f135d79af36f9defa933f4b5fc72842bd83a97ce9b614503c1b77e6da]
   BURGR_PASSWORD: ENCRYPTED[bc554fc6a06c9f14cc9924cefad0a69e962a905b6d1609fc9357d458b45fc52ac74c960ad9c7382a0691433fa9dcd483]
-  # ops-jenkins credentials required to trigger docs deppoyment
+  # ops-jenkins credentials required to trigger docs deployment
   OPS_JENKINS_URL: ENCRYPTED[00ea2b88c762e374c02a3d29a306cc1cf3ceb4b3d807bda2a601486e0d483fd67a556ef295830231390f45e7d512b54d]
   OPS_JENKINS_USERNAME: ENCRYPTED[c778b1483a7ca000dc760ef731c2fbe1dc05a9af38f2a85206cfbcdf649e50715ca447ac291485d513aa9120b0c9abad]
   OPS_JENKINS_PASSWORD: ENCRYPTED[a035a2826c3bc971288284a59bd00dda193d8a81e7809e08bf4ec59b68894c16f30095a567e65755240bb7f919c2e0bf]
@@ -56,6 +56,15 @@ build_task:
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
+
+dogfood_docker_builder:
+  name: build docker
+  only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
+  depends_on: validate
+  env:
+    CIRRUS_CLONE_DEPTH: 50
+  script:
+    - ./private/cirrus/cirrus-build-dogfood-docker.sh
 
 deploy_docs_task:
   depends_on: build
