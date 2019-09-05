@@ -192,8 +192,12 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
         return processLauncher.launch(command);
       });
     } catch (RuntimeException e) {
-      // failed to start command -> stop everything
-      hardStop();
+      // failed to start command -> do nothing
+      // the process failing to start will move directly to STOP state
+      // this early stop of the process will be picked up by onProcessStop (which calls hardStopAsync)
+      // through interface ProcessLifecycleListener#onProcessState implemented by SchedulerImpl
+      LOG.trace("Failed to start process [{}] (currentThread={})",
+        processHandler.getProcessId().getKey(), Thread.currentThread().getName(), e);
     }
   }
 
