@@ -201,8 +201,8 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   public void stop() {
     if (nodeLifecycle.tryToMoveTo(STOPPING)) {
       LOG.info("Stopping SonarQube");
+      stopImpl();
     }
-    stopImpl();
   }
 
   private void stopImpl() {

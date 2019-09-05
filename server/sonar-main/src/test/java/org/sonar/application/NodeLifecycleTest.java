@@ -47,6 +47,17 @@ public class NodeLifecycleTest {
   }
 
   @Test
+  public void verify_regular_start_and_early_graceful_stop_cycle() {
+    assertThat(underTest.getState()).isEqualTo(INIT);
+    assertThat(underTest.tryToMoveTo(STARTING)).isTrue();
+    assertThat(underTest.getState()).isEqualTo(STARTING);
+    assertThat(underTest.tryToMoveTo(STOPPING)).isTrue();
+    assertThat(underTest.getState()).isEqualTo(STOPPING);
+    assertThat(underTest.tryToMoveTo(STOPPED)).isTrue();
+    assertThat(underTest.getState()).isEqualTo(STOPPED);
+  }
+
+  @Test
   public void verify_start_and_hard_stop_cycle() {
     assertThat(underTest.getState()).isEqualTo(INIT);
     assertThat(underTest.tryToMoveTo(STARTING)).isTrue();

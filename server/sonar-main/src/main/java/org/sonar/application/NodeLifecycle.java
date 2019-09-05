@@ -73,7 +73,7 @@ class NodeLifecycle {
   private static Map<State, Set<State>> buildTransitions() {
     Map<State, Set<State>> res = new EnumMap<>(State.class);
     res.put(INIT, toSet(STARTING));
-    res.put(STARTING, toSet(OPERATIONAL, RESTARTING, HARD_STOPPING, STOPPED));
+    res.put(STARTING, toSet(OPERATIONAL, RESTARTING, STOPPING, HARD_STOPPING, STOPPED));
     res.put(OPERATIONAL, toSet(RESTARTING, STOPPING, HARD_STOPPING, STOPPED));
     res.put(STOPPING, toSet(HARD_STOPPING, STOPPED));
     res.put(RESTARTING, toSet(STARTING, HARD_STOPPING, STOPPED));
