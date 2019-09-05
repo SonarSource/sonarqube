@@ -26,6 +26,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,6 +44,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
@@ -94,8 +96,11 @@ public class ComponentDaoTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
+  private System2 system2 = AlwaysIncreasingSystem2.INSTANCE;
+
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(system2);
 
   private Random random = new Random();
   private DbSession dbSession = db.getSession();
@@ -228,7 +233,7 @@ public class ComponentDaoTest {
 
   @DataProvider
   public static Object[][] branchBranchTypes() {
-    return new Object[][] {
+    return new Object[][]{
       {BranchType.SHORT},
       {BranchType.LONG}
     };
@@ -329,15 +334,15 @@ public class ComponentDaoTest {
     assertThat(underTest.selectByKeysAndBranches(db.getSession(), ImmutableMap.of(
       projectBranch.getKey(), projectBranch.getBranch(),
       applicationBranch.getKey(), applicationBranch.getBranch())))
-        .extracting(ComponentDto::getKey, ComponentDto::getBranch)
-        .containsExactlyInAnyOrder(
-          tuple(projectBranch.getKey(), "my_branch"),
-          tuple(applicationBranch.getKey(), "my_branch"));
+      .extracting(ComponentDto::getKey, ComponentDto::getBranch)
+      .containsExactlyInAnyOrder(
+        tuple(projectBranch.getKey(), "my_branch"),
+        tuple(applicationBranch.getKey(), "my_branch"));
     assertThat(underTest.selectByKeysAndBranches(db.getSession(), ImmutableMap.of(
       projectBranch.getKey(), "unknown",
       "unknown", projectBranch.getBranch())))
-        .extracting(ComponentDto::getDbKey)
-        .isEmpty();
+      .extracting(ComponentDto::getDbKey)
+      .isEmpty();
     assertThat(underTest.selectByKeysAndBranches(db.getSession(), Collections.emptyMap())).isEmpty();
   }
 
@@ -762,7 +767,7 @@ public class ComponentDaoTest {
 
   @DataProvider
   public static Object[][] oneOrMoreProjects() {
-    return new Object[][] {
+    return new Object[][]{
       {1},
       {1 + new Random().nextInt(10)}
     };
@@ -991,7 +996,7 @@ public class ComponentDaoTest {
 
   @DataProvider
   public static Object[][] portfolioOrApplicationRootViewQualifier() {
-    return new Object[][] {
+    return new Object[][]{
       {Qualifiers.VIEW},
       {Qualifiers.APP},
     };
@@ -1168,6 +1173,39 @@ public class ComponentDaoTest {
     db.components().insertSnapshot(branchWithAnalysis);
     assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().build(), 0, 10))
       .isEmpty();
+  }
+
+  @Test
+  public void selectByQuery_verify_order() {
+    OrganizationDto organization = db.organizations().insert();
+
+    Date firstDate = new Date(system2.now());
+    Date secondDate = new Date(system2.now());
+    Date thirdDate = new Date(system2.now());
+
+    ComponentDto project3 = db.components().insertPrivateProject(organization, "project3", componentDto -> componentDto.setCreatedAt(thirdDate));
+    ComponentDto project1 = db.components().insertPrivateProject(organization, "project1", componentDto -> componentDto.setCreatedAt(firstDate));
+    ComponentDto project2 = db.components().insertPrivateProject(organization, "project2", componentDto -> componentDto.setCreatedAt(secondDate));
+
+    Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder()
+      .setQualifiers(PROJECT)
+      .setOnProvisionedOnly(true);
+
+    List<ComponentDto> results = underTest.selectByQuery(dbSession, organization.getUuid(), query.get().build(), 0, 10);
+    assertThat(results)
+      .extracting(ComponentDto::uuid)
+      .containsExactly(
+        project1.uuid(),
+        project2.uuid(),
+        project3.uuid()
+      );
+    assertThat(results)
+      .extracting(ComponentDto::getCreatedAt)
+      .containsExactly(
+        firstDate,
+        secondDate,
+        thirdDate
+      );
   }
 
   @Test

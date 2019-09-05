@@ -17,7 +17,7 @@
     select
     <include refid="conditionColumns"/>
     from quality_gate_conditions where qgate_id=#{qGateId}
-    order by id asc
+    order by created_at asc
   </select>
 
   <select id="selectById" parameterType="long" resultType="QualityGateCondition">

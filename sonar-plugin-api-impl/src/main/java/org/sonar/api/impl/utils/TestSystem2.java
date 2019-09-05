@@ -32,12 +32,22 @@ public class TestSystem2 extends System2 {
     return this;
   }
 
+  public TestSystem2 tick() {
+    throwExceptionIfNowLesserOrEqualZero();
+    this.now = this.now + 1;
+    return this;
+  }
+
   @Override
   public long now() {
+    throwExceptionIfNowLesserOrEqualZero();
+    return now;
+  }
+
+  private void throwExceptionIfNowLesserOrEqualZero() {
     if (now <= 0L) {
       throw new IllegalStateException("Method setNow() was not called by test");
     }
-    return now;
   }
 
   public TestSystem2 setDefaultTimeZone(TimeZone defaultTimeZone) {

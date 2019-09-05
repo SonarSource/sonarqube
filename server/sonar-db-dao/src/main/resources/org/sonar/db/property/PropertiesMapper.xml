@@ -139,7 +139,7 @@
         </foreach>
       and p.resource_id is null
       and p.user_id is null
-    order by p.id
+    order by p.created_at
   </select>
 
   <select id="selectByKeysAndComponentIds" parameterType="map" resultType="ScrapProperty">

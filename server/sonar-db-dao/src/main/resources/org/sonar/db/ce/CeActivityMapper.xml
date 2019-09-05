@@ -62,7 +62,7 @@
       <include refid="countWarnings"/>
     <include refid="sqlSelectByQuery" />
     order by
-      ca.id desc
+      ca.created_at desc, id desc
     limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
   </select>
 
@@ -75,7 +75,7 @@
       ) as query
     where
       query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-    order by id desc
+    order by created_at desc, id desc
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto" databaseId="oracle">
@@ -85,7 +85,7 @@
         <include refid="columns"/>,
         <include refid="countWarnings"/>
         <include refid="sqlSelectByQuery" />
-        order by ca.id desc
+        order by ca.created_at desc, ca.id desc
       ) t
     ) t
     where

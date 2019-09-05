@@ -19,6 +19,8 @@
  */
 package org.sonar.db.qualitygate;
 
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Random;
 import java.util.stream.IntStream;
 import org.junit.Rule;
@@ -52,13 +54,29 @@ public class QualityGateConditionDaoTest {
   public void testSelectForQualityGate() {
     long qg1Id = 1L;
     long qg2Id = 2L;
-    int qg1Conditions = 1 + new Random().nextInt(5);
+    int qg1Conditions = 2 + new Random().nextInt(5);
     int qg2Conditions = 10 + new Random().nextInt(5);
+
     IntStream.range(0, qg1Conditions).forEach(i -> insertQGCondition(qg1Id));
     IntStream.range(0, qg2Conditions).forEach(i -> insertQGCondition(qg2Id));
 
-    assertThat(underTest.selectForQualityGate(dbSession, qg1Id)).hasSize(qg1Conditions);
-    assertThat(underTest.selectForQualityGate(dbSession, qg2Id)).hasSize(qg2Conditions);
+    Collection<QualityGateConditionDto> conditions = underTest.selectForQualityGate(dbSession, qg1Id);
+    assertThat(conditions).hasSize(qg1Conditions);
+    assertThat(conditions)
+      .extracting("id")
+      .containsExactly(conditions.stream()
+        .sorted(Comparator.comparing(QualityGateConditionDto::getCreatedAt))
+        .map(QualityGateConditionDto::getId).toArray());
+
+    conditions = underTest.selectForQualityGate(dbSession, qg2Id);
+    assertThat(conditions).hasSize(qg2Conditions);
+    assertThat(conditions)
+      .extracting("id")
+      .containsExactly(conditions.stream()
+        .sorted(Comparator.comparing(QualityGateConditionDto::getCreatedAt))
+        .map(QualityGateConditionDto::getId)
+        .toArray());
+
     assertThat(underTest.selectForQualityGate(dbSession, 5)).isEmpty();
   }
 

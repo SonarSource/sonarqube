@@ -36,6 +36,7 @@ import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractListAssert;
 import org.assertj.core.api.ObjectAssert;
 import org.assertj.core.groups.Tuple;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,13 +68,20 @@ public class CeActivityDaoTest {
   private static final String MAINCOMPONENT_2 = randomAlphabetic(13);
   private static final String COMPONENT_1 = randomAlphabetic(14);
 
-  private TestSystem2 system2 = new TestSystem2().setNow(1_450_000_000_000L);
+  private static final long INITIAL_TIME = 1_450_000_000_000L;
+
+  private TestSystem2 system2 = new TestSystem2().setNow(INITIAL_TIME);
 
   @Rule
   public DbTester db = DbTester.create(system2);
 
   private DbSession dbSession = db.getSession();
   private CeActivityDao underTest = new CeActivityDao(system2);
+
+  @Before
+  public void setup() {
+    system2.setNow(INITIAL_TIME);
+  }
 
   @Test
   public void test_insert() {
@@ -93,7 +101,7 @@ public class CeActivityDaoTest {
     assertThat(dto.getMainIsLast()).isTrue();
     assertThat(dto.getIsLastKey()).isEqualTo("REPORT" + COMPONENT_1);
     assertThat(dto.getMainIsLastKey()).isEqualTo("REPORT" + MAINCOMPONENT_1);
-    assertThat(dto.getCreatedAt()).isEqualTo(1_450_000_000_000L);
+    assertThat(dto.getCreatedAt()).isEqualTo(INITIAL_TIME + 1);
     assertThat(dto.getStartedAt()).isEqualTo(1_500_000_000_000L);
     assertThat(dto.getExecutedAt()).isEqualTo(1_500_000_000_500L);
     assertThat(dto.getExecutionTimeMs()).isEqualTo(500L);
@@ -441,6 +449,46 @@ public class CeActivityDaoTest {
   }
 
   @Test
+  public void test_selectByQuery_verify_order_if_same_date() {
+    system2.setNow(INITIAL_TIME);
+    insert("TASK_1", REPORT, MAINCOMPONENT_1, SUCCESS);
+    system2.setNow(INITIAL_TIME);
+    insert("TASK_2", REPORT, MAINCOMPONENT_1, FAILED);
+    system2.setNow(INITIAL_TIME);
+    insert("TASK_3", REPORT, MAINCOMPONENT_2, SUCCESS);
+    system2.setNow(INITIAL_TIME);
+    insert("TASK_4", "views", null, SUCCESS);
+
+    // no filters
+    CeTaskQuery query = new CeTaskQuery().setStatuses(Collections.emptyList());
+    List<CeActivityDto> dtos = underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(10));
+    assertThat(dtos).extracting("uuid").containsExactly("TASK_4", "TASK_3", "TASK_2", "TASK_1");
+
+    // select by component uuid
+    query = new CeTaskQuery().setMainComponentUuid(MAINCOMPONENT_1);
+    dtos = underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(100));
+    assertThat(dtos).extracting("uuid").containsExactly("TASK_2", "TASK_1");
+
+    // select by status
+    query = new CeTaskQuery().setStatuses(singletonList(SUCCESS.name()));
+    dtos = underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(100));
+    assertThat(dtos).extracting("uuid").containsExactly("TASK_4", "TASK_3", "TASK_1");
+
+    // select by type
+    query = new CeTaskQuery().setType(REPORT);
+    dtos = underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(100));
+    assertThat(dtos).extracting("uuid").containsExactly("TASK_3", "TASK_2", "TASK_1");
+    query = new CeTaskQuery().setType("views");
+    dtos = underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(100));
+    assertThat(dtos).extracting("uuid").containsExactly("TASK_4");
+
+    // select by multiple conditions
+    query = new CeTaskQuery().setType(REPORT).setOnlyCurrents(true).setMainComponentUuid(MAINCOMPONENT_1);
+    dtos = underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(100));
+    assertThat(dtos).extracting("uuid").containsExactly("TASK_2");
+  }
+
+  @Test
   public void selectByQuery_does_not_populate_errorStacktrace_field() {
     insert("TASK_1", REPORT, MAINCOMPONENT_1, FAILED);
     underTest.insert(db.getSession(), createActivityDto("TASK_2", REPORT, COMPONENT_1, MAINCOMPONENT_1, FAILED).setErrorStacktrace("some stack"));
@@ -706,6 +754,7 @@ public class CeActivityDaoTest {
 
   private CeActivityDto insert(String uuid, String type, @Nullable String componentUuid, @Nullable String mainComponentUuid, CeActivityDto.Status status) {
     CeActivityDto dto = createActivityDto(uuid, type, componentUuid, mainComponentUuid, status);
+    system2.tick();
     underTest.insert(db.getSession(), dto);
     return dto;
   }
@@ -718,7 +767,7 @@ public class CeActivityDaoTest {
     creating.setComponentUuid(componentUuid);
     creating.setMainComponentUuid(mainComponentUuid);
     creating.setSubmitterUuid("submitter uuid");
-    creating.setCreatedAt(1_300_000_000_000L);
+    creating.setCreatedAt(system2.now());
 
     db.getDbClient().ceQueueDao().insert(dbSession, creating);
     makeInProgress(dbSession, "worker uuid", 1_400_000_000_000L, creating);

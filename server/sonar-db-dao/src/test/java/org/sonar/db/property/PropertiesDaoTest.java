@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -36,7 +35,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.api.utils.System2;
+import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -54,8 +53,6 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newPropertyDto;
@@ -65,13 +62,9 @@ import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 public class PropertiesDaoTest {
   private static final String VALUE_SIZE_4000 = String.format("%1$4000.4000s", "*");
   private static final String VALUE_SIZE_4001 = VALUE_SIZE_4000 + "P";
-  private static final long DATE_1 = 1_555_000L;
-  private static final long DATE_2 = 1_666_000L;
-  private static final long DATE_3 = 1_777_000L;
-  private static final long DATE_4 = 1_888_000L;
-  private static final long DATE_5 = 1_999_000L;
+  private static final long INITIAL_DATE = 1_444_000L;
 
-  private System2 system2 = mock(System2.class);
+  private AlwaysIncreasingSystem2 system2 = new AlwaysIncreasingSystem2(INITIAL_DATE, 1);
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -515,7 +508,7 @@ public class PropertiesDaoTest {
 
   @DataProvider
   public static Object[][] allValuesForSelect() {
-    return new Object[][] {
+    return new Object[][]{
       {null, ""},
       {"", ""},
       {"some value", "some value"},
@@ -573,15 +566,24 @@ public class PropertiesDaoTest {
     insertProperty(key, "value", null, userId);
     insertProperty(anotherKey, "value", null, null);
 
+    insertProperty("key1", "value", null, null);
+    insertProperty("key2", "value", null, null);
+    insertProperty("key3", "value", null, null);
+
     assertThat(underTest.selectGlobalPropertiesByKeys(session, newHashSet(key)))
       .extracting("key")
-      .containsOnly(key);
+      .containsExactly(key);
     assertThat(underTest.selectGlobalPropertiesByKeys(session, newHashSet(key, anotherKey)))
       .extracting("key")
-      .containsOnly(key, anotherKey);
+      .containsExactly(key, anotherKey);
     assertThat(underTest.selectGlobalPropertiesByKeys(session, newHashSet(key, anotherKey, "unknown")))
       .extracting("key")
-      .containsOnly(key, anotherKey);
+      .containsExactly(key, anotherKey);
+
+    assertThat(underTest.selectGlobalPropertiesByKeys(session, newHashSet("key2", "key1", "key3")))
+      .extracting("key")
+      .containsExactly("key1", "key2", "key3");
+
     assertThat(underTest.selectGlobalPropertiesByKeys(session, newHashSet("unknown")))
       .isEmpty();
   }
@@ -605,9 +607,9 @@ public class PropertiesDaoTest {
       .extracting("key", "resourceId").containsOnly(tuple(key, project.getId()));
     assertThat(underTest.selectPropertiesByComponentIds(session, newHashSet(project.getId(), project2.getId())))
       .extracting("key", "resourceId").containsOnly(
-        tuple(key, project.getId()),
-        tuple(key, project2.getId()),
-        tuple(anotherKey, project2.getId()));
+      tuple(key, project.getId()),
+      tuple(key, project2.getId()),
+      tuple(anotherKey, project2.getId()));
 
     assertThat(underTest.selectPropertiesByComponentIds(session, newHashSet(123456789L))).isEmpty();
   }
@@ -631,13 +633,13 @@ public class PropertiesDaoTest {
       .extracting("key", "resourceId").containsOnly(tuple(key, project.getId()));
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet(key), newHashSet(project.getId(), project2.getId())))
       .extracting("key", "resourceId").containsOnly(
-        tuple(key, project.getId()),
-        tuple(key, project2.getId()));
+      tuple(key, project.getId()),
+      tuple(key, project2.getId()));
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet(key, anotherKey), newHashSet(project.getId(), project2.getId())))
       .extracting("key", "resourceId").containsOnly(
-        tuple(key, project.getId()),
-        tuple(key, project2.getId()),
-        tuple(anotherKey, project2.getId()));
+      tuple(key, project.getId()),
+      tuple(key, project2.getId()),
+      tuple(anotherKey, project2.getId()));
 
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("unknown"), newHashSet(project.getId()))).isEmpty();
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("key"), newHashSet(123456789L))).isEmpty();
@@ -686,8 +688,6 @@ public class PropertiesDaoTest {
 
   @Test
   public void saveProperty_inserts_global_properties_when_they_do_not_exist_in_db() {
-    when(system2.now()).thenReturn(DATE_1, DATE_2, DATE_3, DATE_4, DATE_5);
-
     underTest.saveProperty(new PropertyDto().setKey("global.null").setValue(null));
     underTest.saveProperty(new PropertyDto().setKey("global.empty").setValue(""));
     underTest.saveProperty(new PropertyDto().setKey("global.text").setValue("some text"));
@@ -698,33 +698,31 @@ public class PropertiesDaoTest {
       .hasNoResourceId()
       .hasNoUserId()
       .isEmpty()
-      .hasCreatedAt(DATE_1);
+      .hasCreatedAt(INITIAL_DATE + 2);
     assertThatPropertiesRow("global.empty")
       .hasNoResourceId()
       .hasNoUserId()
       .isEmpty()
-      .hasCreatedAt(DATE_2);
+      .hasCreatedAt(INITIAL_DATE + 3);
     assertThatPropertiesRow("global.text")
       .hasNoResourceId()
       .hasNoUserId()
       .hasTextValue("some text")
-      .hasCreatedAt(DATE_3);
+      .hasCreatedAt(INITIAL_DATE + 4);
     assertThatPropertiesRow("global.4000")
       .hasNoResourceId()
       .hasNoUserId()
       .hasTextValue(VALUE_SIZE_4000)
-      .hasCreatedAt(DATE_4);
+      .hasCreatedAt(INITIAL_DATE + 5);
     assertThatPropertiesRow("global.clob")
       .hasNoResourceId()
       .hasNoUserId()
       .hasClobValue(VALUE_SIZE_4001)
-      .hasCreatedAt(DATE_5);
+      .hasCreatedAt(INITIAL_DATE + 6);
   }
 
   @Test
   public void saveProperty_inserts_component_properties_when_they_do_not_exist_in_db() {
-    when(system2.now()).thenReturn(DATE_1, DATE_2, DATE_3, DATE_4, DATE_5);
-
     long resourceId = 12;
     underTest.saveProperty(new PropertyDto().setKey("component.null").setResourceId(resourceId).setValue(null));
     underTest.saveProperty(new PropertyDto().setKey("component.empty").setResourceId(resourceId).setValue(""));
@@ -736,33 +734,31 @@ public class PropertiesDaoTest {
       .hasResourceId(resourceId)
       .hasNoUserId()
       .isEmpty()
-      .hasCreatedAt(DATE_1);
+      .hasCreatedAt(INITIAL_DATE + 2);
     assertThatPropertiesRow("component.empty")
       .hasResourceId(resourceId)
       .hasNoUserId()
       .isEmpty()
-      .hasCreatedAt(DATE_2);
+      .hasCreatedAt(INITIAL_DATE + 3);
     assertThatPropertiesRow("component.text")
       .hasResourceId(resourceId)
       .hasNoUserId()
       .hasTextValue("some text")
-      .hasCreatedAt(DATE_3);
+      .hasCreatedAt(INITIAL_DATE + 4);
     assertThatPropertiesRow("component.4000")
       .hasResourceId(resourceId)
       .hasNoUserId()
       .hasTextValue(VALUE_SIZE_4000)
-      .hasCreatedAt(DATE_4);
+      .hasCreatedAt(INITIAL_DATE + 5);
     assertThatPropertiesRow("component.clob")
       .hasResourceId(resourceId)
       .hasNoUserId()
       .hasClobValue(VALUE_SIZE_4001)
-      .hasCreatedAt(DATE_5);
+      .hasCreatedAt(INITIAL_DATE + 6);
   }
 
   @Test
   public void saveProperty_inserts_user_properties_when_they_do_not_exist_in_db() {
-    when(system2.now()).thenReturn(DATE_1, DATE_2, DATE_3, DATE_4, DATE_5);
-
     int userId = 100;
     underTest.saveProperty(new PropertyDto().setKey("user.null").setUserId(userId).setValue(null));
     underTest.saveProperty(new PropertyDto().setKey("user.empty").setUserId(userId).setValue(""));
@@ -774,34 +770,33 @@ public class PropertiesDaoTest {
       .hasNoResourceId()
       .hasUserId(userId)
       .isEmpty()
-      .hasCreatedAt(DATE_1);
+      .hasCreatedAt(INITIAL_DATE + 2);
     assertThatPropertiesRow("user.empty")
       .hasNoResourceId()
       .hasUserId(userId)
       .isEmpty()
-      .hasCreatedAt(DATE_2);
+      .hasCreatedAt(INITIAL_DATE + 3);
     assertThatPropertiesRow("user.text")
       .hasNoResourceId()
       .hasUserId(userId)
       .hasTextValue("some text")
-      .hasCreatedAt(DATE_3);
+      .hasCreatedAt(INITIAL_DATE + 4);
     assertThatPropertiesRow("user.4000")
       .hasNoResourceId()
       .hasUserId(userId)
       .hasTextValue(VALUE_SIZE_4000)
-      .hasCreatedAt(DATE_4);
+      .hasCreatedAt(INITIAL_DATE + 5);
     assertThatPropertiesRow("user.clob")
       .hasNoResourceId()
       .hasUserId(userId)
       .hasClobValue(VALUE_SIZE_4001)
-      .hasCreatedAt(DATE_5);
+      .hasCreatedAt(INITIAL_DATE + 6);
   }
 
   @Test
   @UseDataProvider("valueUpdatesDataProvider")
-  public void saveProperty_deletes_then_inserts_global_properties_when_they_exist_in_db(@Nullable String oldValue, @Nullable String newValue) throws SQLException {
-    long id = insertProperty("global", oldValue, null, null, DATE_1);
-    when(system2.now()).thenReturn(DATE_4);
+  public void saveProperty_deletes_then_inserts_global_properties_when_they_exist_in_db(@Nullable String oldValue, @Nullable String newValue) {
+    long id = insertProperty("global", oldValue, null, null);
 
     underTest.saveProperty(new PropertyDto().setKey("global").setValue(newValue));
 
@@ -811,7 +806,7 @@ public class PropertiesDaoTest {
     PropertiesRowAssert propertiesRowAssert = assertThatPropertiesRow("global")
       .hasNoResourceId()
       .hasNoUserId()
-      .hasCreatedAt(DATE_4);
+      .hasCreatedAt(INITIAL_DATE + 3);
     if (newValue == null || newValue.isEmpty()) {
       propertiesRowAssert.isEmpty();
     } else if (newValue.length() > 4000) {
@@ -823,20 +818,18 @@ public class PropertiesDaoTest {
 
   @Test
   @UseDataProvider("valueUpdatesDataProvider")
-  public void saveProperty_deletes_then_inserts_component_properties_when_they_exist_in_db(@Nullable String oldValue, @Nullable String newValue) throws SQLException {
+  public void saveProperty_deletes_then_inserts_component_properties_when_they_exist_in_db(@Nullable String oldValue, @Nullable String newValue) {
     long resourceId = 999L;
-    long id = insertProperty("global", oldValue, resourceId, null, DATE_1);
-    when(system2.now()).thenReturn(DATE_4);
+    long id = insertProperty("global", oldValue, resourceId, null);
 
     underTest.saveProperty(new PropertyDto().setKey("global").setResourceId(resourceId).setValue(newValue));
 
     assertThatPropertiesRow(id)
       .doesNotExist();
-
     PropertiesRowAssert propertiesRowAssert = assertThatPropertiesRow("global")
       .hasResourceId(resourceId)
       .hasNoUserId()
-      .hasCreatedAt(DATE_4);
+      .hasCreatedAt(INITIAL_DATE + 3);
     if (newValue == null || newValue.isEmpty()) {
       propertiesRowAssert.isEmpty();
     } else if (newValue.length() > 4000) {
@@ -848,10 +841,9 @@ public class PropertiesDaoTest {
 
   @Test
   @UseDataProvider("valueUpdatesDataProvider")
-  public void saveProperty_deletes_then_inserts_user_properties_when_they_exist_in_db(@Nullable String oldValue, @Nullable String newValue) throws SQLException {
+  public void saveProperty_deletes_then_inserts_user_properties_when_they_exist_in_db(@Nullable String oldValue, @Nullable String newValue) {
     int userId = 90;
-    long id = insertProperty("global", oldValue, null, userId, DATE_1);
-    when(system2.now()).thenReturn(DATE_4);
+    long id = insertProperty("global", oldValue, null, userId);
 
     underTest.saveProperty(new PropertyDto().setKey("global").setUserId(userId).setValue(newValue));
 
@@ -861,7 +853,7 @@ public class PropertiesDaoTest {
     PropertiesRowAssert propertiesRowAssert = assertThatPropertiesRow("global")
       .hasNoResourceId()
       .hasUserId(userId)
-      .hasCreatedAt(DATE_4);
+      .hasCreatedAt(INITIAL_DATE + 3);
     if (newValue == null || newValue.isEmpty()) {
       propertiesRowAssert.isEmpty();
     } else if (newValue.length() > 4000) {
@@ -873,7 +865,7 @@ public class PropertiesDaoTest {
 
   @DataProvider
   public static Object[][] valueUpdatesDataProvider() {
-    return new Object[][] {
+    return new Object[][]{
       {null, null},
       {null, ""},
       {null, "some value"},
@@ -1093,8 +1085,6 @@ public class PropertiesDaoTest {
 
   @Test
   public void saveGlobalProperties_insert_property_if_does_not_exist_in_db() {
-    when(system2.now()).thenReturn(DATE_1, DATE_2, DATE_3, DATE_4, DATE_5);
-
     underTest.saveGlobalProperties(mapOf(
       "null_value_property", null,
       "empty_value_property", "",
@@ -1106,33 +1096,32 @@ public class PropertiesDaoTest {
       .hasNoResourceId()
       .hasNoUserId()
       .isEmpty()
-      .hasCreatedAt(DATE_1);
+      .hasCreatedAt(INITIAL_DATE + 2);
     assertThatPropertiesRow("empty_value_property")
       .hasNoResourceId()
       .hasNoUserId()
       .isEmpty()
-      .hasCreatedAt(DATE_2);
+      .hasCreatedAt(INITIAL_DATE + 3);
     assertThatPropertiesRow("text_value_property")
       .hasNoResourceId()
       .hasNoUserId()
       .hasTextValue("dfdsfsd")
-      .hasCreatedAt(DATE_3);
+      .hasCreatedAt(INITIAL_DATE + 4);
     assertThatPropertiesRow("4000_char_value_property")
       .hasNoResourceId()
       .hasNoUserId()
       .hasTextValue(VALUE_SIZE_4000)
-      .hasCreatedAt(DATE_4);
+      .hasCreatedAt(INITIAL_DATE + 5);
     assertThatPropertiesRow("clob_value_property")
       .hasNoResourceId()
       .hasNoUserId()
       .hasClobValue(VALUE_SIZE_4001)
-      .hasCreatedAt(DATE_5);
+      .hasCreatedAt(INITIAL_DATE + 6);
   }
 
   @Test
-  public void saveGlobalProperties_delete_and_insert_new_value_when_property_exists_in_db() throws SQLException {
-    long id = insertProperty("to_be_updated", "old_value", null, null, DATE_1);
-    when(system2.now()).thenReturn(DATE_3);
+  public void saveGlobalProperties_delete_and_insert_new_value_when_property_exists_in_db() {
+    long id = insertProperty("to_be_updated", "old_value", null, null);
 
     underTest.saveGlobalProperties(ImmutableMap.of("to_be_updated", "new value"));
 
@@ -1143,7 +1132,7 @@ public class PropertiesDaoTest {
       .hasNoResourceId()
       .hasNoUserId()
       .hasTextValue("new value")
-      .hasCreatedAt(DATE_3);
+      .hasCreatedAt(INITIAL_DATE + 3);
   }
 
   private static Map<String, String> mapOf(String... values) {
@@ -1157,13 +1146,13 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void renamePropertyKey_updates_global_component_and_user_properties() throws SQLException {
-    long id1 = insertProperty("foo", "bar", null, null, DATE_1);
-    long id2 = insertProperty("old_name", "doc1", null, null, DATE_1);
-    long id3 = insertProperty("old_name", "doc2", 15L, null, DATE_1);
-    long id4 = insertProperty("old_name", "doc3", 16L, null, DATE_1);
-    long id5 = insertProperty("old_name", "doc4", null, 100, DATE_1);
-    long id6 = insertProperty("old_name", "doc5", null, 101, DATE_1);
+  public void renamePropertyKey_updates_global_component_and_user_properties() {
+    long id1 = insertProperty("foo", "bar", null, null);
+    long id2 = insertProperty("old_name", "doc1", null, null);
+    long id3 = insertProperty("old_name", "doc2", 15L, null);
+    long id4 = insertProperty("old_name", "doc3", 16L, null);
+    long id5 = insertProperty("old_name", "doc4", null, 100);
+    long id6 = insertProperty("old_name", "doc5", null, 101);
 
     underTest.renamePropertyKey("old_name", "new_name");
 
@@ -1172,46 +1161,45 @@ public class PropertiesDaoTest {
       .hasNoUserId()
       .hasNoResourceId()
       .hasTextValue("bar")
-      .hasCreatedAt(DATE_1);
+      .hasCreatedAt(INITIAL_DATE + 2);
     assertThatPropertiesRow(id2)
       .hasKey("new_name")
       .hasNoResourceId()
       .hasNoUserId()
       .hasTextValue("doc1")
-      .hasCreatedAt(DATE_1);
+      .hasCreatedAt(INITIAL_DATE + 3);
     assertThatPropertiesRow(id3)
       .hasKey("new_name")
       .hasResourceId(15)
       .hasNoUserId()
       .hasTextValue("doc2")
-      .hasCreatedAt(DATE_1);
+      .hasCreatedAt(INITIAL_DATE + 4);
     assertThatPropertiesRow(id4)
       .hasKey("new_name")
       .hasResourceId(16)
       .hasNoUserId()
       .hasTextValue("doc3")
-      .hasCreatedAt(DATE_1);
+      .hasCreatedAt(INITIAL_DATE + 5);
     assertThatPropertiesRow(id5)
       .hasKey("new_name")
       .hasNoResourceId()
       .hasUserId(100)
       .hasTextValue("doc4")
-      .hasCreatedAt(DATE_1);
+      .hasCreatedAt(INITIAL_DATE + 6);
     assertThatPropertiesRow(id6)
       .hasKey("new_name")
       .hasNoResourceId()
       .hasUserId(101)
       .hasTextValue("doc5")
-      .hasCreatedAt(DATE_1);
+      .hasCreatedAt(INITIAL_DATE + 7);
   }
 
   @Test
-  public void rename_to_same_key_has_no_effect() throws SQLException {
-    long now = 1_890_999L;
-    long id = insertProperty("foo", "bar", null, null, now);
+  public void rename_to_same_key_has_no_effect() {
+    long id = insertProperty("foo", "bar", null, null);
 
     assertThatPropertiesRow(id)
-      .hasCreatedAt(now);
+      .hasCreatedAt(INITIAL_DATE + 2);
 
     underTest.renamePropertyKey("foo", "foo");
 
@@ -1220,7 +1208,7 @@ public class PropertiesDaoTest {
       .hasNoUserId()
       .hasNoResourceId()
       .hasTextValue("bar")
-      .hasCreatedAt(now);
+      .hasCreatedAt(INITIAL_DATE + 2);
   }
 
   @Test
@@ -1249,11 +1237,6 @@ public class PropertiesDaoTest {
       underTest.saveProperty(session, propertyDto);
     }
     session.commit();
-  }
-
-  private long insertProperty(String key, @Nullable String value, @Nullable Long resourceId, @Nullable Integer userId, long createdAt) {
-    when(system2.now()).thenReturn(createdAt);
-    return insertProperty(key, value, resourceId, userId);
   }
 
   private long insertProperty(String key, @Nullable String value, @Nullable Long resourceId, @Nullable Integer userId) {

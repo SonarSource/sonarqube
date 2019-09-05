@@ -26,7 +26,7 @@
     <foreach collection="templateIds" open="(" close=")" item="templateId" separator=",">
       #{templateId}
     </foreach>
-    order by id
+    order by ptc.created_at
   </select>
 
   <select id="selectByPermissionAndTemplateId" parameterType="map" resultType="PermissionTemplateCharacteristic">
@@ -35,7 +35,7 @@
     from perm_tpl_characteristics ptc
     where ptc.template_id=#{templateId}
     and ptc.permission_key=#{permission}
-    order by id
+    order by ptc.created_at
   </select>
 
   <insert id="insert" parameterType="PermissionTemplateCharacteristic" keyColumn="id" useGeneratedKeys="true" keyProperty="id">

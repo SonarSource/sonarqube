@@ -299,7 +299,7 @@
     select
       <include refid="componentColumns"/>
     <include refid="sqlSelectByQuery"/>
-    ORDER BY LOWER(p.name), p.name, p.id
+    ORDER BY LOWER(p.name), p.name, p.created_at
   </select>
 
   <select id="countByQuery" resultType="int">

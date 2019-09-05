@@ -57,7 +57,7 @@
         #{login}
       </foreach>
     </where>
-    ORDER BY u.login, g.name, g.id
+    ORDER BY u.login, g.name, g.created_at
   </select>
 
   <select id="selectGroupsByLoginsAndOrganization" parameterType="map" resultType="org.sonar.db.user.LoginGroup">
@@ -72,7 +72,7 @@
       </foreach>
       and g.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
     </where>
-    ORDER BY u.login, g.name, g.id
+    ORDER BY u.login, g.name, g.created_at
   </select>
 
   <sql id="userCommonClauses">

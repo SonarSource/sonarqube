@@ -56,6 +56,12 @@ public class PermissionTemplateCharacteristicDaoTest {
       .setWithProjectCreator(false)
       .setCreatedAt(1_000_000_000L)
       .setUpdatedAt(2_000_000_000L));
+    PermissionTemplateCharacteristicDto templatePermission3 = underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
+      .setPermission(UserRole.USER)
+      .setTemplateId(3L)
+      .setWithProjectCreator(false)
+      .setCreatedAt(1_000_000_001L)
+      .setUpdatedAt(2_000_000_000L));
     PermissionTemplateCharacteristicDto templatePermissionForAnotherTemplate = underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
       .setPermission(UserRole.ADMIN)
       .setTemplateId(42L)
@@ -63,12 +69,12 @@ public class PermissionTemplateCharacteristicDaoTest {
       .setCreatedAt(1_000_000_000L)
       .setUpdatedAt(2_000_000_000L));
 
-    List<PermissionTemplateCharacteristicDto> result = underTest.selectByTemplateIds(dbSession, newArrayList(1L, 2L));
+    List<PermissionTemplateCharacteristicDto> result = underTest.selectByTemplateIds(dbSession, newArrayList(1L, 2L, 3L));
     assertThat(result)
-      .hasSize(2)
+      .hasSize(3)
       .extracting("id")
       .doesNotContain(templatePermissionForAnotherTemplate.getId())
-      .containsOnly(templatePermission1.getId(), templatePermission2.getId());
+      .containsExactly(templatePermission1.getId(), templatePermission2.getId(), templatePermission3.getId());
     assertThat(result.get(0))
       .isEqualToComparingFieldByField(templatePermission1);
   }
