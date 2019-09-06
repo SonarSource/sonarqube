@@ -22,21 +22,20 @@ package org.sonar.ce.task.projectanalysis.issue;
 import java.io.File;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.ce.task.projectanalysis.util.cache.DiskCache;
-import org.sonar.core.issue.DefaultIssue;
+import org.sonar.ce.task.projectanalysis.util.cache.ProtobufIssueDiskCache;
 
 /**
  * Cache of all the issues involved in the analysis. Their state is as it will be
  * persisted in database (after issue tracking, auto-assignment, ...)
  */
-public class IssueCache extends DiskCache<DefaultIssue> {
+public class ProtoIssueCache extends ProtobufIssueDiskCache {
 
   // this constructor is used by picocontainer
-  public IssueCache(TempFolder tempFolder, System2 system2) {
+  public ProtoIssueCache(TempFolder tempFolder, System2 system2) {
     super(tempFolder.newFile("issues", ".dat"), system2);
   }
 
-  public IssueCache(File file, System2 system2) {
+  public ProtoIssueCache(File file, System2 system2) {
     super(file, system2);
   }
 }

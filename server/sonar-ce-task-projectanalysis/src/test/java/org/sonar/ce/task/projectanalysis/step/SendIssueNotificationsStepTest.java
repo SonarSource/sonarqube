@@ -42,6 +42,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
@@ -50,7 +51,7 @@ import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.ce.task.projectanalysis.issue.IssueCache;
+import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.notification.NotificationFactory;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache;
 import org.sonar.ce.task.step.ComputationStep;
@@ -85,6 +86,7 @@ import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -150,13 +152,13 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   private NewIssuesNotification newIssuesNotificationMock = createNewIssuesNotificationMock();
   private MyNewIssuesNotification myNewIssuesNotificationMock = createMyNewIssuesNotificationMock();
 
-  private IssueCache issueCache;
+  private ProtoIssueCache protoIssueCache;
   private SendIssueNotificationsStep underTest;
 
   @Before
   public void setUp() throws Exception {
-    issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
-    underTest = new SendIssueNotificationsStep(issueCache, treeRootHolder, notificationService, analysisMetadataHolder,
+    protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
+    underTest = new SendIssueNotificationsStep(protoIssueCache, treeRootHolder, notificationService, analysisMetadataHolder,
       notificationFactory, db.getDbClient());
     when(notificationFactory.newNewIssuesNotification(any(assigneeCacheType))).thenReturn(newIssuesNotificationMock);
     when(notificationFactory.newMyNewIssuesNotification(any(assigneeCacheType))).thenReturn(myNewIssuesNotificationMock);
@@ -178,8 +180,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void send_global_new_issues_notification() {
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
-    issueCache.newAppender().append(
-      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION)
+    protoIssueCache.newAppender().append(
+      createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION)
         .setCreationDate(new Date(ANALYSE_DATE)))
       .close();
     when(notificationService.hasProjectSubscribersForTypes(eq(PROJECT.getUuid()), any())).thenReturn(true);
@@ -202,15 +204,16 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     Integer[] backDatedEfforts = IntStream.range(0, 1 + random.nextInt(10)).mapToObj(i -> 10 + random.nextInt(100)).toArray(Integer[]::new);
     Duration expectedEffort = Duration.create(stream(efforts).mapToInt(i -> i).sum());
     List<DefaultIssue> issues = concat(stream(efforts)
-        .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
+        .map(effort -> createIssue().setType(randomRuleType).setEffort(Duration.create(effort))
           .setCreationDate(new Date(ANALYSE_DATE))),
       stream(backDatedEfforts)
-        .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
+        .map(effort -> createIssue().setType(randomRuleType).setEffort(Duration.create(effort))
           .setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS))))
       .collect(toList());
     shuffle(issues);
-    DiskCache<DefaultIssue>.DiskAppender issueCache = this.issueCache.newAppender();
+    DiskCache.CacheAppender issueCache = this.protoIssueCache.newAppender();
     issues.forEach(issueCache::append);
+    issueCache.close();
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
 
@@ -233,8 +236,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void do_not_send_global_new_issues_notification_if_issue_has_been_backdated() {
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
-    issueCache.newAppender().append(
-      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION)
+    protoIssueCache.newAppender().append(
+      createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION)
         .setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS)))
       .close();
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
@@ -251,8 +254,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public void send_global_new_issues_notification_on_branch() {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto branch = setUpBranch(project, BRANCH);
-    issueCache.newAppender().append(
-      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
+    protoIssueCache.newAppender().append(
+      createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
     when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setProject(Project.from(project));
     analysisMetadataHolder.setBranch(newBranch(BranchType.BRANCH));
@@ -272,8 +275,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public void do_not_send_global_new_issues_notification_on_pull_request() {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto branch = setUpBranch(project, PULL_REQUEST);
-    issueCache.newAppender().append(
-      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
+    protoIssueCache.newAppender().append(
+      createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
     when(notificationService.hasProjectSubscribersForTypes(project.uuid(), NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setProject(Project.from(project));
     analysisMetadataHolder.setBranch(newPullRequest());
@@ -285,12 +288,16 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     verifyZeroInteractions(notificationService, newIssuesNotificationMock);
   }
 
+  private DefaultIssue createIssue() {
+    return new DefaultIssue().setKey("k").setProjectKey("p").setStatus("OPEN").setProjectUuid("uuid").setComponentKey("c").setRuleKey(RuleKey.of("r", "r"));
+  }
+
   @Test
   public void do_not_send_global_new_issues_notification_on_branch_if_issue_has_been_backdated() {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto branch = setUpBranch(project, BRANCH);
-    issueCache.newAppender().append(
-      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS))).close();
+    protoIssueCache.newAppender().append(
+      createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS))).close();
     when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setProject(Project.from(project));
     analysisMetadataHolder.setBranch(newBranch(BranchType.BRANCH));
@@ -308,9 +315,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     UserDto user = db.users().insertUser();
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
 
-    issueCache.newAppender().append(
-      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setAssigneeUuid(user.getUuid())
-        .setCreationDate(new Date(ANALYSE_DATE)))
+    protoIssueCache.newAppender().append(
+      createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setAssigneeUuid(user.getUuid()).setCreationDate(new Date(ANALYSE_DATE)))
       .close();
     when(notificationService.hasProjectSubscribersForTypes(eq(PROJECT.getUuid()), any())).thenReturn(true);
 
@@ -340,19 +346,21 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     Integer[] assignedToOther = IntStream.range(0, 3).mapToObj(i -> 10).toArray(Integer[]::new);
 
     List<DefaultIssue> issues = concat(stream(assigned)
-        .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
+        .map(effort -> createIssue().setType(randomRuleType).setEffort(Duration.create(effort))
           .setAssigneeUuid(perceval.getUuid())
+          .setNew(true)
           .setCreationDate(new Date(ANALYSE_DATE))),
       stream(assignedToOther)
-        .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
+        .map(effort -> createIssue().setType(randomRuleType).setEffort(Duration.create(effort))
           .setAssigneeUuid(arthur.getUuid())
+          .setNew(true)
           .setCreationDate(new Date(ANALYSE_DATE))))
       .collect(toList());
     shuffle(issues);
-    IssueCache issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
-    DiskCache<DefaultIssue>.DiskAppender newIssueCache = issueCache.newAppender();
+    ProtoIssueCache protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
+    DiskCache.CacheAppender newIssueCache = protoIssueCache.newAppender();
     issues.forEach(newIssueCache::append);
-
+    newIssueCache.close();
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
 
@@ -363,12 +371,10 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
     MyNewIssuesNotification myNewIssuesNotificationMock1 = createMyNewIssuesNotificationMock();
     MyNewIssuesNotification myNewIssuesNotificationMock2 = createMyNewIssuesNotificationMock();
-    when(notificationFactory.newMyNewIssuesNotification(any(assigneeCacheType)))
-      .thenReturn(myNewIssuesNotificationMock1)
-      .thenReturn(myNewIssuesNotificationMock2);
+    doReturn(myNewIssuesNotificationMock1).doReturn(myNewIssuesNotificationMock2).when(notificationFactory).newMyNewIssuesNotification(any(assigneeCacheType));
 
     TestComputationStepContext context = new TestComputationStepContext();
-    new SendIssueNotificationsStep(issueCache, treeRootHolder, notificationService, analysisMetadataHolder, notificationFactory, db.getDbClient())
+    new SendIssueNotificationsStep(protoIssueCache, treeRootHolder, notificationService, analysisMetadataHolder, notificationFactory, db.getDbClient())
       .execute(context);
 
     verify(notificationService).deliverEmails(ImmutableSet.of(myNewIssuesNotificationMock1, myNewIssuesNotificationMock2));
@@ -413,17 +419,18 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     Integer[] backDatedEfforts = IntStream.range(0, 1 + random.nextInt(10)).mapToObj(i -> 10 + random.nextInt(100)).toArray(Integer[]::new);
     Duration expectedEffort = Duration.create(stream(efforts).mapToInt(i -> i).sum());
     List<DefaultIssue> issues = concat(stream(efforts)
-        .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
+        .map(effort -> createIssue().setType(randomRuleType).setEffort(Duration.create(effort))
           .setAssigneeUuid(user.getUuid())
           .setCreationDate(new Date(ANALYSE_DATE))),
       stream(backDatedEfforts)
-        .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
+        .map(effort -> createIssue().setType(randomRuleType).setEffort(Duration.create(effort))
           .setAssigneeUuid(user.getUuid())
           .setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS))))
       .collect(toList());
     shuffle(issues);
-    DiskCache<DefaultIssue>.DiskAppender issueCache = this.issueCache.newAppender();
+    DiskCache.CacheAppender issueCache = this.protoIssueCache.newAppender();
     issues.forEach(issueCache::append);
+    issueCache.close();
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
 
@@ -469,8 +476,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public void do_not_send_new_issues_notification_to_user_if_issue_is_backdated() {
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
     UserDto user = db.users().insertUser();
-    issueCache.newAppender().append(
-      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setAssigneeUuid(user.getUuid())
+    protoIssueCache.newAppender().append(
+      createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setAssigneeUuid(user.getUuid())
         .setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS)))
       .close();
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
@@ -543,7 +550,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   private DefaultIssue prepareIssue(long issueCreatedAt, UserDto user, ComponentDto project, ComponentDto file, RuleDefinitionDto ruleDefinitionDto, RuleType type) {
     DefaultIssue issue = newIssue(ruleDefinitionDto, project, file).setType(type).toDefaultIssue()
       .setNew(false).setChanged(true).setSendNotifications(true).setCreationDate(new Date(issueCreatedAt)).setAssigneeUuid(user.getUuid());
-    issueCache.newAppender().append(issue).close();
+    protoIssueCache.newAppender().append(issue).close();
     when(notificationService.hasProjectSubscribersForTypes(project.projectUuid(), NOTIF_TYPES)).thenReturn(true);
     return issue;
   }
@@ -572,7 +579,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       .setChanged(true)
       .setSendNotifications(true)
       .setCreationDate(new Date(issueCreatedAt));
-    issueCache.newAppender().append(issue).close();
+    protoIssueCache.newAppender().append(issue).close();
     when(notificationService.hasProjectSubscribersForTypes(project.uuid(), NOTIF_TYPES)).thenReturn(true);
     IssuesChangesNotification issuesChangesNotification = mock(IssuesChangesNotification.class);
     when(notificationFactory.newIssuesChangesNotification(anySet(), anyMap())).thenReturn(issuesChangesNotification);
@@ -601,9 +608,9 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       .mapToObj(i -> newIssue(ruleDefinitionDto, project, file).setKee("uuid_" + i).setType(randomTypeExceptHotspot).toDefaultIssue()
         .setNew(false).setChanged(true).setSendNotifications(true).setAssigneeUuid(user.getUuid()))
       .collect(toList());
-    DiskCache<DefaultIssue>.DiskAppender diskAppender = issueCache.newAppender();
-    issues.forEach(diskAppender::append);
-    diskAppender.close();
+    DiskCache.CacheAppender cacheAppender = protoIssueCache.newAppender();
+    issues.forEach(cacheAppender::append);
+    cacheAppender.close();
     analysisMetadataHolder.setProject(Project.from(project));
     NewIssuesFactoryCaptor newIssuesFactoryCaptor = new NewIssuesFactoryCaptor(() -> mock(IssuesChangesNotification.class));
     when(notificationFactory.newIssuesChangesNotification(anySet(), anyMap())).thenAnswer(newIssuesFactoryCaptor);

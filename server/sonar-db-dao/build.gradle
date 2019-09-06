@@ -76,3 +76,8 @@ configurations {
 artifacts {
    tests testJar
 }
+
+jar {
+    // remove exclusion on proto files so that they can be included by other modules
+    setExcludes([])
+}

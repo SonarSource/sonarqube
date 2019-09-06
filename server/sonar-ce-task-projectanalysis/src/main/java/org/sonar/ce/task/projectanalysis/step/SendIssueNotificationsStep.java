@@ -39,7 +39,7 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.ce.task.projectanalysis.issue.IssueCache;
+import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.notification.NotificationFactory;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.issue.DefaultIssue;
@@ -72,17 +72,17 @@ public class SendIssueNotificationsStep implements ComputationStep {
    */
   static final Set<Class<? extends Notification>> NOTIF_TYPES = ImmutableSet.of(NewIssuesNotification.class, MyNewIssuesNotification.class, IssuesChangesNotification.class);
 
-  private final IssueCache issueCache;
+  private final ProtoIssueCache protoIssueCache;
   private final TreeRootHolder treeRootHolder;
   private final NotificationService service;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final NotificationFactory notificationFactory;
   private final DbClient dbClient;
 
-  public SendIssueNotificationsStep(IssueCache issueCache, TreeRootHolder treeRootHolder,
+  public SendIssueNotificationsStep(ProtoIssueCache protoIssueCache, TreeRootHolder treeRootHolder,
     NotificationService service, AnalysisMetadataHolder analysisMetadataHolder,
     NotificationFactory notificationFactory, DbClient dbClient) {
-    this.issueCache = issueCache;
+    this.protoIssueCache = protoIssueCache;
     this.treeRootHolder = treeRootHolder;
     this.service = service;
     this.analysisMetadataHolder = analysisMetadataHolder;
@@ -111,12 +111,12 @@ public class SendIssueNotificationsStep implements ComputationStep {
     NewIssuesStatistics newIssuesStats = new NewIssuesStatistics(onCurrentAnalysis);
     Map<String, UserDto> assigneesByUuid;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Iterable<DefaultIssue> iterable = issueCache::traverse;
+      Iterable<DefaultIssue> iterable = protoIssueCache::traverse;
       Set<String> assigneeUuids = stream(iterable.spliterator(), false).map(DefaultIssue::assignee).filter(Objects::nonNull).collect(Collectors.toSet());
       assigneesByUuid = dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, dto -> dto));
     }
 
-    try (CloseableIterator<DefaultIssue> issues = issueCache.traverse()) {
+    try (CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse()) {
       processIssues(newIssuesStats, issues, assigneesByUuid, notificationStatistics);
     }
     if (newIssuesStats.hasIssuesOnCurrentAnalysis()) {

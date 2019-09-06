@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
@@ -50,6 +51,8 @@ import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesRepositoryRule;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -63,11 +66,13 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.workflow.IssueWorkflow;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -114,7 +119,9 @@ public class IntegrateIssuesVisitorTest {
   private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
   private IssueFilter issueFilter = mock(IssueFilter.class);
   private MovedFilesRepository movedFilesRepository = mock(MovedFilesRepository.class);
-  private IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
+  private IssueChangeContext issueChangeContext = mock(IssueChangeContext.class);
+  private IssueLifecycle issueLifecycle = new IssueLifecycle(analysisMetadataHolder, issueChangeContext, mock(IssueWorkflow.class), new IssueFieldsSetter(),
+    mock(DebtCalculator.class), ruleRepositoryRule);
   private IssueVisitor issueVisitor = mock(IssueVisitor.class);
   private ReferenceBranchComponentUuids mergeBranchComponentsUuids = mock(ReferenceBranchComponentUuids.class);
   private SiblingsIssueMerger issueStatusCopier = mock(SiblingsIssueMerger.class);
@@ -131,7 +138,7 @@ public class IntegrateIssuesVisitorTest {
   private PullRequestTrackerExecution prBranchTracker;
   private ReferenceBranchTrackerExecution mergeBranchTracker;
   private ActiveRulesHolder activeRulesHolder = new AlwaysActiveRulesHolderImpl();
-  private IssueCache issueCache;
+  private ProtoIssueCache protoIssueCache;
 
   private TypeAwareVisitor underTest;
 
@@ -154,13 +161,15 @@ public class IntegrateIssuesVisitorTest {
     mergeBranchTracker = new ReferenceBranchTrackerExecution(rawInputFactory, mergeInputFactory, new Tracker<>());
     trackingDelegator = new IssueTrackingDelegator(prBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
     treeRootHolder.setRoot(PROJECT);
-    issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
+    protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
-    underTest = new IntegrateIssuesVisitor(issueCache, issueLifecycle, issueVisitors, trackingDelegator, issueStatusCopier, referenceBranchComponentUuids);
+    when(issueChangeContext.date()).thenReturn(new Date());
+    underTest = new IntegrateIssuesVisitor(protoIssueCache, issueLifecycle, issueVisitors, trackingDelegator, issueStatusCopier, referenceBranchComponentUuids);
   }
 
   @Test
   public void process_new_issue() {
+    ruleRepositoryRule.add(RuleKey.of("xoo", "S001"));
     when(analysisMetadataHolder.isBranch()).thenReturn(true);
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
@@ -173,19 +182,36 @@ public class IntegrateIssuesVisitorTest {
 
     underTest.visitAny(FILE);
 
-    verify(issueLifecycle).initNewOpenIssue(defaultIssueCaptor.capture());
-    DefaultIssue capturedIssue = defaultIssueCaptor.getValue();
-    assertThat(capturedIssue.ruleKey().rule()).isEqualTo("S001");
-
-    verify(issueStatusCopier).tryMerge(FILE, singletonList(capturedIssue));
-
-    verify(issueLifecycle).doAutomaticTransition(capturedIssue);
-
-    assertThat(newArrayList(issueCache.traverse())).hasSize(1);
+    assertThat(newArrayList(protoIssueCache.traverse())).hasSize(1);
   }
 
   @Test
   public void process_existing_issue() {
+
+    RuleKey ruleKey = RuleTesting.XOO_X1;
+    // Issue from db has severity major
+    addBaseIssue(ruleKey);
+
+    // Issue from report has severity blocker
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
+      .setMsg("new message")
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
+      .setSeverity(Constants.Severity.BLOCKER)
+      .build();
+    reportReader.putIssues(FILE_REF, asList(reportIssue));
+    fileSourceRepository.addLine(FILE_REF, "line1");
+
+    underTest.visitAny(FILE);
+
+    List<DefaultIssue> issues = newArrayList(protoIssueCache.traverse());
+    assertThat(issues).hasSize(1);
+    assertThat(issues.get(0).severity()).isEqualTo(Severity.BLOCKER);
+
+  }
+
+  @Test
+  public void dont_cache_existing_issue_if_unmodified() {
 
     RuleKey ruleKey = RuleTesting.XOO_X1;
     // Issue from db has severity major
@@ -203,15 +229,7 @@ public class IntegrateIssuesVisitorTest {
 
     underTest.visitAny(FILE);
 
-    ArgumentCaptor<DefaultIssue> rawIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
-    ArgumentCaptor<DefaultIssue> baseIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(issueLifecycle).mergeExistingOpenIssue(rawIssueCaptor.capture(), baseIssueCaptor.capture());
-    assertThat(rawIssueCaptor.getValue().severity()).isEqualTo(Severity.BLOCKER);
-    assertThat(baseIssueCaptor.getValue().severity()).isEqualTo(Severity.MAJOR);
-
-    verify(issueLifecycle).doAutomaticTransition(defaultIssueCaptor.capture());
-    assertThat(defaultIssueCaptor.getValue().ruleKey()).isEqualTo(ruleKey);
-    List<DefaultIssue> issues = newArrayList(issueCache.traverse());
+    List<DefaultIssue> issues = newArrayList(protoIssueCache.traverse());
     assertThat(issues).hasSize(1);
     assertThat(issues.get(0).severity()).isEqualTo(Severity.BLOCKER);
 
@@ -219,6 +237,7 @@ public class IntegrateIssuesVisitorTest {
 
   @Test
   public void execute_issue_visitors() {
+    ruleRepositoryRule.add(RuleKey.of("xoo", "S001"));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository("xoo")
@@ -242,13 +261,10 @@ public class IntegrateIssuesVisitorTest {
     addBaseIssue(ruleKey);
 
     // No issue in the report
-
     underTest.visitAny(FILE);
 
-    verify(issueLifecycle).doAutomaticTransition(defaultIssueCaptor.capture());
-    assertThat(defaultIssueCaptor.getValue().isBeingClosed()).isTrue();
-    List<DefaultIssue> issues = newArrayList(issueCache.traverse());
-    assertThat(issues).hasSize(1);
+    List<DefaultIssue> issues = newArrayList(protoIssueCache.traverse());
+    assertThat(issues).hasSize(0);
   }
 
   @Test
@@ -289,17 +305,13 @@ public class IntegrateIssuesVisitorTest {
 
     underTest.visitAny(FILE);
 
-    ArgumentCaptor<DefaultIssue> rawIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
-    ArgumentCaptor<DefaultIssue> baseIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(issueLifecycle).copyExistingOpenIssueFromBranch(rawIssueCaptor.capture(), baseIssueCaptor.capture(), eq("master"));
-    assertThat(rawIssueCaptor.getValue().severity()).isEqualTo(Severity.BLOCKER);
-    assertThat(baseIssueCaptor.getValue().severity()).isEqualTo(Severity.MAJOR);
-
-    verify(issueLifecycle).doAutomaticTransition(defaultIssueCaptor.capture());
-    assertThat(defaultIssueCaptor.getValue().ruleKey()).isEqualTo(ruleKey);
-    List<DefaultIssue> issues = newArrayList(issueCache.traverse());
+    List<DefaultIssue> issues = newArrayList(protoIssueCache.traverse());
     assertThat(issues).hasSize(1);
     assertThat(issues.get(0).severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(issues.get(0).isNew()).isFalse();
+    assertThat(issues.get(0).isCopied()).isTrue();
+    assertThat(issues.get(0).changes()).hasSize(1);
+    assertThat(issues.get(0).changes().get(0).diffs()).contains(entry(IssueFieldsSetter.FROM_BRANCH, new FieldDiffs.Diff("master",null)));
   }
 
   private void addBaseIssue(RuleKey ruleKey) {

@@ -147,7 +147,8 @@ public class IssueLifecycle {
     result.setUserUuid(c.userUuid());
     result.setCreationDate(c.creationDate());
     // Don't copy "file" changelogs as they refer to file uuids that might later be purged
-    c.diffs().entrySet().stream().filter(e -> !e.getKey().equals(IssueFieldsSetter.FILE))
+    c.diffs().entrySet().stream()
+      .filter(e -> !e.getKey().equals(IssueFieldsSetter.FILE))
       .forEach(e -> result.setDiff(e.getKey(), e.getValue().oldValue(), e.getValue().newValue()));
     if (result.diffs().isEmpty()) {
       return Optional.empty();

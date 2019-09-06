@@ -19,90 +19,20 @@
  */
 package org.sonar.ce.task.projectanalysis.util.cache;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
 
-/**
- * Serialize and deserialize objects on disk. No search capabilities, only traversal (full scan).
- */
-public class DiskCache<O extends Serializable> {
+public interface DiskCache<O extends Serializable> {
+  long fileSize();
 
-  private final File file;
-  private final System2 system2;
+  CacheAppender<O> newAppender();
 
-  public DiskCache(File file, System2 system2) {
-    this.system2 = system2;
-    this.file = file;
-    OutputStream output = null;
-    boolean threw = true;
-    try {
-      // writes the serialization stream header required when calling "traverse()"
-      // on empty stream. Moreover it allows to call multiple times "newAppender()"
-      output = new ObjectOutputStream(new FileOutputStream(file));
-      output.flush();
-      threw = false;
-    } catch (IOException e) {
-      throw new IllegalStateException("Fail to write into file: " + file, e);
-    } finally {
-      if (threw) {
-        // do not hide initial exception
-        IOUtils.closeQuietly(output);
-      } else {
-        // raise an exception if can't close
-        system2.close(output);
-      }
-    }
-  }
+  CloseableIterator<O> traverse();
 
-  public DiskAppender newAppender() {
-    return new DiskAppender();
-  }
-
-  public CloseableIterator<O> traverse() {
-    try {
-      return new ObjectInputStreamIterator<>(FileUtils.openInputStream(file));
-    } catch (IOException e) {
-      throw new IllegalStateException("Fail to traverse file: " + file, e);
-    }
-  }
-
-  public class DiskAppender implements AutoCloseable {
-    private final ObjectOutputStream output;
-
-    private DiskAppender() {
-      try {
-        this.output = new ObjectOutputStream(new FileOutputStream(file, true)) {
-          @Override
-          protected void writeStreamHeader() {
-            // do not write stream headers as it's already done in constructor of DiskCache
-          }
-        };
-      } catch (IOException e) {
-        throw new IllegalStateException("Fail to open file " + file, e);
-      }
-    }
-
-    public DiskAppender append(O object) {
-      try {
-        output.writeObject(object);
-        output.reset();
-        return this;
-      } catch (IOException e) {
-        throw new IllegalStateException("Fail to write into file " + file, e);
-      }
-    }
+  interface CacheAppender<I extends Serializable> extends AutoCloseable {
+    CacheAppender<I> append(I object);
 
     @Override
-    public void close() {
-      system2.close(output);
-    }
+    void close();
   }
 }

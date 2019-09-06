@@ -24,7 +24,7 @@ import java.util.Set;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
-import org.sonar.ce.task.projectanalysis.util.cache.DiskCache;
+import org.sonar.ce.task.projectanalysis.util.cache.DiskCache.CacheAppender;
 import org.sonar.core.issue.DefaultIssue;
 
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
@@ -36,15 +36,15 @@ public class CloseIssuesOnRemovedComponentsVisitor extends TypeAwareVisitorAdapt
 
   private final ComponentIssuesLoader issuesLoader;
   private final ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues;
-  private final IssueCache issueCache;
+  private final ProtoIssueCache protoIssueCache;
   private final IssueLifecycle issueLifecycle;
 
-  public CloseIssuesOnRemovedComponentsVisitor(ComponentIssuesLoader issuesLoader, ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, IssueCache issueCache,
+  public CloseIssuesOnRemovedComponentsVisitor(ComponentIssuesLoader issuesLoader, ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, ProtoIssueCache protoIssueCache,
     IssueLifecycle issueLifecycle) {
     super(CrawlerDepthLimit.PROJECT, POST_ORDER);
     this.issuesLoader = issuesLoader;
     this.componentsWithUnprocessedIssues = componentsWithUnprocessedIssues;
-    this.issueCache = issueCache;
+    this.protoIssueCache = protoIssueCache;
     this.issueLifecycle = issueLifecycle;
   }
 
@@ -54,7 +54,7 @@ public class CloseIssuesOnRemovedComponentsVisitor extends TypeAwareVisitorAdapt
   }
 
   private void closeIssuesForDeletedComponentUuids(Set<String> deletedComponentUuids) {
-    try (DiskCache<DefaultIssue>.DiskAppender cacheAppender = issueCache.newAppender()) {
+    try (CacheAppender<DefaultIssue> cacheAppender = protoIssueCache.newAppender()) {
       for (String deletedComponentUuid : deletedComponentUuids) {
         List<DefaultIssue> issues = issuesLoader.loadOpenIssues(deletedComponentUuid);
         for (DefaultIssue issue : issues) {

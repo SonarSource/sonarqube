@@ -19,26 +19,25 @@
  */
 package org.sonar.ce.task.projectanalysis.util.cache;
 
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
 
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-public class DiskCacheTest {
+public class JavaSerializationDiskCacheTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
   public void write_and_read() throws Exception {
-    DiskCache<String> cache = new DiskCache<>(temp.newFile(), System2.INSTANCE);
+    DiskCache<String> cache = new JavaSerializationDiskCache<>(temp.newFile(), System2.INSTANCE);
     try (CloseableIterator<String> traverse = cache.traverse()) {
       assertThat(traverse).isExhausted();
     }
@@ -55,7 +54,7 @@ public class DiskCacheTest {
   @Test
   public void fail_if_file_is_not_writable() throws Exception {
     try {
-      new DiskCache<>(temp.newFolder(), System2.INSTANCE);
+      new JavaSerializationDiskCache<>(temp.newFolder(), System2.INSTANCE);
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessageContaining("Fail to write into file");
@@ -69,7 +68,7 @@ public class DiskCacheTest {
         throw new UnsupportedOperationException("expected error");
       }
     }
-    DiskCache<Serializable> cache = new DiskCache<>(temp.newFile(), System2.INSTANCE);
+    DiskCache<Serializable> cache = new JavaSerializationDiskCache<>(temp.newFile(), System2.INSTANCE);
     try {
       cache.newAppender().append(new Unserializable());
       fail();

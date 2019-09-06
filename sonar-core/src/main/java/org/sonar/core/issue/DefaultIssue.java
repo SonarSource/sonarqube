@@ -213,11 +213,12 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
   @Override
+  @CheckForNull
   public String language() {
     return language;
   }
 
-  public DefaultIssue setLanguage(String l) {
+  public DefaultIssue setLanguage(@Nullable String l) {
     this.language = l;
     return this;
   }
@@ -269,7 +270,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
   public DefaultIssue setLine(@Nullable Integer l) {
-    Preconditions.checkArgument(l == null || l > 0, "Line must be null or greater than zero (got %d)", l);
+    Preconditions.checkArgument(l == null || l > 0, "Line must be null or greater than zero (got %s)", l);
     this.line = l;
     return this;
   }
@@ -507,6 +508,11 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
+  public DefaultIssue setCurrentChangeWithoutAddChange(@Nullable FieldDiffs currentChange) {
+    this.currentChange = currentChange;
+    return this;
+  }
+
   @CheckForNull
   public FieldDiffs currentChange() {
     return currentChange;
@@ -583,7 +589,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
       return false;
     }
     DefaultIssue that = (DefaultIssue) o;
-    return !(key != null ? !key.equals(that.key) : (that.key != null));
+    return Objects.equals(key, that.key);
   }
 
   @Override

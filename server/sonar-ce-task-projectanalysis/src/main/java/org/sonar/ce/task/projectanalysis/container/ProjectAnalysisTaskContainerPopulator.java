@@ -62,7 +62,7 @@ import org.sonar.ce.task.projectanalysis.issue.DefaultAssignee;
 import org.sonar.ce.task.projectanalysis.issue.EffortAggregator;
 import org.sonar.ce.task.projectanalysis.issue.IntegrateIssuesVisitor;
 import org.sonar.ce.task.projectanalysis.issue.IssueAssigner;
-import org.sonar.ce.task.projectanalysis.issue.IssueCache;
+import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.issue.IssueCounter;
 import org.sonar.ce.task.projectanalysis.issue.IssueCreationDateCalculator;
 import org.sonar.ce.task.projectanalysis.issue.IssueLifecycle;
@@ -231,7 +231,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       RuleRepositoryImpl.class,
       ScmAccountToUserLoader.class,
       ScmAccountToUser.class,
-      IssueCache.class,
+      ProtoIssueCache.class,
       DefaultAssignee.class,
       IssueVisitors.class,
       IssueLifecycle.class,

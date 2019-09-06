@@ -1,0 +1,98 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+
+// IMPORTANT
+// This is beta version of specification. It will evolve during next
+// releases and is not forward-compatible yet.
+
+syntax = "proto2";
+
+import "db-issues.proto";
+
+option java_package = "org.sonar.ce.task.projectanalysis.util.cache";
+option optimize_for = SPEED;
+
+message Issue {
+  optional string key = 1;
+  optional int32 ruleType = 2;
+  optional string componentUuid = 3;
+  optional string componentKey = 4;
+  optional string moduleUuid = 5;
+  optional string moduleUuidPath = 6;
+  optional string projectUuid = 7;
+  optional string projectKey = 8;
+  optional string ruleKey = 9;
+  optional string language = 10;
+  optional string severity = 11;
+  optional bool manualSeverity = 12;
+  optional string message = 13;
+  optional int32 line = 14;
+  optional double gap = 15;
+  optional int64 effort = 16;
+  optional string status = 17;
+  optional string resolution = 18;
+  optional string assigneeUuid = 19;
+  optional string checksum = 20;
+  map<string, string> attributes = 21;
+  optional string authorLogin = 22;
+  optional string tags = 23;
+  optional sonarqube.db.issues.Locations locations = 24;
+
+  optional bool isFromExternalRuleEngine = 25;
+
+   // FUNCTIONAL DATES
+  optional int64 creationDate = 26;
+  optional int64 updateDate = 27;
+  optional int64 closeDate = 28;
+
+  repeated FieldDiffs changes = 29;
+  optional FieldDiffs currentChanges = 30;
+
+  optional bool isNew = 31;
+  optional bool isCopied = 32;
+  optional bool beingClosed = 33;
+  optional bool onDisabledRule = 34;
+  optional bool isChanged = 35;
+  optional bool sendNotifications = 36;
+  optional int64 selectedAt = 37;
+
+  repeated Comment comments = 38;
+}
+
+message Comment {
+  optional string issueKey = 1;
+  optional string userUuid = 2;
+  optional int64 createdAt = 3;
+  optional int64 updatedAt = 4;
+  optional string key = 5;
+  optional string markdownText = 6;
+  optional bool isNew = 7;
+}
+
+message FieldDiffs {
+  optional string userUuid = 1;
+  optional int64 creationDate = 2;
+  optional string issueKey = 3;
+  map<string, Diff> diffs = 4;
+}
+
+message Diff {
+  optional string oldValue = 1;
+  optional string newValue = 2;
+}

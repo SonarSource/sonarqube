@@ -85,11 +85,12 @@ public class FieldDiffs implements Serializable {
     return this;
   }
 
+  @CheckForNull
   public String issueKey() {
     return issueKey;
   }
 
-  public FieldDiffs setIssueKey(String issueKey) {
+  public FieldDiffs setIssueKey(@Nullable String issueKey) {
     this.issueKey = issueKey;
     return this;
   }

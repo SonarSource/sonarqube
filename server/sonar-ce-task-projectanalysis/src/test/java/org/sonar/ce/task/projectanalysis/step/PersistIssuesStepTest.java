@@ -34,7 +34,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.issue.AdHocRuleCreator;
-import org.sonar.ce.task.projectanalysis.issue.IssueCache;
+import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache;
@@ -60,6 +60,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -88,7 +89,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   private DbSession session = db.getSession();
   private DbClient dbClient = db.getDbClient();
   private UpdateConflictResolver conflictResolver = mock(UpdateConflictResolver.class);
-  private IssueCache issueCache;
+  private ProtoIssueCache protoIssueCache;
   private ComputationStep underTest;
 
   private AdHocRuleCreator adHocRuleCreator = mock(AdHocRuleCreator.class);
@@ -100,10 +101,10 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
   @Before
   public void setup() throws Exception {
-    issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
+    protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
     reportReader.setMetadata(ScannerReport.Metadata.getDefaultInstance());
 
-    underTest = new PersistIssuesStep(dbClient, system2, conflictResolver, new RuleRepositoryImpl(adHocRuleCreator, dbClient, analysisMetadataHolder), issueCache,
+    underTest = new PersistIssuesStep(dbClient, system2, conflictResolver, new RuleRepositoryImpl(adHocRuleCreator, dbClient, analysisMetadataHolder), protoIssueCache,
       new IssueStorage());
   }
 
@@ -121,17 +122,20 @@ public class PersistIssuesStepTest extends BaseStepTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
     when(system2.now()).thenReturn(NOW);
 
-    issueCache.newAppender().append(new DefaultIssue()
+    protoIssueCache.newAppender().append(new DefaultIssue()
       .setKey("ISSUE")
       .setType(RuleType.CODE_SMELL)
       .setRuleKey(rule.getKey())
       .setComponentUuid(file.uuid())
+      .setComponentKey(file.getKey())
       .setProjectUuid(project.uuid())
+      .setProjectKey(project.getKey())
       .setSeverity(BLOCKER)
       .setStatus(STATUS_OPEN)
       .setNew(false)
       .setCopied(true)
       .setType(RuleType.BUG)
+      .setCreationDate(new Date(NOW))
       .setSelectedAt(NOW)
       .addComment(new DefaultIssueComment()
         .setKey("COMMENT")
@@ -139,6 +143,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setUserUuid("john_uuid")
         .setMarkdownText("Some text")
         .setCreatedAt(new Date(NOW))
+        .setUpdatedAt(new Date(NOW))
         .setNew(true))
       .setCurrentChange(
         new FieldDiffs()
@@ -162,8 +167,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
-    assertThat(context.getStatistics().getAll()).containsOnly(
-      entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"), entry("untouched", "0"));
+    assertThat(context.getStatistics().getAll()).contains(
+      entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));
   }
 
   @Test
@@ -175,23 +180,27 @@ public class PersistIssuesStepTest extends BaseStepTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
     when(system2.now()).thenReturn(NOW);
 
-    issueCache.newAppender().append(new DefaultIssue()
+    protoIssueCache.newAppender().append(new DefaultIssue()
       .setKey("ISSUE")
       .setType(RuleType.CODE_SMELL)
       .setRuleKey(rule.getKey())
       .setComponentUuid(file.uuid())
+      .setComponentKey(file.getKey())
       .setProjectUuid(project.uuid())
+      .setProjectKey(project.getKey())
       .setSeverity(BLOCKER)
       .setStatus(STATUS_OPEN)
       .setNew(true)
       .setCopied(true)
       .setType(RuleType.BUG)
+      .setCreationDate(new Date(NOW))
       .setSelectedAt(NOW)
       .addComment(new DefaultIssueComment()
         .setKey("COMMENT")
         .setIssueKey("ISSUE")
         .setUserUuid("john_uuid")
         .setMarkdownText("Some text")
+        .setUpdatedAt(new Date(NOW))
         .setCreatedAt(new Date(NOW))
         .setNew(true))
       .setCurrentChange(new FieldDiffs()
@@ -215,8 +224,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
-    assertThat(context.getStatistics().getAll()).containsOnly(
-      entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"), entry("untouched", "0"));
+    assertThat(context.getStatistics().getAll()).contains(
+      entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));
   }
 
   @Test
@@ -233,7 +242,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
         // simulate the issue has been updated after the analysis ran
         .setUpdatedAt(NOW + 1_000_000_000L));
     issue = dbClient.issueDao().selectByKey(db.getSession(), issue.getKey()).get();
-    DiskCache<DefaultIssue>.DiskAppender issueCacheAppender = issueCache.newAppender();
+    DiskCache.CacheAppender issueCacheAppender = protoIssueCache.newAppender();
     when(system2.now()).thenReturn(NOW);
 
     DefaultIssue defaultIssue = issue.toDefaultIssue()
@@ -250,8 +259,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
     ArgumentCaptor<IssueDto> issueDtoCaptor = ArgumentCaptor.forClass(IssueDto.class);
     verify(conflictResolver).resolve(eq(defaultIssue), issueDtoCaptor.capture(), any(IssueMapper.class));
     assertThat(issueDtoCaptor.getValue().getId()).isEqualTo(issue.getId());
-    assertThat(context.getStatistics().getAll()).containsOnly(
-      entry("inserts", "0"), entry("updates", "1"), entry("merged", "1"), entry("untouched", "0"));
+    assertThat(context.getStatistics().getAll()).contains(
+      entry("inserts", "0"), entry("updates", "1"), entry("merged", "1"));
 
   }
 
@@ -264,14 +273,17 @@ public class PersistIssuesStepTest extends BaseStepTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
     session.commit();
 
-    issueCache.newAppender().append(new DefaultIssue()
+    protoIssueCache.newAppender().append(new DefaultIssue()
       .setKey("ISSUE")
       .setType(RuleType.CODE_SMELL)
       .setRuleKey(rule.getKey())
       .setComponentUuid(file.uuid())
+      .setComponentKey(file.getKey())
       .setProjectUuid(project.uuid())
+      .setProjectKey(project.getKey())
       .setSeverity(BLOCKER)
       .setStatus(STATUS_OPEN)
+      .setCreationDate(new Date(NOW))
       .setNew(true)
       .setType(RuleType.BUG)).close();
 
@@ -286,8 +298,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getSeverity()).isEqualTo(BLOCKER);
     assertThat(result.getStatus()).isEqualTo(STATUS_OPEN);
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
-    assertThat(context.getStatistics().getAll()).containsOnly(
-      entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"), entry("untouched", "0"));
+    assertThat(context.getStatistics().getAll()).contains(
+      entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));
   }
 
   @Test
@@ -300,7 +312,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setResolution(null)
         .setCreatedAt(NOW - 1_000_000_000L)
         .setUpdatedAt(NOW - 1_000_000_000L));
-    DiskCache<DefaultIssue>.DiskAppender issueCacheAppender = issueCache.newAppender();
+    DiskCache.CacheAppender issueCacheAppender = protoIssueCache.newAppender();
 
     issueCacheAppender.append(
       issue.toDefaultIssue()
@@ -317,8 +329,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
     IssueDto issueReloaded = db.getDbClient().issueDao().selectByKey(db.getSession(), issue.getKey()).get();
     assertThat(issueReloaded.getStatus()).isEqualTo(STATUS_CLOSED);
     assertThat(issueReloaded.getResolution()).isEqualTo(RESOLUTION_FIXED);
-    assertThat(context.getStatistics().getAll()).containsOnly(
-      entry("inserts", "0"), entry("updates", "1"), entry("merged", "0"), entry("untouched", "0"));
+    assertThat(context.getStatistics().getAll()).contains(
+      entry("inserts", "0"), entry("updates", "1"), entry("merged", "0"));
   }
 
   @Test
@@ -331,7 +343,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setResolution(null)
         .setCreatedAt(NOW - 1_000_000_000L)
         .setUpdatedAt(NOW - 1_000_000_000L));
-    DiskCache<DefaultIssue>.DiskAppender issueCacheAppender = issueCache.newAppender();
+    DiskCache.CacheAppender issueCacheAppender = protoIssueCache.newAppender();
 
     issueCacheAppender.append(
       issue.toDefaultIssue()
@@ -346,6 +358,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
           .setUserUuid("john_uuid")
           .setMarkdownText("Some text")
           .setCreatedAt(new Date(NOW))
+          .setUpdatedAt(new Date(NOW))
           .setNew(true)))
       .close();
 
@@ -357,8 +370,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .extracting(IssueChangeDto::getChangeType, IssueChangeDto::getUserUuid, IssueChangeDto::getChangeData, IssueChangeDto::getIssueKey,
         IssueChangeDto::getIssueChangeCreationDate)
       .containsOnly(IssueChangeDto.TYPE_COMMENT, "john_uuid", "Some text", issue.getKey(), NOW);
-    assertThat(context.getStatistics().getAll()).containsOnly(
-      entry("inserts", "0"), entry("updates", "1"), entry("merged", "0"), entry("untouched", "0"));
+    assertThat(context.getStatistics().getAll()).contains(
+      entry("inserts", "0"), entry("updates", "1"), entry("merged", "0"));
   }
 
   @Test
@@ -371,7 +384,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setResolution(null)
         .setCreatedAt(NOW - 1_000_000_000L)
         .setUpdatedAt(NOW - 1_000_000_000L));
-    DiskCache<DefaultIssue>.DiskAppender issueCacheAppender = issueCache.newAppender();
+    DiskCache.CacheAppender issueCacheAppender = protoIssueCache.newAppender();
 
     issueCacheAppender.append(
       issue.toDefaultIssue()
@@ -395,8 +408,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .extracting(IssueChangeDto::getChangeType, IssueChangeDto::getUserUuid, IssueChangeDto::getChangeData, IssueChangeDto::getIssueKey,
         IssueChangeDto::getIssueChangeCreationDate)
       .containsOnly(IssueChangeDto.TYPE_FIELD_CHANGE, "john_uuid", "technicalDebt=1", issue.getKey(), NOW);
-    assertThat(context.getStatistics().getAll()).containsOnly(
-      entry("inserts", "0"), entry("updates", "1"), entry("merged", "0"), entry("untouched", "0"));
+    assertThat(context.getStatistics().getAll()).contains(
+      entry("inserts", "0"), entry("updates", "1"), entry("merged", "0"));
   }
 
 }

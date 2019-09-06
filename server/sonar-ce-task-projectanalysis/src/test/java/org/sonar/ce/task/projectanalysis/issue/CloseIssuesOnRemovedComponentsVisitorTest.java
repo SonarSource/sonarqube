@@ -21,10 +21,13 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.VisitorsCrawler;
@@ -49,14 +52,14 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
   ComponentIssuesLoader issuesLoader = mock(ComponentIssuesLoader.class);
   ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues = mock(ComponentsWithUnprocessedIssues.class);
   IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
-  IssueCache issueCache;
+  ProtoIssueCache protoIssueCache;
   VisitorsCrawler underTest;
 
   @Before
   public void setUp() throws Exception {
-    issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
+    protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
     underTest = new VisitorsCrawler(
-      Arrays.asList(new CloseIssuesOnRemovedComponentsVisitor(issuesLoader, componentsWithUnprocessedIssues, issueCache, issueLifecycle)));
+      Arrays.asList(new CloseIssuesOnRemovedComponentsVisitor(issuesLoader, componentsWithUnprocessedIssues, protoIssueCache, issueLifecycle)));
   }
 
   @Test
@@ -65,13 +68,14 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
     String issueUuid = "ABCD";
 
     when(componentsWithUnprocessedIssues.getUuids()).thenReturn(newHashSet(fileUuid));
-    DefaultIssue issue = new DefaultIssue().setKey(issueUuid);
+    DefaultIssue issue = new DefaultIssue().setKey(issueUuid).setType(RuleType.BUG).setCreationDate(new Date())
+      .setComponentKey("c").setProjectUuid("u").setProjectKey("k").setRuleKey(RuleKey.of("r", "r")).setStatus("OPEN");
     when(issuesLoader.loadOpenIssues(fileUuid)).thenReturn(Collections.singletonList(issue));
 
     underTest.visit(ReportComponent.builder(PROJECT, 1).build());
 
     verify(issueLifecycle).doAutomaticTransition(issue);
-    CloseableIterator<DefaultIssue> issues = issueCache.traverse();
+    CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse();
     assertThat(issues.hasNext()).isTrue();
 
     DefaultIssue result = issues.next();
@@ -87,7 +91,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
     underTest.visit(ReportComponent.builder(PROJECT, 1).build());
 
     verifyZeroInteractions(issueLifecycle);
-    CloseableIterator<DefaultIssue> issues = issueCache.traverse();
+    CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse();
     assertThat(issues.hasNext()).isFalse();
   }
 
@@ -96,7 +100,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
     underTest.visit(ReportComponent.builder(DIRECTORY, 1).build());
 
     verifyZeroInteractions(issueLifecycle);
-    CloseableIterator<DefaultIssue> issues = issueCache.traverse();
+    CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse();
     assertThat(issues.hasNext()).isFalse();
   }
 
@@ -105,7 +109,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
     underTest.visit(ReportComponent.builder(FILE, 1).build());
 
     verifyZeroInteractions(issueLifecycle);
-    CloseableIterator<DefaultIssue> issues = issueCache.traverse();
+    CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse();
     assertThat(issues.hasNext()).isFalse();
   }
 }
