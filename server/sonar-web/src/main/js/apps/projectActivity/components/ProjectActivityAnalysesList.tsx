@@ -157,10 +157,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
   };
 
   shouldRenderBaselineMarker(analysis: T.ParsedAnalysis): boolean {
-    return Boolean(
-      analysis.manualNewCodePeriodBaseline ||
-        (this.props.leakPeriodDate && isEqual(this.props.leakPeriodDate, analysis.date))
-    );
+    return Boolean(this.props.leakPeriodDate && isEqual(this.props.leakPeriodDate, analysis.date));
   }
 
   renderAnalysis(analysis: T.ParsedAnalysis) {

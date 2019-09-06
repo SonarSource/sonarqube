@@ -20,9 +20,8 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getNewCodePeriod, resetNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
 import '../styles.css';
 import { getSettingValue } from '../utils';
@@ -43,6 +42,7 @@ interface State {
   days: string;
   generalSetting?: T.NewCodePeriod;
   loading: boolean;
+  overrideGeneralSetting?: boolean;
   saving: boolean;
   selected?: T.NewCodePeriodSettingType;
 }
@@ -75,13 +75,17 @@ export default class App extends React.PureComponent<Props, State> {
   }) {
     const { currentSetting, currentSettingValue, generalSetting } = params;
 
+    const defaultDays =
+      (!currentSetting && generalSetting.type === 'NUMBER_OF_DAYS' && generalSetting.value) || '30';
+
     return {
       loading: false,
       currentSetting,
       currentSettingValue,
       generalSetting,
-      selected: currentSetting,
-      days: currentSetting === 'NUMBER_OF_DAYS' ? currentSettingValue || '30' : '',
+      selected: currentSetting || generalSetting.type,
+      overrideGeneralSetting: Boolean(currentSetting),
+      days: (currentSetting === 'NUMBER_OF_DAYS' && currentSettingValue) || defaultDays,
       analysis: (currentSetting === 'SPECIFIC_ANALYSIS' && currentSettingValue) || ''
     };
   }
@@ -92,7 +96,7 @@ export default class App extends React.PureComponent<Props, State> {
     Promise.all([
       getNewCodePeriod(),
       getNewCodePeriod({
-        branch: this.props.branchesEnabled ? 'master' : undefined,
+        branch: !this.props.branchesEnabled ? 'master' : undefined,
         project: this.props.component.key
       })
     ]).then(
@@ -137,11 +141,19 @@ export default class App extends React.PureComponent<Props, State> {
 
   handleSelectSetting = (selected?: T.NewCodePeriodSettingType) => this.setState({ selected });
 
+  handleToggleSpecificSetting = (overrideGeneralSetting: boolean) =>
+    this.setState({ overrideGeneralSetting });
+
   handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const { component } = this.props;
-    const { analysis, days, selected: type } = this.state;
+    const { analysis, days, selected: type, overrideGeneralSetting } = this.state;
+
+    if (!overrideGeneralSetting) {
+      this.resetSetting();
+      return;
+    }
 
     const value = getSettingValue({ type, analysis, days });
 
@@ -201,17 +213,6 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 
-  renderGeneralSetting(generalSetting: T.NewCodePeriod) {
-    if (generalSetting.type === 'NUMBER_OF_DAYS') {
-      return `${translate('baseline.number_days')} (${translateWithParameters(
-        'duration.days',
-        generalSetting.value || '?'
-      )})`;
-    } else {
-      return translate('baseline.previous_version');
-    }
-  }
-
   render() {
     const { branchLikes, branchesEnabled, component } = this.props;
     const {
@@ -221,6 +222,7 @@ export default class App extends React.PureComponent<Props, State> {
       generalSetting,
       loading,
       currentSettingValue,
+      overrideGeneralSetting,
       saving,
       selected
     } = this.state;
@@ -231,57 +233,45 @@ export default class App extends React.PureComponent<Props, State> {
         {loading ? (
           <DeferredSpinner />
         ) : (
-          <div className="panel panel-white">
-            {branchesEnabled && (
-              <>
-                <h2>{translate('project_baseline.default_setting')}</h2>
-                <p>{translate('project_baseline.default_setting.description')}</p>
-              </>
-            )}
+          <div className="panel-white project-baseline">
+            {branchesEnabled && <h2>{translate('project_baseline.default_setting')}</h2>}
 
-            {generalSetting && (
-              <div className="text-right spacer-bottom">
-                {currentSetting && (
-                  <>
-                    <Button className="little-spacer-bottom" onClick={this.resetSetting}>
-                      {translate('project_baseline.reset_to_general')}
-                    </Button>
-                  </>
-                )}
-                <div className="spacer-top medium">
-                  <strong>{translate('project_baseline.general_setting')}: </strong>
-                  {this.renderGeneralSetting(generalSetting)}
-                </div>
-              </div>
-            )}
-
-            <ProjectBaselineSelector
-              analysis={analysis}
-              branchesEnabled={branchesEnabled}
-              component={component.key}
-              currentSetting={currentSetting}
-              currentSettingValue={currentSettingValue}
-              days={days}
-              onSelectAnalysis={this.handleSelectAnalysis}
-              onSelectDays={this.handleSelectDays}
-              onSelectSetting={this.handleSelectSetting}
-              onSubmit={this.handleSubmit}
-              saving={saving}
-              selected={selected}
-            />
-            {generalSetting && branchesEnabled && (
-              <BranchList
-                branchLikes={branchLikes}
-                component={component}
-                inheritedSetting={
-                  currentSetting
-                    ? {
-                        type: currentSetting,
-                        value: currentSettingValue
-                      }
-                    : generalSetting
-                }
+            {generalSetting && overrideGeneralSetting !== undefined && (
+              <ProjectBaselineSelector
+                analysis={analysis}
+                branchesEnabled={branchesEnabled}
+                component={component.key}
+                currentSetting={currentSetting}
+                currentSettingValue={currentSettingValue}
+                days={days}
+                generalSetting={generalSetting}
+                onSelectAnalysis={this.handleSelectAnalysis}
+                onSelectDays={this.handleSelectDays}
+                onSelectSetting={this.handleSelectSetting}
+                onSubmit={this.handleSubmit}
+                onToggleSpecificSetting={this.handleToggleSpecificSetting}
+                overrideGeneralSetting={overrideGeneralSetting}
+                saving={saving}
+                selected={selected}
               />
+            )}
+            {generalSetting && branchesEnabled && (
+              <div className="huge-spacer-top branch-baseline-selector">
+                <hr />
+                <h2>{translate('project_baseline.configure_branches')}</h2>
+                <BranchList
+                  branchLikes={branchLikes}
+                  component={component}
+                  inheritedSetting={
+                    currentSetting
+                      ? {
+                          type: currentSetting,
+                          value: currentSettingValue
+                        }
+                      : generalSetting
+                  }
+                />
+              </div>
             )}
           </div>
         )}

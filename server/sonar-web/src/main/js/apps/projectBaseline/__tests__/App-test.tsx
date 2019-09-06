@@ -40,15 +40,6 @@ it('should not display reset button if project setting is not set', () => {
   expect(wrapper.find('Button')).toHaveLength(0);
 });
 
-it('should display reset button if project setting is set', async () => {
-  (getNewCodePeriod as jest.Mock).mockResolvedValue({ type: 'NUMBER_OF_DAYS', value: '27' });
-
-  const wrapper = shallowRender();
-
-  await waitAndUpdate(wrapper);
-  expect(wrapper.find('Button')).toHaveLength(1);
-});
-
 it('should reset the setting correctly', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);

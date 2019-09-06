@@ -17,10 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+.project-baseline {
+  padding: calc(4 * var(--gridSize));
+}
 
 .project-baseline-selector > .branch-baseline-setting-modal {
   max-height: 60vh;
   padding-top: 2px;
+}
+
+.project-baseline-selector .general-setting {
+  margin-left: 7px;
+}
+
+.branch-baseline-selector > hr {
+  margin: 0 calc(-4 * var(--gridSize)) calc(4 * var(--gridSize));
 }
 
 .branch-baseline-setting-modal {
@@ -44,7 +55,7 @@
 }
 
 .branch-analysis-list > ul {
-  padding-top: 52px;
+  padding-top: 18px;
 }
 
 .branch-analysis-date {
@@ -88,6 +99,10 @@
   padding-top: var(--gridSize);
   padding-bottom: var(--gridSize);
   background-color: white;
+}
+
+.branch-analysis-version-badge.sticky + .branch-analysis-days-list {
+  padding-top: 36px;
 }
 
 .branch-analysis-version-badge.sticky,

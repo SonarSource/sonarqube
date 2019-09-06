@@ -85,15 +85,12 @@ describe('getPeriodLabel', () => {
 
   it('should handle SPECIFIC_ANALYSIS', () => {
     expect(
-      getPeriodLabel(
-        mockPeriod({
-          mode: 'SPECIFIC_ANALYSIS',
-          parameter: 'should be overriden'
-        }),
-        formatter
-      )
-    ).toBe('overview.period.specific_analysis.2019-04-23T02:12:32+0100');
-    expect(formatter).toBeCalled();
+      getPeriodLabel(mockPeriod({ mode: 'SPECIFIC_ANALYSIS', modeParam: 'A658678DE' }), formatter)
+    ).toBe('overview.period.specific_analysis.A658678DE');
+    expect(getPeriodLabel(mockPeriod({ mode: 'SPECIFIC_ANALYSIS' }), formatter)).toBe(
+      'overview.period.specific_analysis.2019-04-23T02:12:32+0100'
+    );
+    expect(formatter).toBeCalledTimes(1);
   });
 
   it('should handle PREVIOUS_VERSION', () => {

@@ -20,8 +20,9 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import Radio from 'sonar-ui-common/components/controls/Radio';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
 import BaselineSettingDays from './BaselineSettingDays';
@@ -35,12 +36,36 @@ export interface ProjectBaselineSelectorProps {
   currentSetting?: T.NewCodePeriodSettingType;
   currentSettingValue?: string;
   days: string;
+  generalSetting: T.NewCodePeriod;
   onSelectAnalysis: (analysis: T.ParsedAnalysis) => void;
   onSelectDays: (value: string) => void;
-  onSelectSetting: (value: T.NewCodePeriodSettingType) => void;
+  onSelectSetting: (value?: T.NewCodePeriodSettingType) => void;
   onSubmit: (e: React.SyntheticEvent<HTMLFormElement>) => void;
+  onToggleSpecificSetting: (selection: boolean) => void;
   saving: boolean;
   selected?: T.NewCodePeriodSettingType;
+  overrideGeneralSetting: boolean;
+}
+
+function renderGeneralSetting(generalSetting: T.NewCodePeriod) {
+  let setting: string;
+  let description: string;
+  if (generalSetting.type === 'NUMBER_OF_DAYS') {
+    setting = `${translate('baseline.number_days')} (${translateWithParameters(
+      'duration.days',
+      generalSetting.value || '?'
+    )})`;
+    description = translate('baseline.number_days.description');
+  } else {
+    setting = translate('baseline.previous_version');
+    description = translate('baseline.previous_version.description');
+  }
+
+  return (
+    <div className="general-setting">
+      <strong>{setting}</strong>: {description}
+    </div>
+  );
 }
 
 export default function ProjectBaselineSelector(props: ProjectBaselineSelectorProps) {
@@ -49,10 +74,12 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
     branchesEnabled,
     component,
     currentSetting,
-    days,
     currentSettingValue,
+    days,
+    generalSetting,
     saving,
-    selected
+    selected,
+    overrideGeneralSetting
   } = props;
 
   const { isChanged, isValid } = validateSetting({
@@ -60,29 +87,52 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
     currentSetting,
     currentSettingValue,
     days,
-    selected
+    selected,
+    overrideGeneralSetting
   });
 
   return (
     <form className="project-baseline-selector" onSubmit={props.onSubmit}>
-      <div className="branch-baseline-setting-modal">
+      <div className="big-spacer-top spacer-bottom" role="radiogroup">
+        <Radio
+          checked={!overrideGeneralSetting}
+          className="big-spacer-bottom"
+          onCheck={() => props.onToggleSpecificSetting(false)}
+          value="general">
+          {translate('project_baseline.general_setting')}
+        </Radio>
+        <div className="big-spacer-left">{renderGeneralSetting(generalSetting)}</div>
+
+        <Radio
+          checked={overrideGeneralSetting}
+          className="huge-spacer-top"
+          onCheck={() => props.onToggleSpecificSetting(true)}
+          value="specific">
+          {translate('project_baseline.specific_setting')}
+        </Radio>
+      </div>
+
+      <div className="big-spacer-left big-spacer-right branch-baseline-setting-modal">
         <div className="display-flex-row big-spacer-bottom" role="radiogroup">
           <BaselineSettingPreviousVersion
+            disabled={!overrideGeneralSetting}
             onSelect={props.onSelectSetting}
-            selected={selected === 'PREVIOUS_VERSION'}
+            selected={overrideGeneralSetting && selected === 'PREVIOUS_VERSION'}
           />
           <BaselineSettingDays
             days={days}
+            disabled={!overrideGeneralSetting}
             isChanged={isChanged}
             isValid={isValid}
             onChangeDays={props.onSelectDays}
             onSelect={props.onSelectSetting}
-            selected={selected === 'NUMBER_OF_DAYS'}
+            selected={overrideGeneralSetting && selected === 'NUMBER_OF_DAYS'}
           />
           {!branchesEnabled && (
             <BaselineSettingAnalysis
+              disabled={!overrideGeneralSetting}
               onSelect={props.onSelectSetting}
-              selected={selected === 'SPECIFIC_ANALYSIS'}
+              selected={overrideGeneralSetting && selected === 'SPECIFIC_ANALYSIS'}
             />
           )}
         </div>

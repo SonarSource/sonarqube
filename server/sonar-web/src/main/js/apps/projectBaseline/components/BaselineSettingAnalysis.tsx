@@ -22,13 +22,15 @@ import RadioCard from 'sonar-ui-common/components/controls/RadioCard';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
 export interface Props {
+  disabled?: boolean;
   onSelect: (selection: T.NewCodePeriodSettingType) => void;
   selected: boolean;
 }
 
-export default function BaselineSettingAnalysis({ onSelect, selected }: Props) {
+export default function BaselineSettingAnalysis({ disabled, onSelect, selected }: Props) {
   return (
     <RadioCard
+      disabled={disabled}
       onClick={() => onSelect('SPECIFIC_ANALYSIS')}
       selected={selected}
       title={translate('baseline.specific_analysis')}>

@@ -26,6 +26,7 @@ import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { parseDate, toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { getProjectActivity } from '../../../api/projectActivity';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
@@ -49,6 +50,7 @@ interface State {
 export default class BranchAnalysisList extends React.PureComponent<Props, State> {
   mounted = false;
   badges: T.Dict<HTMLDivElement> = {};
+  rootNodeRef: React.RefObject<HTMLDivElement>;
   state: State = {
     analyses: [],
     loading: true,
@@ -58,6 +60,7 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
 
   constructor(props: Props) {
     super(props);
+    this.rootNodeRef = React.createRef<HTMLDivElement>();
     this.updateScroll = throttle(this.updateScroll, 20);
   }
 
@@ -68,6 +71,13 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
 
   componentWillUnmount() {
     this.mounted = false;
+  }
+
+  scrollToSelected() {
+    const selectedNode = document.querySelector('.branch-analysis.selected');
+    if (this.rootNodeRef.current && selectedNode) {
+      scrollToElement(selectedNode, { parent: this.rootNodeRef.current, bottomOffset: 40 });
+    }
   }
 
   fetchAnalyses(initial = false) {
@@ -86,13 +96,18 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
         return;
       }
 
-      this.setState({
-        analyses: result.analyses.map(analysis => ({
-          ...analysis,
-          date: parseDate(analysis.date)
-        })) as T.ParsedAnalysis[],
-        loading: false
-      });
+      this.setState(
+        {
+          analyses: result.analyses.map(analysis => ({
+            ...analysis,
+            date: parseDate(analysis.date)
+          })) as T.ParsedAnalysis[],
+          loading: false
+        },
+        () => {
+          this.scrollToSelected();
+        }
+      );
     });
   }
 
@@ -115,11 +130,9 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
     }
   };
 
-  shouldStick = (version: string, index: number) => {
+  shouldStick = (version: string) => {
     const badge = this.badges[version];
-    return (
-      badge && Number(badge.getAttribute('originOffsetTop')) < this.state.scroll + 18 + index * 2
-    );
+    return badge && Number(badge.getAttribute('originOffsetTop')) < this.state.scroll + 10;
   };
 
   getRangeOptions() {
@@ -168,7 +181,10 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
           />
         </div>
         <div className="branch-analysis-list-wrapper">
-          <div className="bordered branch-analysis-list" onScroll={this.handleScroll}>
+          <div
+            className="bordered branch-analysis-list"
+            onScroll={this.handleScroll}
+            ref={this.rootNodeRef}>
             {loading && <DeferredSpinner className="big-spacer-top" />}
 
             {!loading && !hasFilteredData ? (
@@ -188,7 +204,7 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
                         <div
                           className={classNames('branch-analysis-version-badge', {
                             first: idx === 0,
-                            sticky: this.shouldStick(version.version, idx)
+                            sticky: this.shouldStick(version.version)
                           })}
                           ref={this.registerBadgeNode(version.version)}>
                           <Tooltip
@@ -212,7 +228,7 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
                                 version.byDay[day].map(analysis => (
                                   <li
                                     className={classNames('branch-analysis', {
-                                      selected: false
+                                      selected: analysis.key === this.props.analysis
                                     })}
                                     data-date={parseDate(analysis.date).valueOf()}
                                     key={analysis.key}

@@ -168,7 +168,6 @@ export default class BranchList extends React.PureComponent<Props, State> {
           <thead>
             <tr>
               <th>{translate('branch_list.branch')}</th>
-              <th className="thin"> </th>
               <th className="thin nowrap huge-spacer-right">
                 {translate('branch_list.current_setting')}
               </th>
@@ -185,15 +184,10 @@ export default class BranchList extends React.PureComponent<Props, State> {
                     <div className="badge spacer-left">{translate('branches.main_branch')}</div>
                   )}
                 </td>
-                <td>
-                  {!branch.newCodePeriod && (
-                    <span className="badge badge-info">{translate('default')}</span>
-                  )}
-                </td>
                 <td className="huge-spacer-right nowrap">
                   {branch.newCodePeriod
                     ? this.renderNewCodePeriodSetting(branch.newCodePeriod)
-                    : this.renderNewCodePeriodSetting(this.props.inheritedSetting)}
+                    : translate('branch_list.default_setting')}
                 </td>
                 <td className="text-right">
                   <ActionsDropdown>

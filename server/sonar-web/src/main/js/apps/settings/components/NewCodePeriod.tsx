@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -82,6 +82,13 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
 
   onSelectSetting = (selected: T.NewCodePeriodSettingType) => {
     this.setState({ selected, success: false });
+  };
+
+  onCancel = () => {
+    this.setState(({ currentSetting, currentSettingValue, days }) => ({
+      selected: currentSetting,
+      days: currentSetting === 'NUMBER_OF_DAYS' ? String(currentSettingValue) : days
+    }));
   };
 
   onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -191,6 +198,9 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
                           <SubmitButton disabled={saving || !isValid}>
                             {translate('save')}
                           </SubmitButton>
+                          <ResetButtonLink className="spacer-left" onClick={this.onCancel}>
+                            {translate('cancel')}
+                          </ResetButtonLink>
                         </div>
                       )}
                       {!saving && !loading && success && (

@@ -48,15 +48,30 @@ export function validateSetting(state: {
   currentSettingValue?: string;
   days: string;
   selected?: T.NewCodePeriodSettingType;
+  overrideGeneralSetting?: boolean;
 }) {
-  const { analysis = '', currentSetting, currentSettingValue, days, selected } = state;
+  const {
+    analysis = '',
+    currentSetting,
+    currentSettingValue,
+    days,
+    selected,
+    overrideGeneralSetting
+  } = state;
 
-  const isChanged =
-    selected !== currentSetting ||
-    (selected === 'NUMBER_OF_DAYS' && days !== currentSettingValue) ||
-    (selected === 'SPECIFIC_ANALYSIS' && analysis !== currentSettingValue);
+  let isChanged;
+  if (!currentSetting && overrideGeneralSetting !== undefined) {
+    isChanged = overrideGeneralSetting;
+  } else {
+    isChanged =
+      overrideGeneralSetting === false ||
+      selected !== currentSetting ||
+      (selected === 'NUMBER_OF_DAYS' && days !== currentSettingValue) ||
+      (selected === 'SPECIFIC_ANALYSIS' && analysis !== currentSettingValue);
+  }
 
   const isValid =
+    overrideGeneralSetting === false ||
     selected === 'PREVIOUS_VERSION' ||
     (selected === 'SPECIFIC_ANALYSIS' && analysis.length > 0) ||
     (selected === 'NUMBER_OF_DAYS' && validateDays(days));

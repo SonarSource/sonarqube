@@ -22,14 +22,17 @@ import RadioCard from 'sonar-ui-common/components/controls/RadioCard';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
 export interface Props {
+  disabled?: boolean;
   isDefault?: boolean;
   onSelect: (selection: T.NewCodePeriodSettingType) => void;
   selected: boolean;
 }
 
-export default function BaselineSettingPreviousVersion({ isDefault, onSelect, selected }: Props) {
+export default function BaselineSettingPreviousVersion(props: Props) {
+  const { disabled, isDefault, onSelect, selected } = props;
   return (
     <RadioCard
+      disabled={disabled}
       onClick={() => onSelect('PREVIOUS_VERSION')}
       selected={selected}
       title={

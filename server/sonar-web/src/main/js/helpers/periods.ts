@@ -43,7 +43,7 @@ export function getPeriodLabel(
 
   switch (period.mode) {
     case 'SPECIFIC_ANALYSIS':
-      parameter = dateFormatter(period.date);
+      parameter = parameter || dateFormatter(period.date);
       break;
     case 'PREVIOUS_VERSION':
       parameter = parameter || dateFormatter(period.date);

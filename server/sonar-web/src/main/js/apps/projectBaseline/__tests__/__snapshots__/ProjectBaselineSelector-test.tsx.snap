@@ -6,20 +6,56 @@ exports[`should render correctly 1`] = `
   onSubmit={[MockFunction]}
 >
   <div
-    className="branch-baseline-setting-modal"
+    className="big-spacer-top spacer-bottom"
+    role="radiogroup"
+  >
+    <Radio
+      checked={true}
+      className="big-spacer-bottom"
+      onCheck={[Function]}
+      value="general"
+    >
+      project_baseline.general_setting
+    </Radio>
+    <div
+      className="big-spacer-left"
+    >
+      <div
+        className="general-setting"
+      >
+        <strong>
+          baseline.previous_version
+        </strong>
+        : 
+        baseline.previous_version.description
+      </div>
+    </div>
+    <Radio
+      checked={false}
+      className="huge-spacer-top"
+      onCheck={[Function]}
+      value="specific"
+    >
+      project_baseline.specific_setting
+    </Radio>
+  </div>
+  <div
+    className="big-spacer-left big-spacer-right branch-baseline-setting-modal"
   >
     <div
       className="display-flex-row big-spacer-bottom"
       role="radiogroup"
     >
       <BaselineSettingPreviousVersion
+        disabled={true}
         onSelect={[MockFunction]}
         selected={false}
       />
       <BaselineSettingDays
         days="12"
+        disabled={true}
         isChanged={false}
-        isValid={false}
+        isValid={true}
         onChangeDays={[MockFunction]}
         onSelect={[MockFunction]}
         selected={false}
@@ -54,25 +90,151 @@ exports[`should render correctly 2`] = `
   onSubmit={[MockFunction]}
 >
   <div
-    className="branch-baseline-setting-modal"
+    className="big-spacer-top spacer-bottom"
+    role="radiogroup"
+  >
+    <Radio
+      checked={true}
+      className="big-spacer-bottom"
+      onCheck={[Function]}
+      value="general"
+    >
+      project_baseline.general_setting
+    </Radio>
+    <div
+      className="big-spacer-left"
+    >
+      <div
+        className="general-setting"
+      >
+        <strong>
+          baseline.number_days (duration.days.23)
+        </strong>
+        : 
+        baseline.number_days.description
+      </div>
+    </div>
+    <Radio
+      checked={false}
+      className="huge-spacer-top"
+      onCheck={[Function]}
+      value="specific"
+    >
+      project_baseline.specific_setting
+    </Radio>
+  </div>
+  <div
+    className="big-spacer-left big-spacer-right branch-baseline-setting-modal"
   >
     <div
       className="display-flex-row big-spacer-bottom"
       role="radiogroup"
     >
       <BaselineSettingPreviousVersion
+        disabled={true}
         onSelect={[MockFunction]}
         selected={false}
       />
       <BaselineSettingDays
         days="12"
+        disabled={true}
         isChanged={false}
-        isValid={false}
+        isValid={true}
         onChangeDays={[MockFunction]}
         onSelect={[MockFunction]}
         selected={false}
       />
       <BaselineSettingAnalysis
+        disabled={true}
+        onSelect={[MockFunction]}
+        selected={false}
+      />
+    </div>
+  </div>
+  <div
+    className="big-spacer-top invisible"
+  >
+    <p
+      className="spacer-bottom"
+    >
+      baseline.next_analysis_notice
+    </p>
+    <DeferredSpinner
+      className="spacer-right"
+      loading={false}
+      timeout={100}
+    />
+    <SubmitButton
+      disabled={true}
+    >
+      save
+    </SubmitButton>
+  </div>
+</form>
+`;
+
+exports[`should render correctly 3`] = `
+<form
+  className="project-baseline-selector"
+  onSubmit={[MockFunction]}
+>
+  <div
+    className="big-spacer-top spacer-bottom"
+    role="radiogroup"
+  >
+    <Radio
+      checked={true}
+      className="big-spacer-bottom"
+      onCheck={[Function]}
+      value="general"
+    >
+      project_baseline.general_setting
+    </Radio>
+    <div
+      className="big-spacer-left"
+    >
+      <div
+        className="general-setting"
+      >
+        <strong>
+          baseline.number_days (duration.days.?)
+        </strong>
+        : 
+        baseline.number_days.description
+      </div>
+    </div>
+    <Radio
+      checked={false}
+      className="huge-spacer-top"
+      onCheck={[Function]}
+      value="specific"
+    >
+      project_baseline.specific_setting
+    </Radio>
+  </div>
+  <div
+    className="big-spacer-left big-spacer-right branch-baseline-setting-modal"
+  >
+    <div
+      className="display-flex-row big-spacer-bottom"
+      role="radiogroup"
+    >
+      <BaselineSettingPreviousVersion
+        disabled={true}
+        onSelect={[MockFunction]}
+        selected={false}
+      />
+      <BaselineSettingDays
+        days="12"
+        disabled={true}
+        isChanged={false}
+        isValid={true}
+        onChangeDays={[MockFunction]}
+        onSelect={[MockFunction]}
+        selected={false}
+      />
+      <BaselineSettingAnalysis
+        disabled={true}
         onSelect={[MockFunction]}
         selected={false}
       />

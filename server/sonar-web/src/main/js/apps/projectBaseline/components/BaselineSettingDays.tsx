@@ -25,6 +25,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 export interface Props {
   className?: string;
   days: string;
+  disabled?: boolean;
   isChanged: boolean;
   isValid: boolean;
   onChangeDays: (value: string) => void;
@@ -33,10 +34,11 @@ export interface Props {
 }
 
 export default function BaselineSettingDays(props: Props) {
-  const { className, days, isChanged, isValid, onChangeDays, onSelect, selected } = props;
+  const { className, days, disabled, isChanged, isValid, onChangeDays, onSelect, selected } = props;
   return (
     <RadioCard
       className={className}
+      disabled={disabled}
       onClick={() => onSelect('NUMBER_OF_DAYS')}
       selected={selected}
       title={translate('baseline.number_days')}>

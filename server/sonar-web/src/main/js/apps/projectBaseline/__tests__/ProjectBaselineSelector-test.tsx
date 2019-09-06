@@ -25,13 +25,22 @@ import ProjectBaselineSelector, {
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ branchesEnabled: false })).toMatchSnapshot();
+  expect(
+    shallowRender({
+      branchesEnabled: false,
+      generalSetting: { type: 'NUMBER_OF_DAYS', value: '23' }
+    })
+  ).toMatchSnapshot();
+  expect(
+    shallowRender({ branchesEnabled: false, generalSetting: { type: 'NUMBER_OF_DAYS', value: '' } })
+  ).toMatchSnapshot();
 });
 
 it('should not show save button when unchanged', () => {
   const wrapper = shallowRender({
     currentSetting: 'PREVIOUS_VERSION',
-    selected: 'PREVIOUS_VERSION'
+    selected: 'PREVIOUS_VERSION',
+    overrideGeneralSetting: true
   });
   expect(
     wrapper
@@ -42,7 +51,11 @@ it('should not show save button when unchanged', () => {
 });
 
 it('should show save button when changed', () => {
-  const wrapper = shallowRender({ currentSetting: 'PREVIOUS_VERSION', selected: 'NUMBER_OF_DAYS' });
+  const wrapper = shallowRender({
+    currentSetting: 'PREVIOUS_VERSION',
+    selected: 'NUMBER_OF_DAYS',
+    overrideGeneralSetting: true
+  });
   expect(wrapper.find('SubmitButton')).toHaveLength(1);
 });
 
@@ -51,7 +64,8 @@ it('should show save button when value changed', () => {
     currentSetting: 'NUMBER_OF_DAYS',
     currentSettingValue: '23',
     days: '25',
-    selected: 'NUMBER_OF_DAYS'
+    selected: 'NUMBER_OF_DAYS',
+    overrideGeneralSetting: true
   });
   expect(wrapper.find('SubmitButton')).toHaveLength(1);
 });
@@ -61,7 +75,8 @@ it('should disable the save button when saving', () => {
     currentSetting: 'NUMBER_OF_DAYS',
     currentSettingValue: '25',
     saving: true,
-    selected: 'PREVIOUS_VERSION'
+    selected: 'PREVIOUS_VERSION',
+    overrideGeneralSetting: true
   });
 
   expect(
@@ -76,7 +91,8 @@ it('should disable the save button when date is invalid', () => {
   const wrapper = shallowRender({
     currentSetting: 'PREVIOUS_VERSION',
     days: 'hello',
-    selected: 'NUMBER_OF_DAYS'
+    selected: 'NUMBER_OF_DAYS',
+    overrideGeneralSetting: true
   });
 
   expect(
@@ -93,10 +109,13 @@ function shallowRender(props: Partial<ProjectBaselineSelectorProps> = {}) {
       branchesEnabled={true}
       component=""
       days="12"
+      generalSetting={{}}
       onSelectAnalysis={jest.fn()}
       onSelectDays={jest.fn()}
       onSelectSetting={jest.fn()}
       onSubmit={jest.fn()}
+      onToggleSpecificSetting={jest.fn()}
+      overrideGeneralSetting={false}
       saving={false}
       {...props}
     />
