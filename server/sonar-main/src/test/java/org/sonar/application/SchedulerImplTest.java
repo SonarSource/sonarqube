@@ -19,7 +19,10 @@
  */
 package org.sonar.application;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -37,6 +40,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 import org.sonar.application.command.AbstractCommand;
 import org.sonar.application.command.CommandFactory;
 import org.sonar.application.command.EsScriptCommand;
@@ -69,6 +73,8 @@ public class SchedulerImplTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+  private Level initialLevel;
+
   private EsScriptCommand esScriptCommand;
   private JavaCommand webLeaderCommand;
   private JavaCommand webFollowerCommand;
@@ -90,11 +96,16 @@ public class SchedulerImplTest {
     webLeaderCommand = new JavaCommand(WEB_SERVER, tempDir);
     webFollowerCommand = new JavaCommand(WEB_SERVER, tempDir);
     ceCommand = new JavaCommand(COMPUTE_ENGINE, tempDir);
+    Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    initialLevel = logger.getLevel();
+    logger.setLevel(Level.TRACE);
   }
 
   @After
   public void tearDown() {
     processLauncher.close();
+    Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    logger.setLevel(initialLevel);
   }
 
   @Test
@@ -103,29 +114,7 @@ public class SchedulerImplTest {
     underTest.schedule();
 
     // elasticsearch does not have preconditions to start
-    TestManagedProcess es = processLauncher.waitForProcess(ELASTICSEARCH);
-    assertThat(es.isAlive()).isTrue();
-    assertThat(processLauncher.processes).hasSize(1);
-
-    // elasticsearch becomes operational -> web leader is starting
-    es.operational = true;
-    waitForAppStateOperational(appState, ELASTICSEARCH);
-    TestManagedProcess web = processLauncher.waitForProcess(WEB_SERVER);
-    assertThat(web.isAlive()).isTrue();
-    assertThat(processLauncher.processes).hasSize(2);
-    assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand);
-
-    // web becomes operational -> CE is starting
-    web.operational = true;
-    waitForAppStateOperational(appState, WEB_SERVER);
-    TestManagedProcess ce = processLauncher.waitForProcess(COMPUTE_ENGINE);
-    ce.operational = true;
-    assertThat(ce.isAlive()).isTrue();
-    assertThat(processLauncher.processes).hasSize(3);
-    assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand, ceCommand);
-
-    // all processes are up
-    processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isTrue());
+    playAndVerifyStartupSequence();
 
     // processes are stopped in reverse order of startup
     underTest.stop();
@@ -141,30 +130,7 @@ public class SchedulerImplTest {
     SchedulerImpl underTest = newScheduler(false);
     underTest.schedule();
 
-    // elasticsearch does not have preconditions to start
-    TestManagedProcess es = processLauncher.waitForProcess(ELASTICSEARCH);
-    assertThat(es.isAlive()).isTrue();
-    assertThat(processLauncher.processes).hasSize(1);
-
-    // elasticsearch becomes operational -> web leader is starting
-    es.operational = true;
-    waitForAppStateOperational(appState, ELASTICSEARCH);
-    TestManagedProcess web = processLauncher.waitForProcess(WEB_SERVER);
-    assertThat(web.isAlive()).isTrue();
-    assertThat(processLauncher.processes).hasSize(2);
-    assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand);
-
-    // web becomes operational -> CE is starting
-    web.operational = true;
-    waitForAppStateOperational(appState, WEB_SERVER);
-    TestManagedProcess ce = processLauncher.waitForProcess(COMPUTE_ENGINE);
-    ce.operational = true;
-    assertThat(ce.isAlive()).isTrue();
-    assertThat(processLauncher.processes).hasSize(3);
-    assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand, ceCommand);
-
-    // all processes are up
-    processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isTrue());
+    playAndVerifyStartupSequence();
 
     // processes are stopped in reverse order of startup
     underTest.hardStop();
@@ -197,8 +163,8 @@ public class SchedulerImplTest {
 
     underTest.schedule();
 
-    processLauncher.waitForProcess(ELASTICSEARCH).operational = true;
-    processLauncher.waitForProcess(WEB_SERVER).operational = true;
+    processLauncher.waitForProcess(ELASTICSEARCH).signalAsOperational();
+    processLauncher.waitForProcess(WEB_SERVER).signalAsOperational();
 
     underTest.awaitTermination();
     assertThat(orderedStops).containsExactly(WEB_SERVER, ELASTICSEARCH);
@@ -231,6 +197,33 @@ public class SchedulerImplTest {
   }
 
   @Test
+  public void restart_stops_all_and_restarts_all_processes() throws InterruptedException, IOException {
+    Scheduler underTest = startAll();
+    Mockito.doAnswer(t -> {
+      orderedStops.clear();
+      appState.reset();
+    return null;})
+      .when(appReloader).reload(settings);
+
+    processLauncher.waitForProcess(WEB_SERVER).askedForRestart = true;
+
+    // waiting for all processes to be stopped
+    processLauncher.waitForProcessDown(COMPUTE_ENGINE).reset();
+    processLauncher.waitForProcessDown(WEB_SERVER).reset();
+    processLauncher.waitForProcessDown(ELASTICSEARCH).reset();
+    processLauncher.reset();
+
+    playAndVerifyStartupSequence();
+
+    underTest.stop();
+    assertThat(orderedStops).containsExactly(COMPUTE_ENGINE, WEB_SERVER, ELASTICSEARCH);
+    processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isFalse());
+
+    // does nothing because scheduler is already terminated
+    underTest.awaitTermination();
+  }
+
+  @Test
   public void restart_stops_all_if_new_settings_are_not_allowed() throws Exception {
     Scheduler underTest = startAll();
     doThrow(new IllegalStateException("reload error")).when(appReloader).reload(settings);
@@ -238,9 +231,9 @@ public class SchedulerImplTest {
     processLauncher.waitForProcess(WEB_SERVER).askedForRestart = true;
 
     // waiting for all processes to be stopped
-    processLauncher.waitForProcessDown(ELASTICSEARCH);
     processLauncher.waitForProcessDown(COMPUTE_ENGINE);
     processLauncher.waitForProcessDown(WEB_SERVER);
+    processLauncher.waitForProcessDown(ELASTICSEARCH);
 
     // verify that awaitTermination() does not block
     underTest.awaitTermination();
@@ -268,8 +261,7 @@ public class SchedulerImplTest {
     SchedulerImpl underTest = newScheduler(true);
     underTest.schedule();
 
-    TestManagedProcess web = processLauncher.waitForProcessAlive(WEB_SERVER);
-    web.operational = true;
+    TestManagedProcess web = processLauncher.waitForProcessAlive(WEB_SERVER).signalAsOperational();
     processLauncher.waitForProcessAlive(COMPUTE_ENGINE);
     assertThat(processLauncher.processes).hasSize(2);
 
@@ -334,6 +326,33 @@ public class SchedulerImplTest {
     underTest.hardStop();
   }
 
+  private void playAndVerifyStartupSequence() throws InterruptedException {
+    // elasticsearch does not have preconditions to start
+    TestManagedProcess es = processLauncher.waitForProcess(ELASTICSEARCH);
+    assertThat(es.isAlive()).isTrue();
+    assertThat(processLauncher.processes).hasSize(1);
+    assertThat(processLauncher.commands).containsExactly(esScriptCommand);
+
+    // elasticsearch becomes operational -> web leader is starting
+    es.signalAsOperational();
+    waitForAppStateOperational(appState, ELASTICSEARCH);
+    TestManagedProcess web = processLauncher.waitForProcess(WEB_SERVER);
+    assertThat(web.isAlive()).isTrue();
+    assertThat(processLauncher.processes).hasSize(2);
+    assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand);
+
+    // web becomes operational -> CE is starting
+    web.signalAsOperational();
+    waitForAppStateOperational(appState, WEB_SERVER);
+    TestManagedProcess ce = processLauncher.waitForProcess(COMPUTE_ENGINE).signalAsOperational();
+    assertThat(ce.isAlive()).isTrue();
+    assertThat(processLauncher.processes).hasSize(3);
+    assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand, ceCommand);
+
+    // all processes are up
+    processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isTrue());
+  }
+
   private SchedulerImpl newScheduler(boolean clustered) {
     return new SchedulerImpl(settings, appReloader, javaCommandFactory, processLauncher, clustered ? clusterAppState : appState)
       .setProcessWatcherDelayMs(1L);
@@ -342,9 +361,9 @@ public class SchedulerImplTest {
   private Scheduler startAll() throws InterruptedException {
     SchedulerImpl scheduler = newScheduler(false);
     scheduler.schedule();
-    processLauncher.waitForProcess(ELASTICSEARCH).operational = true;
-    processLauncher.waitForProcess(WEB_SERVER).operational = true;
-    processLauncher.waitForProcess(COMPUTE_ENGINE).operational = true;
+    processLauncher.waitForProcess(ELASTICSEARCH).signalAsOperational();
+    processLauncher.waitForProcess(WEB_SERVER).signalAsOperational();
+    processLauncher.waitForProcess(COMPUTE_ENGINE).signalAsOperational();
     return scheduler;
   }
 
@@ -381,9 +400,20 @@ public class SchedulerImplTest {
   }
 
   private class TestProcessLauncher implements ProcessLauncher {
-    private final EnumMap<ProcessId, TestManagedProcess> processes = new EnumMap<>(ProcessId.class);
-    private final List<AbstractCommand<?>> commands = synchronizedList(new ArrayList<>());
-    private ProcessId makeStartupFail = null;
+    private EnumMap<ProcessId, TestManagedProcess> processes;
+    private List<AbstractCommand<?>> commands;
+    private ProcessId makeStartupFail;
+
+    public TestProcessLauncher() {
+      reset();
+    }
+
+    public TestProcessLauncher reset() {
+      processes = new EnumMap<>(ProcessId.class);
+      commands = synchronizedList(new ArrayList<>());
+      makeStartupFail = null;
+      return this;
+    }
 
     @Override
     public ManagedProcess launch(AbstractCommand command) {
@@ -440,12 +470,24 @@ public class SchedulerImplTest {
 
   private class TestManagedProcess implements ManagedProcess, AutoCloseable {
     private final ProcessId processId;
-    private final CountDownLatch alive = new CountDownLatch(1);
-    private boolean operational = false;
-    private boolean askedForRestart = false;
+    private CountDownLatch alive;
+    private boolean operational;
+    private boolean askedForRestart;
 
     private TestManagedProcess(ProcessId processId) {
       this.processId = processId;
+      reset();
+    }
+
+    private void reset() {
+      alive = new CountDownLatch(1);
+      operational = false;
+      askedForRestart = false;
+    }
+
+    public TestManagedProcess signalAsOperational() {
+      this.operational = true;
+      return this;
     }
 
     @Override

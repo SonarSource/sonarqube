@@ -70,6 +70,7 @@ public class TestAppState implements AppState {
   public void reset() {
     webLeaderLocked.set(false);
     localProcesses.clear();
+    remoteProcesses.clear();
   }
 
   @Override
