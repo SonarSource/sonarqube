@@ -4,11 +4,11 @@ url: /analysis/scan/sonarscanner-for-msbuild/
 ---
 
 [[info]]
-| **Download SonarScanner for MSBuild 4.7.0.2295** - Compatible with SonarQube 6.7+ (LTS)  
+| **Download SonarScanner for MSBuild 4.7.1.2311** - Compatible with SonarQube 6.7+ (LTS)  
 | By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://github.com/SonarSource/sonar-scanner-msbuild/issues) – [Source](https://github.com/SonarSource/sonar-scanner-msbuild)
 |
-| [.NET Framework 4.6+](https://github.com/SonarSource/sonar-scanner-msbuild/releases/download/4.7.0.2295/sonar-scanner-msbuild-4.7.0.2295-net46.zip) |
-| [.NET Core 2.0+](https://github.com/SonarSource/sonar-scanner-msbuild/releases/download/4.7.0.2295/sonar-scanner-msbuild-4.7.0.2295-netcoreapp2.0.zip) |
+| [.NET Framework 4.6+](https://github.com/SonarSource/sonar-scanner-msbuild/releases/download/4.7.1.2311/sonar-scanner-msbuild-4.7.1.2311-net46.zip) |
+| [.NET Core 2.0+](https://github.com/SonarSource/sonar-scanner-msbuild/releases/download/4.7.1.2311/sonar-scanner-msbuild-4.7.1.2311-netcoreapp2.0.zip) |
 | [.NET Core Global Tool](https://www.nuget.org/packages/dotnet-sonarscanner)
 
 
@@ -45,7 +45,7 @@ Consider setting file system permissions to restrict access to this file.:
 
 ### Installation of the SonarScanner for MSBuild .NET Core Global Tool
 ```
-dotnet tool install --global dotnet-sonarscanner --version 4.7.0
+dotnet tool install --global dotnet-sonarscanner --version 4.7.1
 ```
 The _--version_ argument is optional. If it is omitted the latest version will be installed.
 
@@ -84,7 +84,7 @@ dotnet build <path to solution.sln>
 dotnet sonarscanner end <!-- sonarcloud -->/d:sonar.login="<token>" <!-- /sonarcloud -->
 ```
 
-Same as above, if you are targetting a SonarCloud project, will have to add both the organization and a login for authentication.
+Same as above, if you are targeting a SonarCloud project, will have to add both the organization and a login for authentication.
 
 Notes:
 
@@ -208,4 +208,3 @@ To instruct the Java VM to use specific proxy settings or when there is no syste
 SONAR_SCANNER_OPTS = "-Dhttp.proxyHost=yourProxyHost -Dhttp.proxyPort=yourProxyPort"
 ```
 Where _yourProxyHost_ and _yourProxyPort_ are the hostname and the port of your proxy server. There are additional proxy settings for https, authentication and exclusions that could be passed to the Java VM. For more information see the following article: https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html
-
