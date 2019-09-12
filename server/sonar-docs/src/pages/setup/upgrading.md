@@ -30,9 +30,6 @@ If you are using the Oracle DB, copy its JDBC driver into `$NEW_SONARQUBE_HOME/e
 
 ## Additional Information
 
-### MySQL Deprecation and Migration
-Starting with version 7.9, SonarQube will no longer support MySQL. To migrate from MySQL to a supported database, see the [MySQL Migrator tool](https://github.com/SonarSource/mysql-migrator).
-
 ### Oracle Clean-up
 
 Starting with version 6.6, there's an additional step you may want to perform if you're using Oracle. On Oracle, the database columns to be dropped are now marked as UNUSED and are not physically dropped anymore. To reclaim disk space, Oracle administrators must drop these unused columns manually. The SQL request is `ALTER TABLE foo DROP UNUSED COLUMNS`. The relevant tables are listed in the system table `all_unused_col_tabs`.
