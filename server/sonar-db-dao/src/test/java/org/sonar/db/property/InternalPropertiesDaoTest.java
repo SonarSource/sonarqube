@@ -55,7 +55,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.property.InternalPropertiesDao.KEY_MAX_LENGTH;
-import static org.sonar.db.property.InternalPropertiesDao.LOCK_PREFIX;
 
 public class InternalPropertiesDaoTest {
 
@@ -486,15 +485,15 @@ public class InternalPropertiesDaoTest {
 
   @Test
   public void tryLock_throws_if_lock_name_would_produce_too_long_key() {
-    String tooLongName = randomAlphabetic(KEY_MAX_LENGTH - LOCK_PREFIX.length());
+    String tooLongName = randomAlphabetic(KEY_MAX_LENGTH - "lock.".length() + (1 + new Random().nextInt(50)));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("lock name is too long");
     underTest.tryLock(dbSession, tooLongName, 60);
   }
 
-  private String key(String name) {
-    return LOCK_PREFIX + '.' + name;
+  private static String key(String name) {
+    return "lock." + name;
   }
 
   private void expectKeyNullOrEmptyIAE() {

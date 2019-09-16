@@ -46,7 +46,7 @@ public class InternalPropertiesDao implements Dao {
   /**
    * A common prefix used by locks. {@see InternalPropertiesDao#tryLock}
    */
-  public static final String LOCK_PREFIX = "lock.";
+  private static final String LOCK_PREFIX = "lock.";
 
   static final int KEY_MAX_LENGTH = 20;
   private static final int TEXT_VALUE_MAX_LENGTH = 4000;
@@ -192,7 +192,7 @@ public class InternalPropertiesDao implements Dao {
    * The lock is considered released when the specified duration has elapsed.
    */
   public boolean tryLock(DbSession dbSession, String name, int maxAgeInSeconds) {
-    String key = LOCK_PREFIX + '.' + name;
+    String key = LOCK_PREFIX + name;
     if (key.length() > KEY_MAX_LENGTH) {
       throw new IllegalArgumentException("lock name is too long");
     }
