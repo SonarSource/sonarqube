@@ -23,6 +23,7 @@ import { Link } from 'react-router';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getNewCodePeriod, resetNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import '../styles.css';
 import { getSettingValue } from '../utils';
 import BranchList from './BranchList';
@@ -139,6 +140,12 @@ export default class App extends React.PureComponent<Props, State> {
 
   handleSelectDays = (days: string) => this.setState({ days });
 
+  handleCancel = () =>
+    this.setState(
+      ({ generalSetting = DEFAULT_GENERAL_SETTING, currentSetting, currentSettingValue }) =>
+        this.getUpdatedState({ generalSetting, currentSetting, currentSettingValue })
+    );
+
   handleSelectSetting = (selected?: T.NewCodePeriodSettingType) => this.setState({ selected });
 
   handleToggleSpecificSetting = (overrideGeneralSetting: boolean) =>
@@ -188,7 +195,7 @@ export default class App extends React.PureComponent<Props, State> {
             id="project_baseline.page.description"
             values={{
               link: (
-                <Link to="/documentation/user-guide/fixing-the-water-leak/">
+                <Link to="/documentation/project-administration/new-code-period/">
                   {translate('project_baseline.page.description.link')}
                 </Link>
               )
@@ -228,54 +235,58 @@ export default class App extends React.PureComponent<Props, State> {
     } = this.state;
 
     return (
-      <div className="page page-limited">
-        {this.renderHeader()}
-        {loading ? (
-          <DeferredSpinner />
-        ) : (
-          <div className="panel-white project-baseline">
-            {branchesEnabled && <h2>{translate('project_baseline.default_setting')}</h2>}
+      <>
+        <Suggestions suggestions="project_baseline" />
+        <div className="page page-limited">
+          {this.renderHeader()}
+          {loading ? (
+            <DeferredSpinner />
+          ) : (
+            <div className="panel-white project-baseline">
+              {branchesEnabled && <h2>{translate('project_baseline.default_setting')}</h2>}
 
-            {generalSetting && overrideGeneralSetting !== undefined && (
-              <ProjectBaselineSelector
-                analysis={analysis}
-                branchesEnabled={branchesEnabled}
-                component={component.key}
-                currentSetting={currentSetting}
-                currentSettingValue={currentSettingValue}
-                days={days}
-                generalSetting={generalSetting}
-                onSelectAnalysis={this.handleSelectAnalysis}
-                onSelectDays={this.handleSelectDays}
-                onSelectSetting={this.handleSelectSetting}
-                onSubmit={this.handleSubmit}
-                onToggleSpecificSetting={this.handleToggleSpecificSetting}
-                overrideGeneralSetting={overrideGeneralSetting}
-                saving={saving}
-                selected={selected}
-              />
-            )}
-            {generalSetting && branchesEnabled && (
-              <div className="huge-spacer-top branch-baseline-selector">
-                <hr />
-                <h2>{translate('project_baseline.configure_branches')}</h2>
-                <BranchList
-                  branchLikes={branchLikes}
-                  component={component}
-                  inheritedSetting={
-                    currentSetting
-                      ? {
-                          type: currentSetting,
-                          value: currentSettingValue
-                        }
-                      : generalSetting
-                  }
+              {generalSetting && overrideGeneralSetting !== undefined && (
+                <ProjectBaselineSelector
+                  analysis={analysis}
+                  branchesEnabled={branchesEnabled}
+                  component={component.key}
+                  currentSetting={currentSetting}
+                  currentSettingValue={currentSettingValue}
+                  days={days}
+                  generalSetting={generalSetting}
+                  onCancel={this.handleCancel}
+                  onSelectAnalysis={this.handleSelectAnalysis}
+                  onSelectDays={this.handleSelectDays}
+                  onSelectSetting={this.handleSelectSetting}
+                  onSubmit={this.handleSubmit}
+                  onToggleSpecificSetting={this.handleToggleSpecificSetting}
+                  overrideGeneralSetting={overrideGeneralSetting}
+                  saving={saving}
+                  selected={selected}
                 />
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+              )}
+              {generalSetting && branchesEnabled && (
+                <div className="huge-spacer-top branch-baseline-selector">
+                  <hr />
+                  <h2>{translate('project_baseline.configure_branches')}</h2>
+                  <BranchList
+                    branchLikes={branchLikes}
+                    component={component}
+                    inheritedSetting={
+                      currentSetting
+                        ? {
+                            type: currentSetting,
+                            value: currentSettingValue
+                          }
+                        : generalSetting
+                    }
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </>
     );
   }
 }

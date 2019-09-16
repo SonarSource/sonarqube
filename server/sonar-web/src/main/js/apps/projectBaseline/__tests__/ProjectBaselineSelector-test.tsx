@@ -110,6 +110,7 @@ function shallowRender(props: Partial<ProjectBaselineSelectorProps> = {}) {
       component=""
       days="12"
       generalSetting={{}}
+      onCancel={jest.fn()}
       onSelectAnalysis={jest.fn()}
       onSelectDays={jest.fn()}
       onSelectSetting={jest.fn()}

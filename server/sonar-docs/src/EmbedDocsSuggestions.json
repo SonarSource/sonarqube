@@ -108,6 +108,12 @@
     }
   ],
   "project_activity": [],
+  "project_baseline": [
+    {
+      "link": "/documentation/project-administration/new-code-period/",
+      "text": "New Code Period"
+    }
+  ],
   "project_quality_gate": [
     {
       "link": "/documentation/user-guide/fixing-the-water-leak/",

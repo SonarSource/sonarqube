@@ -80,6 +80,12 @@ exports[`should render correctly 1`] = `
     >
       save
     </SubmitButton>
+    <ResetButtonLink
+      className="spacer-left"
+      onClick={[MockFunction]}
+    >
+      cancel
+    </ResetButtonLink>
   </div>
 </form>
 `;
@@ -169,6 +175,12 @@ exports[`should render correctly 2`] = `
     >
       save
     </SubmitButton>
+    <ResetButtonLink
+      className="spacer-left"
+      onClick={[MockFunction]}
+    >
+      cancel
+    </ResetButtonLink>
   </div>
 </form>
 `;
@@ -258,6 +270,12 @@ exports[`should render correctly 3`] = `
     >
       save
     </SubmitButton>
+    <ResetButtonLink
+      className="spacer-left"
+      onClick={[MockFunction]}
+    >
+      cancel
+    </ResetButtonLink>
   </div>
 </form>
 `;

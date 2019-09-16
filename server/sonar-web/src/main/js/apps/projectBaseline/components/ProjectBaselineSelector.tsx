@@ -19,7 +19,7 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Radio from 'sonar-ui-common/components/controls/Radio';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
@@ -37,6 +37,7 @@ export interface ProjectBaselineSelectorProps {
   currentSettingValue?: string;
   days: string;
   generalSetting: T.NewCodePeriod;
+  onCancel: () => void;
   onSelectAnalysis: (analysis: T.ParsedAnalysis) => void;
   onSelectDays: (value: string) => void;
   onSelectSetting: (value?: T.NewCodePeriodSettingType) => void;
@@ -149,6 +150,9 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
         <p className="spacer-bottom">{translate('baseline.next_analysis_notice')}</p>
         <DeferredSpinner className="spacer-right" loading={saving} />
         <SubmitButton disabled={saving || !isValid || !isChanged}>{translate('save')}</SubmitButton>
+        <ResetButtonLink className="spacer-left" onClick={props.onCancel}>
+          {translate('cancel')}
+        </ResetButtonLink>
       </div>
     </form>
   );
