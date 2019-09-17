@@ -19,7 +19,7 @@
  */
 package org.sonar.db.purge.period;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.sonar.api.utils.DateUtils;
@@ -35,7 +35,7 @@ class DeleteAllFilter implements Filter {
 
   @Override
   public List<PurgeableAnalysisDto> filter(List<PurgeableAnalysisDto> history) {
-    List<PurgeableAnalysisDto> result = Lists.newArrayList();
+    List<PurgeableAnalysisDto> result = new ArrayList<>();
     for (PurgeableAnalysisDto snapshot : history) {
       if (snapshot.getDate().before(before)) {
         result.add(snapshot);

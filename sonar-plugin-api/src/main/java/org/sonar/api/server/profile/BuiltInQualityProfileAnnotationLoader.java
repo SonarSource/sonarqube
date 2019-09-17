@@ -42,7 +42,6 @@ public class BuiltInQualityProfileAnnotationLoader {
     }
   }
 
-  @CheckForNull
   void loadActiveRule(BuiltInQualityProfilesDefinition.NewBuiltInQualityProfile profile, String repositoryKey, Class<?> clazz) {
     BelongsToProfile belongsToProfile = clazz.getAnnotation(BelongsToProfile.class);
     if ((belongsToProfile != null) && StringUtils.equals(belongsToProfile.title(), profile.name())) {

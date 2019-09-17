@@ -21,6 +21,7 @@ package org.sonar.db.purge.period;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.sonar.api.utils.DateUtils;
@@ -44,7 +45,7 @@ class KeepOneFilter implements Filter {
   @Override
   public List<PurgeableAnalysisDto> filter(List<PurgeableAnalysisDto> history) {
     List<Interval> intervals = Interval.group(history, start, end, dateField);
-    List<PurgeableAnalysisDto> result = Lists.newArrayList();
+    List<PurgeableAnalysisDto> result = new ArrayList<>();
     for (Interval interval : intervals) {
       appendSnapshotsToDelete(interval, result);
     }
@@ -59,8 +60,8 @@ class KeepOneFilter implements Filter {
 
   private static void appendSnapshotsToDelete(Interval interval, List<PurgeableAnalysisDto> toDelete) {
     if (interval.count() > 1) {
-      List<PurgeableAnalysisDto> deletables = Lists.newArrayList();
-      List<PurgeableAnalysisDto> toKeep = Lists.newArrayList();
+      List<PurgeableAnalysisDto> deletables = new ArrayList<>();
+      List<PurgeableAnalysisDto> toKeep = new ArrayList<>();
       for (PurgeableAnalysisDto snapshot : interval.get()) {
         if (isDeletable(snapshot)) {
           deletables.add(snapshot);

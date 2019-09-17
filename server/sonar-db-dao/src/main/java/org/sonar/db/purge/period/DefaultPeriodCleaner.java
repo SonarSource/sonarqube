@@ -20,9 +20,9 @@
 package org.sonar.db.purge.period;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
@@ -54,7 +54,9 @@ public class DefaultPeriodCleaner {
     List<PurgeableAnalysisDto> history = new ArrayList<>(selectAnalysesOfComponent(rootUuid, session));
     for (Filter filter : filters) {
       filter.log();
-      history.removeAll(delete(rootUuid, filter.filter(history), session));
+      List<PurgeableAnalysisDto> toDelete = filter.filter(history);
+      List<PurgeableAnalysisDto> deleted = delete(rootUuid, toDelete, session);
+      history.removeAll(deleted);
     }
   }
 
@@ -62,10 +64,8 @@ public class DefaultPeriodCleaner {
     if (LOG.isDebugEnabled()) {
       LOG.debug("<- Delete analyses of component {}: {}",
         rootUuid,
-        Joiner.on(", ").join(
-          snapshots.stream()
-            .map(snapshot -> snapshot.getAnalysisUuid() + "@" + DateUtils.formatDateTime(snapshot.getDate()))
-            .collect(MoreCollectors.toArrayList(snapshots.size()))));
+        snapshots.stream().map(snapshot -> snapshot.getAnalysisUuid() + "@" + DateUtils.formatDateTime(snapshot.getDate()))
+          .collect(Collectors.joining(", ")));
     }
     purgeDao.deleteAnalyses(
       session, profiler,

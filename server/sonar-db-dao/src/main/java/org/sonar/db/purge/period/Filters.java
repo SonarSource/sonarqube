@@ -19,7 +19,7 @@
  */
 package org.sonar.db.purge.period;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +28,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.core.config.PurgeConstants;
 
 class Filters {
-  private final List<Filter> all = Lists.newArrayList();
+  private final List<Filter> all = new ArrayList<>();
 
   Filters(Configuration config) {
     Date dateToStartKeepingOneSnapshotByDay = getDateFromHours(config, PurgeConstants.HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY);

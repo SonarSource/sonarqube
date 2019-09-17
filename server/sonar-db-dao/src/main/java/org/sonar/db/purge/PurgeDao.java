@@ -23,11 +23,9 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -157,11 +155,8 @@ public class PurgeDao implements Dao {
 
   public List<PurgeableAnalysisDto> selectPurgeableAnalyses(String componentUuid, DbSession session) {
     PurgeMapper mapper = mapper(session);
-    Stream<PurgeableAnalysisDto> allPurgeableAnalyses = Stream.concat(
-      mapper.selectPurgeableAnalysesWithEvents(componentUuid).stream(),
-      mapper.selectPurgeableAnalysesWithoutEvents(componentUuid).stream());
-    return allPurgeableAnalyses
-      .filter(new ManualBaselineAnalysisFilter(mapper, componentUuid))
+    return mapper.selectPurgeableAnalyses(componentUuid).stream()
+      .filter(new NewCodePeriodAnalysisFilter(mapper, componentUuid))
       .sorted()
       .collect(MoreCollectors.toList());
   }
@@ -188,27 +183,17 @@ public class PurgeDao implements Dao {
     commands.deleteCeScannerContextBefore(rootUuid, fourWeeksAgo.getTime());
   }
 
-  private static final class ManualBaselineAnalysisFilter implements Predicate<PurgeableAnalysisDto> {
-    private static final String[] NO_BASELINE = {null};
+  private static final class NewCodePeriodAnalysisFilter implements Predicate<PurgeableAnalysisDto> {
+    @Nullable
+    private String analysisUuid;
 
-    private final PurgeMapper mapper;
-    private final String componentUuid;
-    private String[] manualBaselineAnalysisUuid;
-
-    private ManualBaselineAnalysisFilter(PurgeMapper mapper, String componentUuid) {
-      this.mapper = mapper;
-      this.componentUuid = componentUuid;
+    private NewCodePeriodAnalysisFilter(PurgeMapper mapper, String componentUuid) {
+      this.analysisUuid = mapper.selectSpecificAnalysisNewCodePeriod(componentUuid);
     }
 
     @Override
     public boolean test(PurgeableAnalysisDto purgeableAnalysisDto) {
-      if (manualBaselineAnalysisUuid == null) {
-        manualBaselineAnalysisUuid = Optional.ofNullable(mapper.selectSpecificAnalysisNewCodePeriod(componentUuid))
-          .map(t -> new String[] {t})
-          .orElse(NO_BASELINE);
-      }
-
-      return !Objects.equals(manualBaselineAnalysisUuid[0], purgeableAnalysisDto.getAnalysisUuid());
+      return analysisUuid == null || !analysisUuid.equals(purgeableAnalysisDto.getAnalysisUuid());
     }
   }
 
