@@ -48,10 +48,10 @@ import org.sonar.db.ce.CeTaskMessageMapper;
 import org.sonar.db.component.AnalysisPropertiesMapper;
 import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentWithModuleUuidDto;
 import org.sonar.db.component.ComponentDtoWithSnapshotId;
 import org.sonar.db.component.ComponentKeyUpdaterMapper;
 import org.sonar.db.component.ComponentMapper;
+import org.sonar.db.component.ComponentWithModuleUuidDto;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.component.KeyWithUuidDto;
 import org.sonar.db.component.ProjectLinkMapper;
@@ -121,6 +121,7 @@ import org.sonar.db.qualityprofile.DefaultQProfileMapper;
 import org.sonar.db.qualityprofile.QProfileChangeMapper;
 import org.sonar.db.qualityprofile.QProfileEditGroupsMapper;
 import org.sonar.db.qualityprofile.QProfileEditUsersMapper;
+import org.sonar.db.qualityprofile.QualityProfileExportMapper;
 import org.sonar.db.qualityprofile.QualityProfileMapper;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMapper;
@@ -270,6 +271,7 @@ public class MyBatis implements Startable {
       QualityGateConditionMapper.class,
       QualityGateMapper.class,
       QualityProfileMapper.class,
+      QualityProfileExportMapper.class,
       RoleMapper.class,
       RuleMapper.class,
       RuleRepositoryMapper.class,

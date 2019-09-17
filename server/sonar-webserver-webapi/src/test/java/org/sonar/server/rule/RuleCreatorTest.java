@@ -21,6 +21,8 @@ package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.assertj.core.api.Fail;
@@ -184,6 +186,53 @@ public class RuleCreatorTest {
     assertThat(param.getDescription()).isEqualTo("My Integers");
     assertThat(param.getType()).isEqualTo("INTEGER,multiple=true,values=1;2;3");
     assertThat(param.getDefaultValue()).isEqualTo("1,3");
+  }
+
+  @Test
+  public void batch_create_custom_rules() {
+    // insert template rule
+    RuleDefinitionDto templateRule = createTemplateRuleWithIntArrayParam();
+
+    NewCustomRule firstRule = NewCustomRule.createForCustomRule("CUSTOM_RULE_1", templateRule.getKey())
+      .setName("My custom")
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY);
+
+    NewCustomRule secondRule = NewCustomRule.createForCustomRule("CUSTOM_RULE_2", templateRule.getKey())
+      .setName("My custom")
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY);
+
+    List<RuleKey> customRuleKeys = underTest.create(dbSession, Arrays.asList(firstRule, secondRule));
+
+    List<RuleDto> rules = dbTester.getDbClient().ruleDao().selectByKeys(dbSession, dbTester.getDefaultOrganization(), customRuleKeys);
+
+    assertThat(rules).hasSize(2);
+    assertThat(rules).asList()
+      .extracting("ruleKey")
+      .containsOnly("CUSTOM_RULE_1", "CUSTOM_RULE_2");
+  }
+
+  @Test
+  public void fail_to_create_custom_rules_when_wrong_rule_template() {
+    // insert rule
+    RuleDefinitionDto rule = newRule(RuleKey.of("java", "S001")).setIsTemplate(false);
+    dbTester.rules().insert(rule);
+    dbSession.commit();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("This rule is not a template rule: java:S001");
+
+    // Create custom rule with unknown template rule
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", rule.getKey())
+      .setName("My custom")
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("regex", "a.*"));
+    underTest.create(dbSession, Collections.singletonList(newRule));
   }
 
   @Test

@@ -17,19 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.server.qualityprofile;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+class ImportedQProfile {
+  private final String profileName;
+  private final String profileLang;
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 62);
+  private final List<ImportedRule> rules;
+
+  public ImportedQProfile(String profileName, String profileLang, List<ImportedRule> rules) {
+    this.profileName = profileName;
+    this.profileLang = profileLang;
+    this.rules = rules;
+  }
+
+  public String getProfileName() {
+    return profileName;
+  }
+
+  public String getProfileLang() {
+    return profileLang;
+  }
+
+  public List<ImportedRule> getRules() {
+    return rules;
   }
 }

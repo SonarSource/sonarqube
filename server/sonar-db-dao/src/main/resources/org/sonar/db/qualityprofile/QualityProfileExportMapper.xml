@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.qualityprofile.QualityProfileExportMapper">
+
+  <sql id="exportRuleColumns">
+    a.id as "activeRuleId",
+    a.failure_level as "severity",
+    r.plugin_rule_key as "rule",
+    r.plugin_name as "repository",
+    r.priority as "defaultSeverity",
+    r.name,
+    r.description,
+    r.description_format as "descriptionFormat",
+    r.rule_type as "type",
+    rt.plugin_rule_key as "template",
+    rm.note_data as "extendedDescription",
+    rm.tags
+  </sql>
+
+  <sql id="exportRuleParamColumns">
+    p.active_rule_id as activeRuleId,
+    p.rules_parameter_key as kee,
+    p.value as value
+  </sql>
+
+  <select id="selectByProfileUuid" parameterType="string" resultType="org.sonar.db.qualityprofile.ExportRuleDto">
+    select
+    <include refid="exportRuleColumns"/>
+    from active_rules a
+    inner join rules_profiles rp on rp.id = a.profile_id
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
+    inner join rules r on r.id = a.rule_id and r.status != 'REMOVED'
+    left join rules rt on rt.id = r.template_id
+    left join rules_metadata rm on rm.rule_id = r.id
+    where oqp.uuid = #{id, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectParamsByActiveRuleIds" parameterType="map" resultType="org.sonar.db.qualityprofile.ExportRuleParamDto">
+    select
+    <include refid="exportRuleParamColumns"/>
+    from active_rule_parameters p
+    <where>
+    p.active_rule_id in <foreach collection="activeRuleIds" open="(" close=")" item="activeRuleId" separator=",">#{activeRuleId,jdbcType=INTEGER}</foreach>
+    </where>
+  </select>
+</mapper>

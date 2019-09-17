@@ -36,6 +36,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileBackuperImpl;
+import org.sonar.server.qualityprofile.QProfileParser;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -57,7 +58,7 @@ public class BackupActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private QProfileBackuper backuper = new QProfileBackuperImpl(db.getDbClient(), null, null);
+  private QProfileBackuper backuper = new QProfileBackuperImpl(db.getDbClient(), null, null, null, new QProfileParser());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
   private Languages languages = LanguageTesting.newLanguages(A_LANGUAGE);

@@ -23,8 +23,11 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
@@ -87,6 +90,46 @@ public class RuleCreator {
 
     ruleIndexer.commitAndIndex(dbSession, customRuleId);
     return customRuleKey;
+  }
+
+  public List<RuleKey> create(DbSession dbSession, List<NewCustomRule> newRules) {
+    String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
+    OrganizationDto defaultOrganization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
+      .orElseThrow(() -> new IllegalStateException(format("Could not find default organization for uuid '%s'", defaultOrganizationUuid)));
+
+    Set<RuleKey> templateKeys = newRules.stream().map(NewCustomRule::templateKey).collect(Collectors.toSet());
+    Map<RuleKey, RuleDto> templateRules = dbClient.ruleDao().selectByKeys(dbSession, defaultOrganization.getUuid(), templateKeys)
+      .stream()
+      .collect(Collectors.toMap(
+        RuleDto::getKey,
+        Function.identity())
+      );
+
+    checkArgument(!templateRules.isEmpty() && templateKeys.size() == templateRules.size(), "Rule template keys should exists for each custom rule!");
+    templateRules.values().forEach(ruleDto -> {
+        checkArgument(ruleDto.isTemplate(), "This rule is not a template rule: %s", ruleDto.getKey().toString());
+        checkArgument(ruleDto.getStatus() != RuleStatus.REMOVED, "The template key doesn't exist: %s", ruleDto.getKey().toString());
+      }
+    );
+
+    List<Integer> customRuleIds = newRules.stream()
+      .map(newCustomRule -> {
+          RuleDto templateRule = templateRules.get(newCustomRule.templateKey());
+          validateCustomRule(newCustomRule, dbSession, templateRule.getKey());
+          RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newCustomRule.ruleKey());
+          return createCustomRule(customRuleKey, newCustomRule, templateRule, dbSession);
+        }
+      )
+      .collect(Collectors.toList());
+
+    ruleIndexer.commitAndIndex(dbSession, customRuleIds);
+    return newRules.stream()
+      .map(newCustomRule -> {
+          RuleDto templateRule = templateRules.get(newCustomRule.templateKey());
+          return RuleKey.of(templateRule.getRepositoryKey(), newCustomRule.ruleKey());
+        }
+      )
+      .collect(Collectors.toList());
   }
 
   private void validateCustomRule(NewCustomRule newRule, DbSession dbSession, RuleKey templateKey) {

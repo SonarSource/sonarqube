@@ -69,6 +69,7 @@ import org.sonar.db.qualityprofile.QProfileChangeDao;
 import org.sonar.db.qualityprofile.QProfileEditGroupsDao;
 import org.sonar.db.qualityprofile.QProfileEditUsersDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
+import org.sonar.db.qualityprofile.QualityProfileExportDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.schemamigration.SchemaMigrationDao;
@@ -94,6 +95,7 @@ public class DbClient {
   private final OrganizationDao organizationDao;
   private final OrganizationMemberDao organizationMemberDao;
   private final QualityProfileDao qualityProfileDao;
+  private final QualityProfileExportDao qualityProfileExportDao;
   private final PropertiesDao propertiesDao;
   private final AlmAppInstallDao almAppInstallDao;
   private final ProjectAlmBindingDao projectAlmBindingDao;
@@ -167,6 +169,7 @@ public class DbClient {
     organizationDao = getDao(map, OrganizationDao.class);
     organizationMemberDao = getDao(map, OrganizationMemberDao.class);
     qualityProfileDao = getDao(map, QualityProfileDao.class);
+    qualityProfileExportDao = getDao(map, QualityProfileExportDao.class);
     propertiesDao = getDao(map, PropertiesDao.class);
     internalPropertiesDao = getDao(map, InternalPropertiesDao.class);
     snapshotDao = getDao(map, SnapshotDao.class);
@@ -265,6 +268,10 @@ public class DbClient {
 
   public QualityProfileDao qualityProfileDao() {
     return qualityProfileDao;
+  }
+
+  public QualityProfileExportDao qualityProfileExportDao() {
+    return qualityProfileExportDao;
   }
 
   public PropertiesDao propertiesDao() {

@@ -115,7 +115,7 @@ import org.sonar.server.permission.ws.PermissionsWsModule;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.ClusterVerification;
 import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.setting.SettingsChangeNotifier;
+import org.sonar.server.platform.SystemInfoWriterModule;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.web.DeprecatedPropertiesWsFilter;
 import org.sonar.server.platform.web.WebServiceFilter;
@@ -126,7 +126,6 @@ import org.sonar.server.platform.ws.HealthCheckerModule;
 import org.sonar.server.platform.ws.L10nWs;
 import org.sonar.server.platform.ws.ServerWs;
 import org.sonar.server.platform.ws.SystemWsModule;
-import org.sonar.server.platform.SystemInfoWriterModule;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.plugins.ServerExtensionInstaller;
@@ -159,6 +158,7 @@ import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactoryImpl;
+import org.sonar.server.qualityprofile.QProfileParser;
 import org.sonar.server.qualityprofile.QProfileResetImpl;
 import org.sonar.server.qualityprofile.QProfileRulesImpl;
 import org.sonar.server.qualityprofile.QProfileTreeImpl;
@@ -181,8 +181,9 @@ import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.rule.ws.RuleWsSupport;
 import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.rule.ws.TagsAction;
-import org.sonar.server.setting.ws.SettingsWsModule;
 import org.sonar.server.setting.ProjectConfigurationLoaderImpl;
+import org.sonar.server.setting.SettingsChangeNotifier;
+import org.sonar.server.setting.ws.SettingsWsModule;
 import org.sonar.server.source.ws.SourceWsModule;
 import org.sonar.server.startup.LogServerId;
 import org.sonar.server.telemetry.TelemetryClient;
@@ -286,6 +287,7 @@ public class PlatformLevel4 extends PlatformLevel {
       QProfileFactoryImpl.class,
       QProfileCopier.class,
       QProfileBackuperImpl.class,
+      QProfileParser.class,
       QProfileResetImpl.class,
       QProfilesWsModule.class,
 
