@@ -49,6 +49,10 @@ th.hide-overflow {
   margin-top: -1px;
 }
 
+.nudged-down {
+  margin-top: 1px;
+}
+
 .spacer {
   margin: 8px !important;
 }

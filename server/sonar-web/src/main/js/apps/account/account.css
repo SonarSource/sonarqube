@@ -231,3 +231,21 @@
   margin-top: 30px;
   text-align: center;
 }
+
+.notifications-table {
+  margin-top: calc(-2 * var(--gridSize));
+}
+
+.notifications-add-project-no-search-results {
+  padding: var(--gridSize);
+}
+
+.notifications-add-project-search-results li {
+  padding: var(--gridSize);
+  cursor: pointer;
+}
+
+.notifications-add-project-search-results li:hover,
+.notifications-add-project-search-results li.active {
+  background-color: var(--barBackgroundColor);
+}

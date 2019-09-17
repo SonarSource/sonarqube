@@ -17,36 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { groupBy, partition, uniq, uniqBy, uniqWith } from 'lodash';
+import { partition, uniqWith } from 'lodash';
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import * as api from '../../../api/notifications';
-import { withAppState } from '../../../components/hoc/withAppState';
 import GlobalNotifications from './GlobalNotifications';
 import Projects from './Projects';
-import { NotificationProject } from './types';
-
-export interface Props {
-  appState: Pick<T.AppState, 'organizationsEnabled'>;
-  fetchOrganizations: (organizations: string[]) => void;
-}
 
 interface State {
   channels: string[];
   globalTypes: string[];
+  initialProjectNotificationsCount: number;
   loading: boolean;
   notifications: T.Notification[];
   perProjectTypes: string[];
 }
 
-export class Notifications extends React.PureComponent<Props, State> {
+export default class Notifications extends React.PureComponent<{}, State> {
   mounted = false;
   state: State = {
     channels: [],
     globalTypes: [],
+    initialProjectNotificationsCount: 0,
     loading: true,
     notifications: [],
     perProjectTypes: []
@@ -65,16 +60,13 @@ export class Notifications extends React.PureComponent<Props, State> {
     api.getNotifications().then(
       response => {
         if (this.mounted) {
-          if (this.props.appState.organizationsEnabled) {
-            const organizations = uniq(response.notifications
-              .filter(n => n.organization)
-              .map(n => n.organization) as string[]);
-            this.props.fetchOrganizations(organizations);
-          }
+          const { notifications } = response;
+          const { projectNotifications } = this.getNotificationUpdates(notifications);
 
           this.setState({
             channels: response.channels,
             globalTypes: response.globalTypes,
+            initialProjectNotificationsCount: projectNotifications.length,
             loading: false,
             notifications: response.notifications,
             perProjectTypes: response.perProjectTypes
@@ -90,9 +82,10 @@ export class Notifications extends React.PureComponent<Props, State> {
   };
 
   addNotificationToState = (added: T.Notification) => {
-    this.setState(state => ({
-      notifications: uniqWith([...state.notifications, added], areNotificationsEqual)
-    }));
+    this.setState(state => {
+      const notifications = uniqWith([...state.notifications, added], areNotificationsEqual);
+      return { notifications };
+    });
   };
 
   removeNotificationFromState = (removed: T.Notification) => {
@@ -125,20 +118,20 @@ export class Notifications extends React.PureComponent<Props, State> {
     });
   };
 
+  getNotificationUpdates = (notifications: T.Notification[]) => {
+    const [globalNotifications, projectNotifications] = partition(notifications, n => !n.project);
+
+    return {
+      globalNotifications,
+      projectNotifications
+    };
+  };
+
   render() {
-    const [globalNotifications, projectNotifications] = partition(
-      this.state.notifications,
-      n => !n.project
+    const { initialProjectNotificationsCount, notifications } = this.state;
+    const { globalNotifications, projectNotifications } = this.getNotificationUpdates(
+      notifications
     );
-    const projects = uniqBy(
-      projectNotifications.map(n => ({
-        key: n.project,
-        name: n.projectName,
-        organization: n.organization
-      })) as NotificationProject[],
-      project => project.key
-    );
-    const notificationsByProject = groupBy(projectNotifications, n => n.project);
 
     return (
       <div className="account-body account-container">
@@ -157,8 +150,8 @@ export class Notifications extends React.PureComponent<Props, State> {
               <Projects
                 addNotification={this.addNotification}
                 channels={this.state.channels}
-                notificationsByProject={notificationsByProject}
-                projects={projects}
+                initialProjectNotificationsCount={initialProjectNotificationsCount}
+                notifications={projectNotifications}
                 removeNotification={this.removeNotification}
                 types={this.state.perProjectTypes}
               />
@@ -169,8 +162,6 @@ export class Notifications extends React.PureComponent<Props, State> {
     );
   }
 }
-
-export default withAppState(Notifications);
 
 function areNotificationsEqual(a: T.Notification, b: T.Notification) {
   return a.channel === b.channel && a.type === b.type && a.project === b.project;

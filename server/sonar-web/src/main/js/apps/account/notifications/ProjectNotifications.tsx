@@ -18,60 +18,51 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
+import BoxedGroupAccordion from 'sonar-ui-common/components/controls/BoxedGroupAccordion';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Organization from '../../../components/shared/Organization';
-import { getProjectUrl } from '../../../helpers/urls';
 import NotificationsList from './NotificationsList';
-import { NotificationProject } from './types';
 
 interface Props {
   addNotification: (n: T.Notification) => void;
   channels: string[];
+  collapsed: boolean;
   notifications: T.Notification[];
-  project: NotificationProject;
+  project: T.NotificationProject;
   removeNotification: (n: T.Notification) => void;
   types: string[];
 }
 
-export default class ProjectNotifications extends React.PureComponent<Props> {
-  getCheckboxId = (type: string, channel: string) => {
-    return `project-notification-${this.props.project.key}-${type}-${channel}`;
+export default function ProjectNotifications(props: Props) {
+  const { collapsed, project, channels } = props;
+  const [isCollapsed, setCollapsed] = React.useState<boolean>(collapsed);
+
+  const getCheckboxId = (type: string, channel: string) => {
+    return `project-notification-${props.project.project}-${type}-${channel}`;
   };
 
-  handleAddNotification = ({ channel, type }: { channel: string; type: string }) => {
-    this.props.addNotification({
+  const handleAddNotification = ({ channel, type }: { channel: string; type: string }) => {
+    props.addNotification({ ...props.project, channel, type });
+  };
+
+  const handleRemoveNotification = ({ channel, type }: { channel: string; type: string }) => {
+    props.removeNotification({
+      ...props.project,
       channel,
-      type,
-      project: this.props.project.key,
-      projectName: this.props.project.name,
-      organization: this.props.project.organization
+      type
     });
   };
 
-  handleRemoveNotification = ({ channel, type }: { channel: string; type: string }) => {
-    this.props.removeNotification({
-      channel,
-      type,
-      project: this.props.project.key
-    });
-  };
+  const toggleExpanded = () => setCollapsed(!isCollapsed);
 
-  render() {
-    const { project, channels } = this.props;
-
-    return (
-      <table className="form big-spacer-bottom" key={project.key}>
+  return (
+    <BoxedGroupAccordion
+      onClick={toggleExpanded}
+      open={!isCollapsed}
+      title={<h4 className="display-inline-block">{project.projectName}</h4>}>
+      <table className="data zebra notifications-table" key={project.project}>
         <thead>
           <tr>
-            <th>
-              <span className="text-normal">
-                <Organization organizationKey={project.organization} />
-              </span>
-              <h4 className="display-inline-block">
-                <Link to={getProjectUrl(project.key)}>{project.name}</Link>
-              </h4>
-            </th>
+            <th aria-label={translate('project')} />
             {channels.map(channel => (
               <th className="text-center" key={channel}>
                 <h4>{translate('notification.channel', channel)}</h4>
@@ -79,16 +70,17 @@ export default class ProjectNotifications extends React.PureComponent<Props> {
             ))}
           </tr>
         </thead>
+
         <NotificationsList
-          channels={this.props.channels}
-          checkboxId={this.getCheckboxId}
-          notifications={this.props.notifications}
-          onAdd={this.handleAddNotification}
-          onRemove={this.handleRemoveNotification}
+          channels={props.channels}
+          checkboxId={getCheckboxId}
+          notifications={props.notifications}
+          onAdd={handleAddNotification}
+          onRemove={handleRemoveNotification}
           project={true}
-          types={this.props.types}
+          types={props.types}
         />
       </table>
-    );
-  }
+    </BoxedGroupAccordion>
+  );
 }

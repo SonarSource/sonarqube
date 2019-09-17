@@ -507,6 +507,11 @@ declare namespace T {
     type: string;
   }
 
+  export interface NotificationProject {
+    project: string;
+    projectName: string;
+  }
+
   export interface OrganizationActions {
     admin?: boolean;
     delete?: boolean;

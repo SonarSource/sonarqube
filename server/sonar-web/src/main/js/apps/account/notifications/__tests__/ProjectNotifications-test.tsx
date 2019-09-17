@@ -21,48 +21,20 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import ProjectNotifications from '../ProjectNotifications';
 
-const channels = ['channel1', 'channel2'];
-const types = ['type1', 'type2'];
-const notifications = [
-  { channel: 'channel1', type: 'type1' },
-  { channel: 'channel1', type: 'type2' },
-  { channel: 'channel2', type: 'type2' }
-];
-
-it('should match snapshot', () => {
-  expect(
-    shallow(
-      <ProjectNotifications
-        addNotification={jest.fn()}
-        channels={channels}
-        notifications={notifications}
-        project={{ key: 'foo', name: 'Foo', organization: 'org' }}
-        removeNotification={jest.fn()}
-        types={types}
-      />
-    )
-  ).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ collapsed: true })).toMatchSnapshot();
 });
 
 it('should call `addNotification` and `removeNotification`', () => {
   const addNotification = jest.fn();
   const removeNotification = jest.fn();
-  const wrapper = shallow(
-    <ProjectNotifications
-      addNotification={addNotification}
-      channels={channels}
-      notifications={notifications}
-      project={{ key: 'foo', name: 'Foo', organization: 'org' }}
-      removeNotification={removeNotification}
-      types={types}
-    />
-  );
+  const wrapper = shallowRender({ addNotification, removeNotification });
   const notificationsList = wrapper.find('NotificationsList');
 
   notificationsList.prop<Function>('onAdd')({ channel: 'channel2', type: 'type1' });
   expect(addNotification).toHaveBeenCalledWith({
     channel: 'channel2',
-    organization: 'org',
     project: 'foo',
     projectName: 'Foo',
     type: 'type1'
@@ -73,7 +45,28 @@ it('should call `addNotification` and `removeNotification`', () => {
   notificationsList.prop<Function>('onRemove')({ channel: 'channel1', type: 'type1' });
   expect(removeNotification).toHaveBeenCalledWith({
     channel: 'channel1',
-    type: 'type1',
-    project: 'foo'
+    project: 'foo',
+    projectName: 'Foo',
+    type: 'type1'
   });
 });
+
+function shallowRender(props = {}) {
+  const project = { project: 'foo', projectName: 'Foo' };
+  return shallow(
+    <ProjectNotifications
+      addNotification={jest.fn()}
+      channels={['channel1', 'channel2']}
+      collapsed={false}
+      notifications={[
+        { ...project, channel: 'channel1', type: 'type1' },
+        { ...project, channel: 'channel1', type: 'type2' },
+        { ...project, channel: 'channel2', type: 'type2' }
+      ]}
+      project={project}
+      removeNotification={jest.fn()}
+      types={['type1', 'type2']}
+      {...props}
+    />
+  );
+}

@@ -21,7 +21,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { Notifications } from '../Notifications';
+import Notifications from '../Notifications';
 
 jest.mock('../../../../api/notifications', () => ({
   addNotification: jest.fn(() => Promise.resolve()),
@@ -30,13 +30,25 @@ jest.mock('../../../../api/notifications', () => ({
       channels: ['channel1', 'channel2'],
       globalTypes: ['type-global', 'type-common'],
       notifications: [
-        { channel: 'channel1', type: 'type-global' },
-        { channel: 'channel1', type: 'type-common' },
+        {
+          channel: 'channel1',
+          type: 'type-global',
+          project: 'foo',
+          projectName: 'Foo',
+          organization: 'org'
+        },
+        {
+          channel: 'channel1',
+          type: 'type-common',
+          project: 'bar',
+          projectName: 'Bar',
+          organization: 'org'
+        },
         {
           channel: 'channel2',
           type: 'type-common',
-          project: 'foo',
-          projectName: 'Foo',
+          project: 'qux',
+          projectName: 'Qux',
           organization: 'org'
         }
       ],
@@ -74,12 +86,16 @@ it('should add global notification', async () => {
 });
 
 it('should remove project notification', async () => {
-  const notification = { channel: 'channel2', project: 'foo', type: 'type-common' };
+  const notification = {
+    channel: 'channel2',
+    type: 'type-common',
+    project: 'qux'
+  };
   const wrapper = await shallowRender();
   expect(wrapper.state('notifications')).toContainEqual({
     ...notification,
     organization: 'org',
-    projectName: 'Foo'
+    projectName: 'Qux'
   });
   wrapper.find('Projects').prop<Function>('removeNotification')(notification);
   // `state` must be immediately updated
@@ -87,28 +103,8 @@ it('should remove project notification', async () => {
   expect(removeNotification).toBeCalledWith(notification);
 });
 
-it('should NOT fetch organizations', async () => {
-  const fetchOrganizations = jest.fn();
-  await shallowRender({ fetchOrganizations });
-  expect(getNotifications).toBeCalled();
-  expect(fetchOrganizations).not.toBeCalled();
-});
-
-it('should fetch organizations', async () => {
-  const fetchOrganizations = jest.fn();
-  await shallowRender({ appState: { organizationsEnabled: true }, fetchOrganizations });
-  expect(getNotifications).toBeCalled();
-  expect(fetchOrganizations).toBeCalledWith(['org']);
-});
-
-async function shallowRender(props?: Partial<Notifications['props']>) {
-  const wrapper = shallow(
-    <Notifications
-      appState={{ organizationsEnabled: false }}
-      fetchOrganizations={jest.fn()}
-      {...props}
-    />
-  );
+async function shallowRender(props: Partial<Notifications['props']> = {}) {
+  const wrapper = shallow<Notifications>(<Notifications {...props} />);
   await waitAndUpdate(wrapper);
   return wrapper;
 }

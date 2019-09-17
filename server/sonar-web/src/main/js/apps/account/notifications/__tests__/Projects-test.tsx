@@ -19,113 +19,99 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Projects, { Props } from '../Projects';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import Projects from '../Projects';
 
 jest.mock('../../../../api/components', () => ({
-  getSuggestions: jest.fn(() =>
-    Promise.resolve({
-      results: [
-        {
-          q: 'TRK',
-          items: [
-            { key: 'foo', name: 'Foo', organization: 'org' },
-            { key: 'bar', name: 'Bar', organization: 'org' }
-          ]
-        },
-        // this file should be ignored
-        { q: 'FIL', items: [{ key: 'foo:file.js', name: 'file.js', organization: 'org' }] }
-      ]
-    })
-  )
+  getSuggestions: jest.fn().mockResolvedValue({
+    results: [
+      {
+        q: 'TRK',
+        items: [{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]
+      },
+      // this file should be ignored
+      { q: 'FIL', items: [{ key: 'foo:file.js', name: 'file.js' }] }
+    ]
+  })
 }));
 
 const channels = ['channel1', 'channel2'];
 const types = ['type1', 'type2'];
 
-const projectFoo = { key: 'foo', name: 'Foo', organization: 'org' };
-const projectBar = { key: 'bar', name: 'Bar', organization: 'org' };
-const projects = [projectFoo, projectBar];
-
-const newProject = { key: 'qux', name: 'Qux', organization: 'org' };
+const projectFoo = { project: 'foo', projectName: 'Foo' };
+const projectBar = { project: 'bar', projectName: 'Bar' };
+const extraProps = {
+  channel: 'channel1',
+  type: 'type2'
+};
+const projects = [{ ...projectFoo, ...extraProps }, { ...projectBar, ...extraProps }];
 
 it('should render projects', () => {
   const wrapper = shallowRender({
-    notificationsByProject: {
-      foo: [
-        {
-          channel: 'channel1',
-          organization: 'org',
-          project: 'foo',
-          projectName: 'Foo',
-          type: 'type1'
-        },
-        {
-          channel: 'channel1',
-          organization: 'org',
-          project: 'foo',
-          projectName: 'Foo',
-          type: 'type2'
-        }
-      ]
-    },
-    projects
+    notifications: projects
   });
-  expect(wrapper).toMatchSnapshot();
 
-  // let's add a new project
-  wrapper.setState({ addedProjects: [newProject] });
-  expect(wrapper).toMatchSnapshot();
-
-  // let's say we saved it, so it's passed back in `props`
-  wrapper.setProps({ projects: [...projects, newProject] });
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.state()).toMatchSnapshot();
 });
 
-it('should search projects', () => {
-  const wrapper = shallowRender({ projects: [projectBar] });
-  const loadOptions = wrapper.find('AsyncSelect').prop<Function>('loadOptions');
-  expect(loadOptions('')).resolves.toEqual({ options: [] });
-  // should not contain `projectBar`
-  expect(loadOptions('more than two symbols')).resolves.toEqual({
-    options: [{ label: 'Foo', organization: 'org', value: 'foo' }]
-  });
-});
-
-it('should add project', () => {
+it('should handle project addition', () => {
   const wrapper = shallowRender();
-  expect(wrapper.state('addedProjects')).toEqual([]);
-  wrapper.find('AsyncSelect').prop<Function>('onChange')({
-    label: 'Qwe',
-    organization: 'org',
-    value: 'qwe'
-  });
+  const { handleAddProject } = wrapper.instance();
+
+  handleAddProject(projectFoo);
+
   expect(wrapper.state('addedProjects')).toEqual([
-    { key: 'qwe', name: 'Qwe', organization: 'org' }
+    {
+      project: 'foo',
+      projectName: 'Foo'
+    }
   ]);
 });
 
-it('should render option', () => {
+it('should handle search', () => {
   const wrapper = shallowRender();
-  const optionRenderer = wrapper.find('AsyncSelect').prop<Function>('optionRenderer');
-  expect(
-    shallow(
-      optionRenderer({
-        label: 'Qwe',
-        organization: 'org',
-        value: 'qwe'
-      })
-    )
-  ).toMatchSnapshot();
+  const { handleAddProject, handleSearch } = wrapper.instance();
+
+  handleAddProject(projectFoo);
+  handleAddProject(projectBar);
+
+  handleSearch('Bar');
+  expect(wrapper.state('search')).toBe('bar');
+  expect(wrapper.find('ProjectNotifications')).toHaveLength(1);
 });
 
-function shallowRender(props?: Partial<Props>) {
-  return shallow(
+it('should handle submit from modal', async () => {
+  const wrapper = shallowRender();
+  wrapper.instance().handleAddProject = jest.fn();
+  const { handleAddProject, handleSubmit } = wrapper.instance();
+
+  handleSubmit(projectFoo);
+  await waitAndUpdate(wrapper);
+
+  expect(handleAddProject).toHaveBeenCalledWith(projectFoo);
+});
+
+it('should toggle modal', () => {
+  const wrapper = shallowRender();
+  const { closeModal, openModal } = wrapper.instance();
+
+  expect(wrapper.state('showModal')).toBe(false);
+
+  openModal();
+  expect(wrapper.state('showModal')).toBe(true);
+
+  closeModal();
+  expect(wrapper.state('showModal')).toBe(false);
+});
+
+function shallowRender(props?: Partial<Projects['props']>) {
+  return shallow<Projects>(
     <Projects
       addNotification={jest.fn()}
       channels={channels}
-      notificationsByProject={{}}
-      projects={[]}
+      initialProjectNotificationsCount={0}
+      notifications={[]}
       removeNotification={jest.fn()}
       types={types}
       {...props}

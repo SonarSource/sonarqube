@@ -26,18 +26,7 @@ exports[`should fetch notifications and render 1`] = `
           "channel2",
         ]
       }
-      notifications={
-        Array [
-          Object {
-            "channel": "channel1",
-            "type": "type-global",
-          },
-          Object {
-            "channel": "channel1",
-            "type": "type-common",
-          },
-        ]
-      }
+      notifications={Array []}
       removeNotification={[Function]}
       types={
         Array [
@@ -54,25 +43,29 @@ exports[`should fetch notifications and render 1`] = `
           "channel2",
         ]
       }
-      notificationsByProject={
-        Object {
-          "foo": Array [
-            Object {
-              "channel": "channel2",
-              "organization": "org",
-              "project": "foo",
-              "projectName": "Foo",
-              "type": "type-common",
-            },
-          ],
-        }
-      }
-      projects={
+      initialProjectNotificationsCount={3}
+      notifications={
         Array [
           Object {
-            "key": "foo",
-            "name": "Foo",
+            "channel": "channel1",
             "organization": "org",
+            "project": "foo",
+            "projectName": "Foo",
+            "type": "type-global",
+          },
+          Object {
+            "channel": "channel1",
+            "organization": "org",
+            "project": "bar",
+            "projectName": "Bar",
+            "type": "type-common",
+          },
+          Object {
+            "channel": "channel2",
+            "organization": "org",
+            "project": "qux",
+            "projectName": "Qux",
+            "type": "type-common",
           },
         ]
       }
