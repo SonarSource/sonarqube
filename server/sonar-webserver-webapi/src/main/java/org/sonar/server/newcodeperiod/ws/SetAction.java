@@ -20,9 +20,11 @@
 package org.sonar.server.newcodeperiod.ws;
 
 import com.google.common.base.Preconditions;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -93,7 +95,13 @@ public class SetAction implements NewCodePeriodsWsAction {
       .setDescription("Branch key");
     action.createParam(PARAM_TYPE)
       .setRequired(true)
-      .setDescription("Type");
+      .setDescription("Type<br/>" +
+        "Only new code periods of the following types are allowed:" +
+        "<ul>" +
+        Arrays.stream(NewCodePeriodType.values())
+          .map(newCodePeriodType -> "<li>" + newCodePeriodType.name() + "</li>")
+          .collect(Collectors.joining()) +
+        "</ul>");
     action.createParam(PARAM_VALUE)
       .setDescription("Value");
   }
@@ -139,7 +147,7 @@ public class SetAction implements NewCodePeriodsWsAction {
   }
 
   private void setValue(DbSession dbSession, NewCodePeriodDto dto, NewCodePeriodType type, @Nullable ComponentDto projectBranch,
-    @Nullable String branch, @Nullable String value) {
+                        @Nullable String branch, @Nullable String value) {
     switch (type) {
       case PREVIOUS_VERSION:
         Preconditions.checkArgument(value == null, "Unexpected value for type '%s'", type);

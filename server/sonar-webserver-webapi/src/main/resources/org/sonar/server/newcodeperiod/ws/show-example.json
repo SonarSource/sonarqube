@@ -1,0 +1,6 @@
+{
+  "projectKey": "org.sonarsource.project:project",
+  "branchKey": "branch-1.1",
+  "type": "PREVIOUS_VERSION",
+  "inherited": true
+}

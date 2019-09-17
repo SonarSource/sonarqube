@@ -42,7 +42,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.NewCodePeriods.*;
+import static org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
 
 public class ShowAction implements NewCodePeriodsWsAction {
   private static final String PARAM_BRANCH = "branch";
@@ -70,7 +70,7 @@ public class ShowAction implements NewCodePeriodsWsAction {
         "<li>'Administer' rights on the specified component</li>" +
         "</ul>")
       .setSince("8.0")
-      .setResponseExample(getClass().getResource("show_new_code_period-example.json"))
+      .setResponseExample(getClass().getResource("show-example.json"))
       .setHandler(this);
 
     action.createParam(PARAM_PROJECT)
@@ -90,7 +90,7 @@ public class ShowAction implements NewCodePeriodsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
 
-      ComponentDto projectBranch = null;
+      ComponentDto projectBranch;
       String projectUuid = null;
       String branchUuid = null;
 
