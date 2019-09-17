@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
@@ -158,9 +159,9 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
                       id="settings.new_code_period.description"
                       values={{
                         link: (
-                          <a href="/documentation/user-guide/fixing-the-water-leak/">
+                          <Link to="/documentation/project-administration/new-code-period/">
                             {translate('learn_more')}
-                          </a>
+                          </Link>
                         )
                       }}
                     />

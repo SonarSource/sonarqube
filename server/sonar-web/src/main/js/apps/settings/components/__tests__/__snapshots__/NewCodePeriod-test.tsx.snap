@@ -29,11 +29,13 @@ exports[`should render correctly 1`] = `
                 id="settings.new_code_period.description"
                 values={
                   Object {
-                    "link": <a
-                      href="/documentation/user-guide/fixing-the-water-leak/"
+                    "link": <Link
+                      onlyActiveOnIndex={false}
+                      style={Object {}}
+                      to="/documentation/project-administration/new-code-period/"
                     >
                       learn_more
-                    </a>,
+                    </Link>,
                   }
                 }
               />
