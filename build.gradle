@@ -166,6 +166,8 @@ subprojects {
       dependency 'com.fasterxml.jackson.core:jackson-databind:2.9.9.2'
       dependency 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
       dependency 'com.github.kevinsawicki:http-request:5.4.1'
+      dependency 'com.github.scribejava:scribejava-core:6.8.1'
+      dependency 'com.github.scribejava:scribejava-apis:6.8.1'      
       dependency 'com.googlecode.java-diff-utils:diffutils:1.2'
       dependency('com.googlecode.json-simple:json-simple:1.1.1') {
         exclude 'junit:junit'

@@ -28,6 +28,7 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
+import org.sonar.auth.gitlab.GitLabModule;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
 import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.core.component.DefaultResourceTypes;
@@ -349,6 +350,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // authentication
       AuthenticationModule.class,
       AuthenticationWsModule.class,
+      GitLabModule.class,
 
       // users
       UserSessionFactoryImpl.class,
