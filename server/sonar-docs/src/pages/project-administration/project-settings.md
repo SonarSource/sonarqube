@@ -23,17 +23,14 @@ A project-level Background Tasks page is available at **Administration > Backgro
 
 ### Deleting a Project
 
-You can delete a project through **Administration > Deletion**:
+#### Deleting a Single Project
 
-Note also that projects can also be deleted in bulk.
+You can delete a project through **Administration > Deletion**.
 
-### Setting the New Code Period  
+#### Deleting Multiple Projects
+You can also delete multiple projects simultaneously from the global **Administration > Projects > Management**.
 
-The new code period can be set on a per-project basis through **Administration > General Settings > New Code > New Code Period**. The default value is `previous_version`, which is most appropriate value for projects that version/release regularly. For other projects, a time period such as 30 days (enter "30", the "days" part is understood) may be more appropriate.
-
-Note that this can be set at the global level as well.
-
-### Updating Project Key  
+### Updating the Project Key  
 
 The project key can be updated (without losing the history on the project) at **Administration > Update Key**.
 
