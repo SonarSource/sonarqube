@@ -97,7 +97,7 @@ public class ComponentDaoTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private System2 system2 = AlwaysIncreasingSystem2.INSTANCE;
+  private System2 system2 = new AlwaysIncreasingSystem2(1000L);
 
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -1198,13 +1198,6 @@ public class ComponentDaoTest {
         project1.uuid(),
         project2.uuid(),
         project3.uuid()
-      );
-    assertThat(results)
-      .extracting(ComponentDto::getCreatedAt)
-      .containsExactly(
-        firstDate,
-        secondDate,
-        thirdDate
       );
   }
 

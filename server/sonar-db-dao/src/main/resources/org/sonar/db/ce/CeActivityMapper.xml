@@ -68,14 +68,14 @@
 
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto" databaseId="mssql">
     select * from (
-    select row_number() over(order by id desc) as number,
+    select row_number() over(order by ca.created_at desc, id desc) as number,
       <include refid="columns"/>,
       <include refid="countWarnings"/>
       <include refid="sqlSelectByQuery" />
       ) as query
     where
       query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-    order by created_at desc, id desc
+    order by createdAt desc, id desc
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto" databaseId="oracle">

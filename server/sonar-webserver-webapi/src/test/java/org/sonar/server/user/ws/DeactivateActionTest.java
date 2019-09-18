@@ -71,7 +71,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class DeactivateActionTest {
 
-  private System2 system2 = AlwaysIncreasingSystem2.INSTANCE;
+  private System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
