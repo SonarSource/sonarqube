@@ -33,6 +33,7 @@ import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.Props;
+import org.sonar.process.SecurityManagement;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -116,6 +117,8 @@ public class CeServer implements Monitored {
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
     Props props = entryPoint.getProps();
     new CeProcessLogging().configure(props);
+    SecurityManagement.restrictPlugins();
+
     CeServer server = new CeServer(
       new ComputeEngineImpl(props, new ComputeEngineContainerImpl()),
       new MinimumViableSystem());

@@ -65,7 +65,7 @@ public interface BuiltInQualityProfilesDefinition {
      * <br>
      * A plugin can activate rules in a built in quality profile that is defined by another plugin.
      */
-    public NewBuiltInQualityProfile createBuiltInQualityProfile(String name, String language) {
+    public NewBuiltInQualityProfile createBuiltInQualityProfile(String name, String language)  {
       return new NewBuiltInQualityProfileImpl(this, name, language);
     }
 
