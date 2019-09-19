@@ -223,7 +223,7 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
           }
           return (
             <SourceViewerContext.Provider
-              key={`${this.props.issue.key}-${this.props.selectedFlowIndex}-${i}`}
+              key={`${this.props.issue.key}-${this.props.selectedFlowIndex || 0}-${i}`}
               value={{ branchLike: this.props.branchLike, file: snippetGroup.component }}>
               <ComponentSourceSnippetViewer
                 branchLike={this.props.branchLike}
