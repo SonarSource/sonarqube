@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import * as React from 'react';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
 import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
@@ -38,8 +38,8 @@ beforeEach(() => {
   getPermissionTemplates.mockClear();
 });
 
-it('fetches permission templates on mount', () => {
-  mount(render());
+it('fetches permission templates on component mount', () => {
+  shallow(render());
   expect(getPermissionTemplates).toBeCalledWith('org');
 });
 

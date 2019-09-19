@@ -9,13 +9,6 @@
   dependencies:
     "@babel/highlight" "^7.0.0"
 
-"@babel/code-frame@^7.5.5":
-  version "7.5.5"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@babel/code-frame/-/code-frame-7.5.5.tgz#bc0782f6d69f7b7d49531219699b988f669a8f9d"
-  integrity sha1-vAeC9tafe31JUxIZaZuYj2aaj50=
-  dependencies:
-    "@babel/highlight" "^7.0.0"
-
 "@babel/core@7.4.0":
   version "7.4.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@babel/core/-/core-7.4.0.tgz#248fd6874b7d755010bfe61f557461d4f446d9e9"
@@ -64,17 +57,6 @@
     "@babel/types" "^7.5.0"
     jsesc "^2.5.1"
     lodash "^4.17.11"
-    source-map "^0.5.0"
-    trim-right "^1.0.1"
-
-"@babel/generator@^7.5.5":
-  version "7.5.5"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@babel/generator/-/generator-7.5.5.tgz#873a7f936a3c89491b43536d12245b626664e3cf"
-  integrity sha1-hzp/k2o8iUkbQ1NtEiRbYmZk488=
-  dependencies:
-    "@babel/types" "^7.5.5"
-    jsesc "^2.5.1"
-    lodash "^4.17.13"
     source-map "^0.5.0"
     trim-right "^1.0.1"
 
@@ -275,11 +257,6 @@
   version "7.5.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@babel/parser/-/parser-7.5.0.tgz#3e0713dff89ad6ae37faec3b29dcfc5c979770b7"
   integrity sha1-PgcT3/ia1q43+uw7Kdz8XJeXcLc=
-
-"@babel/parser@^7.5.5":
-  version "7.5.5"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@babel/parser/-/parser-7.5.5.tgz#02f077ac8817d3df4a832ef59de67565e71cca4b"
-  integrity sha1-AvB3rIgX099Kgy71neZ1Zeccyks=
 
 "@babel/plugin-proposal-async-generator-functions@^7.2.0":
   version "7.2.0"
@@ -723,6 +700,13 @@
   dependencies:
     regenerator-runtime "^0.13.2"
 
+"@babel/runtime@^7.4.2", "@babel/runtime@^7.5.5":
+  version "7.6.2"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@babel/runtime/-/runtime-7.6.2.tgz#c3d6e41b304ef10dcf13777a33e7694ec4a9a6dd"
+  integrity sha1-w9bkGzBO8Q3PE3d6M+dpTsSppt0=
+  dependencies:
+    regenerator-runtime "^0.13.2"
+
 "@babel/template@^7.1.0", "@babel/template@^7.4.0", "@babel/template@^7.4.4":
   version "7.4.4"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@babel/template/-/template-7.4.4.tgz#f4b88d1225689a08f5bc3a17483545be9e4ed237"
@@ -731,21 +715,6 @@
     "@babel/code-frame" "^7.0.0"
     "@babel/parser" "^7.4.4"
     "@babel/types" "^7.4.4"
-
-"@babel/traverse@^7.0.0":
-  version "7.5.5"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@babel/traverse/-/traverse-7.5.5.tgz#f664f8f368ed32988cd648da9f72d5ca70f165bb"
-  integrity sha1-9mT482jtMpiM1kjan3LVynDxZbs=
-  dependencies:
-    "@babel/code-frame" "^7.5.5"
-    "@babel/generator" "^7.5.5"
-    "@babel/helper-function-name" "^7.1.0"
-    "@babel/helper-split-export-declaration" "^7.4.4"
-    "@babel/parser" "^7.5.5"
-    "@babel/types" "^7.5.5"
-    debug "^4.1.0"
-    globals "^11.1.0"
-    lodash "^4.17.13"
 
 "@babel/traverse@^7.1.0", "@babel/traverse@^7.4.0", "@babel/traverse@^7.4.3", "@babel/traverse@^7.4.4", "@babel/traverse@^7.5.0":
   version "7.5.0"
@@ -771,15 +740,6 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@babel/types@^7.5.5":
-  version "7.5.5"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@babel/types/-/types-7.5.5.tgz#97b9f728e182785909aa4ab56264f090a028d18a"
-  integrity sha1-l7n3KOGCeFkJqkq1YmTwkKAo0Yo=
-  dependencies:
-    esutils "^2.0.2"
-    lodash "^4.17.13"
-    to-fast-properties "^2.0.0"
-
 "@cnakazawa/watch@^1.0.3":
   version "1.0.3"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@cnakazawa/watch/-/watch-1.0.3.tgz#099139eaec7ebf07a27c1786a3ff64f39464d2ef"
@@ -788,22 +748,107 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@emotion/is-prop-valid@^0.8.1":
-  version "0.8.2"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/is-prop-valid/-/is-prop-valid-0.8.2.tgz#b9692080da79041683021fcc32f96b40c54c59dc"
-  integrity sha1-uWkggNp5BBaDAh/MMvlrQMVMWdw=
+"@emotion/cache@^10.0.17":
+  version "10.0.19"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/cache/-/cache-10.0.19.tgz#d258d94d9c707dcadaf1558def968b86bb87ad71"
+  integrity sha1-0ljZTZxwfcra8VWN75aLhruHrXE=
   dependencies:
-    "@emotion/memoize" "0.7.2"
+    "@emotion/sheet" "0.9.3"
+    "@emotion/stylis" "0.8.4"
+    "@emotion/utils" "0.11.2"
+    "@emotion/weak-memoize" "0.2.4"
 
-"@emotion/memoize@0.7.2":
-  version "0.7.2"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/memoize/-/memoize-0.7.2.tgz#7f4c71b7654068dfcccad29553520f984cc66b30"
-  integrity sha1-f0xxt2VAaN/MytKVU1IPmEzGazA=
+"@emotion/core@10.0.17":
+  version "10.0.17"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/core/-/core-10.0.17.tgz#3367376709721f4ee2068cff54ba581d362789d8"
+  integrity sha1-M2c3ZwlyH07iBoz/VLpYHTYnidg=
+  dependencies:
+    "@babel/runtime" "^7.5.5"
+    "@emotion/cache" "^10.0.17"
+    "@emotion/css" "^10.0.14"
+    "@emotion/serialize" "^0.11.10"
+    "@emotion/sheet" "0.9.3"
+    "@emotion/utils" "0.11.2"
 
-"@emotion/unitless@^0.7.0":
+"@emotion/css@^10.0.14":
+  version "10.0.14"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/css/-/css-10.0.14.tgz#95dacabdd0e22845d1a1b0b5968d9afa34011139"
+  integrity sha1-ldrKvdDiKEXRobC1lo2a+jQBETk=
+  dependencies:
+    "@emotion/serialize" "^0.11.8"
+    "@emotion/utils" "0.11.2"
+    babel-plugin-emotion "^10.0.14"
+
+"@emotion/hash@0.7.3":
+  version "0.7.3"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/hash/-/hash-0.7.3.tgz#a166882c81c0c6040975dd30df24fae8549bd96f"
+  integrity sha1-oWaILIHAxgQJdd0w3yT66FSb2W8=
+
+"@emotion/is-prop-valid@0.8.3":
+  version "0.8.3"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/is-prop-valid/-/is-prop-valid-0.8.3.tgz#cbe62ddbea08aa022cdf72da3971570a33190d29"
+  integrity sha1-y+Yt2+oIqgIs33LaOXFXCjMZDSk=
+  dependencies:
+    "@emotion/memoize" "0.7.3"
+
+"@emotion/memoize@0.7.3":
+  version "0.7.3"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/memoize/-/memoize-0.7.3.tgz#5b6b1c11d6a6dddf1f2fc996f74cf3b219644d78"
+  integrity sha1-W2scEdam3d8fL8mW90zzshlkTXg=
+
+"@emotion/serialize@^0.11.10", "@emotion/serialize@^0.11.11", "@emotion/serialize@^0.11.8":
+  version "0.11.11"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/serialize/-/serialize-0.11.11.tgz#c92a5e5b358070a7242d10508143306524e842a4"
+  integrity sha1-ySpeWzWAcKckLRBQgUMwZSToQqQ=
+  dependencies:
+    "@emotion/hash" "0.7.3"
+    "@emotion/memoize" "0.7.3"
+    "@emotion/unitless" "0.7.4"
+    "@emotion/utils" "0.11.2"
+    csstype "^2.5.7"
+
+"@emotion/sheet@0.9.3":
+  version "0.9.3"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/sheet/-/sheet-0.9.3.tgz#689f135ecf87d3c650ed0c4f5ddcbe579883564a"
+  integrity sha1-aJ8TXs+H08ZQ7QxPXdy+V5iDVko=
+
+"@emotion/styled-base@^10.0.17":
+  version "10.0.19"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/styled-base/-/styled-base-10.0.19.tgz#53655274797194d86453354fdb2c947b46032db6"
+  integrity sha1-U2VSdHlxlNhkUzVP2yyUe0YDLbY=
+  dependencies:
+    "@babel/runtime" "^7.5.5"
+    "@emotion/is-prop-valid" "0.8.3"
+    "@emotion/serialize" "^0.11.11"
+    "@emotion/utils" "0.11.2"
+
+"@emotion/styled@10.0.17":
+  version "10.0.17"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/styled/-/styled-10.0.17.tgz#0cd38b8b36259541f2c6717fc22607a120623654"
+  integrity sha1-DNOLizYllUHyxnF/wiYHoSBiNlQ=
+  dependencies:
+    "@emotion/styled-base" "^10.0.17"
+    babel-plugin-emotion "^10.0.17"
+
+"@emotion/stylis@0.8.4":
+  version "0.8.4"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/stylis/-/stylis-0.8.4.tgz#6c51afdf1dd0d73666ba09d2eb6c25c220d6fe4c"
+  integrity sha1-bFGv3x3Q1zZmugnS62wlwiDW/kw=
+
+"@emotion/unitless@0.7.4":
   version "0.7.4"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/unitless/-/unitless-0.7.4.tgz#a87b4b04e5ae14a88d48ebef15015f6b7d1f5677"
   integrity sha1-qHtLBOWuFKiNSOvvFQFfa30fVnc=
+
+"@emotion/utils@0.11.2":
+  version "0.11.2"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/utils/-/utils-0.11.2.tgz#713056bfdffb396b0a14f1c8f18e7b4d0d200183"
+  integrity sha1-cTBWv9/7OWsKFPHI8Y57TQ0gAYM=
+
+"@emotion/weak-memoize@0.2.4":
+  version "0.2.4"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@emotion/weak-memoize/-/weak-memoize-0.2.4.tgz#622a72bebd1e3f48d921563b4b60a762295a81fc"
+  integrity sha1-Yipyvr0eP0jZIVY7S2CnYilagfw=
 
 "@jest/console@^24.7.1":
   version "24.7.1"
@@ -1246,15 +1291,6 @@
   version "1.0.1"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/stack-utils/-/stack-utils-1.0.1.tgz#0a851d3bd96498fa25c33ab7278ed3bd65f06c3e"
   integrity sha1-CoUdO9lkmPolwzq3J47TvWXwbD4=
-
-"@types/styled-components@4.1.8":
-  version "4.1.8"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/styled-components/-/styled-components-4.1.8.tgz#15c8a53bb4b9066e528fafb7558963dee5690ae0"
-  integrity sha1-FcilO7S5Bm5Sj6+3VYlj3uVpCuA=
-  dependencies:
-    "@types/node" "*"
-    "@types/react" "*"
-    csstype "^2.2.0"
 
 "@types/valid-url@1.0.2":
   version "1.0.2"
@@ -1899,6 +1935,22 @@ babel-plugin-dynamic-import-node@^2.3.0:
   dependencies:
     object.assign "^4.1.0"
 
+babel-plugin-emotion@^10.0.14, babel-plugin-emotion@^10.0.17:
+  version "10.0.19"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/babel-plugin-emotion/-/babel-plugin-emotion-10.0.19.tgz#67b9b213f7505c015f163a387a005c12c502b1de"
+  integrity sha1-Z7myE/dQXAFfFjo4egBcEsUCsd4=
+  dependencies:
+    "@babel/helper-module-imports" "^7.0.0"
+    "@emotion/hash" "0.7.3"
+    "@emotion/memoize" "0.7.3"
+    "@emotion/serialize" "^0.11.11"
+    babel-plugin-macros "^2.0.0"
+    babel-plugin-syntax-jsx "^6.18.0"
+    convert-source-map "^1.5.0"
+    escape-string-regexp "^1.0.5"
+    find-root "^1.1.0"
+    source-map "^0.5.7"
+
 babel-plugin-istanbul@^5.1.0:
   version "5.1.4"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/babel-plugin-istanbul/-/babel-plugin-istanbul-5.1.4.tgz#841d16b9a58eeb407a0ddce622ba02fe87a752ba"
@@ -1926,15 +1978,14 @@ babel-plugin-lodash@3.3.4:
     lodash "^4.17.10"
     require-package-name "^2.0.1"
 
-"babel-plugin-styled-components@>= 1":
-  version "1.10.6"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/babel-plugin-styled-components/-/babel-plugin-styled-components-1.10.6.tgz#f8782953751115faf09a9f92431436912c34006b"
-  integrity sha1-+HgpU3URFfrwmp+SQxQ2kSw0AGs=
+babel-plugin-macros@^2.0.0:
+  version "2.6.1"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/babel-plugin-macros/-/babel-plugin-macros-2.6.1.tgz#41f7ead616fc36f6a93180e89697f69f51671181"
+  integrity sha1-Qffq1hb8NvapMYDolpf2n1FnEYE=
   dependencies:
-    "@babel/helper-annotate-as-pure" "^7.0.0"
-    "@babel/helper-module-imports" "^7.0.0"
-    babel-plugin-syntax-jsx "^6.18.0"
-    lodash "^4.17.11"
+    "@babel/runtime" "^7.4.2"
+    cosmiconfig "^5.2.0"
+    resolve "^1.10.0"
 
 babel-plugin-syntax-jsx@^6.18.0:
   version "6.18.0"
@@ -2311,11 +2362,6 @@ camelcase@^5.0.0, camelcase@^5.2.0:
   version "5.3.1"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/camelcase/-/camelcase-5.3.1.tgz#e3c9b31569e106811df242f715725a1f4c494320"
   integrity sha1-48mzFWnhBoEd8kL3FXJaH0xJQyA=
-
-camelize@^1.0.0:
-  version "1.0.0"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/camelize/-/camelize-1.0.0.tgz#164a5483e630fa4321e5af07020e531831b2609b"
-  integrity sha1-FkpUg+Yw+kMh5a8HAg5TGDGyYJs=
 
 caniuse-api@^3.0.0:
   version "3.0.0"
@@ -2712,7 +2758,7 @@ content-type@~1.0.4:
   resolved "https://repox.jfrog.io/repox/api/npm/npm/content-type/-/content-type-1.0.4.tgz#e138cc75e040c727b1966fe5e5f8c9aee256fe3b"
   integrity sha1-4TjMdeBAxyexlm/l5fjJruJW/js=
 
-convert-source-map@^1.1.0, convert-source-map@^1.4.0:
+convert-source-map@^1.1.0, convert-source-map@^1.4.0, convert-source-map@^1.5.0:
   version "1.6.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/convert-source-map/-/convert-source-map-1.6.0.tgz#51b537a8c43e0f04dec1993bffcdd504e758ac20"
   integrity sha1-UbU3qMQ+DwTewZk7/83VBOdYrCA=
@@ -2797,7 +2843,7 @@ core-util-is@1.0.2, core-util-is@~1.0.0:
   resolved "https://repox.jfrog.io/repox/api/npm/npm/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
   integrity sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=
 
-cosmiconfig@^5.0.0, cosmiconfig@^5.0.2:
+cosmiconfig@^5.0.0, cosmiconfig@^5.0.2, cosmiconfig@^5.2.0:
   version "5.2.1"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/cosmiconfig/-/cosmiconfig-5.2.1.tgz#040f726809c591e77a17c0a3626ca45b4f168b1a"
   integrity sha1-BA9yaAnFked6F8CjYmykW08Wixo=
@@ -2897,11 +2943,6 @@ crypto-browserify@^3.11.0:
     randombytes "^2.0.0"
     randomfill "^1.0.3"
 
-css-color-keywords@^1.0.0:
-  version "1.0.0"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/css-color-keywords/-/css-color-keywords-1.0.0.tgz#fea2616dc676b2962686b3af8dbdbe180b244e05"
-  integrity sha1-/qJhbcZ2spYmhrOvjb2+GAskTgU=
-
 css-color-names@0.0.4, css-color-names@^0.0.4:
   version "0.0.4"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/css-color-names/-/css-color-names-0.0.4.tgz#808adc2e79cf84738069b646cb20ec27beb629e0"
@@ -2956,15 +2997,6 @@ css-select@^2.0.0:
     css-what "^2.1.2"
     domutils "^1.7.0"
     nth-check "^1.0.2"
-
-css-to-react-native@^2.2.2:
-  version "2.3.2"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/css-to-react-native/-/css-to-react-native-2.3.2.tgz#e75e2f8f7aa385b4c3611c52b074b70a002f2e7d"
-  integrity sha1-514vj3qjhbTDYRxSsHS3CgAvLn0=
-  dependencies:
-    camelize "^1.0.0"
-    css-color-keywords "^1.0.0"
-    postcss-value-parser "^3.3.0"
 
 css-tree@1.0.0-alpha.28:
   version "1.0.0-alpha.28"
@@ -3098,6 +3130,11 @@ csstype@^2.2.0:
   version "2.6.5"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/csstype/-/csstype-2.6.5.tgz#1cd1dff742ebf4d7c991470ae71e12bb6751e034"
   integrity sha1-HNHf90Lr9NfJkUcK5x4Su2dR4DQ=
+
+csstype@^2.5.7:
+  version "2.6.6"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/csstype/-/csstype-2.6.6.tgz#c34f8226a94bbb10c32cc0d714afdf942291fc41"
+  integrity sha1-w0+CJqlLuxDDLMDXFK/flCKR/EE=
 
 cyclist@~0.2.2:
   version "0.2.2"
@@ -3667,6 +3704,15 @@ emojis-list@^2.0.0:
   version "2.1.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/emojis-list/-/emojis-list-2.1.0.tgz#4daa4d9db00f9819880c79fa457ae5b09a1fd389"
   integrity sha1-TapNnbAPmBmIDHn6RXrlsJof04k=
+
+emotion-theming@10.0.19:
+  version "10.0.19"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/emotion-theming/-/emotion-theming-10.0.19.tgz#66d13db74fccaefad71ba57c915b306cf2250295"
+  integrity sha1-ZtE9t0/MrvrXG6V8kVswbPIlApU=
+  dependencies:
+    "@babel/runtime" "^7.5.5"
+    "@emotion/weak-memoize" "0.2.4"
+    hoist-non-react-statics "^3.3.0"
 
 encodeurl@~1.0.2:
   version "1.0.2"
@@ -4344,6 +4390,11 @@ find-parent-dir@^0.3.0:
   resolved "https://repox.jfrog.io/repox/api/npm/npm/find-parent-dir/-/find-parent-dir-0.3.0.tgz#33c44b429ab2b2f0646299c5f9f718f376ff8d54"
   integrity sha1-M8RLQpqysvBkYpnF+fcY83b/jVQ=
 
+find-root@^1.1.0:
+  version "1.1.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/find-root/-/find-root-1.1.0.tgz#abcfc8ba76f708c42a97b3d685b7e9450bfb9ce4"
+  integrity sha1-q8/Iunb3CMQql7PWhbfpRQv7nOQ=
+
 find-up@^2.0.0, find-up@^2.1.0:
   version "2.1.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/find-up/-/find-up-2.1.0.tgz#45d1b7e506c717ddd482775a2b77920a3c0c57a7"
@@ -4838,7 +4889,7 @@ hoist-non-react-statics@^2.3.1, hoist-non-react-statics@^2.5.5:
   resolved "https://repox.jfrog.io/repox/api/npm/npm/hoist-non-react-statics/-/hoist-non-react-statics-2.5.5.tgz#c5903cf409c0dfd908f388e619d86b9c1174cb47"
   integrity sha1-xZA89AnA39kI84jmGdhrnBF0y0c=
 
-hoist-non-react-statics@^3.1.0:
+hoist-non-react-statics@^3.1.0, hoist-non-react-statics@^3.3.0:
   version "3.3.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/hoist-non-react-statics/-/hoist-non-react-statics-3.3.0.tgz#b09178f0122184fb95acf525daaecb4d8f45958b"
   integrity sha1-sJF48BIhhPuVrPUl2q7LTY9FlYs=
@@ -5600,11 +5651,6 @@ is-typedarray@~1.0.0:
   version "1.0.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/is-typedarray/-/is-typedarray-1.0.0.tgz#e479c80858df0c1b11ddda6940f96011fcda4a9a"
   integrity sha1-5HnICFjfDBsR3dppQPlgEfzaSpo=
-
-is-what@^3.3.1:
-  version "3.3.1"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/is-what/-/is-what-3.3.1.tgz#79502181f40226e2d8c09226999db90ef7c1bcbe"
-  integrity sha1-eVAhgfQCJuLYwJImmZ25DvfBvL4=
 
 is-whitespace-character@^1.0.0:
   version "1.0.3"
@@ -6468,7 +6514,7 @@ lodash.uniq@^4.5.0:
   resolved "https://repox.jfrog.io/repox/api/npm/npm/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
   integrity sha1-0CJTc662Uq3BvILklFM5qEJ1R3M=
 
-lodash@4.17.15, lodash@^4.15.0, lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0:
+lodash@4.17.15, lodash@^4.15.0, lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0:
   version "4.17.15"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha1-tEf2ZwoEVbv+7dETku/zMOoJdUg=
@@ -6670,11 +6716,6 @@ mem@^4.0.0:
     mimic-fn "^2.0.0"
     p-is-promise "^2.0.0"
 
-memoize-one@^5.0.0:
-  version "5.1.1"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/memoize-one/-/memoize-one-5.1.1.tgz#047b6e3199b508eaec03504de71229b8eb1d75c0"
-  integrity sha1-BHtuMZm1COrsA1BN5xIpuOsddcA=
-
 memory-fs@^0.4.0, memory-fs@^0.4.1, memory-fs@~0.4.1:
   version "0.4.1"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/memory-fs/-/memory-fs-0.4.1.tgz#3a9a20b8462523e447cfbc7e8bb80ed667bfc552"
@@ -6682,13 +6723,6 @@ memory-fs@^0.4.0, memory-fs@^0.4.1, memory-fs@~0.4.1:
   dependencies:
     errno "^0.1.3"
     readable-stream "^2.0.1"
-
-merge-anything@^2.2.4:
-  version "2.4.1"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/merge-anything/-/merge-anything-2.4.1.tgz#e9bccaec1e49ec6cb5f77ca78c5770d1a35315e6"
-  integrity sha1-6bzK7B5J7Gy193ynjFdw0aNTFeY=
-  dependencies:
-    is-what "^3.3.1"
 
 merge-descriptors@1.0.1:
   version "1.0.1"
@@ -9453,7 +9487,7 @@ source-map@0.5.6:
   resolved "https://repox.jfrog.io/repox/api/npm/npm/source-map/-/source-map-0.5.6.tgz#75ce38f52bf0733c5a7f0c118d81334a2bb5f412"
   integrity sha1-dc449SvwczxafwwRjYEzSiu19BI=
 
-source-map@^0.5.0, source-map@^0.5.3, source-map@^0.5.6:
+source-map@^0.5.0, source-map@^0.5.3, source-map@^0.5.6, source-map@^0.5.7:
   version "0.5.7"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/source-map/-/source-map-0.5.7.tgz#8a039d2d1021d22d1ea14c80d8ea468ba2ef3fcc"
   integrity sha1-igOdLRAh0i0eoUyA2OpGi6LvP8w=
@@ -9751,25 +9785,6 @@ style-loader@0.23.1:
     loader-utils "^1.1.0"
     schema-utils "^1.0.0"
 
-styled-components@4.3.2:
-  version "4.3.2"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/styled-components/-/styled-components-4.3.2.tgz#4ca81918c812d3006f60ac5fdec7d6b64a9509cc"
-  integrity sha1-TKgZGMgS0wBvYKxf3sfWtkqVCcw=
-  dependencies:
-    "@babel/helper-module-imports" "^7.0.0"
-    "@babel/traverse" "^7.0.0"
-    "@emotion/is-prop-valid" "^0.8.1"
-    "@emotion/unitless" "^0.7.0"
-    babel-plugin-styled-components ">= 1"
-    css-to-react-native "^2.2.2"
-    memoize-one "^5.0.0"
-    merge-anything "^2.2.4"
-    prop-types "^15.5.4"
-    react-is "^16.6.0"
-    stylis "^3.5.0"
-    stylis-rule-sheet "^0.0.10"
-    supports-color "^5.5.0"
-
 stylehacks@^4.0.0:
   version "4.0.3"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/stylehacks/-/stylehacks-4.0.3.tgz#6718fcaf4d1e07d8a1318690881e8d96726a71d5"
@@ -9779,22 +9794,12 @@ stylehacks@^4.0.0:
     postcss "^7.0.0"
     postcss-selector-parser "^3.0.0"
 
-stylis-rule-sheet@^0.0.10:
-  version "0.0.10"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/stylis-rule-sheet/-/stylis-rule-sheet-0.0.10.tgz#44e64a2b076643f4b52e5ff71efc04d8c3c4a430"
-  integrity sha1-ROZKKwdmQ/S1Ll/3HvwE2MPEpDA=
-
-stylis@^3.5.0:
-  version "3.5.4"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/stylis/-/stylis-3.5.4.tgz#f665f25f5e299cf3d64654ab949a57c768b73fbe"
-  integrity sha1-9mXyX14pnPPWRlSrlJpXx2i3P74=
-
 supports-color@^2.0.0:
   version "2.0.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/supports-color/-/supports-color-2.0.0.tgz#535d045ce6b6363fa40117084629995e9df324c7"
   integrity sha1-U10EXOa2Nj+kARcIRimZXp3zJMc=
 
-supports-color@^5.3.0, supports-color@^5.5.0:
+supports-color@^5.3.0:
   version "5.5.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/supports-color/-/supports-color-5.5.0.tgz#e2e69a44ac8772f78a1ec0b35b689df6530efc8f"
   integrity sha1-4uaaRKyHcveKHsCzW2id9lMO/I8=

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import SystemUpgradeNotif from '../SystemUpgradeNotif';
@@ -96,7 +96,7 @@ it('should display nothing', async () => {
 });
 
 it('should fetch upgrade when mounting', () => {
-  mount(<SystemUpgradeNotif />);
+  shallow(<SystemUpgradeNotif />);
   expect(getSystemUpgrades).toHaveBeenCalled();
 });
 
