@@ -94,6 +94,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     if (!nodeLifecycle.tryToMoveTo(NodeLifecycle.State.STARTING)) {
       return;
     }
+    firstWaitingEsLog.set(true);
     processesById.clear();
 
     for (ProcessId processId : ClusterSettings.getEnabledProcesses(settings)) {
