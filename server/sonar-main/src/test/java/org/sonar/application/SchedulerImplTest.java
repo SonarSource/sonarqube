@@ -198,21 +198,20 @@ public class SchedulerImplTest {
 
   @Test
   public void restart_stops_all_and_restarts_all_processes() throws InterruptedException, IOException {
+    CountDownLatch restarting = new CountDownLatch(1);
     Scheduler underTest = startAll();
     Mockito.doAnswer(t -> {
       orderedStops.clear();
       appState.reset();
+      processLauncher.reset();
+      restarting.countDown();
     return null;})
       .when(appReloader).reload(settings);
 
     processLauncher.waitForProcess(WEB_SERVER).askedForRestart = true;
 
-    // waiting for all processes to be stopped
-    processLauncher.waitForProcessDown(COMPUTE_ENGINE).reset();
-    processLauncher.waitForProcessDown(WEB_SERVER).reset();
-    processLauncher.waitForProcessDown(ELASTICSEARCH).reset();
-    processLauncher.reset();
-
+    // waiting for SQ to initiate restart
+    restarting.await();
     playAndVerifyStartupSequence();
 
     underTest.stop();
