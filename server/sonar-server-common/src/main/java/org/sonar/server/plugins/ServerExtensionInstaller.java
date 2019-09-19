@@ -24,14 +24,17 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.internal.PluginContextImpl;
 import org.sonar.api.utils.AnnotationUtils;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
@@ -43,6 +46,8 @@ import static org.sonar.core.extension.ExtensionProviderSupport.isExtensionProvi
  * Loads the plugins server extensions and injects them to DI container
  */
 public abstract class ServerExtensionInstaller {
+
+  private static final Set<String> NO_MORE_COMPATIBLE_PLUGINS = ImmutableSet.of("authgitlab");
 
   private final SonarRuntime sonarRuntime;
   private final PluginRepository pluginRepository;
@@ -57,8 +62,8 @@ public abstract class ServerExtensionInstaller {
   }
 
   public void installExtensions(ComponentContainer container) {
+    failWhenNoMoreCompatiblePlugins();
     ListMultimap<PluginInfo, Object> installedExtensionsByPlugin = ArrayListMultimap.create();
-
     for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
       try {
         String pluginKey = pluginInfo.getKey();
@@ -97,6 +102,17 @@ public abstract class ServerExtensionInstaller {
     }
   }
 
+  private void failWhenNoMoreCompatiblePlugins() {
+    List<String> noMoreCompatiblePluginNames = pluginRepository.getPluginInfos()
+      .stream()
+      .filter(pluginInfo -> NO_MORE_COMPATIBLE_PLUGINS.contains(pluginInfo.getKey()))
+      .map(PluginInfo::getName)
+      .collect(Collectors.toList());
+    if (!noMoreCompatiblePluginNames.isEmpty()) {
+      throw MessageException.of(String.format("Plugins '%s' are no more compatible with SonarQube", String.join(",", noMoreCompatiblePluginNames)));
+    }
+  }
+
   private void installProvider(ComponentContainer container, PluginInfo pluginInfo, ExtensionProvider provider) {
     Object obj = provider.provide();
     if (obj != null) {
@@ -110,7 +126,7 @@ public abstract class ServerExtensionInstaller {
     }
   }
 
-  Object installExtension(ComponentContainer container, PluginInfo pluginInfo, Object extension, boolean acceptProvider) {
+  private Object installExtension(ComponentContainer container, PluginInfo pluginInfo, Object extension, boolean acceptProvider) {
     for (Class<? extends Annotation> supportedAnnotationType : supportedAnnotationTypes) {
       if (AnnotationUtils.getAnnotation(extension, supportedAnnotationType) != null) {
         if (!acceptProvider && isExtensionProvider(extension)) {
