@@ -133,7 +133,7 @@ public class ShowAction implements NewCodePeriodsWsAction {
       .orElseGet(() -> get(dbSession, projectUuid, null, true));
   }
 
-  private ShowWSResponse.Builder build(NewCodePeriodDto dto, boolean inherited) {
+  private static ShowWSResponse.Builder build(NewCodePeriodDto dto, boolean inherited) {
     ShowWSResponse.Builder builder = ShowWSResponse.newBuilder()
       .setType(convertType(dto.getType()))
       .setInherited(inherited);
@@ -144,7 +144,7 @@ public class ShowAction implements NewCodePeriodsWsAction {
     return builder;
   }
 
-  private ShowWSResponse.Builder buildDefault(boolean inherited) {
+  private static ShowWSResponse.Builder buildDefault(boolean inherited) {
     return ShowWSResponse.newBuilder()
       .setType(convertType(NewCodePeriodType.PREVIOUS_VERSION))
       .setInherited(inherited);

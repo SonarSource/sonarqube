@@ -19,7 +19,6 @@
  */
 package org.sonar.api.server.profile;
 
-import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rules.RuleAnnotationUtils;
 import org.sonar.api.server.ServerSide;

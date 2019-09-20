@@ -62,8 +62,8 @@ public class NewCodePeriodResolver {
   private Period toPeriod(NewCodePeriodType type, @Nullable String value, DbSession dbSession, String projectVersion, String rootUuid, long referenceDate) {
     switch (type) {
       case NUMBER_OF_DAYS:
-        Integer days = NewCodePeriodParser.parseDays(value);
         checkNotNullValue(value, type);
+        Integer days = NewCodePeriodParser.parseDays(value);
         return resolveByDays(dbSession, rootUuid, days, value, referenceDate);
       case PREVIOUS_VERSION:
         return resolveByPreviousVersion(dbSession, rootUuid, projectVersion);
@@ -104,7 +104,6 @@ public class NewCodePeriodResolver {
     List<SnapshotDto> snapshots = dbClient.snapshotDao().selectAnalysesByQuery(dbSession, createCommonQuery(rootUuid)
       .setCreatedBefore(referenceDate).setSort(BY_DATE, ASC));
 
-    ensureNotOnFirstAnalysis(!snapshots.isEmpty());
     Instant targetDate = DateUtils.addDays(Instant.ofEpochMilli(referenceDate), -days);
     LOG.debug("Resolving new code period by {} days: {}", days, supplierToString(() -> logDate(targetDate)));
     SnapshotDto snapshot = findNearestSnapshotToTargetDate(snapshots, targetDate);
@@ -156,6 +155,9 @@ public class NewCodePeriodResolver {
     // FIXME shouldn't this be the first analysis after targetDate?
     Duration bestDuration = null;
     SnapshotDto nearest = null;
+
+    ensureNotOnFirstAnalysis(!snapshots.isEmpty());
+
     for (SnapshotDto snapshot : snapshots) {
       Instant createdAt = Instant.ofEpochMilli(snapshot.getCreatedAt());
       Duration duration = Duration.between(targetDate, createdAt).abs();

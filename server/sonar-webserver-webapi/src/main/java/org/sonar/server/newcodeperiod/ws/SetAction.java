@@ -154,11 +154,7 @@ public class SetAction implements NewCodePeriodsWsAction {
         break;
       case NUMBER_OF_DAYS:
         requireValue(type, value);
-        try {
-          dto.setValue(Integer.toString(NewCodePeriodParser.parseDays(value)));
-        } catch (Exception e) {
-          throw new IllegalArgumentException("Failed to parse number of days: " + value);
-        }
+        dto.setValue(parseDays(value));
         break;
       case SPECIFIC_ANALYSIS:
         requireValue(type, value);
@@ -168,6 +164,14 @@ public class SetAction implements NewCodePeriodsWsAction {
         break;
       default:
         throw new IllegalStateException("Unexpected type: " + type);
+    }
+  }
+
+  private static String parseDays(String value) {
+    try {
+      return Integer.toString(NewCodePeriodParser.parseDays(value));
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Failed to parse number of days: " + value);
     }
   }
 

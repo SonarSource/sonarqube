@@ -19,6 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -77,10 +79,11 @@ public class LoadPeriodsStep implements ComputationStep {
     String projectVersion = treeRootHolder.getRoot().getProjectAttributes().getProjectVersion();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<NewCodePeriodDto> dto = firstPresent(
+      Optional<NewCodePeriodDto> dto = firstPresent(Arrays.asList(
         () -> getBranchSetting(dbSession, projectUuid, branchUuid),
         () -> getProjectSetting(dbSession, projectUuid),
-        () -> getGlobalSetting(dbSession));
+        () -> getGlobalSetting(dbSession)
+      ));
 
       long analysisDate = analysisMetadataHolder.getAnalysisDate();
       Period period = dto.map(d -> resolver.resolve(dbSession, branchUuid, d, analysisDate, projectVersion))
@@ -89,7 +92,7 @@ public class LoadPeriodsStep implements ComputationStep {
     }
   }
 
-  private static <T> Optional<T> firstPresent(Supplier<Optional<T>>... suppliers) {
+  private static <T> Optional<T> firstPresent(Collection<Supplier<Optional<T>>> suppliers) {
     for (Supplier<Optional<T>> supplier : suppliers) {
       Optional<T> result = supplier.get();
       if (result.isPresent()) {
