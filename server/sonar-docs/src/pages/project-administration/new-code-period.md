@@ -23,11 +23,11 @@ You can set a project's New Code Period to the following:
 * **Number of days** – Specify a number of days for a floating New Code Period. For example, setting **Number of Days** to 30 creates a floating New Code Period beginning 30 days from the current date.
 * **Specific analysis** – Choose a previous analysis as your New Code Period. The New Code Period will show any changes made since that analysis. 
 
-   **Note:** For Community Edition, you can set the New Code Period to a specific past analysis at the project-level because Community Edition doesn't support multiple branches. [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/) allow you to set the New Code Period of each long-lived branch to a specific past analysis of the branch. If you want to use **Specific analysis** for your New Code Period in Developer Edition or above, set it at the branch level. See the following section for more information on setting a branch-level New Code Period. 
+   **Note:** For Community Edition, you can set the New Code Period to a specific past analysis at the project-level because Community Edition doesn't support multiple branches. [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/) let you set the New Code Period to a specific analysis at the branch level. Each long-lived branch can be set to one of the branch's specific past analyses. See the following section for information on setting a branch-level New Code Period. 
 
 ### Setting a branch-level New Code Period
 _Branch analysis is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/)._  
-For projects with multiple long-lived branches, you can set a New Code Period for each branch at the **Edit settings** column of the branches table on the project's **New Code Period** settings page.
+For projects with multiple long-lived branches, you can set a New Code Period for each branch from the **Actions** column of the branches table on the project's **New Code Period** settings page.
 
 You can set a branch's New Code Period to the following:
 
