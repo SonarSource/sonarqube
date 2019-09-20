@@ -50,7 +50,7 @@ public class WebPagesCache {
 
   private static final String INDEX_HTML_PATH = "/index.html";
 
-  private static final Set<String> HTML_PATHS = ImmutableSet.of(INDEX_HTML_PATH, "/integration/vsts/index.html");
+  private static final Set<String> HTML_PATHS = ImmutableSet.of(INDEX_HTML_PATH);
 
   private final Platform platform;
   private final Configuration configuration;

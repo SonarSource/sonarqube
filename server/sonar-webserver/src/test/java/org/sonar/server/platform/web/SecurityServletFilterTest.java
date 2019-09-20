@@ -94,7 +94,7 @@ public class SecurityServletFilterTest {
 
   @Test
   public void do_not_set_frame_protection_on_integration_resources() throws Exception {
-    HttpServletRequest request = newRequest("GET", "/integration/vsts/index.html");
+    HttpServletRequest request = newRequest("GET", "/integration/github");
 
     underTest.doFilter(request, response, chain);
 
@@ -107,7 +107,7 @@ public class SecurityServletFilterTest {
   public void do_not_set_frame_protection_on_integration_resources_with_context() throws Exception {
     HttpServletRequest request = mock(HttpServletRequest.class);
     when(request.getMethod()).thenReturn("GET");
-    when(request.getRequestURI()).thenReturn("/sonarqube/integration/vsts/index.html");
+    when(request.getRequestURI()).thenReturn("/sonarqube/integration/github");
     when(request.getContextPath()).thenReturn("/sonarqube");
 
     underTest.doFilter(request, response, chain);

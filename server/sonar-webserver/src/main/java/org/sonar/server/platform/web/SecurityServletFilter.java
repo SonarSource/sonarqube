@@ -59,7 +59,7 @@ public class SecurityServletFilter implements Filter {
 
     // Clickjacking protection
     // See https://www.owasp.org/index.php/Clickjacking_Protection_for_Java_EE
-    // The protection is disabled on purpose for integration in external systems like VSTS (/integration/vsts/index.html).
+    // The protection is disabled on purpose for integration in external systems like Github (/integration/github).
     String path = httpRequest.getRequestURI().replaceFirst(httpRequest.getContextPath(), "");
     if (!path.startsWith("/integration/")) {
       httpResponse.addHeader("X-Frame-Options", "SAMEORIGIN");

@@ -60,8 +60,6 @@ public class WebPagesCacheTest {
     when(servletContext.getResourceAsStream("/index.html")).thenAnswer(
       (Answer<InputStream>) invocationOnMock -> toInputStream("Content of default index.html with context [%WEB_CONTEXT%], status [%SERVER_STATUS%], instance [%INSTANCE%]",
         UTF_8));
-    when(servletContext.getResourceAsStream("/integration/vsts/index.html"))
-      .thenAnswer((Answer<InputStream>) invocationOnMock -> toInputStream("Content of vsts index.html with context [%WEB_CONTEXT%]", UTF_8));
   }
 
   @Test
@@ -73,7 +71,6 @@ public class WebPagesCacheTest {
     assertThat(underTest.getContent("/foo.html")).contains(TEST_CONTEXT).contains("default");
     assertThat(underTest.getContent("/index")).contains(TEST_CONTEXT).contains("default");
     assertThat(underTest.getContent("/index.html")).contains(TEST_CONTEXT).contains("default");
-    assertThat(underTest.getContent("/integration/vsts/index.html")).contains(TEST_CONTEXT).contains("vsts");
   }
 
   @Test
