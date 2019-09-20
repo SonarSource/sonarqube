@@ -95,12 +95,16 @@ subprojects {
   apply plugin: 'io.spring.dependency-management'
   apply plugin: 'jacoco'
   apply plugin: 'java'
-  apply plugin: 'java-test-fixtures'
   apply plugin: 'idea'
   apply plugin: 'org.owasp.dependencycheck'
 
   // do not deploy to Artifactory by default
   artifactoryPublish.skip = true
+
+  def testFixtureSrc = 'src/testFixtures'
+  if (file(testFixtureSrc).exists()) {
+    apply plugin: 'java-test-fixtures'
+  }
 
   ext {
     protobufVersion = '3.7.0'
