@@ -43,7 +43,6 @@ dependencies {
 
   jsw 'tanukisoft:wrapper:3.2.3'
   scanner project(path: ':sonar-scanner-engine-shaded', configuration: 'shadow')
-  web project(':server:sonar-vsts')
   web project(':server:sonar-web')
   shutdowner project(':sonar-shutdowner')
 
@@ -174,7 +173,6 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
          }
       }
     }
-    from tasks.getByPath(':server:sonar-vsts:yarn_run').outputs
     if (official) {
       from project(':private:branding').file('src')
     }
