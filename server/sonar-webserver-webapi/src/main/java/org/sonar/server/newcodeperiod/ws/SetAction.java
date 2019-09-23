@@ -20,11 +20,9 @@
 package org.sonar.server.newcodeperiod.ws;
 
 import com.google.common.base.Preconditions;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -80,11 +78,15 @@ public class SetAction implements NewCodePeriodsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set")
       .setPost(true)
-      .setDescription("Sets the setting for the New Code Period.<br>" +
+      .setDescription("Updates the setting for the New Code Period on different levels:<br>" +
+        "<ul>" +
+        "<li>Project key must be provided to update the value for a project</li>" +
+        "<li>Both project and branch keys must be provided to update the value for a branch\n</li>" +
+        "</ul>" +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System' to change the global setting</li>" +
-        "<li>'Administer' rights for a specified component</li>" +
+        "<li>'Administer' rights on the specified project to change the project setting</li>" +
         "</ul>")
       .setSince("8.0")
       .setHandler(this);
@@ -96,14 +98,20 @@ public class SetAction implements NewCodePeriodsWsAction {
     action.createParam(PARAM_TYPE)
       .setRequired(true)
       .setDescription("Type<br/>" +
-        "Only new code periods of the following types are allowed:" +
+        "New code periods of the following types are allowed:" +
         "<ul>" +
-        Arrays.stream(NewCodePeriodType.values())
-          .map(newCodePeriodType -> "<li>" + newCodePeriodType.name() + "</li>")
-          .collect(Collectors.joining()) +
+        "<li>" + SPECIFIC_ANALYSIS.name() + " - can be set at branch level only</li>" +
+        "<li>" + PREVIOUS_VERSION.name() + " - can be set at any level (global, project, branch)</li>" +
+        "<li>" + NUMBER_OF_DAYS.name() + " - can be set  can be set at any level (global, project, branch)</li>" +
         "</ul>");
     action.createParam(PARAM_VALUE)
-      .setDescription("Value");
+      .setDescription("Value<br/>" +
+        "For each type, a different value is expected:" +
+        "<ul>" +
+        "<li>the uuid of an analysis, when type is " + SPECIFIC_ANALYSIS.name() + "</li>" +
+        "<li>no value, when type is " + PREVIOUS_VERSION.name() + "</li>" +
+        "<li>a number, when type is " + NUMBER_OF_DAYS.name() + "</li>" +
+        "</ul>");
   }
 
   @Override
