@@ -3,6 +3,11 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 8.0 Upgrade Notes
+**GitLab Authentication now built in**  
+GitLab OAuth2 authentication is now available in all editions. Users of the community plugin must remove the plugin from SonarQube when upgrading. The configured variable of the plugin will be migrated, so the authentication will work without having to rewrite the configuration. Due to changes in group mapping, GitLab subgroups mapped using the community plugin will need to be renamed in SonarQube for the mapping to work. ([SONAR-12460](https://jira.sonarsource.com/browse/SONAR-12460)).
+
+
 ## Release 7.9.1 LTS Upgrade Notes  
 **Upgrade on Microsoft SQL Server fixed**  
 Upgrade failure and performance issues with Microsoft SQL Server have been fixed ([SONAR-12260](https://jira.sonarsource.com/browse/SONAR-12260), [SONAR-12251](https://jira.sonarsource.com/browse/SONAR-12251)).
