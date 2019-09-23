@@ -57,15 +57,6 @@ build_task:
     reports_artifacts:
       path: "**/build/reports/**/*"
 
-dogfood_docker_builder:
-  name: build docker
-  only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
-  depends_on: validate
-  env:
-    CIRRUS_CLONE_DEPTH: 50
-  script:
-    - ./private/cirrus/cirrus-build-dogfood-docker.sh
-
 deploy_docs_task:
   depends_on: build
   only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
@@ -197,6 +188,18 @@ promote_task:
     CIRRUS_CLONE_DEPTH: 50
   script:
     - ./private/cirrus/cirrus-promote.sh
+
+dogfood_docker_builder:
+  name: build docker
+  only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
+  depends_on:
+    - build
+    - validate
+    - promote
+  env:
+    CIRRUS_CLONE_DEPTH: 50
+  script:
+    - ./private/cirrus/cirrus-build-dogfood-docker.sh
 
 sql_mssql2017_task:
   depends_on: build
