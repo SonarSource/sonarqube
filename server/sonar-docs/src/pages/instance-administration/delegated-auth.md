@@ -40,7 +40,7 @@ You can delegate authentication to GitHub Enterprise using a dedicated GitHub OA
 1. You'll need to first create a GitHub OAuth application. Click [here](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) for general instructions:
    1. "Homepage URL" is the public URL to your SonarQube server, for example "https://sonarqube.mycompany.com". For security reasons HTTP is not supported. HTTPS must be used. The public URL is configured in SonarQube at **[Administration -> General -> Server base URL](/#sonarqube-admin#/admin/settings)**
    1. "Authorization callback URL" is <Homepage URL>/oauth2/callback, for example "https://sonarqube.mycompany.com/oauth2/callback"
-1. In SonarQube, navigate to **[Administration > Configuration > General Settings > GitHub](/#sonarqube-admin#/admin/settings?category=github)**:
+1. In SonarQube, navigate to **[Administration > Configuration > General Settings > Security > GitHub](/#sonarqube-admin#/admin/settings?category=security)**:
    1. Set **Enabled** to `true`
    1. Set the **Client ID** to the value provided by the GitHub developer application
    1. Set the **Client Secret** to the value provided by the GitHub developer application

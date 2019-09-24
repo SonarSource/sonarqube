@@ -62,7 +62,9 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
   @Override
   public Display getDisplay() {
     return Display.builder()
-      .setIconPath("/images/gitlab-icon-rgb.svg").setBackgroundColor("#6a4fbb").build();
+      .setIconPath("/images/gitlab-icon-rgb.svg")
+      .setBackgroundColor("#6a4fbb")
+      .build();
   }
 
   @Override

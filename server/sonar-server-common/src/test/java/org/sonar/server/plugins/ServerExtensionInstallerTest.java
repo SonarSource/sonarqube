@@ -65,6 +65,18 @@ public class ServerExtensionInstallerTest {
   }
 
   @Test
+  public void fail_when_detecting_github_auth_plugin() {
+    PluginInfo foo = newPlugin("authgithub", "GitHub Auth");
+    pluginRepository.add(foo, mock(Plugin.class));
+    ComponentContainer componentContainer = new ComponentContainer();
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Plugins 'GitHub Auth' are no more compatible with SonarQube");
+
+    underTest.installExtensions(componentContainer);
+  }
+
+  @Test
   public void fail_when_detecting_gitlab_auth_plugin() {
     PluginInfo foo = newPlugin("authgitlab", "GitLab Auth");
     pluginRepository.add(foo, mock(Plugin.class));

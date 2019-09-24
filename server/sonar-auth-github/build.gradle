@@ -1,4 +1,4 @@
-description = 'SonarQube :: Authentication :: GitLab'
+description = 'SonarQube :: Authentication :: GitHub'
 
 configurations {
     testCompile.extendsFrom compileOnly
