@@ -11,14 +11,14 @@ exports[`should render correctly 1`] = `
           branch_list.branch
         </th>
         <th
-          className="thin nowrap huge-spacer-right"
+          className="nowrap huge-spacer-right"
         >
           branch_list.current_setting
         </th>
         <th
           className="thin nowrap"
         >
-          branch_list.edit_settings
+          branch_list.actions
         </th>
       </tr>
     </thead>

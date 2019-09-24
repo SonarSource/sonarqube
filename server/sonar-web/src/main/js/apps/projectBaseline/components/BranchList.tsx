@@ -168,10 +168,10 @@ export default class BranchList extends React.PureComponent<Props, State> {
           <thead>
             <tr>
               <th>{translate('branch_list.branch')}</th>
-              <th className="thin nowrap huge-spacer-right">
+              <th className="nowrap huge-spacer-right">
                 {translate('branch_list.current_setting')}
               </th>
-              <th className="thin nowrap">{translate('branch_list.edit_settings')}</th>
+              <th className="thin nowrap">{translate('branch_list.actions')}</th>
             </tr>
           </thead>
           <tbody>
