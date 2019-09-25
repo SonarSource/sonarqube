@@ -30,6 +30,7 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.server.util.GlobalLockManagerImpl;
+import org.sonar.server.util.Paths2Impl;
 import org.sonar.server.util.TempFolderCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
@@ -108,6 +109,7 @@ public class PlatformLevel1 extends PlatformLevel {
       TempFolderCleaner.class,
       new TempFolderProvider(),
       System2.INSTANCE,
+      Paths2Impl.getInstance(),
       Clock.systemDefaultZone(),
 
       // user session

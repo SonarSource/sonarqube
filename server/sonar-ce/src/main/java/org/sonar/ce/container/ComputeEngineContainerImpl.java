@@ -147,6 +147,7 @@ import org.sonar.server.setting.ThreadLocalSettings;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.OkHttpClientProvider;
+import org.sonar.server.util.Paths2Impl;
 import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.webhook.WebhookModule;
@@ -293,6 +294,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       ServerFileSystemImpl.class,
       new TempFolderProvider(),
       System2.INSTANCE,
+      Paths2Impl.getInstance(),
       Clock.systemDefaultZone(),
 
       // DB

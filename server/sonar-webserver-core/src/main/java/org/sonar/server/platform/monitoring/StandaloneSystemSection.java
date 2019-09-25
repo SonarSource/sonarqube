@@ -32,6 +32,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.log.ServerLogging;
+import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.user.SecurityRealmFactory;
 
@@ -50,16 +51,18 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
   private final Server server;
   private final ServerLogging serverLogging;
   private final OfficialDistribution officialDistribution;
+  private final DockerSupport dockerSupport;
 
   public StandaloneSystemSection(Configuration config, SecurityRealmFactory securityRealmFactory,
     IdentityProviderRepository identityProviderRepository, Server server, ServerLogging serverLogging,
-    OfficialDistribution officialDistribution) {
+    OfficialDistribution officialDistribution, DockerSupport dockerSupport) {
     this.config = config;
     this.securityRealmFactory = securityRealmFactory;
     this.identityProviderRepository = identityProviderRepository;
     this.server = server;
     this.serverLogging = serverLogging;
     this.officialDistribution = officialDistribution;
+    this.dockerSupport = dockerSupport;
   }
 
   @Override
@@ -117,6 +120,7 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
 
     setAttribute(protobuf, "Server ID", server.getId());
     setAttribute(protobuf, "Version", getVersion());
+    setAttribute(protobuf, "Docker", dockerSupport.isRunningInDocker());
     setAttribute(protobuf, "External User Authentication", getExternalUserAuthentication());
     addIfNotEmpty(protobuf, "Accepted external identity providers", getEnabledIdentityProviders());
     addIfNotEmpty(protobuf, "External identity providers whose users are allowed to sign themselves up", getAllowsToSignUpEnabledIdentityProviders());

@@ -19,14 +19,19 @@
  */
 package org.sonar.server.platform.monitoring.cluster;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepositoryRule;
 import org.sonar.server.authentication.TestIdentityProvider;
+import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +40,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
+@RunWith(DataProviderRunner.class)
 public class GlobalSystemSectionTest {
 
   @Rule
@@ -44,8 +50,9 @@ public class GlobalSystemSectionTest {
   private Server server = mock(Server.class);
   private SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
 
+  private DockerSupport dockerSupport = mock(DockerSupport.class);
   private GlobalSystemSection underTest = new GlobalSystemSection(settings.asConfig(),
-    server, securityRealmFactory, identityProviderRepository);
+    server, securityRealmFactory, identityProviderRepository, dockerSupport);
 
   @Test
   public void name_is_not_empty() {
@@ -109,5 +116,22 @@ public class GlobalSystemSectionTest {
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
     assertThatAttributeIs(protobuf, "External identity providers whose users are allowed to sign themselves up", "GitHub");
+  }
+
+  @Test
+  @UseDataProvider("trueOrFalse")
+  public void get_docker_flag(boolean flag) {
+    when(dockerSupport.isRunningInDocker()).thenReturn(flag);
+
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "Docker", flag);
+  }
+
+  @DataProvider
+  public static Object[][] trueOrFalse() {
+    return new Object[][] {
+      {true},
+      {false},
+    };
   }
 }

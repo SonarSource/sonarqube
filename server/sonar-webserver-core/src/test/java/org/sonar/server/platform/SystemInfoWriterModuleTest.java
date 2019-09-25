@@ -42,7 +42,7 @@ public class SystemInfoWriterModuleTest {
 
     Collection<ComponentAdapter<?>> adapters = container.getPicoContainer().getComponentAdapters();
     assertThat(adapters)
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 17);
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 18);
   }
 
   @Test
@@ -52,13 +52,9 @@ public class SystemInfoWriterModuleTest {
 
     underTest.configure(container);
 
-    verifyConfigurationStandaloneSQ(container);
-  }
-
-  public void verifyConfigurationStandaloneSQ(ComponentContainer container) {
     Collection<ComponentAdapter<?>> adapters = container.getPicoContainer().getComponentAdapters();
     assertThat(adapters)
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 11);
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 12);
   }
 
 }

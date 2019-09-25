@@ -19,9 +19,13 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
@@ -30,6 +34,7 @@ import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepositoryRule;
 import org.sonar.server.authentication.TestIdentityProvider;
 import org.sonar.server.log.ServerLogging;
+import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.user.SecurityRealmFactory;
 
@@ -39,10 +44,8 @@ import static org.mockito.Mockito.when;
 import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
+@RunWith(DataProviderRunner.class)
 public class StandaloneSystemSectionTest {
-
-  private static final String SERVER_ID_PROPERTY = "Server ID";
-  private static final String SERVER_ID_VALIDATED_PROPERTY = "Server ID validated";
 
   @Rule
   public IdentityProviderRepositoryRule identityProviderRepository = new IdentityProviderRepositoryRule();
@@ -52,12 +55,13 @@ public class StandaloneSystemSectionTest {
   private ServerLogging serverLogging = mock(ServerLogging.class);
   private SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
   private OfficialDistribution officialDistribution = mock(OfficialDistribution.class);
+  private DockerSupport dockerSupport = mock(DockerSupport.class);
 
   private StandaloneSystemSection underTest = new StandaloneSystemSection(settings.asConfig(), securityRealmFactory, identityProviderRepository, server,
-    serverLogging, officialDistribution);
+    serverLogging, officialDistribution, dockerSupport);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(serverLogging.getRootLoggerLevel()).thenReturn(LoggerLevel.DEBUG);
   }
 
@@ -151,5 +155,21 @@ public class StandaloneSystemSectionTest {
   public void return_nb_of_processors() {
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
     assertThat(attribute(protobuf, "Processors").getLongValue()).isGreaterThan(0);
+  }
+
+  @Test
+  @UseDataProvider("trueOrFalse")
+  public void return_docker_flag_from_DockerSupport(boolean flag) {
+    when(dockerSupport.isRunningInDocker()).thenReturn(flag);
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThat(attribute(protobuf, "Docker").getBooleanValue()).isEqualTo(flag);
+  }
+
+  @DataProvider
+  public static Object[][] trueOrFalse() {
+    return new Object[][] {
+      {true},
+      {false}
+    };
   }
 }

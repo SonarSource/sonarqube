@@ -34,6 +34,7 @@ import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepository;
+import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
@@ -46,13 +47,15 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
   private final Server server;
   private final SecurityRealmFactory securityRealmFactory;
   private final IdentityProviderRepository identityProviderRepository;
+  private final DockerSupport dockerSupport;
 
   public GlobalSystemSection(Configuration config, Server server, SecurityRealmFactory securityRealmFactory,
-    IdentityProviderRepository identityProviderRepository) {
+    IdentityProviderRepository identityProviderRepository, DockerSupport dockerSupport) {
     this.config = config;
     this.server = server;
     this.securityRealmFactory = securityRealmFactory;
     this.identityProviderRepository = identityProviderRepository;
+    this.dockerSupport = dockerSupport;
   }
 
   @Override
@@ -61,6 +64,7 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
     protobuf.setName("System");
 
     setAttribute(protobuf, "Server ID", server.getId());
+    setAttribute(protobuf, "Docker", dockerSupport.isRunningInDocker());
     setAttribute(protobuf, "High Availability", true);
     setAttribute(protobuf, "External User Authentication", getExternalUserAuthentication());
     addIfNotEmpty(protobuf, "Accepted external identity providers", getEnabledIdentityProviders());
