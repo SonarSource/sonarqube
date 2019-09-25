@@ -82,9 +82,15 @@ public class ReportSubmitter {
       OrganizationDto organizationDto = getOrganizationDtoOrFail(dbSession, organizationKey);
       BranchSupport.ComponentKey componentKey = branchSupport.createComponentKey(projectKey, characteristics);
       Optional<ComponentDto> existingComponent = dbClient.componentDao().selectByKey(dbSession, componentKey.getDbKey());
-      validateProject(dbSession, existingComponent, projectKey);
-      ensureOrganizationIsConsistent(existingComponent, organizationDto);
-      ComponentDto component = existingComponent.orElseGet(() -> createComponent(dbSession, organizationDto, componentKey, projectName));
+      ComponentDto component;
+      if (existingComponent.isPresent()) {
+        component = existingComponent.get();
+        validateProject(dbSession, component, projectKey);
+        ensureOrganizationIsConsistent(component, organizationDto);
+      } else {
+        component = createComponent(dbSession, organizationDto, componentKey, projectName);
+      }
+
       checkScanPermission(component);
       return submitReport(dbSession, reportInput, component, characteristics);
     }
@@ -107,13 +113,9 @@ public class ReportSubmitter {
       .orElseThrow(() -> new NotFoundException(format("Organization with key '%s' does not exist", organizationKey)));
   }
 
-  private void validateProject(DbSession dbSession, Optional<ComponentDto> project, String rawProjectKey) {
+  private void validateProject(DbSession dbSession, ComponentDto component, String rawProjectKey) {
     List<String> errors = new ArrayList<>();
-    if (!project.isPresent()) {
-      return;
-    }
 
-    ComponentDto component = project.get();
     if (!Qualifiers.PROJECT.equals(component.qualifier()) || !Scopes.PROJECT.equals(component.scope())) {
       errors.add(format("Component '%s' is not a project", rawProjectKey));
     }
@@ -121,7 +123,7 @@ public class ReportSubmitter {
       // Project key is already used as a module of another project
       ComponentDto anotherBaseProject = dbClient.componentDao().selectOrFailByUuid(dbSession, component.projectUuid());
       errors.add(format("The project '%s' is already defined in SonarQube but as a module of project '%s'. "
-        + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
+          + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
         rawProjectKey, anotherBaseProject.getKey(), anotherBaseProject.getKey(), rawProjectKey));
     }
     if (!errors.isEmpty()) {
@@ -129,12 +131,10 @@ public class ReportSubmitter {
     }
   }
 
-  private static void ensureOrganizationIsConsistent(Optional<ComponentDto> project, OrganizationDto organizationDto) {
-    if (project.isPresent()) {
-      checkArgument(project.get().getOrganizationUuid().equals(organizationDto.getUuid()),
-        "Organization of component with key '%s' does not match specified organization '%s'",
-        project.get().getDbKey(), organizationDto.getKey());
-    }
+  private static void ensureOrganizationIsConsistent(ComponentDto project, OrganizationDto organizationDto) {
+    checkArgument(project.getOrganizationUuid().equals(organizationDto.getUuid()),
+      "Organization of component with key '%s' does not match specified organization '%s'",
+      project.getDbKey(), organizationDto.getKey());
   }
 
   private ComponentDto createComponent(DbSession dbSession, OrganizationDto organization, BranchSupport.ComponentKey componentKey, @Nullable String projectName) {
