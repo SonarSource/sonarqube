@@ -3569,10 +3569,10 @@ domhandler@^2.3.0:
   dependencies:
     domelementtype "1"
 
-dompurify@1.0.11:
-  version "1.0.11"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/dompurify/-/dompurify-1.0.11.tgz#fe0f4a40d147f7cebbe31a50a1357539cfc1eb4d"
-  integrity sha1-/g9KQNFH98674xpQoTV1Oc/B600=
+dompurify@2.0.2:
+  version "2.0.2"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/dompurify/-/dompurify-2.0.2.tgz#42d709484aad6732db053f7db6ededea37376a8f"
+  integrity sha1-QtcJSEqtZzLbBT99tu3t6jc3ao8=
 
 domutils@1.5.1:
   version "1.5.1"
