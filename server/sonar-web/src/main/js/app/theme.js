@@ -149,9 +149,8 @@ module.exports = {
   },
 
   fonts: {
-    baseFontFamily: "'Helvetica Neue', 'Segoe UI', Helvetica, Arial, sans-serif",
-    systemFontFamily:
-      "-apple-system,'BlinkMacSystemFont','Segoe UI','Helvetica','Arial',sans-serif",
+    baseFontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+    systemFontFamily: "-apple-system,'BlinkMacSystemFont','Helvetica','Arial',sans-serif",
     sonarcloudFontFamily:
       "Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif"
   },
