@@ -131,20 +131,6 @@ it('new_maintainability_rating', () => {
   ).toMatchSnapshot();
 });
 
-it('should be able to correctly decide how much decimals to show', () => {
-  const condition = mockRatingCondition('new_maintainability_rating');
-  const instance = shallow(
-    <QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />
-  ).instance() as QualityGateCondition;
-  expect(instance.getDecimalsNumber(85, 80)).toBe(undefined);
-  expect(instance.getDecimalsNumber(85, 85)).toBe(undefined);
-  expect(instance.getDecimalsNumber(85, 85.01)).toBe(2);
-  expect(instance.getDecimalsNumber(85, 84.95)).toBe(2);
-  expect(instance.getDecimalsNumber(85, 84.999999999999554)).toBe('9999999999995'.length);
-  expect(instance.getDecimalsNumber(85, 85.0000000000000954)).toBe('00000000000009'.length);
-  expect(instance.getDecimalsNumber(85, 85.00000000000000009)).toBe(undefined);
-});
-
 it('should work with branch', () => {
   const condition = mockRatingCondition('new_maintainability_rating');
   expect(

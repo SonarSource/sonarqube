@@ -19,12 +19,15 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import {
+  formatMeasure,
+  getMinDecimalsCountToBeDistinctFromThreshold
+} from 'sonar-ui-common/helpers/measures';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import { getPeriodValue } from '../../../helpers/measures';
-import { getMetricName } from '../utils';
+import { getMetricName, getThreshold } from '../utils';
 import enhance, { ComposedProps } from './enhance';
 
 export class Coverage extends React.PureComponent<ComposedProps> {
@@ -102,7 +105,12 @@ export class Coverage extends React.PureComponent<ComposedProps> {
             component={component.key}
             metric={newCoverageMeasure.metric.key}>
             <span className="js-overview-main-new-coverage">
-              {formatMeasure(newCoverageValue, 'PERCENT')}
+              {formatMeasure(newCoverageValue, 'PERCENT', {
+                decimals: getMinDecimalsCountToBeDistinctFromThreshold(
+                  parseFloat(newCoverageValue),
+                  getThreshold(measures, 'new_coverage')
+                )
+              })}
             </span>
           </DrilldownLink>
         </div>

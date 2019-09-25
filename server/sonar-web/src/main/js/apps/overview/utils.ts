@@ -153,3 +153,32 @@ export function getMetricName(metricKey: string) {
 export function getRatingName(type: IssueType) {
   return translate('metric_domain', ISSUETYPE_MAP[type].ratingName);
 }
+
+/*
+ * Extract a specific metric's threshold from the quality gate details
+ */
+export function getThreshold(measures: T.MeasureEnhanced[], metricKey: string): number | undefined {
+  const detailsMeasure = measures.find(measure => measure.metric.key === 'quality_gate_details');
+  if (detailsMeasure && detailsMeasure.value) {
+    const details = safeParse(detailsMeasure.value);
+    const conditions: T.QualityGateStatusConditionEnhanced[] = details.conditions || [];
+
+    const condition = conditions.find(c => c.metric === metricKey);
+    if (condition) {
+      return parseFloat((condition.level === 'ERROR'
+        ? condition.error
+        : condition.warning) as string);
+    }
+  }
+  return undefined;
+}
+
+function safeParse(json: string) {
+  try {
+    return JSON.parse(json);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(e);
+    return {};
+  }
+}

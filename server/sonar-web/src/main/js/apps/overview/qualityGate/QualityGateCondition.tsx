@@ -22,7 +22,10 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import {
+  formatMeasure,
+  getMinDecimalsCountToBeDistinctFromThreshold
+} from 'sonar-ui-common/helpers/measures';
 import Measure from '../../../components/measure/Measure';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { getBranchLikeQuery, isPullRequest, isShortLivingBranch } from '../../../helpers/branches';
@@ -36,16 +39,6 @@ interface Props {
 }
 
 export default class QualityGateCondition extends React.PureComponent<Props> {
-  getDecimalsNumber(threshold: number, value: number) {
-    const delta = Math.abs(threshold - value);
-    if (delta < 0.1 && delta > 0) {
-      const match = delta.toFixed(20).match('[^0.]');
-      return match && match.index ? match.index - 1 : undefined;
-    } else {
-      return undefined;
-    }
-  }
-
   getIssuesUrl = (sinceLeakPeriod: boolean, customQuery: T.Dict<string>) => {
     const query: T.Dict<string | undefined> = {
       resolved: 'false',
@@ -142,7 +135,10 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
     if (metric.type === 'RATING') {
       operator = translate('quality_gates.operator', condition.op, 'rating');
     } else if (metric.type === 'PERCENT') {
-      decimals = this.getDecimalsNumber(parseFloat(threshold), parseFloat(actual));
+      decimals = getMinDecimalsCountToBeDistinctFromThreshold(
+        parseFloat(actual),
+        parseFloat(threshold)
+      );
     }
 
     return this.wrapWithLink(

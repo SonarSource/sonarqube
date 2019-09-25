@@ -20,11 +20,14 @@
 import * as React from 'react';
 import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import {
+  formatMeasure,
+  getMinDecimalsCountToBeDistinctFromThreshold
+} from 'sonar-ui-common/helpers/measures';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { getPeriodValue } from '../../../helpers/measures';
-import { getMetricName } from '../utils';
+import { getMetricName, getThreshold } from '../utils';
 import enhance, { ComposedProps } from './enhance';
 
 export class Duplications extends React.PureComponent<ComposedProps> {
@@ -102,7 +105,12 @@ export class Duplications extends React.PureComponent<ComposedProps> {
             component={component.key}
             metric={newDuplicationsMeasure.metric.key}>
             <span className="js-overview-main-new-duplications">
-              {formatMeasure(newDuplicationsValue, 'PERCENT')}
+              {formatMeasure(newDuplicationsValue, 'PERCENT', {
+                decimals: getMinDecimalsCountToBeDistinctFromThreshold(
+                  parseFloat(newDuplicationsValue),
+                  getThreshold(measures, 'new_duplicated_lines_density')
+                )
+              })}
             </span>
           </DrilldownLink>
         </div>
