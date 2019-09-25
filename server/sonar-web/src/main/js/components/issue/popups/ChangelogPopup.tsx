@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ClickEventBoundary from 'sonar-ui-common/components/controls/ClickEventBoundary';
 import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
@@ -64,52 +63,50 @@ export default class ChangelogPopup extends React.PureComponent<Props, State> {
     const { author } = issue;
     return (
       <DropdownOverlay placement={PopupPlacement.BottomRight}>
-        <ClickEventBoundary>
-          <div className="menu is-container issue-changelog">
-            <table className="spaced">
-              <tbody>
-                <tr>
-                  <td className="thin text-left text-top nowrap">
-                    <DateTimeFormatter date={issue.creationDate} />
-                  </td>
-                  <td className="text-left text-top">
-                    {author ? `${translate('created_by')} ${author}` : translate('created')}
-                  </td>
-                </tr>
+        <div className="menu is-container issue-changelog">
+          <table className="spaced">
+            <tbody>
+              <tr>
+                <td className="thin text-left text-top nowrap">
+                  <DateTimeFormatter date={issue.creationDate} />
+                </td>
+                <td className="text-left text-top">
+                  {author ? `${translate('created_by')} ${author}` : translate('created')}
+                </td>
+              </tr>
 
-                {this.state.changelog.map((item, idx) => {
-                  const userName = item.userName || item.user;
+              {this.state.changelog.map((item, idx) => {
+                const userName = item.userName || item.user;
 
-                  return (
-                    <tr key={idx}>
-                      <td className="thin text-left text-top nowrap">
-                        <DateTimeFormatter date={item.creationDate} />
-                      </td>
-                      <td className="text-left text-top">
-                        {userName && (
-                          <p>
-                            <Avatar
-                              className="little-spacer-right"
-                              hash={item.avatar}
-                              name={userName}
-                              size={16}
-                            />
-                            {item.isUserActive
-                              ? userName
-                              : translateWithParameters('user.x_deleted', userName)}
-                          </p>
-                        )}
-                        {item.diffs.map(diff => (
-                          <IssueChangelogDiff diff={diff} key={diff.key} />
-                        ))}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </ClickEventBoundary>
+                return (
+                  <tr key={idx}>
+                    <td className="thin text-left text-top nowrap">
+                      <DateTimeFormatter date={item.creationDate} />
+                    </td>
+                    <td className="text-left text-top">
+                      {userName && (
+                        <p>
+                          <Avatar
+                            className="little-spacer-right"
+                            hash={item.avatar}
+                            name={userName}
+                            size={16}
+                          />
+                          {item.isUserActive
+                            ? userName
+                            : translateWithParameters('user.x_deleted', userName)}
+                        </p>
+                      )}
+                      {item.diffs.map(diff => (
+                        <IssueChangelogDiff diff={diff} key={diff.key} />
+                      ))}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </DropdownOverlay>
     );
   }
