@@ -88,6 +88,18 @@ public class ServerExtensionInstallerTest {
     underTest.installExtensions(componentContainer);
   }
 
+  @Test
+  public void fail_when_detecting_saml_auth_plugin() {
+    PluginInfo foo = newPlugin("authsaml", "SAML Auth");
+    pluginRepository.add(foo, mock(Plugin.class));
+    ComponentContainer componentContainer = new ComponentContainer();
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Plugins 'SAML Auth' are no more compatible with SonarQube");
+
+    underTest.installExtensions(componentContainer);
+  }
+
   private static PluginInfo newPlugin(String key, String name) {
     PluginInfo plugin = mock(PluginInfo.class);
     when(plugin.getKey()).thenReturn(key);

@@ -131,12 +131,12 @@ The following example may be useful if you're using Keycloak as a SAML Identity 
 
 [[collapse]]
 | ## In SonarQube, Configure SAML authentication
-| Go to **[Administration > Configuration > General Settings > SAML > Authentication](/#sonarqube-admin#/admin/settings?category=saml)**
+| Go to **[Administration > Configuration > General Settings > Security > SAML](/#sonarqube-admin#/admin/settings?category=security)**
 | * **Enabled** should be set to true
 | * **Application ID** is the value of the "Client ID" you set in Keycloak (for example "sonarqube")
 | * **Provider ID** is the value of the "EntityDescriptor" > "entityID" attribute in the XML configuration file (for example "http://keycloak:8080/auth/realms/sonarqube" where sonarqube is the name of the realm)
 | * **SAML login url** is the value of "SingleSignOnService" > "Location" attribute in the XML configuration file (for example "http://keycloak:8080/auth/realms/sonarqube/protocol/saml")
-| * **Provider certificate** is the value of "dsig:X509Certificate" node in the XML configuration file
+| * **Provider certificate** is the value you get from *Reaml Settings* -> *Keys* -> click on the *Certificate* button
 | * **SAML user login attribute** is the value set in the login mapper in "SAML Attribute Name"
 | * **SAML user name attribute** is the value set in the name mapper in "SAML Attribute Name"
 | * (Optional) **SAML user email attribute** is the value set in the email mapper in "SAML Attribute Name"

@@ -47,7 +47,7 @@ import static org.sonar.core.extension.ExtensionProviderSupport.isExtensionProvi
  */
 public abstract class ServerExtensionInstaller {
 
-  private static final Set<String> NO_MORE_COMPATIBLE_PLUGINS = ImmutableSet.of("authgithub", "authgitlab");
+  private static final Set<String> NO_MORE_COMPATIBLE_PLUGINS = ImmutableSet.of("authgithub", "authgitlab", "authsaml");
 
   private final SonarRuntime sonarRuntime;
   private final PluginRepository pluginRepository;

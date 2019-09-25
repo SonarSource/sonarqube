@@ -1,0 +1,6 @@
+# How to generate test responses for unit tests requiring encoded user response
+
+1. Set the server log in TRACE
+2. Login with a user
+3. Search in the logs for "[c.o.saml2.Auth] processResponse success -->"
+4. The value after the "-->" is the encoded response that can be used in test

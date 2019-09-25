@@ -16,7 +16,6 @@ dependencies {
     compileOnly 'com.squareup.okhttp3:okhttp'
     compileOnly 'javax.servlet:javax.servlet-api'
     compileOnly project(':sonar-core')
-    compileOnly project(':sonar-ws')
 
     testCompile 'com.squareup.okhttp3:mockwebserver'
     testCompile 'com.squareup.okhttp3:okhttp'

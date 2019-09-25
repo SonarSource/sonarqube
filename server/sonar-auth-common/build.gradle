@@ -14,7 +14,6 @@ dependencies {
 
     testCompile 'commons-lang:commons-lang'
     testCompile 'com.squareup.okhttp3:mockwebserver'
-    testCompile 'com.squareup.okhttp3:okhttp'
     testCompile 'junit:junit'
     testCompile 'org.assertj:assertj-core'
     testCompile 'org.mockito:mockito-core'

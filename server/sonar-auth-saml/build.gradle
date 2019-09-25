@@ -1,24 +1,25 @@
-description = 'SonarQube :: Authentication :: GitHub'
+description = 'SonarQube :: Authentication :: SAML'
 
 configurations {
     testCompile.extendsFrom compileOnly
 }
 
+ext {
+    oneLoginVersion = '2.5.0'
+}
+
 dependencies {
     // please keep the list ordered
 
-    compile 'com.github.scribejava:scribejava-apis'
-    compile 'com.github.scribejava:scribejava-core'
-    compile 'com.google.code.gson:gson'
-    compile project(':server:sonar-auth-common')
+    compile "com.onelogin:java-saml:${oneLoginVersion}"
+    compile "com.onelogin:java-saml-core:${oneLoginVersion}"
 
     compileOnly 'com.google.code.findbugs:jsr305'
     compileOnly 'com.squareup.okhttp3:okhttp'
     compileOnly 'javax.servlet:javax.servlet-api'
     compileOnly project(':sonar-core')
 
-    testCompile 'com.squareup.okhttp3:mockwebserver'
-    testCompile 'com.squareup.okhttp3:okhttp'
+    testCompile 'com.tngtech.java:junit-dataprovider'
     testCompile 'junit:junit'
     testCompile 'org.assertj:assertj-core'
     testCompile 'org.mockito:mockito-core'
