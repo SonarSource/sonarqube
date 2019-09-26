@@ -170,6 +170,7 @@ module.exports = {
 
     // ui elements
     pageMainZIndex: '50',
+    pageSideZIndex: '51',
 
     tooltipZIndex: '8000',
 

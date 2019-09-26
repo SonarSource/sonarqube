@@ -259,12 +259,11 @@
   flex-grow: 0;
   flex-shrink: 0;
   background-color: var(--barBackgroundColor);
-  z-index: 100;
 }
 
 .layout-page-side {
   position: fixed;
-  z-index: 40;
+  z-index: var(--pageSideZIndex);
   top: 30px;
   bottom: 0;
   left: 0;
