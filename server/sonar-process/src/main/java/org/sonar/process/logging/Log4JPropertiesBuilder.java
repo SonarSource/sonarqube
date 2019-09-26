@@ -87,7 +87,20 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
   private String writeFileAppender(RootLoggerConfig config, File logDir, String logPattern) {
     String appenderName = "file_" + config.getProcessId().getLogFilenamePrefix();
     RollingPolicy rollingPolicy = createRollingPolicy(logDir, config.getProcessId().getLogFilenamePrefix());
-    Appender appender = new Appender(appenderName, rollingPolicy, logPattern);
+    FileAppender appender = new FileAppender(appenderName, rollingPolicy, logPattern);
+    appender.writeAppenderProperties();
+    return appender.getAppenderRef();
+  }
+
+  public void configureGlobalStdoutLog(RootLoggerConfig config, String logPattern) {
+    String appenderRef = writeStdoutAppender(config, logPattern);
+
+    putProperty(ROOT_LOGGER_NAME + ".appenderRef." + appenderRef + ".ref", appenderRef);
+  }
+
+  private String writeStdoutAppender(RootLoggerConfig config, String logPattern) {
+    String appenderName = "stdout";
+    ConsoleAppender appender = new ConsoleAppender(appenderName, logPattern);
     appender.writeAppenderProperties();
     return appender.getAppenderRef();
   }
@@ -153,13 +166,13 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
     }
   }
 
-  private class Appender {
+  private class FileAppender {
     private final String prefix;
     private final String appenderName;
     private final RollingPolicy rollingPolicy;
     private final String logPattern;
 
-    private Appender(String appenderName, RollingPolicy rollingPolicy, String logPattern) {
+    private FileAppender(String appenderName, RollingPolicy rollingPolicy, String logPattern) {
       this.prefix = "appender." + appenderName + ".";
       this.appenderName = appenderName;
       this.rollingPolicy = rollingPolicy;
@@ -172,6 +185,33 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
       put("layout.pattern", logPattern);
 
       rollingPolicy.writePolicy(this.prefix);
+    }
+
+    void put(String key, String value) {
+      Log4JPropertiesBuilder.this.putProperty(this.prefix + key, value);
+    }
+
+    String getAppenderRef() {
+      return appenderName;
+    }
+  }
+
+  private class ConsoleAppender {
+    private final String prefix;
+    private final String appenderName;
+    private final String logPattern;
+
+    private ConsoleAppender(String appenderName, String logPattern) {
+      this.prefix = "appender." + appenderName + ".";
+      this.appenderName = appenderName;
+      this.logPattern = logPattern;
+    }
+
+    void writeAppenderProperties() {
+      put("type", "Console");
+      put("name", appenderName);
+      put("layout.type", "PatternLayout");
+      put("layout.pattern", logPattern);
     }
 
     void put(String key, String value) {

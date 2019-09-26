@@ -262,13 +262,27 @@ public class Log4JPropertiesBuilderTest {
       ROLLING_POLICY_PROPERTY, "none");
     underTest.configureGlobalFileLog(esRootLoggerConfig, logDir, logPattern);
 
-    verifyPropertiesForConfigureGlobalFileLog(underTest.get(),
+    verifyProperties(underTest.get(),
       "appender.file_es.type", "File",
       "appender.file_es.name", "file_es",
       "appender.file_es.fileName", new File(logDir, "es.log").getAbsolutePath(),
       "appender.file_es.layout.type", "PatternLayout",
       "appender.file_es.layout.pattern", logPattern,
       "rootLogger.appenderRef.file_es.ref", "file_es");
+  }
+
+  @Test
+  public void name() {
+    String logPattern = randomAlphanumeric(15);
+    Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder();
+    underTest.configureGlobalStdoutLog(esRootLoggerConfig, logPattern);
+
+    verifyProperties(underTest.get(),
+      "appender.stdout.type", "Console",
+      "appender.stdout.name", "stdout",
+      "appender.stdout.layout.type", "PatternLayout",
+      "appender.stdout.layout.pattern", logPattern,
+      "rootLogger.appenderRef.stdout.ref", "stdout");
   }
 
   @Test
@@ -476,7 +490,7 @@ public class Log4JPropertiesBuilderTest {
   }
 
   private void verifyTimeRollingPolicy(Log4JPropertiesBuilder builder, File logDir, String logPattern, String datePattern, int maxFiles) {
-    verifyPropertiesForConfigureGlobalFileLog(builder.get(),
+    verifyProperties(builder.get(),
       "appender.file_es.type", "RollingFile",
       "appender.file_es.name", "file_es",
       "appender.file_es.filePattern", new File(logDir, "es.%d{" + datePattern + "}.log").getAbsolutePath(),
@@ -500,7 +514,7 @@ public class Log4JPropertiesBuilderTest {
   }
 
   private void verifySizeRollingPolicy(Log4JPropertiesBuilder builder, File logDir, String logPattern, String sizePattern, int maxFiles) {
-    verifyPropertiesForConfigureGlobalFileLog(builder.get(),
+    verifyProperties(builder.get(),
       "appender.file_es.type", "RollingFile",
       "appender.file_es.name", "file_es",
       "appender.file_es.filePattern", new File(logDir, "es.%i.log").getAbsolutePath(),
@@ -515,7 +529,7 @@ public class Log4JPropertiesBuilderTest {
       "rootLogger.appenderRef.file_es.ref", "file_es");
   }
 
-  private void verifyPropertiesForConfigureGlobalFileLog(Properties properties, String... expectedPropertyKeysAndValuesOrdered) {
+  private void verifyProperties(Properties properties, String... expectedPropertyKeysAndValuesOrdered) {
     assertThat(properties.get("status")).isEqualTo("ERROR");
     if (expectedPropertyKeysAndValuesOrdered.length == 0) {
       assertThat(properties.size()).isEqualTo(1);
