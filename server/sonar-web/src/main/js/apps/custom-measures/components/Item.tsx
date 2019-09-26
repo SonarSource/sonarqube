@@ -86,6 +86,7 @@ export default class Item extends React.PureComponent<Props, State> {
 
   render() {
     const { measure } = this.props;
+    const userName = measure.user.name || measure.user.login;
 
     return (
       <tr data-metric={measure.metric.key}>
@@ -117,8 +118,8 @@ export default class Item extends React.PureComponent<Props, State> {
           <MeasureDate measure={measure} /> {translate('by_')}{' '}
           <span className="js-custom-measure-user">
             {isUserActive(measure.user)
-              ? measure.user.name || measure.user.login
-              : translateWithParameters('user.x_deleted', measure.user.login)}
+              ? userName
+              : translateWithParameters('user.x_deleted', userName)}
           </span>
         </td>
 

@@ -47,10 +47,9 @@ export default class IssueAssign extends React.PureComponent<Props> {
 
   renderAssignee() {
     const { issue } = this.props;
-    const assignee =
-      issue.assigneeActive !== false ? issue.assigneeName || issue.assignee : issue.assignee;
+    const assigneeName = issue.assigneeName || issue.assignee;
 
-    if (assignee) {
+    if (assigneeName) {
       return (
         <>
           <span className="text-top">
@@ -63,8 +62,8 @@ export default class IssueAssign extends React.PureComponent<Props> {
           </span>
           <span className="issue-meta-label">
             {issue.assigneeActive === false
-              ? translateWithParameters('user.x_deleted', assignee)
-              : assignee}
+              ? translateWithParameters('user.x_deleted', assigneeName)
+              : assigneeName}
           </span>
         </>
       );

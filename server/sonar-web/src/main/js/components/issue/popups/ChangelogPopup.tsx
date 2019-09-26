@@ -77,29 +77,35 @@ export default class ChangelogPopup extends React.PureComponent<Props, State> {
                   </td>
                 </tr>
 
-                {this.state.changelog.map((item, idx) => (
-                  <tr key={idx}>
-                    <td className="thin text-left text-top nowrap">
-                      <DateTimeFormatter date={item.creationDate} />
-                    </td>
-                    <td className="text-left text-top">
-                      <p>
-                        <Avatar
-                          className="little-spacer-right"
-                          hash={item.avatar}
-                          name={(item.isUserActive && item.userName) || item.user}
-                          size={16}
-                        />
-                        {item.isUserActive
-                          ? item.userName || item.user
-                          : translateWithParameters('user.x_deleted', item.user)}
-                      </p>
-                      {item.diffs.map(diff => (
-                        <IssueChangelogDiff diff={diff} key={diff.key} />
-                      ))}
-                    </td>
-                  </tr>
-                ))}
+                {this.state.changelog.map((item, idx) => {
+                  const userName = item.userName || item.user;
+
+                  return (
+                    <tr key={idx}>
+                      <td className="thin text-left text-top nowrap">
+                        <DateTimeFormatter date={item.creationDate} />
+                      </td>
+                      <td className="text-left text-top">
+                        {userName && (
+                          <p>
+                            <Avatar
+                              className="little-spacer-right"
+                              hash={item.avatar}
+                              name={userName}
+                              size={16}
+                            />
+                            {item.isUserActive
+                              ? userName
+                              : translateWithParameters('user.x_deleted', userName)}
+                          </p>
+                        )}
+                        {item.diffs.map(diff => (
+                          <IssueChangelogDiff diff={diff} key={diff.key} />
+                        ))}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

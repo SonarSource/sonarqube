@@ -37,6 +37,10 @@ it('should render with the action', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
+it('should render a fallback assignee display if assignee info are not available', () => {
+  expect(shallowRender({ issue: { projectOrganization: 'org' } })).toMatchSnapshot();
+});
+
 it('should open the popup when the button is clicked', () => {
   const togglePopup = jest.fn();
   const element = shallowRender({ togglePopup });
@@ -47,7 +51,7 @@ it('should open the popup when the button is clicked', () => {
 });
 
 function shallowRender(props: Partial<IssueAssign['props']> = {}) {
-  return shallow(
+  return shallow<IssueAssign>(
     <IssueAssign
       canAssign={true}
       isOpen={false}

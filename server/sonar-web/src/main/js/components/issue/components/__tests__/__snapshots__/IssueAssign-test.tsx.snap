@@ -58,6 +58,42 @@ exports[`should open the popup when the button is clicked 2`] = `
 </div>
 `;
 
+exports[`should render a fallback assignee display if assignee info are not available 1`] = `
+<div
+  className="dropdown"
+>
+  <Toggler
+    closeOnEscape={true}
+    onRequestClose={[Function]}
+    open={false}
+    overlay={
+      <Connect(withCurrentUser(SetAssigneePopup))
+        issue={
+          Object {
+            "projectOrganization": "org",
+          }
+        }
+        onSelect={[MockFunction]}
+      />
+    }
+  >
+    <ButtonLink
+      className="issue-action issue-action-with-options js-issue-assign"
+      onClick={[Function]}
+    >
+      <span
+        className="issue-meta-label"
+      >
+        unassigned
+      </span>
+      <DropdownIcon
+        className="little-spacer-left"
+      />
+    </ButtonLink>
+  </Toggler>
+</div>
+`;
+
 exports[`should render with the action 1`] = `
 <div
   className="dropdown"

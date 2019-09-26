@@ -33,6 +33,30 @@ jest.mock('../BulkChangeModal', () => {
   return mock;
 });
 
+jest.mock('../../utils', () => ({
+  searchAssignees: jest.fn().mockResolvedValue({
+    results: [
+      {
+        active: true,
+        avatar: '##toto',
+        login: 'toto@toto',
+        name: 'toto'
+      },
+      {
+        active: false,
+        avatar: '##toto',
+        login: 'login@login',
+        name: 'toto'
+      },
+      {
+        active: true,
+        avatar: '##toto',
+        login: 'login@login'
+      }
+    ]
+  })
+}));
+
 it('should display error message when no issues available', async () => {
   const wrapper = getWrapper([]);
   await waitAndUpdate(wrapper);
@@ -57,8 +81,19 @@ it('should display warning when too many issues are passed', async () => {
   expect(wrapper.find('Alert')).toMatchSnapshot();
 });
 
+it('should properly handle the search for assignee', async () => {
+  const issues: T.Issue[] = [];
+  for (let i = MAX_PAGE_SIZE + 1; i > 0; i--) {
+    issues.push(mockIssue());
+  }
+
+  const wrapper = getWrapper(issues);
+  const result = await wrapper.instance().handleAssigneeSearch('toto');
+  expect(result).toMatchSnapshot();
+});
+
 const getWrapper = (issues: T.Issue[]) => {
-  return shallow(
+  return shallow<BulkChangeModal>(
     <BulkChangeModal
       component={undefined}
       currentUser={{ isLoggedIn: true }}

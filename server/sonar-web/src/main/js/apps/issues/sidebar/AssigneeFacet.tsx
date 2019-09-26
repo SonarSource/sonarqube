@@ -104,18 +104,17 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
 
     const user = this.props.referencedUsers[assignee];
 
-    return user ? (
+    if (!user) {
+      return assignee;
+    }
+
+    const userName = user.name || user.login;
+
+    return (
       <>
-        <Avatar
-          className="little-spacer-right"
-          hash={user.avatar}
-          name={user.name || user.login}
-          size={16}
-        />
-        {isUserActive(user) ? user.name : translateWithParameters('user.x_deleted', user.login)}
+        <Avatar className="little-spacer-right" hash={user.avatar} name={userName} size={16} />
+        {isUserActive(user) ? userName : translateWithParameters('user.x_deleted', userName)}
       </>
-    ) : (
-      assignee
     );
   };
 
