@@ -71,7 +71,7 @@ public class ClusterSystemInfoWriterTest {
       + "\"Search Nodes\":[{\"Name\":\"searchNodes\",\"\":{\"name\":\"searchNodes\"}}],"
       + "\"Statistics\":{\"id\":\"\",\"version\":\"\",\"database\":{\"name\":\"\",\"version\":\"\"},\"plugins\":[],"
       + "\"userCount\":0,\"projectCount\":0,\"usingBranches\":false,\"ncloc\":0,\"projectCountByLanguage\":[]," +
-      "\"nclocByLanguage\":[],\"installationDate\":0,\"installationVersion\":\"\"}}");
+      "\"nclocByLanguage\":[],\"installationDate\":0,\"installationVersion\":\"\",\"docker\":false}}");
   }
 
   private static NodeInfo createNodeInfo(String name) {

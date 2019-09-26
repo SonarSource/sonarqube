@@ -77,6 +77,7 @@ public class TelemetryDataJsonWriter {
     if (statistics.getInstallationVersion() != null) {
       json.prop("installationVersion", statistics.getInstallationVersion());
     }
+    json.prop("docker", statistics.isInDocker());
     json.endObject();
   }
 }

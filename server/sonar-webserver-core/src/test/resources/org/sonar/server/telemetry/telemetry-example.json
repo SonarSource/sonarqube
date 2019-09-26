@@ -51,5 +51,6 @@
       "language": "js",
       "ncloc": 50
     }
-  ]
+  ],
+  "docker": false
 }

@@ -20,6 +20,7 @@
 package org.sonar.server.telemetry;
 
 import java.io.IOException;
+import java.net.URL;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
@@ -45,6 +46,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.organization.DefaultOrganizationProviderImpl;
+import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
 import org.sonar.server.tester.UserSessionRule;
@@ -106,13 +108,14 @@ public class TelemetryDaemonTest {
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
 
+  private final DockerSupport dockerSupport = mock(DockerSupport.class);
   private final TelemetryDataLoader communityDataLoader = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
-    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), internalProperties, null);
+    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), internalProperties, dockerSupport, null);
   private TelemetryDaemon communityUnderTest = new TelemetryDaemon(communityDataLoader, client, settings.asConfig(), internalProperties, lockManager, system2);
 
   private final LicenseReader licenseReader = mock(LicenseReader.class);
   private final TelemetryDataLoader commercialDataLoader = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
-    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), internalProperties, licenseReader);
+    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), internalProperties, dockerSupport, licenseReader);
   private TelemetryDaemon commercialUnderTest = new TelemetryDaemon(commercialDataLoader, client, settings.asConfig(), internalProperties, lockManager, system2);
 
   @After
@@ -158,8 +161,9 @@ public class TelemetryDaemonTest {
 
     ArgumentCaptor<String> jsonCaptor = captureJson();
     String json = jsonCaptor.getValue();
-    assertJson(json).ignoreFields("database").isSimilarTo(getClass().getResource("telemetry-example.json"));
-    assertJson(getClass().getResource("telemetry-example.json")).ignoreFields("database").isSimilarTo(json);
+    URL url = getClass().getResource("telemetry-example.json");
+    assertJson(json).ignoreFields("database").isSimilarTo(url);
+    assertJson(url).ignoreFields("database").isSimilarTo(json);
     assertDatabaseMetadata(json);
     assertThat(logger.logs(LoggerLevel.INFO)).contains("Sharing of SonarQube statistics is enabled.");
   }

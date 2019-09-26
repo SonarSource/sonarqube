@@ -58,8 +58,7 @@ public class SystemInfoWriterModule extends Module {
       EsIndexesSection.class,
       LoggingSection.class,
       PluginsSection.class,
-      SettingsSection.class,
-      DockerSupportImpl.class
+      SettingsSection.class
 
       );
     if (standalone) {

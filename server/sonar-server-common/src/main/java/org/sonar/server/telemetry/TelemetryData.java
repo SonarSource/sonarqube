@@ -42,6 +42,7 @@ public class TelemetryData {
   private final String licenseType;
   private final Long installationDate;
   private final String installationVersion;
+  private final boolean inDocker;
 
   private TelemetryData(Builder builder) {
     serverId = builder.serverId;
@@ -58,6 +59,7 @@ public class TelemetryData {
     licenseType = builder.licenseType;
     installationDate = builder.installationDate;
     installationVersion = builder.installationVersion;
+    inDocker = builder.inDocker;
   }
 
   public String getServerId() {
@@ -116,6 +118,10 @@ public class TelemetryData {
     return installationVersion;
   }
 
+  public boolean isInDocker() {
+    return inDocker;
+  }
+
   static Builder builder() {
     return new Builder();
   }
@@ -133,6 +139,7 @@ public class TelemetryData {
     private String licenseType;
     private Long installationDate;
     private String installationVersion;
+    private boolean inDocker = false;
 
     private Builder() {
       // enforce static factory method
@@ -195,6 +202,11 @@ public class TelemetryData {
 
     public Builder setInstallationVersion(@Nullable String installationVersion){
       this.installationVersion = installationVersion;
+      return this;
+    }
+
+    public Builder setInDocker(boolean inDocker) {
+      this.inDocker = inDocker;
       return this;
     }
 

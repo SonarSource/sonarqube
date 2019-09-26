@@ -39,6 +39,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresStatistics;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.telemetry.TelemetryData.Database;
 import org.sonar.server.user.index.UserIndex;
@@ -56,17 +57,18 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final PlatformEditionProvider editionProvider;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final InternalProperties internalProperties;
+  private final DockerSupport dockerSupport;
   @CheckForNull
   private final LicenseReader licenseReader;
 
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
-    PlatformEditionProvider editionProvider, DefaultOrganizationProvider defaultOrganizationProvider, InternalProperties internalProperties) {
-    this(server, dbClient, pluginRepository, userIndex, projectMeasuresIndex, editionProvider, defaultOrganizationProvider, internalProperties, null);
+    PlatformEditionProvider editionProvider, DefaultOrganizationProvider defaultOrganizationProvider, InternalProperties internalProperties, DockerSupport dockerSupport) {
+    this(server, dbClient, pluginRepository, userIndex, projectMeasuresIndex, editionProvider, defaultOrganizationProvider, internalProperties, dockerSupport, null);
   }
 
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
     PlatformEditionProvider editionProvider, DefaultOrganizationProvider defaultOrganizationProvider, InternalProperties internalProperties,
-    @Nullable LicenseReader licenseReader) {
+    DockerSupport dockerSupport, @Nullable LicenseReader licenseReader) {
     this.server = server;
     this.dbClient = dbClient;
     this.pluginRepository = pluginRepository;
@@ -74,8 +76,9 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     this.projectMeasuresIndex = projectMeasuresIndex;
     this.editionProvider = editionProvider;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
-    this.licenseReader = licenseReader;
     this.internalProperties = internalProperties;
+    this.dockerSupport = dockerSupport;
+    this.licenseReader = licenseReader;
   }
 
   private static Database loadDatabaseMetadata(DbSession dbSession) {
@@ -120,6 +123,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     }
     Optional<String> installationVersionProperty = internalProperties.read(InternalProperties.INSTALLATION_VERSION);
     data.setInstallationVersion(installationVersionProperty.orElse(null));
+    data.setInDocker(dockerSupport.isRunningInDocker());
 
     return data.build();
   }
