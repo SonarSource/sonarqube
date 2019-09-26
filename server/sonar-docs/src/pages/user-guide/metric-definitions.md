@@ -63,7 +63,7 @@ Number of issues of the specified severity raised for the first time in the New 
 **Issues** (`violations`)  
 Total count of issues in all states.
 
-**xxx issues** (`xxx_issues`)  
+**xxx issues** (`xxx_violations`)  
 Total count of issues of the specified severity, where xxx is one of: `blocker`, `critical`, `major`, `minor`, `info`.
 
 **False positive issues** (`false_positive_issues`)  
