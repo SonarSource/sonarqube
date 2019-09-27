@@ -167,7 +167,7 @@ GSSAPI|![](/images/check.svg)|  |  |
 ![](/images/check.svg) = successfully tested
 
 ### Setup
-1. Configure the LDAP plugin by editing _$SONARQUBE-HOME/conf/sonar.properties_ (see table below)
+1. Configure LDAP by editing _$SONARQUBE-HOME/conf/sonar.properties_ (see table below)
 2. Restart the SonarQube server and check the log file for:
 ```
 INFO org.sonar.INFO Security realm: LDAP ...

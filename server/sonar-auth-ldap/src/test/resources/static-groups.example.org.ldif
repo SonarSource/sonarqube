@@ -1,0 +1,81 @@
+dn: dc=example,dc=org
+objectClass: domain
+objectClass: extensibleObject
+objectClass: top
+dc: example
+
+#
+# USERS
+#
+
+dn: ou=users,dc=example,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: users
+
+# Bind user
+dn: cn=bind,ou=users,dc=example,dc=org
+objectClass: organizationalRole
+objectClass: simpleSecurityObject
+objectClass: top
+cn: bind
+userpassword: bindpassword
+
+# Typical user
+dn: cn=Evgeny Mandrikov,ou=users,dc=example,dc=org
+objectClass: organizationalPerson
+objectClass: person
+objectClass: extensibleObject
+objectClass: uidObject
+objectClass: inetOrgPerson
+objectClass: top
+cn: Evgeny Mandrikov
+sn: Mandrikov
+givenname: Evgeny
+mail: godin@example.org
+uid: godin
+userpassword: secret1
+
+# Just one more user
+dn: cn=Tester Testerovich,ou=users,dc=example,dc=org
+objectClass: organizationalPerson
+objectClass: person
+objectClass: extensibleObject
+objectClass: uidObject
+objectClass: inetOrgPerson
+objectClass: top
+cn: Tester Testerovich
+givenname: Tester
+sn: Testerovich
+mail: tester@example.org
+uid: tester
+userpassword: secret2
+
+#
+# GROUPS
+#
+
+dn: ou=groups,dc=example,dc=org
+objectclass:organizationalunit
+ou: groups
+
+# sonar-users
+dn: cn=sonar-users,ou=groups,dc=example,dc=org
+objectclass: groupOfUniqueNames
+cn: sonar-users
+uniqueMember: cn=Tester Testerovich,ou=users,dc=example,dc=org
+uniqueMember: cn=Evgeny Mandrikov,ou=users,dc=example,dc=org
+
+# sonar-developers
+dn: cn=sonar-developers,ou=groups,dc=example,dc=org
+objectclass: groupOfUniqueNames
+cn: sonar-developers
+uniqueMember: cn=Evgeny Mandrikov,ou=users,dc=example,dc=org
+
+# linux-users
+dn: cn=linux-users,ou=groups,dc=example,dc=org
+objectclass: posixGroup
+objectclass: top
+cn: linux-users
+gidNumber: 10000
+memberUid: godin

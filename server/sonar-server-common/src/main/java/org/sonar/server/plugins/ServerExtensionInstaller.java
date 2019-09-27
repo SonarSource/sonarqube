@@ -24,9 +24,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
@@ -39,6 +39,7 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.extension.ExtensionProviderSupport.isExtensionProvider;
 
@@ -47,7 +48,7 @@ import static org.sonar.core.extension.ExtensionProviderSupport.isExtensionProvi
  */
 public abstract class ServerExtensionInstaller {
 
-  private static final Set<String> NO_MORE_COMPATIBLE_PLUGINS = ImmutableSet.of("authgithub", "authgitlab", "authsaml");
+  private static final Set<String> NO_MORE_COMPATIBLE_PLUGINS = ImmutableSet.of("authgithub", "authgitlab", "authsaml", "ldap");
 
   private final SonarRuntime sonarRuntime;
   private final PluginRepository pluginRepository;
@@ -84,7 +85,7 @@ public abstract class ServerExtensionInstaller {
         }
       } catch (Throwable e) {
         // catch Throwable because we want to catch Error too (IncompatibleClassChangeError, ...)
-        throw new IllegalStateException(String.format("Fail to load plugin %s [%s]", pluginInfo.getName(), pluginInfo.getKey()), e);
+        throw new IllegalStateException(format("Fail to load plugin %s [%s]", pluginInfo.getName(), pluginInfo.getKey()), e);
       }
     }
     for (Map.Entry<PluginInfo, Object> entry : installedExtensionsByPlugin.entries()) {
@@ -97,19 +98,19 @@ public abstract class ServerExtensionInstaller {
         }
       } catch (Throwable e) {
         // catch Throwable because we want to catch Error too (IncompatibleClassChangeError, ...)
-        throw new IllegalStateException(String.format("Fail to load plugin %s [%s]", pluginInfo.getName(), pluginInfo.getKey()), e);
+        throw new IllegalStateException(format("Fail to load plugin %s [%s]", pluginInfo.getName(), pluginInfo.getKey()), e);
       }
     }
   }
 
   private void failWhenNoMoreCompatiblePlugins() {
-    List<String> noMoreCompatiblePluginNames = pluginRepository.getPluginInfos()
+    Set<String> noMoreCompatiblePluginNames = pluginRepository.getPluginInfos()
       .stream()
       .filter(pluginInfo -> NO_MORE_COMPATIBLE_PLUGINS.contains(pluginInfo.getKey()))
       .map(PluginInfo::getName)
-      .collect(Collectors.toList());
+      .collect(Collectors.toCollection(TreeSet::new));
     if (!noMoreCompatiblePluginNames.isEmpty()) {
-      throw MessageException.of(String.format("Plugins '%s' are no more compatible with SonarQube", String.join(",", noMoreCompatiblePluginNames)));
+      throw MessageException.of(format("Plugins '%s' are no more compatible with SonarQube", String.join(", ", noMoreCompatiblePluginNames)));
     }
   }
 

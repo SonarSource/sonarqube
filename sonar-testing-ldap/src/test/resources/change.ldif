@@ -1,0 +1,5 @@
+dn: cn=Evgeny Mandrikov,dc=example,dc=org
+changetype: modify
+replace: userpassword
+userpassword: 54321
+-

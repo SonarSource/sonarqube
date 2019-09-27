@@ -57,7 +57,7 @@ public class SamlIdentityProviderTest {
     setSettings(true);
     assertThat(underTest.getKey()).isEqualTo("saml");
     assertThat(underTest.getName()).isEqualTo("SAML");
-    assertThat(underTest.getDisplay().getIconPath()).isEqualTo("/static/authsaml/saml.png");
+    assertThat(underTest.getDisplay().getIconPath()).isEqualTo("/images/saml.png");
     assertThat(underTest.getDisplay().getBackgroundColor()).isEqualTo("#444444");
     assertThat(underTest.allowsUsersToSignUp()).isTrue();
   }

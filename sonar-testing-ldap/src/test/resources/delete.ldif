@@ -1,0 +1,2 @@
+dn: cn=Evgeny Mandrikov,dc=example,dc=org
+changetype: delete

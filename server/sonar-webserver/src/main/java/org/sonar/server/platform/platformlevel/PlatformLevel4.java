@@ -30,6 +30,7 @@ import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.auth.github.GitHubModule;
 import org.sonar.auth.gitlab.GitLabModule;
+import org.sonar.auth.ldap.LdapModule;
 import org.sonar.auth.saml.SamlModule;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
 import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
@@ -355,6 +356,7 @@ public class PlatformLevel4 extends PlatformLevel {
       AuthenticationWsModule.class,
       GitHubModule.class,
       GitLabModule.class,
+      LdapModule.class,
       SamlModule.class,
 
       // users

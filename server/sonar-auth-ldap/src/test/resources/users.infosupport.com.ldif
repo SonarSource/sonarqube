@@ -1,0 +1,98 @@
+dn: dc=infosupport,dc=com
+objectClass: domain
+objectClass: extensibleObject
+objectClass: top
+dc: infosupport
+
+#
+# USERS
+#
+
+dn: ou=users,dc=infosupport,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: users
+
+# Bind user
+dn: cn=bind,ou=users,dc=infosupport,dc=com
+objectClass: organizationalRole
+objectClass: uidObject
+objectClass: simpleSecurityObject
+objectClass: top
+cn: bind
+uid: sonar
+userpassword: bindpassword
+
+# Typical user
+dn: cn=Robby Developer,ou=users,dc=infosupport,dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: extensibleObject
+objectClass: uidObject
+objectClass: inetOrgPerson
+objectClass: top
+cn: Robby Developer
+givenname: Robby
+sn: Developer
+mail: rd@infosupport.com
+uid: robby
+userpassword: secret1
+
+# Just one more user
+dn: cn=Tester Testerovich,ou=users,dc=infosupport,dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: extensibleObject
+objectClass: uidObject
+objectClass: inetOrgPerson
+objectClass: top
+cn: Tester Testerovich
+givenname: Tester
+sn: Testerovich
+mail: tester@infosupport.com
+uid: testerInfo
+userpassword: secret2
+
+# Special case which can cause NPE
+dn: cn=Without Email,ou=users,dc=infosupport,dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: extensibleObject
+objectClass: uidObject
+objectClass: inetOrgPerson
+objectClass: top
+cn: Without Email
+givenname: Without
+sn: Email
+uid: without_email
+userpassword: secret3
+
+
+#
+# GROUPS
+#
+
+dn: ou=groups,dc=infosupport,dc=com
+objectclass:organizationalunit
+ou: groups
+
+# sonar-users
+dn: cn=sonar-users,ou=groups,dc=infosupport,dc=com
+objectclass: groupOfUniqueNames
+cn: sonar-users
+uniqueMember: cn=Robby Developer,ou=users,dc=infosupport,dc=com
+uniqueMember: cn=Tester Testerovich,ou=users,dc=infosupport,dc=com
+
+# sonar-developers
+dn: cn=sonar-developers,ou=groups,dc=infosupport,dc=com
+objectclass: groupOfUniqueNames
+cn: sonar-developers
+uniqueMember: cn=Robby Developer,ou=users,dc=infosupport,dc=com
+
+# linux-users
+dn: cn=linux-users,ou=groups,dc=infosupport,dc=com
+objectclass: posixGroup
+objectclass: top
+cn: linux-users
+gidNumber: 10000
+memberUid: robby

@@ -1,0 +1,55 @@
+dn: dc=example,dc=org
+dc: example
+objectClass: domain
+objectClass: top
+
+dn: ou=Users,dc=example,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: Users
+
+dn: uid=krbtgt,ou=Users,dc=example,dc=org
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: krb5principal
+objectClass: krb5kdcentry
+cn: KDC Service
+sn: Service
+uid: krbtgt
+userPassword: secret
+krb5PrincipalName: krbtgt/EXAMPLE.ORG@EXAMPLE.ORG
+krb5KeyVersionNumber: 0
+
+dn: cn=SonarQube,ou=Users,dc=example,dc=org
+objectClass: top
+objectClass: organizationalRole
+objectClass: simpleSecurityObject
+objectClass: krb5principal
+objectClass: krb5kdcentry
+cn: SonarQube
+userPassword: bind_password
+krb5PrincipalName: SonarQube@EXAMPLE.ORG
+krb5KeyVersionNumber: 0
+
+dn: uid=godin,ou=Users,dc=example,dc=org
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: krb5principal
+objectClass: krb5kdcentry
+cn: Evgeny Mandrikov
+sn: Mandrikov
+uid: godin
+userPassword: user_password
+krb5PrincipalName: Godin@EXAMPLE.ORG
+krb5KeyVersionNumber: 0
+
+dn: ou=Groups,dc=example,dc=org
+objectclass:organizationalunit
+ou: groups
+
+dn: cn=sonar-users,ou=Groups,dc=example,dc=org
+objectclass: groupOfUniqueNames
+cn: sonar-users
+uniqueMember: uid=godin,ou=Users,dc=example,dc=org

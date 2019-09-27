@@ -1,0 +1,9 @@
+dn: dc=example,dc=org
+objectClass: domain
+objectClass: top
+dc: example
+
+dn: cn=Evgeny Mandrikov,dc=example,dc=org
+objectClass: inetOrgPerson
+cn: Evgeny Mandrikov
+sn: Mandrikov

@@ -211,12 +211,49 @@ qa_saml_task:
       path: "**/test-results/**/*.xml"
       format: junit
 
+# LDAP QA is executed in a dedicated task in order to not slow down the pipeline, as a LDAP server and SonarQube server are re-started on each test.
+qa_ldap_task:
+  depends_on: build
+  # Comment the following line and commit with message "DO NOT MERGE" in order to run
+  # this task on your branch
+  only_if: $CIRRUS_BRANCH == "branch-nightly-build"
+  gke_container:
+    dockerfile: private/docker/Dockerfile-build
+    builder_image_project: ci-cd-215716
+    builder_image_name: docker-builder-v1
+    cluster_name: cirrus-uscentral1a-cluster
+    zone: us-central1-a
+    namespace: default
+    cpu: 2.4
+    memory: 10Gb
+  env:
+      # No need to clone the full history.
+      # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
+      # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
+    CIRRUS_CLONE_DEPTH: 50
+    QA_CATEGORY: LDAP
+  gradle_cache:
+    folder: ~/.gradle/caches
+  script:
+    - ./private/cirrus/cirrus-qa.sh h2
+  cleanup_before_cache_script:
+    - ./private/cirrus/cleanup-gradle-cache.sh
+  on_failure:
+    reports_artifacts:
+      path: "**/build/reports/**/*"
+    screenshots_artifacts:
+      path: "**/build/screenshots/**/*"
+    junit_artifacts:
+      path: "**/test-results/**/*.xml"
+      format: junit
+
 promote_task:
   depends_on:
     - build
     - validate
     - qa
     - qa_saml
+    - qa_ldap
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master" && $CIRRUS_BRANCH != "branch-nightly-build"
   gke_container:
     dockerfile: private/docker/Dockerfile-build

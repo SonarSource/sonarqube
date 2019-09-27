@@ -77,13 +77,14 @@ public class ServerExtensionInstallerTest {
   }
 
   @Test
-  public void fail_when_detecting_gitlab_auth_plugin() {
-    PluginInfo foo = newPlugin("authgitlab", "GitLab Auth");
-    pluginRepository.add(foo, mock(Plugin.class));
+  public void fail_when_detecting_auth_plugins() {
+    pluginRepository.add(newPlugin("authgitlab", "GitLab Auth"), mock(Plugin.class));
+    pluginRepository.add(newPlugin("authsaml", "SAML Auth"), mock(Plugin.class));
+    pluginRepository.add(newPlugin("ldap", "LDAP"), mock(Plugin.class));
     ComponentContainer componentContainer = new ComponentContainer();
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Plugins 'GitLab Auth' are no more compatible with SonarQube");
+    expectedException.expectMessage("Plugins 'GitLab Auth, LDAP, SAML Auth' are no more compatible with SonarQube");
 
     underTest.installExtensions(componentContainer);
   }
@@ -96,6 +97,18 @@ public class ServerExtensionInstallerTest {
 
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Plugins 'SAML Auth' are no more compatible with SonarQube");
+
+    underTest.installExtensions(componentContainer);
+  }
+
+  @Test
+  public void fail_when_detecting_ldap_auth_plugin() {
+    PluginInfo foo = newPlugin("ldap", "LDAP");
+    pluginRepository.add(foo, mock(Plugin.class));
+    ComponentContainer componentContainer = new ComponentContainer();
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Plugins 'LDAP' are no more compatible with SonarQube");
 
     underTest.installExtensions(componentContainer);
   }

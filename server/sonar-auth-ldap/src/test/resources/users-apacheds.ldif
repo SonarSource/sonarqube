@@ -1,0 +1,88 @@
+dn: dc=example,dc=org
+objectClass: domain
+objectClass: extensibleObject
+objectClass: top
+dc: example
+
+#
+# USERS
+#
+
+dn: ou=users,dc=example,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: users
+
+dn: cn=bind,ou=users,dc=example,dc=org
+objectClass: organizationalRole
+objectClass: uidObject
+objectClass: simpleSecurityObject
+objectClass: top
+cn: bind
+uid: sonar
+userpassword: bindpassword
+
+dn: cn=Evgeny Mandrikov,ou=users,dc=example,dc=org
+objectClass: organizationalPerson
+objectClass: person
+objectClass: extensibleObject
+objectClass: uidObject
+objectClass: inetOrgPerson
+objectClass: top
+objectClass: krb5principal
+objectClass: krb5kdcentry
+cn: Evgeny Mandrikov
+givenname: Evgeny
+mail: godin@example.org
+sn: Mandrikov
+uid: godin
+userpassword: secret1
+krb5PrincipalName: godin@EXAMPLE.ORG
+krb5KeyVersionNumber: 0
+
+dn: cn=Tester Testerovich,ou=users,dc=example,dc=org
+objectClass: organizationalPerson
+objectClass: person
+objectClass: extensibleObject
+objectClass: uidObject
+objectClass: inetOrgPerson
+objectClass: top
+objectClass: krb5principal
+objectClass: krb5kdcentry
+cn: Tester Testerovich
+givenname: Tester
+mail: tester@example.org
+sn: Testerovich
+uid: tester
+userpassword: secret2
+krb5PrincipalName: tester@EXAMPLE.ORG
+krb5KeyVersionNumber: 0
+
+####
+# For Krb5
+####
+dn: uid=krbtgt,ou=users,dc=example,dc=org
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+objectClass: krb5principal
+objectClass: krb5kdcentry
+sn: Service
+cn: KDC Service
+uid: krbtgt
+userPassword: secret
+krb5PrincipalName: krbtgt/EXAMPLE.ORG@EXAMPLE.ORG
+krb5KeyVersionNumber: 0
+
+dn: uid=ldap,ou=users,dc=example,dc=org
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+objectClass: krb5principal
+objectClass: krb5kdcentry
+sn: Service
+cn: LDAP Service
+uid: ldap
+userPassword: randall
+krb5PrincipalName: ldap/localhost@EXAMPLE.COM
+krb5KeyVersionNumber: 0
