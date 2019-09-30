@@ -42,8 +42,8 @@ build_task:
     namespace: default
     cpu: 1.7
     memory: 5Gb
-#  gradle_cache:
-#    folder: ~/.gradle/caches
+  gradle_cache:
+    folder: ~/.gradle/caches
   env:
     # No need to clone the full history.
     # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
@@ -51,8 +51,8 @@ build_task:
     CIRRUS_CLONE_DEPTH: 50
   script:
     - ./private/cirrus/cirrus-build.sh
-#  cleanup_before_cache_script:
-#    - ./private/cirrus/cleanup-gradle-cache.sh
+  cleanup_before_cache_script:
+    - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -99,12 +99,12 @@ validate_task:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-#  gradle_cache:
-#    folder: ~/.gradle/caches
+  gradle_cache:
+    folder: ~/.gradle/caches
   script:
     - ./private/cirrus/cirrus-validate.sh postgres106
-#  cleanup_before_cache_script:
-#    - ./private/cirrus/cleanup-gradle-cache.sh
+  cleanup_before_cache_script:
+    - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -151,12 +151,12 @@ qa_task:
       QA_CATEGORY: Branch
       QA_CATEGORY: Upgrade
       QA_CATEGORY: HA
-#  gradle_cache:
-#    folder: ~/.gradle/caches
+  gradle_cache:
+    folder: ~/.gradle/caches
   script:
     - ./private/cirrus/cirrus-qa.sh postgres106
-#  cleanup_before_cache_script:
-#    - ./private/cirrus/cleanup-gradle-cache.sh
+  cleanup_before_cache_script:
+    - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -225,12 +225,12 @@ sql_mssql2017_task:
           MSSQL_PID: Developer # this is the default edition
           ACCEPT_EULA: Y
           SA_PASSWORD: sonarqube!1
-#  gradle_cache:
-#    folder: ~/.gradle/caches
+  gradle_cache:
+    folder: ~/.gradle/caches
   script:
     - ./private/cirrus/cirrus-db-unit-test.sh mssql2017
-#  cleanup_before_cache_script:
-#    - ./private/cirrus/cleanup-gradle-cache.sh
+  cleanup_before_cache_script:
+    - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -262,12 +262,12 @@ sql_postgres93_task:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-#  gradle_cache:
-#    folder: ~/.gradle/caches
+  gradle_cache:
+    folder: ~/.gradle/caches
   script:
     - ./private/cirrus/cirrus-db-unit-test.sh postgres93
-#  cleanup_before_cache_script:
-#    - ./private/cirrus/cleanup-gradle-cache.sh
+  cleanup_before_cache_script:
+    - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -297,12 +297,12 @@ sql_oracle12_task:
         memory: 5Gb
         env:
           ORACLE_PWD: sonarqube
-#  gradle_cache:
-#    folder: ~/.gradle/caches
+  gradle_cache:
+    folder: ~/.gradle/caches
   script:
     - ./private/cirrus/cirrus-db-unit-test.sh oracle12
-#  cleanup_before_cache_script:
-#    - ./private/cirrus/cleanup-gradle-cache.sh
+  cleanup_before_cache_script:
+    - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -341,12 +341,12 @@ upgd_mssql2017_task:
     CIRRUS_CLONE_DEPTH: 50
     matrix:
       QA_CATEGORY: Upgrade
-#  gradle_cache:
-#    folder: ~/.gradle/caches
+  gradle_cache:
+    folder: ~/.gradle/caches
   script:
     - ./private/cirrus/cirrus-qa.sh mssql2017
-#  cleanup_before_cache_script:
-#    - ./private/cirrus/cleanup-gradle-cache.sh
+  cleanup_before_cache_script:
+    - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -384,12 +384,12 @@ upgd_oracle12_task:
     CIRRUS_CLONE_DEPTH: 50
     matrix:
       QA_CATEGORY: Upgrade
-#  gradle_cache:
-#    folder: ~/.gradle/caches
+  gradle_cache:
+    folder: ~/.gradle/caches
   script:
     - ./private/cirrus/cirrus-qa.sh oracle12
-#  cleanup_before_cache_script:
-#    - ./private/cirrus/cleanup-gradle-cache.sh
+  cleanup_before_cache_script:
+    - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
