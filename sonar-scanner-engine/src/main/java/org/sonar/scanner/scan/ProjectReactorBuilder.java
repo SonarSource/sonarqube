@@ -128,7 +128,7 @@ public class ProjectReactorBuilder {
     rootProjectWorkDir = rootProject.getWorkDir();
     defineChildren(rootProject, propertiesByModuleIdPath, "");
     cleanAndCheckProjectDefinitions(rootProject);
-    profiler.stopDebug();
+    profiler.stopInfo();
     return new ProjectReactor(rootProject);
   }
 
