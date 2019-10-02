@@ -19,16 +19,46 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { CategoriesList } from '../AllCategoriesList';
+import { mockComponent } from '../../../../helpers/testMocks';
+import { AdditionalCategory } from '../AdditionalCategories';
+import { CategoriesList, CategoriesListProps } from '../AllCategoriesList';
 
-it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('li')).toHaveLength(3);
+jest.mock('../AdditionalCategories', () => ({
+  ADDITIONAL_CATEGORIES: [
+    {
+      key: 'CAT_1',
+      name: 'CAT_1_NAME',
+      renderComponent: jest.fn(),
+      availableGlobally: true,
+      availableForProject: true
+    },
+    {
+      key: 'CAT_2',
+      name: 'CAT_2_NAME',
+      renderComponent: jest.fn(),
+      availableGlobally: true,
+      availableForProject: false
+    },
+    {
+      key: 'CAT_3',
+      name: 'CAT_3_NAME',
+      renderComponent: jest.fn(),
+      availableGlobally: false,
+      availableForProject: true
+    }
+  ] as AdditionalCategory[]
+}));
+
+it('should render correctly in global mode', () => {
+  expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<CategoriesList['props']> = {}) {
-  const categories = ['COBOL', 'general'];
+it('should render correctly in project mode', () => {
+  expect(shallowRender({ component: mockComponent() })).toMatchSnapshot();
+});
+
+function shallowRender(props?: Partial<CategoriesListProps>) {
+  const categories = ['general'];
 
   return shallow(
     <CategoriesList

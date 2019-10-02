@@ -2,4 +2,6 @@
 
 exports[`should render correctly 1`] = `""`;
 
+exports[`should render languages correctly 1`] = `""`;
+
 exports[`should render newCodePeriod correctly 1`] = `""`;

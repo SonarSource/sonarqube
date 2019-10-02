@@ -20,37 +20,36 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
-import { LANGUAGES_CATEGORY, NEW_CODE_PERIOD_CATEGORY } from '../AdditionalCategoryKeys';
-import { App } from '../AppContainer';
+import { Languages, LanguagesProps } from '../Languages';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should render newCodePeriod correctly', () => {
-  const wrapper = shallowRender({
-    location: mockLocation({ query: { category: NEW_CODE_PERIOD_CATEGORY } })
-  });
+it('should render correctly with an unknow language', () => {
+  const wrapper = shallowRender({ selectedCategory: 'unknown' });
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should render languages correctly', () => {
-  const wrapper = shallowRender({
-    location: mockLocation({ query: { category: LANGUAGES_CATEGORY } })
-  });
-  expect(wrapper).toMatchSnapshot();
+it('should correctly handle a change of the selected language', () => {
+  const push = jest.fn();
+  const router = mockRouter({ push });
+  const wrapper = shallowRender({ router });
+  expect(wrapper.state().selectedLanguage).toBe('java');
+
+  wrapper.instance().handleOnChange({ label: '', originalValue: 'CoBoL', value: 'cobol' });
+  expect(wrapper.state().selectedLanguage).toBe('cobol');
+  expect(push).toHaveBeenCalledWith(expect.objectContaining({ query: { category: 'CoBoL' } }));
 });
 
-function shallowRender(props: Partial<App['props']> = {}) {
-  return shallow(
-    <App
-      defaultCategory="general"
-      fetchSettings={jest.fn().mockResolvedValue({})}
+function shallowRender(props: Partial<LanguagesProps> = {}) {
+  return shallow<Languages>(
+    <Languages
+      categories={['Java', 'JavaScript', 'COBOL']}
       location={mockLocation()}
-      params={{}}
       router={mockRouter()}
-      routes={[]}
+      selectedCategory="java"
       {...props}
     />
   );

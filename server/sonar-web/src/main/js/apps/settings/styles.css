@@ -82,13 +82,8 @@
   border-top: 1px dotted var(--barBorderColor);
 }
 
-.settings-sub-categories-list {
-}
-
-.settings-sub-categories-list > li {
-}
-
-.settings-sub-categories-list > li + li {
+.settings-sub-categories-list > li + li,
+.settings-sub-category {
   margin: 30px -20px 0;
   padding: 30px 20px;
   border-top: 1px solid var(--barBorderColor);

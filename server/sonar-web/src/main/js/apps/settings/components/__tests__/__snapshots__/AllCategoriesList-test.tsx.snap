@@ -1,26 +1,45 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly in global mode 1`] = `
 <ul
   className="side-tabs-menu"
 >
   <li
-    key="COBOL"
+    key="CAT_1"
   >
     <IndexLink
       className=""
-      title="COBOL"
+      title="CAT_1_NAME"
       to={
         Object {
           "pathname": "/settings",
           "query": Object {
-            "category": "cobol",
+            "category": "cat_1",
             "id": undefined,
           },
         }
       }
     >
-      COBOL
+      CAT_1_NAME
+    </IndexLink>
+  </li>
+  <li
+    key="CAT_2"
+  >
+    <IndexLink
+      className=""
+      title="CAT_2_NAME"
+      to={
+        Object {
+          "pathname": "/settings",
+          "query": Object {
+            "category": "cat_2",
+            "id": undefined,
+          },
+        }
+      }
+    >
+      CAT_2_NAME
     </IndexLink>
   </li>
   <li
@@ -42,23 +61,68 @@ exports[`should render correctly 1`] = `
       general
     </IndexLink>
   </li>
+</ul>
+`;
+
+exports[`should render correctly in project mode 1`] = `
+<ul
+  className="side-tabs-menu"
+>
   <li
-    key="new_code_period"
+    key="CAT_1"
   >
     <IndexLink
       className=""
-      title="settings.new_code_period.category"
+      title="CAT_1_NAME"
       to={
         Object {
-          "pathname": "/settings",
+          "pathname": "/project/settings",
           "query": Object {
-            "category": "new_code_period",
-            "id": undefined,
+            "category": "cat_1",
+            "id": "my-project",
           },
         }
       }
     >
-      settings.new_code_period.category
+      CAT_1_NAME
+    </IndexLink>
+  </li>
+  <li
+    key="CAT_3"
+  >
+    <IndexLink
+      className=""
+      title="CAT_3_NAME"
+      to={
+        Object {
+          "pathname": "/project/settings",
+          "query": Object {
+            "category": "cat_3",
+            "id": "my-project",
+          },
+        }
+      }
+    >
+      CAT_3_NAME
+    </IndexLink>
+  </li>
+  <li
+    key="general"
+  >
+    <IndexLink
+      className=""
+      title="general"
+      to={
+        Object {
+          "pathname": "/project/settings",
+          "query": Object {
+            "category": undefined,
+            "id": "my-project",
+          },
+        }
+      }
+    >
+      general
     </IndexLink>
   </li>
 </ul>

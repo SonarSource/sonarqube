@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <h2
+    className="settings-sub-category-name"
+  >
+    property.category.languages
+  </h2>
+  <div
+    data-test="language-select"
+  >
+    <Select
+      className="input-large"
+      onChange={[Function]}
+      options={
+        Array [
+          Object {
+            "label": "Java",
+            "originalValue": "Java",
+            "value": "java",
+          },
+          Object {
+            "label": "JavaScript",
+            "originalValue": "JavaScript",
+            "value": "javascript",
+          },
+          Object {
+            "label": "COBOL",
+            "originalValue": "COBOL",
+            "value": "cobol",
+          },
+        ]
+      }
+      placeholder="settings.languages.select_a_language_placeholder"
+      value="java"
+    />
+  </div>
+  <div
+    className="settings-sub-category"
+  >
+    <Connect(SubCategoryDefinitionsList)
+      category="java"
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly with an unknow language 1`] = `
+<Fragment>
+  <h2
+    className="settings-sub-category-name"
+  >
+    property.category.languages
+  </h2>
+  <div
+    data-test="language-select"
+  >
+    <Select
+      className="input-large"
+      onChange={[Function]}
+      options={
+        Array [
+          Object {
+            "label": "Java",
+            "originalValue": "Java",
+            "value": "java",
+          },
+          Object {
+            "label": "JavaScript",
+            "originalValue": "JavaScript",
+            "value": "javascript",
+          },
+          Object {
+            "label": "COBOL",
+            "originalValue": "COBOL",
+            "value": "cobol",
+          },
+        ]
+      }
+      placeholder="settings.languages.select_a_language_placeholder"
+    />
+  </div>
+</Fragment>
+`;

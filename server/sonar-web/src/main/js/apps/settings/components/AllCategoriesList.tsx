@@ -22,27 +22,24 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { IndexLink } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getSettingsAppAllCategories, Store } from '../../../store/rootReducer';
 import { getCategoryName } from '../utils';
+import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
+import { CATEGORY_OVERRIDES } from './CategoryOverrides';
 
 interface Category {
   key: string;
   name: string;
 }
 
-interface Props {
+export interface CategoriesListProps {
   categories: string[];
   component?: T.Component;
   defaultCategory: string;
   selectedCategory: string;
 }
 
-const FIXED_CATEGORIES = [
-  { key: 'new_code_period', name: translate('settings.new_code_period.category') }
-];
-
-export class CategoriesList extends React.PureComponent<Props> {
+export class CategoriesList extends React.PureComponent<CategoriesListProps> {
   renderLink(category: Category) {
     const { component, defaultCategory, selectedCategory } = this.props;
     const pathname = this.props.component ? '/project/settings' : '/settings';
@@ -64,11 +61,18 @@ export class CategoriesList extends React.PureComponent<Props> {
 
   render() {
     const categoriesWithName = this.props.categories
+      .filter(key => !CATEGORY_OVERRIDES[key.toLowerCase()])
       .map(key => ({
         key,
         name: getCategoryName(key)
       }))
-      .concat(!this.props.component ? FIXED_CATEGORIES : []);
+      .concat(
+        this.props.component
+          ? // Project settings
+            ADDITIONAL_CATEGORIES.filter(c => c.availableForProject)
+          : // Global settings
+            ADDITIONAL_CATEGORIES.filter(c => c.availableGlobally)
+      );
     const sortedCategories = sortBy(categoriesWithName, category => category.name.toLowerCase());
     return (
       <ul className="side-tabs-menu">

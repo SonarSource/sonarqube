@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { find } from 'lodash';
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
@@ -27,9 +29,10 @@ import { getSettingsAppDefaultCategory, Store } from '../../../store/rootReducer
 import '../side-tabs.css';
 import { fetchSettings } from '../store/actions';
 import '../styles.css';
+import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
 import AllCategoriesList from './AllCategoriesList';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
-import NewCodePeriod from './NewCodePeriod';
+import { CATEGORY_OVERRIDES } from './CategoryOverrides';
 import PageHeader from './PageHeader';
 import WildcardsHelp from './WildcardsHelp';
 
@@ -79,7 +82,16 @@ export class App extends React.PureComponent<Props & WithRouterProps, State> {
     }
 
     const { query } = this.props.location;
-    const selectedCategory = query.category || this.props.defaultCategory;
+
+    const originalCategory = (query.category as string) || this.props.defaultCategory;
+    const overriddenCategory = CATEGORY_OVERRIDES[originalCategory.toLowerCase()];
+    const selectedCategory = overriddenCategory || originalCategory;
+    const foundAdditionalCategory = find(ADDITIONAL_CATEGORIES, c => c.key === selectedCategory);
+    const isProjectSettings = this.props.component;
+    const shouldRenderAdditionalCategory =
+      foundAdditionalCategory &&
+      ((isProjectSettings && foundAdditionalCategory.availableForProject) ||
+        (!isProjectSettings && foundAdditionalCategory.availableGlobally));
 
     return (
       <div className="page page-limited" id="settings-page">
@@ -97,8 +109,8 @@ export class App extends React.PureComponent<Props & WithRouterProps, State> {
             />
           </div>
           <div className="side-tabs-main">
-            {!this.props.component && selectedCategory === 'new_code_period' ? (
-              <NewCodePeriod />
+            {foundAdditionalCategory && shouldRenderAdditionalCategory ? (
+              foundAdditionalCategory.renderComponent(this.props.component, originalCategory)
             ) : (
               <CategoryDefinitionsList
                 category={selectedCategory}
