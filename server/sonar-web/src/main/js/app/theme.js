@@ -55,6 +55,7 @@ module.exports = {
     disableGrayBg: '#ebebeb',
 
     barBackgroundColor: '#f3f3f3',
+    barBackgroundColorHighlight: '#f8f8f8',
     barBorderColor: '#e6e6e6',
 
     baseFontColor: '#444',

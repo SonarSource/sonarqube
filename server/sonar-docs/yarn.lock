@@ -1237,6 +1237,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-select@1.2.6":
+  version "1.2.6"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/react-select/-/react-select-1.2.6.tgz#8a9579705e04b2c15ce529379402980d80e9d243"
+  integrity sha1-ipV5cF4EssFc5Sk3lAKYDYDp0kM=
+  dependencies:
+    "@types/react" "*"
+
 "@types/react@*", "@types/react@16.8.23", "@types/react@^16.8.12", "@types/react@^16.8.6":
   version "16.8.23"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/react/-/react-16.8.23.tgz#ec6be3ceed6353a20948169b6cb4c97b65b97ad2"
@@ -2723,7 +2730,7 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@2.2.6:
+classnames@2.2.6, classnames@^2.2.3, classnames@^2.2.4, classnames@^2.2.5:
   version "2.2.6"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/classnames/-/classnames-2.2.6.tgz#43935bffdd291f326dad0a205309b38d00f650ce"
   integrity sha1-Q5Nb/90pHzJtrQogUwmzjQD2UM4=
@@ -2772,6 +2779,15 @@ cli-width@^2.0.0:
   version "2.2.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/cli-width/-/cli-width-2.2.0.tgz#ff19ede8a9a5e579324147b0c11f0fbcbabed639"
   integrity sha1-/xnt6Kml5XkyQUewwR8PvLq+1jk=
+
+clipboard@2.0.4:
+  version "2.0.4"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/clipboard/-/clipboard-2.0.4.tgz#836dafd66cf0fea5d71ce5d5b0bf6e958009112d"
+  integrity sha1-g22v1mzw/qXXHOXVsL9ulYAJES0=
+  dependencies:
+    good-listener "^1.2.2"
+    select "^1.1.2"
+    tiny-emitter "^2.0.0"
 
 clipboardy@^1.2.3:
   version "1.2.3"
@@ -3179,7 +3195,16 @@ create-hmac@^1.1.0, create-hmac@^1.1.2, create-hmac@^1.1.4:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-create-react-context@^0.2.1:
+create-react-class@^15.5.1:
+  version "15.6.3"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/create-react-class/-/create-react-class-15.6.3.tgz#2d73237fb3f970ae6ebe011a9e66f46dbca80036"
+  integrity sha1-LXMjf7P5cK5uvgEanmb0bbyoADY=
+  dependencies:
+    fbjs "^0.8.9"
+    loose-envify "^1.3.1"
+    object-assign "^4.1.1"
+
+create-react-context@^0.2.1, create-react-context@^0.2.2:
   version "0.2.3"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/create-react-context/-/create-react-context-0.2.3.tgz#9ec140a6914a22ef04b8b09b7771de89567cb6f3"
   integrity sha1-nsFAppFKIu8EuLCbd3HeiVZ8tvM=
@@ -3465,6 +3490,125 @@ cyclist@~0.2.2:
   resolved "https://repox.jfrog.io/repox/api/npm/npm/cyclist/-/cyclist-0.2.2.tgz#1b33792e11e914a2fd6d6ed6447464444e5fa640"
   integrity sha1-GzN5LhHpFKL9bW7WRHRkRE5fpkA=
 
+d3-array@1.2.4, d3-array@^1.2.0:
+  version "1.2.4"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-array/-/d3-array-1.2.4.tgz#635ce4d5eea759f6f605863dbcfc30edc737f71f"
+  integrity sha1-Y1zk1e6nWfb2BYY9vPww7cc39x8=
+
+d3-collection@1:
+  version "1.0.7"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-collection/-/d3-collection-1.0.7.tgz#349bd2aa9977db071091c13144d5e4f16b5b310e"
+  integrity sha1-NJvSqpl32wcQkcExRNXk8WtbMQ4=
+
+d3-color@1:
+  version "1.4.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-color/-/d3-color-1.4.0.tgz#89c45a995ed773b13314f06460df26d60ba0ecaf"
+  integrity sha1-icRamV7Xc7EzFPBkYN8m1gug7K8=
+
+d3-dispatch@1:
+  version "1.0.5"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-dispatch/-/d3-dispatch-1.0.5.tgz#e25c10a186517cd6c82dd19ea018f07e01e39015"
+  integrity sha1-4lwQoYZRfNbILdGeoBjwfgHjkBU=
+
+d3-drag@1:
+  version "1.2.4"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-drag/-/d3-drag-1.2.4.tgz#ba9331d68158ad14cf0b4b28a8afa9e78c7d99ad"
+  integrity sha1-upMx1oFYrRTPC0soqK+p54x9ma0=
+  dependencies:
+    d3-dispatch "1"
+    d3-selection "1"
+
+d3-ease@1:
+  version "1.0.5"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-ease/-/d3-ease-1.0.5.tgz#8ce59276d81241b1b72042d6af2d40e76d936ffb"
+  integrity sha1-jOWSdtgSQbG3IELWry1A522Tb/s=
+
+d3-format@1:
+  version "1.4.1"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-format/-/d3-format-1.4.1.tgz#c45f74b17c5a290c072a4ba7039dd19662cd5ce6"
+  integrity sha1-xF90sXxaKQwHKkunA53RlmLNXOY=
+
+d3-hierarchy@1.1.8:
+  version "1.1.8"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-hierarchy/-/d3-hierarchy-1.1.8.tgz#7a6317bd3ed24e324641b6f1e76e978836b008cc"
+  integrity sha1-emMXvT7STjJGQbbx526XiDawCMw=
+
+d3-interpolate@1:
+  version "1.3.2"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-interpolate/-/d3-interpolate-1.3.2.tgz#417d3ebdeb4bc4efcc8fd4361c55e4040211fd68"
+  integrity sha1-QX0+vetLxO/Mj9Q2HFXkBAIR/Wg=
+  dependencies:
+    d3-color "1"
+
+d3-path@1:
+  version "1.0.8"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-path/-/d3-path-1.0.8.tgz#4a0606a794d104513ec4a8af43525f374b278719"
+  integrity sha1-SgYGp5TRBFE+xKivQ1JfN0snhxk=
+
+d3-scale@2.1.2:
+  version "2.1.2"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-scale/-/d3-scale-2.1.2.tgz#4e932b7b60182aee9073ede8764c98423e5f9a94"
+  integrity sha1-TpMre2AYKu6Qc+3odkyYQj5fmpQ=
+  dependencies:
+    d3-array "^1.2.0"
+    d3-collection "1"
+    d3-format "1"
+    d3-interpolate "1"
+    d3-time "1"
+    d3-time-format "2"
+
+d3-selection@1, d3-selection@1.4.0, d3-selection@^1.1.0:
+  version "1.4.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-selection/-/d3-selection-1.4.0.tgz#ab9ac1e664cf967ebf1b479cc07e28ce9908c474"
+  integrity sha1-q5rB5mTPln6/G0ecwH4ozpkIxHQ=
+
+d3-shape@1.2.2:
+  version "1.2.2"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-shape/-/d3-shape-1.2.2.tgz#f9dba3777a5825f9a8ce8bc928da08c17679e9a7"
+  integrity sha1-+dujd3pYJfmozovJKNoIwXZ56ac=
+  dependencies:
+    d3-path "1"
+
+d3-time-format@2:
+  version "2.1.3"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-time-format/-/d3-time-format-2.1.3.tgz#ae06f8e0126a9d60d6364eac5b1533ae1bac826b"
+  integrity sha1-rgb44BJqnWDWNk6sWxUzrhusgms=
+  dependencies:
+    d3-time "1"
+
+d3-time@1:
+  version "1.1.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-time/-/d3-time-1.1.0.tgz#b1e19d307dae9c900b7e5b25ffc5dcc249a8a0f1"
+  integrity sha1-seGdMH2unJALflsl/8XcwkmooPE=
+
+d3-timer@1:
+  version "1.0.9"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-timer/-/d3-timer-1.0.9.tgz#f7bb8c0d597d792ff7131e1c24a36dd471a471ba"
+  integrity sha1-97uMDVl9eS/3Ex4cJKNt1HGkcbo=
+
+d3-transition@1:
+  version "1.2.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-transition/-/d3-transition-1.2.0.tgz#f538c0e21b2aa1f05f3e965f8567e81284b3b2b8"
+  integrity sha1-9TjA4hsqofBfPpZfhWfoEoSzsrg=
+  dependencies:
+    d3-color "1"
+    d3-dispatch "1"
+    d3-ease "1"
+    d3-interpolate "1"
+    d3-selection "^1.1.0"
+    d3-timer "1"
+
+d3-zoom@1.7.3:
+  version "1.7.3"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/d3-zoom/-/d3-zoom-1.7.3.tgz#f444effdc9055c38077c4299b4df999eb1d47ccb"
+  integrity sha1-9ETv/ckFXDgHfEKZtN+ZnrHUfMs=
+  dependencies:
+    d3-dispatch "1"
+    d3-drag "1"
+    d3-interpolate "1"
+    d3-selection "1"
+    d3-transition "1"
+
 damerau-levenshtein@^1.0.4:
   version "1.0.5"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/damerau-levenshtein/-/damerau-levenshtein-1.0.5.tgz#780cf7144eb2e8dbd1c3bb83ae31100ccc31a414"
@@ -3485,6 +3629,11 @@ data-urls@^1.0.0:
     abab "^2.0.0"
     whatwg-mimetype "^2.2.0"
     whatwg-url "^7.0.0"
+
+date-fns@1.30.1:
+  version "1.30.1"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/date-fns/-/date-fns-1.30.1.tgz#2e71bf0b119153dbb4cc4e88d9ea5acfb50dc05c"
+  integrity sha1-LnG/CxGRU9u0zE6I2epaz7UNwFw=
 
 date-now@^0.1.4:
   version "0.1.4"
@@ -3550,6 +3699,11 @@ deep-is@~0.1.3:
   version "0.1.3"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/deep-is/-/deep-is-0.1.3.tgz#b369d6fb5dbc13eecf524f91b070feedc357cf34"
   integrity sha1-s2nW+128E+7PUk+RsHD+7cNXzzQ=
+
+deepmerge@^2.1.1:
+  version "2.2.1"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/deepmerge/-/deepmerge-2.2.1.tgz#5d3ff22a01c00f645405a2fbc17d0778a1801170"
+  integrity sha1-XT/yKgHAD2RUBaL7wX0HeKGAEXA=
 
 default-gateway@^4.2.0:
   version "4.2.0"
@@ -3617,6 +3771,11 @@ delayed-stream@~1.0.0:
   version "1.0.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/delayed-stream/-/delayed-stream-1.0.0.tgz#df3ae199acadfb7d440aaae0b29e2272b24ec619"
   integrity sha1-3zrhmayt+31ECqrgsp4icrJOxhk=
+
+delegate@^3.1.2:
+  version "3.2.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/delegate/-/delegate-3.2.0.tgz#b66b71c3158522e8ab5744f720d8ca0c2af59166"
+  integrity sha1-tmtxwxWFIuirV0T3INjKDCr1kWY=
 
 delegates@^1.0.0:
   version "1.0.0"
@@ -3779,7 +3938,7 @@ dom-converter@^0.2:
   dependencies:
     utila "~0.4"
 
-dom-helpers@^3.2.1:
+"dom-helpers@^2.4.0 || ^3.0.0", dom-helpers@^3.2.1:
   version "3.4.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/dom-helpers/-/dom-helpers-3.4.0.tgz#e9b369700f959f62ecde5a6babde4bccd9169af8"
   integrity sha1-6bNpcA+Vn2Ls3lprq95LzNkWmvg=
@@ -4466,7 +4625,7 @@ execa@^1.0.0:
     signal-exit "^3.0.0"
     strip-eof "^1.0.0"
 
-exenv@^1.2.1:
+exenv@^1.2.0, exenv@^1.2.1:
   version "1.2.2"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/exenv/-/exenv-1.2.2.tgz#2ae78e85d9894158670b03d47bec1f03bd91bb9d"
   integrity sha1-KueOhdmJQVhnCwPUe+wfA72Ru50=
@@ -4674,7 +4833,7 @@ fbjs-css-vars@^1.0.0:
   resolved "https://repox.jfrog.io/repox/api/npm/npm/fbjs-css-vars/-/fbjs-css-vars-1.0.2.tgz#216551136ae02fe255932c3ec8775f18e2c078b8"
   integrity sha1-IWVRE2rgL+JVkyw+yHdfGOLAeLg=
 
-fbjs@^0.8.0:
+fbjs@^0.8.0, fbjs@^0.8.9:
   version "0.8.17"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/fbjs/-/fbjs-0.8.17.tgz#c4d598ead6949112653d6588b01a5cdcd9f90fdd"
   integrity sha1-xNWY6taUkRJlPWWIsBpc3Nn5D90=
@@ -4855,6 +5014,21 @@ form-data@~2.3.2:
     asynckit "^0.4.0"
     combined-stream "^1.0.6"
     mime-types "^2.1.12"
+
+formik@1.2.0:
+  version "1.2.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/formik/-/formik-1.2.0.tgz#a0daf8512ce2ec18d88ff59a5bb172b0167e85d1"
+  integrity sha1-oNr4USzi7BjYj/WaW7FysBZ+hdE=
+  dependencies:
+    create-react-context "^0.2.2"
+    deepmerge "^2.1.1"
+    hoist-non-react-statics "^2.5.5"
+    lodash.clonedeep "^4.5.0"
+    lodash.topath "4.5.2"
+    prop-types "^15.6.1"
+    react-fast-compare "^1.0.0"
+    tslib "^1.9.3"
+    warning "^3.0.0"
 
 forwarded@~0.1.2:
   version "0.1.2"
@@ -5433,6 +5607,13 @@ globby@^6.1.0:
     pify "^2.0.0"
     pinkie-promise "^2.0.0"
 
+good-listener@^1.2.2:
+  version "1.2.2"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/good-listener/-/good-listener-1.2.2.tgz#d53b30cdf9313dffb7dc9a0d477096aa6d145c50"
+  integrity sha1-1TswzfkxPf+33JoNR3CWqm0UXFA=
+  dependencies:
+    delegate "^3.1.2"
+
 got@^6.7.1:
   version "6.7.1"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/got/-/got-6.7.1.tgz#240cd05785a9a18e561dc1b44b41c763ef1e8db0"
@@ -5840,6 +6021,16 @@ hex-color-regex@^1.1.0:
   resolved "https://repox.jfrog.io/repox/api/npm/npm/hex-color-regex/-/hex-color-regex-1.1.0.tgz#4c06fccb4602fe2602b3c93df82d7e7dbf1a8a8e"
   integrity sha1-TAb8y0YC/iYCs8k9+C1+fb8aio4=
 
+history@3.3.0, history@^3.0.0:
+  version "3.3.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/history/-/history-3.3.0.tgz#fcedcce8f12975371545d735461033579a6dae9c"
+  integrity sha1-/O3M6PEpdTcVRdc1RhAzV5ptrpw=
+  dependencies:
+    invariant "^2.2.1"
+    loose-envify "^1.2.0"
+    query-string "^4.2.2"
+    warning "^3.0.0"
+
 hmac-drbg@^1.0.0:
   version "1.0.1"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/hmac-drbg/-/hmac-drbg-1.0.1.tgz#d2745701025a6c775a6c545793ed502fc0c649a1"
@@ -5853,6 +6044,11 @@ hoek@4.x.x:
   version "4.2.1"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/hoek/-/hoek-4.2.1.tgz#9634502aa12c445dd5a7c5734b572bb8738aacbb"
   integrity sha1-ljRQKqEsRF3Vp8VzS1cruHOKrLs=
+
+hoist-non-react-statics@^2.3.1, hoist-non-react-statics@^2.5.5:
+  version "2.5.5"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/hoist-non-react-statics/-/hoist-non-react-statics-2.5.5.tgz#c5903cf409c0dfd908f388e619d86b9c1174cb47"
+  integrity sha1-xZA89AnA39kI84jmGdhrnBF0y0c=
 
 hoist-non-react-statics@^3.3.0:
   version "3.3.0"
@@ -6225,7 +6421,31 @@ internal-ip@^4.3.0:
     default-gateway "^4.2.0"
     ipaddr.js "^1.9.0"
 
-invariant@^2.2.0, invariant@^2.2.2, invariant@^2.2.3, invariant@^2.2.4:
+intl-format-cache@^2.0.5:
+  version "2.2.9"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/intl-format-cache/-/intl-format-cache-2.2.9.tgz#fb560de20c549cda20b569cf1ffb6dc62b5b93b4"
+  integrity sha1-+1YN4gxUnNogtWnPH/ttxitbk7Q=
+
+intl-messageformat-parser@1.4.0:
+  version "1.4.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/intl-messageformat-parser/-/intl-messageformat-parser-1.4.0.tgz#b43d45a97468cadbe44331d74bb1e8dea44fc075"
+  integrity sha1-tD1FqXRoytvkQzHXS7Ho3qRPwHU=
+
+intl-messageformat@^2.0.0, intl-messageformat@^2.1.0:
+  version "2.2.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/intl-messageformat/-/intl-messageformat-2.2.0.tgz#345bcd46de630b7683330c2e52177ff5eab484fc"
+  integrity sha1-NFvNRt5jC3aDMwwuUhd/9eq0hPw=
+  dependencies:
+    intl-messageformat-parser "1.4.0"
+
+intl-relativeformat@^2.1.0:
+  version "2.2.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/intl-relativeformat/-/intl-relativeformat-2.2.0.tgz#6aca95d019ec8d30b6c5653b6629f9983ea5b6c5"
+  integrity sha1-asqV0BnsjTC2xWU7Zin5mD6ltsU=
+  dependencies:
+    intl-messageformat "^2.0.0"
+
+invariant@^2.1.1, invariant@^2.2.0, invariant@^2.2.1, invariant@^2.2.2, invariant@^2.2.3, invariant@^2.2.4:
   version "2.2.4"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
   integrity sha1-YQ88ksk1nOHbYW5TgAjSP/NRWOY=
@@ -7570,6 +7790,11 @@ lodash.toarray@^4.4.0:
   resolved "https://repox.jfrog.io/repox/api/npm/npm/lodash.toarray/-/lodash.toarray-4.4.0.tgz#24c4bfcd6b2fba38bfd0594db1179d8e9b656561"
   integrity sha1-JMS/zWsvuji/0FlNsRedjptlZWE=
 
+lodash.topath@4.5.2:
+  version "4.5.2"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/lodash.topath/-/lodash.topath-4.5.2.tgz#3616351f3bba61994a0931989660bd03254fd009"
+  integrity sha1-NhY1Hzu6YZlKCTGYlmC9AyVP0Ak=
+
 lodash.unescape@4.0.1:
   version "4.0.1"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/lodash.unescape/-/lodash.unescape-4.0.1.tgz#bf2249886ce514cda112fae9218cdc065211fc9c"
@@ -7609,7 +7834,7 @@ longest-streak@^2.0.1:
   resolved "https://repox.jfrog.io/repox/api/npm/npm/longest-streak/-/longest-streak-2.0.3.tgz#3de7a3f47ee18e9074ded8575b5c091f5d0a4105"
   integrity sha1-Peej9H7hjpB03thXW1wJH10KQQU=
 
-loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.4.0:
+loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.2.0, loose-envify@^1.3.0, loose-envify@^1.3.1, loose-envify@^1.4.0:
   version "1.4.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/loose-envify/-/loose-envify-1.4.0.tgz#71ee51fa7be4caec1a63839f7e682d8132d30caf"
   integrity sha1-ce5R+nvkyuwaY4OffmgtgTLTDK8=
@@ -9497,7 +9722,7 @@ prop-types-exact@^1.2.0:
     object.assign "^4.1.0"
     reflect.ownkeys "^0.2.0"
 
-prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@15.7.2, prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.5.6, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha1-UsQedbjIfnK52TYOAga5ncv/psU=
@@ -9602,6 +9827,14 @@ qs@~6.5.2:
   version "6.5.2"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
   integrity sha1-yzroBuh0BERYTvFUzo7pjUA/PjY=
+
+query-string@^4.2.2:
+  version "4.3.4"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/query-string/-/query-string-4.3.4.tgz#bbb693b9ca915c232515b228b1a02b609043dbeb"
+  integrity sha1-u7aTucqRXCMlFbIosaArYJBD2+s=
+  dependencies:
+    object-assign "^4.1.0"
+    strict-uri-encode "^1.0.0"
 
 querystring-es3@^0.2.0:
   version "0.2.1"
@@ -9727,10 +9960,23 @@ react-dom@16.8.6:
     prop-types "^15.6.2"
     scheduler "^0.13.6"
 
+react-draggable@3.2.1:
+  version "3.2.1"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/react-draggable/-/react-draggable-3.2.1.tgz#45d09a9a227988dc85674b23ab3c75b6e820dae5"
+  integrity sha1-RdCamiJ5iNyFZ0sjqzx1tugg2uU=
+  dependencies:
+    classnames "^2.2.5"
+    prop-types "^15.6.0"
+
 react-error-overlay@^3.0.0:
   version "3.0.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/react-error-overlay/-/react-error-overlay-3.0.0.tgz#c2bc8f4d91f1375b3dad6d75265d51cd5eeaf655"
   integrity sha1-wryPTZHxN1s9rW11Jl1RzV7q9lU=
+
+react-fast-compare@^1.0.0:
+  version "1.0.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/react-fast-compare/-/react-fast-compare-1.0.0.tgz#813a039155e49b43ceffe99528fe5e9d97a6c938"
+  integrity sha1-gToDkVXkm0PO/+mVKP5enZemyTg=
 
 react-helmet@5.2.0:
   version "5.2.0"
@@ -9757,15 +10003,43 @@ react-hot-loader@^4.6.2:
     shallowequal "^1.0.2"
     source-map "^0.7.3"
 
+react-input-autosize@^2.1.2:
+  version "2.2.2"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/react-input-autosize/-/react-input-autosize-2.2.2.tgz#fcaa7020568ec206bc04be36f4eb68e647c4d8c2"
+  integrity sha1-/KpwIFaOwga8BL429Oto5kfE2MI=
+  dependencies:
+    prop-types "^15.5.8"
+
+react-intl@2.8.0:
+  version "2.8.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/react-intl/-/react-intl-2.8.0.tgz#20b0c1f01d1292427768aa8ec9e51ab7e36503ba"
+  integrity sha1-ILDB8B0SkkJ3aKqOyeUat+NlA7o=
+  dependencies:
+    hoist-non-react-statics "^2.5.5"
+    intl-format-cache "^2.0.5"
+    intl-messageformat "^2.1.0"
+    intl-relativeformat "^2.1.0"
+    invariant "^2.1.1"
+
 react-is@^16.7.0, react-is@^16.8.1, react-is@^16.8.4, react-is@^16.8.5, react-is@^16.8.6:
   version "16.8.6"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/react-is/-/react-is-16.8.6.tgz#5bbc1e2d29141c9fbdfed456343fe2bc430a6a16"
   integrity sha1-W7weLSkUHJ+9/tRWND/ivEMKahY=
 
-react-lifecycles-compat@^3.0.4:
+react-lifecycles-compat@^3.0.0, react-lifecycles-compat@^3.0.4:
   version "3.0.4"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha1-TxonOv38jzSIqMUWv9p4+HI1I2I=
+
+react-modal@3.8.2:
+  version "3.8.2"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/react-modal/-/react-modal-3.8.2.tgz#c47397a8602beb7aae0059a3b404f20416241d03"
+  integrity sha1-xHOXqGAr63quAFmjtATyBBYkHQM=
+  dependencies:
+    exenv "^1.2.0"
+    prop-types "^15.5.10"
+    react-lifecycles-compat "^3.0.0"
+    warning "^4.0.3"
 
 react-reconciler@^0.20.0:
   version "0.20.4"
@@ -9776,6 +10050,28 @@ react-reconciler@^0.20.0:
     object-assign "^4.1.1"
     prop-types "^15.6.2"
     scheduler "^0.13.6"
+
+react-router@3.2.1:
+  version "3.2.1"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/react-router/-/react-router-3.2.1.tgz#b9a3279962bdfbe684c8bd0482b81ef288f0f244"
+  integrity sha1-uaMnmWK9++aEyL0Egrge8ojw8kQ=
+  dependencies:
+    create-react-class "^15.5.1"
+    history "^3.0.0"
+    hoist-non-react-statics "^2.3.1"
+    invariant "^2.2.1"
+    loose-envify "^1.2.0"
+    prop-types "^15.5.6"
+    warning "^3.0.0"
+
+react-select@1.2.1:
+  version "1.2.1"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/react-select/-/react-select-1.2.1.tgz#a2fe58a569eb14dcaa6543816260b97e538120d1"
+  integrity sha1-ov5YpWnrFNyqZUOBYmC5flOBINE=
+  dependencies:
+    classnames "^2.2.4"
+    prop-types "^15.5.8"
+    react-input-autosize "^2.1.2"
 
 react-side-effect@^1.1.0:
   version "1.1.5"
@@ -9809,6 +10105,18 @@ react-typography@0.16.19:
   version "0.16.19"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/react-typography/-/react-typography-0.16.19.tgz#5736b47961dcf6b9605b6fa38d41980db2588e28"
   integrity sha1-Vza0eWHc9rlgW2+jjUGYDbJYjig=
+
+react-virtualized@9.21.0:
+  version "9.21.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/react-virtualized/-/react-virtualized-9.21.0.tgz#8267c40ffb48db35b242a36dea85edcf280a6506"
+  integrity sha1-gmfED/tI2zWyQqNt6oXtzygKZQY=
+  dependencies:
+    babel-runtime "^6.26.0"
+    classnames "^2.2.3"
+    dom-helpers "^2.4.0 || ^3.0.0"
+    loose-envify "^1.3.0"
+    prop-types "^15.6.0"
+    react-lifecycles-compat "^3.0.4"
 
 react@16.8.6, react@^16.8.4:
   version "16.8.6"
@@ -10497,6 +10805,11 @@ select-hose@^2.0.0:
   resolved "https://repox.jfrog.io/repox/api/npm/npm/select-hose/-/select-hose-2.0.0.tgz#625d8658f865af43ec962bfc376a37359a4994ca"
   integrity sha1-Yl2GWPhlr0Psliv8N2o3NZpJlMo=
 
+select@^1.1.2:
+  version "1.1.2"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/select/-/select-1.1.2.tgz#0e7350acdec80b1108528786ec1d4418d11b396d"
+  integrity sha1-DnNQrN7ICxEIUoeG7B1EGNEbOW0=
+
 selfsigned@^1.10.4:
   version "1.10.4"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/selfsigned/-/selfsigned-1.10.4.tgz#cdd7eccfca4ed7635d47a08bf2d5d3074092e2cd"
@@ -10809,6 +11122,31 @@ sockjs@0.3.19:
     faye-websocket "^0.10.0"
     uuid "^3.0.1"
 
+sonar-ui-common@0.0.31:
+  version "0.0.31"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/sonar-ui-common/-/sonar-ui-common-0.0.31.tgz#0de4fe387dd791b0a54c70ced2b0f23960a08bee"
+  integrity sha1-DeT+OH3XkbClTHDO0rDyOWCgi+4=
+  dependencies:
+    "@types/react-select" "1.2.6"
+    classnames "2.2.6"
+    clipboard "2.0.4"
+    d3-array "1.2.4"
+    d3-hierarchy "1.1.8"
+    d3-scale "2.1.2"
+    d3-selection "1.4.0"
+    d3-shape "1.2.2"
+    d3-zoom "1.7.3"
+    date-fns "1.30.1"
+    formik "1.2.0"
+    history "3.3.0"
+    prop-types "15.7.2"
+    react-draggable "3.2.1"
+    react-intl "2.8.0"
+    react-modal "3.8.2"
+    react-router "3.2.1"
+    react-select "1.2.1"
+    react-virtualized "9.21.0"
+
 source-list-map@^2.0.0:
   version "2.0.1"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/source-list-map/-/source-list-map-2.0.1.tgz#3993bd873bfc48479cca9ea3a547835c7c154b34"
@@ -11028,6 +11366,11 @@ stream-shift@^1.0.0:
   version "1.0.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/stream-shift/-/stream-shift-1.0.0.tgz#d5c752825e5367e786f78e18e445ea223a155952"
   integrity sha1-1cdSgl5TZ+eG944Y5EXqIjoVWVI=
+
+strict-uri-encode@^1.0.0:
+  version "1.1.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/strict-uri-encode/-/strict-uri-encode-1.1.0.tgz#279b225df1d582b1f54e65addd4352e18faa0713"
+  integrity sha1-J5siXfHVgrH1TmWt3UNS4Y+qBxM=
 
 string-length@^2.0.0:
   version "2.0.0"
@@ -11340,6 +11683,11 @@ timsort@^0.3.0:
   version "0.3.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/timsort/-/timsort-0.3.0.tgz#405411a8e7e6339fe64db9a234de11dc31e02bd4"
   integrity sha1-QFQRqOfmM5/mTbmiNN4R3DHgK9Q=
+
+tiny-emitter@^2.0.0:
+  version "2.1.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/tiny-emitter/-/tiny-emitter-2.1.0.tgz#1d1a56edfc51c43e863cbb5382a72330e3555423"
+  integrity sha1-HRpW7fxRxD6GPLtTgqcjMONVVCM=
 
 tmp@^0.0.31:
   version "0.0.31"
@@ -12023,6 +12371,13 @@ warning@^3.0.0:
   version "3.0.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/warning/-/warning-3.0.0.tgz#32e5377cb572de4ab04753bdf8821c01ed605b7c"
   integrity sha1-MuU3fLVy3kqwR1O9+IIcAe1gW3w=
+  dependencies:
+    loose-envify "^1.0.0"
+
+warning@^4.0.3:
+  version "4.0.3"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/warning/-/warning-4.0.3.tgz#16e9e077eb8a86d6af7d64aa1e05fd85b4678ca3"
+  integrity sha1-Fungd+uKhtavfWSqHgX9hbRnjKM=
   dependencies:
     loose-envify "^1.0.0"
 
