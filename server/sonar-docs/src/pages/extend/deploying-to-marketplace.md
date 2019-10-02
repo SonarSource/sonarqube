@@ -107,7 +107,8 @@ Create a new block in the file with this format:
 * `[versionId].sqVersions`=\[compatibility information. See 'Filling in sqVersions compatibility ranges' below]
 * `[versionId].date`=\[release date with format: YYYY-MM-DD]
 * `[versionId].changelogUrl`=
-* `[versionId].downloadUrl`=
+* `[versionId].downloadUrl`=  
+
 Add `[versionId]` to the `publicVersions` list. Move to `archivedVersions` any versions with identical compatibility. See also 'Filling in sqVersions, publicVersions, and archivedVersions' below
 
 
