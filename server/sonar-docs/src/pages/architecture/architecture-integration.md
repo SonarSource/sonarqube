@@ -31,8 +31,8 @@ Ops use APIs to automate configuration and extract data from SonarQube.
 Ops use JMX to monitor SonarQube Server.
 
 ## About Machines and Locations
-* The SonarQube Platform cannot have more than one SonarQube Server and one SonarQube Database.
-* For optimal performance, each component (server, database, scanners) should be installed on a separate machine, and the server machine should be dedicated.
+* The SonarQube Platform cannot have more than one SonarQube Server (although the Server can be installed [as a cluster](/setup/install-cluster/)) and one SonarQube Database.
+* For optimal performance, each component (server, database, scanners) should be installed on a separate machine, and the server machine(s) should be dedicated.
 * SonarScanners scale by adding machines.
 * All machines must be time synchronized.
 * The SonarQube Server and the SonarQube Database must be located in the same network
