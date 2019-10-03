@@ -201,7 +201,7 @@ public class SvgGenerator {
     static final Color RATING_B = new Color("#b0d513");
     static final Color RATING_C = new Color("#eabe06");
     static final Color RATING_D = new Color("#ed7d20");
-    static final Color RATING_E = new Color("#e00");
+    static final Color RATING_E = new Color("#d4333f");
 
     private final String value;
 

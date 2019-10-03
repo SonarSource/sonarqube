@@ -37,6 +37,7 @@ export const CHART_COLORS_RANGE_PERCENT = [
   colors.orange,
   colors.red
 ];
+
 export const CHART_REVERSED_COLORS_RANGE_PERCENT = [
   colors.red,
   colors.orange,
@@ -50,5 +51,5 @@ export const RATING_COLORS = [
   colors.lightGreen,
   colors.yellow,
   colors.orange,
-  '#e00'
+  colors.red
 ];
