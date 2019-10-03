@@ -55,7 +55,7 @@
 
 .location-index[tabindex]:hover,
 a:hover > .location-index {
-  background-color: #bc5e5e;
+  background-color: var(--conciseIssueRedSelected);
 }
 
 .location-index[tabindex]:focus {
