@@ -39,6 +39,7 @@ module.exports = {
     purple: '#9139d4',
 
     conciseIssueRed: '#d18582',
+    conciseIssueRedSelected: '#a4030f',
 
     gray94: '#efefef',
     gray80: '#cdcdcd',

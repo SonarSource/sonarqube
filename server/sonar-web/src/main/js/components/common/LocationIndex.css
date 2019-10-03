@@ -25,7 +25,7 @@
   padding-left: 6px;
   padding-right: 6px;
   border-radius: 2px;
-  background-color: #d18582;
+  background-color: var(--conciseIssueRed);
   color: #fff;
   font-family: var(--baseFontFamily);
   font-size: var(--smallFontSize);
@@ -34,7 +34,7 @@
 }
 
 .location-index.selected {
-  background-color: #8f3030;
+  background-color: var(--conciseIssueRedSelected);
 }
 
 .location-index.muted {
