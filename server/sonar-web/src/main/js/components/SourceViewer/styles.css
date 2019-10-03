@@ -294,13 +294,13 @@
 }
 
 .issue-location.highlighted {
-  border-color: #e1e1f2;
-  background-color: #e1e1f2;
+  border-color: var(--issueLocationHighlighted);
+  background-color: var(--issueLocationHighlighted);
 }
 
 .issue-location.selected {
-  border-color: #f4b1b0;
-  background-color: #f4b1b0;
+  border-color: var(--issueLocationSelected);
+  background-color: var(--issueLocationSelected);
 }
 
 .measures + .measures {
