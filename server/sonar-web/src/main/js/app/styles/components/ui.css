@@ -47,7 +47,7 @@
 }
 
 .flash.in {
-  background-color: #fcf8e3;
+  background-color: var(--alertBackgroundWarning);
 }
 
 .flash-heavy.in {

@@ -36,7 +36,7 @@
 }
 
 .panel-warning {
-  border: 1px solid #faebcc;
-  background-color: #fcf8e3;
+  border: 1px solid var(--alertBorderWarning);
+  background-color: var(--alertBackgroundWarning);
   color: #8a6d3b;
 }

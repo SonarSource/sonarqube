@@ -65,13 +65,13 @@
 .quality-profile-rules-deprecated {
   margin-top: 20px;
   padding: 15px 20px;
-  background-color: #f2dede;
+  background-color: var(--alertBackgroundError);
 }
 
 .quality-profile-rules-sonarway-missing {
   margin-top: 20px;
   padding: 15px 20px;
-  background-color: #fcf8e3;
+  background-color: var(--alertBackgroundWarning);
 }
 
 .quality-profile-not-found {
@@ -84,13 +84,13 @@
 }
 
 .quality-profiles-evolution-deprecated {
-  border-color: #ebccd1;
-  background-color: #f2dede;
+  border-color: var(--alertBorderError);
+  background-color: var(--alertBackgroundError);
 }
 
 .quality-profiles-evolution-stagnant {
-  border-color: #faebcc;
-  background-color: #fcf8e3;
+  border-color: var(--alertBorderWarning);
+  background-color: var(--alertBackgroundWarning);
 }
 
 .quality-profile-comparison-table {

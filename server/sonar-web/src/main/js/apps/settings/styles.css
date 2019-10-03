@@ -35,9 +35,9 @@
 }
 
 .settings-definition-changed {
-  border-top: 1px solid #faebcc;
-  border-bottom: 1px solid #faebcc;
-  background-color: #fcf8e3;
+  border-top: 1px solid var(--alertBorderWarning);
+  border-bottom: 1px solid var(--alertBorderWarning);
+  background-color: var(--alertBackgroundWarning);
 }
 
 .settings-definition-left {

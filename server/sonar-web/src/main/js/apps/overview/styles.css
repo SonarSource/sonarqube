@@ -469,9 +469,9 @@
 .overview-deprecated-rules {
   margin: 4px -6px 4px;
   padding: 3px 6px !important;
-  border: 1px solid #ebccd1;
+  border: 1px solid var(--alertBorderError);
   border-radius: 3px;
-  background-color: #f2dede;
+  background-color: var(--alertBackgroundError);
 }
 
 /*
