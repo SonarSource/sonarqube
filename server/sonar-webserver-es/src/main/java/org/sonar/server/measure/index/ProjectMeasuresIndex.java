@@ -40,7 +40,6 @@ import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation.Bucket;
-import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator.KeyedFilter;
 import org.elasticsearch.search.aggregations.bucket.nested.Nested;
 import org.elasticsearch.search.aggregations.bucket.range.RangeAggregationBuilder;
@@ -212,15 +211,6 @@ public class ProjectMeasuresIndex {
 
     SearchResponse response = request.get();
     statistics.setProjectCount(response.getHits().getTotalHits());
-    Stream.of(NCLOC_KEY)
-      .map(metric -> (Nested) response.getAggregations().get(metric))
-      .map(nested -> (Filter) nested.getAggregations().get(nested.getName() + "_filter"))
-      .map(filter -> (Sum) filter.getAggregations().get(filter.getName() + "_sum"))
-      .forEach(sum -> {
-        String metric = sum.getName().replace("_filter_sum", "");
-        long value = Math.round(sum.getValue());
-        statistics.setSum(metric, value);
-      });
     statistics.setProjectCountByLanguage(termsToMap(response.getAggregations().get(FIELD_LANGUAGES)));
     Function<Terms.Bucket, Long> bucketToNcloc = bucket -> Math.round(((Sum) bucket.getAggregations().get(FIELD_DISTRIB_NCLOC)).getValue());
     Map<String, Long> nclocByLanguage = Stream.of((Nested) response.getAggregations().get(FIELD_NCLOC_LANGUAGE_DISTRIBUTION))
