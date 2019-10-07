@@ -59,7 +59,6 @@ Language|Property|Remarks
 C / C++ / Objective-C|`sonar.cfamily.cppunit.reportsPath`|Path to the directory holding the [CPPUnit](http://sourceforge.net/projects/cppunit/) reports. Note that while measures such as the number of tests are displayed at project level, no drilldown is available.
 C#|`sonar.cs.vstest.reportsPaths`|Paths to VSTest reports. Multiple paths may be comma-delimited, or included via wildcards. Note that while measures such as the number of tests are displayed at project level, no drilldown is available.
 C#|`sonar.cs.nunit.reportsPaths`|Paths to NUnit execution reports. Multiple paths may be comma-delimited, or included via wildcards. Note that while measures such as the number of tests are displayed at project level, no drilldown is available.
-C#|`sonar.cs.mstest.reportsPaths`|Paths to MSTest execution reports. Multiple paths may be comma-delimited, or included via wildcards. Note that while measures such as the number of tests are displayed at project level, no drilldown is available.
 C#|`sonar.cs.xunit.reportsPaths`|Paths to xUnit execution reports. Multiple paths may be comma-delimited, or included via wildcards. Note that while measures such as the number of tests are displayed at project level, no drilldown is available.
 Go|`sonar.go.tests.reportPaths`|Comma-delimited list of paths to unit test report files. Paths may be absolute or relative to project root.
 Java|`sonar.junit.reportPaths`|Comma-delimited list of paths to Surefire XML-format reports.
@@ -69,7 +68,6 @@ Python|`sonar.python.xunit.reportPath`|Path to unit test execution report. Leave
 TypeScript|&nbsp;|You can use [jest-sonar-reporter](https://www.npmjs.com/package/jest-sonar-reporter) or[karma-sonarqube-unit-reporter](https://github.com/tornaia/karma-sonarqube-unit-reporter) to create reports in the [Generic Execution Data](/analysis/generic-test/) format. Both packages are available on npm.
 VB.NET|`sonar.vbnet.vstest.reportsPaths`|Paths to VSTest execution reports. Multiple paths may be comma-delimited, or included via wildcards. Note that while measures such as the number of tests are displayed at project level, no drilldown is available.
 VB.NET|`sonar.vbnet.nunit.reportsPaths`|Paths to NUnit execution reports. Multiple paths may be comma-delimited, or included via wildcards. Note that while measures such as the number of tests are displayed at project level, no drilldown is available.
-VB.NET|`sonar.vbnet.mstest.reportsPaths`|Paths to MSTest execution reports. Multiple paths may be comma-delimited, or included via wildcards. Note that while measures such as the number of tests are displayed at project level, no drilldown is available.
 VB.NET|`sonar.vbnet.xunit.reportsPaths`|Paths to xUnit execution reports. Multiple paths may be comma-delimited, or included via wildcards. Note that while measures such as the number of tests are displayed at project level, no drilldown is available.
 
 **Notes on importing .NET reports**  
