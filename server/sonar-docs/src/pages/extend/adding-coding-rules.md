@@ -254,7 +254,7 @@ For example, if some code enables a user to send and then execute custom code, t
 * one of the following:
    * **Noncompliant Code Example** - same as for Bug, Vulnerability and Code Smell rules.
 some code can be added to give an example of dangerous context. For example: putting a password in an insecure cookie.
-   * **Questionable Code Example** - use this instead of "Noncompilant code example" when the Hotspot highlights some code which is not dangerous but might be the source of some vulnerability. Example: an opening Socket.
+   * **Sensitive Code Example** - use this instead of "Noncompilant code example" when the Hotspot highlights some code which is not dangerous but might be the source of some vulnerability. Example: an opening Socket.
 * **See** (optional) -  same as for Bug, Vulnerability and Code Smell rules.
 * **Deprecated** (optional) -  listing replacement rules with links.
 
