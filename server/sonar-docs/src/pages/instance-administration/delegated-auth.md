@@ -71,7 +71,7 @@ After saving your application, GitLab gives you your **Application ID** and **Se
 On the login form, the new "Log in with GitLab" button allows users to connect with their GitLab accounts.
 
 ### GitLab group synchronization
-Setting **Synchronize groups** to `true` associates GitLab groups with SonarQube groups of the same name (if they exist). GitLab user's inherit membership to subgroups from parent groups so a user that is a member of a group will also be a member of the group's subgroups. 
+Setting **Synchronize groups** to `true` at **[Administration > Configuration > General Settings > Security](/#sonarqube-admin#/admin/settings?category=security/)** associates GitLab groups with SonarQube groups of the same name (if they exist). GitLab users inherit membership to subgroups from parent groups so a user that is a member of a group will also be a member of the group's subgroups. 
 
 To synchronize a GitLab group or subgroup with a SonarQube group, name the SonarQube group with the full path of the of the GitLab group or subgroup URL. For example, say you have a GitLab group named "My Group" with a subgroup named "My Subgroup" and the subgroup URL is `https://YourGitLabURL.com/my-group/my-subgroup`. You would name your SonarQube group `my-group/my-subgroup` to synchronize it with your GitLab subgroup.
 
