@@ -17,29 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration;
+package org.sonarqube.ws.client.almsettings;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import javax.annotation.Generated;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+/**
+ * This is a POST request.
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/delete">Further information about this action online (including a response example)</a>
+ * @since 8.1
+ */
+@Generated("sonar-ws-generator")
+public class DeleteRequest {
 
-public class MigrationConfigurationModuleTest {
-  private MigrationConfigurationModule underTest = new MigrationConfigurationModule();
+  private String key;
 
-  @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
-
-    underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER
-        // DbVersion classes
-        + 3
-        // Others
-        + 4);
+  public String getKey() {
+    return key;
   }
 
+  /**
+   * This is a mandatory parameter.
+   */
+  public DeleteRequest setKey(String key) {
+    this.key = key;
+    return this;
+  }
 }

@@ -17,29 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration;
+package org.sonar.server.almsettings;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.List;
+import org.sonar.api.server.ws.WebService;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+public class AlmSettingsWs implements WebService {
+  private final List<AlmSettingsWsAction> actions;
 
-public class MigrationConfigurationModuleTest {
-  private MigrationConfigurationModule underTest = new MigrationConfigurationModule();
-
-  @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
-
-    underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER
-        // DbVersion classes
-        + 3
-        // Others
-        + 4);
+  public AlmSettingsWs(List<AlmSettingsWsAction> actions) {
+    this.actions = actions;
   }
 
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController("api/alm_settings")
+      .setDescription("Manage ALM Settings")
+      .setSince("8.1");
+
+    actions.forEach(a -> a.define(controller));
+
+    controller.done();
+  }
 }

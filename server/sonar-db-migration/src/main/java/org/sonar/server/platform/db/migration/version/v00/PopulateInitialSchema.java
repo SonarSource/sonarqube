@@ -74,8 +74,8 @@ public class PopulateInitialSchema extends DataChange {
 
     long now = system2.now();
     context.prepareUpsert("insert into users " +
-      "(uuid, login, name, email, external_id, external_login, external_identity_provider, user_local, crypted_password, salt, hash_method, is_root, onboarded, created_at, updated_at)"
-      +
+      "(uuid, login, name, email, external_id, external_login, external_identity_provider, user_local, crypted_password, salt, hash_method, is_root, onboarded, " +
+      "created_at, updated_at)" +
       " values " +
       "(?, ?, 'Administrator', null, 'admin', 'admin', 'sonarqube', ?, '$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCkSuB3lfaR2N0AYBaSi', null, 'BCRYPT', ?, ?, ?, ?)")
       .setString(1, uuidFactory.create())

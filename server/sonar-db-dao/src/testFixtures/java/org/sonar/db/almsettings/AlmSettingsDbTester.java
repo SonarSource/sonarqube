@@ -17,29 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration;
+package org.sonar.db.almsettings;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.function.Consumer;
+import org.sonar.db.DbTester;
+import org.sonar.db.alm.setting.AlmSettingDto;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+import static java.util.Arrays.stream;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
 
-public class MigrationConfigurationModuleTest {
-  private MigrationConfigurationModule underTest = new MigrationConfigurationModule();
+public class AlmSettingsDbTester {
 
-  @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
+  private final DbTester db;
 
-    underTest.configure(container);
+  public AlmSettingsDbTester(DbTester db) {
+    this.db = db;
+  }
 
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER
-        // DbVersion classes
-        + 3
-        // Others
-        + 4);
+  @SafeVarargs
+  public final AlmSettingDto insertGitHubAlmSetting(Consumer<AlmSettingDto>... populators) {
+    AlmSettingDto dto = newGithubAlmSettingDto();
+    stream(populators).forEach(p -> p.accept(dto));
+
+    db.getDbClient().almSettingDao().insert(db.getSession(), dto);
+    db.commit();
+    return dto;
   }
 
 }

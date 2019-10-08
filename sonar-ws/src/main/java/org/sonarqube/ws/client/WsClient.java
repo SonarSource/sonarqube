@@ -20,6 +20,7 @@
 package org.sonarqube.ws.client;
 
 import javax.annotation.Generated;
+import org.sonarqube.ws.client.almsettings.AlmSettingsService;
 import org.sonarqube.ws.client.analysisreports.AnalysisReportsService;
 import org.sonarqube.ws.client.applications.ApplicationsService;
 import org.sonarqube.ws.client.authentication.AuthenticationService;
@@ -96,6 +97,8 @@ import org.sonarqube.ws.client.webservices.WebservicesService;
 public interface WsClient {
 
   WsConnector wsConnector();
+
+  AlmSettingsService almSettings();
 
   AnalysisReportsService analysisReports();
 

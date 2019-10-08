@@ -1,0 +1,10 @@
+{
+  "github": [
+    {
+      "key": "GitHub Server - Dev Team",
+      "url": "https://github.enterprise.com",
+      "appId": "12345",
+      "privateKey": "54684654"
+    }
+  ]
+}

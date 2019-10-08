@@ -17,29 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration;
+package org.sonar.db.almsettings;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.db.alm.setting.ALM;
+import org.sonar.db.alm.setting.AlmSettingDto;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 
-public class MigrationConfigurationModuleTest {
-  private MigrationConfigurationModule underTest = new MigrationConfigurationModule();
+public class AlmSettingsTesting {
 
-  @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
-
-    underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER
-        // DbVersion classes
-        + 3
-        // Others
-        + 4);
+  public static AlmSettingDto newGithubAlmSettingDto() {
+    return new AlmSettingDto()
+      .setKey(randomAlphanumeric(40))
+      .setUrl(randomAlphanumeric(2000))
+      .setAppId(randomAlphanumeric(80))
+      .setAlm(ALM.GITHUB)
+      .setPrivateKey(randomAlphanumeric(2000));
   }
-
 }

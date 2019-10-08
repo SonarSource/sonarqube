@@ -17,29 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration;
+package org.sonar.db.alm.setting;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import org.apache.ibatis.annotations.Param;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+public interface AlmSettingMapper {
 
-public class MigrationConfigurationModuleTest {
-  private MigrationConfigurationModule underTest = new MigrationConfigurationModule();
+  @CheckForNull
+  AlmSettingDto selectByUuid(@Param("uuid") String uuid);
 
-  @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
+  @CheckForNull
+  AlmSettingDto selectByKey(@Param("key") String key);
 
-    underTest.configure(container);
+  List<AlmSettingDto> selectAll();
 
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER
-        // DbVersion classes
-        + 3
-        // Others
-        + 4);
-  }
+  void insert(@Param("dto") AlmSettingDto almSettingDto, @Param("uuid") String uuid, @Param("now") long now);
 
+  void update(@Param("dto") AlmSettingDto almSettingDto, @Param("now") long now);
+
+  void deleteByKey(@Param("key") String key);
 }
