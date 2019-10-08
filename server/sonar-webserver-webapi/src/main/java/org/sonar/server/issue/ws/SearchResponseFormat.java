@@ -132,14 +132,14 @@ public class SearchResponseFormat {
     }
   }
 
-  private void formatPaging(Paging paging, SearchWsResponse.Builder response) {
+  private static void formatPaging(Paging paging, SearchWsResponse.Builder response) {
     response.setP(paging.pageIndex());
     response.setPs(paging.pageSize());
     response.setTotal(paging.total());
     response.setPaging(formatPaging(paging));
   }
 
-  private Common.Paging.Builder formatPaging(Paging paging) {
+  private static Common.Paging.Builder formatPaging(Paging paging) {
     return Common.Paging.newBuilder()
       .setPageIndex(paging.pageIndex())
       .setPageSize(paging.pageSize())

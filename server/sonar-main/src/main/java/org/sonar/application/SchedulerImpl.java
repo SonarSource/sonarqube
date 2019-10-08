@@ -454,10 +454,18 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     }
   }
 
+  private static int nextRestartStopperThreadIndex() {
+    return restartStopperThreadIndex++;
+  }
+
+  private static int nextHardStopperThreadIndex() {
+    return hardStopperThreadIndex++;
+  }
+
   private class RestartStopperThread extends Thread {
 
     private RestartStopperThread() {
-      super("RestartStopper-" + restartStopperThreadIndex++);
+      super("RestartStopper-" + nextRestartStopperThreadIndex());
     }
 
     @Override
@@ -469,7 +477,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   private class HardStopperThread extends Thread {
 
     private HardStopperThread() {
-      super("HardStopper-" + hardStopperThreadIndex++);
+      super("HardStopper-" + nextHardStopperThreadIndex());
     }
 
     @Override

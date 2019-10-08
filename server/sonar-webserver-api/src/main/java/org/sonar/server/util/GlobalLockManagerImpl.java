@@ -23,7 +23,6 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.property.InternalPropertiesDao;
 
 import static org.sonar.api.utils.Preconditions.checkArgument;
 

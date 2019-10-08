@@ -68,7 +68,7 @@ public class PreventUserDeletionAction implements OrganizationsWsAction {
     }
   }
 
-  private Organizations.PreventUserDeletionWsResponse buildResponse(List<OrganizationDto> organizations) {
+  private static Organizations.PreventUserDeletionWsResponse buildResponse(List<OrganizationDto> organizations) {
     Organizations.PreventUserDeletionWsResponse.Builder response = Organizations.PreventUserDeletionWsResponse.newBuilder();
     Organizations.PreventUserDeletionWsResponse.Organization.Builder wsOrganization = Organizations.PreventUserDeletionWsResponse.Organization.newBuilder();
     organizations.forEach(o -> {

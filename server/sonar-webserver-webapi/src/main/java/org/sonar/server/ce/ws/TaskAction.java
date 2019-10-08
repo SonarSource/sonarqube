@@ -42,10 +42,10 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Ce;
 
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -100,7 +100,9 @@ public class TaskAction implements CeWsAction {
         checkPermission(component);
         wsTaskResponse.setTask(wsTaskFormatter.formatQueue(dbSession, queueDto.get()));
       } else {
-        CeActivityDto ceActivityDto = NotFoundException.checkFoundWithOptional(dbClient.ceActivityDao().selectByUuid(dbSession, taskUuid), "No activity found for task '%s'", taskUuid);
+        CeActivityDto ceActivityDto = checkFoundWithOptional(
+          dbClient.ceActivityDao().selectByUuid(dbSession, taskUuid),
+          "No activity found for task '%s'", taskUuid);
         Optional<ComponentDto> component = loadComponent(dbSession, ceActivityDto.getComponentUuid());
         checkPermission(component);
         Set<AdditionalField> additionalFields = AdditionalField.getFromRequest(wsRequest);

@@ -41,7 +41,7 @@ public class EsLogging {
     log4JPropertiesBuilder.internalLogLevel(Level.ERROR);
     log4JPropertiesBuilder.configureGlobalFileLog(config, logDir, logPattern);
     if (isAllLogsToConsoleEnabled(props)) {
-      log4JPropertiesBuilder.configureGlobalStdoutLog(config, logPattern);
+      log4JPropertiesBuilder.configureGlobalStdoutLog(logPattern);
     }
     log4JPropertiesBuilder.apply(
       LogLevelConfig.newBuilder(log4JPropertiesBuilder.getRootLoggerName())

@@ -30,6 +30,12 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.Upsert;
 
+import static java.util.Arrays.stream;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Stream.concat;
+import static java.util.stream.Stream.of;
+
 public class PopulateInitialSchema extends DataChange {
 
   private static final String ADMINS_GROUP = "sonar-administrators";
@@ -82,9 +88,10 @@ public class PopulateInitialSchema extends DataChange {
       .execute()
       .commit();
 
-    return context.prepareSelect("select id from users where login=?")
+    Integer res = context.prepareSelect("select id from users where login=?")
       .setString(1, ADMIN_USER)
       .get(t -> t.getInt(1));
+    return requireNonNull(res);
   }
 
   private void insertOrganization(Context context, String organizationUuid, Groups groups, String defaultQGUuid) throws SQLException {
@@ -109,10 +116,7 @@ public class PopulateInitialSchema extends DataChange {
   private void insertOrgQualityGate(Context context, String organizationUuid, String defaultQGUuid) throws SQLException {
     truncateTable(context, "org_quality_gates");
 
-    context.prepareUpsert("insert into org_quality_gates " +
-      "(uuid, organization_uuid, quality_gate_uuid)" +
-      " values " +
-      "(?, ?, ?)")
+    context.prepareUpsert(createInsertStatement("org_quality_gates", "uuid", "organization_uuid", "quality_gate_uuid"))
       .setString(1, uuidFactory.create())
       .setString(2, organizationUuid)
       .setString(3, defaultQGUuid)
@@ -121,13 +125,11 @@ public class PopulateInitialSchema extends DataChange {
   }
 
   private void insertInternalProperty(Context context, String organizationUuid) throws SQLException {
-    truncateTable(context, "internal_properties");
+    String tableName = "internal_properties";
+    truncateTable(context, tableName);
 
     long now = system2.now();
-    Upsert upsert = context.prepareUpsert("insert into internal_properties " +
-      "(kee, is_empty, text_value, created_at)" +
-      " values" +
-      " (?, ?, ?, ?)");
+    Upsert upsert = context.prepareUpsert(createInsertStatement(tableName, "kee", "is_empty", "text_value", "created_at"));
     upsert
       .setString(1, "organization.default")
       .setBoolean(2, false)
@@ -155,7 +157,9 @@ public class PopulateInitialSchema extends DataChange {
     truncateTable(context, "groups");
 
     Date now = new Date(system2.now());
-    Upsert upsert = context.prepareUpsert("insert into groups (organization_uuid, name, description, created_at, updated_at) values (?, ?, ?, ?, ?)");
+    Upsert upsert = context.prepareUpsert(createInsertStatement(
+      "groups",
+      "organization_uuid", "name", "description", "created_at", "updated_at"));
     upsert
       .setString(1, organizationUuid)
       .setString(2, ADMINS_GROUP)
@@ -178,9 +182,10 @@ public class PopulateInitialSchema extends DataChange {
   }
 
   private static int getGroupId(Context context, String groupName) throws SQLException {
-    return context.prepareSelect("select id from groups where name=?")
+    Integer res = context.prepareSelect("select id from groups where name=?")
       .setString(1, groupName)
       .get(t -> t.getInt(1));
+    return requireNonNull(res);
   }
 
   private String insertQualityGate(Context context) throws SQLException {
@@ -188,14 +193,12 @@ public class PopulateInitialSchema extends DataChange {
 
     String uuid = uuidFactory.create();
     Date now = new Date(system2.now());
-    context.prepareUpsert("insert into quality_gates " +
-      "(uuid, name, is_built_in, created_at, updated_at)" +
-      " values " +
-      "(?, 'Sonar way', ?, ?, ?)")
+    context.prepareUpsert(createInsertStatement("quality_gates", "uuid", "name", "is_built_in", "created_at", "updated_at"))
       .setString(1, uuid)
-      .setBoolean(2, true)
-      .setDate(3, now)
+      .setString(2, "Sonar way")
+      .setBoolean(3, true)
       .setDate(4, now)
+      .setDate(5, now)
       .execute()
       .commit();
     return uuid;
@@ -222,7 +225,7 @@ public class PopulateInitialSchema extends DataChange {
   private static void insertGroupRoles(Context context, String organizationUuid, Groups groups) throws SQLException {
     truncateTable(context, "group_roles");
 
-    Upsert upsert = context.prepareUpsert("insert into group_roles (organization_uuid, group_id, role) values (?, ?, ?)");
+    Upsert upsert = context.prepareUpsert(createInsertStatement("group_roles", "organization_uuid", "group_id", "role"));
     for (String adminRole : ADMIN_ROLES) {
       upsert
         .setString(1, organizationUuid)
@@ -245,7 +248,7 @@ public class PopulateInitialSchema extends DataChange {
   private static void insertGroupUsers(Context context, int adminUserId, Groups groups) throws SQLException {
     truncateTable(context, "groups_users");
 
-    Upsert upsert = context.prepareUpsert("insert into groups_users (user_id, group_id) values (?,?)");
+    Upsert upsert = context.prepareUpsert(createInsertStatement("groups_users", "user_id", "group_id"));
     upsert
       .setInt(1, adminUserId)
       .setInt(2, groups.getUserGroupId())
@@ -262,7 +265,7 @@ public class PopulateInitialSchema extends DataChange {
   private static void insertOrganizationMember(Context context, int adminUserId, String organizationUuid) throws SQLException {
     truncateTable(context, "organization_members");
 
-    context.prepareUpsert("insert into organization_members(organization_uuid, user_id) values (?, ?)")
+    context.prepareUpsert(createInsertStatement("organization_members", "organization_uuid", "user_id"))
       .setString(1, organizationUuid)
       .setInt(2, adminUserId)
       .execute()
@@ -271,6 +274,13 @@ public class PopulateInitialSchema extends DataChange {
 
   private static void truncateTable(Context context, String table) throws SQLException {
     context.prepareUpsert("truncate table " + table).execute().commit();
+  }
+
+  private static String createInsertStatement(String tableName, String firstColumn, String... otherColumns) {
+    return "insert into " + tableName + " " +
+      "(" + concat(of(firstColumn), stream(otherColumns)).collect(joining(",")) + ")" +
+      " values" +
+      " (" + concat(of(firstColumn), stream(otherColumns)).map(t -> "?").collect(joining(",")) + ")";
   }
 
 }

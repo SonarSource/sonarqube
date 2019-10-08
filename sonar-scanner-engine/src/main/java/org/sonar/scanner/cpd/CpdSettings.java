@@ -22,7 +22,6 @@ package org.sonar.scanner.cpd;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.duplications.block.BlockChunker;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 
 public class CpdSettings {
   private final Configuration settings;

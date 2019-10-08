@@ -43,15 +43,15 @@ import org.sonar.server.platform.PlatformImpl;
  */
 public class MasterServletFilter implements Filter {
 
-  private static volatile MasterServletFilter INSTANCE;
+  private static volatile MasterServletFilter instance;
   private ServletFilter[] filters;
   private FilterConfig config;
 
   public MasterServletFilter() {
-    if (INSTANCE != null) {
+    if (instance != null) {
       throw new IllegalStateException("Servlet filter " + getClass().getName() + " is already instantiated");
     }
-    INSTANCE = this;
+    instance = this;
   }
 
   @Override
@@ -63,12 +63,12 @@ public class MasterServletFilter implements Filter {
 
   @CheckForNull
   public static MasterServletFilter getInstance() {
-    return INSTANCE;
+    return instance;
   }
 
   @VisibleForTesting
   static void setInstance(@Nullable MasterServletFilter instance) {
-    INSTANCE = instance;
+    MasterServletFilter.instance = instance;
   }
 
   void init(FilterConfig config, List<ServletFilter> filters) {

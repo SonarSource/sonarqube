@@ -92,13 +92,13 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
     return appender.getAppenderRef();
   }
 
-  public void configureGlobalStdoutLog(RootLoggerConfig config, String logPattern) {
-    String appenderRef = writeStdoutAppender(config, logPattern);
+  public void configureGlobalStdoutLog(String logPattern) {
+    String appenderRef = writeStdoutAppender(logPattern);
 
     putProperty(ROOT_LOGGER_NAME + ".appenderRef." + appenderRef + ".ref", appenderRef);
   }
 
-  private String writeStdoutAppender(RootLoggerConfig config, String logPattern) {
+  private String writeStdoutAppender(String logPattern) {
     String appenderName = "stdout";
     ConsoleAppender appender = new ConsoleAppender(appenderName, logPattern);
     appender.writeAppenderProperties();

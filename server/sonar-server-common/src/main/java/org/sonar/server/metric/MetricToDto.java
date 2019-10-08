@@ -20,6 +20,7 @@
 package org.sonar.server.metric;
 
 import com.google.common.base.Function;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.metric.MetricDto;
@@ -28,7 +29,7 @@ public enum MetricToDto implements Function<Metric, MetricDto> {
   INSTANCE;
   @Override
   @Nonnull
-  public MetricDto apply(@Nonnull Metric metric) {
+  public MetricDto apply(Metric metric) {
     MetricDto dto = new MetricDto();
     dto.setId(metric.getId());
     dto.setKey(metric.getKey());
@@ -41,7 +42,7 @@ public enum MetricToDto implements Function<Metric, MetricDto> {
     dto.setHidden(metric.isHidden());
     dto.setQualitative(metric.getQualitative());
     dto.setValueType(metric.getType().name());
-    dto.setOptimizedBestValue(metric.isOptimizedBestValue());
+    dto.setOptimizedBestValue(Optional.ofNullable(metric.isOptimizedBestValue()).orElse(false));
     dto.setUserManaged(metric.getUserManaged());
     dto.setWorstValue(metric.getWorstValue());
     dto.setDeleteHistoricalData(metric.getDeleteHistoricalData());

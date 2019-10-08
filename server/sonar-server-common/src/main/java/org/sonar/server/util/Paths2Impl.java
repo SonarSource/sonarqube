@@ -26,12 +26,12 @@ import java.nio.file.Paths;
 public final class Paths2Impl implements Paths2 {
   private static final Paths2 INSTANCE = new Paths2Impl();
 
-  public static Paths2 getInstance() {
-    return INSTANCE;
-  }
-
   private Paths2Impl() {
     // prevents instantiation and subclassing, use getInstance() instead
+  }
+
+  public static Paths2 getInstance() {
+    return INSTANCE;
   }
 
   @Override

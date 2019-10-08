@@ -41,7 +41,7 @@ public class GroupIdOrAnyone {
 
   private GroupIdOrAnyone(String organizationUuid, @Nullable Integer id) {
     this.id = id;
-    this.organizationUuid = requireNonNull(organizationUuid);
+    this.organizationUuid = requireNonNull(organizationUuid, "organizationUuid can't be null");
   }
 
   public boolean isAnyone() {

@@ -44,7 +44,7 @@ public class QualityProfileExportDao implements Dao {
     return exportRules;
   }
 
-  private Map<Integer, List<ExportRuleParamDto>> selectParamsByActiveRuleIds(DbSession dbSession, Collection<Integer> activeRuleIds) {
+  private static Map<Integer, List<ExportRuleParamDto>> selectParamsByActiveRuleIds(DbSession dbSession, Collection<Integer> activeRuleIds) {
     return executeLargeInputs(activeRuleIds, ids -> mapper(dbSession).selectParamsByActiveRuleIds(ids))
       .stream()
       .collect(Collectors.groupingBy(ExportRuleParamDto::getActiveRuleId));

@@ -20,15 +20,12 @@
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.formula.counter.RatingValue;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepository;
-import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.measure.RatingMeasures;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
@@ -40,7 +37,6 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit.FILE;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.measure.Rating.RATING_BY_SEVERITY;
 
 /**

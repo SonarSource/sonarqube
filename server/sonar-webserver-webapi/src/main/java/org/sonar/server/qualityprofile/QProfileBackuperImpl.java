@@ -56,7 +56,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
   private final QProfileParser qProfileParser;
 
   public QProfileBackuperImpl(DbClient db, QProfileReset profileReset, QProfileFactory profileFactory,
-                              RuleCreator ruleCreator, QProfileParser qProfileParser) {
+    RuleCreator ruleCreator, QProfileParser qProfileParser) {
     this.db = db;
     this.profileReset = profileReset;
     this.profileFactory = profileFactory;
@@ -120,7 +120,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       .collect(Collectors.toMap(RuleDefinitionDto::getKey, Function.identity()));
   }
 
-  private void checkIfRulesFromExternalEngines(Map<RuleKey, RuleDefinitionDto> ruleDefinitionsByKey) {
+  private static void checkIfRulesFromExternalEngines(Map<RuleKey, RuleDefinitionDto> ruleDefinitionsByKey) {
     List<RuleDefinitionDto> externalRules = ruleDefinitionsByKey.values().stream()
       .filter(RuleDefinitionDto::isExternal)
       .collect(Collectors.toList());
@@ -156,7 +156,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       .setParameters(r.getParameters());
   }
 
-  private List<RuleActivation> toRuleActivations(List<ImportedRule> rules, Map<RuleKey, RuleDefinitionDto> ruleDefinitionsByKey) {
+  private static List<RuleActivation> toRuleActivations(List<ImportedRule> rules, Map<RuleKey, RuleDefinitionDto> ruleDefinitionsByKey) {
     return rules.stream()
       .map(r -> {
         RuleDefinitionDto ruleDefinition = ruleDefinitionsByKey.get(r.getRuleKey());

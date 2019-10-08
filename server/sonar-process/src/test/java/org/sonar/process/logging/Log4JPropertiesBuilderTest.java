@@ -275,7 +275,7 @@ public class Log4JPropertiesBuilderTest {
   public void name() {
     String logPattern = randomAlphanumeric(15);
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder();
-    underTest.configureGlobalStdoutLog(esRootLoggerConfig, logPattern);
+    underTest.configureGlobalStdoutLog(logPattern);
 
     verifyProperties(underTest.get(),
       "appender.stdout.type", "Console",
