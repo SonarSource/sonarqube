@@ -98,26 +98,6 @@ a.active-link,
   cursor: default;
 }
 
-.link-red,
-a.text-danger {
-  border-bottom: 1px solid #f8dbde;
-  color: var(--red);
-}
-
-.link-red:hover,
-a.text-danger:hover,
-.link-red:active,
-a.text-danger:active,
-.link-red:focus,
-a.text-danger:focus {
-  color: #af252f;
-}
-
-.link-red:focus,
-a.text-danger:focus {
-  outline: 1px dotted var(--red);
-}
-
 a.text-muted {
   border-bottom: 1px solid #dddddd;
   color: var(--secondFontColor);
@@ -131,36 +111,6 @@ a.text-muted:focus {
 
 a.text-muted:focus {
   outline: 1px dotted var(--blue);
-}
-
-a.text-warning {
-  border-bottom: 1px solid #fcebdd;
-  color: var(--orange);
-}
-
-a.text-warning:hover,
-a.text-warning:active,
-a.text-warning:focus {
-  color: #f1994f;
-}
-
-a.text-warning:focus {
-  outline: 1px dotted var(--orange);
-}
-
-a.text-success {
-  border-bottom: 1px solid #77ff77;
-  color: var(--green);
-}
-
-a.text-success:hover,
-a.text-success:active,
-a.text-success:focus {
-  color: #007700;
-}
-
-a.text-success:focus {
-  outline: 1px dotted var(--green);
 }
 
 a.set-homepage-link:focus,

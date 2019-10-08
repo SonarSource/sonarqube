@@ -100,11 +100,6 @@
   background-color: var(--barBackgroundColor);
 }
 
-.menu > li > a.text-danger,
-.menu > li > a.text-danger:hover {
-  color: var(--red) !important;
-}
-
 .menu .menu-vertically-limited,
 .menu.menu-vertically-limited {
   max-height: 300px;

@@ -266,19 +266,19 @@ small,
 }
 
 .text-danger {
-  color: var(--red);
+  color: var(--red) !important;
 }
 
 .text-warning {
-  color: var(--orange);
+  color: var(--orange) !important;
 }
 
 .text-info {
-  color: var(--blue);
+  color: var(--blue) !important;
 }
 
 .text-success {
-  color: var(--green);
+  color: var(--green) !important;
 }
 
 .monospaced {
