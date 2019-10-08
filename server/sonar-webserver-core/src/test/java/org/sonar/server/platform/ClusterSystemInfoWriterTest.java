@@ -34,6 +34,7 @@ import org.sonar.server.platform.monitoring.cluster.AppNodesInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.GlobalInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.NodeInfo;
 import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoader;
+import org.sonar.server.telemetry.TelemetryDataJsonWriter;
 import org.sonar.server.telemetry.TelemetryDataLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +47,9 @@ public class ClusterSystemInfoWriterTest {
   private SearchNodesInfoLoader searchNodesInfoLoader = mock(SearchNodesInfoLoader.class);
   private HealthChecker healthChecker = mock(HealthChecker.class);
   private TelemetryDataLoader telemetry = mock(TelemetryDataLoader.class, Mockito.RETURNS_MOCKS);
-  private ClusterSystemInfoWriter underTest = new ClusterSystemInfoWriter(globalInfoLoader, appNodesInfoLoader, searchNodesInfoLoader, healthChecker, telemetry);
+  private TelemetryDataJsonWriter dataJsonWriter = new TelemetryDataJsonWriter();
+  private ClusterSystemInfoWriter underTest = new ClusterSystemInfoWriter(globalInfoLoader, appNodesInfoLoader,
+    searchNodesInfoLoader, healthChecker, telemetry, dataJsonWriter);
 
   @Before
   public void before() throws InterruptedException {

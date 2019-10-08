@@ -27,6 +27,7 @@ import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.ce.http.CeHttpClient;
 import org.sonar.server.health.Health;
 import org.sonar.server.health.HealthChecker;
+import org.sonar.server.telemetry.TelemetryDataJsonWriter;
 import org.sonar.server.telemetry.TelemetryDataLoader;
 
 import static java.util.Arrays.stream;
@@ -36,8 +37,9 @@ public class StandaloneSystemInfoWriter extends AbstractSystemInfoWriter {
   private final HealthChecker healthChecker;
   private final SystemInfoSection[] systemInfoSections;
 
-  public StandaloneSystemInfoWriter(TelemetryDataLoader telemetry, CeHttpClient ceHttpClient, HealthChecker healthChecker, SystemInfoSection... systemInfoSections) {
-    super(telemetry);
+  public StandaloneSystemInfoWriter(TelemetryDataLoader telemetry, CeHttpClient ceHttpClient, HealthChecker healthChecker,
+    TelemetryDataJsonWriter dataJsonWriter, SystemInfoSection... systemInfoSections) {
+    super(telemetry, dataJsonWriter);
     this.ceHttpClient = ceHttpClient;
     this.healthChecker = healthChecker;
     this.systemInfoSections = systemInfoSections;

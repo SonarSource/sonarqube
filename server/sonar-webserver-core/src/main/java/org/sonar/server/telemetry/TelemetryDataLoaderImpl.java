@@ -96,7 +96,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
 
     data.setServerId(server.getId());
     data.setVersion(server.getVersion());
-    data.setEdition(editionProvider.get());
+    data.setEdition(editionProvider.get().orElse(null));
     ofNullable(licenseReader)
       .flatMap(reader -> licenseReader.read())
       .ifPresent(license -> data.setLicenseType(license.getType()));

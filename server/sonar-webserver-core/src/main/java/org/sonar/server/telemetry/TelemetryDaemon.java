@@ -43,7 +43,6 @@ import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABLE;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_FREQUENCY_IN_SECONDS;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
-import static org.sonar.server.telemetry.TelemetryDataJsonWriter.writeTelemetryData;
 
 @ServerSide
 public class TelemetryDaemon implements Startable {
@@ -56,6 +55,7 @@ public class TelemetryDaemon implements Startable {
   private static final String LOCK_DELAY_SEC = "sonar.telemetry.lock.delay";
 
   private final TelemetryDataLoader dataLoader;
+  private final TelemetryDataJsonWriter dataJsonWriter;
   private final TelemetryClient telemetryClient;
   private final GlobalLockManager lockManager;
   private final Configuration config;
@@ -64,9 +64,10 @@ public class TelemetryDaemon implements Startable {
 
   private ScheduledExecutorService executorService;
 
-  public TelemetryDaemon(TelemetryDataLoader dataLoader, TelemetryClient telemetryClient, Configuration config,
+  public TelemetryDaemon(TelemetryDataLoader dataLoader, TelemetryDataJsonWriter dataJsonWriter, TelemetryClient telemetryClient, Configuration config,
     InternalProperties internalProperties, GlobalLockManager lockManager, System2 system2) {
     this.dataLoader = dataLoader;
+    this.dataJsonWriter = dataJsonWriter;
     this.telemetryClient = telemetryClient;
     this.config = config;
     this.internalProperties = internalProperties;
@@ -130,7 +131,7 @@ public class TelemetryDaemon implements Startable {
           internalProperties.write(I_PROP_LAST_PING, String.valueOf(startOfDay(now)));
         }
       } catch (Exception e) {
-        LOG.debug("Error while checking SonarQube statistics: {}", e.getMessage());
+        LOG.debug("Error while checking SonarQube statistics: {}", e);
       }
       // do not check at start up to exclude test instance which are not up for a long time
     };
@@ -150,7 +151,7 @@ public class TelemetryDaemon implements Startable {
     TelemetryData statistics = dataLoader.load();
     StringWriter jsonString = new StringWriter();
     try (JsonWriter json = JsonWriter.of(jsonString)) {
-      writeTelemetryData(json, statistics);
+      dataJsonWriter.writeTelemetryData(json, statistics);
     }
     telemetryClient.upload(jsonString.toString());
   }

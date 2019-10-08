@@ -25,11 +25,8 @@ import org.sonar.api.utils.text.JsonWriter;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 
 public class TelemetryDataJsonWriter {
-  private TelemetryDataJsonWriter() {
-    // static methods
-  }
 
-  public static void writeTelemetryData(JsonWriter json, TelemetryData statistics) {
+  public void writeTelemetryData(JsonWriter json, TelemetryData statistics) {
     json.beginObject();
     json.prop("id", statistics.getServerId());
     json.prop("version", statistics.getVersion());

@@ -31,6 +31,7 @@ import org.sonar.server.ce.http.CeHttpClientImpl;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.health.TestStandaloneHealthChecker;
+import org.sonar.server.telemetry.TelemetryDataJsonWriter;
 import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -52,8 +53,9 @@ public class StandaloneSystemInfoWriterTest {
   private CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class, Mockito.RETURNS_MOCKS);
   private TestStandaloneHealthChecker healthChecker = new TestStandaloneHealthChecker();
   private TelemetryDataLoader telemetry = mock(TelemetryDataLoader.class, Mockito.RETURNS_MOCKS);
+  private TelemetryDataJsonWriter dataJsonWriter = new TelemetryDataJsonWriter();
 
-  private StandaloneSystemInfoWriter underTest = new StandaloneSystemInfoWriter(telemetry, ceHttpClient, healthChecker, section1, section2);
+  private StandaloneSystemInfoWriter underTest = new StandaloneSystemInfoWriter(telemetry, ceHttpClient, healthChecker, dataJsonWriter, section1, section2);
 
   @Test
   public void write_json() {

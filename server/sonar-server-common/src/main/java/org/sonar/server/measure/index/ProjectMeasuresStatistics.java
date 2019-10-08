@@ -64,8 +64,9 @@ public class ProjectMeasuresStatistics {
       return this;
     }
 
-    public void setProjectCountByLanguage(Map<String, Long> projectCountByLanguage) {
+    public Builder setProjectCountByLanguage(Map<String, Long> projectCountByLanguage) {
       this.projectCountByLanguage = projectCountByLanguage;
+      return this;
     }
 
     public Builder setNclocByLanguage(Map<String, Long> nclocByLanguage) {
