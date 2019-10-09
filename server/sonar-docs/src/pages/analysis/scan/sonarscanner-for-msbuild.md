@@ -102,7 +102,6 @@ Parameter|Description
 `/k:<project-key>`|[required] Specifies the key of the analyzed project in SonarQube
 `/n:<project name>`|[optional] Specifies the name of the analyzed project in SonarQube. Adding this argument will overwrite the project name in SonarQube if it already exists.
 `/v:<version>`|[recommended] Specifies the version of your project.
-<!-- sonarcloud --> `/d:sonar.organization=<organization>`|[required] Specifies the name of the target organization in SonarCloud <!-- /sonarcloud -->
 `/d:sonar.login=<username> or <token>`| [optional] Specifies the username or access token to authenticate with to SonarQube. If this argument is added to the begin step, it must also be added on the end step.
 `/d:sonar.password=<password>`|[optional] Specifies the password for the SonarQube username in the `sonar.login` argument. This argument is not needed if you use authentication token. If this argument is added to the begin step, it must also be added on the end step.
 `/d:sonar.verbose=true`|[optional] Sets the logging verbosity to detailed. Add this argument before sending logs for troubleshooting.
