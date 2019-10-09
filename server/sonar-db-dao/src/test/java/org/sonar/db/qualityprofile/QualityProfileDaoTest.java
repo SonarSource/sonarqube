@@ -149,7 +149,20 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void test_updateLastUsedDate() {
+  public void test_updateLastUsedDate_if_never_been_set_yet() {
+    QProfileDto initial = QualityProfileTesting.newQualityProfileDto()
+      .setLastUsed(null);
+    underTest.insert(dbSession, initial);
+
+    int count = underTest.updateLastUsedDate(dbSession, initial, 15_000L);
+
+    assertThat(count).isEqualTo(1);
+    QProfileDto reloaded = underTest.selectByUuid(dbSession, initial.getKee());
+    assertThat(reloaded.getLastUsed()).isEqualTo(15_000L);
+  }
+
+  @Test
+  public void test_updateLastUsedDate_if_more_recent() {
     QProfileDto initial = QualityProfileTesting.newQualityProfileDto()
       .setLastUsed(10_000L);
     underTest.insert(dbSession, initial);
