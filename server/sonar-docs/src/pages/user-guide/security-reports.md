@@ -3,6 +3,8 @@ title: Security Reports
 url: /user-guide/security-reports/
 ---
 
+*Security Reports are available as part of the [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://www.sonarsource.com/plans-and-pricing/).*
+
 ## What do Security Reports show?
 Security Reports quickly give you the big picture on your application's security, with breakdowns of just where you stand in regard to each of the [OWASP Top 10](https://www.owasp.org/index.php/Top_10-2017_Top_10), and [SANS Top 25](https://www.sans.org/top25-software-errors) categories, and [CWE](http://cwe.mitre.org/)-specific details.
 
