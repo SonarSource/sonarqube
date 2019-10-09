@@ -181,7 +181,7 @@ select {
 }
 
 em.mandatory {
-  color: #990000;
+  color: var(--mandatoryFieldColor);
   font-style: italic;
 }
 

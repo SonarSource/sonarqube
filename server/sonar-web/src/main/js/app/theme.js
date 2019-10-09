@@ -29,17 +29,12 @@ module.exports = {
     darkBlue: '#236a97',
     veryDarkBlue: '#0E516F',
     green: '#00aa00',
-    lineCoverageGreen: '#b4dd78',
     lightGreen: '#b0d513',
     veryLightGreen: '#f5f9fc',
     yellow: '#eabe06',
     orange: '#ed7d20',
     red: '#d4333f',
-    lineCoverageRed: '#a4030f',
     purple: '#9139d4',
-
-    conciseIssueRed: '#d18582',
-    conciseIssueRedSelected: '#a4030f',
 
     gray94: '#efefef',
     gray80: '#cdcdcd',
@@ -59,22 +54,33 @@ module.exports = {
     barBackgroundColorHighlight: '#f8f8f8',
     barBorderColor: '#e6e6e6',
 
+    globalNavBarBg: '#262626',
+
+    // fonts
     baseFontColor: '#444',
     secondFontColor: '#777',
 
+    // forms
+    mandatoryFieldColor: '#a4030f',
+
+    // leak
     leakColor: '#fbf3d5',
     leakColorHover: '#f0e7c4',
     leakBorderColor: '#eae3c7',
 
-    globalNavBarBg: '#262626',
-
     snippetFontColor: '#f0f0f0',
 
-    //issues
+    // issues
     issueBgColor: '#f2dede',
     hotspotBgColor: '#eeeff4',
     issueLocationSelected: '#f4b1b0',
     issueLocationHighlighted: '#e1e1f2',
+    conciseIssueRed: '#d18582',
+    conciseIssueRedSelected: '#a4030f',
+
+    // codeviewer
+    lineCoverageRed: '#a4030f',
+    lineCoverageGreen: '#b4dd78',
 
     // alerts
     warningIconColor: '#e2bf41',
@@ -98,6 +104,14 @@ module.exports = {
     alertBackgroundInfo: '#d9edf7',
     alertTextInfo: '#0e516f',
     alertIconInfo: '#0271b9',
+
+    // alm
+    azure: '#0078d7',
+    bitbucket: '#0052CC',
+    github: '#e1e4e8',
+
+    // code/pre
+    codeBackground: '#e6e6e6',
 
     // sonarcloud
     sonarcloudOrange500: '#fd6a00',
