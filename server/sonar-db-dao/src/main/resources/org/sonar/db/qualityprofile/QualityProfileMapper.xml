@@ -98,7 +98,7 @@
       updated_at = #{now, jdbcType=BIGINT}
     where
       uuid = #{uuid, jdbcType=VARCHAR}
-      and last_used &lt; #{lastUsedDate, jdbcType=BIGINT}
+      and (last_used is null or last_used &lt; #{lastUsedDate, jdbcType=BIGINT})
   </update>
 
   <delete id="deleteRuleProfilesByUuids" parameterType="String">
