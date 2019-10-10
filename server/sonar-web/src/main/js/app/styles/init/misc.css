@@ -473,7 +473,7 @@ th.huge-spacer-right {
 }
 
 .leak-box {
-  background-color: var(--leakColor);
-  border: 1px solid var(--leakBorderColor);
+  background-color: var(--leakPrimaryColor);
+  border: 1px solid var(--leakSecondaryColor);
   padding: 4px 6px;
 }

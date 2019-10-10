@@ -91,7 +91,7 @@
 }
 
 .overview-quality-gate-condition-leak {
-  background-color: var(--leakColor);
+  background-color: var(--leakPrimaryColor);
 }
 
 .overview-quality-gate-condition-metric,
@@ -206,7 +206,7 @@
 
 .overview-domain-leak {
   flex: 2;
-  background-color: var(--leakColor);
+  background-color: var(--leakPrimaryColor);
 }
 
 .overview-domain-leak .overview-domain-measures {
@@ -450,7 +450,7 @@
   right: -1px;
   padding: 5px 0 2px;
   border: 1px solid var(--barBorderColor);
-  background-color: var(--leakColor);
+  background-color: var(--leakPrimaryColor);
   font-size: var(--mediumFontSize);
   text-align: center;
   transform: translateY(-4px);

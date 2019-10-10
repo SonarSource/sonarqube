@@ -38,8 +38,8 @@
 }
 
 .search-navigator-facet-box.leak-facet-box {
-  background-color: var(--leakColor);
-  border: 1px solid var(--leakBorderColor);
+  background-color: var(--leakPrimaryColor);
+  border: 1px solid var(--leakSecondaryColor);
 }
 
 .search-navigator-facet-box.is-inner {
@@ -173,15 +173,15 @@ a.search-navigator-facet:focus,
 }
 
 .leak-facet-box .search-navigator-facet .facet-name {
-  background-color: var(--leakColor);
+  background-color: var(--leakPrimaryColor);
 }
 
 .leak-facet-box .search-navigator-facet .facet-stat {
-  background-color: var(--leakColor);
+  background-color: var(--leakPrimaryColor);
 }
 
 .leak-facet-box .search-navigator-facet .facet-stat:before {
-  background-image: linear-gradient(to right, rgba(251, 243, 213, 0), var(--leakColor) 75%);
+  background-image: linear-gradient(to right, rgba(251, 243, 213, 0), var(--leakPrimaryColor) 75%);
 }
 
 .search-navigator-facet.active {

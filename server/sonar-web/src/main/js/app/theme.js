@@ -64,8 +64,8 @@ module.exports = {
     mandatoryFieldColor: '#a4030f',
 
     // leak
-    leakColor: '#fbf3d5',
-    leakBorderColor: '#eae3c7',
+    leakPrimaryColor: '#fbf3d5',
+    leakSecondaryColor: '#f1e8cb',
 
     snippetFontColor: '#f0f0f0',
 

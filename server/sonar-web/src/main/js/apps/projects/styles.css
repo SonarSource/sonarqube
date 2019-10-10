@@ -86,8 +86,8 @@
 .project-card-leak-date {
   padding: 4px 8px;
   margin: -5px -4px -5px 24px;
-  background-color: var(--leakColor);
-  border: 1px solid var(--leakBorderColor);
+  background-color: var(--leakPrimaryColor);
+  border: 1px solid var(--leakSecondaryColor);
 }
 
 .project-card-measures {
@@ -100,17 +100,17 @@
   display: flex;
   padding: 8px 0;
   margin: 4px -4px;
-  background-color: var(--leakColor);
-  border: 1px solid var(--leakBorderColor);
+  background-color: var(--leakPrimaryColor);
+  border: 1px solid var(--leakSecondaryColor);
 }
 
 .projects-leak-sorting-option {
-  background-color: var(--leakColor);
+  background-color: var(--leakPrimaryColor);
   margin-bottom: 2px;
 }
 
 .projects-leak-sorting-option.is-focused {
-  background-color: var(--leakBorderColor);
+  background-color: var(--leakSecondaryColor);
 }
 
 .project-card-measure {
