@@ -214,7 +214,7 @@
 }
 
 .overview-domain-leak .line-chart-backdrop {
-  fill: #efe7b8;
+  fill: var(--leakSecondaryColor);
 }
 
 .overview-domain-measures {
