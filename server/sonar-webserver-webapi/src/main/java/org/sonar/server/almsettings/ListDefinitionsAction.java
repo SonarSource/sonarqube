@@ -42,7 +42,7 @@ import static org.sonarqube.ws.AlmSettings.ListDefinitionsWsResponse;
 public class ListDefinitionsAction implements AlmSettingsWsAction {
 
   private final DbClient dbClient;
-  private UserSession userSession;
+  private final UserSession userSession;
 
   public ListDefinitionsAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;

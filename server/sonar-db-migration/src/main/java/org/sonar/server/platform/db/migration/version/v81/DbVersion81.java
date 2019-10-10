@@ -26,6 +26,7 @@ public class DbVersion81 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(3100, "Create ALM_SETTINGS table", CreateAlmSettingsTable.class);
+      .add(3100, "Create ALM_SETTINGS table", CreateAlmSettingsTable.class)
+      .add(3101, "Create PROJECT_ALM_SETTINGS table", CreateProjectAlmSettingsTable.class);
   }
 }

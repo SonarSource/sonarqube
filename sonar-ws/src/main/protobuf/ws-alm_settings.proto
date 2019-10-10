@@ -48,3 +48,34 @@ message AlmSettingBitbucket {
   optional string url = 2;
   optional string personalAccessToken = 3;
 }
+
+// WS api/alm_settings/get_binding
+message GetBindingWsResponse {
+  optional string key = 1;
+  optional Alm alm = 2;
+  optional string repository = 3;
+  optional string url = 4;
+}
+
+enum Alm {
+  github = 0;
+  azure = 1;
+  bitbucket = 2;
+}
+
+// WS api/alm_settings/list
+message ListWsResponse {
+  repeated AlmSetting almSettings = 1;
+}
+
+message AlmSetting {
+  optional string key = 1;
+  optional Alm alm = 2;
+  optional string url = 3;
+}
+
+// WS api/alm_settings/count_binding
+message CountBindingWsResponse {
+  optional string key = 1;
+  optional int64 projects = 2;
+}

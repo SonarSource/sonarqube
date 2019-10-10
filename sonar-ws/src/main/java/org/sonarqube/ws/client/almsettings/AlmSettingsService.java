@@ -38,19 +38,48 @@ public class AlmSettingsService extends BaseService {
   }
 
   /**
-   *
    * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/list_definitions">Further information about this action online (including a response example)</a>
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/count_binding">Further information about this action online (including a response example)</a>
    * @since 8.1
    */
-  public AlmSettings.ListDefinitionsWsResponse listDefinitions() {
+  public AlmSettings.CountBindingWsResponse countBinding(CountBindingRequest request) {
     return call(
-      new GetRequest(path("list_definitions")),
-      AlmSettings.ListDefinitionsWsResponse.parser());
+      new GetRequest(path("count_binding"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setMediaType(MediaTypes.JSON),
+      AlmSettings.CountBindingWsResponse.parser());
   }
 
   /**
    *
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/create_azure">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public void createAzure(CreateAzureRequest request) {
+    call(
+      new PostRequest(path("create_azure"))
+        .setParam("key", request.getKey())
+        .setParam("personalAccessToken", request.getPersonalAccessToken())
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  /**
+   *
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/create_bitbucket">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public void createBitbucket(CreateBitbucketRequest request) {
+    call(
+      new PostRequest(path("create_bitbucket"))
+        .setParam("key", request.getKey())
+        .setParam("url", request.getUrl())
+        .setParam("personalAccessToken", request.getPersonalAccessToken())
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  /**
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/create_github">Further information about this action online (including a response example)</a>
    * @since 8.1
@@ -60,23 +89,6 @@ public class AlmSettingsService extends BaseService {
       new PostRequest(path("create_github"))
         .setParam("appId", request.getAppId())
         .setParam("key", request.getKey())
-        .setParam("privateKey", request.getPrivateKey())
-        .setParam("url", request.getUrl())
-        .setMediaType(MediaTypes.JSON)).content();
-  }
-
-  /**
-   *
-   * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/update_github">Further information about this action online (including a response example)</a>
-   * @since 8.1
-   */
-  public void updateGithub(UpdateGithubRequest request) {
-    call(
-      new PostRequest(path("update_github"))
-        .setParam("appId", request.getAppId())
-        .setParam("key", request.getKey())
-        .setParam("newKey", request.getNewKey())
         .setParam("privateKey", request.getPrivateKey())
         .setParam("url", request.getUrl())
         .setMediaType(MediaTypes.JSON)).content();
@@ -95,17 +107,68 @@ public class AlmSettingsService extends BaseService {
         .setMediaType(MediaTypes.JSON)).content();
   }
 
+
   /**
-   *
    * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/create_azure">Further information about this action online (including a response example)</a>
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/delete_binding">Further information about this action online (including a response example)</a>
    * @since 8.1
    */
-  public void createAzure(CreateAzureRequest request) {
+  public void deleteBinding(DeleteBindingRequest request) {
     call(
-      new PostRequest(path("create_azure"))
-        .setParam("key", request.getKey())
-        .setParam("personalAccessToken", request.getPersonalAccessToken())
+      new PostRequest(path("delete_binding"))
+        .setParam("project", request.getProject())
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  /**
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/get_binding">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public AlmSettings.GetBindingWsResponse getBinding(GetGithubBindingRequest request) {
+    return call(
+      new GetRequest(path("get_binding"))
+        .setParam("project", request.getProject())
+        .setMediaType(MediaTypes.JSON),
+      AlmSettings.GetBindingWsResponse.parser());
+  }
+
+  /**
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/list">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public AlmSettings.ListWsResponse list(ListRequest request) {
+    return call(
+      new GetRequest(path("list"))
+        .setParam("project", request.getProject())
+        .setMediaType(MediaTypes.JSON),
+      AlmSettings.ListWsResponse.parser());
+  }
+
+  /**
+   *
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/list_definitions">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public AlmSettings.ListDefinitionsWsResponse listDefinitions() {
+    return call(
+      new GetRequest(path("list_definitions")),
+      AlmSettings.ListDefinitionsWsResponse.parser());
+  }
+
+  /**
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/set_github_binding">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public void setGithubBinding(SetGithubBindingRequest request) {
+    call(
+      new PostRequest(path("set_github_binding"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setParam("project", request.getProject())
+        .setParam("repository", request.getRepository())
         .setMediaType(MediaTypes.JSON)).content();
   }
 
@@ -127,21 +190,6 @@ public class AlmSettingsService extends BaseService {
   /**
    *
    * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/create_bitbucket">Further information about this action online (including a response example)</a>
-   * @since 8.1
-   */
-  public void createBitbucket(CreateBitbucketRequest request) {
-    call(
-      new PostRequest(path("create_bitbucket"))
-        .setParam("key", request.getKey())
-        .setParam("url", request.getUrl())
-        .setParam("personalAccessToken", request.getPersonalAccessToken())
-        .setMediaType(MediaTypes.JSON)).content();
-  }
-
-  /**
-   *
-   * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/update_bitbucket">Further information about this action online (including a response example)</a>
    * @since 8.1
    */
@@ -155,4 +203,20 @@ public class AlmSettingsService extends BaseService {
         .setMediaType(MediaTypes.JSON)).content();
   }
 
+  /**
+   *
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/update_github">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public void updateGithub(UpdateGithubRequest request) {
+    call(
+      new PostRequest(path("update_github"))
+        .setParam("appId", request.getAppId())
+        .setParam("key", request.getKey())
+        .setParam("newKey", request.getNewKey())
+        .setParam("privateKey", request.getPrivateKey())
+        .setParam("url", request.getUrl())
+        .setMediaType(MediaTypes.JSON)).content();
+  }
 }

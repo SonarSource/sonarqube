@@ -17,28 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.almsettings;
 
-import org.sonar.core.platform.Module;
+import org.sonar.db.alm.setting.ALM;
+import org.sonarqube.ws.AlmSettings;
 
-public class AlmSettingsWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      AlmSettingsWs.class,
-      ListDefinitionsAction.class,
-      CreateGithubAction.class,
-      UpdateGitHubAction.class,
-      DeleteAction.class,
-      CreateAzureAction.class,
-      UpdateAzureAction.class,
-      CreateBitBucketAction.class,
-      UpdateBitbucketAction.class,
-      SetGithubBindingAction.class,
-      DeleteBindingAction.class,
-      GetBindingAction.class,
-      ListAction.class,
-      CountBindingAction.class
-    );
+import static java.lang.String.format;
+
+class AlmSettingsSupport {
+
+  private AlmSettingsSupport() {
+    // Only static methods here for the moment
+  }
+
+  static AlmSettings.Alm toAlmWs(ALM alm) {
+    switch (alm) {
+      case GITHUB:
+        return AlmSettings.Alm.github;
+      case BITBUCKET:
+        return AlmSettings.Alm.bitbucket;
+      case AZURE_DEVOPS:
+        return AlmSettings.Alm.azure;
+      default:
+        throw new IllegalStateException(format("Unknown ALM '%s'", alm.name()));
+    }
   }
 }

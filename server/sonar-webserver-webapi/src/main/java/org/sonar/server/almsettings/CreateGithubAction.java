@@ -38,7 +38,7 @@ public class CreateGithubAction implements AlmSettingsWsAction {
   private static final String PARAM_PRIVATE_KEY = "privateKey";
 
   private final DbClient dbClient;
-  private UserSession userSession;
+  private final UserSession userSession;
 
   public CreateGithubAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;

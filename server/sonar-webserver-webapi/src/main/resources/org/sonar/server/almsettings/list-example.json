@@ -1,0 +1,9 @@
+{
+  "almSettings": [
+    {
+      "key": "GitHub Server - Dev Team",
+      "alm": "github",
+      "url": "https://github.enterprise.com"
+    }
+  ]
+}

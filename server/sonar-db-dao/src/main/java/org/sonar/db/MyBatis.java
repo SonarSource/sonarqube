@@ -39,6 +39,7 @@ import org.sonar.db.alm.OrganizationAlmBindingMapper;
 import org.sonar.db.alm.ProjectAlmBindingDto;
 import org.sonar.db.alm.ProjectAlmBindingMapper;
 import org.sonar.db.alm.setting.AlmSettingMapper;
+import org.sonar.db.alm.setting.ProjectAlmSettingMapper;
 import org.sonar.db.ce.CeActivityMapper;
 import org.sonar.db.ce.CeQueueMapper;
 import org.sonar.db.ce.CeScannerContextMapper;
@@ -264,6 +265,7 @@ public class MyBatis implements Startable {
       PermissionTemplateMapper.class,
       PluginMapper.class,
       ProjectAlmBindingMapper.class,
+      ProjectAlmSettingMapper.class,
       ProjectLinkMapper.class,
       ProjectMappingsMapper.class,
       ProjectQgateAssociationMapper.class,

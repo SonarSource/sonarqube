@@ -92,6 +92,7 @@ public final class SqTables {
     "plugins",
     "projects",
     "project_alm_bindings",
+    "project_alm_settings",
     "project_branches",
     "project_links",
     "project_mappings",

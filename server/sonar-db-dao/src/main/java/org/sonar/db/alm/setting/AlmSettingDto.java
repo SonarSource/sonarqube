@@ -24,17 +24,55 @@ import javax.annotation.Nullable;
 
 public class AlmSettingDto {
 
+  /**
+   * Not empty. Max size is 40. Obviously it is unique.
+   */
   private String uuid;
+
+  /**
+   * Non-empty and unique functional key. Max size is 40.
+   */
   private String key;
+
+  /**
+   * Identifier of the ALM, like 'bitbucketcloud' or 'github', can't be null. Max size is 40.
+   * Note that the db column is named alm_id.
+   *
+   * @see org.sonar.db.alm.setting.ALM for the list of available values
+   */
   private String rawAlm;
+
+  /**
+   * URL of the ALM. Max size is 2000.
+   * This column will only be fed when alm is GitHub or Bitbucket.
+   * It will be null when the ALM is Azure DevOps.
+   */
   private String url;
+
+  /**
+   * Application ID of the GitHub instance. Max size is 80.
+   * This column will only be fed when alm is GitHub.
+   * It will be null when the ALM is Azure DevOps or Bitbucket.
+   */
   private String appId;
+  /**
+   * Application private key of the GitHub instance. Max size is 2000.
+   * This column will only be fed when alm is GitHub.
+   * It will be null when the ALM is Azure DevOps or Bitbucket.
+   */
   private String privateKey;
+
+  /**
+   * Personal access token of the Azure DevOps instance. Max size is 2000.
+   * This column will only be fed when alm is Azure DevOps or Bitbucket.
+   * It will be null when the ALM is GitHub.
+   */
   private String personalAccessToken;
+
   private long updatedAt;
   private long createdAt;
 
-  String getUuid() {
+  public String getUuid() {
     return uuid;
   }
 

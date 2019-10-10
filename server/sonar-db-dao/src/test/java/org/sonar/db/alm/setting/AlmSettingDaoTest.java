@@ -36,7 +36,7 @@ import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto
 
 public class AlmSettingDaoTest {
 
-  public static final long NOW = 1000000L;
+  private static final long NOW = 1000000L;
   private static final String A_UUID = "SOME_UUID";
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

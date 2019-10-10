@@ -1,0 +1,123 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2019 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.db.alm.setting;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.db.component.ComponentDto;
+
+public class ProjectAlmSettingDto {
+
+  /**
+   * Not empty. Max size is 40. Obviously it is unique.
+   */
+  private String uuid;
+
+  /**
+   * Non-null UUID of project. Max size is 50.
+   * @see ComponentDto#uuid()
+   */
+  private String projectUuid;
+
+  /**
+   * Non-null UUID of the ALM Setting UUID. Max size is 40.
+   * @see AlmSettingDto#getUuid()
+   */
+  private String almSettingUuid;
+
+  /**
+   * Identifier of the repository in the ALM. Max size is 256.
+   * This column will only be fed when alm is GitHub or Bitbucket.
+   * It will be null when the ALM is Azure DevOps.
+   */
+  private String almRepo;
+
+  /**
+   * Slug of the repository in the ALM. Max size is 256.
+   * This column will only be fed when alm is Bitbucket.
+   * It will be null when the ALM is Azure DevOps, or GitHub.
+   */
+  private String almSlug;
+
+  private long updatedAt;
+  private long createdAt;
+
+  String getUuid() {
+    return uuid;
+  }
+
+  void setUuid(String uuid) {
+    this.uuid = uuid;
+  }
+
+  public String getProjectUuid() {
+    return projectUuid;
+  }
+
+  public ProjectAlmSettingDto setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
+    return this;
+  }
+
+  public String getAlmSettingUuid() {
+    return almSettingUuid;
+  }
+
+  public ProjectAlmSettingDto setAlmSettingUuid(String almSettingUuid) {
+    this.almSettingUuid = almSettingUuid;
+    return this;
+  }
+
+  @CheckForNull
+  public String getAlmRepo() {
+    return almRepo;
+  }
+
+  public ProjectAlmSettingDto setAlmRepo(@Nullable String almRepo) {
+    this.almRepo = almRepo;
+    return this;
+  }
+
+  @CheckForNull
+  public String getAlmSlug() {
+    return almSlug;
+  }
+
+  public ProjectAlmSettingDto setAlmSlug(@Nullable String almSlug) {
+    this.almSlug = almSlug;
+    return this;
+  }
+
+  long getUpdatedAt() {
+    return updatedAt;
+  }
+
+  void setUpdatedAt(long updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+  long getCreatedAt() {
+    return createdAt;
+  }
+
+  void setCreatedAt(long createdAt) {
+    this.createdAt = createdAt;
+  }
+}

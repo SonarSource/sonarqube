@@ -17,28 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.almsettings;
+package org.sonar.db.alm.setting;
 
-import org.sonar.core.platform.Module;
+import javax.annotation.CheckForNull;
+import org.apache.ibatis.annotations.Param;
 
-public class AlmSettingsWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      AlmSettingsWs.class,
-      ListDefinitionsAction.class,
-      CreateGithubAction.class,
-      UpdateGitHubAction.class,
-      DeleteAction.class,
-      CreateAzureAction.class,
-      UpdateAzureAction.class,
-      CreateBitBucketAction.class,
-      UpdateBitbucketAction.class,
-      SetGithubBindingAction.class,
-      DeleteBindingAction.class,
-      GetBindingAction.class,
-      ListAction.class,
-      CountBindingAction.class
-    );
-  }
+public interface ProjectAlmSettingMapper {
+
+  @CheckForNull
+  ProjectAlmSettingDto selectByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  int countByAlmSettingUuid(@Param("almSettingUuid") String almSettingUuid);
+
+  void insert(@Param("dto") ProjectAlmSettingDto projectAlmSettingDto, @Param("uuid") String uuid, @Param("now") long now);
+
+  int update(@Param("dto") ProjectAlmSettingDto projectAlmSettingDto, @Param("now") long now);
+
+  void deleteByProjectUuid(@Param("projectUuid") String projectUuid);
+  void deleteByAlmSettingUuid(@Param("almSettingUuid") String almSettingUuid);
+
 }

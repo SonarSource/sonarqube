@@ -21,6 +21,8 @@ package org.sonar.db.almsettings;
 
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.alm.setting.ProjectAlmSettingDto;
+import org.sonar.db.component.ComponentDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 
@@ -48,5 +50,13 @@ public class AlmSettingsTesting {
       .setUrl(randomAlphanumeric(2000))
       .setPersonalAccessToken(randomAlphanumeric(2000))
       .setAlm(ALM.BITBUCKET);
+  }
+
+  public static ProjectAlmSettingDto newGithubProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ComponentDto project) {
+    return new ProjectAlmSettingDto()
+      .setAlmSettingUuid(githubAlmSetting.getUuid())
+      .setProjectUuid(project.uuid())
+      .setAlmRepo(randomAlphanumeric(256))
+      .setAlmSlug(randomAlphanumeric(256));
   }
 }

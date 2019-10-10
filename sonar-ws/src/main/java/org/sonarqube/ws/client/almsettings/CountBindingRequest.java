@@ -17,28 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.almsettings;
+package org.sonarqube.ws.client.almsettings;
 
-import org.sonar.core.platform.Module;
+import javax.annotation.Generated;
 
-public class AlmSettingsWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      AlmSettingsWs.class,
-      ListDefinitionsAction.class,
-      CreateGithubAction.class,
-      UpdateGitHubAction.class,
-      DeleteAction.class,
-      CreateAzureAction.class,
-      UpdateAzureAction.class,
-      CreateBitBucketAction.class,
-      UpdateBitbucketAction.class,
-      SetGithubBindingAction.class,
-      DeleteBindingAction.class,
-      GetBindingAction.class,
-      ListAction.class,
-      CountBindingAction.class
-    );
+/**
+ * This is part of the internal API.
+ * This is a POST request.
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/count_binding">Further information about this action online (including a response example)</a>
+ * @since 8.1
+ */
+@Generated("sonar-ws-generator")
+public class CountBindingRequest {
+
+  private String almSetting;
+
+  /**
+   * This is a mandatory parameter.
+   */
+  public CountBindingRequest setAlmSetting(String almSetting) {
+    this.almSetting = almSetting;
+    return this;
+  }
+
+  public String getAlmSetting() {
+    return almSetting;
   }
 }

@@ -40,7 +40,7 @@ public class UpdateGitHubAction implements AlmSettingsWsAction {
   private static final String PARAM_PRIVATE_KEY = "privateKey";
 
   private final DbClient dbClient;
-  private UserSession userSession;
+  private final UserSession userSession;
 
   public UpdateGitHubAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;

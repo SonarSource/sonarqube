@@ -24,55 +24,54 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
-import static java.lang.String.format;
+import static org.sonar.api.web.UserRole.ADMIN;
 
-public class DeleteAction implements AlmSettingsWsAction {
+public class DeleteBindingAction implements AlmSettingsWsAction {
 
-
-  private static final String PARAM_KEY = "key";
+  private static final String PARAM_PROJECT = "project";
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public DeleteAction(DbClient dbClient, UserSession userSession) {
+  public DeleteBindingAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context
-      .createAction("delete")
-      .setDescription("Delete an ALM Settings.<br/>" +
-        "Requires the 'Administer System' permission")
+      .createAction("delete_binding")
+      .setDescription("Delete the ALM setting binding of a project.<br/>" +
+        "Requires the 'Administer' permission on the project")
       .setSince("8.1")
       .setPost(true)
       .setHandler(this);
 
     action
-      .createParam(PARAM_KEY)
-      .setDescription("ALM Setting key")
+      .createParam(PARAM_PROJECT)
+      .setDescription("Project key")
       .setRequired(true);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkIsSystemAdministrator();
     doHandle(request);
     response.noContent();
   }
 
   private void doHandle(Request request) {
-    String key = request.mandatoryParam(PARAM_KEY);
+    String projectKey = request.mandatoryParam(PARAM_PROJECT);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      AlmSettingDto almSettingDto = dbClient.almSettingDao().selectByKey(dbSession, key)
-        .orElseThrow(() -> new NotFoundException(format("No ALM setting with key '%s' has been found", key)));
-      dbClient.projectAlmSettingDao().deleteByAlmSetting(dbSession, almSettingDto);
-      dbClient.almSettingDao().delete(dbSession, almSettingDto);
+      ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
+      userSession.checkComponentPermission(ADMIN, project);
+      dbClient.projectAlmSettingDao().deleteByProject(dbSession, project);
       dbSession.commit();
     }
   }
