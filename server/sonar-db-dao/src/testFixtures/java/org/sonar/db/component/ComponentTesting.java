@@ -177,7 +177,11 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newApplication(OrganizationDto organizationDto) {
-    return newView(organizationDto.getUuid(), Uuids.createFast())
+    return newApplication(organizationDto.getUuid());
+  }
+
+  public static ComponentDto newApplication(String organizationUuid) {
+    return newView(organizationUuid, Uuids.createFast())
       .setQualifier(Qualifiers.APP);
   }
 
