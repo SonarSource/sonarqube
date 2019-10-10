@@ -61,16 +61,13 @@
   background-color: #cdd9c4 !important;
 }
 
-.source-line-filtered:hover .source-line-code {
-  background-color: var(--leakSecondaryColor) !important;
-}
-
 .source-line-filtered.source-line-filtered-dark .source-line-code {
   background-color: #f9ebb7 !important;
 }
 
+.source-line-filtered:hover .source-line-code,
 .source-line-filtered.source-line-filtered-dark:hover .source-line-code {
-  background-color: #eaddb2 !important;
+  background-color: var(--leakSecondaryColor) !important;
 }
 
 .source-line-last .source-line-code {
