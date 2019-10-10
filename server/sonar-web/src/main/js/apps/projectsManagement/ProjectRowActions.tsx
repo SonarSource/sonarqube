@@ -59,7 +59,9 @@ export default class ProjectRowActions extends React.PureComponent<Props, State>
     getComponentNavigation({ component: this.props.project.key }).then(
       ({ configuration }) => {
         if (this.mounted) {
-          const hasAccess = Boolean(configuration && configuration.showPermissions);
+          const hasAccess = Boolean(
+            configuration && configuration.showPermissions && configuration.canBrowseProject
+          );
           this.setState({ hasAccess, loading: false });
         }
       },

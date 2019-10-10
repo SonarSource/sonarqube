@@ -24,9 +24,11 @@ export function getGlobalNavigation(): Promise<T.AppState> {
   return getJSON('/api/navigation/global');
 }
 
+type NavComponent = T.Omit<T.Component, 'alm' | 'qualifier' | 'leakPeriodDate' | 'path' | 'tags'>;
+
 export function getComponentNavigation(
   data: { component: string } & T.BranchParameters
-): Promise<any> {
+): Promise<NavComponent> {
   return getJSON('/api/navigation/component', data).catch(throwGlobalError);
 }
 

@@ -152,6 +152,7 @@ declare namespace T {
 
   interface ComponentConfiguration {
     canApplyPermissionTemplate?: boolean;
+    canBrowseProject?: boolean;
     canUpdateProjectVisibilityToPrivate?: boolean;
     extensions?: Extension[];
     showBackgroundTasks?: boolean;

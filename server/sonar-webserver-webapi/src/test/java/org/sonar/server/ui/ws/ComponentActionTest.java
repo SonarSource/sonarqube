@@ -409,6 +409,49 @@ public class ComponentActionTest {
   }
 
   @Test
+  public void return_configuration_for_private_projects() {
+    ComponentDto project = insertOrganizationAndProject();
+    UserSessionRule userSessionRule = userSession.logIn();
+    init();
+
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
+    assertJson(execute(project.getDbKey())).isSimilarTo("{\n" +
+      "  \"configuration\": {\n" +
+      "    \"showSettings\": false,\n" +
+      "    \"showQualityProfiles\": true,\n" +
+      "    \"showQualityGates\": true,\n" +
+      "    \"showManualMeasures\": true,\n" +
+      "    \"showLinks\": true,\n" +
+      "    \"showPermissions\": false,\n" +
+      "    \"showHistory\": false,\n" +
+      "    \"showUpdateKey\": false,\n" +
+      "    \"showBackgroundTasks\": true,\n" +
+      "    \"canApplyPermissionTemplate\": false,\n" +
+      "    \"canBrowseProject\": false,\n" +
+      "    \"canUpdateProjectVisibilityToPrivate\": false\n" +
+      "  }\n" +
+      "}");
+
+    userSessionRule.addProjectPermission(UserRole.USER, project);
+    assertJson(execute(project.getDbKey())).isSimilarTo("{\n" +
+      "  \"configuration\": {\n" +
+      "    \"showSettings\": false,\n" +
+      "    \"showQualityProfiles\": true,\n" +
+      "    \"showQualityGates\": true,\n" +
+      "    \"showManualMeasures\": true,\n" +
+      "    \"showLinks\": true,\n" +
+      "    \"showPermissions\": false,\n" +
+      "    \"showHistory\": false,\n" +
+      "    \"showUpdateKey\": false,\n" +
+      "    \"showBackgroundTasks\": true,\n" +
+      "    \"canApplyPermissionTemplate\": false,\n" +
+      "    \"canBrowseProject\": true,\n" +
+      "    \"canUpdateProjectVisibilityToPrivate\": false\n" +
+      "  }\n" +
+      "}");
+  }
+
+  @Test
   public void return_bread_crumbs_on_several_levels() {
     ComponentDto project = insertOrganizationAndProject();
     ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setDbKey("palap").setName("Palap"));
@@ -681,7 +724,7 @@ public class ComponentActionTest {
 
   private void executeAndVerify(String componentKey, String expectedJson) {
     verify(execute(componentKey), expectedJson);
-  }
+}
 
   private void addQualityProfiles(ComponentDto project, QualityProfile... qps) {
     MetricDto metric = newMetricDto().setKey(QUALITY_PROFILES_KEY);

@@ -8,6 +8,10 @@
     "showPermissions": true,
     "showHistory": true,
     "showUpdateKey": true,
+    "showBackgroundTasks": true,
+    "canApplyPermissionTemplate": false,
+    "canBrowseProject": true,
+    "canUpdateProjectVisibilityToPrivate": false,
     "extensions": []
   }
 }

@@ -28,6 +28,10 @@ jest.mock('../../../api/nav', () => ({
   getComponentNavigation: jest.fn().mockResolvedValue({})
 }));
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 it('renders correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
@@ -35,9 +39,9 @@ it('renders correctly', () => {
 
 describe('restore access', () => {
   beforeAll(() => {
-    jest.resetAllMocks();
     (getComponentNavigation as jest.Mock).mockResolvedValue({
       configuration: {
+        canBrowseProject: false,
         showPermissions: false
       }
     });
@@ -65,13 +69,26 @@ describe('restore access', () => {
     expect(wrapper.find('.js-restore-access').exists()).toBe(false);
     expect(wrapper.find('RestoreAccessModal').exists()).toBe(false);
   });
+
+  it('also shows the restore access when browse permission is missing', async () => {
+    (getComponentNavigation as jest.Mock).mockResolvedValueOnce({
+      configuration: { canBrowseProject: false, showPermissions: true }
+    });
+
+    const wrapper = shallowRender();
+    wrapper.instance().handleDropdownOpen();
+    await waitAndUpdate(wrapper);
+
+    expect(getComponentNavigation).toBeCalledWith({ component: 'foo' });
+    expect(wrapper.find('.js-restore-access').exists()).toBe(true);
+  });
 });
 
 describe('permissions', () => {
   beforeAll(() => {
-    jest.resetAllMocks();
     (getComponentNavigation as jest.Mock).mockResolvedValue({
       configuration: {
+        canBrowseProject: true,
         showPermissions: true
       }
     });

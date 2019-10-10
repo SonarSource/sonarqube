@@ -44,6 +44,7 @@
     "showHistory": true,
     "showUpdateKey": true,
     "showBackgroundTasks": true,
+    "canBrowseProject": true,
     "extensions": [
       {
         "key": "my_plugin/admin_page",
