@@ -86,15 +86,6 @@ table.spacedicon td {
   padding: 0 5px;
 }
 
-.admin hr {
-  background: transparent;
-  border-left: none;
-  border-right: none;
-  border-top: none;
-  border-bottom: 1px dashed #ffd324;
-  height: 1px;
-}
-
 .table > thead > tr > th {
   border-top: 0 none;
   font-weight: bold;
