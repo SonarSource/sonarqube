@@ -359,7 +359,7 @@ public interface RulesDefinition {
    */
   class Context extends AbstractContext {
     private final Map<String, Repository> repositoriesByKey = new HashMap<>();
-    private String currentPluginKey;
+    private String currentPluginKey = null;
 
     @Override
     public RulesDefinition.NewRepository createRepository(String key, String language) {

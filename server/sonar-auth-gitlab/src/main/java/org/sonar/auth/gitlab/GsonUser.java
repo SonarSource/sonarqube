@@ -30,6 +30,12 @@ public class GsonUser {
   private String name;
   private String email;
 
+  public GsonUser() {
+    // even if empty constructor is not required for Gson, it is strongly
+    // recommended:
+    // http://stackoverflow.com/a/18645370/229031
+  }
+
   public long getId() {
     return id;
   }

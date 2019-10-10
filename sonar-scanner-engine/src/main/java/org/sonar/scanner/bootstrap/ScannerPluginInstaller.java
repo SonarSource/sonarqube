@@ -112,12 +112,20 @@ public class ScannerPluginInstaller implements PluginInstaller {
 
   private static class InstalledPlugins {
     InstalledPlugin[] plugins;
+
+    public InstalledPlugins() {
+      // http://stackoverflow.com/a/18645370/229031
+    }
   }
 
   static class InstalledPlugin {
     String key;
     String hash;
     long updatedAt;
+
+    public InstalledPlugin() {
+      // http://stackoverflow.com/a/18645370/229031
+    }
   }
 
   private static class Loaded {

@@ -351,7 +351,7 @@ public class ComponentTreeBuilder {
 
   private static class Node {
     private final Map<String, Node> children = new LinkedHashMap<>();
-    private ScannerReport.Component reportComponent;
+    private ScannerReport.Component reportComponent = null;
 
     private Map<String, Node> children() {
       return children;

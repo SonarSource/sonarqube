@@ -24,7 +24,7 @@ import java.util.Objects;
 
 public class BatchReportDirectoryHolderImpl implements MutableBatchReportDirectoryHolder {
 
-  private File directory;
+  private File directory = null;
 
   @Override
   public void setDirectory(File newDirectory) {

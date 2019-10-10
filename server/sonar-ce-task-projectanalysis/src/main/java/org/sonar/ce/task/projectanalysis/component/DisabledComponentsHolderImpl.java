@@ -25,7 +25,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 public class DisabledComponentsHolderImpl implements MutableDisabledComponentsHolder {
 
-  private Set<String> uuids;
+  private Set<String> uuids = null;
 
   @Override
   public Set<String> getUuids() {

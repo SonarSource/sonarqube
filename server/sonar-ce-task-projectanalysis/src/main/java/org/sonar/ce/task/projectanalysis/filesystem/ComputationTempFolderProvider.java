@@ -38,7 +38,7 @@ import org.sonar.server.platform.ServerFileSystem;
 public class ComputationTempFolderProvider extends ProviderAdapter implements ComponentLifecycle<TempFolder> {
   private boolean started = false;
   @CheckForNull
-  private DefaultTempFolder tempFolder;
+  private DefaultTempFolder tempFolder = null;
 
   public TempFolder provide(ServerFileSystem fs) {
     if (this.tempFolder == null) {

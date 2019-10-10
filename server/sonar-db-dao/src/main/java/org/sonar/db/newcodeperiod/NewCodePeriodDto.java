@@ -22,13 +22,13 @@ package org.sonar.db.newcodeperiod;
 import javax.annotation.CheckForNull;
 
 public class NewCodePeriodDto {
-  private String uuid;
-  private String projectUuid;
-  private String branchUuid;
-  private NewCodePeriodType type;
-  private String value;
-  private long updatedAt;
-  private long createdAt;
+  private String uuid = null;
+  private String projectUuid = null;
+  private String branchUuid = null;
+  private NewCodePeriodType type = null;
+  private String value = null;
+  private long updatedAt = 0L;
+  private long createdAt = 0L;
 
   public static NewCodePeriodDto defaultInstance() {
     return new NewCodePeriodDto().setType(NewCodePeriodType.PREVIOUS_VERSION);

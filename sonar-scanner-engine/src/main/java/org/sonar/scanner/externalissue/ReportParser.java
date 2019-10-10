@@ -101,6 +101,10 @@ public class ReportParser {
 
   static class Report {
     Issue[] issues;
+
+    public Report() {
+      // http://stackoverflow.com/a/18645370/229031
+    }
   }
 
   static class Issue {
@@ -113,6 +117,10 @@ public class ReportParser {
     Location primaryLocation;
     @Nullable
     Location[] secondaryLocations;
+
+    public Issue() {
+      // http://stackoverflow.com/a/18645370/229031
+    }
   }
 
   static class Location {
@@ -121,6 +129,10 @@ public class ReportParser {
     String filePath;
     @Nullable
     TextRange textRange;
+
+    public Location() {
+      // http://stackoverflow.com/a/18645370/229031
+    }
   }
 
   static class TextRange {
@@ -131,5 +143,9 @@ public class ReportParser {
     Integer endLine;
     @Nullable
     Integer endColumn;
+
+    public TextRange() {
+      // http://stackoverflow.com/a/18645370/229031
+    }
   }
 }

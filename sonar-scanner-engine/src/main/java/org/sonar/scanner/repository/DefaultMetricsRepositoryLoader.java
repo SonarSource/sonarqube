@@ -123,6 +123,10 @@ public class DefaultMetricsRepositoryLoader implements MetricsRepositoryLoader {
 
     private int ps;
 
+    public WsMetricsResponse() {
+      // http://stackoverflow.com/a/18645370/229031
+    }
+
     public int getTotal() {
       return total;
     }

@@ -84,7 +84,7 @@ public class MeasureComputerDefinitionImpl implements MeasureComputer.MeasureCom
 
     private String[] inputMetricKeys = new String[] {};
     @CheckForNull
-    private String[] outputMetrics;
+    private String[] outputMetrics = null;
 
     @Override
     public Builder setInputMetrics(String... inputMetrics) {

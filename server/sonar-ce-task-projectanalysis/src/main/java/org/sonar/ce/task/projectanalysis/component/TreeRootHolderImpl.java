@@ -33,14 +33,12 @@ import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order
  */
 public class TreeRootHolderImpl implements MutableTreeRootHolder {
   @CheckForNull
-  private Map<Integer, Component> componentsByRef;
-
+  private Map<Integer, Component> componentsByRef = null;
   @CheckForNull
-  private Map<Integer, Component> extendedComponentsByRef;
-
-  private int size;
-  private Component root;
-  private Component extendedTreeRoot;
+  private Map<Integer, Component> extendedComponentsByRef = null;
+  private int size = 0;
+  private Component root = null;
+  private Component extendedTreeRoot = null;
 
   @Override
   public boolean isEmpty() {
