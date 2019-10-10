@@ -69,6 +69,7 @@
           "/branches/branches-faq/"
         ]
       },
+      "/analysis/gitlab-cicd/",
       "/analysis/scm-integration/",
       "/analysis/security_configuration/"
     ]
@@ -104,8 +105,7 @@
       "/project-administration/managing-project-history/",
       "/project-administration/narrowing-the-focus/",
 	  "/project-administration/new-code-period/",
-	  "/project-administration/gitlab-cicd/",
-      "/project-administration/configuring-portfolios-and-applications/",
+	  "/project-administration/configuring-portfolios-and-applications/",
       "/project-administration/portfolio-pdf-configuration/",
       "/project-administration/project-settings/",
       "/project-administration/webhooks/"

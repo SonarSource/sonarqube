@@ -1,6 +1,6 @@
 ---
-title: Running Scanners with GitLab CI/CD
-url: /project-administration/gitlab-cicd/
+title: Running Analysis with GitLab CI/CD
+url: /analysis/gitlab-cicd/
 ---
 
 _Merge Request analysis is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/)._
