@@ -207,10 +207,6 @@ export default function startReactApp(
                           import('../../apps/feedback/downgrade/DowngradeFeedback')
                         )}
                       />
-                      <Route
-                        path="account-deleted"
-                        component={lazyLoad(() => import('../components/AccountDeleted'))}
-                      />
                     </>
                   )}
                   <RouteWithChildRoutes path="organizations" childRoutes={organizationsRoutes} />

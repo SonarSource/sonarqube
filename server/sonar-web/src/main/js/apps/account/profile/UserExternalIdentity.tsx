@@ -23,7 +23,7 @@ import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { getIdentityProviders } from '../../../api/users';
 import { colors } from '../../../app/theme';
 
-interface Props {
+export interface UserExternalIdentityProps {
   user: T.LoggedInUser;
 }
 
@@ -32,7 +32,10 @@ interface State {
   loading: boolean;
 }
 
-export default class UserExternalIdentity extends React.PureComponent<Props, State> {
+export default class UserExternalIdentity extends React.PureComponent<
+  UserExternalIdentityProps,
+  State
+> {
   mounted = false;
   state: State = {
     loading: true
@@ -43,7 +46,7 @@ export default class UserExternalIdentity extends React.PureComponent<Props, Sta
     this.fetchIdentityProviders();
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: UserExternalIdentityProps) {
     if (prevProps.user !== this.props.user) {
       this.fetchIdentityProviders();
     }

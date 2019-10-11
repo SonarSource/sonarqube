@@ -19,31 +19,43 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
-import { Profile, ProfileProps } from '../Profile';
+import UserExternalIdentity, { UserExternalIdentityProps } from '../UserExternalIdentity';
 
-it('should render correctly a local user', () => {
-  expect(shallowRender({ local: true, externalProvider: 'sonarqube' })).toMatchSnapshot();
+jest.mock('../../../../api/users', () => ({
+  getIdentityProviders: jest.fn().mockResolvedValue({
+    identityProviders: [
+      {
+        backgroundColor: '#444444',
+        iconPath: '/images/github.svg',
+        key: 'github',
+        name: 'GitHub'
+      }
+    ]
+  })
+}));
+
+it('should render correctly', async () => {
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
 });
 
-it('should render correctly a IDP user', () => {
-  expect(
-    shallowRender({
-      local: false,
-      externalProvider: 'github',
-      email: undefined,
-      login: undefined,
-      scmAccounts: []
-    })
-  ).toMatchSnapshot();
+it('should render a fallback when idp is not listed', async () => {
+  const wrapper = shallowRender({ externalProvider: 'ggithub' });
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(userOverrides?: Partial<ProfileProps['currentUser']>) {
+function shallowRender(userOverrides?: Partial<UserExternalIdentityProps['user']>) {
   return shallow(
-    <Profile
-      currentUser={{
+    <UserExternalIdentity
+      user={{
         ...mockLoggedInUser({
           email: 'john@doe.com',
+          externalProvider: 'github',
+          local: false,
           groups: ['G1', 'G2'],
           scmAccounts: ['SCM1', 'SCM2'],
           ...userOverrides

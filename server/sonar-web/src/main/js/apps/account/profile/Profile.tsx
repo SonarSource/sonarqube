@@ -18,59 +18,123 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
-import { isSonarCloud } from '../../../helpers/system';
-import UserDeleteAccount from './UserDeleteAccount';
 import UserExternalIdentity from './UserExternalIdentity';
-import UserGroups from './UserGroups';
-import UserScmAccounts from './UserScmAccounts';
 
-export interface Props {
+export interface ProfileProps {
   currentUser: T.LoggedInUser;
 }
 
-export function Profile({ currentUser }: Props) {
+export function Profile({ currentUser }: ProfileProps) {
+  const isExternalProvider = !currentUser.local && currentUser.externalProvider !== 'sonarqube';
+
   return (
-    <div className="account-body account-container">
-      <div className="boxed-group boxed-group-inner">
-        <div className="spacer-bottom">
-          {translate('login')}: <strong id="login">{currentUser.login}</strong>
-        </div>
-
-        {!currentUser.local && currentUser.externalProvider !== 'sonarqube' && (
-          <div className="spacer-bottom" id="identity-provider">
-            <UserExternalIdentity user={currentUser} />
-          </div>
-        )}
-
-        {Boolean(currentUser.email) && (
-          <div className="spacer-bottom">
-            {translate('my_profile.email')}: <strong id="email">{currentUser.email}</strong>
-          </div>
-        )}
-
-        {!isSonarCloud() && (
-          <>
-            <hr className="account-separator" />
-            <UserGroups groups={currentUser.groups} />
-          </>
-        )}
-
-        <hr />
-
-        <UserScmAccounts scmAccounts={currentUser.scmAccounts} user={currentUser} />
-
-        {isSonarCloud() && (
-          <>
-            <hr />
-
-            <UserDeleteAccount user={currentUser} />
-          </>
-        )}
+    <div className="account-body account-container account-profile">
+      <div className="boxed-group">
+        {renderLogin()}
+        {renderEmail()}
+        {renderUserGroups()}
+        {renderScmAccounts()}
       </div>
     </div>
   );
+
+  function renderLogin() {
+    if (!currentUser.login && !isExternalProvider) {
+      return null;
+    }
+
+    return (
+      <div className="boxed-group-inner">
+        <h2 className="spacer-bottom">{translate('my_profile.login')}</h2>
+        {currentUser.login && (
+          <p className="spacer-bottom" id="login">
+            {currentUser.login}
+          </p>
+        )}
+        {isExternalProvider && <UserExternalIdentity user={currentUser} />}
+      </div>
+    );
+  }
+
+  function renderEmail() {
+    if (!currentUser.email) {
+      return null;
+    }
+
+    return (
+      <div className="boxed-group-inner">
+        <h2 className="spacer-bottom">{translate('my_profile.email')}</h2>
+        <div className="spacer-bottom">
+          <p id="email">{currentUser.email}</p>
+        </div>
+      </div>
+    );
+  }
+
+  function renderUserGroups() {
+    if (!currentUser.groups || currentUser.groups.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="boxed-group-inner">
+        <h2 className="spacer-bottom">{translate('my_profile.groups')}</h2>
+        <ul id="groups">
+          {currentUser.groups.map(group => (
+            <li className="little-spacer-bottom" key={group} title={group}>
+              {group}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
+  function renderScmAccounts() {
+    if (
+      !currentUser.login &&
+      !currentUser.email &&
+      (!currentUser.scmAccounts || currentUser.scmAccounts.length === 0)
+    ) {
+      return null;
+    }
+
+    return (
+      <div className="boxed-group-inner">
+        <h2 className="spacer-bottom">
+          {translate('my_profile.scm_accounts')}
+          <HelpTooltip
+            className="little-spacer-left"
+            overlay={translate('my_profile.scm_accounts.tooltip')}
+          />
+        </h2>
+        <ul id="scm-accounts">
+          {currentUser.login && (
+            <li className="little-spacer-bottom text-ellipsis" title={currentUser.login}>
+              {currentUser.login}
+            </li>
+          )}
+
+          {currentUser.email && (
+            <li className="little-spacer-bottom text-ellipsis" title={currentUser.email}>
+              {currentUser.email}
+            </li>
+          )}
+
+          {currentUser.scmAccounts &&
+            currentUser.scmAccounts.length > 0 &&
+            currentUser.scmAccounts.map(scmAccount => (
+              <li className="little-spacer-bottom" key={scmAccount} title={scmAccount}>
+                {scmAccount}
+              </li>
+            ))}
+        </ul>
+      </div>
+    );
+  }
 }
 
 export default whenLoggedIn(Profile);

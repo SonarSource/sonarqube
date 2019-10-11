@@ -59,9 +59,7 @@
   padding: 40px 0;
 }
 
-.account-separator {
-  height: 0;
-  margin: 40px 0;
+.account-profile .boxed-group-inner:not(:first-child) {
   border-top: 1px solid var(--barBorderColor);
 }
 
