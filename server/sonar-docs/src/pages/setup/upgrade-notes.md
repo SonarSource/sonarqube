@@ -3,9 +3,17 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
-## Release 8.0 Upgrade Notes
-**GitLab Authentication now built in**  
-GitLab OAuth2 authentication is now available in all editions. Users of the community plugin must remove the plugin from SonarQube when upgrading. The configured variable of the plugin will be migrated, so the authentication will work without having to rewrite the configuration. Due to changes in group mapping, GitLab subgroups mapped using the community plugin will need to be renamed in SonarQube for the mapping to work. ([SONAR-12460](https://jira.sonarsource.com/browse/SONAR-12460)).
+## Release 8.0 Upgrade Notes  
+**GitHub, LDAP, and SAML authentication now built in**  
+GitHub, LDAP, and SAML authentication is now built in. If you were using the authentication plugins (sonar-ldap, sonar-auth-github, and sonar-auth-saml), you need to remove them from SonarQube before upgrading. ([SONAR-12471](https://jira.sonarsource.com/browse/SONAR-12471)).
+
+**GitLab Authentication now available**  
+GitLab OAuth2 authentication is now available in all editions. If you were using the community plugin, you need to remove it from SonarQube before upgrading. The configured variable of the plugin will be migrated, so the authentication will work without having to rewrite the configuration. Due to changes in group mapping, GitLab subgroups mapped using the community plugin will need to be renamed in SonarQube for the mapping to work. ([SONAR-12460](https://jira.sonarsource.com/browse/SONAR-12460)).
+
+**New Code Period values simplified**
+It's now easier to set your New Code Period in the UI. With the new settings, specific analysis has replaced setting the New Code Period to a specific date or version. If you were using a specific date or version for your New Code Period, now you'll need to use a specific analysis. See the [Setting Your New Code Period](/project-administration/new-code-period/) for more info. ([MMF-1579](https://jira.sonarsource.com/browse/MMF-1579)).  
+
+[Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=14962)
 
 
 ## Release 7.9.1 LTS Upgrade Notes  
