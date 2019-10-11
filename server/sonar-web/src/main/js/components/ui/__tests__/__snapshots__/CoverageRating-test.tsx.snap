@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<DonutChart
+  data={
+    Array [
+      Object {
+        "fill": "#00aa00",
+        "value": 25,
+      },
+      Object {
+        "fill": "#a4030f",
+        "value": 75,
+      },
+    ]
+  }
+  height={24}
+  padAngle={0.1}
+  thickness={3}
+  width={24}
+/>
+`;

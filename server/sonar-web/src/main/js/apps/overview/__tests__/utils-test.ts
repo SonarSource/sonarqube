@@ -24,6 +24,9 @@ import {
 } from '../../../helpers/testMocks';
 import { getThreshold } from '../utils';
 
+// eslint-disable-next-line no-console
+console.error = jest.fn();
+
 describe('getThreshold', () => {
   it('return undefined if condition is not found', () => {
     expect(getThreshold([], '')).toBeUndefined();
@@ -39,6 +42,8 @@ describe('getThreshold', () => {
         ''
       )
     ).toBeUndefined();
+    // eslint-disable-next-line no-console
+    expect(console.error).toBeCalled();
   });
 
   it('should return the threshold for the right metric', () => {

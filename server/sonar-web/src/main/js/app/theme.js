@@ -77,7 +77,7 @@ module.exports = {
     conciseIssueRed: '#d18582',
     conciseIssueRedSelected: '#a4030f',
 
-    // codeviewer
+    // coverage
     lineCoverageRed: '#a4030f',
     lineCoverageGreen: '#b4dd78',
 
