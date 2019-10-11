@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
 interface Props {
@@ -28,7 +29,13 @@ interface Props {
 export default function UserScmAccounts({ user, scmAccounts }: Props) {
   return (
     <div>
-      <h2 className="spacer-bottom">{translate('my_profile.scm_accounts')}</h2>
+      <h2 className="spacer-bottom">
+        {translate('my_profile.scm_accounts')}
+        <HelpTooltip
+          className="little-spacer-left"
+          overlay={translate('my_profile.scm_accounts.tooltip')}
+        />
+      </h2>
       <ul id="scm-accounts">
         <li className="little-spacer-bottom text-ellipsis" title={user.login}>
           {user.login}
