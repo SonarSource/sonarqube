@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { EditionKey } from '../apps/marketplace/utils';
 import { ActionType } from './utils/actions';
 
 export const enum Actions {
@@ -47,7 +46,7 @@ const defaultValue: T.AppState = {
   authenticationError: false,
   authorizationError: false,
   defaultOrganization: '',
-  edition: EditionKey.community,
+  edition: undefined,
   organizationsEnabled: false,
   productionDatabase: true,
   qualifiers: [],

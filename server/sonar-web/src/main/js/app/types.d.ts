@@ -97,7 +97,7 @@ declare namespace T {
     branchesEnabled?: boolean;
     canAdmin?: boolean;
     defaultOrganization: string;
-    edition: EditionKey;
+    edition: EditionKey | undefined;
     globalPages?: Extension[];
     organizationsEnabled?: boolean;
     productionDatabase: boolean;
