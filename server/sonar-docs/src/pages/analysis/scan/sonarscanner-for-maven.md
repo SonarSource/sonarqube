@@ -5,7 +5,7 @@ url: /analysis/scan/sonarscanner-for-maven/
 
 [[info]]
 | By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://jira.sonarsource.com/browse/MSONAR) – [Source](https://github.com/SonarSource/sonar-scanner-maven)  
-| Current version: **SonarScanner for Maven 3.6.0.1398**
+| Click [here](https://mvnrepository.com/artifact/org.sonarsource.scanner.maven/sonar-maven-plugin) for the latest version.
 
 
 The SonarScanner is recommended as the default analyzer for Maven projects.

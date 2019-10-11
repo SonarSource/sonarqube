@@ -4,8 +4,8 @@ url: /analysis/scan/sonarscanner-for-jenkins/
 ---
 
 [[info]]
-| By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://jira.sonarsource.com/browse/SONARJNKNS) – [Source](https://github.com/SonarSource/sonar-scanner-jenkins)
-| Current version: **SonarScanner for Jenkins 2.9**
+| By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://jira.sonarsource.com/browse/SONARJNKNS) – [Source](https://github.com/SonarSource/sonar-scanner-jenkins)  
+| Click [here](https://plugins.jenkins.io/sonar) for the latest version.
 
 This plugin lets you centralize the configuration of SonarQube server connection details in Jenkins global configuration.
 

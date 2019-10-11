@@ -5,7 +5,7 @@ url: /analysis/scan/sonarscanner-for-gradle/
 
 [[info]]
 | By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://jira.sonarsource.com/browse/SONARGRADL) – [Source](https://github.com/SonarSource/sonar-scanner-gradle)  
-| Current version: **SonarQube Scanner for Gradle 2.7.1**
+| Click [here](https://plugins.gradle.org/plugin/org.sonarqube) for the latest version.
 
 
 
