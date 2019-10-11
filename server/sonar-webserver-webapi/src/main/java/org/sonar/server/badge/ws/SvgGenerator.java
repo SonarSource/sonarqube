@@ -193,8 +193,8 @@ public class SvgGenerator {
   }
 
   static class Color {
-    static final Color DEFAULT = new Color("#999");
-    static final Color QUALITY_GATE_OK = new Color("#4c1");
+    static final Color DEFAULT = new Color("#999999");
+    static final Color QUALITY_GATE_OK = new Color("#00aa00");
     static final Color QUALITY_GATE_WARN = new Color("#ed7d20");
     static final Color QUALITY_GATE_ERROR = new Color("#d4333f");
     static final Color RATING_A = new Color("#00aa00");
