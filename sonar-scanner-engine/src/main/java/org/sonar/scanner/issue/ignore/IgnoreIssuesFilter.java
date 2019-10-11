@@ -43,16 +43,23 @@ public class IgnoreIssuesFilter implements IssueFilter {
   @Override
   public boolean accept(FilterableIssue issue, IssueFilterChain chain) {
     InputComponent component = ((DefaultFilterableIssue) issue).getComponent();
-    if (component.isFile() && ((DefaultInputFile) component).isIgnoreAllIssues()) {
+
+    if (isIgnoreIssue(component, issue)) {
       return false;
     }
-    if (component.isFile() && ((DefaultInputFile) component).isIgnoreAllIssuesOnLine(issue.line())) {
-      return false;
-    }
+
     if (hasRuleMatchFor(component, issue)) {
       return false;
     }
     return chain.accept(issue);
+  }
+
+  private static boolean isIgnoreIssue(InputComponent component, FilterableIssue issue) {
+    if (component.isFile()) {
+      DefaultInputFile inputFile = (DefaultInputFile) component;
+      return inputFile.isIgnoreAllIssues() || inputFile.isIgnoreAllIssuesOnLine(issue.line());
+    }
+    return false;
   }
 
   public void addRuleExclusionPatternForComponent(DefaultInputFile inputFile, WildcardPattern rulePattern) {

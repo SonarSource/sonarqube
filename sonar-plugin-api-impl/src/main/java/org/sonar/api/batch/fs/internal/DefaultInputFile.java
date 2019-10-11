@@ -403,6 +403,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   public boolean isIgnoreAllIssues() {
+    checkMetadata();
     return ignoreAllIssues;
   }
 
@@ -418,6 +419,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   public boolean isIgnoreAllIssuesOnLine(@Nullable Integer line) {
+    checkMetadata();
     if (line == null || ignoreIssuesOnlineRanges == null) {
       return false;
     }

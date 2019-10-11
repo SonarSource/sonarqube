@@ -45,6 +45,7 @@ public class IssueExclusionsRegexpScanner extends CharHandler {
   private LineExclusion currentLineExclusion = null;
   private int fileLength = 0;
   private DoubleRegexpMatcher currentMatcher;
+  private boolean ignoreAllIssues;
 
   IssueExclusionsRegexpScanner(DefaultInputFile inputFile, List<Pattern> allFilePatterns, List<DoubleRegexpMatcher> blockMatchers) {
     this.allFilePatterns = allFilePatterns;
@@ -55,7 +56,7 @@ public class IssueExclusionsRegexpScanner extends CharHandler {
 
   @Override
   public void handleIgnoreEoL(char c) {
-    if (inputFile.isIgnoreAllIssues()) {
+    if (ignoreAllIssues) {
       return;
     }
     sb.append(c);
@@ -63,7 +64,7 @@ public class IssueExclusionsRegexpScanner extends CharHandler {
 
   @Override
   public void newLine() {
-    if (inputFile.isIgnoreAllIssues()) {
+    if (ignoreAllIssues) {
       return;
     }
     processLine(sb.toString());
@@ -73,7 +74,7 @@ public class IssueExclusionsRegexpScanner extends CharHandler {
 
   @Override
   public void eof() {
-    if (inputFile.isIgnoreAllIssues()) {
+    if (ignoreAllIssues) {
       return;
     }
     processLine(sb.toString());
@@ -102,6 +103,7 @@ public class IssueExclusionsRegexpScanner extends CharHandler {
       if (pattern.matcher(line).find()) {
         // nothing more to do on this file
         LOG.debug("  - Exclusion pattern '{}': all issues in this file will be ignored.", pattern);
+        ignoreAllIssues = true;
         inputFile.setIgnoreAllIssues(true);
         return;
       }

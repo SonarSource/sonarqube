@@ -33,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Rule;
@@ -49,6 +50,7 @@ import org.sonar.api.batch.fs.internal.SensorStrategy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class DefaultInputFileTest {
 

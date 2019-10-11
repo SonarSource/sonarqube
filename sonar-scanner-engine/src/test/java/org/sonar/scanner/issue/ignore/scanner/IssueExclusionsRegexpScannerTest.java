@@ -32,8 +32,6 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -42,12 +40,11 @@ import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader.DoubleRegexp
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class IssueExclusionsRegexpScannerTest {
   private DefaultInputFile javaFile;
-
-  @Mock
-  private IssueExclusionPatternInitializer patternsInitializer;
+  private IssueExclusionPatternInitializer patternsInitializer = mock(IssueExclusionPatternInitializer.class);
 
   private List<Pattern> allFilePatterns;
   private List<DoubleRegexpMatcher> blockPatterns;
@@ -56,8 +53,6 @@ public class IssueExclusionsRegexpScannerTest {
 
   @Before
   public void init() {
-    MockitoAnnotations.initMocks(this);
-
     blockPatterns = Arrays.asList(new DoubleRegexpMatcher[] {
       new DoubleRegexpMatcher(Pattern.compile("// SONAR-OFF"), Pattern.compile("// SONAR-ON")),
       new DoubleRegexpMatcher(Pattern.compile("// FOO-OFF"), Pattern.compile("// FOO-ON"))
