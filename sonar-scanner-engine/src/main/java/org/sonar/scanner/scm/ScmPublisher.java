@@ -28,6 +28,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.scm.ScmProvider;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -48,16 +49,18 @@ public final class ScmPublisher {
   private final InputComponentStore componentStore;
   private final FileSystem fs;
   private final ScannerReportWriter writer;
+  private AnalysisWarnings analysisWarnings;
   private final BranchConfiguration branchConfiguration;
 
   public ScmPublisher(ScmConfiguration configuration, ProjectRepositoriesSupplier projectRepositoriesSupplier,
-    InputComponentStore componentStore, FileSystem fs, ReportPublisher reportPublisher, BranchConfiguration branchConfiguration) {
+    InputComponentStore componentStore, FileSystem fs, ReportPublisher reportPublisher, BranchConfiguration branchConfiguration, AnalysisWarnings analysisWarnings) {
     this.configuration = configuration;
     this.projectRepositoriesSupplier = projectRepositoriesSupplier;
     this.componentStore = componentStore;
     this.fs = fs;
     this.branchConfiguration = branchConfiguration;
     this.writer = reportPublisher.getWriter();
+    this.analysisWarnings = analysisWarnings;
   }
 
   public void publish() {
@@ -76,7 +79,7 @@ public final class ScmPublisher {
     if (!filesToBlame.isEmpty()) {
       String key = provider.key();
       LOG.info("SCM Publisher SCM provider for this project is: " + key);
-      DefaultBlameOutput output = new DefaultBlameOutput(writer, filesToBlame);
+      DefaultBlameOutput output = new DefaultBlameOutput(writer, analysisWarnings, filesToBlame);
       try {
         provider.blameCommand().blame(new DefaultBlameInput(fs, filesToBlame), output);
       } catch (Exception e) {

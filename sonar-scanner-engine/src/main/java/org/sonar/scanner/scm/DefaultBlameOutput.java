@@ -32,6 +32,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -46,13 +47,15 @@ class DefaultBlameOutput implements BlameOutput {
   private static final Logger LOG = Loggers.get(DefaultBlameOutput.class);
 
   private final ScannerReportWriter writer;
+  private AnalysisWarnings analysisWarnings;
   private final Set<InputFile> allFilesToBlame = new LinkedHashSet<>();
   private ProgressReport progressReport;
   private int count;
   private int total;
 
-  DefaultBlameOutput(ScannerReportWriter writer, List<InputFile> filesToBlame) {
+  DefaultBlameOutput(ScannerReportWriter writer, AnalysisWarnings analysisWarnings, List<InputFile> filesToBlame) {
     this.writer = writer;
+    this.analysisWarnings = analysisWarnings;
     this.allFilesToBlame.addAll(filesToBlame);
     count = 0;
     total = filesToBlame.size();
@@ -131,6 +134,9 @@ class DefaultBlameOutput implements BlameOutput {
         LOG.warn("  * " + f);
       }
       LOG.warn("This may lead to missing/broken features in SonarQube");
+      analysisWarnings.addUnique(String.format("Missing blame information for %d %s. This may lead to some features not working correctly. Please check the analysis logs.",
+        allFilesToBlame.size(),
+        allFilesToBlame.size() > 1 ? "files" : "file"));
     }
   }
 

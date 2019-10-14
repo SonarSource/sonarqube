@@ -32,7 +32,7 @@ import org.apache.commons.io.IOUtils;
 
 public class CharsetDetector {
   private static final int BYTES_TO_DECODE = 4192;
-  private Path filePath;
+  private final Path filePath;
   private BufferedInputStream stream;
   private Charset detectedCharset;
   private Charset userEncoding;

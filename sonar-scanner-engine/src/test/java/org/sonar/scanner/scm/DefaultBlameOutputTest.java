@@ -20,6 +20,7 @@
 package org.sonar.scanner.scm;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,17 +28,36 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.BlameLine;
+import org.sonar.api.utils.System2;
+import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class DefaultBlameOutputTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+  private System2 system2 = mock(System2.class);
+  private DefaultAnalysisWarnings analysisWarnings = new DefaultAnalysisWarnings(system2);
 
   @Test
   public void shouldNotFailIfNotSameNumberOfLines() {
     InputFile file = new TestInputFileBuilder("foo", "src/main/java/Foo.java").setLines(10).build();
 
-    new DefaultBlameOutput(null, Arrays.asList(file)).blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
+    new DefaultBlameOutput(null, analysisWarnings, singletonList(file)).blameResult(file, singletonList(new BlameLine().revision("1").author("guy")));
+  }
+
+  @Test
+  public void addWarningIfFilesMissing() {
+    InputFile file = new TestInputFileBuilder("foo", "src/main/java/Foo.java").setLines(10).build();
+
+    new DefaultBlameOutput(null, analysisWarnings, singletonList(file)).finish(true);
+    assertThat(analysisWarnings.warnings()).extracting(DefaultAnalysisWarnings.Message::getText)
+      .containsOnly("Missing blame information for 1 file. This may lead to some features not working correctly. Please check the analysis logs.");
   }
 
   @Test
@@ -47,8 +67,8 @@ public class DefaultBlameOutputTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("It was not expected to blame file " + file);
 
-    new DefaultBlameOutput(null, Arrays.<InputFile>asList(new TestInputFileBuilder("foo", "src/main/java/Foo2.java").build()))
-      .blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
+    new DefaultBlameOutput(null, analysisWarnings, singletonList(new TestInputFileBuilder("foo", "src/main/java/Foo2.java").build()))
+      .blameResult(file, singletonList(new BlameLine().revision("1").author("guy")));
   }
 
   @Test
@@ -58,8 +78,8 @@ public class DefaultBlameOutputTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Blame date is null for file " + file + " at line 1");
 
-    new DefaultBlameOutput(null, Arrays.<InputFile>asList(file))
-      .blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
+    new DefaultBlameOutput(null, analysisWarnings, singletonList(file))
+      .blameResult(file, singletonList(new BlameLine().revision("1").author("guy")));
   }
 
   @Test
@@ -69,8 +89,8 @@ public class DefaultBlameOutputTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Blame revision is blank for file " + file + " at line 1");
 
-    new DefaultBlameOutput(null, Arrays.<InputFile>asList(file))
-      .blameResult(file, Arrays.asList(new BlameLine().date(new Date()).author("guy")));
+    new DefaultBlameOutput(null, analysisWarnings, singletonList(file))
+      .blameResult(file, singletonList(new BlameLine().date(new Date()).author("guy")));
   }
 
 }
