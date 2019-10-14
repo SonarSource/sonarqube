@@ -130,6 +130,7 @@ subprojects {
       dependency 'com.sonarsource.cobol:sonar-cobol-plugin:4.4.0.3403'
       dependency 'org.sonarsource.css:sonar-css-plugin:1.1.1.1010'
       dependency 'org.sonarsource.flex:sonar-flex-plugin:2.5.1.1831'
+      dependency 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.0.2.475'
       dependency 'org.sonarsource.java:sonar-java-plugin:5.14.0.18788'
       dependency 'org.sonarsource.javascript:sonar-javascript-plugin:5.2.1.7778'
       dependency "org.sonarsource.slang:sonar-kotlin-plugin:${slangVersion}"
@@ -138,6 +139,8 @@ subprojects {
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.4.1.2576'
       dependency 'org.sonarsource.python:sonar-python-plugin:1.16.0.4432'
       dependency 'com.sonarsource.rpg:sonar-rpg-plugin:2.3.0.1187'
+      dependency 'org.sonarsource.scm.git:sonar-scm-git-plugin:1.9.1.1834'
+      dependency 'org.sonarsource.scm.svn:sonar-scm-svn-plugin:1.9.0.1295'
       dependency 'org.sonarsource.slang:sonar-go-plugin:1.6.0.719'
       dependency "org.sonarsource.slang:sonar-ruby-plugin:${slangVersion}"
       dependency "org.sonarsource.slang:sonar-scala-plugin:${slangVersion}"
