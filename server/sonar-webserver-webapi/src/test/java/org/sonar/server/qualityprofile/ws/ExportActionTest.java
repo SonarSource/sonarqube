@@ -73,20 +73,6 @@ public class ExportActionTest {
   private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
 
   @Test
-  public void export_profile_with_key() {
-    QProfileDto profile = createProfile(db.getDefaultOrganization(), false);
-
-    WsActionTester tester = newWsActionTester(newExporter("polop"), newExporter("palap"));
-    String result = tester.newRequest()
-      .setParam(PARAM_KEY, profile.getKee())
-      .setParam("exporterKey", "polop")
-      .execute()
-      .getInput();
-
-    assertThat(result).isEqualTo("Profile " + profile.getLanguage() + "/" + profile.getName() + " exported by polop");
-  }
-
-  @Test
   public void export_profile_in_default_organization() {
     QProfileDto profile = createProfile(db.getDefaultOrganization(), false);
 
@@ -235,33 +221,6 @@ public class ExportActionTest {
   }
 
   @Test
-  public void fail_if_profile_key_is_unknown() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Could not find profile with key 'PROFILE-KEY-404'");
-
-    WsActionTester ws = newWsActionTester(newExporter("polop"), newExporter("palap"));
-    ws.newRequest()
-      .setParam(PARAM_KEY, "PROFILE-KEY-404")
-      .setParam("exporterKey", "polop").execute()
-      .getInput();
-  }
-
-  @Test
-  public void fail_if_profile_key_and_language_provided() {
-    QProfileDto profile = createProfile(db.getDefaultOrganization(), false);
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Either 'key' or 'language' must be provided");
-
-    WsActionTester ws = newWsActionTester(newExporter("polop"), newExporter("palap"));
-    ws.newRequest()
-      .setParam(PARAM_KEY, profile.getKee())
-      .setParam(PARAM_LANGUAGE, profile.getLanguage())
-      .setParam("exporterKey", "polop").execute()
-      .getInput();
-  }
-
-  @Test
   public void fail_on_paid_organization_when_not_member() {
     WsActionTester tester = newWsActionTester(newExporter("foo"));
     OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
@@ -284,19 +243,14 @@ public class ExportActionTest {
 
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.isInternal()).isFalse();
-    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("key", "language", "qualityProfile", "organization");
+    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("language", "qualityProfile", "organization");
 
     WebService.Param organizationParam = definition.param("organization");
     assertThat(organizationParam.since()).isEqualTo("6.4");
     assertThat(organizationParam.isInternal()).isTrue();
 
-    WebService.Param key = definition.param("key");
-    assertThat(key.since()).isEqualTo("6.5");
-    assertThat(key.deprecatedSince()).isEqualTo("6.6");
-
     WebService.Param name = definition.param("qualityProfile");
     assertThat(name.deprecatedSince()).isNullOrEmpty();
-    assertThat(name.deprecatedKey()).isEqualTo("name");
 
     WebService.Param language = definition.param("language");
     assertThat(language.deprecatedSince()).isNullOrEmpty();
@@ -308,7 +262,7 @@ public class ExportActionTest {
 
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.isInternal()).isFalse();
-    assertThat(definition.params()).extracting("key").containsExactlyInAnyOrder("key", "language", "qualityProfile", "organization", "exporterKey");
+    assertThat(definition.params()).extracting("key").containsExactlyInAnyOrder("language", "qualityProfile", "organization", "exporterKey");
     WebService.Param exportersParam = definition.param("exporterKey");
     assertThat(exportersParam.possibleValues()).containsOnly("polop", "palap");
     assertThat(exportersParam.deprecatedKey()).isEqualTo("format");

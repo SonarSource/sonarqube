@@ -74,13 +74,11 @@ public class ActivateRulesAction implements QProfileWsAction {
 
     activate.createParam(PARAM_TARGET_KEY)
       .setDescription("Quality Profile key on which the rule activation is done. To retrieve a quality profile key please see <code>api/qualityprofiles/search</code>")
-      .setDeprecatedKey("profile_key", "6.5")
       .setRequired(true)
       .setExampleValue(UUID_EXAMPLE_03);
 
     activate.createParam(PARAM_TARGET_SEVERITY)
       .setDescription("Severity to set on the activated rules")
-      .setDeprecatedKey("activation_severity", "6.5")
       .setPossibleValues(Severity.ALL);
   }
 

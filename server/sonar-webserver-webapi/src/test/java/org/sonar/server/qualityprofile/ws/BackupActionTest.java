@@ -66,9 +66,12 @@ public class BackupActionTest {
 
   @Test
   public void returns_backup_of_profile_with_specified_key() {
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setLanguage("xoo"));
 
-    TestResponse response = tester.newRequest().setParam(PARAM_KEY, profile.getKee()).execute();
+    TestResponse response = tester.newRequest()
+      .setParam("language", profile.getLanguage())
+      .setParam("qualityProfile", profile.getName())
+      .execute();
     assertThat(response.getMediaType()).isEqualTo("application/xml");
     assertThat(response.getInput()).isXmlEqualTo(xmlForProfileWithoutRules(profile));
     assertThat(response.getHeader("Content-Disposition")).isEqualTo("attachment; filename=" + profile.getKee() + ".xml");
@@ -129,14 +132,6 @@ public class BackupActionTest {
   }
 
   @Test
-  public void throws_NotFoundException_if_profile_with_specified_key_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile with key 'missing' does not exist");
-
-    tester.newRequest().setParam(PARAM_KEY, "missing").execute();
-  }
-
-  @Test
   public void throws_NotFoundException_if_specified_organization_does_not_exist() {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No organization with key 'the-missing-org'");
@@ -189,20 +184,6 @@ public class BackupActionTest {
   }
 
   @Test
-  public void fail_on_paid_organization_when_not_member_using_deprecated_profile_key() {
-    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
-    userSession.logIn();
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
-
-    tester.newRequest()
-      .setParam("key", profile.getKee())
-      .execute();
-  }
-
-  @Test
   public void test_definition() {
     WebService.Action definition = tester.getDef();
 
@@ -212,13 +193,9 @@ public class BackupActionTest {
     assertThat(definition.isPost()).isFalse();
 
     // parameters
-    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("key", "organization", "qualityProfile", "language");
-    Param key = definition.param("key");
-    assertThat(key.deprecatedKey()).isEqualTo("profileKey");
-    assertThat(key.deprecatedSince()).isEqualTo("6.6");
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("organization", "qualityProfile", "language");
     Param language = definition.param("language");
     assertThat(language.deprecatedSince()).isNullOrEmpty();
-    Param profileName = definition.param("qualityProfile");
     Param orgParam = definition.param("organization");
     assertThat(orgParam.since()).isEqualTo("6.4");
   }

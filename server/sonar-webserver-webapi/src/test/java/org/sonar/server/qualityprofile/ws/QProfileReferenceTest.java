@@ -98,48 +98,28 @@ public class QProfileReferenceTest {
   }
 
   @Test
-  public void from_reads_request_parameters_and_creates_reference_by_key() {
-    SimpleGetRequest req = new SimpleGetRequest();
-    req.setParam("key", "foo");
-
-    QProfileReference ref = QProfileReference.from(req);
-    assertThat(ref.getKey()).isEqualTo("foo");
-  }
-
-  @Test
-  public void from_reads_request_parameters_and_creates_reference_by_name_on_default_organization() {
+  public void fromName_reads_request_parameters_and_creates_reference_by_name_on_default_organization() {
     SimpleGetRequest req = new SimpleGetRequest();
     req.setParam("language", "js");
     req.setParam("qualityProfile", "Sonar way");
 
-    QProfileReference ref = QProfileReference.from(req);
+    QProfileReference ref = QProfileReference.fromName(req);
     assertThat(ref.getOrganizationKey()).isEmpty();
     assertThat(ref.getLanguage()).isEqualTo("js");
     assertThat(ref.getName()).isEqualTo("Sonar way");
   }
 
   @Test
-  public void from_reads_request_parameters_and_creates_reference_by_name_on_specified_organization() {
+  public void fromName_reads_request_parameters_and_creates_reference_by_name_on_specified_organization() {
     SimpleGetRequest req = new SimpleGetRequest();
     req.setParam("organization", "my-org");
     req.setParam("language", "js");
     req.setParam("qualityProfile", "Sonar way");
 
-    QProfileReference ref = QProfileReference.from(req);
+    QProfileReference ref = QProfileReference.fromName(req);
     assertThat(ref.getOrganizationKey()).hasValue("my-org");
     assertThat(ref.getLanguage()).isEqualTo("js");
     assertThat(ref.getName()).isEqualTo("Sonar way");
-  }
-
-  @Test
-  public void from_reads_request_parameters_and_throws_IAE_if_language_is_missing() {
-    SimpleGetRequest req = new SimpleGetRequest();
-    req.setParam("profileName", "the name");
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("If 'key' is not specified, 'qualityProfile' and 'language' must be set");
-
-    QProfileReference.from(req);
   }
 
   @Test
@@ -147,7 +127,7 @@ public class QProfileReferenceTest {
     SimpleGetRequest req = new SimpleGetRequest();
 
     expectedException.expect(IllegalArgumentException.class);
-    QProfileReference.from(req);
+    QProfileReference.fromName(req);
   }
 
   @Test
@@ -164,7 +144,6 @@ public class QProfileReferenceTest {
     WebService.Action action = context.controller("api/qualityprofiles").action("do");
     assertThat(action.param("language")).isNotNull();
     assertThat(action.param("language").possibleValues()).containsOnly("java", "js");
-    assertThat(action.param("key")).isNotNull();
     assertThat(action.param("qualityProfile")).isNotNull();
   }
 

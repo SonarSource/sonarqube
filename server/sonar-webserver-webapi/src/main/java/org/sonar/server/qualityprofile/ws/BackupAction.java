@@ -69,7 +69,7 @@ public class BackupAction implements QProfileWsAction {
     try (OutputStreamWriter writer = new OutputStreamWriter(stream.output(), UTF_8);
       DbSession dbSession = dbClient.openSession(false)) {
 
-      QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.from(request));
+      QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromName(request));
       response.setHeader("Content-Disposition", String.format("attachment; filename=%s.xml", profile.getKee()));
       backuper.backup(dbSession, profile, writer);
     }

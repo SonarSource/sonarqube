@@ -33,12 +33,10 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_09;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_PROJECT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_UUID;
 
 public class RemoveProjectAction implements QProfileWsAction {
 
@@ -74,13 +72,8 @@ public class RemoveProjectAction implements QProfileWsAction {
 
     action.createParam(PARAM_PROJECT)
       .setDescription("Project key")
-      .setDeprecatedKey("projectKey", "6.5")
+      .setRequired(true)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-    
-    action.createParam(PARAM_PROJECT_UUID)
-      .setDescription("Project ID. Either this parameter, or '%s' must be set.", PARAM_PROJECT)
-      .setDeprecatedSince("6.5")
-      .setExampleValue(UUID_EXAMPLE_09);
   }
 
   @Override
@@ -89,7 +82,7 @@ public class RemoveProjectAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = loadProject(dbSession, request);
-      QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.from(request));
+      QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromName(request));
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       checkPermissions(dbSession, organization, profile, project);
       if (!profile.getOrganizationUuid().equals(project.getOrganizationUuid())) {
@@ -104,9 +97,8 @@ public class RemoveProjectAction implements QProfileWsAction {
   }
 
   private ComponentDto loadProject(DbSession dbSession, Request request) {
-    String projectKey = request.param(PARAM_PROJECT);
-    String projectUuid = request.param(PARAM_PROJECT_UUID);
-    return componentFinder.getByUuidOrKey(dbSession, projectUuid, projectKey, ComponentFinder.ParamNames.PROJECT_UUID_AND_PROJECT);
+    String projectKey = request.mandatoryParam(PARAM_PROJECT);
+    return componentFinder.getByKey(dbSession, projectKey);
   }
 
   private void checkPermissions(DbSession dbSession, OrganizationDto organization, QProfileDto profile, ComponentDto project) {

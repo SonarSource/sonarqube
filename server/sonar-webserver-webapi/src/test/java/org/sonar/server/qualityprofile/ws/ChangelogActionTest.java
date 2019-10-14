@@ -88,7 +88,9 @@ public class ChangelogActionTest {
       "param_bar", "bar_value"));
 
     String response = ws.newRequest()
-      .setParam(PARAM_KEY, profile.getKee())
+      .setParam(PARAM_LANGUAGE, profile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInput();
 
@@ -126,7 +128,9 @@ public class ChangelogActionTest {
         "severity", "MINOR"));
 
     String response = ws.newRequest()
-      .setParam(PARAM_KEY, profile.getKee())
+      .setParam(PARAM_LANGUAGE, profile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInput();
 
@@ -218,7 +222,9 @@ public class ChangelogActionTest {
     QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
 
     String response = ws.newRequest()
-      .setParam(PARAM_KEY, qualityProfile.getKee())
+      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInput();
 
@@ -238,7 +244,9 @@ public class ChangelogActionTest {
         "severity", "MINOR"));
 
     assertJson(ws.newRequest()
-      .setParam(PARAM_KEY, qualityProfile.getKee())
+      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_SINCE, "2011-04-25T01:15:42+0100")
       .execute()
       .getInput()).isSimilarTo("{\n" +
@@ -254,7 +262,9 @@ public class ChangelogActionTest {
         "}");
 
     assertJson(ws.newRequest()
-      .setParam(PARAM_KEY, qualityProfile.getKee())
+      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_SINCE, "2011-04-25T01:15:43+0100")
       .execute()
       .getInput()).isSimilarTo("{\n" +
@@ -279,7 +289,9 @@ public class ChangelogActionTest {
       ImmutableMap.of("ruleId", valueOf(rule2.getId())));
 
     String response = ws.newRequest()
-      .setParam(PARAM_KEY, profile.getKee())
+      .setParam(PARAM_LANGUAGE, profile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInput();
 
@@ -460,7 +472,9 @@ public class ChangelogActionTest {
 
     String response = ws.newRequest()
       .setMethod("GET")
-      .setParam(PARAM_KEY, profile.getKee())
+      .setParam(PARAM_LANGUAGE, profile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam("ps", "10")
       .execute()
       .getInput();
@@ -475,7 +489,7 @@ public class ChangelogActionTest {
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.params()).extracting(WebService.Param::key)
-      .containsExactlyInAnyOrder("key", "qualityProfile", "language", "organization", "since", "to", "p", "ps");
+      .containsExactlyInAnyOrder("qualityProfile", "language", "organization", "since", "to", "p", "ps");
     WebService.Param profileName = definition.param("qualityProfile");
     assertThat(profileName.deprecatedSince()).isNullOrEmpty();
     WebService.Param language = definition.param("language");

@@ -67,7 +67,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class SearchActionTest {
@@ -229,7 +229,7 @@ public class SearchActionTest {
     db.qualityProfiles().associateWithProject(project, profileOnXoo1);
     db.qualityProfiles().setAsDefault(defaultProfileOnXoo1, defaultProfileOnXoo2);
 
-    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_PROJECT_KEY, project.getDbKey()));
+    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
 
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::getKey)
@@ -247,7 +247,7 @@ public class SearchActionTest {
     db.qualityProfiles().associateWithProject(project, profileOnXoo1);
     db.qualityProfiles().setAsDefault(defaultProfileOnXoo1, defaultProfileOnXoo2);
 
-    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_PROJECT_KEY, module.getDbKey()));
+    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_PROJECT, module.getDbKey()));
 
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::getKey)
@@ -265,7 +265,7 @@ public class SearchActionTest {
     db.qualityProfiles().setAsDefault(defaultProfileOnXoo1, defaultProfileOnXoo2);
 
     SearchWsResponse result = call(ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+      .setParam(PARAM_PROJECT, project.getDbKey())
       .setParam(PARAM_DEFAULTS, "true"));
 
     assertThat(result.getProfilesList())
@@ -283,7 +283,7 @@ public class SearchActionTest {
     db.qualityProfiles().associateWithProject(project, profileOnXoo1);
 
     SearchWsResponse result = call(ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+      .setParam(PARAM_PROJECT, project.getDbKey())
       .setParam(PARAM_DEFAULTS, "true"));
 
     assertThat(result.getProfilesList()).isEmpty();
@@ -437,7 +437,7 @@ public class SearchActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component key 'unknown-project' not found");
 
-    call(ws.newRequest().setParam(PARAM_PROJECT_KEY, "unknown-project"));
+    call(ws.newRequest().setParam(PARAM_PROJECT, "unknown-project"));
   }
 
   @Test
@@ -448,7 +448,7 @@ public class SearchActionTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage(format("Project uuid of component uuid '%s' does not exist", module.uuid()));
 
-    call(ws.newRequest().setParam(PARAM_PROJECT_KEY, module.getDbKey()));
+    call(ws.newRequest().setParam(PARAM_PROJECT, module.getDbKey()));
   }
 
   @Test
@@ -462,7 +462,7 @@ public class SearchActionTest {
 
     call(ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam(PARAM_PROJECT_KEY, project.getDbKey()));
+      .setParam(PARAM_PROJECT, project.getDbKey()));
   }
 
   @Test
@@ -562,7 +562,6 @@ public class SearchActionTest {
 
     WebService.Param projectKey = definition.param("project");
     assertThat(projectKey.description()).isEqualTo("Project key");
-    assertThat(projectKey.deprecatedKey()).isEqualTo("projectKey");
 
     WebService.Param language = definition.param("language");
     assertThat(language.possibleValues()).containsExactly("xoo1", "xoo2");

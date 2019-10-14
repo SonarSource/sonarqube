@@ -71,7 +71,6 @@ public class DeactivateRulesAction implements QProfileWsAction {
 
     deactivate.createParam(PARAM_TARGET_KEY)
       .setDescription("Quality Profile key on which the rule deactivation is done. To retrieve a profile key please see <code>api/qualityprofiles/search</code>")
-      .setDeprecatedKey("profile_key", "6.5")
       .setRequired(true)
       .setExampleValue(UUID_EXAMPLE_04);
   }

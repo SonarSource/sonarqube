@@ -56,13 +56,10 @@ public class QualityProfileWsParameters {
   public static final String PARAM_LOGIN = "login";
   public static final String PARAM_NAME = "name";
   public static final String PARAM_PARAMS = "params";
-  public static final String PARAM_PARENT_KEY = "parentKey";
   public static final String PARAM_PARENT_QUALITY_PROFILE = "parentQualityProfile";
   public static final String PARAM_KEY = "key";
   public static final String PARAM_QUALITY_PROFILE = "qualityProfile";
   public static final String PARAM_PROJECT = "project";
-  public static final String PARAM_PROJECT_KEY = "projectKey";
-  public static final String PARAM_PROJECT_UUID = "projectUuid";
   public static final String PARAM_QUERY = "q";
   public static final String PARAM_RESET = "reset";
   public static final String PARAM_RULE = "rule";

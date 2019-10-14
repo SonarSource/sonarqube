@@ -71,7 +71,6 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_QUALITY_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
@@ -128,13 +127,8 @@ public class ChangeParentActionTest {
     WebService.Action definition = ws.getDef();
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder(
-      "organization", "key", "qualityProfile", "language", "parentKey", "parentQualityProfile");
+      "organization", "qualityProfile", "language", "parentQualityProfile");
     assertThat(definition.param("organization").since()).isEqualTo("6.4");
-    Param profile = definition.param("key");
-    assertThat(profile.deprecatedKey()).isEqualTo("profileKey");
-    assertThat(profile.deprecatedSince()).isEqualTo("6.6");
-    Param parentProfile = definition.param("parentKey");
-    assertThat(parentProfile.deprecatedKey()).isNullOrEmpty();
   }
 
   @Test
@@ -152,8 +146,10 @@ public class ChangeParentActionTest {
     // Set parent
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_KEY, child.getKee())
-      .setParam(PARAM_PARENT_KEY, parent1.getKee())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, child.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, child.getName())
+      .setParam(PARAM_PARENT_QUALITY_PROFILE, parent1.getName())
       .execute();
 
     // Check rule 1 enabled
@@ -183,8 +179,10 @@ public class ChangeParentActionTest {
     // Set parent 2 through WS
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_KEY, child.getKee())
-      .setParam(PARAM_PARENT_KEY, parent2.getKee())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, child.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, child.getName())
+      .setParam(PARAM_PARENT_QUALITY_PROFILE, parent2.getName())
       .execute();
 
     // Check rule 2 enabled
@@ -211,7 +209,9 @@ public class ChangeParentActionTest {
     // Remove parent through WS
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_KEY, child.getKee())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, child.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, child.getName())
       .execute();
 
     // Check no rule enabled
@@ -300,8 +300,10 @@ public class ChangeParentActionTest {
     // Remove parent
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_KEY, child.getKee())
-      .setParam(PARAM_PARENT_KEY, "")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, child.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, child.getName())
+      .setParam(PARAM_PARENT_QUALITY_PROFILE, "")
       .execute();
 
     // Check no rule enabled
@@ -329,8 +331,10 @@ public class ChangeParentActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_KEY, child.getKee())
-      .setParam(PARAM_PARENT_KEY, parent2.getKee())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, child.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, child.getName())
+      .setParam(PARAM_PARENT_QUALITY_PROFILE, parent2.getName())
       .execute();
 
     List<OrgActiveRuleDto> activeRules2 = dbClient.activeRuleDao().selectByProfile(dbSession, child);
@@ -351,46 +355,13 @@ public class ChangeParentActionTest {
 
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_KEY, child.getKee())
-      .setParam(PARAM_PARENT_KEY, "palap");
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, child.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, child.getName())
+      .setParam(PARAM_PARENT_QUALITY_PROFILE, "palap");
 
     expectedException.expect(BadRequestException.class);
 
-    request.execute();
-  }
-
-  @Test
-  public void fail_if_parent_key_and_name_both_set() {
-    QProfileDto child = createProfile();
-
-    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).isEmpty();
-
-    TestRequest request = ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_KEY, child.getKee())
-      .setParam(PARAM_PARENT_QUALITY_PROFILE, "polop")
-      .setParam(PARAM_PARENT_KEY, "palap");
-    expectedException.expect(IllegalArgumentException.class);
-    request
-      .execute();
-  }
-
-  @Test
-  public void fail_if_profile_key_and_name_both_set() {
-    QProfileDto child = createProfile();
-
-    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).isEmpty();
-
-    TestRequest request = ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_KEY, child.getKee())
-      .setParam(PARAM_QUALITY_PROFILE, child.getName())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam(PARAM_PARENT_KEY, "palap");
-
-    expectedException.expect(IllegalArgumentException.class);
     request.execute();
   }
 
@@ -402,7 +373,9 @@ public class ChangeParentActionTest {
 
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_KEY, child.getKee());
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, child.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, child.getName());
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -418,7 +391,9 @@ public class ChangeParentActionTest {
 
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_KEY, child.getKee());
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, child.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, child.getName());
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");

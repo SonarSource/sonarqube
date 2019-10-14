@@ -28,13 +28,9 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.stream.MoreCollectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
@@ -149,22 +145,10 @@ public class QProfileReference {
     return result;
   }
 
-  public static QProfileReference from(Request request) {
-    String key = request.param(PARAM_KEY);
+  public static QProfileReference fromName(Request request) {
     String organizationKey = request.param(PARAM_ORGANIZATION);
-    String lang = request.param(PARAM_LANGUAGE);
-    String name = request.param(PARAM_QUALITY_PROFILE);
-    return from(key, organizationKey, lang, name);
-  }
-
-  public static QProfileReference from(@Nullable String key, @Nullable String organizationKey, @Nullable String lang, @Nullable String name) {
-    if (key != null) {
-      checkArgument(isEmpty(organizationKey) && isEmpty(lang) && isEmpty(name),
-        "When a quality profile key is set, '%s' '%s' and '%s' can't be set", PARAM_ORGANIZATION, PARAM_LANGUAGE, PARAM_QUALITY_PROFILE);
-      return fromKey(key);
-    }
-    checkArgument(!isEmpty(lang) && !isEmpty(name),
-      "If '%s' is not specified, '%s' and '%s' must be set", PARAM_KEY, PARAM_QUALITY_PROFILE, PARAM_LANGUAGE);
+    String lang = request.mandatoryParam(PARAM_LANGUAGE);
+    String name = request.mandatoryParam(PARAM_QUALITY_PROFILE);
     return fromName(organizationKey, lang, name);
   }
 
@@ -177,19 +161,14 @@ public class QProfileReference {
   }
 
   public static void defineParams(WebService.NewAction action, Languages languages) {
-    action.createParam(PARAM_KEY)
-      .setDescription("Quality profile key. Mandatory unless 'qualityProfile' and 'language' are specified.")
-      .setDeprecatedKey("profileKey", "6.5")
-      .setDeprecatedSince("6.6")
-      .setExampleValue(UUID_EXAMPLE_01);
-
     action.createParam(PARAM_QUALITY_PROFILE)
-      .setDescription("Quality profile name. Mandatory if 'key' is not set.")
-      .setDeprecatedKey("profileName", "6.6")
+      .setDescription("Quality profile name.")
+      .setRequired(true)
       .setExampleValue("Sonar way");
 
     action.createParam(PARAM_LANGUAGE)
-      .setDescription("Quality profile language. Mandatory if 'key' is not set.")
+      .setDescription("Quality profile language.")
+      .setRequired(true)
       .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(MoreCollectors.toSet()));
   }
 }

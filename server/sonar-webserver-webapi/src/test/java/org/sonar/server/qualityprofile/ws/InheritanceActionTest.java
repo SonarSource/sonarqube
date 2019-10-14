@@ -134,7 +134,9 @@ public class InheritanceActionTest {
     overrideActiveRuleSeverity(rule2, forProject2, Severity.CRITICAL);
 
     String response = ws.newRequest()
-      .setParam(PARAM_KEY, buWide.getKee())
+      .setParam(PARAM_LANGUAGE, buWide.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, buWide.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInput();
 
@@ -162,7 +164,9 @@ public class InheritanceActionTest {
 
     InputStream response = ws.newRequest()
       .setMediaType(PROTOBUF)
-      .setParam(PARAM_KEY, child.getKee())
+      .setParam(PARAM_LANGUAGE, child.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, child.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInputStream();
 
@@ -189,7 +193,9 @@ public class InheritanceActionTest {
 
     InputStream response = ws.newRequest()
       .setMediaType(PROTOBUF)
-      .setParam(PARAM_KEY, profile.getKee())
+      .setParam(PARAM_LANGUAGE, profile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInputStream();
 
@@ -205,7 +211,9 @@ public class InheritanceActionTest {
     QProfileDto remi = createProfile(organization,"xoo", "Nobodys Boy", "xoo-nobody-s-boy-01234");
 
     String response = ws.newRequest()
-      .setParam(PARAM_KEY, remi.getKee())
+      .setParam(PARAM_LANGUAGE, remi.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, remi.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInput();
 
@@ -228,7 +236,10 @@ public class InheritanceActionTest {
 
   @Test(expected = NotFoundException.class)
   public void fail_if_not_found() {
-    ws.newRequest().setParam(PARAM_KEY, "polop").execute();
+    ws.newRequest()
+      .setParam(PARAM_LANGUAGE, "xoo")
+      .setParam(PARAM_QUALITY_PROFILE, "asd")
+      .execute();
   }
 
   @Test
@@ -251,14 +262,7 @@ public class InheritanceActionTest {
     WebService.Action definition = ws.getDef();
 
     assertThat(definition.key()).isEqualTo("inheritance");
-    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("key", "language", "qualityProfile", "organization");
-    Param key = definition.param("key");
-    assertThat(key.deprecatedKey()).isEqualTo("profileKey");
-    assertThat(key.deprecatedSince()).isEqualTo("6.6");
-    Param profileName = definition.param("qualityProfile");
-    assertThat(profileName.deprecatedSince()).isNullOrEmpty();
-    Param language = definition.param("language");
-    assertThat(language.deprecatedSince()).isNullOrEmpty();
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("language", "qualityProfile", "organization");
   }
 
   private QProfileDto createProfile(OrganizationDto organization, String lang, String name, String key) {

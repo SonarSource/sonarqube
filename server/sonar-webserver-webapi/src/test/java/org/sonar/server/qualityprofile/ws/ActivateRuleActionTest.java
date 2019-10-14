@@ -94,10 +94,6 @@ public class ActivateRuleActionTest {
     assertThat(definition).isNotNull();
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("severity", "key", "reset", "rule", "params");
-    WebService.Param profileKey = definition.param("key");
-    assertThat(profileKey.deprecatedKey()).isEqualTo("profile_key");
-    WebService.Param ruleKey = definition.param("rule");
-    assertThat(ruleKey.deprecatedKey()).isEqualTo("rule_key");
   }
 
   @Test

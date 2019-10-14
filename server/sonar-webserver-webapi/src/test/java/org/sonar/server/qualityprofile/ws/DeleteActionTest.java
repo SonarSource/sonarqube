@@ -77,26 +77,6 @@ public class DeleteActionTest {
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void delete_profile_by_key() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
-    QProfileDto profile1 = createProfile(organization);
-    QProfileDto profile2 = createProfile(organization);
-    db.qualityProfiles().associateWithProject(project, profile1);
-
-    logInAsQProfileAdministrator(organization);
-
-    TestResponse response = ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_KEY, profile1.getKee())
-      .execute();
-    assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
-
-    verifyProfileDoesNotExist(profile1, organization);
-    verifyProfileExists(profile2);
-  }
-
-  @Test
   public void delete_profile_by_language_and_name_in_default_organization() {
     OrganizationDto organization = db.getDefaultOrganization();
     ComponentDto project = db.components().insertPrivateProject(organization);
@@ -161,14 +141,16 @@ public class DeleteActionTest {
   @Test
   public void fail_if_built_in_profile() {
     OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile1 = db.qualityProfiles().insert(organization, p -> p.setIsBuiltIn(true));
+    QProfileDto profile1 = db.qualityProfiles().insert(organization, p -> p.setIsBuiltIn(true).setLanguage(A_LANGUAGE));
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(BadRequestException.class);
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_KEY, profile1.getKee())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, profile1.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, profile1.getName())
       .execute();
   }
 
@@ -183,7 +165,9 @@ public class DeleteActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_KEY, qprofile.getKee())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, qprofile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, qprofile.getName())
       .execute();
   }
 
@@ -204,7 +188,7 @@ public class DeleteActionTest {
     userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("If 'key' is not specified, 'qualityProfile' and 'language' must be set");
+    expectedException.expectMessage("The 'language' parameter is missing");
 
     ws.newRequest()
       .setMethod("POST")
@@ -218,7 +202,7 @@ public class DeleteActionTest {
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("If 'key' is not specified, 'qualityProfile' and 'language' must be set");
+    expectedException.expectMessage("The 'language' parameter is missing");
 
     ws.newRequest()
       .setMethod("POST")
@@ -234,30 +218,12 @@ public class DeleteActionTest {
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("If 'key' is not specified, 'qualityProfile' and 'language' must be set");
+    expectedException.expectMessage("The 'qualityProfile' parameter is missing");
 
     ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_LANGUAGE, profile.getLanguage())
-      .execute();
-  }
-
-  @Test
-  public void fail_if_too_many_parameters_to_reference_profile() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = createProfile(organization);
-    logInAsQProfileAdministrator(organization);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("When a quality profile key is set, 'organization' 'language' and 'qualityProfile' can't be set");
-
-    ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam(PARAM_LANGUAGE, profile.getLanguage())
-      .setParam("profileName", profile.getName())
-      .setParam(PARAM_KEY, profile.getKee())
       .execute();
   }
 
@@ -266,11 +232,12 @@ public class DeleteActionTest {
     userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile with key 'does_not_exist' does not exist");
+    expectedException.expectMessage("Quality Profile for language 'xoo' and name 'does_not_exist' does not exist");
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_KEY, "does_not_exist")
+      .setParam(PARAM_QUALITY_PROFILE, "does_not_exist")
+      .setParam(PARAM_LANGUAGE, "xoo")
       .execute();
   }
 
@@ -286,7 +253,9 @@ public class DeleteActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_KEY, profile.getKee())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, profile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .execute();
   }
 
@@ -304,7 +273,9 @@ public class DeleteActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_KEY, parentProfile.getKee())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, parentProfile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, parentProfile.getName())
       .execute();
   }
 
@@ -313,14 +284,7 @@ public class DeleteActionTest {
     WebService.Action definition = ws.getDef();
 
     assertThat(definition.isPost()).isTrue();
-    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("language", "organization", "key", "qualityProfile");
-    Param key = definition.param("key");
-    assertThat(key.deprecatedKey()).isEqualTo("profileKey");
-    assertThat(key.deprecatedSince()).isEqualTo("6.6");
-    Param profileName = definition.param("qualityProfile");
-    assertThat(profileName.deprecatedSince()).isNullOrEmpty();
-    Param language = definition.param("language");
-    assertThat(language.deprecatedSince()).isNullOrEmpty();
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("language", "organization", "qualityProfile");
   }
 
   private void logInAsQProfileAdministrator(OrganizationDto organization) {

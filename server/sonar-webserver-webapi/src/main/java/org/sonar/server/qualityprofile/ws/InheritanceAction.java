@@ -70,7 +70,7 @@ public class InheritanceAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    QProfileReference reference = QProfileReference.from(request);
+    QProfileReference reference = QProfileReference.fromName(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, reference);
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);

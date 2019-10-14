@@ -80,11 +80,9 @@ public class ProjectsAction implements QProfileWsAction {
       .setExampleValue(UUID_EXAMPLE_01);
     action.addSelectionModeParam();
 
-    action.createSearchQuery("sonar", "projects")
-      .setDeprecatedKey("query", "6.5");
+    action.createSearchQuery("sonar", "projects");
 
-    action.createPageParam()
-      .setDeprecatedKey("page", "6.5");
+    action.createPageParam();
 
     action.createPageSize(100, MAX_PAGE_SIZE);
   }

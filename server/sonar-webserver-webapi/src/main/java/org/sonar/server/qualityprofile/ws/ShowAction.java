@@ -83,7 +83,6 @@ public class ShowAction implements QProfileWsAction {
     show.createParam(PARAM_KEY)
       .setDescription("Quality profile key")
       .setExampleValue(UUID_EXAMPLE_01)
-      .setDeprecatedKey("profile", "6.6")
       .setRequired(true);
 
     show.createParam(PARAM_COMPARE_TO_SONAR_WAY)

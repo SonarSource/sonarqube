@@ -47,12 +47,9 @@ import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
@@ -82,19 +79,13 @@ public class ExportAction implements QProfileWsAction {
       .setResponseExample(getClass().getResource("export-example.xml"))
       .setHandler(this);
 
-    action.createParam(PARAM_KEY)
-      .setDescription("Quality profile key")
-      .setSince("6.5")
-      .setDeprecatedSince("6.6")
-      .setExampleValue(UUID_EXAMPLE_01);
-
     action.createParam(PARAM_QUALITY_PROFILE)
       .setDescription("Quality profile name to export. If left empty, the default profile for the language is exported.")
-      .setDeprecatedKey("name", "6.6")
       .setExampleValue("My Sonar way");
 
     action.createParam(PARAM_LANGUAGE)
       .setDescription("Quality profile language")
+      .setRequired(true)
       .setExampleValue(LanguageParamUtils.getExampleValue(languages))
       .setPossibleValues(LanguageParamUtils.getOrderedLanguageKeys(languages));
 
@@ -118,14 +109,12 @@ public class ExportAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String key = request.param(PARAM_KEY);
     String name = request.param(PARAM_QUALITY_PROFILE);
-    String language = request.param(PARAM_LANGUAGE);
-    checkRequest(key != null ^ language != null, "Either '%s' or '%s' must be provided.", PARAM_KEY, PARAM_LANGUAGE);
+    String language = request.mandatoryParam(PARAM_LANGUAGE);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
-      QProfileDto profile = loadProfile(dbSession, organization, key, language, name);
+      QProfileDto profile = loadProfile(dbSession, organization, language, name);
       String exporterKey = exporters.exportersForLanguage(profile.getLanguage()).isEmpty() ? null : request.param(PARAM_EXPORTER_KEY);
       writeResponse(dbSession, profile, exporterKey, response);
     }
@@ -148,14 +137,9 @@ public class ExportAction implements QProfileWsAction {
     IOUtils.write(bufferStream.toByteArray(), output);
   }
 
-  private QProfileDto loadProfile(DbSession dbSession, OrganizationDto organization, @Nullable String key, @Nullable String language, @Nullable String name) {
+  private QProfileDto loadProfile(DbSession dbSession, OrganizationDto organization, String language, @Nullable String name) {
     QProfileDto profile;
-    if (key != null) {
-      profile = dbClient.qualityProfileDao().selectByUuid(dbSession, key);
-      return checkFound(profile, "Could not find profile with key '%s'", key);
-    }
 
-    checkRequest(language != null, "Parameter '%s' must be provided", PARAM_LANGUAGE);
     if (name == null) {
       // return the default profile
       profile = dbClient.qualityProfileDao().selectDefaultProfile(dbSession, organization, language);

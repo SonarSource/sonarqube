@@ -114,7 +114,6 @@ public class SearchAction implements QProfileWsAction {
 
     action.createParam(PARAM_PROJECT)
       .setDescription("Project key")
-      .setDeprecatedKey("projectKey", "6.5")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action
@@ -124,7 +123,6 @@ public class SearchAction implements QProfileWsAction {
 
     action.createParam(PARAM_QUALITY_PROFILE)
       .setDescription("Quality profile name")
-      .setDeprecatedKey("profileName", "6.6")
       .setExampleValue("SonarQube Way");
   }
 

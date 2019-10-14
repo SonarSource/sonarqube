@@ -358,7 +358,6 @@ public class ProjectsActionTest {
     assertThat(definition.param("p")).isNotNull();
     assertThat(definition.param("ps")).isNotNull();
     Param query = definition.param("q");
-    assertThat(query.deprecatedKey()).isEqualTo("query");
   }
 
   private void associateProjectsWithProfile(QProfileDto profile, ComponentDto... projects) {

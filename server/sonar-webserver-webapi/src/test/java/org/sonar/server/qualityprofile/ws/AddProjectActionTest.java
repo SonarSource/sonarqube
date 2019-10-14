@@ -73,17 +73,12 @@ public class AddProjectActionTest {
 
     // parameters
     assertThat(definition.params()).extracting(WebService.Param::key)
-      .containsExactlyInAnyOrder("key", "qualityProfile", "project", "language", "projectUuid", "organization");
-    WebService.Param profile = definition.param("key");
-    assertThat(profile.deprecatedKey()).isEqualTo("profileKey");
-    assertThat(profile.deprecatedSince()).isEqualTo("6.6");
+      .containsExactlyInAnyOrder("qualityProfile", "project", "language", "organization");
+    WebService.Param project = definition.param("project");
+    assertThat(project.isRequired()).isTrue();
     WebService.Param languageParam = definition.param("language");
     assertThat(languageParam.possibleValues()).containsOnly(LANGUAGE_1, LANGUAGE_2);
     assertThat(languageParam.exampleValue()).isNull();
-    WebService.Param project = definition.param("project");
-    assertThat(project.deprecatedKey()).isEqualTo("projectKey");
-    WebService.Param projectUuid = definition.param("projectUuid");
-    assertThat(projectUuid.deprecatedSince()).isEqualTo("6.5");
     WebService.Param organizationParam = definition.param("organization");
     assertThat(organizationParam.since()).isEqualTo("6.4");
     assertThat(organizationParam.isInternal()).isTrue();
@@ -93,7 +88,7 @@ public class AddProjectActionTest {
   public void add_project_on_profile_of_default_organization() {
     logInAsProfileAdmin(db.getDefaultOrganization());
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setLanguage("xoo"));
 
     TestResponse response = call(project, profile);
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
@@ -191,7 +186,7 @@ public class AddProjectActionTest {
   @Test
   public void project_administrator_can_change_profile() {
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setLanguage("xoo"));
     userSession.logIn(db.users().insertUser()).addProjectPermission(UserRole.ADMIN, project);
 
     call(project, profile);
@@ -203,7 +198,7 @@ public class AddProjectActionTest {
   public void throw_ForbiddenException_if_not_project_nor_organization_administrator() {
     userSession.logIn(db.users().insertUser());
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setLanguage("xoo"));
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -229,10 +224,10 @@ public class AddProjectActionTest {
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component id 'unknown' not found");
+    expectedException.expectMessage("Component key 'unknown' not found");
 
     tester.newRequest()
-      .setParam("projectUuid", "unknown")
+      .setParam("project", "unknown")
       .setParam("profileKey", profile.getKee())
       .execute();
   }
@@ -243,16 +238,17 @@ public class AddProjectActionTest {
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile with key 'unknown' does not exist");
+    expectedException.expectMessage("Quality Profile for language 'xoo' and name 'unknown' does not exist");
 
     tester.newRequest()
-      .setParam("projectUuid", project.uuid())
-      .setParam("profileKey", "unknown")
+      .setParam("project", project.getKey())
+      .setParam("language", "xoo")
+      .setParam("qualityProfile", "unknown")
       .execute();
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
+  public void fail_when_using_branch_db_key() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
     userSession.logIn(db.users().insertUser()).addProjectPermission(UserRole.ADMIN, project);
@@ -264,23 +260,6 @@ public class AddProjectActionTest {
 
     tester.newRequest()
       .setParam("project", branch.getDbKey())
-      .setParam("profileKey", profile.getKee())
-      .execute();
-  }
-
-  @Test
-  public void fail_when_using_branch_uuid() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
-    userSession.logIn(db.users().insertUser()).addProjectPermission(UserRole.ADMIN, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    QProfileDto profile = db.qualityProfiles().insert(organization);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
-
-    tester.newRequest()
-      .setParam("projectUuid", branch.uuid())
       .setParam("profileKey", profile.getKee())
       .execute();
   }
@@ -301,15 +280,16 @@ public class AddProjectActionTest {
 
   private TestResponse call(ComponentDto project, QProfileDto qualityProfile) {
     TestRequest request = tester.newRequest()
-      .setParam("projectUuid", project.uuid())
-      .setParam("key", qualityProfile.getKee());
+      .setParam("project", project.getKey())
+      .setParam("language", qualityProfile.getLanguage())
+      .setParam("qualityProfile", qualityProfile.getName());
     return request.execute();
   }
 
   private TestResponse call(OrganizationDto organization, ComponentDto project, QProfileDto qualityProfile) {
     TestRequest request = tester.newRequest()
       .setParam("organization", organization.getKey())
-      .setParam("projectUuid", project.uuid())
+      .setParam("project", project.getKey())
       .setParam("language", qualityProfile.getLanguage())
       .setParam("qualityProfile", qualityProfile.getName());
     return request.execute();

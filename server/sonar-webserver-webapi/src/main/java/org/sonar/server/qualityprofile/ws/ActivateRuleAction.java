@@ -74,13 +74,11 @@ public class ActivateRuleAction implements QProfileWsAction {
 
     activate.createParam(PARAM_KEY)
       .setDescription("Quality Profile key. Can be obtained through <code>api/qualityprofiles/search</code>")
-      .setDeprecatedKey("profile_key", "6.5")
       .setRequired(true)
       .setExampleValue(UUID_EXAMPLE_01);
 
     activate.createParam(PARAM_RULE)
       .setDescription("Rule key")
-      .setDeprecatedKey("rule_key", "6.5")
       .setRequired(true)
       .setExampleValue("squid:AvoidCycles");
 

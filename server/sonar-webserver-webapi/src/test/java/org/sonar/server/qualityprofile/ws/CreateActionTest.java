@@ -117,9 +117,6 @@ public class CreateActionTest {
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.params()).extracting(Param::key)
       .containsExactlyInAnyOrder("language", "organization", "name", "backup_with_messages", "backup_with_errors", "backup_xoo_lint");
-    Param name = definition.param("name");
-    assertThat(name.deprecatedKey()).isEqualTo("profileName");
-    assertThat(name.deprecatedKeySince()).isEqualTo("6.6");
   }
 
   @Test

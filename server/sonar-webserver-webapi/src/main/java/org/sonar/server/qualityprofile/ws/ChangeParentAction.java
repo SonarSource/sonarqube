@@ -33,9 +33,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_KEY;
 
 public class ChangeParentAction implements QProfileWsAction {
 
@@ -71,36 +69,29 @@ public class ChangeParentAction implements QProfileWsAction {
       .setSince("6.4");
     QProfileReference.defineParams(inheritance, languages);
 
-    inheritance.createParam(PARAM_PARENT_KEY)
-      .setDescription("New parent profile key.<br> " +
-        "If no profile is provided, the inheritance link with current parent profile (if any) is broken, which deactivates all rules " +
-        "which come from the parent and are not overridden.")
-      .setDeprecatedSince("6.6")
-      .setExampleValue(UUID_EXAMPLE_02);
-
     inheritance.createParam(QualityProfileWsParameters.PARAM_PARENT_QUALITY_PROFILE)
-      .setDescription("Quality profile name. If this parameter is set, '%s' must not be set and '%s' must be set to disambiguate.", PARAM_PARENT_KEY, PARAM_LANGUAGE)
+      .setDescription("New parent profile name. <br> " +
+        "If no profile is provided, the inheritance link with current parent profile (if any) is broken, which deactivates all rules " +
+          "which come from the parent and are not overridden.")
       .setExampleValue("Sonar way");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
-    QProfileReference reference = QProfileReference.from(request);
+    QProfileReference reference = QProfileReference.fromName(request);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, reference);
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       wsSupport.checkCanEdit(dbSession, organization, profile);
 
-      String parentKey = request.param(PARAM_PARENT_KEY);
       String parentName = request.param(QualityProfileWsParameters.PARAM_PARENT_QUALITY_PROFILE);
-      if (isEmpty(parentKey) && isEmpty(parentName)) {
+      if (isEmpty(parentName)) {
         ruleActivator.removeParentAndCommit(dbSession, profile);
       } else {
-        String parentOrganizationKey = parentKey == null ? organization.getKey() : null;
-        String parentLanguage = parentKey == null ? request.param(PARAM_LANGUAGE) : null;
-        QProfileReference parentRef = QProfileReference.from(parentKey, parentOrganizationKey, parentLanguage, parentName);
+        String parentLanguage = request.mandatoryParam(PARAM_LANGUAGE);
+        QProfileReference parentRef = QProfileReference.fromName(organization.getKey(), parentLanguage, parentName);
         QProfileDto parent = wsSupport.getProfile(dbSession, parentRef);
         ruleActivator.setParentAndCommit(dbSession, profile, parent);
       }

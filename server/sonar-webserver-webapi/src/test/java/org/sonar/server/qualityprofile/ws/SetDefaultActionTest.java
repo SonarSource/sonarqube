@@ -45,6 +45,9 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class SetDefaultActionTest {
 
@@ -106,38 +109,8 @@ public class SetDefaultActionTest {
 
     assertThat(definition).isNotNull();
     assertThat(definition.isPost()).isTrue();
-    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("key", "qualityProfile", "language", "organization");
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("qualityProfile", "language", "organization");
     assertThat(definition.param("organization").since()).isEqualTo("6.4");
-    Param profile = definition.param("key");
-    assertThat(profile.deprecatedKey()).isEqualTo("profileKey");
-    assertThat(definition.param("qualityProfile").deprecatedSince()).isNullOrEmpty();
-    assertThat(definition.param("language").deprecatedSince()).isNullOrEmpty();
-  }
-
-  @Test
-  public void set_default_profile_using_key() {
-    logInAsQProfileAdministrator();
-
-    checkDefaultProfile(organization, XOO_1_KEY, xoo1Profile.getKee());
-    checkDefaultProfile(organization, XOO_2_KEY, xoo2Profile2.getKee());
-
-    TestResponse response = ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_KEY, xoo2Profile.getKee()).execute();
-
-    assertThat(response.getInput()).isEmpty();
-
-    checkDefaultProfile(organization, XOO_1_KEY, xoo1Profile.getKee());
-    checkDefaultProfile(organization, XOO_2_KEY, xoo2Profile.getKee());
-
-    // One more time!
-    TestResponse response2 = ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_KEY, xoo2Profile.getKee()).execute();
-
-    assertThat(response2.getInput()).isEmpty();
-    checkDefaultProfile(organization, XOO_1_KEY, xoo1Profile.getKee());
-    checkDefaultProfile(organization, XOO_2_KEY, xoo2Profile.getKee());
   }
 
   @Test
@@ -197,21 +170,6 @@ public class SetDefaultActionTest {
   }
 
   @Test
-  public void fail_to_set_default_profile_using_invalid_key() {
-    logInAsQProfileAdministrator();
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile with key 'unknown-profile-666' does not exist");
-
-    ws.newRequest().setMethod("POST")
-      .setParam(PARAM_KEY, "unknown-profile-666")
-      .execute();
-
-    checkDefaultProfile(organization, XOO_1_KEY, xoo1Profile.getKee());
-    checkDefaultProfile(organization, XOO_2_KEY, xoo2Profile2.getKee());
-  }
-
-  @Test
   public void fail_to_set_default_profile_using_language_and_invalid_name() {
     logInAsQProfileAdministrator();
 
@@ -229,19 +187,6 @@ public class SetDefaultActionTest {
   }
 
   @Test
-  public void fail_if_parameter_profile_key_is_combined_with_parameter_organization() {
-    userSessionRule.logIn();
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("When a quality profile key is set, 'organization' 'language' and 'qualityProfile' can't be set");
-
-    ws.newRequest().setMethod("POST")
-      .setParam(PARAM_KEY, xoo2Profile.getKee())
-      .setParam("organization", organization.getKey())
-      .execute();
-  }
-
-  @Test
   public void throw_ForbiddenException_if_not_profile_administrator() {
     userSessionRule.logIn();
 
@@ -249,7 +194,9 @@ public class SetDefaultActionTest {
     expectedException.expectMessage("Insufficient privileges");
 
     ws.newRequest().setMethod("POST")
-      .setParam(PARAM_KEY, xoo2Profile.getKee())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_QUALITY_PROFILE, xoo2Profile.getName())
+      .setParam(PARAM_LANGUAGE, xoo2Profile.getLanguage())
       .execute();
   }
 

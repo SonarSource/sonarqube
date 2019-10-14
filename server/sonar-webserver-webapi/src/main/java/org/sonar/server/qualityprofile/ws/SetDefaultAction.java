@@ -64,7 +64,7 @@ public class SetDefaultAction implements QProfileWsAction {
   @Override
   public void handle(Request request, Response response) {
     userSession.checkLoggedIn();
-    QProfileReference reference = QProfileReference.from(request);
+    QProfileReference reference = QProfileReference.fromName(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto qualityProfile = qProfileWsSupport.getProfile(dbSession, reference);
       dbClient.organizationDao().selectByUuid(dbSession, qualityProfile.getOrganizationUuid())

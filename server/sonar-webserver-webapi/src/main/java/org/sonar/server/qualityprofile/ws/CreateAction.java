@@ -97,8 +97,7 @@ public class CreateAction implements QProfileWsAction {
       .setRequired(true)
       .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setDescription("Quality profile name")
-      .setExampleValue("My Sonar way")
-      .setDeprecatedKey("profileName", "6.6");
+      .setExampleValue("My Sonar way");
 
     create.createParam(PARAM_LANGUAGE)
       .setRequired(true)

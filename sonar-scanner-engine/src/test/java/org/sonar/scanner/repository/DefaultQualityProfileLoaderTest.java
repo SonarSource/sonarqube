@@ -51,14 +51,14 @@ public class DefaultQualityProfileLoaderTest {
   public void load_gets_all_profiles_for_specified_project() throws IOException {
     prepareCallWithResults();
     underTest.load("foo");
-    verifyCalledPath("/api/qualityprofiles/search.protobuf?projectKey=foo");
+    verifyCalledPath("/api/qualityprofiles/search.protobuf?project=foo");
   }
 
   @Test
   public void load_encodes_url_parameters() throws IOException {
-    WsTestUtil.mockStream(wsClient, "/api/qualityprofiles/search.protobuf?projectKey=foo%232", createStreamOfProfiles("qp"));
+    WsTestUtil.mockStream(wsClient, "/api/qualityprofiles/search.protobuf?project=foo%232", createStreamOfProfiles("qp"));
     underTest.load("foo#2");
-    verifyCalledPath("/api/qualityprofiles/search.protobuf?projectKey=foo%232");
+    verifyCalledPath("/api/qualityprofiles/search.protobuf?project=foo%232");
   }
 
   @Test
@@ -66,18 +66,18 @@ public class DefaultQualityProfileLoaderTest {
     when(properties.organizationKey()).thenReturn(Optional.of("my-org"));
     prepareCallWithResults();
     underTest.load("foo");
-    verifyCalledPath("/api/qualityprofiles/search.protobuf?projectKey=foo&organization=my-org");
+    verifyCalledPath("/api/qualityprofiles/search.protobuf?project=foo&organization=my-org");
   }
 
   @Test
   public void load_tries_default_if_no_profiles_found_for_project() throws IOException {
     HttpException e = new HttpException("", 404, "{\"errors\":[{\"msg\":\"No project found with key 'foo'\"}]}");
-    WsTestUtil.mockException(wsClient, "/api/qualityprofiles/search.protobuf?projectKey=foo", e);
+    WsTestUtil.mockException(wsClient, "/api/qualityprofiles/search.protobuf?project=foo", e);
     WsTestUtil.mockStream(wsClient, "/api/qualityprofiles/search.protobuf?defaults=true", createStreamOfProfiles("qp"));
 
     underTest.load("foo");
 
-    verifyCalledPath("/api/qualityprofiles/search.protobuf?projectKey=foo");
+    verifyCalledPath("/api/qualityprofiles/search.protobuf?project=foo");
     verifyCalledPath("/api/qualityprofiles/search.protobuf?defaults=true");
   }
 
@@ -86,7 +86,7 @@ public class DefaultQualityProfileLoaderTest {
     when(properties.organizationKey()).thenReturn(Optional.of("my-org"));
 
     HttpException e = new HttpException("", 404, "{\"errors\":[{\"msg\":\"No organization with key 'myorg'\"}]}");
-    WsTestUtil.mockException(wsClient, "/api/qualityprofiles/search.protobuf?projectKey=foo&organization=my-org", e);
+    WsTestUtil.mockException(wsClient, "/api/qualityprofiles/search.protobuf?project=foo&organization=my-org", e);
     WsTestUtil.mockStream(wsClient, "/api/qualityprofiles/search.protobuf?defaults=true&organization=my-org", createStreamOfProfiles("qp"));
 
     underTest.load("foo");

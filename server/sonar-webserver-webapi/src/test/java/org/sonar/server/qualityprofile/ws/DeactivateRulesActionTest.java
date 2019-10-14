@@ -105,8 +105,6 @@ public class DeactivateRulesActionTest {
       "owaspTop10",
       "sansTop25",
       "sonarsourceSecurity");
-    WebService.Param targetProfile = definition.param("targetKey");
-    assertThat(targetProfile.deprecatedKey()).isEqualTo("profile_key");
   }
 
   @Test
