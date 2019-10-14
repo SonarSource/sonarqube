@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.profiles.RulesProfile;
@@ -52,7 +53,7 @@ public class ActiveRule implements Cloneable {
    * @deprecated visibility should be reduced to protected or package
    */
   @Deprecated
-  public ActiveRule(RulesProfile profile, Rule rule, RulePriority severity) {
+  public ActiveRule(RulesProfile profile, Rule rule, @Nullable RulePriority severity) {
     this.rule = rule;
     this.overriddenSeverity = severity;
     if (severity == null && rule != null) {

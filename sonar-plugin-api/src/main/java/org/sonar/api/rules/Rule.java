@@ -226,7 +226,7 @@ public class Rule {
    * @param severity severity to set, if null, uses the default priority.
    * @since 2.5
    */
-  public Rule setSeverity(RulePriority severity) {
+  public Rule setSeverity(@Nullable RulePriority severity) {
     if (severity == null) {
       this.priority = DEFAULT_PRIORITY;
     } else {
