@@ -54,13 +54,13 @@ dependencies {
   bundledPlugin "org.sonarsource.dotnet:sonar-csharp-plugin@jar"
   bundledPlugin "org.sonarsource.dotnet:sonar-vbnet-plugin@jar"
   bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin@jar'
-  bundledPlugin 'org.sonarsource.go:sonar-go-plugin@jar'
   bundledPlugin 'org.sonarsource.html:sonar-html-plugin@jar'
   bundledPlugin 'org.sonarsource.java:sonar-java-plugin@jar'
   bundledPlugin 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.0.2.475@jar'
   bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin@jar'
   bundledPlugin 'org.sonarsource.php:sonar-php-plugin@jar'
   bundledPlugin 'org.sonarsource.python:sonar-python-plugin@jar'
+  bundledPlugin 'org.sonarsource.slang:sonar-go-plugin@jar'
   bundledPlugin "org.sonarsource.slang:sonar-kotlin-plugin@jar"
   bundledPlugin "org.sonarsource.slang:sonar-ruby-plugin@jar"
   bundledPlugin 'org.sonarsource.scm.git:sonar-scm-git-plugin:1.8.0.1574@jar'

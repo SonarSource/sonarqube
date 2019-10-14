@@ -26,7 +26,6 @@ dependencies {
   languagePlugin 'com.sonarsource.cobol:sonar-cobol-plugin@jar'
   languagePlugin 'org.sonarsource.css:sonar-css-plugin@jar'
   languagePlugin 'org.sonarsource.flex:sonar-flex-plugin@jar'
-  languagePlugin 'org.sonarsource.go:sonar-go-plugin@jar'
   languagePlugin 'org.sonarsource.java:sonar-java-plugin@jar'
   languagePlugin 'org.sonarsource.javascript:sonar-javascript-plugin@jar'
   languagePlugin "org.sonarsource.slang:sonar-kotlin-plugin@jar"
@@ -35,6 +34,7 @@ dependencies {
   languagePlugin 'com.sonarsource.plsql:sonar-plsql-plugin@jar'
   languagePlugin 'org.sonarsource.python:sonar-python-plugin@jar'
   languagePlugin 'com.sonarsource.rpg:sonar-rpg-plugin@jar'
+  languagePlugin 'org.sonarsource.slang:sonar-go-plugin@jar'
   languagePlugin "org.sonarsource.slang:sonar-ruby-plugin@jar"
   languagePlugin "org.sonarsource.slang:sonar-scala-plugin@jar"
   languagePlugin 'com.sonarsource.swift:sonar-swift-plugin@jar'
