@@ -20,11 +20,12 @@
 package org.sonar.api.impl.utils;
 
 import java.util.TimeZone;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class TestSystem2Test {
@@ -43,21 +44,20 @@ public class TestSystem2Test {
   public void test_tick() {
     underTest.setNow(1000L);
     underTest.tick();
-    Assert.assertEquals(underTest.now(), 1001L);
+    assertThat(underTest.now()).isEqualTo(1001L);
   }
 
   @Test
   public void test_now() {
     underTest.setNow(1000L);
-    Assert.assertEquals(underTest.now(), 1000L);
+    assertThat(underTest.now()).isEqualTo(1000L);
   }
 
   @Test
   public void test_default_time_zone() {
     underTest.setDefaultTimeZone(TimeZone.getDefault());
     TimeZone result = underTest.getDefaultTimeZone();
-    Assert.assertNotNull(result);
-    Assert.assertEquals(result.getID(), TimeZone.getDefault().getID());
+    assertThat(result.getID()).isEqualTo(TimeZone.getDefault().getID());
   }
 
   @Test

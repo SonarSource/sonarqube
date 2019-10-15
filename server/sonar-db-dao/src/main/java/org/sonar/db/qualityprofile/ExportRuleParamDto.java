@@ -20,9 +20,9 @@
 package org.sonar.db.qualityprofile;
 
 public class ExportRuleParamDto {
-  private Integer activeRuleId;
-  private String kee;
-  private String value;
+  private Integer activeRuleId = null;
+  private String kee = null;
+  private String value = null;
 
   public Integer getActiveRuleId() {
     return activeRuleId;

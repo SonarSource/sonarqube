@@ -20,6 +20,7 @@
 package org.sonar.server.project.ws;
 
 import com.google.common.base.Strings;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -291,7 +292,7 @@ public class CreateActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'project' parameter is missing");
 
-    call(CreateRequest.builder().setName(DEFAULT_PROJECT_NAME).build());
+    call(null, null, DEFAULT_PROJECT_NAME);
   }
 
   @Test
@@ -301,7 +302,7 @@ public class CreateActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'name' parameter is missing");
 
-    call(CreateRequest.builder().setProjectKey(DEFAULT_PROJECT_KEY).build());
+    call(null, DEFAULT_PROJECT_KEY, null);
   }
 
   @Test
@@ -360,12 +361,51 @@ public class CreateActionTest {
     assertThat(name.description()).isEqualTo("Name of the project. If name is longer than 500, it is abbreviated.");
   }
 
+  @Test
+  public void fail_when_set_null_project_name_on_create_request_builder() {
+    expectedException.expect(NullPointerException.class);
+
+    CreateRequest.builder()
+      .setProjectKey(DEFAULT_PROJECT_KEY)
+      .setName(null);
+  }
+
+  @Test
+  public void fail_when_set_null_project_key_on_create_request_builder() {
+    expectedException.expect(NullPointerException.class);
+
+    CreateRequest.builder()
+      .setProjectKey(null)
+      .setName(DEFAULT_PROJECT_NAME);
+  }
+
+  @Test
+  public void fail_when_project_key_not_set_on_create_request_builder() {
+    expectedException.expect(NullPointerException.class);
+    CreateRequest.builder()
+      .setName(DEFAULT_PROJECT_NAME)
+      .build();
+  }
+
+  @Test
+  public void fail_when_project_name_not_set_on_create_request_builder() {
+    expectedException.expect(NullPointerException.class);
+
+    CreateRequest.builder()
+      .setProjectKey(DEFAULT_PROJECT_KEY)
+      .build();
+  }
+
   private CreateWsResponse call(CreateRequest request) {
+    return call(request.getOrganization(), request.getProjectKey(), request.getName());
+  }
+
+  private CreateWsResponse call(@Nullable String organization, @Nullable String projectKey, @Nullable String projectName) {
     TestRequest httpRequest = ws.newRequest()
       .setMethod(POST.name());
-    ofNullable(request.getOrganization()).ifPresent(org -> httpRequest.setParam("organization", org));
-    ofNullable(request.getProjectKey()).ifPresent(key -> httpRequest.setParam("project", key));
-    ofNullable(request.getName()).ifPresent(name -> httpRequest.setParam("name", name));
+    ofNullable(organization).ifPresent(org -> httpRequest.setParam("organization", org));
+    ofNullable(projectKey).ifPresent(key -> httpRequest.setParam("project", key));
+    ofNullable(projectName).ifPresent(name -> httpRequest.setParam("name", name));
     return httpRequest.executeProtobuf(CreateWsResponse.class);
   }
 

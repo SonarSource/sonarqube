@@ -56,6 +56,11 @@ public class SetAction implements NewCodePeriodsWsAction {
   private static final String PARAM_PROJECT = "project";
   private static final String PARAM_TYPE = "type";
   private static final String PARAM_VALUE = "value";
+  private static final String BEGIN_LIST = "<ul>";
+  private static final String END_LIST = "</ul>";
+  private static final String BEGIN_ITEM_LIST = "<li>";
+  private static final String END_ITEM_LIST = "</li>";
+
   private static final Set<NewCodePeriodType> OVERALL_TYPES = EnumSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS);
   private static final Set<NewCodePeriodType> PROJECT_TYPES = EnumSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS);
   private static final Set<NewCodePeriodType> BRANCH_TYPES = EnumSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS, SPECIFIC_ANALYSIS);
@@ -79,15 +84,15 @@ public class SetAction implements NewCodePeriodsWsAction {
     WebService.NewAction action = context.createAction("set")
       .setPost(true)
       .setDescription("Updates the setting for the New Code Period on different levels:<br>" +
-        "<ul>" +
-        "<li>Project key must be provided to update the value for a project</li>" +
-        "<li>Both project and branch keys must be provided to update the value for a branch\n</li>" +
-        "</ul>" +
+        BEGIN_LIST +
+        BEGIN_ITEM_LIST + "Project key must be provided to update the value for a project" + END_ITEM_LIST +
+        BEGIN_ITEM_LIST + "Both project and branch keys must be provided to update the value for a branch" + END_ITEM_LIST +
+        END_LIST +
         "Requires one of the following permissions: " +
-        "<ul>" +
-        "<li>'Administer System' to change the global setting</li>" +
-        "<li>'Administer' rights on the specified project to change the project setting</li>" +
-        "</ul>")
+        BEGIN_LIST +
+        BEGIN_ITEM_LIST + "'Administer System' to change the global setting" + END_ITEM_LIST +
+        BEGIN_ITEM_LIST + "'Administer' rights on the specified project to change the project setting" + END_ITEM_LIST +
+        END_LIST)
       .setSince("8.0")
       .setHandler(this);
 
@@ -99,19 +104,21 @@ public class SetAction implements NewCodePeriodsWsAction {
       .setRequired(true)
       .setDescription("Type<br/>" +
         "New code periods of the following types are allowed:" +
-        "<ul>" +
-        "<li>" + SPECIFIC_ANALYSIS.name() + " - can be set at branch level only</li>" +
-        "<li>" + PREVIOUS_VERSION.name() + " - can be set at any level (global, project, branch)</li>" +
-        "<li>" + NUMBER_OF_DAYS.name() + " - can be set  can be set at any level (global, project, branch)</li>" +
-        "</ul>");
+        BEGIN_LIST +
+        BEGIN_ITEM_LIST + SPECIFIC_ANALYSIS.name() + " - can be set at branch level only" + END_ITEM_LIST +
+        BEGIN_ITEM_LIST + PREVIOUS_VERSION.name() + " - can be set at any level (global, project, branch)" + END_ITEM_LIST +
+        BEGIN_ITEM_LIST + NUMBER_OF_DAYS.name() + " - can be set  can be set at any level (global, project, branch)" + END_ITEM_LIST +
+        END_LIST
+      );
     action.createParam(PARAM_VALUE)
       .setDescription("Value<br/>" +
         "For each type, a different value is expected:" +
-        "<ul>" +
-        "<li>the uuid of an analysis, when type is " + SPECIFIC_ANALYSIS.name() + "</li>" +
-        "<li>no value, when type is " + PREVIOUS_VERSION.name() + "</li>" +
-        "<li>a number, when type is " + NUMBER_OF_DAYS.name() + "</li>" +
-        "</ul>");
+        BEGIN_LIST +
+        BEGIN_ITEM_LIST + "the uuid of an analysis, when type is " + SPECIFIC_ANALYSIS.name() + END_ITEM_LIST +
+        BEGIN_ITEM_LIST + "no value, when type is " + PREVIOUS_VERSION.name() + END_ITEM_LIST +
+        BEGIN_ITEM_LIST + "a number, when type is " + NUMBER_OF_DAYS.name() + END_ITEM_LIST +
+        END_LIST
+      );
   }
 
   @Override

@@ -63,7 +63,7 @@ public class QualityProfileExportDaoTest {
 
     List<ExportRuleDto> results = underTest.selectRulesByProfile(dbSession, profile);
     assertThat(results).isNotNull();
-    assertThat(results).asList()
+    assertThat(results)
       .extracting("ruleKey")
       .containsOnly(rule1.getKey(), rule2.getKey(), rule3.getKey());
   }
@@ -72,32 +72,55 @@ public class QualityProfileExportDaoTest {
   public void selectRulesByProfile_verify_columns() {
     String language = "java";
     RuleDefinitionDto ruleTemplate = createRule(language);
-    RuleDefinitionDto rule = createRule(language, RuleStatus.READY, ruleTemplate.getId());
-    RuleMetadataDto ruleMetadata = createRuleMetadata(new RuleMetadataDto()
-      .setRuleId(rule.getId())
+    RuleDefinitionDto customRule = createRule(language, RuleStatus.READY, ruleTemplate.getId());
+    RuleMetadataDto customRuleMetadata = createRuleMetadata(new RuleMetadataDto()
+      .setRuleId(customRule.getId())
       .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setNoteData("Extended description")
       .setTags(Sets.newHashSet("tag1", "tag2", "tag3")));
 
+    RuleDefinitionDto rule = createRule(language, RuleStatus.READY, null);
+    RuleMetadataDto ruleMetadata = createRuleMetadata(new RuleMetadataDto()
+      .setRuleId(rule.getId())
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid()));
+
     QProfileDto profile = createProfile(language);
 
-    List<ActiveRuleDto> activeRules = activate(profile, rule);
+    List<ActiveRuleDto> activeRules = activate(profile, customRule, rule);
 
     List<ExportRuleDto> results = underTest.selectRulesByProfile(dbSession, profile);
     assertThat(results).isNotNull();
-    assertThat(results).asList().isNotEmpty();
+    assertThat(results).isNotEmpty();
 
-    ExportRuleDto exportRuleDto = results.get(0);
+    //verify custom rule
+    ExportRuleDto exportCustomRuleDto = results.stream().filter(ExportRuleDto::isCustomRule).findFirst().get();
+    assertThat(exportCustomRuleDto).isNotNull();
+    assertThat(exportCustomRuleDto.isCustomRule()).isTrue();
+    assertThat(exportCustomRuleDto.getParams()).isEmpty();
+    assertThat(exportCustomRuleDto.getDescription()).isEqualTo(customRule.getDescription());
+    assertThat(exportCustomRuleDto.getExtendedDescription()).isEqualTo(customRuleMetadata.getNoteData());
+    assertThat(exportCustomRuleDto.getName()).isEqualTo(customRule.getName());
+    assertThat(exportCustomRuleDto.getRuleKey()).isEqualTo(customRule.getKey());
+    assertThat(exportCustomRuleDto.getRuleType()).isEqualTo(RuleType.valueOf(customRule.getType()));
+    assertThat(exportCustomRuleDto.getTags()).isEqualTo(String.join(",", customRuleMetadata.getTags()));
+    assertThat(exportCustomRuleDto.getTemplateRuleKey()).isEqualTo(ruleTemplate.getKey());
+
+    ActiveRuleDto activeCustomRule = activeRules.stream().filter(activeRuleDto -> activeRuleDto.getRuleKey().equals(customRule.getKey())).findFirst().get();
+    assertThat(exportCustomRuleDto.getSeverityString()).isEqualTo(activeCustomRule.getSeverityString());
+
+    //verify regular rule
+    ExportRuleDto exportRuleDto = results.stream().filter(regularRule -> !regularRule.isCustomRule()).findFirst().get();
     assertThat(exportRuleDto).isNotNull();
-    assertThat(exportRuleDto.getParams()).asList().isEmpty();
+    assertThat(exportRuleDto.isCustomRule()).isFalse();
+    assertThat(exportRuleDto.getParams()).isEmpty();
     assertThat(exportRuleDto.getDescription()).isEqualTo(rule.getDescription());
     assertThat(exportRuleDto.getExtendedDescription()).isEqualTo(ruleMetadata.getNoteData());
     assertThat(exportRuleDto.getName()).isEqualTo(rule.getName());
     assertThat(exportRuleDto.getRuleKey()).isEqualTo(rule.getKey());
     assertThat(exportRuleDto.getRuleType()).isEqualTo(RuleType.valueOf(rule.getType()));
-    assertThat(exportRuleDto.getSeverityString()).isEqualTo(activeRules.get(0).getSeverityString());
-    assertThat(exportRuleDto.getTags()).isEqualTo(String.join(",", ruleMetadata.getTags()));
-    assertThat(exportRuleDto.getTemplateRuleKey()).isEqualTo(ruleTemplate.getKey());
+
+    ActiveRuleDto activeRule = activeRules.stream().filter(activeRuleDto -> activeRuleDto.getRuleKey().equals(rule.getKey())).findFirst().get();
+    assertThat(exportRuleDto.getSeverityString()).isEqualTo(activeRule.getSeverityString());
   }
 
   @Test
@@ -149,7 +172,7 @@ public class QualityProfileExportDaoTest {
       .extracting("activeRuleId")
       .containsOnly(firstActivatedRule.getId(), secondActivatedRule.getId());
 
-    assertThat(otherProfileResults).asList()
+    assertThat(otherProfileResults)
       .extracting("activeRuleId")
       .containsOnly(thirdActivatedRule.getId());
 

@@ -26,16 +26,16 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.db.rule.SeverityUtil;
 
 public class ExportRuleDto {
-  private Integer activeRuleId;
-  private String repository;
-  private String rule;
-  private String name;
-  private String description;
-  private String extendedDescription;
-  private String template;
-  private Integer severity;
-  private Integer type;
-  private String tags;
+  private Integer activeRuleId = null;
+  private String repository = null;
+  private String rule = null;
+  private String name = null;
+  private String description = null;
+  private String extendedDescription = null;
+  private String template = null;
+  private Integer severity = null;
+  private Integer type = null;
+  private String tags = null;
 
   private List<ExportRuleParamDto> params;
 

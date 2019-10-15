@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import java.io.Reader;
 import java.io.Writer;
@@ -29,7 +28,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import org.apache.commons.lang.StringUtils;
@@ -45,8 +46,6 @@ import org.sonar.db.qualityprofile.QProfileDto;
 
 @ServerSide
 public class QProfileParser {
-  private static final Joiner RULE_KEY_JOINER = Joiner.on(", ").skipNulls();
-
   private static final String ATTRIBUTE_PROFILE = "profile";
   private static final String ATTRIBUTE_NAME = "name";
   private static final String ATTRIBUTE_LANGUAGE = "language";
@@ -64,9 +63,6 @@ public class QProfileParser {
   private static final String ATTRIBUTE_PARAMETER = "parameter";
   private static final String ATTRIBUTE_PARAMETER_KEY = "key";
   private static final String ATTRIBUTE_PARAMETER_VALUE = "value";
-
-  public QProfileParser() {
-  }
 
   public void writeXml(Writer writer, QProfileDto profile, Iterator<ExportRuleDto> rulesToExport) {
     XmlWriter xml = XmlWriter.of(writer).declaration();
@@ -190,7 +186,7 @@ public class QProfileParser {
     }
     if (!duplicatedKeys.isEmpty()) {
       throw new IllegalArgumentException("The quality profile cannot be restored as it contains duplicates for the following rules: " +
-        RULE_KEY_JOINER.join(duplicatedKeys));
+        duplicatedKeys.stream().map(RuleKey::toString).filter(Objects::nonNull).collect(Collectors.joining(", ")));
     }
     return activations;
   }

@@ -67,13 +67,14 @@ import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_ONLY_CURRENTS;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_STATUS;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_TYPE;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ActivityAction implements CeWsAction {
   private static final int MAX_PAGE_SIZE = 1000;
   private static final String[] POSSIBLE_QUALIFIERS = new String[] {Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW};
+  private static final String INVALID_QUERY_PARAM_ERROR_MESSAGE = "%s and %s must not be set at the same time";
 
   private final UserSession userSession;
   private final DbClient dbClient;
@@ -303,13 +304,13 @@ public class ActivityAction implements CeWsAction {
       .setOnlyCurrents(String.valueOf(request.paramAsBoolean(PARAM_ONLY_CURRENTS)))
       .setPs(String.valueOf(request.mandatoryParamAsInt(Param.PAGE_SIZE)));
 
-    checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getQ() == null, "%s and %s must not be set at the same time",
+    checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getQ() == null, INVALID_QUERY_PARAM_ERROR_MESSAGE,
       PARAM_COMPONENT_ID, TEXT_QUERY);
 
-    checkRequest(activityWsRequest.getComponent() == null || activityWsRequest.getQ() == null, "%s and %s must not be set at the same time",
+    checkRequest(activityWsRequest.getComponent() == null || activityWsRequest.getQ() == null, INVALID_QUERY_PARAM_ERROR_MESSAGE,
       PARAM_COMPONENT, TEXT_QUERY);
 
-    checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getComponent() == null, "%s and %s must not be set at the same time",
+    checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getComponent() == null, INVALID_QUERY_PARAM_ERROR_MESSAGE,
       PARAM_COMPONENT_ID, PARAM_COMPONENT);
 
     return activityWsRequest;

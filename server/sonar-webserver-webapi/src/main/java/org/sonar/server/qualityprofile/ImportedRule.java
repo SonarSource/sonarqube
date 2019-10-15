@@ -23,18 +23,17 @@ import java.util.Map;
 import org.sonar.api.rule.RuleKey;
 
 class ImportedRule {
-  private RuleKey ruleKey;
-  private RuleKey templateKey;
-  private String name;
-  private String type;
-  private String severity;
-  private String description;
+  private RuleKey ruleKey = null;
+  private RuleKey templateKey = null;
+  private String name = null;
+  private String type = null;
+  private String severity = null;
+  private String description = null;
+  private Map<String, String> parameters = null;
 
   public Map<String, String> getParameters() {
     return parameters;
   }
-
-  private Map<String, String> parameters;
 
   public RuleKey getRuleKey() {
     return ruleKey;

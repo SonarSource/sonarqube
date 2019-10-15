@@ -34,6 +34,7 @@ import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.CreateWsResponse;
 
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.abbreviate;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
@@ -161,12 +162,10 @@ public class CreateAction implements ProjectsWsAction {
       return organization;
     }
 
-    @CheckForNull
     public String getProjectKey() {
       return projectKey;
     }
 
-    @CheckForNull
     public String getName() {
       return name;
     }
@@ -196,12 +195,14 @@ public class CreateAction implements ProjectsWsAction {
       return this;
     }
 
-    public Builder setProjectKey(@Nullable String projectKey) {
+    public Builder setProjectKey(String projectKey) {
+      requireNonNull(projectKey);
       this.projectKey = projectKey;
       return this;
     }
 
-    public Builder setName(@Nullable String name) {
+    public Builder setName(String name) {
+      requireNonNull(name);
       this.name = name;
       return this;
     }
@@ -212,6 +213,8 @@ public class CreateAction implements ProjectsWsAction {
     }
 
     public CreateRequest build() {
+      requireNonNull(projectKey);
+      requireNonNull(name);
       return new CreateRequest(this);
     }
   }

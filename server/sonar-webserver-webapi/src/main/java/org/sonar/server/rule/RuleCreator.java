@@ -56,6 +56,7 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 @ServerSide
 public class RuleCreator {
+  private static final String TEMPLATE_KEY_NOT_EXIST_FORMAT = "The template key doesn't exist: %s";
 
   private final System2 system2;
   private final RuleIndexer ruleIndexer;
@@ -78,9 +79,9 @@ public class RuleCreator {
     OrganizationDto defaultOrganization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
       .orElseThrow(() -> new IllegalStateException(format("Could not find default organization for uuid '%s'", defaultOrganizationUuid)));
     RuleDto templateRule = dbClient.ruleDao().selectByKey(dbSession, defaultOrganization.getUuid(), templateKey)
-      .orElseThrow(() -> new IllegalArgumentException(format("The template key doesn't exist: %s", templateKey)));
+      .orElseThrow(() -> new IllegalArgumentException(format(TEMPLATE_KEY_NOT_EXIST_FORMAT, templateKey)));
     checkArgument(templateRule.isTemplate(), "This rule is not a template rule: %s", templateKey.toString());
-    checkArgument(templateRule.getStatus() != RuleStatus.REMOVED, "The template key doesn't exist: %s", templateKey.toString());
+    checkArgument(templateRule.getStatus() != RuleStatus.REMOVED, TEMPLATE_KEY_NOT_EXIST_FORMAT, templateKey.toString());
     validateCustomRule(newRule, dbSession, templateKey);
 
     RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());
@@ -108,7 +109,7 @@ public class RuleCreator {
     checkArgument(!templateRules.isEmpty() && templateKeys.size() == templateRules.size(), "Rule template keys should exists for each custom rule!");
     templateRules.values().forEach(ruleDto -> {
         checkArgument(ruleDto.isTemplate(), "This rule is not a template rule: %s", ruleDto.getKey().toString());
-        checkArgument(ruleDto.getStatus() != RuleStatus.REMOVED, "The template key doesn't exist: %s", ruleDto.getKey().toString());
+        checkArgument(ruleDto.getStatus() != RuleStatus.REMOVED, TEMPLATE_KEY_NOT_EXIST_FORMAT, ruleDto.getKey().toString());
       }
     );
 
