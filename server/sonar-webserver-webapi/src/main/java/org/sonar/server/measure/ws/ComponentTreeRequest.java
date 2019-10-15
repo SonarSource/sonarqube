@@ -41,8 +41,6 @@ class ComponentTreeRequest {
   private List<String> metricKeys;
   private Integer page;
   private Integer pageSize;
-  private String developerId;
-  private String developerKey;
 
   /**
    * @deprecated since 6.6, please use {@link #getComponent()} instead
@@ -209,26 +207,6 @@ class ComponentTreeRequest {
 
   public ComponentTreeRequest setMetricPeriodSort(@Nullable Integer metricPeriodSort) {
     this.metricPeriodSort = metricPeriodSort;
-    return this;
-  }
-
-  @CheckForNull
-  public String getDeveloperId() {
-    return developerId;
-  }
-
-  public ComponentTreeRequest setDeveloperId(@Nullable String developerId) {
-    this.developerId = developerId;
-    return this;
-  }
-
-  @CheckForNull
-  public String getDeveloperKey() {
-    return developerKey;
-  }
-
-  public ComponentTreeRequest setDeveloperKey(@Nullable String developerKey) {
-    this.developerKey = developerKey;
     return this;
   }
 }

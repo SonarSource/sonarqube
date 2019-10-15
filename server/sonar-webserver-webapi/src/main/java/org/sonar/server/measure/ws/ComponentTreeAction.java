@@ -92,8 +92,6 @@ import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_PARA
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
-import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_DEVELOPER_ID;
-import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_SORT;
@@ -101,19 +99,18 @@ import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_SO
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_STRATEGY;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.updateMeasureBuilder;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
-import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createDeveloperParameters;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
 import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeriods;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -177,8 +174,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_COMPONENT_TREE)
       .setDescription(format("Navigate through components based on the chosen strategy with specified measures. The %s or the %s parameter must be provided.<br>" +
-        "Requires the following permission: 'Browse' on the specified project.<br>" +
-        "When limiting search with the %s parameter, directories are not returned.",
+          "Requires the following permission: 'Browse' on the specified project.<br>" +
+          "When limiting search with the %s parameter, directories are not returned.",
         DEPRECATED_PARAM_BASE_COMPONENT_ID, PARAM_COMPONENT, Param.TEXT_QUERY))
       .setResponseExample(getClass().getResource("component_tree-example.json"))
       .setSince("5.4")
@@ -249,7 +246,6 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setDescription("Comma-separated list of metric keys. Types %s are not allowed.", COMMA_JOINER.join(FORBIDDEN_METRIC_TYPES))
       .setMaxValuesAllowed(MAX_METRIC_KEYS);
     createAdditionalFieldsParameter(action);
-    createDeveloperParameters(action);
     createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes));
 
     action.createParam(PARAM_STRATEGY)
@@ -270,10 +266,6 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private ComponentTreeWsResponse doHandle(ComponentTreeRequest request) {
-    if (request.getDeveloperId() != null || request.getDeveloperKey() != null) {
-      return emptyResponse(null, request);
-    }
-
     ComponentTreeData data = load(request);
     if (data.getComponents() == null) {
       return emptyResponse(data.getBaseComponent(), request);
@@ -362,8 +354,6 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setMetricSort(request.param(PARAM_METRIC_SORT))
       .setMetricSortFilter(request.mandatoryParam(PARAM_METRIC_SORT_FILTER))
       .setMetricPeriodSort(request.paramAsInt(PARAM_METRIC_PERIOD_SORT))
-      .setDeveloperId(request.param(PARAM_DEVELOPER_ID))
-      .setDeveloperKey(request.param(PARAM_DEVELOPER_KEY))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setQuery(request.param(Param.TEXT_QUERY));

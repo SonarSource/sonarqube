@@ -24,8 +24,6 @@ import org.sonar.api.server.ws.WebService.NewParam;
 
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_FIELDS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
-import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_DEVELOPER_ID;
-import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
 
 class MeasuresWsParametersBuilder {
@@ -46,16 +44,5 @@ class MeasuresWsParametersBuilder {
       .setDescription("Comma-separated list of metric keys")
       .setRequired(true)
       .setExampleValue("ncloc,complexity,violations");
-  }
-
-  static void createDeveloperParameters(NewAction action) {
-    deprecateDeveloperParameter(action, PARAM_DEVELOPER_ID);
-    deprecateDeveloperParameter(action, PARAM_DEVELOPER_KEY);
-  }
-
-  private static void deprecateDeveloperParameter(NewAction action, String key) {
-    action.createParam(key)
-      .setDeprecatedSince("6.4")
-      .setDescription("Deprecated parameter, used previously with the Developer Cockpit plugin. No measures are returned if parameter is set.");
   }
 }

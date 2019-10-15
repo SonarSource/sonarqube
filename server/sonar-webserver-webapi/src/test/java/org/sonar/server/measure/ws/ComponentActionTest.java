@@ -53,11 +53,9 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_ID;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
-import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_DEVELOPER_ID;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -79,10 +77,10 @@ public class ComponentActionTest {
 
     assertThat(def.since()).isEqualTo("5.4");
     assertThat(def.params()).extracting(Param::key)
-      .containsExactlyInAnyOrder("componentId", "component", "branch", "pullRequest", "metricKeys", "additionalFields", "developerId", "developerKey");
-    assertThat(def.param("developerId").deprecatedSince()).isEqualTo("6.4");
-    assertThat(def.param("developerKey").deprecatedSince()).isEqualTo("6.4");
-    assertThat(def.param("componentId").deprecatedSince()).isEqualTo("6.6");
+      .containsExactlyInAnyOrder("component", "branch", "pullRequest", "metricKeys", "additionalFields");
+
+    WebService.Param component = def.param(PARAM_COMPONENT);
+    assertThat(component.isRequired()).isTrue();
 
     WebService.Param branch = def.param("branch");
     assertThat(branch.since()).isEqualTo("6.6");
@@ -261,22 +259,7 @@ public class ComponentActionTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     ComponentWsResponse response = ws.newRequest()
-      .setParam("componentId", project.uuid())
-      .setParam(PARAM_METRIC_KEYS, metric.getKey())
-      .executeProtobuf(ComponentWsResponse.class);
-
-    assertThat(response.getComponent().getKey()).isEqualTo(project.getDbKey());
-  }
-
-  @Test
-  public void use_deprecated_component_key_parameter() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
-    userSession.addProjectPermission(USER, project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
-
-    ComponentWsResponse response = ws.newRequest()
-      .setParam("componentKey", project.getKey())
+      .setParam("component", project.getDbKey())
       .setParam(PARAM_METRIC_KEYS, metric.getKey())
       .executeProtobuf(ComponentWsResponse.class);
 
@@ -324,23 +307,6 @@ public class ComponentActionTest {
     assertThat(response.getComponent().getMeasuresList())
       .extracting(Measures.Measure::getMetric, Measures.Measure::getValue, Measures.Measure::getBestValue)
       .containsExactly(tuple(metric.getKey(), "7", true));
-  }
-
-  @Test
-  public void fail_when_developer_is_not_found() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
-    db.components().insertSnapshot(project);
-
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("The Developer Cockpit feature has been dropped. The specified developer cannot be found.");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_METRIC_KEYS, metric.getKey())
-      .setParam(PARAM_DEVELOPER_ID, "unknown-developer-id").executeProtobuf(ComponentWsResponse.class);
   }
 
   @Test
@@ -428,23 +394,6 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void fail_when_componentId_and_branch_params_are_used_together() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    userSession.addProjectPermission(UserRole.USER, project);
-    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Parameter 'componentId' cannot be used at the same time as 'branch' or 'pullRequest'");
-
-    ws.newRequest()
-      .setParam(DEPRECATED_PARAM_COMPONENT_ID, file.uuid())
-      .setParam(PARAM_BRANCH, "my_branch")
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .execute();
-  }
-
-  @Test
   public void fail_when_using_branch_db_key() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
@@ -457,23 +406,6 @@ public class ComponentActionTest {
 
     ws.newRequest()
       .setParam(PARAM_COMPONENT, branch.getDbKey())
-      .setParam(PARAM_METRIC_KEYS, metric.getKey())
-      .execute();
-  }
-
-  @Test
-  public void fail_when_using_branch_uuid() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
-
-    ws.newRequest()
-      .setParam(DEPRECATED_PARAM_COMPONENT_ID, branch.uuid())
       .setParam(PARAM_METRIC_KEYS, metric.getKey())
       .execute();
   }
