@@ -19,7 +19,8 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 
@@ -67,8 +68,8 @@ public class ProjectDefinitionTest {
 
   @Test
   public void shouldGetKeyFromProperties() {
-    Properties props = new Properties();
-    props.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
+    Map<String, String> props = new HashMap<>();
+    props.put(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
     ProjectDefinition def = ProjectDefinition.create();
     def.setProperties(props);
     assertThat(def.getKey()).isEqualTo("foo");

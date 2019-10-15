@@ -551,15 +551,6 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldDefineProjectWithBuildDir() {
-    ProjectDefinition rootProject = loadProjectDefinition("simple-project-with-build-dir");
-    File buildDir = rootProject.getBuildDir();
-    assertThat(buildDir).isDirectory().exists();
-    assertThat(new File(buildDir, "report.txt")).isFile().exists();
-    assertThat(buildDir.getName()).isEqualTo("build");
-  }
-
-  @Test
   public void doNotMixPropertiesWhenModuleKeyIsPrefixOfAnother() throws IOException {
     ProjectDefinition rootProject = loadProjectDefinition("multi-module-definitions-same-prefix");
 

@@ -26,44 +26,22 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.config.DefaultConfiguration;
 
-import static java.util.Arrays.asList;
 import static org.sonar.api.CoreProperties.CATEGORY_CODE_COVERAGE;
 
-public class GenericCoverageSensor implements Sensor {
+public class GenericCoverageSensor implements ProjectSensor {
 
   private static final Logger LOG = Loggers.get(GenericCoverageSensor.class);
 
   static final String REPORT_PATHS_PROPERTY_KEY = "sonar.coverageReportPaths";
-  /**
-   * @deprecated since 6.2
-   */
-  @Deprecated
-  static final String OLD_REPORT_PATH_PROPERTY_KEY = "sonar.genericcoverage.reportPath";
-  /**
-   * @deprecated since 6.2
-   */
-  @Deprecated
-  static final String OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY = "sonar.genericcoverage.reportPaths";
-  /**
-   * @deprecated since 6.2
-   */
-  @Deprecated
-  static final String OLD_IT_COVERAGE_REPORT_PATHS_PROPERTY_KEY = "sonar.genericcoverage.itReportPaths";
-  /**
-   * @deprecated since 6.2
-   */
-  @Deprecated
-  static final String OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY = "sonar.genericcoverage.overallReportPaths";
-
   private final DefaultConfiguration config;
 
   public GenericCoverageSensor(DefaultConfiguration config) {
@@ -78,7 +56,6 @@ public class GenericCoverageSensor implements Sensor {
         .category(CATEGORY_CODE_COVERAGE)
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
-        .deprecatedKey(OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY)
         .build());
 
   }
@@ -100,11 +77,7 @@ public class GenericCoverageSensor implements Sensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor.name("Generic Coverage Report")
-      .global()
-      .onlyWhenConfiguration(c -> asList(REPORT_PATHS_PROPERTY_KEY, OLD_REPORT_PATH_PROPERTY_KEY, OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY,
-        OLD_IT_COVERAGE_REPORT_PATHS_PROPERTY_KEY, OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY)
-        .stream()
-        .anyMatch(c::hasKey));
+      .onlyWhenConfiguration(c -> c.hasKey(REPORT_PATHS_PROPERTY_KEY));
   }
 
   @Override
@@ -126,13 +99,7 @@ public class GenericCoverageSensor implements Sensor {
   }
 
   Set<String> loadReportPaths() {
-    Set<String> reportPaths = new LinkedHashSet<>();
-    reportPaths.addAll(Arrays.asList(config.getStringArray(REPORT_PATHS_PROPERTY_KEY)));
-    loadDeprecated(reportPaths, OLD_REPORT_PATH_PROPERTY_KEY);
-    loadArrayDeprecated(reportPaths, OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
-    loadArrayDeprecated(reportPaths, OLD_IT_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
-    loadArrayDeprecated(reportPaths, OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
-    return reportPaths;
+    return new LinkedHashSet<>(Arrays.asList(config.getStringArray(REPORT_PATHS_PROPERTY_KEY)));
   }
 
 }

@@ -52,7 +52,6 @@ public class ProjectDefinition {
 
   private File baseDir;
   private File workDir;
-  private File buildDir;
   private Map<String, String> properties = new LinkedHashMap<>();
   private ProjectDefinition parent = null;
   private List<ProjectDefinition> subProjects = new ArrayList<>();
@@ -85,51 +84,8 @@ public class ProjectDefinition {
     return workDir;
   }
 
-  /**
-   * @deprecated since 6.1 notion of buildDir is not well defined
-   */
-  @Deprecated
-  public ProjectDefinition setBuildDir(File d) {
-    this.buildDir = d;
-    return this;
-  }
-
-  /**
-   * @deprecated since 6.1 notion of buildDir is not well defined
-   */
-  @Deprecated
-  public File getBuildDir() {
-    return buildDir;
-  }
-
-  /**
-   * @deprecated since 5.0 use {@link #properties()}
-   */
-  @Deprecated
-  public Properties getProperties() {
-    Properties result = new Properties();
-    for (Map.Entry<String, String> entry : properties.entrySet()) {
-      result.setProperty(entry.getKey(), entry.getValue());
-    }
-    return result;
-  }
-
   public Map<String, String> properties() {
     return properties;
-  }
-
-  /**
-   * Copies specified properties into this object.
-   *
-   * @since 2.12
-   * @deprecated since 5.0 use {@link #setProperties(Map)}
-   */
-  @Deprecated
-  public ProjectDefinition setProperties(Properties properties) {
-    for (Entry<Object, Object> entry : properties.entrySet()) {
-      this.properties.put(entry.getKey().toString(), entry.getValue().toString());
-    }
-    return this;
   }
 
   public ProjectDefinition setProperties(Map<String, String> properties) {

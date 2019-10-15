@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.sonar.api.config.Encryption;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.scan.ProjectConfiguration;
 
@@ -39,25 +38,14 @@ public class GenericCoverageSensorTest {
   public LogTester logTester = new LogTester();
 
   @Test
-  public void migrateOldProperties() {
+  public void loadAllReportPaths() {
     Map<String, String> settings = new HashMap<>();
-    settings.put(GenericCoverageSensor.OLD_REPORT_PATH_PROPERTY_KEY, "old.xml");
-    settings.put(GenericCoverageSensor.OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY, "old1.xml,old2.xml");
-    settings.put(GenericCoverageSensor.OLD_IT_COVERAGE_REPORT_PATHS_PROPERTY_KEY, "old3.xml,old4.xml,old.xml");
-    settings.put(GenericCoverageSensor.OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY, "old5.xml,old6.xml");
-
+    settings.put(GenericCoverageSensor.REPORT_PATHS_PROPERTY_KEY, "report.xml,report2.xml");
     PropertyDefinitions defs = new PropertyDefinitions(GenericCoverageSensor.properties());
     DefaultConfiguration config = new ProjectConfiguration(defs, new Encryption(null), settings);
 
     Set<String> reportPaths = new GenericCoverageSensor(config).loadReportPaths();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(
-      "Property 'sonar.genericcoverage.reportPath' is deprecated. Please use 'sonar.coverageReportPaths' instead.",
-      "Property 'sonar.genericcoverage.reportPaths' is deprecated. Please use 'sonar.coverageReportPaths' instead.",
-      "Property 'sonar.genericcoverage.itReportPaths' is deprecated. Please use 'sonar.coverageReportPaths' instead.",
-      "Property 'sonar.genericcoverage.overallReportPaths' is deprecated. Please use 'sonar.coverageReportPaths' instead.");
-
-    assertThat(reportPaths).containsOnly(
-      "old.xml", "old1.xml", "old2.xml", "old3.xml", "old4.xml", "old5.xml", "old6.xml");
+    assertThat(reportPaths).containsOnly("report.xml", "report2.xml");
   }
 }

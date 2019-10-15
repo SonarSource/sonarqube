@@ -21,7 +21,6 @@ package org.sonar.batch.bootstrapper;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 
@@ -31,12 +30,6 @@ import org.apache.commons.lang.StringUtils;
 public final class LoggingConfiguration {
 
   public static final String PROPERTY_ROOT_LOGGER_LEVEL = "ROOT_LOGGER_LEVEL";
-  /**
-   * @deprecated since 5.2 there is no more db access from scanner side
-   */
-  @Deprecated
-  public static final String PROPERTY_SQL_LOGGER_LEVEL = "SQL_LOGGER_LEVEL";
-
   public static final String PROPERTY_FORMAT = "FORMAT";
 
   public static final String LEVEL_ROOT_VERBOSE = "DEBUG";
@@ -90,19 +83,6 @@ public final class LoggingConfiguration {
     return setVerbose(verbose);
   }
 
-  @CheckForNull
-  private static String getFallback(String key, Map<String, String> properties, @Nullable Map<String, String> fallback) {
-    if (properties.containsKey(key)) {
-      return properties.get(key);
-    }
-
-    if (fallback != null) {
-      return fallback.get(key);
-    }
-
-    return null;
-  }
-
   public LoggingConfiguration setRootLevel(String level) {
     return addSubstitutionVariable(PROPERTY_ROOT_LOGGER_LEVEL, level);
   }
@@ -111,7 +91,7 @@ public final class LoggingConfiguration {
     return addSubstitutionVariable(PROPERTY_FORMAT, StringUtils.defaultIfBlank(format, FORMAT_DEFAULT));
   }
 
-  public LoggingConfiguration addSubstitutionVariable(String key, String value) {
+  private LoggingConfiguration addSubstitutionVariable(String key, String value) {
     substitutionVariables.put(key, value);
     return this;
   }

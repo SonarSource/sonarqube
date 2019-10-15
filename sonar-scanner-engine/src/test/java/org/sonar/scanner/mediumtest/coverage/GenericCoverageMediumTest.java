@@ -66,20 +66,6 @@ public class GenericCoverageMediumTest {
     assertThat(logs).noneMatch(l -> l.contains("Please use 'sonar.coverageReportPaths'"));
 
   }
-  
-  @Test
-  public void warnAboutDeprecatedProperty() {
-    File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-coverage");
-
-    tester
-      .setLogOutput((msg, level) -> logs.add(msg))
-      .newAnalysis(new File(projectDir, "sonar-project.properties"))
-      .property("sonar.genericcoverage.reportPath", "coverage.xml")
-      .execute();
-      
-      
-    assertThat(logs).anyMatch(l -> l.contains("Please use 'sonar.coverageReportPaths'"));
-  }
 
   @Test
   public void twoReports() throws IOException {
