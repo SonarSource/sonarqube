@@ -48,7 +48,7 @@ script:
     <>
       {getSonarcloudAddonYmlRender(props.organization)}
       <br />
-      {`  script:
+      {`script:
   - ./gradlew sonarqube`}
     </>
   );
