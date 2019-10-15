@@ -344,10 +344,10 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     const options = types.map(type => ({ label: translate('issue.type', type), value: type }));
 
     const optionRenderer = (option: { label: string; value: string }) => (
-      <span>
-        <IssueTypeIcon className="little-spacer-right" query={option.value} />
-        {option.label}
-      </span>
+      <>
+        <IssueTypeIcon query={option.value} />
+        <span className="little-spacer-left">{option.label}</span>
+      </>
     );
 
     const input = (

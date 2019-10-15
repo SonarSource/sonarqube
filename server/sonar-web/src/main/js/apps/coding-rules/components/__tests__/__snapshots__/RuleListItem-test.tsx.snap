@@ -127,7 +127,7 @@ exports[`should render 1`] = `
             className="display-flex-center coding-rule-meta"
           >
             <span
-              className="spacer-left note"
+              className="display-inline-flex-center spacer-left note"
             >
               JavaScript
             </span>
@@ -138,15 +138,18 @@ exports[`should render 1`] = `
                 className="display-inline-flex-center spacer-left note"
               >
                 <IssueTypeIcon
-                  className="little-spacer-right"
                   query="CODE_SMELL"
                 />
-                issue.type.CODE_SMELL
+                <span
+                  className="little-spacer-left text-middle"
+                >
+                  issue.type.CODE_SMELL
+                </span>
               </span>
             </Tooltip>
             <TagsList
               allowUpdate={false}
-              className="note spacer-left"
+              className="display-inline-flex-center note spacer-left"
               tags={
                 Array [
                   "x",

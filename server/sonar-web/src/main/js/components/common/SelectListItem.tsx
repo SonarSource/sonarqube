@@ -23,6 +23,7 @@ import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 
 interface Props {
   active?: string;
+  className?: string;
   item: string;
   onHover?: (item: string) => void;
   onSelect?: (item: string) => void;
@@ -48,7 +49,10 @@ export default class SelectListItem extends React.PureComponent<Props> {
     return (
       <li>
         <a
-          className={classNames({ active: this.props.active === this.props.item })}
+          className={classNames(
+            { active: this.props.active === this.props.item },
+            this.props.className
+          )}
           href="#"
           onClick={this.handleSelect}
           onFocus={this.handleHover}

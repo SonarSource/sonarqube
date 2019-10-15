@@ -14,6 +14,7 @@ exports[`should render tags popup correctly 1`] = `
     onSelect={[MockFunction]}
   >
     <SelectListItem
+      className="display-flex-center"
       item="BUG"
       key="BUG"
     >
@@ -24,6 +25,7 @@ exports[`should render tags popup correctly 1`] = `
       issue.type.BUG
     </SelectListItem>
     <SelectListItem
+      className="display-flex-center"
       item="VULNERABILITY"
       key="VULNERABILITY"
     >
@@ -34,6 +36,7 @@ exports[`should render tags popup correctly 1`] = `
       issue.type.VULNERABILITY
     </SelectListItem>
     <SelectListItem
+      className="display-flex-center"
       item="CODE_SMELL"
       key="CODE_SMELL"
     >

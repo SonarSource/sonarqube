@@ -140,10 +140,6 @@
   cursor: pointer;
 }
 
-.source-meta + .source-meta {
-  border-left: 1px solid var(--barBackgroundColor);
-}
-
 .source-line-number {
   min-width: 18px;
   padding: 0 10px;
@@ -163,8 +159,9 @@
   white-space: nowrap;
 }
 
-.source-line-with-issues {
-  padding-right: 4px;
+.source-line-with-issues svg {
+  padding-right: 2px;
+  vertical-align: middle;
 }
 
 .source-line-issues-counter {

@@ -31,6 +31,7 @@ exports[`should render correctly 1`] = `
     onSelect={[Function]}
   >
     <SelectListItem
+      className="display-flex-center"
       item="type"
     >
       <IssueTypeIcon
@@ -43,6 +44,7 @@ exports[`should render correctly 1`] = `
       item="severity"
     >
       <SeverityHelper
+        className="display-flex-center"
         severity="MAJOR"
       />
     </SelectListItem>
@@ -50,6 +52,7 @@ exports[`should render correctly 1`] = `
       item="status"
     >
       <StatusHelper
+        className="display-flex-center"
         status="OPEN"
       />
     </SelectListItem>

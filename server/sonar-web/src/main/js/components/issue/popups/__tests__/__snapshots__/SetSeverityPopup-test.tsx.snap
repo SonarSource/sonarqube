@@ -16,6 +16,7 @@ exports[`should render tags popup correctly 1`] = `
     onSelect={[MockFunction]}
   >
     <SelectListItem
+      className="display-flex-center"
       item="BLOCKER"
       key="BLOCKER"
     >
@@ -26,6 +27,7 @@ exports[`should render tags popup correctly 1`] = `
       severity.BLOCKER
     </SelectListItem>
     <SelectListItem
+      className="display-flex-center"
       item="CRITICAL"
       key="CRITICAL"
     >
@@ -36,6 +38,7 @@ exports[`should render tags popup correctly 1`] = `
       severity.CRITICAL
     </SelectListItem>
     <SelectListItem
+      className="display-flex-center"
       item="MAJOR"
       key="MAJOR"
     >
@@ -46,6 +49,7 @@ exports[`should render tags popup correctly 1`] = `
       severity.MAJOR
     </SelectListItem>
     <SelectListItem
+      className="display-flex-center"
       item="MINOR"
       key="MINOR"
     >
@@ -56,6 +60,7 @@ exports[`should render tags popup correctly 1`] = `
       severity.MINOR
     </SelectListItem>
     <SelectListItem
+      className="display-flex-center"
       item="INFO"
       key="INFO"
     >

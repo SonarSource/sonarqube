@@ -21,6 +21,7 @@ import * as React from 'react';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import FilterIcon from 'sonar-ui-common/components/icons/FilterIcon';
+import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import TagsIcon from 'sonar-ui-common/components/icons/TagsIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
@@ -76,38 +77,49 @@ export default class SimilarRulesFilter extends React.PureComponent<Props> {
             <ul className="menu">
               <li className="menu-header">{translate('coding_rules.filter_similar_rules')}</li>
               <li>
-                <a data-field="language" href="#" onClick={this.handleLanguageClick}>
+                <a
+                  data-test="coding-rules__similar-language"
+                  href="#"
+                  onClick={this.handleLanguageClick}>
                   {rule.langName}
                 </a>
               </li>
 
               <li>
-                <a data-field="type" href="#" onClick={this.handleTypeClick}>
-                  {translate('issue.type', rule.type)}
+                <a
+                  className="display-flex-center"
+                  data-test="coding-rules__similar-type"
+                  href="#"
+                  onClick={this.handleTypeClick}>
+                  <IssueTypeIcon query={rule.type} />
+                  <span className="little-spacer-left">{translate('issue.type', rule.type)}</span>
                 </a>
               </li>
 
               {severity && (
                 <li>
-                  <a data-field="severity" href="#" onClick={this.handleSeverityClick}>
-                    <SeverityHelper severity={rule.severity} />
+                  <a
+                    data-test="coding-rules__similar-severity"
+                    href="#"
+                    onClick={this.handleSeverityClick}>
+                    <SeverityHelper className="display-flex-center" severity={rule.severity} />
                   </a>
                 </li>
               )}
 
-              {allTags.length > 0 && (
-                <>
-                  <li className="divider" />
-                  {allTags.map(tag => (
-                    <li key={tag}>
-                      <a data-field="tag" data-tag={tag} href="#" onClick={this.handleTagClick}>
-                        <TagsIcon className="icon-half-transparent little-spacer-right text-middle" />
-                        <span className="text-middle">{tag}</span>
-                      </a>
-                    </li>
-                  ))}
-                </>
-              )}
+              {allTags.length > 0 && <li className="divider" />}
+              {allTags.map(tag => (
+                <li key={tag}>
+                  <a
+                    data-tag={tag}
+                    data-test="coding-rules__similar-tag"
+                    href="#"
+                    onClick={this.handleTagClick}>
+                    <TagsIcon className="icon-half-transparent little-spacer-right text-middle" />
+                    <span className="text-middle">{tag}</span>
+                  </a>
+                </li>
+              ))}
             </ul>
           </>
         }>

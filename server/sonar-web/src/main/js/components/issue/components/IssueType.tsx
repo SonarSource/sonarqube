@@ -24,6 +24,7 @@ import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { IssueResponse, setIssueType } from '../../../api/issues';
+import { colors } from '../../../app/theme';
 import SetTypePopup from '../popups/SetTypePopup';
 
 interface Props {
@@ -64,7 +65,11 @@ export default class IssueType extends React.PureComponent<Props> {
             <ButtonLink
               className="issue-action issue-action-with-options js-issue-set-type"
               onClick={this.toggleSetType}>
-              <IssueTypeIcon className="little-spacer-right" query={issue.type} />
+              <IssueTypeIcon
+                className="little-spacer-right"
+                fill={colors.baseFontColor}
+                query={issue.type}
+              />
               {translate('issue.type', issue.type)}
               <DropdownIcon className="little-spacer-left" />
             </ButtonLink>

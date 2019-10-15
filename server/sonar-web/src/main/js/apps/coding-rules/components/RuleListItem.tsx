@@ -228,15 +228,23 @@ export default class RuleListItem extends React.PureComponent<Props> {
                       {translate('rules.status', rule.status)}
                     </span>
                   )}
-                  <span className="spacer-left note">{rule.langName}</span>
+                  <span className="display-inline-flex-center spacer-left note">
+                    {rule.langName}
+                  </span>
                   <Tooltip overlay={translate('coding_rules.type.tooltip', rule.type)}>
                     <span className="display-inline-flex-center spacer-left note">
-                      <IssueTypeIcon className="little-spacer-right" query={rule.type} />
-                      {translate('issue.type', rule.type)}
+                      <IssueTypeIcon query={rule.type} />
+                      <span className="little-spacer-left text-middle">
+                        {translate('issue.type', rule.type)}
+                      </span>
                     </span>
                   </Tooltip>
                   {allTags.length > 0 && (
-                    <TagsList allowUpdate={false} className="note spacer-left" tags={allTags} />
+                    <TagsList
+                      allowUpdate={false}
+                      className="display-inline-flex-center note spacer-left"
+                      tags={allTags}
+                    />
                   )}
                   <SimilarRulesFilter onFilterChange={this.props.onFilterChange} rule={rule} />
                 </div>

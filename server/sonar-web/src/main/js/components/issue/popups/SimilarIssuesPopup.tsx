@@ -69,17 +69,21 @@ export default class SimilarIssuesPopup extends React.PureComponent<Props> {
           currentItem={items[0]}
           items={items}
           onSelect={this.handleSelect}>
-          <SelectListItem item="type">
+          <SelectListItem className="display-flex-center" item="type">
             <IssueTypeIcon className="little-spacer-right" query={issue.type} />
             {translate('issue.type', issue.type)}
           </SelectListItem>
 
           <SelectListItem item="severity">
-            <SeverityHelper severity={issue.severity} />
+            <SeverityHelper className="display-flex-center" severity={issue.severity} />
           </SelectListItem>
 
           <SelectListItem item="status">
-            <StatusHelper resolution={undefined} status={issue.status} />
+            <StatusHelper
+              className="display-flex-center"
+              resolution={undefined}
+              status={issue.status}
+            />
           </SelectListItem>
 
           <SelectListItem item="resolution">
