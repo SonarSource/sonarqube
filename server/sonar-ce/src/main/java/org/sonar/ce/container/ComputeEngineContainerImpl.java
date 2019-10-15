@@ -70,7 +70,6 @@ import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
 import org.sonar.core.extension.CoreExtensionsLoader;
-import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.Module;
@@ -341,7 +340,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // depends on plugins
       ServerI18n.class, // used by RuleI18nManager
-      RuleI18nManager.class, // used by DebtRulesXMLImporter
       Durations.class // used in Web Services and DebtCalculator
     );
   }

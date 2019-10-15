@@ -31,7 +31,7 @@ public class RuleDefinitionsLoaderTest {
   @Test
   public void no_definitions() {
     CommonRuleDefinitions commonRulesDefinitions = mock(CommonRuleDefinitions.class);
-    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), commonRulesDefinitions, mock(ServerPluginRepository.class)).load();
+    RulesDefinition.Context context = new RuleDefinitionsLoader(commonRulesDefinitions, mock(ServerPluginRepository.class)).load();
 
     assertThat(context.repositories()).isEmpty();
   }
@@ -39,7 +39,7 @@ public class RuleDefinitionsLoaderTest {
   @Test
   public void load_definitions() {
     CommonRuleDefinitions commonRulesDefinitions = mock(CommonRuleDefinitions.class);
-    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), commonRulesDefinitions, mock(ServerPluginRepository.class),
+    RulesDefinition.Context context = new RuleDefinitionsLoader(commonRulesDefinitions, mock(ServerPluginRepository.class),
       new RulesDefinition[] {
         new FindbugsDefinitions(), new SquidDefinitions()
       }).load();
@@ -52,7 +52,7 @@ public class RuleDefinitionsLoaderTest {
   @Test
   public void define_common_rules() {
     CommonRuleDefinitions commonRulesDefinitions = new FakeCommonRuleDefinitions();
-    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), commonRulesDefinitions, mock(ServerPluginRepository.class),
+    RulesDefinition.Context context = new RuleDefinitionsLoader(commonRulesDefinitions, mock(ServerPluginRepository.class),
       new RulesDefinition[] {
         new SquidDefinitions()
       }).load();
@@ -68,7 +68,7 @@ public class RuleDefinitionsLoaderTest {
   @Test
   public void plugin_common_rules_are_overridden() {
     CommonRuleDefinitions commonRulesDefinitions = new FakeCommonRuleDefinitions();
-    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), commonRulesDefinitions, mock(ServerPluginRepository.class),
+    RulesDefinition.Context context = new RuleDefinitionsLoader(commonRulesDefinitions, mock(ServerPluginRepository.class),
       new RulesDefinition[] {
         new PluginCommonRuleDefinitions()
       }).load();

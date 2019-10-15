@@ -21,7 +21,6 @@ package org.sonar.server.platform.platformlevel;
 
 import org.sonar.api.utils.Durations;
 import org.sonar.core.extension.CoreExtensionsInstaller;
-import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginLoader;
@@ -81,7 +80,6 @@ public class PlatformLevel2 extends PlatformLevel {
 
       // depends on plugins
       ServerI18n.class,
-      RuleI18nManager.class,
 
       OfficialDistribution.class);
 
