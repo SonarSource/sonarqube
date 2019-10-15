@@ -20,10 +20,10 @@ Once the job is complete, the plugin will detect that a SonarQube analysis was m
 
 ## Installation
 1. [Install the SonarScanner for Jenkins via the Jenkins Update Center](https://plugins.jenkins.io/sonar).
-1. Configure your SonarQube server(s)
-   * Log into Jenkins as an administrator and go to Manage Jenkins > Configure System
-   * Scroll down to the SonarQube configuration section, click on Add SonarQube, and add the values you're prompted for.
-   * The server authentication token should be created as a 'Secret Text' credential
+1. Configure your SonarQube server(s):
+   1. Log into Jenkins as an administrator and go to **Manage Jenkins > Configure System**.
+   1. Scroll down to the SonarQube configuration section, click **Add SonarQube**, and add the values you're prompted for.
+   1. The server authentication token should be created as a 'Secret Text' credential.
 
 ## Analyzing a .NET solution
 **Global Configuration**  
@@ -42,11 +42,11 @@ If you do not see any available version under Install from GitHub, first go to M
 1. Add the SonarQube for MSBuild - End Analysis build steps to your build
 
 ## Analyzing a Java project with Maven or Gradle
-** Global Configuration**  
+**Global Configuration**  
 1. Log into Jenkins as an administrator and go to Manage Jenkins > Configure System
 1. Scroll to the SonarQube servers section and check Enable injection of SonarQube server configuration as build environment variables
 
-** Job Configuration**  
+**Job Configuration**  
 1. **Configure** the project, and go to the **Build Environment** section.
 1. Enable **Prepare SonarScanner environment** to allow the injection of SonarQube server values into this particular job. If multiple SonarQube instances are configured, you will be able to choose which one to use.
 Once the environment variables are available, use them in a standard Maven build step (Invoke top-level Maven targets) by setting the Goals to include, or a standard Gradle build step (Invoke Gradle script) by setting the Tasks to execute.
@@ -237,3 +237,21 @@ pipeline {
     }
 }
 ```
+
+### Configuring a webhook secret
+
+If you want to verify the webhook payload that is sent to Jenkins, you can add a secret to your webhook on SonarQube.
+
+To set the secret: 
+
+1. In Jenkins, navigate to **Manage Jenkins > Configure System > SonarQube Server > Advanced > Webhook Secret** and click the **Add** button.
+1. Select **Secret text** and give the secret an ID.
+1. Select the secret from the dropdown menu.
+
+If you want to override the webhook secret on a project level, you can add the secret to Jenkins and then reference the secret ID when calling `waitForQualityGate`.
+
+    waitForQualityGate(webhookSecretId: 'yourSecretID')    
+if your pipeline is declarative or
+
+    waitForQualityGate webhookSecretId: 'yourSecretID'
+if your pipeline is scripted.
