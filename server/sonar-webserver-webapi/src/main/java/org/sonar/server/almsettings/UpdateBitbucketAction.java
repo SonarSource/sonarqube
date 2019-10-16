@@ -29,34 +29,48 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
-public class DeleteAction implements AlmSettingsWsAction {
-
+public class UpdateBitbucketAction implements AlmSettingsWsAction {
 
   private static final String PARAM_KEY = "key";
+  private static final String PARAM_NEW_KEY = "newKey";
+  private static final String PARAM_URL = "url";
+  private static final String PARAM_PERSONAL_ACCESS_TOKEN = "personalAccessToken";
 
   private final DbClient dbClient;
   private UserSession userSession;
 
-  public DeleteAction(DbClient dbClient, UserSession userSession) {
+  public UpdateBitbucketAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
     this.userSession = userSession;
   }
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context
-      .createAction("delete")
-      .setDescription("Delete an ALM Settings.<br/>" +
+    WebService.NewAction action = context.createAction("update_bitbucket")
+      .setDescription("Update Bitbucket ALM instance Setting. <br/>" +
         "Requires the 'Administer System' permission")
-      .setSince("8.1")
       .setPost(true)
+      .setSince("8.1")
       .setHandler(this);
 
-    action
-      .createParam(PARAM_KEY)
-      .setDescription("ALM Setting key")
-      .setRequired(true);
+    action.createParam(PARAM_KEY)
+      .setRequired(true)
+      .setMaximumLength(40)
+      .setDescription("Unique key of the Bitbucket instance setting");
+    action.createParam(PARAM_NEW_KEY)
+      .setRequired(false)
+      .setMaximumLength(40)
+      .setDescription("Optional new value for an unique key of the Bitbucket instance setting");
+    action.createParam(PARAM_URL)
+      .setRequired(true)
+      .setMaximumLength(2000)
+      .setDescription("Bitbucket API URL");
+    action.createParam(PARAM_PERSONAL_ACCESS_TOKEN)
+      .setRequired(true)
+      .setMaximumLength(2000)
+      .setDescription("Bitbucket personal access token");
   }
 
   @Override
@@ -68,11 +82,26 @@ public class DeleteAction implements AlmSettingsWsAction {
 
   private void doHandle(Request request) {
     String key = request.mandatoryParam(PARAM_KEY);
+    String newKey = request.param(PARAM_NEW_KEY);
+    String url = request.mandatoryParam(PARAM_URL);
+    String pat = request.mandatoryParam(PARAM_PERSONAL_ACCESS_TOKEN);
+
     try (DbSession dbSession = dbClient.openSession(false)) {
       AlmSettingDto almSettingDto = dbClient.almSettingDao().selectByKey(dbSession, key)
         .orElseThrow(() -> new NotFoundException(format("No ALM setting with key '%s' has been found", key)));
-      dbClient.almSettingDao().delete(dbSession, almSettingDto);
+      if (isNotBlank(newKey) && !newKey.equals(key)) {
+        dbClient.almSettingDao().selectByKey(dbSession, newKey)
+          .ifPresent(almSetting -> {
+            throw new IllegalArgumentException(format("ALM setting with key '%s' already exists", almSetting.getKey()));
+          });
+      }
+
+      dbClient.almSettingDao().update(dbSession, almSettingDto
+        .setKey(isNotBlank(newKey) ? newKey : key)
+        .setUrl(url)
+        .setPersonalAccessToken(pat));
       dbSession.commit();
     }
   }
+
 }

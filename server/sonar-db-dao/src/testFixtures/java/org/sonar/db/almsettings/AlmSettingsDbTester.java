@@ -25,6 +25,7 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 
 import static java.util.Arrays.stream;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newAzureAlmSettingDto;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
 
 public class AlmSettingsDbTester {
@@ -37,22 +38,24 @@ public class AlmSettingsDbTester {
 
   @SafeVarargs
   public final AlmSettingDto insertGitHubAlmSetting(Consumer<AlmSettingDto>... populators) {
-    AlmSettingDto dto = newGithubAlmSettingDto();
-    stream(populators).forEach(p -> p.accept(dto));
-
-    db.getDbClient().almSettingDao().insert(db.getSession(), dto);
-    db.commit();
-    return dto;
+    return insert(newGithubAlmSettingDto(), populators);
   }
 
   @SafeVarargs
   public final AlmSettingDto insertAzureAlmSetting(Consumer<AlmSettingDto>... populators) {
-    AlmSettingDto dto = newAzureAlmSettingDto();
+    return insert(newAzureAlmSettingDto(), populators);
+  }
+
+  @SafeVarargs
+  public final AlmSettingDto insertBitbucketAlmSetting(Consumer<AlmSettingDto>... populators) {
+    return insert(newBitbucketAlmSettingDto(), populators);
+  }
+
+  private AlmSettingDto insert(AlmSettingDto dto, Consumer<AlmSettingDto>[] populators) {
     stream(populators).forEach(p -> p.accept(dto));
 
     db.getDbClient().almSettingDao().insert(db.getSession(), dto);
     db.commit();
     return dto;
   }
-
 }

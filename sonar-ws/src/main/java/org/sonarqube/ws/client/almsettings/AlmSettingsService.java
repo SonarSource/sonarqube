@@ -124,4 +124,35 @@ public class AlmSettingsService extends BaseService {
         .setMediaType(MediaTypes.JSON)).content();
   }
 
+  /**
+   *
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/create_bitbucket">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public void createBitbucket(CreateBitbucketRequest request) {
+    call(
+      new PostRequest(path("create_bitbucket"))
+        .setParam("key", request.getKey())
+        .setParam("url", request.getUrl())
+        .setParam("personalAccessToken", request.getPersonalAccessToken())
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  /**
+   *
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/update_bitbucket">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public void updateBitbucket(UpdateBitbucketRequest request) {
+    call(
+      new PostRequest(path("update_bitbucket"))
+        .setParam("key", request.getKey())
+        .setParam("newKey", request.getNewKey())
+        .setParam("url", request.getUrl())
+        .setParam("personalAccessToken", request.getPersonalAccessToken())
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
 }

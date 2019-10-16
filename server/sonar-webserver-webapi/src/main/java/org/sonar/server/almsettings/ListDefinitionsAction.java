@@ -30,13 +30,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.AlmSettings;
 import org.sonarqube.ws.AlmSettings.AlmSettingGithub;
 
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.AlmSettings.*;
+import static org.sonarqube.ws.AlmSettings.AlmSettingAzure;
+import static org.sonarqube.ws.AlmSettings.AlmSettingBitbucket;
 import static org.sonarqube.ws.AlmSettings.ListDefinitionsWsResponse;
 
 public class ListDefinitionsAction implements AlmSettingsWsAction {
@@ -47,24 +47,6 @@ public class ListDefinitionsAction implements AlmSettingsWsAction {
   public ListDefinitionsAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-  }
-
-  private static AlmSettingGithub toGitHub(AlmSettingDto settingDto) {
-    return AlmSettingGithub
-      .newBuilder()
-      .setKey(settingDto.getKey())
-      .setUrl(requireNonNull(settingDto.getUrl(), "URL cannot be null for GitHub ALM setting"))
-      .setAppId(requireNonNull(settingDto.getAppId(), "App ID cannot be null for GitHub ALM setting"))
-      .setPrivateKey(requireNonNull(settingDto.getPrivateKey(), "Private Key cannot be null for GitHub ALM setting"))
-      .build();
-  }
-
-  private static AlmSettingAzure toAzure(AlmSettingDto settingDto) {
-    return AlmSettingAzure
-      .newBuilder()
-      .setKey(settingDto.getKey())
-      .setPersonalAccessToken(requireNonNull(settingDto.getPersonalAccessToken(), "Personal Access Token cannot be null for Azure ALM setting"))
-      .build();
   }
 
   @Override
@@ -92,10 +74,40 @@ public class ListDefinitionsAction implements AlmSettingsWsAction {
         .map(ListDefinitionsAction::toGitHub).collect(Collectors.toList());
       List<AlmSettingAzure> azureSettings = settingsByAlm.getOrDefault(ALM.AZURE_DEVOPS, emptyList()).stream()
         .map(ListDefinitionsAction::toAzure).collect(Collectors.toList());
+      List<AlmSettingBitbucket> bitbucketSettings = settingsByAlm.getOrDefault(ALM.BITBUCKET, emptyList()).stream()
+        .map(ListDefinitionsAction::toBitbucket).collect(Collectors.toList());
       return ListDefinitionsWsResponse.newBuilder()
         .addAllGithub(githubSettings)
         .addAllAzure(azureSettings)
+        .addAllBitbucket(bitbucketSettings)
         .build();
     }
+  }
+
+  private static AlmSettingGithub toGitHub(AlmSettingDto settingDto) {
+    return AlmSettingGithub
+      .newBuilder()
+      .setKey(settingDto.getKey())
+      .setUrl(requireNonNull(settingDto.getUrl(), "URL cannot be null for GitHub ALM setting"))
+      .setAppId(requireNonNull(settingDto.getAppId(), "App ID cannot be null for GitHub ALM setting"))
+      .setPrivateKey(requireNonNull(settingDto.getPrivateKey(), "Private Key cannot be null for GitHub ALM setting"))
+      .build();
+  }
+
+  private static AlmSettingAzure toAzure(AlmSettingDto settingDto) {
+    return AlmSettingAzure
+      .newBuilder()
+      .setKey(settingDto.getKey())
+      .setPersonalAccessToken(requireNonNull(settingDto.getPersonalAccessToken(), "Personal Access Token cannot be null for Azure ALM setting"))
+      .build();
+  }
+
+  private static AlmSettingBitbucket toBitbucket(AlmSettingDto settingDto) {
+    return AlmSettingBitbucket
+      .newBuilder()
+      .setKey(settingDto.getKey())
+      .setUrl(requireNonNull(settingDto.getUrl(), "URL cannot be null for Bitbucket ALM setting"))
+      .setPersonalAccessToken(requireNonNull(settingDto.getPersonalAccessToken(), "Personal Access Token cannot be null for Bitbucket ALM setting"))
+      .build();
   }
 }

@@ -41,4 +41,12 @@ public class AlmSettingsTesting {
       .setPersonalAccessToken(randomAlphanumeric(2000))
       .setAlm(ALM.AZURE_DEVOPS);
   }
+
+  public static AlmSettingDto newBitbucketAlmSettingDto() {
+    return new AlmSettingDto()
+      .setKey(randomAlphanumeric(40))
+      .setUrl(randomAlphanumeric(2000))
+      .setPersonalAccessToken(randomAlphanumeric(2000))
+      .setAlm(ALM.BITBUCKET);
+  }
 }

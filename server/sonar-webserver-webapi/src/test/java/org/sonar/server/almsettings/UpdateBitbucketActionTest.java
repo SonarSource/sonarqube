@@ -35,9 +35,9 @@ import org.sonar.server.ws.WsActionTester;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.sonar.db.almsettings.AlmSettingsTesting.newAzureAlmSettingDto;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketAlmSettingDto;
 
-public class UpdateAzureActionTest {
+public class UpdateBitbucketActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -46,22 +46,23 @@ public class UpdateAzureActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private WsActionTester ws = new WsActionTester(new UpdateAzureAction(db.getDbClient(), userSession));
+  private WsActionTester ws = new WsActionTester(new UpdateBitbucketAction(db.getDbClient(), userSession));
 
   @Test
   public void update() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
-
-    AlmSettingDto almSettingDto = db.almSettings().insertAzureAlmSetting();
+    AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
 
     ws.newRequest()
       .setParam("key", almSettingDto.getKey())
+      .setParam("url", "https://bitbucket.enterprise-unicorn.com")
       .setParam("personalAccessToken", "10987654321")
       .execute();
+
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getPersonalAccessToken)
-      .containsOnly(tuple(almSettingDto.getKey(), "10987654321"));
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getPersonalAccessToken)
+      .containsOnly(tuple(almSettingDto.getKey(), "https://bitbucket.enterprise-unicorn.com", "10987654321"));
   }
 
   @Test
@@ -69,16 +70,17 @@ public class UpdateAzureActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
 
-    AlmSettingDto almSettingDto = db.almSettings().insertAzureAlmSetting();
+    AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
 
     ws.newRequest()
       .setParam("key", almSettingDto.getKey())
-      .setParam("newKey", "Azure Server - Infra Team")
+      .setParam("newKey", "Bitbucket Server - Infra Team")
+      .setParam("url", "https://bitbucket.enterprise-unicorn.com")
       .setParam("personalAccessToken", "0123456789")
       .execute();
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getPersonalAccessToken)
-      .containsOnly(tuple("Azure Server - Infra Team", "0123456789"));
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getPersonalAccessToken)
+      .containsOnly(tuple("Bitbucket Server - Infra Team", "https://bitbucket.enterprise-unicorn.com", "0123456789"));
   }
 
   @Test
@@ -91,6 +93,7 @@ public class UpdateAzureActionTest {
 
     ws.newRequest()
       .setParam("key", "unknown")
+      .setParam("url", "https://bitbucket.enterprise-unicorn.com")
       .setParam("personalAccessToken", "0123456789")
       .execute();
   }
@@ -99,8 +102,8 @@ public class UpdateAzureActionTest {
   public void fail_when_new_key_matches_existing_alm_setting() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
-    AlmSettingDto almSetting1 = db.almSettings().insertAzureAlmSetting();
-    AlmSettingDto almSetting2 = db.almSettings().insertAzureAlmSetting();
+    AlmSettingDto almSetting1 = db.almSettings().insertBitbucketAlmSetting();
+    AlmSettingDto almSetting2 = db.almSettings().insertBitbucketAlmSetting();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage(format("ALM setting with key '%s' already exists", almSetting2.getKey()));
@@ -108,6 +111,7 @@ public class UpdateAzureActionTest {
     ws.newRequest()
       .setParam("key", almSetting1.getKey())
       .setParam("newKey", almSetting2.getKey())
+      .setParam("url", "https://bitbucket.enterprise-unicorn.com")
       .setParam("personalAccessToken", "0123456789")
       .execute();
   }
@@ -116,13 +120,14 @@ public class UpdateAzureActionTest {
   public void fail_when_missing_administer_system_permission() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    AlmSettingDto almSettingDto = db.almSettings().insertAzureAlmSetting();
+    AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
 
     expectedException.expect(ForbiddenException.class);
 
     ws.newRequest()
       .setParam("key", almSettingDto.getKey())
-      .setParam("newKey", "Azure Server - Infra Team")
+      .setParam("newKey", "Bitbucket Server - Infra Team")
+      .setParam("url", "https://bitbucket.enterprise-unicorn.com")
       .setParam("personalAccessToken", "0123456789")
       .execute();
   }
@@ -135,7 +140,7 @@ public class UpdateAzureActionTest {
     assertThat(def.isPost()).isTrue();
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
-      .containsExactlyInAnyOrder(tuple("key", true), tuple("newKey", false), tuple("personalAccessToken", true));
+      .containsExactlyInAnyOrder(tuple("key", true), tuple("newKey", false), tuple("url", true), tuple("personalAccessToken", true));
   }
 
 }

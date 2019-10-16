@@ -28,6 +28,7 @@ option optimize_for = SPEED;
 message ListDefinitionsWsResponse {
   repeated AlmSettingGithub github = 1;
   repeated AlmSettingAzure azure = 2;
+  repeated AlmSettingBitbucket bitbucket = 3;
 }
 
 message AlmSettingGithub {
@@ -42,3 +43,8 @@ message AlmSettingAzure {
   optional string personalAccessToken = 2;
 }
 
+message AlmSettingBitbucket {
+  optional string key = 1;
+  optional string url = 2;
+  optional string personalAccessToken = 3;
+}
