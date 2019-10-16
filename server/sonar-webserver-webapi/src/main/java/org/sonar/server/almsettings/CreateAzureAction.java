@@ -25,38 +25,42 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
+import static org.sonar.db.alm.setting.ALM.AZURE_DEVOPS;
+import static org.sonar.db.alm.setting.ALM.GITHUB;
 
-public class DeleteAction implements AlmSettingsWsAction {
-
+public class CreateAzureAction implements AlmSettingsWsAction {
 
   private static final String PARAM_KEY = "key";
+  private static final String PARAM_PERSONAL_ACCESS_TOKEN = "personalAccessToken";
 
   private final DbClient dbClient;
   private UserSession userSession;
 
-  public DeleteAction(DbClient dbClient, UserSession userSession) {
+  public CreateAzureAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
     this.userSession = userSession;
   }
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context
-      .createAction("delete")
-      .setDescription("Delete ALM Settings.<br/>" +
+    WebService.NewAction action = context.createAction("create_azure")
+      .setDescription("Create Azure ALM instance Setting. <br/>" +
         "Requires the 'Administer System' permission")
-      .setSince("8.1")
       .setPost(true)
+      .setSince("8.1")
       .setHandler(this);
 
-    action
-      .createParam(PARAM_KEY)
-      .setDescription("ALM Setting key")
-      .setRequired(true);
+    action.createParam(PARAM_KEY)
+      .setRequired(true)
+      .setMaximumLength(40)
+      .setDescription("Unique key of the Azure Devops instance setting");
+    action.createParam(PARAM_PERSONAL_ACCESS_TOKEN)
+      .setRequired(true)
+      .setMaximumLength(2000)
+      .setDescription("Azure Devops personal access token");
   }
 
   @Override
@@ -68,11 +72,18 @@ public class DeleteAction implements AlmSettingsWsAction {
 
   private void doHandle(Request request) {
     String key = request.mandatoryParam(PARAM_KEY);
+    String pat = request.mandatoryParam(PARAM_PERSONAL_ACCESS_TOKEN);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      AlmSettingDto almSettingDto = dbClient.almSettingDao().selectByKey(dbSession, key)
-        .orElseThrow(() -> new NotFoundException(format("No ALM setting with key '%s' has been found", key)));
-      dbClient.almSettingDao().delete(dbSession, almSettingDto);
+      dbClient.almSettingDao().selectByKey(dbSession, key)
+        .ifPresent(almSetting -> {
+          throw new IllegalArgumentException(format("An ALM setting with key '%s' already exist", almSetting.getKey()));
+        });
+      dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
+        .setAlm(AZURE_DEVOPS)
+        .setKey(key)
+        .setPersonalAccessToken(pat));
       dbSession.commit();
     }
   }
+
 }

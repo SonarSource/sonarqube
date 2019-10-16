@@ -30,11 +30,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.AlmSettings;
 import org.sonarqube.ws.AlmSettings.AlmSettingGithub;
 
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.AlmSettings.*;
 import static org.sonarqube.ws.AlmSettings.ListDefinitionsWsResponse;
 
 public class ListDefinitionsAction implements AlmSettingsWsAction {
@@ -47,13 +49,21 @@ public class ListDefinitionsAction implements AlmSettingsWsAction {
     this.userSession = userSession;
   }
 
-  private static AlmSettingGithub convert(AlmSettingDto settingDto) {
+  private static AlmSettingGithub toGitHub(AlmSettingDto settingDto) {
     return AlmSettingGithub
       .newBuilder()
       .setKey(settingDto.getKey())
       .setUrl(requireNonNull(settingDto.getUrl(), "URL cannot be null for GitHub ALM setting"))
       .setAppId(requireNonNull(settingDto.getAppId(), "App ID cannot be null for GitHub ALM setting"))
       .setPrivateKey(requireNonNull(settingDto.getPrivateKey(), "Private Key cannot be null for GitHub ALM setting"))
+      .build();
+  }
+
+  private static AlmSettingAzure toAzure(AlmSettingDto settingDto) {
+    return AlmSettingAzure
+      .newBuilder()
+      .setKey(settingDto.getKey())
+      .setPersonalAccessToken(requireNonNull(settingDto.getPersonalAccessToken(), "Personal Access Token cannot be null for Azure ALM setting"))
       .build();
   }
 
@@ -79,8 +89,13 @@ public class ListDefinitionsAction implements AlmSettingsWsAction {
       List<AlmSettingDto> settings = dbClient.almSettingDao().selectAll(dbSession);
       Map<ALM, List<AlmSettingDto>> settingsByAlm = settings.stream().collect(Collectors.groupingBy(AlmSettingDto::getAlm));
       List<AlmSettingGithub> githubSettings = settingsByAlm.getOrDefault(ALM.GITHUB, emptyList()).stream()
-        .map(ListDefinitionsAction::convert).collect(Collectors.toList());
-      return ListDefinitionsWsResponse.newBuilder().addAllGithub(githubSettings).build();
+        .map(ListDefinitionsAction::toGitHub).collect(Collectors.toList());
+      List<AlmSettingAzure> azureSettings = settingsByAlm.getOrDefault(ALM.AZURE_DEVOPS, emptyList()).stream()
+        .map(ListDefinitionsAction::toAzure).collect(Collectors.toList());
+      return ListDefinitionsWsResponse.newBuilder()
+        .addAllGithub(githubSettings)
+        .addAllAzure(azureSettings)
+        .build();
     }
   }
 }

@@ -39,6 +39,18 @@ public class AlmSettingsService extends BaseService {
 
   /**
    *
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/list_definitions">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public AlmSettings.ListDefinitionsWsResponse listDefinitions() {
+    return call(
+      new GetRequest(path("list_definitions")),
+      AlmSettings.ListDefinitionsWsResponse.parser());
+  }
+
+  /**
+   *
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/create_github">Further information about this action online (including a response example)</a>
    * @since 8.1
@@ -48,6 +60,23 @@ public class AlmSettingsService extends BaseService {
       new PostRequest(path("create_github"))
         .setParam("appId", request.getAppId())
         .setParam("key", request.getKey())
+        .setParam("privateKey", request.getPrivateKey())
+        .setParam("url", request.getUrl())
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  /**
+   *
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/update_github">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public void updateGithub(UpdateGithubRequest request) {
+    call(
+      new PostRequest(path("update_github"))
+        .setParam("appId", request.getAppId())
+        .setParam("key", request.getKey())
+        .setParam("newKey", request.getNewKey())
         .setParam("privateKey", request.getPrivateKey())
         .setParam("url", request.getUrl())
         .setMediaType(MediaTypes.JSON)).content();
@@ -68,30 +97,31 @@ public class AlmSettingsService extends BaseService {
 
   /**
    *
-   * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/list_definitions">Further information about this action online (including a response example)</a>
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/create_azure">Further information about this action online (including a response example)</a>
    * @since 8.1
    */
-  public AlmSettings.ListDefinitionsWsResponse listDefinitions() {
-    return call(
-      new GetRequest(path("list_definitions")),
-      AlmSettings.ListDefinitionsWsResponse.parser());
+  public void createAzure(CreateAzureRequest request) {
+    call(
+      new PostRequest(path("create_azure"))
+        .setParam("key", request.getKey())
+        .setParam("personalAccessToken", request.getPersonalAccessToken())
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
    *
    * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/update_github">Further information about this action online (including a response example)</a>
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/update_azure">Further information about this action online (including a response example)</a>
    * @since 8.1
    */
-  public void updateGithub(UpdateGithubRequest request) {
+  public void updateAzure(UpdateAzureRequest request) {
     call(
-      new PostRequest(path("update_github"))
-        .setParam("appId", request.getAppId())
+      new PostRequest(path("update_azure"))
         .setParam("key", request.getKey())
         .setParam("newKey", request.getNewKey())
-        .setParam("privateKey", request.getPrivateKey())
-        .setParam("url", request.getUrl())
+        .setParam("personalAccessToken", request.getPersonalAccessToken())
         .setMediaType(MediaTypes.JSON)).content();
   }
+
 }

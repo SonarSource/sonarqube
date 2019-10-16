@@ -29,7 +29,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.AlmSettings;
 import org.sonarqube.ws.AlmSettings.AlmSettingGithub;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +36,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.rules.ExpectedException.none;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.AlmSettings.*;
+import static org.sonarqube.ws.AlmSettings.ListDefinitionsWsResponse;
 
 public class ListDefinitionsActionTest {
 
@@ -98,6 +97,10 @@ public class ListDefinitionsActionTest {
         .setAppId("12345")
         .setPrivateKey("54684654"));
 
+    db.almSettings().insertAzureAlmSetting(
+      a -> a.setKey("Azure Devops Server - Dev Team")
+      .setPersonalAccessToken("12345")
+    );
     String response = ws.newRequest().execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("list_definitions-example.json"));

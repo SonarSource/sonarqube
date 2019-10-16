@@ -24,6 +24,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 
 import static java.util.Arrays.stream;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newAzureAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
 
 public class AlmSettingsDbTester {
@@ -37,6 +38,16 @@ public class AlmSettingsDbTester {
   @SafeVarargs
   public final AlmSettingDto insertGitHubAlmSetting(Consumer<AlmSettingDto>... populators) {
     AlmSettingDto dto = newGithubAlmSettingDto();
+    stream(populators).forEach(p -> p.accept(dto));
+
+    db.getDbClient().almSettingDao().insert(db.getSession(), dto);
+    db.commit();
+    return dto;
+  }
+
+  @SafeVarargs
+  public final AlmSettingDto insertAzureAlmSetting(Consumer<AlmSettingDto>... populators) {
+    AlmSettingDto dto = newAzureAlmSettingDto();
     stream(populators).forEach(p -> p.accept(dto));
 
     db.getDbClient().almSettingDao().insert(db.getSession(), dto);

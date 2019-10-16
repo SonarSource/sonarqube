@@ -31,7 +31,14 @@ public class AlmSettingsTesting {
       .setKey(randomAlphanumeric(40))
       .setUrl(randomAlphanumeric(2000))
       .setAppId(randomAlphanumeric(80))
-      .setAlm(ALM.GITHUB)
-      .setPrivateKey(randomAlphanumeric(2000));
+      .setPrivateKey(randomAlphanumeric(2000))
+      .setAlm(ALM.GITHUB);
+  }
+
+  public static AlmSettingDto newAzureAlmSettingDto() {
+    return new AlmSettingDto()
+      .setKey(randomAlphanumeric(40))
+      .setPersonalAccessToken(randomAlphanumeric(2000))
+      .setAlm(ALM.AZURE_DEVOPS);
   }
 }

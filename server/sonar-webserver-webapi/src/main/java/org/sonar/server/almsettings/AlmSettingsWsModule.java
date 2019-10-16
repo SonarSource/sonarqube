@@ -29,6 +29,8 @@ public class AlmSettingsWsModule extends Module {
       ListDefinitionsAction.class,
       CreateGithubAction.class,
       UpdateGitHubAction.class,
-      DeleteAction.class);
+      DeleteAction.class,
+      CreateAzureAction.class,
+      UpdateAzureAction.class);
   }
 }

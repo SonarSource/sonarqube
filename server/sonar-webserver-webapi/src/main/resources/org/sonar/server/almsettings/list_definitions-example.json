@@ -6,5 +6,11 @@
       "appId": "12345",
       "privateKey": "54684654"
     }
+  ],
+  "azure": [
+    {
+      "key": "Azure Devops Server - Dev Team",
+      "personalAccessToken": "12345"
+    }
   ]
 }

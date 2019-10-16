@@ -23,36 +23,15 @@ import javax.annotation.Generated;
 
 /**
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/create_github">Further information about this action online (including a response example)</a>
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/update_azure">Further information about this action online (including a response example)</a>
  * @since 8.1
  */
 @Generated("sonar-ws-generator")
-public class CreateGithubRequest {
+public class UpdateAzureRequest {
 
-  private String appId;
   private String key;
-  private String privateKey;
-  private String url;
-
-  /**
-   * This is a mandatory parameter.
-   */
-  public CreateGithubRequest setAppId(String appId) {
-    this.appId = appId;
-    return this;
-  }
-
-  public String getAppId() {
-    return appId;
-  }
-
-  /**
-   * This is a mandatory parameter.
-   */
-  public CreateGithubRequest setKey(String key) {
-    this.key = key;
-    return this;
-  }
+  private String newKey;
+  private String personalAccessToken;
 
   public String getKey() {
     return key;
@@ -61,24 +40,32 @@ public class CreateGithubRequest {
   /**
    * This is a mandatory parameter.
    */
-  public CreateGithubRequest setPrivateKey(String privateKey) {
-    this.privateKey = privateKey;
+  public UpdateAzureRequest setKey(String key) {
+    this.key = key;
     return this;
   }
 
-  public String getPrivateKey() {
-    return privateKey;
+  public String getNewKey() {
+    return newKey;
+  }
+
+  /**
+   */
+  public UpdateAzureRequest setNewKey(String newKey) {
+    this.newKey = newKey;
+    return this;
+  }
+
+  public String getPersonalAccessToken() {
+    return personalAccessToken;
   }
 
   /**
    * This is a mandatory parameter.
    */
-  public CreateGithubRequest setUrl(String url) {
-    this.url = url;
+  public UpdateAzureRequest setPersonalAccessToken(String personalAccessToken) {
+    this.personalAccessToken = personalAccessToken;
     return this;
   }
 
-  public String getUrl() {
-    return url;
-  }
 }

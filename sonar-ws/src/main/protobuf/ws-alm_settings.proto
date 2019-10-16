@@ -27,6 +27,7 @@ option optimize_for = SPEED;
 // WS api/alm_settings/list_definitions
 message ListDefinitionsWsResponse {
   repeated AlmSettingGithub github = 1;
+  repeated AlmSettingAzure azure = 2;
 }
 
 message AlmSettingGithub {
@@ -34,5 +35,10 @@ message AlmSettingGithub {
   optional string url = 2;
   optional string appId = 3;
   optional string privateKey = 4;
+}
+
+message AlmSettingAzure {
+  optional string key = 1;
+  optional string personalAccessToken = 2;
 }
 
