@@ -51,15 +51,10 @@ public class ScmInfoImpl implements ScmInfo {
 
   @Override
   public Changeset getChangesetForLine(int lineNumber) {
-    if (lineNumber < 1 || lineNumber > lineChangesets.length) {
+    if (!hasChangesetForLine(lineNumber)) {
       throw new IllegalArgumentException("There's no changeset on line " + lineNumber);
-
     }
-    Changeset changeset = lineChangesets[lineNumber - 1];
-    if (changeset != null) {
-      return changeset;
-    }
-    throw new IllegalArgumentException("There's no changeset on line " + lineNumber);
+    return lineChangesets[lineNumber - 1];
   }
 
   @Override

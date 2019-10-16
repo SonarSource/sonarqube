@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.util.cache;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class DoubleCache {
@@ -30,6 +31,7 @@ public class DoubleCache {
     // static only
   }
 
+  @CheckForNull
   public static Double intern(@Nullable Double num) {
     if (ZERO.equals(num)) {
       return ZERO;

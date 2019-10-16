@@ -359,7 +359,6 @@ public interface Measure {
   class NoValueVariationMeasureImpl implements Measure {
     @Nullable
     private Double variation;
-    private ValueType valueType = ValueType.NO_VALUE;
 
     private NoValueVariationMeasureImpl(@Nullable Double variation) {
       this.variation = variation;
@@ -430,7 +429,7 @@ public interface Measure {
     @Override
     public String toString() {
       return com.google.common.base.MoreObjects.toStringHelper(this)
-        .add("valueType", valueType)
+        .add("valueType", ValueType.NO_VALUE)
         .add("variations", variation)
         .toString();
     }
