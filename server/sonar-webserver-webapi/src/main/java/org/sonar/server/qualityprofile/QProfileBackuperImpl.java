@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -39,6 +40,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ExportRuleDto;
+import org.sonar.db.qualityprofile.ExportRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.rule.NewCustomRule;
@@ -72,6 +74,35 @@ public class QProfileBackuperImpl implements QProfileBackuper {
   }
 
   @Override
+  public QProfileRestoreSummary copy(DbSession dbSession, QProfileDto from, QProfileDto to) {
+    List<ExportRuleDto> rulesToExport = db.qualityProfileExportDao().selectRulesByProfile(dbSession, from);
+    rulesToExport.sort(BackupActiveRuleComparator.INSTANCE);
+
+    ImportedQProfile qProfile = toImportedQProfile(rulesToExport, to.getName(), to.getLanguage());
+    return restore(dbSession, qProfile, name -> to);
+  }
+
+  private static ImportedQProfile toImportedQProfile(List<ExportRuleDto> exportRules, String profileName, String profileLang) {
+    List<ImportedRule> importedRules = new ArrayList<>(exportRules.size());
+
+    for (ExportRuleDto exportRuleDto : exportRules) {
+      ImportedRule importedRule = new ImportedRule();
+      importedRule.setName(exportRuleDto.getName());
+      importedRule.setDescription(exportRuleDto.getDescription());
+      importedRule.setRuleKey(exportRuleDto.getRuleKey());
+      importedRule.setSeverity(exportRuleDto.getSeverityString());
+      if (importedRule.isCustomRule()) {
+        importedRule.setTemplateKey(exportRuleDto.getTemplateRuleKey());
+      }
+      importedRule.setType(exportRuleDto.getRuleType().name());
+      importedRule.setParameters(exportRuleDto.getParams().stream().collect(Collectors.toMap(ExportRuleParamDto::getKey, ExportRuleParamDto::getValue)));
+      importedRules.add(importedRule);
+    }
+
+    return new ImportedQProfile(profileName, profileLang, importedRules);
+  }
+
+  @Override
   public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName) {
     return restore(dbSession, backup, nameInBackup -> {
       QProfileName targetName = nameInBackup;
@@ -93,7 +124,10 @@ public class QProfileBackuperImpl implements QProfileBackuper {
 
   private QProfileRestoreSummary restore(DbSession dbSession, Reader backup, Function<QProfileName, QProfileDto> profileLoader) {
     ImportedQProfile qProfile = qProfileParser.readXml(backup);
+    return restore(dbSession, qProfile, profileLoader);
+  }
 
+  private QProfileRestoreSummary restore(DbSession dbSession, ImportedQProfile qProfile, Function<QProfileName, QProfileDto> profileLoader) {
     QProfileName targetName = new QProfileName(qProfile.getProfileLang(), qProfile.getProfileName());
     QProfileDto targetProfile = profileLoader.apply(targetName);
 
@@ -174,9 +208,11 @@ public class QProfileBackuperImpl implements QProfileBackuper {
 
     @Override
     public int compare(ExportRuleDto o1, ExportRuleDto o2) {
+      RuleKey rk1 = o1.getRuleKey();
+      RuleKey rk2 = o2.getRuleKey();
       return new CompareToBuilder()
-        .append(o1.getRuleKey().repository(), o2.getRuleKey().repository())
-        .append(o1.getRuleKey().rule(), o2.getRuleKey().rule())
+        .append(rk1.repository(), rk2.repository())
+        .append(rk1.rule(), rk2.rule())
         .toComparison();
     }
   }

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.Lists;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -99,7 +98,7 @@ public class QProfileParser {
   }
 
   public ImportedQProfile readXml(Reader reader) {
-    List<ImportedRule> rules = Lists.newArrayList();
+    List<ImportedRule> rules = new ArrayList<>();
     String profileName = null;
     String profileLang = null;
     try {

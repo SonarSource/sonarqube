@@ -367,5 +367,9 @@ public class ExportActionTest {
     public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QProfileDto profile) {
       throw new UnsupportedOperationException();
     }
+
+    @Override public QProfileRestoreSummary copy(DbSession dbSession, QProfileDto from, QProfileDto to) {
+      throw new UnsupportedOperationException();
+    }
   }
 }

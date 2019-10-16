@@ -71,7 +71,7 @@ public class CopyActionTest {
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private QProfileFactory profileFactory = new QProfileFactoryImpl(db.getDbClient(), new SequenceUuidFactory(), System2.INSTANCE, activeRuleIndexer);
   private TestBackuper backuper = new TestBackuper();
-  private QProfileCopier profileCopier = new QProfileCopier(db.getDbClient(), profileFactory, backuper, tempDir);
+  private QProfileCopier profileCopier = new QProfileCopier(db.getDbClient(), profileFactory, backuper);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private Languages languages = LanguageTesting.newLanguages(A_LANGUAGE);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
@@ -138,12 +138,12 @@ public class CopyActionTest {
     assertThat(loadedProfile.getKee()).isEqualTo(generatedUuid);
     assertThat(loadedProfile.getParentKee()).isNull();
 
-    assertThat(backuper.backupedProfile.getKee()).isEqualTo(sourceProfile.getKee());
-    assertThat(backuper.restoredProfile.getOrganizationUuid()).isEqualTo(sourceProfile.getOrganizationUuid());
-    assertThat(backuper.restoredProfile.getLanguage()).isEqualTo(sourceProfile.getLanguage());
-    assertThat(backuper.restoredProfile.getName()).isEqualTo("target-name");
-    assertThat(backuper.restoredProfile.getKee()).isEqualTo(generatedUuid);
-    assertThat(backuper.restoredProfile.getParentKee()).isNull();
+    assertThat(backuper.copiedProfile.getKee()).isEqualTo(sourceProfile.getKee());
+    assertThat(backuper.toProfile.getOrganizationUuid()).isEqualTo(sourceProfile.getOrganizationUuid());
+    assertThat(backuper.toProfile.getLanguage()).isEqualTo(sourceProfile.getLanguage());
+    assertThat(backuper.toProfile.getName()).isEqualTo("target-name");
+    assertThat(backuper.toProfile.getKee()).isEqualTo(generatedUuid);
+    assertThat(backuper.toProfile.getParentKee()).isNull();
   }
 
   @Test
@@ -170,8 +170,8 @@ public class CopyActionTest {
     QProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByUuid(db.getSession(), targetProfile.getKee());
     assertThat(loadedProfile).isNotNull();
 
-    assertThat(backuper.backupedProfile.getKee()).isEqualTo(sourceProfile.getKee());
-    assertThat(backuper.restoredProfile.getKee()).isEqualTo(targetProfile.getKee());
+    assertThat(backuper.copiedProfile.getKee()).isEqualTo(sourceProfile.getKee());
+    assertThat(backuper.toProfile.getKee()).isEqualTo(targetProfile.getKee());
   }
 
   @Test
@@ -201,12 +201,12 @@ public class CopyActionTest {
     assertThat(loadedProfile.getKee()).isEqualTo(generatedUuid);
     assertThat(loadedProfile.getParentKee()).isEqualTo(parentProfile.getKee());
 
-    assertThat(backuper.backupedProfile.getKee()).isEqualTo(sourceProfile.getKee());
-    assertThat(backuper.restoredProfile.getOrganizationUuid()).isEqualTo(sourceProfile.getOrganizationUuid());
-    assertThat(backuper.restoredProfile.getLanguage()).isEqualTo(sourceProfile.getLanguage());
-    assertThat(backuper.restoredProfile.getName()).isEqualTo("target-name");
-    assertThat(backuper.restoredProfile.getKee()).isEqualTo(generatedUuid);
-    assertThat(backuper.restoredProfile.getParentKee()).isEqualTo(parentProfile.getKee());
+    assertThat(backuper.copiedProfile.getKee()).isEqualTo(sourceProfile.getKee());
+    assertThat(backuper.toProfile.getOrganizationUuid()).isEqualTo(sourceProfile.getOrganizationUuid());
+    assertThat(backuper.toProfile.getLanguage()).isEqualTo(sourceProfile.getLanguage());
+    assertThat(backuper.toProfile.getName()).isEqualTo("target-name");
+    assertThat(backuper.toProfile.getKee()).isEqualTo(generatedUuid);
+    assertThat(backuper.toProfile.getParentKee()).isEqualTo(parentProfile.getKee());
   }
 
   @Test
@@ -289,15 +289,12 @@ public class CopyActionTest {
 
   private static class TestBackuper implements QProfileBackuper {
 
-    private QProfileDto backupedProfile;
-    private QProfileDto restoredProfile;
+    private QProfileDto copiedProfile;
+    private QProfileDto toProfile;
 
     @Override
     public void backup(DbSession dbSession, QProfileDto profile, Writer backupWriter) {
-      if (this.backupedProfile != null) {
-        throw new IllegalStateException("Already backup-ed/backed-up");
-      }
-      this.backupedProfile = profile;
+      throw new UnsupportedOperationException();
     }
 
     @Override
@@ -307,11 +304,13 @@ public class CopyActionTest {
 
     @Override
     public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QProfileDto profile) {
-      if (this.restoredProfile != null) {
-        throw new IllegalStateException("Already restored");
-      }
-      this.restoredProfile = profile;
-      return new QProfileRestoreSummary(profile, new BulkChangeResult());
+      throw new UnsupportedOperationException();
+    }
+
+    @Override public QProfileRestoreSummary copy(DbSession dbSession, QProfileDto from, QProfileDto to) {
+      this.copiedProfile = from;
+      this.toProfile = to;
+      return null;
     }
   }
 }

@@ -70,11 +70,6 @@ public class QualityGateUpdater {
     checkQualityGateDoesNotAlreadyExist(dbSession, organizationDto, name);
   }
 
-  public void setDefault(DbSession dbSession, OrganizationDto organizationDto, QualityGateDto qualityGateDto) {
-    organizationDto.setDefaultQualityGateUuid(qualityGateDto.getUuid());
-    dbClient.qualityGateDao().update(qualityGateDto, dbSession);
-  }
-
   private void checkQualityGateDoesNotAlreadyExist(DbSession dbSession, OrganizationDto organizationDto, String name) {
     QualityGateDto existingQgate = dbClient.qualityGateDao().selectByOrganizationAndName(dbSession, organizationDto, name);
     checkArgument(existingQgate == null, IS_ALREADY_USED_MESSAGE, "Name");

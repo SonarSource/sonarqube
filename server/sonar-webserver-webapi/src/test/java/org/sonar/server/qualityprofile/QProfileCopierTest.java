@@ -39,6 +39,11 @@ import org.sonar.db.qualityprofile.QualityProfileTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class QProfileCopierTest {
 
@@ -53,8 +58,8 @@ public class QProfileCopierTest {
   public JUnitTempFolder temp = new JUnitTempFolder();
 
   private DummyProfileFactory profileFactory = new DummyProfileFactory();
-  private DummyBackuper backuper = new DummyBackuper();
-  private QProfileCopier underTest = new QProfileCopier(db.getDbClient(), profileFactory, backuper, temp);
+  private QProfileBackuper backuper = mock(QProfileBackuper.class);
+  private QProfileCopier underTest = new QProfileCopier(db.getDbClient(), profileFactory, backuper);
 
   @Test
   public void create_target_profile_and_copy_rules() {
@@ -66,9 +71,8 @@ public class QProfileCopierTest {
     assertThat(target.getLanguage()).isEqualTo(source.getLanguage());
     assertThat(target.getName()).isEqualTo("foo");
     assertThat(target.getParentKee()).isNull();
-    assertThat(backuper.backuped).isSameAs(source);
-    assertThat(backuper.restored.getName()).isEqualTo("foo");
-    assertThat(backuper.restoredBackup).isEqualTo(BACKUP);
+
+    verify(backuper).copy(db.getSession(), source, target);
   }
 
   @Test
@@ -82,6 +86,8 @@ public class QProfileCopierTest {
     assertThat(target.getLanguage()).isEqualTo(source.getLanguage());
     assertThat(target.getName()).isEqualTo("foo");
     assertThat(target.getParentKee()).isEqualTo(parent.getKee());
+
+    verify(backuper).copy(db.getSession(), source, target);
   }
 
   @Test
@@ -94,8 +100,7 @@ public class QProfileCopierTest {
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Source and target profiles are equal: " + source.getName());
-      assertThat(backuper.backuped).isNull();
-      assertThat(backuper.restored).isNull();
+      verifyZeroInteractions(backuper);
     }
   }
 
@@ -110,9 +115,8 @@ public class QProfileCopierTest {
     assertThat(profileFactory.createdProfile).isNull();
     assertThat(target.getLanguage()).isEqualTo(profile2.getLanguage());
     assertThat(target.getName()).isEqualTo(profile2.getName());
-    assertThat(backuper.backuped).isSameAs(profile1);
-    assertThat(backuper.restored.getName()).isEqualTo(profile2.getName());
-    assertThat(backuper.restoredBackup).isEqualTo(BACKUP);
+
+    verify(backuper).copy(eq(db.getSession()), eq(profile1), argThat(a -> a.getKee().equals(profile2.getKee())));
   }
 
   private static class DummyProfileFactory implements QProfileFactory {
@@ -125,9 +129,14 @@ public class QProfileCopierTest {
 
     @Override
     public QProfileDto checkAndCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName key) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override public QProfileDto createCustom(DbSession dbSession, OrganizationDto organization, QProfileName key, @Nullable String parentKey) {
       createdProfile = QualityProfileTesting.newQualityProfileDto()
         .setOrganizationUuid(organization.getUuid())
         .setLanguage(key.getLanguage())
+        .setParentKee(parentKey)
         .setName(key.getName());
       return createdProfile;
     }
@@ -135,38 +144,6 @@ public class QProfileCopierTest {
     @Override
     public void delete(DbSession dbSession, Collection<QProfileDto> profiles) {
       throw new UnsupportedOperationException();
-    }
-  }
-
-  private static class DummyBackuper implements QProfileBackuper {
-    private QProfileDto backuped;
-    private String restoredBackup;
-    private QProfileDto restored;
-
-    @Override
-    public void backup(DbSession dbSession, QProfileDto profile, Writer backupWriter) {
-      this.backuped = profile;
-      try {
-        backupWriter.write(BACKUP);
-      } catch (IOException e) {
-        throw new IllegalStateException(e);
-      }
-    }
-
-    @Override
-    public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QProfileDto profile) {
-      try {
-        this.restoredBackup = IOUtils.toString(backup);
-        this.restored = profile;
-        return null;
-      } catch (IOException e) {
-        throw new IllegalStateException(e);
-      }
     }
   }
 }

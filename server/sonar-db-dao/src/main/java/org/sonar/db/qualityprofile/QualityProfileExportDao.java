@@ -22,7 +22,6 @@ package org.sonar.db.qualityprofile;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -34,13 +33,10 @@ public class QualityProfileExportDao implements Dao {
   public List<ExportRuleDto> selectRulesByProfile(DbSession dbSession, QProfileDto profile) {
     List<ExportRuleDto> exportRules = mapper(dbSession).selectByProfileUuid(profile.getKee());
 
-    Set<Integer> activeRuleIds = exportRules.stream().map(ExportRuleDto::getActiveRuleId).collect(Collectors.toSet());
+    Map<Integer, ExportRuleDto> exportRulesById = exportRules.stream().collect(Collectors.toMap(ExportRuleDto::getActiveRuleId, x -> x));
+    Map<Integer, List<ExportRuleParamDto>> rulesParams = selectParamsByActiveRuleIds(dbSession, exportRulesById.keySet());
 
-    Map<Integer, List<ExportRuleParamDto>> activeRulesParam = selectParamsByActiveRuleIds(dbSession, activeRuleIds);
-
-    exportRules.forEach(exportRuleDto ->
-      exportRuleDto.setParams(activeRulesParam.get(exportRuleDto.getActiveRuleId()))
-    );
+    rulesParams.forEach((id, rules) -> exportRulesById.get(id).setParams(rules));
     return exportRules;
   }
 

@@ -44,4 +44,6 @@ public interface QProfileBackuper {
    * Restore backup on an existing profile.
    */
   QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QProfileDto profile);
+
+  QProfileRestoreSummary copy(DbSession dbSession, QProfileDto from, QProfileDto to);
 }

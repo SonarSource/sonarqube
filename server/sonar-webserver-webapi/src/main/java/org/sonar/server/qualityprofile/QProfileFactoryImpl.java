@@ -65,7 +65,7 @@ public class QProfileFactoryImpl implements QProfileFactory {
     requireNonNull(organization);
     QProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, name.getName(), name.getLanguage());
     if (profile == null) {
-      profile = doCreate(dbSession, organization, name, false, false);
+      profile = doCreate(dbSession, organization, name, null, false, false);
     } else {
       checkArgument(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s' with language '%s'", profile.getName(), profile.getLanguage());
     }
@@ -78,10 +78,16 @@ public class QProfileFactoryImpl implements QProfileFactory {
     requireNonNull(organization);
     QProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, name.getName(), name.getLanguage());
     checkRequest(dto == null, "Quality profile already exists: %s", name);
-    return doCreate(dbSession, organization, name, false, false);
+    return doCreate(dbSession, organization, name, null,false, false);
   }
 
-  private QProfileDto doCreate(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault, boolean isBuiltIn) {
+  @Override
+  public QProfileDto createCustom(DbSession dbSession, OrganizationDto organization, QProfileName name, @Nullable String parentKey) {
+    requireNonNull(organization);
+    return doCreate(dbSession, organization, name, parentKey,false, false);
+  }
+
+  private QProfileDto doCreate(DbSession dbSession, OrganizationDto organization, QProfileName name, @Nullable String parentKey, boolean isDefault, boolean isBuiltIn) {
     if (StringUtils.isEmpty(name.getName())) {
       throw BadRequestException.create("quality_profiles.profile_name_cant_be_blank");
     }
@@ -93,6 +99,7 @@ public class QProfileFactoryImpl implements QProfileFactory {
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(name.getLanguage())
       .setIsBuiltIn(isBuiltIn)
+      .setParentKee(parentKey)
       .setRulesUpdatedAtAsDate(now);
     db.qualityProfileDao().insert(dbSession, dto);
     if (isDefault) {

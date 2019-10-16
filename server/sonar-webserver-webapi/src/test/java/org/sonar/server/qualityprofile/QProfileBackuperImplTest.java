@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -42,6 +43,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -54,6 +56,7 @@ import static org.junit.rules.ExpectedException.none;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class QProfileBackuperImplTest {
@@ -80,7 +83,7 @@ public class QProfileBackuperImplTest {
   @Test
   public void backup_generates_xml_file() {
     RuleDefinitionDto rule = createRule();
-    QProfileDto profile = createProfile(rule);
+    QProfileDto profile = createProfile(rule.getLanguage());
     ActiveRuleDto activeRule = activate(profile, rule);
 
     StringWriter writer = new StringWriter();
@@ -105,7 +108,7 @@ public class QProfileBackuperImplTest {
   public void backup_rules_having_parameters() {
     RuleDefinitionDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule);
-    QProfileDto profile = createProfile(rule);
+    QProfileDto profile = createProfile(rule.getLanguage());
     ActiveRuleDto activeRule = activate(profile, rule, param);
 
     StringWriter writer = new StringWriter();
@@ -127,7 +130,7 @@ public class QProfileBackuperImplTest {
   @Test
   public void backup_empty_profile() {
     RuleDefinitionDto rule = createRule();
-    QProfileDto profile = createProfile(rule);
+    QProfileDto profile = createProfile(rule.getLanguage());
 
     StringWriter writer = new StringWriter();
     underTest.backup(db.getSession(), profile, writer);
@@ -149,7 +152,7 @@ public class QProfileBackuperImplTest {
       .setStatus(RuleStatus.READY)
       .setTemplateId(templateRule.getId()));
     RuleParamDto param = db.rules().insertRuleParam(rule);
-    QProfileDto profile = createProfile(rule);
+    QProfileDto profile = createProfile(rule.getLanguage());
     ActiveRuleDto activeRule = activate(profile, rule, param);
 
     StringWriter writer = new StringWriter();
@@ -297,6 +300,21 @@ public class QProfileBackuperImplTest {
   }
 
   @Test
+  public void copy_profile() {
+    RuleDefinitionDto rule = createRule();
+    RuleParamDto param = db.rules().insertRuleParam(rule);
+    QProfileDto from = createProfile(rule.getLanguage());
+    ActiveRuleDto activeRule = activate(from, rule, param);
+
+    QProfileDto to = createProfile(rule.getLanguage());
+    QProfileRestoreSummary summary = underTest.copy(db.getSession(), from, to);
+
+    assertThat(reset.calledActivations).extracting(RuleActivation::getRuleId).containsOnly(activeRule.getRuleId());
+    assertThat(reset.calledActivations.get(0).getParameter(param.getName())).isEqualTo("20");
+    assertThat(reset.calledProfile).isEqualTo(to);
+  }
+
+  @Test
   public void fail_to_restore_if_bad_xml_format() {
     OrganizationDto organization = db.organizations().insert();
     try {
@@ -374,8 +392,8 @@ public class QProfileBackuperImplTest {
     return db.rules().insertOrUpdateMetadata(metadataDto);
   }
 
-  private QProfileDto createProfile(RuleDefinitionDto rule) {
-    return db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(rule.getLanguage()));
+  private QProfileDto createProfile(String language) {
+    return db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(language));
   }
 
   private ActiveRuleDto activate(QProfileDto profile, RuleDefinitionDto rule) {
@@ -414,6 +432,10 @@ public class QProfileBackuperImplTest {
 
     @Override
     public QProfileDto checkAndCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName name) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override public QProfileDto createCustom(DbSession dbSession, OrganizationDto organization, QProfileName name, @Nullable String parentKey) {
       throw new UnsupportedOperationException();
     }
 

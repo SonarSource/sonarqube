@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import java.util.Collection;
+import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -38,6 +39,8 @@ public interface QProfileFactory {
    * @throws BadRequestException if a quality profile with the specified name already exists
    */
   QProfileDto checkAndCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName name);
+
+  QProfileDto createCustom(DbSession dbSession, OrganizationDto organization, QProfileName name, @Nullable String parentKey);
 
   /**
    * Deletes the specified profiles from database and Elasticsearch.
