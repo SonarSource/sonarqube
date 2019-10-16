@@ -1,0 +1,95 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <table
+    className="data zebra spacer-bottom"
+  >
+    <thead>
+      <tr>
+        <th>
+          settings.pr_decoration.table.column.name
+        </th>
+        <th>
+          settings.pr_decoration.table.column.github.url
+        </th>
+        <th>
+          settings.pr_decoration.table.column.app_id
+        </th>
+        <th
+          className="thin"
+        >
+          settings.pr_decoration.table.column.edit
+        </th>
+        <th
+          className="thin"
+        >
+          settings.pr_decoration.table.column.delete
+        </th>
+      </tr>
+    </thead>
+    <tbody />
+  </table>
+</Fragment>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <table
+    className="data zebra spacer-bottom"
+  >
+    <thead>
+      <tr>
+        <th>
+          settings.pr_decoration.table.column.name
+        </th>
+        <th>
+          settings.pr_decoration.table.column.github.url
+        </th>
+        <th>
+          settings.pr_decoration.table.column.app_id
+        </th>
+        <th
+          className="thin"
+        >
+          settings.pr_decoration.table.column.edit
+        </th>
+        <th
+          className="thin"
+        >
+          settings.pr_decoration.table.column.delete
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        key="key"
+      >
+        <td>
+          key
+        </td>
+        <td>
+          http:alm.enterprise.com
+        </td>
+        <td>
+          123456
+        </td>
+        <td>
+          <ButtonIcon
+            onClick={[Function]}
+          >
+            <EditIcon />
+          </ButtonIcon>
+        </td>
+        <td>
+          <ButtonIcon
+            onClick={[Function]}
+          >
+            <DeleteIcon />
+          </ButtonIcon>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</Fragment>
+`;

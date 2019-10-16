@@ -22,6 +22,18 @@ import { hasMessage, translate } from 'sonar-ui-common/helpers/l10n';
 
 export const DEFAULT_CATEGORY = 'general';
 
+export enum ALM_KEYS {
+  BITBUCKET = 'bitbucket',
+  GITHUB = 'github',
+  AZURE_DEVOPS = 'azure_devops'
+}
+
+export const almName = {
+  [ALM_KEYS.AZURE_DEVOPS]: 'Azure DevOps Server',
+  [ALM_KEYS.BITBUCKET]: 'Bitbucket Server',
+  [ALM_KEYS.GITHUB]: 'Github Enterprise'
+};
+
 export type DefaultSpecializedInputProps = T.Omit<DefaultInputProps, 'setting'> & {
   isDefault: boolean;
   name: string;

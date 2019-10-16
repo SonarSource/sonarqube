@@ -17,8 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import DeleteModal, { DeleteModalProps } from '../DeleteModal';
 
-export const ANALYSIS_SCOPE_CATEGORY = 'exclusions';
-export const LANGUAGES_CATEGORY = 'languages';
-export const NEW_CODE_PERIOD_CATEGORY = 'new_code_period';
-export const PULL_REQUEST_DECORATION_CATEGORY = 'pull_request_decoration';
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ projectCount: undefined })).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<DeleteModalProps> = {}) {
+  return shallow(
+    <DeleteModal id="1" onCancel={jest.fn()} onDelete={jest.fn()} projectCount={4} {...props} />
+  );
+}

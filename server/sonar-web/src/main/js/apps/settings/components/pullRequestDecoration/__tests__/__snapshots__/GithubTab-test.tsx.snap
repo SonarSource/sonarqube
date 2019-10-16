@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<TabRenderer
+  alm="github"
+  definitions={Array []}
+  onCancel={[Function]}
+  onConfirmDelete={[Function]}
+  onCreate={[Function]}
+  onDelete={[Function]}
+  onEdit={[Function]}
+  onSubmit={[Function]}
+/>
+`;

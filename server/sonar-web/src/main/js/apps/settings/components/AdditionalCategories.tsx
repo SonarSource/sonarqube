@@ -23,11 +23,13 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   ANALYSIS_SCOPE_CATEGORY,
   LANGUAGES_CATEGORY,
-  NEW_CODE_PERIOD_CATEGORY
+  NEW_CODE_PERIOD_CATEGORY,
+  PULL_REQUEST_DECORATION_CATEGORY
 } from './AdditionalCategoryKeys';
 import { AnalysisScope } from './AnalysisScope';
 import Languages from './Languages';
 import NewCodePeriod from './NewCodePeriod';
+import PullRequestDecoration from './pullRequestDecoration/PullRequestDecoration';
 
 export interface AdditionalCategoryComponentProps {
   parentComponent: T.Component | undefined;
@@ -67,6 +69,14 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     availableGlobally: true,
     availableForProject: true,
     displayTab: false
+  },
+  {
+    key: PULL_REQUEST_DECORATION_CATEGORY,
+    name: translate('property.category.pull_request'),
+    renderComponent: getPullRequestDecorationComponent,
+    availableGlobally: true,
+    availableForProject: false,
+    displayTab: true
   }
 ];
 
@@ -80,4 +90,8 @@ function getNewCodePeriodComponent() {
 
 function getAnalysisScopeComponent(props: AdditionalCategoryComponentProps) {
   return <AnalysisScope {...props} />;
+}
+
+function getPullRequestDecorationComponent() {
+  return <PullRequestDecoration />;
 }

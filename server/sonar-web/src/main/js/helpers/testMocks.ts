@@ -50,6 +50,18 @@ export function mockAlmOrganization(overrides: Partial<T.AlmOrganization> = {}):
   };
 }
 
+export function mockGithubDefinition(
+  overrides: Partial<T.GithubDefinition> = {}
+): T.GithubDefinition {
+  return {
+    key: 'key',
+    url: 'http:alm.enterprise.com',
+    appId: '123456',
+    privateKey: 'asdf1234',
+    ...overrides
+  };
+}
+
 export function mockAnalysis(overrides: Partial<T.Analysis> = {}): T.Analysis {
   return {
     date: '2017-03-01T09:36:01+0100',

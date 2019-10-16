@@ -1,0 +1,154 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <Alert
+    className="spacer-top huge-spacer-bottom"
+    variant="info"
+  >
+    <FormattedMessage
+      defaultMessage="settings.pr_decoration.github.info"
+      id="settings.pr_decoration.github.info"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/documentation/analysis/pull-request/#pr-decoration"
+          >
+            learn_more
+          </Link>,
+        }
+      }
+    />
+  </Alert>
+  <div
+    className="big-spacer-bottom display-flex-space-between"
+  >
+    <h4
+      className="display-inline"
+    >
+      settings.pr_decoration.table.title
+    </h4>
+    <Button
+      onClick={[MockFunction]}
+    >
+      settings.pr_decoration.table.create
+    </Button>
+  </div>
+  <PRDecorationTable
+    alm="github"
+    definitions={Array []}
+    onDelete={[MockFunction]}
+    onEdit={[MockFunction]}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <Alert
+    className="spacer-top huge-spacer-bottom"
+    variant="info"
+  >
+    <FormattedMessage
+      defaultMessage="settings.pr_decoration.github.info"
+      id="settings.pr_decoration.github.info"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/documentation/analysis/pull-request/#pr-decoration"
+          >
+            learn_more
+          </Link>,
+        }
+      }
+    />
+  </Alert>
+  <div
+    className="big-spacer-bottom display-flex-space-between"
+  >
+    <h4
+      className="display-inline"
+    >
+      settings.pr_decoration.table.title
+    </h4>
+    <Button
+      onClick={[MockFunction]}
+    >
+      settings.pr_decoration.table.create
+    </Button>
+  </div>
+  <PRDecorationTable
+    alm="github"
+    definitions={Array []}
+    onDelete={[MockFunction]}
+    onEdit={[MockFunction]}
+  />
+  <DeleteModal
+    id="123"
+    onCancel={[MockFunction]}
+    onDelete={[MockFunction]}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly 3`] = `
+<Fragment>
+  <Alert
+    className="spacer-top huge-spacer-bottom"
+    variant="info"
+  >
+    <FormattedMessage
+      defaultMessage="settings.pr_decoration.github.info"
+      id="settings.pr_decoration.github.info"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/documentation/analysis/pull-request/#pr-decoration"
+          >
+            learn_more
+          </Link>,
+        }
+      }
+    />
+  </Alert>
+  <div
+    className="big-spacer-bottom display-flex-space-between"
+  >
+    <h4
+      className="display-inline"
+    >
+      settings.pr_decoration.table.title
+    </h4>
+    <Button
+      onClick={[MockFunction]}
+    >
+      settings.pr_decoration.table.create
+    </Button>
+  </div>
+  <PRDecorationTable
+    alm="github"
+    definitions={Array []}
+    onDelete={[MockFunction]}
+    onEdit={[MockFunction]}
+  />
+  <AlmPRDecorationFormModal
+    alm="github"
+    data={
+      Object {
+        "appId": "123456",
+        "key": "key",
+        "privateKey": "asdf1234",
+        "url": "http:alm.enterprise.com",
+      }
+    }
+    onCancel={[MockFunction]}
+    onSubmit={[MockFunction]}
+  />
+</Fragment>
+`;

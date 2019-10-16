@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<DeferredSpinner
+  timeout={100}
+/>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.pr_decoration.title
+    </h1>
+  </header>
+  <h3
+    className="settings-definition-name"
+    title="settings.pr_decoration.header"
+  >
+    settings.pr_decoration.header
+  </h3>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.pr_decoration.description
+  </div>
+  <BoxedTabs
+    onSelect={[MockFunction]}
+    selected="github"
+    tabs={
+      Array [
+        Object {
+          "key": "github",
+          "label": "Github Enterprise",
+        },
+      ]
+    }
+  />
+  <div
+    className="boxed-group boxed-group-inner"
+  >
+    <GithubTab
+      definitions={Array []}
+      onUpdateDefinitions={[MockFunction]}
+    />
+  </div>
+</Fragment>
+`;

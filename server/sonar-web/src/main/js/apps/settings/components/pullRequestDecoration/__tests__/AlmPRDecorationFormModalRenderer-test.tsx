@@ -17,8 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { mockGithubDefinition } from '../../../../../helpers/testMocks';
+import { ALM_KEYS } from '../../../utils';
+import AlmPRDecorationFormModalRenderer, {
+  AlmPRDecorationFormModalProps
+} from '../AlmPRDecorationFormModalRenderer';
 
-export const ANALYSIS_SCOPE_CATEGORY = 'exclusions';
-export const LANGUAGES_CATEGORY = 'languages';
-export const NEW_CODE_PERIOD_CATEGORY = 'new_code_period';
-export const PULL_REQUEST_DECORATION_CATEGORY = 'pull_request_decoration';
+it('should render correctly', () => {
+  expect(shallowRender().dive()).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<AlmPRDecorationFormModalProps> = {}) {
+  return shallow(
+    <AlmPRDecorationFormModalRenderer
+      alm={ALM_KEYS.GITHUB}
+      canSubmit={jest.fn()}
+      formData={mockGithubDefinition()}
+      onCancel={jest.fn()}
+      onFieldChange={jest.fn()}
+      onSubmit={jest.fn()}
+      originalKey=""
+      {...props}
+    />
+  );
+}

@@ -17,8 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { mockGithubDefinition } from '../../../../../helpers/testMocks';
+import { ALM_KEYS } from '../../../utils';
+import PRDecorationTable, { PRDecorationTableProps } from '../PRDecorationTable';
 
-export const ANALYSIS_SCOPE_CATEGORY = 'exclusions';
-export const LANGUAGES_CATEGORY = 'languages';
-export const NEW_CODE_PERIOD_CATEGORY = 'new_code_period';
-export const PULL_REQUEST_DECORATION_CATEGORY = 'pull_request_decoration';
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ definitions: [mockGithubDefinition()] })).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<PRDecorationTableProps> = {}) {
+  return shallow(
+    <PRDecorationTable
+      alm={ALM_KEYS.GITHUB}
+      definitions={[]}
+      onDelete={jest.fn()}
+      onEdit={jest.fn()}
+      {...props}
+    />
+  );
+}

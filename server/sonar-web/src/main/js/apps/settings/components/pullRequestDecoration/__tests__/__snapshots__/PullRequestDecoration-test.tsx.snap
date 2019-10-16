@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<PRDecorationTabs
+  currentAlm="github"
+  definitions={
+    Object {
+      "github": Array [],
+    }
+  }
+  loading={true}
+  onSelectAlm={[Function]}
+  onUpdateDefinitions={[Function]}
+/>
+`;
