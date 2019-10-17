@@ -23,16 +23,21 @@ import { ALM_KEYS } from '../../../utils';
 import PRDecorationTabs, { PRDecorationTabsProps } from '../PRDecorationTabs';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ loading: false })).toMatchSnapshot();
+  expect(shallowRender({ loading: true })).toMatchSnapshot();
+  expect(shallowRender({ definitionKeyForDeletion: 'keyToDelete' })).toMatchSnapshot();
+  expect(shallowRender({ currentAlm: ALM_KEYS.AZURE })).toMatchSnapshot();
+  expect(shallowRender({ currentAlm: ALM_KEYS.GITHUB })).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<PRDecorationTabsProps> = {}) {
   return shallow(
     <PRDecorationTabs
       currentAlm={ALM_KEYS.GITHUB}
-      definitions={{ github: [] }}
-      loading={true}
+      definitions={{ azure: [], github: [] }}
+      loading={false}
+      onCancel={jest.fn()}
+      onConfirmDelete={jest.fn()}
+      onDelete={jest.fn()}
       onSelectAlm={jest.fn()}
       onUpdateDefinitions={jest.fn()}
       {...props}

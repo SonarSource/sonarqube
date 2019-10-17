@@ -19,23 +19,22 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import AlmPRDecorationFormModalRenderer, {
-  AlmPRDecorationFormModalProps
-} from '../AlmPRDecorationFormModalRenderer';
+import { mockAzureDefinition } from '../../../../../helpers/testMocks';
+import AzureTable, { AzureTableProps } from '../AzureTable';
 
 it('should render correctly', () => {
-  expect(shallowRender().dive()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ definitions: [mockAzureDefinition()] })).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<AlmPRDecorationFormModalProps> = {}) {
+function shallowRender(props: Partial<AzureTableProps> = {}) {
   return shallow(
-    <AlmPRDecorationFormModalRenderer
-      canSubmit={jest.fn()}
-      onCancel={jest.fn()}
-      onSubmit={jest.fn()}
-      originalKey=""
-      {...props}>
-      {() => null}
-    </AlmPRDecorationFormModalRenderer>
+    <AzureTable
+      definitions={[]}
+      loading={false}
+      onDelete={jest.fn()}
+      onEdit={jest.fn()}
+      {...props}
+    />
   );
 }

@@ -20,25 +20,32 @@
 import * as React from 'react';
 import AlmPRDecorationFormModalRenderer from './AlmPRDecorationFormModalRenderer';
 
-interface Props {
-  alm: string;
-  bindingDefinition: T.GithubBindingDefinition;
+interface ChildrenProps<AlmBindingDefinitionType> {
+  formData: AlmBindingDefinitionType;
+  onFieldChange: (fieldId: keyof AlmBindingDefinitionType, value: string) => void;
+}
+
+interface Props<B> {
+  children: (props: ChildrenProps<B>) => React.ReactNode;
+  bindingDefinition: B;
   onCancel: () => void;
-  onSubmit: (bindingDefinition: T.GithubBindingDefinition, originalKey: string) => void;
+  onSubmit: (data: B, originalKey: string) => void;
 }
 
-interface State {
-  formData: T.GithubBindingDefinition;
+interface State<AlmBindingDefinitionType> {
+  formData: AlmBindingDefinitionType;
 }
 
-export default class AlmPRDecorationFormModal extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
+export default class AlmPRDecorationFormModal<
+  B extends T.AlmSettingsBinding
+> extends React.PureComponent<Props<B>, State<B>> {
+  constructor(props: Props<B>) {
     super(props);
 
     this.state = { formData: props.bindingDefinition };
   }
 
-  handleFieldChange = (fieldId: keyof T.GithubBindingDefinition, value: string) => {
+  handleFieldChange = (fieldId: keyof B, value: string) => {
     this.setState(({ formData }) => ({
       formData: {
         ...formData,
@@ -59,19 +66,20 @@ export default class AlmPRDecorationFormModal extends React.PureComponent<Props,
   };
 
   render() {
-    const { alm, bindingDefinition } = this.props;
+    const { children, bindingDefinition } = this.props;
     const { formData } = this.state;
 
     return (
       <AlmPRDecorationFormModalRenderer
-        alm={alm}
         canSubmit={this.canSubmit}
-        formData={formData}
         onCancel={this.props.onCancel}
-        onFieldChange={this.handleFieldChange}
         onSubmit={this.handleFormSubmit}
-        originalKey={bindingDefinition.key}
-      />
+        originalKey={bindingDefinition.key}>
+        {children({
+          formData,
+          onFieldChange: this.handleFieldChange
+        })}
+      </AlmPRDecorationFormModalRenderer>
     );
   }
 }

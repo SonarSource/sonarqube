@@ -18,14 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getAlmDefinitions } from '../../../../api/almSettings';
+import {
+  countBindedProjects,
+  deleteConfiguration,
+  getAlmDefinitions
+} from '../../../../api/almSettings';
 import { ALM_KEYS } from '../../utils';
 import PRDecorationTabs from './PRDecorationTabs';
 
 interface State {
   currentAlm: ALM_KEYS;
+  definitionKeyForDeletion?: string;
   definitions: T.AlmSettingsBindingDefinitions;
   loading: boolean;
+  projectCount?: number;
 }
 
 export default class PullRequestDecoration extends React.PureComponent<{}, State> {
@@ -33,6 +39,7 @@ export default class PullRequestDecoration extends React.PureComponent<{}, State
   state: State = {
     currentAlm: ALM_KEYS.GITHUB,
     definitions: {
+      [ALM_KEYS.AZURE]: [],
       [ALM_KEYS.GITHUB]: []
     },
     loading: true
@@ -47,7 +54,18 @@ export default class PullRequestDecoration extends React.PureComponent<{}, State
     this.mounted = false;
   }
 
+  deleteConfiguration = (definitionKey: string) => {
+    return deleteConfiguration(definitionKey)
+      .then(() => {
+        if (this.mounted) {
+          this.setState({ definitionKeyForDeletion: undefined, projectCount: undefined });
+        }
+      })
+      .then(this.fetchPullRequestDecorationSetting);
+  };
+
   fetchPullRequestDecorationSetting = () => {
+    this.setState({ loading: true });
     return getAlmDefinitions()
       .then(definitions => {
         if (this.mounted) {
@@ -68,9 +86,27 @@ export default class PullRequestDecoration extends React.PureComponent<{}, State
     this.setState({ currentAlm });
   };
 
+  handleCancel = () => {
+    this.setState({ definitionKeyForDeletion: undefined, projectCount: undefined });
+  };
+
+  handleDelete = (definitionKey: string) => {
+    return countBindedProjects(definitionKey).then(projectCount => {
+      if (this.mounted) {
+        this.setState({
+          definitionKeyForDeletion: definitionKey,
+          projectCount
+        });
+      }
+    });
+  };
+
   render() {
     return (
       <PRDecorationTabs
+        onCancel={this.handleCancel}
+        onConfirmDelete={this.deleteConfiguration}
+        onDelete={this.handleDelete}
         onSelectAlm={this.handleSelectAlm}
         onUpdateDefinitions={this.fetchPullRequestDecorationSetting}
         {...this.state}

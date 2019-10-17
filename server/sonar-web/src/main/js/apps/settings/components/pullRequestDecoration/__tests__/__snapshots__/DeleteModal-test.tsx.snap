@@ -5,6 +5,7 @@ exports[`should render correctly 1`] = `
   confirmButtonText="delete"
   confirmData="1"
   header="settings.pr_decoration.delete.header"
+  isDestructive={true}
   onClose={[MockFunction]}
   onConfirm={[MockFunction]}
 >
@@ -35,6 +36,7 @@ exports[`should render correctly 2`] = `
   confirmButtonText="delete"
   confirmData="1"
   header="settings.pr_decoration.delete.header"
+  isDestructive={true}
   onClose={[MockFunction]}
   onConfirm={[MockFunction]}
 >

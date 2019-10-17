@@ -17,30 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockGithubDefinition } from '../../../../../helpers/testMocks';
-import { ALM_KEYS } from '../../../utils';
-import TabRenderer, { TabRendererProps } from '../TabRenderer';
+import { AlmDefinitionFormField } from './AlmDefinitionFormField';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ definitionKeyForDeletion: '123' })).toMatchSnapshot();
-  expect(shallowRender({ definitionInEdition: mockGithubDefinition() })).toMatchSnapshot();
-});
+export interface AzureFormModalProps {
+  formData: T.AzureBindingDefinition;
+  onFieldChange: (fieldId: keyof T.AzureBindingDefinition, value: string) => void;
+}
 
-function shallowRender(props: Partial<TabRendererProps> = {}) {
-  return shallow(
-    <TabRenderer
-      alm={ALM_KEYS.GITHUB}
-      definitions={[]}
-      onCancel={jest.fn()}
-      onConfirmDelete={jest.fn()}
-      onCreate={jest.fn()}
-      onDelete={jest.fn()}
-      onEdit={jest.fn()}
-      onSubmit={jest.fn()}
-      {...props}
-    />
+export default function AzureFormModal(props: AzureFormModalProps) {
+  const { formData, onFieldChange } = props;
+
+  return (
+    <>
+      <AlmDefinitionFormField
+        autoFocus={true}
+        formData={formData}
+        help={true}
+        id="name"
+        isTextArea={false}
+        maxLength={40}
+        onFieldChange={onFieldChange}
+        propKey="key"
+      />
+      <AlmDefinitionFormField
+        formData={formData}
+        help={true}
+        id="personal_access_token"
+        isTextArea={true}
+        maxLength={2000}
+        onFieldChange={onFieldChange}
+        propKey="personalAccessToken"
+      />
+    </>
   );
 }

@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <AlmDefinitionFormField
+    autoFocus={true}
+    formData={
+      Object {
+        "key": "",
+        "personalAccessToken": "",
+      }
+    }
+    help={true}
+    id="name"
+    isTextArea={false}
+    maxLength={40}
+    onFieldChange={[MockFunction]}
+    propKey="key"
+  />
+  <AlmDefinitionFormField
+    formData={
+      Object {
+        "key": "",
+        "personalAccessToken": "",
+      }
+    }
+    help={true}
+    id="personal_access_token"
+    isTextArea={true}
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="personalAccessToken"
+  />
+</Fragment>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <AlmDefinitionFormField
+    autoFocus={true}
+    formData={
+      Object {
+        "key": "key",
+        "personalAccessToken": "asdf1234",
+      }
+    }
+    help={true}
+    id="name"
+    isTextArea={false}
+    maxLength={40}
+    onFieldChange={[MockFunction]}
+    propKey="key"
+  />
+  <AlmDefinitionFormField
+    formData={
+      Object {
+        "key": "key",
+        "personalAccessToken": "asdf1234",
+      }
+    }
+    help={true}
+    id="personal_access_token"
+    isTextArea={true}
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="personalAccessToken"
+  />
+</Fragment>
+`;

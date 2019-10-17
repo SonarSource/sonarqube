@@ -45,6 +45,7 @@ export default function DeleteModal({ id, onDelete, onCancel, projectCount }: De
       confirmButtonText={translate('delete')}
       confirmData={id}
       header={translate('settings.pr_decoration.delete.header')}
+      isDestructive={true}
       onClose={onCancel}
       onConfirm={onDelete}>
       <>

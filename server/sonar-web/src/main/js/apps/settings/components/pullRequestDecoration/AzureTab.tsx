@@ -18,22 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { createGithubConfiguration, updateGithubConfiguration } from '../../../../api/almSettings';
-import GithubTabRenderer from './GithubTabRenderer';
+import { createAzureConfiguration, updateAzureConfiguration } from '../../../../api/almSettings';
+import AzureTabRenderer from './AzureTabRenderer';
 
 interface Props {
-  definitions: T.GithubBindingDefinition[];
+  definitions: T.AzureBindingDefinition[];
   loading: boolean;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
 }
 
 interface State {
-  editedDefinition?: T.GithubBindingDefinition;
+  editedDefinition?: T.AzureBindingDefinition;
   projectCount?: number;
 }
 
-export default class GithubTab extends React.PureComponent<Props, State> {
+export default class AzureTab extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {};
 
@@ -52,31 +52,29 @@ export default class GithubTab extends React.PureComponent<Props, State> {
   };
 
   handleCreate = () => {
-    this.setState({ editedDefinition: { key: '', appId: '', url: '', privateKey: '' } });
+    this.setState({ editedDefinition: { key: '', personalAccessToken: '' } });
   };
 
-  handleEdit = (config: T.GithubBindingDefinition) => {
+  handleEdit = (config: T.AzureBindingDefinition) => {
     this.setState({ editedDefinition: config });
   };
 
-  handleSubmit = (config: T.GithubBindingDefinition, originalKey: string) => {
+  handleSubmit = (config: T.AzureBindingDefinition, originalKey: string) => {
     const call = originalKey
-      ? updateGithubConfiguration({ newKey: config.key, ...config, key: originalKey })
-      : createGithubConfiguration(config);
-    return call
-      .then(() => {
-        if (this.mounted) {
-          this.setState({ editedDefinition: undefined });
-        }
-      })
-      .then(this.props.onUpdateDefinitions);
+      ? updateAzureConfiguration({ newKey: config.key, ...config, key: originalKey })
+      : createAzureConfiguration(config);
+    return call.then(this.props.onUpdateDefinitions).then(() => {
+      if (this.mounted) {
+        this.setState({ editedDefinition: undefined });
+      }
+    });
   };
 
   render() {
     const { definitions, loading } = this.props;
     const { editedDefinition } = this.state;
     return (
-      <GithubTabRenderer
+      <AzureTabRenderer
         definitions={definitions}
         editedDefinition={editedDefinition}
         loading={loading}

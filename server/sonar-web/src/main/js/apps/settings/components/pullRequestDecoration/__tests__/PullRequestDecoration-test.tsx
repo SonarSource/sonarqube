@@ -20,11 +20,17 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { getAlmDefinitions } from '../../../../../api/almSettings';
+import {
+  countBindedProjects,
+  deleteConfiguration,
+  getAlmDefinitions
+} from '../../../../../api/almSettings';
 import { ALM_KEYS } from '../../../utils';
 import PullRequestDecoration from '../PullRequestDecoration';
 
 jest.mock('../../../../../api/almSettings', () => ({
+  countBindedProjects: jest.fn().mockResolvedValue(0),
+  deleteConfiguration: jest.fn().mockResolvedValue(undefined),
   getAlmDefinitions: jest.fn().mockResolvedValue({ github: [] })
 }));
 
@@ -39,13 +45,35 @@ it('should render correctly', () => {
 it('should handle alm selection', async () => {
   const wrapper = shallowRender();
 
-  wrapper.setState({ currentAlm: ALM_KEYS.BITBUCKET });
+  wrapper.setState({ currentAlm: ALM_KEYS.AZURE });
 
   wrapper.instance().handleSelectAlm(ALM_KEYS.GITHUB);
 
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().currentAlm).toBe(ALM_KEYS.GITHUB);
+});
+
+it('should handle delete', async () => {
+  const toBeDeleted = '45672';
+  (countBindedProjects as jest.Mock).mockResolvedValueOnce(7);
+  const wrapper = shallowRender();
+
+  wrapper.instance().handleDelete(toBeDeleted);
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().projectCount).toBe(7);
+  expect(wrapper.state().definitionKeyForDeletion).toBe(toBeDeleted);
+});
+
+it('should delete configuration', async () => {
+  (deleteConfiguration as jest.Mock).mockResolvedValueOnce(undefined);
+  const wrapper = shallowRender();
+  wrapper.instance().deleteConfiguration('8345678');
+
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().projectCount).toBeUndefined();
+  expect(wrapper.state().definitionKeyForDeletion).toBeUndefined();
 });
 
 it('should fetch settings', async () => {

@@ -19,23 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import AlmPRDecorationFormModalRenderer, {
-  AlmPRDecorationFormModalProps
-} from '../AlmPRDecorationFormModalRenderer';
+import { ALM_KEYS } from '../../../utils';
+import TabHeader, { TabHeaderProps } from '../TabHeader';
 
 it('should render correctly', () => {
-  expect(shallowRender().dive()).toMatchSnapshot();
+  expect(shallowRender(ALM_KEYS.AZURE)).toMatchSnapshot();
+  expect(shallowRender(ALM_KEYS.GITHUB)).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<AlmPRDecorationFormModalProps> = {}) {
-  return shallow(
-    <AlmPRDecorationFormModalRenderer
-      canSubmit={jest.fn()}
-      onCancel={jest.fn()}
-      onSubmit={jest.fn()}
-      originalKey=""
-      {...props}>
-      {() => null}
-    </AlmPRDecorationFormModalRenderer>
-  );
+function shallowRender(alm: ALM_KEYS, props: Partial<TabHeaderProps> = {}) {
+  return shallow(<TabHeader alm={alm} onCreate={jest.fn()} {...props} />);
 }

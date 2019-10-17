@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <TabHeader
+    alm="azure"
+    onCreate={[MockFunction]}
+  />
+  <AzureTable
+    definitions={Array []}
+    loading={true}
+    onDelete={[MockFunction]}
+    onEdit={[MockFunction]}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <TabHeader
+    alm="azure"
+    onCreate={[MockFunction]}
+  />
+  <AzureTable
+    definitions={Array []}
+    loading={false}
+    onDelete={[MockFunction]}
+    onEdit={[MockFunction]}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly 3`] = `
+<Fragment>
+  <TabHeader
+    alm="azure"
+    onCreate={[MockFunction]}
+  />
+  <AzureTable
+    definitions={Array []}
+    loading={false}
+    onDelete={[MockFunction]}
+    onEdit={[MockFunction]}
+  />
+  <AlmPRDecorationFormModal
+    bindingDefinition={
+      Object {
+        "key": "key",
+        "personalAccessToken": "asdf1234",
+      }
+    }
+    onCancel={[MockFunction]}
+    onSubmit={[MockFunction]}
+  >
+    <Component />
+  </AlmPRDecorationFormModal>
+</Fragment>
+`;

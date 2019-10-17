@@ -19,23 +19,26 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import AlmPRDecorationFormModalRenderer, {
-  AlmPRDecorationFormModalProps
-} from '../AlmPRDecorationFormModalRenderer';
+import { mockGithubDefinition } from '../../../../../helpers/testMocks';
+import GithubTabRenderer, { GithubTabRendererProps } from '../GithubTabRenderer';
 
 it('should render correctly', () => {
-  expect(shallowRender().dive()).toMatchSnapshot();
+  expect(shallowRender({ loading: true })).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ editedDefinition: mockGithubDefinition() })).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<AlmPRDecorationFormModalProps> = {}) {
+function shallowRender(props: Partial<GithubTabRendererProps> = {}) {
   return shallow(
-    <AlmPRDecorationFormModalRenderer
-      canSubmit={jest.fn()}
+    <GithubTabRenderer
+      definitions={[]}
+      loading={false}
       onCancel={jest.fn()}
+      onCreate={jest.fn()}
+      onDelete={jest.fn()}
+      onEdit={jest.fn()}
       onSubmit={jest.fn()}
-      originalKey=""
-      {...props}>
-      {() => null}
-    </AlmPRDecorationFormModalRenderer>
+      {...props}
+    />
   );
 }

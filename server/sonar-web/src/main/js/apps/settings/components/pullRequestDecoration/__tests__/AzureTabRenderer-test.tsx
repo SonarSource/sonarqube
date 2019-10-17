@@ -19,23 +19,26 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import AlmPRDecorationFormModalRenderer, {
-  AlmPRDecorationFormModalProps
-} from '../AlmPRDecorationFormModalRenderer';
+import { mockAzureDefinition } from '../../../../../helpers/testMocks';
+import AzureTabRenderer, { AzureTabRendererProps } from '../AzureTabRenderer';
 
 it('should render correctly', () => {
-  expect(shallowRender().dive()).toMatchSnapshot();
+  expect(shallowRender({ loading: true })).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ editedDefinition: mockAzureDefinition() })).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<AlmPRDecorationFormModalProps> = {}) {
+function shallowRender(props: Partial<AzureTabRendererProps> = {}) {
   return shallow(
-    <AlmPRDecorationFormModalRenderer
-      canSubmit={jest.fn()}
+    <AzureTabRenderer
+      definitions={[]}
+      loading={false}
       onCancel={jest.fn()}
+      onCreate={jest.fn()}
+      onDelete={jest.fn()}
+      onEdit={jest.fn()}
       onSubmit={jest.fn()}
-      originalKey=""
-      {...props}>
-      {() => null}
-    </AlmPRDecorationFormModalRenderer>
+      {...props}
+    />
   );
 }

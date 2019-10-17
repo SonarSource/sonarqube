@@ -1,0 +1,141 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <AlmDefinitionFormField
+    autoFocus={true}
+    formData={
+      Object {
+        "appId": "",
+        "key": "",
+        "privateKey": "",
+        "url": "",
+      }
+    }
+    help={true}
+    id="name"
+    isTextArea={false}
+    maxLength={40}
+    onFieldChange={[MockFunction]}
+    propKey="key"
+  />
+  <AlmDefinitionFormField
+    formData={
+      Object {
+        "appId": "",
+        "key": "",
+        "privateKey": "",
+        "url": "",
+      }
+    }
+    help={false}
+    id="url.github"
+    isTextArea={false}
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="url"
+  />
+  <AlmDefinitionFormField
+    formData={
+      Object {
+        "appId": "",
+        "key": "",
+        "privateKey": "",
+        "url": "",
+      }
+    }
+    help={false}
+    id="app_id"
+    isTextArea={false}
+    maxLength={80}
+    onFieldChange={[MockFunction]}
+    propKey="appId"
+  />
+  <AlmDefinitionFormField
+    formData={
+      Object {
+        "appId": "",
+        "key": "",
+        "privateKey": "",
+        "url": "",
+      }
+    }
+    help={false}
+    id="private_key"
+    isTextArea={true}
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="privateKey"
+  />
+</Fragment>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <AlmDefinitionFormField
+    autoFocus={true}
+    formData={
+      Object {
+        "appId": "123456",
+        "key": "key",
+        "privateKey": "asdf1234",
+        "url": "http:alm.enterprise.com",
+      }
+    }
+    help={true}
+    id="name"
+    isTextArea={false}
+    maxLength={40}
+    onFieldChange={[MockFunction]}
+    propKey="key"
+  />
+  <AlmDefinitionFormField
+    formData={
+      Object {
+        "appId": "123456",
+        "key": "key",
+        "privateKey": "asdf1234",
+        "url": "http:alm.enterprise.com",
+      }
+    }
+    help={false}
+    id="url.github"
+    isTextArea={false}
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="url"
+  />
+  <AlmDefinitionFormField
+    formData={
+      Object {
+        "appId": "123456",
+        "key": "key",
+        "privateKey": "asdf1234",
+        "url": "http:alm.enterprise.com",
+      }
+    }
+    help={false}
+    id="app_id"
+    isTextArea={false}
+    maxLength={80}
+    onFieldChange={[MockFunction]}
+    propKey="appId"
+  />
+  <AlmDefinitionFormField
+    formData={
+      Object {
+        "appId": "123456",
+        "key": "key",
+        "privateKey": "asdf1234",
+        "url": "http:alm.enterprise.com",
+      }
+    }
+    help={false}
+    id="private_key"
+    isTextArea={true}
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="privateKey"
+  />
+</Fragment>
+`;

@@ -5,10 +5,14 @@ exports[`should render correctly 1`] = `
   currentAlm="github"
   definitions={
     Object {
+      "azure": Array [],
       "github": Array [],
     }
   }
   loading={true}
+  onCancel={[Function]}
+  onConfirmDelete={[Function]}
+  onDelete={[Function]}
   onSelectAlm={[Function]}
   onUpdateDefinitions={[Function]}
 />

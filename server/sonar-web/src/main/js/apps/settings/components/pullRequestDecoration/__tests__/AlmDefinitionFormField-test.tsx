@@ -19,22 +19,38 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockGithubDefinition } from '../../../../../helpers/testMocks';
-import { ALM_KEYS } from '../../../utils';
-import PRDecorationTable, { PRDecorationTableProps } from '../PRDecorationTable';
+import { AlmDefinitionFormField, AlmDefinitionFormFieldProps } from '../AlmDefinitionFormField';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ definitions: [mockGithubDefinition()] })).toMatchSnapshot();
+  expect(shallowRender({ help: true })).toMatchSnapshot();
+  expect(shallowRender({ isTextArea: true })).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<PRDecorationTableProps> = {}) {
+it('should call onFieldChange', () => {
+  const onInputChange = jest.fn();
+  shallowRender({ onFieldChange: onInputChange })
+    .find('input')
+    .simulate('change', { currentTarget: { value: '' } });
+  expect(onInputChange).toBeCalled();
+
+  const onTextAreaChange = jest.fn();
+  shallowRender({ isTextArea: true, onFieldChange: onTextAreaChange })
+    .find('textarea')
+    .simulate('change', { currentTarget: { value: '' } });
+  expect(onTextAreaChange).toBeCalled();
+});
+
+function shallowRender(props: Partial<AlmDefinitionFormFieldProps<T.AlmSettingsBinding>> = {}) {
   return shallow(
-    <PRDecorationTable
-      alm={ALM_KEYS.GITHUB}
-      definitions={[]}
-      onDelete={jest.fn()}
-      onEdit={jest.fn()}
+    <AlmDefinitionFormField
+      formData={{ key: 'key' }}
+      help={false}
+      id="key"
+      isTextArea={false}
+      maxLength={40}
+      onFieldChange={jest.fn()}
+      propKey="key"
       {...props}
     />
   );

@@ -38,6 +38,14 @@ export function updateGithubConfiguration(data: T.GithubBindingDefinition & { ne
   return post('/api/alm_settings/update_github', data).catch(throwGlobalError);
 }
 
+export function createAzureConfiguration(data: T.AzureBindingDefinition) {
+  return post('/api/alm_settings/create_azure', data).catch(throwGlobalError);
+}
+
+export function updateAzureConfiguration(data: T.AzureBindingDefinition & { newKey: string }) {
+  return post('/api/alm_settings/update_azure', data).catch(throwGlobalError);
+}
+
 export function deleteConfiguration(key: string) {
   return post('/api/alm_settings/delete', { key }).catch(throwGlobalError);
 }

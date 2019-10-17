@@ -40,6 +40,10 @@ export interface PRDecorationBindingRendererProps {
   success: boolean;
 }
 
+function renderLabel(v: T.AlmSettingsInstance) {
+  return v.url ? `${v.key} — ${v.url}` : v.key;
+}
+
 export default function PRDecorationBindingRenderer(props: PRDecorationBindingRendererProps) {
   const {
     formData: { repository, key },
@@ -100,7 +104,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
             clearable={false}
             id="name"
             onChange={({ value }: { value: string }) => props.onFieldChange('key', value)}
-            options={instances.map(v => ({ value: v.key, label: `${v.key} — ${v.url}` }))}
+            options={instances.map(v => ({ value: v.key, label: renderLabel(v) }))}
             searchable={false}
             value={key}
           />

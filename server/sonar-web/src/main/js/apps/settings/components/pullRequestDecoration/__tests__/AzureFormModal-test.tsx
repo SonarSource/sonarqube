@@ -19,23 +19,20 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import AlmPRDecorationFormModalRenderer, {
-  AlmPRDecorationFormModalProps
-} from '../AlmPRDecorationFormModalRenderer';
+import { mockAzureDefinition } from '../../../../../helpers/testMocks';
+import AzureFormModal, { AzureFormModalProps } from '../AzureFormModal';
 
 it('should render correctly', () => {
-  expect(shallowRender().dive()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ formData: mockAzureDefinition() })).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<AlmPRDecorationFormModalProps> = {}) {
+function shallowRender(props: Partial<AzureFormModalProps> = {}) {
   return shallow(
-    <AlmPRDecorationFormModalRenderer
-      canSubmit={jest.fn()}
-      onCancel={jest.fn()}
-      onSubmit={jest.fn()}
-      originalKey=""
-      {...props}>
-      {() => null}
-    </AlmPRDecorationFormModalRenderer>
+    <AzureFormModal
+      formData={{ key: '', personalAccessToken: '' }}
+      onFieldChange={jest.fn()}
+      {...props}
+    />
   );
 }

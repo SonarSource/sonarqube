@@ -20,18 +20,15 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import {
-  createGithubConfiguration,
-  updateGithubConfiguration
-} from '../../../../../api/almSettings';
-import { mockGithubDefinition } from '../../../../../helpers/testMocks';
-import GithubTab from '../GithubTab';
+import { createAzureConfiguration, updateAzureConfiguration } from '../../../../../api/almSettings';
+import { mockAzureDefinition } from '../../../../../helpers/testMocks';
+import AzureTab from '../AzureTab';
 
 jest.mock('../../../../../api/almSettings', () => ({
   countBindedProjects: jest.fn().mockResolvedValue(2),
-  createGithubConfiguration: jest.fn().mockResolvedValue({}),
+  createAzureConfiguration: jest.fn().mockResolvedValue({}),
   deleteConfiguration: jest.fn().mockResolvedValue({}),
-  updateGithubConfiguration: jest.fn().mockResolvedValue({})
+  updateAzureConfiguration: jest.fn().mockResolvedValue({})
 }));
 
 beforeEach(() => {
@@ -46,7 +43,7 @@ it('should handle cancel', async () => {
   const wrapper = shallowRender();
 
   wrapper.setState({
-    editedDefinition: mockGithubDefinition()
+    editedDefinition: mockAzureDefinition()
   });
 
   wrapper.instance().handleCancel();
@@ -58,26 +55,26 @@ it('should handle cancel', async () => {
 
 it('should create config', async () => {
   const onUpdateDefinitions = jest.fn();
-  const config = mockGithubDefinition();
+  const config = mockAzureDefinition();
   const wrapper = shallowRender({ onUpdateDefinitions });
   wrapper.setState({ editedDefinition: config });
 
   await wrapper.instance().handleSubmit(config, '');
 
-  expect(createGithubConfiguration).toBeCalledWith(config);
+  expect(createAzureConfiguration).toBeCalledWith(config);
   expect(onUpdateDefinitions).toBeCalled();
   expect(wrapper.state().editedDefinition).toBeUndefined();
 });
 
 it('should update config', async () => {
   const onUpdateDefinitions = jest.fn();
-  const config = mockGithubDefinition();
+  const config = mockAzureDefinition();
   const wrapper = shallowRender({ onUpdateDefinitions });
   wrapper.setState({ editedDefinition: config });
 
   await wrapper.instance().handleSubmit(config, 'originalKey');
 
-  expect(updateGithubConfiguration).toBeCalledWith({
+  expect(updateAzureConfiguration).toBeCalledWith({
     newKey: 'key',
     ...config,
     key: 'originalKey'
@@ -86,9 +83,9 @@ it('should update config', async () => {
   expect(wrapper.state().editedDefinition).toBeUndefined();
 });
 
-function shallowRender(props: Partial<GithubTab['props']> = {}) {
-  return shallow<GithubTab>(
-    <GithubTab
+function shallowRender(props: Partial<AzureTab['props']> = {}) {
+  return shallow<AzureTab>(
+    <AzureTab
       definitions={[]}
       loading={false}
       onDelete={jest.fn()}

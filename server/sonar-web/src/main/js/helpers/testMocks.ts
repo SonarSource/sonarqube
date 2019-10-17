@@ -50,6 +50,16 @@ export function mockAlmOrganization(overrides: Partial<T.AlmOrganization> = {}):
   };
 }
 
+export function mockAzureDefinition(
+  overrides: Partial<T.AzureBindingDefinition> = {}
+): T.AzureBindingDefinition {
+  return {
+    key: 'key',
+    personalAccessToken: 'asdf1234',
+    ...overrides
+  };
+}
+
 export function mockGithubDefinition(
   overrides: Partial<T.GithubBindingDefinition> = {}
 ): T.GithubBindingDefinition {

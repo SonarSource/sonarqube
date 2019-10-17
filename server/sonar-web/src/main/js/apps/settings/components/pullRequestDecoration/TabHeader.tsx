@@ -24,26 +24,14 @@ import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ALM_KEYS } from '../../utils';
-import AlmPRDecorationFormModal from './AlmPRDecorationFormModal';
-import DeleteModal from './DeleteModal';
-import PRDecorationTable from './PRDecorationTable';
 
-export interface TabRendererProps {
+export interface TabHeaderProps {
   alm: ALM_KEYS;
-  definitionInEdition?: T.GithubBindingDefinition;
-  definitionKeyForDeletion?: string;
-  definitions: T.GithubBindingDefinition[];
-  onCancel: () => void;
-  onConfirmDelete: (id: string) => void;
   onCreate: () => void;
-  onDelete: (config: T.GithubBindingDefinition) => void;
-  onEdit: (config: T.GithubBindingDefinition) => void;
-  onSubmit: (config: T.GithubBindingDefinition, originalKey: string) => void;
-  projectCount?: number;
 }
 
-export default function TabRenderer(props: TabRendererProps) {
-  const { alm, definitions, definitionKeyForDeletion, definitionInEdition, projectCount } = props;
+export default function TabHeader(props: TabHeaderProps) {
+  const { alm } = props;
   return (
     <>
       <Alert className="spacer-top huge-spacer-bottom" variant="info">
@@ -64,30 +52,6 @@ export default function TabRenderer(props: TabRendererProps) {
         <h4 className="display-inline">{translate('settings.pr_decoration.table.title')}</h4>
         <Button onClick={props.onCreate}>{translate('settings.pr_decoration.table.create')}</Button>
       </div>
-
-      <PRDecorationTable
-        alm={alm}
-        definitions={definitions}
-        onDelete={props.onDelete}
-        onEdit={props.onEdit}
-      />
-      {definitionKeyForDeletion && (
-        <DeleteModal
-          id={definitionKeyForDeletion}
-          onCancel={props.onCancel}
-          onDelete={props.onConfirmDelete}
-          projectCount={projectCount}
-        />
-      )}
-
-      {definitionInEdition && (
-        <AlmPRDecorationFormModal
-          alm={ALM_KEYS.GITHUB}
-          bindingDefinition={definitionInEdition}
-          onCancel={props.onCancel}
-          onSubmit={props.onSubmit}
-        />
-      )}
     </>
   );
 }

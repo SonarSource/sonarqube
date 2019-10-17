@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <TabHeader
+    alm="github"
+    onCreate={[MockFunction]}
+  />
+  <GithubTable
+    definitions={Array []}
+    loading={true}
+    onDelete={[MockFunction]}
+    onEdit={[MockFunction]}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <TabHeader
+    alm="github"
+    onCreate={[MockFunction]}
+  />
+  <GithubTable
+    definitions={Array []}
+    loading={false}
+    onDelete={[MockFunction]}
+    onEdit={[MockFunction]}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly 3`] = `
+<Fragment>
+  <TabHeader
+    alm="github"
+    onCreate={[MockFunction]}
+  />
+  <GithubTable
+    definitions={Array []}
+    loading={false}
+    onDelete={[MockFunction]}
+    onEdit={[MockFunction]}
+  />
+  <AlmPRDecorationFormModal
+    bindingDefinition={
+      Object {
+        "appId": "123456",
+        "key": "key",
+        "privateKey": "asdf1234",
+        "url": "http:alm.enterprise.com",
+      }
+    }
+    onCancel={[MockFunction]}
+    onSubmit={[MockFunction]}
+  >
+    <Component />
+  </AlmPRDecorationFormModal>
+</Fragment>
+`;

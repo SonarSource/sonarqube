@@ -19,25 +19,27 @@
  */
 import * as React from 'react';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { almName, ALM_KEYS } from '../../utils';
+import AzureTab from './AzureTab';
+import DeleteModal from './DeleteModal';
 import GithubTab from './GithubTab';
 
 export interface PRDecorationTabsProps {
   currentAlm: ALM_KEYS;
+  definitionKeyForDeletion?: string;
   definitions: T.AlmSettingsBindingDefinitions;
   loading: boolean;
+  onCancel: () => void;
+  onConfirmDelete: (definitionKey: string) => void;
+  onDelete: (definitionKey: string) => void;
   onSelectAlm: (alm: ALM_KEYS) => void;
   onUpdateDefinitions: () => void;
+  projectCount?: number;
 }
 
 export default function PRDecorationTabs(props: PRDecorationTabsProps) {
-  const { definitions, currentAlm, loading } = props;
-
-  if (loading) {
-    return <DeferredSpinner />;
-  }
+  const { definitionKeyForDeletion, definitions, currentAlm, loading, projectCount } = props;
 
   return (
     <>
@@ -55,16 +57,41 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
           {
             key: ALM_KEYS.GITHUB,
             label: almName[ALM_KEYS.GITHUB]
+          },
+          {
+            key: ALM_KEYS.AZURE,
+            label: almName[ALM_KEYS.AZURE]
           }
         ]}
       />
 
       <div className="boxed-group boxed-group-inner">
-        <GithubTab
-          definitions={definitions.github}
-          onUpdateDefinitions={props.onUpdateDefinitions}
-        />
+        {currentAlm === ALM_KEYS.AZURE && (
+          <AzureTab
+            definitions={definitions.azure}
+            loading={loading}
+            onDelete={props.onDelete}
+            onUpdateDefinitions={props.onUpdateDefinitions}
+          />
+        )}
+        {currentAlm === ALM_KEYS.GITHUB && (
+          <GithubTab
+            definitions={definitions.github}
+            loading={loading}
+            onDelete={props.onDelete}
+            onUpdateDefinitions={props.onUpdateDefinitions}
+          />
+        )}
       </div>
+
+      {definitionKeyForDeletion && (
+        <DeleteModal
+          id={definitionKeyForDeletion}
+          onCancel={props.onCancel}
+          onDelete={props.onConfirmDelete}
+          projectCount={projectCount}
+        />
+      )}
     </>
   );
 }

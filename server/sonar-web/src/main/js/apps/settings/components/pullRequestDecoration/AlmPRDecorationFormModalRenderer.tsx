@@ -19,69 +19,20 @@
  */
 import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { ALM_KEYS } from '../../utils';
 
 export interface AlmPRDecorationFormModalProps {
-  alm: string;
   canSubmit: () => boolean;
-  formData: T.GithubBindingDefinition;
+  children: React.ReactNode;
   onCancel: () => void;
   onSubmit: () => void;
-  onFieldChange: (id: string, value: string) => void;
   originalKey: string;
 }
 
-function renderField(params: {
-  autoFocus?: boolean;
-  formData: T.GithubBindingDefinition;
-  help: boolean;
-  id: string;
-  isTextArea: boolean;
-  maxLength: number;
-  onFieldChange: (id: string, value: string) => void;
-  propKey: keyof T.GithubBindingDefinition;
-}) {
-  const { autoFocus, formData, help, id, isTextArea, maxLength, onFieldChange, propKey } = params;
-  return (
-    <div className="modal-field">
-      <label className="display-flex-center" htmlFor={id}>
-        {translate('settings.pr_decoration.form', id)}
-        <em className="mandatory spacer-right">*</em>
-        {help && <HelpTooltip overlay={translate('settings.pr_decoration.form', id, 'help')} />}
-      </label>
-      {isTextArea ? (
-        <textarea
-          className="settings-large-input"
-          id="privateKey"
-          maxLength={maxLength}
-          onChange={e => onFieldChange(propKey, e.currentTarget.value)}
-          required={true}
-          rows={5}
-          value={formData[propKey]}
-        />
-      ) : (
-        <input
-          autoFocus={autoFocus}
-          className="input-super-large"
-          id={id}
-          maxLength={maxLength}
-          name={id}
-          onChange={e => onFieldChange(propKey, e.currentTarget.value)}
-          size={50}
-          type="text"
-          value={formData[propKey]}
-        />
-      )}
-    </div>
-  );
-}
-
 export default function AlmPRDecorationFormModalRenderer(props: AlmPRDecorationFormModalProps) {
-  const { alm, formData, onFieldChange, originalKey } = props;
+  const { children, originalKey } = props;
   const header = translate('settings.pr_decoration.form.header', originalKey ? 'edit' : 'create');
 
   return (
@@ -92,46 +43,7 @@ export default function AlmPRDecorationFormModalRenderer(props: AlmPRDecorationF
             <h2>{header}</h2>
           </div>
 
-          <div className="modal-body modal-container">
-            {renderField({
-              autoFocus: true,
-              id: 'name',
-              formData,
-              propKey: 'key',
-              maxLength: 40,
-              onFieldChange,
-              help: true,
-              isTextArea: false
-            })}
-            {renderField({
-              id: `url.${alm}`,
-              formData,
-              propKey: 'url',
-              maxLength: 2000,
-              onFieldChange,
-              help: false,
-              isTextArea: false
-            })}
-            {alm === ALM_KEYS.GITHUB &&
-              renderField({
-                id: 'app_id',
-                formData,
-                propKey: 'appId',
-                maxLength: 80,
-                onFieldChange,
-                help: false,
-                isTextArea: false
-              })}
-            {renderField({
-              id: 'private_key',
-              formData,
-              propKey: 'privateKey',
-              maxLength: 2000,
-              onFieldChange,
-              help: false,
-              isTextArea: true
-            })}
-          </div>
+          <div className="modal-body modal-container">{children}</div>
 
           <div className="modal-foot">
             <DeferredSpinner className="spacer-right" loading={submitting} />
