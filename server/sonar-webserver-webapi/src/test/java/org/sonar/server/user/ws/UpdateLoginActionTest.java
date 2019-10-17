@@ -68,7 +68,7 @@ public class UpdateLoginActionTest {
     organizationUpdater));
 
   @Test
-  public void update_login_from_sonarqube_account() {
+  public void update_login_from_sonarqube_account_when_user_is_local() {
     userSession.logIn().setSystemAdministrator();
     UserDto user = db.users().insertUser(u -> u
       .setLogin("old_login")
@@ -88,6 +88,31 @@ public class UpdateLoginActionTest {
     assertThat(userReloaded.getExternalLogin()).isEqualTo("new_login");
     assertThat(userReloaded.getExternalId()).isEqualTo("new_login");
     assertThat(userReloaded.isLocal()).isTrue();
+    assertThat(userReloaded.getCryptedPassword()).isNotNull().isEqualTo(user.getCryptedPassword());
+    assertThat(userReloaded.getSalt()).isNotNull().isEqualTo(user.getSalt());
+  }
+
+  @Test
+  public void update_login_from_sonarqube_account_when_user_is_not_local() {
+    userSession.logIn().setSystemAdministrator();
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin("old_login")
+      .setLocal(false)
+      .setExternalIdentityProvider("sonarqube")
+      .setExternalLogin("old_login")
+      .setExternalId("old_login"));
+
+    ws.newRequest()
+      .setParam("login", user.getLogin())
+      .setParam("newLogin", "new_login")
+      .execute();
+
+    assertThat(db.getDbClient().userDao().selectByLogin(db.getSession(), "old_login")).isNull();
+    UserDto userReloaded = db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid());
+    assertThat(userReloaded.getLogin()).isEqualTo("new_login");
+    assertThat(userReloaded.getExternalLogin()).isEqualTo("new_login");
+    assertThat(userReloaded.getExternalId()).isEqualTo("new_login");
+    assertThat(userReloaded.isLocal()).isFalse();
     assertThat(userReloaded.getCryptedPassword()).isNotNull().isEqualTo(user.getCryptedPassword());
     assertThat(userReloaded.getSalt()).isNotNull().isEqualTo(user.getSalt());
   }

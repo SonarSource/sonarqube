@@ -328,7 +328,6 @@ public class InitFilterTest {
     public void init(Context context) {
       throw new EmailAlreadyExistsRedirectionException(existingUser.getEmail(), existingUser, UserIdentity.builder()
         .setProviderLogin("john.github")
-        .setLogin("john.github")
         .setName(existingUser.getName())
         .setEmail(existingUser.getEmail())
         .build(), this);

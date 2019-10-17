@@ -62,12 +62,11 @@ public class UserRegistrarImplTest {
 
   private System2 system2 = new AlwaysIncreasingSystem2();
 
-  private static String USER_LOGIN = "github-johndoo";
+  private static String USER_LOGIN = "johndoo";
 
   private static UserIdentity USER_IDENTITY = UserIdentity.builder()
     .setProviderId("ABCD")
     .setProviderLogin("johndoo")
-    .setLogin(USER_LOGIN)
     .setName("John")
     .setEmail("john@email.com")
     .build();
@@ -111,14 +110,14 @@ public class UserRegistrarImplTest {
   public void authenticate_new_user() {
     organizationFlags.setEnabled(true);
 
-    underTest.register(UserRegistration.builder()
+    UserDto createdUser = underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.realm(BASIC, IDENTITY_PROVIDER.getName()))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
       .build());
 
-    UserDto user = db.users().selectUserByLogin(USER_LOGIN).get();
+    UserDto user = db.users().selectUserByLogin(createdUser.getLogin()).get();
     assertThat(user).isNotNull();
     assertThat(user.isActive()).isTrue();
     assertThat(user.getName()).isEqualTo("John");
@@ -128,6 +127,38 @@ public class UserRegistrarImplTest {
     assertThat(user.getExternalId()).isEqualTo("ABCD");
     assertThat(user.isRoot()).isFalse();
     checkGroupMembership(user);
+  }
+
+  @Test
+  public void authenticate_new_user_with_sq_identity() {
+    organizationFlags.setEnabled(false);
+    GroupDto defaultGroup = insertDefaultGroup();
+
+    TestIdentityProvider sqIdentityProvider = new TestIdentityProvider()
+      .setKey("sonarqube")
+      .setName("sonarqube identity name")
+      .setEnabled(true)
+      .setAllowsUsersToSignUp(true);
+
+    UserDto createdUser = underTest.register(UserRegistration.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(sqIdentityProvider)
+      .setSource(Source.realm(BASIC, sqIdentityProvider.getName()))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .build());
+
+    UserDto user = db.users().selectUserByLogin(createdUser.getLogin()).get();
+    assertThat(user).isNotNull();
+    assertThat(user.isActive()).isTrue();
+    assertThat(user.getLogin()).isEqualTo("johndoo");
+    assertThat(user.getName()).isEqualTo("John");
+    assertThat(user.getEmail()).isEqualTo("john@email.com");
+    assertThat(user.getExternalLogin()).isEqualTo("johndoo");
+    assertThat(user.getExternalIdentityProvider()).isEqualTo("sonarqube");
+    assertThat(user.getExternalId()).isEqualTo("ABCD");
+    assertThat(user.isLocal()).isFalse();
+    assertThat(user.isRoot()).isFalse();
+    checkGroupMembership(user, defaultGroup);
   }
 
   @Test
@@ -162,9 +193,9 @@ public class UserRegistrarImplTest {
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
     GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
 
-    authenticate(USER_LOGIN, "group1", "group2", "group3");
+    UserDto loggedInUser = authenticate(USER_LOGIN, "group1", "group2", "group3");
 
-    Optional<UserDto> user = db.users().selectUserByLogin(USER_LOGIN);
+    Optional<UserDto> user = db.users().selectUserByLogin(loggedInUser.getLogin());
     checkGroupMembership(user.get(), group1, group2);
   }
 
@@ -185,13 +216,16 @@ public class UserRegistrarImplTest {
   @Test
   public void does_not_force_default_group_when_authenticating_new_user_if_organizations_are_enabled() {
     organizationFlags.setEnabled(true);
-    UserDto user = db.users().insertUser();
+    UserDto user = db.users().insertUser(newUserDto()
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
+      .setExternalLogin(USER_IDENTITY.getProviderLogin())
+    );
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
     GroupDto defaultGroup = insertDefaultGroup();
     db.users().insertMember(group1, user);
     db.users().insertMember(defaultGroup, user);
 
-    authenticate(user.getLogin(), "group1");
+    authenticate(user.getExternalLogin(), "group1");
 
     checkGroupMembership(user, group1);
   }
@@ -201,14 +235,14 @@ public class UserRegistrarImplTest {
     organizationFlags.setEnabled(true);
     settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey(), true);
 
-    underTest.register(UserRegistration.builder()
+    UserDto user = underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
       .build());
 
-    assertThat(db.users().selectUserByLogin(USER_LOGIN).get().isOnboarded()).isFalse();
+    assertThat(db.users().selectUserByLogin(user.getLogin()).get().isOnboarded()).isFalse();
   }
 
   @Test
@@ -216,14 +250,14 @@ public class UserRegistrarImplTest {
     organizationFlags.setEnabled(true);
     settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey(), false);
 
-    underTest.register(UserRegistration.builder()
+    UserDto user = underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
       .build());
 
-    assertThat(db.users().selectUserByLogin(USER_LOGIN).get().isOnboarded()).isTrue();
+    assertThat(db.users().selectUserByLogin(user.getLogin()).get().isOnboarded()).isTrue();
   }
 
   @Test
@@ -231,21 +265,20 @@ public class UserRegistrarImplTest {
     organizationFlags.setEnabled(true);
     UserIdentity newUser = UserIdentity.builder()
       .setProviderId(null)
-      .setLogin("john")
       .setProviderLogin("johndoo")
       .setName("JOhn")
       .build();
 
-    underTest.register(UserRegistration.builder()
+    UserDto user = underTest.register(UserRegistration.builder()
       .setUserIdentity(newUser)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
       .build());
 
-    assertThat(db.users().selectUserByLogin(newUser.getLogin()).get())
+    assertThat(db.users().selectUserByLogin(user.getLogin()).get())
       .extracting(UserDto::getLogin, UserDto::getExternalId, UserDto::getExternalLogin)
-      .contains("john", "johndoo", "johndoo");
+      .contains(user.getLogin(), "johndoo", "johndoo");
   }
 
   @Test
@@ -254,19 +287,18 @@ public class UserRegistrarImplTest {
     UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
     UserIdentity newUser = UserIdentity.builder()
       .setProviderLogin("johndoo")
-      .setLogin("new_login")
       .setName(existingUser.getName())
       .setEmail(existingUser.getEmail())
       .build();
 
-    underTest.register(UserRegistration.builder()
+    UserDto user = underTest.register(UserRegistration.builder()
       .setUserIdentity(newUser)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.ALLOW)
       .build());
 
-    UserDto newUserReloaded = db.users().selectUserByLogin(newUser.getLogin()).get();
+    UserDto newUserReloaded = db.users().selectUserByLogin(user.getLogin()).get();
     assertThat(newUserReloaded.getEmail()).isEqualTo(existingUser.getEmail());
     UserDto existingUserReloaded = db.users().selectUserByLogin(existingUser.getLogin()).get();
     assertThat(existingUserReloaded.getEmail()).isNull();
@@ -278,7 +310,6 @@ public class UserRegistrarImplTest {
     UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
     UserIdentity newUser = UserIdentity.builder()
       .setProviderLogin("johndoo")
-      .setLogin("new_login")
       .setName(existingUser.getName())
       .setEmail(existingUser.getEmail())
       .build();
@@ -356,22 +387,22 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_and_update_existing_user_matching_login() {
+    insertDefaultGroup();
     db.users().insertUser(u -> u
-      .setLogin(USER_LOGIN)
       .setName("Old name")
       .setEmail("Old email")
       .setExternalId("old id")
       .setExternalLogin("old identity")
       .setExternalIdentityProvider("old provide"));
 
-    underTest.register(UserRegistration.builder()
+    UserDto user = underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
       .build());
 
-    assertThat(db.users().selectUserByLogin(USER_LOGIN).get())
+    assertThat(db.users().selectUserByLogin(user.getLogin()).get())
       .extracting(UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider, UserDto::isActive)
       .contains("John", "john@email.com", "ABCD", "johndoo", "github", true);
   }
@@ -393,7 +424,6 @@ public class UserRegistrarImplTest {
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
       .build());
 
-    assertThat(db.users().selectUserByLogin("Old login")).isNotPresent();
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
       .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
         UserDto::isActive)
@@ -417,15 +447,14 @@ public class UserRegistrarImplTest {
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
       .build());
 
-    assertThat(db.users().selectUserByLogin("Old login")).isNotPresent();
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
-      .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
+      .extracting(UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
         UserDto::isActive)
-      .contains(USER_LOGIN, "John", "john@email.com", "ABCD", "johndoo", "github", true);
+      .contains("John", "john@email.com", "ABCD", "johndoo", "github", true);
   }
 
   @Test
-  public void authenticate_existing_user_and_update_only_login() {
+  public void authenticate_existing_user_and_login_should_not_be_updated() {
     UserDto user = db.users().insertUser(u -> u
       .setLogin("old login")
       .setName(USER_IDENTITY.getName())
@@ -441,55 +470,29 @@ public class UserRegistrarImplTest {
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
       .build());
 
-    assertThat(db.users().selectUserByLogin("Old login")).isNotPresent();
+    //no new user should be created
+    assertThat(db.countRowsOfTable(db.getSession(), "users")).isEqualTo(1);
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
       .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
         UserDto::isActive)
-      .containsExactlyInAnyOrder(USER_LOGIN, USER_IDENTITY.getName(), USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderId(), USER_IDENTITY.getProviderLogin(),
+      .containsExactlyInAnyOrder("old login", USER_IDENTITY.getName(), USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderId(), USER_IDENTITY.getProviderLogin(),
         IDENTITY_PROVIDER.getKey(),
         true);
   }
 
   @Test
-  public void authenticate_existing_user_and_update_only_identity_provider_key() {
+  public void authenticate_existing_user_matching_external_login_when_external_id_is_null() {
     UserDto user = db.users().insertUser(u -> u
-      .setLogin(USER_LOGIN)
-      .setName(USER_IDENTITY.getName())
-      .setEmail(USER_IDENTITY.getEmail())
-      .setExternalId(USER_IDENTITY.getProviderId())
-      .setExternalLogin(USER_IDENTITY.getProviderLogin())
-      .setExternalIdentityProvider("old identity provider"));
-
-    underTest.register(UserRegistration.builder()
-      .setUserIdentity(USER_IDENTITY)
-      .setProvider(IDENTITY_PROVIDER)
-      .setSource(Source.local(BASIC))
-      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .build());
-
-    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
-      .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
-        UserDto::isActive)
-      .containsExactlyInAnyOrder(USER_LOGIN, USER_IDENTITY.getName(), USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderId(), USER_IDENTITY.getProviderLogin(),
-        IDENTITY_PROVIDER.getKey(),
-        true);
-  }
-
-  @Test
-  public void authenticate_existing_user_matching_login_when_external_id_is_null() {
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin(USER_LOGIN)
       .setName("Old name")
       .setEmail("Old email")
       .setExternalId("Old id")
-      .setExternalLogin("old identity")
+      .setExternalLogin("johndoo")
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
 
     underTest.register(UserRegistration.builder()
       .setUserIdentity(UserIdentity.builder()
         .setProviderId(null)
         .setProviderLogin("johndoo")
-        .setLogin(USER_LOGIN)
         .setName("John")
         .setEmail("john@email.com")
         .build())
@@ -526,7 +529,7 @@ public class UserRegistrarImplTest {
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
       .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
         UserDto::isActive)
-      .contains(user.getLogin(), user.getName(), user.getEmail(), user.getExternalId(), user.getExternalLogin(), user.getExternalIdentityProvider(), true);
+      .contains(user.getExternalLogin(), user.getName(), user.getEmail(), user.getExternalId(), user.getExternalLogin(), user.getExternalIdentityProvider(), true);
   }
 
   @Test
@@ -557,9 +560,9 @@ public class UserRegistrarImplTest {
       .setActive(false)
       .setName("Old name")
       .setEmail("Old email")
-      .setExternalId("old id")
-      .setExternalLogin("old identity")
-      .setExternalIdentityProvider("old provide"));
+      .setExternalId("Old id")
+      .setExternalLogin(USER_IDENTITY.getProviderLogin())
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
 
     underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
@@ -582,25 +585,27 @@ public class UserRegistrarImplTest {
   public void authenticate_existing_user_when_email_already_exists_and_strategy_is_ALLOW() {
     organizationFlags.setEnabled(true);
     UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
-    UserDto currentUser = db.users().insertUser(u -> u.setEmail(null));
+    UserDto currentUser = db.users().insertUser(u -> u.setExternalLogin("johndoo").setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()).setEmail(null));
+
     UserIdentity userIdentity = UserIdentity.builder()
-      .setLogin(currentUser.getLogin())
-      .setProviderLogin("johndoo")
+      .setProviderLogin(currentUser.getExternalLogin())
       .setName("John")
       .setEmail("john@email.com")
       .build();
 
-    underTest.register(UserRegistration.builder()
+    currentUser = underTest.register(UserRegistration.builder()
       .setUserIdentity(userIdentity)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.ALLOW)
       .build());
 
-    UserDto currentUserReloaded = db.users().selectUserByLogin(currentUser.getLogin()).get();
-    assertThat(currentUserReloaded.getEmail()).isEqualTo("john@email.com");
     UserDto existingUserReloaded = db.users().selectUserByLogin(existingUser.getLogin()).get();
     assertThat(existingUserReloaded.getEmail()).isNull();
+
+    UserDto currentUserReloaded = db.users().selectUserByLogin(currentUser.getLogin()).get();
+    assertThat(currentUserReloaded.getEmail()).isEqualTo("john@email.com");
+
   }
 
   @Test
@@ -609,7 +614,6 @@ public class UserRegistrarImplTest {
     UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
     UserDto currentUser = db.users().insertUser(u -> u.setEmail(null));
     UserIdentity userIdentity = UserIdentity.builder()
-      .setLogin(currentUser.getLogin())
       .setProviderLogin("johndoo")
       .setName("John")
       .setEmail("john@email.com")
@@ -631,7 +635,6 @@ public class UserRegistrarImplTest {
     UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
     UserDto currentUser = db.users().insertUser(u -> u.setEmail(null));
     UserIdentity userIdentity = UserIdentity.builder()
-      .setLogin(currentUser.getLogin())
       .setProviderLogin("johndoo")
       .setName("John")
       .setEmail("john@email.com")
@@ -657,7 +660,6 @@ public class UserRegistrarImplTest {
     UserDto currentUser = db.users().insertUser(u -> u.setEmail("john@email.com")
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
     UserIdentity userIdentity = UserIdentity.builder()
-      .setLogin(currentUser.getLogin())
       .setProviderId(currentUser.getExternalId())
       .setProviderLogin(currentUser.getExternalLogin())
       .setName("John")
@@ -679,13 +681,14 @@ public class UserRegistrarImplTest {
   public void authenticate_existing_user_and_add_new_groups() {
     organizationFlags.setEnabled(true);
     UserDto user = db.users().insertUser(newUserDto()
-      .setLogin(USER_LOGIN)
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
+      .setExternalLogin(USER_IDENTITY.getProviderLogin())
       .setActive(true)
       .setName("John"));
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
     GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
 
-    authenticate(USER_LOGIN, "group1", "group2", "group3");
+    authenticate(USER_IDENTITY.getProviderLogin(), "group1", "group2", "group3");
 
     checkGroupMembership(user, group1, group2);
   }
@@ -694,7 +697,8 @@ public class UserRegistrarImplTest {
   public void authenticate_existing_user_and_remove_groups() {
     organizationFlags.setEnabled(true);
     UserDto user = db.users().insertUser(newUserDto()
-      .setLogin(USER_LOGIN)
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
+      .setExternalLogin(USER_IDENTITY.getProviderLogin())
       .setActive(true)
       .setName("John"));
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
@@ -702,7 +706,7 @@ public class UserRegistrarImplTest {
     db.users().insertMember(group1, user);
     db.users().insertMember(group2, user);
 
-    authenticate(USER_LOGIN, "group1");
+    authenticate(USER_IDENTITY.getProviderLogin(), "group1");
 
     checkGroupMembership(user, group1);
   }
@@ -710,7 +714,10 @@ public class UserRegistrarImplTest {
   @Test
   public void authenticate_existing_user_and_remove_all_groups_expect_default_when_organizations_are_disabled() {
     organizationFlags.setEnabled(false);
-    UserDto user = db.users().insertUser();
+    UserDto user = db.users().insertUser(newUserDto()
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
+      .setExternalLogin(USER_IDENTITY.getProviderLogin())
+    );
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
     GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
     GroupDto defaultGroup = insertDefaultGroup();
@@ -718,7 +725,7 @@ public class UserRegistrarImplTest {
     db.users().insertMember(group2, user);
     db.users().insertMember(defaultGroup, user);
 
-    authenticate(user.getLogin());
+    authenticate(user.getExternalLogin());
 
     checkGroupMembership(user, defaultGroup);
   }
@@ -726,13 +733,16 @@ public class UserRegistrarImplTest {
   @Test
   public void does_not_force_default_group_when_authenticating_existing_user_when_organizations_are_enabled() {
     organizationFlags.setEnabled(true);
-    UserDto user = db.users().insertUser();
+    UserDto user = db.users().insertUser(newUserDto()
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
+      .setExternalLogin(USER_IDENTITY.getProviderLogin())
+    );
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
     GroupDto defaultGroup = insertDefaultGroup();
     db.users().insertMember(group1, user);
     db.users().insertMember(defaultGroup, user);
 
-    authenticate(user.getLogin(), "group1");
+    authenticate(user.getExternalLogin(), "group1");
 
     checkGroupMembership(user, group1);
   }
@@ -742,7 +752,8 @@ public class UserRegistrarImplTest {
     organizationFlags.setEnabled(true);
     OrganizationDto org = db.organizations().insert();
     UserDto user = db.users().insertUser(newUserDto()
-      .setLogin(USER_LOGIN)
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
+      .setExternalLogin(USER_IDENTITY.getProviderLogin())
       .setActive(true)
       .setName("John"));
     String groupName = "a-group";
@@ -753,7 +764,6 @@ public class UserRegistrarImplTest {
     underTest.register(UserRegistration.builder()
       .setUserIdentity(UserIdentity.builder()
         .setProviderLogin("johndoo")
-        .setLogin(user.getLogin())
         .setName(user.getName())
         .setGroups(newHashSet(groupName))
         .build())
@@ -765,11 +775,10 @@ public class UserRegistrarImplTest {
     checkGroupMembership(user, groupInDefaultOrg);
   }
 
-  private void authenticate(String login, String... groups) {
-    underTest.register(UserRegistration.builder()
+  private UserDto authenticate(String providerLogin, String... groups) {
+    return underTest.register(UserRegistration.builder()
       .setUserIdentity(UserIdentity.builder()
-        .setProviderLogin("johndoo")
-        .setLogin(login)
+        .setProviderLogin(providerLogin)
         .setName("John")
         // No group
         .setGroups(stream(groups).collect(MoreCollectors.toSet()))
@@ -781,7 +790,7 @@ public class UserRegistrarImplTest {
   }
 
   private void checkGroupMembership(UserDto user, GroupDto... expectedGroups) {
-    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(stream(expectedGroups).map(GroupDto::getId).collect(Collectors.toList()).toArray(new Integer[] {}));
+    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(stream(expectedGroups).map(GroupDto::getId).collect(Collectors.toList()).toArray(new Integer[]{}));
   }
 
   private GroupDto insertDefaultGroup() {

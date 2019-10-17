@@ -152,7 +152,7 @@ public class HttpHeadersAuthenticationTest {
   public void update_user_when_authenticating_exiting_user() {
     startWithSso();
     setNotUserInToken();
-    insertUser(newUserDto().setLogin(DEFAULT_LOGIN).setName("old name").setEmail("old email"), group1);
+    insertUser(newUserDto().setLogin(DEFAULT_LOGIN).setExternalLogin(DEFAULT_LOGIN).setExternalIdentityProvider("sonarqube").setName("old name").setEmail("old email"), group1);
     // Name, email and groups are different
     HttpServletRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, GROUP2);
 

@@ -92,7 +92,6 @@ public class CredentialsExternalAuthenticationTest {
 
     assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
     assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getExistingEmailStrategy()).isEqualTo(FORBID);
-    assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getUserIdentity().getLogin()).isEqualTo(LOGIN);
     assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getUserIdentity().getProviderLogin()).isEqualTo(LOGIN);
     assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getUserIdentity().getProviderId()).isNull();
     assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getUserIdentity().getName()).isEqualTo("name");
@@ -169,7 +168,6 @@ public class CredentialsExternalAuthenticationTest {
     executeAuthenticate("LOGIN");
 
     assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
-    assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getUserIdentity().getLogin()).isEqualTo("login");
     assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getUserIdentity().getProviderLogin()).isEqualTo("login");
     verify(authenticationEvent).loginSuccess(request, "login", Source.realm(BASIC, REALM_NAME));
   }
@@ -182,7 +180,6 @@ public class CredentialsExternalAuthenticationTest {
     executeAuthenticate("LoGiN");
 
     assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
-    assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getUserIdentity().getLogin()).isEqualTo("LoGiN");
     assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getUserIdentity().getProviderLogin()).isEqualTo("LoGiN");
     verify(authenticationEvent).loginSuccess(request, "LoGiN", Source.realm(BASIC, REALM_NAME));
   }

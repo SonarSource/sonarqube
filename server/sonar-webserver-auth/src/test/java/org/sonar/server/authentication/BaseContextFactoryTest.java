@@ -47,7 +47,6 @@ public class BaseContextFactoryTest {
   private static final UserIdentity USER_IDENTITY = UserIdentity.builder()
     .setProviderId("ABCD")
     .setProviderLogin("johndoo")
-    .setLogin("id:johndoo")
     .setName("John")
     .setEmail("john@email.com")
     .build();
@@ -92,7 +91,6 @@ public class BaseContextFactoryTest {
     assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
     verify(threadLocalUserSession).set(any(UserSession.class));
     verify(jwtHttpHandler).generateToken(userArgumentCaptor.capture(), eq(request), eq(response));
-    assertThat(userArgumentCaptor.getValue().getLogin()).isEqualTo(USER_IDENTITY.getLogin());
     assertThat(userArgumentCaptor.getValue().getExternalId()).isEqualTo(USER_IDENTITY.getProviderId());
     assertThat(userArgumentCaptor.getValue().getExternalLogin()).isEqualTo(USER_IDENTITY.getProviderLogin());
     assertThat(userArgumentCaptor.getValue().getExternalIdentityProvider()).isEqualTo("github");

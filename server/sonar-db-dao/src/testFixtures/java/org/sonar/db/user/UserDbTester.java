@@ -41,11 +41,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
-import static org.sonar.db.user.UserTesting.newDisabledUser;
-import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.db.user.UserTesting.newUserSettingDto;
-import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
 public class UserDbTester {
   private static final Set<String> PUBLIC_PERMISSIONS = ImmutableSet.of(UserRole.USER, UserRole.CODEVIEWER); // FIXME to check with Simon
@@ -115,6 +110,18 @@ public class UserDbTester {
 
   public Optional<UserDto> selectUserByLogin(String login) {
     return Optional.ofNullable(dbClient.userDao().selectByLogin(db.getSession(), login));
+  }
+
+  public Optional<UserDto> selectUserByEmail(String email) {
+    List<UserDto> users = dbClient.userDao().selectByEmail(db.getSession(), email);
+    if (users.size() > 1) {
+      return Optional.empty();
+    }
+    return Optional.of(users.get(0));
+  }
+
+  public Optional<UserDto> selectUserByExternalLoginAndIdentityProvider(String login, String identityProvider) {
+    return Optional.ofNullable(dbClient.userDao().selectByExternalLoginAndIdentityProvider(db.getSession(), login, identityProvider));
   }
 
   // USER SETTINGS

@@ -24,23 +24,13 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.authentication.UserIdentity;
 
-import static org.sonar.auth.github.UserIdentityGenerator.generateLogin;
-import static org.sonar.auth.github.UserIdentityGenerator.generateName;
-
 public class UserIdentityFactoryImpl implements UserIdentityFactory {
-
-  private final GitHubSettings settings;
-
-  public UserIdentityFactoryImpl(GitHubSettings settings) {
-    this.settings = settings;
-  }
 
   @Override
   public UserIdentity create(GsonUser user, @Nullable String email, @Nullable List<GsonTeam> teams) {
     UserIdentity.Builder builder = UserIdentity.builder()
       .setProviderId(user.getId())
       .setProviderLogin(user.getLogin())
-      .setLogin(generateLogin(user, settings.loginStrategy()))
       .setName(generateName(user))
       .setEmail(email);
     if (teams != null) {
@@ -49,6 +39,11 @@ public class UserIdentityFactoryImpl implements UserIdentityFactory {
         .collect(Collectors.toSet()));
     }
     return builder.build();
+  }
+
+  private static String generateName(GsonUser gson) {
+    String name = gson.getName();
+    return name == null || name.isEmpty() ? gson.getLogin() : name;
   }
 
 }

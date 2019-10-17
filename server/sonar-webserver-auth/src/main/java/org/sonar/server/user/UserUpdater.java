@@ -229,7 +229,7 @@ public class UserUpdater {
     dbClient.propertiesDao().selectByKeyAndMatchingValue(dbSession, DEFAULT_ISSUE_ASSIGNEE, userDto.getLogin())
       .forEach(p -> dbClient.propertiesDao().saveProperty(p.setValue(newLogin)));
     userDto.setLogin(newLogin);
-    if (userDto.isLocal()) {
+    if (userDto.isLocal() || SQ_AUTHORITY.equals(userDto.getExternalIdentityProvider())) {
       userDto.setExternalLogin(newLogin);
       userDto.setExternalId(newLogin);
     }

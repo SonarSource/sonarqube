@@ -55,7 +55,6 @@ public class OAuth2ContextFactoryTest {
   private static final UserIdentity USER_IDENTITY = UserIdentity.builder()
     .setProviderId("ABCD")
     .setProviderLogin("johndoo")
-    .setLogin("id:johndoo")
     .setName("John")
     .setEmail("john@email.com")
     .build();
@@ -135,7 +134,6 @@ public class OAuth2ContextFactoryTest {
     verify(threadLocalUserSession).set(any(UserSession.class));
     ArgumentCaptor<UserDto> userArgumentCaptor = ArgumentCaptor.forClass(UserDto.class);
     verify(jwtHttpHandler).generateToken(userArgumentCaptor.capture(), eq(request), eq(response));
-    assertThat(userArgumentCaptor.getValue().getLogin()).isEqualTo(USER_IDENTITY.getLogin());
     assertThat(userArgumentCaptor.getValue().getExternalId()).isEqualTo(USER_IDENTITY.getProviderId());
     assertThat(userArgumentCaptor.getValue().getExternalLogin()).isEqualTo(USER_IDENTITY.getProviderLogin());
     assertThat(userArgumentCaptor.getValue().getExternalIdentityProvider()).isEqualTo(PROVIDER_KEY);

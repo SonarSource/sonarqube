@@ -111,7 +111,7 @@ public class SamlIdentityProviderTest {
     underTest.callback(callbackContext);
 
     assertThat(callbackContext.redirectedToRequestedPage.get()).isTrue();
-    assertThat(callbackContext.userIdentity.getLogin()).isEqualTo("johndoe");
+    assertThat(callbackContext.userIdentity.getProviderLogin()).isEqualTo("johndoe");
     assertThat(callbackContext.verifyState.get()).isTrue();
   }
 
@@ -122,7 +122,6 @@ public class SamlIdentityProviderTest {
 
     underTest.callback(callbackContext);
 
-    assertThat(callbackContext.userIdentity.getLogin()).isEqualTo("johndoe");
     assertThat(callbackContext.userIdentity.getName()).isEqualTo("John Doe");
     assertThat(callbackContext.userIdentity.getEmail()).isEqualTo("johndoe@email.com");
     assertThat(callbackContext.userIdentity.getProviderLogin()).isEqualTo("johndoe");
@@ -136,7 +135,6 @@ public class SamlIdentityProviderTest {
 
     underTest.callback(callbackContext);
 
-    assertThat(callbackContext.userIdentity.getLogin()).isEqualTo("johndoe");
     assertThat(callbackContext.userIdentity.getName()).isEqualTo("John Doe");
     assertThat(callbackContext.userIdentity.getEmail()).isNull();
     assertThat(callbackContext.userIdentity.getProviderLogin()).isEqualTo("johndoe");
@@ -151,7 +149,7 @@ public class SamlIdentityProviderTest {
 
     underTest.callback(callbackContext);
 
-    assertThat(callbackContext.userIdentity.getLogin()).isEqualTo("johndoe");
+    assertThat(callbackContext.userIdentity.getProviderLogin()).isEqualTo("johndoe");
     assertThat(callbackContext.userIdentity.getGroups()).isEmpty();
   }
 

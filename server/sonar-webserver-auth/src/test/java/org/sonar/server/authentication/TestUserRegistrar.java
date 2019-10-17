@@ -32,7 +32,6 @@ public class TestUserRegistrar implements UserRegistrar {
     String providerId = registration.getUserIdentity().getProviderId();
     return UserTesting.newUserDto()
       .setLocal(false)
-      .setLogin(registration.getUserIdentity().getLogin())
       .setExternalLogin(registration.getUserIdentity().getProviderLogin())
       .setExternalId(providerId == null ? registration.getUserIdentity().getProviderLogin() : providerId)
       .setExternalIdentityProvider(registration.getProvider().getKey());

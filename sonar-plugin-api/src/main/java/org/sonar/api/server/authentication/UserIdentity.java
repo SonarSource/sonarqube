@@ -27,7 +27,6 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.api.user.UserGroupValidation;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 
@@ -42,8 +41,6 @@ public final class UserIdentity {
   @Nullable
   private final String id;
   private final String providerLogin;
-  @Nullable
-  private final String login;
   private final String name;
   @Nullable
   private final String email;
@@ -53,7 +50,6 @@ public final class UserIdentity {
   private UserIdentity(Builder builder) {
     this.id = builder.id;
     this.providerLogin = builder.providerLogin;
-    this.login = builder.login;
     this.name = builder.name;
     this.email = builder.email;
     this.groupsProvided = builder.groupsProvided;
@@ -86,10 +82,15 @@ public final class UserIdentity {
    *
    * Since 7.4, a unique login will be generated if result is null and the user referenced by {@link #getProviderId()}
    * or {@link #getProviderLogin()} does not already exist.
+   *
+   * @deprecated since 8.0, should not be used as it is internal managed field
+   *
+   * @return null
    */
   @CheckForNull
+  @Deprecated
   public String getLogin() {
-    return login;
+    return null;
   }
 
   /**
@@ -134,7 +135,6 @@ public final class UserIdentity {
   public static class Builder {
     private String id;
     private String providerLogin;
-    private String login;
     private String name;
     private String email;
     private boolean groupsProvided = false;
@@ -162,9 +162,11 @@ public final class UserIdentity {
 
     /**
      * @see UserIdentity#getLogin()
+     *
+     * @deprecated since 8.0, has no effect as it is internal managed field
      */
+    @Deprecated
     public Builder setLogin(@Nullable String login) {
-      this.login = login;
       return this;
     }
 
@@ -210,7 +212,6 @@ public final class UserIdentity {
     public UserIdentity build() {
       validateId(id);
       validateProviderLogin(providerLogin);
-      validateLogin(login);
       validateName(name);
       validateEmail(email);
       return new UserIdentity(this);
@@ -223,10 +224,6 @@ public final class UserIdentity {
     private static void validateProviderLogin(String providerLogin) {
       checkArgument(isNotBlank(providerLogin), "Provider login must not be blank");
       checkArgument(providerLogin.length() <= 255, "Provider login size is incorrect (maximum 255 characters)");
-    }
-
-    private static void validateLogin(@Nullable String login) {
-      checkArgument(isBlank(login) || (login.length() <= 255 && login.length() >= 2), "User login size is incorrect (Between 2 and 255 characters)");
     }
 
     private static void validateName(String name) {

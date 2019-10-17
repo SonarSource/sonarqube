@@ -54,7 +54,7 @@ public class IntegrationTest {
   // load settings with default values
   private MapSettings settings = new MapSettings(new PropertyDefinitions(GitHubSettings.definitions()));
   private GitHubSettings gitHubSettings = new GitHubSettings(settings.asConfig());
-  private UserIdentityFactoryImpl userIdentityFactory = new UserIdentityFactoryImpl(gitHubSettings);
+  private UserIdentityFactoryImpl userIdentityFactory = new UserIdentityFactoryImpl();
   private ScribeGitHubApi scribeApi = new ScribeGitHubApi(gitHubSettings);
   private GitHubRestClient gitHubRestClient = new GitHubRestClient(gitHubSettings);
 
@@ -111,7 +111,7 @@ public class IntegrationTest {
 
     assertThat(callbackContext.csrfStateVerified.get()).isTrue();
     assertThat(callbackContext.userIdentity.getProviderId()).isEqualTo("ABCD");
-    assertThat(callbackContext.userIdentity.getLogin()).isEqualTo("octocat@github");
+    assertThat(callbackContext.userIdentity.getProviderLogin()).isEqualTo("octocat");
     assertThat(callbackContext.userIdentity.getName()).isEqualTo("monalisa octocat");
     assertThat(callbackContext.userIdentity.getEmail()).isEqualTo("octocat@github.com");
     assertThat(callbackContext.redirectedToRequestedPage.get()).isTrue();
@@ -156,7 +156,7 @@ public class IntegrationTest {
 
     assertThat(callbackContext.csrfStateVerified.get()).isTrue();
     assertThat(callbackContext.userIdentity.getProviderId()).isEqualTo("ABCD");
-    assertThat(callbackContext.userIdentity.getLogin()).isEqualTo("octocat@github");
+    assertThat(callbackContext.userIdentity.getProviderLogin()).isEqualTo("octocat");
     assertThat(callbackContext.userIdentity.getName()).isEqualTo("monalisa octocat");
     assertThat(callbackContext.userIdentity.getEmail()).isEqualTo("octocat@github.com");
     assertThat(callbackContext.redirectedToRequestedPage.get()).isTrue();
@@ -176,7 +176,7 @@ public class IntegrationTest {
 
     assertThat(callbackContext.csrfStateVerified.get()).isTrue();
     assertThat(callbackContext.userIdentity.getProviderId()).isEqualTo("ABCD");
-    assertThat(callbackContext.userIdentity.getLogin()).isEqualTo("octocat@github");
+    assertThat(callbackContext.userIdentity.getProviderLogin()).isEqualTo("octocat");
     assertThat(callbackContext.userIdentity.getName()).isEqualTo("monalisa octocat");
     assertThat(callbackContext.userIdentity.getEmail()).isNull();
     assertThat(callbackContext.redirectedToRequestedPage.get()).isTrue();
@@ -294,7 +294,6 @@ public class IntegrationTest {
   @Test
   public void callback_on_successful_authentication_with_organizations_without_membership() {
     settings.setProperty("sonar.auth.github.organizations", "first_org,second_org");
-    settings.setProperty("sonar.auth.github.loginStrategy", GitHubSettings.LOGIN_STRATEGY_PROVIDER_ID);
 
     github.enqueue(newSuccessfulAccessTokenResponse());
     // response of api.github.com/user
@@ -311,27 +310,6 @@ public class IntegrationTest {
       fail("exception expected");
     } catch (UnauthorizedException e) {
       assertThat(e.getMessage()).isEqualTo("'octocat' must be a member of at least one organization: 'first_org', 'second_org'");
-    }
-  }
-
-  @Test
-  public void callback_on_successful_authentication_with_organizations_without_membership_with_unique_login_strategy() {
-    settings.setProperty("sonar.auth.github.organizations", "example");
-    settings.setProperty("sonar.auth.github.loginStrategy", GitHubSettings.LOGIN_STRATEGY_UNIQUE);
-
-    github.enqueue(newSuccessfulAccessTokenResponse());
-    // response of api.github.com/user
-    github.enqueue(new MockResponse().setBody("{\"id\":\"ABCD\", \"login\":\"octocat\", \"name\":\"monalisa octocat\",\"email\":\"octocat@github.com\"}"));
-    // response of api.github.com/orgs/example0/members/user
-    github.enqueue(new MockResponse().setResponseCode(404).setBody("{}"));
-
-    HttpServletRequest request = newRequest("the-verifier-code");
-    DumbCallbackContext callbackContext = new DumbCallbackContext(request);
-    try {
-      underTest.callback(callbackContext);
-      fail("exception expected");
-    } catch (UnauthorizedException e) {
-      assertThat(e.getMessage()).isEqualTo("'octocat' must be a member of at least one organization: 'example'");
     }
   }
 

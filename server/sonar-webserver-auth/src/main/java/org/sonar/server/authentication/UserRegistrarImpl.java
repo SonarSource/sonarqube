@@ -62,6 +62,7 @@ import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 public class UserRegistrarImpl implements UserRegistrar {
 
   private static final Logger LOGGER = Loggers.get(UserRegistrarImpl.class);
+  private static final String SQ_AUTHORITY = "sonarqube";
 
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
@@ -102,16 +103,7 @@ public class UserRegistrarImpl implements UserRegistrar {
       return user;
     }
     // Then, try with the external login, for instance when external ID has changed
-    user = dbClient.userDao().selectByExternalLoginAndIdentityProvider(dbSession, userIdentity.getProviderLogin(), provider.getKey());
-    if (user != null) {
-      return user;
-    }
-    // Last, try with login, for instance when external ID and external login has been updated
-    String login = userIdentity.getLogin();
-    if (login == null) {
-      return null;
-    }
-    return dbClient.userDao().selectByLogin(dbSession, login);
+    return dbClient.userDao().selectByExternalLoginAndIdentityProvider(dbSession, userIdentity.getProviderLogin(), provider.getKey());
   }
 
   private UserDto registerNewUser(DbSession dbSession, @Nullable UserDto disabledUser, UserRegistration authenticatorParameters) {
@@ -131,10 +123,6 @@ public class UserRegistrarImpl implements UserRegistrar {
         authenticatorParameters.getProvider().getKey(),
         authenticatorParameters.getUserIdentity().getProviderLogin(),
         authenticatorParameters.getUserIdentity().getProviderId()));
-    String login = authenticatorParameters.getUserIdentity().getLogin();
-    if (login != null) {
-      update.setLogin(login);
-    }
     Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters);
     userUpdater.updateAndCommit(dbSession, userDto, update, beforeCommit(dbSession, false, authenticatorParameters), toArray(otherUserToIndex));
     return userDto;
@@ -180,12 +168,10 @@ public class UserRegistrarImpl implements UserRegistrar {
   }
 
   private static boolean isSameUser(UserDto existingUser, UserRegistration authenticatorParameters) {
-    // Check if same login
-    return Objects.equals(existingUser.getLogin(), authenticatorParameters.getUserIdentity().getLogin()) ||
     // Check if same identity provider and same provider id or provider login
-      (Objects.equals(existingUser.getExternalIdentityProvider(), authenticatorParameters.getProvider().getKey()) &&
-        (Objects.equals(existingUser.getExternalId(), getProviderIdOrProviderLogin(authenticatorParameters.getUserIdentity()))
-          || Objects.equals(existingUser.getExternalLogin(), authenticatorParameters.getUserIdentity().getProviderLogin())));
+    return (Objects.equals(existingUser.getExternalIdentityProvider(), authenticatorParameters.getProvider().getKey()) &&
+      (Objects.equals(existingUser.getExternalId(), getProviderIdOrProviderLogin(authenticatorParameters.getUserIdentity()))
+        || Objects.equals(existingUser.getExternalLogin(), authenticatorParameters.getUserIdentity().getProviderLogin())));
   }
 
   private void syncGroups(DbSession dbSession, UserIdentity userIdentity, UserDto userDto) {
@@ -257,14 +243,15 @@ public class UserRegistrarImpl implements UserRegistrar {
         .setPublicMessage(format("'%s' users are not allowed to sign up", identityProviderKey))
         .build();
     }
+    String providerLogin = authenticatorParameters.getUserIdentity().getProviderLogin();
     return NewUser.builder()
-      .setLogin(authenticatorParameters.getUserIdentity().getLogin())
+      .setLogin(SQ_AUTHORITY.equals(identityProviderKey) ? providerLogin : null)
       .setEmail(authenticatorParameters.getUserIdentity().getEmail())
       .setName(authenticatorParameters.getUserIdentity().getName())
       .setExternalIdentity(
         new ExternalIdentity(
           identityProviderKey,
-          authenticatorParameters.getUserIdentity().getProviderLogin(),
+          providerLogin,
           authenticatorParameters.getUserIdentity().getProviderId()))
       .build();
   }

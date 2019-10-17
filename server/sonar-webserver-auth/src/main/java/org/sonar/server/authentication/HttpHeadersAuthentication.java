@@ -157,7 +157,6 @@ public class HttpHeadersAuthentication implements Startable {
     String name = getHeaderValue(headerValuesByNames, SONAR_WEB_SSO_NAME_HEADER.getKey());
     String email = getHeaderValue(headerValuesByNames, SONAR_WEB_SSO_EMAIL_HEADER.getKey());
     UserIdentity.Builder userIdentityBuilder = UserIdentity.builder()
-      .setLogin(login)
       .setName(name == null ? login : name)
       .setEmail(email)
       .setProviderLogin(login);

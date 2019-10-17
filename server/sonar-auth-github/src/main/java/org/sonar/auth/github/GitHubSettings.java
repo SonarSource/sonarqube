@@ -26,10 +26,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 
-import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static org.sonar.api.PropertyType.BOOLEAN;
-import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
 import static org.sonar.api.PropertyType.STRING;
 
 public class GitHubSettings {
@@ -41,11 +39,6 @@ public class GitHubSettings {
   private static final String GROUPS_SYNC = "sonar.auth.github.groupsSync";
   private static final String API_URL = "sonar.auth.github.apiUrl";
   private static final String WEB_URL = "sonar.auth.github.webUrl";
-
-  static final String LOGIN_STRATEGY = "sonar.auth.github.loginStrategy";
-  static final String LOGIN_STRATEGY_UNIQUE = "Unique";
-  static final String LOGIN_STRATEGY_PROVIDER_ID = "Same as GitHub login";
-  static final String LOGIN_STRATEGY_DEFAULT_VALUE = LOGIN_STRATEGY_UNIQUE;
 
   private static final String ORGANIZATIONS = "sonar.auth.github.organizations";
 
@@ -72,10 +65,6 @@ public class GitHubSettings {
 
   boolean allowUsersToSignUp() {
     return configuration.getBoolean(ALLOW_USERS_TO_SIGN_UP).orElse(false);
-  }
-
-  String loginStrategy() {
-    return configuration.get(LOGIN_STRATEGY).orElse("");
   }
 
   boolean syncGroups() {
@@ -137,18 +126,6 @@ public class GitHubSettings {
         .type(BOOLEAN)
         .defaultValue(valueOf(true))
         .index(4)
-        .build(),
-      PropertyDefinition.builder(LOGIN_STRATEGY)
-        .name("Login generation strategy")
-        .description(format("When the login strategy is set to '%s', the user's login will be auto-generated the first time so that it is unique. " +
-          "When the login strategy is set to '%s', the user's login will be the GitHub login.",
-          LOGIN_STRATEGY_UNIQUE, LOGIN_STRATEGY_PROVIDER_ID))
-        .category(CATEGORY)
-        .subCategory(SUBCATEGORY)
-        .type(SINGLE_SELECT_LIST)
-        .defaultValue(LOGIN_STRATEGY_DEFAULT_VALUE)
-        .options(LOGIN_STRATEGY_UNIQUE, LOGIN_STRATEGY_PROVIDER_ID)
-        .index(5)
         .build(),
       PropertyDefinition.builder(GROUPS_SYNC)
         .name("Synchronize teams as groups")

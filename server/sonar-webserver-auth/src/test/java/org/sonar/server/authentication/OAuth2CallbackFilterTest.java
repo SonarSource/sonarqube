@@ -289,7 +289,6 @@ public class OAuth2CallbackFilterTest {
     public void callback(CallbackContext context) {
       throw new EmailAlreadyExistsRedirectionException(existingUser.getEmail(), existingUser, UserIdentity.builder()
         .setProviderLogin("john.github")
-        .setLogin("john.github")
         .setName(existingUser.getName())
         .setEmail(existingUser.getEmail())
         .build(), this);
@@ -324,7 +323,6 @@ public class OAuth2CallbackFilterTest {
     public void callback(CallbackContext context) {
       super.callback(context);
       context.authenticate(UserIdentity.builder()
-        .setLogin(login)
         .setProviderLogin(login)
         .setEmail(login + "@toto.com")
         .setName("name of " + login)

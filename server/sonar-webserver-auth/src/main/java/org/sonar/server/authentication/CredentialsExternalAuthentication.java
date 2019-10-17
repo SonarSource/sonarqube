@@ -133,7 +133,6 @@ public class CredentialsExternalAuthentication implements Startable {
   private UserDto synchronize(String userLogin, UserDetails details, HttpServletRequest request, AuthenticationEvent.Method method) {
     String name = details.getName();
     UserIdentity.Builder userIdentityBuilder = UserIdentity.builder()
-      .setLogin(userLogin)
       .setName(isEmpty(name) ? userLogin : name)
       .setEmail(trimToNull(details.getEmail()))
       .setProviderLogin(userLogin);

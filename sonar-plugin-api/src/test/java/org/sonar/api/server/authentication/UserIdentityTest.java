@@ -37,14 +37,12 @@ public class UserIdentityTest {
     UserIdentity underTest = UserIdentity.builder()
       .setProviderId("4321")
       .setProviderLogin("john")
-      .setLogin("1234")
       .setName("John")
       .setEmail("john@email.com")
       .build();
 
     assertThat(underTest.getProviderId()).isEqualTo("4321");
     assertThat(underTest.getProviderLogin()).isEqualTo("john");
-    assertThat(underTest.getLogin()).isEqualTo("1234");
     assertThat(underTest.getName()).isEqualTo("John");
     assertThat(underTest.getEmail()).isEqualTo("john@email.com");
     assertThat(underTest.shouldSyncGroups()).isFalse();
@@ -61,7 +59,6 @@ public class UserIdentityTest {
     assertThat(underTest.getProviderLogin()).isEqualTo("john");
     assertThat(underTest.getName()).isEqualTo("John");
     assertThat(underTest.getProviderId()).isNull();
-    assertThat(underTest.getLogin()).isNull();
     assertThat(underTest.getEmail()).isNull();
     assertThat(underTest.shouldSyncGroups()).isFalse();
     assertThat(underTest.getGroups()).isEmpty();
@@ -74,32 +71,7 @@ public class UserIdentityTest {
     UserIdentity.builder()
       .setProviderId(Strings.repeat("1", 256))
       .setProviderLogin("john")
-      .setLogin("1234")
       .setName("John")
-      .build();
-  }
-
-  @Test
-  public void fail_when_login_is_too_long() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("User login size is incorrect (Between 2 and 255 characters)");
-    UserIdentity.builder()
-      .setProviderLogin("john")
-      .setLogin(Strings.repeat("1", 256))
-      .setName("John")
-      .setEmail("john@email.com")
-      .build();
-  }
-
-  @Test
-  public void fail_when_login_is_too_small() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("User login size is incorrect (Between 2 and 255 characters)");
-    UserIdentity.builder()
-      .setProviderLogin("john")
-      .setLogin("j")
-      .setName("John")
-      .setEmail("john@email.com")
       .build();
   }
 
@@ -108,7 +80,6 @@ public class UserIdentityTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Provider login must not be blank");
     UserIdentity.builder()
-      .setLogin("1234")
       .setName("John")
       .setEmail("john@email.com")
       .build();
@@ -120,7 +91,6 @@ public class UserIdentityTest {
     thrown.expectMessage("Provider login must not be blank");
     UserIdentity.builder()
       .setProviderLogin("")
-      .setLogin("1234")
       .setName("John")
       .setEmail("john@email.com")
       .build();
@@ -132,7 +102,6 @@ public class UserIdentityTest {
     thrown.expectMessage("Provider login size is incorrect (maximum 255 characters)");
     UserIdentity.builder()
       .setProviderLogin(Strings.repeat("1", 256))
-      .setLogin("1234")
       .setName("John")
       .setEmail("john@email.com")
       .build();
@@ -144,7 +113,6 @@ public class UserIdentityTest {
     thrown.expectMessage("User name must not be blank");
     UserIdentity.builder()
       .setProviderLogin("john")
-      .setLogin("1234")
       .setEmail("john@email.com")
       .build();
   }
@@ -155,7 +123,6 @@ public class UserIdentityTest {
     thrown.expectMessage("User name must not be blank");
     UserIdentity.builder()
       .setProviderLogin("john")
-      .setLogin("1234")
       .setName("")
       .setEmail("john@email.com")
       .build();
@@ -167,7 +134,6 @@ public class UserIdentityTest {
     thrown.expectMessage("User name size is too big (200 characters max)");
     UserIdentity.builder()
       .setProviderLogin("john")
-      .setLogin("1234")
       .setName(Strings.repeat("1", 201))
       .setEmail("john@email.com")
       .build();
@@ -179,7 +145,6 @@ public class UserIdentityTest {
     thrown.expectMessage("User email size is too big (100 characters max)");
     UserIdentity.builder()
       .setProviderLogin("john")
-      .setLogin("1234")
       .setName("John")
       .setEmail(Strings.repeat("1", 101))
       .build();
@@ -189,7 +154,6 @@ public class UserIdentityTest {
   public void create_user_with_groups() {
     UserIdentity underTest = UserIdentity.builder()
       .setProviderLogin("john")
-      .setLogin("1234")
       .setName("John")
       .setEmail("john@email.com")
       .setGroups(newHashSet("admin", "user"))
@@ -206,7 +170,6 @@ public class UserIdentityTest {
 
     UserIdentity.builder()
       .setProviderLogin("john")
-      .setLogin("1234")
       .setName("John")
       .setEmail("john@email.com")
       .setGroups(null);
@@ -219,7 +182,6 @@ public class UserIdentityTest {
 
     UserIdentity.builder()
       .setProviderLogin("john")
-      .setLogin("1234")
       .setName("John")
       .setEmail("john@email.com")
       .setGroups(newHashSet(""));
@@ -232,7 +194,6 @@ public class UserIdentityTest {
 
     UserIdentity.builder()
       .setProviderLogin("john")
-      .setLogin("1234")
       .setName("John")
       .setEmail("john@email.com")
       .setGroups(newHashSet("      "));
@@ -245,7 +206,6 @@ public class UserIdentityTest {
 
     UserIdentity.builder()
       .setProviderLogin("john")
-      .setLogin("1234")
       .setName("John")
       .setEmail("john@email.com")
       .setGroups(newHashSet((String)null));
@@ -258,7 +218,6 @@ public class UserIdentityTest {
 
     UserIdentity.builder()
       .setProviderLogin("john")
-      .setLogin("1234")
       .setName("John")
       .setEmail("john@email.com")
       .setGroups(newHashSet("Anyone"));
@@ -271,7 +230,6 @@ public class UserIdentityTest {
 
     UserIdentity.builder()
       .setProviderLogin("john")
-      .setLogin("1234")
       .setName("John")
       .setEmail("john@email.com")
       .setGroups(newHashSet(Strings.repeat("group", 300)));

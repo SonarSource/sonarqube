@@ -24,8 +24,6 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.auth.github.GitHubSettings.LOGIN_STRATEGY_DEFAULT_VALUE;
-import static org.sonar.auth.github.GitHubSettings.LOGIN_STRATEGY_PROVIDER_ID;
 
 public class GitHubSettingsTest {
 
@@ -37,7 +35,6 @@ public class GitHubSettingsTest {
   public void is_enabled() {
     settings.setProperty("sonar.auth.github.clientId.secured", "id");
     settings.setProperty("sonar.auth.github.clientSecret.secured", "secret");
-    settings.setProperty("sonar.auth.github.loginStrategy", LOGIN_STRATEGY_DEFAULT_VALUE);
 
     settings.setProperty("sonar.auth.github.enabled", true);
     assertThat(underTest.isEnabled()).isTrue();
@@ -51,7 +48,6 @@ public class GitHubSettingsTest {
     settings.setProperty("sonar.auth.github.enabled", true);
     settings.setProperty("sonar.auth.github.clientId.secured", (String) null);
     settings.setProperty("sonar.auth.github.clientSecret.secured", "secret");
-    settings.setProperty("sonar.auth.github.loginStrategy", LOGIN_STRATEGY_DEFAULT_VALUE);
 
     assertThat(underTest.isEnabled()).isFalse();
   }
@@ -61,7 +57,6 @@ public class GitHubSettingsTest {
     settings.setProperty("sonar.auth.github.enabled", true);
     settings.setProperty("sonar.auth.github.clientId.secured", "id");
     settings.setProperty("sonar.auth.github.clientSecret.secured", (String) null);
-    settings.setProperty("sonar.auth.github.loginStrategy", LOGIN_STRATEGY_DEFAULT_VALUE);
 
     assertThat(underTest.isEnabled()).isFalse();
   }
@@ -76,12 +71,6 @@ public class GitHubSettingsTest {
   public void return_client_secret() {
     settings.setProperty("sonar.auth.github.clientSecret.secured", "secret");
     assertThat(underTest.clientSecret()).isEqualTo("secret");
-  }
-
-  @Test
-  public void return_login_strategy() {
-    settings.setProperty("sonar.auth.github.loginStrategy", LOGIN_STRATEGY_PROVIDER_ID);
-    assertThat(underTest.loginStrategy()).isEqualTo(LOGIN_STRATEGY_PROVIDER_ID);
   }
 
   @Test
@@ -132,31 +121,28 @@ public class GitHubSettingsTest {
   public void return_organizations_single() {
     String setting = "example";
     settings.setProperty("sonar.auth.github.organizations", setting);
-    String[] expected = new String[] {"example"};
     String[] actual = underTest.organizations();
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual).containsOnly(setting);
   }
 
   @Test
   public void return_organizations_multiple() {
     String setting = "example0,example1";
     settings.setProperty("sonar.auth.github.organizations", setting);
-    String[] expected = new String[] {"example0", "example1"};
     String[] actual = underTest.organizations();
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual).containsOnly("example0", "example1");
   }
 
   @Test
   public void return_organizations_empty_list() {
     String[] setting = null;
     settings.setProperty("sonar.auth.github.organizations", setting);
-    String[] expected = new String[] {};
     String[] actual = underTest.organizations();
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual).hasSize(0);
   }
 
   @Test
   public void definitions() {
-    assertThat(GitHubSettings.definitions()).hasSize(9);
+    assertThat(GitHubSettings.definitions()).hasSize(8);
   }
 }

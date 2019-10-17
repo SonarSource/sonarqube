@@ -94,7 +94,6 @@ public class IntegrationTest {
     ArgumentCaptor<UserIdentity> argument = ArgumentCaptor.forClass(UserIdentity.class);
     verify(callbackContext).authenticate(argument.capture());
     assertThat(argument.getValue()).isNotNull();
-    assertThat(argument.getValue().getLogin()).isNull();
     assertThat(argument.getValue().getProviderId()).isEqualTo("123");
     assertThat(argument.getValue().getProviderLogin()).isEqualTo("toto");
     assertThat(argument.getValue().getName()).isEqualTo("Toto Toto");

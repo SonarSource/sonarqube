@@ -111,7 +111,6 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
     LOGGER.trace("Attributes received : {}", auth.getAttributes());
     String login = getNonNullFirstAttribute(auth, samlSettings.getUserLogin());
     UserIdentity.Builder userIdentityBuilder = UserIdentity.builder()
-      .setLogin(login)
       .setProviderLogin(login)
       .setName(getNonNullFirstAttribute(auth, samlSettings.getUserName()));
     samlSettings.getUserEmail().ifPresent(

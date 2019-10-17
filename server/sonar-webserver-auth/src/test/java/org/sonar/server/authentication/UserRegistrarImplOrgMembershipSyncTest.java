@@ -63,7 +63,6 @@ public class UserRegistrarImplOrgMembershipSyncTest {
   private static UserIdentity USER_IDENTITY = UserIdentity.builder()
     .setProviderId("ABCD")
     .setProviderLogin("johndoo")
-    .setLogin(USER_LOGIN)
     .setName("John")
     .setEmail("john@email.com")
     .build();
@@ -127,7 +126,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
       .setOrganizationAlmIds(ImmutableSet.of(gitHubInstall.getOrganizationAlmId()))
       .build());
 
-    UserDto user = db.users().selectUserByLogin(USER_LOGIN).get();
+    UserDto user = db.users().selectUserByExternalLoginAndIdentityProvider(USER_IDENTITY.getProviderLogin(), GITHUB_PROVIDER.getKey()).get();
     db.organizations().assertUserIsMemberOfOrganization(organization, user);
   }
 
@@ -147,7 +146,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
       .setOrganizationAlmIds(null)
       .build());
 
-    UserDto user = db.users().selectUserByLogin(USER_LOGIN).get();
+    UserDto user = db.users().selectUserByExternalLoginAndIdentityProvider(USER_IDENTITY.getProviderLogin(), GITHUB_PROVIDER.getKey()).get();
     db.organizations().assertUserIsNotMemberOfOrganization(organization, user);
   }
 
@@ -167,7 +166,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
       .setOrganizationAlmIds(ImmutableSet.of(gitHubInstall.getOrganizationAlmId()))
       .build());
 
-    UserDto user = db.users().selectUserByLogin(USER_LOGIN).get();
+    UserDto user = db.users().selectUserByExternalLoginAndIdentityProvider(USER_IDENTITY.getProviderLogin(), BITBUCKET_PROVIDER.getKey()).get();
     db.organizations().assertUserIsNotMemberOfOrganization(organization, user);
   }
 
@@ -192,7 +191,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
       .setOrganizationAlmIds(ImmutableSet.of(almAppInstall.getOrganizationAlmId()))
       .build());
 
-    UserDto user = db.users().selectUserByLogin(USER_LOGIN).get();
+    UserDto user = db.users().selectUserByExternalLoginAndIdentityProvider(USER_IDENTITY.getProviderLogin(), identityProvider.getKey()).get();
     db.organizations().assertUserIsNotMemberOfOrganization(organization, user);
   }
 
@@ -226,7 +225,11 @@ public class UserRegistrarImplOrgMembershipSyncTest {
     db.users().insertDefaultGroup(organization, "Members");
     AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlm(GITHUB));
     db.alm().insertOrganizationAlmBinding(organization, gitHubInstall, true);
-    UserDto user = db.users().insertDisabledUser(u -> u.setLogin(USER_LOGIN));
+    UserDto user = db.users().insertDisabledUser(u -> u
+      .setLogin(USER_LOGIN)
+      .setExternalId(USER_IDENTITY.getProviderId())
+      .setExternalIdentityProvider(GITHUB_PROVIDER.getKey())
+    );
 
     underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)

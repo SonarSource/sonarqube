@@ -17,21 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.auth.github;
+package org.sonar.server.platform.db.migration.version.v80;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+public class RemoveGitHubLoginGenerationStrategyProperty extends DataChange {
+  private static final String GH_LOGIN_STRATEGY_PROP_KEY = "sonar.auth.github.loginStrategy";
 
-public class GitHubModuleTest {
-
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new GitHubModule().configure(container);
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 13);
+  public RemoveGitHubLoginGenerationStrategyProperty(Database db) {
+    super(db);
   }
 
+  @Override
+  protected void execute(Context context) throws SQLException {
+    context.prepareUpsert("delete from properties where prop_key='" + GH_LOGIN_STRATEGY_PROP_KEY + "'")
+      .execute()
+      .commit();
+  }
 }
