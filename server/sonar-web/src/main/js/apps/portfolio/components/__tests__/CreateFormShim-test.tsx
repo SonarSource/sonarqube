@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import * as theme from '../../../app/theme';
+import CreateFormShim from '../CreateFormShim';
 
-interface Props {
-  defaultQualifier?: string;
-  onClose: () => void;
-  onCreate: (portfolio: { key: string; qualifier: string }) => void;
-}
+afterAll(() => delete (window as any).SonarGovernance);
 
-export default class CreateFormShim extends React.Component<Props> {
-  render() {
-    const { createFormBuilder } = (window as any).SonarGovernance;
-    return createFormBuilder(this.props, theme);
-  }
+it('should call SonarGovernance createFormBuilder to build CreateForm component', () => {
+  const builderMock = jest.fn();
+  (window as any).SonarGovernance = { createFormBuilder: builderMock };
+  shallowRender();
+  expect(builderMock).toHaveBeenCalled();
+});
+
+function shallowRender() {
+  return shallow(<CreateFormShim onClose={jest.fn()} onCreate={jest.fn()} />);
 }
