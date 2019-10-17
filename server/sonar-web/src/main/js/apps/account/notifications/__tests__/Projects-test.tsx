@@ -110,7 +110,6 @@ function shallowRender(props?: Partial<Projects['props']>) {
     <Projects
       addNotification={jest.fn()}
       channels={channels}
-      initialProjectNotificationsCount={0}
       notifications={[]}
       removeNotification={jest.fn()}
       types={types}

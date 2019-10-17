@@ -22,7 +22,7 @@ import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
 import { Location } from 'sonar-ui-common/helpers/urls';
 import { isSonarCloud } from '../../../../helpers/system';
-import BadgesModal from '../BadgesModal';
+import ProjectBadges from '../ProjectBadges';
 
 jest.mock('sonar-ui-common/helpers/urls', () => ({
   getHostUrl: () => 'host',
@@ -45,7 +45,7 @@ const shortBranch: T.ShortLivingBranch = {
 it('should display the modal after click on sonarcloud', () => {
   (isSonarCloud as jest.Mock).mockImplementation(() => true);
   const wrapper = shallow(
-    <BadgesModal branchLike={shortBranch} metrics={{}} project="foo" qualifier="TRK" />
+    <ProjectBadges branchLike={shortBranch} metrics={{}} project="foo" qualifier="TRK" />
   );
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find('Button'));
@@ -55,7 +55,7 @@ it('should display the modal after click on sonarcloud', () => {
 it('should display the modal after click on sonarqube', () => {
   (isSonarCloud as jest.Mock).mockImplementation(() => false);
   const wrapper = shallow(
-    <BadgesModal branchLike={shortBranch} metrics={{}} project="foo" qualifier="TRK" />
+    <ProjectBadges branchLike={shortBranch} metrics={{}} project="foo" qualifier="TRK" />
   );
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find('Button'));

@@ -1,0 +1,108 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Modal
+  ariaHideApp={true}
+  bodyOpenClassName="ReactModal__Body--open"
+  className="modal"
+  closeTimeoutMS={0}
+  contentLabel="my_account.notifications"
+  isOpen={true}
+  onRequestClose={[MockFunction]}
+  overlayClassName="modal-overlay"
+  parentSelector={[Function]}
+  portalClassName="ReactModalPortal"
+  role="dialog"
+  shouldCloseOnEsc={true}
+  shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
+  shouldReturnFocusAfterClose={true}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      my_account.notifications
+    </h2>
+  </header>
+  <div
+    className="modal-body"
+  >
+    <Alert
+      variant="info"
+    >
+      notification.dispatcher.information
+    </Alert>
+    <DeferredSpinner
+      loading={false}
+      timeout={100}
+    >
+      <table
+        className="data zebra notifications-table"
+      >
+        <thead>
+          <tr>
+            <th
+              aria-label="project"
+            />
+            <th
+              className="text-center"
+              key="channel1"
+            >
+              <h4>
+                notification.channel.channel1
+              </h4>
+            </th>
+            <th
+              className="text-center"
+              key="channel2"
+            >
+              <h4>
+                notification.channel.channel2
+              </h4>
+            </th>
+          </tr>
+        </thead>
+        <NotificationsList
+          channels={
+            Array [
+              "channel1",
+              "channel2",
+            ]
+          }
+          checkboxId={[Function]}
+          notifications={
+            Array [
+              Object {
+                "channel": "channel1",
+                "organization": "org",
+                "project": "foo",
+                "projectName": "Foo",
+                "type": "type-global",
+              },
+            ]
+          }
+          onAdd={[Function]}
+          onRemove={[Function]}
+          project={true}
+          types={
+            Array [
+              "type-common",
+            ]
+          }
+        />
+      </table>
+    </DeferredSpinner>
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <ResetButtonLink
+      className="js-modal-close"
+      onClick={[MockFunction]}
+    >
+      close
+    </ResetButtonLink>
+  </footer>
+</Modal>
+`;

@@ -17,65 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import GlobalNotifications from '../GlobalNotifications';
-import { Notifications } from '../Notifications';
-import Projects from '../Projects';
+import { mockComponent } from '../../../../helpers/testMocks';
+import { ProjectNotifications } from '../ProjectNotifications';
 
 it('should render correctly', () => {
-  expect(shallowRender({ loading: true })).toMatchSnapshot();
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ notifications: [] })).toMatchSnapshot();
 });
 
-it('should add and remove global notifications', () => {
+it('should add and remove a notification for the project', () => {
   const addNotification = jest.fn();
   const removeNotification = jest.fn();
-  const notification = { channel: 'channel2', type: 'type-global' };
   const wrapper = shallowRender({ addNotification, removeNotification });
-
-  wrapper
-    .find(GlobalNotifications)
-    .props()
-    .addNotification(notification);
-  expect(addNotification).toBeCalledWith(notification);
-
-  wrapper
-    .find(GlobalNotifications)
-    .props()
-    .removeNotification(notification);
-  expect(removeNotification).toBeCalledWith(notification);
-});
-
-it('should add and remove project notification', () => {
-  const addNotification = jest.fn();
-  const removeNotification = jest.fn();
   const notification = {
-    channel: 'channel2',
-    type: 'type-common',
-    project: 'qux'
+    channel: 'EmailNotificationChannel',
+    type: 'SQ-MyNewIssues'
   };
-  const wrapper = shallowRender({ addNotification, removeNotification });
 
-  wrapper
-    .find(Projects)
-    .props()
-    .addNotification(notification);
-  expect(addNotification).toBeCalledWith(notification);
+  wrapper.find('NotificationsList').prop<Function>('onAdd')(notification);
+  expect(addNotification).toHaveBeenCalledWith({ ...notification, project: 'foo' });
 
-  wrapper
-    .find(Projects)
-    .props()
-    .removeNotification(notification);
-  expect(removeNotification).toBeCalledWith(notification);
+  wrapper.find('NotificationsList').prop<Function>('onRemove')(notification);
+  expect(removeNotification).toHaveBeenCalledWith({ ...notification, project: 'foo' });
 });
 
 function shallowRender(props = {}) {
-  return shallow(
-    <Notifications
+  const wrapper = shallow(
+    <ProjectNotifications
       addNotification={jest.fn()}
       channels={['channel1', 'channel2']}
+      component={mockComponent({ key: 'foo' })}
       globalTypes={['type-global', 'type-common']}
       loading={false}
       notifications={[
@@ -105,5 +78,13 @@ function shallowRender(props = {}) {
       removeNotification={jest.fn()}
       {...props}
     />
+  );
+
+  // Get the modal element. We need to trigger the ModalButton's `modal` prop,
+  // which is a function. It will return our Modal component.
+  return shallow(
+    wrapper.find('ModalButton').prop<Function>('modal')({
+      onClose: jest.fn()
+    })
   );
 }

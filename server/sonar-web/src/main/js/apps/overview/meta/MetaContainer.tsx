@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 import { hasPrivateAccess } from '../../../helpers/organizations';
+import { isLoggedIn } from '../../../helpers/users';
 import {
   getAppState,
   getCurrentUser,
@@ -39,7 +40,11 @@ import MetaQualityProfiles from './MetaQualityProfiles';
 import MetaSize from './MetaSize';
 import MetaTags from './MetaTags';
 
-const BadgesModal = lazyLoad(() => import('../badges/BadgesModal'), 'BadgesModal');
+const ProjectBadges = lazyLoadComponent(() => import('../badges/ProjectBadges'), 'ProjectBadges');
+const ProjectNotifications = lazyLoadComponent(
+  () => import('../notifications/ProjectNotifications'),
+  'ProjectNotifications'
+);
 
 interface StateToProps {
   appState: T.AppState;
@@ -97,12 +102,15 @@ export class Meta extends React.PureComponent<Props> {
 
   render() {
     const { organizationsEnabled } = this.props.appState;
-    const { branchLike, component, measures, metrics, organization } = this.props;
+    const { branchLike, component, currentUser, measures, metrics, organization } = this.props;
     const { qualifier, description, visibility } = component;
 
     const isProject = qualifier === 'TRK';
     const isApp = qualifier === 'APP';
     const isPrivate = visibility === 'private';
+    const canUseBadges = !isPrivate && (isProject || isApp);
+    const canConfigureNotifications = isLoggedIn(currentUser);
+
     return (
       <div className="overview-meta">
         <div className="overview-meta-card">
@@ -146,13 +154,21 @@ export class Meta extends React.PureComponent<Props> {
           {organizationsEnabled && <MetaOrganizationKey organization={component.organization} />}
         </div>
 
-        {!isPrivate && (isProject || isApp) && metrics && (
-          <BadgesModal
-            branchLike={branchLike}
-            metrics={metrics}
-            project={component.key}
-            qualifier={component.qualifier}
-          />
+        {(canUseBadges || canConfigureNotifications) && (
+          <div className="overview-meta-card">
+            {canUseBadges && metrics !== undefined && (
+              <ProjectBadges
+                branchLike={branchLike}
+                metrics={metrics}
+                project={component.key}
+                qualifier={component.qualifier}
+              />
+            )}
+
+            {canConfigureNotifications && (
+              <ProjectNotifications className="spacer-top spacer-bottom" component={component} />
+            )}
+          </div>
         )}
       </div>
     );

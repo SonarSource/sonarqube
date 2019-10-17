@@ -28,7 +28,6 @@ import ProjectNotifications from './ProjectNotifications';
 export interface Props {
   addNotification: (n: T.Notification) => void;
   channels: string[];
-  initialProjectNotificationsCount: number;
   notifications: T.Notification[];
   removeNotification: (n: T.Notification) => void;
   types: string[];
@@ -98,7 +97,7 @@ export default class Projects extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { initialProjectNotificationsCount, notifications } = this.props;
+    const { notifications } = this.props;
     const { addedProjects, search } = this.state;
 
     const projects = uniqBy(notifications, project => project.project).filter(
@@ -109,7 +108,7 @@ export default class Projects extends React.PureComponent<Props, State> {
     const filteredProjects = sortBy(allProjects, 'projectName').filter(p =>
       this.filterSearch(p, search)
     );
-    const shouldBeCollapsed = initialProjectNotificationsCount > THRESHOLD_COLLAPSED;
+    const shouldBeCollapsed = Object.keys(notificationsByProject).length > THRESHOLD_COLLAPSED;
 
     return (
       <section className="boxed-group" data-test="account__project-notifications">

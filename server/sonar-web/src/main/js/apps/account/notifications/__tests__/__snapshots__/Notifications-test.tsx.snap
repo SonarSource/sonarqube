@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should fetch notifications and render 1`] = `
+exports[`should render correctly 1`] = `
 <div
   className="account-body account-container"
 >
@@ -15,11 +15,11 @@ exports[`should fetch notifications and render 1`] = `
     notification.dispatcher.information
   </Alert>
   <DeferredSpinner
-    loading={false}
+    loading={true}
     timeout={100}
   >
     <GlobalNotifications
-      addNotification={[Function]}
+      addNotification={[MockFunction]}
       channels={
         Array [
           "channel1",
@@ -27,7 +27,7 @@ exports[`should fetch notifications and render 1`] = `
         ]
       }
       notifications={Array []}
-      removeNotification={[Function]}
+      removeNotification={[MockFunction]}
       types={
         Array [
           "type-global",
@@ -36,14 +36,13 @@ exports[`should fetch notifications and render 1`] = `
       }
     />
     <Projects
-      addNotification={[Function]}
+      addNotification={[MockFunction]}
       channels={
         Array [
           "channel1",
           "channel2",
         ]
       }
-      initialProjectNotificationsCount={3}
       notifications={
         Array [
           Object {
@@ -69,7 +68,141 @@ exports[`should fetch notifications and render 1`] = `
           },
         ]
       }
-      removeNotification={[Function]}
+      removeNotification={[MockFunction]}
+      types={
+        Array [
+          "type-common",
+        ]
+      }
+    />
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="account-body account-container"
+>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="my_account.notifications"
+  />
+  <Alert
+    variant="info"
+  >
+    notification.dispatcher.information
+  </Alert>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <GlobalNotifications
+      addNotification={[MockFunction]}
+      channels={
+        Array [
+          "channel1",
+          "channel2",
+        ]
+      }
+      notifications={Array []}
+      removeNotification={[MockFunction]}
+      types={
+        Array [
+          "type-global",
+          "type-common",
+        ]
+      }
+    />
+    <Projects
+      addNotification={[MockFunction]}
+      channels={
+        Array [
+          "channel1",
+          "channel2",
+        ]
+      }
+      notifications={
+        Array [
+          Object {
+            "channel": "channel1",
+            "organization": "org",
+            "project": "foo",
+            "projectName": "Foo",
+            "type": "type-global",
+          },
+          Object {
+            "channel": "channel1",
+            "organization": "org",
+            "project": "bar",
+            "projectName": "Bar",
+            "type": "type-common",
+          },
+          Object {
+            "channel": "channel2",
+            "organization": "org",
+            "project": "qux",
+            "projectName": "Qux",
+            "type": "type-common",
+          },
+        ]
+      }
+      removeNotification={[MockFunction]}
+      types={
+        Array [
+          "type-common",
+        ]
+      }
+    />
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render correctly 3`] = `
+<div
+  className="account-body account-container"
+>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="my_account.notifications"
+  />
+  <Alert
+    variant="info"
+  >
+    notification.dispatcher.information
+  </Alert>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <GlobalNotifications
+      addNotification={[MockFunction]}
+      channels={
+        Array [
+          "channel1",
+          "channel2",
+        ]
+      }
+      notifications={Array []}
+      removeNotification={[MockFunction]}
+      types={
+        Array [
+          "type-global",
+          "type-common",
+        ]
+      }
+    />
+    <Projects
+      addNotification={[MockFunction]}
+      channels={
+        Array [
+          "channel1",
+          "channel2",
+        ]
+      }
+      notifications={Array []}
+      removeNotification={[MockFunction]}
       types={
         Array [
           "type-common",

@@ -42,7 +42,7 @@ interface State {
   badgeOptions: BadgeOptions;
 }
 
-export default class BadgesModal extends React.PureComponent<Props, State> {
+export default class ProjectBadges extends React.PureComponent<Props, State> {
   state: State = {
     open: false,
     selectedType: BadgeType.measure,
