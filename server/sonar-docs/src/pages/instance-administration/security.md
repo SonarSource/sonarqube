@@ -56,7 +56,10 @@ update users set crypted_password = '$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCk
 ```
 If you've deleted `admin` and subsequently locked out the other users with global administrative permissions, you'll need to re-grant `admin` to a user with the following query:
 ```
-INSERT INTO user_roles(user_id, role) VALUES ((select id from users where login='mylogin'), 'admin');
+INSERT INTO user_roles(user_id, role, organization_uuid) 
+VALUES ((select id from users where login='mylogin'), 
+admin', 
+(select uuid from organizations where kee='default-organization'));
 ```
 
 ## Authorization
