@@ -62,7 +62,11 @@ public class ProjectAlmSettingDao implements Dao {
   }
 
   public Optional<ProjectAlmSettingDto> selectByProject(DbSession dbSession, ComponentDto project) {
-    return Optional.ofNullable(getMapper(dbSession).selectByProjectUuid(project.uuid()));
+    return selectByProject(dbSession, project.uuid());
+  }
+
+  public Optional<ProjectAlmSettingDto> selectByProject(DbSession dbSession, String projectUuid) {
+    return Optional.ofNullable(getMapper(dbSession).selectByProjectUuid(projectUuid));
   }
 
   private static ProjectAlmSettingMapper getMapper(DbSession dbSession) {

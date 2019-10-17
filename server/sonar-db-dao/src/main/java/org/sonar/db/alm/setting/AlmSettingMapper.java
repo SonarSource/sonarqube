@@ -31,6 +31,8 @@ public interface AlmSettingMapper {
   @CheckForNull
   AlmSettingDto selectByKey(@Param("key") String key);
 
+  List<AlmSettingDto> selectByAlm(String alm);
+
   List<AlmSettingDto> selectAll();
 
   void insert(@Param("dto") AlmSettingDto almSettingDto, @Param("uuid") String uuid, @Param("now") long now);

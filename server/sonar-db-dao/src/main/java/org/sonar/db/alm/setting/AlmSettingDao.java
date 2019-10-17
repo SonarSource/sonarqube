@@ -57,6 +57,11 @@ public class AlmSettingDao implements Dao {
     return Optional.ofNullable(getMapper(dbSession).selectByKey(key));
   }
 
+  public List<AlmSettingDto> selectByAlm(DbSession dbSession, ALM alm) {
+    return getMapper(dbSession).selectByAlm(alm.getId());
+  }
+
+
   public List<AlmSettingDto> selectAll(DbSession dbSession) {
     return getMapper(dbSession).selectAll();
   }

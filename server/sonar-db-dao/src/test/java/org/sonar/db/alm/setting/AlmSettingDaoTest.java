@@ -87,6 +87,21 @@ public class AlmSettingDaoTest {
   }
 
   @Test
+  public void selectByAlm() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    when(system2.now()).thenReturn(NOW);
+    AlmSettingDto gitHubAlmSetting1 = db.almSettings().insertGitHubAlmSetting();
+    AlmSettingDto gitHubAlmSetting2 = db.almSettings().insertGitHubAlmSetting();
+    AlmSettingDto azureAlmSetting2 = db.almSettings().insertAzureAlmSetting();
+
+    List<AlmSettingDto> almSettings = underTest.selectByAlm(dbSession, ALM.GITHUB);
+
+    assertThat(almSettings)
+      .extracting(AlmSettingDto::getUuid)
+      .containsExactlyInAnyOrder(gitHubAlmSetting1.getUuid(), gitHubAlmSetting2.getUuid());
+  }
+
+  @Test
   public void selectAll() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(NOW);
@@ -95,7 +110,7 @@ public class AlmSettingDaoTest {
     underTest.insert(dbSession, newGithubAlmSettingDto());
 
     List<AlmSettingDto> almSettings = underTest.selectAll(dbSession);
-    assertThat(almSettings).isNotNull();
+
     assertThat(almSettings).size().isEqualTo(2);
   }
 

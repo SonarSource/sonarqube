@@ -31,6 +31,14 @@
       a.kee = #{key, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByAlm" parameterType="string" resultType="org.sonar.db.alm.setting.AlmSettingDto">
+    select <include refid="sqlColumns"/>
+    from
+      alm_settings a
+    where
+      a.alm_id = #{almId, jdbcType=VARCHAR}
+  </select>
+
   <select id="selectAll" resultType="org.sonar.db.alm.setting.AlmSettingDto">
     select <include refid="sqlColumns"/>
     from alm_settings a
