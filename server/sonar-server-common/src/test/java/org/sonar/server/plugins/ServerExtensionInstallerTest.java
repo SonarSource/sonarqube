@@ -71,7 +71,7 @@ public class ServerExtensionInstallerTest {
     ComponentContainer componentContainer = new ComponentContainer();
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("The following plugins 'Github Auth' are no longer compatible with the current SonarQube version. Refer to https://docs.sonarqube.org/latest/instance-administration/plugin-version-matrix/");
+    expectedException.expectMessage("Plugins 'GitHub Auth' are no longer compatible with this version of SonarQube. Refer to https://docs.sonarqube.org/latest/instance-administration/plugin-version-matrix/");
 
     underTest.installExtensions(componentContainer);
   }
@@ -84,7 +84,7 @@ public class ServerExtensionInstallerTest {
     ComponentContainer componentContainer = new ComponentContainer();
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("The following plugins 'Github Auth, LDAP, SAML Auth' are no longer compatible with the current SonarQube version. Refer to https://docs.sonarqube.org/latest/instance-administration/plugin-version-matrix/");
+    expectedException.expectMessage("Plugins 'GitLab Auth, LDAP, SAML Auth' are no longer compatible with this version of SonarQube. Refer to https://docs.sonarqube.org/latest/instance-administration/plugin-version-matrix/");
 
     underTest.installExtensions(componentContainer);
   }
@@ -96,7 +96,7 @@ public class ServerExtensionInstallerTest {
     ComponentContainer componentContainer = new ComponentContainer();
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Plugins 'SAML Auth' are no more compatible with SonarQube");
+    expectedException.expectMessage("Plugins 'SAML Auth' are no longer compatible with this version of SonarQube. Refer to https://docs.sonarqube.org/latest/instance-administration/plugin-version-matrix/");
 
     underTest.installExtensions(componentContainer);
   }
@@ -108,7 +108,7 @@ public class ServerExtensionInstallerTest {
     ComponentContainer componentContainer = new ComponentContainer();
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Plugins 'LDAP' are no more compatible with SonarQube");
+    expectedException.expectMessage("Plugins 'LDAP' are no longer compatible with this version of SonarQube. Refer to https://docs.sonarqube.org/latest/instance-administration/plugin-version-matrix/");
 
     underTest.installExtensions(componentContainer);
   }
