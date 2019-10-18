@@ -110,7 +110,7 @@ public abstract class ServerExtensionInstaller {
       .map(PluginInfo::getName)
       .collect(Collectors.toCollection(TreeSet::new));
     if (!noMoreCompatiblePluginNames.isEmpty()) {
-      throw MessageException.of(format("Plugins '%s' are no more compatible with SonarQube", String.join(", ", noMoreCompatiblePluginNames)));
+      throw MessageException.of(format("Plugins '%s' are no longer compatible with SonarQube", String.join(", ", noMoreCompatiblePluginNames)));
     }
   }
 
