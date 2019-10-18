@@ -10,9 +10,9 @@ url: /setup/get-started-2-minutes/
 
 1. [Download](https://www.sonarqube.org/downloads/) the SonarQube Community Edition.
 
-2. Unzip it, let's say in _C:\sonarqube_ or _/opt/sonarqube_.
+2. As a **non-`root` user**, unzip it, let's say in _C:\sonarqube_ or _/opt/sonarqube_.
 
-3. Start the SonarQube Server:
+3. As a **non-`root` user**, start the SonarQube Server:
 
    ```
    # On Windows, execute:
