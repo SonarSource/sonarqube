@@ -30,20 +30,6 @@ declare namespace T {
     installationUrl: string;
   }
 
-  export interface AlmSettingsDefinitions {
-    github: GithubDefinition[];
-  }
-
-  export interface BaseAlmDefinition {
-    key: string;
-    url: string;
-  }
-
-  export interface GithubDefinition extends BaseAlmDefinition {
-    appId: string;
-    privateKey: string;
-  }
-
   export interface AlmOrganization extends OrganizationBase {
     almUrl: string;
     key: string;

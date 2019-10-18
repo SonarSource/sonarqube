@@ -28,12 +28,12 @@ import { ALM_KEYS } from '../../utils';
 import TabRenderer from './TabRenderer';
 
 interface Props {
-  definitions: T.GithubDefinition[];
+  definitions: T.GithubBindingDefinition[];
   onUpdateDefinitions: () => void;
 }
 
 interface State {
-  definitionInEdition?: T.GithubDefinition;
+  definitionInEdition?: T.GithubBindingDefinition;
   definitionKeyForDeletion?: string;
   projectCount?: number;
 }
@@ -72,8 +72,9 @@ export default class GithubTab extends React.PureComponent<Props, State> {
     this.setState({ definitionInEdition: { key: '', appId: '', url: '', privateKey: '' } });
   };
 
-  handleDelete = (config: T.GithubDefinition) => {
+  handleDelete = (config: T.GithubBindingDefinition) => {
     this.setState({ definitionKeyForDeletion: config.key });
+
     return countBindedProjects(config.key).then(projectCount => {
       if (this.mounted) {
         this.setState({ projectCount });
@@ -81,11 +82,11 @@ export default class GithubTab extends React.PureComponent<Props, State> {
     });
   };
 
-  handleEdit = (config: T.GithubDefinition) => {
+  handleEdit = (config: T.GithubBindingDefinition) => {
     this.setState({ definitionInEdition: config });
   };
 
-  handleSubmit = (config: T.GithubDefinition, originalKey: string) => {
+  handleSubmit = (config: T.GithubBindingDefinition, originalKey: string) => {
     const call = originalKey
       ? updateGithubConfiguration({ newKey: config.key, ...config, key: originalKey })
       : createGithubConfiguration(config);

@@ -1,0 +1,493 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display action state correctly 1`] = `
+<div>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.pr_decoration.binding.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.pr_decoration.binding.description
+  </div>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="form-field"
+    >
+      <label
+        htmlFor="name"
+      >
+        settings.pr_decoration.binding.form.name
+        <em
+          className="mandatory spacer-right"
+        >
+          *
+        </em>
+      </label>
+      <Select
+        className="abs-width-400"
+        clearable={false}
+        id="name"
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "key — http://url.com",
+              "value": "key",
+            },
+          ]
+        }
+        searchable={false}
+        value=""
+      />
+    </div>
+    <div
+      className="display-flex-center"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={true}
+        timeout={100}
+      />
+      <SubmitButton
+        className="spacer-right"
+        disabled={true}
+      >
+        save
+      </SubmitButton>
+    </div>
+  </form>
+</div>
+`;
+
+exports[`should display action state correctly 2`] = `
+<div>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.pr_decoration.binding.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.pr_decoration.binding.description
+  </div>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="form-field"
+    >
+      <label
+        htmlFor="name"
+      >
+        settings.pr_decoration.binding.form.name
+        <em
+          className="mandatory spacer-right"
+        >
+          *
+        </em>
+      </label>
+      <Select
+        className="abs-width-400"
+        clearable={false}
+        id="name"
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "key — http://url.com",
+              "value": "key",
+            },
+          ]
+        }
+        searchable={false}
+        value=""
+      />
+    </div>
+    <div
+      className="display-flex-center"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+        timeout={100}
+      />
+      <SubmitButton
+        className="spacer-right"
+        disabled={true}
+      >
+        save
+      </SubmitButton>
+      <span
+        className="text-success"
+      >
+        <AlertSuccessIcon
+          className="spacer-right"
+        />
+        settings.state.saved
+      </span>
+    </div>
+  </form>
+</div>
+`;
+
+exports[`should display action state correctly 3`] = `
+<div>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.pr_decoration.binding.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.pr_decoration.binding.description
+  </div>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="form-field"
+    >
+      <label
+        htmlFor="name"
+      >
+        settings.pr_decoration.binding.form.name
+        <em
+          className="mandatory spacer-right"
+        >
+          *
+        </em>
+      </label>
+      <Select
+        className="abs-width-400"
+        clearable={false}
+        id="name"
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "key — http://url.com",
+              "value": "key",
+            },
+          ]
+        }
+        searchable={false}
+        value=""
+      />
+    </div>
+    <div
+      className="display-flex-center"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+        timeout={100}
+      />
+      <SubmitButton
+        className="spacer-right"
+        disabled={false}
+      >
+        save
+      </SubmitButton>
+    </div>
+  </form>
+</div>
+`;
+
+exports[`should render correctly 1`] = `
+<DeferredSpinner
+  timeout={100}
+/>
+`;
+
+exports[`should render correctly 2`] = `
+<div>
+  <Alert
+    className="spacer-top huge-spacer-bottom"
+    variant="info"
+  >
+    <FormattedMessage
+      defaultMessage="settings.pr_decoration.binding.no_bindings"
+      id="settings.pr_decoration.binding.no_bindings"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/documentation/analysis/pull-request/#pr-decoration"
+          >
+            learn_more
+          </Link>,
+        }
+      }
+    />
+  </Alert>
+</div>
+`;
+
+exports[`should render multiple instances correctly 1`] = `
+<div>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.pr_decoration.binding.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.pr_decoration.binding.description
+  </div>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="form-field"
+    >
+      <label
+        htmlFor="name"
+      >
+        settings.pr_decoration.binding.form.name
+        <em
+          className="mandatory spacer-right"
+        >
+          *
+        </em>
+      </label>
+      <Select
+        className="abs-width-400"
+        clearable={false}
+        id="name"
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "i1 — http://github.enterprise.com",
+              "value": "i1",
+            },
+            Object {
+              "label": "i2 — http://github.enterprise.com",
+              "value": "i2",
+            },
+            Object {
+              "label": "i3 — http://github2.enterprise.com",
+              "value": "i3",
+            },
+          ]
+        }
+        searchable={false}
+        value=""
+      />
+    </div>
+    <div
+      className="display-flex-center"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+        timeout={100}
+      />
+      <SubmitButton
+        className="spacer-right"
+        disabled={true}
+      >
+        save
+      </SubmitButton>
+    </div>
+  </form>
+</div>
+`;
+
+exports[`should render multiple instances correctly 2`] = `
+<div>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.pr_decoration.binding.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.pr_decoration.binding.description
+  </div>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="form-field"
+    >
+      <label
+        htmlFor="name"
+      >
+        settings.pr_decoration.binding.form.name
+        <em
+          className="mandatory spacer-right"
+        >
+          *
+        </em>
+      </label>
+      <Select
+        className="abs-width-400"
+        clearable={false}
+        id="name"
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "i1 — http://github.enterprise.com",
+              "value": "i1",
+            },
+            Object {
+              "label": "i2 — http://github.enterprise.com",
+              "value": "i2",
+            },
+            Object {
+              "label": "i3 — http://github2.enterprise.com",
+              "value": "i3",
+            },
+          ]
+        }
+        searchable={false}
+        value="Github - main instance"
+      />
+    </div>
+    <div
+      className="form-field"
+    >
+      <label
+        htmlFor="repository"
+      >
+        settings.pr_decoration.binding.form.repository
+        <em
+          className="mandatory spacer-right"
+        >
+          *
+        </em>
+      </label>
+      <input
+        className="input-super-large"
+        id="repository"
+        maxLength={256}
+        name="repository"
+        onChange={[Function]}
+        type="text"
+        value="account/repo"
+      />
+    </div>
+    <div
+      className="display-flex-center"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+        timeout={100}
+      />
+      <SubmitButton
+        className="spacer-right"
+        disabled={true}
+      >
+        save
+      </SubmitButton>
+      <Button
+        className="spacer-right"
+        onClick={[MockFunction]}
+      >
+        reset_verb
+      </Button>
+    </div>
+  </form>
+</div>
+`;
+
+exports[`should render single instance correctly 1`] = `
+<div>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.pr_decoration.binding.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.pr_decoration.binding.description
+  </div>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="form-field"
+    >
+      <label
+        htmlFor="name"
+      >
+        settings.pr_decoration.binding.form.name
+        <em
+          className="mandatory spacer-right"
+        >
+          *
+        </em>
+      </label>
+      <Select
+        className="abs-width-400"
+        clearable={false}
+        id="name"
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "single — http://single.url",
+              "value": "single",
+            },
+          ]
+        }
+        searchable={false}
+        value=""
+      />
+    </div>
+    <div
+      className="display-flex-center"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+        timeout={100}
+      />
+      <SubmitButton
+        className="spacer-right"
+        disabled={true}
+      >
+        save
+      </SubmitButton>
+    </div>
+  </form>
+</div>
+`;

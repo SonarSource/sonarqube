@@ -24,12 +24,14 @@ import {
   ANALYSIS_SCOPE_CATEGORY,
   LANGUAGES_CATEGORY,
   NEW_CODE_PERIOD_CATEGORY,
+  PULL_REQUEST_DECORATION_BINDING_CATEGORY,
   PULL_REQUEST_DECORATION_CATEGORY
 } from './AdditionalCategoryKeys';
 import { AnalysisScope } from './AnalysisScope';
 import Languages from './Languages';
 import NewCodePeriod from './NewCodePeriod';
 import PullRequestDecoration from './pullRequestDecoration/PullRequestDecoration';
+import PullRequestDecorationBinding from './pullRequestDecorationBinding/PRDecorationBinding';
 
 export interface AdditionalCategoryComponentProps {
   parentComponent: T.Component | undefined;
@@ -39,7 +41,7 @@ export interface AdditionalCategoryComponentProps {
 export interface AdditionalCategory {
   key: string;
   name: string;
-  renderComponent: (props: AdditionalCategoryComponentProps) => JSX.Element;
+  renderComponent: (props: AdditionalCategoryComponentProps) => React.ReactNode;
   availableGlobally: boolean;
   availableForProject: boolean;
   displayTab: boolean;
@@ -77,6 +79,14 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     availableGlobally: true,
     availableForProject: false,
     displayTab: true
+  },
+  {
+    key: PULL_REQUEST_DECORATION_BINDING_CATEGORY,
+    name: translate('settings.pr_decoration.binding.category'),
+    renderComponent: getPullRequestDecorationBindingComponent,
+    availableGlobally: false,
+    availableForProject: true,
+    displayTab: true
   }
 ];
 
@@ -94,4 +104,9 @@ function getAnalysisScopeComponent(props: AdditionalCategoryComponentProps) {
 
 function getPullRequestDecorationComponent() {
   return <PullRequestDecoration />;
+}
+
+function getPullRequestDecorationBindingComponent(props: AdditionalCategoryComponentProps) {
+  const { parentComponent } = props;
+  return parentComponent && <PullRequestDecorationBinding component={parentComponent} />;
 }

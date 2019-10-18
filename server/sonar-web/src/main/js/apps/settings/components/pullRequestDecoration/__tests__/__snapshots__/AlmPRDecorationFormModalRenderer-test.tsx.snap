@@ -24,6 +24,7 @@ exports[`should render correctly 1`] = `
         className="modal-field"
       >
         <label
+          className="display-flex-center"
           htmlFor="name"
         >
           settings.pr_decoration.form.name
@@ -52,6 +53,7 @@ exports[`should render correctly 1`] = `
         className="modal-field"
       >
         <label
+          className="display-flex-center"
           htmlFor="url.github"
         >
           settings.pr_decoration.form.url.github
@@ -76,6 +78,7 @@ exports[`should render correctly 1`] = `
         className="modal-field"
       >
         <label
+          className="display-flex-center"
           htmlFor="app_id"
         >
           settings.pr_decoration.form.app_id
@@ -100,6 +103,7 @@ exports[`should render correctly 1`] = `
         className="modal-field"
       >
         <label
+          className="display-flex-center"
           htmlFor="private_key"
         >
           settings.pr_decoration.form.private_key

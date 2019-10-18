@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<PRDecorationBindingRenderer
+  formData={
+    Object {
+      "key": "",
+      "repository": "",
+    }
+  }
+  hasBinding={false}
+  instances={Array []}
+  isValid={false}
+  loading={true}
+  onFieldChange={[Function]}
+  onReset={[Function]}
+  onSubmit={[Function]}
+  saving={false}
+  success={false}
+/>
+`;

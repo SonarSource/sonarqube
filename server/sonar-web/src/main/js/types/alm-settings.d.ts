@@ -17,9 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+declare namespace T {
+  export interface AlmSettingsBinding {
+    key: string;
+    url: string;
+  }
 
-export const ANALYSIS_SCOPE_CATEGORY = 'exclusions';
-export const LANGUAGES_CATEGORY = 'languages';
-export const NEW_CODE_PERIOD_CATEGORY = 'new_code_period';
-export const PULL_REQUEST_DECORATION_CATEGORY = 'pull_request_decoration';
-export const PULL_REQUEST_DECORATION_BINDING_CATEGORY = 'pull_request_decoration_binding';
+  export interface AlmSettingsInstance extends AlmSettingsBinding {
+    alm: string;
+  }
+
+  export interface AlmSettingsBindingDefinitions {
+    github: GithubBindingDefinition[];
+  }
+
+  export interface GithubBindingDefinition extends AlmSettingsBinding {
+    appId: string;
+    privateKey: string;
+  }
+
+  export interface ProjectAlmBinding {
+    key: string;
+    alm: string;
+    url: string;
+    repository: string;
+  }
+
+  export interface GithubProjectAlmBinding {
+    almSetting: string;
+    project: string;
+    repository: string;
+  }
+
+  export interface GithubBinding {
+    key: string;
+    repository?: string;
+  }
+}

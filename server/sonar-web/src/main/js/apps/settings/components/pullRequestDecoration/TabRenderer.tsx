@@ -30,15 +30,15 @@ import PRDecorationTable from './PRDecorationTable';
 
 export interface TabRendererProps {
   alm: ALM_KEYS;
-  definitionInEdition?: T.GithubDefinition;
+  definitionInEdition?: T.GithubBindingDefinition;
   definitionKeyForDeletion?: string;
-  definitions: T.GithubDefinition[];
+  definitions: T.GithubBindingDefinition[];
   onCancel: () => void;
   onConfirmDelete: (id: string) => void;
   onCreate: () => void;
-  onDelete: (config: T.GithubDefinition) => void;
-  onEdit: (config: T.GithubDefinition) => void;
-  onSubmit: (config: T.GithubDefinition, originalKey: string) => void;
+  onDelete: (config: T.GithubBindingDefinition) => void;
+  onEdit: (config: T.GithubBindingDefinition) => void;
+  onSubmit: (config: T.GithubBindingDefinition, originalKey: string) => void;
   projectCount?: number;
 }
 
@@ -83,7 +83,7 @@ export default function TabRenderer(props: TabRendererProps) {
       {definitionInEdition && (
         <AlmPRDecorationFormModal
           alm={ALM_KEYS.GITHUB}
-          data={definitionInEdition}
+          bindingDefinition={definitionInEdition}
           onCancel={props.onCancel}
           onSubmit={props.onSubmit}
         />

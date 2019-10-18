@@ -51,8 +51,8 @@ export function mockAlmOrganization(overrides: Partial<T.AlmOrganization> = {}):
 }
 
 export function mockGithubDefinition(
-  overrides: Partial<T.GithubDefinition> = {}
-): T.GithubDefinition {
+  overrides: Partial<T.GithubBindingDefinition> = {}
+): T.GithubBindingDefinition {
   return {
     key: 'key',
     url: 'http:alm.enterprise.com',

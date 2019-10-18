@@ -28,7 +28,7 @@ import { ALM_KEYS } from '../../utils';
 export interface AlmPRDecorationFormModalProps {
   alm: string;
   canSubmit: () => boolean;
-  formData: T.GithubDefinition;
+  formData: T.GithubBindingDefinition;
   onCancel: () => void;
   onSubmit: () => void;
   onFieldChange: (id: string, value: string) => void;
@@ -37,18 +37,18 @@ export interface AlmPRDecorationFormModalProps {
 
 function renderField(params: {
   autoFocus?: boolean;
-  formData: T.GithubDefinition;
+  formData: T.GithubBindingDefinition;
   help: boolean;
   id: string;
   isTextArea: boolean;
   maxLength: number;
   onFieldChange: (id: string, value: string) => void;
-  propKey: keyof T.GithubDefinition;
+  propKey: keyof T.GithubBindingDefinition;
 }) {
   const { autoFocus, formData, help, id, isTextArea, maxLength, onFieldChange, propKey } = params;
   return (
     <div className="modal-field">
-      <label htmlFor={id}>
+      <label className="display-flex-center" htmlFor={id}>
         {translate('settings.pr_decoration.form', id)}
         <em className="mandatory spacer-right">*</em>
         {help && <HelpTooltip overlay={translate('settings.pr_decoration.form', id, 'help')} />}

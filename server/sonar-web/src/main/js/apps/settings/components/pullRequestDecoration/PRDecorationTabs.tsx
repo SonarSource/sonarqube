@@ -25,8 +25,8 @@ import { almName, ALM_KEYS } from '../../utils';
 import GithubTab from './GithubTab';
 
 export interface PRDecorationTabsProps {
-  definitions: T.AlmSettingsDefinitions;
   currentAlm: ALM_KEYS;
+  definitions: T.AlmSettingsBindingDefinitions;
   loading: boolean;
   onSelectAlm: (alm: ALM_KEYS) => void;
   onUpdateDefinitions: () => void;
@@ -44,9 +44,6 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
       <header className="page-header">
         <h1 className="page-title">{translate('settings.pr_decoration.title')}</h1>
       </header>
-      <h3 className="settings-definition-name" title={translate('settings.pr_decoration.header')}>
-        {translate('settings.pr_decoration.header')}
-      </h3>
 
       <div className="markdown small spacer-top big-spacer-bottom">
         {translate('settings.pr_decoration.description')}

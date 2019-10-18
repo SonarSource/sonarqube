@@ -25,14 +25,14 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ALM_KEYS } from '../../utils';
 
 export interface PRDecorationTableProps {
-  definitions: T.GithubDefinition[];
   alm: ALM_KEYS;
-  onDelete: (config: T.GithubDefinition) => void;
-  onEdit: (config: T.GithubDefinition) => void;
+  definitions: T.GithubBindingDefinition[];
+  onDelete: (config: T.GithubBindingDefinition) => void;
+  onEdit: (config: T.GithubBindingDefinition) => void;
 }
 
 export default function PRDecorationTable(props: PRDecorationTableProps) {
-  const { definitions, alm } = props;
+  const { alm, definitions } = props;
 
   return (
     <>

@@ -23,18 +23,18 @@ import { ALM_KEYS } from '../../utils';
 import PRDecorationTabs from './PRDecorationTabs';
 
 interface State {
-  definitions: T.AlmSettingsDefinitions;
   currentAlm: ALM_KEYS;
+  definitions: T.AlmSettingsBindingDefinitions;
   loading: boolean;
 }
 
 export default class PullRequestDecoration extends React.PureComponent<{}, State> {
   mounted = false;
   state: State = {
+    currentAlm: ALM_KEYS.GITHUB,
     definitions: {
       [ALM_KEYS.GITHUB]: []
     },
-    currentAlm: ALM_KEYS.GITHUB,
     loading: true
   };
 

@@ -17,12 +17,6 @@ exports[`should render correctly 2`] = `
       settings.pr_decoration.title
     </h1>
   </header>
-  <h3
-    className="settings-definition-name"
-    title="settings.pr_decoration.header"
-  >
-    settings.pr_decoration.header
-  </h3>
   <div
     className="markdown small spacer-top big-spacer-bottom"
   >

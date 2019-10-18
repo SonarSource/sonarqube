@@ -20,15 +20,21 @@
 import { getJSON, post } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-export function getAlmDefinitions(): Promise<T.AlmSettingsDefinitions> {
+export function getAlmDefinitions(): Promise<T.AlmSettingsBindingDefinitions> {
   return getJSON('/api/alm_settings/list_definitions').catch(throwGlobalError);
 }
 
-export function createGithubConfiguration(data: T.GithubDefinition) {
+export function getAlmSettings(project: string): Promise<T.AlmSettingsInstance[]> {
+  return getJSON('/api/alm_settings/list', { project })
+    .then(({ almSettings }) => almSettings)
+    .catch(throwGlobalError);
+}
+
+export function createGithubConfiguration(data: T.GithubBindingDefinition) {
   return post('/api/alm_settings/create_github', data).catch(throwGlobalError);
 }
 
-export function updateGithubConfiguration(data: T.GithubDefinition & { newKey: string }) {
+export function updateGithubConfiguration(data: T.GithubBindingDefinition & { newKey: string }) {
   return post('/api/alm_settings/update_github', data).catch(throwGlobalError);
 }
 
@@ -36,6 +42,20 @@ export function deleteConfiguration(key: string) {
   return post('/api/alm_settings/delete', { key }).catch(throwGlobalError);
 }
 
-export function countBindedProjects(instance: string) {
-  return getJSON('/api/alm_settings/count_binding', { instance }).catch(throwGlobalError);
+export function countBindedProjects(almSetting: string) {
+  return getJSON('/api/alm_settings/count_binding', { almSetting })
+    .then(({ projects }) => projects)
+    .catch(throwGlobalError);
+}
+
+export function getProjectAlmBinding(project: string): Promise<T.ProjectAlmBinding> {
+  return getJSON('/api/alm_settings/get_github_binding', { project });
+}
+
+export function deleteProjectAlmBinding(project: string): Promise<void> {
+  return post('/api/alm_settings/delete_binding', { project }).catch(throwGlobalError);
+}
+
+export function setProjectAlmBinding(data: T.GithubProjectAlmBinding) {
+  return post('/api/alm_settings/set_github_binding', data).catch(throwGlobalError);
 }

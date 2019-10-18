@@ -49,7 +49,7 @@ it('should handle form submit', async () => {
   const onSubmit = jest.fn();
   const wrapper = shallowRender({
     onSubmit,
-    data: { key: 'originalKey', appId: '', privateKey: '', url: '' }
+    bindingDefinition: { key: 'originalKey', appId: '', privateKey: '', url: '' }
   });
   const formData = {
     key: 'github instance',
@@ -79,7 +79,7 @@ function shallowRender(props: Partial<AlmPRDecorationFormModal['props']> = {}) {
   return shallow<AlmPRDecorationFormModal>(
     <AlmPRDecorationFormModal
       alm={ALM_KEYS.GITHUB}
-      data={{ appId: '', key: '', privateKey: '', url: '' }}
+      bindingDefinition={{ appId: '', key: '', privateKey: '', url: '' }}
       onCancel={jest.fn()}
       onSubmit={jest.fn()}
       {...props}

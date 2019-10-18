@@ -22,23 +22,23 @@ import AlmPRDecorationFormModalRenderer from './AlmPRDecorationFormModalRenderer
 
 interface Props {
   alm: string;
-  data: T.GithubDefinition;
+  bindingDefinition: T.GithubBindingDefinition;
   onCancel: () => void;
-  onSubmit: (data: T.GithubDefinition, originalKey: string) => void;
+  onSubmit: (bindingDefinition: T.GithubBindingDefinition, originalKey: string) => void;
 }
 
 interface State {
-  formData: T.GithubDefinition;
+  formData: T.GithubBindingDefinition;
 }
 
 export default class AlmPRDecorationFormModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { formData: props.data };
+    this.state = { formData: props.bindingDefinition };
   }
 
-  handleFieldChange = (fieldId: keyof T.GithubDefinition, value: string) => {
+  handleFieldChange = (fieldId: keyof T.GithubBindingDefinition, value: string) => {
     this.setState(({ formData }) => ({
       formData: {
         ...formData,
@@ -48,7 +48,7 @@ export default class AlmPRDecorationFormModal extends React.PureComponent<Props,
   };
 
   handleFormSubmit = () => {
-    this.props.onSubmit(this.state.formData, this.props.data.key);
+    this.props.onSubmit(this.state.formData, this.props.bindingDefinition.key);
   };
 
   canSubmit = () => {
@@ -59,7 +59,7 @@ export default class AlmPRDecorationFormModal extends React.PureComponent<Props,
   };
 
   render() {
-    const { alm, data } = this.props;
+    const { alm, bindingDefinition } = this.props;
     const { formData } = this.state;
 
     return (
@@ -70,7 +70,7 @@ export default class AlmPRDecorationFormModal extends React.PureComponent<Props,
         onCancel={this.props.onCancel}
         onFieldChange={this.handleFieldChange}
         onSubmit={this.handleFormSubmit}
-        originalKey={data.key}
+        originalKey={bindingDefinition.key}
       />
     );
   }
