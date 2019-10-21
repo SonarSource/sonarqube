@@ -19,7 +19,7 @@ Languages not listed here don't support custom rules
  &nbsp;  |XPath 1.0|Java|Other
 ---|---|---|---
 C#| -  | -  | ![](/images/check.svg)[Importing Issues from Third-Party Roslyn Analyzers (C#, VB.NET)](/analysis/external-issues/)
-COBOL| ![](/images/check.svg) | -  | - 
+COBOL| - | ![](/images/check.svg)  | - 
 Flex|![](/images/check.svg) |  -  | - 
 Java |  -  | ![](/images/check.svg) |  - 
 JavaScript |  -  | ![](/images/check.svg) | - 
