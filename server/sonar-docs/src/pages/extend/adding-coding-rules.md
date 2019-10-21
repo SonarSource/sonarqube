@@ -26,7 +26,7 @@ JavaScript |  -  | ![](/images/check.svg) | -
 PHP |  -  | ![](/images/check.svg)|  - 
 PL/SQL | ![](/images/check.svg) |  -  | - 
 PL/I | ![](/images/check.svg) |  -  | - 
-Python | Deprecated |  -  | - 
+Python | - |  ![](/images/check.svg)  | -
 RPG |  -  | ![](/images/check.svg)| - 
 VB.NET|  -  |  -  | ![](/images/check.svg)[Importing Issues from Third-Party Roslyn Analyzers (C#, VB.NET)](/analysis/external-issues/)
 XML |  ![](/images/check.svg) |  -  | - 
@@ -48,6 +48,7 @@ See the following pages to see samples and details about how to create coding ru
 * [for Java](/analysis/languages/java/)
 * [for JavaScript](/analysis/languages/javascript/)
 * [for PHP](/analysis/languages/php/)
+* [for Python](/analysis/languages/python/)
 * [for RPG](/analysis/languages/rpg/)
 
 
@@ -67,7 +68,6 @@ The latest version of SSLR Toolkit can be downloaded from following locations:
 * [Flex](https://binaries.sonarsource.com/Distribution/sonar-flex-plugin/)
 * [PL/SQL](https://binaries.sonarsource.com/CommercialDistribution/sslr-plsql-toolkit/)
 * [PL/I](https://binaries.sonarsource.com/CommercialDistribution/sslr-pli-toolkit/)
-* [Python](https://binaries.sonarsource.com/Distribution/sslr-python-toolkit/) (Deprecated)
 
 For an SSLR preview, consider the following source code sample:
 ```
