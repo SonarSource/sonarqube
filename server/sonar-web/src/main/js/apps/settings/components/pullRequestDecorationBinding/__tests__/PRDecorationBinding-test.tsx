@@ -24,15 +24,18 @@ import {
   deleteProjectAlmBinding,
   getAlmSettings,
   getProjectAlmBinding,
-  setProjectAlmBinding
+  setProjectAzureBinding,
+  setProjectGithubBinding
 } from '../../../../../api/almSettings';
 import { mockComponent } from '../../../../../helpers/testMocks';
+import { ALM_KEYS } from '../../../utils';
 import PRDecorationBinding from '../PRDecorationBinding';
 
 jest.mock('../../../../../api/almSettings', () => ({
   getAlmSettings: jest.fn().mockResolvedValue([]),
   getProjectAlmBinding: jest.fn().mockResolvedValue(undefined),
-  setProjectAlmBinding: jest.fn().mockResolvedValue(undefined),
+  setProjectAzureBinding: jest.fn().mockResolvedValue(undefined),
+  setProjectGithubBinding: jest.fn().mockResolvedValue(undefined),
   deleteProjectAlmBinding: jest.fn().mockResolvedValue(undefined)
 }));
 
@@ -48,7 +51,7 @@ it('should render correctly', () => {
 
 it('should fill selects and fill formdata', async () => {
   const url = 'github.com';
-  const instances = [{ key: 'instance1', url, alm: 'github' }];
+  const instances = [{ key: 'instance1', url, alm: ALM_KEYS.GITHUB }];
   const formdata = {
     key: 'instance1',
     repository: 'account/repo'
@@ -96,18 +99,38 @@ it('should handle reset', async () => {
   expect(wrapper.state().hasBinding).toBe(false);
 });
 
-it('should handle submit', async () => {
+it('should handle submit to github or azure', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  wrapper.setState({ formData });
+  const instances = [
+    { key: 'github', alm: ALM_KEYS.GITHUB },
+    { key: 'azure', alm: ALM_KEYS.AZURE }
+  ];
 
+  // Github
+  const githubKey = 'github';
+  const repository = 'repo/path';
+  wrapper.setState({ formData: { key: githubKey, repository }, instances });
   wrapper.instance().handleSubmit();
   await waitAndUpdate(wrapper);
 
-  expect(setProjectAlmBinding).toBeCalledWith({
-    almSetting: formData.key,
+  expect(setProjectGithubBinding).toBeCalledWith({
+    almSetting: githubKey,
     project: PROJECT_KEY,
-    repository: formData.repository
+    repository
+  });
+  expect(wrapper.state().hasBinding).toBe(true);
+  expect(wrapper.state().success).toBe(true);
+
+  // azure
+  const azureKey = 'azure';
+  wrapper.setState({ formData: { key: azureKey } });
+  wrapper.instance().handleSubmit();
+  await waitAndUpdate(wrapper);
+
+  expect(setProjectAzureBinding).toBeCalledWith({
+    almSetting: azureKey,
+    project: PROJECT_KEY
   });
   expect(wrapper.state().hasBinding).toBe(true);
   expect(wrapper.state().success).toBe(true);
@@ -115,7 +138,7 @@ it('should handle submit', async () => {
 
 it('should handle failures gracefully', async () => {
   (getProjectAlmBinding as jest.Mock).mockRejectedValueOnce({ status: 500 });
-  (setProjectAlmBinding as jest.Mock).mockRejectedValueOnce({ status: 500 });
+  (setProjectGithubBinding as jest.Mock).mockRejectedValueOnce({ status: 500 });
   (deleteProjectAlmBinding as jest.Mock).mockRejectedValueOnce({ status: 500 });
 
   const wrapper = shallowRender();
@@ -158,13 +181,15 @@ it('should validate form', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
-  expect(wrapper.instance().validateForm()).toBe(false);
+  expect(wrapper.instance().validateForm({ key: '', repository: '' })).toBe(false);
+  expect(wrapper.instance().validateForm({ key: '', repository: 'c' })).toBe(false);
 
-  wrapper.setState({ formData: { key: '', repository: 'c' } });
-  expect(wrapper.instance().validateForm()).toBe(false);
-
-  wrapper.setState({ formData: { key: 'a', repository: 'c' } });
-  expect(wrapper.instance().validateForm()).toBe(true);
+  wrapper.setState({
+    instances: [{ key: 'azure', alm: ALM_KEYS.AZURE }, { key: 'github', alm: ALM_KEYS.GITHUB }]
+  });
+  expect(wrapper.instance().validateForm({ key: 'azure' })).toBe(true);
+  expect(wrapper.instance().validateForm({ key: 'github', repository: '' })).toBe(false);
+  expect(wrapper.instance().validateForm({ key: 'github', repository: 'asdf' })).toBe(true);
 });
 
 function shallowRender(props: Partial<PRDecorationBinding['props']> = {}) {

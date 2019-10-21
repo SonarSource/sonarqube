@@ -26,14 +26,15 @@ import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon'
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ALM_KEYS } from '../../utils';
 
 export interface PRDecorationBindingRendererProps {
-  formData: T.GithubBinding;
+  formData: T.ProjectAlmBinding;
   hasBinding: boolean;
   instances: T.AlmSettingsInstance[];
   isValid: boolean;
   loading: boolean;
-  onFieldChange: (id: keyof T.GithubBinding, value: string) => void;
+  onFieldChange: (id: keyof T.ProjectAlmBinding, value: string) => void;
   onReset: () => void;
   onSubmit: () => void;
   saving: boolean;
@@ -79,6 +80,9 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
     );
   }
 
+  const selected = key && instances.find(i => i.key === key);
+  const alm = selected && (selected.alm as ALM_KEYS);
+
   return (
     <div>
       <header className="page-header">
@@ -110,7 +114,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
           />
         </div>
 
-        {key && (
+        {alm === ALM_KEYS.GITHUB && (
           <div className="form-field">
             <label htmlFor="repository">
               {translate('settings.pr_decoration.binding.form.repository')}

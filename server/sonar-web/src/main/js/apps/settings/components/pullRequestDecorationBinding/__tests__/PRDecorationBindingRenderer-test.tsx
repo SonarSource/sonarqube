@@ -74,7 +74,7 @@ it('should render multiple instances correctly', () => {
   expect(
     shallowRender({
       formData: {
-        key: 'Github - main instance',
+        key: 'i1',
         repository: 'account/repo'
       },
       hasBinding: true,

@@ -45,19 +45,17 @@ declare namespace T {
 
   export interface ProjectAlmBinding {
     key: string;
-    alm: string;
-    url: string;
-    repository: string;
+    repository?: string;
+  }
+
+  export interface AzureProjectAlmBinding {
+    almSetting: string;
+    project: string;
   }
 
   export interface GithubProjectAlmBinding {
     almSetting: string;
     project: string;
     repository: string;
-  }
-
-  export interface GithubBinding {
-    key: string;
-    repository?: string;
   }
 }

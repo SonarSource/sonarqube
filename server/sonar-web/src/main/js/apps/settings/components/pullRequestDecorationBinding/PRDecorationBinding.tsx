@@ -22,9 +22,11 @@ import {
   deleteProjectAlmBinding,
   getAlmSettings,
   getProjectAlmBinding,
-  setProjectAlmBinding
+  setProjectAzureBinding,
+  setProjectGithubBinding
 } from '../../../../api/almSettings';
 import throwGlobalError from '../../../../app/utils/throwGlobalError';
+import { ALM_KEYS } from '../../utils';
 import PRDecorationBindingRenderer from './PRDecorationBindingRenderer';
 
 interface Props {
@@ -32,7 +34,7 @@ interface Props {
 }
 
 interface State {
-  formData: T.GithubBinding;
+  formData: T.ProjectAlmBinding;
   hasBinding: boolean;
   instances: T.AlmSettingsInstance[];
   isValid: boolean;
@@ -40,6 +42,11 @@ interface State {
   saving: boolean;
   success: boolean;
 }
+
+const FIELDS_BY_ALM: { [almKey: string]: Array<'repository'> } = {
+  [ALM_KEYS.AZURE]: [],
+  [ALM_KEYS.GITHUB]: ['repository']
+};
 
 export default class PRDecorationBinding extends React.PureComponent<Props, State> {
   mounted = false;
@@ -70,13 +77,16 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
     return Promise.all([getAlmSettings(project), this.getProjectBinding(project)])
       .then(([instances, data]) => {
         if (this.mounted) {
-          this.setState(({ formData }) => ({
-            formData: data || formData,
-            hasBinding: Boolean(data),
-            instances,
-            isValid: this.validateForm(),
-            loading: false
-          }));
+          this.setState(({ formData }) => {
+            const newFormData = data || formData;
+            return {
+              formData: newFormData,
+              hasBinding: Boolean(data),
+              instances,
+              isValid: this.validateForm(newFormData),
+              loading: false
+            };
+          });
 
           if (!data && instances.length === 1) {
             this.handleFieldChange('key', instances[0].key);
@@ -125,18 +135,50 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
       .catch(this.catchError);
   };
 
+  submitProjectAlmBinding(
+    alm: ALM_KEYS,
+    key: string,
+    almSpecificFields?: { repository?: string }
+  ): Promise<void> {
+    const almSetting = key;
+    const project = this.props.component.key;
+
+    switch (alm) {
+      case ALM_KEYS.AZURE:
+        return setProjectAzureBinding({
+          almSetting,
+          project
+        });
+      case ALM_KEYS.GITHUB: {
+        const repository = almSpecificFields && almSpecificFields.repository;
+        if (!repository) {
+          return Promise.reject();
+        }
+        return setProjectGithubBinding({
+          almSetting,
+          project,
+          repository
+        });
+      }
+      default:
+        return Promise.reject();
+    }
+  }
+
   handleSubmit = () => {
     this.setState({ saving: true });
     const {
-      formData: { key, repository }
+      formData: { key, ...additionalFields },
+      instances
     } = this.state;
 
-    if (key && repository) {
-      setProjectAlmBinding({
-        almSetting: key,
-        project: this.props.component.key,
-        repository
-      })
+    const selected = instances.find(i => i.key === key);
+    if (!key || !selected) {
+      return;
+    }
+
+    if (key) {
+      this.submitProjectAlmBinding(selected.alm as ALM_KEYS, key, additionalFields)
         .then(() => {
           if (this.mounted) {
             this.setState({
@@ -150,21 +192,28 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
     }
   };
 
-  handleFieldChange = (id: keyof T.GithubBinding, value: string) => {
-    this.setState(({ formData: formdata }) => ({
-      formData: {
-        ...formdata,
+  handleFieldChange = (id: keyof T.ProjectAlmBinding, value: string) => {
+    this.setState(({ formData }) => {
+      const newFormData = {
+        ...formData,
         [id]: value
-      },
-      isValid: this.validateForm(),
-      success: false
-    }));
+      };
+      return {
+        formData: newFormData,
+        isValid: this.validateForm(newFormData),
+        success: false
+      };
+    });
   };
 
-  validateForm = () => {
-    const { formData } = this.state;
-    return Object.values(formData).reduce(
-      (result: boolean, value) => result && Boolean(value),
+  validateForm = ({ key, ...additionalFields }: State['formData']) => {
+    const { instances } = this.state;
+    const selected = instances.find(i => i.key === key);
+    if (!key || !selected) {
+      return false;
+    }
+    return FIELDS_BY_ALM[selected.alm as ALM_KEYS].reduce(
+      (result: boolean, field) => result && Boolean(additionalFields[field]),
       true
     );
   };

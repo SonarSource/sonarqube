@@ -373,7 +373,7 @@ exports[`should render multiple instances correctly 2`] = `
           ]
         }
         searchable={false}
-        value="Github - main instance"
+        value="i1"
       />
     </div>
     <div

@@ -57,13 +57,17 @@ export function countBindedProjects(almSetting: string) {
 }
 
 export function getProjectAlmBinding(project: string): Promise<T.ProjectAlmBinding> {
-  return getJSON('/api/alm_settings/get_github_binding', { project });
+  return getJSON('/api/alm_settings/get_binding', { project });
 }
 
 export function deleteProjectAlmBinding(project: string): Promise<void> {
   return post('/api/alm_settings/delete_binding', { project }).catch(throwGlobalError);
 }
 
-export function setProjectAlmBinding(data: T.GithubProjectAlmBinding) {
+export function setProjectAzureBinding(data: T.AzureProjectAlmBinding) {
+  return post('/api/alm_settings/set_azure_binding', data).catch(throwGlobalError);
+}
+
+export function setProjectGithubBinding(data: T.GithubProjectAlmBinding) {
   return post('/api/alm_settings/set_github_binding', data).catch(throwGlobalError);
 }
