@@ -101,7 +101,7 @@ public class ComputeQProfileMeasureStepTest {
     underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getAddedRawMeasures(PROJECT_REF).get(QUALITY_PROFILES_KEY))
-      .extracting("data").containsOnly(toJson(qpJava, qpPhp));
+      .extracting("data").isEqualTo(toJson(qpJava, qpPhp));
   }
 
   @Test
