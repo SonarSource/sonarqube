@@ -274,6 +274,9 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderBaselineLink() {
+    if (!this.getConfiguration().showSettings || this.isApplication() || this.isPortfolio()) {
+      return null;
+    }
     return (
       <li key="baseline">
         <Link
