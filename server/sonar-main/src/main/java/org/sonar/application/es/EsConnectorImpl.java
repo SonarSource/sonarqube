@@ -105,16 +105,16 @@ public class EsConnectorImpl implements EsConnector {
       boolean connectedToOneHost = false;
       for (HostAndPort hostAndPort : hostAndPorts) {
         try {
-          addTransportAddress(new TransportAddress(InetAddress.getByName(hostAndPort.getHostText()), hostAndPort.getPortOrDefault(9001)));
+          addTransportAddress(new TransportAddress(InetAddress.getByName(hostAndPort.getHost()), hostAndPort.getPortOrDefault(9001)));
           connectedToOneHost = true;
         } catch (UnknownHostException e) {
-          LOG.debug("Can not resolve host [" + hostAndPort.getHostText() + "]", e);
+          LOG.debug("Can not resolve host [" + hostAndPort.getHost() + "]", e);
         }
       }
       if (!connectedToOneHost) {
         throw new IllegalStateException(format("Can not connect to one node from [%s]",
           hostAndPorts.stream()
-            .map(h -> format("%s:%d", h.getHostText(), h.getPortOrDefault(9001)))
+            .map(h -> format("%s:%d", h.getHost(), h.getPortOrDefault(9001)))
             .collect(Collectors.joining(","))));
       }
     }

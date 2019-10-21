@@ -23,6 +23,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableScheduledFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.CheckForNull;
@@ -68,7 +69,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
   public void startScheduling() {
     for (ChainingCallback chainingCallback : chainingCallbacks) {
       ListenableScheduledFuture<CeWorker.Result> future = executorService.schedule(chainingCallback.worker, delayBetweenEnabledTasks, timeUnit);
-      addCallback(future, chainingCallback);
+      addCallback(future, chainingCallback, MoreExecutors.directExecutor());
     }
   }
 
@@ -200,7 +201,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
 
     private void addCallback() {
       if (workerFuture != null) {
-        Futures.addCallback(workerFuture, this);
+        Futures.addCallback(workerFuture, this, MoreExecutors.directExecutor());
       }
     }
 

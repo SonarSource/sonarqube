@@ -88,7 +88,7 @@ public class EsClientProvider extends ProviderAdapter {
 
   private static void addHostToClient(HostAndPort host, TransportClient client) {
     try {
-      client.addTransportAddress(new TransportAddress(InetAddress.getByName(host.getHostText()), host.getPortOrDefault(9001)));
+      client.addTransportAddress(new TransportAddress(InetAddress.getByName(host.getHost()), host.getPortOrDefault(9001)));
     } catch (UnknownHostException e) {
       throw new IllegalStateException("Can not resolve host [" + host + "]", e);
     }

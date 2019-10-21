@@ -39,7 +39,6 @@ import org.sonar.server.qualityprofile.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;

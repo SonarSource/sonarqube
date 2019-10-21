@@ -173,14 +173,14 @@ subprojects {
       dependency 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
       dependency 'com.github.kevinsawicki:http-request:5.4.1'
       dependency 'com.github.scribejava:scribejava-core:6.8.1'
-      dependency 'com.github.scribejava:scribejava-apis:6.8.1'      
+      dependency 'com.github.scribejava:scribejava-apis:6.8.1'
       dependency 'com.googlecode.java-diff-utils:diffutils:1.2'
       dependency('com.googlecode.json-simple:json-simple:1.1.1') {
         exclude 'junit:junit'
       }
       dependency 'com.google.code.findbugs:jsr305:3.0.2'
       dependency 'com.google.code.gson:gson:2.8.5'
-      dependency 'com.google.guava:guava:18.0'
+      dependency 'com.google.guava:guava:28.1-jre'
       dependency "com.google.protobuf:protobuf-java:${protobufVersion}"
       dependency 'com.h2database:h2:1.3.176'
       dependencySet(group: 'com.hazelcast', version: '3.12.1') {
@@ -283,7 +283,7 @@ subprojects {
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.23.0.723'
       dependency 'org.subethamail:subethasmtp:3.1.7'
       dependency 'org.yaml:snakeyaml:1.17'
-      dependency 'xml-apis:xml-apis:1.4.01'  
+      dependency 'xml-apis:xml-apis:1.4.01'
 
       // please keep this list alphabetically ordered
     }
