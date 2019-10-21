@@ -59,7 +59,13 @@
       "/analysis/background-tasks/",
       "/analysis/generic-issue/",
       "/analysis/generic-test/",
-      "/analysis/pull-request/",
+      {
+        "title": "Pull Request Analysis",
+        "children": [
+		  "/analysis/pull-request/",
+		  "/analysis/pr-decoration/"
+		]
+      },
       {
         "title": "Branches",
         "children": [
@@ -117,7 +123,6 @@
       "/instance-administration/quality-profiles/",
       "/instance-administration/security/",
       "/instance-administration/delegated-auth/",
-      "/instance-administration/github-application/",
       "/instance-administration/look-and-feel/",
       "/instance-administration/marketplace/",
       "/instance-administration/housekeeping/",

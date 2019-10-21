@@ -34,7 +34,7 @@ All the parameters required to activate and configure this feature are available
 Using Http header authentication is an easy way integrate your SonarQube deployment with an in-house SSO implementation.
 
 ## GitHub Authentication
-You can delegate authentication to GitHub Enterprise using a dedicated GitHub OAuth application. Alternately, if you're using the pull request decoration provided as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/) you can harness the [GitHub application needed for PR decoration](/instance-administration/github-application/) to also provide authentication.
+You can delegate authentication to GitHub Enterprise using a dedicated GitHub OAuth application. Alternately, if you're using the pull request decoration provided as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/) you can harness the [GitHub application needed for PR decoration](/analysis/pr-decoration/) to also provide authentication.
 
 ### Dedicated GitHub OAuth application
 1. You'll need to first create a GitHub OAuth application. Click [here](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) for general instructions:
@@ -49,7 +49,7 @@ On the login form, the new "Log in with GitHub" button allows users to connect w
 
 ### Re-use GitHub PR decoration application
 1. In the GitHub app, in **Permission & events > User permissions**: Add **Read-only** access in **Emails**.
-1. In SonarQube settings, update the **Client ID** and **Client Secret** and use values defined in the GitHub app
+1. In SonarQube settings, update the **Client ID** and **Client Secret** and use values defined in the GitHub app.
 
 If you previously used a dedicated GitHub OAuth application for authentication, it can be removed.
 
