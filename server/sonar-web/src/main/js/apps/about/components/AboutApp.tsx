@@ -136,13 +136,9 @@ export class AboutApp extends React.PureComponent<Props, State> {
                   {translate('layout.login')}
                 </Link>
               )}
-              <a
-                className="button"
-                href="https://redirect.sonarsource.com/doc/home.html"
-                rel="noopener noreferrer"
-                target="_blank">
+              <Link className="button" to="/documentation">
                 {translate('about_page.read_documentation')}
-              </a>
+              </Link>
             </div>
 
             <div className="about-page-instance">

@@ -40,14 +40,14 @@ exports[`should render correctly 1`] = `
         >
           layout.login
         </Link>
-        <a
+        <Link
           className="button"
-          href="https://redirect.sonarsource.com/doc/home.html"
-          rel="noopener noreferrer"
-          target="_blank"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="/documentation"
         >
           about_page.read_documentation
-        </a>
+        </Link>
       </div>
       <div
         className="about-page-instance"
