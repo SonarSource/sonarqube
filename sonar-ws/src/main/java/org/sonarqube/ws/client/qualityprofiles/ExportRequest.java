@@ -31,26 +31,12 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class ExportRequest {
 
-  private String key;
   private String language;
   private String organization;
   private String qualityProfile;
 
   /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy"
-   * @deprecated since 6.6
-   */
-  @Deprecated
-  public ExportRequest setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
-  public String getKey() {
-    return key;
-  }
-
-  /**
+   * This is a mandatory parameter.
    * Example value: ""
    */
   public ExportRequest setLanguage(String language) {

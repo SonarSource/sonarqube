@@ -22,17 +22,17 @@ package org.sonarqube.ws.client.qualityprofiles;
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.Qualityprofiles;
+import org.sonarqube.ws.Qualityprofiles.CopyWsResponse;
+import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
+import org.sonarqube.ws.Qualityprofiles.SearchGroupsResponse;
+import org.sonarqube.ws.Qualityprofiles.SearchUsersResponse;
+import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
+import org.sonarqube.ws.Qualityprofiles.ShowResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
-import org.sonarqube.ws.Qualityprofiles.CopyWsResponse;
-import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
-import org.sonarqube.ws.Qualityprofiles.InheritanceWsResponse;
-import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
-import org.sonarqube.ws.Qualityprofiles.SearchGroupsResponse;
-import org.sonarqube.ws.Qualityprofiles.SearchUsersResponse;
-import org.sonarqube.ws.Qualityprofiles.ShowResponse;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles">Further information about this web service online</a>
@@ -60,7 +60,7 @@ public class QualityprofilesService extends BaseService {
         .setParam("rule", request.getRule())
         .setParam("severity", request.getSeverity())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -78,16 +78,20 @@ public class QualityprofilesService extends BaseService {
         .setParam("asc", request.getAsc())
         .setParam("available_since", request.getAvailableSince())
         .setParam("compareToProfile", request.getCompareToProfile())
+        .setParam("cwe", request.getCwe() == null ? null : request.getCwe().stream().collect(Collectors.joining(",")))
         .setParam("inheritance", request.getInheritance() == null ? null : request.getInheritance().stream().collect(Collectors.joining(",")))
         .setParam("is_template", request.getIsTemplate())
         .setParam("languages", request.getLanguages() == null ? null : request.getLanguages().stream().collect(Collectors.joining(",")))
         .setParam("organization", request.getOrganization())
+        .setParam("owaspTop10", request.getOwaspTop10() == null ? null : request.getOwaspTop10().stream().collect(Collectors.joining(",")))
         .setParam("q", request.getQ())
         .setParam("qprofile", request.getQprofile())
         .setParam("repositories", request.getRepositories() == null ? null : request.getRepositories().stream().collect(Collectors.joining(",")))
         .setParam("rule_key", request.getRuleKey())
         .setParam("s", request.getS())
+        .setParam("sansTop25", request.getSansTop25() == null ? null : request.getSansTop25().stream().collect(Collectors.joining(",")))
         .setParam("severities", request.getSeverities() == null ? null : request.getSeverities().stream().collect(Collectors.joining(",")))
+        .setParam("sonarsourceSecurity", request.getSonarsourceSecurity() == null ? null : request.getSonarsourceSecurity().stream().collect(Collectors.joining(",")))
         .setParam("statuses", request.getStatuses() == null ? null : request.getStatuses().stream().collect(Collectors.joining(",")))
         .setParam("tags", request.getTags() == null ? null : request.getTags().stream().collect(Collectors.joining(",")))
         .setParam("targetKey", request.getTargetKey())
@@ -95,7 +99,7 @@ public class QualityprofilesService extends BaseService {
         .setParam("template_key", request.getTemplateKey())
         .setParam("types", request.getTypes() == null ? null : request.getTypes().stream().collect(Collectors.joining(",")))
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -113,7 +117,7 @@ public class QualityprofilesService extends BaseService {
         .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -126,14 +130,12 @@ public class QualityprofilesService extends BaseService {
   public void addProject(AddProjectRequest request) {
     call(
       new PostRequest(path("add_project"))
-        .setParam("key", request.getKey())
         .setParam("language", request.getLanguage())
         .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject())
-        .setParam("projectUuid", request.getProjectUuid())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -151,7 +153,7 @@ public class QualityprofilesService extends BaseService {
         .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -164,12 +166,11 @@ public class QualityprofilesService extends BaseService {
   public String backup(BackupRequest request) {
     return call(
       new GetRequest(path("backup"))
-        .setParam("key", request.getKey())
         .setParam("language", request.getLanguage())
         .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -182,14 +183,12 @@ public class QualityprofilesService extends BaseService {
   public void changeParent(ChangeParentRequest request) {
     call(
       new PostRequest(path("change_parent"))
-        .setParam("key", request.getKey())
         .setParam("language", request.getLanguage())
         .setParam("organization", request.getOrganization())
-        .setParam("parentKey", request.getParentKey())
         .setParam("parentQualityProfile", request.getParentQualityProfile())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -202,7 +201,6 @@ public class QualityprofilesService extends BaseService {
   public String changelog(ChangelogRequest request) {
     return call(
       new GetRequest(path("changelog"))
-        .setParam("key", request.getKey())
         .setParam("language", request.getLanguage())
         .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
@@ -211,7 +209,7 @@ public class QualityprofilesService extends BaseService {
         .setParam("since", request.getSince())
         .setParam("to", request.getTo())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -227,7 +225,7 @@ public class QualityprofilesService extends BaseService {
         .setParam("leftKey", request.getLeftKey())
         .setParam("rightKey", request.getRightKey())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -274,7 +272,7 @@ public class QualityprofilesService extends BaseService {
         .setParam("key", request.getKey())
         .setParam("rule", request.getRule())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -292,23 +290,27 @@ public class QualityprofilesService extends BaseService {
         .setParam("asc", request.getAsc())
         .setParam("available_since", request.getAvailableSince())
         .setParam("compareToProfile", request.getCompareToProfile())
+        .setParam("cwe", request.getCwe() == null ? null : request.getCwe().stream().collect(Collectors.joining(",")))
         .setParam("inheritance", request.getInheritance() == null ? null : request.getInheritance().stream().collect(Collectors.joining(",")))
         .setParam("is_template", request.getIsTemplate())
         .setParam("languages", request.getLanguages() == null ? null : request.getLanguages().stream().collect(Collectors.joining(",")))
         .setParam("organization", request.getOrganization())
+        .setParam("owaspTop10", request.getOwaspTop10() == null ? null : request.getOwaspTop10().stream().collect(Collectors.joining(",")))
         .setParam("q", request.getQ())
         .setParam("qprofile", request.getQprofile())
         .setParam("repositories", request.getRepositories() == null ? null : request.getRepositories().stream().collect(Collectors.joining(",")))
         .setParam("rule_key", request.getRuleKey())
         .setParam("s", request.getS())
+        .setParam("sansTop25", request.getSansTop25() == null ? null : request.getSansTop25().stream().collect(Collectors.joining(",")))
         .setParam("severities", request.getSeverities() == null ? null : request.getSeverities().stream().collect(Collectors.joining(",")))
+        .setParam("sonarsourceSecurity", request.getSonarsourceSecurity() == null ? null : request.getSonarsourceSecurity().stream().collect(Collectors.joining(",")))
         .setParam("statuses", request.getStatuses() == null ? null : request.getStatuses().stream().collect(Collectors.joining(",")))
         .setParam("tags", request.getTags() == null ? null : request.getTags().stream().collect(Collectors.joining(",")))
         .setParam("targetKey", request.getTargetKey())
         .setParam("template_key", request.getTemplateKey())
         .setParam("types", request.getTypes() == null ? null : request.getTypes().stream().collect(Collectors.joining(",")))
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -321,12 +323,11 @@ public class QualityprofilesService extends BaseService {
   public void delete(DeleteRequest request) {
     call(
       new PostRequest(path("delete"))
-        .setParam("key", request.getKey())
         .setParam("language", request.getLanguage())
         .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -339,12 +340,11 @@ public class QualityprofilesService extends BaseService {
   public String export(ExportRequest request) {
     return call(
       new GetRequest(path("export"))
-        .setParam("key", request.getKey())
         .setParam("language", request.getLanguage())
         .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -358,7 +358,7 @@ public class QualityprofilesService extends BaseService {
     return call(
       new GetRequest(path("exporters"))
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -372,7 +372,7 @@ public class QualityprofilesService extends BaseService {
     return call(
       new GetRequest(path("importers"))
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -382,14 +382,13 @@ public class QualityprofilesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/inheritance">Further information about this action online (including a response example)</a>
    * @since 5.2
    */
-  public InheritanceWsResponse inheritance(InheritanceRequest request) {
+  public Qualityprofiles.InheritanceWsResponse inheritance(InheritanceRequest request) {
     return call(
       new GetRequest(path("inheritance"))
-        .setParam("key", request.getKey())
         .setParam("language", request.getLanguage())
         .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile()),
-      InheritanceWsResponse.parser());
+      Qualityprofiles.InheritanceWsResponse.parser());
   }
 
   /**
@@ -408,7 +407,7 @@ public class QualityprofilesService extends BaseService {
         .setParam("q", request.getQ())
         .setParam("selected", request.getSelected())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -426,7 +425,7 @@ public class QualityprofilesService extends BaseService {
         .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -439,14 +438,12 @@ public class QualityprofilesService extends BaseService {
   public void removeProject(RemoveProjectRequest request) {
     call(
       new PostRequest(path("remove_project"))
-        .setParam("key", request.getKey())
         .setParam("language", request.getLanguage())
         .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject())
-        .setParam("projectUuid", request.getProjectUuid())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -464,7 +461,7 @@ public class QualityprofilesService extends BaseService {
         .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -480,7 +477,7 @@ public class QualityprofilesService extends BaseService {
         .setParam("key", request.getKey())
         .setParam("name", request.getName())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -496,23 +493,7 @@ public class QualityprofilesService extends BaseService {
         .setParam("backup", request.getBackup())
         .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/restore_built_in">Further information about this action online (including a response example)</a>
-   * @since 4.4
-   * @deprecated since 6.4
-   */
-  @Deprecated
-  public void restoreBuiltIn() {
-    call(
-      new PostRequest(path("restore_built_in"))
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -583,12 +564,11 @@ public class QualityprofilesService extends BaseService {
   public void setDefault(SetDefaultRequest request) {
     call(
       new PostRequest(path("set_default"))
-        .setParam("key", request.getKey())
         .setParam("language", request.getLanguage())
         .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
@@ -597,6 +577,7 @@ public class QualityprofilesService extends BaseService {
    * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/show">Further information about this action online (including a response example)</a>
    * @since 6.5
+   * @return
    */
   public ShowResponse show(ShowRequest request) {
     return call(

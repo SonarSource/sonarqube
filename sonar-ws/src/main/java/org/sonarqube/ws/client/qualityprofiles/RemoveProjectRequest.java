@@ -31,28 +31,13 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class RemoveProjectRequest {
 
-  private String key;
   private String language;
   private String organization;
   private String project;
-  private String projectUuid;
   private String qualityProfile;
 
   /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy"
-   * @deprecated since 6.6
-   */
-  @Deprecated
-  public RemoveProjectRequest setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
-  public String getKey() {
-    return key;
-  }
-
-  /**
+   * This is a mandatory parameter.
    */
   public RemoveProjectRequest setLanguage(String language) {
     this.language = language;
@@ -77,6 +62,7 @@ public class RemoveProjectRequest {
   }
 
   /**
+   * This is a mandatory parameter.
    * Example value: "my_project"
    */
   public RemoveProjectRequest setProject(String project) {
@@ -89,20 +75,7 @@ public class RemoveProjectRequest {
   }
 
   /**
-   * Example value: "AU-TpxcB-iU5OvuD2FL6"
-   * @deprecated since 6.5
-   */
-  @Deprecated
-  public RemoveProjectRequest setProjectUuid(String projectUuid) {
-    this.projectUuid = projectUuid;
-    return this;
-  }
-
-  public String getProjectUuid() {
-    return projectUuid;
-  }
-
-  /**
+   * This is a mandatory parameter.
    * Example value: "Sonar way"
    */
   public RemoveProjectRequest setQualityProfile(String qualityProfile) {

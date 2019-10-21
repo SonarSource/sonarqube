@@ -31,26 +31,12 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class DeleteRequest {
 
-  private String key;
   private String language;
   private String organization;
   private String qualityProfile;
 
   /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy"
-   * @deprecated since 6.6
-   */
-  @Deprecated
-  public DeleteRequest setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
-  public String getKey() {
-    return key;
-  }
-
-  /**
+   * This is a mandatory parameter.
    */
   public DeleteRequest setLanguage(String language) {
     this.language = language;
@@ -75,6 +61,7 @@ public class DeleteRequest {
   }
 
   /**
+   * This is a mandatory parameter.
    * Example value: "Sonar way"
    */
   public DeleteRequest setQualityProfile(String qualityProfile) {

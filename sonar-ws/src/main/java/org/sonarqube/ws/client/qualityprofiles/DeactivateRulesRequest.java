@@ -36,16 +36,20 @@ public class DeactivateRulesRequest {
   private String asc;
   private String availableSince;
   private String compareToProfile;
+  private List<String> cwe;
   private List<String> inheritance;
   private String isTemplate;
   private List<String> languages;
   private String organization;
+  private List<String> owaspTop10;
   private String q;
   private String qprofile;
   private List<String> repositories;
   private String ruleKey;
   private String s;
+  private List<String> sansTop25;
   private List<String> severities;
+  private List<String> sonarsourceSecurity;
   private List<String> statuses;
   private List<String> tags;
   private String targetKey;
@@ -134,6 +138,18 @@ public class DeactivateRulesRequest {
   }
 
   /**
+   * Example value: "12,125,unknown"
+   */
+  public DeactivateRulesRequest setCwe(List<String> cwe) {
+    this.cwe = cwe;
+    return this;
+  }
+
+  public List<String> getCwe() {
+    return cwe;
+  }
+
+  /**
    * Example value: "INHERITED,OVERRIDES"
    * Possible values:
    * <ul>
@@ -192,6 +208,30 @@ public class DeactivateRulesRequest {
 
   public String getOrganization() {
     return organization;
+  }
+
+  /**
+   * Possible values:
+   * <ul>
+   *   <li>"a1"</li>
+   *   <li>"a2"</li>
+   *   <li>"a3"</li>
+   *   <li>"a4"</li>
+   *   <li>"a5"</li>
+   *   <li>"a6"</li>
+   *   <li>"a7"</li>
+   *   <li>"a8"</li>
+   *   <li>"a9"</li>
+   *   <li>"a10"</li>
+   * </ul>
+   */
+  public DeactivateRulesRequest setOwaspTop10(List<String> owaspTop10) {
+    this.owaspTop10 = owaspTop10;
+    return this;
+  }
+
+  public List<String> getOwaspTop10() {
+    return owaspTop10;
   }
 
   /**
@@ -262,6 +302,23 @@ public class DeactivateRulesRequest {
   }
 
   /**
+   * Possible values:
+   * <ul>
+   *   <li>"insecure-interaction"</li>
+   *   <li>"risky-resource"</li>
+   *   <li>"porous-defenses"</li>
+   * </ul>
+   */
+  public DeactivateRulesRequest setSansTop25(List<String> sansTop25) {
+    this.sansTop25 = sansTop25;
+    return this;
+  }
+
+  public List<String> getSansTop25() {
+    return sansTop25;
+  }
+
+  /**
    * Example value: "CRITICAL,BLOCKER"
    * Possible values:
    * <ul>
@@ -279,6 +336,41 @@ public class DeactivateRulesRequest {
 
   public List<String> getSeverities() {
     return severities;
+  }
+
+  /**
+   * Example value: "sql-injection,command-injection,others"
+   * Possible values:
+   * <ul>
+   *   <li>"sql-injection"</li>
+   *   <li>"command-injection"</li>
+   *   <li>"path-traversal-injection"</li>
+   *   <li>"ldap-injection"</li>
+   *   <li>"xpath-injection"</li>
+   *   <li>"rce"</li>
+   *   <li>"dos"</li>
+   *   <li>"ssrf"</li>
+   *   <li>"csrf"</li>
+   *   <li>"xss"</li>
+   *   <li>"log-injection"</li>
+   *   <li>"http-response-splitting"</li>
+   *   <li>"open-redirect"</li>
+   *   <li>"xxe"</li>
+   *   <li>"object-injection"</li>
+   *   <li>"weak-cryptography"</li>
+   *   <li>"auth"</li>
+   *   <li>"insecure-conf"</li>
+   *   <li>"file-manipulation"</li>
+   *   <li>"others"</li>
+   * </ul>
+   */
+  public DeactivateRulesRequest setSonarsourceSecurity(List<String> sonarsourceSecurity) {
+    this.sonarsourceSecurity = sonarsourceSecurity;
+    return this;
+  }
+
+  public List<String> getSonarsourceSecurity() {
+    return sonarsourceSecurity;
   }
 
   /**
@@ -344,6 +436,7 @@ public class DeactivateRulesRequest {
    *   <li>"CODE_SMELL"</li>
    *   <li>"BUG"</li>
    *   <li>"VULNERABILITY"</li>
+   *   <li>"SECURITY_HOTSPOT"</li>
    * </ul>
    */
   public DeactivateRulesRequest setTypes(List<String> types) {

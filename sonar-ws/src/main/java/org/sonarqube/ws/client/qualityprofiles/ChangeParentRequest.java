@@ -31,28 +31,13 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class ChangeParentRequest {
 
-  private String key;
   private String language;
   private String organization;
-  private String parentKey;
   private String parentQualityProfile;
   private String qualityProfile;
 
   /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy"
-   * @deprecated since 6.6
-   */
-  @Deprecated
-  public ChangeParentRequest setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
-  public String getKey() {
-    return key;
-  }
-
-  /**
+   * This is a mandatory parameter.
    */
   public ChangeParentRequest setLanguage(String language) {
     this.language = language;
@@ -77,20 +62,6 @@ public class ChangeParentRequest {
   }
 
   /**
-   * Example value: "AU-TpxcA-iU5OvuD2FLz"
-   * @deprecated since 6.6
-   */
-  @Deprecated
-  public ChangeParentRequest setParentKey(String parentKey) {
-    this.parentKey = parentKey;
-    return this;
-  }
-
-  public String getParentKey() {
-    return parentKey;
-  }
-
-  /**
    * Example value: "Sonar way"
    */
   public ChangeParentRequest setParentQualityProfile(String parentQualityProfile) {
@@ -103,6 +74,7 @@ public class ChangeParentRequest {
   }
 
   /**
+   * This is a mandatory parameter.
    * Example value: "Sonar way"
    */
   public ChangeParentRequest setQualityProfile(String qualityProfile) {

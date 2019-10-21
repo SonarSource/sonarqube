@@ -31,7 +31,6 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class ChangelogRequest {
 
-  private String key;
   private String language;
   private String organization;
   private String p;
@@ -41,20 +40,7 @@ public class ChangelogRequest {
   private String to;
 
   /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy"
-   * @deprecated since 6.6
-   */
-  @Deprecated
-  public ChangelogRequest setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
-  public String getKey() {
-    return key;
-  }
-
-  /**
+   * This is a mandatory parameter.
    */
   public ChangelogRequest setLanguage(String language) {
     this.language = language;
@@ -103,6 +89,7 @@ public class ChangelogRequest {
   }
 
   /**
+   * This is a mandatory parameter.
    * Example value: "Sonar way"
    */
   public ChangelogRequest setQualityProfile(String qualityProfile) {

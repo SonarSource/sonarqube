@@ -31,26 +31,12 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class InheritanceRequest {
 
-  private String key;
   private String language;
   private String organization;
   private String qualityProfile;
 
   /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy"
-   * @deprecated since 6.6
-   */
-  @Deprecated
-  public InheritanceRequest setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
-  public String getKey() {
-    return key;
-  }
-
-  /**
+   * This is a mandatory parameter.
    */
   public InheritanceRequest setLanguage(String language) {
     this.language = language;
@@ -75,6 +61,7 @@ public class InheritanceRequest {
   }
 
   /**
+   * This is a mandatory parameter.
    * Example value: "Sonar way"
    */
   public InheritanceRequest setQualityProfile(String qualityProfile) {
