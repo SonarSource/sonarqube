@@ -98,7 +98,6 @@ exports[`should render open by default 1`] = `
   property="types"
 >
   <FacetHeader
-    clearLabel="reset_verb"
     fetching={false}
     name="issues.facet.types"
     onClear={[Function]}

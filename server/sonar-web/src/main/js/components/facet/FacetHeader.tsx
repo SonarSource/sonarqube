@@ -26,7 +26,6 @@ import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n
 
 interface Props {
   children?: React.ReactNode;
-  clearLabel?: string;
   fetching?: boolean;
   helper?: string;
   name: React.ReactNode;
@@ -103,7 +102,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
           <Button
             className="search-navigator-facet-header-button button-small button-red"
             onClick={this.props.onClear}>
-            {translate(this.props.clearLabel || 'clear')}
+            {translate('clear')}
           </Button>
         )}
       </div>
