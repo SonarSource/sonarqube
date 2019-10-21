@@ -111,6 +111,7 @@ subprojects {
 
   ext {
     protobufVersion = '3.7.0'
+    jjwtVersion = '0.10.7'
   }
 
   sonarqube {
@@ -196,9 +197,9 @@ subprojects {
       }
       dependency 'com.tngtech.java:junit-dataprovider:1.9.2'
       dependency 'info.picocli:picocli:3.6.1'
-      dependency 'io.jsonwebtoken:jjwt-api:0.10.5'
-      dependency 'io.jsonwebtoken:jjwt-impl:0.10.5'
-      dependency 'io.jsonwebtoken:jjwt-jackson:0.10.5'
+      dependency "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+      dependency "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+      dependency "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
       dependency 'io.netty:netty-all:4.0.51.Final'
       dependency 'com.sun.mail:javax.mail:1.5.6'
       dependency 'javax.annotation:javax.annotation-api:1.3.1'

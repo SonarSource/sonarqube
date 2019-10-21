@@ -63,10 +63,10 @@ public class ComputeQProfileMeasureStepTest {
 
   private static final Component MULTI_MODULE_PROJECT = ReportComponent.builder(PROJECT, PROJECT_REF).setKey(PROJECT_KEY)
     .addChildren(ReportComponent.builder(DIRECTORY, FOLDER_1_REF)
-        .addChildren(
-          ReportComponent.builder(FILE, FILE_1_1_REF).setFileAttributes(new FileAttributes(false, "java", 1)).build(),
-          ReportComponent.builder(FILE, FILE_1_2_REF).setFileAttributes(new FileAttributes(false, "java", 1)).build())
-        .build(),
+      .addChildren(
+        ReportComponent.builder(FILE, FILE_1_1_REF).setFileAttributes(new FileAttributes(false, "java", 1)).build(),
+        ReportComponent.builder(FILE, FILE_1_2_REF).setFileAttributes(new FileAttributes(false, "java", 1)).build())
+      .build(),
       ReportComponent.builder(DIRECTORY, FOLDER_2_REF)
         .addChildren(
           ReportComponent.builder(FILE, FILE_2_1_REF).setFileAttributes(new FileAttributes(false, null, 1)).build(),
