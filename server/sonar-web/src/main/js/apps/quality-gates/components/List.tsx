@@ -34,23 +34,15 @@ export default function List({ organization, qualityGates }: Props) {
       {qualityGates.map(qualityGate => (
         <Link
           activeClassName="active"
-          className="list-group-item"
+          className="list-group-item display-flex-center"
           data-id={qualityGate.id}
           key={qualityGate.id}
           to={getQualityGateUrl(String(qualityGate.id), organization)}>
-          <table>
-            <tbody>
-              <tr>
-                <td>{qualityGate.name}</td>
-                <td className="thin nowrap spacer-left text-right">
-                  {qualityGate.isDefault && <span className="badge">{translate('default')}</span>}
-                  {qualityGate.isBuiltIn && (
-                    <BuiltInQualityGateBadge className="little-spacer-left" />
-                  )}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <span className="flex-1">{qualityGate.name}</span>
+          {qualityGate.isDefault && (
+            <span className="badge little-spacer-left">{translate('default')}</span>
+          )}
+          {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="little-spacer-left" />}
         </Link>
       ))}
     </div>

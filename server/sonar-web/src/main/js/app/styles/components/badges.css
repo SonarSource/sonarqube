@@ -42,12 +42,10 @@ a.badge {
   border-bottom: none;
 }
 
-.list-group-item > .badge,
 .list-group-item-heading > .badge {
   float: right;
   margin: 3px;
 }
-.list-group-item > .badge + .badge,
 .list-group-item-heading > .badge + .badge {
   margin-right: 5px;
 }
