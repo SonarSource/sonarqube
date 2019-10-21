@@ -280,7 +280,7 @@ subprojects {
       dependency 'org.reflections:reflections:0.9.9'
       dependency 'org.simpleframework:simple:4.1.21'
       dependency 'org.sonarsource.orchestrator:sonar-orchestrator:3.27.0.2172'
-      dependency 'org.sonarsource.update-center:sonar-update-center-common:1.18.0.487'
+      dependency 'org.sonarsource.update-center:sonar-update-center-common:1.23.0.723'
       dependency 'org.subethamail:subethasmtp:3.1.7'
       dependency 'org.yaml:snakeyaml:1.17'
       dependency 'xml-apis:xml-apis:1.4.01'  

@@ -49,7 +49,10 @@ public class UpgradesAction implements SystemWsAction {
   private static final String PROPERTY_DESCRIPTION = "description";
   private static final String PROPERTY_RELEASE_DATE = "releaseDate";
   private static final String PROPERTY_CHANGE_LOG_URL = "changeLogUrl";
-  private static final String PROPERTY_DOWNLOAD_URL = "downloadUrl";
+  private static final String PROPERTY_COMMUNITY_DOWNLOAD_URL = "downloadUrl";
+  private static final String PROPERTY_DEVELOPER_DOWNLOAD_URL = "downloadDeveloperUrl";
+  private static final String PROPERTY_ENTERPRISE_DOWNLOAD_URL = "downloadEnterpriseUrl";
+  private static final String PROPERTY_DATACENTER_DOWNLOAD_URL = "downloadDatacenterUrl";
   private static final String OBJECT_PLUGINS = "plugins";
   private static final String ARRAY_REQUIRE_UPDATE = "requireUpdate";
   private static final String ARRAY_INCOMPATIBLE = "incompatible";
@@ -65,7 +68,10 @@ public class UpgradesAction implements SystemWsAction {
     jsonWriter.prop(PROPERTY_DESCRIPTION, release.getDescription());
     jsonWriter.propDate(PROPERTY_RELEASE_DATE, release.getDate());
     jsonWriter.prop(PROPERTY_CHANGE_LOG_URL, release.getChangelogUrl());
-    jsonWriter.prop(PROPERTY_DOWNLOAD_URL, release.getDownloadUrl());
+    jsonWriter.prop(PROPERTY_COMMUNITY_DOWNLOAD_URL, release.getDownloadUrl(Release.Edition.COMMUNITY));
+    jsonWriter.prop(PROPERTY_DEVELOPER_DOWNLOAD_URL, release.getDownloadUrl(Release.Edition.DEVELOPER));
+    jsonWriter.prop(PROPERTY_ENTERPRISE_DOWNLOAD_URL, release.getDownloadUrl(Release.Edition.ENTERPRISE));
+    jsonWriter.prop(PROPERTY_DATACENTER_DOWNLOAD_URL, release.getDownloadUrl(Release.Edition.DATACENTER));
   }
 
   @Override
