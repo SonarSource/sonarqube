@@ -6,16 +6,16 @@ buildscript {
   }
   dependencies {
     // Ordered alphabeticly to avoid duplication
-    classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
-    classpath 'com.github.jengelman.gradle.plugins:shadow:5.0.0'
-    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'
-    classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.27.0'
+    classpath 'com.github.jengelman.gradle.plugins:shadow:5.1.0'
+    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.10'
+    classpath 'com.moowork.gradle:gradle-node-plugin:1.3.1'
     classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0'
     classpath 'io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE'
-    classpath 'net.rdrei.android.buildtimetracker:gradle-plugin:0.11.0'
-    classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.7.5'
-    classpath "org.owasp:dependency-check-gradle:4.0.2"
-    classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.1'
+    classpath 'net.rdrei.android.buildtimetracker:gradle-plugin:0.11.1'
+    classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.10.0'
+    classpath 'org.owasp:dependency-check-gradle:5.2.2'
+    classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8'
   }
 }
 
@@ -110,7 +110,7 @@ subprojects {
   }
 
   ext {
-    protobufVersion = '3.7.0'
+    protobufVersion = '3.10.0'
     jjwtVersion = '0.10.7'
   }
 
@@ -371,7 +371,7 @@ subprojects {
     sourceSets.test.proto.srcDir protoTestSrc  // in addition to the default 'src/test/proto'
     protobuf {
       protoc {
-        artifact = "com.google.protobuf:protoc:3.5.1"
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
       }
     }
     jar {
