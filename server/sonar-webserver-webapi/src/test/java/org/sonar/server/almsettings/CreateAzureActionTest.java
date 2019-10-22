@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -43,7 +44,8 @@ public class CreateAzureActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private WsActionTester ws = new WsActionTester(new CreateAzureAction(db.getDbClient(), userSession));
+  private WsActionTester ws = new WsActionTester(new CreateAzureAction(db.getDbClient(), userSession,
+    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null))));
 
   @Test
   public void create() {

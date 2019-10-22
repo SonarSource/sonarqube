@@ -27,7 +27,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.user.UserSession;
 
-import static java.lang.String.format;
 import static org.sonar.db.alm.setting.ALM.GITHUB;
 
 public class CreateGithubAction implements AlmSettingsWsAction {
@@ -39,10 +38,12 @@ public class CreateGithubAction implements AlmSettingsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final AlmSettingsSupport almSettingsSupport;
 
-  public CreateGithubAction(DbClient dbClient, UserSession userSession) {
+  public CreateGithubAction(DbClient dbClient, UserSession userSession, AlmSettingsSupport almSettingsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.almSettingsSupport = almSettingsSupport;
   }
 
   @Override
@@ -85,10 +86,7 @@ public class CreateGithubAction implements AlmSettingsWsAction {
     String appId = request.mandatoryParam(PARAM_APP_ID);
     String privateKey = request.mandatoryParam(PARAM_PRIVATE_KEY);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.almSettingDao().selectByKey(dbSession, key)
-        .ifPresent(almSetting -> {
-          throw new IllegalArgumentException(format("An ALM setting with key '%s' already exist", almSetting.getKey()));
-        });
+      almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, key);
       dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
         .setAlm(GITHUB)
         .setKey(key)

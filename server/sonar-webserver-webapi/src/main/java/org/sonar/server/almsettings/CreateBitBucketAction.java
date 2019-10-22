@@ -27,8 +27,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.user.UserSession;
 
-import static java.lang.String.format;
-import static org.sonar.db.alm.setting.ALM.AZURE_DEVOPS;
 import static org.sonar.db.alm.setting.ALM.BITBUCKET;
 
 public class CreateBitBucketAction implements AlmSettingsWsAction {
@@ -39,10 +37,12 @@ public class CreateBitBucketAction implements AlmSettingsWsAction {
 
   private final DbClient dbClient;
   private UserSession userSession;
+  private final AlmSettingsSupport almSettingsSupport;
 
-  public CreateBitBucketAction(DbClient dbClient, UserSession userSession) {
+  public CreateBitBucketAction(DbClient dbClient, UserSession userSession, AlmSettingsSupport almSettingsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.almSettingsSupport = almSettingsSupport;
   }
 
   @Override
@@ -80,10 +80,7 @@ public class CreateBitBucketAction implements AlmSettingsWsAction {
     String url = request.mandatoryParam(PARAM_URL);
     String pat = request.mandatoryParam(PARAM_PERSONAL_ACCESS_TOKEN);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.almSettingDao().selectByKey(dbSession, key)
-        .ifPresent(almSetting -> {
-          throw new IllegalArgumentException(format("An ALM setting with key '%s' already exist", almSetting.getKey()));
-        });
+      almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, key);
       dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
         .setAlm(BITBUCKET)
         .setKey(key)

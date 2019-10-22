@@ -26,11 +26,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.AlmSettings.CountBindingWsResponse;
 
-import static java.lang.String.format;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class CountBindingAction implements AlmSettingsWsAction {
@@ -39,10 +37,12 @@ public class CountBindingAction implements AlmSettingsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final AlmSettingsSupport almSettingsSupport;
 
-  public CountBindingAction(DbClient dbClient, UserSession userSession) {
+  public CountBindingAction(DbClient dbClient, UserSession userSession, AlmSettingsSupport almSettingsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.almSettingsSupport = almSettingsSupport;
   }
 
   @Override
@@ -70,8 +70,7 @@ public class CountBindingAction implements AlmSettingsWsAction {
   private CountBindingWsResponse doHandle(Request request) {
     String almSettingKey = request.mandatoryParam(PARAM_ALM_SETTING);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      AlmSettingDto almSetting = dbClient.almSettingDao().selectByKey(dbSession, almSettingKey)
-        .orElseThrow(() -> new NotFoundException(format("ALM setting with key '%s' cannot be found", almSettingKey)));
+      AlmSettingDto almSetting = almSettingsSupport.getAlmSetting(dbSession, almSettingKey);
       int projectsBound = dbClient.projectAlmSettingDao().countByAlmSetting(dbSession, almSetting);
       return CountBindingWsResponse.newBuilder()
         .setKey(almSetting.getKey())

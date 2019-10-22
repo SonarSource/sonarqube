@@ -27,12 +27,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.user.UserSession;
-
-import static java.lang.String.format;
-import static org.sonar.api.web.UserRole.ADMIN;
 
 public class SetGithubBindingAction implements AlmSettingsWsAction {
 
@@ -41,13 +35,11 @@ public class SetGithubBindingAction implements AlmSettingsWsAction {
   private static final String PARAM_REPOSITORY = "repository";
 
   private final DbClient dbClient;
-  private final UserSession userSession;
-  private final ComponentFinder componentFinder;
+  private final AlmSettingsSupport almSettingsSupport;
 
-  public SetGithubBindingAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
+  public SetGithubBindingAction(DbClient dbClient, AlmSettingsSupport almSettingsSupport) {
     this.dbClient = dbClient;
-    this.userSession = userSession;
-    this.componentFinder = componentFinder;
+    this.almSettingsSupport = almSettingsSupport;
   }
 
   @Override
@@ -83,10 +75,8 @@ public class SetGithubBindingAction implements AlmSettingsWsAction {
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
     String repository = request.mandatoryParam(PARAM_REPOSITORY);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
-      userSession.checkComponentPermission(ADMIN, project);
-      AlmSettingDto almSettingDto = dbClient.almSettingDao().selectByKey(dbSession, almSetting)
-        .orElseThrow(() -> new NotFoundException(format("No ALM setting with almSetting '%s' has been found", almSetting)));
+      ComponentDto project = almSettingsSupport.getProject(dbSession, projectKey);
+      AlmSettingDto almSettingDto = almSettingsSupport.getAlmSetting(dbSession, almSetting);
       dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, new ProjectAlmSettingDto()
         .setProjectUuid(project.uuid())
         .setAlmSettingUuid(almSettingDto.getUuid())

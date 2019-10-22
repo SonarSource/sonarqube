@@ -25,52 +25,57 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.server.user.UserSession;
+import org.sonar.db.alm.setting.ProjectAlmSettingDto;
+import org.sonar.db.component.ComponentDto;
 
-public class DeleteAction implements AlmSettingsWsAction {
+public class SetAzureBindingAction implements AlmSettingsWsAction {
 
-  private static final String PARAM_KEY = "key";
+  private static final String PARAM_ALM_SETTING = "almSetting";
+  private static final String PARAM_PROJECT = "project";
 
   private final DbClient dbClient;
-  private final UserSession userSession;
   private final AlmSettingsSupport almSettingsSupport;
 
-  public DeleteAction(DbClient dbClient, UserSession userSession, AlmSettingsSupport almSettingsSupport) {
+  public SetAzureBindingAction(DbClient dbClient, AlmSettingsSupport almSettingsSupport) {
     this.dbClient = dbClient;
-    this.userSession = userSession;
     this.almSettingsSupport = almSettingsSupport;
   }
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context
-      .createAction("delete")
-      .setDescription("Delete an ALM Settings.<br/>" +
-        "Requires the 'Administer System' permission")
-      .setSince("8.1")
+    WebService.NewAction action = context.createAction("set_azure_binding")
+      .setDescription("Bind a Azure DevOps ALM instance to a project.<br/>" +
+        "If the project was already bound to a previous Azure DevOps ALM instance, the binding will be updated to the new one." +
+        "Requires the 'Administer' permission on the project")
       .setPost(true)
+      .setSince("8.1")
       .setHandler(this);
 
-    action
-      .createParam(PARAM_KEY)
-      .setDescription("ALM Setting key")
-      .setRequired(true);
+    action.createParam(PARAM_ALM_SETTING)
+      .setRequired(true)
+      .setDescription("GitHub ALM setting key");
+    action.createParam(PARAM_PROJECT)
+      .setRequired(true)
+      .setDescription("Project key");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkIsSystemAdministrator();
     doHandle(request);
     response.noContent();
   }
 
   private void doHandle(Request request) {
-    String key = request.mandatoryParam(PARAM_KEY);
+    String almSetting = request.mandatoryParam(PARAM_ALM_SETTING);
+    String projectKey = request.mandatoryParam(PARAM_PROJECT);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      AlmSettingDto almSettingDto = almSettingsSupport.getAlmSetting(dbSession, key);
-      dbClient.projectAlmSettingDao().deleteByAlmSetting(dbSession, almSettingDto);
-      dbClient.almSettingDao().delete(dbSession, almSettingDto);
+      ComponentDto project = almSettingsSupport.getProject(dbSession, projectKey);
+      AlmSettingDto almSettingDto = almSettingsSupport.getAlmSetting(dbSession, almSetting);
+      dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, new ProjectAlmSettingDto()
+        .setProjectUuid(project.uuid())
+        .setAlmSettingUuid(almSettingDto.getUuid()));
       dbSession.commit();
     }
   }
+
 }

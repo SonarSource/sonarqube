@@ -25,10 +25,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class UpdateGitHubAction implements AlmSettingsWsAction {
@@ -41,10 +39,12 @@ public class UpdateGitHubAction implements AlmSettingsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final AlmSettingsSupport almSettingsSupport;
 
-  public UpdateGitHubAction(DbClient dbClient, UserSession userSession) {
+  public UpdateGitHubAction(DbClient dbClient, UserSession userSession, AlmSettingsSupport almSettingsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.almSettingsSupport = almSettingsSupport;
   }
 
   @Override
@@ -93,14 +93,9 @@ public class UpdateGitHubAction implements AlmSettingsWsAction {
     String privateKey = request.mandatoryParam(PARAM_PRIVATE_KEY);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-
-      AlmSettingDto almSettingDto = dbClient.almSettingDao().selectByKey(dbSession, key)
-        .orElseThrow(() -> new NotFoundException(format("No ALM setting with key '%s' has been found", key)));
+      AlmSettingDto almSettingDto = almSettingsSupport.getAlmSetting(dbSession, key);
       if (isNotBlank(newKey) && !newKey.equals(key)) {
-        dbClient.almSettingDao().selectByKey(dbSession, newKey)
-          .ifPresent(almSetting -> {
-            throw new IllegalArgumentException(format("ALM setting with key '%s' already exists", almSetting.getKey()));
-          });
+        almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, newKey);
       }
       dbClient.almSettingDao().update(dbSession, almSettingDto
         .setKey(isNotBlank(newKey) ? newKey : key)

@@ -20,15 +20,47 @@
 
 package org.sonar.server.almsettings;
 
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
+import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.AlmSettings;
 
 import static java.lang.String.format;
+import static org.sonar.api.web.UserRole.ADMIN;
 
 class AlmSettingsSupport {
 
-  private AlmSettingsSupport() {
-    // Only static methods here for the moment
+  private final DbClient dbClient;
+  private final UserSession userSession;
+  private final ComponentFinder componentFinder;
+
+  public AlmSettingsSupport(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
+    this.dbClient = dbClient;
+    this.userSession = userSession;
+    this.componentFinder = componentFinder;
+  }
+
+  void checkAlmSettingDoesNotAlreadyExist(DbSession dbSession, String almSetting) {
+    dbClient.almSettingDao().selectByKey(dbSession, almSetting)
+      .ifPresent(a -> {
+        throw new IllegalArgumentException(format("An ALM setting with key '%s' already exists", a.getKey()));
+      });
+  }
+
+  ComponentDto getProject(DbSession dbSession, String projectKey) {
+    ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
+    userSession.checkComponentPermission(ADMIN, project);
+    return project;
+  }
+
+  AlmSettingDto getAlmSetting(DbSession dbSession, String almSetting) {
+    return dbClient.almSettingDao().selectByKey(dbSession, almSetting)
+      .orElseThrow(() -> new NotFoundException(format("ALM setting with key '%s' cannot be found", almSetting)));
   }
 
   static AlmSettings.Alm toAlmWs(ALM alm) {

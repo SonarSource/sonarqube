@@ -28,6 +28,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -47,7 +48,8 @@ public class CountBindingActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private WsActionTester ws = new WsActionTester(new CountBindingAction(db.getDbClient(), userSession));
+  private WsActionTester ws = new WsActionTester(new CountBindingAction(db.getDbClient(), userSession,
+    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null))));
 
   @Test
   public void count_binding() {

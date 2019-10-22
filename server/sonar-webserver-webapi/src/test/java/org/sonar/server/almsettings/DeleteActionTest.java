@@ -27,6 +27,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -44,7 +45,8 @@ public class DeleteActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private WsActionTester ws = new WsActionTester(new DeleteAction(db.getDbClient(), userSession));
+  private WsActionTester ws = new WsActionTester(new DeleteAction(db.getDbClient(), userSession,
+    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null))));
 
   @Test
   public void delete() {
@@ -86,7 +88,7 @@ public class DeleteActionTest {
     userSession.logIn(user).setSystemAdministrator();
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No ALM setting with key 'unknown' has been found");
+    expectedException.expectMessage("ALM setting with key 'unknown' cannot be found");
 
     ws.newRequest()
       .setParam("key", "unknown")

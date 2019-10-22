@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -45,7 +46,8 @@ public class UpdateGithubActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private WsActionTester ws = new WsActionTester(new UpdateGitHubAction(db.getDbClient(), userSession));
+  private WsActionTester ws = new WsActionTester(new UpdateGitHubAction(db.getDbClient(), userSession,
+    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null))));
 
   @Test
   public void update() {
@@ -90,7 +92,7 @@ public class UpdateGithubActionTest {
     userSession.logIn(user).setSystemAdministrator();
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No ALM setting with key 'unknown' has been found");
+    expectedException.expectMessage("ALM setting with key 'unknown' cannot be found");
 
     ws.newRequest()
       .setParam("key", "unknown")
@@ -109,7 +111,7 @@ public class UpdateGithubActionTest {
     AlmSettingDto almSetting2 = db.almSettings().insertGitHubAlmSetting();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("ALM setting with key '%s' already exists", almSetting2.getKey()));
+    expectedException.expectMessage(format("An ALM setting with key '%s' already exists", almSetting2.getKey()));
 
     ws.newRequest()
       .setParam("key", almSetting1.getKey())

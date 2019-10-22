@@ -26,19 +26,25 @@ public class AlmSettingsWsModule extends Module {
   protected void configureModule() {
     add(
       AlmSettingsWs.class,
-      ListDefinitionsAction.class,
-      CreateGithubAction.class,
-      UpdateGitHubAction.class,
+      // Common actions
+      AlmSettingsSupport.class,
+      CountBindingAction.class,
       DeleteAction.class,
-      CreateAzureAction.class,
-      UpdateAzureAction.class,
-      CreateBitBucketAction.class,
-      UpdateBitbucketAction.class,
-      SetGithubBindingAction.class,
       DeleteBindingAction.class,
-      GetBindingAction.class,
       ListAction.class,
-      CountBindingAction.class
+      ListDefinitionsAction.class,
+      // GitHub specific actions
+      CreateGithubAction.class,
+      GetBindingAction.class,
+      SetGithubBindingAction.class,
+      UpdateGitHubAction.class,
+      // Azure DevOps specific actions
+      CreateAzureAction.class,
+      SetAzureBindingAction.class,
+      UpdateAzureAction.class,
+      // Bitbucket DevOps specific actions
+      CreateBitBucketAction.class,
+      UpdateBitbucketAction.class
     );
   }
 }
