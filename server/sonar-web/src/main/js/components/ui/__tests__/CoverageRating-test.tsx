@@ -41,6 +41,17 @@ it('should render with small size', () => {
   ).toMatchObject({ height: 16, padAngle: 0.1, thickness: 2, width: 16 });
 });
 
+it('should correctly handle padAngle for 0% and 100% coverage', () => {
+  const wrapper = shallowRender({ value: 0 });
+  expect(wrapper.find('DonutChart').prop('padAngle')).toBe(0);
+
+  wrapper.setProps({ value: 25 });
+  expect(wrapper.find('DonutChart').prop('padAngle')).toBe(0.1);
+
+  wrapper.setProps({ value: 100 });
+  expect(wrapper.find('DonutChart').prop('padAngle')).toBe(0);
+});
+
 function shallowRender(props: Partial<CoverageRatingProps> = {}) {
   return shallow(<CoverageRating value={25} {...props} />);
 }

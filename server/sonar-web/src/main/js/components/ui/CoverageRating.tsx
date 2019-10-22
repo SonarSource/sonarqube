@@ -42,6 +42,7 @@ export default function CoverageRating({
   value
 }: CoverageRatingProps) {
   let data = [{ value: 100, fill: '#ccc ' }];
+  let padAngle = 0;
 
   if (value != null) {
     const numberValue = Number(value);
@@ -49,11 +50,13 @@ export default function CoverageRating({
       { value: numberValue, fill: muted ? colors.gray71 : colors.green },
       { value: 100 - numberValue, fill: muted ? colors.barBackgroundColor : colors.lineCoverageRed }
     ];
+    if (numberValue !== 0 && numberValue < 100) {
+      padAngle = 0.1; // Same for all sizes, because it scales automatically
+    }
   }
 
   const width = SIZE_TO_WIDTH_MAPPING[size];
   const thickness = SIZE_TO_THICKNESS_MAPPING[size];
-  const padAngle = 0.1; // Same for all sizes, because it scales automatically
 
   return (
     <DonutChart
