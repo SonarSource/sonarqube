@@ -6,6 +6,7 @@ exports[`should render correctly 1`] = `
   definitions={
     Object {
       "azure": Array [],
+      "bitbucket": Array [],
       "github": Array [],
     }
   }

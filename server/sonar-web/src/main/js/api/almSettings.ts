@@ -46,6 +46,16 @@ export function updateAzureConfiguration(data: T.AzureBindingDefinition & { newK
   return post('/api/alm_settings/update_azure', data).catch(throwGlobalError);
 }
 
+export function createBitbucketConfiguration(data: T.BitbucketBindingDefinition) {
+  return post('/api/alm_settings/create_bitbucket', data).catch(throwGlobalError);
+}
+
+export function updateBitbucketConfiguration(
+  data: T.BitbucketBindingDefinition & { newKey: string }
+) {
+  return post('/api/alm_settings/update_bitbucket', data).catch(throwGlobalError);
+}
+
 export function deleteConfiguration(key: string) {
   return post('/api/alm_settings/delete', { key }).catch(throwGlobalError);
 }

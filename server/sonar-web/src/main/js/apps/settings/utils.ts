@@ -24,13 +24,13 @@ export const DEFAULT_CATEGORY = 'general';
 
 export enum ALM_KEYS {
   AZURE = 'azure',
-  // BITBUCKET = 'bitbucket',
+  BITBUCKET = 'bitbucket',
   GITHUB = 'github'
 }
 
 export const almName = {
   [ALM_KEYS.AZURE]: 'Azure DevOps Server',
-  // [ALM_KEYS.BITBUCKET]: 'Bitbucket Server',
+  [ALM_KEYS.BITBUCKET]: 'Bitbucket Server',
   [ALM_KEYS.GITHUB]: 'Github Enterprise'
 };
 

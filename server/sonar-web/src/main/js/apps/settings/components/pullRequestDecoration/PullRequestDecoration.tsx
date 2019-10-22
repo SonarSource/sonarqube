@@ -40,6 +40,7 @@ export default class PullRequestDecoration extends React.PureComponent<{}, State
     currentAlm: ALM_KEYS.GITHUB,
     definitions: {
       [ALM_KEYS.AZURE]: [],
+      [ALM_KEYS.BITBUCKET]: [],
       [ALM_KEYS.GITHUB]: []
     },
     loading: true

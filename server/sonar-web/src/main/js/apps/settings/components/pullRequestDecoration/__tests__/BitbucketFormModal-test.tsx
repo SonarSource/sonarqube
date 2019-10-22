@@ -19,27 +19,19 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ALM_KEYS } from '../../../utils';
-import PRDecorationTabs, { PRDecorationTabsProps } from '../PRDecorationTabs';
+import { mockBitbucketDefinition } from '../../../../../helpers/testMocks';
+import BitbucketFormModal, { BitbucketFormModalProps } from '../BitbucketFormModal';
 
 it('should render correctly', () => {
-  expect(shallowRender({ loading: true })).toMatchSnapshot();
-  expect(shallowRender({ definitionKeyForDeletion: 'keyToDelete' })).toMatchSnapshot();
-  expect(shallowRender({ currentAlm: ALM_KEYS.AZURE })).toMatchSnapshot();
-  expect(shallowRender({ currentAlm: ALM_KEYS.GITHUB })).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ formData: mockBitbucketDefinition() })).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<PRDecorationTabsProps> = {}) {
+function shallowRender(props: Partial<BitbucketFormModalProps> = {}) {
   return shallow(
-    <PRDecorationTabs
-      currentAlm={ALM_KEYS.GITHUB}
-      definitions={{ azure: [], bitbucket: [], github: [] }}
-      loading={false}
-      onCancel={jest.fn()}
-      onConfirmDelete={jest.fn()}
-      onDelete={jest.fn()}
-      onSelectAlm={jest.fn()}
-      onUpdateDefinitions={jest.fn()}
+    <BitbucketFormModal
+      formData={{ key: '', personalAccessToken: '', url: '' }}
+      onFieldChange={jest.fn()}
       {...props}
     />
   );

@@ -60,12 +60,23 @@ export function mockAzureDefinition(
   };
 }
 
+export function mockBitbucketDefinition(
+  overrides: Partial<T.BitbucketBindingDefinition> = {}
+): T.BitbucketBindingDefinition {
+  return {
+    key: 'key',
+    personalAccessToken: 'asdf1234',
+    url: 'http://bbs.enterprise.com',
+    ...overrides
+  };
+}
+
 export function mockGithubDefinition(
   overrides: Partial<T.GithubBindingDefinition> = {}
 ): T.GithubBindingDefinition {
   return {
     key: 'key',
-    url: 'http:alm.enterprise.com',
+    url: 'http://github.enterprise.com',
     appId: '123456',
     privateKey: 'asdf1234',
     ...overrides

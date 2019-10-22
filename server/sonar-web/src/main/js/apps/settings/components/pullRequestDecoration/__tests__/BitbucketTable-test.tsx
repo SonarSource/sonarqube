@@ -19,27 +19,21 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ALM_KEYS } from '../../../utils';
-import PRDecorationTabs, { PRDecorationTabsProps } from '../PRDecorationTabs';
+import { mockBitbucketDefinition } from '../../../../../helpers/testMocks';
+import BitbucketTable, { BitbucketTableProps } from '../BitbucketTable';
 
 it('should render correctly', () => {
-  expect(shallowRender({ loading: true })).toMatchSnapshot();
-  expect(shallowRender({ definitionKeyForDeletion: 'keyToDelete' })).toMatchSnapshot();
-  expect(shallowRender({ currentAlm: ALM_KEYS.AZURE })).toMatchSnapshot();
-  expect(shallowRender({ currentAlm: ALM_KEYS.GITHUB })).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ definitions: [mockBitbucketDefinition()] })).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<PRDecorationTabsProps> = {}) {
+function shallowRender(props: Partial<BitbucketTableProps> = {}) {
   return shallow(
-    <PRDecorationTabs
-      currentAlm={ALM_KEYS.GITHUB}
-      definitions={{ azure: [], bitbucket: [], github: [] }}
+    <BitbucketTable
+      definitions={[]}
       loading={false}
-      onCancel={jest.fn()}
-      onConfirmDelete={jest.fn()}
       onDelete={jest.fn()}
-      onSelectAlm={jest.fn()}
-      onUpdateDefinitions={jest.fn()}
+      onEdit={jest.fn()}
       {...props}
     />
   );

@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<BitbucketTabRenderer
+  definitions={Array []}
+  loading={false}
+  onCancel={[Function]}
+  onCreate={[Function]}
+  onDelete={[MockFunction]}
+  onEdit={[Function]}
+  onSubmit={[Function]}
+/>
+`;

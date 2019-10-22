@@ -22,6 +22,7 @@ import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { almName, ALM_KEYS } from '../../utils';
 import AzureTab from './AzureTab';
+import BitbucketTab from './BitbucketTab';
 import DeleteModal from './DeleteModal';
 import GithubTab from './GithubTab';
 
@@ -59,6 +60,10 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
             label: almName[ALM_KEYS.GITHUB]
           },
           {
+            key: ALM_KEYS.BITBUCKET,
+            label: almName[ALM_KEYS.BITBUCKET]
+          },
+          {
             key: ALM_KEYS.AZURE,
             label: almName[ALM_KEYS.AZURE]
           }
@@ -69,6 +74,14 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
         {currentAlm === ALM_KEYS.AZURE && (
           <AzureTab
             definitions={definitions.azure}
+            loading={loading}
+            onDelete={props.onDelete}
+            onUpdateDefinitions={props.onUpdateDefinitions}
+          />
+        )}
+        {currentAlm === ALM_KEYS.BITBUCKET && (
+          <BitbucketTab
+            definitions={definitions.bitbucket}
             loading={loading}
             onDelete={props.onDelete}
             onUpdateDefinitions={props.onUpdateDefinitions}

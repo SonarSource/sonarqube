@@ -1,0 +1,88 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<table
+  className="data zebra spacer-bottom"
+>
+  <thead>
+    <tr>
+      <th>
+        settings.pr_decoration.table.column.name
+      </th>
+      <th>
+        settings.pr_decoration.table.column.bitbucket.url
+      </th>
+      <th
+        className="thin"
+      >
+        settings.pr_decoration.table.column.edit
+      </th>
+      <th
+        className="thin"
+      >
+        settings.pr_decoration.table.column.delete
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td
+        colSpan={4}
+      >
+        settings.pr_decoration.table.empty.bitbucket
+      </td>
+    </tr>
+  </tbody>
+</table>
+`;
+
+exports[`should render correctly 2`] = `
+<table
+  className="data zebra spacer-bottom"
+>
+  <thead>
+    <tr>
+      <th>
+        settings.pr_decoration.table.column.name
+      </th>
+      <th>
+        settings.pr_decoration.table.column.bitbucket.url
+      </th>
+      <th
+        className="thin"
+      >
+        settings.pr_decoration.table.column.edit
+      </th>
+      <th
+        className="thin"
+      >
+        settings.pr_decoration.table.column.delete
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr
+      key="key"
+    >
+      <td>
+        key
+      </td>
+      <td>
+        http://bbs.enterprise.com
+      </td>
+      <td>
+        <ButtonIcon
+          onClick={[Function]}
+        >
+          <EditIcon />
+        </ButtonIcon>
+      </td>
+      <td>
+        <DeleteButton
+          onClick={[Function]}
+        />
+      </td>
+    </tr>
+  </tbody>
+</table>
+`;
