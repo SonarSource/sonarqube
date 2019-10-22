@@ -21,6 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { Button, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import Select from 'sonar-ui-common/components/controls/Select';
 import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
@@ -45,9 +46,49 @@ function renderLabel(v: T.AlmSettingsInstance) {
   return v.url ? `${v.key} — ${v.url}` : v.key;
 }
 
+function renderField(props: {
+  help?: boolean;
+  helpParams?: { [key: string]: string | number | boolean | Date | JSX.Element | null | undefined };
+  id: string;
+  onFieldChange: (id: keyof T.ProjectAlmBinding, value: string) => void;
+  propKey: keyof T.ProjectAlmBinding;
+  value: string;
+}) {
+  const { help, helpParams, id, propKey, value, onFieldChange } = props;
+  return (
+    <div className="form-field">
+      <label className="display-flex-center" htmlFor={id}>
+        {translate('settings.pr_decoration.binding.form', id)}
+        <em className="mandatory spacer-right">*</em>
+        {help && (
+          <HelpTooltip
+            overlay={
+              <FormattedMessage
+                defaultMessage={translate('settings.pr_decoration.binding.form', id, 'help')}
+                id={`settings.pr_decoration.binding.form.${id}.help`}
+                values={helpParams}
+              />
+            }
+            placement="right"
+          />
+        )}
+      </label>
+      <input
+        className="input-super-large"
+        id={id}
+        maxLength={256}
+        name={id}
+        onChange={e => onFieldChange(propKey, e.currentTarget.value)}
+        type="text"
+        value={value}
+      />
+    </div>
+  );
+}
+
 export default function PRDecorationBindingRenderer(props: PRDecorationBindingRendererProps) {
   const {
-    formData: { repository, key },
+    formData: { key, repository, repositoryKey, repositorySlug },
     hasBinding,
     instances,
     isValid,
@@ -114,23 +155,52 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
           />
         </div>
 
-        {alm === ALM_KEYS.GITHUB && (
-          <div className="form-field">
-            <label htmlFor="repository">
-              {translate('settings.pr_decoration.binding.form.repository')}
-              <em className="mandatory spacer-right">*</em>
-            </label>
-            <input
-              className="input-super-large"
-              id="repository"
-              maxLength={256}
-              name="repository"
-              onChange={e => props.onFieldChange('repository', e.currentTarget.value)}
-              type="text"
-              value={repository}
-            />
-          </div>
+        {alm === ALM_KEYS.BITBUCKET && (
+          <>
+            {renderField({
+              help: true,
+              helpParams: {
+                example: (
+                  <>
+                    {'.../projects/'}
+                    <strong>{'{KEY}'}</strong>
+                    {'/repos/{SLUG}/browse'}
+                  </>
+                )
+              },
+              id: 'repository_key',
+              onFieldChange: props.onFieldChange,
+              propKey: 'repositoryKey',
+              value: repositoryKey || ''
+            })}
+            {renderField({
+              help: true,
+              helpParams: {
+                example: (
+                  <>
+                    {'.../projects/{KEY}/repos/'}
+                    <strong>{'{SLUG}'}</strong>
+                    {'/browse'}
+                  </>
+                )
+              },
+              id: 'repository_slug',
+              onFieldChange: props.onFieldChange,
+              propKey: 'repositorySlug',
+              value: repositorySlug || ''
+            })}
+          </>
         )}
+
+        {alm === ALM_KEYS.GITHUB &&
+          renderField({
+            help: true,
+            helpParams: { example: 'SonarSource/sonarqube' },
+            id: 'repository',
+            onFieldChange: props.onFieldChange,
+            propKey: 'repository',
+            value: repository || ''
+          })}
 
         <div className="display-flex-center">
           <DeferredSpinner className="spacer-right" loading={saving} />

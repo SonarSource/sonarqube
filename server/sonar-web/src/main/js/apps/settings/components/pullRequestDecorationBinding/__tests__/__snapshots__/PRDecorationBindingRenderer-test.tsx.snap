@@ -380,6 +380,7 @@ exports[`should render multiple instances correctly 2`] = `
       className="form-field"
     >
       <label
+        className="display-flex-center"
         htmlFor="repository"
       >
         settings.pr_decoration.binding.form.repository
@@ -388,6 +389,20 @@ exports[`should render multiple instances correctly 2`] = `
         >
           *
         </em>
+        <HelpTooltip
+          overlay={
+            <FormattedMessage
+              defaultMessage="settings.pr_decoration.binding.form.repository.help"
+              id="settings.pr_decoration.binding.form.repository.help"
+              values={
+                Object {
+                  "example": "SonarSource/sonarqube",
+                }
+              }
+            />
+          }
+          placement="right"
+        />
       </label>
       <input
         className="input-super-large"

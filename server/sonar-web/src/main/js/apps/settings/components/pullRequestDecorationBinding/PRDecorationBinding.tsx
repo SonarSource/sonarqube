@@ -23,6 +23,7 @@ import {
   getAlmSettings,
   getProjectAlmBinding,
   setProjectAzureBinding,
+  setProjectBitbucketBinding,
   setProjectGithubBinding
 } from '../../../../api/almSettings';
 import throwGlobalError from '../../../../app/utils/throwGlobalError';
@@ -43,8 +44,11 @@ interface State {
   success: boolean;
 }
 
-const FIELDS_BY_ALM: { [almKey: string]: Array<'repository'> } = {
+const FIELDS_BY_ALM: {
+  [almKey: string]: Array<'repository' | 'repositoryKey' | 'repositorySlug'>;
+} = {
   [ALM_KEYS.AZURE]: [],
+  [ALM_KEYS.BITBUCKET]: ['repositoryKey', 'repositorySlug'],
   [ALM_KEYS.GITHUB]: ['repository']
 };
 
@@ -138,7 +142,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
   submitProjectAlmBinding(
     alm: ALM_KEYS,
     key: string,
-    almSpecificFields?: { repository?: string }
+    almSpecificFields?: { repository?: string; repositoryKey?: string; repositorySlug?: string }
   ): Promise<void> {
     const almSetting = key;
     const project = this.props.component.key;
@@ -149,6 +153,18 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
           almSetting,
           project
         });
+      case ALM_KEYS.BITBUCKET: {
+        if (!almSpecificFields) {
+          return Promise.reject();
+        }
+        const { repositoryKey = '', repositorySlug = '' } = almSpecificFields;
+        return setProjectBitbucketBinding({
+          almSetting,
+          project,
+          repositoryKey,
+          repositorySlug
+        });
+      }
       case ALM_KEYS.GITHUB: {
         const repository = almSpecificFields && almSpecificFields.repository;
         if (!repository) {

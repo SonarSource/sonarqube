@@ -42,23 +42,30 @@ declare namespace T {
     personalAccessToken: string;
     url: string;
   }
-  
+
   export interface GithubBindingDefinition extends AlmSettingsBinding {
     appId: string;
     privateKey: string;
     url: string;
   }
 
-
-
   export interface ProjectAlmBinding {
     key: string;
     repository?: string;
+    repositoryKey?: string;
+    repositorySlug?: string;
   }
 
   export interface AzureProjectAlmBinding {
     almSetting: string;
     project: string;
+  }
+
+  export interface BitbucketProjectAlmBinding {
+    almSetting: string;
+    project: string;
+    repositoryKey: string;
+    repositorySlug: string;
   }
 
   export interface GithubProjectAlmBinding {

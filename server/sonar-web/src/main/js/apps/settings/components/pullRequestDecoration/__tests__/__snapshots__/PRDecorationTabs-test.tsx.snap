@@ -26,6 +26,10 @@ exports[`should render correctly 1`] = `
           "label": "Github Enterprise",
         },
         Object {
+          "key": "bitbucket",
+          "label": "Bitbucket Server",
+        },
+        Object {
           "key": "azure",
           "label": "Azure DevOps Server",
         },
@@ -69,6 +73,10 @@ exports[`should render correctly 2`] = `
         Object {
           "key": "github",
           "label": "Github Enterprise",
+        },
+        Object {
+          "key": "bitbucket",
+          "label": "Bitbucket Server",
         },
         Object {
           "key": "azure",
@@ -121,6 +129,10 @@ exports[`should render correctly 3`] = `
           "label": "Github Enterprise",
         },
         Object {
+          "key": "bitbucket",
+          "label": "Bitbucket Server",
+        },
+        Object {
           "key": "azure",
           "label": "Azure DevOps Server",
         },
@@ -164,6 +176,10 @@ exports[`should render correctly 4`] = `
         Object {
           "key": "github",
           "label": "Github Enterprise",
+        },
+        Object {
+          "key": "bitbucket",
+          "label": "Bitbucket Server",
         },
         Object {
           "key": "azure",
