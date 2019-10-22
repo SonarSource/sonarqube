@@ -21,23 +21,27 @@ import * as React from 'react';
 import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { withAppState } from '../../../../components/hoc/withAppState';
+import { EditionKey } from '../../../../types/editions';
+import { SystemUpgrade } from '../../../../types/system';
 import SystemUpgradeItem from './SystemUpgradeItem';
 
 interface Props {
-  systemUpgrades: T.SystemUpgrade[][];
+  appState: Pick<T.AppState, 'edition'>;
   onClose: () => void;
+  systemUpgrades: SystemUpgrade[][];
 }
 
 interface State {
   upgrading: boolean;
 }
 
-export default class SystemUpgradeForm extends React.PureComponent<Props, State> {
+export class SystemUpgradeForm extends React.PureComponent<Props, State> {
   state: State = { upgrading: false };
 
   render() {
     const { upgrading } = this.state;
-    const { systemUpgrades } = this.props;
+    const { appState, systemUpgrades } = this.props;
     const header = translate('system.system_upgrade');
     return (
       <Modal contentLabel={header} onRequestClose={this.props.onClose}>
@@ -47,6 +51,9 @@ export default class SystemUpgradeForm extends React.PureComponent<Props, State>
         <div className="modal-body">
           {systemUpgrades.map((upgrades, idx) => (
             <SystemUpgradeItem
+              edition={
+                appState.edition as EditionKey /* TODO: Fix once AppState is no longer ambiant. */
+              }
               key={upgrades[upgrades.length - 1].version}
               systemUpgrades={upgrades}
               type={
@@ -70,3 +77,5 @@ export default class SystemUpgradeForm extends React.PureComponent<Props, State>
     );
   }
 }
+
+export default withAppState(SystemUpgradeForm);

@@ -21,22 +21,34 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import DateFormatter from '../../../../components/intl/DateFormatter';
+import {
+  getEdition,
+  getEditionDownloadFilename,
+  getEditionDownloadUrl
+} from '../../../../helpers/editions';
+import { EditionKey } from '../../../../types/editions';
+import { SystemUpgrade } from '../../../../types/system';
 import SystemUpgradeIntermediate from './SystemUpgradeIntermediate';
 
 interface Props {
-  type?: string;
-  systemUpgrades: T.SystemUpgrade[];
+  edition: EditionKey | undefined;
+  type: string;
+  systemUpgrades: SystemUpgrade[];
 }
 
-export default function SystemUpgradeItem({ type, systemUpgrades }: Props) {
+export default function SystemUpgradeItem(props: Props) {
+  const { edition, type, systemUpgrades } = props;
   const lastUpgrade = systemUpgrades[0];
+  const downloadUrl = getEditionDownloadUrl(
+    getEdition(edition || EditionKey.community),
+    lastUpgrade
+  );
+
   return (
     <div className="system-upgrade-version">
-      {type && (
-        <h1 className="spacer-bottom">
-          <strong>{type}</strong>
-        </h1>
-      )}
+      <h3 className="h1 spacer-bottom">
+        <strong>{type}</strong>
+      </h3>
       <p>
         <FormattedMessage
           defaultMessage={translate('system.version_is_availble')}
@@ -46,11 +58,13 @@ export default function SystemUpgradeItem({ type, systemUpgrades }: Props) {
       </p>
       <p className="spacer-top">{lastUpgrade.description}</p>
       <div className="big-spacer-top">
-        <DateFormatter date={lastUpgrade.releaseDate} long={true}>
-          {formattedDate => (
-            <span>{translateWithParameters('system.released_x', formattedDate)}</span>
-          )}
-        </DateFormatter>
+        {lastUpgrade.releaseDate && (
+          <DateFormatter date={lastUpgrade.releaseDate} long={true}>
+            {formattedDate => (
+              <span>{translateWithParameters('system.released_x', formattedDate)}</span>
+            )}
+          </DateFormatter>
+        )}
         {lastUpgrade.changeLogUrl && (
           <a
             className="spacer-left"
@@ -65,14 +79,16 @@ export default function SystemUpgradeItem({ type, systemUpgrades }: Props) {
       <div className="big-spacer-top">
         <a
           className="button"
-          download={`sonarqube-${lastUpgrade.version}.zip`}
-          href={lastUpgrade.downloadUrl}
-          target="blank">
+          download={getEditionDownloadFilename(downloadUrl)}
+          href={downloadUrl}
+          rel="noopener noreferrer"
+          target="_blank">
           {translateWithParameters('system.download_x', lastUpgrade.version)}
         </a>
         <a
           className="spacer-left"
           href="https://redirect.sonarsource.com/doc/upgrading.html"
+          rel="noopener noreferrer"
           target="_blank">
           {translate('system.how_to_upgrade')}
         </a>

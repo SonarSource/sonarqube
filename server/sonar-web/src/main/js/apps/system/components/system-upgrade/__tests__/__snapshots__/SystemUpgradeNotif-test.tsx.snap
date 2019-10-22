@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display correctly 1`] = `
+exports[`should render correctly 1`] = `
 <div
   className="page-notifs"
 >
@@ -15,5 +15,74 @@ exports[`should display correctly 1`] = `
       learn_more
     </Button>
   </Alert>
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="page-notifs"
+>
+  <Alert
+    variant="info"
+  >
+    system.new_version_available
+    <Button
+      className="spacer-left"
+      onClick={[Function]}
+    >
+      learn_more
+    </Button>
+  </Alert>
+  <Connect(withAppState(SystemUpgradeForm))
+    onClose={[Function]}
+    systemUpgrades={
+      Array [
+        Array [
+          Object {
+            "changeLogUrl": "changelogurl",
+            "description": "Version 6.4 description",
+            "downloadUrl": "downloadurl",
+            "plugins": Object {},
+            "releaseDate": "2017-06-02",
+            "version": "6.4",
+          },
+          Object {
+            "changeLogUrl": "changelogurl",
+            "description": "Version 6.3 description",
+            "downloadUrl": "downloadurl",
+            "plugins": Object {},
+            "releaseDate": "2017-05-02",
+            "version": "6.3",
+          },
+        ],
+        Array [
+          Object {
+            "changeLogUrl": "changelogurl",
+            "description": "Version 5.6.7 description",
+            "downloadUrl": "downloadurl",
+            "plugins": Object {},
+            "releaseDate": "2017-03-01",
+            "version": "5.6.7",
+          },
+          Object {
+            "changeLogUrl": "changelogurl",
+            "description": "Version 5.6.6 description",
+            "downloadUrl": "downloadurl",
+            "plugins": Object {},
+            "releaseDate": "2017-04-02",
+            "version": "5.6.6",
+          },
+          Object {
+            "changeLogUrl": "changelogurl",
+            "description": "Version 5.6.5 description",
+            "downloadUrl": "downloadurl",
+            "plugins": Object {},
+            "releaseDate": "2017-03-01",
+            "version": "5.6.5",
+          },
+        ],
+      ]
+    }
+  />
 </div>
 `;

@@ -22,10 +22,11 @@ import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import DateFormatter from '../../../../components/intl/DateFormatter';
+import { SystemUpgrade } from '../../../../types/system';
 
 interface Props {
   className?: string;
-  upgrades: T.SystemUpgrade[];
+  upgrades: SystemUpgrade[];
 }
 
 interface State {
@@ -57,24 +58,26 @@ export default class SystemUpgradeIntermediate extends React.PureComponent<Props
         {showMore &&
           upgrades.map(upgrade => (
             <div className="note system-upgrade-intermediate" key={upgrade.version}>
-              <DateFormatter date={upgrade.releaseDate} long={true}>
-                {formattedDate => (
-                  <p>
-                    <b className="little-spacer-right">SonarQube {upgrade.version}</b>
-                    {formattedDate}
-                    {upgrade.changeLogUrl && (
-                      <a
-                        className="spacer-left"
-                        href={upgrade.changeLogUrl}
-                        rel="noopener noreferrer"
-                        target="_blank">
-                        {translate('system.release_notes')}
-                      </a>
-                    )}
-                  </p>
-                )}
-              </DateFormatter>
-              <p className="little-spacer-top">{upgrade.description}</p>
+              {upgrade.releaseDate && (
+                <DateFormatter date={upgrade.releaseDate} long={true}>
+                  {formattedDate => (
+                    <p>
+                      <b className="little-spacer-right">SonarQube {upgrade.version}</b>
+                      {formattedDate}
+                      {upgrade.changeLogUrl && (
+                        <a
+                          className="spacer-left"
+                          href={upgrade.changeLogUrl}
+                          rel="noopener noreferrer"
+                          target="_blank">
+                          {translate('system.release_notes')}
+                        </a>
+                      )}
+                    </p>
+                  )}
+                </DateFormatter>
+              )}
+              {upgrade.description && <p className="little-spacer-top">{upgrade.description}</p>}
             </div>
           ))}
       </div>

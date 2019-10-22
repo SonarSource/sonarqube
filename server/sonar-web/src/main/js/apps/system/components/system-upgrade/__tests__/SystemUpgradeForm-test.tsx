@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import SystemUpgradeForm from '../SystemUpgradeForm';
+import { EditionKey } from '../../../../../types/editions';
+import { SystemUpgradeForm } from '../SystemUpgradeForm';
 
 const UPGRADES = [
   [
@@ -70,6 +71,12 @@ const UPGRADES = [
 
 it('should display correctly', () => {
   expect(
-    shallow(<SystemUpgradeForm onClose={jest.fn()} systemUpgrades={UPGRADES} />)
+    shallow(
+      <SystemUpgradeForm
+        appState={{ edition: EditionKey.community }}
+        onClose={jest.fn()}
+        systemUpgrades={UPGRADES}
+      />
+    )
   ).toMatchSnapshot();
 });

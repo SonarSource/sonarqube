@@ -19,41 +19,65 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { EditionKey } from '../../../../../types/editions';
 import SystemUpgradeItem from '../SystemUpgradeItem';
 
-const UPGRADES = [
-  {
-    version: '5.6.7',
-    description: 'Version 5.6.7 description',
-    releaseDate: '2017-03-01',
-    changeLogUrl: 'changelogurl',
-    downloadUrl: 'downloadurl',
-    plugins: {}
-  },
-  {
-    version: '5.6.6',
-    description: 'Version 5.6.6 description',
-    releaseDate: '2017-04-02',
-    changeLogUrl: 'changelogurl',
-    downloadUrl: 'downloadurl',
-    plugins: {}
-  },
-  {
-    version: '5.6.5',
-    description: 'Version 5.6.5 description',
-    releaseDate: '2017-03-01',
-    changeLogUrl: 'changelogurl',
-    downloadUrl: 'downloadurl',
-    plugins: {}
-  }
-];
-
 it('should display correctly', () => {
-  const wrapper = shallow(<SystemUpgradeItem systemUpgrades={UPGRADES} />);
-  expect(wrapper).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ edition: EditionKey.developer })).toMatchSnapshot();
+  expect(shallowRender({ edition: EditionKey.enterprise })).toMatchSnapshot();
+  expect(shallowRender({ edition: EditionKey.datacenter })).toMatchSnapshot();
+  // Fallback to Community.
+  expect(
+    shallowRender({
+      edition: EditionKey.datacenter,
+      systemUpgrades: [
+        {
+          version: '5.6.7',
+          description: 'Version 5.6.7 description',
+          releaseDate: '2017-03-01',
+          changeLogUrl: 'http://changelog.url/',
+          downloadUrl: 'http://download.url/community'
+        }
+      ]
+    })
+  ).toMatchSnapshot();
 });
 
-it('should display a badge', () => {
-  const wrapper = shallow(<SystemUpgradeItem systemUpgrades={UPGRADES} type="LTS Version" />);
-  expect(wrapper.find('h1').exists()).toBeTruthy();
-});
+function shallowRender(props = {}) {
+  return shallow(
+    <SystemUpgradeItem
+      edition={EditionKey.community}
+      systemUpgrades={[
+        {
+          version: '5.6.7',
+          description: 'Version 5.6.7 description',
+          releaseDate: '2017-03-01',
+          changeLogUrl: 'http://changelog.url/',
+          downloadUrl: 'http://download.url/community',
+          downloadDeveloperUrl: 'http://download.url/developer',
+          downloadEnterpriseUrl: 'http://download.url/enterprise',
+          downloadDatacenterUrl: 'http://download.url/datacenter'
+        },
+        {
+          version: '5.6.6',
+          description: 'Version 5.6.6 description',
+          releaseDate: '2017-04-02',
+          changeLogUrl: 'http://changelog.url/',
+          downloadUrl: 'http://download.url/community',
+          downloadDeveloperUrl: 'http://download.url/developer'
+        },
+        {
+          version: '5.6.5',
+          description: 'Version 5.6.5 description',
+          releaseDate: '2017-03-01',
+          changeLogUrl: 'http://changelog.url/',
+          downloadUrl: 'http://download.url/community',
+          downloadDeveloperUrl: 'http://download.url/developer'
+        }
+      ]}
+      type="Latest Version"
+      {...props}
+    />
+  );
+}

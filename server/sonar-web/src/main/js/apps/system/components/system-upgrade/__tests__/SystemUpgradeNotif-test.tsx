@@ -21,6 +21,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { getSystemUpgrades } from '../../../../../api/system';
 import SystemUpgradeNotif from '../SystemUpgradeNotif';
 
 jest.mock('../../../../../api/system', () => ({
@@ -73,36 +74,31 @@ jest.mock('../../../../../api/system', () => ({
   )
 }));
 
-const getSystemUpgrades = require('../../../../../api/system').getSystemUpgrades as jest.Mock<any>;
-
 beforeEach(() => {
-  getSystemUpgrades.mockClear();
+  jest.clearAllMocks();
 });
 
-it('should display correctly', async () => {
-  const wrapper = shallow(<SystemUpgradeNotif />);
-  expect(wrapper.type()).toBeNull();
+it('should render correctly', async () => {
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
+  expect(getSystemUpgrades).toHaveBeenCalled();
+
+  expect(wrapper).toMatchSnapshot();
+
+  click(wrapper.find('Button'));
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should display nothing', async () => {
-  getSystemUpgrades.mockImplementationOnce(() => {
+  (getSystemUpgrades as jest.Mock).mockImplementationOnce(() => {
     return Promise.resolve({ updateCenterRefresh: '', upgrades: [] });
   });
-  const wrapper = shallow(<SystemUpgradeNotif />);
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
+
   expect(wrapper.type()).toBeNull();
 });
 
-it('should fetch upgrade when mounting', () => {
-  shallow(<SystemUpgradeNotif />);
-  expect(getSystemUpgrades).toHaveBeenCalled();
-});
-
-it('should open the upgrade form', async () => {
-  const wrapper = shallow(<SystemUpgradeNotif />);
-  await waitAndUpdate(wrapper);
-  click(wrapper.find('Button'));
-  expect(wrapper.find('SystemUpgradeForm').exists()).toBeTruthy();
-});
+function shallowRender() {
+  return shallow<SystemUpgradeNotif>(<SystemUpgradeNotif />);
+}
