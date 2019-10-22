@@ -20,15 +20,25 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBitbucketDefinition } from '../../../../../helpers/testMocks';
-import BitbucketTable, { BitbucketTableProps } from '../BitbucketTable';
+import BitbucketTabRenderer, { BitbucketTabRendererProps } from '../BitbucketTabRenderer';
 
 it('should render correctly', () => {
+  expect(shallowRender({ loading: true })).toMatchSnapshot();
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ definitions: [mockBitbucketDefinition()] })).toMatchSnapshot();
+  expect(shallowRender({ editedDefinition: mockBitbucketDefinition() })).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<BitbucketTableProps> = {}) {
+function shallowRender(props: Partial<BitbucketTabRendererProps> = {}) {
   return shallow(
-    <BitbucketTable definitions={[]} onDelete={jest.fn()} onEdit={jest.fn()} {...props} />
+    <BitbucketTabRenderer
+      definitions={[]}
+      loading={false}
+      onCancel={jest.fn()}
+      onCreate={jest.fn()}
+      onDelete={jest.fn()}
+      onEdit={jest.fn()}
+      onSubmit={jest.fn()}
+      {...props}
+    />
   );
 }

@@ -23,7 +23,7 @@ import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { ALM_KEYS } from '../../utils';
+import { ALM_KEYS } from '../../../../types/alm-settings';
 
 export interface TabHeaderProps {
   alm: ALM_KEYS;

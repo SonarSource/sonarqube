@@ -86,6 +86,25 @@ it('should update config', async () => {
   expect(wrapper.state().editedDefinition).toBeUndefined();
 });
 
+it('should handle create', async () => {
+  const wrapper = shallowRender();
+  wrapper.instance().handleCreate();
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().editedDefinition).toEqual({ key: '', url: '', personalAccessToken: '' });
+});
+
+it('should handle edit', async () => {
+  const config = {
+    key: 'key',
+    url: 'url',
+    personalAccessToken: 'PAT'
+  };
+  const wrapper = shallowRender();
+  wrapper.instance().handleEdit(config);
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().editedDefinition).toEqual(config);
+});
+
 function shallowRender(props: Partial<BitbucketTab['props']> = {}) {
   return shallow<BitbucketTab>(
     <BitbucketTab

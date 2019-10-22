@@ -23,13 +23,13 @@ import {
   deleteConfiguration,
   getAlmDefinitions
 } from '../../../../api/almSettings';
-import { ALM_KEYS } from '../../utils';
+import { AlmSettingsBindingDefinitions, ALM_KEYS } from '../../../../types/alm-settings';
 import PRDecorationTabs from './PRDecorationTabs';
 
 interface State {
   currentAlm: ALM_KEYS;
   definitionKeyForDeletion?: string;
-  definitions: T.AlmSettingsBindingDefinitions;
+  definitions: AlmSettingsBindingDefinitions;
   loading: boolean;
   projectCount?: number;
 }

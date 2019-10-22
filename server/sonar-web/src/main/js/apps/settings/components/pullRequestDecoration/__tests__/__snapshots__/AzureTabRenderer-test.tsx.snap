@@ -6,11 +6,8 @@ exports[`should render correctly 1`] = `
     alm="azure"
     onCreate={[MockFunction]}
   />
-  <AzureTable
-    definitions={Array []}
-    loading={true}
-    onDelete={[MockFunction]}
-    onEdit={[MockFunction]}
+  <DeferredSpinner
+    timeout={100}
   />
 </Fragment>
 `;
@@ -23,7 +20,6 @@ exports[`should render correctly 2`] = `
   />
   <AzureTable
     definitions={Array []}
-    loading={false}
     onDelete={[MockFunction]}
     onEdit={[MockFunction]}
   />
@@ -38,7 +34,6 @@ exports[`should render correctly 3`] = `
   />
   <AzureTable
     definitions={Array []}
-    loading={false}
     onDelete={[MockFunction]}
     onEdit={[MockFunction]}
   />

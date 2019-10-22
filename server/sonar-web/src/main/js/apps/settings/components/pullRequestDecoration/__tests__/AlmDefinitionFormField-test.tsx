@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { AlmSettingsBinding } from '../../../../../types/alm-settings';
 import { AlmDefinitionFormField, AlmDefinitionFormFieldProps } from '../AlmDefinitionFormField';
 
 it('should render correctly', () => {
@@ -41,7 +42,7 @@ it('should call onFieldChange', () => {
   expect(onTextAreaChange).toBeCalled();
 });
 
-function shallowRender(props: Partial<AlmDefinitionFormFieldProps<T.AlmSettingsBinding>> = {}) {
+function shallowRender(props: Partial<AlmDefinitionFormFieldProps<AlmSettingsBinding>> = {}) {
   return shallow(
     <AlmDefinitionFormField
       formData={{ key: 'key' }}

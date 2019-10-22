@@ -20,7 +20,9 @@
 import * as React from 'react';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { almName, ALM_KEYS } from '../../utils';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { AlmSettingsBindingDefinitions, ALM_KEYS } from '../../../../types/alm-settings';
+import { almName } from '../../utils';
 import AzureTab from './AzureTab';
 import BitbucketTab from './BitbucketTab';
 import DeleteModal from './DeleteModal';
@@ -29,7 +31,7 @@ import GithubTab from './GithubTab';
 export interface PRDecorationTabsProps {
   currentAlm: ALM_KEYS;
   definitionKeyForDeletion?: string;
-  definitions: T.AlmSettingsBindingDefinitions;
+  definitions: AlmSettingsBindingDefinitions;
   loading: boolean;
   onCancel: () => void;
   onConfirmDelete: (definitionKey: string) => void;
@@ -57,15 +59,45 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
         tabs={[
           {
             key: ALM_KEYS.GITHUB,
-            label: almName[ALM_KEYS.GITHUB]
+            label: (
+              <>
+                <img
+                  alt="github"
+                  className="spacer-right"
+                  src={`${getBaseUrl()}/images/sonarcloud/github.svg`}
+                  width={16}
+                />
+                {almName[ALM_KEYS.GITHUB]}
+              </>
+            )
           },
           {
             key: ALM_KEYS.BITBUCKET,
-            label: almName[ALM_KEYS.BITBUCKET]
+            label: (
+              <>
+                <img
+                  alt="bitbucket"
+                  className="spacer-right"
+                  src={`${getBaseUrl()}/images/sonarcloud/bitbucket.svg`}
+                  width={16}
+                />
+                {almName[ALM_KEYS.BITBUCKET]}
+              </>
+            )
           },
           {
             key: ALM_KEYS.AZURE,
-            label: almName[ALM_KEYS.AZURE]
+            label: (
+              <>
+                <img
+                  alt="azure"
+                  className="spacer-right"
+                  src={`${getBaseUrl()}/images/sonarcloud/azure.svg`}
+                  width={16}
+                />
+                {almName[ALM_KEYS.AZURE]}
+              </>
+            )
           }
         ]}
       />

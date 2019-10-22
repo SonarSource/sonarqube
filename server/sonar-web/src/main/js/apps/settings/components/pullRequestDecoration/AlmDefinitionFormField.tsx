@@ -20,8 +20,9 @@
 import * as React from 'react';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { AlmSettingsBinding } from '../../../../types/alm-settings';
 
-export interface AlmDefinitionFormFieldProps<B extends T.AlmSettingsBinding> {
+export interface AlmDefinitionFormFieldProps<B extends AlmSettingsBinding> {
   autoFocus?: boolean;
   formData: B;
   help: boolean;
@@ -32,7 +33,7 @@ export interface AlmDefinitionFormFieldProps<B extends T.AlmSettingsBinding> {
   propKey: keyof B;
 }
 
-export function AlmDefinitionFormField<B extends T.AlmSettingsBinding>(
+export function AlmDefinitionFormField<B extends AlmSettingsBinding>(
   props: AlmDefinitionFormFieldProps<B>
 ) {
   const { autoFocus, formData, help, id, isTextArea, maxLength, onFieldChange, propKey } = props;

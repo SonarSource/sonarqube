@@ -18,21 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ALM_KEYS } from '../../utils';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { ALM_KEYS, AzureBindingDefinition } from '../../../../types/alm-settings';
 import AlmPRDecorationFormModal from './AlmPRDecorationFormModal';
 import AzureFormModal from './AzureFormModal';
 import AzureTable from './AzureTable';
 import TabHeader from './TabHeader';
 
 export interface AzureTabRendererProps {
-  editedDefinition?: T.AzureBindingDefinition;
-  definitions: T.AzureBindingDefinition[];
+  editedDefinition?: AzureBindingDefinition;
+  definitions: AzureBindingDefinition[];
   loading: boolean;
   onCancel: () => void;
   onCreate: () => void;
   onDelete: (definitionKey: string) => void;
-  onEdit: (config: T.AzureBindingDefinition) => void;
-  onSubmit: (config: T.AzureBindingDefinition, originalKey: string) => void;
+  onEdit: (config: AzureBindingDefinition) => void;
+  onSubmit: (config: AzureBindingDefinition, originalKey: string) => void;
 }
 
 export default function AzureTabRenderer(props: AzureTabRendererProps) {
@@ -41,12 +42,11 @@ export default function AzureTabRenderer(props: AzureTabRendererProps) {
     <>
       <TabHeader alm={ALM_KEYS.AZURE} onCreate={props.onCreate} />
 
-      <AzureTable
-        definitions={definitions}
-        loading={loading}
-        onDelete={props.onDelete}
-        onEdit={props.onEdit}
-      />
+      {loading ? (
+        <DeferredSpinner />
+      ) : (
+        <AzureTable definitions={definitions} onDelete={props.onDelete} onEdit={props.onEdit} />
+      )}
 
       {editedDefinition && (
         <AlmPRDecorationFormModal

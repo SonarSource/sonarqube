@@ -29,12 +29,6 @@ it('should render correctly', () => {
 
 function shallowRender(props: Partial<GithubTableProps> = {}) {
   return shallow(
-    <GithubTable
-      definitions={[]}
-      loading={false}
-      onDelete={jest.fn()}
-      onEdit={jest.fn()}
-      {...props}
-    />
+    <GithubTable definitions={[]} onDelete={jest.fn()} onEdit={jest.fn()} {...props} />
   );
 }

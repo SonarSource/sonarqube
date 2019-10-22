@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockGithubDefinition } from '../../../../../helpers/testMocks';
+import { GithubBindingDefinition } from '../../../../../types/alm-settings';
 import AlmPRDecorationFormModal from '../AlmPRDecorationFormModal';
 
 it('should render correctly', () => {
@@ -75,9 +76,9 @@ it('should (dis)allow submit by validating its state', async () => {
 });
 
 function shallowRender(
-  props: Partial<AlmPRDecorationFormModal<T.GithubBindingDefinition>['props']> = {}
+  props: Partial<AlmPRDecorationFormModal<GithubBindingDefinition>['props']> = {}
 ) {
-  return shallow<AlmPRDecorationFormModal<T.GithubBindingDefinition>>(
+  return shallow<AlmPRDecorationFormModal<GithubBindingDefinition>>(
     <AlmPRDecorationFormModal
       bindingDefinition={{ appId: '', key: '', privateKey: '', url: '' }}
       onCancel={jest.fn()}

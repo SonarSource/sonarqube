@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { GithubBindingDefinition } from '../../../../types/alm-settings';
 import { AlmDefinitionFormField } from './AlmDefinitionFormField';
 
 export interface GithubFormModalProps {
-  formData: T.GithubBindingDefinition;
-  onFieldChange: (fieldId: keyof T.GithubBindingDefinition, value: string) => void;
+  formData: GithubBindingDefinition;
+  onFieldChange: (fieldId: keyof GithubBindingDefinition, value: string) => void;
 }
 
 export default function GithubFormModal(props: GithubFormModalProps) {

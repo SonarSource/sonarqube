@@ -22,17 +22,18 @@ import {
   createBitbucketConfiguration,
   updateBitbucketConfiguration
 } from '../../../../api/almSettings';
+import { BitbucketBindingDefinition } from '../../../../types/alm-settings';
 import BitbucketTabRenderer from './BitbucketTabRenderer';
 
 interface Props {
-  definitions: T.BitbucketBindingDefinition[];
+  definitions: BitbucketBindingDefinition[];
   loading: boolean;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
 }
 
 interface State {
-  editedDefinition?: T.BitbucketBindingDefinition;
+  editedDefinition?: BitbucketBindingDefinition;
   projectCount?: number;
 }
 
@@ -58,11 +59,11 @@ export default class BitbucketTab extends React.PureComponent<Props, State> {
     this.setState({ editedDefinition: { key: '', url: '', personalAccessToken: '' } });
   };
 
-  handleEdit = (config: T.BitbucketBindingDefinition) => {
+  handleEdit = (config: BitbucketBindingDefinition) => {
     this.setState({ editedDefinition: config });
   };
 
-  handleSubmit = (config: T.BitbucketBindingDefinition, originalKey: string) => {
+  handleSubmit = (config: BitbucketBindingDefinition, originalKey: string) => {
     const call = originalKey
       ? updateBitbucketConfiguration({ newKey: config.key, ...config, key: originalKey })
       : createBitbucketConfiguration(config);

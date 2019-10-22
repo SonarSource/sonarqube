@@ -66,7 +66,7 @@ exports[`should render correctly 2`] = `
         key
       </td>
       <td>
-        http:alm.enterprise.com
+        http://github.enterprise.com
       </td>
       <td>
         123456

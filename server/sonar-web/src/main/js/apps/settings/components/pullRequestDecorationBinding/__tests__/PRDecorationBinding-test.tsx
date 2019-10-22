@@ -29,7 +29,7 @@ import {
   setProjectGithubBinding
 } from '../../../../../api/almSettings';
 import { mockComponent } from '../../../../../helpers/testMocks';
-import { ALM_KEYS } from '../../../utils';
+import { ALM_KEYS } from '../../../../../types/alm-settings';
 import PRDecorationBinding from '../PRDecorationBinding';
 
 jest.mock('../../../../../api/almSettings', () => ({

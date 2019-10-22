@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { AlmSettingsBinding } from '../../../../types/alm-settings';
 import AlmPRDecorationFormModalRenderer from './AlmPRDecorationFormModalRenderer';
 
 interface ChildrenProps<AlmBindingDefinitionType> {
@@ -37,7 +38,7 @@ interface State<AlmBindingDefinitionType> {
 }
 
 export default class AlmPRDecorationFormModal<
-  B extends T.AlmSettingsBinding
+  B extends AlmSettingsBinding
 > extends React.PureComponent<Props<B>, State<B>> {
   constructor(props: Props<B>) {
     super(props);

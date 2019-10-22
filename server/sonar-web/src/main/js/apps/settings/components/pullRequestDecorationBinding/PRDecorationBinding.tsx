@@ -27,7 +27,7 @@ import {
   setProjectGithubBinding
 } from '../../../../api/almSettings';
 import throwGlobalError from '../../../../app/utils/throwGlobalError';
-import { ALM_KEYS } from '../../utils';
+import { AlmSettingsInstance, ALM_KEYS, ProjectAlmBinding } from '../../../../types/alm-settings';
 import PRDecorationBindingRenderer from './PRDecorationBindingRenderer';
 
 interface Props {
@@ -35,9 +35,9 @@ interface Props {
 }
 
 interface State {
-  formData: T.ProjectAlmBinding;
+  formData: ProjectAlmBinding;
   hasBinding: boolean;
-  instances: T.AlmSettingsInstance[];
+  instances: AlmSettingsInstance[];
   isValid: boolean;
   loading: boolean;
   saving: boolean;
@@ -194,7 +194,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
     }
 
     if (key) {
-      this.submitProjectAlmBinding(selected.alm as ALM_KEYS, key, additionalFields)
+      this.submitProjectAlmBinding(selected.alm, key, additionalFields)
         .then(() => {
           if (this.mounted) {
             this.setState({
@@ -208,7 +208,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
     }
   };
 
-  handleFieldChange = (id: keyof T.ProjectAlmBinding, value: string) => {
+  handleFieldChange = (id: keyof ProjectAlmBinding, value: string) => {
     this.setState(({ formData }) => {
       const newFormData = {
         ...formData,
@@ -228,7 +228,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
     if (!key || !selected) {
       return false;
     }
-    return FIELDS_BY_ALM[selected.alm as ALM_KEYS].reduce(
+    return FIELDS_BY_ALM[selected.alm].reduce(
       (result: boolean, field) => result && Boolean(additionalFields[field]),
       true
     );

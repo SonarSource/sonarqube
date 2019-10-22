@@ -3,7 +3,7 @@
 exports[`should render correctly 1`] = `
 <Fragment>
   <TabHeader
-    alm="github"
+    alm="bitbucket"
     onCreate={[MockFunction]}
   />
   <DeferredSpinner
@@ -15,10 +15,10 @@ exports[`should render correctly 1`] = `
 exports[`should render correctly 2`] = `
 <Fragment>
   <TabHeader
-    alm="github"
+    alm="bitbucket"
     onCreate={[MockFunction]}
   />
-  <GithubTable
+  <BitbucketTable
     definitions={Array []}
     onDelete={[MockFunction]}
     onEdit={[MockFunction]}
@@ -29,10 +29,10 @@ exports[`should render correctly 2`] = `
 exports[`should render correctly 3`] = `
 <Fragment>
   <TabHeader
-    alm="github"
+    alm="bitbucket"
     onCreate={[MockFunction]}
   />
-  <GithubTable
+  <BitbucketTable
     definitions={Array []}
     onDelete={[MockFunction]}
     onEdit={[MockFunction]}
@@ -40,10 +40,9 @@ exports[`should render correctly 3`] = `
   <AlmPRDecorationFormModal
     bindingDefinition={
       Object {
-        "appId": "123456",
         "key": "key",
-        "privateKey": "asdf1234",
-        "url": "http://github.enterprise.com",
+        "personalAccessToken": "asdf1234",
+        "url": "http://bbs.enterprise.com",
       }
     }
     onCancel={[MockFunction]}

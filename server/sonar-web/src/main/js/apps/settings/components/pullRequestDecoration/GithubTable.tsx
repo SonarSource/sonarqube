@@ -20,22 +20,17 @@
 import * as React from 'react';
 import { ButtonIcon, DeleteButton } from 'sonar-ui-common/components/controls/buttons';
 import EditIcon from 'sonar-ui-common/components/icons/EditIcon';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { GithubBindingDefinition } from '../../../../types/alm-settings';
 
 export interface GithubTableProps {
-  definitions: T.GithubBindingDefinition[];
-  loading: boolean;
+  definitions: GithubBindingDefinition[];
   onDelete: (definitionKey: string) => void;
-  onEdit: (config: T.GithubBindingDefinition) => void;
+  onEdit: (config: GithubBindingDefinition) => void;
 }
 
 export default function GithubTable(props: GithubTableProps) {
-  const { definitions, loading } = props;
-
-  if (loading) {
-    return <DeferredSpinner />;
-  }
+  const { definitions } = props;
 
   return (
     <table className="data zebra spacer-bottom">

@@ -20,16 +20,17 @@
 import * as React from 'react';
 import { createAzureConfiguration, updateAzureConfiguration } from '../../../../api/almSettings';
 import AzureTabRenderer from './AzureTabRenderer';
+import { AzureBindingDefinition } from '../../../../types/alm-settings';
 
 interface Props {
-  definitions: T.AzureBindingDefinition[];
+  definitions: AzureBindingDefinition[];
   loading: boolean;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
 }
 
 interface State {
-  editedDefinition?: T.AzureBindingDefinition;
+  editedDefinition?: AzureBindingDefinition;
   projectCount?: number;
 }
 
@@ -55,11 +56,11 @@ export default class AzureTab extends React.PureComponent<Props, State> {
     this.setState({ editedDefinition: { key: '', personalAccessToken: '' } });
   };
 
-  handleEdit = (config: T.AzureBindingDefinition) => {
+  handleEdit = (config: AzureBindingDefinition) => {
     this.setState({ editedDefinition: config });
   };
 
-  handleSubmit = (config: T.AzureBindingDefinition, originalKey: string) => {
+  handleSubmit = (config: AzureBindingDefinition, originalKey: string) => {
     const call = originalKey
       ? updateAzureConfiguration({ newKey: config.key, ...config, key: originalKey })
       : createAzureConfiguration(config);

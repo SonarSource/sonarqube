@@ -29,12 +29,6 @@ it('should render correctly', () => {
 
 function shallowRender(props: Partial<AzureTableProps> = {}) {
   return shallow(
-    <AzureTable
-      definitions={[]}
-      loading={false}
-      onDelete={jest.fn()}
-      onEdit={jest.fn()}
-      {...props}
-    />
+    <AzureTable definitions={[]} onDelete={jest.fn()} onEdit={jest.fn()} {...props} />
   );
 }

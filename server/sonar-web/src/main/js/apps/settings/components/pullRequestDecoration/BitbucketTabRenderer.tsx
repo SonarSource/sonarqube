@@ -18,21 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ALM_KEYS } from '../../utils';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { ALM_KEYS, BitbucketBindingDefinition } from '../../../../types/alm-settings';
 import AlmPRDecorationFormModal from './AlmPRDecorationFormModal';
 import BitbucketFormModal from './BitbucketFormModal';
 import BitbucketTable from './BitbucketTable';
 import TabHeader from './TabHeader';
 
 export interface BitbucketTabRendererProps {
-  editedDefinition?: T.BitbucketBindingDefinition;
-  definitions: T.BitbucketBindingDefinition[];
+  editedDefinition?: BitbucketBindingDefinition;
+  definitions: BitbucketBindingDefinition[];
   loading: boolean;
   onCancel: () => void;
   onCreate: () => void;
   onDelete: (definitionKey: string) => void;
-  onEdit: (config: T.BitbucketBindingDefinition) => void;
-  onSubmit: (config: T.BitbucketBindingDefinition, originalKey: string) => void;
+  onEdit: (config: BitbucketBindingDefinition) => void;
+  onSubmit: (config: BitbucketBindingDefinition, originalKey: string) => void;
 }
 
 export default function BitbucketTabRenderer(props: BitbucketTabRendererProps) {
@@ -41,12 +42,11 @@ export default function BitbucketTabRenderer(props: BitbucketTabRendererProps) {
     <>
       <TabHeader alm={ALM_KEYS.BITBUCKET} onCreate={props.onCreate} />
 
-      <BitbucketTable
-        definitions={definitions}
-        loading={loading}
-        onDelete={props.onDelete}
-        onEdit={props.onEdit}
-      />
+      {loading ? (
+        <DeferredSpinner />
+      ) : (
+        <BitbucketTable definitions={definitions} onDelete={props.onDelete} onEdit={props.onEdit} />
+      )}
 
       {editedDefinition && (
         <AlmPRDecorationFormModal

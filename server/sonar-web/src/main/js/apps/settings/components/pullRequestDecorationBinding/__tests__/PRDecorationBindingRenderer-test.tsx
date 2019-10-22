@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ALM_KEYS } from '../../../../../types/alm-settings';
 import PRDecorationBindingRenderer, {
   PRDecorationBindingRendererProps
 } from '../PRDecorationBindingRenderer';
@@ -32,7 +33,7 @@ it('should render single instance correctly', () => {
   const singleInstance = {
     key: 'single',
     url: 'http://single.url',
-    alm: 'github'
+    alm: ALM_KEYS.GITHUB
   };
   expect(
     shallowRender({
@@ -43,22 +44,26 @@ it('should render single instance correctly', () => {
 });
 
 it('should render multiple instances correctly', () => {
-  const urls = ['http://github.enterprise.com', 'http://github2.enterprise.com'];
+  const urls = ['http://github.enterprise.com', 'http://bbs.enterprise.com'];
   const instances = [
     {
-      alm: 'github',
+      alm: ALM_KEYS.GITHUB,
       key: 'i1',
       url: urls[0]
     },
     {
-      alm: 'github',
+      alm: ALM_KEYS.GITHUB,
       key: 'i2',
       url: urls[0]
     },
     {
-      alm: 'github',
+      alm: ALM_KEYS.BITBUCKET,
       key: 'i3',
       url: urls[1]
+    },
+    {
+      alm: ALM_KEYS.AZURE,
+      key: 'i4'
     }
   ];
 
@@ -86,7 +91,7 @@ it('should render multiple instances correctly', () => {
 
 it('should display action state correctly', () => {
   const urls = ['http://url.com'];
-  const instances = [{ key: 'key', url: urls[0], alm: 'github' }];
+  const instances = [{ key: 'key', url: urls[0], alm: ALM_KEYS.GITHUB }];
 
   expect(shallowRender({ instances, loading: false, saving: true })).toMatchSnapshot();
   expect(shallowRender({ instances, loading: false, success: true })).toMatchSnapshot();

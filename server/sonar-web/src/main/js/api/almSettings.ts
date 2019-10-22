@@ -19,39 +19,50 @@
  */
 import { getJSON, post } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import {
+  AlmSettingsBindingDefinitions,
+  AlmSettingsInstance,
+  AzureBindingDefinition,
+  AzureProjectAlmBinding,
+  BitbucketBindingDefinition,
+  BitbucketProjectAlmBinding,
+  GithubBindingDefinition,
+  GithubProjectAlmBinding,
+  ProjectAlmBinding
+} from '../types/alm-settings';
 
-export function getAlmDefinitions(): Promise<T.AlmSettingsBindingDefinitions> {
+export function getAlmDefinitions(): Promise<AlmSettingsBindingDefinitions> {
   return getJSON('/api/alm_settings/list_definitions').catch(throwGlobalError);
 }
 
-export function getAlmSettings(project: string): Promise<T.AlmSettingsInstance[]> {
+export function getAlmSettings(project: string): Promise<AlmSettingsInstance[]> {
   return getJSON('/api/alm_settings/list', { project })
     .then(({ almSettings }) => almSettings)
     .catch(throwGlobalError);
 }
 
-export function createGithubConfiguration(data: T.GithubBindingDefinition) {
+export function createGithubConfiguration(data: GithubBindingDefinition) {
   return post('/api/alm_settings/create_github', data).catch(throwGlobalError);
 }
 
-export function updateGithubConfiguration(data: T.GithubBindingDefinition & { newKey: string }) {
+export function updateGithubConfiguration(data: GithubBindingDefinition & { newKey: string }) {
   return post('/api/alm_settings/update_github', data).catch(throwGlobalError);
 }
 
-export function createAzureConfiguration(data: T.AzureBindingDefinition) {
+export function createAzureConfiguration(data: AzureBindingDefinition) {
   return post('/api/alm_settings/create_azure', data).catch(throwGlobalError);
 }
 
-export function updateAzureConfiguration(data: T.AzureBindingDefinition & { newKey: string }) {
+export function updateAzureConfiguration(data: AzureBindingDefinition & { newKey: string }) {
   return post('/api/alm_settings/update_azure', data).catch(throwGlobalError);
 }
 
-export function createBitbucketConfiguration(data: T.BitbucketBindingDefinition) {
+export function createBitbucketConfiguration(data: BitbucketBindingDefinition) {
   return post('/api/alm_settings/create_bitbucket', data).catch(throwGlobalError);
 }
 
 export function updateBitbucketConfiguration(
-  data: T.BitbucketBindingDefinition & { newKey: string }
+  data: BitbucketBindingDefinition & { newKey: string }
 ) {
   return post('/api/alm_settings/update_bitbucket', data).catch(throwGlobalError);
 }
@@ -66,7 +77,7 @@ export function countBindedProjects(almSetting: string) {
     .catch(throwGlobalError);
 }
 
-export function getProjectAlmBinding(project: string): Promise<T.ProjectAlmBinding> {
+export function getProjectAlmBinding(project: string): Promise<ProjectAlmBinding> {
   return getJSON('/api/alm_settings/get_binding', { project });
 }
 
@@ -74,14 +85,14 @@ export function deleteProjectAlmBinding(project: string): Promise<void> {
   return post('/api/alm_settings/delete_binding', { project }).catch(throwGlobalError);
 }
 
-export function setProjectAzureBinding(data: T.AzureProjectAlmBinding) {
+export function setProjectAzureBinding(data: AzureProjectAlmBinding) {
   return post('/api/alm_settings/set_azure_binding', data).catch(throwGlobalError);
 }
 
-export function setProjectBitbucketBinding(data: T.BitbucketProjectAlmBinding) {
+export function setProjectBitbucketBinding(data: BitbucketProjectAlmBinding) {
   return post('/api/alm_settings/set_bitbucket_binding', data).catch(throwGlobalError);
 }
 
-export function setProjectGithubBinding(data: T.GithubProjectAlmBinding) {
+export function setProjectGithubBinding(data: GithubProjectAlmBinding) {
   return post('/api/alm_settings/set_github_binding', data).catch(throwGlobalError);
 }

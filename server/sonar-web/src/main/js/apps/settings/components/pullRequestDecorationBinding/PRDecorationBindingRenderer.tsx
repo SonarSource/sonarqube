@@ -27,31 +27,31 @@ import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon'
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { ALM_KEYS } from '../../utils';
+import { AlmSettingsInstance, ALM_KEYS, ProjectAlmBinding } from '../../../../types/alm-settings';
 
 export interface PRDecorationBindingRendererProps {
-  formData: T.ProjectAlmBinding;
+  formData: ProjectAlmBinding;
   hasBinding: boolean;
-  instances: T.AlmSettingsInstance[];
+  instances: AlmSettingsInstance[];
   isValid: boolean;
   loading: boolean;
-  onFieldChange: (id: keyof T.ProjectAlmBinding, value: string) => void;
+  onFieldChange: (id: keyof ProjectAlmBinding, value: string) => void;
   onReset: () => void;
   onSubmit: () => void;
   saving: boolean;
   success: boolean;
 }
 
-function renderLabel(v: T.AlmSettingsInstance) {
+function renderLabel(v: AlmSettingsInstance) {
   return v.url ? `${v.key} — ${v.url}` : v.key;
 }
 
 function renderField(props: {
   help?: boolean;
-  helpParams?: { [key: string]: string | number | boolean | Date | JSX.Element | null | undefined };
+  helpParams?: { [key: string]: string | JSX.Element };
   id: string;
-  onFieldChange: (id: keyof T.ProjectAlmBinding, value: string) => void;
-  propKey: keyof T.ProjectAlmBinding;
+  onFieldChange: (id: keyof ProjectAlmBinding, value: string) => void;
+  propKey: keyof ProjectAlmBinding;
   value: string;
 }) {
   const { help, helpParams, id, propKey, value, onFieldChange } = props;
@@ -122,7 +122,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
   }
 
   const selected = key && instances.find(i => i.key === key);
-  const alm = selected && (selected.alm as ALM_KEYS);
+  const alm = selected && selected.alm;
 
   return (
     <div>

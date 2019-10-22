@@ -25,7 +25,7 @@ import {
   deleteConfiguration,
   getAlmDefinitions
 } from '../../../../../api/almSettings';
-import { ALM_KEYS } from '../../../utils';
+import { ALM_KEYS } from '../../../../../types/alm-settings';
 import PullRequestDecoration from '../PullRequestDecoration';
 
 jest.mock('../../../../../api/almSettings', () => ({

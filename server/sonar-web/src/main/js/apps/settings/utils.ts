@@ -19,14 +19,9 @@
  */
 import { sanitize } from 'dompurify';
 import { hasMessage, translate } from 'sonar-ui-common/helpers/l10n';
+import { ALM_KEYS } from '../../types/alm-settings';
 
 export const DEFAULT_CATEGORY = 'general';
-
-export enum ALM_KEYS {
-  AZURE = 'azure',
-  BITBUCKET = 'bitbucket',
-  GITHUB = 'github'
-}
 
 export const almName = {
   [ALM_KEYS.AZURE]: 'Azure DevOps Server',

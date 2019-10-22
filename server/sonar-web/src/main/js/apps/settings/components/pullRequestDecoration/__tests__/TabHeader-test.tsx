@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ALM_KEYS } from '../../../utils';
+import { ALM_KEYS } from '../../../../../types/alm-settings';
 import TabHeader, { TabHeaderProps } from '../TabHeader';
 
 it('should render correctly', () => {

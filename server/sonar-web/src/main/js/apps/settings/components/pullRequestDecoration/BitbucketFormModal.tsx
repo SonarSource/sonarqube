@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { BitbucketBindingDefinition } from '../../../../types/alm-settings';
 import { AlmDefinitionFormField } from './AlmDefinitionFormField';
 
 export interface BitbucketFormModalProps {
-  formData: T.BitbucketBindingDefinition;
-  onFieldChange: (fieldId: keyof T.BitbucketBindingDefinition, value: string) => void;
+  formData: BitbucketBindingDefinition;
+  onFieldChange: (fieldId: keyof BitbucketBindingDefinition, value: string) => void;
 }
 
 export default function BitbucketFormModal(props: BitbucketFormModalProps) {

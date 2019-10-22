@@ -291,8 +291,12 @@ exports[`should render multiple instances correctly 1`] = `
               "value": "i2",
             },
             Object {
-              "label": "i3 — http://github2.enterprise.com",
+              "label": "i3 — http://bbs.enterprise.com",
               "value": "i3",
+            },
+            Object {
+              "label": "i4",
+              "value": "i4",
             },
           ]
         }
@@ -367,8 +371,12 @@ exports[`should render multiple instances correctly 2`] = `
               "value": "i2",
             },
             Object {
-              "label": "i3 — http://github2.enterprise.com",
+              "label": "i3 — http://bbs.enterprise.com",
               "value": "i3",
+            },
+            Object {
+              "label": "i4",
+              "value": "i4",
             },
           ]
         }

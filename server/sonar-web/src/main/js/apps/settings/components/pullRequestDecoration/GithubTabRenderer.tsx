@@ -18,21 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ALM_KEYS } from '../../utils';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { ALM_KEYS, GithubBindingDefinition } from '../../../../types/alm-settings';
 import AlmPRDecorationFormModal from './AlmPRDecorationFormModal';
 import GithubFormModal from './GithubFormModal';
 import GithubTable from './GithubTable';
 import TabHeader from './TabHeader';
 
 export interface GithubTabRendererProps {
-  editedDefinition?: T.GithubBindingDefinition;
-  definitions: T.GithubBindingDefinition[];
+  editedDefinition?: GithubBindingDefinition;
+  definitions: GithubBindingDefinition[];
   loading: boolean;
   onCancel: () => void;
   onCreate: () => void;
   onDelete: (definitionKey: string) => void;
-  onEdit: (config: T.GithubBindingDefinition) => void;
-  onSubmit: (config: T.GithubBindingDefinition, originalKey: string) => void;
+  onEdit: (config: GithubBindingDefinition) => void;
+  onSubmit: (config: GithubBindingDefinition, originalKey: string) => void;
 }
 
 export default function GithubTabRenderer(props: GithubTabRendererProps) {
@@ -41,12 +42,11 @@ export default function GithubTabRenderer(props: GithubTabRendererProps) {
     <>
       <TabHeader alm={ALM_KEYS.GITHUB} onCreate={props.onCreate} />
 
-      <GithubTable
-        definitions={definitions}
-        loading={loading}
-        onDelete={props.onDelete}
-        onEdit={props.onEdit}
-      />
+      {loading ? (
+        <DeferredSpinner />
+      ) : (
+        <GithubTable definitions={definitions} onDelete={props.onDelete} onEdit={props.onEdit} />
+      )}
 
       {editedDefinition && (
         <AlmPRDecorationFormModal

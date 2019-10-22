@@ -19,17 +19,18 @@
  */
 import * as React from 'react';
 import { createGithubConfiguration, updateGithubConfiguration } from '../../../../api/almSettings';
+import { GithubBindingDefinition } from '../../../../types/alm-settings';
 import GithubTabRenderer from './GithubTabRenderer';
 
 interface Props {
-  definitions: T.GithubBindingDefinition[];
+  definitions: GithubBindingDefinition[];
   loading: boolean;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
 }
 
 interface State {
-  editedDefinition?: T.GithubBindingDefinition;
+  editedDefinition?: GithubBindingDefinition;
   projectCount?: number;
 }
 
@@ -55,11 +56,11 @@ export default class GithubTab extends React.PureComponent<Props, State> {
     this.setState({ editedDefinition: { key: '', appId: '', url: '', privateKey: '' } });
   };
 
-  handleEdit = (config: T.GithubBindingDefinition) => {
+  handleEdit = (config: GithubBindingDefinition) => {
     this.setState({ editedDefinition: config });
   };
 
-  handleSubmit = (config: T.GithubBindingDefinition, originalKey: string) => {
+  handleSubmit = (config: GithubBindingDefinition, originalKey: string) => {
     const call = originalKey
       ? updateGithubConfiguration({ newKey: config.key, ...config, key: originalKey })
       : createGithubConfiguration(config);

@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { AzureBindingDefinition } from '../../../../types/alm-settings';
 import { AlmDefinitionFormField } from './AlmDefinitionFormField';
 
 export interface AzureFormModalProps {
-  formData: T.AzureBindingDefinition;
-  onFieldChange: (fieldId: keyof T.AzureBindingDefinition, value: string) => void;
+  formData: AzureBindingDefinition;
+  onFieldChange: (fieldId: keyof AzureBindingDefinition, value: string) => void;
 }
 
 export default function AzureFormModal(props: AzureFormModalProps) {
