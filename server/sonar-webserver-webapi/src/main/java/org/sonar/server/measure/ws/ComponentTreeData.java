@@ -76,7 +76,6 @@ class ComponentTreeData {
     return metrics;
   }
 
-  @CheckForNull
   Measures.Period getPeriod() {
     return period;
   }

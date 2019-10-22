@@ -49,9 +49,16 @@ public class MeasuresWsParameters {
   public static final String PARAM_TO = "to";
 
   public static final String ADDITIONAL_METRICS = "metrics";
-  public static final String ADDITIONAL_PERIODS = "periods";
 
-  public static final Set<String> ADDITIONAL_FIELDS = ImmutableSortedSet.of(ADDITIONAL_METRICS, ADDITIONAL_PERIODS);
+  /**
+   * @deprecated since 8.1
+   */
+  @Deprecated
+  public static final String DEPRECATED_ADDITIONAL_PERIODS = "periods";
+
+  public static final String ADDITIONAL_PERIOD = "period";
+
+  public static final Set<String> ADDITIONAL_FIELDS = ImmutableSortedSet.of(ADDITIONAL_METRICS, DEPRECATED_ADDITIONAL_PERIODS, ADDITIONAL_PERIOD);
 
   private MeasuresWsParameters() {
     // static constants only

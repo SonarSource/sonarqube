@@ -32,14 +32,18 @@ message ComponentTreeWsResponse {
   optional Component baseComponent = 2;
   repeated Component components = 3;
   optional Metrics metrics = 4;
+  //deprecated since 8.1
   optional Periods periods = 5;
+  optional Period period = 6;
 }
 
 // WS api/measures/component
 message ComponentWsResponse {
   optional Component component = 1;
   optional Metrics metrics = 2;
+  //deprecated since 8.1
   optional Periods periods = 3;
+  optional Period period = 4;
 }
 
 // WS api/measures/search
@@ -80,6 +84,7 @@ message Component {
 }
 
 message Period {
+  //deprecated since 8.1
   optional int32 index = 1;
   optional string mode = 2;
   optional string date = 3;
@@ -97,9 +102,11 @@ message Metrics {
 message Measure {
   optional string metric = 1;
   optional string value = 2;
+  //deprecated since 8.1
   optional PeriodsValue periods = 3;
   optional string component = 4;
   optional bool bestValue = 5;
+  optional PeriodValue period = 6;
 }
 
 message PeriodsValue {
@@ -107,6 +114,7 @@ message PeriodsValue {
 }
 
 message PeriodValue {
+  //deprecated since 8.1
   optional int32 index = 1;
   optional string value = 2;
   optional bool bestValue = 3;

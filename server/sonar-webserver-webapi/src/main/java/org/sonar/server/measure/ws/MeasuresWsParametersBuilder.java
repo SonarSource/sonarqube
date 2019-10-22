@@ -36,7 +36,7 @@ class MeasuresWsParametersBuilder {
     return action.createParam(PARAM_ADDITIONAL_FIELDS)
       .setDescription("Comma-separated list of additional fields that can be returned in the response.")
       .setPossibleValues(ADDITIONAL_FIELDS)
-      .setExampleValue("periods,metrics");
+      .setExampleValue("period,metrics");
   }
 
   static NewParam createMetricKeysParameter(NewAction action) {

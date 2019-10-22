@@ -19,7 +19,6 @@
  */
 package org.sonar.server.measure.ws;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Maps;
 import java.util.Collection;
@@ -59,7 +58,8 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ACTION_COMPONENT;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_METRICS;
-import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIODS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIOD;
+import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_ADDITIONAL_PERIODS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
@@ -97,6 +97,8 @@ public class ComponentAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.4")
       .setChangelog(
+        new Change("8.1", "the response field periods under measures field is deprecated. Use period instead."),
+        new Change("8.1", "the response field periods is deprecated. Use period instead."),
         new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
         new Change("6.6", "the response field id is deprecated. Use key instead."),
         new Change("6.6", "the response field refId is deprecated. Use refKey instead."))
@@ -166,7 +168,7 @@ public class ComponentAction implements MeasuresWsAction {
     if (metrics.size() < metricKeys.size()) {
       Set<String> foundMetricKeys = metrics.stream().map(MetricDto::getKey).collect(Collectors.toSet());
       Set<String> missingMetricKeys = metricKeys.stream().filter(m -> !foundMetricKeys.contains(m)).collect(Collectors.toSet());
-      throw new NotFoundException(format("The following metric keys are not found: %s", Joiner.on(", ").join(missingMetricKeys)));
+      throw new NotFoundException(format("The following metric keys are not found: %s", String.join(", ", missingMetricKeys)));
     }
 
     return metrics;
@@ -258,8 +260,14 @@ public class ComponentAction implements MeasuresWsAction {
           response.getMetricsBuilder().addMetrics(metricDtoToWsMetric(metric));
         }
       }
-      if (additionalFields.contains(ADDITIONAL_PERIODS) && period.isPresent()) {
+
+      // backward compatibility
+      if (additionalFields.contains(DEPRECATED_ADDITIONAL_PERIODS) && period.isPresent()) {
         response.getPeriodsBuilder().addPeriods(period.get());
+      }
+
+      if (additionalFields.contains(ADDITIONAL_PERIOD) && period.isPresent()) {
+        response.setPeriod(period.get());
       }
     }
 

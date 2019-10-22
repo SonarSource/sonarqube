@@ -67,6 +67,8 @@ class MeasureDtoToWsMeasure {
       .setIndex(1)
       .setValue(formatNumericalValue(variation, metric));
     ofNullable(bestValue).ifPresent(v -> builderForValue.setBestValue(compare(variation, v) == 0));
+    //deprecated since 8.1
     measureBuilder.getPeriodsBuilder().addPeriodsValue(builderForValue);
+    measureBuilder.setPeriod(builderForValue);
   }
 }

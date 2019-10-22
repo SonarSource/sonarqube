@@ -97,6 +97,7 @@ public class ComponentActionTest {
     ComponentWsResponse response = newRequest(project.getKey(), metric.getKey());
 
     assertThat(response.getMetrics().getMetricsCount()).isEqualTo(1);
+    assertThat(response.hasPeriod()).isFalse();
     assertThat(response.getPeriods().getPeriodsCount()).isEqualTo(0);
     assertThat(response.getComponent().getKey()).isEqualTo(project.getDbKey());
   }
@@ -114,7 +115,7 @@ public class ComponentActionTest {
       .execute().getInput();
 
     assertThat(response)
-      .doesNotContain("periods")
+      .doesNotContain("period")
       .doesNotContain("metrics");
   }
 
@@ -469,7 +470,7 @@ public class ComponentActionTest {
     String response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
       .setParam(PARAM_METRIC_KEYS, "ncloc, complexity, new_violations")
-      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,periods")
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,period,periods")
       .execute()
       .getInput();
 
@@ -480,7 +481,7 @@ public class ComponentActionTest {
     return ws.newRequest()
       .setParam(PARAM_COMPONENT, componentKey)
       .setParam(PARAM_METRIC_KEYS, metricKeys)
-      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,periods")
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,period,periods")
       .executeProtobuf(ComponentWsResponse.class);
   }
 }

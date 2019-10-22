@@ -86,7 +86,8 @@ import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONENT_ID_AND_KEY;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ACTION_COMPONENT_TREE;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_METRICS;
-import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIODS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIOD;
+import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_ADDITIONAL_PERIODS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_ID;
 import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_KEY;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
@@ -109,8 +110,8 @@ import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeri
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -174,14 +175,16 @@ public class ComponentTreeAction implements MeasuresWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_COMPONENT_TREE)
       .setDescription(format("Navigate through components based on the chosen strategy with specified measures. The %s or the %s parameter must be provided.<br>" +
-          "Requires the following permission: 'Browse' on the specified project.<br>" +
-          "When limiting search with the %s parameter, directories are not returned.",
+        "Requires the following permission: 'Browse' on the specified project.<br>" +
+        "When limiting search with the %s parameter, directories are not returned.",
         DEPRECATED_PARAM_BASE_COMPONENT_ID, PARAM_COMPONENT, Param.TEXT_QUERY))
       .setResponseExample(getClass().getResource("component_tree-example.json"))
       .setSince("5.4")
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("8.1", "the response field periods under measures field is deprecated. Use period instead."),
+        new Change("8.1", "the response field periods is deprecated. Use period instead."),
         new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
         new Change("7.2", "field 'bestValue' is added to the response"),
         new Change("6.3", format("Number of metric keys is limited to %s", MAX_METRIC_KEYS)),
@@ -308,8 +311,14 @@ public class ComponentTreeAction implements MeasuresWsAction {
       }
     }
 
-    if (arePeriodsInResponse(request) && data.getPeriod() != null) {
+    List<String> additionalFields = Optional.ofNullable(request.getAdditionalFields()).orElse(Collections.emptyList());
+    // backward compatibility
+    if (additionalFields.contains(DEPRECATED_ADDITIONAL_PERIODS) && data.getPeriod() != null) {
       response.getPeriodsBuilder().addPeriods(data.getPeriod());
+    }
+
+    if (additionalFields.contains(ADDITIONAL_PERIOD) && data.getPeriod() != null) {
+      response.setPeriod(data.getPeriod());
     }
 
     return response.build();
@@ -318,11 +327,6 @@ public class ComponentTreeAction implements MeasuresWsAction {
   private static boolean areMetricsInResponse(ComponentTreeRequest request) {
     List<String> additionalFields = request.getAdditionalFields();
     return additionalFields != null && additionalFields.contains(ADDITIONAL_METRICS);
-  }
-
-  private static boolean arePeriodsInResponse(ComponentTreeRequest request) {
-    List<String> additionalFields = request.getAdditionalFields();
-    return additionalFields != null && additionalFields.contains(ADDITIONAL_PERIODS);
   }
 
   private static ComponentTreeWsResponse emptyResponse(@Nullable ComponentDto baseComponent, ComponentTreeRequest request) {
