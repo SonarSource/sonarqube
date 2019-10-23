@@ -64,7 +64,8 @@ public class AlmSettingsDbTester {
     return insertProjectAlmSetting(newAzureProjectAlmSettingDto(azureAlmSetting, project));
   }
 
-  private ProjectAlmSettingDto insertProjectAlmSetting(ProjectAlmSettingDto dto, Consumer<ProjectAlmSettingDto>... populators) {
+  @SafeVarargs
+  private final ProjectAlmSettingDto insertProjectAlmSetting(ProjectAlmSettingDto dto, Consumer<ProjectAlmSettingDto>... populators) {
     stream(populators).forEach(p -> p.accept(dto));
     db.getDbClient().projectAlmSettingDao().insertOrUpdate(db.getSession(), dto);
     db.commit();
