@@ -20,19 +20,27 @@
 
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { LANGUAGES_CATEGORY, NEW_CODE_PERIOD_CATEGORY } from './AdditionalCategoryKeys';
+import {
+  ANALYSIS_SCOPE_CATEGORY,
+  LANGUAGES_CATEGORY,
+  NEW_CODE_PERIOD_CATEGORY
+} from './AdditionalCategoryKeys';
+import { AnalysisScope } from './AnalysisScope';
 import Languages from './Languages';
 import NewCodePeriod from './NewCodePeriod';
+
+export interface AdditionalCategoryComponentProps {
+  parentComponent: T.Component | undefined;
+  selectedCategory: string;
+}
 
 export interface AdditionalCategory {
   key: string;
   name: string;
-  renderComponent: (
-    parentComponent: T.Component | undefined,
-    selectedCategory: string
-  ) => JSX.Element;
+  renderComponent: (props: AdditionalCategoryComponentProps) => JSX.Element;
   availableGlobally: boolean;
   availableForProject: boolean;
+  displayTab: boolean;
 }
 
 export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
@@ -41,21 +49,35 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     name: translate('property.category.languages'),
     renderComponent: getLanguagesComponent,
     availableGlobally: true,
-    availableForProject: true
+    availableForProject: true,
+    displayTab: true
   },
   {
     key: NEW_CODE_PERIOD_CATEGORY,
     name: translate('settings.new_code_period.category'),
     renderComponent: getNewCodePeriodComponent,
     availableGlobally: true,
-    availableForProject: false
+    availableForProject: false,
+    displayTab: true
+  },
+  {
+    key: ANALYSIS_SCOPE_CATEGORY,
+    name: translate('property.category.exclusions'),
+    renderComponent: getAnalysisScopeComponent,
+    availableGlobally: true,
+    availableForProject: true,
+    displayTab: false
   }
 ];
 
-function getLanguagesComponent(component: any, originalCategory: string) {
-  return <Languages component={component} selectedCategory={originalCategory} />;
+function getLanguagesComponent(props: AdditionalCategoryComponentProps) {
+  return <Languages {...props} />;
 }
 
 function getNewCodePeriodComponent() {
   return <NewCodePeriod />;
+}
+
+function getAnalysisScopeComponent(props: AdditionalCategoryComponentProps) {
+  return <AnalysisScope {...props} />;
 }

@@ -1,7 +1,143 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `""`;
+exports[`should render analysis scope correctly 1`] = `
+<div
+  className="page page-limited"
+  id="settings-page"
+>
+  <Suggestions
+    suggestions="settings"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="settings.page"
+  />
+  <PageHeader />
+  <div
+    className="side-tabs-layout settings-layout"
+  >
+    <div
+      className="side-tabs-side"
+    >
+      <Connect(CategoriesList)
+        defaultCategory="general"
+        selectedCategory="exclusions"
+      />
+    </div>
+    <div
+      className="side-tabs-main"
+    >
+      <AnalysisScope
+        selectedCategory="exclusions"
+      />
+    </div>
+  </div>
+</div>
+`;
 
-exports[`should render languages correctly 1`] = `""`;
+exports[`should render default view correctly 1`] = `
+<div
+  className="page page-limited"
+  id="settings-page"
+>
+  <Suggestions
+    suggestions="settings"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="settings.page"
+  />
+  <PageHeader />
+  <div
+    className="side-tabs-layout settings-layout"
+  >
+    <div
+      className="side-tabs-side"
+    >
+      <Connect(CategoriesList)
+        defaultCategory="general"
+        selectedCategory="general"
+      />
+    </div>
+    <div
+      className="side-tabs-main"
+    >
+      <Connect(SubCategoryDefinitionsList)
+        category="general"
+      />
+    </div>
+  </div>
+</div>
+`;
 
-exports[`should render newCodePeriod correctly 1`] = `""`;
+exports[`should render languages correctly 1`] = `
+<div
+  className="page page-limited"
+  id="settings-page"
+>
+  <Suggestions
+    suggestions="settings"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="settings.page"
+  />
+  <PageHeader />
+  <div
+    className="side-tabs-layout settings-layout"
+  >
+    <div
+      className="side-tabs-side"
+    >
+      <Connect(CategoriesList)
+        defaultCategory="general"
+        selectedCategory="languages"
+      />
+    </div>
+    <div
+      className="side-tabs-main"
+    >
+      <withRouter(Connect(Languages))
+        selectedCategory="languages"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render newCodePeriod correctly 1`] = `
+<div
+  className="page page-limited"
+  id="settings-page"
+>
+  <Suggestions
+    suggestions="settings"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="settings.page"
+  />
+  <PageHeader />
+  <div
+    className="side-tabs-layout settings-layout"
+  >
+    <div
+      className="side-tabs-side"
+    >
+      <Connect(CategoriesList)
+        defaultCategory="general"
+        selectedCategory="new_code_period"
+      />
+    </div>
+    <div
+      className="side-tabs-main"
+    >
+      <NewCodePeriod />
+    </div>
+  </div>
+</div>
+`;

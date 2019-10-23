@@ -67,11 +67,13 @@ export class CategoriesList extends React.PureComponent<CategoriesListProps> {
         name: getCategoryName(key)
       }))
       .concat(
-        this.props.component
-          ? // Project settings
-            ADDITIONAL_CATEGORIES.filter(c => c.availableForProject)
-          : // Global settings
-            ADDITIONAL_CATEGORIES.filter(c => c.availableGlobally)
+        ADDITIONAL_CATEGORIES.filter(c => c.displayTab).filter(c =>
+          this.props.component
+            ? // Project settings
+              c.availableForProject
+            : // Global settings
+              c.availableGlobally
+        )
       );
     const sortedCategories = sortBy(categoriesWithName, category => category.name.toLowerCase());
     return (

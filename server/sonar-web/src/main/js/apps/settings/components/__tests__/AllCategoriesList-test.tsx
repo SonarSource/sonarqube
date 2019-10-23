@@ -30,21 +30,32 @@ jest.mock('../AdditionalCategories', () => ({
       name: 'CAT_1_NAME',
       renderComponent: jest.fn(),
       availableGlobally: true,
-      availableForProject: true
+      availableForProject: true,
+      displayTab: true
     },
     {
       key: 'CAT_2',
       name: 'CAT_2_NAME',
       renderComponent: jest.fn(),
       availableGlobally: true,
-      availableForProject: false
+      availableForProject: false,
+      displayTab: true
     },
     {
       key: 'CAT_3',
       name: 'CAT_3_NAME',
       renderComponent: jest.fn(),
       availableGlobally: false,
-      availableForProject: true
+      availableForProject: true,
+      displayTab: true
+    },
+    {
+      key: 'CAT_4',
+      name: 'CAT_4_NAME',
+      renderComponent: jest.fn(),
+      availableGlobally: true,
+      availableForProject: true,
+      displayTab: false
     }
   ] as AdditionalCategory[]
 }));

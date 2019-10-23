@@ -19,26 +19,46 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
-import { LANGUAGES_CATEGORY, NEW_CODE_PERIOD_CATEGORY } from '../AdditionalCategoryKeys';
+import {
+  ANALYSIS_SCOPE_CATEGORY,
+  LANGUAGES_CATEGORY,
+  NEW_CODE_PERIOD_CATEGORY
+} from '../AdditionalCategoryKeys';
 import { App } from '../AppContainer';
 
-it('should render correctly', () => {
+it('should render default view correctly', async () => {
   const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should render newCodePeriod correctly', () => {
+it('should render newCodePeriod correctly', async () => {
   const wrapper = shallowRender({
     location: mockLocation({ query: { category: NEW_CODE_PERIOD_CATEGORY } })
   });
+
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should render languages correctly', () => {
+it('should render languages correctly', async () => {
   const wrapper = shallowRender({
     location: mockLocation({ query: { category: LANGUAGES_CATEGORY } })
   });
+
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render analysis scope correctly', async () => {
+  const wrapper = shallowRender({
+    location: mockLocation({ query: { category: ANALYSIS_SCOPE_CATEGORY } })
+  });
+
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
 

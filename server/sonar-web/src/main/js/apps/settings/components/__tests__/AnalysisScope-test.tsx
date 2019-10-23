@@ -18,6 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export const LANGUAGES_CATEGORY = 'languages';
-export const NEW_CODE_PERIOD_CATEGORY = 'new_code_period';
-export const ANALYSIS_SCOPE_CATEGORY = 'exclusions';
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { mockComponent } from '../../../../helpers/testMocks';
+import { AnalysisScope } from '../AnalysisScope';
+
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
+
+function shallowRender() {
+  return shallow(<AnalysisScope parentComponent={mockComponent()} selectedCategory="TEST" />);
+}

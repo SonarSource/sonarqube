@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <p
+    className="spacer-bottom"
+  >
+    settings.analysis_scope.wildcards.introduction
+    <Link
+      className="spacer-left"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/documentation/project-administration/narrowing-the-focus/"
+    >
+      learn_more
+    </Link>
+  </p>
+  <table
+    className="data spacer-bottom"
+  >
+    <tbody>
+      <tr>
+        <td>
+          *
+        </td>
+        <td>
+          settings.analysis_scope.wildcards.zero_more_char
+        </td>
+      </tr>
+      <tr>
+        <td>
+          **
+        </td>
+        <td>
+          settings.analysis_scope.wildcards.zero_more_dir
+        </td>
+      </tr>
+      <tr>
+        <td>
+          ?
+        </td>
+        <td>
+          settings.analysis_scope.wildcards.single_char
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div
+    className="settings-sub-category"
+  >
+    <Connect(SubCategoryDefinitionsList)
+      category="TEST"
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
+</Fragment>
+`;

@@ -34,7 +34,6 @@ import AllCategoriesList from './AllCategoriesList';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
 import { CATEGORY_OVERRIDES } from './CategoryOverrides';
 import PageHeader from './PageHeader';
-import WildcardsHelp from './WildcardsHelp';
 
 interface Props {
   component?: T.Component;
@@ -82,7 +81,6 @@ export class App extends React.PureComponent<Props & WithRouterProps, State> {
     }
 
     const { query } = this.props.location;
-
     const originalCategory = (query.category as string) || this.props.defaultCategory;
     const overriddenCategory = CATEGORY_OVERRIDES[originalCategory.toLowerCase()];
     const selectedCategory = overriddenCategory || originalCategory;
@@ -110,15 +108,16 @@ export class App extends React.PureComponent<Props & WithRouterProps, State> {
           </div>
           <div className="side-tabs-main">
             {foundAdditionalCategory && shouldRenderAdditionalCategory ? (
-              foundAdditionalCategory.renderComponent(this.props.component, originalCategory)
+              foundAdditionalCategory.renderComponent({
+                parentComponent: this.props.component,
+                selectedCategory: originalCategory
+              })
             ) : (
               <CategoryDefinitionsList
                 category={selectedCategory}
                 component={this.props.component}
               />
             )}
-
-            {selectedCategory === 'exclusions' && <WildcardsHelp />}
           </div>
         </div>
       </div>
