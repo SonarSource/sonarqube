@@ -32,6 +32,7 @@ import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -64,7 +65,7 @@ public class ShowActionTest {
 
   private WsActionTester ws = new WsActionTester(
     new ShowAction(db.getDbClient(), new QualityGateFinder(db.getDbClient()),
-      new QualityGatesWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
+      new QualityGatesWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider, TestComponentFinder.from(db))));
 
   @Test
   public void show() {

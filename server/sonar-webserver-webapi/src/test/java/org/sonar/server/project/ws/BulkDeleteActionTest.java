@@ -42,6 +42,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -109,7 +110,7 @@ public class BulkDeleteActionTest {
 
     assertThat(result.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     assertThat(result.getInput()).isEmpty();
-    verifyDeleted(toDeleteInOrg2);
+    verifyComponentDeleted(toDeleteInOrg2);
     verifyListenersOnProjectsDeleted(toDeleteInOrg2);
   }
 
@@ -125,12 +126,12 @@ public class BulkDeleteActionTest {
       .setParam(PARAM_PROJECTS, toDeleteInOrg1.getDbKey() + "," + toDeleteInOrg2.getDbKey())
       .execute();
 
-    verifyDeleted(toDeleteInOrg1, toDeleteInOrg2);
+    verifyComponentDeleted(toDeleteInOrg1, toDeleteInOrg2);
     verifyListenersOnProjectsDeleted(toDeleteInOrg1, toDeleteInOrg2);
   }
 
   @Test
-  public void throw_IllegalArgumentException_if_request_without_any_parameters(){
+  public void throw_IllegalArgumentException_if_request_without_any_parameters() {
     userSession.logIn().setRoot();
     db.components().insertPrivateProject(org1);
 
@@ -156,7 +157,7 @@ public class BulkDeleteActionTest {
       .setParam("projects", toDelete1.getDbKey() + ",missing," + toDelete2.getDbKey() + ",doesNotExist")
       .execute();
 
-    verifyDeleted(toDelete1, toDelete2);
+    verifyComponentDeleted(toDelete1, toDelete2);
     verifyListenersOnProjectsDeleted(toDelete1, toDelete2);
   }
 
@@ -175,7 +176,7 @@ public class BulkDeleteActionTest {
       .setParam(PARAM_ANALYZED_BEFORE, formatDate(new Date(recentTime)))
       .execute();
 
-    verifyDeleted(oldProject);
+    verifyComponentDeleted(oldProject);
     verifyListenersOnProjectsDeleted(oldProject);
   }
 
@@ -188,7 +189,7 @@ public class BulkDeleteActionTest {
 
     ws.newRequest().setParam(PARAM_PROJECTS, provisionedProject.getKey() + "," + analyzedProject.getKey()).setParam(PARAM_ON_PROVISIONED_ONLY, "true").execute();
 
-    verifyDeleted(provisionedProject);
+    verifyComponentDeleted(provisionedProject);
     verifyListenersOnProjectsDeleted(provisionedProject);
   }
 
@@ -200,7 +201,7 @@ public class BulkDeleteActionTest {
     List<String> projectKeys = Stream.of(projects).map(ComponentDto::getKey).collect(Collectors.toList());
     ws.newRequest().setParam(PARAM_PROJECTS, String.join(",", projectKeys)).execute();
 
-    verifyDeleted(projects);
+    verifyComponentDeleted(projects);
     verifyListenersOnProjectsDeleted(projects);
   }
 
@@ -215,7 +216,7 @@ public class BulkDeleteActionTest {
       .setParam(PARAM_QUALIFIERS, String.join(",", Qualifiers.PROJECT, Qualifiers.VIEW))
       .execute();
 
-    verifyDeleted(project, view);
+    verifyComponentDeleted(project, view);
     verifyListenersOnProjectsDeleted(project, view);
   }
 
@@ -228,7 +229,7 @@ public class BulkDeleteActionTest {
 
     ws.newRequest().setParam(Param.TEXT_QUERY, "JeCt-_%-k").execute();
 
-    verifyDeleted(matchKeyProject, matchUppercaseKeyProject);
+    verifyComponentDeleted(matchKeyProject, matchUppercaseKeyProject);
     verifyListenersOnProjectsDeleted(matchKeyProject, matchUppercaseKeyProject);
   }
 
@@ -281,7 +282,7 @@ public class BulkDeleteActionTest {
     doNothing()
       .doThrow(expectedException)
       .when(componentCleanerService)
-      .delete(any(), any(ComponentDto.class));
+      .delete(any(), any(ProjectDto.class));
 
     try {
       ws.newRequest()
@@ -305,7 +306,7 @@ public class BulkDeleteActionTest {
       .setParam("projects", toDelete.getDbKey() + "," + cantBeDeleted.getDbKey())
       .execute();
 
-    verifyDeleted(toDelete);
+    verifyComponentDeleted(toDelete);
     verifyListenersOnProjectsDeleted(toDelete);
   }
 
@@ -351,7 +352,16 @@ public class BulkDeleteActionTest {
     verifyZeroInteractions(projectLifeCycleListeners);
   }
 
-  private void verifyDeleted(ComponentDto... projects) {
+  private void verifyProjectDeleted(ComponentDto... projects) {
+    ArgumentCaptor<ProjectDto> argument = ArgumentCaptor.forClass(ProjectDto.class);
+    verify(componentCleanerService, times(projects.length)).delete(any(DbSession.class), argument.capture());
+
+    for (ComponentDto project : projects) {
+      assertThat(argument.getAllValues()).extracting(ProjectDto::getUuid).contains(project.uuid());
+    }
+  }
+
+  private void verifyComponentDeleted(ComponentDto... projects) {
     ArgumentCaptor<ComponentDto> argument = ArgumentCaptor.forClass(ComponentDto.class);
     verify(componentCleanerService, times(projects.length)).delete(any(DbSession.class), argument.capture());
 

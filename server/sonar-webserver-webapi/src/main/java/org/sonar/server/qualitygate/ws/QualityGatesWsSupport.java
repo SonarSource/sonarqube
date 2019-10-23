@@ -26,11 +26,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
@@ -41,21 +42,25 @@ import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class QualityGatesWsSupport {
 
   private final DbClient dbClient;
   private final UserSession userSession;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final ComponentFinder componentFinder;
 
-  public QualityGatesWsSupport(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public QualityGatesWsSupport(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.componentFinder = componentFinder;
   }
 
   public QGateWithOrgDto getByOrganizationAndId(DbSession dbSession, OrganizationDto organization, long qualityGateId) {
@@ -111,15 +116,40 @@ public class QualityGatesWsSupport {
     userSession.checkPermission(ADMINISTER_QUALITY_GATES, qualityGate.getOrganizationUuid());
   }
 
-  void checkCanAdminProject(OrganizationDto organization, ComponentDto project) {
+  void checkCanAdminProject(OrganizationDto organization, ProjectDto project) {
     if (userSession.hasPermission(ADMINISTER_QUALITY_GATES, organization)
-      || userSession.hasComponentPermission(ADMIN, project)) {
+      || userSession.hasProjectPermission(ADMIN, project)) {
       return;
     }
     throw insufficientPrivilegesException();
   }
 
-  void checkProjectBelongsToOrganization(OrganizationDto organization, ComponentDto project) {
+  ProjectDto getProject(DbSession dbSession, OrganizationDto organization, @Nullable String projectKey, @Nullable String projectId) {
+    ProjectDto project;
+    if (projectId != null) {
+      project = getProjectById(dbSession, projectId);
+    } else if (projectKey != null) {
+      project = componentFinder.getProjectByKey(dbSession, projectKey);
+    } else {
+      throw new IllegalArgumentException(String.format("Must specify %s or %s", PARAM_PROJECT_KEY, PARAM_PROJECT_ID));
+    }
+
+    checkProjectBelongsToOrganization(organization, project);
+    return project;
+  }
+
+  ProjectDto getProjectById(DbSession dbSession, String projectId) {
+    try {
+      long dbId = Long.parseLong(projectId);
+      return dbClient.componentDao().selectById(dbSession, dbId)
+        .flatMap(c -> dbClient.projectDao().selectByUuid(dbSession, c.uuid()))
+        .orElseThrow(() -> new NotFoundException(String.format("Project '%s' not found", projectId)));
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Invalid id: " + projectId);
+    }
+  }
+
+  void checkProjectBelongsToOrganization(OrganizationDto organization, ProjectDto project) {
     if (project.getOrganizationUuid().equals(organization.getUuid())) {
       return;
     }

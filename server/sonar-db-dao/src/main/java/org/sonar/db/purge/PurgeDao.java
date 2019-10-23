@@ -211,8 +211,7 @@ public class PurgeDao implements Dao {
     PurgeMapper purgeMapper = mapper(session);
     PurgeCommands purgeCommands = new PurgeCommands(session, profiler, system2);
 
-    session.getMapper(BranchMapper.class).selectByProjectUuid(uuid)
-      .stream()
+    session.getMapper(BranchMapper.class).selectByProjectUuid(uuid).stream()
       .filter(branch -> !uuid.equals(branch.getUuid()))
       .forEach(branch -> deleteRootComponent(branch.getUuid(), purgeMapper, purgeCommands));
 
@@ -242,6 +241,7 @@ public class PurgeDao implements Dao {
     commands.deleteNewCodePeriods(rootUuid);
     commands.deleteBranch(rootUuid);
     commands.deleteComponents(rootUuid);
+    commands.deleteProject(rootUuid);
   }
 
   /**

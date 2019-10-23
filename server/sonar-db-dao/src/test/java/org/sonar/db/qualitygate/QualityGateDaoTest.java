@@ -27,8 +27,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -173,7 +173,7 @@ public class QualityGateDaoTest {
   public void select_by_project_uuid() {
     OrganizationDto organization = db.organizations().insert();
 
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ProjectDto project = db.components().insertPrivateProjectDto(organization);
 
     QGateWithOrgDto qualityGate1 = db.qualityGates().insertQualityGate(organization);
     QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization);
@@ -183,7 +183,7 @@ public class QualityGateDaoTest {
 
     db.qualityGates().associateProjectToQualityGate(project, qualityGate1);
 
-    assertThat(underTest.selectByProjectUuid(dbSession, project.uuid()).getUuid()).isEqualTo(qualityGate1.getUuid());
+    assertThat(underTest.selectByProjectUuid(dbSession, project.getUuid()).getUuid()).isEqualTo(qualityGate1.getUuid());
     assertThat(underTest.selectByProjectUuid(dbSession, "not-existing-uuid")).isNull();
   }
 

@@ -196,7 +196,7 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void does_not_return_branches() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
 

@@ -168,7 +168,7 @@ public class ViewIndexerTest {
 
   @Test
   public void index_application_branch() {
-    ComponentDto application = db.components().insertMainBranch(c -> c.setQualifier(APP).setDbKey("app"));
+    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setDbKey("app"));
     ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
     ComponentDto project1 = db.components().insertPrivateProject(p -> p.setDbKey("prj1"));

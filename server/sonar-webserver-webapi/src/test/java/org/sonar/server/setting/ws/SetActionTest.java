@@ -908,7 +908,7 @@ public class SetActionTest {
   @Test
   public void fail_when_using_branch_db_key() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 

@@ -41,6 +41,7 @@ import org.sonar.db.measure.LiveMeasureComparator;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.measure.DebtRatingGrid;
@@ -93,11 +94,11 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
   private Optional<QGChangeEvent> refreshComponentsOnSameProject(DbSession dbSession, List<ComponentDto> touchedComponents) {
     // load all the components to be refreshed, including their ancestors
     List<ComponentDto> components = loadTreeOfComponents(dbSession, touchedComponents);
-    ComponentDto project = findProject(components);
-    OrganizationDto organization = loadOrganization(dbSession, project);
-    BranchDto branch = loadBranch(dbSession, project);
-
-    Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, project.uuid());
+    ComponentDto branchComponent = findBranchComponent(components);
+    OrganizationDto organization = loadOrganization(dbSession, branchComponent);
+    BranchDto branch = loadBranch(dbSession, branchComponent);
+    ProjectDto project = loadProject(dbSession, branch.getProjectUuid());
+    Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, branchComponent.uuid());
     if (!lastAnalysis.isPresent()) {
       return Optional.empty();
     }
@@ -113,7 +114,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     // previous status must be load now as MeasureMatrix mutate the LiveMeasureDto which are passed to it
     Metric.Level previousStatus = loadPreviousStatus(metrics, dbMeasures);
 
-    Configuration config = projectConfigurationLoader.loadProjectConfiguration(dbSession, project);
+    Configuration config = projectConfigurationLoader.loadProjectConfiguration(dbSession, branchComponent);
     DebtRatingGrid debtRatingGrid = new DebtRatingGrid(config);
 
     MeasureMatrix matrix = new MeasureMatrix(components, metricsPerId.values(), dbMeasures);
@@ -135,12 +136,12 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
       }
     });
 
-    EvaluatedQualityGate evaluatedQualityGate = qGateComputer.refreshGateStatus(project, qualityGate, matrix);
+    EvaluatedQualityGate evaluatedQualityGate = qGateComputer.refreshGateStatus(branchComponent, qualityGate, matrix);
 
     // persist the measures that have been created or updated
     matrix.getChanged().sorted(LiveMeasureComparator.INSTANCE)
       .forEach(m -> dbClient.liveMeasureDao().insertOrUpdate(dbSession, m));
-    projectIndexer.commitAndIndex(dbSession, singleton(project), ProjectIndexer.Cause.MEASURE_CHANGE);
+    projectIndexer.commitAndIndex(dbSession, singleton(branchComponent), ProjectIndexer.Cause.MEASURE_CHANGE);
 
     return Optional.of(
       new QGChangeEvent(project, branch, lastAnalysis.get(), config, previousStatus, () -> Optional.of(evaluatedQualityGate)));
@@ -210,14 +211,19 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     return metricKeys;
   }
 
-  private static ComponentDto findProject(Collection<ComponentDto> components) {
+  private static ComponentDto findBranchComponent(Collection<ComponentDto> components) {
     return components.stream().filter(ComponentDto::isRootProject).findFirst()
       .orElseThrow(() -> new IllegalStateException("No project found in " + components));
   }
 
-  private BranchDto loadBranch(DbSession dbSession, ComponentDto project) {
-    return dbClient.branchDao().selectByUuid(dbSession, project.uuid())
-      .orElseThrow(() -> new IllegalStateException("Branch not found: " + project.uuid()));
+  private BranchDto loadBranch(DbSession dbSession, ComponentDto branchComponent) {
+    return dbClient.branchDao().selectByUuid(dbSession, branchComponent.uuid())
+      .orElseThrow(() -> new IllegalStateException("Branch not found: " + branchComponent.uuid()));
+  }
+
+  private ProjectDto loadProject(DbSession dbSession, String uuid) {
+    return dbClient.projectDao().selectByUuid(dbSession, uuid)
+      .orElseThrow(() -> new IllegalStateException("Project not found: " + uuid));
   }
 
   private OrganizationDto loadOrganization(DbSession dbSession, ComponentDto project) {

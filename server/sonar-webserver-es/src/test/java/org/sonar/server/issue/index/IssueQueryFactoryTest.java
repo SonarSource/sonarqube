@@ -445,7 +445,7 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void search_issues_from_main_branch() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     assertThat(underTest.create(new SearchRequest()
@@ -476,7 +476,7 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void search_by_application_key_and_branch() {
-    ComponentDto application = db.components().insertMainBranch(c -> c.setQualifier(APP).setDbKey("app"));
+    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setDbKey("app"));
     ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
     ComponentDto project1 = db.components().insertPrivateProject(p -> p.setDbKey("prj1"));

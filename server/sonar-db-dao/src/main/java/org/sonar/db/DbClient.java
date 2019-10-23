@@ -59,6 +59,7 @@ import org.sonar.db.permission.UserPermissionDao;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDao;
 import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.plugin.PluginDao;
+import org.sonar.db.project.ProjectDao;
 import org.sonar.db.property.InternalComponentPropertiesDao;
 import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
@@ -158,6 +159,7 @@ public class DbClient {
   private final ProjectMappingsDao projectMappingsDao;
   private final OrganizationAlmBindingDao organizationAlmBindingDao;
   private final NewCodePeriodDao newCodePeriodDao;
+  private final ProjectDao projectDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -233,6 +235,7 @@ public class DbClient {
     organizationAlmBindingDao = getDao(map, OrganizationAlmBindingDao.class);
     internalComponentPropertiesDao = getDao(map, InternalComponentPropertiesDao.class);
     newCodePeriodDao = getDao(map, NewCodePeriodDao.class);
+    projectDao = getDao(map, ProjectDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -309,6 +312,10 @@ public class DbClient {
 
   public ComponentDao componentDao() {
     return componentDao;
+  }
+
+  public ProjectDao projectDao() {
+    return projectDao;
   }
 
   public ComponentKeyUpdaterDao componentKeyUpdaterDao() {

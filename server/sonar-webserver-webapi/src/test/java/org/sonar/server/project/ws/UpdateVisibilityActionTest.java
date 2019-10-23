@@ -312,7 +312,7 @@ public class UpdateVisibilityActionTest {
     BranchDto branchDto = ComponentTesting.newBranchDto(project);
     dbClient.branchDao().insert(dbSession, branchDto);
 
-    ComponentDto branch = ComponentTesting.newProjectBranch(project, branchDto);
+    ComponentDto branch = ComponentTesting.newBranchComponent(project, branchDto);
     ComponentDto module = ComponentTesting.newModuleDto(project);
     ComponentDto dir = ComponentTesting.newDirectory(project, "path");
     ComponentDto file = ComponentTesting.newFileDto(project);
@@ -339,7 +339,7 @@ public class UpdateVisibilityActionTest {
     BranchDto branchDto = ComponentTesting.newBranchDto(project);
     dbClient.branchDao().insert(dbSession, branchDto);
 
-    ComponentDto branch = ComponentTesting.newProjectBranch(project, branchDto)
+    ComponentDto branch = ComponentTesting.newBranchComponent(project, branchDto)
       .setPrivate(initiallyPrivate);
     ComponentDto module = ComponentTesting.newModuleDto(project)
       .setPrivate(initiallyPrivate);
@@ -626,7 +626,7 @@ public class UpdateVisibilityActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    ComponentDto project = dbTester.components().insertMainBranch();
+    ComponentDto project = dbTester.components().insertPrivateProject();
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
 

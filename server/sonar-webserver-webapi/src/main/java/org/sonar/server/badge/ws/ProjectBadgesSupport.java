@@ -19,19 +19,16 @@
  */
 package org.sonar.server.badge.ws;
 
-import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
@@ -63,33 +60,34 @@ public class ProjectBadgesSupport {
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
   }
 
-  ComponentDto getComponent(DbSession dbSession, Request request) {
+  BranchDto getBranch(DbSession dbSession, Request request) {
     try {
       String projectKey = request.mandatoryParam(PARAM_PROJECT);
       String branchName = request.param(PARAM_BRANCH);
-      ComponentDto project = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, branchName, null);
-      checkComponentType(dbSession, project);
-      userSession.checkComponentPermission(USER, project);
-      return project;
+      ProjectDto project = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
+      userSession.checkProjectPermission(USER, project);
+      if (project.isPrivate()) {
+        throw generateInvalidProjectException();
+      }
+
+      BranchDto branch;
+      if (branchName == null) {
+        branch = componentFinder.getMainBranch(dbSession, project);
+      } else {
+        branch = componentFinder.getBranchOrPullRequest(dbSession, project, branchName, null);
+      }
+
+      if (!branch.getBranchType().equals(BRANCH)) {
+        throw generateInvalidProjectException();
+      }
+
+      return branch;
     } catch (NotFoundException e) {
       throw new NotFoundException("Project has not been found");
     }
   }
 
-  private void checkComponentType(DbSession dbSession, ComponentDto project) {
-    Optional<BranchDto> branch = dbClient.branchDao().selectByUuid(dbSession, project.uuid());
-    if (project.isPrivate()) {
-      throw generateInvalidProjectExcpetion();
-    }
-    if (branch.isPresent() && !branch.get().getBranchType().equals(BRANCH)) {
-      throw generateInvalidProjectExcpetion();
-    }
-    if (!project.qualifier().equals(PROJECT) && !project.qualifier().equals(APP)) {
-      throw generateInvalidProjectExcpetion();
-    }
-  }
-
-  private static ProjectBadgesException generateInvalidProjectExcpetion() {
+  private static ProjectBadgesException generateInvalidProjectException() {
     return new ProjectBadgesException("Project is invalid");
   }
 }

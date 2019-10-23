@@ -28,19 +28,16 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchType;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.NewCodePeriods;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
 
@@ -81,56 +78,52 @@ public class ShowAction implements NewCodePeriodsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String projectStr = request.getParam(PARAM_PROJECT).emptyAsNull().or(() -> null);
-    String branchStr = request.getParam(PARAM_BRANCH).emptyAsNull().or(() -> null);
+    String projectKey = request.getParam(PARAM_PROJECT).emptyAsNull().or(() -> null);
+    String branchKey = request.getParam(PARAM_BRANCH).emptyAsNull().or(() -> null);
 
-    if (projectStr == null && branchStr != null) {
+    if (projectKey == null && branchKey != null) {
       throw new IllegalArgumentException("If branch key is specified, project key needs to be specified too");
     }
 
     try (DbSession dbSession = dbClient.openSession(false)) {
+      ProjectDto project = null;
+      BranchDto branch = null;
 
-      ComponentDto projectBranch;
-      String projectUuid = null;
-      String branchUuid = null;
-
-      if (projectStr != null) {
-        projectBranch = getProject(dbSession, projectStr, branchStr);
-        userSession.checkComponentPermission(UserRole.ADMIN, projectBranch);
-        if (branchStr != null) {
-          branchUuid = projectBranch.uuid();
+      if (projectKey != null) {
+        project = getProject(dbSession, projectKey);
+        userSession.checkProjectPermission(UserRole.ADMIN, project);
+        if (branchKey != null) {
+          branch = getBranch(dbSession, project, branchKey);
         }
-        // depending whether it's the main branch or not
-        projectUuid = projectBranch.getMainBranchProjectUuid() != null ? projectBranch.getMainBranchProjectUuid() : projectBranch.uuid();
       }
 
-      ShowWSResponse.Builder builder = get(dbSession, projectUuid, branchUuid, false);
+      ShowWSResponse.Builder builder = get(dbSession, project, branch, false);
 
-      if (projectStr != null) {
-        builder.setProjectKey(projectStr);
+      if (project != null) {
+        builder.setProjectKey(project.getKey());
       }
-      if (branchStr != null) {
-        builder.setBranchKey(branchStr);
+      if (branch != null) {
+        builder.setBranchKey(branch.getKey());
       }
       writeProtobuf(builder.build(), request, response);
     }
   }
 
-  private ShowWSResponse.Builder get(DbSession dbSession, @Nullable String projectUuid, @Nullable String branchUuid, boolean inherited) {
-    if (projectUuid == null) {
+  private ShowWSResponse.Builder get(DbSession dbSession, @Nullable ProjectDto project, @Nullable BranchDto branch, boolean inherited) {
+    if (project == null) {
       Optional<NewCodePeriodDto> dto = newCodePeriodDao.selectGlobal(dbSession);
       return dto.map(d -> build(d, inherited))
         .orElseGet(() -> buildDefault(inherited));
     }
-    if (branchUuid == null) {
-      Optional<NewCodePeriodDto> dto = newCodePeriodDao.selectByProject(dbSession, projectUuid);
+    if (branch == null) {
+      Optional<NewCodePeriodDto> dto = newCodePeriodDao.selectByProject(dbSession, project.getUuid());
       return dto.map(d -> build(d, inherited))
         .orElseGet(() -> get(dbSession, null, null, true));
     }
 
-    Optional<NewCodePeriodDto> dto = newCodePeriodDao.selectByBranch(dbSession, projectUuid, branchUuid);
+    Optional<NewCodePeriodDto> dto = newCodePeriodDao.selectByBranch(dbSession, project.getUuid(), branch.getUuid());
     return dto.map(d -> build(d, inherited))
-      .orElseGet(() -> get(dbSession, projectUuid, null, true));
+      .orElseGet(() -> get(dbSession, project, null, true));
   }
 
   private static ShowWSResponse.Builder build(NewCodePeriodDto dto, boolean inherited) {
@@ -163,19 +156,13 @@ public class ShowAction implements NewCodePeriodsWsAction {
     }
   }
 
-  private ComponentDto getProject(DbSession dbSession, String projectKey, @Nullable String branchKey) {
-    if (branchKey == null) {
-      return componentFinder.getByUuidOrKey(dbSession, null, projectKey, PROJECT_ID_AND_KEY);
-    }
-    ComponentDto project = componentFinder.getByKeyAndBranch(dbSession, projectKey, branchKey);
+  private BranchDto getBranch(DbSession dbSession, ProjectDto project, String branchKey) {
+    return dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), branchKey)
+      .orElseThrow(() -> new NotFoundException(format("Branch '%s' in project '%s' not found", branchKey, project.getKey())));
+  }
 
-    BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, project.uuid())
-      .orElseThrow(() -> new NotFoundException(format("Branch '%s' is not found", branchKey)));
-
-    checkArgument(branchDto.getBranchType() == BranchType.BRANCH,
-      "Not a branch: '%s'", branchKey);
-
-    return project;
+  private ProjectDto getProject(DbSession dbSession, String projectKey) {
+    return componentFinder.getProjectByKey(dbSession, projectKey);
   }
 
 }

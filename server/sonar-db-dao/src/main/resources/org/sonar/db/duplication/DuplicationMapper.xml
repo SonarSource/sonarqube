@@ -15,7 +15,7 @@
     file_component.kee as componentKey
     FROM duplications_index duplication_block
     INNER JOIN snapshots snapshot ON duplication_block.analysis_uuid=snapshot.uuid AND snapshot.islast=${_true}
-    INNER JOIN projects file_component ON file_component.uuid=duplication_block.component_uuid AND file_component.language=#{language}
+    INNER JOIN components file_component ON file_component.uuid=duplication_block.component_uuid AND file_component.language=#{language}
     AND file_component.enabled=${_true}
     <where>
       AND duplication_block.hash in

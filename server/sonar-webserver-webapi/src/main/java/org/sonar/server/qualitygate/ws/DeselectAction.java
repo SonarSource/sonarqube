@@ -19,8 +19,6 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import java.util.Optional;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -28,9 +26,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.db.project.ProjectDto;
 
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
@@ -39,13 +36,11 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 public class DeselectAction implements QualityGatesWsAction {
 
   private final DbClient dbClient;
-  private final ComponentFinder componentFinder;
   private final QualityGatesWsSupport wsSupport;
 
-  public DeselectAction(DbClient dbClient, ComponentFinder componentFinder, QualityGatesWsSupport wsSupport) {
+  public DeselectAction(DbClient dbClient, QualityGatesWsSupport wsSupport) {
     this.wsSupport = wsSupport;
     this.dbClient = dbClient;
-    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -79,36 +74,15 @@ public class DeselectAction implements QualityGatesWsAction {
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      ComponentDto project = getProject(dbSession, organization, request.param(PARAM_PROJECT_ID), request.param(PARAM_PROJECT_KEY));
+      ProjectDto project = wsSupport.getProject(dbSession, organization, request.param(PARAM_PROJECT_KEY), request.param(PARAM_PROJECT_ID));
       dissociateProject(dbSession, organization, project);
       response.noContent();
     }
   }
 
-  private void dissociateProject(DbSession dbSession, OrganizationDto organization, ComponentDto project) {
+  private void dissociateProject(DbSession dbSession, OrganizationDto organization, ProjectDto project) {
     wsSupport.checkCanAdminProject(organization, project);
-    dbClient.projectQgateAssociationDao().deleteByProjectUuid(dbSession, project.uuid());
+    dbClient.projectQgateAssociationDao().deleteByProjectUuid(dbSession, project.getUuid());
     dbSession.commit();
   }
-
-  private ComponentDto getProject(DbSession dbSession, OrganizationDto organization, @Nullable String projectId, @Nullable String projectKey) {
-    ComponentDto project = selectProjectById(dbSession, projectId)
-      .orElseGet(() -> componentFinder.getByUuidOrKey(dbSession, projectId, projectKey, ComponentFinder.ParamNames.PROJECT_ID_AND_KEY));
-    wsSupport.checkProjectBelongsToOrganization(organization, project);
-    return project;
-  }
-
-  private Optional<ComponentDto> selectProjectById(DbSession dbSession, @Nullable String projectId) {
-    if (projectId == null) {
-      return Optional.empty();
-    }
-
-    try {
-      long dbId = Long.parseLong(projectId);
-      return dbClient.componentDao().selectById(dbSession, dbId);
-    } catch (NumberFormatException e) {
-      return Optional.empty();
-    }
-  }
-
 }

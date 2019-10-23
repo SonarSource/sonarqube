@@ -3,9 +3,9 @@
 
 <mapper namespace="org.sonar.db.qualitygate.ProjectQgateAssociationMapper">
 
-  <select id="selectProjects" parameterType="map" resultType="ProjectQgateAssociation">
+<select id="selectProjects" parameterType="map" resultType="ProjectQgateAssociation">
     SELECT proj.id as id, proj.kee as "key", proj.name as name, qg.id as gateId
-    FROM projects proj
+    FROM components proj
     LEFT JOIN project_qgates prqg ON prqg.project_uuid=proj.uuid AND prqg.quality_gate_uuid = #{query.gateUuid, jdbcType=VARCHAR}
     LEFT JOIN quality_gates qg ON qg.uuid = prqg.quality_gate_uuid
     where
@@ -28,11 +28,11 @@
     order by proj.name
   </select>
 
-  <select id="selectQGateUuidByComponentUuid" parameterType="String" resultType="string">
+  <select id="selectQGateUuidByProjectUuid" parameterType="String" resultType="string">
     SELECT quality_gate_uuid
     FROM project_qgates
     <where>
-      AND project_uuid=#{componentUuid}
+      AND project_uuid=#{projectUuid}
     </where>
   </select>
 

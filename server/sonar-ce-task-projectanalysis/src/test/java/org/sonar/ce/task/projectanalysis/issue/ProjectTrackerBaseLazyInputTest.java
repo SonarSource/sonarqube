@@ -74,7 +74,7 @@ public class ProjectTrackerBaseLazyInputTest {
   public void prepare() {
     rule = dbTester.rules().insert();
     ruleRepositoryRule.add(rule.getKey());
-    rootProjectDto = dbTester.components().insertMainBranch();
+    rootProjectDto = dbTester.components().insertPublicProject();
     ReportComponent rootProject = ReportComponent.builder(Component.Type.FILE, 1)
       .setKey(rootProjectDto.getDbKey())
       .setUuid(rootProjectDto.uuid()).build();

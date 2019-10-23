@@ -180,8 +180,8 @@ public class CreateEventActionTest {
 
   @Test
   public void create_event_on_application() {
-    ComponentDto application = ComponentTesting.newApplication(db.getDefaultOrganization());
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(application);
+    ComponentDto application = db.components().insertPublicApplication(db.getDefaultOrganization());
+    SnapshotDto analysis = db.components().insertSnapshot(application);
     logInAsProjectAdministrator(application);
 
     CreateEventResponse result = call(OTHER.name(), "Application Event", analysis.getUuid());
@@ -268,21 +268,9 @@ public class CreateEventActionTest {
   }
 
   @Test
-  public void fail_if_create_on_view() {
-    ComponentDto view = newView(db.organizations().insert());
-    SnapshotDto analysis = db.components().insertViewAndSnapshot(view);
-    logInAsProjectAdministrator(view);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("An event must be created on a project or an application");
-
-    call(OTHER.name(), "View Event", analysis.getUuid());
-  }
-
-  @Test
   public void fail_if_create_version_event_on_application() {
-    ComponentDto application = newApplication(db.organizations().insert());
-    SnapshotDto analysis = db.components().insertViewAndSnapshot(application);
+    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    SnapshotDto analysis = db.components().insertSnapshot(application);
     logInAsProjectAdministrator(application);
 
     expectedException.expect(IllegalArgumentException.class);

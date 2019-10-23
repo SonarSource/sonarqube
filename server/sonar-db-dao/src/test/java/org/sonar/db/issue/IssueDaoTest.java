@@ -193,7 +193,7 @@ public class IssueDaoTest {
   @Test
   public void selectOpenByComponentUuid() {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto projectBranch = db.components().insertProjectBranch(project,
       b -> b.setKey("feature/foo")
         .setBranchType(BranchType.BRANCH));
@@ -215,7 +215,7 @@ public class IssueDaoTest {
   @Test
   public void selectOpenByComponentUuid_should_correctly_map_required_fields() {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto projectBranch = db.components().insertProjectBranch(project,
       b -> b.setKey("feature/foo")
         .setBranchType(BranchType.BRANCH));

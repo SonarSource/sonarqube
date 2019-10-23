@@ -29,9 +29,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -149,15 +149,15 @@ public class WebhookDaoTest {
   @Test
   public void cleanWebhooksOfAProject() {
     OrganizationDto organization = organizationDbTester.insert();
-    ComponentDto componentDto = componentDbTester.insertPrivateProject(organization);
-    webhookDbTester.insertWebhook(componentDto);
-    webhookDbTester.insertWebhook(componentDto);
-    webhookDbTester.insertWebhook(componentDto);
-    webhookDbTester.insertWebhook(componentDto);
+    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto(organization);
+    webhookDbTester.insertWebhook(projectDto);
+    webhookDbTester.insertWebhook(projectDto);
+    webhookDbTester.insertWebhook(projectDto);
+    webhookDbTester.insertWebhook(projectDto);
 
-    underTest.deleteByProject(dbSession, componentDto);
+    underTest.deleteByProject(dbSession, projectDto);
 
-    Optional<WebhookDto> reloaded = underTest.selectByUuid(dbSession, componentDto.uuid());
+    Optional<WebhookDto> reloaded = underTest.selectByUuid(dbSession, projectDto.getUuid());
     assertThat(reloaded).isEmpty();
   }
 

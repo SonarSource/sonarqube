@@ -454,7 +454,7 @@ public class SearchActionComponentsTest {
 
   @Test
   public void search_by_application_key_and_branch() {
-    ComponentDto application = db.components().insertMainBranch(c -> c.setQualifier(APP).setDbKey("app"));
+    ComponentDto application = db.components().insertPrivateProject(c -> c.setQualifier(APP).setDbKey("app"));
     ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
     ComponentDto project1 = db.components().insertPrivateProject(p -> p.setDbKey("prj1"));
@@ -655,7 +655,7 @@ public class SearchActionComponentsTest {
   @Test
   public void search_by_branch() {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insertIssue(rule, project, file);
 
@@ -744,7 +744,7 @@ public class SearchActionComponentsTest {
   @Test
   public void search_using_main_branch_name() {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);
     allowAnyoneOnProjects(project);

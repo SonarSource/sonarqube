@@ -27,8 +27,8 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
@@ -81,7 +81,7 @@ public class RemoveProjectAction implements QProfileWsAction {
     userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = loadProject(dbSession, request);
+      ProjectDto project = loadProject(dbSession, request);
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromName(request));
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       checkPermissions(dbSession, organization, profile, project);
@@ -96,13 +96,13 @@ public class RemoveProjectAction implements QProfileWsAction {
     }
   }
 
-  private ComponentDto loadProject(DbSession dbSession, Request request) {
+  private ProjectDto loadProject(DbSession dbSession, Request request) {
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
-    return componentFinder.getByKey(dbSession, projectKey);
+    return componentFinder.getProjectByKey(dbSession, projectKey);
   }
 
-  private void checkPermissions(DbSession dbSession, OrganizationDto organization, QProfileDto profile, ComponentDto project) {
-    if (wsSupport.canEdit(dbSession, organization, profile) || userSession.hasComponentPermission(UserRole.ADMIN, project)) {
+  private void checkPermissions(DbSession dbSession, OrganizationDto organization, QProfileDto profile, ProjectDto project) {
+    if (wsSupport.canEdit(dbSession, organization, profile) || userSession.hasProjectPermission(UserRole.ADMIN, project)) {
       return;
     }
 

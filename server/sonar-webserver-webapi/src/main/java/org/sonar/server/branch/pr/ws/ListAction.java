@@ -33,24 +33,22 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.issue.index.PrStatistics;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.PrStatistics;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectPullRequests;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
@@ -96,11 +94,11 @@ public class ListAction implements PullRequestWsAction {
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
+      ProjectDto project = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
       checkPermission(project);
-      checkArgument(project.isEnabled() && PROJECT.equals(project.qualifier()), "Invalid project key");
+      // TODO support disabled projects?
 
-      List<BranchDto> pullRequests = dbClient.branchDao().selectByComponent(dbSession, project).stream()
+      List<BranchDto> pullRequests = dbClient.branchDao().selectByProject(dbSession, project).stream()
         .filter(b -> b.getBranchType() == PULL_REQUEST)
         .collect(toList());
       List<String> pullRequestUuids = pullRequests.stream().map(BranchDto::getUuid).collect(toList());
@@ -109,7 +107,7 @@ public class ListAction implements PullRequestWsAction {
         .selectByUuids(dbSession, pullRequests.stream().map(BranchDto::getMergeBranchUuid).filter(Objects::nonNull).collect(toList()))
         .stream().collect(uniqueIndex(BranchDto::getUuid));
 
-      Map<String, PrStatistics> branchStatisticsByBranchUuid = issueIndex.searchBranchStatistics(project.uuid(), pullRequestUuids).stream()
+      Map<String, PrStatistics> branchStatisticsByBranchUuid = issueIndex.searchBranchStatistics(project.getUuid(), pullRequestUuids).stream()
         .collect(uniqueIndex(PrStatistics::getBranchUuid, Function.identity()));
       Map<String, LiveMeasureDto> qualityGateMeasuresByComponentUuids = dbClient.liveMeasureDao()
         .selectByComponentUuidsAndMetricKeys(dbSession, pullRequestUuids, singletonList(ALERT_STATUS_KEY)).stream()
@@ -125,10 +123,10 @@ public class ListAction implements PullRequestWsAction {
     }
   }
 
-  private void checkPermission(ComponentDto component) {
-    if (userSession.hasComponentPermission(USER, component) ||
-      userSession.hasComponentPermission(UserRole.SCAN, component) ||
-      userSession.hasPermission(OrganizationPermission.SCAN, component.getOrganizationUuid())) {
+  private void checkPermission(ProjectDto project) {
+    if (userSession.hasProjectPermission(USER, project) ||
+      userSession.hasProjectPermission(UserRole.SCAN, project) ||
+      userSession.hasPermission(OrganizationPermission.SCAN, project.getOrganizationUuid())) {
       return;
     }
     throw insufficientPrivilegesException();

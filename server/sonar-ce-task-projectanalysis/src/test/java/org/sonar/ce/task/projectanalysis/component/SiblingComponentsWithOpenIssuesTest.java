@@ -63,7 +63,7 @@ public class SiblingComponentsWithOpenIssuesTest {
 
   @Before
   public void setUp() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
 
     branch1 = db.components().insertProjectBranch(project, b -> b.setKey("branch1"), b -> b.setBranchType(BranchType.BRANCH));
     branch1pr1 = db.components().insertProjectBranch(project,
@@ -157,7 +157,7 @@ public class SiblingComponentsWithOpenIssuesTest {
 
   @Test
   public void should_find_sibling_components_with_open_issues_from_pullrequest() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     setRoot(project);
     setBranch(BranchType.BRANCH);
 
@@ -176,7 +176,7 @@ public class SiblingComponentsWithOpenIssuesTest {
 
   @Test
   public void should_not_find_sibling_components_on_derived_branch() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     setRoot(project);
     setBranch(BranchType.BRANCH);
 

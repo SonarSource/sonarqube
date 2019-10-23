@@ -216,7 +216,7 @@ public class MeasureActionTest {
 
   @Test
   public void measure_on_non_main_branch() {
-    ComponentDto project = db.components().insertMainBranch(p -> p.setPrivate(false));
+    ComponentDto project = db.components().insertPublicProject(p -> p.setPrivate(false));
     userSession.registerComponents(project);
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
     db.measures().insertLiveMeasure(project, metric, m -> m.setValue(5_000d));
@@ -276,13 +276,13 @@ public class MeasureActionTest {
 
   @Test
   public void return_error_if_branch_does_not_exist() throws ParseException {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
-    userSession.addProjectPermission(USER, project);
+    userSession.registerComponents(project);
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
 
     TestResponse response = ws.newRequest()
-      .setParam("project", branch.getKey())
+      .setParam("project", project.getKey())
       .setParam("branch", "unknown")
       .setParam("metric", metric.getKey())
       .execute();
@@ -316,7 +316,7 @@ public class MeasureActionTest {
       .setParam("metric", metric.getKey())
       .execute();
 
-    checkError(response, "Project is invalid");
+    checkError(response, "Project has not been found");
   }
 
   @Test

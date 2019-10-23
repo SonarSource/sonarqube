@@ -31,6 +31,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -71,8 +72,8 @@ public class QualityGateAction implements ProjectBadgesWsAction  {
     response.setHeader("Cache-Control", "no-cache");
     response.stream().setMediaType(SVG);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = support.getComponent(dbSession, request);
-      Level qualityGateStatus = getQualityGate(dbSession, project);
+      BranchDto branch = support.getBranch(dbSession, request);
+      Level qualityGateStatus = getQualityGate(dbSession, branch);
       String result = svgGenerator.generateQualityGate(qualityGateStatus);
       String eTag = getETag(result);
       Optional<String> requestedETag = request.header("If-None-Match");
@@ -90,8 +91,8 @@ public class QualityGateAction implements ProjectBadgesWsAction  {
     }
   }
 
-  private Level getQualityGate(DbSession dbSession, ComponentDto project) {
-    return Level.valueOf(dbClient.liveMeasureDao().selectMeasure(dbSession, project.uuid(), ALERT_STATUS_KEY)
+  private Level getQualityGate(DbSession dbSession, BranchDto branch) {
+    return Level.valueOf(dbClient.liveMeasureDao().selectMeasure(dbSession, branch.getUuid(), ALERT_STATUS_KEY)
       .map(LiveMeasureDto::getTextValue)
       .orElseThrow(() -> new ProjectBadgesException("Quality gate has not been found")));
   }

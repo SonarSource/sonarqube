@@ -26,11 +26,13 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM;
@@ -43,7 +45,6 @@ import static org.sonar.server.webhook.ws.WebhooksWsParameters.URL_PARAM_MAXIMUM
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.NAME_WEBHOOK_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.URL_WEBHOOK_EXAMPLE_001;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkStateWithOptional;
 
 public class UpdateAction implements WebhooksWsAction {
@@ -51,11 +52,13 @@ public class UpdateAction implements WebhooksWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final WebhookSupport webhookSupport;
+  private final ComponentFinder componentFinder;
 
-  public UpdateAction(DbClient dbClient, UserSession userSession, WebhookSupport webhookSupport) {
+  public UpdateAction(DbClient dbClient, UserSession userSession, WebhookSupport webhookSupport, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.webhookSupport = webhookSupport;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -121,9 +124,8 @@ public class UpdateAction implements WebhooksWsAction {
 
       String projectUuid = webhookDto.getProjectUuid();
       if (projectUuid != null) {
-        Optional<ComponentDto> optionalDto = dbClient.componentDao().selectByUuid(dbSession, projectUuid);
-        ComponentDto componentDto = checkStateWithOptional(optionalDto, "the requested project '%s' was not found", projectUuid);
-        webhookSupport.checkPermission(componentDto);
+        ProjectDto projectDto = componentFinder.getProjectByUuid(dbSession, projectUuid);
+        webhookSupport.checkPermission(projectDto);
         updateWebhook(dbSession, webhookDto, name, url, secret);
       }
 

@@ -25,12 +25,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
@@ -58,22 +60,22 @@ public class SetActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private ComponentDto project;
+  private ProjectDto project;
 
   private TestProjectIndexers projectIndexers = new TestProjectIndexers();
 
-  private WsActionTester ws = new WsActionTester(new SetAction(dbClient, TestComponentFinder.from(db), userSession, projectIndexers));
+  private WsActionTester ws = new WsActionTester(new SetAction(dbClient, TestComponentFinder.from(db), userSession, projectIndexers, System2.INSTANCE));
 
   @Before
   public void setUp() {
-    project = db.components().insertPrivateProject();
+    project = db.components().insertPrivateProjectDto();
   }
 
   @Test
   public void set_tags_exclude_empty_and_blank_values() {
-    TestResponse response = call(project.getDbKey(), "finance , offshore, platform,   ,");
+    TestResponse response = call(project.getKey(), "finance , offshore, platform,   ,");
 
-    assertTags(project.getDbKey(), "finance", "offshore", "platform");
+    assertTags(project.getKey(), "finance", "offshore", "platform");
     // FIXME verify(indexer).indexProject(project.uuid(), PROJECT_TAGS_UPDATE);
 
     assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
@@ -81,36 +83,36 @@ public class SetActionTest {
 
   @Test
   public void reset_tags() {
-    project = db.components().insertPrivateProject(p -> p.setTagsString("platform,scanner"));
+    project = db.components().insertPrivateProjectDto(p -> p.setTagsString("platform,scanner"));
 
-    call(project.getDbKey(), "");
+    call(project.getKey(), "");
 
-    assertNoTags(project.getDbKey());
+    assertNoTags(project.getKey());
   }
 
   @Test
   public void override_existing_tags() {
-    project = db.components().insertPrivateProject(p -> p.setTagsString("marketing,languages"));
+    project = db.components().insertPrivateProjectDto(p -> p.setTagsString("marketing,languages"));
 
-    call(project.getDbKey(), "finance,offshore,platform");
+    call(project.getKey(), "finance,offshore,platform");
 
-    assertTags(project.getDbKey(), "finance", "offshore", "platform");
+    assertTags(project.getKey(), "finance", "offshore", "platform");
   }
 
   @Test
   public void set_tags_as_project_admin() {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    call(project.getDbKey(), "platform, lambda");
+    call(project.getKey(), "platform, lambda");
 
-    assertTags(project.getDbKey(), "platform", "lambda");
+    assertTags(project.getKey(), "platform", "lambda");
   }
 
   @Test
   public void do_not_duplicate_tags() {
-    call(project.getDbKey(), "atlas, atlas, atlas");
+    call(project.getKey(), "atlas, atlas, atlas");
 
-    assertTags(project.getDbKey(), "atlas");
+    assertTags(project.getKey(), "atlas");
   }
 
   @Test
@@ -118,7 +120,7 @@ public class SetActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("_finance_' is invalid. Project tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
 
-    call(project.getDbKey(), "_finance_");
+    call(project.getKey(), "_finance_");
   }
 
   @Test
@@ -127,7 +129,7 @@ public class SetActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    call(project.getDbKey(), "platform");
+    call(project.getKey(), "platform");
   }
 
   @Test
@@ -141,48 +143,50 @@ public class SetActionTest {
   public void fail_if_no_tags() {
     expectedException.expect(IllegalArgumentException.class);
 
-    call(project.getDbKey(), null);
+    call(project.getKey(), null);
   }
 
   @Test
   public void fail_if_component_is_a_view() {
     ComponentDto view = db.components().insertView(v -> v.setDbKey("VIEW_KEY"));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component 'VIEW_KEY' is not a project");
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Project 'VIEW_KEY' not found");
 
-    call(view.getDbKey(), "point-of-view");
+    call(view.getKey(), "point-of-view");
   }
 
   @Test
   public void fail_if_component_is_a_module() {
-    ComponentDto module = db.components().insertComponent(newModuleDto(project).setDbKey("MODULE_KEY"));
+    ComponentDto projectComponent = dbClient.componentDao().selectByUuid(dbSession, project.getUuid()).get();
+    ComponentDto module = db.components().insertComponent(newModuleDto(projectComponent).setDbKey("MODULE_KEY"));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component 'MODULE_KEY' is not a project");
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Project 'MODULE_KEY' not found");
 
-    call(module.getDbKey(), "modz");
+    call(module.getKey(), "modz");
   }
 
   @Test
   public void fail_if_component_is_a_file() {
-    ComponentDto file = db.components().insertComponent(newFileDto(project).setDbKey("FILE_KEY"));
+    ComponentDto projectComponent = dbClient.componentDao().selectByUuid(dbSession, project.getUuid()).get();
+    ComponentDto file = db.components().insertComponent(newFileDto(projectComponent).setDbKey("FILE_KEY"));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component 'FILE_KEY' is not a project");
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Project 'FILE_KEY' not found");
 
-    call(file.getDbKey(), "secret");
+    call(file.getKey(), "secret");
   }
 
   @Test
   public void fail_when_using_branch_db_key() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+    expectedException.expectMessage(format("Project '%s' not found", branch.getDbKey()));
 
     call(branch.getDbKey(), "secret");
   }
@@ -208,10 +212,10 @@ public class SetActionTest {
   }
 
   private void assertTags(String projectKey, String... tags) {
-    assertThat(dbClient.componentDao().selectOrFailByKey(dbSession, projectKey).getTags()).containsExactlyInAnyOrder(tags);
+    assertThat(dbClient.projectDao().selectProjectByKey(dbSession, projectKey).get().getTags()).containsExactlyInAnyOrder(tags);
   }
 
   private void assertNoTags(String projectKey) {
-    assertThat(dbClient.componentDao().selectOrFailByKey(dbSession, projectKey).getTags()).isEmpty();
+    assertThat(dbClient.projectDao().selectProjectByKey(dbSession, projectKey).get().getTags()).isEmpty();
   }
 }

@@ -27,8 +27,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectLinkDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectLinks.Link;
@@ -36,7 +36,6 @@ import org.sonarqube.ws.ProjectLinks.SearchWsResponse;
 
 import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.projectlink.ws.ProjectLinksWs.checkProject;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.ACTION_SEARCH;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_KEY;
@@ -59,13 +58,13 @@ public class SearchAction implements ProjectLinksWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_SEARCH)
       .setDescription("List links of a project.<br>" +
-        "The '%s' or '%s' must be provided.<br>" +
-        "Requires one of the following permissions:" +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified project</li>" +
-        "<li>'Browse' on the specified project</li>" +
-        "</ul>",
+          "The '%s' or '%s' must be provided.<br>" +
+          "Requires one of the following permissions:" +
+          "<ul>" +
+          "<li>'Administer System'</li>" +
+          "<li>'Administer' rights on the specified project</li>" +
+          "<li>'Browse' on the specified project</li>" +
+          "</ul>",
         PARAM_PROJECT_ID, PARAM_PROJECT_KEY)
       .setHandler(this)
       .setResponseExample(getClass().getResource("search-example.json"))
@@ -90,9 +89,9 @@ public class SearchAction implements ProjectLinksWsAction {
 
   private SearchWsResponse doHandle(SearchRequest searchWsRequest) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = getComponentByUuidOrKey(dbSession, searchWsRequest);
+      ProjectDto project = getProjectByUuidOrKey(dbSession, searchWsRequest);
       List<ProjectLinkDto> links = dbClient.projectLinkDao()
-        .selectByProjectUuid(dbSession, component.uuid());
+        .selectByProjectUuid(dbSession, project.getUuid());
       return buildResponse(links);
     }
   }
@@ -114,17 +113,17 @@ public class SearchAction implements ProjectLinksWsAction {
     return builder.build();
   }
 
-  private ComponentDto getComponentByUuidOrKey(DbSession dbSession, SearchRequest request) {
-    ComponentDto component = componentFinder.getByUuidOrKey(
+  private ProjectDto getProjectByUuidOrKey(DbSession dbSession, SearchRequest request) {
+    ProjectDto project = componentFinder.getProjectByUuidOrKey(
       dbSession,
       request.getProjectId(),
       request.getProjectKey(),
       ComponentFinder.ParamNames.PROJECT_ID_AND_KEY);
-    if (!userSession.hasComponentPermission(UserRole.ADMIN, component) &&
-      !userSession.hasComponentPermission(UserRole.USER, component)) {
+    if (!userSession.hasProjectPermission(UserRole.ADMIN, project) &&
+      !userSession.hasProjectPermission(UserRole.USER, project)) {
       throw insufficientPrivilegesException();
     }
-    return checkProject(component);
+    return project;
   }
 
   private static SearchRequest toSearchWsRequest(Request request) {

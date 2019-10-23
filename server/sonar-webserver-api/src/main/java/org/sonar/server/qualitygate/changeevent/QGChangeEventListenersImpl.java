@@ -20,7 +20,6 @@
 package org.sonar.server.qualitygate.changeevent;
 
 import com.google.common.collect.Multimap;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -66,23 +65,23 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
     }
 
     try {
-      Multimap<String, QGChangeEvent> eventsByComponentUuid = changeEvents.stream()
-        .collect(MoreCollectors.index(t -> t.getProject().uuid()));
-      Multimap<String, DefaultIssue> issueByComponentUuid = issues.stream()
+      Multimap<String, QGChangeEvent> eventsByBranchUuid = changeEvents.stream()
+        .collect(MoreCollectors.index(t -> t.getBranch().getUuid()));
+      Multimap<String, DefaultIssue> issueByBranchUuid = issues.stream()
         .collect(MoreCollectors.index(DefaultIssue::projectUuid));
 
-      issueByComponentUuid.asMap()
-        .forEach((componentUuid, value) -> {
-          Collection<QGChangeEvent> qgChangeEvents = eventsByComponentUuid.get(componentUuid);
-          if (!qgChangeEvents.isEmpty()) {
-            Set<ChangedIssue> changedIssues = value.stream()
-              .map(ChangedIssueImpl::new)
-              .collect(toSet());
-            qgChangeEvents
-              .forEach(changeEvent -> Arrays.stream(listeners)
-                .forEach(listener -> broadcastTo(changedIssues, changeEvent, listener)));
+      issueByBranchUuid.asMap().forEach((branchUuid, branchIssues) -> {
+        Collection<QGChangeEvent> qgChangeEvents = eventsByBranchUuid.get(branchUuid);
+        if (qgChangeEvents.isEmpty()) {
+          return;
+        }
+        Set<ChangedIssue> changedIssues = branchIssues.stream().map(ChangedIssueImpl::new).collect(toSet());
+        for (QGChangeEvent changeEvent : qgChangeEvents) {
+          for (QGChangeEventListener listener : listeners) {
+            broadcastTo(changedIssues, changeEvent, listener);
           }
-        });
+        }
+      });
     } catch (Error e) {
       LOG.warn(format("Broadcasting to listeners failed for %s events", changeEvents.size()), e);
     }

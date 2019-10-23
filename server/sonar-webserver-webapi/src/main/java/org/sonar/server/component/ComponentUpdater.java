@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -34,12 +35,14 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexer.Cause;
 import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
 
 import static java.util.Collections.singletonList;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.core.component.ComponentKeys.isValidProjectKey;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
@@ -56,8 +59,8 @@ public class ComponentUpdater {
   private final ProjectIndexers projectIndexers;
 
   public ComponentUpdater(DbClient dbClient, I18n i18n, System2 system2,
-                          PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
-                          ProjectIndexers projectIndexers) {
+    PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
+    ProjectIndexers projectIndexers) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.system2 = system2;
@@ -73,7 +76,8 @@ public class ComponentUpdater {
    * - Index component in es indexes
    */
   public ComponentDto create(DbSession dbSession, NewComponent newComponent, @Nullable Integer userId) {
-    ComponentDto componentDto = createWithoutCommit(dbSession, newComponent, userId);
+    ComponentDto componentDto = createWithoutCommit(dbSession, newComponent, userId, c -> {
+    });
     commitAndIndex(dbSession, componentDto);
     return componentDto;
   }
@@ -82,9 +86,9 @@ public class ComponentUpdater {
    * Create component without committing.
    * Don't forget to call commitAndIndex(...) when ready to commit.
    */
-  public ComponentDto createWithoutCommit(DbSession dbSession, NewComponent newComponent, @Nullable Integer userId) {
+  public ComponentDto createWithoutCommit(DbSession dbSession, NewComponent newComponent, @Nullable Integer userId, Consumer<ComponentDto> componentModifier) {
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
-    ComponentDto componentDto = createRootComponent(dbSession, newComponent);
+    ComponentDto componentDto = createRootComponent(dbSession, newComponent, componentModifier);
     if (isRootProject(componentDto)) {
       createMainBranch(dbSession, componentDto.uuid());
     }
@@ -96,10 +100,11 @@ public class ComponentUpdater {
     projectIndexers.commitAndIndex(dbSession, singletonList(componentDto), Cause.PROJECT_CREATION);
   }
 
-  private ComponentDto createRootComponent(DbSession session, NewComponent newComponent) {
+  private ComponentDto createRootComponent(DbSession session, NewComponent newComponent, Consumer<ComponentDto> componentModifier) {
     checkRequest(!dbClient.componentDao().selectByKey(session, newComponent.key()).isPresent(),
       "Could not create %s, key already exists: %s", getQualifierToDisplay(newComponent.qualifier()), newComponent.key());
 
+    long now = system2.now();
     String uuid = Uuids.create();
     ComponentDto component = new ComponentDto()
       .setOrganizationUuid(newComponent.getOrganizationUuid())
@@ -115,10 +120,29 @@ public class ComponentUpdater {
       .setScope(Scopes.PROJECT)
       .setQualifier(newComponent.qualifier())
       .setPrivate(newComponent.isPrivate())
-      .setCreatedAt(new Date(system2.now()));
+      .setCreatedAt(new Date(now));
+
+    componentModifier.accept(component);
     dbClient.componentDao().insert(session, component);
 
+    if (isRootProject(component)) {
+      ProjectDto projectDto = toProjectDto(component, now);
+      dbClient.projectDao().insert(session, projectDto);
+    }
     return component;
+  }
+
+  private static ProjectDto toProjectDto(ComponentDto component, long now) {
+    return new ProjectDto()
+      .setUuid(component.uuid())
+      .setKey(component.getKey())
+      .setQualifier(component.qualifier())
+      .setName(component.name())
+      .setPrivate(component.isPrivate())
+      .setOrganizationUuid(component.getOrganizationUuid())
+      .setDescription(component.description())
+      .setUpdatedAt(now)
+      .setCreatedAt(now);
   }
 
   private static boolean isRootProject(ComponentDto componentDto) {

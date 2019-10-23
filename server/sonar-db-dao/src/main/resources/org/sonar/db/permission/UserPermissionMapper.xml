@@ -40,7 +40,7 @@
         and ur.resource_id = #{query.componentId,jdbcType=BIGINT}
       </otherwise>
     </choose>
-    left join projects p on ur.resource_id = p.id
+    left join components p on ur.resource_id = p.id
     inner join organization_members om on u.id=om.user_id and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     <where>
       <include refid="sqlQueryFilters" />
@@ -60,7 +60,7 @@
   <sql id="sqlQueryJoins">
     from users u
     left join user_roles ur on ur.user_id = u.id
-    left join projects p on ur.resource_id = p.id
+    left join components p on ur.resource_id = p.id
     inner join organization_members om on u.id=om.user_id and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
   </sql>
 
@@ -109,7 +109,7 @@
     select ur.resource_id as componentId, ur.role as permission, count(u.login) as count
     from users u
     inner join user_roles ur on ur.user_id = u.id
-    inner join projects p on p.id = ur.resource_id
+    inner join components p on p.id = ur.resource_id
     where u.active = ${_true}
     and p.id in <foreach collection="projectIds" open="(" close=")" item="projectId" separator=",">#{projectId}</foreach>
     group by ur.resource_id, ur.role

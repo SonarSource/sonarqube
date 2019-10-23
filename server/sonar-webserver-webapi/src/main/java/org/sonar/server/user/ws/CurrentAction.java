@@ -30,9 +30,11 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.AvatarResolver;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -50,12 +52,12 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
-import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.APPLICATION;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.ORGANIZATION;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PORTFOLIO;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
+import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
+import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
 
 public class CurrentAction implements UsersWsAction {
@@ -102,9 +104,9 @@ public class CurrentAction implements UsersWsAction {
       }
     } else {
       writeProtobuf(newBuilder()
-        .setIsLoggedIn(false)
-        .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
-        .build(),
+          .setIsLoggedIn(false)
+          .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
+          .build(),
         request, response);
     }
   }
@@ -168,8 +170,9 @@ public class CurrentAction implements UsersWsAction {
   }
 
   private Optional<CurrentWsResponse.Homepage> projectHomepage(DbSession dbSession, UserDto user) {
-    Optional<ComponentDto> projectOptional = dbClient.componentDao().selectByUuid(dbSession, of(user.getHomepageParameter()).orElse(EMPTY));
-    if (shouldCleanProjectHomepage(projectOptional)) {
+    Optional<BranchDto> branchOptional = ofNullable(user.getHomepageParameter()).flatMap(p -> dbClient.branchDao().selectByUuid(dbSession, p));
+    Optional<ProjectDto> projectOptional = branchOptional.flatMap(b -> dbClient.projectDao().selectByUuid(dbSession, b.getProjectUuid()));
+    if (shouldCleanProjectHomepage(projectOptional, branchOptional)) {
       cleanUserHomepageInDb(dbSession, user);
       return empty();
     }
@@ -177,12 +180,15 @@ public class CurrentAction implements UsersWsAction {
     CurrentWsResponse.Homepage.Builder homepage = CurrentWsResponse.Homepage.newBuilder()
       .setType(CurrentWsResponse.HomepageType.valueOf(user.getHomepageType()))
       .setComponent(projectOptional.get().getKey());
-    ofNullable(projectOptional.get().getBranch()).ifPresent(homepage::setBranch);
+
+    if (!branchOptional.get().getProjectUuid().equals(branchOptional.get().getUuid())) {
+      homepage.setBranch(branchOptional.get().getKey());
+    }
     return of(homepage.build());
   }
 
-  private boolean shouldCleanProjectHomepage(Optional<ComponentDto> projectOptional) {
-    return !projectOptional.isPresent() || !userSession.hasComponentPermission(USER, projectOptional.get());
+  private boolean shouldCleanProjectHomepage(Optional<ProjectDto> projectOptional, Optional<BranchDto> branchOptional) {
+    return !projectOptional.isPresent() || !branchOptional.isPresent() || !userSession.hasProjectPermission(USER, projectOptional.get());
   }
 
   private Optional<CurrentWsResponse.Homepage> applicationAndPortfolioHomepage(DbSession dbSession, UserDto user) {

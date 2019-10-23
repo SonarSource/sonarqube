@@ -121,7 +121,7 @@ public class ConfigurationRepositoryTest {
 
   @Test
   public void branch_settings() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branchDto = db.components().insertProjectBranch(project);
     Branch branch = mock(Branch.class);
     when(branch.getName()).thenReturn(branchDto.getBranch());

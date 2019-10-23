@@ -164,7 +164,7 @@ public class TaskActionTest {
   @Test
   public void branch_in_past_activity() {
     logInAsRoot();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
     db.components().insertSnapshot(branch);

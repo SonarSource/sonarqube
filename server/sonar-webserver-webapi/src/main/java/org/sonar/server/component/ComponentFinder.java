@@ -30,14 +30,16 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 
 public class ComponentFinder {
   private static final String MSG_COMPONENT_ID_OR_KEY_TEMPLATE = "Either '%s' or '%s' must be provided";
@@ -63,9 +65,57 @@ public class ComponentFinder {
     return getByKey(dbSession, checkParamNotEmpty(componentKey, parameterNames.getKeyParam()));
   }
 
+  public ProjectDto getProjectByKey(DbSession dbSession, String projectKey) {
+    return dbClient.projectDao().selectProjectByKey(dbSession, projectKey)
+      .orElseThrow(() -> new NotFoundException(String.format("Project '%s' not found", projectKey)));
+  }
+
+  public ProjectDto getApplicationByKey(DbSession dbSession, String applicationKey) {
+    return dbClient.projectDao().selectApplicationByKey(dbSession, applicationKey)
+      .orElseThrow(() -> new NotFoundException(String.format("Application '%s' not found", applicationKey)));
+  }
+
+  public ProjectDto getProjectOrApplicationByKey(DbSession dbSession, String projectKey) {
+    return dbClient.projectDao().selectProjectOrAppByKey(dbSession, projectKey)
+      .orElseThrow(() -> new NotFoundException(String.format("Project '%s' not found", projectKey)));
+  }
+
+  public ProjectDto getProjectByUuid(DbSession dbSession, String projectUuid) {
+    return dbClient.projectDao().selectByUuid(dbSession, projectUuid)
+      .filter(p -> Qualifiers.PROJECT.equals(p.getQualifier()))
+      .orElseThrow(() -> new NotFoundException(String.format("Project '%s' not found", projectUuid)));
+  }
+
+  public ProjectDto getProjectByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey, ParamNames parameterNames) {
+    checkByUuidOrKey(projectUuid, projectKey, parameterNames);
+
+    if (projectUuid != null) {
+      return getProjectByUuid(dbSession, checkParamNotEmpty(projectUuid, parameterNames.getUuidParam()));
+    }
+
+    return getProjectByKey(dbSession, checkParamNotEmpty(projectKey, parameterNames.getKeyParam()));
+  }
+
   private static String checkParamNotEmpty(String value, String param) {
     checkArgument(!value.isEmpty(), MSG_PARAMETER_MUST_NOT_BE_EMPTY, param);
     return value;
+  }
+
+  public BranchDto getBranchOrPullRequest(DbSession dbSession, ProjectDto project, @Nullable String branchKey, @Nullable String pullRequestKey) {
+    if (branchKey != null) {
+      return dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), branchKey)
+        .orElseThrow(() -> new NotFoundException(String.format("Branch '%s' in project '%s' not found", branchKey, project.getKey())));
+    } else if (pullRequestKey != null) {
+      return dbClient.branchDao().selectByPullRequestKey(dbSession, project.getUuid(), pullRequestKey)
+        .orElseThrow(() -> new NotFoundException(String.format("Pull request '%s' in project '%s' not found", pullRequestKey, project.getKey())));
+    }
+    return dbClient.branchDao().selectByUuid(dbSession, project.getUuid())
+      .orElseThrow(() -> new NotFoundException(String.format("Main branch in project '%s' not found", project.getKey())));
+  }
+
+  public BranchDto getMainBranch(DbSession dbSession, ProjectDto projectDto) {
+    return dbClient.branchDao().selectByUuid(dbSession, projectDto.getUuid())
+      .orElseThrow(() -> new IllegalStateException(String.format("Can't find main branch for project '%s'", projectDto.getKey())));
   }
 
   private static void checkByUuidOrKey(@Nullable String componentUuid, @Nullable String componentKey, ParamNames parameterNames) {

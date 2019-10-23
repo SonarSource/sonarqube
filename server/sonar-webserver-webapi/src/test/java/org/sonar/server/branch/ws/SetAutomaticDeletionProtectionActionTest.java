@@ -110,7 +110,7 @@ public class SetAutomaticDeletionProtectionActionTest {
   @Test
   public void fail_if_no_administer_permission() {
     userSession.logIn();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -125,7 +125,7 @@ public class SetAutomaticDeletionProtectionActionTest {
   @Test
   public void fail_when_attempting_to_set_main_branch_as_included_in_purge() {
     userSession.logIn();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1").setExcludeFromPurge(false));
     userSession.addProjectPermission(UserRole.ADMIN, project);
     expectedException.expect(IllegalArgumentException.class);
@@ -141,7 +141,7 @@ public class SetAutomaticDeletionProtectionActionTest {
   @Test
   public void set_purge_exclusion() {
     userSession.logIn();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1").setExcludeFromPurge(false));
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
@@ -164,7 +164,7 @@ public class SetAutomaticDeletionProtectionActionTest {
   @Test
   public void fail_on_non_boolean_value_parameter() {
     userSession.logIn();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Value of parameter 'value' (foobar) must be one of: [true, false, yes, no]");
@@ -181,7 +181,7 @@ public class SetAutomaticDeletionProtectionActionTest {
     userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project key 'foo' not found");
+    expectedException.expectMessage("Project 'foo' not found");
 
     tester.newRequest()
       .setParam("project", "foo")
@@ -193,7 +193,7 @@ public class SetAutomaticDeletionProtectionActionTest {
   @Test
   public void fail_if_branch_does_not_exist() {
     userSession.logIn();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
     expectedException.expect(NotFoundException.class);

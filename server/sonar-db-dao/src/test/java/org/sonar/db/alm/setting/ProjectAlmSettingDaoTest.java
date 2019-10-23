@@ -26,7 +26,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -54,8 +54,8 @@ public class ProjectAlmSettingDaoTest {
     when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(A_DATE);
     AlmSettingDto githubAlmSettingDto = db.almSettings().insertGitHubAlmSetting();
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto anotherProject = db.components().insertPrivateProject();
+    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto anotherProject = db.components().insertPrivateProjectDto();
     ProjectAlmSettingDto githubProjectAlmSettingDto = newGithubProjectAlmSettingDto(githubAlmSettingDto, project);
     underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto);
 
@@ -63,7 +63,7 @@ public class ProjectAlmSettingDaoTest {
       .extracting(ProjectAlmSettingDto::getUuid, ProjectAlmSettingDto::getAlmSettingUuid, ProjectAlmSettingDto::getProjectUuid,
         ProjectAlmSettingDto::getAlmRepo, ProjectAlmSettingDto::getAlmSlug,
         ProjectAlmSettingDto::getCreatedAt, ProjectAlmSettingDto::getUpdatedAt)
-      .containsExactly(A_UUID, githubAlmSettingDto.getUuid(), project.uuid(),
+      .containsExactly(A_UUID, githubAlmSettingDto.getUuid(), project.getUuid(),
         githubProjectAlmSettingDto.getAlmRepo(), githubProjectAlmSettingDto.getAlmSlug(),
         A_DATE, A_DATE);
 
@@ -75,7 +75,7 @@ public class ProjectAlmSettingDaoTest {
     when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(A_DATE);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
-    ComponentDto project = db.components().insertPrivateProject();
+    ProjectDto project = db.components().insertPrivateProjectDto();
     ProjectAlmSettingDto projectAlmSettingDto = db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
     AlmSettingDto anotherGithubAlmSetting = db.almSettings().insertGitHubAlmSetting();
 
@@ -87,7 +87,7 @@ public class ProjectAlmSettingDaoTest {
       .extracting(ProjectAlmSettingDto::getUuid, ProjectAlmSettingDto::getAlmSettingUuid, ProjectAlmSettingDto::getProjectUuid,
         ProjectAlmSettingDto::getAlmRepo, ProjectAlmSettingDto::getAlmSlug,
         ProjectAlmSettingDto::getCreatedAt, ProjectAlmSettingDto::getUpdatedAt)
-      .containsExactly(projectAlmSettingDto.getUuid(), anotherGithubAlmSetting.getUuid(), project.uuid(),
+      .containsExactly(projectAlmSettingDto.getUuid(), anotherGithubAlmSetting.getUuid(), project.getUuid(),
         newProjectAlmSettingDto.getAlmRepo(), newProjectAlmSettingDto.getAlmSlug(),
         A_DATE, A_DATE_LATER);
   }
@@ -97,9 +97,9 @@ public class ProjectAlmSettingDaoTest {
     when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(A_DATE);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
-    ComponentDto project = db.components().insertPrivateProject();
+    ProjectDto project = db.components().insertPrivateProjectDto();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
-    ComponentDto anotherProject = db.components().insertPrivateProject();
+    ProjectDto anotherProject = db.components().insertPrivateProjectDto();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, anotherProject);
 
     underTest.deleteByProject(dbSession, project);
@@ -113,13 +113,13 @@ public class ProjectAlmSettingDaoTest {
     when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(A_DATE);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ProjectDto project1 = db.components().insertPrivateProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProjectDto();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project1);
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project2);
 
     AlmSettingDto githubAlmSetting1 = db.almSettings().insertGitHubAlmSetting();
-    ComponentDto anotherProject = db.components().insertPrivateProject();
+    ProjectDto anotherProject = db.components().insertPrivateProjectDto();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting1, anotherProject);
 
     underTest.deleteByAlmSetting(dbSession, githubAlmSetting);

@@ -299,7 +299,7 @@ public class BulkChangeActionTest {
   public void send_notification() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
     RuleDefinitionDto rule = db.rules().insertIssueRule();
@@ -336,7 +336,7 @@ public class BulkChangeActionTest {
   public void should_ignore_hotspots() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, SECURITYHOTSPOT_ADMIN);
     IssueDto issue = db.issues().insertHotspot(project, file);
@@ -355,7 +355,7 @@ public class BulkChangeActionTest {
   public void send_notification_on_branch() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature").setBranchType(BranchType.BRANCH));
     ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
@@ -392,7 +392,7 @@ public class BulkChangeActionTest {
   private void verifySendNoNotification(BranchType branchType) {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature").setBranchType(branchType));
     ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
@@ -415,7 +415,7 @@ public class BulkChangeActionTest {
   public void send_notification_only_on_changed_issues() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
     RuleDefinitionDto rule = db.rules().insertIssueRule();
@@ -451,7 +451,7 @@ public class BulkChangeActionTest {
   public void ignore_the_issues_that_do_not_match_conditions() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
@@ -485,7 +485,7 @@ public class BulkChangeActionTest {
   public void ignore_issues_when_there_is_nothing_to_do() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
@@ -519,7 +519,7 @@ public class BulkChangeActionTest {
   public void add_comment_only_on_changed_issues() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);

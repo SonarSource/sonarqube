@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -40,7 +39,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 @ServerSide
@@ -49,13 +47,11 @@ public class ProjectDataLoader {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
-  private final boolean isSonarCloud;
 
-  public ProjectDataLoader(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, Configuration configuration) {
+  public ProjectDataLoader(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
-    this.isSonarCloud = configuration.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
   }
 
   public ProjectRepositories load(ProjectDataQuery query) {
@@ -118,13 +114,8 @@ public class ProjectDataLoader {
 
   private void checkPermission(boolean hasScanPerm) {
     if (!hasScanPerm) {
-      if (isSonarCloud) {
-        throw new ForbiddenException("You're not authorized to push analysis results to SonarCloud. " +
-          "Please contact your SonarCloud organization administrator.");
-      } else {
-        throw new ForbiddenException("You're not authorized to push analysis results to the SonarQube server. " +
-          "Please contact your SonarQube administrator.");
-      }
+      throw new ForbiddenException("You're not authorized to push analysis results to the SonarQube server. " +
+        "Please contact your SonarQube administrator.");
     }
   }
 

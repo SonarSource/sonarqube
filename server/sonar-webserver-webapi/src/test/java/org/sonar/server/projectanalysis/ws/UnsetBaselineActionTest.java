@@ -35,6 +35,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
@@ -52,9 +53,6 @@ import org.sonar.server.ws.WsActionTester;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newBranchDto;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.component.ComponentTesting.newProjectBranch;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_BRANCH;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
@@ -70,14 +68,15 @@ public class UnsetBaselineActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-
-  private WsActionTester ws = new WsActionTester(new UnsetBaselineAction(dbClient, userSession, TestComponentFinder.from(db)));
+  private BranchDao branchDao = db.getDbClient().branchDao();
+  private WsActionTester ws = new WsActionTester(new UnsetBaselineAction(dbClient, userSession, TestComponentFinder.from(db), branchDao));
 
   @Test
   public void does_not_fail_and_has_no_effect_when_there_is_no_baseline_on_main_branch() {
-    ComponentDto project = db.components().insertMainBranch(db.organizations().insert());
+    ComponentDto project = db.components().insertPublicProject(db.organizations().insert());
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
@@ -89,7 +88,7 @@ public class UnsetBaselineActionTest {
 
   @Test
   public void does_not_fail_and_has_no_effect_when_there_is_no_baseline_on_non_main_branch() {
-    ComponentDto project = db.components().insertMainBranch(db.organizations().insert());
+    ComponentDto project = db.components().insertPublicProject(db.organizations().insert());
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
@@ -101,7 +100,7 @@ public class UnsetBaselineActionTest {
 
   @Test
   public void unset_baseline_when_it_is_set_on_main_branch() {
-    ComponentDto project = db.components().insertMainBranch(db.organizations().insert());
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto projectAnalysis = db.components().insertSnapshot(project);
     SnapshotDto branchAnalysis = db.components().insertSnapshot(project);
@@ -115,7 +114,7 @@ public class UnsetBaselineActionTest {
 
   @Test
   public void unset_baseline_when_it_is_set_non_main_branch() {
-    ComponentDto project = db.components().insertMainBranch(db.organizations().insert());
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.components().insertSnapshot(branch);
     SnapshotDto branchAnalysis = db.components().insertSnapshot(project);
@@ -130,7 +129,7 @@ public class UnsetBaselineActionTest {
 
   @Test
   public void fail_when_user_is_not_admin_on_project() {
-    ComponentDto project = db.components().insertMainBranch(db.organizations().insert());
+    ComponentDto project = db.components().insertPublicProject();
     db.components().insertProjectBranch(project);
 
     expectedException.expect(ForbiddenException.class);
@@ -141,7 +140,7 @@ public class UnsetBaselineActionTest {
 
   @Test
   public void fail_when_user_is_not_admin_on_project_of_branch() {
-    ComponentDto project = db.components().insertMainBranch(db.organizations().insert());
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(ForbiddenException.class);
@@ -153,7 +152,7 @@ public class UnsetBaselineActionTest {
   @Test
   @UseDataProvider("nullOrEmptyOrValue")
   public void fail_with_IAE_when_missing_project_parameter(@Nullable String branchParam) {
-    ComponentDto project = db.components().insertMainBranch(db.organizations().insert());
+    ComponentDto project = db.components().insertPublicProject();
     db.components().insertProjectBranch(project);
     logInAsProjectAdministrator(project);
 
@@ -166,7 +165,7 @@ public class UnsetBaselineActionTest {
   @Test
   @UseDataProvider("nullOrEmptyOrValue")
   public void fail_with_IAE_when_project_parameter_empty(@Nullable String branchParam) {
-    ComponentDto project = db.components().insertMainBranch(db.organizations().insert());
+    ComponentDto project = db.components().insertPublicProject();
     db.components().insertProjectBranch(project);
     logInAsProjectAdministrator(project);
 
@@ -188,7 +187,7 @@ public class UnsetBaselineActionTest {
   @Test
   @UseDataProvider("nullOrEmpty")
   public void does_not_fail_with_IAE_when_missing_branch_parameter(@Nullable String branchParam) {
-    ComponentDto project = db.components().insertMainBranch(db.organizations().insert());
+    ComponentDto project = db.components().insertPublicProject();
     db.components().insertProjectBranch(project);
     logInAsProjectAdministrator(project);
 
@@ -214,28 +213,26 @@ public class UnsetBaselineActionTest {
   @Test
   public void fail_when_branch_does_not_belong_to_project() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
     ComponentDto branch = db.components().insertProjectBranch(project);
-    ComponentDto otherProject = db.components().insertMainBranch(organization);
+    ComponentDto otherProject = db.components().insertPublicProject(organization);
     ComponentDto otherBranch = db.components().insertProjectBranch(otherProject);
     logInAsProjectAdministrator(project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", project.getKey(), otherBranch.getKey()));
+    expectedException.expectMessage(String.format("Branch '%s' in project '%s' not found", otherBranch.getKey(), project.getKey()));
 
     call(project.getKey(), otherBranch.getKey());
   }
 
   @Test
   public void fail_with_NotFoundException_when_branch_is_pull_request() {
-    ComponentDto project = newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = newBranchDto(project.projectUuid(), BranchType.BRANCH);
-    db.components().insertProjectBranch(project, branch);
-    ComponentDto pullRequest = newProjectBranch(project, branch);
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
     logInAsProjectAdministrator(project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", project.getKey(), pullRequest.getKey()));
+    expectedException.expectMessage(String.format("Branch '%s' in project '%s' not found", pullRequest.getKey(), project.getKey()));
 
     call(project.getKey(), pullRequest.getKey());
   }

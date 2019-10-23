@@ -84,7 +84,7 @@ public class ListActionTest {
   @Test
   public void throw_NFE_if_project_not_found() {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'unknown' not found");
+    expectedException.expectMessage("Project 'unknown' not found");
 
     ws.newRequest()
       .setParam("project", "unknown")
@@ -93,7 +93,7 @@ public class ListActionTest {
 
   @Test
   public void throw_FE_if_no_project_permission() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
@@ -104,7 +104,7 @@ public class ListActionTest {
 
   @Test
   public void list_only_branches() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
 
     createBranches(project, 5, BranchType.BRANCH);
     createBranches(project, 3, BranchType.PULL_REQUEST);
@@ -127,7 +127,7 @@ public class ListActionTest {
 
   @Test
   public void list_inherited_global_settings() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     tester.insert(new NewCodePeriodDto().setType(NewCodePeriodType.SPECIFIC_ANALYSIS).setValue("uuid"));
 
     createBranches(project, 5, BranchType.BRANCH);
@@ -154,8 +154,8 @@ public class ListActionTest {
 
   @Test
   public void list_inherited_project_settings() {
-    ComponentDto projectWithOwnSettings = componentDb.insertMainBranch();
-    ComponentDto projectWithGlobalSettings = componentDb.insertMainBranch();
+    ComponentDto projectWithOwnSettings = componentDb.insertPublicProject();
+    ComponentDto projectWithGlobalSettings = componentDb.insertPublicProject();
     tester.insert(new NewCodePeriodDto()
       .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
       .setValue("global_uuid"));
@@ -207,7 +207,7 @@ public class ListActionTest {
 
   @Test
   public void list_branch_and_inherited_global_settings() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     ComponentDto branchWithOwnSettings = componentDb.insertProjectBranch(project, branchDto -> branchDto.setKey("OWN_SETTINGS"));
     componentDb.insertProjectBranch(project, branchDto -> branchDto.setKey("GLOBAL_SETTINGS"));
 
@@ -257,7 +257,7 @@ public class ListActionTest {
 
   @Test
   public void list_branch_and_inherited_project_settings() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     ComponentDto branchWithOwnSettings = componentDb.insertProjectBranch(project, branchDto -> branchDto.setKey("OWN_SETTINGS"));
     componentDb.insertProjectBranch(project, branchDto -> branchDto.setKey("PROJECT_SETTINGS"));
 
@@ -312,7 +312,7 @@ public class ListActionTest {
 
   @Test
   public void verify_specific_analysis_effective_value() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     ComponentDto branch = componentDb.insertProjectBranch(project, branchDto -> branchDto.setKey("PROJECT_BRANCH"));
 
     SnapshotDto analysis = componentDb.insertSnapshot(newAnalysis(project)

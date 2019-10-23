@@ -125,7 +125,7 @@ public class MarketplaceActionTest {
   }
 
   private void setNcloc(double ncloc) {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     MetricDto nclocMetric = db.measures().insertMetric(m -> m.setValueType(INT.toString()).setKey(NCLOC_KEY));
     db.measures().insertLiveMeasure(project, nclocMetric, m -> m.setValue(ncloc));
   }

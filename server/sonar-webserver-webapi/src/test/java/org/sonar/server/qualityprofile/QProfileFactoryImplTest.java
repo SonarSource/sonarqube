@@ -34,8 +34,8 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgQProfileDto;
@@ -160,7 +160,7 @@ public class QProfileFactoryImplTest {
   public void delete_removes_custom_profile_from_project_associations() {
     OrganizationDto org = db.organizations().insert();
     QProfileDto profile = createCustomProfile(org);
-    ComponentDto project = db.components().insertPrivateProject(org);
+    ProjectDto project = db.components().insertPrivateProjectDto(org);
     db.qualityProfiles().associateWithProject(project, profile);
 
     underTest.delete(dbSession, asList(profile));
@@ -188,7 +188,7 @@ public class QProfileFactoryImplTest {
   public void delete_builtin_profile_associated_to_project() {
     RulesProfileDto builtInProfile = createBuiltInProfile();
     OrganizationDto org = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(org);
+    ProjectDto project = db.components().insertPrivateProjectDto(org);
     QProfileDto profile = associateBuiltInProfileToOrganization(builtInProfile, org);
     db.qualityProfiles().associateWithProject(project, profile);
     assertThat(db.getDbClient().qualityProfileDao().selectAssociatedToProjectAndLanguage(dbSession, project, profile.getLanguage())).isNotNull();

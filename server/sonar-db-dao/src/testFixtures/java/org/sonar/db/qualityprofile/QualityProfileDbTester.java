@@ -27,8 +27,8 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -79,7 +79,7 @@ public class QualityProfileDbTester {
     return this;
   }
 
-  public QualityProfileDbTester associateWithProject(ComponentDto project, QProfileDto profile, QProfileDto... otherProfiles) {
+  public QualityProfileDbTester associateWithProject(ProjectDto project, QProfileDto profile, QProfileDto... otherProfiles) {
     dbClient.qualityProfileDao().insertProjectProfileAssociation(dbSession, project, profile);
     for (QProfileDto p : otherProfiles) {
       dbClient.qualityProfileDao().insertProjectProfileAssociation(dbSession, project, p);

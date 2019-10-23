@@ -20,11 +20,14 @@
 package org.sonar.db.component;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.project.ProjectDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -72,6 +75,13 @@ public class BranchDao implements Dao {
     return selectByKey(dbSession, projectUuid, key, KeyType.BRANCH);
   }
 
+  public List<BranchDto> selectByBranchKeys(DbSession dbSession, Map<String, String> branchKeyByProjectUuid) {
+    if (branchKeyByProjectUuid.isEmpty()) {
+      return Collections.emptyList();
+    }
+    return mapper(dbSession).selectByBranchKeys(branchKeyByProjectUuid);
+  }
+
   public Optional<BranchDto> selectByPullRequestKey(DbSession dbSession, String projectUuid, String key) {
     return selectByKey(dbSession, projectUuid, key, KeyType.PULL_REQUEST);
   }
@@ -86,6 +96,10 @@ public class BranchDao implements Dao {
       projectUuid = component.projectUuid();
     }
     return mapper(dbSession).selectByProjectUuid(projectUuid);
+  }
+
+  public Collection<BranchDto> selectByProject(DbSession dbSession, ProjectDto project) {
+    return mapper(dbSession).selectByProjectUuid(project.getUuid());
   }
 
   public List<BranchDto> selectByUuids(DbSession session, Collection<String> uuids) {

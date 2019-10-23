@@ -19,14 +19,10 @@
  */
 package org.sonar.server.branch.ws;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -36,21 +32,18 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.ProjectBranches;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
@@ -63,9 +56,6 @@ import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_PROJECT
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class ListAction implements BranchWsAction {
-
-  private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(PROJECT, APP);
-
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
@@ -80,8 +70,8 @@ public class ListAction implements BranchWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_LIST)
       .setSince("6.6")
-      .setDescription("List the branches of a project.<br/>" +
-        "Requires 'Browse' or 'Execute analysis' rights on the specified project.")
+      .setDescription("List the branches of a project or application.<br/>" +
+        "Requires 'Browse' or 'Execute analysis' rights on the specified project or application.")
       .setResponseExample(Resources.getResource(getClass(), "list-example.json"))
       .setChangelog(new Change("7.2", "Application can be used on this web service"))
       .setHandler(this);
@@ -94,19 +84,14 @@ public class ListAction implements BranchWsAction {
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
-      checkPermission(project);
-      checkArgument(ALLOWED_QUALIFIERS.contains(project.qualifier()), "Invalid project");
+      ProjectDto projectOrApp = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
+      checkPermission(projectOrApp);
 
-      Collection<BranchDto> branches = dbClient.branchDao().selectByComponent(dbSession, project).stream()
+      Collection<BranchDto> branches = dbClient.branchDao().selectByProject(dbSession, projectOrApp).stream()
         .filter(b -> b.getBranchType() == BRANCH)
         .collect(toList());
       List<String> branchUuids = branches.stream().map(BranchDto::getUuid).collect(toList());
 
-      // TODO is this still used?
-      Map<String, BranchDto> mergeBranchesByUuid = dbClient.branchDao()
-        .selectByUuids(dbSession, branches.stream().map(BranchDto::getMergeBranchUuid).filter(Objects::nonNull).collect(toList()))
-        .stream().collect(uniqueIndex(BranchDto::getUuid));
       Map<String, LiveMeasureDto> qualityGateMeasuresByComponentUuids = dbClient.liveMeasureDao()
         .selectByComponentUuidsAndMetricKeys(dbSession, branchUuids, singletonList(ALERT_STATUS_KEY)).stream()
         .collect(uniqueIndex(LiveMeasureDto::getComponentUuid));
@@ -115,15 +100,15 @@ public class ListAction implements BranchWsAction {
         .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> formatDateTime(s.getCreatedAt())));
 
       ProjectBranches.ListWsResponse.Builder protobufResponse = ProjectBranches.ListWsResponse.newBuilder();
-      branches.forEach(b -> addBranch(protobufResponse, b, mergeBranchesByUuid, qualityGateMeasuresByComponentUuids.get(b.getUuid()),
+      branches.forEach(b -> addBranch(protobufResponse, b, qualityGateMeasuresByComponentUuids.get(b.getUuid()),
         analysisDateByBranchUuid.get(b.getUuid())));
       WsUtils.writeProtobuf(protobufResponse.build(), request, response);
     }
   }
 
-  private static void addBranch(ProjectBranches.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid,
+  private static void addBranch(ProjectBranches.ListWsResponse.Builder response, BranchDto branch,
     @Nullable LiveMeasureDto qualityGateMeasure, @Nullable String analysisDate) {
-    ProjectBranches.Branch.Builder builder = toBranchBuilder(branch, Optional.ofNullable(mergeBranchesByUuid.get(branch.getMergeBranchUuid())));
+    ProjectBranches.Branch.Builder builder = toBranchBuilder(branch);
     setBranchStatus(builder, qualityGateMeasure);
     if (analysisDate != null) {
       builder.setAnalysisDate(analysisDate);
@@ -131,7 +116,7 @@ public class ListAction implements BranchWsAction {
     response.addBranches(builder);
   }
 
-  private static ProjectBranches.Branch.Builder toBranchBuilder(BranchDto branch, Optional<BranchDto> mergeBranch) {
+  private static ProjectBranches.Branch.Builder toBranchBuilder(BranchDto branch) {
     ProjectBranches.Branch.Builder builder = ProjectBranches.Branch.newBuilder();
     String branchKey = branch.getKey();
     ofNullable(branchKey).ifPresent(builder::setName);
@@ -150,10 +135,10 @@ public class ListAction implements BranchWsAction {
     builder.setStatus(statusBuilder);
   }
 
-  private void checkPermission(ComponentDto component) {
-    if (!userSession.hasComponentPermission(USER, component) &&
-      !userSession.hasComponentPermission(UserRole.SCAN, component) &&
-      !userSession.hasPermission(SCAN, component.getOrganizationUuid())) {
+  private void checkPermission(ProjectDto project) {
+    if (!userSession.hasProjectPermission(USER, project) &&
+      !userSession.hasProjectPermission(UserRole.SCAN, project) &&
+      !userSession.hasPermission(SCAN, project.getOrganizationUuid())) {
       throw insufficientPrivilegesException();
     }
   }

@@ -49,6 +49,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.measure.Rating;
@@ -63,6 +64,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
@@ -84,6 +86,7 @@ public class LiveMeasureComputerImplTest {
   private MetricDto alertStatusMetric;
   private OrganizationDto organization;
   private ComponentDto project;
+  private ProjectDto projectDto;
   private ComponentDto dir;
   private ComponentDto file1;
   private ComponentDto file2;
@@ -99,7 +102,8 @@ public class LiveMeasureComputerImplTest {
     ratingMetric = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.RATING.name()));
     alertStatusMetric = db.measures().insertMetric(m -> m.setKey(CoreMetrics.ALERT_STATUS_KEY));
     organization = db.organizations().insert();
-    project = db.components().insertMainBranch(organization);
+    project = db.components().insertPublicProject(organization);
+    projectDto = db.components().getProjectDto(project);
     dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java"));
     file1 = db.components().insertComponent(ComponentTesting.newFileDto(project, dir));
     file2 = db.components().insertComponent(ComponentTesting.newFileDto(project, dir));
@@ -260,7 +264,7 @@ public class LiveMeasureComputerImplTest {
   @Test
   public void refresh_multiple_projects_at_the_same_time() {
     markProjectAsAnalyzed(project);
-    ComponentDto project2 = db.components().insertMainBranch();
+    ComponentDto project2 = db.components().insertPublicProject();
     ComponentDto fileInProject2 = db.components().insertComponent(ComponentTesting.newFileDto(project2));
     markProjectAsAnalyzed(project2);
 
@@ -365,7 +369,7 @@ public class LiveMeasureComputerImplTest {
       .extracting(QGChangeEvent::getQualityGateSupplier)
       .extracting(Supplier::get)
       .containsExactly(Optional.of(newQualityGate));
-    verify(qGateComputer).loadQualityGate(any(DbSession.class), eq(organization), eq(project), eq(branch));
+    verify(qGateComputer).loadQualityGate(any(DbSession.class), eq(organization), argThat(p -> p.getUuid().equals(projectDto.getUuid())), eq(branch));
     verify(qGateComputer).getMetricsRelatedTo(qualityGate);
     verify(qGateComputer).refreshGateStatus(eq(project), same(qualityGate), any(MeasureMatrix.class));
   }
@@ -390,7 +394,7 @@ public class LiveMeasureComputerImplTest {
   private List<QGChangeEvent> run(Collection<ComponentDto> components, IssueMetricFormula... formulas) {
     IssueMetricFormulaFactory formulaFactory = new TestIssueMetricFormulaFactory(asList(formulas));
 
-    when(qGateComputer.loadQualityGate(any(DbSession.class), any(OrganizationDto.class), any(ComponentDto.class), any(BranchDto.class)))
+    when(qGateComputer.loadQualityGate(any(DbSession.class), any(OrganizationDto.class), any(ProjectDto.class), any(BranchDto.class)))
       .thenReturn(qualityGate);
     when(qGateComputer.getMetricsRelatedTo(qualityGate)).thenReturn(singleton(CoreMetrics.ALERT_STATUS_KEY));
     when(qGateComputer.refreshGateStatus(eq(project), same(qualityGate), any(MeasureMatrix.class)))
@@ -496,7 +500,7 @@ public class LiveMeasureComputerImplTest {
       assertThat(projectIndexer.hasBeenCalled(p.uuid(), ProjectIndexer.Cause.MEASURE_CHANGE)).isTrue();
     }
 
-    assertThat(events).extracting(e -> e.getProject().uuid())
+    assertThat(events).extracting(e -> e.getBranch().getUuid())
       .containsExactlyInAnyOrder(Arrays.stream(projects).map(ComponentDto::uuid).toArray(String[]::new));
   }
 

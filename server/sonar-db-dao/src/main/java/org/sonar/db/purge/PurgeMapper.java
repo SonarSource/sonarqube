@@ -74,6 +74,8 @@ public interface PurgeMapper {
 
   void deleteComponentsByProjectUuid(@Param("rootUuid") String rootUuid);
 
+  void deleteProjectsByProjectUuid(@Param("projectUuid") String projectUuid);
+
   void deleteComponentsByUuids(@Param("componentUuids") List<String> componentUuids);
 
   void deleteGroupRolesByComponentId(@Param("rootId") long rootId);

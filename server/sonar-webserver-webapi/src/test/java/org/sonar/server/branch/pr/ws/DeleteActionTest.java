@@ -28,6 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
@@ -71,7 +72,7 @@ public class DeleteActionTest {
 
   @Test
   public void delete_pull_request() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("1984").setBranchType(PULL_REQUEST));
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
@@ -80,7 +81,7 @@ public class DeleteActionTest {
       .setParam("project", project.getKey())
       .setParam("pullRequest", "1984")
       .execute();
-    verifyDeletedKey(branch.getDbKey());
+    verifyDeletedKey("1984");
   }
 
   @Test
@@ -130,7 +131,7 @@ public class DeleteActionTest {
     userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project key 'foo' not found");
+    expectedException.expectMessage("Project 'foo' not found");
 
     ws.newRequest()
       .setParam("project", "foo")
@@ -139,9 +140,9 @@ public class DeleteActionTest {
   }
 
   private void verifyDeletedKey(String key) {
-    ArgumentCaptor<ComponentDto> argument = ArgumentCaptor.forClass(ComponentDto.class);
+    ArgumentCaptor<BranchDto> argument = ArgumentCaptor.forClass(BranchDto.class);
     verify(componentCleanerService).deleteBranch(any(DbSession.class), argument.capture());
-    assertThat(argument.getValue().getDbKey()).isEqualTo(key);
+    assertThat(argument.getValue().getKey()).isEqualTo(key);
   }
 
 }

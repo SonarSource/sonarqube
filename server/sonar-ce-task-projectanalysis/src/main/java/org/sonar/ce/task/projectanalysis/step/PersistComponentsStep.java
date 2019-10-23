@@ -44,6 +44,7 @@ import org.sonar.ce.task.projectanalysis.component.MutableDisabledComponentsHold
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitor;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
+import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -71,11 +72,12 @@ public class PersistComponentsStep implements ComputationStep {
   private final MutableDisabledComponentsHolder disabledComponentsHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final BranchPersister branchPersister;
+  private final ProjectPersister projectPersister;
 
   public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder,
     MutableDbIdsRepository dbIdsRepository, System2 system2,
     MutableDisabledComponentsHolder disabledComponentsHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    BranchPersister branchPersister) {
+    BranchPersister branchPersister, ProjectPersister projectPersister) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.dbIdsRepository = dbIdsRepository;
@@ -83,6 +85,7 @@ public class PersistComponentsStep implements ComputationStep {
     this.disabledComponentsHolder = disabledComponentsHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.branchPersister = branchPersister;
+    this.projectPersister = projectPersister;
   }
 
   @Override
@@ -94,6 +97,7 @@ public class PersistComponentsStep implements ComputationStep {
   public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       branchPersister.persist(dbSession);
+      projectPersister.persist(dbSession);
 
       String projectUuid = treeRootHolder.getRoot().getUuid();
 

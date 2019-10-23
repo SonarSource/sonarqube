@@ -253,7 +253,7 @@ public class AppActionTest {
 
   @Test
   public void branch() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn("john").addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto module = db.components().insertComponent(newModuleDto(branch));
@@ -298,7 +298,7 @@ public class AppActionTest {
 
   @Test
   public void component_and_branch_parameters_provided() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn("john").addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
@@ -327,7 +327,7 @@ public class AppActionTest {
 
   @Test
   public void component_and_pull_request_parameters_provided() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn("john").addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
@@ -356,7 +356,7 @@ public class AppActionTest {
 
   @Test
   public void fail_if_component_and_pull_request_and_branch_parameters_provided() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn("john").addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));

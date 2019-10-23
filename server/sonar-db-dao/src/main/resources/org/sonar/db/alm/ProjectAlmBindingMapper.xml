@@ -95,7 +95,7 @@
       p.kee as projectKey
     from
       project_alm_bindings b
-    inner join projects p
+    inner join components p
       on b.project_uuid = p.project_uuid
     where
       alm_id = #{almId, jdbcType=VARCHAR}

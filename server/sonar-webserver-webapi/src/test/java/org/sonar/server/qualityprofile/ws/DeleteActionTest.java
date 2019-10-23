@@ -31,8 +31,8 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -79,7 +79,7 @@ public class DeleteActionTest {
   @Test
   public void delete_profile_by_language_and_name_in_default_organization() {
     OrganizationDto organization = db.getDefaultOrganization();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ProjectDto project = db.components().insertPrivateProjectDto(organization);
     QProfileDto profile1 = createProfile(organization);
     QProfileDto profile2 = createProfile(organization);
     db.qualityProfiles().associateWithProject(project, profile1);
@@ -101,7 +101,7 @@ public class DeleteActionTest {
   @Test
   public void delete_profile_by_language_and_name_in_specified_organization() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ProjectDto project = db.components().insertPrivateProjectDto(organization);
     QProfileDto profile1 = createProfile(organization);
     QProfileDto profile2 = createProfile(organization);
     db.qualityProfiles().associateWithProject(project, profile1);

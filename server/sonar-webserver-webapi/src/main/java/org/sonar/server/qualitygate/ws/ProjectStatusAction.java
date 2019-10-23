@@ -33,10 +33,11 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
@@ -44,6 +45,8 @@ import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_PROJECT_STATUS;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ANALYSIS_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_BRANCH;
@@ -51,8 +54,6 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PRO
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ProjectStatusAction implements QualityGatesWsAction {
@@ -138,9 +139,9 @@ public class ProjectStatusAction implements QualityGatesWsAction {
     }
   }
 
-  private ProjectStatusResponse doHandle(DbSession dbSession, @Nullable String analysisId, @Nullable String projectId,
+  private ProjectStatusResponse doHandle(DbSession dbSession, @Nullable String analysisId, @Nullable String projectUuid,
     @Nullable String projectKey, @Nullable String branchKey, @Nullable String pullRequestId) {
-    ProjectAndSnapshot projectAndSnapshot = getProjectAndSnapshot(dbSession, analysisId, projectId, projectKey, branchKey, pullRequestId);
+    ProjectAndSnapshot projectAndSnapshot = getProjectAndSnapshot(dbSession, analysisId, projectUuid, projectKey, branchKey, pullRequestId);
     checkPermission(projectAndSnapshot.project);
     Optional<String> measureData = loadQualityGateDetails(dbSession, projectAndSnapshot, analysisId != null);
 
@@ -149,34 +150,42 @@ public class ProjectStatusAction implements QualityGatesWsAction {
       .build();
   }
 
-  private ProjectAndSnapshot getProjectAndSnapshot(DbSession dbSession, @Nullable String analysisId, @Nullable String projectId,
+  private ProjectAndSnapshot getProjectAndSnapshot(DbSession dbSession, @Nullable String analysisId, @Nullable String projectUuid,
     @Nullable String projectKey, @Nullable String branchKey, @Nullable String pullRequestId) {
     if (!isNullOrEmpty(analysisId)) {
       return getSnapshotThenProject(dbSession, analysisId);
     }
-    if (!isNullOrEmpty(projectId) ^ !isNullOrEmpty(projectKey)) {
-      return getProjectThenSnapshot(dbSession, projectId, projectKey, branchKey, pullRequestId);
+    if (!isNullOrEmpty(projectUuid) ^ !isNullOrEmpty(projectKey)) {
+      return getProjectThenSnapshot(dbSession, projectUuid, projectKey, branchKey, pullRequestId);
     }
 
     throw BadRequestException.create(MSG_ONE_PROJECT_PARAMETER_ONLY);
   }
 
-  private ProjectAndSnapshot getProjectThenSnapshot(DbSession dbSession, @Nullable String projectId, @Nullable String projectKey,
+  private ProjectAndSnapshot getProjectThenSnapshot(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey,
     @Nullable String branchKey, @Nullable String pullRequestId) {
-    ComponentDto projectDto;
-    if (projectId != null) {
-      projectDto = componentFinder.getRootComponentByUuidOrKey(dbSession, projectId, null);
+    ProjectDto projectDto;
+    BranchDto branchDto;
+
+    if (projectUuid != null) {
+      projectDto = componentFinder.getProjectByUuid(dbSession, projectUuid);
+      branchDto = componentFinder.getMainBranch(dbSession, projectDto);
     } else {
-      projectDto = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, branchKey, pullRequestId);
+      projectDto = componentFinder.getProjectByKey(dbSession, projectKey);
+      branchDto = componentFinder.getBranchOrPullRequest(dbSession, projectDto, branchKey, pullRequestId);
     }
-    Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, projectDto.projectUuid());
-    return new ProjectAndSnapshot(projectDto, snapshot.orElse(null));
+    Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, branchDto.getUuid());
+    return new ProjectAndSnapshot(projectDto, branchDto, snapshot.orElse(null));
   }
 
   private ProjectAndSnapshot getSnapshotThenProject(DbSession dbSession, String analysisUuid) {
     SnapshotDto snapshotDto = getSnapshot(dbSession, analysisUuid);
-    ComponentDto projectDto = dbClient.componentDao().selectOrFailByUuid(dbSession, snapshotDto.getComponentUuid());
-    return new ProjectAndSnapshot(projectDto, snapshotDto);
+    BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, snapshotDto.getComponentUuid())
+      .orElseThrow(() -> new IllegalStateException(String.format("Branch '%s' not found", snapshotDto.getUuid())));
+    ProjectDto projectDto = dbClient.projectDao().selectByUuid(dbSession, branchDto.getProjectUuid())
+      .orElseThrow(() -> new IllegalStateException(String.format("Project '%s' not found", branchDto.getProjectUuid())));
+
+    return new ProjectAndSnapshot(projectDto, branchDto, snapshotDto);
   }
 
   private SnapshotDto getSnapshot(DbSession dbSession, String analysisUuid) {
@@ -191,29 +200,31 @@ public class ProjectStatusAction implements QualityGatesWsAction {
       }
       // get the gate status as it was computed during the specified analysis
       String analysisUuid = projectAndSnapshot.snapshotDto.get().getUuid();
-      return dbClient.measureDao().selectMeasure(dbSession, analysisUuid, projectAndSnapshot.project.projectUuid(), CoreMetrics.QUALITY_GATE_DETAILS_KEY)
+      return dbClient.measureDao().selectMeasure(dbSession, analysisUuid, projectAndSnapshot.branch.getUuid(), CoreMetrics.QUALITY_GATE_DETAILS_KEY)
         .map(MeasureDto::getData);
     }
 
     // do not restrict to a specified analysis, use the live measure
-    Optional<LiveMeasureDto> measure = dbClient.liveMeasureDao().selectMeasure(dbSession, projectAndSnapshot.project.projectUuid(), CoreMetrics.QUALITY_GATE_DETAILS_KEY);
+    Optional<LiveMeasureDto> measure = dbClient.liveMeasureDao().selectMeasure(dbSession, projectAndSnapshot.branch.getUuid(), CoreMetrics.QUALITY_GATE_DETAILS_KEY);
     return measure.map(LiveMeasureDto::getDataAsString);
   }
 
-  private void checkPermission(ComponentDto project) {
-    if (!userSession.hasComponentPermission(UserRole.ADMIN, project) &&
-      !userSession.hasComponentPermission(UserRole.USER, project)) {
+  private void checkPermission(ProjectDto project) {
+    if (!userSession.hasProjectPermission(UserRole.ADMIN, project) &&
+      !userSession.hasProjectPermission(UserRole.USER, project)) {
       throw insufficientPrivilegesException();
     }
   }
 
   @Immutable
   private static class ProjectAndSnapshot {
-    private final ComponentDto project;
+    private final BranchDto branch;
     private final Optional<SnapshotDto> snapshotDto;
+    private final ProjectDto project;
 
-    private ProjectAndSnapshot(ComponentDto project, @Nullable SnapshotDto snapshotDto) {
+    private ProjectAndSnapshot(ProjectDto project, BranchDto branch, @Nullable SnapshotDto snapshotDto) {
       this.project = project;
+      this.branch = branch;
       this.snapshotDto = Optional.ofNullable(snapshotDto);
     }
   }

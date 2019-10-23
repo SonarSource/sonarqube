@@ -283,6 +283,13 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  void deleteProject(String projectUuid) {
+    profiler.start("deleteProject (projects)");
+    purgeMapper.deleteProjectsByProjectUuid(projectUuid);
+    session.commit();
+    profiler.stop();
+  }
+
   void deleteComponents(List<String> componentUuids) {
     if (componentUuids.isEmpty()) {
       return;

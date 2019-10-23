@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
@@ -122,7 +123,12 @@ public class SetHomepageAction implements UsersWsAction {
     switch (type) {
       case PROJECT:
         checkArgument(isNotBlank(componentParameter), PARAMETER_REQUIRED, type.name(), PARAM_COMPONENT);
-        return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentParameter, branchParameter, null).uuid();
+        ProjectDto projectDto = componentFinder.getProjectByKey(dbSession, componentParameter);
+        if (branchParameter != null) {
+          return componentFinder.getBranchOrPullRequest(dbSession, projectDto, branchParameter, null).getUuid();
+        } else {
+          return projectDto.getUuid();
+        }
       case PORTFOLIO:
       case APPLICATION:
         checkArgument(isNotBlank(componentParameter), PARAMETER_REQUIRED, type.name(), PARAM_COMPONENT);

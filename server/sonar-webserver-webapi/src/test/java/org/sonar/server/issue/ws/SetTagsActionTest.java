@@ -213,7 +213,7 @@ public class SetTagsActionTest {
   @Test
   public void fail_when_security_hotspot() {
     RuleDefinitionDto rule = db.rules().insertHotspotRule();
-    ComponentDto project = db.components().insertMainBranch(newPublicProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = db.components().insertPublicProject(newPublicProjectDto(db.getDefaultOrganization()));
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = db.issues().insertHotspot(rule, project, file);
     logIn(issueDto);
@@ -246,7 +246,7 @@ public class SetTagsActionTest {
   @SafeVarargs
   private final IssueDto insertIssueForPublicProject(Consumer<IssueDto>... consumers) {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertMainBranch(newPublicProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = db.components().insertPublicProject(newPublicProjectDto(db.getDefaultOrganization()));
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     return db.issues().insertIssue(rule, project, file, consumers);
   }

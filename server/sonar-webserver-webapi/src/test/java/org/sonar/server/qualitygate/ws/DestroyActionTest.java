@@ -28,10 +28,11 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -61,7 +62,7 @@ public class DestroyActionTest {
   private DbClient dbClient = db.getDbClient();
   private TestDefaultOrganizationProvider organizationProvider = TestDefaultOrganizationProvider.from(db);
   private QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
-  private QualityGatesWsSupport wsSupport = new QualityGatesWsSupport(db.getDbClient(), userSession, organizationProvider);
+  private QualityGatesWsSupport wsSupport = new QualityGatesWsSupport(db.getDbClient(), userSession, organizationProvider, TestComponentFinder.from(db));
 
   private DbSession dbSession = db.getSession();
   private DestroyAction underTest = new DestroyAction(dbClient, wsSupport, qualityGateFinder);
@@ -102,8 +103,8 @@ public class DestroyActionTest {
     OrganizationDto organization = db.organizations().insert();
     db.qualityGates().createDefaultQualityGate(organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    ComponentDto prj1 = db.components().insertPublicProject(organization);
-    ComponentDto prj2 = db.components().insertPublicProject(organization);
+    ProjectDto prj1 = db.components().insertPublicProjectDto(organization);
+    ProjectDto prj2 = db.components().insertPublicProjectDto(organization);
     db.qualityGates().associateProjectToQualityGate(prj1, qualityGate);
     db.qualityGates().associateProjectToQualityGate(prj2, qualityGate);
     userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
@@ -113,14 +114,14 @@ public class DestroyActionTest {
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
-    assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByComponentUuid(dbSession, prj1.uuid()))
+    assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, prj1.getUuid()))
       .isEmpty();
-    assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByComponentUuid(dbSession, prj2.uuid()))
+    assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, prj2.getUuid()))
       .isEmpty();
 
-    assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByComponentUuid(dbSession, prj1.uuid()))
+    assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, prj1.getUuid()))
       .isEmpty();
-    assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByComponentUuid(dbSession, prj2.uuid()))
+    assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, prj2.getUuid()))
       .isEmpty();
   }
 

@@ -103,14 +103,14 @@ public class TelemetryDataLoaderImplTest {
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
     MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
 
-    ComponentDto project1 = db.components().insertMainBranch(db.getDefaultOrganization());
+    ComponentDto project1 = db.components().insertPublicProject(db.getDefaultOrganization());
     ComponentDto project1Branch = db.components().insertProjectBranch(project1);
     db.measures().insertLiveMeasure(project1, lines, m -> m.setValue(200d));
     db.measures().insertLiveMeasure(project1, ncloc, m -> m.setValue(100d));
     db.measures().insertLiveMeasure(project1, coverage, m -> m.setValue(80d));
     db.measures().insertLiveMeasure(project1, nclocDistrib, m -> m.setValue(null).setData("java=200;js=50"));
 
-    ComponentDto project2 = db.components().insertMainBranch(db.getDefaultOrganization());
+    ComponentDto project2 = db.components().insertPublicProject(db.getDefaultOrganization());
     db.measures().insertLiveMeasure(project2, lines, m -> m.setValue(300d));
     db.measures().insertLiveMeasure(project2, ncloc, m -> m.setValue(200d));
     db.measures().insertLiveMeasure(project2, coverage, m -> m.setValue(80d));
@@ -148,7 +148,7 @@ public class TelemetryDataLoaderImplTest {
   public void take_largest_branches() {
     server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
-    ComponentDto project = db.components().insertMainBranch(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPublicProject(db.getDefaultOrganization());
     ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
     db.measures().insertLiveMeasure(project, ncloc, m -> m.setValue(10d));

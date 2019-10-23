@@ -347,7 +347,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   public void fail_when_using_branch_db_key() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     UserDto user = db.users().insertUser(newUserDto());
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
@@ -367,7 +367,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   public void fail_when_using_branch_uuid() {
     OrganizationDto organization = db.organizations().insert();
     UserDto user = db.users().insertUser(newUserDto());
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);

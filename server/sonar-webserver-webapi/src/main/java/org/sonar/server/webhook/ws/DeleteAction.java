@@ -25,16 +25,16 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.DELETE_ACTION;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkStateWithOptional;
 
 public class DeleteAction implements WebhooksWsAction {
@@ -61,7 +61,7 @@ public class DeleteAction implements WebhooksWsAction {
     action.createParam(KEY_PARAM)
       .setRequired(true)
       .setMaximumLength(KEY_PARAM_MAXIMUM_LENGTH)
-      .setDescription("The key of the webhook to be deleted, "+
+      .setDescription("The key of the webhook to be deleted, " +
         "auto-generated value can be obtained through api/webhooks/create or api/webhooks/list")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
@@ -86,9 +86,9 @@ public class DeleteAction implements WebhooksWsAction {
 
       String projectUuid = webhookDto.getProjectUuid();
       if (projectUuid != null) {
-        Optional<ComponentDto> optionalDto = dbClient.componentDao().selectByUuid(dbSession, projectUuid);
-        ComponentDto componentDto = checkStateWithOptional(optionalDto, "the requested project '%s' was not found", projectUuid);
-        webhookSupport.checkPermission(componentDto);
+        Optional<ProjectDto> optionalDto = dbClient.projectDao().selectByUuid(dbSession, projectUuid);
+        ProjectDto projectDto = checkStateWithOptional(optionalDto, "the requested project '%s' was not found", projectUuid);
+        webhookSupport.checkPermission(projectDto);
         deleteWebhook(dbSession, webhookDto);
       }
 

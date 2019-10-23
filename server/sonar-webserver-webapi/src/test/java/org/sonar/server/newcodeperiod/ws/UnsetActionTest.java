@@ -95,7 +95,7 @@ public class UnsetActionTest {
   @Test
   public void throw_NFE_if_project_not_found() {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'unknown' not found");
+    expectedException.expectMessage("Project 'unknown' not found");
 
     ws.newRequest()
       .setParam("type", "previous_version")
@@ -105,10 +105,10 @@ public class UnsetActionTest {
 
   @Test
   public void throw_NFE_if_branch_not_found() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectAdministrator(project);
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component '" + project.getKey() + "' on branch 'unknown' not found");
+    expectedException.expectMessage("Branch 'unknown' in project '" + project.getKey() + "' not found");
 
     ws.newRequest()
       .setParam("project", project.getKey())
@@ -120,7 +120,7 @@ public class UnsetActionTest {
   // permission
   @Test
   public void throw_NFE_if_no_project_permission() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
@@ -152,7 +152,7 @@ public class UnsetActionTest {
 
   @Test
   public void delete_project_period() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectAdministrator(project);
     ws.newRequest()
       .setParam("project", project.getKey())
@@ -163,8 +163,8 @@ public class UnsetActionTest {
 
   @Test
   public void delete_project_period_twice() {
-    ComponentDto project1 = componentDb.insertMainBranch();
-    ComponentDto project2 = componentDb.insertMainBranch();
+    ComponentDto project1 = componentDb.insertPublicProject();
+    ComponentDto project2 = componentDb.insertPublicProject();
     db.newCodePeriods().insert(project1.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid1");
     db.newCodePeriods().insert(project2.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");
 
@@ -183,7 +183,7 @@ public class UnsetActionTest {
 
   @Test
   public void delete_branch_period() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
 
     db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid1");
@@ -201,7 +201,7 @@ public class UnsetActionTest {
 
   @Test
   public void delete_branch_and_project_period_in_community_edition() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
 
     db.newCodePeriods().insert(project.uuid(), null, NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid1");
     db.newCodePeriods().insert(project.uuid(), project.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "uuid2");

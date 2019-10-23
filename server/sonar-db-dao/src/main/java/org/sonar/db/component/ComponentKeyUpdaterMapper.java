@@ -32,6 +32,8 @@ public interface ComponentKeyUpdaterMapper {
 
   List<ResourceDto> selectDescendantProjects(@Param("rootUuid") String rootUuid);
 
-  void update(ResourceDto resource);
+  void updateComponent(ResourceDto resource);
+
+  void updateProject(@Param("oldProjectKey") String oldProjectKey, @Param("newProjectKey") String newProjectKey);
 
 }

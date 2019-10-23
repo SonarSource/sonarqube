@@ -34,6 +34,7 @@ import org.sonar.ce.task.projectanalysis.component.BranchPersisterImpl;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.component.DbIdsRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.component.DisabledComponentsHolderImpl;
+import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
 import org.sonar.ce.task.projectanalysis.component.SiblingComponentsWithOpenIssues;
@@ -284,6 +285,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       BaseIssuesLoader.class,
       IssueTrackingDelegator.class,
       BranchPersisterImpl.class,
+      ProjectPersister.class,
       SiblingsIssuesLoader.class,
       SiblingsIssueMerger.class,
       NewCodePeriodResolver.class,

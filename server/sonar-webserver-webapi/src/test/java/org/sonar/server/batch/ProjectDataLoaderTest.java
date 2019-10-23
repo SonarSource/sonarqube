@@ -66,7 +66,7 @@ public class ProjectDataLoaderTest {
   private int uuidCounter = 0;
   private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private MapSettings settings = new MapSettings();
-  private ProjectDataLoader underTest = new ProjectDataLoader(dbClient, userSession, new ComponentFinder(dbClient, resourceTypes), settings.asConfig());
+  private ProjectDataLoader underTest = new ProjectDataLoader(dbClient, userSession, new ComponentFinder(dbClient, resourceTypes));
 
   @Test
   public void throws_NotFoundException_when_branch_does_not_exist() {
@@ -214,22 +214,6 @@ public class ProjectDataLoaderTest {
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("You're not authorized to push analysis results to the SonarQube server. Please contact your SonarQube administrator.");
-
-    underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()));
-  }
-
-  @Test
-  public void throw_ForbiddenException_if_no_scan_permission_on_sonarcloud() {
-    // Test the SonarCloud specific message
-    settings.setProperty(SONARCLOUD_ENABLED.getKey(), "true");
-    underTest = new ProjectDataLoader(dbClient, userSession, new ComponentFinder(dbClient, resourceTypes), settings.asConfig());
-
-    ComponentDto project = db.components().insertPrivateProject();
-    // Browse is not enough
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("You're not authorized to push analysis results to SonarCloud. Please contact your SonarCloud organization administrator.");
 
     underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()));
   }

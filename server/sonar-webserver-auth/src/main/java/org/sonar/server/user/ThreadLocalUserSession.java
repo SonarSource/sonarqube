@@ -26,6 +26,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 
@@ -134,6 +135,12 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
+  public UserSession checkProjectPermission(String projectPermission, ProjectDto project) {
+    get().checkProjectPermission(projectPermission, project);
+    return this;
+  }
+
+  @Override
   public UserSession checkComponentUuidPermission(String permission, String componentUuid) {
     get().checkComponentUuidPermission(permission, componentUuid);
     return this;
@@ -155,6 +162,10 @@ public class ThreadLocalUserSession implements UserSession {
     return get().hasComponentPermission(permission, component);
   }
 
+  @Override public boolean hasProjectPermission(String permission, ProjectDto project) {
+    return get().hasProjectPermission(permission, project);
+  }
+
   @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
     return get().hasComponentUuidPermission(permission, componentUuid);
@@ -174,6 +185,10 @@ public class ThreadLocalUserSession implements UserSession {
   @Override
   public List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
     return get().keepAuthorizedComponents(permission, components);
+  }
+
+  @Override public List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
+    return get().keepAuthorizedProjects(permission, projects);
   }
 
   @Override

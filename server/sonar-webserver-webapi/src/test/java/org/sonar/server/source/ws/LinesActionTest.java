@@ -122,7 +122,7 @@ public class LinesActionTest {
 
   @Test
   public void branch() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
@@ -145,7 +145,7 @@ public class LinesActionTest {
 
   @Test
   public void pull_request() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
@@ -330,7 +330,7 @@ public class LinesActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     userSession.addProjectPermission(UserRole.USER, project);
 
@@ -344,7 +344,7 @@ public class LinesActionTest {
 
   @Test
   public void fail_when_using_branch_uuid() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     userSession.addProjectPermission(UserRole.USER, project);
 

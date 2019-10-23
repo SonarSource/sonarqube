@@ -69,8 +69,8 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
 
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ProjectsWsParameters.ACTION_UPDATE_VISIBILITY)
-      .setDescription("Updates visibility of a project.<br>" +
-        "Requires 'Project administer' permission on the specified project")
+      .setDescription("Updates visibility of a project or view.<br>" +
+        "Requires 'Project administer' permission on the specified project or view")
       .setSince("6.4")
       .setPost(true)
       .setHandler(this);

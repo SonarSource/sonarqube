@@ -29,7 +29,6 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +48,7 @@ import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -80,11 +80,6 @@ public class PurgeCommandsTest {
   @After
   public void resetAnalysisProperties() {
     dbTester.executeUpdateSql("DELETE FROM analysis_properties");
-  }
-
-  @Before
-  public void setUp() {
-
   }
 
   /**
@@ -218,7 +213,30 @@ public class PurgeCommandsTest {
 
     underTest.deleteComponents(component.uuid());
 
+    assertThat(dbTester.countRowsOfTable("components")).isZero();
+    assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("events")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("issue_changes")).isEqualTo(1);
+  }
+
+  @Test
+  public void deleteProjects() {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    ProjectDto projectDto = dbTester.getDbClient().projectDao().selectProjectByKey(dbTester.getSession(), project.getDbKey()).get();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    SnapshotDto analysis = dbTester.components().insertSnapshot(project);
+    dbTester.events().insertEvent(analysis);
+    IssueDto issue = dbTester.issues().insert(dbTester.rules().insert(), project, file);
+    dbTester.issues().insertChange(issue);
+
+    assertThat(dbTester.countRowsOfTable("projects")).isOne();
+
+    underTest.deleteComponents(project.uuid());
+    underTest.deleteProject(project.uuid());
+
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
+    assertThat(dbTester.countRowsOfTable("components")).isZero();
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
     assertThat(dbTester.countRowsOfTable("events")).isEqualTo(1);
     assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
@@ -644,7 +662,7 @@ public class PurgeCommandsTest {
   }
 
   private int countComponentOfRoot(ComponentDto projectOrView) {
-    return dbTester.countSql("select count(1) from projects where project_uuid='" + projectOrView.uuid() + "'");
+    return dbTester.countSql("select count(1) from components where project_uuid='" + projectOrView.uuid() + "'");
   }
 
   private void insertDuplication(ComponentDto project, SnapshotDto analysis) {

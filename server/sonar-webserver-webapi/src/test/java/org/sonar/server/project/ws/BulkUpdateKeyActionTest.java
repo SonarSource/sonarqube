@@ -31,7 +31,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
@@ -86,9 +85,9 @@ public class BulkUpdateKeyActionTest {
   @Test
   public void json_example() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("my_project"));
+    ComponentDto project = componentDb.insertPrivateProject(organizationDto, c -> c.setDbKey("my_project"));
     componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:module_1"));
-    ComponentDto anotherProject = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("another_project"));
+    ComponentDto anotherProject = componentDb.insertPrivateProject(organizationDto, c -> c.setDbKey("another_project"));
     componentDb.insertComponent(newModuleDto(anotherProject).setDbKey("my_new_project:module_1"));
     ComponentDto module2 = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:module_2"));
     componentDb.insertComponent(newFileDto(module2, null));
@@ -129,7 +128,7 @@ public class BulkUpdateKeyActionTest {
         tuple(project.getDbKey(), "your_project", false),
         tuple(module.getDbKey(), "your_project:root:module", false));
 
-    verify(componentService).bulkUpdateKey(any(DbSession.class), eq(project), eq(FROM), eq(TO));
+    verify(componentService).bulkUpdateKey(any(DbSession.class), eq(componentDb.getProjectDto(project)), eq(FROM), eq(TO));
   }
 
   @Test
@@ -139,25 +138,25 @@ public class BulkUpdateKeyActionTest {
 
     callByKey(provisionedProject.getDbKey(), provisionedProject.getDbKey(), newKey);
 
-    verify(componentService).bulkUpdateKey(any(DbSession.class), eq(provisionedProject), eq(provisionedProject.getDbKey()), eq(newKey));
+    verify(componentService).bulkUpdateKey(any(DbSession.class), eq(componentDb.getProjectDto(provisionedProject)), eq(provisionedProject.getDbKey()), eq(newKey));
   }
 
   @Test
   public void fail_to_bulk_update_key_using_branch_db_key() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     userSession.addProjectPermission(UserRole.USER, project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
+    expectedException.expectMessage(String.format("Project '%s' not found", branch.getDbKey()));
 
     callByKey(branch.getDbKey(), FROM, TO);
   }
 
   @Test
   public void fail_to_bulk_if_a_component_already_exists_with_the_same_key() {
-    componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("my_project"));
-    componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("your_project"));
+    componentDb.insertPrivateProject(db.getDefaultOrganization(), c -> c.setDbKey("my_project"));
+    componentDb.insertPrivateProject(db.getDefaultOrganization(), c -> c.setDbKey("your_project"));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Impossible to update key: a component with key \"your_project\" already exists.");
@@ -190,8 +189,8 @@ public class BulkUpdateKeyActionTest {
     ComponentDto project = insertMyProject();
     ComponentDto file = componentDb.insertComponent(newFileDto(project, null));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Component updated must be a module or a key");
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Project '%s' not found", file.getDbKey()));
 
     callByKey(file.getDbKey(), FROM, TO);
   }
@@ -239,13 +238,13 @@ public class BulkUpdateKeyActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
-    ComponentDto project = db.components().insertMainBranch();
+  public void fail_when_using_branch_db_key() {
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
+    expectedException.expectMessage(String.format("Project '%s' not found", branch.getDbKey()));
 
     callByKey(branch.getDbKey(), FROM, TO);
   }
@@ -264,7 +263,7 @@ public class BulkUpdateKeyActionTest {
   }
 
   private ComponentDto insertMyProject() {
-    return componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey(MY_PROJECT_KEY));
+    return componentDb.insertPublicProject(db.organizations().insert(), c -> c.setDbKey(MY_PROJECT_KEY));
   }
 
   private BulkUpdateKeyWsResponse callDryRunByKey(@Nullable String key, @Nullable String from, @Nullable String to) {

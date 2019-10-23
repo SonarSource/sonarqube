@@ -64,7 +64,7 @@
   <select id="selectByQueryOnSingleComponent" parameterType="map" resultType="Measure">
     select <include refid="measureColumns"/> from project_measures pm
     <include refid="selectByQueryCommonJoins"/>
-    inner join projects p on p.project_uuid=analysis.component_uuid
+    inner join components p on p.project_uuid=analysis.component_uuid
     and p.uuid=pm.component_uuid
     where
     <include refid="selectByQueryCommonFilters"/>

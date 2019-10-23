@@ -28,7 +28,7 @@ public interface ProjectQgateAssociationMapper {
   List<ProjectQgateAssociationDto> selectProjects(@Param("query") ProjectQgateAssociationQuery query);
 
   @CheckForNull
-  String selectQGateUuidByComponentUuid(String componentUuid);
+  String selectQGateUuidByProjectUuid(String projectUuid);
 
   void deleteByProjectUuid(String projectUuid);
 

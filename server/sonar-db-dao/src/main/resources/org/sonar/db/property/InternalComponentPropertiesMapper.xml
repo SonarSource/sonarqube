@@ -25,7 +25,7 @@
     FROM
       internal_component_props icp
     JOIN
-      projects p
+      components p
     ON
       icp.component_uuid = p.uuid
     <where>

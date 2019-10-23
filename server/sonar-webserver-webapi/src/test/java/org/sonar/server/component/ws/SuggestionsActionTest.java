@@ -614,7 +614,7 @@ public class SuggestionsActionTest {
 
   @Test
   public void does_not_return_branches() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     authorizationIndexerTester.allowOnlyAnyone(project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     componentIndexer.indexOnStartup(null);

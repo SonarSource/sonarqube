@@ -20,11 +20,10 @@
 package org.sonar.db.webhook;
 
 import java.util.Arrays;
-import java.util.function.Consumer;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
-
 import java.util.Calendar;
+import java.util.function.Consumer;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 
@@ -34,9 +33,9 @@ public class WebhookTesting {
     // only statics
   }
 
-  public static WebhookDto newWebhook(ComponentDto project) {
+  public static WebhookDto newWebhook(ProjectDto project) {
     return getWebhookDto()
-      .setProjectUuid(project.uuid());
+      .setProjectUuid(project.getUuid());
   }
 
   public static WebhookDto newProjectWebhook(String projectUuid) {
@@ -52,8 +51,8 @@ public class WebhookTesting {
   @SafeVarargs
   public static WebhookDto newOrganizationWebhook(String name, String organizationUuid, Consumer<WebhookDto>... consumers) {
     return getWebhookDto(consumers)
-            .setName(name)
-            .setOrganizationUuid(organizationUuid);
+      .setName(name)
+      .setOrganizationUuid(organizationUuid);
   }
 
   @SafeVarargs

@@ -25,6 +25,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -126,6 +127,10 @@ public class ComponentTesting {
     return newProjectDto(organizationDto.getUuid(), Uuids.createFast(), true);
   }
 
+  public static ProjectDto createPrivateProjectDto(OrganizationDto organizationDto) {
+    return createProjectDto(organizationDto.getUuid(), Uuids.createFast(), true);
+  }
+
   public static ComponentDto newPrivateProjectDto(OrganizationDto organizationDto, String uuid) {
     return newProjectDto(organizationDto.getUuid(), uuid, true);
   }
@@ -136,6 +141,17 @@ public class ComponentTesting {
 
   public static ComponentDto newPublicProjectDto(OrganizationDto organizationDto, String uuid) {
     return newProjectDto(organizationDto.getUuid(), uuid, false);
+  }
+
+  private static ProjectDto createProjectDto(String organizationUuid, String uuid, boolean isPrivate) {
+    return new ProjectDto()
+      .setOrganizationUuid(organizationUuid)
+      .setUuid(uuid)
+      .setKey("KEY_" + uuid)
+      .setQualifier(Qualifiers.PROJECT)
+      .setName("NAME_" + uuid)
+      .setDescription("DESCRIPTION_" + uuid)
+      .setPrivate(isPrivate);
   }
 
   private static ComponentDto newProjectDto(String organizationUuid, String uuid, boolean isPrivate) {
@@ -248,7 +264,33 @@ public class ComponentTesting {
       .setBranchType(branchType);
   }
 
-  public static ComponentDto newProjectBranch(ComponentDto project, BranchDto branchDto) {
+  public static ComponentDto newBranchComponent(ProjectDto project, BranchDto branchDto) {
+    String branchName = branchDto.getKey();
+    String branchSeparator = branchDto.getBranchType() == PULL_REQUEST ? PULL_REQUEST_SEPARATOR : BRANCH_KEY_SEPARATOR;
+    String uuid = branchDto.getUuid();
+    return new ComponentDto()
+      .setUuid(uuid)
+      .setOrganizationUuid(project.getOrganizationUuid())
+      .setUuidPath(UUID_PATH_OF_ROOT)
+      .setProjectUuid(uuid)
+      .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
+      .setRootUuid(uuid)
+      // name of the branch is not mandatory on the main branch
+      .setDbKey(branchName != null ? project.getKey() + branchSeparator + branchName : project.getKey())
+      .setMainBranchProjectUuid(project.getUuid())
+      .setName(project.getName())
+      .setLongName(project.getName())
+      .setDescription(project.getDescription())
+      .setScope(Scopes.PROJECT)
+      .setQualifier(Qualifiers.PROJECT)
+      .setPath(null)
+      .setLanguage(null)
+      .setEnabled(true)
+      .setPrivate(project.isPrivate());
+  }
+
+
+  public static ComponentDto newBranchComponent(ComponentDto project, BranchDto branchDto) {
     checkArgument(project.qualifier().equals(Qualifiers.PROJECT) || project.qualifier().equals(Qualifiers.APP));
     checkArgument(project.getMainBranchProjectUuid() == null);
     String branchName = branchDto.getKey();

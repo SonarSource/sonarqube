@@ -19,7 +19,6 @@
  */
 package org.sonar.server.projectlink.ws;
 
-import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,7 +32,6 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -181,27 +179,31 @@ public class SearchActionTest {
   public void fail_if_module() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
-    failIfNotAProject(project, module);
+    failIfNotAProjectWithKey(project, module);
+    failIfNotAProjectWithUuid(project, module);
   }
 
   @Test
   public void fail_if_directory() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "A/B"));
-    failIfNotAProject(project, directory);
+    failIfNotAProjectWithKey(project, directory);
+    failIfNotAProjectWithUuid(project, directory);
   }
 
   @Test
   public void fail_if_file() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-    failIfNotAProject(project, file);
+    failIfNotAProjectWithKey(project, file);
+    failIfNotAProjectWithUuid(project, file);
   }
 
   @Test
   public void fail_if_view() {
     ComponentDto view = db.components().insertView();
-    failIfNotAProject(view, view);
+    failIfNotAProjectWithKey(view, view);
+    failIfNotAProjectWithUuid(view, view);
   }
 
   @Test
@@ -240,12 +242,12 @@ public class SearchActionTest {
   @Test
   public void fail_when_using_branch_db_key() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+    expectedException.expectMessage(format("Project '%s' not found", branch.getDbKey()));
 
     ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
@@ -255,12 +257,12 @@ public class SearchActionTest {
   @Test
   public void fail_when_using_branch_db_uuid() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
+    expectedException.expectMessage(format("Project '%s' not found", branch.uuid()));
 
     ws.newRequest()
       .setParam(PARAM_PROJECT_ID, branch.uuid())
@@ -293,18 +295,25 @@ public class SearchActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
   }
 
-  private void failIfNotAProject(ComponentDto root, ComponentDto component) {
+  private void failIfNotAProjectWithKey(ComponentDto root, ComponentDto component) {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, root);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component '" + component.getKey() + "' must be a project");
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Project '" + component.getKey() + "' not found");
 
     TestRequest testRequest = ws.newRequest();
-    if (new Random().nextBoolean()) {
-      testRequest.setParam(PARAM_PROJECT_KEY, component.getDbKey());
-    } else {
-      testRequest.setParam(PARAM_PROJECT_ID, component.uuid());
-    }
+    testRequest.setParam(PARAM_PROJECT_KEY, component.getDbKey());
+    testRequest.execute();
+  }
+
+  private void failIfNotAProjectWithUuid(ComponentDto root, ComponentDto component) {
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, root);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Project '" + component.uuid() + "' not found");
+
+    TestRequest testRequest = ws.newRequest();
+    testRequest.setParam(PARAM_PROJECT_ID, component.uuid());
     testRequest.execute();
   }
 }

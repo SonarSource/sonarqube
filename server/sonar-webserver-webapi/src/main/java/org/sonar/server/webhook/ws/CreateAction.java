@@ -27,9 +27,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
@@ -66,14 +67,16 @@ public class CreateAction implements WebhooksWsAction {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final UuidFactory uuidFactory;
   private final WebhookSupport webhookSupport;
+  private final ComponentFinder componentFinder;
 
   public CreateAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider,
-    UuidFactory uuidFactory, WebhookSupport webhookSupport) {
+    UuidFactory uuidFactory, WebhookSupport webhookSupport, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.uuidFactory = uuidFactory;
     this.webhookSupport = webhookSupport;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -141,13 +144,11 @@ public class CreateAction implements WebhooksWsAction {
         organizationDto = defaultOrganizationDto(dbSession);
       }
 
-      ComponentDto projectDto = null;
+      ProjectDto projectDto = null;
       if (isNotBlank(projectKey)) {
-        Optional<ComponentDto> dtoOptional = dbClient.componentDao().selectByKey(dbSession, projectKey);
-        ComponentDto componentDto = checkFoundWithOptional(dtoOptional, "No project with key '%s'", projectKey);
-        webhookSupport.checkThatProjectBelongsToOrganization(componentDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
-        webhookSupport.checkPermission(componentDto);
-        projectDto = componentDto;
+        projectDto = componentFinder.getProjectByKey(dbSession, projectKey);
+        webhookSupport.checkThatProjectBelongsToOrganization(projectDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
+        webhookSupport.checkPermission(projectDto);
       } else {
         webhookSupport.checkPermission(organizationDto);
       }
@@ -164,8 +165,7 @@ public class CreateAction implements WebhooksWsAction {
 
   }
 
-  private WebhookDto doHandle(DbSession dbSession, @Nullable OrganizationDto organization,
-    @Nullable ComponentDto project, String name, String url, @Nullable String secret) {
+  private WebhookDto doHandle(DbSession dbSession, @Nullable OrganizationDto organization, @Nullable ProjectDto project, String name, String url, @Nullable String secret) {
 
     checkState(organization != null || project != null,
       "A webhook can not be created if not linked to an organization or a project.");
@@ -178,7 +178,7 @@ public class CreateAction implements WebhooksWsAction {
 
     if (project != null) {
       checkNumberOfWebhook(numberOfWebhookOf(dbSession, project), "Maximum number of webhook reached for project '%s'", project.getKey());
-      dto.setProjectUuid(project.projectUuid());
+      dto.setProjectUuid(project.getUuid());
     } else {
       checkNumberOfWebhook(numberOfWebhookOf(dbSession, organization), "Maximum number of webhook reached for organization '%s'", organization.getKey());
       dto.setOrganizationUuid(organization.getUuid());
@@ -209,8 +209,8 @@ public class CreateAction implements WebhooksWsAction {
     return dbClient.webhookDao().selectByOrganization(dbSession, organizationDto).size();
   }
 
-  private int numberOfWebhookOf(DbSession dbSession, ComponentDto componentDto) {
-    return dbClient.webhookDao().selectByProject(dbSession, componentDto).size();
+  private int numberOfWebhookOf(DbSession dbSession, ProjectDto projectDto) {
+    return dbClient.webhookDao().selectByProject(dbSession, projectDto).size();
   }
 
   private OrganizationDto defaultOrganizationDto(DbSession dbSession) {

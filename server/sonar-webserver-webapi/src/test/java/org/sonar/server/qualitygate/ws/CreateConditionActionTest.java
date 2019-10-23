@@ -36,6 +36,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -71,7 +72,7 @@ public class CreateConditionActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private CreateConditionAction underTest = new CreateConditionAction(dbClient, new QualityGateConditionsUpdater(dbClient),
-    new QualityGatesWsSupport(dbClient, userSession, defaultOrganizationProvider));
+    new QualityGatesWsSupport(dbClient, userSession, defaultOrganizationProvider, TestComponentFinder.from(db)));
 
   private WsActionTester ws = new WsActionTester(underTest);
 

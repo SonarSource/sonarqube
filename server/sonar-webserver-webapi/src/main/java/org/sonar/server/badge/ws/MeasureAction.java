@@ -34,6 +34,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -141,10 +142,10 @@ public class MeasureAction implements ProjectBadgesWsAction {
     response.stream().setMediaType(SVG);
     String metricKey = request.mandatoryParam(PARAM_METRIC);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = support.getComponent(dbSession, request);
+      BranchDto branch = support.getBranch(dbSession, request);
       MetricDto metric = dbClient.metricDao().selectByKey(dbSession, metricKey);
       checkState(metric != null && metric.isEnabled(), "Metric '%s' hasn't been found", metricKey);
-      LiveMeasureDto measure = getMeasure(dbSession, project, metricKey);
+      LiveMeasureDto measure = getMeasure(dbSession, branch, metricKey);
       String result = generateSvg(metric, measure);
       String eTag = getETag(result);
       Optional<String> requestedETag = request.header("If-None-Match");
@@ -162,8 +163,8 @@ public class MeasureAction implements ProjectBadgesWsAction {
     }
   }
 
-  private LiveMeasureDto getMeasure(DbSession dbSession, ComponentDto project, String metricKey) {
-    return dbClient.liveMeasureDao().selectMeasure(dbSession, project.uuid(), metricKey)
+  private LiveMeasureDto getMeasure(DbSession dbSession, BranchDto branch, String metricKey) {
+    return dbClient.liveMeasureDao().selectMeasure(dbSession, branch.getUuid(), metricKey)
       .orElseThrow(() -> new ProjectBadgesException("Measure has not been found"));
   }
 

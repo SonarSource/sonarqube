@@ -27,10 +27,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.TestComponentFinder;
@@ -57,11 +57,10 @@ public class GetByProjectActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
 
   private WsActionTester ws = new WsActionTester(
     new GetByProjectAction(userSession, dbClient, TestComponentFinder.from(db), new QualityGateFinder(dbClient),
-      new QualityGatesWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db))));
+      new QualityGatesWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db), TestComponentFinder.from(db))));
 
   @Test
   public void definition() {
@@ -83,7 +82,7 @@ public class GetByProjectActionTest {
   @Test
   public void json_example() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ProjectDto project = db.components().insertPrivateProjectDto(organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("My team QG"));
     db.qualityGates().associateProjectToQualityGate(project, qualityGate);
     logInAsProjectUser(project);
@@ -102,7 +101,7 @@ public class GetByProjectActionTest {
   @Test
   public void default_quality_gate() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ProjectDto project = db.components().insertPrivateProjectDto(organization);
     QualityGateDto dbQualityGate = db.qualityGates().insertQualityGate(organization);
     db.qualityGates().setDefaultQualityGate(organization, dbQualityGate);
     logInAsProjectUser(project);
@@ -121,7 +120,7 @@ public class GetByProjectActionTest {
   @Test
   public void project_quality_gate_over_default() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ProjectDto project = db.components().insertPrivateProjectDto(organization);
     QGateWithOrgDto defaultDbQualityGate = db.qualityGates().insertQualityGate(organization);
     db.qualityGates().setDefaultQualityGate(organization, defaultDbQualityGate);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
@@ -141,7 +140,7 @@ public class GetByProjectActionTest {
   @Test
   public void get_by_project_key() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ProjectDto project = db.components().insertPrivateProjectDto(organization);
 
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization(), qg -> qg.setName("My team QG"));
     db.qualityGates().associateProjectToQualityGate(project, qualityGate);
@@ -245,12 +244,12 @@ public class GetByProjectActionTest {
   @Test
   public void fail_when_using_branch_db_key() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+    expectedException.expectMessage(format("Project '%s' not found", branch.getDbKey()));
 
     ws.newRequest()
       .setParam("project", branch.getDbKey())
@@ -258,7 +257,7 @@ public class GetByProjectActionTest {
       .execute();
   }
 
-  private void logInAsProjectUser(ComponentDto project) {
+  private void logInAsProjectUser(ProjectDto project) {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
   }
 }

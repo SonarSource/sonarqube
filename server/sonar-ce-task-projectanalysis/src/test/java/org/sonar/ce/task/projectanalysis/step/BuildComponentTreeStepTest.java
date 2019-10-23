@@ -196,7 +196,7 @@ public class BuildComponentTreeStepTest {
 
   @Test
   public void generate_keys_when_using_existing_branch() {
-    ComponentDto projectDto = dbTester.components().insertMainBranch();
+    ComponentDto projectDto = dbTester.components().insertPublicProject();
     ComponentDto branchDto = dbTester.components().insertProjectBranch(projectDto);
     Branch branch = mock(Branch.class);
     when(branch.getName()).thenReturn(branchDto.getBranch());

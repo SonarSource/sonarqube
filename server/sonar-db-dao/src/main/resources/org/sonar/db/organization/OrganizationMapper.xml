@@ -124,7 +124,7 @@
         and exists(
           select 1
           from snapshots s
-          inner join projects p on p.uuid = s.component_uuid
+          inner join components p on p.uuid = s.component_uuid
           where p.organization_uuid = org.uuid
           and p.enabled = ${_true}
           and s.islast = ${_true}
@@ -134,7 +134,7 @@
         and exists(
         select 1
           from snapshots s
-          inner join projects p on p.uuid = s.component_uuid
+          inner join components p on p.uuid = s.component_uuid
           where p.organization_uuid = org.uuid
           and p.enabled = ${_true}
           and s.islast = ${_true}
@@ -192,7 +192,7 @@
     select b.project_uuid, p.organization_uuid as orgUuid, max(lm.value) as maxncloc
     from live_measures lm
     inner join metrics m on m.id = lm.metric_id
-    inner join projects p on p.uuid = lm.component_uuid
+    inner join components p on p.uuid = lm.component_uuid
     inner join project_branches b on b.uuid = p.uuid
     where
     m.name = #{ncloc, jdbcType=VARCHAR}

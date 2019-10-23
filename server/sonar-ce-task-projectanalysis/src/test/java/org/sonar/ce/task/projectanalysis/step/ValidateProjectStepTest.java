@@ -69,7 +69,7 @@ public class ValidateProjectStepTest {
 
   @Test
   public void fail_if_pr_is_targeting_branch_with_modules() {
-    ComponentDto masterProject = dbTester.components().insertMainBranch();
+    ComponentDto masterProject = dbTester.components().insertPublicProject();
     ComponentDto mergeBranch = dbTester.components().insertProjectBranch(masterProject, b -> b.setKey("mergeBranch"));
     dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newModuleDto(mergeBranch));
     setBranch(BranchType.PULL_REQUEST, mergeBranch.uuid());
@@ -86,7 +86,7 @@ public class ValidateProjectStepTest {
 
   @Test
   public void dont_fail_for_long_forked_from_master_with_modules() {
-    ComponentDto masterProject = dbTester.components().insertMainBranch();
+    ComponentDto masterProject = dbTester.components().insertPublicProject();
     dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newModuleDto(masterProject));
     setBranch(BranchType.BRANCH, masterProject.uuid());
     dbTester.getSession().commit();

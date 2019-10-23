@@ -31,6 +31,7 @@ import org.junit.runners.model.Statement;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
@@ -192,6 +193,11 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
+  public UserSessionRule addProjectPermission(String projectPermission, ProjectDto projectDto) {
+    ensureAbstractMockUserSession().addProjectPermission(projectPermission, projectDto);
+    return this;
+  }
+
   public UserSessionRule addPermission(OrganizationPermission permission, String organizationUuid) {
     ensureAbstractMockUserSession().addPermission(permission, organizationUuid);
     return this;
@@ -240,6 +246,10 @@ public class UserSessionRule implements TestRule, UserSession {
     return currentUserSession.hasComponentPermission(permission, component);
   }
 
+  @Override public boolean hasProjectPermission(String permission, ProjectDto project) {
+    return currentUserSession.hasProjectPermission(permission, project);
+  }
+
   @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
     return currentUserSession.hasComponentUuidPermission(permission, componentUuid);
@@ -248,6 +258,10 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
     return currentUserSession.keepAuthorizedComponents(permission, components);
+  }
+
+  @Override public List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
+    return currentUserSession.keepAuthorizedProjects(permission, projects);
   }
 
   @Override
@@ -335,6 +349,11 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public UserSession checkComponentPermission(String projectPermission, ComponentDto component) {
     currentUserSession.checkComponentPermission(projectPermission, component);
+    return this;
+  }
+
+  @Override public UserSession checkProjectPermission(String projectPermission, ProjectDto project) {
+    currentUserSession.checkProjectPermission(projectPermission, project);
     return this;
   }
 

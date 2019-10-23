@@ -30,7 +30,7 @@
   <select id="selectByKey" parameterType="String" resultType="Component">
     SELECT
       <include refid="componentColumns"/>
-    FROM projects p
+    FROM components p
     where
       p.kee=#{key,jdbcType=VARCHAR}
   </select>
@@ -38,7 +38,7 @@
   <select id="selectBranchByKeyAndBranchKey" parameterType="String" resultType="Component">
     select
       <include refid="componentColumns"/>
-    from projects p
+    from components p
     inner join project_branches pb on pb.uuid = p.project_uuid
     where
       (p.kee=#{dbKey,jdbcType=VARCHAR} OR p.kee=#{key,jdbcType=VARCHAR})
@@ -49,7 +49,7 @@
   <select id="selectPrByKeyAndBranchKey" parameterType="String" resultType="Component">
     select
       <include refid="componentColumns"/>
-    from projects p
+    from components p
     inner join project_branches pb on pb.uuid = p.project_uuid
     where
       (p.kee=#{dbKey,jdbcType=VARCHAR} OR p.kee=#{key,jdbcType=VARCHAR})
@@ -60,14 +60,14 @@
   <select id="selectById" parameterType="long" resultType="Component">
     SELECT
     <include refid="componentColumns"/>
-    FROM projects p
+    FROM components p
     where p.id = #{id,jdbcType=BIGINT}
   </select>
 
   <select id="selectByUuid" parameterType="String" resultType="Component">
     SELECT
       <include refid="componentColumns"/>
-    FROM projects p
+    FROM components p
     where
       p.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
@@ -76,7 +76,7 @@
     select
     <include refid="componentColumns"/>
     from
-    projects p
+    components p
     inner join
     project_alm_bindings pab on pab.project_uuid = p.uuid
     where
@@ -86,8 +86,8 @@
   <select id="selectByProjectUuid" parameterType="string" resultType="Component">
     select
     <include refid="componentColumns"/>
-    from projects root
-    inner join projects p on p.project_uuid=root.uuid and p.organization_uuid=root.organization_uuid
+    from components root
+    inner join components p on p.project_uuid=root.uuid and p.organization_uuid=root.organization_uuid
     where
       root.uuid=#{projectUuid,jdbcType=VARCHAR}
   </select>
@@ -95,7 +95,7 @@
   <select id="selectByKeys" parameterType="String" resultType="Component">
     select
     <include refid="componentColumns"/>
-    from projects p
+    from components p
     where
       p.enabled=${_true}
       and p.main_branch_project_uuid is null
@@ -108,7 +108,7 @@
   <select id="selectByDbKeys" parameterType="String" resultType="Component">
     select
     <include refid="componentColumns"/>
-    from projects p
+    from components p
     where
     p.enabled=${_true}
     and p.kee in
@@ -120,7 +120,7 @@
   <select id="selectByKeysAndBranch" parameterType="String" resultType="Component">
     SELECT
     <include refid="componentColumns"/>
-    FROM projects p
+    FROM components p
     INNER JOIN project_branches pb on pb.uuid = p.project_uuid
     <where>
     p.enabled=${_true}
@@ -135,7 +135,7 @@
   <select id="selectByIds" parameterType="long" resultType="Component">
     select
     <include refid="componentColumns"/>
-    from projects p
+    from components p
     where
       p.enabled=${_true}
       and p.id in
@@ -147,7 +147,7 @@
   <select id="selectByUuids" parameterType="String" resultType="Component">
     select
       <include refid="componentColumns"/>
-    from projects p
+    from components p
     where
       p.uuid in
       <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
@@ -157,7 +157,7 @@
 
   <select id="selectExistingUuids" parameterType="String" resultType="String">
     select p.uuid
-    from projects p
+    from components p
     where
       p.uuid in
       <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
@@ -168,8 +168,8 @@
   <select id="selectSubProjectsByComponentUuids" parameterType="String" resultType="Component">
     SELECT
     <include refid="componentColumns"/>
-    FROM projects p
-    INNER JOIN projects child ON
+    FROM components p
+    INNER JOIN components child ON
       child.root_uuid=p.uuid
       and child.enabled=${_true}
       and child.organization_uuid=p.organization_uuid
@@ -185,12 +185,12 @@
   <select id="selectDescendantModules" parameterType="map" resultType="Component">
     SELECT
     <include refid="componentColumns"/>
-    FROM projects p
+    FROM components p
     <include refid="modulesTreeQuery"/>
   </select>
 
   <sql id="modulesTreeQuery">
-    INNER JOIN projects module ON
+    INNER JOIN components module ON
       module.project_uuid = p.project_uuid
       and module.organization_uuid = p.organization_uuid
       and module.uuid = #{moduleUuid}
@@ -218,8 +218,8 @@
       p.module_uuid as moduleUuid,
       fs.src_hash as srcHash,
       fs.revision
-    FROM projects root
-    INNER JOIN projects p on
+    FROM components root
+    INNER JOIN components p on
       p.project_uuid=root.uuid
       and p.organization_uuid=root.organization_uuid
       and p.enabled=${_true}
@@ -237,7 +237,7 @@
       p.module_uuid as moduleUuid,
       fs.src_hash as srcHash,
       fs.revision
-    FROM projects p
+    FROM components p
     INNER JOIN file_sources fs ON
       fs.file_uuid=p.uuid
     <include refid="modulesTreeQuery"/>
@@ -246,7 +246,7 @@
   <select id="selectProjects" resultType="Component">
     select
     <include refid="componentColumns"/>
-    from projects p
+    from components p
     where
       p.enabled=${_true}
       AND p.scope='PRJ'
@@ -257,7 +257,7 @@
   <select id="selectProjectsByOrganization" resultType="Component">
     select
       <include refid="componentColumns"/>
-    from projects p
+    from components p
     where
       p.enabled=${_true}
       and p.scope='PRJ'
@@ -269,7 +269,7 @@
   <select id="selectComponentsByQualifiers" resultType="Component">
     SELECT
     <include refid="componentColumns"/>
-    FROM projects p
+    FROM components p
     where
       <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator="OR ">
         p.qualifier=#{qualifier,jdbcType=VARCHAR}
@@ -279,7 +279,7 @@
   <select id="countEnabledModulesByProjectUuid" resultType="int">
     select
       count(1)
-    from projects p
+    from components p
     where
       p.enabled=${_true}
       and p.project_uuid = #{projectUuid,jdbcType=VARCHAR}
@@ -289,7 +289,7 @@
   <select id="countComponentByOrganizationAndId" resultType="int">
     select
       count(1)
-    from projects p
+    from components p
     where
       p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
       and p.id = #{componentId,jdbcType=BIGINT}
@@ -308,7 +308,7 @@
   </select>
 
   <sql id="sqlSelectByQuery">
-    from projects p
+    from components p
     <if test="query.analyzedBefore!=null">
       inner join snapshots sa on sa.component_uuid=p.uuid
         and sa.status='P' and sa.islast=${_true} and sa.created_at &lt; #{query.analyzedBefore,jdbcType=BIGINT}
@@ -424,7 +424,7 @@
   <select id="selectDescendants" resultType="Component">
     select
       <include refid="componentColumns"/>
-    from projects p
+    from components p
     <include refid="selectDescendantsJoins"/>
     <where>
       <include refid="selectDescendantsFilters"/>
@@ -432,7 +432,7 @@
   </select>
 
   <sql id="selectDescendantsJoins">
-    inner join projects base on base.project_uuid = p.project_uuid and base.uuid = #{baseUuid}
+    inner join components base on base.project_uuid = p.project_uuid and base.uuid = #{baseUuid}
     <choose>
       <when test="query.getStrategy().name() == 'CHILDREN'">
         and p.uuid_path = #{baseUuidPath,jdbcType=VARCHAR}
@@ -467,7 +467,7 @@
   </sql>
 
   <select id="selectUuidsForQualifiers" resultType="UuidWithProjectUuid">
-    SELECT p.uuid as "uuid", p.project_uuid as "projectUuid" FROM projects p
+    SELECT p.uuid as "uuid", p.project_uuid as "projectUuid" FROM components p
     where
       <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator="OR ">
         p.qualifier=#{qualifier,jdbcType=VARCHAR}
@@ -477,8 +477,8 @@
   <select id="selectViewKeysWithEnabledCopyOfProject" resultType="String">
     select
       distinct p.kee
-    from projects p
-    inner join projects leaf on
+    from components p
+    inner join components leaf on
       leaf.qualifier = 'TRK'
       and leaf.scope = 'FIL'
       and leaf.enabled = ${_true}
@@ -493,7 +493,7 @@
 
   <select id="selectProjectsFromView" resultType="String">
     select p.copy_component_uuid
-    from projects p
+    from components p
     where
       p.enabled = ${_true}
       and p.project_uuid = #{projectViewUuid,jdbcType=VARCHAR}
@@ -505,8 +505,8 @@
   <select id="selectComponentsFromProjectKeyAndScope" parameterType="map" resultType="Component">
     SELECT
     <include refid="componentColumns"/>
-    FROM projects p
-    INNER JOIN projects root ON root.uuid=p.project_uuid AND root.kee=#{projectKey,jdbcType=VARCHAR}
+    FROM components p
+    INNER JOIN components root ON root.uuid=p.project_uuid AND root.kee=#{projectKey,jdbcType=VARCHAR}
     <where>
       <if test="excludeDisabled">
         p.enabled = ${_true}
@@ -521,24 +521,24 @@
     SELECT
       p.uuid as uuid, p.module_uuid as moduleUuid, p.path as path, p.scope as scope
     FROM
-      projects p
+      components p
     INNER JOIN
-      projects root ON root.uuid=p.project_uuid AND p.enabled = ${_true} AND root.kee=#{projectKey,jdbcType=VARCHAR}
+      components root ON root.uuid=p.project_uuid AND p.enabled = ${_true} AND root.kee=#{projectKey,jdbcType=VARCHAR}
   </select>
 
   <select id="selectUuidsByKeyFromProjectKey" parameterType="string" resultType="KeyWithUuid">
     SELECT
      p.kee, p.uuid
     FROM
-      projects p
+      components p
     INNER JOIN
-      projects root ON root.uuid=p.project_uuid AND root.kee=#{projectKey,jdbcType=VARCHAR}
+      components root ON root.uuid=p.project_uuid AND root.kee=#{projectKey,jdbcType=VARCHAR}
   </select>
 
   <select id="scrollForIndexing" parameterType="map" resultType="Component" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
       <include refid="componentColumns"/>
-    from projects p
+    from components p
     where
       p.enabled=${_true}
       and p.copy_component_uuid is null
@@ -555,7 +555,7 @@
       p.kee as kee,
       p.path as path,
       fs.line_count as lineCount
-    from projects p
+    from components p
     inner join file_sources fs on
       fs.file_uuid = p.uuid
     where
@@ -567,7 +567,7 @@
   </select>
 
   <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO projects (
+    INSERT INTO components (
       organization_uuid,
       kee,
       uuid,
@@ -640,14 +640,14 @@
   </insert>
 
   <update id="updateTags" parameterType="Component" useGeneratedKeys="false">
-    update projects set
+    update components set
     tags = #{tagsString,jdbcType=VARCHAR}
     where
     uuid = #{uuid,jdbcType=VARCHAR}
   </update>
 
   <update id="update" parameterType="org.sonar.db.component.ComponentUpdateDto" useGeneratedKeys="false">
-    update projects set
+    update components set
     b_changed = #{bChanged,jdbcType=BOOLEAN},
     <!-- Component key is normally immutable, but since 7.6 deprecated_kee is used as a b_kee to migrate component keys after the drop of modules -->
     deprecated_kee = #{bKey,jdbcType=VARCHAR},
@@ -667,7 +667,7 @@
   </update>
 
   <update id="updateBEnabledToFalse" parameterType="org.sonar.db.component.ComponentUpdateDto" useGeneratedKeys="false">
-    update projects set
+    update components set
     b_changed = ${_true},
     <!-- Component key is normally immutable, but since 7.6 deprecated_kee is used as a b_kee to migrate component keys after the drop of modules -->
     deprecated_kee = kee,
@@ -687,7 +687,7 @@
   </update>
 
   <update id="applyBChangesForRootComponentUuid" parameterType="string" useGeneratedKeys="false">
-    update projects set
+    update components set
     <!-- Component key is normally immutable, but since 7.6 deprecated_kee is used as a b_kee to migrate component keys after the drop of modules -->
     kee = deprecated_kee,
     copy_component_uuid = b_copy_component_uuid,
@@ -733,7 +733,7 @@
   </update>
 
   <update id="resetBChangedForRootComponentUuid" parameterType="map" >
-    update projects
+    update components
     set b_changed = ${_false},
     <!-- Component key is normally immutable, but since 7.6 deprecated_kee is used as a b_kee to migrate component keys after the drop of modules -->
     deprecated_kee = kee
@@ -743,7 +743,7 @@
   </update>
 
   <update id="setPrivateForRootComponentUuid" parameterType="map" >
-    update projects set
+    update components set
       private = #{isPrivate,jdbcType=BOOLEAN}
     where
       project_uuid = #{projectUuid,jdbcType=VARCHAR}
@@ -751,11 +751,11 @@
   </update>
 
   <delete id="delete" parameterType="long">
-    DELETE FROM projects WHERE id=#{id,jdbcType=BIGINT}
+    DELETE FROM components WHERE id=#{id,jdbcType=BIGINT}
   </delete>
 
   <select id="selectAllSiblingComponentKeysHavingOpenIssues" resultType="KeyWithUuid">
-    SELECT DISTINCT p.kee as kee, p.uuid as uuid FROM projects p
+    SELECT DISTINCT p.kee as kee, p.uuid as uuid FROM components p
     JOIN issues i
       ON p.uuid = i.component_uuid
     JOIN project_branches b
@@ -771,7 +771,7 @@
     from live_measures lm
     inner join metrics m on m.id = lm.metric_id
     inner join project_branches b on b.uuid = lm.component_uuid
-    inner join projects p on b.project_uuid = p.uuid
+    inner join components p on b.project_uuid = p.uuid
     where
       m.name = 'ncloc'
       and b.key_type = 'BRANCH'

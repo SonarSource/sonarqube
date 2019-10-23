@@ -27,9 +27,9 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
@@ -69,8 +69,8 @@ public class QualityGateDbTester {
     return dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, qualityGate.getUuid());
   }
 
-  public void associateProjectToQualityGate(ComponentDto component, QualityGateDto qualityGate) {
-    dbClient.projectQgateAssociationDao().insertProjectQGateAssociation(dbSession, component.uuid(), qualityGate.getUuid());
+  public void associateProjectToQualityGate(ProjectDto project, QualityGateDto qualityGate) {
+    dbClient.projectQgateAssociationDao().insertProjectQGateAssociation(dbSession, project.getUuid(), qualityGate.getUuid());
     db.commit();
   }
 
@@ -104,6 +104,6 @@ public class QualityGateDbTester {
   }
 
   public Optional<String> selectQGateUuidByComponentUuid(String componentUuid) {
-    return dbClient.projectQgateAssociationDao().selectQGateUuidByComponentUuid(dbSession, componentUuid);
+    return dbClient.projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, componentUuid);
   }
 }

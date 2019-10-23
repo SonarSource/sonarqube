@@ -28,7 +28,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
@@ -53,8 +53,8 @@ public class RenameAction implements BranchWsAction {
   public void define(NewController context) {
     WebService.NewAction action = context.createAction(ACTION_RENAME)
       .setSince("6.6")
-      .setDescription("Rename the main branch of a project.<br/>"
-        + "Requires 'Administer' permission on the specified project.")
+      .setDescription("Rename the main branch of a project or application.<br/>"
+        + "Requires 'Administer' permission on the specified project or application.")
       .setPost(true)
       .setHandler(this);
 
@@ -74,21 +74,21 @@ public class RenameAction implements BranchWsAction {
     String newBranchName = request.mandatoryParam(PARAM_NAME);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getRootComponentByUuidOrKey(dbSession, null, projectKey);
+      ProjectDto project = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
       checkPermission(project);
 
-      Optional<BranchDto> existingBranch = dbClient.branchDao().selectByBranchKey(dbSession, project.uuid(), newBranchName);
+      Optional<BranchDto> existingBranch = dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), newBranchName);
       checkArgument(!existingBranch.filter(b -> !b.isMain()).isPresent(),
         "Impossible to update branch name: a branch with name \"%s\" already exists in the project.", newBranchName);
 
-      dbClient.branchDao().updateMainBranchName(dbSession, project.uuid(), newBranchName);
+      dbClient.branchDao().updateMainBranchName(dbSession, project.getUuid(), newBranchName);
       dbSession.commit();
       response.noContent();
     }
   }
 
-  private void checkPermission(ComponentDto project) {
-    userSession.checkComponentPermission(UserRole.ADMIN, project);
+  private void checkPermission(ProjectDto project) {
+    userSession.checkProjectPermission(UserRole.ADMIN, project);
   }
 
 }

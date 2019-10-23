@@ -61,6 +61,7 @@ import org.sonar.db.permission.UserPermissionDao;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDao;
 import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.plugin.PluginDao;
+import org.sonar.db.project.ProjectDao;
 import org.sonar.db.property.InternalComponentPropertiesDao;
 import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
@@ -135,6 +136,7 @@ public class DaoModule extends Module {
     PermissionTemplateCharacteristicDao.class,
     PermissionTemplateDao.class,
     PluginDao.class,
+    ProjectDao.class,
     ProjectLinkDao.class,
     ProjectMappingsDao.class,
     ProjectQgateAssociationDao.class,

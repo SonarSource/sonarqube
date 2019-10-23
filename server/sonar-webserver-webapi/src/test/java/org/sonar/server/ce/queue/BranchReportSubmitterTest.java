@@ -102,7 +102,7 @@ public class BranchReportSubmitterTest {
   @Test
   public void submit_does_not_use_delegate_if_characteristics_are_empty() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(SCAN_EXECUTION, project);
     mockSuccessfulPrepareSubmitCall();
@@ -116,7 +116,7 @@ public class BranchReportSubmitterTest {
   @Test
   public void submit_a_report_on_existing_branch() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
     ComponentDto branch = db.components().insertProjectBranch(project);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(SCAN_EXECUTION, project);
@@ -141,7 +141,7 @@ public class BranchReportSubmitterTest {
   @Test
   public void submit_a_report_on_missing_branch_but_existing_project() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto existingProject = db.components().insertMainBranch(organization);
+    ComponentDto existingProject = db.components().insertPublicProject(organization);
     BranchDto exitingProjectMainBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), existingProject.uuid()).get();
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(SCAN_EXECUTION, existingProject);
@@ -181,8 +181,8 @@ public class BranchReportSubmitterTest {
     BranchSupport.ComponentKey componentKey = createComponentKeyOfBranch(createdBranch);
     when(branchSupportDelegate.createComponentKey(nonExistingProject.getDbKey(), randomCharacteristics))
       .thenReturn(componentKey);
-    when(componentUpdater.createWithoutCommit(any(), any(), eq(user.getId())))
-      .thenAnswer((Answer<ComponentDto>) invocation -> db.components().insertMainBranch(nonExistingProject));
+    when(componentUpdater.createWithoutCommit(any(), any(), eq(user.getId()), any()))
+      .thenAnswer((Answer<ComponentDto>) invocation -> db.components().insertPrivateProject(nonExistingProject));
     when(branchSupportDelegate.createBranchComponent(any(DbSession.class), same(componentKey), eq(organization), eq(nonExistingProject), any()))
       .thenReturn(createdBranch);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), any(), eq(nonExistingProject.getKey())))
@@ -204,7 +204,7 @@ public class BranchReportSubmitterTest {
   @Test
   public void submit_fails_if_branch_support_delegate_createComponentKey_throws_an_exception() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(SCAN_EXECUTION, project);
     Map<String, String> randomCharacteristics = randomNonEmptyMap();
@@ -259,7 +259,7 @@ public class BranchReportSubmitterTest {
   private static ComponentDto createButDoNotInsertBranch(ComponentDto project) {
     BranchType randomBranchType = BranchType.values()[new Random().nextInt(BranchType.values().length)];
     BranchDto branchDto = newBranchDto(project.projectUuid(), randomBranchType);
-    return ComponentTesting.newProjectBranch(project, branchDto);
+    return ComponentTesting.newBranchComponent(project, branchDto);
   }
 
   private String mockSuccessfulPrepareSubmitCall() {

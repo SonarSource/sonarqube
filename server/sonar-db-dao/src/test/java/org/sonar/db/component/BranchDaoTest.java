@@ -22,6 +22,8 @@ package org.sonar.db.component;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -31,6 +33,7 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbProjectBranches;
 
 import static java.util.Arrays.asList;
@@ -377,6 +380,26 @@ public class BranchDaoTest {
   }
 
   @Test
+  public void selectByBranchKeys() {
+    ProjectDto project1 = db.components().insertPrivateProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProjectDto();
+    ProjectDto project3 = db.components().insertPrivateProjectDto();
+
+    BranchDto branch1 = db.components().insertProjectBranch(project1, b -> b.setKey("branch1"));
+    BranchDto branch2 = db.components().insertProjectBranch(project2, b -> b.setKey("branch2"));
+    BranchDto branch3 = db.components().insertProjectBranch(project3, b -> b.setKey("branch3"));
+
+    Map<String, String> branchKeysByProjectUuid = new HashMap<>();
+    branchKeysByProjectUuid.put(project1.getUuid(), "branch1");
+    branchKeysByProjectUuid.put(project2.getUuid(), "branch2");
+    branchKeysByProjectUuid.put(project3.getUuid(), "nonexisting");
+
+    List<BranchDto> branchDtos = underTest.selectByBranchKeys(dbSession, branchKeysByProjectUuid);
+    assertThat(branchDtos).hasSize(2);
+    assertThat(branchDtos).extracting(BranchDto::getUuid).containsExactlyInAnyOrder(branch1.getUuid(), branch2.getUuid());
+  }
+
+  @Test
   public void selectByComponent() {
     BranchDto mainBranch = new BranchDto();
     mainBranch.setProjectUuid("U1");
@@ -452,6 +475,24 @@ public class BranchDaoTest {
   }
 
   @Test
+  public void selectByProjectUuid() {
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+
+    ComponentDto branch1 = db.components().insertProjectBranch(project1);
+    ComponentDto branch2 = db.components().insertProjectBranch(project1);
+    ComponentDto branch3 = db.components().insertProjectBranch(project2);
+    ComponentDto branch4 = db.components().insertProjectBranch(project2);
+
+    assertThat(underTest.selectByProject(dbSession, new ProjectDto().setUuid(project1.uuid())))
+      .extracting(BranchDto::getUuid)
+      .containsExactlyInAnyOrder(project1.uuid(), branch1.uuid(), branch2.uuid());
+    assertThat(underTest.selectByProject(dbSession, new ProjectDto().setUuid(project2.uuid())))
+      .extracting(BranchDto::getUuid)
+      .containsExactlyInAnyOrder(project2.uuid(), branch3.uuid(), branch4.uuid());
+  }
+
+  @Test
   public void selectByUuid() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch1 = db.components().insertProjectBranch(project);
@@ -460,7 +501,7 @@ public class BranchDaoTest {
     assertThat(underTest.selectByUuid(db.getSession(), branch1.uuid()).get())
       .extracting(BranchDto::getUuid)
       .isEqualTo(branch1.uuid());
-    assertThat(underTest.selectByUuid(db.getSession(), project.uuid())).isNotPresent();
+    assertThat(underTest.selectByUuid(db.getSession(), project.uuid())).isPresent();
     assertThat(underTest.selectByUuid(db.getSession(), "unknown")).isNotPresent();
   }
 
@@ -485,8 +526,8 @@ public class BranchDaoTest {
     ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
-    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, 0L)).isEqualTo(2);
-    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, NOW)).isEqualTo(2);
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, 0L)).isEqualTo(3);
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, NOW)).isEqualTo(3);
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, NOW + 100)).isEqualTo(0);
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, 0L)).isEqualTo(1);
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, NOW)).isEqualTo(1);

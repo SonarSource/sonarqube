@@ -31,6 +31,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.db.webhook.WebhookDeliveryDao;
 import org.sonar.db.webhook.WebhookDeliveryDbTester;
@@ -96,7 +97,7 @@ public class DeleteActionTest {
   @Test
   public void delete_a_project_webhook() {
 
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ProjectDto project = componentDbTester.insertPrivateProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
     webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
@@ -169,7 +170,7 @@ public class DeleteActionTest {
   @Test
   public void fail_if_no_permission_on_webhook_scope_project() {
 
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ProjectDto project = componentDbTester.insertPrivateProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
 
     userSession.logIn();

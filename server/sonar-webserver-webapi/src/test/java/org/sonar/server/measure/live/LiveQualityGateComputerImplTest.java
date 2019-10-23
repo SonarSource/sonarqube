@@ -36,6 +36,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.server.qualitygate.Condition;
@@ -51,7 +52,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
@@ -69,10 +69,8 @@ public class LiveQualityGateComputerImplTest {
   @Test
   public void loadQualityGate_returns_hardcoded_gate_for_pull_requests() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
-
-    BranchDto branch = newBranchDto(project).setBranchType(BranchType.PULL_REQUEST);
-    db.components().insertProjectBranch(project, branch);
+    ProjectDto project = db.components().insertPublicProjectDto(organization);
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
     MetricDto metric1 = db.measures().insertMetric(m -> m.setKey("new_metric"));
     MetricDto metric2 = db.measures().insertMetric(m -> m.setKey("metric"));
 
@@ -89,9 +87,8 @@ public class LiveQualityGateComputerImplTest {
   @Test
   public void loadQualityGate_on_branch_returns_organization_default_gate() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
-    BranchDto branch = newBranchDto(project).setBranchType(BranchType.BRANCH);
-    db.components().insertProjectBranch(project, branch);
+    ProjectDto project = db.components().insertPublicProjectDto(organization);
+    BranchDto branch = db.components().insertProjectBranch(project).setBranchType(BranchType.BRANCH);
 
     MetricDto metric = db.measures().insertMetric();
     QGateWithOrgDto gate = db.qualityGates().insertQualityGate(organization);

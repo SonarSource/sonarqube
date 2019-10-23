@@ -30,6 +30,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -61,7 +62,7 @@ public class ListActionTest {
   private QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
 
   private WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(),
-    new QualityGatesWsSupport(dbClient, userSession, defaultOrganizationProvider), qualityGateFinder));
+    new QualityGatesWsSupport(dbClient, userSession, defaultOrganizationProvider, TestComponentFinder.from(db)), qualityGateFinder));
 
   @Test
   public void list_quality_gates() {

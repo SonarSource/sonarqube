@@ -42,6 +42,7 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.ALM;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
@@ -49,6 +50,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -155,7 +157,8 @@ public class ComponentActionTest {
   @Test
   public void return_favourite_for_branch() {
     ComponentDto project = insertOrganizationAndProject();
-    ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey("feature1").setUuid("xyz"));    UserDto user = db.users().insertUser("obiwan");
+    ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey("feature1").setUuid("xyz"));
+    UserDto user = db.users().insertUser("obiwan");
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId(user.getId()));
     userSession.logIn(user).addProjectPermission(UserRole.USER, project);
     init();
@@ -193,7 +196,7 @@ public class ComponentActionTest {
   public void return_component_info_when_file_on_master() {
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org2"));
     db.qualityGates().createDefaultQualityGate(organization);
-    ComponentDto main = componentDbTester.insertMainBranch(organization, p -> p.setName("Sample"), p -> p.setDbKey("sample"));
+    ComponentDto main = componentDbTester.insertPrivateProject(organization, p -> p.setName("Sample"), p -> p.setDbKey("sample"));
     userSession.addProjectPermission(UserRole.USER, main);
     init();
 
@@ -211,7 +214,7 @@ public class ComponentActionTest {
   public void return_component_info_when_file_on_branch() {
     OrganizationDto organization = db.organizations().insertForKey("my-org2");
     db.qualityGates().createDefaultQualityGate(organization);
-    ComponentDto project = componentDbTester.insertMainBranch(organization, p -> p.setName("Sample").setDbKey("sample"));
+    ComponentDto project = componentDbTester.insertPrivateProject(organization, p -> p.setName("Sample").setDbKey("sample"));
     ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey("feature1"));
     userSession.addProjectPermission(UserRole.USER, project);
     init();
@@ -283,29 +286,29 @@ public class ComponentActionTest {
   public void return_quality_gate_defined_on_project() {
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org"));
     db.qualityGates().createDefaultQualityGate(organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ProjectDto project = db.components().insertPrivateProjectDto(organization);
     QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way"));
     db.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
-    executeAndVerify(project.getDbKey(), "return_quality_gate.json");
+    executeAndVerify(project.getKey(), "return_quality_gate.json");
   }
 
   @Test
   public void quality_gate_for_a_branch() {
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org"));
     db.qualityGates().createDefaultQualityGate(organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    ProjectDto project = db.components().insertPrivateProjectDto(organization);
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way"));
     db.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
     String json = ws.newRequest()
-      .setParam("componentKey", branch.getKey())
-      .setParam("branch", branch.getBranch())
+      .setParam("componentKey", project.getKey())
+      .setParam("branch", branch.getKey())
       .execute()
       .getInput();
 
@@ -336,7 +339,7 @@ public class ComponentActionTest {
   public void return_extensions_for_application() {
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org"));
     db.qualityGates().createDefaultQualityGate(organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ProjectDto project = db.components().insertPrivateProjectDto(organization);
     Page page = Page.builder("my_plugin/app_page")
       .setName("App Page")
       .setScope(COMPONENT)
@@ -595,7 +598,7 @@ public class ComponentActionTest {
       .setDbKey("org.codehaus.sonar:sonar")
       .setName("Sonarqube")
       .setDescription("Open source platform for continuous inspection of code quality");
-    componentDbTester.insertComponent(project);
+    componentDbTester.insertPrivateProject(project);
     SnapshotDto analysis = newAnalysis(project)
       .setCreatedAt(parseDateTime("2016-12-06T11:44:00+0200").getTime())
       .setProjectVersion("6.3")
@@ -608,7 +611,7 @@ public class ComponentActionTest {
       createQProfile("qp1", "Sonar Way Java", "java"),
       createQProfile("qp2", "Sonar Way Xoo", "xoo"));
     QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(db.getDefaultOrganization(), qg -> qg.setName("Sonar way"));
-    db.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project), qualityGateDto);
     userSession.logIn(user)
       .addProjectPermission(UserRole.USER, project)
       .addProjectPermission(UserRole.ADMIN, project);
@@ -749,7 +752,7 @@ public class ComponentActionTest {
 
   private void executeAndVerify(String componentKey, String expectedJson) {
     verify(execute(componentKey), expectedJson);
-}
+  }
 
   private void addQualityProfiles(ComponentDto project, QualityProfile... qps) {
     MetricDto metric = newMetricDto().setKey(QUALITY_PROFILES_KEY);

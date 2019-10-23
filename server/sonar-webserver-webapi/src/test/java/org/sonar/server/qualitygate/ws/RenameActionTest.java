@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -53,7 +54,7 @@ public class RenameActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private WsActionTester ws = new WsActionTester(
-    new RenameAction(db.getDbClient(), new QualityGatesWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
+    new RenameAction(db.getDbClient(), new QualityGatesWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider, TestComponentFinder.from(db))));
 
   @Test
   public void verify_definition() {

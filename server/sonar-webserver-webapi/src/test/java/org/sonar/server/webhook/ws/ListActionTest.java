@@ -31,9 +31,11 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.db.webhook.WebhookDeliveryDbTester;
 import org.sonar.db.webhook.WebhookDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -74,7 +76,8 @@ public class ListActionTest {
   private DbClient dbClient = db.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = from(db);
   private WebhookSupport webhookSupport = new WebhookSupport(userSession);
-  private ListAction underTest = new ListAction(dbClient, userSession, defaultOrganizationProvider, webhookSupport);
+  private ComponentFinder componentFinder = new ComponentFinder(dbClient, null);
+  private ListAction underTest = new ListAction(dbClient, userSession, defaultOrganizationProvider, webhookSupport, componentFinder);
 
   private ComponentDbTester componentDbTester = db.components();
   private WebhookDbTester webhookDbTester = db.webhooks();
@@ -185,7 +188,7 @@ public class ListActionTest {
 
   @Test
   public void list_project_webhooks_when_no_organization_is_provided() {
-    ComponentDto project1 = componentDbTester.insertPrivateProject();
+    ProjectDto project1 = componentDbTester.insertPrivateProjectDto();
     userSession.logIn().addProjectPermission(ADMIN, project1);
 
     WebhookDto dto1 = webhookDbTester.insertWebhook(project1);
@@ -223,7 +226,7 @@ public class ListActionTest {
   @Test
   public void list_project_webhooks_when_organization_is_provided() {
     OrganizationDto organization = organizationDbTester.insert();
-    ComponentDto project = componentDbTester.insertPrivateProject(organization);
+    ProjectDto project = componentDbTester.insertPrivateProjectDto(organization);
     userSession.logIn().addProjectPermission(ADMIN, project);
 
     WebhookDto dto1 = webhookDbTester.insertWebhook(project);

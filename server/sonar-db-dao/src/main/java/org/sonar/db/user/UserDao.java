@@ -36,6 +36,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 
 import static java.util.Locale.ENGLISH;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -141,6 +142,10 @@ public class UserDao implements Dao {
 
   public void cleanHomepage(DbSession dbSession, OrganizationDto organization) {
     mapper(dbSession).clearHomepages("ORGANIZATION", organization.getUuid(), system2.now());
+  }
+
+  public void cleanHomepage(DbSession dbSession, ProjectDto project) {
+    mapper(dbSession).clearHomepages("PROJECT", project.getUuid(), system2.now());
   }
 
   public void cleanHomepage(DbSession dbSession, ComponentDto project) {

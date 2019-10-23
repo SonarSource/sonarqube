@@ -19,7 +19,6 @@
  */
 package org.sonar.server.newcodeperiod.ws;
 
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -29,16 +28,13 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchType;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 
 public class UnsetAction implements NewCodePeriodsWsAction {
   private static final String PARAM_BRANCH = "branch";
@@ -79,30 +75,30 @@ public class UnsetAction implements NewCodePeriodsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String projectStr = request.getParam(PARAM_PROJECT).emptyAsNull().or(() -> null);
-    String branchStr = request.getParam(PARAM_BRANCH).emptyAsNull().or(() -> null);
+    String projectKey = request.getParam(PARAM_PROJECT).emptyAsNull().or(() -> null);
+    String branchKey = request.getParam(PARAM_BRANCH).emptyAsNull().or(() -> null);
 
-    if (projectStr == null && branchStr != null) {
+    if (projectKey == null && branchKey != null) {
       throw new IllegalArgumentException("If branch key is specified, project key needs to be specified too");
     }
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       String projectUuid = null;
       String branchUuid = null;
-      ComponentDto projectBranch;
 
       // in CE set main branch value instead of project value
       boolean isCommunityEdition = editionProvider.get().filter(t -> t == EditionProvider.Edition.COMMUNITY).isPresent();
 
-      if (projectStr != null) {
-        projectBranch = getProject(dbSession, projectStr, branchStr);
-        userSession.checkComponentPermission(UserRole.ADMIN, projectBranch);
+      if (projectKey != null) {
+        ProjectDto project = getProject(dbSession, projectKey);
+        userSession.checkProjectPermission(UserRole.ADMIN, project);
+        projectUuid = project.getUuid();
 
-        if (branchStr != null || isCommunityEdition) {
-          branchUuid = projectBranch.uuid();
+        if (branchKey != null) {
+          branchUuid = getBranch(dbSession, project, branchKey).getUuid();
+        } else if (isCommunityEdition) {
+          branchUuid = getMainBranch(dbSession, project).getUuid();
         }
-        // depending whether it's the main branch or not
-        projectUuid = projectBranch.getMainBranchProjectUuid() != null ? projectBranch.getMainBranchProjectUuid() : projectBranch.uuid();
       } else {
         userSession.checkIsSystemAdministrator();
       }
@@ -117,18 +113,19 @@ public class UnsetAction implements NewCodePeriodsWsAction {
     }
   }
 
-  private ComponentDto getProject(DbSession dbSession, String projectKey, @Nullable String branchKey) {
-    if (branchKey == null) {
-      return componentFinder.getByUuidOrKey(dbSession, null, projectKey, PROJECT_ID_AND_KEY);
-    }
-    ComponentDto project = componentFinder.getByKeyAndBranch(dbSession, projectKey, branchKey);
+  private BranchDto getMainBranch(DbSession dbSession, ProjectDto project) {
+    return dbClient.branchDao().selectByProject(dbSession, project)
+      .stream().filter(BranchDto::isMain)
+      .findFirst()
+      .orElseThrow(() -> new NotFoundException(format("Main branch in project '%s' not found", project.getKey())));
+  }
 
-    BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, project.uuid())
-      .orElseThrow(() -> new NotFoundException(format("Branch '%s' is not found", branchKey)));
+  private BranchDto getBranch(DbSession dbSession, ProjectDto project, String branchKey) {
+    return dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), branchKey)
+      .orElseThrow(() -> new NotFoundException(format("Branch '%s' in project '%s' not found", branchKey, project.getKey())));
+  }
 
-    checkArgument(branchDto.getBranchType() == BranchType.BRANCH,
-      "Not a branch: '%s'", branchKey);
-
-    return project;
+  private ProjectDto getProject(DbSession dbSession, String projectKey) {
+    return componentFinder.getProjectByKey(dbSession, projectKey);
   }
 }

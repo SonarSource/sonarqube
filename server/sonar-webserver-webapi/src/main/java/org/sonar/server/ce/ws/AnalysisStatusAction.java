@@ -22,8 +22,6 @@ package org.sonar.server.ce.ws;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -33,7 +31,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
@@ -42,9 +41,9 @@ import org.sonarqube.ws.Ce.AnalysisStatusWsResponse;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_BRANCH;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_PULL_REQUEST;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class AnalysisStatusAction implements CeWsAction {
@@ -84,53 +83,38 @@ public class AnalysisStatusAction implements CeWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String componentKey = request.mandatoryParam(PARAM_COMPONENT);
+    String projectKey = request.mandatoryParam(PARAM_COMPONENT);
     String branchKey = request.param(PARAM_BRANCH);
     String pullRequestKey = request.param(PARAM_PULL_REQUEST);
 
     checkRequest(branchKey == null || pullRequestKey == null,
       "Parameters '%s' and '%s' must not be specified at the same time", PARAM_BRANCH, PARAM_PULL_REQUEST);
 
-    doHandle(request, response, componentKey, branchKey, pullRequestKey);
+    doHandle(request, response, projectKey, branchKey, pullRequestKey);
   }
 
-  private void doHandle(Request request, Response response, String componentKey, @Nullable String branchKey, @Nullable String pullRequestKey) {
+  private void doHandle(Request request, Response response, String projectKey, @Nullable String branchKey, @Nullable String pullRequestKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = loadComponent(dbSession, componentKey, branchKey, pullRequestKey);
-      userSession.checkComponentPermission(UserRole.USER, component);
-
-      checkRequest(isProject(component), "Component '%s' must be a project.", componentKey);
+      ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
+      userSession.checkProjectPermission(UserRole.USER, project);
+      BranchDto branch = componentFinder.getBranchOrPullRequest(dbSession, project, branchKey, pullRequestKey);
 
       AnalysisStatusWsResponse.Builder responseBuilder = AnalysisStatusWsResponse.newBuilder();
       CeActivityDto lastActivity = dbClient.ceActivityDao()
-        .selectLastByComponentUuidAndTaskType(dbSession, component.uuid(), CeTaskTypes.REPORT).orElse(null);
-      responseBuilder.setComponent(formatComponent(dbSession, component, lastActivity, branchKey, pullRequestKey));
+        .selectLastByComponentUuidAndTaskType(dbSession, branch.getUuid(), CeTaskTypes.REPORT).orElse(null);
+      responseBuilder.setComponent(formatComponent(dbSession, project, lastActivity, branchKey, pullRequestKey));
 
       writeProtobuf(responseBuilder.build(), request, response);
     }
   }
 
-  private static boolean isProject(ComponentDto project) {
-    return Scopes.PROJECT.equals(project.scope()) && Qualifiers.PROJECT.equals(project.qualifier());
-  }
-
-  private ComponentDto loadComponent(DbSession dbSession, String componentKey, @Nullable String branchKey, @Nullable String pullRequestKey) {
-    if (branchKey != null) {
-      return componentFinder.getByKeyAndBranch(dbSession, componentKey, branchKey);
-    }
-    if (pullRequestKey != null) {
-      return componentFinder.getByKeyAndPullRequest(dbSession, componentKey, pullRequestKey);
-    }
-    return componentFinder.getByKey(dbSession, componentKey);
-  }
-
-  private AnalysisStatusWsResponse.Component formatComponent(DbSession dbSession, ComponentDto component, @Nullable CeActivityDto lastActivity,
+  private AnalysisStatusWsResponse.Component formatComponent(DbSession dbSession, ProjectDto project, @Nullable CeActivityDto lastActivity,
     @Nullable String branchKey, @Nullable String pullRequestKey) {
 
     AnalysisStatusWsResponse.Component.Builder builder = AnalysisStatusWsResponse.Component.newBuilder()
-      .setOrganization(getOrganizationKey(dbSession, component))
-      .setKey(component.getKey())
-      .setName(component.name());
+      .setOrganization(getOrganizationKey(dbSession, project))
+      .setKey(project.getKey())
+      .setName(project.getName());
 
     if (branchKey != null) {
       builder.setBranch(branchKey);
@@ -149,8 +133,8 @@ public class AnalysisStatusAction implements CeWsAction {
     return builder.build();
   }
 
-  private String getOrganizationKey(DbSession dbSession, ComponentDto component) {
-    String organizationUuid = component.getOrganizationUuid();
+  private String getOrganizationKey(DbSession dbSession, ProjectDto project) {
+    String organizationUuid = project.getOrganizationUuid();
     return dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
       .orElseThrow(() -> new IllegalStateException("Unknown organization: " + organizationUuid))
       .getKey();

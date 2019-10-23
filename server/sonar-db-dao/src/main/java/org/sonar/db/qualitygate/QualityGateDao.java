@@ -107,7 +107,7 @@ public class QualityGateDao implements Dao {
     return session.getMapper(QualityGateMapper.class);
   }
 
-  public QualityGateDto selectByProjectUuid(DbSession dbSession, String uuid) {
-    return mapper(dbSession).selectByProjectUuid(uuid);
+  public QualityGateDto selectByProjectUuid(DbSession dbSession, String projectUuid) {
+    return mapper(dbSession).selectByProjectUuid(projectUuid);
   }
 }

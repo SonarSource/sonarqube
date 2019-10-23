@@ -713,7 +713,7 @@ public class ComponentTreeActionTest {
   @Test
   public void project_branch_reference_from_application_branch() {
     MetricDto ncloc = insertNclocMetric();
-    ComponentDto application = db.components().insertMainBranch(c -> c.setQualifier(APP).setDbKey("app-key"));
+    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setDbKey("app-key"));
     ComponentDto applicationBranch = db.components().insertProjectBranch(application, a -> a.setKey("app-branch"));
     ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("project-key"));
     ComponentDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey("project-branch"));
@@ -980,7 +980,7 @@ public class ComponentTreeActionTest {
   @Test
   public void fail_when_using_branch_db_key() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     insertNclocMetric();
@@ -997,7 +997,7 @@ public class ComponentTreeActionTest {
   @Test
   public void fail_when_using_branch_uuid() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     insertNclocMetric();

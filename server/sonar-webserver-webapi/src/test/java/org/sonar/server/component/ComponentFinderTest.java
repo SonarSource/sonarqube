@@ -97,7 +97,7 @@ public class ComponentFinderTest {
 
   @Test
   public void fail_to_getByUuidOrKey_when_using_branch_uuid() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
@@ -108,7 +108,7 @@ public class ComponentFinderTest {
 
   @Test
   public void fail_to_getByUuidOrKey_when_using_branch_key() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
@@ -130,7 +130,7 @@ public class ComponentFinderTest {
 
   @Test
   public void fail_to_getByUuid_on_branch() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
@@ -152,7 +152,7 @@ public class ComponentFinderTest {
 
   @Test
   public void fail_getByKey_on_branch() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
@@ -181,7 +181,7 @@ public class ComponentFinderTest {
 
   @Test
   public void get_by_key_and_branch() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     ComponentDto module = db.components().insertComponent(newModuleDto(branch));
     ComponentDto directory = db.components().insertComponent(newDirectory(module, "scr"));
@@ -195,7 +195,7 @@ public class ComponentFinderTest {
 
   @Test
   public void get_by_key_and_pull_request() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST).setMergeBranchUuid(project.uuid()));
     ComponentDto module = db.components().insertComponent(newModuleDto(branch));
     ComponentDto directory = db.components().insertComponent(newDirectory(module, "scr"));
@@ -209,7 +209,7 @@ public class ComponentFinderTest {
 
   @Test
   public void fail_when_pull_request_branch_provided() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
 
     expectedException.expect(IllegalArgumentException.class);
@@ -220,7 +220,7 @@ public class ComponentFinderTest {
 
   @Test
   public void get_by_key_and_branch_accept_main_branch() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
 
     assertThat(underTest.getByKeyAndBranch(dbSession, project.getKey(), "master").uuid()).isEqualTo(project.uuid());
   }

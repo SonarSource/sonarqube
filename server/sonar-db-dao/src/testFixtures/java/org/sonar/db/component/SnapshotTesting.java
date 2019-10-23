@@ -29,9 +29,18 @@ public class SnapshotTesting {
   public static SnapshotDto newAnalysis(ComponentDto rootComponent) {
     checkNotNull(rootComponent.uuid(), "Project UUID must be set");
     checkArgument(rootComponent.uuid().equals(rootComponent.projectUuid()), "Component is not a tree root");
+    return newAnalysis(rootComponent.uuid());
+  }
+
+  public static SnapshotDto newAnalysis(BranchDto branchDto) {
+    checkNotNull(branchDto.getUuid(), "Project UUID must be set");
+    return newAnalysis(branchDto.getUuid());
+  }
+
+  public static SnapshotDto newAnalysis(String uuid) {
     return new SnapshotDto()
       .setUuid(randomAlphanumeric(40))
-      .setComponentUuid(rootComponent.uuid())
+      .setComponentUuid(uuid)
       .setStatus(SnapshotDto.STATUS_PROCESSED)
       .setCreatedAt(System.currentTimeMillis())
       .setBuildDate(System.currentTimeMillis())

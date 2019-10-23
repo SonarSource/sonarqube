@@ -24,6 +24,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 
 import static org.sonar.db.webhook.WebhookTesting.newWebhook;
 
@@ -39,7 +40,7 @@ public class WebhookDbTester {
     return insert(newWebhook(organizationDto));
   }
 
-  public WebhookDto insertWebhook(ComponentDto project) {
+  public WebhookDto insertWebhook(ProjectDto project) {
     return insert(newWebhook(project));
   }
 

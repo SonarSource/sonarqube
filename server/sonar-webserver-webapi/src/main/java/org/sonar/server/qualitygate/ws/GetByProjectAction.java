@@ -25,8 +25,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
@@ -91,12 +91,12 @@ public class GetByProjectAction implements QualityGatesWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      ComponentDto project = componentFinder.getByKey(dbSession, request.mandatoryParam(PARAM_PROJECT));
+      ProjectDto project = componentFinder.getProjectByKey(dbSession, request.mandatoryParam(PARAM_PROJECT));
       // As ComponentFinder doesn't handle organization yet, we only check here that the project belongs to the organization
       wsSupport.checkProjectBelongsToOrganization(organization, project);
 
-      if (!userSession.hasComponentPermission(USER, project) &&
-        !userSession.hasComponentPermission(ADMIN, project)) {
+      if (!userSession.hasProjectPermission(USER, project) &&
+        !userSession.hasProjectPermission(ADMIN, project)) {
         throw insufficientPrivilegesException();
       }
 

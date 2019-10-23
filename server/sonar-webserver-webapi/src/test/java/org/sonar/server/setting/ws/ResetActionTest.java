@@ -204,7 +204,7 @@ public class ResetActionTest {
 
   @Test
   public void remove_setting_on_branch() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     definitions.addComponent(PropertyDefinition.builder("foo").onQualifiers(PROJECT).build());
     propertyDb.insertProperties(newComponentPropertyDto(branch).setKey("foo").setValue("value"));
@@ -365,7 +365,7 @@ public class ResetActionTest {
   @Test
   public void fail_when_using_branch_db_key() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     definitions.addComponent(PropertyDefinition.builder("foo").onQualifiers(PROJECT).build());
@@ -392,7 +392,7 @@ public class ResetActionTest {
 
   @Test
   public void fail_when_branch_not_found() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     logInAsProjectAdmin(project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     String settingKey = "not_allowed_on_branch";

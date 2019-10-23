@@ -139,7 +139,7 @@ public class AddActionTest {
   @Test
   public void fail_when_using_branch_db_key() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
     ComponentDto branch = db.components().insertProjectBranch(project);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);

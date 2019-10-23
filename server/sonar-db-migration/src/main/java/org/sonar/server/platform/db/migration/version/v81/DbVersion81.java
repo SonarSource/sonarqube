@@ -42,6 +42,10 @@ public class DbVersion81 implements DbVersion {
         RenameDaysBeforeDeletingInactiveSLBSetting.class)
       .add(3112, "Migrate short and long living branches types to common BRANCH type", MigrateSlbsAndLlbsToCommonType.class)
       .add(3113, "Migrate short and long living branches types to common BRANCH type in ce tasks table",
-        MigrateSlbsAndLlbsToCommonTypeInCeTasks.class);
+        MigrateSlbsAndLlbsToCommonTypeInCeTasks.class)
+      .add(3114, "Rename table 'PROJECTS' to 'COMPONENTS'", RenameProjectsTableToComponents.class)
+      .add(3115, "Add PROJECTS table", CreateProjectsTable.class)
+      .add(3116, "Populate PROJECTS table", PopulateProjectsTable.class)
+    ;
   }
 }

@@ -36,6 +36,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.Condition;
@@ -62,10 +63,9 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
   }
 
   @Override
-  public QualityGate loadQualityGate(DbSession dbSession, OrganizationDto organization, ComponentDto project, BranchDto branch) {
-    ComponentDto mainProject = project.getMainBranchProjectUuid() == null ? project : dbClient.componentDao().selectOrFailByKey(dbSession, project.getKey());
-    QualityGateDto gateDto = qGateFinder.getQualityGate(dbSession, organization, mainProject)
-      .orElseThrow(() -> new IllegalStateException(format("Quality Gate not found for project %s", mainProject.getKey())))
+  public QualityGate loadQualityGate(DbSession dbSession, OrganizationDto organization, ProjectDto project, BranchDto branch) {
+    QualityGateDto gateDto = qGateFinder.getQualityGate(dbSession, organization, project)
+      .orElseThrow(() -> new IllegalStateException(format("Quality Gate not found for project %s", project.getKey())))
       .getQualityGate();
     Collection<QualityGateConditionDto> conditionDtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, gateDto.getId());
     Set<Integer> metricIds = conditionDtos.stream().map(c -> (int) c.getMetricId())

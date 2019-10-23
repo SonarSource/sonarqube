@@ -22,7 +22,7 @@ package org.sonar.db.almsettings;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 
@@ -59,29 +59,29 @@ public class AlmSettingsTesting {
       .setAlm(ALM.BITBUCKET);
   }
 
-  public static ProjectAlmSettingDto newGithubProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ComponentDto project) {
+  public static ProjectAlmSettingDto newGithubProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ProjectDto project) {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(githubAlmSetting.getUuid())
-      .setProjectUuid(project.uuid())
+      .setProjectUuid(project.getUuid())
       .setAlmRepo(randomAlphanumeric(256));
   }
 
-  static ProjectAlmSettingDto newAzureProjectAlmSettingDto(AlmSettingDto azureAlmSetting, ComponentDto project) {
-    return new ProjectAlmSettingDto()
-      .setAlmSettingUuid(azureAlmSetting.getUuid())
-      .setProjectUuid(project.uuid());
-  }
-
-  static ProjectAlmSettingDto newGitlabProjectAlmSettingDto(AlmSettingDto gitlabAlmSetting, ComponentDto project) {
+  static ProjectAlmSettingDto newGitlabProjectAlmSettingDto(AlmSettingDto gitlabAlmSetting, ProjectDto project) {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(gitlabAlmSetting.getUuid())
-      .setProjectUuid(project.uuid());
+      .setProjectUuid(project.getUuid());
   }
 
-  public static ProjectAlmSettingDto newBitbucketProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ComponentDto project) {
+  static ProjectAlmSettingDto newAzureProjectAlmSettingDto(AlmSettingDto azureAlmSetting, ProjectDto project) {
+    return new ProjectAlmSettingDto()
+      .setAlmSettingUuid(azureAlmSetting.getUuid())
+      .setProjectUuid(project.getUuid());
+  }
+
+  public static ProjectAlmSettingDto newBitbucketProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ProjectDto project) {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(githubAlmSetting.getUuid())
-      .setProjectUuid(project.uuid())
+      .setProjectUuid(project.getUuid())
       .setAlmRepo(randomAlphanumeric(256))
       .setAlmSlug(randomAlphanumeric(256));
   }

@@ -33,18 +33,18 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.NewCodePeriods;
 import org.sonarqube.ws.NewCodePeriods.ListWSResponse;
 
 import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.NewCodePeriods.ShowWSResponse.newBuilder;
 
@@ -82,13 +82,13 @@ public class ListAction implements NewCodePeriodsWsAction {
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
-      userSession.checkComponentPermission(UserRole.ADMIN, project);
-      Collection<BranchDto> branches = dbClient.branchDao().selectByComponent(dbSession, project).stream()
-        .filter(b -> b.getBranchType() == BRANCH)
+      ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
+      userSession.checkProjectPermission(UserRole.ADMIN, project);
+      Collection<BranchDto> branches = dbClient.branchDao().selectByProject(dbSession, project).stream()
+        .filter(b -> b.getBranchType() == BranchType.BRANCH)
         .collect(toList());
 
-      List<NewCodePeriodDto> newCodePeriods = newCodePeriodDao.selectAllByProject(dbSession, project.uuid());
+      List<NewCodePeriodDto> newCodePeriods = newCodePeriodDao.selectAllByProject(dbSession, project.getUuid());
 
       Map<String, InheritedNewCodePeriod> newCodePeriodByBranchUuid = newCodePeriods
         .stream()
@@ -112,7 +112,7 @@ public class ListAction implements NewCodePeriodsWsAction {
 
         //handles specific analysis only
         Long analysisDate = analysisUuidDateMap.get(analysis.get(inherited.getUuid()));
-        if (analysisDate != null ) {
+        if (analysisDate != null) {
           effectiveValue = DateUtils.formatDateTime(analysisDate);
         }
 
@@ -131,7 +131,7 @@ public class ListAction implements NewCodePeriodsWsAction {
   }
 
   private static NewCodePeriods.ShowWSResponse build(String projectKey, String branchKey, NewCodePeriodType newCodePeriodType,
-                                                     @Nullable String value, boolean inherited, @Nullable String effectiveValue) {
+    @Nullable String value, boolean inherited, @Nullable String effectiveValue) {
     NewCodePeriods.ShowWSResponse.Builder builder = newBuilder()
       .setType(convertType(newCodePeriodType))
       .setInherited(inherited)

@@ -19,15 +19,10 @@
  */
 package org.sonar.server.ce.ws;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -35,9 +30,9 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskMessageDto;
+import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
@@ -55,7 +50,6 @@ import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.test.JsonAssert.assertJson;
 
-@RunWith(DataProviderRunner.class)
 public class AnalysisStatusActionTest {
   private static final String BRANCH_WITH_WARNING = "feature-with-warning";
   private static final String BRANCH_WITHOUT_WARNING = "feature-without-warning";
@@ -103,36 +97,12 @@ public class AnalysisStatusActionTest {
   }
 
   @Test
-  @UseDataProvider("nonProjectComponentFactory")
-  public void fail_if_component_is_not_a_project(Function<ComponentDto, ComponentDto> nonProjectComponentFactory) {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("must be a project");
-
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
-
-    ComponentDto component = nonProjectComponentFactory.apply(project);
-    db.components().insertComponent(component);
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, component.getKey())
-      .execute();
-  }
-
-  @DataProvider
-  public static Object[][] nonProjectComponentFactory() {
-    return new Object[][] {
-      {(Function<ComponentDto, ComponentDto>) ComponentTesting::newModuleDto},
-      {(Function<ComponentDto, ComponentDto>) p -> ComponentTesting.newDirectory(p, "foo")},
-      {(Function<ComponentDto, ComponentDto>) ComponentTesting::newFileDto}
-    };
-  }
-
-  @Test
   public void json_example() {
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-1"));
     ComponentDto project = db.components().insertPrivateProject(organization,
       p -> p.setUuid("AU_w74XMgAS1Hm6h4-Y-"),
+      p -> p.setProjectUuid("AU_w74XMgAS1Hm6h4-Y-"),
+      p -> p.setRootUuid("AU_w74XMgAS1Hm6h4-Y-"),
       p -> p.setDbKey("com.github.kevinsawicki:http-request-parent"),
       p -> p.setName("HttpRequest"));
 
@@ -344,8 +314,7 @@ public class AnalysisStatusActionTest {
     db.commit();
   }
 
-  private CeActivityDto insertActivity(String taskUuid, ComponentDto component, CeActivityDto.Status status,
-    @Nullable SnapshotDto analysis, String taskType) {
+  private CeActivityDto insertActivity(String taskUuid, ComponentDto component, CeActivityDto.Status status, @Nullable SnapshotDto analysis, String taskType) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(taskType);
     queueDto.setComponent(component);

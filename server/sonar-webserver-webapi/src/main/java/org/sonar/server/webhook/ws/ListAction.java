@@ -29,10 +29,11 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.db.webhook.WebhookDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Webhooks;
@@ -41,13 +42,13 @@ import org.sonarqube.ws.Webhooks.ListResponseElement;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.webhook.HttpUrlHelper.obfuscateCredentials;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.LIST_ACTION;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.ORGANIZATION_KEY_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM;
 import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkStateWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -57,12 +58,15 @@ public class ListAction implements WebhooksWsAction {
   private final UserSession userSession;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final WebhookSupport webhookSupport;
+  private final ComponentFinder componentFinder;
 
-  public ListAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider, WebhookSupport webhookSupport) {
+  public ListAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider,
+    WebhookSupport webhookSupport,  ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.webhookSupport = webhookSupport;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -116,12 +120,11 @@ public class ListAction implements WebhooksWsAction {
     }
 
     if (isNotBlank(projectKey)) {
-      Optional<ComponentDto> optional = dbClient.componentDao().selectByKey(dbSession, projectKey);
-      ComponentDto componentDto = checkFoundWithOptional(optional, "project %s does not exist", projectKey);
-      webhookSupport.checkPermission(componentDto);
-      webhookSupport.checkThatProjectBelongsToOrganization(componentDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
-      webhookSupport.checkPermission(componentDto);
-      return dbClient.webhookDao().selectByProject(dbSession, componentDto);
+      ProjectDto projectDto = componentFinder.getProjectByKey(dbSession, projectKey);
+      webhookSupport.checkPermission(projectDto);
+      webhookSupport.checkThatProjectBelongsToOrganization(projectDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
+      webhookSupport.checkPermission(projectDto);
+      return dbClient.webhookDao().selectByProject(dbSession, projectDto);
 
     } else {
       webhookSupport.checkPermission(organizationDto);

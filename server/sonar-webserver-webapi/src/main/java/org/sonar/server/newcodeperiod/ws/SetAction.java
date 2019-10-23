@@ -33,13 +33,12 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchType;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodParser;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
@@ -49,7 +48,6 @@ import static java.lang.String.format;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
-import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 
 public class SetAction implements NewCodePeriodsWsAction {
   private static final String PARAM_BRANCH = "branch";
@@ -123,10 +121,10 @@ public class SetAction implements NewCodePeriodsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String projectStr = request.getParam(PARAM_PROJECT).emptyAsNull().or(() -> null);
-    String branchStr = request.getParam(PARAM_BRANCH).emptyAsNull().or(() -> null);
+    String projectKey = request.getParam(PARAM_PROJECT).emptyAsNull().or(() -> null);
+    String branchKey = request.getParam(PARAM_BRANCH).emptyAsNull().or(() -> null);
 
-    if (projectStr == null && branchStr != null) {
+    if (projectKey == null && branchKey != null) {
       throw new IllegalArgumentException("If branch key is specified, project key needs to be specified too");
     }
 
@@ -135,34 +133,41 @@ public class SetAction implements NewCodePeriodsWsAction {
       String valueStr = request.getParam(PARAM_VALUE).emptyAsNull().or(() -> null);
       boolean isCommunityEdition = editionProvider.get().filter(t -> t == EditionProvider.Edition.COMMUNITY).isPresent();
 
-      NewCodePeriodType type = validateType(typeStr, projectStr == null, branchStr != null || isCommunityEdition);
+      NewCodePeriodType type = validateType(typeStr, projectKey == null, branchKey != null || isCommunityEdition);
 
       NewCodePeriodDto dto = new NewCodePeriodDto();
       dto.setType(type);
 
-      ComponentDto projectBranch = null;
-      if (projectStr != null) {
-        projectBranch = getProject(dbSession, projectStr, branchStr);
-        userSession.checkComponentPermission(UserRole.ADMIN, projectBranch);
-        // in CE set main branch value instead of project value
-        if (branchStr != null || isCommunityEdition) {
-          dto.setBranchUuid(projectBranch.uuid());
+      ProjectDto project = null;
+      BranchDto branch = null;
+
+      if (projectKey != null) {
+        project = getProject(dbSession, projectKey);
+        userSession.checkProjectPermission(UserRole.ADMIN, project);
+
+        if (branchKey != null) {
+          branch = getBranch(dbSession, project, branchKey);
+          dto.setBranchUuid(branch.getUuid());
+        } else if (isCommunityEdition) {
+          // in CE set main branch value instead of project value
+          branch = getMainBranch(dbSession, project);
+          dto.setBranchUuid(branch.getUuid());
         }
-        // depending whether it's the main branch or not
-        dto.setProjectUuid(projectBranch.getMainBranchProjectUuid() != null ? projectBranch.getMainBranchProjectUuid() : projectBranch.uuid());
+
+        dto.setProjectUuid(project.getUuid());
       } else {
         userSession.checkIsSystemAdministrator();
       }
 
-      setValue(dbSession, dto, type, projectBranch, branchStr, valueStr);
+      setValue(dbSession, dto, type, project, branch, valueStr);
 
       newCodePeriodDao.upsert(dbSession, dto);
       dbSession.commit();
     }
   }
 
-  private void setValue(DbSession dbSession, NewCodePeriodDto dto, NewCodePeriodType type, @Nullable ComponentDto projectBranch,
-                        @Nullable String branch, @Nullable String value) {
+  private void setValue(DbSession dbSession, NewCodePeriodDto dto, NewCodePeriodType type, @Nullable ProjectDto project,
+    @Nullable BranchDto branch, @Nullable String value) {
     switch (type) {
       case PREVIOUS_VERSION:
         Preconditions.checkArgument(value == null, "Unexpected value for type '%s'", type);
@@ -173,8 +178,8 @@ public class SetAction implements NewCodePeriodsWsAction {
         break;
       case SPECIFIC_ANALYSIS:
         requireValue(type, value);
-        requireBranch(type, projectBranch);
-        SnapshotDto analysis = getAnalysis(dbSession, value, projectBranch, branch);
+        requireBranch(type, branch);
+        SnapshotDto analysis = getAnalysis(dbSession, value, project, branch);
         dto.setValue(analysis.getUuid());
         break;
       default:
@@ -194,23 +199,24 @@ public class SetAction implements NewCodePeriodsWsAction {
     Preconditions.checkArgument(value != null, "New Code Period type '%s' requires a value", type);
   }
 
-  private static void requireBranch(NewCodePeriodType type, @Nullable ComponentDto projectBranch) {
-    Preconditions.checkArgument(projectBranch != null, "New Code Period type '%s' requires a branch", type);
+  private static void requireBranch(NewCodePeriodType type, @Nullable BranchDto branch) {
+    Preconditions.checkArgument(branch != null, "New Code Period type '%s' requires a branch", type);
   }
 
-  private ComponentDto getProject(DbSession dbSession, String projectKey, @Nullable String branchKey) {
-    if (branchKey == null) {
-      return componentFinder.getByUuidOrKey(dbSession, null, projectKey, PROJECT_ID_AND_KEY);
-    }
-    ComponentDto project = componentFinder.getByKeyAndBranch(dbSession, projectKey, branchKey);
+  private BranchDto getBranch(DbSession dbSession, ProjectDto project, String branchKey) {
+    return dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), branchKey)
+      .orElseThrow(() -> new NotFoundException(format("Branch '%s' in project '%s' not found", branchKey, project.getKey())));
+  }
 
-    BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, project.uuid())
-      .orElseThrow(() -> new NotFoundException(format("Branch '%s' is not found", branchKey)));
+  private ProjectDto getProject(DbSession dbSession, String projectKey) {
+    return componentFinder.getProjectByKey(dbSession, projectKey);
+  }
 
-    checkArgument(branchDto.getBranchType() == BranchType.BRANCH,
-      "Not a branch: '%s'", branchKey);
-
-    return project;
+  private BranchDto getMainBranch(DbSession dbSession, ProjectDto project) {
+    return dbClient.branchDao().selectByProject(dbSession, project)
+      .stream().filter(BranchDto::isMain)
+      .findFirst()
+      .orElseThrow(() -> new NotFoundException(format("Main branch in project '%s' is not found", project.getKey())));
   }
 
   private static NewCodePeriodType validateType(String typeStr, boolean isOverall, boolean isBranch) {
@@ -231,26 +237,20 @@ public class SetAction implements NewCodePeriodsWsAction {
     return type;
   }
 
-  private SnapshotDto getAnalysis(DbSession dbSession, String analysisUuid, ComponentDto projectBranch, @Nullable String branchKey) {
+  private SnapshotDto getAnalysis(DbSession dbSession, String analysisUuid, ProjectDto project, BranchDto branch) {
     SnapshotDto snapshotDto = dbClient.snapshotDao().selectByUuid(dbSession, analysisUuid)
       .orElseThrow(() -> new NotFoundException(format("Analysis '%s' is not found", analysisUuid)));
-    checkAnalysis(dbSession, projectBranch, branchKey, snapshotDto);
+    checkAnalysis(dbSession, project, branch, snapshotDto);
     return snapshotDto;
   }
 
-  private void checkAnalysis(DbSession dbSession, ComponentDto projectBranch, @Nullable String branchKey, SnapshotDto analysis) {
-    ComponentDto project = dbClient.componentDao().selectByUuid(dbSession, analysis.getComponentUuid()).orElse(null);
+  private void checkAnalysis(DbSession dbSession, ProjectDto project, BranchDto branch, SnapshotDto analysis) {
+    BranchDto analysisBranch = dbClient.branchDao().selectByUuid(dbSession, analysis.getComponentUuid()).orElse(null);
+    boolean analysisMatchesProjectBranch = analysisBranch != null && analysisBranch.getUuid().equals(branch.getUuid());
 
-    boolean analysisMatchesProjectBranch = project != null && projectBranch.uuid().equals(project.uuid());
-    if (branchKey != null) {
-      checkArgument(analysisMatchesProjectBranch,
-        "Analysis '%s' does not belong to branch '%s' of project '%s'",
-        analysis.getUuid(), branchKey, projectBranch.getKey());
-    } else {
-      checkArgument(analysisMatchesProjectBranch,
-        "Analysis '%s' does not belong to project '%s'",
-        analysis.getUuid(), projectBranch.getKey());
-    }
+    checkArgument(analysisMatchesProjectBranch,
+      "Analysis '%s' does not belong to branch '%s' of project '%s'",
+      analysis.getUuid(), branch.getKey(), project.getKey());
   }
 
   private static void checkType(String name, Set<NewCodePeriodType> validTypes, NewCodePeriodType type) {

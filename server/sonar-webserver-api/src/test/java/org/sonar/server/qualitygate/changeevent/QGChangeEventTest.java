@@ -30,8 +30,8 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,8 +40,8 @@ public class QGChangeEventTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private ComponentDto project = new ComponentDto()
-    .setDbKey("foo")
+  private ProjectDto project = new ProjectDto()
+    .setKey("foo")
     .setUuid("bar");
   private BranchDto branch = new BranchDto()
     .setBranchType(BranchType.BRANCH)

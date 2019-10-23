@@ -20,7 +20,10 @@
 package org.sonar.server.project.ws;
 
 import com.google.common.base.Strings;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
@@ -68,7 +71,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
   private final ProjectLifeCycleListeners projectLifeCycleListeners;
 
   public BulkDeleteAction(ComponentCleanerService componentCleanerService, DbClient dbClient, UserSession userSession,
-                          ProjectsWsSupport support, ProjectLifeCycleListeners projectLifeCycleListeners) {
+    ProjectsWsSupport support, ProjectLifeCycleListeners projectLifeCycleListeners) {
     this.componentCleanerService = componentCleanerService;
     this.dbClient = dbClient;
     this.userSession = userSession;
@@ -112,7 +115,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
 
     action.createParam(PARAM_VISIBILITY)
       .setDescription("Filter the projects that should be visible to everyone (%s), or only specific user/groups (%s).<br/>" +
-        "If no visibility is specified, the default project visibility of the organization will be used.",
+          "If no visibility is specified, the default project visibility of the organization will be used.",
         Visibility.PUBLIC.getLabel(), Visibility.PRIVATE.getLabel())
       .setRequired(false)
       .setInternal(true)
@@ -142,7 +145,9 @@ public class BulkDeleteAction implements ProjectsWsAction {
       checkAtLeastOneParameterIsPresent(searchRequest);
 
       ComponentQuery query = buildDbQuery(searchRequest);
-      List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, 0, Integer.MAX_VALUE);
+      // TODO do query in ProjectDao
+      Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, 0, Integer.MAX_VALUE));
+
       try {
         componentDtos.forEach(p -> componentCleanerService.delete(dbSession, p));
       } finally {

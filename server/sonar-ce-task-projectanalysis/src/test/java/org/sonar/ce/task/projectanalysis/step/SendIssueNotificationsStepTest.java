@@ -101,7 +101,7 @@ import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.component.ComponentTesting.newProjectBranch;
+import static org.sonar.db.component.ComponentTesting.newBranchComponent;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.rule.RuleTesting.newRule;
@@ -560,7 +560,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   private void sendIssueChangeNotificationOnBranch(long issueCreatedAt) {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto());
-    ComponentDto branch = newProjectBranch(project, newBranchDto(project).setKey(BRANCH_NAME));
+    ComponentDto branch = newBranchComponent(project, newBranchDto(project).setKey(BRANCH_NAME));
     ComponentDto file = newFileDto(branch);
     treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getDbKey()).setPublicKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
       builder(Type.FILE, 11).setKey(file.getDbKey()).setPublicKey(file.getKey()).setName(file.longName()).build()).build());
@@ -692,7 +692,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   private ComponentDto setUpBranch(ComponentDto project, BranchType branchType) {
-    ComponentDto branch = newProjectBranch(project, newBranchDto(project, branchType).setKey(BRANCH_NAME));
+    ComponentDto branch = newBranchComponent(project, newBranchDto(project, branchType).setKey(BRANCH_NAME));
     ComponentDto file = newFileDto(branch);
     treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getDbKey()).setPublicKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
       builder(Type.FILE, 11).setKey(file.getDbKey()).setPublicKey(file.getKey()).setName(file.longName()).build()).build());

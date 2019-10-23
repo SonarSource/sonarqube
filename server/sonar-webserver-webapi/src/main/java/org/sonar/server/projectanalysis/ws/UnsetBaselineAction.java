@@ -27,13 +27,13 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_BRANCH;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_PROJECT;
@@ -43,11 +43,13 @@ public class UnsetBaselineAction implements ProjectAnalysesWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
+  private final BranchDao branchDao;
 
-  public UnsetBaselineAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
+  public UnsetBaselineAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, BranchDao branchDao) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
+    this.branchDao = branchDao;
   }
 
   @Override
@@ -85,26 +87,23 @@ public class UnsetBaselineAction implements ProjectAnalysesWsAction {
     String branchKey = trimToNull(request.param(PARAM_BRANCH));
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto projectBranch = getProjectBranch(dbSession, projectKey, branchKey);
-      userSession.checkComponentPermission(UserRole.ADMIN, projectBranch);
+      ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
+      userSession.checkProjectPermission(UserRole.ADMIN, project);
 
-      String projectUuid = projectBranch.getMainBranchProjectUuid() != null ? projectBranch.getMainBranchProjectUuid() : projectBranch.uuid();
-      String branchUuid = projectBranch.uuid();
-      dbClient.newCodePeriodDao().delete(dbSession, projectUuid, branchUuid);
+      BranchDto branch = loadBranch(dbSession, project, branchKey);
+      dbClient.newCodePeriodDao().delete(dbSession, project.getUuid(), branch.getUuid());
       dbSession.commit();
     }
   }
 
-  private ComponentDto getProjectBranch(DbSession dbSession, String projectKey, @Nullable String branchKey) {
-    if (branchKey == null) {
-      return componentFinder.getByKey(dbSession, projectKey);
+  private BranchDto loadBranch(DbSession dbSession, ProjectDto project, @Nullable String branchKey) {
+    if (branchKey != null) {
+      return branchDao.selectByBranchKey(dbSession, project.getUuid(), branchKey)
+        .orElseThrow(() -> new NotFoundException(String.format("Branch '%s' in project '%s' not found", branchKey, project.getKey())));
     }
-    ComponentDto project = componentFinder.getByKeyAndBranch(dbSession, projectKey, branchKey);
 
-    BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, project.uuid())
-      .orElseThrow(() -> new NotFoundException(format("Branch '%s' is not found", branchKey)));
-
-    return project;
+    return branchDao.selectByUuid(dbSession, project.getUuid())
+      .orElseThrow(() -> new NotFoundException(String.format("Main branch in project '%s' not found", project.getKey())));
   }
 
 }

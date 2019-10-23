@@ -41,7 +41,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener.ChangedIssue;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListenersImpl.ChangedIssueImpl;
 
@@ -69,11 +69,11 @@ public class QGChangeEventListenersImplTest {
   private QGChangeEventListener listener3 = mock(QGChangeEventListener.class);
   private List<QGChangeEventListener> listeners = Arrays.asList(listener1, listener2, listener3);
 
-  private String component1Uuid = RandomStringUtils.randomAlphabetic(6);
-  private ComponentDto component1 = newComponentDto(component1Uuid);
-  private DefaultIssue component1Issue = newDefaultIssue(component1Uuid);
+  private String project1Uuid = RandomStringUtils.randomAlphabetic(6);
+  private BranchDto project1 = newBranchDto(project1Uuid);
+  private DefaultIssue component1Issue = newDefaultIssue(project1Uuid);
   private List<DefaultIssue> oneIssueOnComponent1 = singletonList(component1Issue);
-  private QGChangeEvent component1QGChangeEvent = newQGChangeEvent(component1);
+  private QGChangeEvent component1QGChangeEvent = newQGChangeEvent(project1);
 
   private InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
 
@@ -176,24 +176,24 @@ public class QGChangeEventListenersImplTest {
 
   @Test
   public void broadcastOnIssueChange_calls_listener_for_each_component_uuid_with_at_least_one_QGChangeEvent() {
-    // component2 has multiple issues
-    ComponentDto component2 = newComponentDto(component1Uuid + "2");
-    DefaultIssue[] component2Issues = {newDefaultIssue(component2.uuid()), newDefaultIssue(component2.uuid())};
+    // branch has multiple issues
+    BranchDto component2 = newBranchDto(project1Uuid + "2");
+    DefaultIssue[] component2Issues = {newDefaultIssue(component2.getUuid()), newDefaultIssue(component2.getUuid())};
     QGChangeEvent component2QGChangeEvent = newQGChangeEvent(component2);
 
-    // component 3 has multiple QGChangeEvent and only one issue
-    ComponentDto component3 = newComponentDto(component1Uuid + "3");
-    DefaultIssue component3Issue = newDefaultIssue(component3.uuid());
+    // branch 3 has multiple QGChangeEvent and only one issue
+    BranchDto component3 = newBranchDto(project1Uuid + "3");
+    DefaultIssue component3Issue = newDefaultIssue(component3.getUuid());
     QGChangeEvent[] component3QGChangeEvents = {newQGChangeEvent(component3), newQGChangeEvent(component3)};
 
-    // component 4 has multiple QGChangeEvent and multiples issues
-    ComponentDto component4 = newComponentDto(component1Uuid + "4");
-    DefaultIssue[] component4Issues = {newDefaultIssue(component4.uuid()), newDefaultIssue(component4.uuid())};
+    // branch 4 has multiple QGChangeEvent and multiples issues
+    BranchDto component4 = newBranchDto(project1Uuid + "4");
+    DefaultIssue[] component4Issues = {newDefaultIssue(component4.getUuid()), newDefaultIssue(component4.getUuid())};
     QGChangeEvent[] component4QGChangeEvents = {newQGChangeEvent(component4), newQGChangeEvent(component4)};
 
-    // component 5 has no QGChangeEvent but one issue
-    ComponentDto component5 = newComponentDto(component1Uuid + "5");
-    DefaultIssue component5Issue = newDefaultIssue(component5.uuid());
+    // branch 5 has no QGChangeEvent but one issue
+    BranchDto component5 = newBranchDto(project1Uuid + "5");
+    DefaultIssue component5Issue = newDefaultIssue(component5.getUuid());
 
     List<DefaultIssue> issues = Stream.of(
       Stream.of(component1Issue),
@@ -331,15 +331,15 @@ public class QGChangeEventListenersImplTest {
     }
   }
 
-  private static ComponentDto newComponentDto(String uuid) {
-    ComponentDto componentDto = new ComponentDto();
-    componentDto.setUuid(uuid);
-    return componentDto;
+  private static BranchDto newBranchDto(String uuid) {
+    BranchDto branchDto = new BranchDto();
+    branchDto.setUuid(uuid);
+    return branchDto;
   }
 
-  private static QGChangeEvent newQGChangeEvent(ComponentDto componentDto) {
+  private static QGChangeEvent newQGChangeEvent(BranchDto branch) {
     QGChangeEvent res = mock(QGChangeEvent.class);
-    when(res.getProject()).thenReturn(componentDto);
+    when(res.getBranch()).thenReturn(branch);
     return res;
   }
 

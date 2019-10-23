@@ -22,7 +22,6 @@ package org.sonar.server.webhook;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,9 +44,9 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener;
@@ -66,8 +65,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.db.component.BranchType.BRANCH;
-import static org.sonar.db.component.ComponentTesting.newBranchDto;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
 @RunWith(DataProviderRunner.class)
 public class WebhookQGChangeEventListenerTest {
@@ -145,24 +142,23 @@ public class WebhookQGChangeEventListenerTest {
   @UseDataProvider("newQGorNot")
   public void onIssueChanges_calls_webhook_for_changeEvent_with_webhook_enabled(@Nullable EvaluatedQualityGate newQualityGate) {
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPublicProject(organization);
-    ComponentAndBranch branch = insertProjectBranch(project, BRANCH, "foo");
-    SnapshotDto analysis = insertAnalysisTask(branch);
+    ProjectAndBranch projectBranch = insertBranch(organization, BRANCH, "foo");
+    SnapshotDto analysis = insertAnalysisTask(projectBranch);
     Configuration configuration = mock(Configuration.class);
     mockPayloadSupplierConsumedByWebhooks();
     Map<String, String> properties = new HashMap<>();
     properties.put("sonar.analysis.test1", randomAlphanumeric(50));
     properties.put("sonar.analysis.test2", randomAlphanumeric(5000));
     insertPropertiesFor(analysis.getUuid(), properties);
-    QGChangeEvent qualityGateEvent = newQGChangeEvent(branch, analysis, configuration, newQualityGate);
+    QGChangeEvent qualityGateEvent = newQGChangeEvent(projectBranch, analysis, configuration, newQualityGate);
     mockWebhookEnabled(qualityGateEvent.getProject());
 
     underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
-    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, analysis, qualityGateEvent.getProject());
+    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(projectBranch, analysis, qualityGateEvent.getProject());
     assertThat(projectAnalysis).isEqualTo(
       new ProjectAnalysis(
-        new Project(project.uuid(), project.getKey(), project.name()),
+        new Project(projectBranch.project.getUuid(), projectBranch.project.getKey(), projectBranch.project.getName()),
         null,
         new Analysis(analysis.getUuid(), analysis.getCreatedAt(), analysis.getRevision()),
         new Branch(false, "foo", Branch.Type.BRANCH),
@@ -175,7 +171,7 @@ public class WebhookQGChangeEventListenerTest {
   @UseDataProvider("newQGorNot")
   public void onIssueChanges_calls_webhook_on_main_branch(@Nullable EvaluatedQualityGate newQualityGate) {
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentAndBranch mainBranch = insertMainBranch(organization);
+    ProjectAndBranch mainBranch = insertMainBranch(organization);
     SnapshotDto analysis = insertAnalysisTask(mainBranch);
     Configuration configuration = mock(Configuration.class);
     QGChangeEvent qualityGateEvent = newQGChangeEvent(mainBranch, analysis, configuration, newQualityGate);
@@ -198,8 +194,7 @@ public class WebhookQGChangeEventListenerTest {
 
   public void onIssueChangesCallsWebhookOnBranch(BranchType branchType) {
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentAndBranch mainBranch = insertMainBranch(organization);
-    ComponentAndBranch nonMainBranch = insertProjectBranch(mainBranch.component, branchType, "foo");
+    ProjectAndBranch nonMainBranch = insertBranch(organization, branchType, "foo");
     SnapshotDto analysis = insertAnalysisTask(nonMainBranch);
     Configuration configuration = mock(Configuration.class);
     QGChangeEvent qualityGateEvent = newQGChangeEvent(nonMainBranch, analysis, configuration, null);
@@ -219,14 +214,14 @@ public class WebhookQGChangeEventListenerTest {
     };
   }
 
-  private void mockWebhookEnabled(ComponentDto... projects) {
-    for (ComponentDto dto : projects) {
+  private void mockWebhookEnabled(ProjectDto... projects) {
+    for (ProjectDto dto : projects) {
       when(webHooks.isEnabled(dto)).thenReturn(true);
     }
   }
 
-  private void mockWebhookDisabled(ComponentDto... projects) {
-    for (ComponentDto dto : projects) {
+  private void mockWebhookDisabled(ProjectDto... projects) {
+    for (ProjectDto dto : projects) {
       when(webHooks.isEnabled(dto)).thenReturn(false);
     }
   }
@@ -252,20 +247,20 @@ public class WebhookQGChangeEventListenerTest {
     dbTester.getSession().commit();
   }
 
-  private SnapshotDto insertAnalysisTask(ComponentAndBranch componentAndBranch) {
-    return dbTester.components().insertSnapshot(componentAndBranch.component);
+  private SnapshotDto insertAnalysisTask(ProjectAndBranch projectAndBranch) {
+    return dbTester.components().insertSnapshot(projectAndBranch.getBranch());
   }
 
-  private ProjectAnalysis verifyWebhookCalledAndExtractPayloadFactoryArgument(ComponentAndBranch componentAndBranch, SnapshotDto analysis, ComponentDto project) {
-    verifyWebhookCalled(componentAndBranch, analysis, project);
+  private ProjectAnalysis verifyWebhookCalledAndExtractPayloadFactoryArgument(ProjectAndBranch projectAndBranch, SnapshotDto analysis, ProjectDto project) {
+    verifyWebhookCalled(projectAndBranch, analysis, project);
 
     return extractPayloadFactoryArguments(1).iterator().next();
   }
 
-  private void verifyWebhookCalled(ComponentAndBranch componentAndBranch, SnapshotDto analysis, ComponentDto project) {
+  private void verifyWebhookCalled(ProjectAndBranch projectAndBranch, SnapshotDto analysis, ProjectDto project) {
     verify(webHooks).isEnabled(project);
     verify(webHooks).sendProjectAnalysisUpdate(
-      eq(new WebHooks.Analysis(componentAndBranch.uuid(), analysis.getUuid(), null)),
+      eq(new WebHooks.Analysis(projectAndBranch.uuid(), analysis.getUuid(), null)),
       any());
   }
 
@@ -275,33 +270,35 @@ public class WebhookQGChangeEventListenerTest {
     return projectAnalysisCaptor.getAllValues();
   }
 
-  public ComponentAndBranch insertMainBranch(OrganizationDto organization) {
-    ComponentDto project = newPrivateProjectDto(organization);
-    BranchDto branch = newBranchDto(project, BRANCH).setKey("master");
-    dbTester.components().insertComponent(project);
-    dbClient.branchDao().insert(dbTester.getSession(), branch);
+  public ProjectAndBranch insertMainBranch(OrganizationDto organization) {
+    ProjectDto project = dbTester.components().insertPrivateProjectDto(organization);
+    BranchDto branch = dbTester.getDbClient().branchDao().selectByUuid(dbTester.getSession(), project.getUuid()).get();
     dbTester.commit();
-    return new ComponentAndBranch(project, branch);
+    return new ProjectAndBranch(project, branch);
   }
 
-  public ComponentAndBranch insertProjectBranch(ComponentDto project, BranchType type, String branchKey) {
-    BranchDto branchDto = newBranchDto(project.projectUuid(), type).setKey(branchKey);
-    ComponentDto newComponent = dbTester.components().insertProjectBranch(project, branchDto);
-    return new ComponentAndBranch(newComponent, branchDto);
+  public ProjectAndBranch insertBranch(OrganizationDto organization, BranchType type, String branchKey) {
+    ProjectDto project = dbTester.components().insertPrivateProjectDto(organization);
+    BranchDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey(branchKey).setBranchType(type));
+    return new ProjectAndBranch(project, branch);
   }
 
-  private static class ComponentAndBranch {
-    private final ComponentDto component;
+  public ProjectAndBranch insertBranch(ProjectDto project, BranchType type, String branchKey) {
+    BranchDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey(branchKey).setBranchType(type));
+    return new ProjectAndBranch(project, branch);
+  }
 
+  private static class ProjectAndBranch {
+    private final ProjectDto project;
     private final BranchDto branch;
 
-    private ComponentAndBranch(ComponentDto component, BranchDto branch) {
-      this.component = component;
+    private ProjectAndBranch(ProjectDto project, BranchDto branch) {
+      this.project = project;
       this.branch = branch;
     }
 
-    public ComponentDto getComponent() {
-      return component;
+    public ProjectDto getProject() {
+      return project;
     }
 
     public BranchDto getBranch() {
@@ -309,16 +306,16 @@ public class WebhookQGChangeEventListenerTest {
     }
 
     public String uuid() {
-      return component.uuid();
+      return project.getUuid();
     }
 
   }
 
   private static QGChangeEvent newQGChangeEvent(Configuration configuration, @Nullable Metric.Level previousQQStatus, @Nullable EvaluatedQualityGate evaluatedQualityGate) {
-    return new QGChangeEvent(new ComponentDto(), new BranchDto(), new SnapshotDto(), configuration, previousQQStatus, () -> Optional.ofNullable(evaluatedQualityGate));
+    return new QGChangeEvent(new ProjectDto(), new BranchDto(), new SnapshotDto(), configuration, previousQQStatus, () -> Optional.ofNullable(evaluatedQualityGate));
   }
 
-  private static QGChangeEvent newQGChangeEvent(ComponentAndBranch branch, SnapshotDto analysis, Configuration configuration, @Nullable EvaluatedQualityGate evaluatedQualityGate) {
+  private static QGChangeEvent newQGChangeEvent(ProjectAndBranch branch, SnapshotDto analysis, Configuration configuration, @Nullable EvaluatedQualityGate evaluatedQualityGate) {
     Metric.Level previousStatus = randomLevel();
     if (evaluatedQualityGate != null) {
       Metric.Level otherLevel = stream(Metric.Level.values())
@@ -326,7 +323,7 @@ public class WebhookQGChangeEventListenerTest {
         .toArray(Metric.Level[]::new)[new Random().nextInt(Metric.Level.values().length - 1)];
       when(evaluatedQualityGate.getStatus()).thenReturn(otherLevel);
     }
-    return new QGChangeEvent(branch.component, branch.branch, analysis, configuration, previousStatus, () -> Optional.ofNullable(evaluatedQualityGate));
+    return new QGChangeEvent(branch.project, branch.branch, analysis, configuration, previousStatus, () -> Optional.ofNullable(evaluatedQualityGate));
   }
 
   private static Metric.Level randomLevel() {

@@ -94,7 +94,7 @@ public class RenameActionTest {
   @Test
   public void fail_if_no_administer_permission() {
     userSession.logIn();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -108,7 +108,7 @@ public class RenameActionTest {
   @Test
   public void rename() {
     userSession.logIn();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
@@ -128,7 +128,7 @@ public class RenameActionTest {
   @Test
   public void rename_with_same_name() {
     userSession.logIn();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
@@ -153,7 +153,7 @@ public class RenameActionTest {
   @Test
   public void fail_if_name_already_used() {
     userSession.logIn();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     userSession.addProjectPermission(UserRole.ADMIN, project);
     db.components().insertProjectBranch(project, b -> b.setKey("branch"));
 
@@ -171,7 +171,7 @@ public class RenameActionTest {
     userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project key 'foo' not found");
+    expectedException.expectMessage("Project 'foo' not found");
 
     tester.newRequest()
       .setParam("project", "foo")

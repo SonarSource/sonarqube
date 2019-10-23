@@ -23,16 +23,14 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationQuery;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
@@ -83,22 +81,15 @@ public class OrganizationDeleter {
   }
 
   private void deleteProjects(DbSession dbSession, OrganizationDto organization) {
-    List<ComponentDto> roots = dbClient.componentDao().selectProjectsByOrganization(dbSession, organization.getUuid());
+    List<ProjectDto> projectDtos = dbClient.projectDao().selectByOrganizationUuid(dbSession, organization.getUuid());
     try {
-      componentCleanerService.delete(dbSession, roots);
+      componentCleanerService.delete(dbSession, projectDtos);
     } finally {
-      Set<Project> projects = roots.stream()
-        .filter(OrganizationDeleter::isMainProject)
+      Set<Project> projects = projectDtos.stream()
         .map(Project::from)
         .collect(MoreCollectors.toSet());
       projectLifeCycleListeners.onProjectsDeleted(projects);
     }
-  }
-
-  private static boolean isMainProject(ComponentDto p) {
-    return Scopes.PROJECT.equals(p.scope())
-      && Qualifiers.PROJECT.equals(p.qualifier())
-      && p.getMainBranchProjectUuid() == null;
   }
 
   private void deletePermissions(DbSession dbSession, OrganizationDto organization) {

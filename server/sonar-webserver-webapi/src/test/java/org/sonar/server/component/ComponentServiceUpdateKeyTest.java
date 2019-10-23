@@ -67,14 +67,14 @@ public class ComponentServiceUpdateKeyTest {
 
   @Test
   public void update_project_key() {
-    ComponentDto project = insertSampleRootProject();
+    ComponentDto project = insertSampleProject();
     ComponentDto file = componentDb.insertComponent(ComponentTesting.newFileDto(project, null).setDbKey("sample:root:src/File.xoo"));
     ComponentDto inactiveFile = componentDb.insertComponent(ComponentTesting.newFileDto(project, null).setDbKey("sample:root:src/InactiveFile.xoo").setEnabled(false));
 
     dbSession.commit();
 
     logInAsProjectAdministrator(project);
-    underTest.updateKey(dbSession, project, "sample2:root");
+    underTest.updateKey(dbSession, componentDb.getProjectDto(project), "sample2:root");
     dbSession.commit();
 
     // Check project key has been updated
@@ -92,33 +92,13 @@ public class ComponentServiceUpdateKeyTest {
   }
 
   @Test
-  public void update_module_key() {
-    ComponentDto project = insertSampleRootProject();
-    ComponentDto module = ComponentTesting.newModuleDto(project).setDbKey("sample:root:module");
-    db.components().insertComponent(module);
-    ComponentDto file = ComponentTesting.newFileDto(module, null).setDbKey("sample:root:module:src/File.xoo");
-    db.components().insertComponent(file);
-    logInAsProjectAdministrator(project);
-
-    underTest.updateKey(dbSession, module, "sample:root2:module");
-    dbSession.commit();
-
-    assertThat(dbClient.componentDao().selectByKey(dbSession, project.getDbKey())).isPresent();
-    assertComponentKeyHasBeenUpdated(module.getDbKey(), "sample:root2:module");
-    assertComponentKeyHasBeenUpdated(file.getDbKey(), "sample:root2:module:src/File.xoo");
-
-    // do not index the module but the project
-    assertThat(projectIndexers.hasBeenCalled(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
-  }
-
-  @Test
   public void update_provisioned_project_key() {
     ComponentDto provisionedProject = insertProject("provisionedProject");
 
     dbSession.commit();
 
     logInAsProjectAdministrator(provisionedProject);
-    underTest.updateKey(dbSession, provisionedProject, "provisionedProject2");
+    underTest.updateKey(dbSession, componentDb.getProjectDto(provisionedProject), "provisionedProject2");
     dbSession.commit();
 
     assertComponentKeyHasBeenUpdated(provisionedProject.getDbKey(), "provisionedProject2");
@@ -129,67 +109,55 @@ public class ComponentServiceUpdateKeyTest {
   public void fail_to_update_project_key_without_admin_permission() {
     expectedException.expect(ForbiddenException.class);
 
-    ComponentDto project = insertSampleRootProject();
+    ComponentDto project = insertSampleProject();
     userSession.logIn("john").addProjectPermission(UserRole.USER, project);
 
-    underTest.updateKey(dbSession, project, "sample2:root");
+    underTest.updateKey(dbSession, componentDb.getProjectDto(project), "sample2:root");
   }
 
   @Test
   public void fail_if_old_key_and_new_key_are_the_same() {
-    ComponentDto project = insertSampleRootProject();
+    ComponentDto project = insertSampleProject();
     ComponentDto anotherProject = componentDb.insertPrivateProject();
     logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Impossible to update key: a component with key \"" + anotherProject.getDbKey() + "\" already exists.");
 
-    underTest.updateKey(dbSession, project, anotherProject.getDbKey());
+    underTest.updateKey(dbSession, componentDb.getProjectDto(project), anotherProject.getDbKey());
   }
 
   @Test
   public void fail_if_new_key_is_empty() {
-    ComponentDto project = insertSampleRootProject();
+    ComponentDto project = insertSampleProject();
     logInAsProjectAdministrator(project);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Malformed key for ''. It cannot be empty nor contain whitespaces.");
 
-    underTest.updateKey(dbSession, project, "");
+    underTest.updateKey(dbSession, componentDb.getProjectDto(project), "");
   }
 
   @Test
   public void fail_if_new_key_is_invalid() {
-    ComponentDto project = insertSampleRootProject();
+    ComponentDto project = insertSampleProject();
     logInAsProjectAdministrator(project);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Malformed key for 'sample root'. It cannot be empty nor contain whitespaces.");
 
-    underTest.updateKey(dbSession, project, "sample root");
-  }
-
-  @Test
-  public void fail_if_update_is_not_on_module_or_project() {
-    ComponentDto project = insertSampleRootProject();
-    ComponentDto file = componentDb.insertComponent(newFileDto(project, null));
-    logInAsProjectAdministrator(project);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Component updated must be a module or a key");
-
-    underTest.updateKey(dbSession, file, "file:key");
+    underTest.updateKey(dbSession, componentDb.getProjectDto(project), "sample root");
   }
 
   @Test
   public void bulk_update_key() {
-    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("my_project"));
+    ComponentDto project = componentDb.insertPublicProject(db.organizations().insert(), c -> c.setDbKey("my_project"));
     ComponentDto module = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:module"));
     ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:inactive_module").setEnabled(false));
     ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/File.xoo"));
     ComponentDto inactiveFile = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/InactiveFile.xoo").setEnabled(false));
 
-    underTest.bulkUpdateKey(dbSession, project, "my_", "your_");
+    underTest.bulkUpdateKey(dbSession, componentDb.getProjectDto(project), "my_", "your_");
 
     assertComponentKeyUpdated(project.getDbKey(), "your_project");
     assertComponentKeyUpdated(module.getDbKey(), "your_project:root:module");
@@ -203,12 +171,12 @@ public class ComponentServiceUpdateKeyTest {
 
   @Test
   public void bulk_update_key_with_branch_and_pr() {
-    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("my_project"));
+    ComponentDto project = componentDb.insertPublicProject(db.organizations().insert(), c -> c.setDbKey("my_project"));
     ComponentDto branch = componentDb.insertProjectBranch(project);
     ComponentDto module = componentDb.insertComponent(newModuleDto(branch).setDbKey("my_project:root:module"));
     ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/File.xoo"));
 
-    underTest.bulkUpdateKey(dbSession, project, "my_", "your_");
+    underTest.bulkUpdateKey(dbSession, componentDb.getProjectDto(project), "my_", "your_");
 
     assertComponentKeyUpdated(project.getDbKey(), "your_project");
     assertComponentKeyUpdated(module.getDbKey(), "your_project:root:module");
@@ -223,12 +191,12 @@ public class ComponentServiceUpdateKeyTest {
     assertThat(dbClient.componentDao().selectByKey(dbSession, newKey)).isPresent();
   }
 
-  private ComponentDto insertSampleRootProject() {
+  private ComponentDto insertSampleProject() {
     return insertProject("sample:root");
   }
 
   private ComponentDto insertProject(String key) {
-    return componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey(key));
+    return componentDb.insertPrivateProject(db.organizations().insert(), c -> c.setDbKey(key));
   }
 
   private void assertComponentKeyHasBeenUpdated(String oldKey, String newKey) {

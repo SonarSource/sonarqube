@@ -66,7 +66,7 @@
     select
       p.id, p.uuid
     from
-      projects p
+      components p
     where
       (
         p.project_uuid=#{rootUuid,jdbcType=VARCHAR}
@@ -82,7 +82,7 @@
     select
       file_uuid
     from file_sources fs
-    inner join projects p on
+    inner join components p on
       p.uuid = fs.file_uuid
       and p.enabled = ${_false}
       and p.project_uuid=#{projectUuid,jdbcType=VARCHAR}
@@ -92,7 +92,7 @@
     select
       i.component_uuid
     from issues i
-    inner join projects p on
+    inner join components p on
       p.uuid = i.component_uuid
       and p.enabled = ${_false}
       and p.project_uuid=#{projectUuid,jdbcType=VARCHAR}
@@ -104,7 +104,7 @@
     select
       lm.component_uuid
     from live_measures lm
-    inner join projects p on
+    inner join components p on
       p.uuid = lm.component_uuid
       and p.enabled = ${_false}
       and p.project_uuid=#{projectUuid,jdbcType=VARCHAR}
@@ -245,13 +245,19 @@
   </delete>
 
   <delete id="deleteComponentsByProjectUuid" parameterType="map">
-    delete from projects
+    delete from components
     where
       project_uuid = #{rootUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteComponentsByUuids" parameterType="map">
+  <delete id="deleteProjectsByProjectUuid" parameterType="map">
     delete from projects
+    where
+      uuid = #{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteComponentsByUuids" parameterType="map">
+    delete from components
     where
       uuid in
         <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
@@ -340,7 +346,7 @@
     SELECT
       p.id, p.uuid
     FROM
-      projects p
+      components p
     WHERE
       p.enabled = ${_false}
       AND p.project_uuid=#{projectUuid,jdbcType=VARCHAR}

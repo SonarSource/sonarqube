@@ -32,6 +32,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -98,6 +99,14 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
+  public final boolean hasProjectPermission(String permission, ProjectDto project) {
+    if (isRoot()) {
+      return true;
+    }
+    return hasProjectUuidPermission(permission, project.getUuid());
+  }
+
+  @Override
   public final boolean hasComponentUuidPermission(String permission, String componentUuid) {
     if (isRoot()) {
       return true;
@@ -125,6 +134,24 @@ public abstract class AbstractUserSession implements UserSession {
       return new ArrayList<>(components);
     }
     return doKeepAuthorizedComponents(permission, components);
+  }
+
+  @Override
+  public List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
+    if (isRoot()) {
+      return new ArrayList<>(projects);
+    }
+    return doKeepAuthorizedProjects(permission, projects);
+  }
+
+  /**
+   * Naive implementation, to be overridden if needed
+   */
+  protected List<ProjectDto> doKeepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
+    boolean allowPublicComponent = PUBLIC_PERMISSIONS.contains(permission);
+    return projects.stream()
+      .filter(c -> (allowPublicComponent && !c.isPrivate()) || hasProjectPermission(permission, c))
+      .collect(MoreCollectors.toList());
   }
 
   /**
@@ -172,6 +199,14 @@ public abstract class AbstractUserSession implements UserSession {
       throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
     return this;
+  }
+
+  @Override public UserSession checkProjectPermission(String projectPermission, ProjectDto project) {
+    if (isRoot() || hasProjectUuidPermission(projectPermission, project.getUuid())) {
+      return this;
+    }
+
+    throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
   }
 
   @Override

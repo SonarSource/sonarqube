@@ -85,7 +85,7 @@
     </where>
 
     ) sub
-    left join projects p on sub.componentId = p.id
+    left join components p on sub.componentId = p.id
     <where>
       <if test="query.searchQueryToSql != null">
         and lower(sub.name) like #{query.searchQueryToSqlLowercase,jdbcType=VARCHAR} ESCAPE '/'

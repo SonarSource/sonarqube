@@ -25,8 +25,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.project.ProjectLifeCycleListeners;
@@ -78,7 +78,7 @@ public class DeleteAction implements ProjectsWsAction {
     String key = request.mandatoryParam(PARAM_PROJECT);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getByKey(dbSession, key);
+      ProjectDto project = componentFinder.getProjectByKey(dbSession, key);
       checkPermission(project);
       componentCleanerService.delete(dbSession, project);
       projectLifeCycleListeners.onProjectsDeleted(singleton(from(project)));
@@ -87,8 +87,8 @@ public class DeleteAction implements ProjectsWsAction {
     response.noContent();
   }
 
-  private void checkPermission(ComponentDto project) {
-    if (!userSession.hasComponentPermission(UserRole.ADMIN, project)) {
+  private void checkPermission(ProjectDto project) {
+    if (!userSession.hasProjectPermission(UserRole.ADMIN, project)) {
       userSession.checkPermission(OrganizationPermission.ADMINISTER, project.getOrganizationUuid());
     }
   }

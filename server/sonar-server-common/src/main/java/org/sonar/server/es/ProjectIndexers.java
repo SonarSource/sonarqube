@@ -20,9 +20,12 @@
 package org.sonar.server.es;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 
 public interface ProjectIndexers {
 
@@ -39,5 +42,26 @@ public interface ProjectIndexers {
       .map(ComponentDto::projectUuid)
       .collect(MoreCollectors.toSet(projectOrModules.size()));
     commitAndIndexByProjectUuids(dbSession, projectUuids, cause);
+  }
+
+  default void commitAndIndexProjects(DbSession dbSession, Collection<ProjectDto> projects, ProjectIndexer.Cause cause) {
+    Collection<String> projectUuids = projects.stream()
+      .map(ProjectDto::getUuid)
+      .collect(MoreCollectors.toSet(projects.size()));
+    commitAndIndexByProjectUuids(dbSession, projectUuids, cause);
+  }
+
+  default void commitAndIndexComponents(DbSession dbSession, Collection<ComponentDto> projects, ProjectIndexer.Cause cause) {
+    Collection<String> projectUuids = projects.stream()
+      .map(ComponentDto::uuid)
+      .collect(MoreCollectors.toSet(projects.size()));
+    commitAndIndexByProjectUuids(dbSession, projectUuids, cause);
+  }
+
+  default void commitAndIndexBranches(DbSession dbSession, Collection<BranchDto> branches, ProjectIndexer.Cause cause) {
+    Collection<String> branchUuids = branches.stream()
+      .map(BranchDto::getUuid)
+      .collect(Collectors.toList());
+    commitAndIndexByProjectUuids(dbSession, branchUuids, cause);
   }
 }

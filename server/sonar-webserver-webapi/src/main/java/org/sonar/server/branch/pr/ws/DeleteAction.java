@@ -27,7 +27,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
@@ -73,21 +73,20 @@ public class DeleteAction implements PullRequestWsAction {
     String pullRequestId = request.mandatoryParam(PARAM_PULL_REQUEST);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getRootComponentByUuidOrKey(dbSession, null, projectKey);
+      ProjectDto project = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
       checkPermission(project);
 
-      BranchDto pullRequest = dbClient.branchDao().selectByPullRequestKey(dbSession, project.uuid(), pullRequestId)
+      BranchDto pullRequest = dbClient.branchDao().selectByPullRequestKey(dbSession, project.getUuid(), pullRequestId)
         .filter(branch -> branch.getBranchType() == PULL_REQUEST)
         .orElseThrow(() -> new NotFoundException(String.format("Pull request '%s' is not found for project '%s'", pullRequestId, projectKey)));
 
-      ComponentDto branchComponent = componentFinder.getByKeyAndPullRequest(dbSession, projectKey, pullRequest.getKey());
-      componentCleanerService.deleteBranch(dbSession, branchComponent);
+      componentCleanerService.deleteBranch(dbSession, pullRequest);
       response.noContent();
     }
   }
 
-  private void checkPermission(ComponentDto project) {
-    userSession.checkComponentPermission(UserRole.ADMIN, project);
+  private void checkPermission(ProjectDto project) {
+    userSession.checkProjectPermission(UserRole.ADMIN, project);
   }
 
 }

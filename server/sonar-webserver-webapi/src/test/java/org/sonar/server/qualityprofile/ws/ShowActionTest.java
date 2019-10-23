@@ -142,7 +142,7 @@ public class ShowActionTest {
       .forEach(r -> db.qualityProfiles().activateRule(profile, r));
     // Projects
     range(0, 7)
-      .mapToObj(i -> db.components().insertPrivateProject())
+      .mapToObj(i -> db.components().insertPrivateProjectDto())
       .forEach(project -> db.qualityProfiles().associateWithProject(project, profile));
 
     ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
@@ -175,7 +175,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-        .getCompareToSonarWay();
+      .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
@@ -195,7 +195,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-        .getCompareToSonarWay();
+      .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
@@ -259,7 +259,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-        .getCompareToSonarWay();
+      .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName)
@@ -275,7 +275,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-        .getCompareToSonarWay();
+      .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName)
@@ -346,7 +346,7 @@ public class ShowActionTest {
       .forEach(r -> db.qualityProfiles().activateRule(profile, r));
     // Projects
     range(0, 7)
-      .mapToObj(i -> db.components().insertPrivateProject())
+      .mapToObj(i -> db.components().insertPrivateProjectDto())
       .forEach(project -> db.qualityProfiles().associateWithProject(project, profile));
 
     ws = new WsActionTester(

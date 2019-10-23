@@ -39,9 +39,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -74,18 +74,14 @@ import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -105,8 +101,7 @@ public class DeleteActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP).setAllQualifiers(PROJECT, VIEW, APP);
-  private ComponentCleanerService spiedComponentCleanerService = spy(new ComponentCleanerService(db.getDbClient(), resourceTypes, mock(ProjectIndexers.class)));
+  private ComponentCleanerService spiedComponentCleanerService = spy(new ComponentCleanerService(db.getDbClient(), mock(ProjectIndexers.class)));
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private QProfileFactory qProfileFactory = new QProfileFactoryImpl(dbClient, mock(UuidFactory.class), System2.INSTANCE, mock(ActiveRuleIndexer.class));
@@ -114,7 +109,8 @@ public class DeleteActionTest {
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
   private BillingValidationsProxy billingValidationsProxy = mock(BillingValidationsProxy.class);
-  private OrganizationDeleter organizationDeleter = new OrganizationDeleter(dbClient, spiedComponentCleanerService, userIndexer, qProfileFactory, projectLifeCycleListeners, billingValidationsProxy);
+  private OrganizationDeleter organizationDeleter = new OrganizationDeleter(dbClient, spiedComponentCleanerService, userIndexer, qProfileFactory, projectLifeCycleListeners,
+    billingValidationsProxy);
   private WsActionTester wsTester = new WsActionTester(new DeleteAction(userSession, dbClient, defaultOrganizationProvider, organizationFlags, organizationDeleter));
 
   @Test
@@ -140,7 +136,7 @@ public class DeleteActionTest {
   public void organization_deletion_also_ensure_that_webhooks_of_this_organization_if_they_exist_are_cleared() {
     OrganizationDto organization = db.organizations().insert();
     db.webhooks().insertWebhook(organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ProjectDto project = db.components().insertPrivateProjectDto(organization);
     WebhookDto projectWebhook = db.webhooks().insertWebhook(project);
     db.webhookDelivery().insert(projectWebhook);
     userSession.logIn().addPermission(ADMINISTER, organization);
@@ -360,7 +356,7 @@ public class DeleteActionTest {
   @Test
   public void delete_branches() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
     ComponentDto branch = db.components().insertProjectBranch(project);
     logInAsAdministrator(organization);
 
@@ -495,23 +491,20 @@ public class DeleteActionTest {
   @UseDataProvider("indexOfFailingProjectDeletion")
   public void projectLifeCycleListener_are_notified_even_if_deletion_of_a_project_throws_an_Exception(int failingProjectIndex) {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto[] projects = new ComponentDto[] {
-      db.components().insertPrivateProject(organization),
-      db.components().insertPrivateProject(organization),
-      db.components().insertPrivateProject(organization)
+    ComponentDto[] components = new ComponentDto[] {
+      db.components().insertPublicProject(organization),
+      db.components().insertPublicProject(organization),
+      db.components().insertPublicProject(organization)
     };
+    ProjectDto[] projects = Arrays.stream(components).map(c -> dbClient.projectDao().selectByUuid(dbSession, c.uuid()).get()).toArray(ProjectDto[]::new);
     logInAsAdministrator(organization);
-    RuntimeException expectedException = new RuntimeException("Faking deletion of 2nd project throwing an exception");
-    doThrow(expectedException)
-      .when(spiedComponentCleanerService).delete(any(), eq(projects[failingProjectIndex]));
+    RuntimeException exception = new RuntimeException("Faking deletion of 2nd project throwing an exception");
+    doThrow(exception).when(spiedComponentCleanerService).delete(any(), anyList());
+    expectedException.expectMessage(exception.getMessage());
+    expectedException.expect(RuntimeException.class);
 
-    try {
-      sendRequest(organization);
-      fail("A RuntimeException should have been thrown");
-    } catch (RuntimeException e) {
-      assertThat(e).isSameAs(expectedException);
-      verify(projectLifeCycleListeners).onProjectsDeleted(Arrays.stream(projects).map(Project::from).collect(toSet()));
-    }
+    sendRequest(organization);
+    verify(projectLifeCycleListeners).onProjectsDeleted(Arrays.stream(projects).map(Project::from).collect(toSet()));
   }
 
   @Test

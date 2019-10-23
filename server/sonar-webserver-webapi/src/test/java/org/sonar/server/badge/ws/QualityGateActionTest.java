@@ -146,7 +146,7 @@ public class QualityGateActionTest {
 
   @Test
   public void quality_gate_on_branch() {
-    ComponentDto project = db.components().insertMainBranch(p -> p.setPrivate(false));
+    ComponentDto project = db.components().insertPublicProject(p -> p.setPrivate(false));
     userSession.registerComponents(project);
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData(OK.name()));
@@ -186,7 +186,7 @@ public class QualityGateActionTest {
       .setParam("project", directory.getKey())
       .execute();
 
-    checkError(response, "Project is invalid");
+    checkError(response, "Project has not been found");
   }
 
   @Test
@@ -225,12 +225,12 @@ public class QualityGateActionTest {
 
   @Test
   public void return_error_on_not_existing_branch() throws ParseException {
-    ComponentDto project = db.components().insertMainBranch(p -> p.setPrivate(false));
+    ComponentDto project = db.components().insertPublicProject(p -> p.setPrivate(false));
     userSession.registerComponents(project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
 
     TestResponse response = ws.newRequest()
-      .setParam("project", branch.getKey())
+      .setParam("project", project.getKey())
       .setParam("branch", "unknown")
       .execute();
 

@@ -183,6 +183,9 @@ public class ServerUserSession extends AbstractUserSession {
     return permissions.contains(permission);
   }
 
+  /**
+   * Also applies to views
+   */
   private Set<String> loadProjectPermissions(String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, projectUuid);

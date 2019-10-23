@@ -26,7 +26,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
@@ -57,7 +57,7 @@ public class SetAutomaticDeletionProtectionAction implements BranchWsAction {
     WebService.NewAction action = context.createAction(ACTION_SET_AUTOMATIC_DELETION_PROTECTION)
       .setSince("8.1")
       .setDescription("Protect a specific branch from automatic deletion. Protection can't be disabled for the main branch.<br/>"
-        + "Requires 'Administer' permission on the specified project.")
+        + "Requires 'Administer' permission on the specified project or application.")
       .setPost(true)
       .setHandler(this);
 
@@ -78,10 +78,10 @@ public class SetAutomaticDeletionProtectionAction implements BranchWsAction {
     boolean excludeFromPurge = request.mandatoryParamAsBoolean(PARAM_VALUE);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getRootComponentByUuidOrKey(dbSession, null, projectKey);
+      ProjectDto project = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
       checkPermission(project);
 
-      BranchDto branch = dbClient.branchDao().selectByBranchKey(dbSession, project.uuid(), branchKey)
+      BranchDto branch = dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), branchKey)
         .orElseThrow(() -> new NotFoundException(format("Branch '%s' not found for project '%s'", branchKey, projectKey)));
       checkArgument(!branch.isMain() || excludeFromPurge, "Main branch of the project is always excluded from automatic deletion.");
 
@@ -92,7 +92,7 @@ public class SetAutomaticDeletionProtectionAction implements BranchWsAction {
 
   }
 
-  private void checkPermission(ComponentDto project) {
-    userSession.checkComponentPermission(UserRole.ADMIN, project);
+  private void checkPermission(ProjectDto project) {
+    userSession.checkProjectPermission(UserRole.ADMIN, project);
   }
 }

@@ -274,15 +274,15 @@ public class LiveMeasureDaoTest {
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
     MetricDto lines = db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
 
-    ComponentDto simpleProject = db.components().insertMainBranch(organization);
+    ComponentDto simpleProject = db.components().insertPublicProject(organization);
     db.measures().insertLiveMeasure(simpleProject, ncloc, m -> m.setValue(10d));
 
-    ComponentDto projectWithBiggerBranch = db.components().insertMainBranch(organization);
+    ComponentDto projectWithBiggerBranch = db.components().insertPublicProject(organization);
     ComponentDto bigBranch = db.components().insertProjectBranch(projectWithBiggerBranch, b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertLiveMeasure(projectWithBiggerBranch, ncloc, m -> m.setValue(100d));
     db.measures().insertLiveMeasure(bigBranch, ncloc, m -> m.setValue(200d));
 
-    ComponentDto projectWithLinesButNoLoc = db.components().insertMainBranch(organization);
+    ComponentDto projectWithLinesButNoLoc = db.components().insertPublicProject(organization);
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, lines, m -> m.setValue(365d));
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, ncloc, m -> m.setValue(0d));
 
@@ -313,15 +313,15 @@ public class LiveMeasureDaoTest {
     OrganizationDto organization = db.organizations().insert();
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
 
-    ComponentDto simpleProject = db.components().insertMainBranch(organization);
+    ComponentDto simpleProject = db.components().insertPublicProject(organization);
     db.measures().insertLiveMeasure(simpleProject, ncloc, m -> m.setValue(10d));
 
-    ComponentDto projectWithBiggerBranch = db.components().insertMainBranch(organization);
+    ComponentDto projectWithBiggerBranch = db.components().insertPublicProject(organization);
     ComponentDto bigBranch = db.components().insertProjectBranch(projectWithBiggerBranch, b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertLiveMeasure(projectWithBiggerBranch, ncloc, m -> m.setValue(100d));
     db.measures().insertLiveMeasure(bigBranch, ncloc, m -> m.setValue(200d));
 
-    ComponentDto projectToExclude = db.components().insertMainBranch(organization);
+    ComponentDto projectToExclude = db.components().insertPublicProject(organization);
     ComponentDto projectToExcludeBranch = db.components().insertProjectBranch(projectToExclude, b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertLiveMeasure(projectToExclude, ncloc, m -> m.setValue(300d));
     db.measures().insertLiveMeasure(projectToExcludeBranch, ncloc, m -> m.setValue(400d));

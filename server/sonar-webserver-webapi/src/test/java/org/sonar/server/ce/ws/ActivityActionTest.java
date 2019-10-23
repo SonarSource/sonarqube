@@ -396,7 +396,7 @@ public class ActivityActionTest {
   @Test
   public void branch_in_past_activity() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
@@ -437,7 +437,7 @@ public class ActivityActionTest {
   @Test
   public void pull_request_in_past_activity() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
     SnapshotDto analysis = db.components().insertSnapshot(pullRequest);

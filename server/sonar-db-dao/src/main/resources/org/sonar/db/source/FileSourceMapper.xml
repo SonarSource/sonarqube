@@ -43,7 +43,7 @@
       p.uuid as uuid,
       p.path as path,
       fs.line_hashes as rawLineHashes
-    from projects p
+    from components p
     inner join file_sources fs on
       fs.file_uuid = p.uuid
     where

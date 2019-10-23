@@ -51,7 +51,7 @@ public class BackendCleanup {
   private static final String[] ANALYSIS_TABLES = {
     "ce_activity", "ce_queue", "ce_task_input", "ce_scanner_context",
     "duplications_index", "events", "issues", "issue_changes", "manual_measures",
-    "notifications", "project_links", "project_measures", "projects",
+    "notifications", "project_links", "project_measures", "components", "projects",
     "snapshots", "file_sources", "webhook_deliveries"
   };
   private static final String[] RESOURCE_RELATED_TABLES = {

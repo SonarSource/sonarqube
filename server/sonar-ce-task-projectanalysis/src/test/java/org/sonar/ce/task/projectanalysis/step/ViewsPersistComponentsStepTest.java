@@ -36,6 +36,7 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.ce.task.projectanalysis.component.MutableDisabledComponentsHolder;
+import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.ProjectViewAttributes;
 import org.sonar.ce.task.projectanalysis.component.SubViewAttributes;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
@@ -104,7 +105,8 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     dbTester.organizations().insertForUuid(ORGANIZATION_UUID);
     analysisMetadataHolder.setBranch(new DefaultBranchImpl());
     BranchPersister branchPersister = mock(BranchPersister.class);
-    underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister);
+    ProjectPersister projectPersister = mock(ProjectPersister.class);
+    underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister, projectPersister);
   }
 
   @Override
@@ -482,7 +484,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   }
 
   private void assertRowsCountInTableProjects(int rowCount) {
-    assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(rowCount);
+    assertThat(dbTester.countRowsOfTable("components")).isEqualTo(rowCount);
   }
 
   private void assertDtoNotUpdated(String componentKey) {

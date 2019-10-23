@@ -31,6 +31,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.AbstractUserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -78,6 +79,20 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     return clazz.cast(this);
   }
 
+  public T registerProjects(ProjectDto... projects) {
+    Arrays.stream(projects)
+      .forEach(project -> {
+        if (!project.isPrivate()) {
+          this.projectUuidByPermission.put(UserRole.USER, project.getUuid());
+          this.projectUuidByPermission.put(UserRole.CODEVIEWER, project.getUuid());
+          this.projectPermissions.add(UserRole.USER);
+          this.projectPermissions.add(UserRole.CODEVIEWER);
+        }
+        this.projectUuidByComponentUuid.put(project.getUuid(), project.getUuid());
+      });
+    return clazz.cast(this);
+  }
+
   public T addProjectPermission(String permission, ComponentDto... components) {
     Arrays.stream(components).forEach(component -> {
       checkArgument(
@@ -88,6 +103,19 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     this.projectPermissions.add(permission);
     Arrays.stream(components)
       .forEach(component -> this.projectUuidByPermission.put(permission, component.projectUuid()));
+    return clazz.cast(this);
+  }
+
+  public T addProjectPermission(String permission, ProjectDto... projects) {
+    Arrays.stream(projects).forEach(component -> {
+      checkArgument(
+        component.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
+        "public component %s can't be granted public permission %s", component.getUuid(), permission);
+    });
+    registerProjects(projects);
+    this.projectPermissions.add(permission);
+    Arrays.stream(projects)
+      .forEach(component -> this.projectUuidByPermission.put(permission, component.getUuid()));
     return clazz.cast(this);
   }
 

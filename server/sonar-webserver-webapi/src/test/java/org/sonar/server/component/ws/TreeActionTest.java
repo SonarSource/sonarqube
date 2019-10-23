@@ -277,7 +277,7 @@ public class TreeActionTest {
 
   @Test
   public void project_branch_reference_from_application_branch() {
-    ComponentDto application = db.components().insertMainBranch(c -> c.setQualifier(APP).setDbKey("app-key"));
+    ComponentDto application = db.components().insertPrivateProject(c -> c.setQualifier(APP).setDbKey("app-key"));
     ComponentDto applicationBranch = db.components().insertProjectBranch(application, a -> a.setKey("app-branch"));
     ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("project-key"));
     ComponentDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey("project-branch"));
@@ -381,7 +381,7 @@ public class TreeActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
@@ -395,7 +395,7 @@ public class TreeActionTest {
 
   @Test
   public void fail_when_using_branch_key() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 

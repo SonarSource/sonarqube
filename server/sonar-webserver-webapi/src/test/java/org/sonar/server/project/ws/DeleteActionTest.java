@@ -31,7 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.db.webhook.WebhookDto;
@@ -52,7 +52,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -60,9 +59,6 @@ import static org.sonar.server.component.TestComponentFinder.from;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 
 public class DeleteActionTest {
-
-  private static final String ACTION = "delete";
-
   private System2 system2 = System2.INSTANCE;
 
   @Rule
@@ -115,8 +111,7 @@ public class DeleteActionTest {
     dbSession.commit();
     userSessionRule.logIn().addProjectPermission(ADMIN, project);
     DeleteAction underTest = new DeleteAction(
-      new ComponentCleanerService(dbClient, new ResourceTypesRule().setAllQualifiers(PROJECT),
-        new TestProjectIndexers()),
+      new ComponentCleanerService(dbClient, new TestProjectIndexers()),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);
 
     new WsActionTester(underTest)
@@ -131,7 +126,7 @@ public class DeleteActionTest {
 
   @Test
   public void project_deletion_also_ensure_that_webhooks_on_this_project_if_they_exists_are_deleted() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ProjectDto project = componentDbTester.insertPrivateProjectDto();
     webhookDbTester.insertWebhook(project);
     webhookDbTester.insertWebhook(project);
     webhookDbTester.insertWebhook(project);
@@ -139,13 +134,12 @@ public class DeleteActionTest {
 
     userSessionRule.logIn().addProjectPermission(ADMIN, project);
     DeleteAction underTest = new DeleteAction(
-      new ComponentCleanerService(dbClient, new ResourceTypesRule().setAllQualifiers(PROJECT),
-        new TestProjectIndexers()),
+      new ComponentCleanerService(dbClient, new TestProjectIndexers()),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);
 
     new WsActionTester(underTest)
       .newRequest()
-      .setParam(PARAM_PROJECT, project.getDbKey())
+      .setParam(PARAM_PROJECT, project.getKey())
       .execute();
 
     List<WebhookDto> webhookDtos = dbClient.webhookDao().selectByProject(dbSession, project);
@@ -177,20 +171,20 @@ public class DeleteActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
+    expectedException.expectMessage(String.format("Project '%s' not found", branch.getDbKey()));
 
     call(tester.newRequest().setParam(PARAM_PROJECT, branch.getDbKey()));
   }
 
   private String verifyDeletedKey() {
-    ArgumentCaptor<ComponentDto> argument = ArgumentCaptor.forClass(ComponentDto.class);
+    ArgumentCaptor<ProjectDto> argument = ArgumentCaptor.forClass(ProjectDto.class);
     verify(componentCleanerService).delete(any(DbSession.class), argument.capture());
-    return argument.getValue().getDbKey();
+    return argument.getValue().getKey();
   }
 
   private void call(TestRequest request) {

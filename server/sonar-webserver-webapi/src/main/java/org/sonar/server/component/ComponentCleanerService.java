@@ -26,7 +26,9 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexers;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -37,40 +39,53 @@ import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
 public class ComponentCleanerService {
 
   private final DbClient dbClient;
-  private final ResourceTypes resourceTypes;
   private final ProjectIndexers projectIndexers;
 
-  public ComponentCleanerService(DbClient dbClient, ResourceTypes resourceTypes, ProjectIndexers projectIndexers) {
+  public ComponentCleanerService(DbClient dbClient, ProjectIndexers projectIndexers) {
     this.dbClient = dbClient;
-    this.resourceTypes = resourceTypes;
     this.projectIndexers = projectIndexers;
   }
 
-  public void delete(DbSession dbSession, List<ComponentDto> projects) {
-    for (ComponentDto project : projects) {
+  public void delete(DbSession dbSession, List<ProjectDto> projects) {
+    for (ProjectDto project : projects) {
       delete(dbSession, project);
     }
   }
 
-  public void deleteBranch(DbSession dbSession, ComponentDto branch) {
+  public void deleteComponents(DbSession dbSession, List<ComponentDto> components) {
+    for (ComponentDto component : components) {
+      delete(dbSession, component);
+    }
+  }
+
+  public void deleteBranch(DbSession dbSession, BranchDto branch) {
     // TODO: detect if other branches depend on it?
-    dbClient.purgeDao().deleteBranch(dbSession, branch.uuid());
-    projectIndexers.commitAndIndex(dbSession, singletonList(branch), PROJECT_DELETION);
+    dbClient.purgeDao().deleteBranch(dbSession, branch.getUuid());
+    projectIndexers.commitAndIndexBranches(dbSession, singletonList(branch), PROJECT_DELETION);
+  }
+
+  public void delete(DbSession dbSession, ProjectDto project) {
+    dbClient.purgeDao().deleteProject(dbSession, project.getUuid());
+    dbClient.userDao().cleanHomepage(dbSession, project);
+    projectIndexers.commitAndIndexProjects(dbSession, singletonList(project), PROJECT_DELETION);
   }
 
   public void delete(DbSession dbSession, ComponentDto project) {
-    checkArgument(!hasNotProjectScope(project) && !isNotDeletable(project) && project.getMainBranchProjectUuid() == null, "Only projects can be deleted");
+    checkArgument(!hasNotProjectScope(project) && project.getMainBranchProjectUuid() == null, "Only projects can be deleted");
     dbClient.purgeDao().deleteProject(dbSession, project.uuid());
     dbClient.userDao().cleanHomepage(dbSession, project);
-    projectIndexers.commitAndIndex(dbSession, singletonList(project), PROJECT_DELETION);
+    projectIndexers.commitAndIndexComponents(dbSession, singletonList(project), PROJECT_DELETION);
   }
 
   private static boolean hasNotProjectScope(ComponentDto project) {
     return !Scopes.PROJECT.equals(project.scope());
   }
 
-  private boolean isNotDeletable(ComponentDto project) {
-    ResourceType resourceType = resourceTypes.get(project.qualifier());
-    return resourceType == null || !resourceType.getBooleanProperty("deletable");
-  }
+  // TODO check if we need to filter as before
+
+  //private boolean isNotDeletable(ComponentDto project) {
+  //  ResourceType resourceType = resourceTypes.get(project.qualifier());
+  //  return resourceType == null || !resourceType.getBooleanProperty("deletable");
+  //}
+
 }

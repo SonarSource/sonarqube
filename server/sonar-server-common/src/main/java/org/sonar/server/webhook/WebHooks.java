@@ -25,7 +25,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.config.Configuration;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 
 import static java.util.Objects.requireNonNull;
 
@@ -38,7 +38,7 @@ public interface WebHooks {
    * This can be used to not do consuming operations before calling
    * {@link #sendProjectAnalysisUpdate(Analysis, Supplier, PostProjectAnalysisTask.LogStatistics)}
    */
-  boolean isEnabled(ComponentDto projectDto);
+  boolean isEnabled(ProjectDto projectDto);
 
   /**
    * Calls all WebHooks configured in the specified {@link Configuration} for the specified analysis with the
@@ -56,7 +56,7 @@ public interface WebHooks {
     private final String ceTaskUuid;
     private final String analysisUuid;
 
-    public Analysis(String projectUuid, @Nullable String analysisUuid, @Nullable  String ceTaskUuid) {
+    public Analysis(String projectUuid, @Nullable String analysisUuid, @Nullable String ceTaskUuid) {
       this.projectUuid = requireNonNull(projectUuid, "projectUuid can't be null");
       this.analysisUuid = analysisUuid;
       this.ceTaskUuid = ceTaskUuid;

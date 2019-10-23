@@ -27,6 +27,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.exceptions.NotFoundException;
 
@@ -37,10 +39,12 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
 public class UpdateKeyAction implements ProjectsWsAction {
   private final DbClient dbClient;
   private final ComponentService componentService;
+  private final ComponentFinder componentFinder;
 
-  public UpdateKeyAction(DbClient dbClient, ComponentService componentService) {
+  public UpdateKeyAction(DbClient dbClient, ComponentService componentService, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.componentService = componentService;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -50,7 +54,7 @@ public class UpdateKeyAction implements ProjectsWsAction {
 
   public WebService.NewAction doDefine(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_UPDATE_KEY)
-      .setDescription("Update a project or module key and all its sub-components keys.<br>" +
+      .setDescription("Update a project all its sub-components keys.<br>" +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System'</li>" +
@@ -64,12 +68,12 @@ public class UpdateKeyAction implements ProjectsWsAction {
       new Change("7.1", "Ability to update key of a disabled module"));
 
     action.createParam(PARAM_FROM)
-      .setDescription("Project or module key")
+      .setDescription("Project key")
       .setRequired(true)
       .setExampleValue("my_old_project");
 
     action.createParam(PARAM_TO)
-      .setDescription("New component key")
+      .setDescription("New project key")
       .setRequired(true)
       .setExampleValue("my_new_project");
 
@@ -82,13 +86,8 @@ public class UpdateKeyAction implements ProjectsWsAction {
     String newKey = request.mandatoryParam(PARAM_TO);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<ComponentDto> component;
-      component = dbClient.componentDao().selectByKey(dbSession, key);
-      if (!component.isPresent() || component.get().getMainBranchProjectUuid() != null) {
-        throw new NotFoundException("Component not found");
-      }
-
-      componentService.updateKey(dbSession, component.get(), newKey);
+      ProjectDto project = componentFinder.getProjectByKey(dbSession, key);
+      componentService.updateKey(dbSession, project, newKey);
     }
     response.noContent();
   }

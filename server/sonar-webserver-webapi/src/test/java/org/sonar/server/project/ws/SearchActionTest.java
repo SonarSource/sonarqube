@@ -232,7 +232,7 @@ public class SearchActionTest {
 
   @Test
   public void does_not_return_branches_when_searching_by_key() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
 

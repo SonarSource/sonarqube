@@ -29,6 +29,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 
@@ -47,13 +48,22 @@ public class IssueTesting {
 
   public static IssueDto newIssue(RuleDefinitionDto rule, ComponentDto project, ComponentDto file) {
     checkArgument(project.qualifier().equals(Qualifiers.PROJECT), "Second parameter should be a project");
-    checkArgument(file.projectUuid().equals(project.uuid()), "The file doesn't belong to the project");
+    return newIssue(rule, project.uuid(), project.getDbKey(), file);
+  }
+
+  public static IssueDto newIssue(RuleDefinitionDto rule, ProjectDto project, ComponentDto file) {
+    return newIssue(rule, project.getUuid(), project.getKey(), file);
+  }
+
+  public static IssueDto newIssue(RuleDefinitionDto rule, String projectUuid, String projectKey, ComponentDto file) {
+    checkArgument(file.projectUuid().equals(projectUuid), "The file doesn't belong to the project");
 
     return new IssueDto()
       .setKee("uuid_" + randomAlphabetic(5))
       .setRule(rule)
       .setType(RuleType.values()[nextInt(RuleType.values().length)])
-      .setProject(project)
+      .setProjectUuid(projectUuid)
+      .setProjectKey(projectKey)
       .setComponent(file)
       .setStatus(Issue.STATUS_OPEN)
       .setResolution(null)

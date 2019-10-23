@@ -19,20 +19,16 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import java.util.Optional;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.ComponentFinder.ParamNames;
 
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_SELECT;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
@@ -42,12 +38,10 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class SelectAction implements QualityGatesWsAction {
   private final DbClient dbClient;
-  private final ComponentFinder componentFinder;
   private final QualityGatesWsSupport wsSupport;
 
-  public SelectAction(DbClient dbClient, ComponentFinder componentFinder, QualityGatesWsSupport wsSupport) {
+  public SelectAction(DbClient dbClient, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
-    this.componentFinder = componentFinder;
     this.wsSupport = wsSupport;
   }
 
@@ -88,48 +82,27 @@ public class SelectAction implements QualityGatesWsAction {
   @Override
   public void handle(Request request, Response response) {
     long gateId = request.mandatoryParamAsLong(PARAM_GATE_ID);
-    String projectId = request.param(PARAM_PROJECT_ID);
     String projectKey = request.param(PARAM_PROJECT_KEY);
+    String projectId = request.param(PARAM_PROJECT_ID);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, gateId);
-      ComponentDto project = getProject(dbSession, organization, projectId, projectKey);
+      ProjectDto project = wsSupport.getProject(dbSession, organization, projectKey, projectId);
       wsSupport.checkCanAdminProject(organization, project);
 
-      QualityGateDto currentQualityGate = dbClient.qualityGateDao().selectByProjectUuid(dbSession, project.uuid());
+      QualityGateDto currentQualityGate = dbClient.qualityGateDao().selectByProjectUuid(dbSession, project.getUuid());
       if (currentQualityGate == null) {
         // project uses the default profile
         dbClient.projectQgateAssociationDao()
-          .insertProjectQGateAssociation(dbSession, project.uuid(), qualityGate.getUuid());
+          .insertProjectQGateAssociation(dbSession, project.getUuid(), qualityGate.getUuid());
         dbSession.commit();
       } else if (!qualityGate.getUuid().equals(currentQualityGate.getUuid())) {
         dbClient.projectQgateAssociationDao()
-          .updateProjectQGateAssociation(dbSession, project.uuid(), qualityGate.getUuid());
+          .updateProjectQGateAssociation(dbSession, project.getUuid(), qualityGate.getUuid());
         dbSession.commit();
       }
     }
     response.noContent();
   }
-
-  private ComponentDto getProject(DbSession dbSession, OrganizationDto organization, @Nullable String projectId, @Nullable String projectKey) {
-    ComponentDto project = selectProjectById(dbSession, projectId)
-      .orElseGet(() -> componentFinder.getByUuidOrKey(dbSession, projectId, projectKey, ParamNames.PROJECT_ID_AND_KEY));
-    wsSupport.checkProjectBelongsToOrganization(organization, project);
-    return project;
-  }
-
-  private Optional<ComponentDto> selectProjectById(DbSession dbSession, @Nullable String projectId) {
-    if (projectId == null) {
-      return Optional.empty();
-    }
-
-    try {
-      long dbId = Long.parseLong(projectId);
-      return dbClient.componentDao().selectById(dbSession, dbId);
-    } catch (NumberFormatException e) {
-      return Optional.empty();
-    }
-  }
-
 }

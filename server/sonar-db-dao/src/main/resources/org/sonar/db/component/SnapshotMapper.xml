@@ -39,7 +39,7 @@
   <select id="selectLastSnapshotByComponentUuid" resultType="Snapshot">
     select <include refid="snapshotColumns" />
     from snapshots s
-    inner join projects p on s.component_uuid = p.project_uuid
+    inner join components p on s.component_uuid = p.project_uuid
     where
       s.islast=${_true}
       and p.uuid = #{componentUuid,jdbcType=VARCHAR}
@@ -67,7 +67,7 @@
     <include refid="snapshotColumns" />
     FROM snapshots s
     <if test="query.componentUuid != null">
-      INNER JOIN projects p ON p.uuid=s.component_uuid AND p.enabled=${_true} AND s.component_uuid=#{query.componentUuid,jdbcType=VARCHAR}
+      INNER JOIN components p ON p.uuid=s.component_uuid AND p.enabled=${_true} AND s.component_uuid=#{query.componentUuid,jdbcType=VARCHAR}
     </if>
     <where>
       <if test="query.status != null">
@@ -104,7 +104,7 @@
     select
     <include refid="snapshotColumns" />
     from snapshots s
-      inner join projects p on p.uuid=s.component_uuid and p.enabled=${_true}
+      inner join components p on p.uuid=s.component_uuid and p.enabled=${_true}
       inner join project_branches pb on pb.uuid=p.uuid
     where
       <foreach collection="componentUuidFromDatePairs" open="(" close=")" item="componentUuidFromDatePair" separator=" or ">

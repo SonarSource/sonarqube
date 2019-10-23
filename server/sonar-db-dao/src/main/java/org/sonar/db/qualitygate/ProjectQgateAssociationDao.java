@@ -31,11 +31,11 @@ public class ProjectQgateAssociationDao implements Dao {
   }
 
   /**
-   * @return quality gate uuid if a specific Quality Gate has been defined for the given component uuid. <br>
+   * @return quality gate uuid if a specific Quality Gate has been defined for the given project uuid. <br>
    * Returns <code>{@link Optional#empty()}</code> otherwise (ex: default quality gate applies)
    */
-  public Optional<String> selectQGateUuidByComponentUuid(DbSession dbSession, String componentUuid) {
-    String uuid = mapper(dbSession).selectQGateUuidByComponentUuid(componentUuid);
+  public Optional<String> selectQGateUuidByProjectUuid(DbSession dbSession, String projectUuid) {
+    String uuid = mapper(dbSession).selectQGateUuidByProjectUuid(projectUuid);
     return Optional.ofNullable(uuid);
   }
 

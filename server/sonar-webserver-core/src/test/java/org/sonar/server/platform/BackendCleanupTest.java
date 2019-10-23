@@ -70,6 +70,7 @@ public class BackendCleanupTest {
     underTest.clearDb();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable("components")).isEqualTo(0);
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(0);
     assertThat(dbTester.countRowsOfTable("rules")).isEqualTo(0);
     assertThat(dbTester.countRowsOfTable("properties")).isEqualTo(0);
@@ -102,6 +103,7 @@ public class BackendCleanupTest {
     assertThat(es.countDocuments(ComponentIndexDefinition.TYPE_COMPONENT)).isEqualTo(0);
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable("components")).isEqualTo(0);
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(0);
     assertThat(dbTester.countRowsOfTable("rules")).isEqualTo(0);
     assertThat(dbTester.countRowsOfTable("properties")).isEqualTo(0);
@@ -123,6 +125,7 @@ public class BackendCleanupTest {
     underTest.resetData();
 
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
+    assertThat(dbTester.countRowsOfTable("components")).isZero();
     assertThat(dbTester.countRowsOfTable("snapshots")).isZero();
     assertThat(dbTester.countRowsOfTable("properties")).isZero();
     assertThat(es.countDocuments(IssueIndexDefinition.TYPE_ISSUE)).isZero();

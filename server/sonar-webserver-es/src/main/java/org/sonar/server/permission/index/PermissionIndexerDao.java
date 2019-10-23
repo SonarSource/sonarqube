@@ -55,35 +55,35 @@ public class PermissionIndexerDao {
     // users
 
     "      SELECT '" + RowKind.USER + "' as kind," +
-    "      projects.uuid AS project, " +
-    "      projects.qualifier AS qualifier, " +
+    "      c.uuid AS project, " +
+    "      c.qualifier AS qualifier, " +
     "      user_roles.user_id  AS user_id, " +
     "      NULL  AS group_id " +
-    "      FROM projects " +
-    "      INNER JOIN user_roles ON user_roles.resource_id = projects.id AND user_roles.role = 'user' " +
+    "      FROM components c " +
+    "      INNER JOIN user_roles ON user_roles.resource_id = c.id AND user_roles.role = 'user' " +
     "      WHERE " +
-    "        (projects.qualifier = 'TRK' " +
-    "         or  projects.qualifier = 'VW' " +
-    "         or  projects.qualifier = 'APP') " +
-    "        AND projects.copy_component_uuid is NULL " +
+    "        (c.qualifier = 'TRK' " +
+    "         or  c.qualifier = 'VW' " +
+    "         or  c.qualifier = 'APP') " +
+    "        AND c.copy_component_uuid is NULL " +
     "        {projectsCondition} " +
     "      UNION " +
 
     // groups
 
     "      SELECT '" + RowKind.GROUP + "' as kind," +
-    "      projects.uuid AS project, " +
-    "      projects.qualifier AS qualifier, " +
+    "      c.uuid AS project, " +
+    "      c.qualifier AS qualifier, " +
     "      NULL  AS user_id, " +
     "      groups.id  AS group_id " +
-    "      FROM projects " +
-    "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = 'user' " +
+    "      FROM components c " +
+    "      INNER JOIN group_roles ON group_roles.resource_id = c.id AND group_roles.role = 'user' " +
     "      INNER JOIN groups ON groups.id = group_roles.group_id " +
     "      WHERE " +
-    "        (projects.qualifier = 'TRK' " +
-    "         or  projects.qualifier = 'VW' " +
-    "         or  projects.qualifier = 'APP') " +
-    "        AND projects.copy_component_uuid is NULL " +
+    "        (c.qualifier = 'TRK' " +
+    "         or  c.qualifier = 'VW' " +
+    "         or  c.qualifier = 'APP') " +
+    "        AND c.copy_component_uuid is NULL " +
     "        {projectsCondition} " +
     "        AND group_id IS NOT NULL " +
     "      UNION " +
@@ -91,33 +91,33 @@ public class PermissionIndexerDao {
     // public projects are accessible to any one
 
     "      SELECT '" + RowKind.ANYONE + "' as kind," +
-    "      projects.uuid AS project, " +
-    "      projects.qualifier AS qualifier, " +
+    "      c.uuid AS project, " +
+    "      c.qualifier AS qualifier, " +
     "      NULL         AS user_id, " +
     "      NULL     AS group_id " +
-    "      FROM projects " +
+    "      FROM components c " +
     "      WHERE " +
-    "        (projects.qualifier = 'TRK' " +
-    "         or  projects.qualifier = 'VW' " +
-    "         or  projects.qualifier = 'APP') " +
-    "        AND projects.copy_component_uuid is NULL " +
-    "        AND projects.private = ? " +
+    "        (c.qualifier = 'TRK' " +
+    "         or  c.qualifier = 'VW' " +
+    "         or  c.qualifier = 'APP') " +
+    "        AND c.copy_component_uuid is NULL " +
+    "        AND c.private = ? " +
     "        {projectsCondition} " +
     "      UNION " +
 
     // private project is returned when no authorization
     "      SELECT '" + RowKind.NONE + "' as kind," +
-    "      projects.uuid AS project, " +
-    "      projects.qualifier AS qualifier, " +
+    "      c.uuid AS project, " +
+    "      c.qualifier AS qualifier, " +
     "      NULL AS user_id, " +
     "      NULL  AS group_id " +
-    "      FROM projects " +
+    "      FROM components c " +
     "      WHERE " +
-    "        (projects.qualifier = 'TRK' " +
-    "         or  projects.qualifier = 'VW' " +
-    "         or  projects.qualifier = 'APP') " +
-    "        AND projects.copy_component_uuid is NULL " +
-    "        AND projects.private = ? " +
+    "        (c.qualifier = 'TRK' " +
+    "         or  c.qualifier = 'VW' " +
+    "         or  c.qualifier = 'APP') " +
+    "        AND c.copy_component_uuid is NULL " +
+    "        AND c.private = ? " +
     "        {projectsCondition} " +
 
     "    ) project_authorization";
@@ -150,7 +150,7 @@ public class PermissionIndexerDao {
     if (projectUuids.isEmpty()) {
       sql = StringUtils.replace(SQL_TEMPLATE, "{projectsCondition}", "");
     } else {
-      sql = StringUtils.replace(SQL_TEMPLATE, "{projectsCondition}", " AND projects.uuid in (" + repeat("?", ", ", projectUuids.size()) + ")");
+      sql = StringUtils.replace(SQL_TEMPLATE, "{projectsCondition}", " AND c.uuid in (" + repeat("?", ", ", projectUuids.size()) + ")");
     }
     PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
     int index = 1;

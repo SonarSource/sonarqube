@@ -229,7 +229,7 @@ public class CurrentActionTest {
       .logIn(obiwan)
       .addPermission(SCAN, db.getDefaultOrganization())
       .addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization())
-      .addProjectPermission(USER, componentDto);
+      .addProjectPermission(USER, db.components().getProjectDto(componentDto));
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), obiwan);
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), obiwan);
 

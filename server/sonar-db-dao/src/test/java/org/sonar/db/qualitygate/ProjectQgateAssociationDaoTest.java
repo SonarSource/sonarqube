@@ -27,6 +27,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -47,9 +48,9 @@ public class ProjectQgateAssociationDaoTest {
     ComponentDto project1 = db.components().insertPrivateProject(organization);
     ComponentDto project2 = db.components().insertPrivateProject(organization);
     ComponentDto project3 = db.components().insertPrivateProject(organization);
-    db.qualityGates().associateProjectToQualityGate(project1, qualityGate1);
-    db.qualityGates().associateProjectToQualityGate(project2, qualityGate1);
-    db.qualityGates().associateProjectToQualityGate(project3, qualityGate2);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project1), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project2), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project3), qualityGate2);
 
     List<ProjectQgateAssociationDto> result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate1)
@@ -70,8 +71,8 @@ public class ProjectQgateAssociationDaoTest {
     ComponentDto project1 = db.components().insertPrivateProject(organization);
     ComponentDto project2 = db.components().insertPrivateProject(organization);
     ComponentDto project3 = db.components().insertPrivateProject(organization);
-    db.qualityGates().associateProjectToQualityGate(project1, qualityGate);
-    db.qualityGates().associateProjectToQualityGate(project2, qualityGate);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project1), qualityGate);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project2), qualityGate);
 
     assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate)
@@ -97,8 +98,8 @@ public class ProjectQgateAssociationDaoTest {
     ComponentDto project1 = db.components().insertPrivateProject(organization, p -> p.setName("Project One"));
     ComponentDto project2 = db.components().insertPrivateProject(organization, p -> p.setName("Project Two"));
     ComponentDto project3 = db.components().insertPrivateProject(organization, p -> p.setName("Project Three"));
-    db.qualityGates().associateProjectToQualityGate(project1, qualityGate);
-    db.qualityGates().associateProjectToQualityGate(project2, qualityGate);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project1), qualityGate);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project2), qualityGate);
 
     assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate)
@@ -138,8 +139,8 @@ public class ProjectQgateAssociationDaoTest {
     QGateWithOrgDto otherQualityGate = db.qualityGates().insertQualityGate(otherOrganization);
     ComponentDto project = db.components().insertPrivateProject(organization);
     ComponentDto otherProject = db.components().insertPrivateProject(otherOrganization);
-    db.qualityGates().associateProjectToQualityGate(project, qualityGate);
-    db.qualityGates().associateProjectToQualityGate(otherProject, otherQualityGate);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project), qualityGate);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(otherProject), otherQualityGate);
 
     List<ProjectQgateAssociationDto> result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate)
@@ -154,7 +155,7 @@ public class ProjectQgateAssociationDaoTest {
   public void select_qgate_uuid_is_absent() {
     ComponentDto project = db.components().insertPrivateProject();
 
-    Optional<String> result = underTest.selectQGateUuidByComponentUuid(dbSession, project.uuid());
+    Optional<String> result = underTest.selectQGateUuidByProjectUuid(dbSession, project.uuid());
 
     assertThat(result.isPresent()).isFalse();
   }
@@ -166,10 +167,10 @@ public class ProjectQgateAssociationDaoTest {
     QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization);
     ComponentDto project1 = db.components().insertPrivateProject(organization);
     ComponentDto project2 = db.components().insertPrivateProject(organization);
-    db.qualityGates().associateProjectToQualityGate(project1, qualityGate1);
-    db.qualityGates().associateProjectToQualityGate(project2, qualityGate2);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project1), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project2), qualityGate2);
 
-    Optional<String> result = underTest.selectQGateUuidByComponentUuid(dbSession, project1.uuid());
+    Optional<String> result = underTest.selectQGateUuidByProjectUuid(dbSession, project1.uuid());
 
     assertThat(result).contains(qualityGate1.getUuid());
   }
@@ -178,13 +179,13 @@ public class ProjectQgateAssociationDaoTest {
   public void delete_by_project_uuid() {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ProjectDto project = db.components().insertPrivateProjectDto(organization);
 
     db.qualityGates().associateProjectToQualityGate(project, qualityGate);
 
-    underTest.deleteByProjectUuid(dbSession, project.uuid());
+    underTest.deleteByProjectUuid(dbSession, project.getUuid());
 
-    Optional<String> deletedQualityGate = db.qualityGates().selectQGateUuidByComponentUuid(project.uuid());
+    Optional<String> deletedQualityGate = db.qualityGates().selectQGateUuidByComponentUuid(project.getUuid());
 
     assertThat(deletedQualityGate).isEmpty();
   }
@@ -193,13 +194,13 @@ public class ProjectQgateAssociationDaoTest {
   public void delete_by_qgate_uuid() {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ProjectDto project = db.components().insertPrivateProjectDto(organization);
 
     db.qualityGates().associateProjectToQualityGate(project, qualityGate);
 
     underTest.deleteByQGateUuid(dbSession, qualityGate.getUuid());
 
-    Optional<String> deletedQualityGate = db.qualityGates().selectQGateUuidByComponentUuid(project.uuid());
+    Optional<String> deletedQualityGate = db.qualityGates().selectQGateUuidByComponentUuid(project.getUuid());
 
     assertThat(deletedQualityGate).isEmpty();
   }
@@ -209,13 +210,13 @@ public class ProjectQgateAssociationDaoTest {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto firstQualityGate = db.qualityGates().insertQualityGate(organization);
     QGateWithOrgDto secondQualityGate = db.qualityGates().insertQualityGate(organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ProjectDto project = db.components().insertPrivateProjectDto(organization);
 
     db.qualityGates().associateProjectToQualityGate(project, firstQualityGate);
 
-    underTest.updateProjectQGateAssociation(dbSession, project.uuid(), secondQualityGate.getUuid());
+    underTest.updateProjectQGateAssociation(dbSession, project.getUuid(), secondQualityGate.getUuid());
 
-    Optional<String> updatedQualityGateUuid = db.qualityGates().selectQGateUuidByComponentUuid(project.uuid());
+    Optional<String> updatedQualityGateUuid = db.qualityGates().selectQGateUuidByComponentUuid(project.getUuid());
 
     assertThat(updatedQualityGateUuid).contains(secondQualityGate.getUuid());
   }

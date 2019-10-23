@@ -35,6 +35,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -223,32 +224,14 @@ public class SearchActionTest {
 
   @Test
   public void filter_on_project_key() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profileOnXoo1 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO1.getKey()));
     QProfileDto defaultProfileOnXoo1 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO1.getKey()));
     QProfileDto defaultProfileOnXoo2 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO2.getKey()));
     db.qualityProfiles().associateWithProject(project, profileOnXoo1);
     db.qualityProfiles().setAsDefault(defaultProfileOnXoo1, defaultProfileOnXoo2);
 
-    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
-
-    assertThat(result.getProfilesList())
-      .extracting(QualityProfile::getKey)
-      .containsExactlyInAnyOrder(profileOnXoo1.getKee(), defaultProfileOnXoo2.getKee())
-      .doesNotContain(defaultProfileOnXoo1.getKee());
-  }
-
-  @Test
-  public void filter_on_module_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    QProfileDto profileOnXoo1 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO1.getKey()));
-    QProfileDto defaultProfileOnXoo1 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO1.getKey()));
-    QProfileDto defaultProfileOnXoo2 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO2.getKey()));
-    db.qualityProfiles().associateWithProject(project, profileOnXoo1);
-    db.qualityProfiles().setAsDefault(defaultProfileOnXoo1, defaultProfileOnXoo2);
-
-    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_PROJECT, module.getDbKey()));
+    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_PROJECT, project.getKey()));
 
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::getKey)
@@ -258,7 +241,7 @@ public class SearchActionTest {
 
   @Test
   public void filter_on_project_key_and_default() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profileOnXoo1 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO1.getKey()));
     QProfileDto defaultProfileOnXoo1 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO1.getKey()));
     QProfileDto defaultProfileOnXoo2 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO2.getKey()));
@@ -266,7 +249,7 @@ public class SearchActionTest {
     db.qualityProfiles().setAsDefault(defaultProfileOnXoo1, defaultProfileOnXoo2);
 
     SearchWsResponse result = call(ws.newRequest()
-      .setParam(PARAM_PROJECT, project.getDbKey())
+      .setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_DEFAULTS, "true"));
 
     assertThat(result.getProfilesList())
@@ -277,7 +260,7 @@ public class SearchActionTest {
 
   @Test
   public void filter_on_deprecated_project_key_and_default() {
-    ComponentDto project = db.components().insertPrivateProject();
+    ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profileOnXoo1 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO1.getKey()));
     QProfileDto defaultProfileOnXoo1 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO1.getKey()));
     QProfileDto defaultProfileOnXoo2 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO2.getKey()));
@@ -285,7 +268,7 @@ public class SearchActionTest {
     db.qualityProfiles().setAsDefault(defaultProfileOnXoo1, defaultProfileOnXoo2);
 
     SearchWsResponse result = call(ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_DEFAULTS, "true"));
 
     assertThat(result.getProfilesList())
@@ -294,17 +277,16 @@ public class SearchActionTest {
       .doesNotContain(defaultProfileOnXoo1.getKee(), profileOnXoo1.getKee());
   }
 
-
   @Test
   public void empty_when_filtering_on_project_and_no_language_installed() {
     WsActionTester ws = new WsActionTester(new SearchAction(userSession, new Languages(), dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null)));
     db.qualityProfiles().insert(db.getDefaultOrganization());
-    ComponentDto project = db.components().insertPrivateProject();
+    ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profileOnXoo1 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO1.getKey()));
     db.qualityProfiles().associateWithProject(project, profileOnXoo1);
 
     SearchWsResponse result = call(ws.newRequest()
-      .setParam(PARAM_PROJECT, project.getDbKey())
+      .setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_DEFAULTS, "true"));
 
     assertThat(result.getProfilesList()).isEmpty();
@@ -396,8 +378,8 @@ public class SearchActionTest {
 
   @Test
   public void statistics_on_projects() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
+    ProjectDto project1 = db.components().insertPrivateProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProjectDto();
     QProfileDto profileOnXoo1 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO1.getKey()));
     QProfileDto defaultProfileOnXoo1 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO1.getKey()));
     db.qualityProfiles().associateWithProject(project1, profileOnXoo1);
@@ -456,20 +438,9 @@ public class SearchActionTest {
   @Test
   public void fail_if_project_does_not_exist() {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'unknown-project' not found");
+    expectedException.expectMessage("Project 'unknown-project' not found");
 
     call(ws.newRequest().setParam(PARAM_PROJECT, "unknown-project"));
-  }
-
-  @Test
-  public void fail_if_project_of_module_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project).setProjectUuid("unknown"));
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Project uuid of component uuid '%s' does not exist", module.uuid()));
-
-    call(ws.newRequest().setParam(PARAM_PROJECT, module.getDbKey()));
   }
 
   @Test
@@ -479,7 +450,7 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertPrivateProject(anotherOrganization);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", project.getDbKey()));
+    expectedException.expectMessage(format("Project '%s' not found", project.getDbKey()));
 
     call(ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
@@ -540,7 +511,7 @@ public class SearchActionTest {
       .forEach(rule -> db.qualityProfiles().activateRule(sonarWayCs, rule));
     // project
     range(0, 7)
-      .mapToObj(i -> db.components().insertPrivateProject(organization))
+      .mapToObj(i -> db.components().insertPrivateProjectDto(organization))
       .forEach(project -> db.qualityProfiles().associateWithProject(project, myBuProfile));
     // User
     UserDto user = db.users().insertUser();

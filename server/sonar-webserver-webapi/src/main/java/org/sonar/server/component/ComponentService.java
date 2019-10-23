@@ -30,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.ResourceDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.project.Project;
@@ -41,7 +42,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.component.ComponentKeys.isValidProjectKey;
-import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 @ServerSide
@@ -58,27 +58,20 @@ public class ComponentService {
     this.projectLifeCycleListeners = projectLifeCycleListeners;
   }
 
-  public void updateKey(DbSession dbSession, ComponentDto projectOrModule, String newKey) {
-    userSession.checkComponentPermission(UserRole.ADMIN, projectOrModule);
-    checkIsProjectOrModule(projectOrModule);
-    checkProjectOrModuleKeyFormat(newKey);
-    dbClient.componentKeyUpdaterDao().updateKey(dbSession, projectOrModule.uuid(), newKey);
-    projectIndexers.commitAndIndex(dbSession, singletonList(projectOrModule), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
-    if (isMainProject(projectOrModule)) {
-      Project newProject = new Project(projectOrModule.uuid(), newKey, projectOrModule.name(), projectOrModule.description(), projectOrModule.getTags());
-      projectLifeCycleListeners.onProjectsRekeyed(singleton(new RekeyedProject(newProject, projectOrModule.getDbKey())));
-    }
+  public void updateKey(DbSession dbSession, ProjectDto project, String newKey) {
+    userSession.checkProjectPermission(UserRole.ADMIN, project);
+    checkProjectKeyFormat(newKey);
+    dbClient.componentKeyUpdaterDao().updateKey(dbSession, project.getUuid(), newKey);
+    projectIndexers.commitAndIndexProjects(dbSession, singletonList(project), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+    Project newProject = new Project(project.getUuid(), newKey, project.getName(), project.getDescription(), project.getTags());
+    projectLifeCycleListeners.onProjectsRekeyed(singleton(new RekeyedProject(newProject, project.getKey())));
   }
 
-  private static boolean isMainProject(ComponentDto projectOrModule) {
-    return projectOrModule.isRootProject() && projectOrModule.getMainBranchProjectUuid() == null;
-  }
-
-  public void bulkUpdateKey(DbSession dbSession, ComponentDto projectOrModule, String stringToReplace, String replacementString) {
+  public void bulkUpdateKey(DbSession dbSession, ProjectDto project, String stringToReplace, String replacementString) {
     Set<ComponentKeyUpdaterDao.RekeyedResource> rekeyedProjects = dbClient.componentKeyUpdaterDao().bulkUpdateKey(
-      dbSession, projectOrModule.uuid(), stringToReplace, replacementString,
+      dbSession, project.getUuid(), stringToReplace, replacementString,
       ComponentService::isMainProject);
-    projectIndexers.commitAndIndex(dbSession, singletonList(projectOrModule), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+    projectIndexers.commitAndIndexProjects(dbSession, singletonList(project), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
     if (!rekeyedProjects.isEmpty()) {
       projectLifeCycleListeners.onProjectsRekeyed(rekeyedProjects.stream()
         .map(ComponentService::toRekeyedProject)
@@ -101,7 +94,7 @@ public class ComponentService {
     return new RekeyedProject(project, rekeyedResource.getOldKey());
   }
 
-  private static void checkProjectOrModuleKeyFormat(String key) {
+  private static void checkProjectKeyFormat(String key) {
     checkRequest(isValidProjectKey(key), "Malformed key for '%s'. It cannot be empty nor contain whitespaces.", key);
   }
 

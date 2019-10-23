@@ -136,7 +136,7 @@ public class SetActionTest {
 
   @Test
   public void throw_IAE_if_no_value_for_days() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectAdministrator(project);
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("New Code Period type 'NUMBER_OF_DAYS' requires a value");
@@ -150,7 +150,7 @@ public class SetActionTest {
 
   @Test
   public void throw_IAE_if_no_value_for_analysis() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectAdministrator(project);
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("New Code Period type 'SPECIFIC_ANALYSIS' requires a value");
@@ -164,7 +164,7 @@ public class SetActionTest {
 
   @Test
   public void throw_IAE_if_days_is_invalid() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectAdministrator(project);
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Failed to parse number of days: unknown");
@@ -179,7 +179,7 @@ public class SetActionTest {
 
   @Test
   public void throw_IAE_if_analysis_is_not_found() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectAdministrator(project);
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Analysis 'unknown' is not found");
@@ -194,7 +194,7 @@ public class SetActionTest {
 
   @Test
   public void throw_IAE_if_analysis_doesnt_belong_to_branch() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
 
     SnapshotDto analysisMaster = db.components().insertSnapshot(project);
@@ -226,7 +226,7 @@ public class SetActionTest {
   @Test
   public void throw_NFE_if_project_not_found() {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'unknown' not found");
+    expectedException.expectMessage("Project 'unknown' not found");
 
     ws.newRequest()
       .setParam("type", "previous_version")
@@ -236,10 +236,10 @@ public class SetActionTest {
 
   @Test
   public void throw_NFE_if_branch_not_found() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectAdministrator(project);
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component '" + project.getKey() + "' on branch 'unknown' not found");
+    expectedException.expectMessage("Branch 'unknown' in project '" + project.getKey() + "' not found");
 
     ws.newRequest()
       .setParam("project", project.getKey())
@@ -251,7 +251,7 @@ public class SetActionTest {
   // permission
   @Test
   public void throw_NFE_if_no_project_permission() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
@@ -284,7 +284,7 @@ public class SetActionTest {
 
   @Test
   public void set_project_period_to_number_of_days() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectAdministrator(project);
     ws.newRequest()
       .setParam("project", project.getKey())
@@ -298,7 +298,7 @@ public class SetActionTest {
   @UseDataProvider("provideNewCodePeriodTypeAndValue")
   public void never_set_project_value_in_community_edition(NewCodePeriodType type, @Nullable String value) {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
 
     if (value != null && NewCodePeriodType.SPECIFIC_ANALYSIS.equals(type)) {
       db.components().insertSnapshot(project, snapshotDto -> snapshotDto.setUuid(value));
@@ -328,7 +328,7 @@ public class SetActionTest {
 
   @Test
   public void set_project_twice_period_to_number_of_days() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectAdministrator(project);
     ws.newRequest()
       .setParam("project", project.getKey())
@@ -346,7 +346,7 @@ public class SetActionTest {
 
   @Test
   public void set_branch_period_to_analysis() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
 
     SnapshotDto analysisMaster = db.components().insertSnapshot(project);
@@ -366,7 +366,7 @@ public class SetActionTest {
 
   @Test
   public void set_branch_period_twice_to_analysis() {
-    ComponentDto project = componentDb.insertMainBranch();
+    ComponentDto project = componentDb.insertPublicProject();
     ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch"));
 
     SnapshotDto analysisMaster = db.components().insertSnapshot(project);

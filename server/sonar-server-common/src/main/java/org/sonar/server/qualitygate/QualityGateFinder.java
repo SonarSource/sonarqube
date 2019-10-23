@@ -22,8 +22,8 @@ package org.sonar.server.qualitygate;
 import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
@@ -43,8 +43,12 @@ public class QualityGateFinder {
    *
    * It will first try to get the quality gate explicitly defined on a project, if none it will try to return default quality gate of the organization
    */
-  public Optional<QualityGateData> getQualityGate(DbSession dbSession, OrganizationDto organization, ComponentDto component) {
-    Optional<QualityGateData> res = dbClient.projectQgateAssociationDao().selectQGateUuidByComponentUuid(dbSession, component.uuid())
+  public Optional<QualityGateData> getQualityGate(DbSession dbSession, OrganizationDto organization, ProjectDto projectDto) {
+    return getQualityGate(dbSession, organization, projectDto.getUuid());
+  }
+
+  public Optional<QualityGateData> getQualityGate(DbSession dbSession, OrganizationDto organization, String projectUuid) {
+    Optional<QualityGateData> res = dbClient.projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, projectUuid)
       .map(qualityGateUuid -> dbClient.qualityGateDao().selectByUuid(dbSession, qualityGateUuid))
       .map(qualityGateDto -> new QualityGateData(qualityGateDto, false));
     if (res.isPresent()) {

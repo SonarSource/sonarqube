@@ -280,9 +280,9 @@ public class SnapshotDaoTest {
   public void selectFinishedByComponentUuidsAndFromDates() {
     long from = 1_500_000_000_000L;
     long otherFrom = 1_200_000_000_000L;
-    ComponentDto firstProject = db.components().insertMainBranch();
-    ComponentDto secondProject = db.components().insertMainBranch();
-    ComponentDto thirdProject = db.components().insertMainBranch();
+    ComponentDto firstProject = db.components().insertPublicProject();
+    ComponentDto secondProject = db.components().insertPublicProject();
+    ComponentDto thirdProject = db.components().insertPublicProject();
     SnapshotDto finishedAnalysis = db.components().insertSnapshot(firstProject, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from));
     insertActivity(firstProject.uuid(), finishedAnalysis, SUCCESS);
     SnapshotDto otherFinishedAnalysis = db.components().insertSnapshot(firstProject, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from + 1_000_000L));
@@ -305,7 +305,7 @@ public class SnapshotDaoTest {
   @Test
   public void selectFinishedByComponentUuidsAndFromDates_returns_processed_analysis_even_if_analysis_failed() {
     long from = 1_500_000_000_000L;
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     SnapshotDto unprocessedAnalysis = db.components().insertSnapshot(project, s -> s.setStatus(STATUS_UNPROCESSED).setCreatedAt(from + 1_000_000L));
     insertActivity(project.uuid(), unprocessedAnalysis, CANCELED);
     SnapshotDto finishedAnalysis = db.components().insertSnapshot(project, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from));
@@ -322,7 +322,7 @@ public class SnapshotDaoTest {
   @Test
   public void selectFinishedByComponentUuidsAndFromDates_return_branches_analysis() {
     long from = 1_500_000_000_000L;
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto firstBranch = db.components().insertProjectBranch(project);
     ComponentDto secondBranch = db.components().insertProjectBranch(project);
     SnapshotDto finishedAnalysis = db.components().insertSnapshot(firstBranch, s -> s.setStatus(STATUS_PROCESSED).setCreatedAt(from));

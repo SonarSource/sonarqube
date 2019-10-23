@@ -27,7 +27,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.project.ProjectLifeCycleListeners;
@@ -39,8 +39,8 @@ import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_DELETE;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_BRANCH;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_PROJECT;
-import static org.sonar.server.project.Project.from;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
+import static org.sonar.server.project.Project.from;
 
 public class DeleteAction implements BranchWsAction {
   private final DbClient dbClient;
@@ -62,8 +62,8 @@ public class DeleteAction implements BranchWsAction {
   public void define(NewController context) {
     WebService.NewAction action = context.createAction(ACTION_DELETE)
       .setSince("6.6")
-      .setDescription("Delete a non-main branch of a project.<br/>" +
-        "Requires 'Administer' rights on the specified project.")
+      .setDescription("Delete a non-main branch of a project or application.<br/>" +
+        "Requires 'Administer' rights on the specified project or application.")
       .setPost(true)
       .setHandler(this);
 
@@ -78,25 +78,24 @@ public class DeleteAction implements BranchWsAction {
     String branchKey = request.mandatoryParam(PARAM_BRANCH);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getRootComponentByUuidOrKey(dbSession, null, projectKey);
+      ProjectDto project = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
       checkPermission(project);
 
       BranchDto branch = checkFoundWithOptional(
-        dbClient.branchDao().selectByBranchKey(dbSession, project.uuid(), branchKey),
+        dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), branchKey),
         "Branch '%s' not found for project '%s'", branchKey, projectKey);
 
       if (branch.isMain()) {
         throw new IllegalArgumentException("Only non-main branches can be deleted");
       }
-      ComponentDto branchComponent = componentFinder.getByKeyAndBranch(dbSession, projectKey, branchKey);
-      componentCleanerService.deleteBranch(dbSession, branchComponent);
+      componentCleanerService.deleteBranch(dbSession, branch);
       projectLifeCycleListeners.onProjectBranchesDeleted(singleton(from(project)));
       response.noContent();
     }
   }
 
-  private void checkPermission(ComponentDto project) {
-    userSession.checkComponentPermission(UserRole.ADMIN, project);
+  private void checkPermission(ProjectDto project) {
+    userSession.checkProjectPermission(UserRole.ADMIN, project);
   }
 
 }

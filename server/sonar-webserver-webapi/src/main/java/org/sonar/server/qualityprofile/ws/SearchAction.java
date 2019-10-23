@@ -41,8 +41,8 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.ActiveRuleCountQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
@@ -153,7 +153,7 @@ public class SearchAction implements QProfileWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
       OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.getOrganizationKey());
-      ComponentDto project = findProject(dbSession, organization, request);
+      ProjectDto project = findProject(dbSession, organization, request);
 
       List<QProfileDto> defaultProfiles = dbClient.qualityProfileDao().selectDefaultProfiles(dbSession, organization, getLanguageKeys());
       List<String> editableProfiles = searchEditableProfiles(dbSession, organization);
@@ -174,21 +174,17 @@ public class SearchAction implements QProfileWsAction {
   }
 
   @CheckForNull
-  private ComponentDto findProject(DbSession dbSession, OrganizationDto organization, SearchRequest request) {
+  private ProjectDto findProject(DbSession dbSession, OrganizationDto organization, SearchRequest request) {
     if (request.getProjectKey() == null) {
       return null;
     }
 
-    ComponentDto project = componentFinder.getByKey(dbSession, request.getProjectKey());
+    ProjectDto project = componentFinder.getProjectByKey(dbSession, request.getProjectKey());
     if (!project.getOrganizationUuid().equals(organization.getUuid())) {
-      throw new NotFoundException(format("Component key '%s' not found", project.getDbKey()));
+      throw new NotFoundException(format("Project '%s' not found", project.getKey()));
     }
-    if (project.isRoot()) {
-      return project;
-    }
-    ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, project.projectUuid()).orElse(null);
-    checkState(component != null, "Project uuid of component uuid '%s' does not exist", project.uuid());
-    return component;
+
+    return project;
   }
 
   private List<String> searchEditableProfiles(DbSession dbSession, OrganizationDto organization) {
@@ -207,7 +203,7 @@ public class SearchAction implements QProfileWsAction {
   }
 
   private List<QProfileDto> searchProfiles(DbSession dbSession, SearchRequest request, OrganizationDto organization, List<QProfileDto> defaultProfiles,
-    @Nullable ComponentDto project) {
+    @Nullable ProjectDto project) {
     Collection<QProfileDto> profiles = selectAllProfiles(dbSession, organization);
 
     return profiles.stream()
@@ -237,7 +233,7 @@ public class SearchAction implements QProfileWsAction {
     return p -> !request.getDefaults() || defaultProfileUuids.contains(p.getKee());
   }
 
-  private Predicate<QProfileDto> byProject(DbSession dbSession, @Nullable ComponentDto project, List<QProfileDto> defaultProfiles) {
+  private Predicate<QProfileDto> byProject(DbSession dbSession, @Nullable ProjectDto project, List<QProfileDto> defaultProfiles) {
     if (project == null) {
       return p -> true;
     }

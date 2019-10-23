@@ -209,7 +209,7 @@ public class ScmActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    ComponentDto project = dbTester.components().insertMainBranch();
+    ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
 

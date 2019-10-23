@@ -27,11 +27,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.db.webhook.WebhookDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -70,7 +71,8 @@ public class UpdateActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = from(db);
 
   private WebhookSupport webhookSupport = new WebhookSupport(userSession);
-  private UpdateAction underTest = new UpdateAction(dbClient, userSession, webhookSupport);
+  private ComponentFinder componentFinder = new ComponentFinder(dbClient, null);
+  private UpdateAction underTest = new UpdateAction(dbClient, userSession, webhookSupport, componentFinder);
   private WsActionTester wsActionTester = new WsActionTester(underTest);
 
   @Test
@@ -91,7 +93,7 @@ public class UpdateActionTest {
 
   @Test
   public void update_a_project_webhook_with_required_fields() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ProjectDto project = componentDbTester.insertPrivateProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(ADMIN, project);
 
@@ -113,7 +115,7 @@ public class UpdateActionTest {
 
   @Test
   public void update_a_project_webhook_with_all_fields() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ProjectDto project = componentDbTester.insertPrivateProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(ADMIN, project);
 
@@ -188,7 +190,7 @@ public class UpdateActionTest {
 
   @Test
   public void fail_if_no_permission_on_webhook_scope_project() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ProjectDto project = componentDbTester.insertPrivateProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
 
     userSession.logIn();
@@ -222,7 +224,7 @@ public class UpdateActionTest {
 
   @Test
   public void fail_if_url_is_not_valid() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ProjectDto project = componentDbTester.insertPrivateProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(ADMIN, project);
 
@@ -237,7 +239,7 @@ public class UpdateActionTest {
 
   @Test
   public void fail_if_credential_in_url_is_have_a_wrong_format() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ProjectDto project = componentDbTester.insertPrivateProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(ADMIN, project);
 

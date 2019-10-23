@@ -85,7 +85,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from issues i " +
     "inner join rules r on r.id = i.rule_id " +
-    "inner join projects c on c.uuid = i.component_uuid ";
+    "inner join components c on c.uuid = i.component_uuid ";
 
   private static final String PROJECT_FILTER = " and c.project_uuid = ? and i.project_uuid = ? ";
   private static final String ISSUE_KEY_FILTER_PREFIX = " and i.kee in (";

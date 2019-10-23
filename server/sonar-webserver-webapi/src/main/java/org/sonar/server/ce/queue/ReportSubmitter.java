@@ -178,7 +178,8 @@ public class ReportSubmitter {
       .setQualifier(Qualifiers.PROJECT)
       .setPrivate(newProjectPrivate)
       .build();
-    return componentUpdater.createWithoutCommit(dbSession, newProject, userId);
+    return componentUpdater.createWithoutCommit(dbSession, newProject, userId, c -> {
+    });
   }
 
   private CeTask submitReport(DbSession dbSession, InputStream reportInput, ComponentDto project, Map<String, String> characteristics) {

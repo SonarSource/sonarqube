@@ -20,7 +20,6 @@
 package org.sonar.server.project.ws;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Comparator;
 import java.util.Map;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -28,15 +27,14 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.BulkUpdateKeyWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_BULK_UPDATE_KEY;
@@ -67,8 +65,8 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
 
   public WebService.NewAction doDefine(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_BULK_UPDATE_KEY)
-      .setDescription("Bulk update a project or module key and all its sub-components keys. " +
-        "The bulk update allows to replace a part of the current key by another string on the current project and all its sub-modules.<br>" +
+      .setDescription("Bulk update a project key and all its sub-components keys. " +
+        "The bulk update allows to replace a part of the current key by another string on the current project.<br>" +
         "It's possible to simulate the bulk update by setting the parameter '%s' at true. No key is updated with a dry run.<br>" +
         "Ex: to rename a project with key 'my_project' to 'my_new_project' and all its sub-components keys, call the WS with parameters:" +
         "<ul>" +
@@ -90,7 +88,7 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
       .setHandler(this);
 
     action.createParam(PARAM_PROJECT)
-      .setDescription("Project or module key")
+      .setDescription("Project key")
       .setRequired(true)
       .setExampleValue("my_old_project");
 
@@ -119,16 +117,15 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
 
   private BulkUpdateKeyWsResponse doHandle(BulkUpdateKeyRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto projectOrModule = componentFinder.getByKey(dbSession, request.getProjectKey());
-      checkIsProjectOrModule(projectOrModule);
-      userSession.checkComponentPermission(UserRole.ADMIN, projectOrModule);
+      ProjectDto project = componentFinder.getProjectByKey(dbSession, request.getProjectKey());
+      userSession.checkProjectPermission(UserRole.ADMIN, project);
 
-      Map<String, String> newKeysByOldKeys = componentKeyUpdater.simulateBulkUpdateKey(dbSession, projectOrModule.uuid(), request.getFrom(), request.getTo());
+      Map<String, String> newKeysByOldKeys = componentKeyUpdater.simulateBulkUpdateKey(dbSession, project.getUuid(), request.getFrom(), request.getTo());
       Map<String, Boolean> newKeysWithDuplicateMap = componentKeyUpdater.checkComponentKeys(dbSession, ImmutableList.copyOf(newKeysByOldKeys.values()));
 
       if (!request.isDryRun()) {
         checkNoDuplicate(newKeysWithDuplicateMap);
-        bulkUpdateKey(dbSession, request, projectOrModule);
+        bulkUpdateKey(dbSession, request, project);
       }
 
       return buildResponse(newKeysByOldKeys, newKeysWithDuplicateMap);
@@ -139,8 +136,8 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
     newKeysWithDuplicateMap.forEach((key, value) -> checkRequest(!value, "Impossible to update key: a component with key \"%s\" already exists.", key));
   }
 
-  private void bulkUpdateKey(DbSession dbSession, BulkUpdateKeyRequest request, ComponentDto projectOrModule) {
-    componentService.bulkUpdateKey(dbSession, projectOrModule, request.getFrom(), request.getTo());
+  private void bulkUpdateKey(DbSession dbSession, BulkUpdateKeyRequest request, ProjectDto project) {
+    componentService.bulkUpdateKey(dbSession, project, request.getFrom(), request.getTo());
   }
 
   private static BulkUpdateKeyWsResponse buildResponse(Map<String, String> newKeysByOldKeys, Map<String, Boolean> newKeysWithDuplicateMap) {
@@ -148,7 +145,7 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
 
     newKeysByOldKeys.entrySet().stream()
       // sort by old key
-      .sorted(Comparator.comparing(Map.Entry::getKey))
+      .sorted(Map.Entry.comparingByKey())
       .forEach(
         entry -> {
           String newKey = entry.getValue();

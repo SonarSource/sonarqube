@@ -279,7 +279,7 @@ public class SearchActionTest {
   @Test
   public void does_not_return_branch_when_using_db_key() {
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.measures().insertLiveMeasure(branch, coverage, m -> m.setValue(10d));
     userSession.addProjectPermission(UserRole.USER, project);

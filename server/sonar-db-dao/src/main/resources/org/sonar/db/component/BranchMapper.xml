@@ -76,6 +76,16 @@
       pb.key_type = #{keyType, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByBranchKeys" resultType="org.sonar.db.component.BranchDto">
+    select
+    <include refid="columns" />
+    from project_branches pb
+    where
+    <foreach collection="branchKeyByProjectUuid" index="key" item="value" open="" separator=" or " close="">
+        (pb.project_uuid=#{key,jdbcType=VARCHAR} and pb.kee=#{value,jdbcType=VARCHAR})
+    </foreach>
+  </select>
+
   <select id="selectByProjectUuid" parameterType="string" resultType="org.sonar.db.component.BranchDto">
     select <include refid="columns" />
     from project_branches pb

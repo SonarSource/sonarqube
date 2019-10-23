@@ -26,22 +26,22 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 
 import static java.util.Objects.requireNonNull;
 
 @Immutable
 public class QGChangeEvent {
-  private final ComponentDto project;
+  private final ProjectDto project;
   private final BranchDto branch;
   private final SnapshotDto analysis;
   private final Configuration projectConfiguration;
   private final Metric.Level previousStatus;
   private final Supplier<Optional<EvaluatedQualityGate>> qualityGateSupplier;
 
-  public QGChangeEvent(ComponentDto project, BranchDto branch, SnapshotDto analysis, Configuration projectConfiguration,
+  public QGChangeEvent(ProjectDto project, BranchDto branch, SnapshotDto analysis, Configuration projectConfiguration,
     @Nullable Metric.Level previousStatus, Supplier<Optional<EvaluatedQualityGate>> qualityGateSupplier) {
     this.project = requireNonNull(project, "project can't be null");
     this.branch = requireNonNull(branch, "branch can't be null");
@@ -55,7 +55,7 @@ public class QGChangeEvent {
     return branch;
   }
 
-  public ComponentDto getProject() {
+  public ProjectDto getProject() {
     return project;
   }
 
@@ -87,8 +87,8 @@ public class QGChangeEvent {
       '}';
   }
 
-  private static String toString(ComponentDto project) {
-    return project.uuid() + ":" + project.getKey();
+  private static String toString(ProjectDto project) {
+    return project.getUuid() + ":" + project.getKey();
   }
 
   private static String toString(BranchDto branch) {

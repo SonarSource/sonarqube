@@ -118,7 +118,7 @@ public class IndexActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() throws Exception {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     userSession.addProjectPermission(USER, project);
 

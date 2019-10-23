@@ -26,6 +26,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -49,8 +50,8 @@ public class WebhookDao implements Dao {
     return mapper(dbSession).selectForOrganizationUuidOrderedByName(organizationUuid);
   }
 
-  public List<WebhookDto> selectByProject(DbSession dbSession, ComponentDto componentDto) {
-    return mapper(dbSession).selectForProjectUuidOrderedByName(componentDto.uuid());
+  public List<WebhookDto> selectByProject(DbSession dbSession, ProjectDto projectDto) {
+    return mapper(dbSession).selectForProjectUuidOrderedByName(projectDto.getUuid());
   }
 
   public void insert(DbSession dbSession, WebhookDto dto) {
@@ -73,8 +74,8 @@ public class WebhookDao implements Dao {
     mapper(dbSession).deleteForOrganizationUuid(organization.getUuid());
   }
 
-  public void deleteByProject(DbSession dbSession, ComponentDto componentDto) {
-    mapper(dbSession).deleteForProjectUuid(componentDto.uuid());
+  public void deleteByProject(DbSession dbSession, ProjectDto projectDto) {
+    mapper(dbSession).deleteForProjectUuid(projectDto.getUuid());
   }
 
   private static WebhookMapper mapper(DbSession dbSession) {

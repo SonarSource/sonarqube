@@ -289,7 +289,7 @@ public class IssueIndexTest {
 
   @Test
   public void searchBranchStatistics() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch1 = db.components().insertProjectBranch(project);
     ComponentDto branch2 = db.components().insertProjectBranch(project);
     ComponentDto branch3 = db.components().insertProjectBranch(project);
@@ -310,7 +310,7 @@ public class IssueIndexTest {
 
   @Test
   public void searchBranchStatistics_on_many_branches() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     List<String> branchUuids = new ArrayList<>();
     List<Tuple> expectedResult = new ArrayList<>();
     IntStream.range(0, 15).forEach(i -> {
@@ -330,7 +330,7 @@ public class IssueIndexTest {
 
   @Test
   public void searchBranchStatistics_on_empty_list() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
 
     assertThat(underTest.searchBranchStatistics(project.uuid(), emptyList())).isEmpty();
     assertThat(underTest.searchBranchStatistics(project.uuid(), singletonList("unknown"))).isEmpty();

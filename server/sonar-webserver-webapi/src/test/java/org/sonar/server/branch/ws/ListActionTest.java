@@ -20,6 +20,7 @@
 package org.sonar.server.branch.ws;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -42,7 +43,6 @@ import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.BranchType;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.ProjectBranches;
 import org.sonarqube.ws.ProjectBranches.Branch;
 import org.sonarqube.ws.ProjectBranches.ListWsResponse;
@@ -82,7 +82,7 @@ public class ListActionTest {
   public WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes)));
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     qualityGateStatus = db.measures().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
   }
 
@@ -98,7 +98,7 @@ public class ListActionTest {
 
   @Test
   public void test_example() {
-    ComponentDto project = db.components().insertMainBranch(p -> p.setDbKey("sonarqube"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("sonarqube"));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(project).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
     db.measures().insertLiveMeasure(project, qualityGateStatus, m -> m.setData("ERROR"));
@@ -127,7 +127,7 @@ public class ListActionTest {
 
   @Test
   public void test_with_SCAN_EXCUTION_permission() {
-    ComponentDto project = db.components().insertMainBranch(p -> p.setDbKey("sonarqube"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("sonarqube"));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(project).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
     db.measures().insertLiveMeasure(project, qualityGateStatus, m -> m.setData("ERROR"));
@@ -154,7 +154,7 @@ public class ListActionTest {
 
   @Test
   public void main_branch() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(USER, project);
 
     ListWsResponse response = ws.newRequest()
@@ -169,11 +169,13 @@ public class ListActionTest {
   @Test
   public void main_branch_with_specified_name() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization, "head");
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    db.getDbClient().branchDao().updateMainBranchName(db.getSession(), project.uuid(), "head");
+    db.commit();
     userSession.logIn().addProjectPermission(USER, project);
 
     ListWsResponse response = ws.newRequest()
-      .setParam("project", project.getDbKey())
+      .setParam("project", project.getKey())
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getBranchesList())
@@ -182,21 +184,8 @@ public class ListActionTest {
   }
 
   @Test
-  public void test_project_with_zero_branches() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(USER, project);
-
-    String json = ws.newRequest()
-      .setParam("project", project.getDbKey())
-      .setMediaType(MediaTypes.JSON)
-      .execute()
-      .getInput();
-    assertJson(json).isSimilarTo("{\"branches\": []}");
-  }
-
-  @Test
   public void test_project_with_branches() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     db.components().insertProjectBranch(project, b -> b.setKey("feature/bar"));
     db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
     userSession.logIn().addProjectPermission(USER, project);
@@ -215,7 +204,7 @@ public class ListActionTest {
 
   @Test
   public void status_on_branch() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.BRANCH));
     db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
@@ -233,7 +222,7 @@ public class ListActionTest {
   public void response_contains_date_of_last_analysis() {
     Long lastAnalysisBranch = dateToLong(parseDateTime("2017-04-01T00:00:00+0100"));
 
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(USER, project);
     ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.BRANCH));
     db.getDbClient().snapshotDao().insert(db.getSession(),
@@ -268,6 +257,7 @@ public class ListActionTest {
     assertThat(response.getBranchesList())
       .extracting(Branch::getName, Branch::getType)
       .containsExactlyInAnyOrder(
+        tuple("master", BranchType.BRANCH),
         tuple("feature/foo", BranchType.BRANCH),
         tuple("feature/bar", BranchType.BRANCH));
   }
@@ -275,12 +265,12 @@ public class ListActionTest {
   @Test
   public void fail_when_using_branch_db_key() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
     userSession.logIn().addProjectPermission(USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+    expectedException.expectMessage(format("Project '%s' not found", branch.getDbKey()));
 
     ws.newRequest()
       .setParam("project", branch.getDbKey())
@@ -301,8 +291,8 @@ public class ListActionTest {
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     userSession.logIn().addProjectPermission(USER, project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid project");
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Project '" + file.getDbKey() + "' not found");
 
     ws.newRequest()
       .setParam("project", file.getDbKey())
@@ -312,7 +302,7 @@ public class ListActionTest {
   @Test
   public void fail_if_project_does_not_exist() {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'foo' not found");
+    expectedException.expectMessage("Project 'foo' not found");
 
     ws.newRequest()
       .setParam("project", "foo")

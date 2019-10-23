@@ -47,7 +47,7 @@
       select b.project_uuid as projectUuid, max(lm.value) as maxncloc
       from live_measures lm
       inner join metrics m on m.id = lm.metric_id
-      inner join projects p on p.uuid = lm.component_uuid
+      inner join components p on p.uuid = lm.component_uuid
       inner join project_branches b on b.uuid = p.uuid
       <where>
         m.name = #{ncloc, jdbcType=VARCHAR}
@@ -169,8 +169,8 @@
 
   <select id="selectTreeByQuery" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select <include refid="columns"/> from live_measures lm
-    inner join projects p on p.uuid = lm.component_uuid
-    <!-- TODO do we really need another join on projects ? Using lm.project_uuid should be enough -->
+    inner join components p on p.uuid = lm.component_uuid
+    <!-- TODO do we really need another join on components ? Using lm.project_uuid should be enough -->
     <include refid="org.sonar.db.component.ComponentMapper.selectDescendantsJoins"/>
     <where>
       <if test="query.getMetricIds() != null">
@@ -196,7 +196,7 @@
     -- Add measures of base component
     union all
     select <include refid="columns"/> from live_measures lm
-    inner join projects p on p.uuid = lm.component_uuid and lm.component_uuid = #{baseUuid, jdbcType=VARCHAR}
+    inner join components p on p.uuid = lm.component_uuid and lm.component_uuid = #{baseUuid, jdbcType=VARCHAR}
     <where>
       <if test="query.getMetricIds() != null">
         lm.metric_id in

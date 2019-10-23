@@ -31,7 +31,9 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDbTester;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -75,7 +77,8 @@ public class CreateActionTest {
   private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   private WebhookSupport webhookSupport = new WebhookSupport(userSession);
-  private org.sonar.server.webhook.ws.CreateAction underTest = new CreateAction(dbClient, userSession, defaultOrganizationProvider, uuidFactory, webhookSupport);
+  private ComponentFinder componentFinder = new ComponentFinder(dbClient, null);
+  private org.sonar.server.webhook.ws.CreateAction underTest = new CreateAction(dbClient, userSession, defaultOrganizationProvider, uuidFactory, webhookSupport, componentFinder);
   private WsActionTester wsActionTester = new WsActionTester(underTest);
 
   @Test
@@ -230,7 +233,7 @@ public class CreateActionTest {
   @Test
   public void fail_if_project_does_not_exist() {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No project with key 'inexistent-project-uuid'");
+    expectedException.expectMessage("Project 'inexistent-project-uuid' not found");
 
     userSession.logIn();
 
@@ -243,7 +246,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_if_crossing_maximum_quantity_of_webhooks_on_this_project() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ProjectDto project = componentDbTester.insertPrivateProjectDto();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage(format("Maximum number of webhook reached for project '%s'", project.getKey()));
@@ -372,7 +375,6 @@ public class CreateActionTest {
       .execute();
   }
 
-
   @Test
   public void throw_IllegalArgumentException_if_project_key_greater_than_400() {
     String longProjectKey = generateStringWithLength(401);
@@ -388,7 +390,6 @@ public class CreateActionTest {
       .setParam("secret", "a_secret")
       .executeProtobuf(CreateWsResponse.class);
   }
-
 
   private static String generateStringWithLength(int length) {
     StringBuilder sb = new StringBuilder(length);

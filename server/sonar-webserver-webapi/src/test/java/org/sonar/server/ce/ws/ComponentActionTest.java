@@ -177,7 +177,7 @@ public class ComponentActionTest {
 
   @Test
   public void branch_in_activity() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
@@ -197,7 +197,7 @@ public class ComponentActionTest {
 
   @Test
   public void branch_in_queue_analysis() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
     CeQueueDto queue1 = insertQueue("T1", project, IN_PROGRESS);
@@ -220,7 +220,7 @@ public class ComponentActionTest {
 
   @Test
   public void return_many_tasks_from_same_project() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     insertQueue("Main", project, IN_PROGRESS);
     ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey("branch1"));

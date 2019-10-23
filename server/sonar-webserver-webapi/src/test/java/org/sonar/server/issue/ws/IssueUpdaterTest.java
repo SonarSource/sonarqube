@@ -109,7 +109,7 @@ public class IssueUpdaterTest {
   public void verify_notification_without_resolution() {
     UserDto assignee = db.users().insertUser();
     RuleDefinitionDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     DefaultIssue issue = db.issues().insertIssue(rule, project, file,
       t -> t.setSeverity(MAJOR).setAssigneeUuid(assignee.getUuid()))
@@ -138,7 +138,7 @@ public class IssueUpdaterTest {
   public void verify_notification_with_resolution() {
     UserDto assignee = db.users().insertUser();
     RuleDefinitionDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     DefaultIssue issue = db.issues().insertIssue(rule, project, file,
       t -> t.setSeverity(MAJOR).setAssigneeUuid(assignee.getUuid()))
@@ -166,7 +166,7 @@ public class IssueUpdaterTest {
   @Test
   public void verify_notification_on_branch() {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, t -> t.setBranchType(BRANCH));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     DefaultIssue issue = db.issues().insertIssue(rule, branch, file,
@@ -194,7 +194,7 @@ public class IssueUpdaterTest {
   @Test
   public void verify_no_notification_on_pr() {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     DefaultIssue issue = db.issues().insertIssue(rule, branch, file, t -> t.setSeverity(MAJOR)).toDefaultIssue();
@@ -209,7 +209,7 @@ public class IssueUpdaterTest {
   @Test
   public void verify_notification_when_issue_is_linked_on_removed_rule() {
     RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setStatus(RuleStatus.REMOVED));
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     DefaultIssue issue = db.issues().insertIssue(rule, project, file, t -> t.setSeverity(MAJOR)).toDefaultIssue();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
@@ -224,7 +224,7 @@ public class IssueUpdaterTest {
   public void verify_notification_when_assignee_has_changed() {
     UserDto oldAssignee = db.users().insertUser();
     RuleDefinitionDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     DefaultIssue issue = db.issues().insertIssue(rule, project, file, t -> t.setAssigneeUuid(oldAssignee.getUuid()))
       .toDefaultIssue();
@@ -252,7 +252,7 @@ public class IssueUpdaterTest {
   @Test
   public void saveIssue_populates_specified_SearchResponseData_with_rule_project_and_component_retrieved_from_DB() {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = db.issues().insertIssue(rule, project, file);
     DefaultIssue issue = issueDto.setSeverity(MAJOR).toDefaultIssue();
@@ -278,7 +278,7 @@ public class IssueUpdaterTest {
   @Test
   public void saveIssue_populates_specified_SearchResponseData_with_no_rule_but_with_project_and_component_if_rule_is_removed() {
     RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setStatus(RuleStatus.REMOVED));
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = db.issues().insertIssue(rule, project, file);
     DefaultIssue issue = issueDto.setSeverity(MAJOR).toDefaultIssue();

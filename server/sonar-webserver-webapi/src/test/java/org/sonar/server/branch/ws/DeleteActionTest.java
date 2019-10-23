@@ -28,6 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
@@ -63,7 +64,7 @@ public class DeleteActionTest {
 
   @Test
   public void delete_branch() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1"));
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
@@ -72,7 +73,7 @@ public class DeleteActionTest {
       .setParam("branch", "branch1")
       .execute();
 
-    verifyDeletedKey(branch.getDbKey());
+    verifyDeletedKey("branch1");
     verify(projectLifeCycleListeners).onProjectBranchesDeleted(singleton(Project.from(project)));
   }
 
@@ -123,7 +124,7 @@ public class DeleteActionTest {
     userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project key 'foo' not found");
+    expectedException.expectMessage("Project 'foo' not found");
 
     tester.newRequest()
       .setParam("project", "foo")
@@ -133,7 +134,7 @@ public class DeleteActionTest {
 
   @Test
   public void fail_if_branch_is_main() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     db.executeUpdateSql("UPDATE project_branches set KEE = 'main'");
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
@@ -158,9 +159,9 @@ public class DeleteActionTest {
   }
 
   private void verifyDeletedKey(String key) {
-    ArgumentCaptor<ComponentDto> argument = ArgumentCaptor.forClass(ComponentDto.class);
+    ArgumentCaptor<BranchDto> argument = ArgumentCaptor.forClass(BranchDto.class);
     verify(componentCleanerService).deleteBranch(any(DbSession.class), argument.capture());
-    assertThat(argument.getValue().getDbKey()).isEqualTo(key);
+    assertThat(argument.getValue().getKey()).isEqualTo(key);
   }
 
 }

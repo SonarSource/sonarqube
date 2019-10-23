@@ -32,6 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.es.ProjectIndexersImpl;
@@ -58,32 +59,18 @@ public class UpdateKeyActionTest {
   private DbClient dbClient = db.getDbClient();
   private ProjectIndexers projectIndexers = new ProjectIndexersImpl();
   private ComponentService componentService = new ComponentService(dbClient, userSessionRule, projectIndexers, new ProjectLifeCycleListenersImpl());
-  private WsActionTester ws = new WsActionTester(new UpdateKeyAction(dbClient, componentService));
+  private ComponentFinder componentFinder = new ComponentFinder(dbClient, null);
+  private WsActionTester ws = new WsActionTester(new UpdateKeyAction(dbClient, componentService, componentFinder));
 
   @Test
   public void update_key_of_project_referenced_by_its_key() {
     ComponentDto project = insertProject();
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    call(project.getKey(), ANOTHER_KEY);
+    call(project.getDbKey(), ANOTHER_KEY);
 
-    assertThat(selectByKey(project.getKey()).isPresent()).isFalse();
+    assertThat(selectByKey(project.getDbKey()).isPresent()).isFalse();
     assertThat(selectByKey(ANOTHER_KEY).get().uuid()).isEqualTo(project.uuid());
-  }
-
-  @Test
-  public void update_key_of_disabled_module() {
-    ComponentDto project = insertProject();
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project).setEnabled(false));
-    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
-
-    call(module.getKey(), ANOTHER_KEY);
-
-    assertThat(selectByKey(project.getKey()).isPresent()).isTrue();
-    assertThat(selectByKey(module.getKey()).isPresent()).isFalse();
-    ComponentDto loadedModule = selectByKey(ANOTHER_KEY).get();
-    assertThat(loadedModule.uuid()).isEqualTo(module.uuid());
-    assertThat(loadedModule.isEnabled()).isFalse();
   }
 
   @Test
@@ -125,12 +112,12 @@ public class UpdateKeyActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component not found");
+    expectedException.expectMessage(String.format("Project '%s' not found", branch.getDbKey()));
 
     call(branch.getDbKey(), ANOTHER_KEY);
   }
@@ -150,7 +137,7 @@ public class UpdateKeyActionTest {
   }
 
   private ComponentDto insertProject() {
-    return db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
+    return db.components().insertPrivateProject(db.organizations().insert());
   }
 
   private String call(@Nullable String key, @Nullable String newKey) {

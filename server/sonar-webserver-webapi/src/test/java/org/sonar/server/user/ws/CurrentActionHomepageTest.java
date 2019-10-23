@@ -191,7 +191,7 @@ public class CurrentActionHomepageTest {
 
   @Test
   public void return_homepage_when_set_to_a_branch() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(branch.uuid()));
     userSessionRule.logIn(user).addProjectPermission(USER, project);

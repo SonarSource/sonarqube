@@ -25,6 +25,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 
 public class ProjectAlmSettingDao implements Dao {
 
@@ -49,8 +50,8 @@ public class ProjectAlmSettingDao implements Dao {
     projectAlmSettingDto.setUpdatedAt(now);
   }
 
-  public void deleteByProject(DbSession dbSession, ComponentDto project) {
-    getMapper(dbSession).deleteByProjectUuid(project.uuid());
+  public void deleteByProject(DbSession dbSession, ProjectDto project) {
+    getMapper(dbSession).deleteByProjectUuid(project.getUuid());
   }
 
   public void deleteByAlmSetting(DbSession dbSession, AlmSettingDto almSetting) {
@@ -61,8 +62,8 @@ public class ProjectAlmSettingDao implements Dao {
     return getMapper(dbSession).countByAlmSettingUuid(almSetting.getUuid());
   }
 
-  public Optional<ProjectAlmSettingDto> selectByProject(DbSession dbSession, ComponentDto project) {
-    return selectByProject(dbSession, project.uuid());
+  public Optional<ProjectAlmSettingDto> selectByProject(DbSession dbSession, ProjectDto project) {
+    return selectByProject(dbSession, project.getUuid());
   }
 
   public Optional<ProjectAlmSettingDto> selectByProject(DbSession dbSession, String projectUuid) {

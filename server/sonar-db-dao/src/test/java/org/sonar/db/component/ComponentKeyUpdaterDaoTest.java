@@ -20,6 +20,7 @@
 package org.sonar.db.component;
 
 import com.google.common.base.Strings;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,7 +64,7 @@ public class ComponentKeyUpdaterDaoTest {
     underTest.updateKey(dbSession, "B", "struts:core");
     dbSession.commit();
 
-    assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from projects"))
+    assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from components"))
       .extracting(t -> t.get("UUID"), t -> t.get("KEE"))
       .containsOnly(
         Tuple.tuple("A", "org.struts:struts"),
@@ -101,7 +102,7 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void updateKey_updates_branches_too() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.components().insertComponent(newFileDto(branch));
     db.components().insertComponent(newFileDto(branch));
@@ -122,13 +123,13 @@ public class ComponentKeyUpdaterDaoTest {
 
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newProjectKey)).hasSize(1);
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newBranchKey)).hasSize(branchComponentCount);
-    db.select(dbSession, "select kee from projects")
+    db.select(dbSession, "select kee from components")
       .forEach(map -> map.values().forEach(k -> assertThat(k.toString()).startsWith(newProjectKey)));
   }
 
   @Test
   public void updateKey_updates_pull_requests_too() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
     db.components().insertComponent(newFileDto(pullRequest));
     db.components().insertComponent(newFileDto(pullRequest));
@@ -149,13 +150,13 @@ public class ComponentKeyUpdaterDaoTest {
 
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newProjectKey)).hasSize(1);
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newBranchKey)).hasSize(branchComponentCount);
-    db.select(dbSession, "select kee from projects")
+    db.select(dbSession, "select kee from components")
       .forEach(map -> map.values().forEach(k -> assertThat(k.toString()).startsWith(newProjectKey)));
   }
 
   @Test
   public void bulk_updateKey_updates_branches_too() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto module = db.components().insertComponent(prefixDbKeyWithKey(newModuleDto(branch), project.getKey()));
     ComponentDto file1 = db.components().insertComponent(prefixDbKeyWithKey(newFileDto(module), module.getKey()));
@@ -177,7 +178,7 @@ public class ComponentKeyUpdaterDaoTest {
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newProjectKey)).hasSize(1);
     String newBranchKey = ComponentDto.generateBranchKey(newProjectKey, branch.getBranch());
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newBranchKey)).hasSize(branchComponentCount);
-    db.select(dbSession, "select kee from projects")
+    db.select(dbSession, "select kee from components")
       .forEach(map -> map.values().forEach(k -> assertThat(k.toString()).startsWith(newProjectKey)));
 
     assertThat(rekeyedResources)
@@ -193,7 +194,7 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void bulk_updateKey_on_branch_containing_slash() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch/with/slash"));
     String newKey = "newKey";
 
@@ -205,7 +206,7 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void bulk_updateKey_updates_pull_requests_too() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
     ComponentDto module = db.components().insertComponent(prefixDbKeyWithKey(newModuleDto(pullRequest), project.getKey()));
     ComponentDto file1 = db.components().insertComponent(prefixDbKeyWithKey(newFileDto(module), module.getKey()));
@@ -227,7 +228,7 @@ public class ComponentKeyUpdaterDaoTest {
 
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newProjectKey)).hasSize(1);
     assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newPullRequestKey)).hasSize(branchComponentCount);
-    db.select(dbSession, "select kee from projects")
+    db.select(dbSession, "select kee from components")
       .forEach(map -> map.values().forEach(k -> assertThat(k.toString()).startsWith(newProjectKey)));
 
     assertThat(rekeyedResources)
@@ -277,7 +278,7 @@ public class ComponentKeyUpdaterDaoTest {
     underTest.bulkUpdateKey(dbSession, "A", "org.struts", "org.apache.struts", doNotReturnAnyRekeyedResource());
     dbSession.commit();
 
-    assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from projects"))
+    assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from components"))
       .extracting(t -> t.get("UUID"), t -> t.get("KEE"))
       .containsOnly(
         Tuple.tuple("A", "org.apache.struts:struts"),
@@ -297,7 +298,7 @@ public class ComponentKeyUpdaterDaoTest {
     underTest.bulkUpdateKey(dbSession, "A", "struts-ui", "struts-web", doNotReturnAnyRekeyedResource());
     dbSession.commit();
 
-    assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from projects"))
+    assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from components"))
       .extracting(t -> t.get("UUID"), t -> t.get("KEE"))
       .containsOnly(
         Tuple.tuple("A", "org.struts:struts"),
@@ -336,7 +337,7 @@ public class ComponentKeyUpdaterDaoTest {
     underTest.bulkUpdateKey(dbSession, "A", "org.struts", "org.apache.struts", doNotReturnAnyRekeyedResource());
     dbSession.commit();
 
-    assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from projects"))
+    assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from components"))
       .extracting(t -> t.get("UUID"), t -> t.get("KEE"))
       .containsOnly(
         Tuple.tuple("A", "org.apache.struts:struts"),

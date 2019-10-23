@@ -245,7 +245,7 @@ public class IssueIndexFiltersTest {
   @Test
   public void do_not_return_issues_from_project_branch_when_filtering_by_portfolios() {
     ComponentDto portfolio = db.components().insertPrivateApplication(db.getDefaultOrganization());
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto projectBranch = db.components().insertProjectBranch(project);
     ComponentDto fileOnProjectBranch = db.components().insertComponent(newFileDto(projectBranch));
     indexView(portfolio.uuid(), singletonList(project.uuid()));
@@ -359,7 +359,7 @@ public class IssueIndexFiltersTest {
 
   @Test
   public void filter_by_application_branch() {
-    ComponentDto application = db.components().insertMainBranch(c -> c.setQualifier(APP));
+    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP));
     ComponentDto branch1 = db.components().insertProjectBranch(application);
     ComponentDto branch2 = db.components().insertProjectBranch(application);
     ComponentDto project1 = db.components().insertPrivateProject();
@@ -385,7 +385,7 @@ public class IssueIndexFiltersTest {
 
   @Test
   public void filter_by_application_branch_having_project_branches() {
-    ComponentDto application = db.components().insertMainBranch(c -> c.setQualifier(APP).setDbKey("app"));
+    ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setDbKey("app"));
     ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
     ComponentDto project1 = db.components().insertPrivateProject(p -> p.setDbKey("prj1"));

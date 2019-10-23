@@ -308,7 +308,7 @@ public class OrganizationDaoTest {
     assertThat(underTest.selectByUuids(
       dbSession,
       of(ORGANIZATION_DTO_1.getUuid().toUpperCase(Locale.ENGLISH), ORGANIZATION_DTO_2.getUuid().toUpperCase(Locale.ENGLISH))))
-        .isEmpty();
+      .isEmpty();
   }
 
   @Test
@@ -333,7 +333,7 @@ public class OrganizationDaoTest {
     insertOrganization(ORGANIZATION_DTO_1);
     insertOrgAlmBinding(ORGANIZATION_DTO_1, GITHUB, "123456");
 
-    assertThat(underTest.selectByOrganizationAlmId(dbSession, GITHUB,"unknown")).isEmpty();
+    assertThat(underTest.selectByOrganizationAlmId(dbSession, GITHUB, "unknown")).isEmpty();
   }
 
   @Test
@@ -1027,11 +1027,10 @@ public class OrganizationDaoTest {
     OrganizationDto org1 = db.organizations().insert();
 
     // private project with highest ncloc in non-main branch
-    ComponentDto project1 = db.components().insertMainBranch(org1);
+    ComponentDto project1 = db.components().insertPrivateProject(org1);
     ComponentDto project1Branch = db.components().insertProjectBranch(project1);
     db.measures().insertLiveMeasure(project1, ncloc, m -> m.setValue(1_000.0));
     db.measures().insertLiveMeasure(project1Branch, ncloc, m -> m.setValue(110_000.0));
-
 
     // public project that must be ignored
     ComponentDto project2 = db.components().insertPublicProject(org1);
@@ -1213,15 +1212,15 @@ public class OrganizationDaoTest {
 
   private int insertPrivateProjectsWithBranches(OrganizationDto org, MetricDto ncloc) {
     // private project
-    ComponentDto project1 = db.components().insertMainBranch(org);
+    ComponentDto project1 = db.components().insertPrivateProject(org);
 
     return Math.max(
       // Create the ncloc on main branch
       insertLiveMeasures(project1, ncloc, 0),
       // Create 5 branches and set the ncloc on them
       IntStream.range(1, 5)
-      .map(i -> insertLiveMeasures(db.components().insertProjectBranch(project1), ncloc, 0))
-      .max().orElse(0)
+        .map(i -> insertLiveMeasures(db.components().insertProjectBranch(project1), ncloc, 0))
+        .max().orElse(0)
     );
   }
 

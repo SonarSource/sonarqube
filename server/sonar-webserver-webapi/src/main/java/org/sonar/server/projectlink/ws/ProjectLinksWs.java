@@ -19,13 +19,7 @@
  */
 package org.sonar.server.projectlink.ws;
 
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.component.ComponentDto;
-
-import static java.lang.String.format;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class ProjectLinksWs implements WebService {
 
@@ -47,11 +41,4 @@ public class ProjectLinksWs implements WebService {
 
     controller.done();
   }
-
-  static ComponentDto checkProject(ComponentDto component) {
-    checkRequest(component.scope().equals(Scopes.PROJECT) && component.qualifier().equals(Qualifiers.PROJECT),
-      format("Component '%s' must be a project.", component.getKey()));
-    return component;
-  }
-
 }

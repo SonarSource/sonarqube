@@ -103,7 +103,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   @Before
   public void setUp() {
     organization = dbTester.organizations().insert();
-    project = dbTester.components().insertMainBranch(organization);
+    project = dbTester.components().insertPublicProject(organization);
 
     when(analysisMetadataHolder.isBranch()).thenReturn(true);
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(false);
@@ -241,7 +241,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   @Test
   public void throw_ISE_when_specific_analysis_is_set_but_does_not_exist_in_DB() {
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertMainBranch(organization);
+    ComponentDto project = dbTester.components().insertPublicProject(organization);
     setProjectPeriod(project.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "nonexistent");
     setupRoot(project);
 
@@ -253,7 +253,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @Test
   public void throw_ISE_when_specific_analysis_is_set_but_does_not_belong_to_current_project() {
-    ComponentDto otherProject = dbTester.components().insertMainBranch(organization);
+    ComponentDto otherProject = dbTester.components().insertPublicProject(organization);
     SnapshotDto otherProjectAnalysis = dbTester.components().insertSnapshot(otherProject);
     setBranchPeriod(project.uuid(), project.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, otherProjectAnalysis.getUuid());
     setupRoot(project);

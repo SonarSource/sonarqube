@@ -33,7 +33,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDao;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.async.AsyncExecution;
@@ -59,8 +59,8 @@ public class WebHooksImpl implements WebHooks {
   }
 
   @Override
-  public boolean isEnabled(ComponentDto projectDto) {
-    return readWebHooksFrom(projectDto.uuid(), null)
+  public boolean isEnabled(ProjectDto projectDto) {
+    return readWebHooksFrom(projectDto.getUuid(), null)
       .findAny()
       .isPresent();
   }
@@ -68,17 +68,12 @@ public class WebHooksImpl implements WebHooks {
   private Stream<WebhookDto> readWebHooksFrom(String projectUuid, @CheckForNull PostProjectAnalysisTask.LogStatistics taskLogStatistics) {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
-      Optional<ComponentDto> optionalComponentDto = dbClient.componentDao().selectByUuid(dbSession, projectUuid);
-      ComponentDto componentDto = checkStateWithOptional(optionalComponentDto, "the requested project '%s' was not found", projectUuid);
-
-      if (componentDto.getMainBranchProjectUuid() != null && !componentDto.uuid().equals(componentDto.getMainBranchProjectUuid())) {
-        Optional<ComponentDto> mainBranchComponentDto = dbClient.componentDao().selectByUuid(dbSession, componentDto.getMainBranchProjectUuid());
-        componentDto = checkStateWithOptional(mainBranchComponentDto, "the requested project '%s' was not found", projectUuid);
-      }
+      Optional<ProjectDto> optionalProjectDto = dbClient.projectDao().selectByUuid(dbSession, projectUuid);
+      ProjectDto projectDto = checkStateWithOptional(optionalProjectDto, "the requested project '%s' was not found", projectUuid);
 
       WebhookDao dao = dbClient.webhookDao();
-      List<WebhookDto> projectWebhooks = dao.selectByProject(dbSession, componentDto);
-      List<WebhookDto> organizationWebhooks = dao.selectByOrganizationUuid(dbSession, componentDto.getOrganizationUuid());
+      List<WebhookDto> projectWebhooks = dao.selectByProject(dbSession, projectDto);
+      List<WebhookDto> organizationWebhooks = dao.selectByOrganizationUuid(dbSession, projectDto.getOrganizationUuid());
       if (taskLogStatistics != null) {
         taskLogStatistics.add("globalWebhooks", organizationWebhooks.size());
         taskLogStatistics.add("projectWebhooks", projectWebhooks.size());

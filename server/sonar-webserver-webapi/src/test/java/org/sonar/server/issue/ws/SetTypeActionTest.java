@@ -228,7 +228,7 @@ public class SetTypeActionTest {
 
   private IssueDto newIssueWithProject(RuleType type) {
     RuleDefinitionDto rule = dbTester.rules().insert();
-    ComponentDto project = dbTester.components().insertMainBranch();
+    ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     return issueDbTester.insert(rule, project, file, i -> i.setType(type));
   }

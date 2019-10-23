@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 
 import static java.util.Arrays.stream;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newAzureAlmSettingDto;
@@ -64,20 +64,20 @@ public class AlmSettingsDbTester {
   }
 
   @SafeVarargs
-  public final ProjectAlmSettingDto insertGitHubProjectAlmSetting(AlmSettingDto githubAlmSetting, ComponentDto project, Consumer<ProjectAlmSettingDto>... populators) {
+  public final ProjectAlmSettingDto insertGitHubProjectAlmSetting(AlmSettingDto githubAlmSetting, ProjectDto project, Consumer<ProjectAlmSettingDto>... populators) {
     return insertProjectAlmSetting(newGithubProjectAlmSettingDto(githubAlmSetting, project), populators);
   }
 
-  public ProjectAlmSettingDto insertAzureProjectAlmSetting(AlmSettingDto azureAlmSetting, ComponentDto project) {
+  public ProjectAlmSettingDto insertAzureProjectAlmSetting(AlmSettingDto azureAlmSetting, ProjectDto project) {
     return insertProjectAlmSetting(newAzureProjectAlmSettingDto(azureAlmSetting, project));
   }
 
-  public ProjectAlmSettingDto insertGitlabProjectAlmSetting(AlmSettingDto gitlabAlmSetting, ComponentDto project) {
+  public ProjectAlmSettingDto insertGitlabProjectAlmSetting(AlmSettingDto gitlabAlmSetting, ProjectDto project) {
     return insertProjectAlmSetting(newGitlabProjectAlmSettingDto(gitlabAlmSetting, project));
   }
 
   @SafeVarargs
-  public final ProjectAlmSettingDto insertBitbucketProjectAlmSetting(AlmSettingDto bitbucketAlmSetting, ComponentDto project, Consumer<ProjectAlmSettingDto>... populators) {
+  public final ProjectAlmSettingDto insertBitbucketProjectAlmSetting(AlmSettingDto bitbucketAlmSetting, ProjectDto project, Consumer<ProjectAlmSettingDto>... populators) {
     return insertProjectAlmSetting(newBitbucketProjectAlmSettingDto(bitbucketAlmSetting, project), populators);
   }
 

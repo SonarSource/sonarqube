@@ -35,8 +35,8 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.KeyLongValue;
 import org.sonar.db.RowNotFoundException;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
@@ -156,12 +156,12 @@ public class QualityProfileDao implements Dao {
   }
 
   @CheckForNull
-  public QProfileDto selectAssociatedToProjectAndLanguage(DbSession dbSession, ComponentDto project, String language) {
-    return mapper(dbSession).selectAssociatedToProjectUuidAndLanguage(project.getOrganizationUuid(), project.projectUuid(), language);
+  public QProfileDto selectAssociatedToProjectAndLanguage(DbSession dbSession, ProjectDto project, String language) {
+    return mapper(dbSession).selectAssociatedToProjectUuidAndLanguage(project.getOrganizationUuid(), project.getUuid(), language);
   }
 
-  public List<QProfileDto> selectAssociatedToProjectUuidAndLanguages(DbSession dbSession, ComponentDto project, Collection<String> languages) {
-    return executeLargeInputs(languages, partition -> mapper(dbSession).selectAssociatedToProjectUuidAndLanguages(project.getOrganizationUuid(), project.uuid(), partition));
+  public List<QProfileDto> selectAssociatedToProjectUuidAndLanguages(DbSession dbSession, ProjectDto project, Collection<String> languages) {
+    return executeLargeInputs(languages, partition -> mapper(dbSession).selectAssociatedToProjectUuidAndLanguages(project.getOrganizationUuid(), project.getUuid(), partition));
   }
 
   public List<QProfileDto> selectByLanguage(DbSession dbSession, OrganizationDto organization, String language) {
@@ -205,16 +205,16 @@ public class QualityProfileDao implements Dao {
     return KeyLongValue.toMap(executeLargeInputs(profileUuids, partition -> mapper(dbSession).countProjectsByOrganizationAndProfiles(organization.getUuid(), partition)));
   }
 
-  public void insertProjectProfileAssociation(DbSession dbSession, ComponentDto project, QProfileDto profile) {
-    mapper(dbSession).insertProjectProfileAssociation(project.uuid(), profile.getKee());
+  public void insertProjectProfileAssociation(DbSession dbSession, ProjectDto project, QProfileDto profile) {
+    mapper(dbSession).insertProjectProfileAssociation(project.getUuid(), profile.getKee());
   }
 
-  public void deleteProjectProfileAssociation(DbSession dbSession, ComponentDto project, QProfileDto profile) {
-    mapper(dbSession).deleteProjectProfileAssociation(project.uuid(), profile.getKee());
+  public void deleteProjectProfileAssociation(DbSession dbSession, ProjectDto project, QProfileDto profile) {
+    mapper(dbSession).deleteProjectProfileAssociation(project.getUuid(), profile.getKee());
   }
 
-  public void updateProjectProfileAssociation(DbSession dbSession, ComponentDto project, String newProfileUuid, String oldProfileUuid) {
-    mapper(dbSession).updateProjectProfileAssociation(project.uuid(), newProfileUuid, oldProfileUuid);
+  public void updateProjectProfileAssociation(DbSession dbSession, ProjectDto project, String newProfileUuid, String oldProfileUuid) {
+    mapper(dbSession).updateProjectProfileAssociation(project.getUuid(), newProfileUuid, oldProfileUuid);
   }
 
   public void deleteProjectAssociationsByProfileUuids(DbSession dbSession, Collection<String> profileUuids) {

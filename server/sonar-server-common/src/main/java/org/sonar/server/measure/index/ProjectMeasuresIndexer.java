@@ -138,8 +138,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       }
     }
 
-    // the remaining uuids reference projects that don't exist in db. They must
-    // be deleted from index.
+    // the remaining uuids reference projects that don't exist in db. They must be deleted from index.
     projectUuids.forEach(projectUuid -> bulkIndexer.addDeletion(TYPE_PROJECT_MEASURES, projectUuid, AuthorizationDoc.idOf(projectUuid)));
 
     return bulkIndexer.stop();

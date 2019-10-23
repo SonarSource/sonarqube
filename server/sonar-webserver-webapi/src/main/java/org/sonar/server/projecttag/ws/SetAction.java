@@ -25,20 +25,21 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singletonList;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_TAGS_UPDATE;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class SetAction implements ProjectTagsWsAction {
   /**
@@ -53,12 +54,14 @@ public class SetAction implements ProjectTagsWsAction {
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
   private final ProjectIndexers projectIndexers;
+  private final System2 system2;
 
-  public SetAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, ProjectIndexers projectIndexers) {
+  public SetAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, ProjectIndexers projectIndexers, System2 system2) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.projectIndexers = projectIndexers;
+    this.system2 = system2;
   }
 
   @Override
@@ -92,13 +95,19 @@ public class SetAction implements ProjectTagsWsAction {
       .collect(MoreCollectors.toList());
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
-      checkRequest(PROJECT.equals(project.qualifier()), "Component '%s' is not a project", project.getDbKey());
-      userSession.checkComponentPermission(UserRole.ADMIN, project);
+      ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
+      userSession.checkProjectPermission(UserRole.ADMIN, project);
+
+      ComponentDto component = componentFinder.getByKey(dbSession, projectKey);
 
       project.setTags(tags);
-      dbClient.componentDao().updateTags(dbSession, project);
-      projectIndexers.commitAndIndex(dbSession, singletonList(project), PROJECT_TAGS_UPDATE);
+      project.setUpdatedAt(system2.now());
+      dbClient.projectDao().updateTags(dbSession, project);
+
+      // FIXME we use the old table to index and also when returning generic components, so we still need to add it to the old table.
+      component.setTags(tags);
+      dbClient.componentDao().updateTags(dbSession, component);
+      projectIndexers.commitAndIndexProjects(dbSession, singletonList(project), PROJECT_TAGS_UPDATE);
     }
 
     response.noContent();

@@ -62,7 +62,7 @@ public class ReferenceBranchComponentUuidsTest {
     analysisMetadataHolder.setProject(project);
     analysisMetadataHolder.setBranch(branch);
 
-    ComponentDto projectDto = db.components().insertMainBranch();
+    ComponentDto projectDto = db.components().insertPublicProject();
     when(project.getUuid()).thenReturn(projectDto.uuid());
     branch1 = db.components().insertProjectBranch(projectDto, b -> b.setKey("branch1"));
     branch2 = db.components().insertProjectBranch(projectDto, b -> b.setKey("branch2"));

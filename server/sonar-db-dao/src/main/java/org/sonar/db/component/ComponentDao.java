@@ -73,14 +73,6 @@ public class ComponentDao implements Dao {
     return mapper(session).countByQuery(organizationUuid, query);
   }
 
-  @CheckForNull
-  private static String buildUpperLikeSql(@Nullable String textQuery) {
-    if (isBlank(textQuery)) {
-      return null;
-    }
-    return buildLikeValue(textQuery.toUpperCase(Locale.ENGLISH), BEFORE_AND_AFTER);
-  }
-
   private static ComponentMapper mapper(DbSession session) {
     return session.getMapper(ComponentMapper.class);
   }

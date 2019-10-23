@@ -21,8 +21,10 @@ package org.sonar.db.component;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.DbSession;
 
 public interface BranchMapper {
 
@@ -42,6 +44,8 @@ public interface BranchMapper {
   BranchDto selectByUuid(@Param("uuid") String uuid);
 
   Collection<BranchDto> selectByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  List<BranchDto> selectByBranchKeys(@Param("branchKeyByProjectUuid") Map<String, String> branchKeyByProjectUuid);
 
   List<BranchDto> selectByUuids(@Param("uuids") Collection<String> uuids);
 

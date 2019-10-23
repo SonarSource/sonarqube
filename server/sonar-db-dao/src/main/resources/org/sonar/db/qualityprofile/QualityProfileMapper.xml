@@ -261,7 +261,7 @@
 
   <select id="countProjectsByOrganizationAndProfiles" resultType="KeyLongValue" parameterType="map">
     select pqp.profile_key as "key", count(pj.uuid) as "value"
-    from projects pj
+    from components pj
     inner join project_qprofiles pqp on pqp.project_uuid = pj.uuid
     inner join org_qprofiles oqp on oqp.uuid = pqp.profile_key
     where
@@ -340,7 +340,7 @@
       pj.kee as projectKey,
       pj.name as projectName,
       pp.profile_key as profileKey
-    from projects pj
+    from components pj
     inner join project_qprofiles pp ON pp.project_uuid = pj.uuid and pp.profile_key = #{profileUuid, jdbcType=VARCHAR}
     where
       pj.scope = 'PRJ'
@@ -353,7 +353,7 @@
 
   <select id="selectDeselectedProjects" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
     SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
-    FROM projects pj
+    FROM components pj
     LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
     AND pp.profile_key = #{profileUuid, jdbcType=VARCHAR}
     WHERE pj.scope='PRJ' AND pj.qualifier='TRK' AND pj.main_branch_project_uuid is null
@@ -365,7 +365,7 @@
 
   <select id="selectProjectAssociations" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
     SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
-    FROM projects pj
+    FROM components pj
     LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
     AND pp.profile_key = #{profileUuid, jdbcType=VARCHAR}
     WHERE pj.scope='PRJ' AND pj.qualifier='TRK' AND pj.main_branch_project_uuid is null

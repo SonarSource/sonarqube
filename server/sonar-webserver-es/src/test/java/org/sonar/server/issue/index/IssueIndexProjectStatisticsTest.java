@@ -45,7 +45,7 @@ import static org.mockito.Mockito.mock;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.component.ComponentTesting.newProjectBranch;
+import static org.sonar.db.component.ComponentTesting.newBranchComponent;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
@@ -246,7 +246,7 @@ public class IssueIndexProjectStatisticsTest {
   public void searchProjectStatistics_return_branch_issues() {
     OrganizationDto organization = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(organization);
-    ComponentDto branch = newProjectBranch(project, newBranchDto(project).setKey("branch"));
+    ComponentDto branch = newBranchComponent(project, newBranchDto(project).setKey("branch"));
     String userUuid = randomAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(

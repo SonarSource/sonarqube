@@ -142,7 +142,10 @@ public class ProjectMeasuresIndexerTest {
     assertThatProjectHasTag(project, "foo");
 
     project.setTagsString("bar");
+    // TODO this should be removed at some point
     db.getDbClient().componentDao().updateTags(db.getSession(), project);
+    db.getDbClient().projectDao().updateTags(db.getSession(), db.components().getProjectDto(project).setTagsString("bar"));
+
     IndexingResult result = indexProject(project, PROJECT_TAGS_UPDATE);
 
     assertThatProjectHasTag(project, "bar");
@@ -156,7 +159,7 @@ public class ProjectMeasuresIndexerTest {
     indexProject(project, PROJECT_CREATION);
     assertThatIndexContainsOnly(project);
 
-    db.getDbClient().componentDao().delete(db.getSession(), project.getId());
+    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.uuid());
     IndexingResult result = indexProject(project, PROJECT_DELETION);
 
     assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isEqualTo(0);

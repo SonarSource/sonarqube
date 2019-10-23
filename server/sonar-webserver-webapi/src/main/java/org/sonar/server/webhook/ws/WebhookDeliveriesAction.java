@@ -29,7 +29,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
@@ -96,74 +96,74 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
     userSession.checkLoggedIn();
 
     String ceTaskId = request.param(PARAM_TASK);
-    String componentKey = request.param(PARAM_COMPONENT);
+    String projectKey = request.param(PARAM_COMPONENT);
     String webhookUuid = request.param(PARAM_WEBHOOK);
     int page = request.mandatoryParamAsInt(PAGE);
     int pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
 
-    checkArgument(webhookUuid != null ^ (ceTaskId != null ^ componentKey != null),
+    checkArgument(webhookUuid != null ^ (ceTaskId != null ^ projectKey != null),
       "Either '%s' or '%s' or '%s' must be provided", PARAM_TASK, PARAM_COMPONENT, PARAM_WEBHOOK);
 
-    Data data = loadFromDatabase(webhookUuid, ceTaskId, componentKey, page, pageSize);
+    Data data = loadFromDatabase(webhookUuid, ceTaskId, projectKey, page, pageSize);
     data.ensureAdminPermission(userSession);
     data.writeTo(request, response);
   }
 
-  private Data loadFromDatabase(@Nullable String webhookUuid, @Nullable String ceTaskId, @Nullable String componentKey, int page, int pageSize) {
-    ComponentDto component;
+  private Data loadFromDatabase(@Nullable String webhookUuid, @Nullable String ceTaskId, @Nullable String projectKey, int page, int pageSize) {
+    ProjectDto project;
     List<WebhookDeliveryLiteDto> deliveries;
     int totalElements;
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (isNotBlank(webhookUuid)) {
         totalElements = dbClient.webhookDeliveryDao().countDeliveriesByWebhookUuid(dbSession, webhookUuid);
         deliveries = dbClient.webhookDeliveryDao().selectByWebhookUuid(dbSession, webhookUuid, offset(page, pageSize), pageSize);
-        component = getComponentDto(dbSession, deliveries);
-      } else if (componentKey != null) {
-        component = componentFinder.getByKey(dbSession, componentKey);
-        totalElements = dbClient.webhookDeliveryDao().countDeliveriesByComponentUuid(dbSession, component.uuid());
-        deliveries = dbClient.webhookDeliveryDao().selectOrderedByComponentUuid(dbSession, component.uuid(), offset(page, pageSize), pageSize);
+        project = getProjectDto(dbSession, deliveries);
+      } else if (projectKey != null) {
+        project = componentFinder.getProjectByKey(dbSession, projectKey);
+        totalElements = dbClient.webhookDeliveryDao().countDeliveriesByComponentUuid(dbSession, project.getUuid());
+        deliveries = dbClient.webhookDeliveryDao().selectOrderedByComponentUuid(dbSession, project.getUuid(), offset(page, pageSize), pageSize);
       } else {
         totalElements = dbClient.webhookDeliveryDao().countDeliveriesByCeTaskUuid(dbSession, ceTaskId);
         deliveries = dbClient.webhookDeliveryDao().selectOrderedByCeTaskUuid(dbSession, ceTaskId, offset(page, pageSize), pageSize);
-        component = getComponentDto(dbSession, deliveries);
+        project = getProjectDto(dbSession, deliveries);
       }
     }
-    return new Data(component, deliveries).withPagingInfo(page, pageSize, totalElements);
+    return new Data(project, deliveries).withPagingInfo(page, pageSize, totalElements);
   }
 
-  private ComponentDto getComponentDto(DbSession dbSession, List<WebhookDeliveryLiteDto> deliveries) {
+  private ProjectDto getProjectDto(DbSession dbSession, List<WebhookDeliveryLiteDto> deliveries) {
     Optional<String> deliveredComponentUuid = deliveries
       .stream()
       .map(WebhookDeliveryLiteDto::getComponentUuid)
       .findFirst();
 
     if (deliveredComponentUuid.isPresent()) {
-      return componentFinder.getByUuid(dbSession, deliveredComponentUuid.get());
+      return componentFinder.getProjectByUuid(dbSession, deliveredComponentUuid.get());
     } else {
       return null;
     }
   }
 
   private static class Data {
-    private final ComponentDto component;
+    private final ProjectDto project;
     private final List<WebhookDeliveryLiteDto> deliveryDtos;
 
     private int pageIndex;
     private int pageSize;
     private int totalElements;
 
-    Data(@Nullable ComponentDto component, List<WebhookDeliveryLiteDto> deliveries) {
+    Data(@Nullable ProjectDto project, List<WebhookDeliveryLiteDto> deliveries) {
       this.deliveryDtos = deliveries;
       if (deliveries.isEmpty()) {
-        this.component = null;
+        this.project = null;
       } else {
-        this.component = requireNonNull(component);
+        this.project = requireNonNull(project);
       }
     }
 
     void ensureAdminPermission(UserSession userSession) {
-      if (component != null) {
-        userSession.checkComponentPermission(UserRole.ADMIN, component);
+      if (project != null) {
+        userSession.checkProjectPermission(UserRole.ADMIN, project);
       }
     }
 
@@ -171,7 +171,7 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
       Webhooks.DeliveriesWsResponse.Builder responseBuilder = Webhooks.DeliveriesWsResponse.newBuilder();
       Webhooks.Delivery.Builder deliveryBuilder = Webhooks.Delivery.newBuilder();
       for (WebhookDeliveryLiteDto dto : deliveryDtos) {
-        copyDtoToProtobuf(component, dto, deliveryBuilder);
+        copyDtoToProtobuf(project, dto, deliveryBuilder);
         responseBuilder.addDeliveries(deliveryBuilder);
       }
 

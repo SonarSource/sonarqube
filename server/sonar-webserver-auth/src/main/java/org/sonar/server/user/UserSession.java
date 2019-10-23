@@ -29,6 +29,7 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 
 import static java.util.Objects.requireNonNull;
@@ -98,8 +99,7 @@ public interface UserSession {
    */
   Optional<IdentityProvider> getIdentityProvider();
 
-  @Immutable
-  final class ExternalIdentity {
+  @Immutable final class ExternalIdentity {
     private final String id;
     private final String login;
 
@@ -206,6 +206,8 @@ public interface UserSession {
    */
   boolean hasComponentPermission(String permission, ComponentDto component);
 
+  boolean hasProjectPermission(String permission, ProjectDto project);
+
   /**
    * Using {@link #hasComponentPermission(String, ComponentDto)} is recommended
    * because it does not have to load project if the referenced component
@@ -225,11 +227,18 @@ public interface UserSession {
    */
   List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components);
 
+  List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects);
   /**
    * Ensures that {@link #hasComponentPermission(String, ComponentDto)} is {@code true},
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkComponentPermission(String projectPermission, ComponentDto component);
+
+  /**
+   * Ensures that {@link #hasProjectPermission(String, ProjectDto)} is {@code true},
+   * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   */
+  UserSession checkProjectPermission(String projectPermission, ProjectDto project);
 
   /**
    * Ensures that {@link #hasComponentUuidPermission(String, String)} is {@code true},

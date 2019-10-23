@@ -30,6 +30,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -59,7 +60,7 @@ public class DeleteConditionActionTest {
   private TestDefaultOrganizationProvider organizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private WsActionTester ws = new WsActionTester(
-    new DeleteConditionAction(db.getDbClient(), new QualityGatesWsSupport(db.getDbClient(), userSession, organizationProvider)));
+    new DeleteConditionAction(db.getDbClient(), new QualityGatesWsSupport(db.getDbClient(), userSession, organizationProvider, TestComponentFinder.from(db))));
 
   @Test
   public void definition() {

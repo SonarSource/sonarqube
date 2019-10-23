@@ -19,8 +19,8 @@
  */
 package org.sonar.server.webhook.ws;
 
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
@@ -36,8 +36,8 @@ public class WebhookSupport {
     this.userSession = userSession;
   }
 
-  void checkPermission(ComponentDto componentDto) {
-    userSession.checkComponentPermission(ADMIN, componentDto);
+  void checkPermission(ProjectDto projectDto) {
+    userSession.checkProjectPermission(ADMIN, projectDto);
   }
 
   void checkPermission(OrganizationDto organizationDto) {
@@ -50,8 +50,8 @@ public class WebhookSupport {
     }
   }
 
-  void checkThatProjectBelongsToOrganization(ComponentDto componentDto, OrganizationDto organizationDto, String message, Object... messageArguments) {
-    if (!organizationDto.getUuid().equals(componentDto.getOrganizationUuid())) {
+  void checkThatProjectBelongsToOrganization(ProjectDto projectDto, OrganizationDto organizationDto, String message, Object... messageArguments) {
+    if (!organizationDto.getUuid().equals(projectDto.getOrganizationUuid())) {
       throw new NotFoundException(format(message, messageArguments));
     }
   }

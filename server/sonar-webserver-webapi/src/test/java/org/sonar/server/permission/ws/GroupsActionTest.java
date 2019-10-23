@@ -301,7 +301,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void fail_when_using_branch_uuid() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization());
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
@@ -318,7 +318,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization());
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);

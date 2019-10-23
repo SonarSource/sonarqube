@@ -22,27 +22,22 @@ package org.sonar.server.component;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.es.TestProjectIndexers;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
 
 public class ComponentCleanerServiceTest {
@@ -58,8 +53,7 @@ public class ComponentCleanerServiceTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private TestProjectIndexers projectIndexers = new TestProjectIndexers();
-  private ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
-  private ComponentCleanerService underTest = new ComponentCleanerService(dbClient, mockResourceTypes, projectIndexers);
+  private ComponentCleanerService underTest = new ComponentCleanerService(dbClient, projectIndexers);
 
   @Test
   public void delete_project_from_db_and_index() {
@@ -92,7 +86,7 @@ public class ComponentCleanerServiceTest {
     DbData data2 = insertData();
     DbData data3 = insertData();
 
-    underTest.deleteBranch(dbSession, data1.project);
+    underTest.deleteBranch(dbSession, data1.branch);
     dbSession.commit();
 
     assertNotExists(data1);
@@ -103,110 +97,63 @@ public class ComponentCleanerServiceTest {
   @Test
   public void delete_webhooks_from_projects() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    ProjectDto project1 = db.components().insertPrivateProjectDto(organization);
     WebhookDto webhook1 = db.webhooks().insertWebhook(project1);
     db.webhookDelivery().insert(webhook1);
-    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    ProjectDto project2 = db.components().insertPrivateProjectDto(organization);
     WebhookDto webhook2 = db.webhooks().insertWebhook(project2);
     db.webhookDelivery().insert(webhook2);
-    ComponentDto projectNotToBeDeleted = db.components().insertPrivateProject(organization);
+    ProjectDto projectNotToBeDeleted = db.components().insertPrivateProjectDto(organization);
     WebhookDto webhook3 = db.webhooks().insertWebhook(projectNotToBeDeleted);
     db.webhookDelivery().insert(webhook3);
-    mockResourceTypeAsValidProject();
 
-    underTest.delete(dbSession, asList(project1, project2));
+    ProjectDto projectDto1 = dbClient.projectDao().selectByUuid(dbSession, project1.getUuid()).get();
+    ProjectDto projectDto2 = dbClient.projectDao().selectByUuid(dbSession, project2.getUuid()).get();
+
+    underTest.delete(dbSession, asList(projectDto1, projectDto2));
 
     assertThat(db.countRowsOfTable(db.getSession(), "webhooks")).isEqualTo(1);
     assertThat(db.countRowsOfTable(db.getSession(), "webhook_deliveries")).isEqualTo(1);
   }
 
-  @Test
-  public void fail_with_IAE_if_not_a_project() {
-    mockResourceTypeAsValidProject();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    dbClient.componentDao().insert(dbSession, project);
-    ComponentDto file = newFileDto(project, null);
-    dbClient.componentDao().insert(dbSession, file);
-    dbSession.commit();
-
-    expectedException.expect(IllegalArgumentException.class);
-    underTest.delete(dbSession, file);
-  }
-
-  @Test
-  public void fail_to_delete_not_deletable_resource_type() {
-    ResourceType resourceType = mock(ResourceType.class);
-    when(resourceType.getBooleanProperty("deletable")).thenReturn(false);
-    when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    dbClient.componentDao().insert(dbSession, project);
-    dbSession.commit();
-
-    expectedException.expect(IllegalArgumentException.class);
-    underTest.delete(dbSession, project);
-  }
-
-  @Test
-  public void fail_to_delete_null_resource_type() {
-    when(mockResourceTypes.get(anyString())).thenReturn(null);
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    dbClient.componentDao().insert(dbSession, project);
-    dbSession.commit();
-
-    expectedException.expect(IllegalArgumentException.class);
-    underTest.delete(dbSession, project);
-  }
-
-  @Test
-  public void fail_to_delete_project_when_branch() {
-    ComponentDto project = db.components().insertMainBranch();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    expectedException.expect(IllegalArgumentException.class);
-
-    underTest.delete(dbSession, branch);
-  }
-
   private DbData insertData() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto componentDto = db.components().insertPublicProject(organization);
+    ProjectDto project = dbClient.projectDao().selectByUuid(dbSession, componentDto.uuid()).get();
+    BranchDto branch = dbClient.branchDao().selectByUuid(dbSession, project.getUuid()).get();
+    ComponentDto component = dbClient.componentDao().selectByKey(dbSession, project.getKey()).get();
     RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, project);
-    SnapshotDto analysis = db.components().insertSnapshot(project);
-    mockResourceTypeAsValidProject();
-    return new DbData(project, analysis, issue);
-  }
-
-  private void mockResourceTypeAsValidProject() {
-    ResourceType resourceType = mock(ResourceType.class);
-    when(resourceType.getBooleanProperty(anyString())).thenReturn(true);
-    when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
+    IssueDto issue = db.issues().insert(rule, project, component);
+    SnapshotDto analysis = db.components().insertSnapshot(component);
+    return new DbData(project, branch, analysis, issue);
   }
 
   private void assertNotExists(DbData data) {
     assertDataInDb(data, false);
-
-    assertThat(projectIndexers.hasBeenCalled(data.project.uuid(), PROJECT_DELETION)).isTrue();
+    assertThat(projectIndexers.hasBeenCalled(data.branch.getUuid(), PROJECT_DELETION)).isTrue();
   }
 
   private void assertExists(DbData data) {
     assertDataInDb(data, true);
-    assertThat(projectIndexers.hasBeenCalled(data.project.uuid(), PROJECT_DELETION)).isFalse();
+    assertThat(projectIndexers.hasBeenCalled(data.branch.getUuid(), PROJECT_DELETION)).isFalse();
   }
 
   private void assertDataInDb(DbData data, boolean exists) {
-    assertThat(dbClient.componentDao().selectByUuid(dbSession, data.project.uuid()).isPresent()).isEqualTo(exists);
+    assertThat(dbClient.componentDao().selectByUuid(dbSession, data.project.getUuid()).isPresent()).isEqualTo(exists);
+    assertThat(dbClient.branchDao().selectByUuid(dbSession, data.branch.getUuid()).isPresent()).isEqualTo(exists);
     assertThat(dbClient.snapshotDao().selectByUuid(dbSession, data.snapshot.getUuid()).isPresent()).isEqualTo(exists);
     assertThat(dbClient.issueDao().selectByKey(dbSession, data.issue.getKey()).isPresent()).isEqualTo(exists);
   }
 
   private static class DbData {
-    final ComponentDto project;
+    final ProjectDto project;
+    final BranchDto branch;
     final SnapshotDto snapshot;
     final IssueDto issue;
 
-    DbData(ComponentDto project, SnapshotDto snapshot, IssueDto issue) {
+    DbData(ProjectDto project, BranchDto branch, SnapshotDto snapshot, IssueDto issue) {
       this.project = project;
+      this.branch = branch;
       this.snapshot = snapshot;
       this.issue = issue;
     }

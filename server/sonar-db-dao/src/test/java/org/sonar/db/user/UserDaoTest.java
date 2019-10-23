@@ -36,6 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -520,7 +521,7 @@ public class UserDaoTest {
 
     session.commit();
 
-    underTest.cleanHomepage(session, new ComponentDto().setUuid("dummy-project-UUID"));
+    underTest.cleanHomepage(session, new ProjectDto().setUuid("dummy-project-UUID"));
 
     UserDto userWithAHomepageReloaded = underTest.selectUserById(session, userUnderTest.getId());
     assertThat(userWithAHomepageReloaded.getUpdatedAt()).isEqualTo(NOW);

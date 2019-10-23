@@ -30,6 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.server.async.AsyncExecution;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -70,26 +71,25 @@ public class SynchronousWebHooksImplTest {
 
   @Test
   public void isEnabled_returns_false_if_no_webhooks() {
-    ComponentDto componentDto = componentDbTester.insertPrivateProject();
-
-    assertThat(underTest.isEnabled(componentDto)).isFalse();
+    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
+    assertThat(underTest.isEnabled(projectDto)).isFalse();
   }
 
   @Test
   public void isEnabled_returns_true_if_one_valid_global_webhook() {
-    ComponentDto componentDto = componentDbTester.insertPrivateProject();
-    webhookDbTester.insert(newWebhook(componentDto).setName("First").setUrl("http://url1"));
+    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
+    webhookDbTester.insert(newWebhook(projectDto).setName("First").setUrl("http://url1"));
 
-    assertThat(underTest.isEnabled(componentDto)).isTrue();
+    assertThat(underTest.isEnabled(projectDto)).isTrue();
   }
 
   @Test
   public void isEnabled_returns_true_if_one_valid_project_webhook() {
     String organizationUuid = defaultOrganizationProvider.get().getUuid();
-    ComponentDto componentDto = componentDbTester.insertPrivateProject().setOrganizationUuid(organizationUuid);
-    webhookDbTester.insert(newWebhook(componentDto).setName("First").setUrl("http://url1"));
+    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto().setOrganizationUuid(organizationUuid);
+    webhookDbTester.insert(newWebhook(projectDto).setName("First").setUrl("http://url1"));
 
-    assertThat(underTest.isEnabled(componentDto)).isTrue();
+    assertThat(underTest.isEnabled(projectDto)).isTrue();
   }
 
   @Test
@@ -137,25 +137,25 @@ public class SynchronousWebHooksImplTest {
   @Test
   public void send_project_webhooks() {
     String organizationUuid = defaultOrganizationProvider.get().getUuid();
-    ComponentDto componentDto = componentDbTester.insertPrivateProject().setOrganizationUuid(organizationUuid);
-    webhookDbTester.insert(newWebhook(componentDto).setName("First").setUrl("http://url1"));
+    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto().setOrganizationUuid(organizationUuid);
+    webhookDbTester.insert(newWebhook(projectDto).setName("First").setUrl("http://url1"));
     caller.enqueueSuccess(NOW, 200, 1_234);
 
-    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(componentDto.uuid(), "1", "#1"), () -> mock, taskStatistics);
+    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(projectDto.getUuid(), "1", "#1"), () -> mock, taskStatistics);
 
     assertThat(caller.countSent()).isEqualTo(1);
     assertThat(logTester.logs(DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
     verify(deliveryStorage).persist(any(WebhookDelivery.class));
-    verify(deliveryStorage).purge(componentDto.uuid());
+    verify(deliveryStorage).purge(projectDto.getUuid());
     verifyLogStatistics(0, 1);
   }
 
   @Test
   public void send_global_and_project_webhooks() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto componentDto = componentDbTester.insertPrivateProject(organizationDto);
-    webhookDbTester.insert(newWebhook(componentDto).setName("1First").setUrl("http://url1"));
-    webhookDbTester.insert(newWebhook(componentDto).setName("2Second").setUrl("http://url2"));
+    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto(organizationDto);
+    webhookDbTester.insert(newWebhook(projectDto).setName("1First").setUrl("http://url1"));
+    webhookDbTester.insert(newWebhook(projectDto).setName("2Second").setUrl("http://url2"));
     webhookDbTester.insert(newWebhook(organizationDto).setName("3Third").setUrl("http://url3"));
     webhookDbTester.insert(newWebhook(organizationDto).setName("4Fourth").setUrl("http://url4"));
     webhookDbTester.insert(newWebhook(organizationDto).setName("5Fifth").setUrl("http://url5"));
@@ -165,7 +165,7 @@ public class SynchronousWebHooksImplTest {
     caller.enqueueSuccess(NOW, 200, 5_678);
     caller.enqueueSuccess(NOW, 200, 9_256);
 
-    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(componentDto.uuid(), "1", "#1"), () -> mock, taskStatistics);
+    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(projectDto.getUuid(), "1", "#1"), () -> mock, taskStatistics);
 
     assertThat(caller.countSent()).isEqualTo(5);
     List<String> debugLogs = logTester.logs(DEBUG);
@@ -175,7 +175,7 @@ public class SynchronousWebHooksImplTest {
     assertThat(debugLogs).contains("Sent webhook '4Fourth' | url=http://url4 | time=5678ms | status=200");
     assertThat(debugLogs).contains("Sent webhook '5Fifth' | url=http://url5 | time=9256ms | status=200");
     verify(deliveryStorage, times(5)).persist(any(WebhookDelivery.class));
-    verify(deliveryStorage).purge(componentDto.uuid());
+    verify(deliveryStorage).purge(projectDto.getUuid());
     verifyLogStatistics(3, 2);
   }
 

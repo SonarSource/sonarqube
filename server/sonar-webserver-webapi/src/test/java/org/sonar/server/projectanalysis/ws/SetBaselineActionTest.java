@@ -37,8 +37,9 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchType;
+import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
@@ -71,26 +72,20 @@ public class SetBaselineActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-
-  private WsActionTester ws = new WsActionTester(new SetBaselineAction(dbClient, userSession, TestComponentFinder.from(db)));
+  private BranchDao branchDao = db.getDbClient().branchDao();
+  private ComponentDbTester tester = new ComponentDbTester(db);
+  private WsActionTester ws = new WsActionTester(new SetBaselineAction(dbClient, userSession, TestComponentFinder.from(db), branchDao));
 
   @Test
   @UseDataProvider("nullOrEmpty")
   public void set_baseline_on_main_branch(@Nullable String branchName) {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = new BranchDto()
-      .setBranchType(BranchType.BRANCH)
-      .setProjectUuid(project.uuid())
-      .setUuid(project.uuid())
-      .setKey("master");
-    db.components().insertComponent(project);
-    db.getDbClient().branchDao().insert(dbSession, branch);
+    ComponentDto project = tester.insertPrivateProject();
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
 
     call(project.getKey(), branchName, analysis.getUuid());
 
-    NewCodePeriodDto loaded = dbClient.newCodePeriodDao().selectByBranch(dbSession, project.uuid(), branch.getUuid()).get();
+    NewCodePeriodDto loaded = dbClient.newCodePeriodDao().selectByBranch(dbSession, project.uuid(), project.uuid()).get();
     assertThat(loaded.getValue()).isEqualTo(analysis.getUuid());
     assertThat(loaded.getType()).isEqualTo(SPECIFIC_ANALYSIS);
   }
@@ -106,11 +101,10 @@ public class SetBaselineActionTest {
 
   @Test
   public void set_baseline_on_non_main_branch() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.BRANCH);
-    db.components().insertProjectBranch(project, branch);
-    ComponentDto branchComponentDto = ComponentTesting.newProjectBranch(project, branch);
-    SnapshotDto analysis = db.components().insertSnapshot(branchComponentDto);
+    ComponentDto project = tester.insertPrivateProject();
+    ComponentDto branchComponent = tester.insertProjectBranch(project);
+    SnapshotDto analysis = db.components().insertSnapshot(branchComponent);
+    BranchDto branch = branchDao.selectByUuid(dbSession, branchComponent.uuid()).get();
     logInAsProjectAdministrator(project);
 
     call(project.getKey(), branch.getKey(), analysis.getUuid());
@@ -122,16 +116,13 @@ public class SetBaselineActionTest {
 
   @Test
   public void fail_when_user_is_not_admin() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.BRANCH);
-    db.components().insertProjectBranch(project, branch);
-    ComponentDto branchComponentDto = ComponentTesting.newProjectBranch(project, branch);
-    SnapshotDto analysis = db.components().insertSnapshot(branchComponentDto);
+    ComponentDto project = tester.insertPrivateProject();
+    SnapshotDto analysis = db.components().insertSnapshot(project);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    call(project.getKey(), branch.getKey(), analysis.getUuid());
+    call(project.getKey(), "master", analysis.getUuid());
   }
 
   @Test
@@ -161,16 +152,13 @@ public class SetBaselineActionTest {
   @Test
   @UseDataProvider("nonexistentParamsAndFailureMessage")
   public void fail_with_IAE_when_required_param_nonexistent(Map<String, String> nonexistentParams, String regex) {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.BRANCH);
-    db.components().insertProjectBranch(project, branch);
-    ComponentDto branchComponentDto = ComponentTesting.newProjectBranch(project, branch);
-    SnapshotDto analysis = db.components().insertSnapshot(branchComponentDto);
+    ComponentDto project = tester.insertPrivateProject();
+    SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
 
     Map<String, String> params = new HashMap<>();
     params.put(PARAM_PROJECT, project.getKey());
-    params.put(PARAM_BRANCH, branch.getKey());
+    params.put(PARAM_BRANCH, "master");
     params.put(PARAM_ANALYSIS, analysis.getUuid());
     params.putAll(nonexistentParams);
 
@@ -185,59 +173,30 @@ public class SetBaselineActionTest {
     MapBuilder builder = new MapBuilder();
 
     return new Object[][] {
-      {builder.put(PARAM_PROJECT, "nonexistent").map, "Component 'nonexistent' on branch .* not found"},
-      {builder.put(PARAM_BRANCH, "nonexistent").map, "Component .* on branch 'nonexistent' not found"},
+      {builder.put(PARAM_PROJECT, "nonexistent").map, "Project 'nonexistent' not found"},
+      {builder.put(PARAM_BRANCH, "nonexistent").map, "Branch 'nonexistent' in project .* not found"},
       {builder.put(PARAM_ANALYSIS, "nonexistent").map, "Analysis 'nonexistent' is not found"},
     };
   }
 
   @Test
   public void fail_when_branch_does_not_belong_to_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.BRANCH);
-    db.components().insertProjectBranch(project, branch);
-    ComponentDto branchComponentDto = ComponentTesting.newProjectBranch(project, branch);
-    SnapshotDto analysis = db.components().insertSnapshot(branchComponentDto);
+    ComponentDto project = tester.insertPrivateProject();
+    SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
 
-    ComponentDto otherProject = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    BranchDto otherBranch = ComponentTesting.newBranchDto(otherProject.projectUuid(), BranchType.BRANCH);
-    db.components().insertProjectBranch(otherProject, otherBranch);
-    ComponentTesting.newProjectBranch(otherProject, otherBranch);
+    ComponentDto otherProject = tester.insertPrivateProjectWithCustomBranch(db.getDefaultOrganization(), branch -> branch.setKey("main"));
+    BranchDto branchOfOtherProject = branchDao.selectByUuid(dbSession, otherProject.uuid()).get();
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", project.getKey(), otherBranch.getKey()));
+    expectedException.expectMessage(String.format("Branch '%s' in project '%s' not found", branchOfOtherProject.getKey(), project.getKey()));
 
-    call(project.getKey(), otherBranch.getKey(), analysis.getUuid());
+    call(project.getKey(), branchOfOtherProject.getKey(), analysis.getUuid());
   }
 
   @Test
   public void fail_when_analysis_does_not_belong_to_main_branch_of_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = new BranchDto()
-      .setBranchType(BranchType.BRANCH)
-      .setProjectUuid(project.uuid())
-      .setUuid(project.uuid())
-      .setKey("master");
-    db.components().insertComponent(project);
-    db.getDbClient().branchDao().insert(dbSession, branch);
-    logInAsProjectAdministrator(project);
-
-    ComponentDto otherProject = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    SnapshotDto otherAnalysis = db.components().insertSnapshot(otherProject);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("Analysis '%s' does not belong to project '%s'",
-      otherAnalysis.getUuid(), project.getKey()));
-
-    call(ImmutableMap.of(PARAM_PROJECT, project.getKey(), PARAM_ANALYSIS, otherAnalysis.getUuid()));
-  }
-
-  @Test
-  public void fail_when_analysis_does_not_belong_to_non_main_branch_of_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.BRANCH);
-    db.components().insertProjectBranch(project, branch);
+    ComponentDto project = tester.insertPrivateProjectWithCustomBranch(db.getDefaultOrganization(), b -> b.setKey("branch1"));
     logInAsProjectAdministrator(project);
 
     ComponentDto otherProject = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
@@ -245,9 +204,25 @@ public class SetBaselineActionTest {
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage(String.format("Analysis '%s' does not belong to branch '%s' of project '%s'",
-      otherAnalysis.getUuid(), branch.getKey(), project.getKey()));
+      otherAnalysis.getUuid(), "branch1", project.getKey()));
 
-    call(project.getKey(), branch.getKey(), otherAnalysis.getUuid());
+    call(project.getKey(), "branch1", otherAnalysis.getUuid());
+  }
+
+  @Test
+  public void fail_when_analysis_does_not_belong_to_non_main_branch_of_project() {
+    ComponentDto project = tester.insertPrivateProject();
+    tester.insertProjectBranch(project, b -> b.setKey("branch1"));
+    logInAsProjectAdministrator(project);
+
+    ComponentDto otherProject = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
+    SnapshotDto otherAnalysis = db.components().insertProjectAndSnapshot(otherProject);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(String.format("Analysis '%s' does not belong to branch '%s' of project '%s'",
+      otherAnalysis.getUuid(), "branch1", project.getKey()));
+
+    call(project.getKey(), "branch1", otherAnalysis.getUuid());
   }
 
   @Test

@@ -140,7 +140,7 @@ public class ListActionTest {
 
   @Test
   public void pull_request() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     db.components().insertProjectBranch(project,
       b -> b.setKey("123")
         .setBranchType(PULL_REQUEST)
@@ -173,7 +173,7 @@ public class ListActionTest {
 
   @Test
   public void pull_requests() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto nonMainBranch = db.components().insertProjectBranch(project,
       b -> b.setKey("branch1").setBranchType(BranchType.BRANCH));
@@ -201,7 +201,7 @@ public class ListActionTest {
 
   @Test
   public void base_branch_is_using_default_main_name_when_main_branch_has_no_name() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto pullRequest = db.components().insertProjectBranch(project,
       b -> b.setKey("pr-123")
@@ -221,7 +221,7 @@ public class ListActionTest {
 
   @Test
   public void pull_request_on_removed_branch() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto pullRequest = db.components().insertProjectBranch(project,
       b -> b.setKey("pr-123")
@@ -241,7 +241,7 @@ public class ListActionTest {
 
   @Test
   public void status_on_pull_requests() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto nonMainBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     ComponentDto pullRequest = db.components().insertProjectBranch(project,
@@ -274,7 +274,7 @@ public class ListActionTest {
 
   @Test
   public void status_on_pull_request_with_no_issue() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto nonMainBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     db.components().insertProjectBranch(project,
@@ -300,7 +300,7 @@ public class ListActionTest {
     Long previousAnalysisPullRequest = dateToLong(parseDateTime("2017-04-02T00:00:00+0100"));
     Long lastAnalysisPullRequest = dateToLong(parseDateTime("2017-04-03T00:00:00+0100"));
 
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
     ComponentDto pullRequest1 = db.components().insertProjectBranch(project,
@@ -340,7 +340,7 @@ public class ListActionTest {
 
   @Test
   public void does_not_fail_when_only_browse_permission_on_project() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     db.components().insertProjectBranch(project,
       b -> b.setKey("123")
         .setBranchType(PULL_REQUEST)
@@ -359,7 +359,7 @@ public class ListActionTest {
 
   @Test
   public void does_not_fail_when_only_scan_permission_on_project() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPublicProject();
     db.components().insertProjectBranch(project,
       b -> b.setKey("123")
         .setBranchType(PULL_REQUEST)
@@ -380,7 +380,7 @@ public class ListActionTest {
   public void does_not_fail_when_only_scan_permission_on_organization() {
     OrganizationDto organization = db.organizations().insert();
     userSession.logIn().addPermission(OrganizationPermission.SCAN, organization);
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
     db.components().insertProjectBranch(project,
       b -> b.setKey("123")
         .setBranchType(PULL_REQUEST)
@@ -397,14 +397,14 @@ public class ListActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
+  public void fail_when_using_branch_db_key() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
+    expectedException.expectMessage(format("Project '%s' not found", branch.getDbKey()));
 
     ws.newRequest()
       .setParam("project", branch.getDbKey())
@@ -425,8 +425,8 @@ public class ListActionTest {
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid project key");
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Project '" + file.getDbKey() + "' not found");
 
     ws.newRequest()
       .setParam("project", file.getDbKey())
@@ -436,7 +436,7 @@ public class ListActionTest {
   @Test
   public void fail_if_project_does_not_exist() {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'foo' not found");
+    expectedException.expectMessage("Project 'foo' not found");
 
     ws.newRequest()
       .setParam("project", "foo")
@@ -445,7 +445,7 @@ public class ListActionTest {
 
   @Test
   public void fail_when_not_having_right_permission() {
-    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto project = db.components().insertPrivateProject();
     db.components().insertProjectBranch(project,
       b -> b.setKey("123")
         .setBranchType(PULL_REQUEST)

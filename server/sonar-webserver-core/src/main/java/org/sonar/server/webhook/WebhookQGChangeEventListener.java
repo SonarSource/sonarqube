@@ -24,14 +24,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener;
@@ -79,20 +78,19 @@ public class WebhookQGChangeEventListener implements QGChangeEventListener {
 
   private void callWebhook(DbSession dbSession, QGChangeEvent event, @Nullable EvaluatedQualityGate evaluatedQualityGate) {
     webhooks.sendProjectAnalysisUpdate(
-      new WebHooks.Analysis(event.getBranch().getUuid(), event.getAnalysis().getUuid(), null),
+      new WebHooks.Analysis(event.getProject().getUuid(), event.getAnalysis().getUuid(), null),
       () -> buildWebHookPayload(dbSession, event, evaluatedQualityGate));
   }
 
   private WebhookPayload buildWebHookPayload(DbSession dbSession, QGChangeEvent event, @Nullable EvaluatedQualityGate evaluatedQualityGate) {
-    ComponentDto project = event.getProject();
+    ProjectDto project = event.getProject();
     BranchDto branch = event.getBranch();
     SnapshotDto analysis = event.getAnalysis();
     Map<String, String> analysisProperties = dbClient.analysisPropertiesDao().selectByAnalysisUuid(dbSession, analysis.getUuid())
       .stream()
       .collect(Collectors.toMap(AnalysisPropertyDto::getKey, AnalysisPropertyDto::getValue));
-    String projectUuid = StringUtils.defaultString(project.getMainBranchProjectUuid(), project.projectUuid());
     ProjectAnalysis projectAnalysis = new ProjectAnalysis(
-      new Project(projectUuid, project.getKey(), project.name()),
+      new Project(project.getUuid(), project.getKey(), project.getName()),
       null,
       new Analysis(analysis.getUuid(), analysis.getCreatedAt(), analysis.getRevision()),
       new Branch(branch.isMain(), branch.getKey(), Type.valueOf(branch.getBranchType().name())),

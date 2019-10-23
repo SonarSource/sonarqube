@@ -26,8 +26,8 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectLinkDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectLinks;
@@ -35,7 +35,6 @@ import org.sonarqube.ws.ProjectLinks.CreateWsResponse;
 
 import static org.sonar.core.util.Slug.slugify;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.projectlink.ws.ProjectLinksWs.checkProject;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.ACTION_CREATE;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_NAME;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_ID;
@@ -105,13 +104,13 @@ public class CreateAction implements ProjectLinksWsAction {
     String url = createWsRequest.getUrl();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = checkProject(getComponentByUuidOrKey(dbSession, createWsRequest));
+      ProjectDto project = getProject(dbSession, createWsRequest);
 
-      userSession.checkComponentPermission(UserRole.ADMIN, component);
+      userSession.checkProjectPermission(UserRole.ADMIN, project);
 
       ProjectLinkDto link = new ProjectLinkDto()
         .setUuid(uuidFactory.create())
-        .setProjectUuid(component.uuid())
+        .setProjectUuid(project.getUuid())
         .setName(name)
         .setHref(url)
         .setType(nameToType(name));
@@ -131,8 +130,8 @@ public class CreateAction implements ProjectLinksWsAction {
       .build();
   }
 
-  private ComponentDto getComponentByUuidOrKey(DbSession dbSession, CreateRequest request) {
-    return componentFinder.getByUuidOrKey(
+  private ProjectDto getProject(DbSession dbSession, CreateRequest request) {
+    return componentFinder.getProjectByUuidOrKey(
       dbSession,
       request.getProjectId(),
       request.getProjectKey(),

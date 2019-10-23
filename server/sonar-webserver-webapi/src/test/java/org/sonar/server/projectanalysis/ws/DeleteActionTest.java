@@ -101,11 +101,9 @@ public class DeleteActionTest {
     String analysisUuid = RandomStringUtils.randomAlphabetic(12);
     ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setUuid(analysisUuid).setLast(false));
-    BranchDto branch = newBranchDto(project, BRANCH);
-    db.getDbClient().branchDao().insert(db.getSession(), branch);
     db.newCodePeriods().insert(new NewCodePeriodDto()
       .setProjectUuid(project.uuid())
-      .setBranchUuid(branch.getUuid())
+      .setBranchUuid(project.uuid())
       .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
       .setValue(analysis.getUuid()));
     db.commit();

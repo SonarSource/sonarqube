@@ -28,7 +28,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.tester.UserSessionRule;
@@ -57,13 +56,13 @@ public class ComponentServiceTest {
 
   @Test
   public void bulk_update() {
-    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()).setDbKey("my_project"));
+    ComponentDto project = componentDb.insertPublicProject(dbTester.organizations().insert(), c -> c.setDbKey("my_project"));
     ComponentDto module = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:module"));
     ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:inactive_module").setEnabled(false));
     ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/File.xoo"));
     ComponentDto inactiveFile = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/InactiveFile.xoo").setEnabled(false));
-
-    underTest.bulkUpdateKey(dbSession, project, "my_", "your_");
+    
+    underTest.bulkUpdateKey(dbSession, componentDb.getProjectDto(project), "my_", "your_");
 
     assertComponentKeyUpdated(project.getDbKey(), "your_project");
     assertComponentKeyUpdated(module.getDbKey(), "your_project:root:module");

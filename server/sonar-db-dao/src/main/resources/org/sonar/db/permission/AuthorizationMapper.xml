@@ -206,7 +206,7 @@
       p.id
     from
       user_roles ur
-    inner join projects p on
+    inner join components p on
       p.id = ur.resource_id
     where
       ur.role=#{role, jdbcType=VARCHAR}
@@ -241,7 +241,7 @@
     select
     p.id
     from
-    projects p
+    components p
     where
     <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
       p.id=#{element ,jdbcType=BIGINT}
@@ -252,7 +252,7 @@
 
   <select id="keepAuthorizedProjectUuidsForUser" parameterType="map" resultType="String">
     select p.uuid
-    from projects p
+    from components p
     inner join group_roles gr on p.id = gr.resource_id
     where
       gr.role = #{permission, jdbcType=VARCHAR}
@@ -267,7 +267,7 @@
     union
 
     select p.uuid
-    from projects p
+    from components p
     inner join user_roles ur on p.id = ur.resource_id
     where
       ur.role=#{permission, jdbcType=VARCHAR}
@@ -278,7 +278,7 @@
       union
 
       select p.uuid
-      from projects p
+      from components p
       where
         p.uuid in <foreach collection="projectUuids" open="(" close=")" item="projectUuid" index="index" separator=",">#{projectUuid, jdbcType=VARCHAR}</foreach>
         and p.private = ${_false}
@@ -287,7 +287,7 @@
 
   <select id="keepAuthorizedProjectUuidsForAnonymous" parameterType="map" resultType="String">
     select p.uuid
-    from projects p
+    from components p
     inner join group_roles gr on p.id = gr.resource_id
     where
       gr.role=#{permission, jdbcType=VARCHAR}
@@ -298,7 +298,7 @@
       union
 
       select p.uuid
-      from projects p
+      from components p
       where
       p.uuid in <foreach collection="projectUuids" open="(" close=")" item="projectUuid" index="index" separator=",">#{projectUuid, jdbcType=VARCHAR}</foreach>
       and p.private = ${_false}
@@ -349,7 +349,7 @@
         select
           1
         from
-          projects p
+          components p
         where
           p.id =#{componentId, jdbcType=BIGINT}
           and p.private = ${_false}
@@ -360,7 +360,7 @@
   <select id="selectProjectPermissions" parameterType="map" resultType="String">
     select ur.role
     from user_roles ur
-    inner join projects p on p.id = ur.resource_id
+    inner join components p on p.id = ur.resource_id
     where
       p.uuid = #{projectUuid, jdbcType=VARCHAR} and
       p.organization_uuid = ur.organization_uuid and
@@ -371,7 +371,7 @@
     select gr.role
     from group_roles gr
     inner join groups_users gu on gr.group_id = gu.group_id
-    inner join projects p on p.id = gr.resource_id
+    inner join components p on p.id = gr.resource_id
     where
       p.uuid = #{projectUuid, jdbcType=VARCHAR} and
       p.organization_uuid = gr.organization_uuid and
@@ -391,7 +391,7 @@
       gr.role
     from
       group_roles gr
-    inner join projects p on
+    inner join components p on
       p.id = gr.resource_id
     where
       p.uuid = #{projectUuid, jdbcType=VARCHAR}
@@ -440,14 +440,14 @@
         exists (
           select 1
           from user_roles ur
-          inner join projects p on p.id = ur.resource_id and p.organization_uuid = ur.organization_uuid
+          inner join components p on p.id = ur.resource_id and p.organization_uuid = ur.organization_uuid
           where
             p.kee =  #{projectKey, jdbcType=VARCHAR}
             and ur.role = #{permission, jdbcType=VARCHAR}
             and ur.user_id = u.id
         ) or exists (
           select 1
-          from projects p
+          from components p
           inner join group_roles gr on gr.resource_id = p.id and gr.organization_uuid = p.organization_uuid
           inner join groups_users gu on gu.group_id = gr.group_id
           where
@@ -458,7 +458,7 @@
         <if test="permission == 'user' or permission == 'codeviewer'">
           or exists (
             select 1
-            from projects p
+            from components p
             where
               p.kee =  #{projectKey, jdbcType=VARCHAR}
               and p.private = ${_false}
