@@ -139,23 +139,19 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
     const { measures } = this.state;
 
     return (
-      <div className="source-viewer-measures-section">
-        <div className="source-viewer-measures-card">
+      <div className="measures-viewer-section">
+        <div className="measures-viewer-card">
           <div className="measures">
-            <div className="measures-list">
-              {this.renderMeasure(measures.lines)}
-              {this.renderMeasure(measures.ncloc)}
-              {this.renderMeasure(measures.comment_lines)}
-              {this.renderMeasure(measures.comment_lines_density)}
-            </div>
+            {this.renderMeasure(measures.lines)}
+            {this.renderMeasure(measures.ncloc)}
+            {this.renderMeasure(measures.comment_lines)}
+            {this.renderMeasure(measures.comment_lines_density)}
           </div>
 
           <div className="measures">
-            <div className="measures-list">
-              {this.renderMeasure(measures.cognitive_complexity)}
-              {this.renderMeasure(measures.complexity)}
-              {this.renderMeasure(measures.function_complexity)}
-            </div>
+            {this.renderMeasure(measures.cognitive_complexity)}
+            {this.renderMeasure(measures.complexity)}
+            {this.renderMeasure(measures.function_complexity)}
           </div>
         </div>
       </div>
@@ -180,8 +176,8 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
   renderIssues = () => {
     const { measures, severitiesFacet, tagsFacet, typesFacet } = this.state;
     return (
-      <div className="source-viewer-measures-section">
-        <div className="source-viewer-measures-card">
+      <div className="measures-viewer-section">
+        <div className="measures-viewer-card">
           <div className="measures">
             {this.renderBigMeasure(measures.violations)}
             {this.renderBigMeasure(measures.sqale_index)}
@@ -190,46 +186,40 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
             <>
               {typesFacet && (
                 <div className="measures">
-                  <div className="measures-list">
-                    {sortBy(typesFacet, f => ISSUE_TYPES.indexOf(f.val)).map(f => (
-                      <div className="measure measure-one-line" key={f.val}>
-                        <span className="measure-name">
-                          <IssueTypeIcon className="little-spacer-right" query={f.val} />
-                          {translate('issue.type', f.val)}
-                        </span>
-                        <span className="measure-value">{formatMeasure(f.count, 'SHORT_INT')}</span>
-                      </div>
-                    ))}
-                  </div>
+                  {sortBy(typesFacet, f => ISSUE_TYPES.indexOf(f.val)).map(f => (
+                    <div className="measure measure-one-line" key={f.val}>
+                      <span className="measure-name">
+                        <IssueTypeIcon className="little-spacer-right" query={f.val} />
+                        {translate('issue.type', f.val)}
+                      </span>
+                      <span className="measure-value">{formatMeasure(f.count, 'SHORT_INT')}</span>
+                    </div>
+                  ))}
                 </div>
               )}
               {severitiesFacet && (
                 <div className="measures">
-                  <div className="measures-list">
-                    {sortBy(severitiesFacet, f => SEVERITIES.indexOf(f.val)).map(f => (
-                      <div className="measure measure-one-line" key={f.val}>
-                        <span className="measure-name">
-                          <SeverityHelper severity={f.val} />
-                        </span>
-                        <span className="measure-value">{formatMeasure(f.count, 'SHORT_INT')}</span>
-                      </div>
-                    ))}
-                  </div>
+                  {sortBy(severitiesFacet, f => SEVERITIES.indexOf(f.val)).map(f => (
+                    <div className="measure measure-one-line" key={f.val}>
+                      <span className="measure-name">
+                        <SeverityHelper severity={f.val} />
+                      </span>
+                      <span className="measure-value">{formatMeasure(f.count, 'SHORT_INT')}</span>
+                    </div>
+                  ))}
                 </div>
               )}
               {tagsFacet && (
                 <div className="measures">
-                  <div className="measures-list">
-                    {tagsFacet.map(f => (
-                      <div className="measure measure-one-line" key={f.val}>
-                        <span className="measure-name">
-                          <TagsIcon className="little-spacer-right" />
-                          {f.val}
-                        </span>
-                        <span className="measure-value">{formatMeasure(f.count, 'SHORT_INT')}</span>
-                      </div>
-                    ))}
-                  </div>
+                  {tagsFacet.map(f => (
+                    <div className="measure measure-one-line" key={f.val}>
+                      <span className="measure-name">
+                        <TagsIcon className="little-spacer-right" />
+                        {f.val}
+                      </span>
+                      <span className="measure-value">{formatMeasure(f.count, 'SHORT_INT')}</span>
+                    </div>
+                  ))}
                 </div>
               )}
             </>
@@ -245,8 +235,8 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
       return null;
     }
     return (
-      <div className="source-viewer-measures-section">
-        <div className="source-viewer-measures-card">
+      <div className="measures-viewer-section">
+        <div className="measures-viewer-card">
           <div className="measures">
             <div className="measures-chart">
               <CoverageRating size="big" value={coverage.value} />
@@ -264,12 +254,10 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
           </div>
 
           <div className="measures">
-            <div className="measures-list">
-              {this.renderMeasure(this.state.measures.uncovered_lines)}
-              {this.renderMeasure(this.state.measures.lines_to_cover)}
-              {this.renderMeasure(this.state.measures.uncovered_conditions)}
-              {this.renderMeasure(this.state.measures.conditions_to_cover)}
-            </div>
+            {this.renderMeasure(this.state.measures.uncovered_lines)}
+            {this.renderMeasure(this.state.measures.lines_to_cover)}
+            {this.renderMeasure(this.state.measures.uncovered_conditions)}
+            {this.renderMeasure(this.state.measures.conditions_to_cover)}
           </div>
         </div>
       </div>
@@ -282,8 +270,8 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
       return null;
     }
     return (
-      <div className="source-viewer-measures-section">
-        <div className="source-viewer-measures-card">
+      <div className="measures-viewer-section">
+        <div className="measures-viewer-card">
           <div className="measures">
             <div className="measures-chart">
               <DuplicationsRating
@@ -307,10 +295,8 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
           </div>
 
           <div className="measures">
-            <div className="measures-list">
-              {this.renderMeasure(this.state.measures.duplicated_blocks)}
-              {this.renderMeasure(this.state.measures.duplicated_lines)}
-            </div>
+            {this.renderMeasure(this.state.measures.duplicated_blocks)}
+            {this.renderMeasure(this.state.measures.duplicated_lines)}
           </div>
         </div>
       </div>
@@ -320,18 +306,16 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
   renderTests = () => {
     const { measures } = this.state;
     return (
-      <div className="source-viewer-measures">
-        <div className="source-viewer-measures-section">
-          <div className="source-viewer-measures-card">
+      <div className="measures-viewer">
+        <div className="measures-viewer-section measures-viewer-section-limited">
+          <div className="measures-viewer-card">
             <div className="measures">
-              <div className="measures-list">
-                {this.renderMeasure(measures.tests)}
-                {this.renderMeasure(measures.test_success_density)}
-                {this.renderMeasure(measures.test_failures)}
-                {this.renderMeasure(measures.test_errors)}
-                {this.renderMeasure(measures.skipped_tests)}
-                {this.renderMeasure(measures.test_execution_time)}
-              </div>
+              {this.renderMeasure(measures.tests)}
+              {this.renderMeasure(measures.test_success_density)}
+              {this.renderMeasure(measures.test_failures)}
+              {this.renderMeasure(measures.test_errors)}
+              {this.renderMeasure(measures.skipped_tests)}
+              {this.renderMeasure(measures.test_execution_time)}
             </div>
           </div>
         </div>
@@ -341,16 +325,14 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
 
   renderDomain = (domain: string, measures: T.MeasureEnhanced[]) => {
     return (
-      <div className="source-viewer-measures-card" key={domain}>
+      <div className="measures-viewer-card" key={domain}>
         <div className="measures">
-          <div className="measures-list">
-            <div className="measure measure-one-line measure-big">
-              <span className="measure-name">{domain}</span>
-            </div>
-            {sortBy(measures.filter(measure => measure.value !== undefined), measure =>
-              getLocalizedMetricName(measure.metric)
-            ).map(measure => this.renderMeasure(measure))}
+          <div className="measure measure-big">
+            <span className="measure-name">{domain}</span>
           </div>
+          {sortBy(measures.filter(measure => measure.value !== undefined), measure =>
+            getLocalizedMetricName(measure.metric)
+          ).map(measure => this.renderMeasure(measure))}
         </div>
       </div>
     );
@@ -362,11 +344,11 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
     const odd = domainKeys.filter((_, index) => index % 2 === 1);
     const even = domainKeys.filter((_, index) => index % 2 === 0);
     return (
-      <div className="source-viewer-measures source-viewer-measures-secondary js-all-measures">
-        <div className="source-viewer-measures-section source-viewer-measures-section-big">
+      <div className="measures-viewer measures-viewer-secondary">
+        <div className="measures-viewer-section">
           {odd.map(domain => this.renderDomain(domain, domains[domain]))}
         </div>
-        <div className="source-viewer-measures-section source-viewer-measures-section-big">
+        <div className="measures-viewer-section">
           {even.map(domain => this.renderDomain(domain, domains[domain]))}
         </div>
       </div>
@@ -377,11 +359,15 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
     const { branchLike, sourceViewerFile } = this.props;
     const { loading } = this.state;
 
+    const header = translate('component_viewer.file_measures');
     return (
-      <Modal contentLabel="" onRequestClose={this.props.onClose} size="large">
-        <div className="modal-container source-viewer-measures-modal">
-          <div className="source-viewer-header-component source-viewer-measures-component">
-            <div className="source-viewer-header-component-project">
+      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="large">
+        <div className="modal-head">
+          <h2>{header}</h2>
+        </div>
+        <div className="modal-body modal-container">
+          <div className="measures-viewer-header big-spacer-bottom">
+            <div>
               <QualifierIcon className="little-spacer-right" qualifier="TRK" />
               <Link to={getBranchLikeUrl(sourceViewerFile.project, branchLike)}>
                 {sourceViewerFile.projectName}
@@ -395,7 +381,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
               )}
             </div>
 
-            <div className="source-viewer-header-component-name display-flex-center little-spacer-top">
+            <div className="display-flex-center little-spacer-top">
               <QualifierIcon className="little-spacer-right" qualifier={sourceViewerFile.q} />
               {sourceViewerFile.path}
             </div>
@@ -408,7 +394,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
               {sourceViewerFile.q === 'UTS' ? (
                 this.renderTests()
               ) : (
-                <div className="source-viewer-measures">
+                <div className="measures-viewer">
                   {this.renderLines()}
                   {this.renderIssues()}
                   {this.renderCoverage()}

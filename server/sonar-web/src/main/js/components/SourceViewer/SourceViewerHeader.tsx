@@ -124,7 +124,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
     // TODO favorite
     return (
       <div className="source-viewer-header display-flex-center">
-        <div className="source-viewer-header-component flex-1">
+        <div className="flex-1 little-spacer-top">
           <div className="component-name">
             <div className="component-name-parent">
               <a

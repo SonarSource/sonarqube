@@ -5,7 +5,7 @@ exports[`should render correctly for a regular file 1`] = `
   className="source-viewer-header display-flex-center"
 >
   <div
-    className="source-viewer-header-component flex-1"
+    className="flex-1 little-spacer-top"
   >
     <div
       className="component-name"
@@ -125,7 +125,7 @@ exports[`should render correctly for a unit test 1`] = `
   className="source-viewer-header display-flex-center"
 >
   <div
-    className="source-viewer-header-component flex-1"
+    className="flex-1 little-spacer-top"
   >
     <div
       className="component-name"
@@ -263,7 +263,7 @@ exports[`should render correctly if issue details are passed 1`] = `
   className="source-viewer-header display-flex-center"
 >
   <div
-    className="source-viewer-header-component flex-1"
+    className="flex-1 little-spacer-top"
   >
     <div
       className="component-name"

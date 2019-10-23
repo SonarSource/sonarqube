@@ -2,19 +2,24 @@
 
 exports[`should render source file 1`] = `
 <Modal
-  contentLabel=""
+  contentLabel="component_viewer.file_measures"
   onRequestClose={[MockFunction]}
   size="large"
 >
   <div
-    className="modal-container source-viewer-measures-modal"
+    className="modal-head"
+  >
+    <h2>
+      component_viewer.file_measures
+    </h2>
+  </div>
+  <div
+    className="modal-body modal-container"
   >
     <div
-      className="source-viewer-header-component source-viewer-measures-component"
+      className="measures-viewer-header big-spacer-bottom"
     >
-      <div
-        className="source-viewer-header-component-project"
-      >
+      <div>
         <QualifierIcon
           className="little-spacer-right"
           qualifier="TRK"
@@ -41,7 +46,7 @@ exports[`should render source file 1`] = `
         Sub-Project Name
       </div>
       <div
-        className="source-viewer-header-component-name display-flex-center little-spacer-top"
+        className="display-flex-center little-spacer-top"
       >
         <QualifierIcon
           className="little-spacer-right"
@@ -51,115 +56,107 @@ exports[`should render source file 1`] = `
       </div>
     </div>
     <div
-      className="source-viewer-measures"
+      className="measures-viewer"
     >
       <div
-        className="source-viewer-measures-section"
+        className="measures-viewer-section"
       >
         <div
-          className="source-viewer-measures-card"
+          className="measures-viewer-card"
         >
           <div
             className="measures"
           >
-            <div
-              className="measures-list"
-            >
-              <MeasuresOverlayMeasure
-                key="lines"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Size",
-                      "key": "lines",
-                      "type": "INT",
-                    },
-                    "value": "18",
-                  }
+            <MeasuresOverlayMeasure
+              key="lines"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Size",
+                    "key": "lines",
+                    "type": "INT",
+                  },
+                  "value": "18",
                 }
-              />
-              <MeasuresOverlayMeasure
-                key="ncloc"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Size",
-                      "key": "ncloc",
-                      "type": "INT",
-                    },
-                    "value": "8",
-                  }
+              }
+            />
+            <MeasuresOverlayMeasure
+              key="ncloc"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Size",
+                    "key": "ncloc",
+                    "type": "INT",
+                  },
+                  "value": "8",
                 }
-              />
-              <MeasuresOverlayMeasure
-                key="comment_lines"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Size",
-                      "key": "comment_lines",
-                      "type": "INT",
-                    },
-                    "value": "2",
-                  }
+              }
+            />
+            <MeasuresOverlayMeasure
+              key="comment_lines"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Size",
+                    "key": "comment_lines",
+                    "type": "INT",
+                  },
+                  "value": "2",
                 }
-              />
-              <MeasuresOverlayMeasure
-                key="comment_lines_density"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Size",
-                      "key": "comment_lines_density",
-                      "type": "PERCENT",
-                    },
-                    "value": "20.0",
-                  }
+              }
+            />
+            <MeasuresOverlayMeasure
+              key="comment_lines_density"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Size",
+                    "key": "comment_lines_density",
+                    "type": "PERCENT",
+                  },
+                  "value": "20.0",
                 }
-              />
-            </div>
+              }
+            />
           </div>
           <div
             className="measures"
           >
-            <div
-              className="measures-list"
-            >
-              <MeasuresOverlayMeasure
-                key="cognitive_complexity"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Complexity",
-                      "key": "cognitive_complexity",
-                      "type": "INT",
-                    },
-                    "value": "0",
-                  }
+            <MeasuresOverlayMeasure
+              key="cognitive_complexity"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Complexity",
+                    "key": "cognitive_complexity",
+                    "type": "INT",
+                  },
+                  "value": "0",
                 }
-              />
-              <MeasuresOverlayMeasure
-                key="complexity"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Complexity",
-                      "key": "complexity",
-                      "type": "INT",
-                    },
-                    "value": "1",
-                  }
+              }
+            />
+            <MeasuresOverlayMeasure
+              key="complexity"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Complexity",
+                    "key": "complexity",
+                    "type": "INT",
+                  },
+                  "value": "1",
                 }
-              />
-            </div>
+              }
+            />
           </div>
         </div>
       </div>
       <div
-        className="source-viewer-measures-section"
+        className="measures-viewer-section"
       >
         <div
-          className="source-viewer-measures-card"
+          className="measures-viewer-card"
         >
           <div
             className="measures"
@@ -207,229 +204,217 @@ exports[`should render source file 1`] = `
             className="measures"
           >
             <div
-              className="measures-list"
+              className="measure measure-one-line"
+              key="BUG"
             >
-              <div
-                className="measure measure-one-line"
-                key="BUG"
+              <span
+                className="measure-name"
               >
-                <span
-                  className="measure-name"
-                >
-                  <IssueTypeIcon
-                    className="little-spacer-right"
-                    query="BUG"
-                  />
-                  issue.type.BUG
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  1
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="VULNERABILITY"
+                <IssueTypeIcon
+                  className="little-spacer-right"
+                  query="BUG"
+                />
+                issue.type.BUG
+              </span>
+              <span
+                className="measure-value"
               >
-                <span
-                  className="measure-name"
-                >
-                  <IssueTypeIcon
-                    className="little-spacer-right"
-                    query="VULNERABILITY"
-                  />
-                  issue.type.VULNERABILITY
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  0
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="CODE_SMELL"
+                1
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="VULNERABILITY"
+            >
+              <span
+                className="measure-name"
               >
-                <span
-                  className="measure-name"
-                >
-                  <IssueTypeIcon
-                    className="little-spacer-right"
-                    query="CODE_SMELL"
-                  />
-                  issue.type.CODE_SMELL
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  2
-                </span>
-              </div>
+                <IssueTypeIcon
+                  className="little-spacer-right"
+                  query="VULNERABILITY"
+                />
+                issue.type.VULNERABILITY
+              </span>
+              <span
+                className="measure-value"
+              >
+                0
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="CODE_SMELL"
+            >
+              <span
+                className="measure-name"
+              >
+                <IssueTypeIcon
+                  className="little-spacer-right"
+                  query="CODE_SMELL"
+                />
+                issue.type.CODE_SMELL
+              </span>
+              <span
+                className="measure-value"
+              >
+                2
+              </span>
             </div>
           </div>
           <div
             className="measures"
           >
             <div
-              className="measures-list"
+              className="measure measure-one-line"
+              key="BLOCKER"
             >
-              <div
-                className="measure measure-one-line"
-                key="BLOCKER"
+              <span
+                className="measure-name"
               >
-                <span
-                  className="measure-name"
-                >
-                  <SeverityHelper
-                    severity="BLOCKER"
-                  />
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  5
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="CRITICAL"
+                <SeverityHelper
+                  severity="BLOCKER"
+                />
+              </span>
+              <span
+                className="measure-value"
               >
-                <span
-                  className="measure-name"
-                >
-                  <SeverityHelper
-                    severity="CRITICAL"
-                  />
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  4
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="MAJOR"
+                5
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="CRITICAL"
+            >
+              <span
+                className="measure-name"
               >
-                <span
-                  className="measure-name"
-                >
-                  <SeverityHelper
-                    severity="MAJOR"
-                  />
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  1
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="MINOR"
+                <SeverityHelper
+                  severity="CRITICAL"
+                />
+              </span>
+              <span
+                className="measure-value"
               >
-                <span
-                  className="measure-name"
-                >
-                  <SeverityHelper
-                    severity="MINOR"
-                  />
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  3
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="INFO"
+                4
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="MAJOR"
+            >
+              <span
+                className="measure-name"
               >
-                <span
-                  className="measure-name"
-                >
-                  <SeverityHelper
-                    severity="INFO"
-                  />
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  2
-                </span>
-              </div>
+                <SeverityHelper
+                  severity="MAJOR"
+                />
+              </span>
+              <span
+                className="measure-value"
+              >
+                1
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="MINOR"
+            >
+              <span
+                className="measure-name"
+              >
+                <SeverityHelper
+                  severity="MINOR"
+                />
+              </span>
+              <span
+                className="measure-value"
+              >
+                3
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="INFO"
+            >
+              <span
+                className="measure-name"
+              >
+                <SeverityHelper
+                  severity="INFO"
+                />
+              </span>
+              <span
+                className="measure-value"
+              >
+                2
+              </span>
             </div>
           </div>
           <div
             className="measures"
           >
             <div
-              className="measures-list"
+              className="measure measure-one-line"
+              key="bad-practice"
             >
-              <div
-                className="measure measure-one-line"
-                key="bad-practice"
+              <span
+                className="measure-name"
               >
-                <span
-                  className="measure-name"
-                >
-                  <TagsIcon
-                    className="little-spacer-right"
-                  />
-                  bad-practice
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  1
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="cert"
+                <TagsIcon
+                  className="little-spacer-right"
+                />
+                bad-practice
+              </span>
+              <span
+                className="measure-value"
               >
-                <span
-                  className="measure-name"
-                >
-                  <TagsIcon
-                    className="little-spacer-right"
-                  />
-                  cert
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  3
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="design"
+                1
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="cert"
+            >
+              <span
+                className="measure-name"
               >
-                <span
-                  className="measure-name"
-                >
-                  <TagsIcon
-                    className="little-spacer-right"
-                  />
-                  design
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  1
-                </span>
-              </div>
+                <TagsIcon
+                  className="little-spacer-right"
+                />
+                cert
+              </span>
+              <span
+                className="measure-value"
+              >
+                3
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="design"
+            >
+              <span
+                className="measure-name"
+              >
+                <TagsIcon
+                  className="little-spacer-right"
+                />
+                design
+              </span>
+              <span
+                className="measure-value"
+              >
+                1
+              </span>
             </div>
           </div>
         </div>
       </div>
       <div
-        className="source-viewer-measures-section"
+        className="measures-viewer-section"
       >
         <div
-          className="source-viewer-measures-card"
+          className="measures-viewer-card"
         >
           <div
             className="measures"
@@ -465,44 +450,40 @@ exports[`should render source file 1`] = `
           <div
             className="measures"
           >
-            <div
-              className="measures-list"
-            >
-              <MeasuresOverlayMeasure
-                key="uncovered_lines"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Coverage",
-                      "key": "uncovered_lines",
-                      "type": "INT",
-                    },
-                    "value": "1",
-                  }
+            <MeasuresOverlayMeasure
+              key="uncovered_lines"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Coverage",
+                    "key": "uncovered_lines",
+                    "type": "INT",
+                  },
+                  "value": "1",
                 }
-              />
-              <MeasuresOverlayMeasure
-                key="lines_to_cover"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Coverage",
-                      "key": "lines_to_cover",
-                      "type": "INT",
-                    },
-                    "value": "4",
-                  }
+              }
+            />
+            <MeasuresOverlayMeasure
+              key="lines_to_cover"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Coverage",
+                    "key": "lines_to_cover",
+                    "type": "INT",
+                  },
+                  "value": "4",
                 }
-              />
-            </div>
+              }
+            />
           </div>
         </div>
       </div>
       <div
-        className="source-viewer-measures-section"
+        className="measures-viewer-section"
       >
         <div
-          className="source-viewer-measures-card"
+          className="measures-viewer-card"
         >
           <div
             className="measures"
@@ -539,36 +520,32 @@ exports[`should render source file 1`] = `
           <div
             className="measures"
           >
-            <div
-              className="measures-list"
-            >
-              <MeasuresOverlayMeasure
-                key="duplicated_blocks"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Duplications",
-                      "key": "duplicated_blocks",
-                      "type": "INT",
-                    },
-                    "value": "3",
-                  }
+            <MeasuresOverlayMeasure
+              key="duplicated_blocks"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Duplications",
+                    "key": "duplicated_blocks",
+                    "type": "INT",
+                  },
+                  "value": "3",
                 }
-              />
-              <MeasuresOverlayMeasure
-                key="duplicated_lines"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Duplications",
-                      "key": "duplicated_lines",
-                      "type": "INT",
-                    },
-                    "value": "0",
-                  }
+              }
+            />
+            <MeasuresOverlayMeasure
+              key="duplicated_lines"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Duplications",
+                    "key": "duplicated_lines",
+                    "type": "INT",
+                  },
+                  "value": "0",
                 }
-              />
-            </div>
+              }
+            />
           </div>
         </div>
       </div>
@@ -599,19 +576,24 @@ exports[`should render source file 1`] = `
 
 exports[`should render source file 2`] = `
 <Modal
-  contentLabel=""
+  contentLabel="component_viewer.file_measures"
   onRequestClose={[MockFunction]}
   size="large"
 >
   <div
-    className="modal-container source-viewer-measures-modal"
+    className="modal-head"
+  >
+    <h2>
+      component_viewer.file_measures
+    </h2>
+  </div>
+  <div
+    className="modal-body modal-container"
   >
     <div
-      className="source-viewer-header-component source-viewer-measures-component"
+      className="measures-viewer-header big-spacer-bottom"
     >
-      <div
-        className="source-viewer-header-component-project"
-      >
+      <div>
         <QualifierIcon
           className="little-spacer-right"
           qualifier="TRK"
@@ -638,7 +620,7 @@ exports[`should render source file 2`] = `
         Sub-Project Name
       </div>
       <div
-        className="source-viewer-header-component-name display-flex-center little-spacer-top"
+        className="display-flex-center little-spacer-top"
       >
         <QualifierIcon
           className="little-spacer-right"
@@ -648,115 +630,107 @@ exports[`should render source file 2`] = `
       </div>
     </div>
     <div
-      className="source-viewer-measures"
+      className="measures-viewer"
     >
       <div
-        className="source-viewer-measures-section"
+        className="measures-viewer-section"
       >
         <div
-          className="source-viewer-measures-card"
+          className="measures-viewer-card"
         >
           <div
             className="measures"
           >
-            <div
-              className="measures-list"
-            >
-              <MeasuresOverlayMeasure
-                key="lines"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Size",
-                      "key": "lines",
-                      "type": "INT",
-                    },
-                    "value": "18",
-                  }
+            <MeasuresOverlayMeasure
+              key="lines"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Size",
+                    "key": "lines",
+                    "type": "INT",
+                  },
+                  "value": "18",
                 }
-              />
-              <MeasuresOverlayMeasure
-                key="ncloc"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Size",
-                      "key": "ncloc",
-                      "type": "INT",
-                    },
-                    "value": "8",
-                  }
+              }
+            />
+            <MeasuresOverlayMeasure
+              key="ncloc"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Size",
+                    "key": "ncloc",
+                    "type": "INT",
+                  },
+                  "value": "8",
                 }
-              />
-              <MeasuresOverlayMeasure
-                key="comment_lines"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Size",
-                      "key": "comment_lines",
-                      "type": "INT",
-                    },
-                    "value": "2",
-                  }
+              }
+            />
+            <MeasuresOverlayMeasure
+              key="comment_lines"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Size",
+                    "key": "comment_lines",
+                    "type": "INT",
+                  },
+                  "value": "2",
                 }
-              />
-              <MeasuresOverlayMeasure
-                key="comment_lines_density"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Size",
-                      "key": "comment_lines_density",
-                      "type": "PERCENT",
-                    },
-                    "value": "20.0",
-                  }
+              }
+            />
+            <MeasuresOverlayMeasure
+              key="comment_lines_density"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Size",
+                    "key": "comment_lines_density",
+                    "type": "PERCENT",
+                  },
+                  "value": "20.0",
                 }
-              />
-            </div>
+              }
+            />
           </div>
           <div
             className="measures"
           >
-            <div
-              className="measures-list"
-            >
-              <MeasuresOverlayMeasure
-                key="cognitive_complexity"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Complexity",
-                      "key": "cognitive_complexity",
-                      "type": "INT",
-                    },
-                    "value": "0",
-                  }
+            <MeasuresOverlayMeasure
+              key="cognitive_complexity"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Complexity",
+                    "key": "cognitive_complexity",
+                    "type": "INT",
+                  },
+                  "value": "0",
                 }
-              />
-              <MeasuresOverlayMeasure
-                key="complexity"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Complexity",
-                      "key": "complexity",
-                      "type": "INT",
-                    },
-                    "value": "1",
-                  }
+              }
+            />
+            <MeasuresOverlayMeasure
+              key="complexity"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Complexity",
+                    "key": "complexity",
+                    "type": "INT",
+                  },
+                  "value": "1",
                 }
-              />
-            </div>
+              }
+            />
           </div>
         </div>
       </div>
       <div
-        className="source-viewer-measures-section"
+        className="measures-viewer-section"
       >
         <div
-          className="source-viewer-measures-card"
+          className="measures-viewer-card"
         >
           <div
             className="measures"
@@ -804,229 +778,217 @@ exports[`should render source file 2`] = `
             className="measures"
           >
             <div
-              className="measures-list"
+              className="measure measure-one-line"
+              key="BUG"
             >
-              <div
-                className="measure measure-one-line"
-                key="BUG"
+              <span
+                className="measure-name"
               >
-                <span
-                  className="measure-name"
-                >
-                  <IssueTypeIcon
-                    className="little-spacer-right"
-                    query="BUG"
-                  />
-                  issue.type.BUG
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  1
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="VULNERABILITY"
+                <IssueTypeIcon
+                  className="little-spacer-right"
+                  query="BUG"
+                />
+                issue.type.BUG
+              </span>
+              <span
+                className="measure-value"
               >
-                <span
-                  className="measure-name"
-                >
-                  <IssueTypeIcon
-                    className="little-spacer-right"
-                    query="VULNERABILITY"
-                  />
-                  issue.type.VULNERABILITY
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  0
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="CODE_SMELL"
+                1
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="VULNERABILITY"
+            >
+              <span
+                className="measure-name"
               >
-                <span
-                  className="measure-name"
-                >
-                  <IssueTypeIcon
-                    className="little-spacer-right"
-                    query="CODE_SMELL"
-                  />
-                  issue.type.CODE_SMELL
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  2
-                </span>
-              </div>
+                <IssueTypeIcon
+                  className="little-spacer-right"
+                  query="VULNERABILITY"
+                />
+                issue.type.VULNERABILITY
+              </span>
+              <span
+                className="measure-value"
+              >
+                0
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="CODE_SMELL"
+            >
+              <span
+                className="measure-name"
+              >
+                <IssueTypeIcon
+                  className="little-spacer-right"
+                  query="CODE_SMELL"
+                />
+                issue.type.CODE_SMELL
+              </span>
+              <span
+                className="measure-value"
+              >
+                2
+              </span>
             </div>
           </div>
           <div
             className="measures"
           >
             <div
-              className="measures-list"
+              className="measure measure-one-line"
+              key="BLOCKER"
             >
-              <div
-                className="measure measure-one-line"
-                key="BLOCKER"
+              <span
+                className="measure-name"
               >
-                <span
-                  className="measure-name"
-                >
-                  <SeverityHelper
-                    severity="BLOCKER"
-                  />
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  5
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="CRITICAL"
+                <SeverityHelper
+                  severity="BLOCKER"
+                />
+              </span>
+              <span
+                className="measure-value"
               >
-                <span
-                  className="measure-name"
-                >
-                  <SeverityHelper
-                    severity="CRITICAL"
-                  />
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  4
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="MAJOR"
+                5
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="CRITICAL"
+            >
+              <span
+                className="measure-name"
               >
-                <span
-                  className="measure-name"
-                >
-                  <SeverityHelper
-                    severity="MAJOR"
-                  />
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  1
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="MINOR"
+                <SeverityHelper
+                  severity="CRITICAL"
+                />
+              </span>
+              <span
+                className="measure-value"
               >
-                <span
-                  className="measure-name"
-                >
-                  <SeverityHelper
-                    severity="MINOR"
-                  />
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  3
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="INFO"
+                4
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="MAJOR"
+            >
+              <span
+                className="measure-name"
               >
-                <span
-                  className="measure-name"
-                >
-                  <SeverityHelper
-                    severity="INFO"
-                  />
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  2
-                </span>
-              </div>
+                <SeverityHelper
+                  severity="MAJOR"
+                />
+              </span>
+              <span
+                className="measure-value"
+              >
+                1
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="MINOR"
+            >
+              <span
+                className="measure-name"
+              >
+                <SeverityHelper
+                  severity="MINOR"
+                />
+              </span>
+              <span
+                className="measure-value"
+              >
+                3
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="INFO"
+            >
+              <span
+                className="measure-name"
+              >
+                <SeverityHelper
+                  severity="INFO"
+                />
+              </span>
+              <span
+                className="measure-value"
+              >
+                2
+              </span>
             </div>
           </div>
           <div
             className="measures"
           >
             <div
-              className="measures-list"
+              className="measure measure-one-line"
+              key="bad-practice"
             >
-              <div
-                className="measure measure-one-line"
-                key="bad-practice"
+              <span
+                className="measure-name"
               >
-                <span
-                  className="measure-name"
-                >
-                  <TagsIcon
-                    className="little-spacer-right"
-                  />
-                  bad-practice
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  1
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="cert"
+                <TagsIcon
+                  className="little-spacer-right"
+                />
+                bad-practice
+              </span>
+              <span
+                className="measure-value"
               >
-                <span
-                  className="measure-name"
-                >
-                  <TagsIcon
-                    className="little-spacer-right"
-                  />
-                  cert
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  3
-                </span>
-              </div>
-              <div
-                className="measure measure-one-line"
-                key="design"
+                1
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="cert"
+            >
+              <span
+                className="measure-name"
               >
-                <span
-                  className="measure-name"
-                >
-                  <TagsIcon
-                    className="little-spacer-right"
-                  />
-                  design
-                </span>
-                <span
-                  className="measure-value"
-                >
-                  1
-                </span>
-              </div>
+                <TagsIcon
+                  className="little-spacer-right"
+                />
+                cert
+              </span>
+              <span
+                className="measure-value"
+              >
+                3
+              </span>
+            </div>
+            <div
+              className="measure measure-one-line"
+              key="design"
+            >
+              <span
+                className="measure-name"
+              >
+                <TagsIcon
+                  className="little-spacer-right"
+                />
+                design
+              </span>
+              <span
+                className="measure-value"
+              >
+                1
+              </span>
             </div>
           </div>
         </div>
       </div>
       <div
-        className="source-viewer-measures-section"
+        className="measures-viewer-section"
       >
         <div
-          className="source-viewer-measures-card"
+          className="measures-viewer-card"
         >
           <div
             className="measures"
@@ -1062,44 +1024,40 @@ exports[`should render source file 2`] = `
           <div
             className="measures"
           >
-            <div
-              className="measures-list"
-            >
-              <MeasuresOverlayMeasure
-                key="uncovered_lines"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Coverage",
-                      "key": "uncovered_lines",
-                      "type": "INT",
-                    },
-                    "value": "1",
-                  }
+            <MeasuresOverlayMeasure
+              key="uncovered_lines"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Coverage",
+                    "key": "uncovered_lines",
+                    "type": "INT",
+                  },
+                  "value": "1",
                 }
-              />
-              <MeasuresOverlayMeasure
-                key="lines_to_cover"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Coverage",
-                      "key": "lines_to_cover",
-                      "type": "INT",
-                    },
-                    "value": "4",
-                  }
+              }
+            />
+            <MeasuresOverlayMeasure
+              key="lines_to_cover"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Coverage",
+                    "key": "lines_to_cover",
+                    "type": "INT",
+                  },
+                  "value": "4",
                 }
-              />
-            </div>
+              }
+            />
           </div>
         </div>
       </div>
       <div
-        className="source-viewer-measures-section"
+        className="measures-viewer-section"
       >
         <div
-          className="source-viewer-measures-card"
+          className="measures-viewer-card"
         >
           <div
             className="measures"
@@ -1136,9 +1094,516 @@ exports[`should render source file 2`] = `
           <div
             className="measures"
           >
+            <MeasuresOverlayMeasure
+              key="duplicated_blocks"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Duplications",
+                    "key": "duplicated_blocks",
+                    "type": "INT",
+                  },
+                  "value": "3",
+                }
+              }
+            />
+            <MeasuresOverlayMeasure
+              key="duplicated_lines"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Duplications",
+                    "key": "duplicated_lines",
+                    "type": "INT",
+                  },
+                  "value": "0",
+                }
+              }
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      className="spacer-top"
+    >
+      <div
+        className="measures-viewer measures-viewer-secondary"
+      >
+        <div
+          className="measures-viewer-section"
+        >
+          <div
+            className="measures-viewer-card"
+            key="Complexity"
+          >
             <div
-              className="measures-list"
+              className="measures"
             >
+              <div
+                className="measure measure-big"
+              >
+                <span
+                  className="measure-name"
+                >
+                  Complexity
+                </span>
+              </div>
+              <MeasuresOverlayMeasure
+                key="cognitive_complexity"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Complexity",
+                      "key": "cognitive_complexity",
+                      "type": "INT",
+                    },
+                    "value": "0",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="complexity"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Complexity",
+                      "key": "complexity",
+                      "type": "INT",
+                    },
+                    "value": "1",
+                  }
+                }
+              />
+            </div>
+          </div>
+          <div
+            className="measures-viewer-card"
+            key="Size"
+          >
+            <div
+              className="measures"
+            >
+              <div
+                className="measure measure-big"
+              >
+                <span
+                  className="measure-name"
+                >
+                  Size
+                </span>
+              </div>
+              <MeasuresOverlayMeasure
+                key="classes"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Size",
+                      "key": "classes",
+                      "type": "INT",
+                    },
+                    "value": "1",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="comment_lines"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Size",
+                      "key": "comment_lines",
+                      "type": "INT",
+                    },
+                    "value": "2",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="comment_lines_density"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Size",
+                      "key": "comment_lines_density",
+                      "type": "PERCENT",
+                    },
+                    "value": "20.0",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="files"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Size",
+                      "key": "files",
+                      "type": "INT",
+                    },
+                    "value": "1",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="functions"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Size",
+                      "key": "functions",
+                      "type": "INT",
+                    },
+                    "value": "1",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="lines"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Size",
+                      "key": "lines",
+                      "type": "INT",
+                    },
+                    "value": "18",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="ncloc"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Size",
+                      "key": "ncloc",
+                      "type": "INT",
+                    },
+                    "value": "8",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="statements"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Size",
+                      "key": "statements",
+                      "type": "INT",
+                    },
+                    "value": "3",
+                  }
+                }
+              />
+            </div>
+          </div>
+          <div
+            className="measures-viewer-card"
+            key="Coverage"
+          >
+            <div
+              className="measures"
+            >
+              <div
+                className="measure measure-big"
+              >
+                <span
+                  className="measure-name"
+                >
+                  Coverage
+                </span>
+              </div>
+              <MeasuresOverlayMeasure
+                key="coverage"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Coverage",
+                      "key": "coverage",
+                      "type": "PERCENT",
+                    },
+                    "value": "75.0",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="line_coverage"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Coverage",
+                      "key": "line_coverage",
+                      "type": "PERCENT",
+                    },
+                    "value": "75.0",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="lines_to_cover"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Coverage",
+                      "key": "lines_to_cover",
+                      "type": "INT",
+                    },
+                    "value": "4",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="uncovered_lines"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Coverage",
+                      "key": "uncovered_lines",
+                      "type": "INT",
+                    },
+                    "value": "1",
+                  }
+                }
+              />
+            </div>
+          </div>
+          <div
+            className="measures-viewer-card"
+            key="Reliability"
+          >
+            <div
+              className="measures"
+            >
+              <div
+                className="measure measure-big"
+              >
+                <span
+                  className="measure-name"
+                >
+                  Reliability
+                </span>
+              </div>
+              <MeasuresOverlayMeasure
+                key="bugs"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Reliability",
+                      "key": "bugs",
+                      "type": "INT",
+                    },
+                    "value": "0",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="reliability_rating"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Reliability",
+                      "key": "reliability_rating",
+                      "type": "RATING",
+                    },
+                    "value": "1.0",
+                  }
+                }
+              />
+            </div>
+          </div>
+        </div>
+        <div
+          className="measures-viewer-section"
+        >
+          <div
+            className="measures-viewer-card"
+            key="Security"
+          >
+            <div
+              className="measures"
+            >
+              <div
+                className="measure measure-big"
+              >
+                <span
+                  className="measure-name"
+                >
+                  Security
+                </span>
+              </div>
+              <MeasuresOverlayMeasure
+                key="security_rating"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Security",
+                      "key": "security_rating",
+                      "type": "RATING",
+                    },
+                    "value": "1.0",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="vulnerabilities"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Security",
+                      "key": "vulnerabilities",
+                      "type": "INT",
+                    },
+                    "value": "0",
+                  }
+                }
+              />
+            </div>
+          </div>
+          <div
+            className="measures-viewer-card"
+            key="Tests"
+          >
+            <div
+              className="measures"
+            >
+              <div
+                className="measure measure-big"
+              >
+                <span
+                  className="measure-name"
+                >
+                  Tests
+                </span>
+              </div>
+              <MeasuresOverlayMeasure
+                key="skipped_tests"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Tests",
+                      "key": "skipped_tests",
+                      "type": "INT",
+                    },
+                    "value": "0",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="test_errors"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Tests",
+                      "key": "test_errors",
+                      "type": "INT",
+                    },
+                    "value": "1",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="test_failures"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Tests",
+                      "key": "test_failures",
+                      "type": "INT",
+                    },
+                    "value": "0",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="test_success_density"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Tests",
+                      "key": "test_success_density",
+                      "type": "PERCENT",
+                    },
+                    "value": "100.0",
+                  }
+                }
+              />
+            </div>
+          </div>
+          <div
+            className="measures-viewer-card"
+            key="Issues"
+          >
+            <div
+              className="measures"
+            >
+              <div
+                className="measure measure-big"
+              >
+                <span
+                  className="measure-name"
+                >
+                  Issues
+                </span>
+              </div>
+              <MeasuresOverlayMeasure
+                key="false_positive_issues"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Issues",
+                      "key": "false_positive_issues",
+                      "type": "INT",
+                    },
+                    "value": "0",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="violations"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Issues",
+                      "key": "violations",
+                      "type": "INT",
+                    },
+                    "value": "1",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="wont_fix_issues"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Issues",
+                      "key": "wont_fix_issues",
+                      "type": "INT",
+                    },
+                    "value": "0",
+                  }
+                }
+              />
+            </div>
+          </div>
+          <div
+            className="measures-viewer-card"
+            key="Duplications"
+          >
+            <div
+              className="measures"
+            >
+              <div
+                className="measure measure-big"
+              >
+                <span
+                  className="measure-name"
+                >
+                  Duplications
+                </span>
+              </div>
               <MeasuresOverlayMeasure
                 key="duplicated_blocks"
                 measure={
@@ -1149,6 +1614,19 @@ exports[`should render source file 2`] = `
                       "type": "INT",
                     },
                     "value": "3",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="duplicated_files"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Duplications",
+                      "key": "duplicated_files",
+                      "type": "INT",
+                    },
+                    "value": "1",
                   }
                 }
               />
@@ -1165,636 +1643,76 @@ exports[`should render source file 2`] = `
                   }
                 }
               />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      className="spacer-top"
-    >
-      <div
-        className="source-viewer-measures source-viewer-measures-secondary js-all-measures"
-      >
-        <div
-          className="source-viewer-measures-section source-viewer-measures-section-big"
-        >
-          <div
-            className="source-viewer-measures-card"
-            key="Complexity"
-          >
-            <div
-              className="measures"
-            >
-              <div
-                className="measures-list"
-              >
-                <div
-                  className="measure measure-one-line measure-big"
-                >
-                  <span
-                    className="measure-name"
-                  >
-                    Complexity
-                  </span>
-                </div>
-                <MeasuresOverlayMeasure
-                  key="cognitive_complexity"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Complexity",
-                        "key": "cognitive_complexity",
-                        "type": "INT",
-                      },
-                      "value": "0",
-                    }
+              <MeasuresOverlayMeasure
+                key="duplicated_lines_density"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Duplications",
+                      "key": "duplicated_lines_density",
+                      "type": "PERCENT",
+                    },
+                    "value": "0.0",
                   }
-                />
-                <MeasuresOverlayMeasure
-                  key="complexity"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Complexity",
-                        "key": "complexity",
-                        "type": "INT",
-                      },
-                      "value": "1",
-                    }
-                  }
-                />
-              </div>
+                }
+              />
             </div>
           </div>
           <div
-            className="source-viewer-measures-card"
-            key="Size"
-          >
-            <div
-              className="measures"
-            >
-              <div
-                className="measures-list"
-              >
-                <div
-                  className="measure measure-one-line measure-big"
-                >
-                  <span
-                    className="measure-name"
-                  >
-                    Size
-                  </span>
-                </div>
-                <MeasuresOverlayMeasure
-                  key="classes"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Size",
-                        "key": "classes",
-                        "type": "INT",
-                      },
-                      "value": "1",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="comment_lines"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Size",
-                        "key": "comment_lines",
-                        "type": "INT",
-                      },
-                      "value": "2",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="comment_lines_density"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Size",
-                        "key": "comment_lines_density",
-                        "type": "PERCENT",
-                      },
-                      "value": "20.0",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="files"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Size",
-                        "key": "files",
-                        "type": "INT",
-                      },
-                      "value": "1",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="functions"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Size",
-                        "key": "functions",
-                        "type": "INT",
-                      },
-                      "value": "1",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="lines"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Size",
-                        "key": "lines",
-                        "type": "INT",
-                      },
-                      "value": "18",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="ncloc"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Size",
-                        "key": "ncloc",
-                        "type": "INT",
-                      },
-                      "value": "8",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="statements"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Size",
-                        "key": "statements",
-                        "type": "INT",
-                      },
-                      "value": "3",
-                    }
-                  }
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            className="source-viewer-measures-card"
-            key="Coverage"
-          >
-            <div
-              className="measures"
-            >
-              <div
-                className="measures-list"
-              >
-                <div
-                  className="measure measure-one-line measure-big"
-                >
-                  <span
-                    className="measure-name"
-                  >
-                    Coverage
-                  </span>
-                </div>
-                <MeasuresOverlayMeasure
-                  key="coverage"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Coverage",
-                        "key": "coverage",
-                        "type": "PERCENT",
-                      },
-                      "value": "75.0",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="line_coverage"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Coverage",
-                        "key": "line_coverage",
-                        "type": "PERCENT",
-                      },
-                      "value": "75.0",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="lines_to_cover"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Coverage",
-                        "key": "lines_to_cover",
-                        "type": "INT",
-                      },
-                      "value": "4",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="uncovered_lines"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Coverage",
-                        "key": "uncovered_lines",
-                        "type": "INT",
-                      },
-                      "value": "1",
-                    }
-                  }
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            className="source-viewer-measures-card"
-            key="Reliability"
-          >
-            <div
-              className="measures"
-            >
-              <div
-                className="measures-list"
-              >
-                <div
-                  className="measure measure-one-line measure-big"
-                >
-                  <span
-                    className="measure-name"
-                  >
-                    Reliability
-                  </span>
-                </div>
-                <MeasuresOverlayMeasure
-                  key="bugs"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Reliability",
-                        "key": "bugs",
-                        "type": "INT",
-                      },
-                      "value": "0",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="reliability_rating"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Reliability",
-                        "key": "reliability_rating",
-                        "type": "RATING",
-                      },
-                      "value": "1.0",
-                    }
-                  }
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div
-          className="source-viewer-measures-section source-viewer-measures-section-big"
-        >
-          <div
-            className="source-viewer-measures-card"
-            key="Security"
-          >
-            <div
-              className="measures"
-            >
-              <div
-                className="measures-list"
-              >
-                <div
-                  className="measure measure-one-line measure-big"
-                >
-                  <span
-                    className="measure-name"
-                  >
-                    Security
-                  </span>
-                </div>
-                <MeasuresOverlayMeasure
-                  key="security_rating"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Security",
-                        "key": "security_rating",
-                        "type": "RATING",
-                      },
-                      "value": "1.0",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="vulnerabilities"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Security",
-                        "key": "vulnerabilities",
-                        "type": "INT",
-                      },
-                      "value": "0",
-                    }
-                  }
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            className="source-viewer-measures-card"
-            key="Tests"
-          >
-            <div
-              className="measures"
-            >
-              <div
-                className="measures-list"
-              >
-                <div
-                  className="measure measure-one-line measure-big"
-                >
-                  <span
-                    className="measure-name"
-                  >
-                    Tests
-                  </span>
-                </div>
-                <MeasuresOverlayMeasure
-                  key="skipped_tests"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Tests",
-                        "key": "skipped_tests",
-                        "type": "INT",
-                      },
-                      "value": "0",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="test_errors"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Tests",
-                        "key": "test_errors",
-                        "type": "INT",
-                      },
-                      "value": "1",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="test_failures"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Tests",
-                        "key": "test_failures",
-                        "type": "INT",
-                      },
-                      "value": "0",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="test_success_density"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Tests",
-                        "key": "test_success_density",
-                        "type": "PERCENT",
-                      },
-                      "value": "100.0",
-                    }
-                  }
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            className="source-viewer-measures-card"
-            key="Issues"
-          >
-            <div
-              className="measures"
-            >
-              <div
-                className="measures-list"
-              >
-                <div
-                  className="measure measure-one-line measure-big"
-                >
-                  <span
-                    className="measure-name"
-                  >
-                    Issues
-                  </span>
-                </div>
-                <MeasuresOverlayMeasure
-                  key="false_positive_issues"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Issues",
-                        "key": "false_positive_issues",
-                        "type": "INT",
-                      },
-                      "value": "0",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="violations"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Issues",
-                        "key": "violations",
-                        "type": "INT",
-                      },
-                      "value": "1",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="wont_fix_issues"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Issues",
-                        "key": "wont_fix_issues",
-                        "type": "INT",
-                      },
-                      "value": "0",
-                    }
-                  }
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            className="source-viewer-measures-card"
-            key="Duplications"
-          >
-            <div
-              className="measures"
-            >
-              <div
-                className="measures-list"
-              >
-                <div
-                  className="measure measure-one-line measure-big"
-                >
-                  <span
-                    className="measure-name"
-                  >
-                    Duplications
-                  </span>
-                </div>
-                <MeasuresOverlayMeasure
-                  key="duplicated_blocks"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Duplications",
-                        "key": "duplicated_blocks",
-                        "type": "INT",
-                      },
-                      "value": "3",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="duplicated_files"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Duplications",
-                        "key": "duplicated_files",
-                        "type": "INT",
-                      },
-                      "value": "1",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="duplicated_lines"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Duplications",
-                        "key": "duplicated_lines",
-                        "type": "INT",
-                      },
-                      "value": "0",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="duplicated_lines_density"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Duplications",
-                        "key": "duplicated_lines_density",
-                        "type": "PERCENT",
-                      },
-                      "value": "0.0",
-                    }
-                  }
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            className="source-viewer-measures-card"
+            className="measures-viewer-card"
             key="Maintainability"
           >
             <div
               className="measures"
             >
               <div
-                className="measures-list"
+                className="measure measure-big"
               >
-                <div
-                  className="measure measure-one-line measure-big"
+                <span
+                  className="measure-name"
                 >
-                  <span
-                    className="measure-name"
-                  >
-                    Maintainability
-                  </span>
-                </div>
-                <MeasuresOverlayMeasure
-                  key="code_smells"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Maintainability",
-                        "key": "code_smells",
-                        "type": "INT",
-                      },
-                      "value": "2",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="sqale_debt_ratio"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Maintainability",
-                        "key": "sqale_debt_ratio",
-                        "type": "PERCENT",
-                      },
-                      "value": "16.7",
-                    }
-                  }
-                />
-                <MeasuresOverlayMeasure
-                  key="sqale_index"
-                  measure={
-                    Object {
-                      "metric": Object {
-                        "domain": "Maintainability",
-                        "key": "sqale_index",
-                        "type": "WORK_DUR",
-                      },
-                      "value": "40",
-                    }
-                  }
-                />
+                  Maintainability
+                </span>
               </div>
+              <MeasuresOverlayMeasure
+                key="code_smells"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Maintainability",
+                      "key": "code_smells",
+                      "type": "INT",
+                    },
+                    "value": "2",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="sqale_debt_ratio"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Maintainability",
+                      "key": "sqale_debt_ratio",
+                      "type": "PERCENT",
+                    },
+                    "value": "16.7",
+                  }
+                }
+              />
+              <MeasuresOverlayMeasure
+                key="sqale_index"
+                measure={
+                  Object {
+                    "metric": Object {
+                      "domain": "Maintainability",
+                      "key": "sqale_index",
+                      "type": "WORK_DUR",
+                    },
+                    "value": "40",
+                  }
+                }
+              />
             </div>
           </div>
         </div>
@@ -1815,19 +1733,24 @@ exports[`should render source file 2`] = `
 
 exports[`should render test file 1`] = `
 <Modal
-  contentLabel=""
+  contentLabel="component_viewer.file_measures"
   onRequestClose={[MockFunction]}
   size="large"
 >
   <div
-    className="modal-container source-viewer-measures-modal"
+    className="modal-head"
+  >
+    <h2>
+      component_viewer.file_measures
+    </h2>
+  </div>
+  <div
+    className="modal-body modal-container"
   >
     <div
-      className="source-viewer-header-component source-viewer-measures-component"
+      className="measures-viewer-header big-spacer-bottom"
     >
-      <div
-        className="source-viewer-header-component-project"
-      >
+      <div>
         <QualifierIcon
           className="little-spacer-right"
           qualifier="TRK"
@@ -1854,7 +1777,7 @@ exports[`should render test file 1`] = `
         Sub-Project Name
       </div>
       <div
-        className="source-viewer-header-component-name display-flex-center little-spacer-top"
+        className="display-flex-center little-spacer-top"
       >
         <QualifierIcon
           className="little-spacer-right"
@@ -1864,73 +1787,69 @@ exports[`should render test file 1`] = `
       </div>
     </div>
     <div
-      className="source-viewer-measures"
+      className="measures-viewer"
     >
       <div
-        className="source-viewer-measures-section"
+        className="measures-viewer-section measures-viewer-section-limited"
       >
         <div
-          className="source-viewer-measures-card"
+          className="measures-viewer-card"
         >
           <div
             className="measures"
           >
-            <div
-              className="measures-list"
-            >
-              <MeasuresOverlayMeasure
-                key="test_success_density"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Tests",
-                      "key": "test_success_density",
-                      "type": "PERCENT",
-                    },
-                    "value": "100.0",
-                  }
+            <MeasuresOverlayMeasure
+              key="test_success_density"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Tests",
+                    "key": "test_success_density",
+                    "type": "PERCENT",
+                  },
+                  "value": "100.0",
                 }
-              />
-              <MeasuresOverlayMeasure
-                key="test_failures"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Tests",
-                      "key": "test_failures",
-                      "type": "INT",
-                    },
-                    "value": "0",
-                  }
+              }
+            />
+            <MeasuresOverlayMeasure
+              key="test_failures"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Tests",
+                    "key": "test_failures",
+                    "type": "INT",
+                  },
+                  "value": "0",
                 }
-              />
-              <MeasuresOverlayMeasure
-                key="test_errors"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Tests",
-                      "key": "test_errors",
-                      "type": "INT",
-                    },
-                    "value": "1",
-                  }
+              }
+            />
+            <MeasuresOverlayMeasure
+              key="test_errors"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Tests",
+                    "key": "test_errors",
+                    "type": "INT",
+                  },
+                  "value": "1",
                 }
-              />
-              <MeasuresOverlayMeasure
-                key="skipped_tests"
-                measure={
-                  Object {
-                    "metric": Object {
-                      "domain": "Tests",
-                      "key": "skipped_tests",
-                      "type": "INT",
-                    },
-                    "value": "0",
-                  }
+              }
+            />
+            <MeasuresOverlayMeasure
+              key="skipped_tests"
+              measure={
+                Object {
+                  "metric": Object {
+                    "domain": "Tests",
+                    "key": "skipped_tests",
+                    "type": "INT",
+                  },
+                  "value": "0",
                 }
-              />
-            </div>
+              }
+            />
           </div>
         </div>
       </div>
