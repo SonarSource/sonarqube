@@ -73,7 +73,9 @@ public class SetAzureBindingAction implements AlmSettingsWsAction {
       AlmSettingDto almSettingDto = almSettingsSupport.getAlmSetting(dbSession, almSetting);
       dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, new ProjectAlmSettingDto()
         .setProjectUuid(project.uuid())
-        .setAlmSettingUuid(almSettingDto.getUuid()));
+        .setAlmSettingUuid(almSettingDto.getUuid())
+        .setAlmRepo(null)
+        .setAlmSlug(null));
       dbSession.commit();
     }
   }

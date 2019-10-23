@@ -107,7 +107,6 @@ public class AlmSettingsService extends BaseService {
         .setMediaType(MediaTypes.JSON)).content();
   }
 
-
   /**
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/delete_binding">Further information about this action online (including a response example)</a>
@@ -125,7 +124,7 @@ public class AlmSettingsService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/get_binding">Further information about this action online (including a response example)</a>
    * @since 8.1
    */
-  public AlmSettings.GetBindingWsResponse getBinding(GetGithubBindingRequest request) {
+  public AlmSettings.GetBindingWsResponse getBinding(GetBindingRequest request) {
     return call(
       new GetRequest(path("get_binding"))
         .setParam("project", request.getProject())
@@ -156,6 +155,19 @@ public class AlmSettingsService extends BaseService {
     return call(
       new GetRequest(path("list_definitions")),
       AlmSettings.ListDefinitionsWsResponse.parser());
+  }
+
+  /**
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/set_azure_binding">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public void setAzureBinding(SetAzureBindingRequest request) {
+    call(
+      new PostRequest(path("set_azure_binding"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setParam("project", request.getProject())
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**

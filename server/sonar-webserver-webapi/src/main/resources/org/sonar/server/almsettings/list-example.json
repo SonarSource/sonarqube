@@ -4,6 +4,11 @@
       "key": "GitHub Server - Dev Team",
       "alm": "github",
       "url": "https://github.enterprise.com"
+    },
+    {
+      "key": "Azure Server - Dev Team",
+      "alm": "azure",
+      "url": "https://azure.com"
     }
   ]
 }

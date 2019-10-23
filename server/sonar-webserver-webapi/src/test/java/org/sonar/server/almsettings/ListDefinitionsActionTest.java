@@ -96,11 +96,16 @@ public class ListDefinitionsActionTest {
         .setUrl("https://github.enterprise.com")
         .setAppId("12345")
         .setPrivateKey("54684654"));
-
     db.almSettings().insertAzureAlmSetting(
       a -> a.setKey("Azure Devops Server - Dev Team")
       .setPersonalAccessToken("12345")
     );
+    db.almSettings().insertBitbucketAlmSetting(
+      a -> a.setKey("Bitbucket Server - Dev Team")
+        .setUrl("https://bitbucket.enterprise.com")
+        .setPersonalAccessToken("abcdef")
+    );
+
     String response = ws.newRequest().execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("list_definitions-example.json"));
@@ -113,5 +118,6 @@ public class ListDefinitionsActionTest {
     assertThat(def.since()).isEqualTo("8.1");
     assertThat(def.params()).isEmpty();
     assertThat(def.isPost()).isFalse();
+    assertThat(def.responseExampleAsString()).isNotEmpty();
   }
 }

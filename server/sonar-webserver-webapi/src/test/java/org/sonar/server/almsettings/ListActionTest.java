@@ -61,16 +61,19 @@ public class ListActionTest {
     userSession.logIn(user).addProjectPermission(ADMIN, project);
     AlmSettingDto githubAlmSetting1 = db.almSettings().insertGitHubAlmSetting();
     AlmSettingDto githubAlmSetting2 = db.almSettings().insertGitHubAlmSetting();
+    AlmSettingDto azureAlmSetting = db.almSettings().insertAzureAlmSetting();
 
     ListWsResponse response = ws.newRequest()
       .setParam("project", project.getKey())
       .executeProtobuf(AlmSettings.ListWsResponse.class);
 
     assertThat(response.getAlmSettingsList())
-      .extracting(AlmSetting::getAlm, AlmSetting::getKey, AlmSetting::getUrl)
+      .extracting(AlmSetting::getAlm, AlmSetting::getKey, AlmSetting::hasUrl, AlmSetting::getUrl)
       .containsExactlyInAnyOrder(
-        tuple(AlmSettings.Alm.github, githubAlmSetting1.getKey(), githubAlmSetting1.getUrl()),
-        tuple(AlmSettings.Alm.github, githubAlmSetting2.getKey(), githubAlmSetting2.getUrl()));
+        tuple(AlmSettings.Alm.github, githubAlmSetting1.getKey(), true, githubAlmSetting1.getUrl()),
+        tuple(AlmSettings.Alm.github, githubAlmSetting2.getKey(), true, githubAlmSetting2.getUrl()),
+        tuple(AlmSettings.Alm.azure, azureAlmSetting.getKey(), false, "")
+      );
   }
 
   @Test
@@ -115,6 +118,12 @@ public class ListActionTest {
         .setAppId("12345")
         .setPrivateKey("54684654"));
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project, projectAlmSetting -> projectAlmSetting.setAlmRepo("team/project"));
+    AlmSettingDto azureAlmSetting = db.almSettings().insertAzureAlmSetting(
+      almSettingDto -> almSettingDto
+        .setKey("Azure Server - Dev Team")
+        .setUrl("https://azure.com")
+        .setPersonalAccessToken("abcdefg"));
+    db.almSettings().insertAzureProjectAlmSetting(azureAlmSetting, project);
 
     String response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -129,6 +138,7 @@ public class ListActionTest {
 
     assertThat(def.since()).isEqualTo("8.1");
     assertThat(def.isPost()).isFalse();
+    assertThat(def.responseExampleAsString()).isNotEmpty();
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(tuple("project", true));

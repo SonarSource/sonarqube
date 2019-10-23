@@ -27,6 +27,7 @@ import org.sonar.db.component.ComponentDto;
 
 import static java.util.Arrays.stream;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newAzureAlmSettingDto;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newAzureProjectAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubProjectAlmSettingDto;
@@ -56,9 +57,15 @@ public class AlmSettingsDbTester {
 
   @SafeVarargs
   public final ProjectAlmSettingDto insertGitHubProjectAlmSetting(AlmSettingDto githubAlmSetting, ComponentDto project, Consumer<ProjectAlmSettingDto>... populators) {
-    ProjectAlmSettingDto dto = newGithubProjectAlmSettingDto(githubAlmSetting, project);
-    stream(populators).forEach(p -> p.accept(dto));
+    return insertProjectAlmSetting(newGithubProjectAlmSettingDto(githubAlmSetting, project), populators);
+  }
 
+  public ProjectAlmSettingDto insertAzureProjectAlmSetting(AlmSettingDto azureAlmSetting, ComponentDto project) {
+    return insertProjectAlmSetting(newAzureProjectAlmSettingDto(azureAlmSetting, project));
+  }
+
+  private ProjectAlmSettingDto insertProjectAlmSetting(ProjectAlmSettingDto dto, Consumer<ProjectAlmSettingDto>... populators) {
+    stream(populators).forEach(p -> p.accept(dto));
     db.getDbClient().projectAlmSettingDao().insertOrUpdate(db.getSession(), dto);
     db.commit();
     return dto;
@@ -66,7 +73,6 @@ public class AlmSettingsDbTester {
 
   private AlmSettingDto insert(AlmSettingDto dto, Consumer<AlmSettingDto>[] populators) {
     stream(populators).forEach(p -> p.accept(dto));
-
     db.getDbClient().almSettingDao().insert(db.getSession(), dto);
     db.commit();
     return dto;

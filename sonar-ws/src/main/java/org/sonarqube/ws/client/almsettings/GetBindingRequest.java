@@ -28,14 +28,14 @@ import javax.annotation.Generated;
  * @since 8.1
  */
 @Generated("sonar-ws-generator")
-public class GetGithubBindingRequest {
+public class GetBindingRequest {
 
   private String project;
 
   /**
    * This is a mandatory parameter.
    */
-  public GetGithubBindingRequest setProject(String project) {
+  public GetBindingRequest setProject(String project) {
     this.project = project;
     return this;
   }

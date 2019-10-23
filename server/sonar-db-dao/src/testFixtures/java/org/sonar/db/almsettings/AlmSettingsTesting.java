@@ -59,4 +59,10 @@ public class AlmSettingsTesting {
       .setAlmRepo(randomAlphanumeric(256))
       .setAlmSlug(randomAlphanumeric(256));
   }
+
+  public static ProjectAlmSettingDto newAzureProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ComponentDto project) {
+    return new ProjectAlmSettingDto()
+      .setAlmSettingUuid(githubAlmSetting.getUuid())
+      .setProjectUuid(project.uuid());
+  }
 }

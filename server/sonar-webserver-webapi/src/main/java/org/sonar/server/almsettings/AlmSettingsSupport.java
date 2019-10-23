@@ -33,7 +33,7 @@ import org.sonarqube.ws.AlmSettings;
 import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.ADMIN;
 
-class AlmSettingsSupport {
+public class AlmSettingsSupport {
 
   private final DbClient dbClient;
   private final UserSession userSession;

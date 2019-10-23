@@ -12,5 +12,12 @@
       "key": "Azure Devops Server - Dev Team",
       "personalAccessToken": "12345"
     }
+  ],
+  "bitbucket": [
+    {
+      "key": "Bitbucket Server - Dev Team",
+      "url": "https://bitbucket.enterprise.com",
+      "personalAccessToken": "abcdef"
+    }
   ]
 }

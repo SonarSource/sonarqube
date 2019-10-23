@@ -52,21 +52,37 @@ public class CountBindingActionTest {
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null))));
 
   @Test
-  public void count_binding() {
+  public void count_github_binding() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
-    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
+    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
-    db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project1);
-    db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project2);
+    db.almSettings().insertGitHubProjectAlmSetting(almSetting, project1);
+    db.almSettings().insertGitHubProjectAlmSetting(almSetting, project2);
 
     CountBindingWsResponse response = ws.newRequest()
-      .setParam("almSetting", githubAlmSetting.getKey())
+      .setParam("almSetting", almSetting.getKey())
       .executeProtobuf(CountBindingWsResponse.class);
 
-    assertThat(response.getKey()).isEqualTo(githubAlmSetting.getKey());
+    assertThat(response.getKey()).isEqualTo(almSetting.getKey());
     assertThat(response.getProjects()).isEqualTo(2);
+  }
+
+  @Test
+  public void count_azure_binding() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setSystemAdministrator();
+    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    db.almSettings().insertAzureProjectAlmSetting(almSetting, project1);
+
+    CountBindingWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .executeProtobuf(CountBindingWsResponse.class);
+
+    assertThat(response.getKey()).isEqualTo(almSetting.getKey());
+    assertThat(response.getProjects()).isEqualTo(1);
   }
 
   @Test
