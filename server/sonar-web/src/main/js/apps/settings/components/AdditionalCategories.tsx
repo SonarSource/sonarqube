@@ -45,6 +45,7 @@ export interface AdditionalCategory {
   availableGlobally: boolean;
   availableForProject: boolean;
   displayTab: boolean;
+  requiresBranchesEnabled?: boolean;
 }
 
 export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
@@ -78,7 +79,8 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     renderComponent: getPullRequestDecorationComponent,
     availableGlobally: true,
     availableForProject: false,
-    displayTab: true
+    displayTab: true,
+    requiresBranchesEnabled: true
   },
   {
     key: PULL_REQUEST_DECORATION_BINDING_CATEGORY,
@@ -86,7 +88,8 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     renderComponent: getPullRequestDecorationBindingComponent,
     availableGlobally: false,
     availableForProject: true,
-    displayTab: true
+    displayTab: true,
+    requiresBranchesEnabled: true
   }
 ];
 

@@ -127,3 +127,48 @@ exports[`should render correctly in project mode 1`] = `
   </li>
 </ul>
 `;
+
+exports[`should render correctly when branches are disabled 1`] = `
+<ul
+  className="side-tabs-menu"
+>
+  <li
+    key="CAT_2"
+  >
+    <IndexLink
+      className=""
+      title="CAT_2_NAME"
+      to={
+        Object {
+          "pathname": "/settings",
+          "query": Object {
+            "category": "cat_2",
+            "id": undefined,
+          },
+        }
+      }
+    >
+      CAT_2_NAME
+    </IndexLink>
+  </li>
+  <li
+    key="general"
+  >
+    <IndexLink
+      className=""
+      title="general"
+      to={
+        Object {
+          "pathname": "/settings",
+          "query": Object {
+            "category": undefined,
+            "id": undefined,
+          },
+        }
+      }
+    >
+      general
+    </IndexLink>
+  </li>
+</ul>
+`;

@@ -31,7 +31,8 @@ jest.mock('../AdditionalCategories', () => ({
       renderComponent: jest.fn(),
       availableGlobally: true,
       availableForProject: true,
-      displayTab: true
+      displayTab: true,
+      requiresBranchesEnabled: true
     },
     {
       key: 'CAT_2',
@@ -68,11 +69,16 @@ it('should render correctly in project mode', () => {
   expect(shallowRender({ component: mockComponent() })).toMatchSnapshot();
 });
 
+it('should render correctly when branches are disabled', () => {
+  expect(shallowRender({ branchesEnabled: false })).toMatchSnapshot();
+});
+
 function shallowRender(props?: Partial<CategoriesListProps>) {
   const categories = ['general'];
 
   return shallow(
     <CategoriesList
+      branchesEnabled={true}
       categories={categories}
       defaultCategory="general"
       selectedCategory=""

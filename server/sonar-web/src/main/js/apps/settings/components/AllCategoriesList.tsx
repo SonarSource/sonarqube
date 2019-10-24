@@ -22,7 +22,7 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { IndexLink } from 'react-router';
-import { getSettingsAppAllCategories, Store } from '../../../store/rootReducer';
+import { getAppState, getSettingsAppAllCategories, Store } from '../../../store/rootReducer';
 import { getCategoryName } from '../utils';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
 import { CATEGORY_OVERRIDES } from './CategoryOverrides';
@@ -33,6 +33,7 @@ interface Category {
 }
 
 export interface CategoriesListProps {
+  branchesEnabled?: boolean;
   categories: string[];
   component?: T.Component;
   defaultCategory: string;
@@ -60,6 +61,8 @@ export class CategoriesList extends React.PureComponent<CategoriesListProps> {
   }
 
   render() {
+    const { branchesEnabled } = this.props;
+
     const categoriesWithName = this.props.categories
       .filter(key => !CATEGORY_OVERRIDES[key.toLowerCase()])
       .map(key => ({
@@ -67,13 +70,15 @@ export class CategoriesList extends React.PureComponent<CategoriesListProps> {
         name: getCategoryName(key)
       }))
       .concat(
-        ADDITIONAL_CATEGORIES.filter(c => c.displayTab).filter(c =>
-          this.props.component
-            ? // Project settings
-              c.availableForProject
-            : // Global settings
-              c.availableGlobally
-        )
+        ADDITIONAL_CATEGORIES.filter(c => c.displayTab)
+          .filter(c =>
+            this.props.component
+              ? // Project settings
+                c.availableForProject
+              : // Global settings
+                c.availableGlobally
+          )
+          .filter(c => branchesEnabled || !c.requiresBranchesEnabled)
       );
     const sortedCategories = sortBy(categoriesWithName, category => category.name.toLowerCase());
     return (
@@ -87,7 +92,8 @@ export class CategoriesList extends React.PureComponent<CategoriesListProps> {
 }
 
 const mapStateToProps = (state: Store) => ({
-  categories: getSettingsAppAllCategories(state)
+  categories: getSettingsAppAllCategories(state),
+  branchesEnabled: getAppState(state).branchesEnabled
 });
 
 export default connect(mapStateToProps)(CategoriesList);
