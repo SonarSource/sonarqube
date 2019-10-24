@@ -93,6 +93,7 @@ import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
 import org.sonar.server.issue.ws.IssueWsModule;
+import org.sonar.server.language.LanguageValidation;
 import org.sonar.server.language.ws.LanguageWs;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.measure.custom.ws.CustomMeasuresWsModule;
@@ -325,6 +326,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // languages
       Languages.class,
       LanguageWs.class,
+      LanguageValidation.class,
       org.sonar.server.language.ws.ListAction.class,
 
       // measure
