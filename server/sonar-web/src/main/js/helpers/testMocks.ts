@@ -22,7 +22,7 @@ import { Location } from 'history';
 import { InjectedRouter } from 'react-router';
 import { createStore, Store } from 'redux';
 import { DocumentationEntry } from '../apps/documentation/utils';
-import { Profile } from '../apps/quality-profiles/types';
+import { Exporter, Profile } from '../apps/quality-profiles/types';
 
 export function mockAlmApplication(overrides: Partial<T.AlmApplication> = {}): T.AlmApplication {
   return {
@@ -580,6 +580,28 @@ export function mockQualityProfileInheritance(
     name: 'Foo',
     overridingRuleCount: 0,
     ...overrides
+  };
+}
+
+export function mockQualityProfileChangelogEvent(eventOverride?: any) {
+  return {
+    action: 'ACTIVATED',
+    date: '2019-04-23T02:12:32+0100',
+    params: {
+      severity: 'MAJOR'
+    },
+    ruleKey: 'rule-key',
+    ruleName: 'rule-name',
+    ...eventOverride
+  };
+}
+
+export function mockQualityProfileExporter(override?: Partial<Exporter>): Exporter {
+  return {
+    key: 'exporter-key',
+    name: 'exporter-name',
+    languages: ['first-lang', 'second-lang'],
+    ...override
   };
 }
 

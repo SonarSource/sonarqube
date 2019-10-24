@@ -88,26 +88,37 @@ export default class QualityProfiles extends React.PureComponent<Props, State> {
   handleChangeProfile = (oldKey: string, newKey: string) => {
     const { component } = this.props;
     const { allProfiles, profiles } = this.state;
+    const oldProfile = allProfiles && allProfiles.find(profile => profile.key === oldKey);
     const newProfile = allProfiles && allProfiles.find(profile => profile.key === newKey);
-    const request =
-      newProfile && newProfile.isDefault
-        ? dissociateProject(oldKey, component.key)
-        : associateProject(newKey, component.key);
 
-    return request.then(() => {
-      if (this.mounted && profiles && newProfile) {
-        // remove old profile, add new one
-        const nextProfiles = [...profiles.filter(profile => profile.key !== oldKey), newProfile];
-        this.setState({ profiles: nextProfiles });
+    let request;
 
-        addGlobalSuccessMessage(
-          translateWithParameters(
-            'project_quality_profile.successfully_updated',
-            newProfile.languageName
-          )
-        );
+    if (newProfile) {
+      if (newProfile.isDefault && oldProfile) {
+        request = dissociateProject(oldProfile, component.key);
+      } else {
+        request = associateProject(newProfile, component.key);
       }
-    });
+    }
+
+    if (request) {
+      return request.then(() => {
+        if (this.mounted && profiles && newProfile) {
+          // remove old profile, add new one
+          const nextProfiles = [...profiles.filter(profile => profile.key !== oldKey), newProfile];
+          this.setState({ profiles: nextProfiles });
+
+          addGlobalSuccessMessage(
+            translateWithParameters(
+              'project_quality_profile.successfully_updated',
+              newProfile.languageName
+            )
+          );
+        }
+      });
+    } else {
+      return Promise.resolve();
+    }
   };
 
   render() {

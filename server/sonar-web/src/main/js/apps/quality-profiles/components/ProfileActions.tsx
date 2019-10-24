@@ -23,7 +23,7 @@ import ActionsDropdown, {
   ActionsDropdownItem
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { setDefaultProfile } from '../../../api/quality-profiles';
+import { getQualityProfileBackupUrl, setDefaultProfile } from '../../../api/quality-profiles';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { getRulesUrl } from '../../../helpers/urls';
 import { Profile } from '../types';
@@ -119,7 +119,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
   };
 
   handleSetDefaultClick = () => {
-    setDefaultProfile(this.props.profile.key).then(this.props.updateProfiles, () => {});
+    setDefaultProfile(this.props.profile).then(this.props.updateProfiles, () => {});
   };
 
   navigateToNewProfile = (name: string) => {
@@ -137,11 +137,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
     const { profile } = this.props;
     const { actions = {} } = profile;
 
-    // FIXME use org, name and lang
-    const backupUrl =
-      (window as any).baseUrl +
-      '/api/qualityprofiles/backup?profileKey=' +
-      encodeURIComponent(profile.key);
+    const backupUrl = `${(window as any).baseUrl}${getQualityProfileBackupUrl(profile)}`;
 
     const activateMoreUrl = getRulesUrl(
       {

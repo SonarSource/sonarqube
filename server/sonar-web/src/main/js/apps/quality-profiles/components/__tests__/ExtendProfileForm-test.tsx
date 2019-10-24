@@ -53,7 +53,7 @@ it('should correctly create a new profile and extend the existing one', async ()
   data.append('name', name);
   data.append('organization', organization);
   expect(createQualityProfile).toHaveBeenCalledWith(data);
-  expect(changeProfileParent).toHaveBeenCalledWith('new-profile', profile.key);
+  expect(changeProfileParent).toHaveBeenCalledWith({ key: 'new-profile' }, profile);
 });
 
 function shallowRender(props: Partial<ExtendProfileForm['props']> = {}) {

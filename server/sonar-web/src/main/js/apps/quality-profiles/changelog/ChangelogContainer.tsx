@@ -18,17 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { withRouter, WithRouterProps } from 'react-router';
+import { WithRouterProps } from 'react-router';
 import { parseDate, toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getProfileChangelog } from '../../../api/quality-profiles';
+import { withRouter } from '../../../components/hoc/withRouter';
 import { Profile, ProfileChangelogEvent } from '../types';
 import { getProfileChangelogPath } from '../utils';
 import Changelog from './Changelog';
 import ChangelogEmpty from './ChangelogEmpty';
 import ChangelogSearch from './ChangelogSearch';
 
-interface Props extends WithRouterProps {
+interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
   organization: string | null;
   profile: Profile;
 }
@@ -40,7 +41,7 @@ interface State {
   total?: number;
 }
 
-class ChangelogContainer extends React.PureComponent<Props, State> {
+export class ChangelogContainer extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true };
 
@@ -59,27 +60,31 @@ class ChangelogContainer extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
+  stopLoading() {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
+  }
+
   loadChangelog() {
     this.setState({ loading: true });
-    const { query } = this.props.location;
-    const data: any = { profileKey: this.props.profile.key };
-    if (query.since) {
-      data.since = query.since;
-    }
-    if (query.to) {
-      data.to = query.to;
-    }
+    const {
+      location: { query },
+      profile
+    } = this.props;
 
-    getProfileChangelog(data).then((r: any) => {
-      if (this.mounted) {
-        this.setState({
-          events: r.events,
-          total: r.total,
-          page: r.p,
-          loading: false
-        });
-      }
-    });
+    getProfileChangelog(query.since, query.to, profile)
+      .then((r: any) => {
+        if (this.mounted) {
+          this.setState({
+            events: r.events,
+            total: r.total,
+            page: r.p,
+            loading: false
+          });
+        }
+      })
+      .catch(this.stopLoading);
   }
 
   loadMore(event: React.SyntheticEvent<HTMLElement>) {
@@ -88,28 +93,23 @@ class ChangelogContainer extends React.PureComponent<Props, State> {
 
     if (this.state.page != null) {
       this.setState({ loading: true });
-      const { query } = this.props.location;
-      const data: any = {
-        profileKey: this.props.profile.key,
-        p: this.state.page + 1
-      };
-      if (query.since) {
-        data.since = query.since;
-      }
-      if (query.to) {
-        data.to = query.to;
-      }
+      const {
+        location: { query },
+        profile
+      } = this.props;
 
-      getProfileChangelog(data).then((r: any) => {
-        if (this.mounted && this.state.events) {
-          this.setState({
-            events: [...this.state.events, ...r.events],
-            total: r.total,
-            page: r.p,
-            loading: false
-          });
-        }
-      });
+      getProfileChangelog(query.since, query.to, profile, this.state.page + 1)
+        .then((r: any) => {
+          if (this.mounted && this.state.events) {
+            this.setState({
+              events: [...this.state.events, ...r.events],
+              total: r.total,
+              page: r.p,
+              loading: false
+            });
+          }
+        })
+        .catch(this.stopLoading);
     }
   }
 

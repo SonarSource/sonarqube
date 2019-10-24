@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="boxed-group quality-profile-exporters"
+>
+  <h2>
+    quality_profiles.exporters
+  </h2>
+  <div
+    className="boxed-group-inner"
+  >
+    <ul>
+      <li
+        data-key="exporter-key"
+        key="exporter-key"
+      >
+        <a
+          href="/api/qualityprofiles/export?exporterKey=exporter-key&language=js&qualityProfile=name&organization=foo"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          exporter-name
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+`;

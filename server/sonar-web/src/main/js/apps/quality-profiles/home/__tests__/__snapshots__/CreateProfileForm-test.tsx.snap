@@ -20,13 +20,120 @@ exports[`should render correctly 1`] = `
     <div
       className="modal-body"
     >
-      <i
-        className="spinner"
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="create-profile-name"
+        >
+          name
+          <em
+            className="mandatory"
+          >
+            *
+          </em>
+        </label>
+        <input
+          autoFocus={true}
+          id="create-profile-name"
+          maxLength={100}
+          name="name"
+          onChange={[Function]}
+          required={true}
+          size={50}
+          type="text"
+          value=""
+        />
+      </div>
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="create-profile-language"
+        >
+          language
+          <em
+            className="mandatory"
+          >
+            *
+          </em>
+        </label>
+        <Select
+          clearable={false}
+          id="create-profile-language"
+          name="language"
+          onChange={[Function]}
+          options={
+            Array [
+              Object {
+                "label": "Hangeul",
+                "value": "kr",
+              },
+            ]
+          }
+          value="kr"
+        />
+      </div>
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="create-profile-parent"
+        >
+          quality_profiles.parent
+        </label>
+        <Select
+          clearable={true}
+          id="create-profile-parent"
+          name="parentKey"
+          onChange={[Function]}
+          options={
+            Array [
+              Object {
+                "label": "none",
+                "value": "",
+              },
+            ]
+          }
+          value=""
+        />
+      </div>
+      <div
+        className="modal-field spacer-bottom js-importer"
+        data-key="key_importer"
+        key="key_importer"
+      >
+        <label
+          htmlFor="create-profile-form-backup-key_importer"
+        >
+          name_importer
+        </label>
+        <input
+          id="create-profile-form-backup-key_importer"
+          name="backup_key_importer"
+          type="file"
+        />
+        <p
+          className="note"
+        >
+          quality_profiles.optional_configuration_file
+        </p>
+      </div>
+      <input
+        name="hello-ie11"
+        type="hidden"
+        value=""
       />
     </div>
     <div
       className="modal-foot"
     >
+      <SubmitButton
+        disabled={false}
+        id="create-profile-submit"
+      >
+        create
+      </SubmitButton>
       <ResetButtonLink
         id="create-profile-cancel"
         onClick={[MockFunction]}

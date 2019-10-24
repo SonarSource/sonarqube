@@ -1,0 +1,153 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="boxed-group quality-profile-inheritance"
+>
+  <header
+    className="boxed-group-header"
+  >
+    <h2>
+      quality_profiles.profile_inheritance
+    </h2>
+  </header>
+  <div
+    className="boxed-group-inner"
+  >
+    <table
+      className="data zebra"
+    >
+      <tbody>
+        <ProfileInheritanceBox
+          depth={0}
+          key="foo"
+          language="js"
+          organization={null}
+          profile={
+            Object {
+              "activeRuleCount": 4,
+              "isBuiltIn": false,
+              "key": "foo",
+              "name": "Foo",
+              "overridingRuleCount": 0,
+            }
+          }
+          type="ancestor"
+        />
+        <ProfileInheritanceBox
+          depth={2}
+          key="foo"
+          language="js"
+          organization={null}
+          profile={
+            Object {
+              "activeRuleCount": 4,
+              "isBuiltIn": false,
+              "key": "foo",
+              "name": "Foo",
+              "overridingRuleCount": 0,
+            }
+          }
+          type="child"
+        />
+      </tbody>
+    </table>
+  </div>
+</div>
+`;
+
+exports[`should render modal correctly 1`] = `
+<div
+  className="boxed-group quality-profile-inheritance"
+>
+  <header
+    className="boxed-group-header"
+  >
+    <h2>
+      quality_profiles.profile_inheritance
+    </h2>
+  </header>
+  <div
+    className="boxed-group-inner"
+  >
+    <table
+      className="data zebra"
+    >
+      <tbody>
+        <ProfileInheritanceBox
+          depth={0}
+          key="foo"
+          language="js"
+          organization={null}
+          profile={
+            Object {
+              "activeRuleCount": 4,
+              "isBuiltIn": false,
+              "key": "foo",
+              "name": "Foo",
+              "overridingRuleCount": 0,
+            }
+          }
+          type="ancestor"
+        />
+        <ProfileInheritanceBox
+          depth={2}
+          key="foo"
+          language="js"
+          organization={null}
+          profile={
+            Object {
+              "activeRuleCount": 4,
+              "isBuiltIn": false,
+              "key": "foo",
+              "name": "Foo",
+              "overridingRuleCount": 0,
+            }
+          }
+          type="child"
+        />
+      </tbody>
+    </table>
+  </div>
+  <ChangeParentForm
+    onChange={[Function]}
+    onClose={[Function]}
+    profile={
+      Object {
+        "activeDeprecatedRuleCount": 2,
+        "activeRuleCount": 10,
+        "childrenCount": 0,
+        "depth": 1,
+        "isBuiltIn": false,
+        "isDefault": false,
+        "isInherited": false,
+        "key": "key",
+        "language": "js",
+        "languageName": "JavaScript",
+        "name": "name",
+        "organization": "foo",
+        "projectCount": 3,
+      }
+    }
+    profiles={
+      Array [
+        Object {
+          "activeDeprecatedRuleCount": 2,
+          "activeRuleCount": 10,
+          "childrenCount": 0,
+          "depth": 1,
+          "isBuiltIn": false,
+          "isDefault": false,
+          "isInherited": false,
+          "key": "key",
+          "language": "js",
+          "languageName": "JavaScript",
+          "name": "name",
+          "organization": "foo",
+          "projectCount": 3,
+        },
+      ]
+    }
+  />
+</div>
+`;

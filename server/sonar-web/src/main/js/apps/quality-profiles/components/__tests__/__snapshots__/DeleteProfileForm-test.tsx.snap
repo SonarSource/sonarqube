@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Modal
+  contentLabel="quality_profiles.delete_confirm_title"
+  onRequestClose={[MockFunction]}
+>
+  <form
+    id="delete-profile-form"
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-head"
+    >
+      <h2>
+        quality_profiles.delete_confirm_title
+      </h2>
+    </div>
+    <div
+      className="modal-body"
+    >
+      <div
+        className="js-modal-messages"
+      />
+      <p>
+        quality_profiles.are_you_sure_want_delete_profile_x.name.JavaScript
+      </p>
+    </div>
+    <div
+      className="modal-foot"
+    >
+      <SubmitButton
+        className="button-red"
+        disabled={false}
+        id="delete-profile-submit"
+      >
+        delete
+      </SubmitButton>
+      <ResetButtonLink
+        id="delete-profile-cancel"
+        onClick={[MockFunction]}
+      >
+        cancel
+      </ResetButtonLink>
+    </div>
+  </form>
+</Modal>
+`;

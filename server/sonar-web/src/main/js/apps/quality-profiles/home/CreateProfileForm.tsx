@@ -99,9 +99,12 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
 
     try {
       const { profile } = await createQualityProfile(data);
-      if (this.state.parent) {
-        await changeProfileParent(profile.key, this.state.parent);
+
+      const parentProfile = this.props.profiles.find(p => p.key === this.state.parent);
+      if (parentProfile) {
+        await changeProfileParent(profile, parentProfile);
       }
+
       this.props.onCreate(profile);
     } finally {
       if (this.mounted) {

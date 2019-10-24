@@ -17,27 +17,68 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockEvent, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { changeProfileParent, createQualityProfile } from '../../../../api/quality-profiles';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
 import CreateProfileForm from '../CreateProfileForm';
 
+beforeEach(() => jest.clearAllMocks());
+
 jest.mock('../../../../api/quality-profiles', () => ({
-  changeProfileParent: jest.fn(),
-  createQualityProfile: jest.fn(),
-  getImporters: jest.fn().mockResolvedValue([])
+  changeProfileParent: jest.fn().mockResolvedValue({}),
+  createQualityProfile: jest.fn().mockResolvedValue({}),
+  getImporters: jest.fn().mockResolvedValue([
+    {
+      key: 'key_importer',
+      languages: ['lang1_importer', 'lang2_importer', 'kr'],
+      name: 'name_importer'
+    }
+  ])
 }));
 
-it('should render correctly', () => {
-  expect(
-    shallow(
-      <CreateProfileForm
-        languages={[{ key: 'kr', name: 'Hangeul' }]}
-        onClose={jest.fn()}
-        onCreate={jest.fn()}
-        organization="org"
-        profiles={[mockQualityProfile()]}
-      />
-    )
-  ).toMatchSnapshot();
+it('should render correctly', async () => {
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
 });
+
+it('should handle form submit correctly', async () => {
+  const onCreate = jest.fn();
+
+  const wrapper = shallowRender({ onCreate });
+  wrapper.instance().handleParentChange({ value: 'key' });
+  wrapper.instance().handleFormSubmit(mockEvent({ currentTarget: undefined }));
+  await waitAndUpdate(wrapper);
+
+  expect(createQualityProfile).toHaveBeenCalled();
+  expect(changeProfileParent).toHaveBeenCalled();
+  expect(onCreate).toHaveBeenCalled();
+});
+
+it('should handle form submit without parent correctly', async () => {
+  const onCreate = jest.fn();
+
+  const wrapper = shallowRender({ onCreate });
+  wrapper.instance().handleFormSubmit(mockEvent({ currentTarget: undefined }));
+  await waitAndUpdate(wrapper);
+
+  expect(createQualityProfile).toHaveBeenCalled();
+  expect(changeProfileParent).not.toHaveBeenCalled();
+  expect(onCreate).toHaveBeenCalled();
+});
+
+function shallowRender(props?: Partial<CreateProfileForm['props']>) {
+  return shallow<CreateProfileForm>(
+    <CreateProfileForm
+      languages={[{ key: 'kr', name: 'Hangeul' }]}
+      onClose={jest.fn()}
+      onCreate={jest.fn()}
+      organization="org"
+      profiles={[mockQualityProfile()]}
+      {...props}
+    />
+  );
+}

@@ -65,7 +65,7 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
   }
 
   loadData() {
-    getProfileInheritance(this.props.profile.key).then(
+    getProfileInheritance(this.props.profile).then(
       r => {
         if (this.mounted) {
           const { ancestors, children } = r;

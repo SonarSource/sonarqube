@@ -101,7 +101,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
     });
 
   handleSelect = (key: string) =>
-    associateProject(this.props.profile.key, key).then(() => {
+    associateProject(this.props.profile, key).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({
           needToReload: true,
@@ -111,7 +111,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
     });
 
   handleUnselect = (key: string) =>
-    dissociateProject(this.props.profile.key, key).then(() => {
+    dissociateProject(this.props.profile, key).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({
           needToReload: true,

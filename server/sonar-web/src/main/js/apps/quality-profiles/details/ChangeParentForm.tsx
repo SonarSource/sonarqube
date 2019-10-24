@@ -60,18 +60,16 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const parent = this.state.selected;
+    const parent = this.props.profiles.find(p => p.key === this.state.selected);
 
-    if (parent != null) {
-      this.setState({ loading: true });
-      changeProfileParent(this.props.profile.key, parent)
-        .then(this.props.onChange)
-        .catch(() => {
-          if (this.mounted) {
-            this.setState({ loading: false });
-          }
-        });
-    }
+    this.setState({ loading: true });
+    changeProfileParent(this.props.profile, parent)
+      .then(this.props.onChange)
+      .catch(() => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
+      });
   };
 
   render() {

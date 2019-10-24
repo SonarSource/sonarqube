@@ -1,0 +1,88 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="boxed-group boxed-group-inner js-profile-changelog"
+>
+  <header
+    className="spacer-bottom"
+  >
+    <ChangelogSearch
+      dateRange={
+        Object {
+          "from": undefined,
+          "to": undefined,
+        }
+      }
+      onDateRangeChange={[Function]}
+      onReset={[Function]}
+    />
+  </header>
+  <Changelog
+    events={
+      Array [
+        Object {
+          "action": "ACTIVATED",
+          "date": "2019-04-23T02:12:32+0100",
+          "params": Object {
+            "severity": "MAJOR",
+          },
+          "ruleKey": "rule-key",
+          "ruleName": "rule-name",
+        },
+        Object {
+          "action": "ACTIVATED",
+          "date": "2019-04-23T02:12:32+0100",
+          "params": Object {
+            "severity": "MAJOR",
+          },
+          "ruleKey": "rule-key",
+          "ruleName": "rule-name",
+        },
+        Object {
+          "action": "ACTIVATED",
+          "date": "2019-04-23T02:12:32+0100",
+          "params": Object {
+            "severity": "MAJOR",
+          },
+          "ruleKey": "rule-key",
+          "ruleName": "rule-name",
+        },
+      ]
+    }
+    organization="TEST"
+  />
+  <footer
+    className="text-center spacer-top small"
+  >
+    <a
+      href="#"
+      onClick={[Function]}
+    >
+      show_more
+    </a>
+  </footer>
+</div>
+`;
+
+exports[`should render correctly without events 1`] = `
+<div
+  className="boxed-group boxed-group-inner js-profile-changelog"
+>
+  <header
+    className="spacer-bottom"
+  >
+    <ChangelogSearch
+      dateRange={
+        Object {
+          "from": undefined,
+          "to": undefined,
+        }
+      }
+      onDateRangeChange={[Function]}
+      onReset={[Function]}
+    />
+  </header>
+  <ChangelogEmpty />
+</div>
+`;

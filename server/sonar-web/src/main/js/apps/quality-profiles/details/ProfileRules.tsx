@@ -84,7 +84,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
     }
     return getQualityProfile({
       compareToSonarWay: true,
-      profile: this.props.profile.key
+      profile: this.props.profile
     });
   }
 

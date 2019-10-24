@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { stringify } from 'querystring';
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getQualityProfileExporterUrl } from '../../../api/quality-profiles';
 import { Exporter, Profile } from '../types';
 
 interface Props {
@@ -30,18 +30,8 @@ interface Props {
 
 export default class ProfileExporters extends React.PureComponent<Props> {
   getExportUrl(exporter: Exporter) {
-    const { organization, profile } = this.props;
-
-    const path = '/api/qualityprofiles/export';
-    const parameters = {
-      exporterKey: exporter.key,
-      language: profile.language,
-      qualityProfile: profile.name
-    };
-    if (organization) {
-      Object.assign(parameters, { organization });
-    }
-    return (window as any).baseUrl + path + '?' + stringify(parameters);
+    const { profile } = this.props;
+    return `${(window as any).baseUrl}${getQualityProfileExporterUrl(exporter, profile)}`;
   }
 
   render() {
@@ -62,7 +52,7 @@ export default class ProfileExporters extends React.PureComponent<Props> {
                 className={index > 0 ? 'spacer-top' : undefined}
                 data-key={exporter.key}
                 key={exporter.key}>
-                <a href={this.getExportUrl(exporter)} target="_blank">
+                <a href={this.getExportUrl(exporter)} rel="noopener noreferrer" target="_blank">
                   {exporter.name}
                 </a>
               </li>

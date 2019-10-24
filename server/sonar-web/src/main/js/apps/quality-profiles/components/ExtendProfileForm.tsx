@@ -77,7 +77,7 @@ export default class ExtendProfileForm extends React.PureComponent<Props, State>
 
       try {
         const { profile: newProfile } = await createQualityProfile(data);
-        await changeProfileParent(newProfile.key, parentProfile.key);
+        await changeProfileParent(newProfile, parentProfile);
         this.props.onExtend(newProfile.name);
       } finally {
         if (this.mounted) {

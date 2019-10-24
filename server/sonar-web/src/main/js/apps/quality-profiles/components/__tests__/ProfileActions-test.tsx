@@ -20,8 +20,16 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { setDefaultProfile } from '../../../../api/quality-profiles';
 import { mockQualityProfile, mockRouter } from '../../../../helpers/testMocks';
 import { ProfileActions } from '../ProfileActions';
+
+beforeEach(() => jest.clearAllMocks());
+
+jest.mock('../../../../api/quality-profiles', () => ({
+  ...jest.requireActual('../../../../api/quality-profiles'),
+  setDefaultProfile: jest.fn().mockResolvedValue({})
+}));
 
 const PROFILE = mockQualityProfile({
   activeRuleCount: 68,
@@ -105,9 +113,20 @@ it('should extend profile', async () => {
   expect(wrapper.find('ExtendProfileForm').exists()).toBe(false);
 });
 
+it('should delete profile properly', async () => {
+  const updateProfiles = jest.fn();
+
+  const wrapper = shallowRender({ updateProfiles });
+  wrapper.instance().handleSetDefaultClick();
+  await waitAndUpdate(wrapper);
+
+  expect(setDefaultProfile).toHaveBeenCalledWith(PROFILE);
+  expect(updateProfiles).toHaveBeenCalled();
+});
+
 function shallowRender(props: Partial<ProfileActions['props']> = {}) {
   const router = mockRouter();
-  return shallow(
+  return shallow<ProfileActions>(
     <ProfileActions
       organization="org"
       profile={PROFILE}
