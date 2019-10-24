@@ -64,23 +64,9 @@ it('should fill selects and fill formdata', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
-  expect(wrapper.state().hasBinding).toBe(true);
   expect(wrapper.state().loading).toBe(false);
   expect(wrapper.state().formData).toEqual(formdata);
-});
-
-it('should preselect url and key if only 1 item', async () => {
-  const instances = [{ key: 'instance1', url: 'github.enterprise.com', alm: 'github' }];
-  (getAlmSettings as jest.Mock).mockResolvedValueOnce(instances);
-  (getProjectAlmBinding as jest.Mock).mockRejectedValueOnce({ status: 404 });
-
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  expect(wrapper.state().formData).toEqual({
-    key: instances[0].key,
-    repository: ''
-  });
+  expect(wrapper.state().originalData).toEqual(formdata);
 });
 
 const formData = {
@@ -97,63 +83,67 @@ it('should handle reset', async () => {
   await waitAndUpdate(wrapper);
 
   expect(deleteProjectAlmBinding).toBeCalledWith(PROJECT_KEY);
-  expect(wrapper.state().formData).toEqual({ key: '', repository: '' });
-  expect(wrapper.state().hasBinding).toBe(false);
+  expect(wrapper.state().formData).toEqual({ key: '', repository: '', slug: '' });
+  expect(wrapper.state().originalData).toBeUndefined();
 });
 
-it('should handle submit to github, azure or bitbucket', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
+describe('handleSubmit', () => {
   const instances = [
     { key: 'github', alm: ALM_KEYS.GITHUB },
     { key: 'azure', alm: ALM_KEYS.AZURE },
     { key: 'bitbucket', alm: ALM_KEYS.BITBUCKET }
   ];
 
-  // Github
-  const githubKey = 'github';
-  const repository = 'repo/path';
-  wrapper.setState({ formData: { key: githubKey, repository }, instances });
-  wrapper.instance().handleSubmit();
-  await waitAndUpdate(wrapper);
+  it('should work for github', async () => {
+    const wrapper = shallowRender();
+    await waitAndUpdate(wrapper);
+    const githubKey = 'github';
+    const repository = 'repo/path';
+    wrapper.setState({ formData: { key: githubKey, repository }, instances });
+    wrapper.instance().handleSubmit();
+    await waitAndUpdate(wrapper);
 
-  expect(setProjectGithubBinding).toBeCalledWith({
-    almSetting: githubKey,
-    project: PROJECT_KEY,
-    repository
+    expect(setProjectGithubBinding).toBeCalledWith({
+      almSetting: githubKey,
+      project: PROJECT_KEY,
+      repository
+    });
+    expect(wrapper.state().success).toBe(true);
   });
-  expect(wrapper.state().hasBinding).toBe(true);
-  expect(wrapper.state().success).toBe(true);
 
-  // azure
-  const azureKey = 'azure';
-  wrapper.setState({ formData: { key: azureKey } });
-  wrapper.instance().handleSubmit();
-  await waitAndUpdate(wrapper);
+  it('should work for azure', async () => {
+    const wrapper = shallowRender();
+    await waitAndUpdate(wrapper);
+    const azureKey = 'azure';
+    wrapper.setState({ formData: { key: azureKey }, instances });
+    wrapper.instance().handleSubmit();
+    await waitAndUpdate(wrapper);
 
-  expect(setProjectAzureBinding).toBeCalledWith({
-    almSetting: azureKey,
-    project: PROJECT_KEY
+    expect(setProjectAzureBinding).toBeCalledWith({
+      almSetting: azureKey,
+      project: PROJECT_KEY
+    });
+    expect(wrapper.state().success).toBe(true);
   });
-  expect(wrapper.state().hasBinding).toBe(true);
-  expect(wrapper.state().success).toBe(true);
 
-  // bitbucket
-  const bitbucketKey = 'bitbucket';
-  const repositoryKey = 'repoKey';
-  const repositorySlug = 'repoSlug';
-  wrapper.setState({ formData: { key: bitbucketKey, repositoryKey, repositorySlug } });
-  wrapper.instance().handleSubmit();
-  await waitAndUpdate(wrapper);
+  it('should work for bitbucket', async () => {
+    const wrapper = shallowRender();
+    await waitAndUpdate(wrapper);
+    const bitbucketKey = 'bitbucket';
+    const repository = 'repoKey';
+    const slug = 'repoSlug';
+    wrapper.setState({ formData: { key: bitbucketKey, repository, slug }, instances });
+    wrapper.instance().handleSubmit();
+    await waitAndUpdate(wrapper);
 
-  expect(setProjectBitbucketBinding).toBeCalledWith({
-    almSetting: bitbucketKey,
-    project: PROJECT_KEY,
-    repositoryKey,
-    repositorySlug
+    expect(setProjectBitbucketBinding).toBeCalledWith({
+      almSetting: bitbucketKey,
+      project: PROJECT_KEY,
+      repository,
+      slug
+    });
+    expect(wrapper.state().success).toBe(true);
   });
-  expect(wrapper.state().hasBinding).toBe(true);
-  expect(wrapper.state().success).toBe(true);
 });
 
 it('should handle failures gracefully', async () => {
@@ -185,8 +175,7 @@ it('should handle field changes', async () => {
   wrapper.instance().handleFieldChange('key', 'instance2');
   await waitAndUpdate(wrapper);
   expect(wrapper.state().formData).toEqual({
-    key: 'instance2',
-    repository: ''
+    key: 'instance2'
   });
 
   wrapper.instance().handleFieldChange('repository', repository);
@@ -216,11 +205,9 @@ it('should validate form', async () => {
   expect(wrapper.instance().validateForm({ key: 'github', repository: '' })).toBe(false);
   expect(wrapper.instance().validateForm({ key: 'github', repository: 'asdf' })).toBe(true);
 
-  expect(wrapper.instance().validateForm({ key: 'bitbucket', repositoryKey: 'key' })).toBe(false);
+  expect(wrapper.instance().validateForm({ key: 'bitbucket', repository: 'key' })).toBe(false);
   expect(
-    wrapper
-      .instance()
-      .validateForm({ key: 'bitbucket', repositoryKey: 'key', repositorySlug: 'slug' })
+    wrapper.instance().validateForm({ key: 'bitbucket', repository: 'key', slug: 'slug' })
   ).toBe(true);
 });
 

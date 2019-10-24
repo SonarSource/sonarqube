@@ -57,8 +57,7 @@ export interface GithubBindingDefinition extends AlmSettingsBinding {
 export interface ProjectAlmBinding {
   key: string;
   repository?: string;
-  repositoryKey?: string;
-  repositorySlug?: string;
+  slug?: string;
 }
 
 export interface AzureProjectAlmBinding {
@@ -69,8 +68,8 @@ export interface AzureProjectAlmBinding {
 export interface BitbucketProjectAlmBinding {
   almSetting: string;
   project: string;
-  repositoryKey: string;
-  repositorySlug: string;
+  repository: string;
+  slug: string;
 }
 
 export interface GithubProjectAlmBinding {

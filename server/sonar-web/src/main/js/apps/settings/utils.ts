@@ -19,15 +19,8 @@
  */
 import { sanitize } from 'dompurify';
 import { hasMessage, translate } from 'sonar-ui-common/helpers/l10n';
-import { ALM_KEYS } from '../../types/alm-settings';
 
 export const DEFAULT_CATEGORY = 'general';
-
-export const almName = {
-  [ALM_KEYS.AZURE]: 'Azure DevOps Server',
-  [ALM_KEYS.BITBUCKET]: 'Bitbucket Server',
-  [ALM_KEYS.GITHUB]: 'Github Enterprise'
-};
 
 export type DefaultSpecializedInputProps = T.Omit<DefaultInputProps, 'setting'> & {
   isDefault: boolean;

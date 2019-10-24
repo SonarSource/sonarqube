@@ -42,11 +42,9 @@ export default function AzureTabRenderer(props: AzureTabRendererProps) {
     <>
       <TabHeader alm={ALM_KEYS.AZURE} onCreate={props.onCreate} />
 
-      {loading ? (
-        <DeferredSpinner />
-      ) : (
+      <DeferredSpinner loading={loading}>
         <AzureTable definitions={definitions} onDelete={props.onDelete} onEdit={props.onEdit} />
-      )}
+      </DeferredSpinner>
 
       {editedDefinition && (
         <AlmPRDecorationFormModal

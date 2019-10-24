@@ -4,49 +4,37 @@ exports[`should render correctly 1`] = `
 <Fragment>
   <AlmDefinitionFormField
     autoFocus={true}
-    formData={
-      Object {
-        "key": "",
-        "personalAccessToken": "",
-        "url": "",
-      }
-    }
-    help={true}
-    id="name"
-    isTextArea={false}
-    maxLength={40}
+    help="settings.pr_decoration.form.url.bitbucket.name.help"
+    id="bitbucket.name"
+    maxLength={100}
     onFieldChange={[MockFunction]}
     propKey="key"
+    value=""
   />
   <AlmDefinitionFormField
-    formData={
-      Object {
-        "key": "",
-        "personalAccessToken": "",
-        "url": "",
-      }
+    help={
+      <FormattedMessage
+        defaultMessage="settings.pr_decoration.form.url.bitbucket.help"
+        id="settings.pr_decoration.form.url.bitbucket.help"
+        values={
+          Object {
+            "example": "https://bitbucket-server.your-company.com",
+          }
+        }
+      />
     }
-    help={false}
     id="url.bitbucket"
-    isTextArea={false}
     maxLength={2000}
     onFieldChange={[MockFunction]}
     propKey="url"
+    value=""
   />
   <AlmDefinitionFormField
-    formData={
-      Object {
-        "key": "",
-        "personalAccessToken": "",
-        "url": "",
-      }
-    }
-    help={false}
     id="personal_access_token"
     isTextArea={true}
-    maxLength={2000}
     onFieldChange={[MockFunction]}
     propKey="personalAccessToken"
+    value=""
   />
 </Fragment>
 `;
@@ -55,49 +43,37 @@ exports[`should render correctly 2`] = `
 <Fragment>
   <AlmDefinitionFormField
     autoFocus={true}
-    formData={
-      Object {
-        "key": "key",
-        "personalAccessToken": "asdf1234",
-        "url": "http://bbs.enterprise.com",
-      }
-    }
-    help={true}
-    id="name"
-    isTextArea={false}
-    maxLength={40}
+    help="settings.pr_decoration.form.url.bitbucket.name.help"
+    id="bitbucket.name"
+    maxLength={100}
     onFieldChange={[MockFunction]}
     propKey="key"
+    value="key"
   />
   <AlmDefinitionFormField
-    formData={
-      Object {
-        "key": "key",
-        "personalAccessToken": "asdf1234",
-        "url": "http://bbs.enterprise.com",
-      }
+    help={
+      <FormattedMessage
+        defaultMessage="settings.pr_decoration.form.url.bitbucket.help"
+        id="settings.pr_decoration.form.url.bitbucket.help"
+        values={
+          Object {
+            "example": "https://bitbucket-server.your-company.com",
+          }
+        }
+      />
     }
-    help={false}
     id="url.bitbucket"
-    isTextArea={false}
     maxLength={2000}
     onFieldChange={[MockFunction]}
     propKey="url"
+    value="http://bbs.enterprise.com"
   />
   <AlmDefinitionFormField
-    formData={
-      Object {
-        "key": "key",
-        "personalAccessToken": "asdf1234",
-        "url": "http://bbs.enterprise.com",
-      }
-    }
-    help={false}
     id="personal_access_token"
     isTextArea={true}
-    maxLength={2000}
     onFieldChange={[MockFunction]}
     propKey="personalAccessToken"
+    value="asdf1234"
   />
 </Fragment>
 `;

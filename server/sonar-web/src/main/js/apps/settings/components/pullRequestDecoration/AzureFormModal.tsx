@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { AzureBindingDefinition } from '../../../../types/alm-settings';
 import { AlmDefinitionFormField } from './AlmDefinitionFormField';
 
@@ -33,22 +34,19 @@ export default function AzureFormModal(props: AzureFormModalProps) {
     <>
       <AlmDefinitionFormField
         autoFocus={true}
-        formData={formData}
-        help={true}
-        id="name"
-        isTextArea={false}
-        maxLength={40}
+        help={translate('settings.pr_decoration.form.azure.name.help')}
+        id="azure.name"
         onFieldChange={onFieldChange}
         propKey="key"
+        value={formData.key}
       />
       <AlmDefinitionFormField
-        formData={formData}
-        help={true}
+        help={translate('settings.pr_decoration.form.personal_access_token.help')}
         id="personal_access_token"
         isTextArea={true}
-        maxLength={2000}
         onFieldChange={onFieldChange}
         propKey="personalAccessToken"
+        value={formData.personalAccessToken}
       />
     </>
   );

@@ -22,7 +22,6 @@ import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { AlmSettingsBindingDefinitions, ALM_KEYS } from '../../../../types/alm-settings';
-import { almName } from '../../utils';
 import AzureTab from './AzureTab';
 import BitbucketTab from './BitbucketTab';
 import DeleteModal from './DeleteModal';
@@ -40,6 +39,12 @@ export interface PRDecorationTabsProps {
   onUpdateDefinitions: () => void;
   projectCount?: number;
 }
+
+export const almName = {
+  [ALM_KEYS.AZURE]: 'Azure DevOps Server',
+  [ALM_KEYS.BITBUCKET]: 'Bitbucket Server',
+  [ALM_KEYS.GITHUB]: 'Github Enterprise'
+};
 
 export default function PRDecorationTabs(props: PRDecorationTabsProps) {
   const { definitionKeyForDeletion, definitions, currentAlm, loading, projectCount } = props;
@@ -64,7 +69,7 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
                 <img
                   alt="github"
                   className="spacer-right"
-                  src={`${getBaseUrl()}/images/sonarcloud/github.svg`}
+                  src={`${getBaseUrl()}/images/alm/github.svg`}
                   width={16}
                 />
                 {almName[ALM_KEYS.GITHUB]}
@@ -78,7 +83,7 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
                 <img
                   alt="bitbucket"
                   className="spacer-right"
-                  src={`${getBaseUrl()}/images/sonarcloud/bitbucket.svg`}
+                  src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
                   width={16}
                 />
                 {almName[ALM_KEYS.BITBUCKET]}
@@ -92,7 +97,7 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
                 <img
                   alt="azure"
                   className="spacer-right"
-                  src={`${getBaseUrl()}/images/sonarcloud/azure.svg`}
+                  src={`${getBaseUrl()}/images/alm/azure.svg`}
                   width={16}
                 />
                 {almName[ALM_KEYS.AZURE]}

@@ -4,32 +4,19 @@ exports[`should render correctly 1`] = `
 <Fragment>
   <AlmDefinitionFormField
     autoFocus={true}
-    formData={
-      Object {
-        "key": "",
-        "personalAccessToken": "",
-      }
-    }
-    help={true}
-    id="name"
-    isTextArea={false}
-    maxLength={40}
+    help="settings.pr_decoration.form.azure.name.help"
+    id="azure.name"
     onFieldChange={[MockFunction]}
     propKey="key"
+    value=""
   />
   <AlmDefinitionFormField
-    formData={
-      Object {
-        "key": "",
-        "personalAccessToken": "",
-      }
-    }
-    help={true}
+    help="settings.pr_decoration.form.personal_access_token.help"
     id="personal_access_token"
     isTextArea={true}
-    maxLength={2000}
     onFieldChange={[MockFunction]}
     propKey="personalAccessToken"
+    value=""
   />
 </Fragment>
 `;
@@ -38,32 +25,19 @@ exports[`should render correctly 2`] = `
 <Fragment>
   <AlmDefinitionFormField
     autoFocus={true}
-    formData={
-      Object {
-        "key": "key",
-        "personalAccessToken": "asdf1234",
-      }
-    }
-    help={true}
-    id="name"
-    isTextArea={false}
-    maxLength={40}
+    help="settings.pr_decoration.form.azure.name.help"
+    id="azure.name"
     onFieldChange={[MockFunction]}
     propKey="key"
+    value="key"
   />
   <AlmDefinitionFormField
-    formData={
-      Object {
-        "key": "key",
-        "personalAccessToken": "asdf1234",
-      }
-    }
-    help={true}
+    help="settings.pr_decoration.form.personal_access_token.help"
     id="personal_access_token"
     isTextArea={true}
-    maxLength={2000}
     onFieldChange={[MockFunction]}
     propKey="personalAccessToken"
+    value="asdf1234"
   />
 </Fragment>
 `;

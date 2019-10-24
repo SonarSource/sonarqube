@@ -31,19 +31,26 @@ import { AlmSettingsInstance, ALM_KEYS, ProjectAlmBinding } from '../../../../ty
 
 export interface PRDecorationBindingRendererProps {
   formData: ProjectAlmBinding;
-  hasBinding: boolean;
   instances: AlmSettingsInstance[];
   isValid: boolean;
   loading: boolean;
   onFieldChange: (id: keyof ProjectAlmBinding, value: string) => void;
   onReset: () => void;
   onSubmit: () => void;
+  originalData?: ProjectAlmBinding;
   saving: boolean;
   success: boolean;
 }
 
-function renderLabel(v: AlmSettingsInstance) {
-  return v.url ? `${v.key} — ${v.url}` : v.key;
+function optionRenderer(instance: AlmSettingsInstance) {
+  return instance.url ? (
+    <>
+      <span>{instance.key} — </span>
+      <span className="text-muted">{instance.url}</span>
+    </>
+  ) : (
+    <span>{instance.key}</span>
+  );
 }
 
 function renderField(props: {
@@ -86,13 +93,20 @@ function renderField(props: {
   );
 }
 
+function isDataSame(
+  { key, repository = '', slug = '' }: ProjectAlmBinding,
+  { key: oKey = '', repository: oRepository = '', slug: oSlug = '' }: ProjectAlmBinding
+) {
+  return key === oKey && repository === oRepository && slug === oSlug;
+}
+
 export default function PRDecorationBindingRenderer(props: PRDecorationBindingRendererProps) {
   const {
-    formData: { key, repository, repositoryKey, repositorySlug },
-    hasBinding,
+    formData: { key, repository, slug },
     instances,
     isValid,
     loading,
+    originalData,
     saving,
     success
   } = props;
@@ -124,6 +138,8 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
   const selected = key && instances.find(i => i.key === key);
   const alm = selected && selected.alm;
 
+  const isChanged = !isDataSame({ key, repository, slug }, originalData || { key: '' });
+
   return (
     <div>
       <header className="page-header">
@@ -145,13 +161,21 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
             <em className="mandatory spacer-right">*</em>
           </label>
           <Select
+            autosize={true}
             className="abs-width-400"
             clearable={false}
             id="name"
-            onChange={({ value }: { value: string }) => props.onFieldChange('key', value)}
-            options={instances.map(v => ({ value: v.key, label: renderLabel(v) }))}
+            menuContainerStyle={{
+              maxWidth: '210%' /* Allow double the width of the select */,
+              width: 'auto'
+            }}
+            onChange={(instance: AlmSettingsInstance) => props.onFieldChange('key', instance.key)}
+            optionRenderer={optionRenderer}
+            options={instances}
             searchable={false}
             value={key}
+            valueKey="key"
+            valueRenderer={optionRenderer}
           />
         </div>
 
@@ -168,10 +192,10 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
                   </>
                 )
               },
-              id: 'repository_key',
+              id: 'bitbucket.repository',
               onFieldChange: props.onFieldChange,
-              propKey: 'repositoryKey',
-              value: repositoryKey || ''
+              propKey: 'repository',
+              value: repository || ''
             })}
             {renderField({
               help: true,
@@ -184,10 +208,10 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
                   </>
                 )
               },
-              id: 'repository_slug',
+              id: 'bitbucket.slug',
               onFieldChange: props.onFieldChange,
-              propKey: 'repositorySlug',
-              value: repositorySlug || ''
+              propKey: 'slug',
+              value: slug || ''
             })}
           </>
         )}
@@ -196,7 +220,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
           renderField({
             help: true,
             helpParams: { example: 'SonarSource/sonarqube' },
-            id: 'repository',
+            id: 'github.repository',
             onFieldChange: props.onFieldChange,
             propKey: 'repository',
             value: repository || ''
@@ -204,10 +228,12 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
 
         <div className="display-flex-center">
           <DeferredSpinner className="spacer-right" loading={saving} />
-          <SubmitButton className="spacer-right" disabled={saving || !isValid}>
-            {translate('save')}
-          </SubmitButton>
-          {hasBinding && (
+          {isChanged && (
+            <SubmitButton className="spacer-right button-success" disabled={saving || !isValid}>
+              {translate('save')}
+            </SubmitButton>
+          )}
+          {originalData && (
             <Button className="spacer-right" onClick={props.onReset}>
               {translate('reset_verb')}
             </Button>

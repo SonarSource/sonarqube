@@ -24,48 +24,48 @@ import { AlmSettingsBinding } from '../../../../types/alm-settings';
 
 export interface AlmDefinitionFormFieldProps<B extends AlmSettingsBinding> {
   autoFocus?: boolean;
-  formData: B;
-  help: boolean;
+  help?: React.ReactNode;
   id: string;
-  isTextArea: boolean;
-  maxLength: number;
+  isTextArea?: boolean;
+  maxLength?: number;
   onFieldChange: (id: keyof B, value: string) => void;
   propKey: keyof B;
+  value: string;
 }
 
 export function AlmDefinitionFormField<B extends AlmSettingsBinding>(
   props: AlmDefinitionFormFieldProps<B>
 ) {
-  const { autoFocus, formData, help, id, isTextArea, maxLength, onFieldChange, propKey } = props;
+  const { autoFocus, help, id, isTextArea, maxLength, onFieldChange, propKey, value } = props;
 
   return (
     <div className="modal-field">
       <label className="display-flex-center" htmlFor={id}>
         {translate('settings.pr_decoration.form', id)}
         <em className="mandatory spacer-right">*</em>
-        {help && <HelpTooltip overlay={translate('settings.pr_decoration.form', id, 'help')} />}
+        {help && <HelpTooltip overlay={help} placement="right" />}
       </label>
       {isTextArea ? (
         <textarea
           className="settings-large-input"
-          id="privateKey"
-          maxLength={maxLength}
+          id={id}
+          maxLength={maxLength || 2000}
           onChange={e => onFieldChange(propKey, e.currentTarget.value)}
           required={true}
           rows={5}
-          value={String(formData[propKey])}
+          value={value}
         />
       ) : (
         <input
           autoFocus={autoFocus}
           className="input-super-large"
           id={id}
-          maxLength={maxLength}
+          maxLength={maxLength || 100}
           name={id}
           onChange={e => onFieldChange(propKey, e.currentTarget.value)}
           size={50}
           type="text"
-          value={String(formData[propKey])}
+          value={value}
         />
       )}
     </div>

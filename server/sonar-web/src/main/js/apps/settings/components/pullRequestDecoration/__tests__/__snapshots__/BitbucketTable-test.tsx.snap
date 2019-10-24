@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <table
-  className="data zebra spacer-bottom"
+  className="data zebra fixed spacer-bottom"
 >
   <thead>
     <tr>
@@ -13,12 +13,12 @@ exports[`should render correctly 1`] = `
         settings.pr_decoration.table.column.bitbucket.url
       </th>
       <th
-        className="thin"
+        className="action-small text-center"
       >
         settings.pr_decoration.table.column.edit
       </th>
       <th
-        className="thin"
+        className="action text-center"
       >
         settings.pr_decoration.table.column.delete
       </th>
@@ -38,7 +38,7 @@ exports[`should render correctly 1`] = `
 
 exports[`should render correctly 2`] = `
 <table
-  className="data zebra spacer-bottom"
+  className="data zebra fixed spacer-bottom"
 >
   <thead>
     <tr>
@@ -49,12 +49,12 @@ exports[`should render correctly 2`] = `
         settings.pr_decoration.table.column.bitbucket.url
       </th>
       <th
-        className="thin"
+        className="action-small text-center"
       >
         settings.pr_decoration.table.column.edit
       </th>
       <th
-        className="thin"
+        className="action text-center"
       >
         settings.pr_decoration.table.column.delete
       </th>
@@ -64,20 +64,30 @@ exports[`should render correctly 2`] = `
     <tr
       key="key"
     >
-      <td>
+      <td
+        className="nowrap hide-overflow"
+        title="key"
+      >
         key
       </td>
-      <td>
+      <td
+        className="nowrap hide-overflow"
+        title="http://bbs.enterprise.com"
+      >
         http://bbs.enterprise.com
       </td>
-      <td>
+      <td
+        className="text-center"
+      >
         <ButtonIcon
           onClick={[Function]}
         >
           <EditIcon />
         </ButtonIcon>
       </td>
-      <td>
+      <td
+        className="text-center"
+      >
         <DeleteButton
           onClick={[Function]}
         />

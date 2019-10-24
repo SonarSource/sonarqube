@@ -42,11 +42,9 @@ export default function BitbucketTabRenderer(props: BitbucketTabRendererProps) {
     <>
       <TabHeader alm={ALM_KEYS.BITBUCKET} onCreate={props.onCreate} />
 
-      {loading ? (
-        <DeferredSpinner />
-      ) : (
+      <DeferredSpinner loading={loading}>
         <BitbucketTable definitions={definitions} onDelete={props.onDelete} onEdit={props.onEdit} />
-      )}
+      </DeferredSpinner>
 
       {editedDefinition && (
         <AlmPRDecorationFormModal

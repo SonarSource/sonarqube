@@ -287,3 +287,15 @@ table.data.zebra.zebra-inversed > tbody > tr:nth-child(odd) {
 table#project-history tr > td {
   vertical-align: top;
 }
+
+table.fixed {
+  table-layout: fixed;
+}
+
+table.fixed th.action-small {
+  width: 30px;
+}
+
+table.fixed th.action {
+  width: 50px;
+}

@@ -33,29 +33,35 @@ export default function AzureTable(props: AzureTableProps) {
   const { definitions } = props;
 
   return (
-    <table className="data zebra spacer-bottom">
+    <table className="data zebra fixed spacer-bottom">
       <thead>
         <tr>
           <th>{translate('settings.pr_decoration.table.column.name')}</th>
-          <th className="thin">{translate('settings.pr_decoration.table.column.edit')}</th>
-          <th className="thin">{translate('settings.pr_decoration.table.column.delete')}</th>
+          <th className="action-small text-center">
+            {translate('settings.pr_decoration.table.column.edit')}
+          </th>
+          <th className="action text-center">
+            {translate('settings.pr_decoration.table.column.delete')}
+          </th>
         </tr>
       </thead>
       <tbody>
-        {definitions.length < 1 ? (
+        {definitions.length === 0 ? (
           <tr>
             <td colSpan={3}>{translate('settings.pr_decoration.table.empty.azure')}</td>
           </tr>
         ) : (
           definitions.map(definition => (
             <tr key={definition.key}>
-              <td>{definition.key}</td>
-              <td>
+              <td className="nowrap hide-overflow" title={definition.key}>
+                {definition.key}
+              </td>
+              <td className="text-center">
                 <ButtonIcon onClick={() => props.onEdit(definition)}>
                   <EditIcon />
                 </ButtonIcon>
               </td>
-              <td>
+              <td className="text-center">
                 <DeleteButton onClick={() => props.onDelete(definition.key)} />
               </td>
             </tr>

@@ -33,32 +33,48 @@ export default function GithubTable(props: GithubTableProps) {
   const { definitions } = props;
 
   return (
-    <table className="data zebra spacer-bottom">
+    <table className="data zebra fixed spacer-bottom">
       <thead>
         <tr>
           <th>{translate('settings.pr_decoration.table.column.name')}</th>
           <th>{translate(`settings.pr_decoration.table.column.github.url`)}</th>
           <th>{translate('settings.pr_decoration.table.column.app_id')}</th>
-          <th className="thin">{translate('settings.pr_decoration.table.column.edit')}</th>
-          <th className="thin">{translate('settings.pr_decoration.table.column.delete')}</th>
+          <th className="action-small text-center">
+            {translate('settings.pr_decoration.table.column.edit')}
+          </th>
+          <th className="action text-center">
+            {translate('settings.pr_decoration.table.column.delete')}
+          </th>
         </tr>
       </thead>
       <tbody>
-        {definitions.map(definition => (
-          <tr key={definition.key}>
-            <td>{definition.key}</td>
-            <td>{definition.url}</td>
-            <td>{definition.appId}</td>
-            <td>
-              <ButtonIcon onClick={() => props.onEdit(definition)}>
-                <EditIcon />
-              </ButtonIcon>
-            </td>
-            <td>
-              <DeleteButton onClick={() => props.onDelete(definition.key)} />
-            </td>
+        {definitions.length === 0 ? (
+          <tr>
+            <td colSpan={5}>{translate('settings.pr_decoration.table.empty.github')}</td>
           </tr>
-        ))}
+        ) : (
+          definitions.map(definition => (
+            <tr key={definition.key}>
+              <td className="nowrap hide-overflow" title={definition.key}>
+                {definition.key}
+              </td>
+              <td className="nowrap hide-overflow" title={definition.url}>
+                {definition.url}
+              </td>
+              <td className="nowrap hide-overflow" title={definition.appId}>
+                {definition.appId}
+              </td>
+              <td className="text-center">
+                <ButtonIcon onClick={() => props.onEdit(definition)}>
+                  <EditIcon />
+                </ButtonIcon>
+              </td>
+              <td className="text-center">
+                <DeleteButton onClick={() => props.onDelete(definition.key)} />
+              </td>
+            </tr>
+          ))
+        )}
       </tbody>
     </table>
   );

@@ -24,7 +24,7 @@ import { AlmDefinitionFormField, AlmDefinitionFormFieldProps } from '../AlmDefin
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ help: true })).toMatchSnapshot();
+  expect(shallowRender({ help: 'help' })).toMatchSnapshot();
   expect(shallowRender({ isTextArea: true })).toMatchSnapshot();
 });
 
@@ -45,13 +45,12 @@ it('should call onFieldChange', () => {
 function shallowRender(props: Partial<AlmDefinitionFormFieldProps<AlmSettingsBinding>> = {}) {
   return shallow(
     <AlmDefinitionFormField
-      formData={{ key: 'key' }}
-      help={false}
       id="key"
       isTextArea={false}
       maxLength={40}
       onFieldChange={jest.fn()}
       propKey="key"
+      value="key"
       {...props}
     />
   );

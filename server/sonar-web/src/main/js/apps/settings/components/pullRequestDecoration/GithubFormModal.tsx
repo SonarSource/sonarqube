@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { GithubBindingDefinition } from '../../../../types/alm-settings';
 import { AlmDefinitionFormField } from './AlmDefinitionFormField';
 
@@ -33,40 +35,39 @@ export default function GithubFormModal(props: GithubFormModalProps) {
     <>
       <AlmDefinitionFormField
         autoFocus={true}
-        formData={formData}
-        help={true}
-        id="name"
-        isTextArea={false}
-        maxLength={40}
+        help={translate('settings.pr_decoration.form.github.name.help')}
+        id="github.name"
         onFieldChange={onFieldChange}
         propKey="key"
+        value={formData.key}
       />
       <AlmDefinitionFormField
-        formData={formData}
-        help={false}
+        help={
+          <FormattedMessage
+            defaultMessage={translate('settings.pr_decoration.form.url.github.help')}
+            id="settings.pr_decoration.form.url.github.help"
+            values={{ example: 'https://github.company.com/api/v3' }}
+          />
+        }
         id="url.github"
-        isTextArea={false}
         maxLength={2000}
         onFieldChange={onFieldChange}
         propKey="url"
+        value={formData.url}
       />
       <AlmDefinitionFormField
-        formData={formData}
-        help={false}
         id="app_id"
-        isTextArea={false}
         maxLength={80}
         onFieldChange={onFieldChange}
         propKey="appId"
+        value={formData.appId}
       />
       <AlmDefinitionFormField
-        formData={formData}
-        help={false}
         id="private_key"
         isTextArea={true}
-        maxLength={2000}
         onFieldChange={onFieldChange}
         propKey="privateKey"
+        value={formData.privateKey}
       />
     </>
   );

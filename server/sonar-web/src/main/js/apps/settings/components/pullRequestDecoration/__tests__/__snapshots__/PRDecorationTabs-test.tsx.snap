@@ -27,7 +27,7 @@ exports[`should render correctly 1`] = `
             <img
               alt="github"
               className="spacer-right"
-              src="/images/sonarcloud/github.svg"
+              src="/images/alm/github.svg"
               width={16}
             />
             Github Enterprise
@@ -39,7 +39,7 @@ exports[`should render correctly 1`] = `
             <img
               alt="bitbucket"
               className="spacer-right"
-              src="/images/sonarcloud/bitbucket.svg"
+              src="/images/alm/bitbucket.svg"
               width={16}
             />
             Bitbucket Server
@@ -51,7 +51,7 @@ exports[`should render correctly 1`] = `
             <img
               alt="azure"
               className="spacer-right"
-              src="/images/sonarcloud/azure.svg"
+              src="/images/alm/azure.svg"
               width={16}
             />
             Azure DevOps Server
@@ -100,7 +100,7 @@ exports[`should render correctly 2`] = `
             <img
               alt="github"
               className="spacer-right"
-              src="/images/sonarcloud/github.svg"
+              src="/images/alm/github.svg"
               width={16}
             />
             Github Enterprise
@@ -112,7 +112,7 @@ exports[`should render correctly 2`] = `
             <img
               alt="bitbucket"
               className="spacer-right"
-              src="/images/sonarcloud/bitbucket.svg"
+              src="/images/alm/bitbucket.svg"
               width={16}
             />
             Bitbucket Server
@@ -124,7 +124,7 @@ exports[`should render correctly 2`] = `
             <img
               alt="azure"
               className="spacer-right"
-              src="/images/sonarcloud/azure.svg"
+              src="/images/alm/azure.svg"
               width={16}
             />
             Azure DevOps Server
@@ -178,7 +178,7 @@ exports[`should render correctly 3`] = `
             <img
               alt="github"
               className="spacer-right"
-              src="/images/sonarcloud/github.svg"
+              src="/images/alm/github.svg"
               width={16}
             />
             Github Enterprise
@@ -190,7 +190,7 @@ exports[`should render correctly 3`] = `
             <img
               alt="bitbucket"
               className="spacer-right"
-              src="/images/sonarcloud/bitbucket.svg"
+              src="/images/alm/bitbucket.svg"
               width={16}
             />
             Bitbucket Server
@@ -202,7 +202,7 @@ exports[`should render correctly 3`] = `
             <img
               alt="azure"
               className="spacer-right"
-              src="/images/sonarcloud/azure.svg"
+              src="/images/alm/azure.svg"
               width={16}
             />
             Azure DevOps Server
@@ -251,7 +251,7 @@ exports[`should render correctly 4`] = `
             <img
               alt="github"
               className="spacer-right"
-              src="/images/sonarcloud/github.svg"
+              src="/images/alm/github.svg"
               width={16}
             />
             Github Enterprise
@@ -263,7 +263,7 @@ exports[`should render correctly 4`] = `
             <img
               alt="bitbucket"
               className="spacer-right"
-              src="/images/sonarcloud/bitbucket.svg"
+              src="/images/alm/bitbucket.svg"
               width={16}
             />
             Bitbucket Server
@@ -275,7 +275,7 @@ exports[`should render correctly 4`] = `
             <img
               alt="azure"
               className="spacer-right"
-              src="/images/sonarcloud/azure.svg"
+              src="/images/alm/azure.svg"
               width={16}
             />
             Azure DevOps Server

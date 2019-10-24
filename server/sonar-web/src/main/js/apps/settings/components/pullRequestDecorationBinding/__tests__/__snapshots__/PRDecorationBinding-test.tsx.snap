@@ -5,10 +5,8 @@ exports[`should render correctly 1`] = `
   formData={
     Object {
       "key": "",
-      "repository": "",
     }
   }
-  hasBinding={false}
   instances={Array []}
   isValid={false}
   loading={true}

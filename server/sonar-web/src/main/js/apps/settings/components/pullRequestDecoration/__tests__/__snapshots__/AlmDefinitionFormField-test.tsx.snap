@@ -43,7 +43,8 @@ exports[`should render correctly 2`] = `
       *
     </em>
     <HelpTooltip
-      overlay="settings.pr_decoration.form.key.help"
+      overlay="help"
+      placement="right"
     />
   </label>
   <input
@@ -76,7 +77,7 @@ exports[`should render correctly 3`] = `
   </label>
   <textarea
     className="settings-large-input"
-    id="privateKey"
+    id="key"
     maxLength={40}
     onChange={[Function]}
     required={true}

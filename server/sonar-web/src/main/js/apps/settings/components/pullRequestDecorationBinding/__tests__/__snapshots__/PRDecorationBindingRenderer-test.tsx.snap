@@ -33,20 +33,31 @@ exports[`should display action state correctly 1`] = `
         </em>
       </label>
       <Select
+        autosize={true}
         className="abs-width-400"
         clearable={false}
         id="name"
+        menuContainerStyle={
+          Object {
+            "maxWidth": "210%",
+            "width": "auto",
+          }
+        }
         onChange={[Function]}
+        optionRenderer={[Function]}
         options={
           Array [
             Object {
-              "label": "key — http://url.com",
-              "value": "key",
+              "alm": "github",
+              "key": "key",
+              "url": "http://url.com",
             },
           ]
         }
         searchable={false}
         value=""
+        valueKey="key"
+        valueRenderer={[Function]}
       />
     </div>
     <div
@@ -57,12 +68,6 @@ exports[`should display action state correctly 1`] = `
         loading={true}
         timeout={100}
       />
-      <SubmitButton
-        className="spacer-right"
-        disabled={true}
-      >
-        save
-      </SubmitButton>
     </div>
   </form>
 </div>
@@ -101,20 +106,31 @@ exports[`should display action state correctly 2`] = `
         </em>
       </label>
       <Select
+        autosize={true}
         className="abs-width-400"
         clearable={false}
         id="name"
+        menuContainerStyle={
+          Object {
+            "maxWidth": "210%",
+            "width": "auto",
+          }
+        }
         onChange={[Function]}
+        optionRenderer={[Function]}
         options={
           Array [
             Object {
-              "label": "key — http://url.com",
-              "value": "key",
+              "alm": "github",
+              "key": "key",
+              "url": "http://url.com",
             },
           ]
         }
         searchable={false}
         value=""
+        valueKey="key"
+        valueRenderer={[Function]}
       />
     </div>
     <div
@@ -125,12 +141,6 @@ exports[`should display action state correctly 2`] = `
         loading={false}
         timeout={100}
       />
-      <SubmitButton
-        className="spacer-right"
-        disabled={true}
-      >
-        save
-      </SubmitButton>
       <span
         className="text-success"
       >
@@ -177,20 +187,31 @@ exports[`should display action state correctly 3`] = `
         </em>
       </label>
       <Select
+        autosize={true}
         className="abs-width-400"
         clearable={false}
         id="name"
+        menuContainerStyle={
+          Object {
+            "maxWidth": "210%",
+            "width": "auto",
+          }
+        }
         onChange={[Function]}
+        optionRenderer={[Function]}
         options={
           Array [
             Object {
-              "label": "key — http://url.com",
-              "value": "key",
+              "alm": "github",
+              "key": "key",
+              "url": "http://url.com",
             },
           ]
         }
         searchable={false}
         value=""
+        valueKey="key"
+        valueRenderer={[Function]}
       />
     </div>
     <div
@@ -201,12 +222,6 @@ exports[`should display action state correctly 3`] = `
         loading={false}
         timeout={100}
       />
-      <SubmitButton
-        className="spacer-right"
-        disabled={false}
-      >
-        save
-      </SubmitButton>
     </div>
   </form>
 </div>
@@ -276,32 +291,45 @@ exports[`should render multiple instances correctly 1`] = `
         </em>
       </label>
       <Select
+        autosize={true}
         className="abs-width-400"
         clearable={false}
         id="name"
+        menuContainerStyle={
+          Object {
+            "maxWidth": "210%",
+            "width": "auto",
+          }
+        }
         onChange={[Function]}
+        optionRenderer={[Function]}
         options={
           Array [
             Object {
-              "label": "i1 — http://github.enterprise.com",
-              "value": "i1",
+              "alm": "github",
+              "key": "i1",
+              "url": "http://github.enterprise.com",
             },
             Object {
-              "label": "i2 — http://github.enterprise.com",
-              "value": "i2",
+              "alm": "github",
+              "key": "i2",
+              "url": "http://github.enterprise.com",
             },
             Object {
-              "label": "i3 — http://bbs.enterprise.com",
-              "value": "i3",
+              "alm": "bitbucket",
+              "key": "i3",
+              "url": "http://bbs.enterprise.com",
             },
             Object {
-              "label": "i4",
-              "value": "i4",
+              "alm": "azure",
+              "key": "i4",
             },
           ]
         }
         searchable={false}
         value=""
+        valueKey="key"
+        valueRenderer={[Function]}
       />
     </div>
     <div
@@ -312,12 +340,6 @@ exports[`should render multiple instances correctly 1`] = `
         loading={false}
         timeout={100}
       />
-      <SubmitButton
-        className="spacer-right"
-        disabled={true}
-      >
-        save
-      </SubmitButton>
     </div>
   </form>
 </div>
@@ -356,32 +378,45 @@ exports[`should render multiple instances correctly 2`] = `
         </em>
       </label>
       <Select
+        autosize={true}
         className="abs-width-400"
         clearable={false}
         id="name"
+        menuContainerStyle={
+          Object {
+            "maxWidth": "210%",
+            "width": "auto",
+          }
+        }
         onChange={[Function]}
+        optionRenderer={[Function]}
         options={
           Array [
             Object {
-              "label": "i1 — http://github.enterprise.com",
-              "value": "i1",
+              "alm": "github",
+              "key": "i1",
+              "url": "http://github.enterprise.com",
             },
             Object {
-              "label": "i2 — http://github.enterprise.com",
-              "value": "i2",
+              "alm": "github",
+              "key": "i2",
+              "url": "http://github.enterprise.com",
             },
             Object {
-              "label": "i3 — http://bbs.enterprise.com",
-              "value": "i3",
+              "alm": "bitbucket",
+              "key": "i3",
+              "url": "http://bbs.enterprise.com",
             },
             Object {
-              "label": "i4",
-              "value": "i4",
+              "alm": "azure",
+              "key": "i4",
             },
           ]
         }
         searchable={false}
         value="i1"
+        valueKey="key"
+        valueRenderer={[Function]}
       />
     </div>
     <div
@@ -389,9 +424,9 @@ exports[`should render multiple instances correctly 2`] = `
     >
       <label
         className="display-flex-center"
-        htmlFor="repository"
+        htmlFor="github.repository"
       >
-        settings.pr_decoration.binding.form.repository
+        settings.pr_decoration.binding.form.github.repository
         <em
           className="mandatory spacer-right"
         >
@@ -400,8 +435,8 @@ exports[`should render multiple instances correctly 2`] = `
         <HelpTooltip
           overlay={
             <FormattedMessage
-              defaultMessage="settings.pr_decoration.binding.form.repository.help"
-              id="settings.pr_decoration.binding.form.repository.help"
+              defaultMessage="settings.pr_decoration.binding.form.github.repository.help"
+              id="settings.pr_decoration.binding.form.github.repository.help"
               values={
                 Object {
                   "example": "SonarSource/sonarqube",
@@ -414,9 +449,9 @@ exports[`should render multiple instances correctly 2`] = `
       </label>
       <input
         className="input-super-large"
-        id="repository"
+        id="github.repository"
         maxLength={256}
-        name="repository"
+        name="github.repository"
         onChange={[Function]}
         type="text"
         value="account/repo"
@@ -430,12 +465,6 @@ exports[`should render multiple instances correctly 2`] = `
         loading={false}
         timeout={100}
       />
-      <SubmitButton
-        className="spacer-right"
-        disabled={true}
-      >
-        save
-      </SubmitButton>
       <Button
         className="spacer-right"
         onClick={[MockFunction]}
@@ -480,20 +509,31 @@ exports[`should render single instance correctly 1`] = `
         </em>
       </label>
       <Select
+        autosize={true}
         className="abs-width-400"
         clearable={false}
         id="name"
+        menuContainerStyle={
+          Object {
+            "maxWidth": "210%",
+            "width": "auto",
+          }
+        }
         onChange={[Function]}
+        optionRenderer={[Function]}
         options={
           Array [
             Object {
-              "label": "single — http://single.url",
-              "value": "single",
+              "alm": "github",
+              "key": "single",
+              "url": "http://single.url",
             },
           ]
         }
         searchable={false}
         value=""
+        valueKey="key"
+        valueRenderer={[Function]}
       />
     </div>
     <div
@@ -504,12 +544,6 @@ exports[`should render single instance correctly 1`] = `
         loading={false}
         timeout={100}
       />
-      <SubmitButton
-        className="spacer-right"
-        disabled={true}
-      >
-        save
-      </SubmitButton>
     </div>
   </form>
 </div>

@@ -82,9 +82,12 @@ it('should render multiple instances correctly', () => {
         key: 'i1',
         repository: 'account/repo'
       },
-      hasBinding: true,
       instances,
-      loading: false
+      loading: false,
+      originalData: {
+        key: 'i1',
+        repository: 'account/repo'
+      }
     })
   ).toMatchSnapshot();
 });
@@ -111,13 +114,13 @@ function shallowRender(props: Partial<PRDecorationBindingRendererProps> = {}) {
         key: '',
         repository: ''
       }}
-      hasBinding={false}
       instances={[]}
       isValid={false}
       loading={true}
       onFieldChange={jest.fn()}
       onReset={jest.fn()}
       onSubmit={jest.fn()}
+      originalData={undefined}
       saving={false}
       success={false}
       {...props}

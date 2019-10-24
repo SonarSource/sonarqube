@@ -42,11 +42,9 @@ export default function GithubTabRenderer(props: GithubTabRendererProps) {
     <>
       <TabHeader alm={ALM_KEYS.GITHUB} onCreate={props.onCreate} />
 
-      {loading ? (
-        <DeferredSpinner />
-      ) : (
+      <DeferredSpinner loading={loading}>
         <GithubTable definitions={definitions} onDelete={props.onDelete} onEdit={props.onEdit} />
-      )}
+      </DeferredSpinner>
 
       {editedDefinition && (
         <AlmPRDecorationFormModal

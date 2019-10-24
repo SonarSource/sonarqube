@@ -36,30 +36,24 @@ interface Props {
 
 interface State {
   formData: ProjectAlmBinding;
-  hasBinding: boolean;
   instances: AlmSettingsInstance[];
   isValid: boolean;
   loading: boolean;
+  originalData?: ProjectAlmBinding;
   saving: boolean;
   success: boolean;
 }
 
-const FIELDS_BY_ALM: {
-  [almKey: string]: Array<'repository' | 'repositoryKey' | 'repositorySlug'>;
-} = {
+const FIELDS_BY_ALM: { [almKey in ALM_KEYS]: Array<keyof T.Omit<ProjectAlmBinding, 'key'>> } = {
   [ALM_KEYS.AZURE]: [],
-  [ALM_KEYS.BITBUCKET]: ['repositoryKey', 'repositorySlug'],
+  [ALM_KEYS.BITBUCKET]: ['repository', 'slug'],
   [ALM_KEYS.GITHUB]: ['repository']
 };
 
 export default class PRDecorationBinding extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
-    formData: {
-      key: '',
-      repository: ''
-    },
-    hasBinding: false,
+    formData: { key: '' },
     instances: [],
     isValid: false,
     loading: true,
@@ -79,22 +73,18 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
   fetchDefinitions = () => {
     const project = this.props.component.key;
     return Promise.all([getAlmSettings(project), this.getProjectBinding(project)])
-      .then(([instances, data]) => {
+      .then(([instances, originalData]) => {
         if (this.mounted) {
           this.setState(({ formData }) => {
-            const newFormData = data || formData;
+            const newFormData = originalData || formData;
             return {
               formData: newFormData,
-              hasBinding: Boolean(data),
               instances,
               isValid: this.validateForm(newFormData),
-              loading: false
+              loading: false,
+              originalData
             };
           });
-
-          if (!data && instances.length === 1) {
-            this.handleFieldChange('key', instances[0].key);
-          }
         }
       })
       .catch(() => {
@@ -104,7 +94,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
       });
   };
 
-  getProjectBinding(project: string) {
+  getProjectBinding(project: string): Promise<ProjectAlmBinding | undefined> {
     return getProjectAlmBinding(project).catch((response: Response) => {
       if (response && response.status === 404) {
         return Promise.resolve(undefined);
@@ -128,9 +118,10 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
           this.setState({
             formData: {
               key: '',
-              repository: ''
+              repository: '',
+              slug: ''
             },
-            hasBinding: false,
+            originalData: undefined,
             saving: false,
             success: true
           });
@@ -142,7 +133,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
   submitProjectAlmBinding(
     alm: ALM_KEYS,
     key: string,
-    almSpecificFields?: { repository?: string; repositoryKey?: string; repositorySlug?: string }
+    almSpecificFields?: T.Omit<ProjectAlmBinding, 'key'>
   ): Promise<void> {
     const almSetting = key;
     const project = this.props.component.key;
@@ -157,12 +148,12 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
         if (!almSpecificFields) {
           return Promise.reject();
         }
-        const { repositoryKey = '', repositorySlug = '' } = almSpecificFields;
+        const { repository = '', slug = '' } = almSpecificFields;
         return setProjectBitbucketBinding({
           almSetting,
           project,
-          repositoryKey,
-          repositorySlug
+          repository,
+          slug
         });
       }
       case ALM_KEYS.GITHUB: {
@@ -198,12 +189,12 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
         .then(() => {
           if (this.mounted) {
             this.setState({
-              hasBinding: true,
               saving: false,
               success: true
             });
           }
         })
+        .then(this.fetchDefinitions)
         .catch(this.catchError);
     }
   };

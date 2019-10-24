@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { BitbucketBindingDefinition } from '../../../../types/alm-settings';
 import { AlmDefinitionFormField } from './AlmDefinitionFormField';
 
@@ -33,31 +35,33 @@ export default function BitbucketFormModal(props: BitbucketFormModalProps) {
     <>
       <AlmDefinitionFormField
         autoFocus={true}
-        formData={formData}
-        help={true}
-        id="name"
-        isTextArea={false}
-        maxLength={40}
+        help={translate('settings.pr_decoration.form.url.bitbucket.name.help')}
+        id="bitbucket.name"
+        maxLength={100}
         onFieldChange={onFieldChange}
         propKey="key"
+        value={formData.key}
       />
       <AlmDefinitionFormField
-        formData={formData}
-        help={false}
+        help={
+          <FormattedMessage
+            defaultMessage={translate('settings.pr_decoration.form.url.bitbucket.help')}
+            id="settings.pr_decoration.form.url.bitbucket.help"
+            values={{ example: 'https://bitbucket-server.your-company.com' }}
+          />
+        }
         id="url.bitbucket"
-        isTextArea={false}
         maxLength={2000}
         onFieldChange={onFieldChange}
         propKey="url"
+        value={formData.url}
       />
       <AlmDefinitionFormField
-        formData={formData}
-        help={false}
         id="personal_access_token"
         isTextArea={true}
-        maxLength={2000}
         onFieldChange={onFieldChange}
         propKey="personalAccessToken"
+        value={formData.personalAccessToken}
       />
     </>
   );
