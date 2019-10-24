@@ -172,6 +172,21 @@ public class AlmSettingsService extends BaseService {
 
   /**
    * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/set_bitbucket_binding">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public void setBitbucketBinding(SetBitbucketBindingRequest request) {
+    call(
+      new PostRequest(path("set_bitbucket_binding"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setParam("project", request.getProject())
+        .setParam("repository", request.getRepositoryKey())
+        .setParam("slug", request.getRepositorySlug())
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  /**
+   * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/set_github_binding">Further information about this action online (including a response example)</a>
    * @since 8.1
    */

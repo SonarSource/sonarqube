@@ -44,6 +44,7 @@ public class AlmSettingsWsModule extends Module {
       UpdateAzureAction.class,
       // Bitbucket DevOps specific actions
       CreateBitBucketAction.class,
+      SetBitbucketBindingAction.class,
       UpdateBitbucketAction.class
     );
   }

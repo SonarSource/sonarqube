@@ -34,16 +34,13 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.AlmSettings;
-import org.sonarqube.ws.AlmSettings.GetBindingWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.test.JsonAssert.assertJson;
 
-public class GetBindingActionTest {
+public class SetBitbucketBindingActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -52,111 +49,98 @@ public class GetBindingActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private WsActionTester ws = new WsActionTester(new GetBindingAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null)));
+  private WsActionTester ws = new WsActionTester(new SetBitbucketBindingAction(db.getDbClient(),
+    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null))));
 
   @Test
-  public void get_github_project_binding() {
+  public void set_bitbucket_project_binding() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn(user).addProjectPermission(ADMIN, project);
-    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
-    ProjectAlmSettingDto githubProjectAlmSetting = db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
-
-    GetBindingWsResponse response = ws.newRequest()
-      .setParam("project", project.getKey())
-      .executeProtobuf(GetBindingWsResponse.class);
-
-    assertThat(response.getAlm()).isEqualTo(AlmSettings.Alm.github);
-    assertThat(response.getKey()).isEqualTo(githubAlmSetting.getKey());
-    assertThat(response.getRepository()).isEqualTo(githubProjectAlmSetting.getAlmRepo());
-    assertThat(response.getUrl()).isEqualTo(githubAlmSetting.getUrl());
-  }
-
-  @Test
-  public void get_azure_project_binding() {
-    UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn(user).addProjectPermission(ADMIN, project);
-    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
-    db.almSettings().insertAzureProjectAlmSetting(almSetting, project);
-
-    GetBindingWsResponse response = ws.newRequest()
-      .setParam("project", project.getKey())
-      .executeProtobuf(GetBindingWsResponse.class);
-
-    assertThat(response.getAlm()).isEqualTo(AlmSettings.Alm.azure);
-    assertThat(response.getKey()).isEqualTo(almSetting.getKey());
-    assertThat(response.hasRepository()).isFalse();
-    assertThat(response.hasUrl()).isFalse();
-  }
-
-  @Test
-  public void get_bitbucket_project_binding() {
-    UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn(user).addProjectPermission(ADMIN, project);
     AlmSettingDto almSetting = db.almSettings().insertBitbucketAlmSetting();
-    ProjectAlmSettingDto projectAlmSettingDto = db.almSettings().insertBitbucketProjectAlmSetting(almSetting, project);
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
 
-    GetBindingWsResponse response = ws.newRequest()
+    ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
       .setParam("project", project.getKey())
-      .executeProtobuf(GetBindingWsResponse.class);
+      .setParam("repository", "myproject")
+      .setParam("slug", "123456")
+      .execute();
 
-    assertThat(response.getAlm()).isEqualTo(AlmSettings.Alm.bitbucket);
-    assertThat(response.getKey()).isEqualTo(almSetting.getKey());
-    assertThat(response.getRepository()).isEqualTo(projectAlmSettingDto.getAlmRepo());
-    assertThat(response.getUrl()).isEqualTo(almSetting.getUrl());
-    assertThat(response.getSlug()).isEqualTo(projectAlmSettingDto.getAlmSlug());
+    assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), project).get())
+      .extracting(ProjectAlmSettingDto::getAlmSettingUuid, ProjectAlmSettingDto::getProjectUuid, ProjectAlmSettingDto::getAlmRepo, ProjectAlmSettingDto::getAlmSlug)
+      .containsOnly(almSetting.getUuid(), project.uuid(), "myproject", "123456");
+  }
+
+  @Test
+  public void override_existing_bitbucket_project_binding() {
+    UserDto user = db.users().insertUser();
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketAlmSetting();
+    ComponentDto project = db.components().insertPrivateProject();
+    db.almSettings().insertBitbucketProjectAlmSetting(almSetting, project);
+    AlmSettingDto anotherAlmSetting = db.almSettings().insertBitbucketAlmSetting();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
+
+    ws.newRequest()
+      .setParam("almSetting", anotherAlmSetting.getKey())
+      .setParam("project", project.getKey())
+      .setParam("repository", "myproject")
+      .setParam("slug", "123456")
+      .execute();
+
+    assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), project).get())
+      .extracting(ProjectAlmSettingDto::getAlmSettingUuid, ProjectAlmSettingDto::getProjectUuid, ProjectAlmSettingDto::getAlmRepo, ProjectAlmSettingDto::getAlmSlug)
+      .containsOnly(anotherAlmSetting.getUuid(), project.uuid(), "myproject", "123456");
+  }
+
+  @Test
+  public void fail_when_alm_setting_does_not_exist() {
+    UserDto user = db.users().insertUser();
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.logIn(user).addProjectPermission(ADMIN, project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("ALM setting with key 'unknown' cannot be found");
+
+    ws.newRequest()
+      .setParam("almSetting", "unknown")
+      .setParam("project", project.getKey())
+      .setParam("repository", "myproject")
+      .setParam("slug", "123456")
+      .execute();
   }
 
   @Test
   public void fail_when_project_does_not_exist() {
     UserDto user = db.users().insertUser();
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketAlmSetting();
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn(user).addProjectPermission(ADMIN, project);
-    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
-    db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
 
     expectedException.expect(NotFoundException.class);
 
     ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
       .setParam("project", "unknown")
+      .setParam("repository", "myproject")
+      .setParam("slug", "123456")
       .execute();
   }
 
   @Test
   public void fail_when_missing_administer_permission_on_project() {
     UserDto user = db.users().insertUser();
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketAlmSetting();
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn(user).addProjectPermission(USER, project);
-    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
-    db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
 
     expectedException.expect(ForbiddenException.class);
 
     ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
       .setParam("project", project.getKey())
+      .setParam("repository", "myproject")
+      .setParam("slug", "123456")
       .execute();
-  }
-
-  @Test
-  public void json_example() {
-    UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn(user).addProjectPermission(ADMIN, project);
-    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting(
-      almSettingDto -> almSettingDto
-        .setKey("GitHub Server - Dev Team")
-        .setUrl("https://github.enterprise.com")
-        .setAppId("12345")
-        .setPrivateKey("54684654"));
-    db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project, projectAlmSetting -> projectAlmSetting.setAlmRepo("team/project"));
-
-    String response = ws.newRequest()
-      .setParam("project", project.getKey())
-      .execute().getInput();
-
-    assertJson(response).isSimilarTo(getClass().getResource("get_binding-example.json"));
   }
 
   @Test
@@ -164,11 +148,10 @@ public class GetBindingActionTest {
     WebService.Action def = ws.getDef();
 
     assertThat(def.since()).isEqualTo("8.1");
-    assertThat(def.isPost()).isFalse();
-    assertThat(def.responseExampleAsString()).isNotEmpty();
+    assertThat(def.isPost()).isTrue();
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
-      .containsExactlyInAnyOrder(tuple("project", true));
+      .containsExactlyInAnyOrder(tuple("almSetting", true), tuple("project", true), tuple("repository", true), tuple("slug", true));
   }
 
 }

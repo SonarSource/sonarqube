@@ -56,13 +56,20 @@ public class AlmSettingsTesting {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(githubAlmSetting.getUuid())
       .setProjectUuid(project.uuid())
-      .setAlmRepo(randomAlphanumeric(256))
-      .setAlmSlug(randomAlphanumeric(256));
+      .setAlmRepo(randomAlphanumeric(256));
   }
 
-  public static ProjectAlmSettingDto newAzureProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ComponentDto project) {
+  static ProjectAlmSettingDto newAzureProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ComponentDto project) {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(githubAlmSetting.getUuid())
       .setProjectUuid(project.uuid());
+  }
+
+  public static ProjectAlmSettingDto newBitbucketProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ComponentDto project) {
+    return new ProjectAlmSettingDto()
+      .setAlmSettingUuid(githubAlmSetting.getUuid())
+      .setProjectUuid(project.uuid())
+      .setAlmRepo(randomAlphanumeric(256))
+      .setAlmSlug(randomAlphanumeric(256));
   }
 }

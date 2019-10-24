@@ -62,6 +62,7 @@ public class ListActionTest {
     AlmSettingDto githubAlmSetting1 = db.almSettings().insertGitHubAlmSetting();
     AlmSettingDto githubAlmSetting2 = db.almSettings().insertGitHubAlmSetting();
     AlmSettingDto azureAlmSetting = db.almSettings().insertAzureAlmSetting();
+    AlmSettingDto bitbucketAlmSetting = db.almSettings().insertBitbucketAlmSetting();
 
     ListWsResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -72,8 +73,8 @@ public class ListActionTest {
       .containsExactlyInAnyOrder(
         tuple(AlmSettings.Alm.github, githubAlmSetting1.getKey(), true, githubAlmSetting1.getUrl()),
         tuple(AlmSettings.Alm.github, githubAlmSetting2.getKey(), true, githubAlmSetting2.getUrl()),
-        tuple(AlmSettings.Alm.azure, azureAlmSetting.getKey(), false, "")
-      );
+        tuple(AlmSettings.Alm.azure, azureAlmSetting.getKey(), false, ""),
+        tuple(AlmSettings.Alm.bitbucket, bitbucketAlmSetting.getKey(), true, bitbucketAlmSetting.getUrl()));
   }
 
   @Test
@@ -114,16 +115,18 @@ public class ListActionTest {
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting(
       almSettingDto -> almSettingDto
         .setKey("GitHub Server - Dev Team")
-        .setUrl("https://github.enterprise.com")
-        .setAppId("12345")
-        .setPrivateKey("54684654"));
+        .setUrl("https://github.enterprise.com"));
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project, projectAlmSetting -> projectAlmSetting.setAlmRepo("team/project"));
     AlmSettingDto azureAlmSetting = db.almSettings().insertAzureAlmSetting(
       almSettingDto -> almSettingDto
         .setKey("Azure Server - Dev Team")
-        .setUrl("https://azure.com")
-        .setPersonalAccessToken("abcdefg"));
+        .setUrl("https://azure.com"));
     db.almSettings().insertAzureProjectAlmSetting(azureAlmSetting, project);
+    AlmSettingDto bitbucketAlmSetting = db.almSettings().insertBitbucketAlmSetting(
+      almSettingDto -> almSettingDto
+        .setKey("Bitbucket Server - Dev Team")
+        .setUrl("https://bitbucket.enterprise.com"));
+    db.almSettings().insertBitbucketProjectAlmSetting(bitbucketAlmSetting, project);
 
     String response = ws.newRequest()
       .setParam("project", project.getKey())

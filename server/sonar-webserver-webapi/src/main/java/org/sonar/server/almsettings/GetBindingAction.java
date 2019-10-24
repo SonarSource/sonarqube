@@ -88,6 +88,7 @@ public class GetBindingAction implements AlmSettingsWsAction {
         .setKey(almSetting.getKey());
       ofNullable(projectAlmSetting.getAlmRepo()).ifPresent(builder::setRepository);
       ofNullable(almSetting.getUrl()).ifPresent(builder::setUrl);
+      ofNullable(projectAlmSetting.getAlmSlug()).ifPresent(builder::setSlug);
       return builder.build();
     }
   }

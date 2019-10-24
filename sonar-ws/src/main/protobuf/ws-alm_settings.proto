@@ -55,6 +55,7 @@ message GetBindingWsResponse {
   optional Alm alm = 2;
   optional string repository = 3;
   optional string url = 4;
+  optional string slug = 5;
 }
 
 enum Alm {
