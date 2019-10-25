@@ -50,6 +50,7 @@ public class CreateAlmSettingsTableTest {
     dbTester.assertUniqueIndex(TABLE_NAME, "uniq_alm_settings", "kee");
 
     dbTester.assertColumnDefinition(TABLE_NAME, "uuid", VARCHAR, 40, false);
+    dbTester.assertColumnDefinition(TABLE_NAME, "kee", VARCHAR, 200, false);
     dbTester.assertColumnDefinition(TABLE_NAME, "alm_id", VARCHAR, 40, false);
     dbTester.assertColumnDefinition(TABLE_NAME, "url", VARCHAR, 2000, true);
     dbTester.assertColumnDefinition(TABLE_NAME, "app_id", VARCHAR, 80, true);

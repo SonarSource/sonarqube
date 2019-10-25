@@ -30,7 +30,7 @@ public class AlmSettingsTesting {
 
   public static AlmSettingDto newGithubAlmSettingDto() {
     return new AlmSettingDto()
-      .setKey(randomAlphanumeric(40))
+      .setKey(randomAlphanumeric(200))
       .setUrl(randomAlphanumeric(2000))
       .setAppId(randomAlphanumeric(80))
       .setPrivateKey(randomAlphanumeric(2000))
@@ -39,14 +39,14 @@ public class AlmSettingsTesting {
 
   public static AlmSettingDto newAzureAlmSettingDto() {
     return new AlmSettingDto()
-      .setKey(randomAlphanumeric(40))
+      .setKey(randomAlphanumeric(200))
       .setPersonalAccessToken(randomAlphanumeric(2000))
       .setAlm(ALM.AZURE_DEVOPS);
   }
 
   public static AlmSettingDto newBitbucketAlmSettingDto() {
     return new AlmSettingDto()
-      .setKey(randomAlphanumeric(40))
+      .setKey(randomAlphanumeric(200))
       .setUrl(randomAlphanumeric(2000))
       .setPersonalAccessToken(randomAlphanumeric(2000))
       .setAlm(ALM.BITBUCKET);

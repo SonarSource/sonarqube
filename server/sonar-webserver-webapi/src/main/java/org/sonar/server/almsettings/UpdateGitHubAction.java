@@ -58,11 +58,11 @@ public class UpdateGitHubAction implements AlmSettingsWsAction {
 
     action.createParam(PARAM_KEY)
       .setRequired(true)
-      .setMaximumLength(40)
+      .setMaximumLength(200)
       .setDescription("Unique key of the GitHub instance setting");
     action.createParam(PARAM_NEW_KEY)
       .setRequired(false)
-      .setMaximumLength(40)
+      .setMaximumLength(200)
       .setDescription("Optional new value for an unique key of the GitHub instance setting");
     action.createParam(PARAM_URL)
       .setRequired(true)

@@ -56,11 +56,11 @@ public class UpdateAzureAction implements AlmSettingsWsAction {
 
     action.createParam(PARAM_KEY)
       .setRequired(true)
-      .setMaximumLength(40)
+      .setMaximumLength(200)
       .setDescription("Unique key of the Azure instance setting");
     action.createParam(PARAM_NEW_KEY)
       .setRequired(false)
-      .setMaximumLength(40)
+      .setMaximumLength(200)
       .setDescription("Optional new value for an unique key of the Azure Devops instance setting");
     action.createParam(PARAM_PERSONAL_ACCESS_TOKEN)
       .setRequired(true)

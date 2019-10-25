@@ -56,7 +56,7 @@ public class CreateBitBucketAction implements AlmSettingsWsAction {
 
     action.createParam(PARAM_KEY)
       .setRequired(true)
-      .setMaximumLength(40)
+      .setMaximumLength(200)
       .setDescription("Unique key of the Bitbucket instance setting");
     action.createParam(PARAM_URL)
       .setRequired(true)

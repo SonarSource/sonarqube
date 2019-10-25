@@ -39,7 +39,7 @@ public class CreateAlmSettingsTable extends DdlChange {
   private static final VarcharColumnDef KEY = newVarcharColumnDefBuilder()
     .setColumnName("kee")
     .setIsNullable(false)
-    .setLimit(40)
+    .setLimit(200)
     .build();
 
   public CreateAlmSettingsTable(Database db) {
