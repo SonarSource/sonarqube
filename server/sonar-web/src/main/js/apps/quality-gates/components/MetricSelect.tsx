@@ -74,7 +74,7 @@ export default class MetricSelect extends React.PureComponent<Props> {
 
     return (
       <Select
-        className="text-middle"
+        className="text-middle quality-gate-metric-select"
         id="condition-metric"
         onChange={this.handleChange}
         options={optionsWithDomains}

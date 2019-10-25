@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <Select
-  className="text-middle"
+  className="text-middle quality-gate-metric-select"
   id="condition-metric"
   onChange={[Function]}
   options={
