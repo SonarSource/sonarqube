@@ -260,7 +260,7 @@ promote_task:
   script:
     - ./private/cirrus/cirrus-promote.sh
 
-dogfood_docker_builder:
+dogfood_docker_build_task:
   name: build docker
   only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
   depends_on:
@@ -269,7 +269,15 @@ dogfood_docker_builder:
     - promote
   env:
     CIRRUS_CLONE_DEPTH: 50
-  script:
+  gce_instance:
+    image_project: ci-cd-215716
+    image_name: docker-builder-v1
+    zone: us-central1-a
+    disk: 10
+    cpu: 1
+    memory: 1G
+    preemptible: false
+  build_script:
     - ./private/cirrus/cirrus-build-dogfood-docker.sh
 
 sql_mssql2017_task:
