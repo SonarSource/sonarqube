@@ -50,7 +50,9 @@ export default function TabHeader(props: TabHeaderProps) {
 
       <div className="big-spacer-bottom display-flex-space-between">
         <h4 className="display-inline">{translate('settings.pr_decoration.table.title')}</h4>
-        <Button onClick={props.onCreate}>{translate('settings.pr_decoration.table.create')}</Button>
+        <Button data-test="settings__alm-create" onClick={props.onCreate}>
+          {translate('settings.pr_decoration.table.create')}
+        </Button>
       </div>
     </>
   );

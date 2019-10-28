@@ -469,7 +469,11 @@ exports[`should render multiple instances correctly 2`] = `
         className="spacer-right"
         onClick={[MockFunction]}
       >
-        reset_verb
+        <span
+          data-test="project-settings__alm-reset"
+        >
+          reset_verb
+        </span>
       </Button>
     </div>
   </form>

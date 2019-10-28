@@ -22,7 +22,9 @@ exports[`should render correctly 1`] = `
     </tr>
   </thead>
   <tbody>
-    <tr>
+    <tr
+      data-test="settings__alm-empty-table"
+    >
       <td
         colSpan={3}
       >
@@ -66,6 +68,7 @@ exports[`should render correctly 2`] = `
   </thead>
   <tbody>
     <tr
+      data-test="settings__alm-table-row"
       key="definition1"
     >
       <td
@@ -90,6 +93,7 @@ exports[`should render correctly 2`] = `
       </td>
       <td
         className="text-center"
+        data-test="settings__alm-table-row-edit"
       >
         <ButtonIcon
           onClick={[Function]}
@@ -99,6 +103,7 @@ exports[`should render correctly 2`] = `
       </td>
       <td
         className="text-center"
+        data-test="settings__alm-table-row-delete"
       >
         <DeleteButton
           onClick={[Function]}
@@ -106,6 +111,7 @@ exports[`should render correctly 2`] = `
       </td>
     </tr>
     <tr
+      data-test="settings__alm-table-row"
       key="definition2"
     >
       <td
@@ -130,6 +136,7 @@ exports[`should render correctly 2`] = `
       </td>
       <td
         className="text-center"
+        data-test="settings__alm-table-row-edit"
       >
         <ButtonIcon
           onClick={[Function]}
@@ -139,6 +146,7 @@ exports[`should render correctly 2`] = `
       </td>
       <td
         className="text-center"
+        data-test="settings__alm-table-row-delete"
       >
         <DeleteButton
           onClick={[Function]}

@@ -55,14 +55,14 @@ export default function AlmPRDecorationTable(props: AlmPRDecorationTableProps) {
       </thead>
       <tbody>
         {definitions.length === 0 ? (
-          <tr>
+          <tr data-test="settings__alm-empty-table">
             <td colSpan={3 + additionalColumnsHeaders.length}>
               {translate('settings.pr_decoration.table.empty', alm)}
             </td>
           </tr>
         ) : (
           definitions.map(({ key, additionalColumns }) => (
-            <tr key={key}>
+            <tr data-test="settings__alm-table-row" key={key}>
               <td className="nowrap hide-overflow" title={key}>
                 {key}
               </td>
@@ -71,12 +71,12 @@ export default function AlmPRDecorationTable(props: AlmPRDecorationTableProps) {
                   {value}
                 </td>
               ))}
-              <td className="text-center">
+              <td className="text-center" data-test="settings__alm-table-row-edit">
                 <ButtonIcon onClick={() => props.onEdit(key)}>
                   <EditIcon />
                 </ButtonIcon>
               </td>
-              <td className="text-center">
+              <td className="text-center" data-test="settings__alm-table-row-delete">
                 <DeleteButton onClick={() => props.onDelete(key)} />
               </td>
             </tr>

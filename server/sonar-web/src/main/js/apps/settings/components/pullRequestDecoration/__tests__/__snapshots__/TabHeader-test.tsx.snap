@@ -32,6 +32,7 @@ exports[`should render correctly 1`] = `
       settings.pr_decoration.table.title
     </h4>
     <Button
+      data-test="settings__alm-create"
       onClick={[MockFunction]}
     >
       settings.pr_decoration.table.create
@@ -72,6 +73,7 @@ exports[`should render correctly 2`] = `
       settings.pr_decoration.table.title
     </h4>
     <Button
+      data-test="settings__alm-create"
       onClick={[MockFunction]}
     >
       settings.pr_decoration.table.create

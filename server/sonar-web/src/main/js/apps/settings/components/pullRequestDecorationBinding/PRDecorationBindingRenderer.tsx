@@ -230,12 +230,12 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
           <DeferredSpinner className="spacer-right" loading={saving} />
           {isChanged && (
             <SubmitButton className="spacer-right button-success" disabled={saving || !isValid}>
-              {translate('save')}
+              <span data-test="project-settings__alm-save">{translate('save')}</span>
             </SubmitButton>
           )}
           {originalData && (
             <Button className="spacer-right" onClick={props.onReset}>
-              {translate('reset_verb')}
+              <span data-test="project-settings__alm-reset">{translate('reset_verb')}</span>
             </Button>
           )}
           {!saving && success && (
