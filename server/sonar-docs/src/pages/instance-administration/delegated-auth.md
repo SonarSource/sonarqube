@@ -59,7 +59,7 @@ You can delegate authentication to GitLab using a dedicated GitLab OAuth applica
 Create a GitLab OAuth application from your GitLab account. Click [here](https://docs.gitlab.com/ee/integration/oauth_provider.html) for general instructions.
 
    1. In the **Name** text box, name your app SonarQube.
-   1. In the **Redirect URI** text box, enter your SonarQube URL with the path `/oauth2/callback/gitlab/`. For example, `https://YourSonarQubeURL.com/oauth2/callback/gitlab/`.
+   1. In the **Redirect URI** text box, enter your SonarQube URL with the path `/oauth2/callback/gitlab`. For example, `https://sonarqube.mycompany.com/oauth2/callback/gitlab`.
    1. Under **Scopes**, select **api**.
 
 After saving your application, GitLab gives you your **Application ID** and **Secret**. Keep these at hand, open your SonarQube instance, and navigate to **[Administration > Configuration > General Settings > Security](/#sonarqube-admin#/admin/settings?category=security/)** to finish setting up GitLab authentication:
