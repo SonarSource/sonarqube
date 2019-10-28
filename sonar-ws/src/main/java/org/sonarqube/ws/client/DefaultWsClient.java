@@ -33,7 +33,6 @@ import org.sonarqube.ws.client.duplications.DuplicationsService;
 import org.sonarqube.ws.client.editions.EditionsService;
 import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
-import org.sonarqube.ws.client.favourites.FavouritesService;
 import org.sonarqube.ws.client.governancereports.GovernanceReportsService;
 import org.sonarqube.ws.client.issues.IssuesService;
 import org.sonarqube.ws.client.l10n.L10nService;
@@ -98,7 +97,6 @@ class DefaultWsClient implements WsClient {
   private final EditionsService editionsService;
   private final EmailsService emailsService;
   private final FavoritesService favoritesService;
-  private final FavouritesService favouritesService;
   private final GovernanceReportsService governanceReportsService;
   private final IssuesService issuesService;
   private final L10nService l10nService;
@@ -156,7 +154,6 @@ class DefaultWsClient implements WsClient {
     this.editionsService = new EditionsService(wsConnector);
     this.emailsService = new EmailsService(wsConnector);
     this.favoritesService = new FavoritesService(wsConnector);
-    this.favouritesService = new FavouritesService(wsConnector);
     this.governanceReportsService = new GovernanceReportsService(wsConnector);
     this.issuesService = new IssuesService(wsConnector);
     this.l10nService = new L10nService(wsConnector);
@@ -264,11 +261,6 @@ class DefaultWsClient implements WsClient {
   @Override
   public FavoritesService favorites() {
     return favoritesService;
-  }
-
-  @Override
-  public FavouritesService favourites() {
-    return favouritesService;
   }
 
   @Override

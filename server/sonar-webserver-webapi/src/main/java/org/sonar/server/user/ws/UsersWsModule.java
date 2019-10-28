@@ -43,7 +43,6 @@ public class UsersWsModule extends Module {
       SearchAction.class,
       GroupsAction.class,
       IdentityProvidersAction.class,
-      UserPropertiesWs.class,
       UserJsonWriter.class,
       SetHomepageAction.class,
       HomepageTypesImpl.class,

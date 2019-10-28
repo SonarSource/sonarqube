@@ -30,7 +30,6 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.server.property.ws.PropertiesWs;
 import org.sonar.server.ws.ServletFilterHandler;
 import org.sonar.server.ws.ServletRequest;
 import org.sonar.server.ws.ServletResponse;
@@ -45,7 +44,6 @@ import static org.sonar.server.platform.web.WebServiceReroutingFilter.MOVED_WEB_
  * Every urls beginning with '/api' and every web service urls are taken into account, except :
  * <ul>
  *   <li>web services that directly implemented with servlet filter, see {@link ServletFilterHandler})</li>
- *   <li>deprecated '/api/properties' web service, see {@link DeprecatedPropertiesWsFilter}</li>
  * </ul>
  */
 public class WebServiceFilter extends ServletFilter {
@@ -63,9 +61,7 @@ public class WebServiceFilter extends ServletFilter {
         .flatMap(controller -> controller.actions().stream())
         .map(toPath()))
           .collect(MoreCollectors.toSet());
-    this.excludeUrls = concat(concat(
-      Stream.of("/" + PropertiesWs.CONTROLLER_PROPERTIES + "*"),
-      MOVED_WEB_SERVICES.stream()),
+    this.excludeUrls = concat(MOVED_WEB_SERVICES.stream(),
       webServiceEngine.controllers().stream()
         .flatMap(controller -> controller.actions().stream())
         .filter(action -> action.handler() instanceof ServletFilterHandler)

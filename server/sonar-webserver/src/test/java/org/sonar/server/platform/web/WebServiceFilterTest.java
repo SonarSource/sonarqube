@@ -25,11 +25,11 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.api.SonarEdition;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
@@ -107,14 +107,6 @@ public class WebServiceFilterTest {
 
     assertThat(underTest.doGetPattern().matches("/api/foo/action")).isFalse();
     assertThat(underTest.doGetPattern().matches("/api/foo/action_2")).isTrue();
-  }
-
-  @Test
-  public void does_not_match_api_properties_ws() {
-    initWebServiceEngine(newWsUrl("api/properties", "index"));
-
-    assertThat(underTest.doGetPattern().matches("/api/properties")).isFalse();
-    assertThat(underTest.doGetPattern().matches("/api/properties/index")).isFalse();
   }
 
   @Test

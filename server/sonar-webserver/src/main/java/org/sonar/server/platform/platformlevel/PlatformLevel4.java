@@ -100,7 +100,6 @@ import org.sonar.server.measure.custom.ws.CustomMeasuresWsModule;
 import org.sonar.server.measure.index.ProjectsEsModule;
 import org.sonar.server.measure.live.LiveMeasureModule;
 import org.sonar.server.measure.ws.MeasuresWsModule;
-import org.sonar.server.measure.ws.TimeMachineWs;
 import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.DefaultMetricFinder;
 import org.sonar.server.metric.ws.MetricsWsModule;
@@ -123,7 +122,6 @@ import org.sonar.server.platform.ClusterVerification;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.SystemInfoWriterModule;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
-import org.sonar.server.platform.web.DeprecatedPropertiesWsFilter;
 import org.sonar.server.platform.web.WebServiceFilter;
 import org.sonar.server.platform.web.WebServiceReroutingFilter;
 import org.sonar.server.platform.web.requestid.HttpRequestIdModule;
@@ -150,7 +148,6 @@ import org.sonar.server.projectanalysis.ws.ProjectAnalysisWsModule;
 import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
-import org.sonar.server.property.ws.PropertiesWs;
 import org.sonar.server.qualitygate.ProjectsInWarningModule;
 import org.sonar.server.qualitygate.QualityGateModule;
 import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
@@ -335,7 +332,6 @@ public class PlatformLevel4 extends PlatformLevel {
       CustomMeasuresWsModule.class,
       CoreCustomMetrics.class,
       DefaultMetricFinder.class,
-      TimeMachineWs.class,
 
       QualityGateModule.class,
       ProjectsInWarningModule.class,
@@ -345,7 +341,6 @@ public class PlatformLevel4 extends PlatformLevel {
       WebServiceEngine.class,
       WebServicesWsModule.class,
       WebServiceFilter.class,
-      DeprecatedPropertiesWsFilter.class,
       WebServiceReroutingFilter.class,
 
       // localization
@@ -466,8 +461,6 @@ public class PlatformLevel4 extends PlatformLevel {
       // Settings
       ProjectConfigurationLoaderImpl.class,
       PersistentSettings.class,
-      PropertiesWs.class,
-      org.sonar.server.property.ws.IndexAction.class,
       SettingsWsModule.class,
 
       TypeValidationModule.class,

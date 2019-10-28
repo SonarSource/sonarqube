@@ -33,7 +33,6 @@ import org.sonarqube.ws.client.duplications.DuplicationsService;
 import org.sonarqube.ws.client.editions.EditionsService;
 import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
-import org.sonarqube.ws.client.favourites.FavouritesService;
 import org.sonarqube.ws.client.governancereports.GovernanceReportsService;
 import org.sonarqube.ws.client.issues.IssuesService;
 import org.sonarqube.ws.client.l10n.L10nService;
@@ -121,8 +120,6 @@ public interface WsClient {
   EmailsService emails();
 
   FavoritesService favorites();
-
-  FavouritesService favourites();
 
   GovernanceReportsService governanceReports();
 
