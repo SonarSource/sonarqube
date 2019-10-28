@@ -19,6 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import Select from 'sonar-ui-common/components/controls/Select';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { ALM_KEYS } from '../../../../../types/alm-settings';
 import PRDecorationBindingRenderer, {
   PRDecorationBindingRendererProps
@@ -105,6 +107,28 @@ it('should display action state correctly', () => {
       loading: false
     })
   ).toMatchSnapshot();
+});
+
+it('should render select options correctly', async () => {
+  const instances = [
+    {
+      alm: ALM_KEYS.AZURE,
+      key: 'azure'
+    },
+    {
+      alm: ALM_KEYS.GITHUB,
+      key: 'github',
+      url: 'gh.url.com'
+    }
+  ];
+  const wrapper = shallowRender({ loading: false, instances });
+  await waitAndUpdate(wrapper);
+
+  const optionRenderer = wrapper.find(Select).prop('optionRenderer');
+
+  expect(optionRenderer!(instances[0])).toMatchSnapshot();
+
+  expect(optionRenderer!(instances[1])).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<PRDecorationBindingRendererProps> = {}) {

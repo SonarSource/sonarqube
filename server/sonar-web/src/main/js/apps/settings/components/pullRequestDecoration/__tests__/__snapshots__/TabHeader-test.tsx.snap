@@ -14,7 +14,8 @@ exports[`should render correctly 1`] = `
           "link": <Link
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/documentation/analysis/pull-request/#pr-decoration"
+            target="_blank"
+            to="/documentation/analysis/pr-decoration/"
           >
             learn_more
           </Link>,
@@ -53,7 +54,8 @@ exports[`should render correctly 2`] = `
           "link": <Link
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/documentation/analysis/pull-request/#pr-decoration"
+            target="_blank"
+            to="/documentation/analysis/pr-decoration/"
           >
             learn_more
           </Link>,

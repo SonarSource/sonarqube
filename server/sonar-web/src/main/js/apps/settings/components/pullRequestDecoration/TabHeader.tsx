@@ -40,7 +40,7 @@ export default function TabHeader(props: TabHeaderProps) {
           id={`settings.pr_decoration.${alm}.info`}
           values={{
             link: (
-              <Link to="/documentation/analysis/pull-request/#pr-decoration">
+              <Link target="_blank" to="/documentation/analysis/pr-decoration/">
                 {translate('learn_more')}
               </Link>
             )

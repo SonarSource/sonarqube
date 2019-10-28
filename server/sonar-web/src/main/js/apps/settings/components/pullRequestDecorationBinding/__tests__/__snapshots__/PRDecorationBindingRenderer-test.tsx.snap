@@ -476,6 +476,26 @@ exports[`should render multiple instances correctly 2`] = `
 </div>
 `;
 
+exports[`should render select options correctly 1`] = `
+<span>
+  azure
+</span>
+`;
+
+exports[`should render select options correctly 2`] = `
+<React.Fragment>
+  <span>
+    github
+     — 
+  </span>
+  <span
+    className="text-muted"
+  >
+    gh.url.com
+  </span>
+</React.Fragment>
+`;
+
 exports[`should render single instance correctly 1`] = `
 <div>
   <header
