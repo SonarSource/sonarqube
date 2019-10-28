@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ALM_KEYS, GithubBindingDefinition } from '../../../../types/alm-settings';
 import AlmPRDecorationFormModal from './AlmPRDecorationFormModal';
+import AlmPRDecorationTable from './AlmPRDecorationTable';
 import GithubFormModal from './GithubFormModal';
-import GithubTable from './GithubTable';
 import TabHeader from './TabHeader';
 
 export interface GithubTabRendererProps {
@@ -32,7 +33,7 @@ export interface GithubTabRendererProps {
   onCancel: () => void;
   onCreate: () => void;
   onDelete: (definitionKey: string) => void;
-  onEdit: (config: GithubBindingDefinition) => void;
+  onEdit: (definitionKey: string) => void;
   onSubmit: (config: GithubBindingDefinition, originalKey: string) => void;
 }
 
@@ -43,7 +44,19 @@ export default function GithubTabRenderer(props: GithubTabRendererProps) {
       <TabHeader alm={ALM_KEYS.GITHUB} onCreate={props.onCreate} />
 
       <DeferredSpinner loading={loading}>
-        <GithubTable definitions={definitions} onDelete={props.onDelete} onEdit={props.onEdit} />
+        <AlmPRDecorationTable
+          additionalColumnsHeaders={[
+            translate(`settings.pr_decoration.table.column.github.url`),
+            translate('settings.pr_decoration.table.column.app_id')
+          ]}
+          alm={ALM_KEYS.GITHUB}
+          definitions={definitions.map(({ key, appId, url }) => ({
+            key,
+            additionalColumns: [url, appId]
+          }))}
+          onDelete={props.onDelete}
+          onEdit={props.onEdit}
+        />
       </DeferredSpinner>
 
       {editedDefinition && (

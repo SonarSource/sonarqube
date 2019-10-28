@@ -10,7 +10,13 @@ exports[`should render correctly 1`] = `
     loading={true}
     timeout={100}
   >
-    <BitbucketTable
+    <AlmPRDecorationTable
+      additionalColumnsHeaders={
+        Array [
+          "settings.pr_decoration.table.column.bitbucket.url",
+        ]
+      }
+      alm="bitbucket"
       definitions={Array []}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
@@ -29,7 +35,13 @@ exports[`should render correctly 2`] = `
     loading={false}
     timeout={100}
   >
-    <BitbucketTable
+    <AlmPRDecorationTable
+      additionalColumnsHeaders={
+        Array [
+          "settings.pr_decoration.table.column.bitbucket.url",
+        ]
+      }
+      alm="bitbucket"
       definitions={Array []}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
@@ -48,7 +60,13 @@ exports[`should render correctly 3`] = `
     loading={false}
     timeout={100}
   >
-    <BitbucketTable
+    <AlmPRDecorationTable
+      additionalColumnsHeaders={
+        Array [
+          "settings.pr_decoration.table.column.bitbucket.url",
+        ]
+      }
+      alm="bitbucket"
       definitions={Array []}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}

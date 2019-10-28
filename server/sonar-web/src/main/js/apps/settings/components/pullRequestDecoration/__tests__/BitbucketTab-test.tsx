@@ -99,8 +99,8 @@ it('should handle edit', async () => {
     url: 'url',
     personalAccessToken: 'PAT'
   };
-  const wrapper = shallowRender();
-  wrapper.instance().handleEdit(config);
+  const wrapper = shallowRender({ definitions: [config] });
+  wrapper.instance().handleEdit(config.key);
   await waitAndUpdate(wrapper);
   expect(wrapper.state().editedDefinition).toEqual(config);
 });

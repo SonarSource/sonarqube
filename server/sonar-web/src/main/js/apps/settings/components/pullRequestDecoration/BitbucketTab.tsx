@@ -59,8 +59,9 @@ export default class BitbucketTab extends React.PureComponent<Props, State> {
     this.setState({ editedDefinition: { key: '', url: '', personalAccessToken: '' } });
   };
 
-  handleEdit = (config: BitbucketBindingDefinition) => {
-    this.setState({ editedDefinition: config });
+  handleEdit = (definitionKey: string) => {
+    const editedDefinition = this.props.definitions.find(d => d.key === definitionKey);
+    this.setState({ editedDefinition });
   };
 
   handleSubmit = (config: BitbucketBindingDefinition, originalKey: string) => {

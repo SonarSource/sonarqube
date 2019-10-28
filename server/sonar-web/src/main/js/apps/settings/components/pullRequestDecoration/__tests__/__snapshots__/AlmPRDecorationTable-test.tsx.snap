@@ -43,6 +43,16 @@ exports[`should render correctly 2`] = `
         settings.pr_decoration.table.column.name
       </th>
       <th
+        key="additional1"
+      >
+        additional1
+      </th>
+      <th
+        key="additional2"
+      >
+        additional2
+      </th>
+      <th
         className="action-small text-center"
       >
         settings.pr_decoration.table.column.edit
@@ -56,13 +66,67 @@ exports[`should render correctly 2`] = `
   </thead>
   <tbody>
     <tr
-      key="key"
+      key="definition1"
     >
       <td
         className="nowrap hide-overflow"
-        title="key"
+        title="definition1"
       >
-        key
+        definition1
+      </td>
+      <td
+        className="nowrap hide-overflow"
+        key="def1-v1"
+        title="def1-v1"
+      >
+        def1-v1
+      </td>
+      <td
+        className="nowrap hide-overflow"
+        key="def1-v2"
+        title="def1-v2"
+      >
+        def1-v2
+      </td>
+      <td
+        className="text-center"
+      >
+        <ButtonIcon
+          onClick={[Function]}
+        >
+          <EditIcon />
+        </ButtonIcon>
+      </td>
+      <td
+        className="text-center"
+      >
+        <DeleteButton
+          onClick={[Function]}
+        />
+      </td>
+    </tr>
+    <tr
+      key="definition2"
+    >
+      <td
+        className="nowrap hide-overflow"
+        title="definition2"
+      >
+        definition2
+      </td>
+      <td
+        className="nowrap hide-overflow"
+        key="def2-v1"
+        title="def2-v1"
+      >
+        def2-v1
+      </td>
+      <td
+        className="nowrap hide-overflow"
+        key="def2-v2"
+        title="def2-v2"
+      >
+        def2-v2
       </td>
       <td
         className="text-center"

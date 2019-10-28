@@ -21,8 +21,8 @@ import * as React from 'react';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { ALM_KEYS, AzureBindingDefinition } from '../../../../types/alm-settings';
 import AlmPRDecorationFormModal from './AlmPRDecorationFormModal';
+import AlmPRDecorationTable from './AlmPRDecorationTable';
 import AzureFormModal from './AzureFormModal';
-import AzureTable from './AzureTable';
 import TabHeader from './TabHeader';
 
 export interface AzureTabRendererProps {
@@ -32,7 +32,7 @@ export interface AzureTabRendererProps {
   onCancel: () => void;
   onCreate: () => void;
   onDelete: (definitionKey: string) => void;
-  onEdit: (config: AzureBindingDefinition) => void;
+  onEdit: (definitionKey: string) => void;
   onSubmit: (config: AzureBindingDefinition, originalKey: string) => void;
 }
 
@@ -43,7 +43,16 @@ export default function AzureTabRenderer(props: AzureTabRendererProps) {
       <TabHeader alm={ALM_KEYS.AZURE} onCreate={props.onCreate} />
 
       <DeferredSpinner loading={loading}>
-        <AzureTable definitions={definitions} onDelete={props.onDelete} onEdit={props.onEdit} />
+        <AlmPRDecorationTable
+          additionalColumnsHeaders={[]}
+          alm={ALM_KEYS.AZURE}
+          definitions={definitions.map(({ key }) => ({
+            key,
+            additionalColumns: []
+          }))}
+          onDelete={props.onDelete}
+          onEdit={props.onEdit}
+        />
       </DeferredSpinner>
 
       {editedDefinition && (

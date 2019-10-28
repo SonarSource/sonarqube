@@ -53,6 +53,17 @@ it('should handle cancel', async () => {
   expect(wrapper.state().editedDefinition).toBeUndefined();
 });
 
+it('should handle edit', async () => {
+  const config = {
+    key: 'key',
+    personalAccessToken: 'asdf14'
+  };
+  const wrapper = shallowRender({ definitions: [config] });
+  wrapper.instance().handleEdit(config.key);
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().editedDefinition).toEqual(config);
+});
+
 it('should create config', async () => {
   const onUpdateDefinitions = jest.fn();
   const config = mockAzureDefinition();

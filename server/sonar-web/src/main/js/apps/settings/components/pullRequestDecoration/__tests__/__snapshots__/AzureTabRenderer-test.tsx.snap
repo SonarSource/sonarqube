@@ -10,7 +10,9 @@ exports[`should render correctly 1`] = `
     loading={true}
     timeout={100}
   >
-    <AzureTable
+    <AlmPRDecorationTable
+      additionalColumnsHeaders={Array []}
+      alm="azure"
       definitions={Array []}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
@@ -29,7 +31,9 @@ exports[`should render correctly 2`] = `
     loading={false}
     timeout={100}
   >
-    <AzureTable
+    <AlmPRDecorationTable
+      additionalColumnsHeaders={Array []}
+      alm="azure"
       definitions={Array []}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
@@ -48,7 +52,9 @@ exports[`should render correctly 3`] = `
     loading={false}
     timeout={100}
   >
-    <AzureTable
+    <AlmPRDecorationTable
+      additionalColumnsHeaders={Array []}
+      alm="azure"
       definitions={Array []}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}

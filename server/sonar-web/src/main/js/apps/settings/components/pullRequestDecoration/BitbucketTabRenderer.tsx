@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ALM_KEYS, BitbucketBindingDefinition } from '../../../../types/alm-settings';
 import AlmPRDecorationFormModal from './AlmPRDecorationFormModal';
+import AlmPRDecorationTable from './AlmPRDecorationTable';
 import BitbucketFormModal from './BitbucketFormModal';
-import BitbucketTable from './BitbucketTable';
 import TabHeader from './TabHeader';
 
 export interface BitbucketTabRendererProps {
@@ -32,7 +33,7 @@ export interface BitbucketTabRendererProps {
   onCancel: () => void;
   onCreate: () => void;
   onDelete: (definitionKey: string) => void;
-  onEdit: (config: BitbucketBindingDefinition) => void;
+  onEdit: (definitionKey: string) => void;
   onSubmit: (config: BitbucketBindingDefinition, originalKey: string) => void;
 }
 
@@ -43,7 +44,18 @@ export default function BitbucketTabRenderer(props: BitbucketTabRendererProps) {
       <TabHeader alm={ALM_KEYS.BITBUCKET} onCreate={props.onCreate} />
 
       <DeferredSpinner loading={loading}>
-        <BitbucketTable definitions={definitions} onDelete={props.onDelete} onEdit={props.onEdit} />
+        <AlmPRDecorationTable
+          additionalColumnsHeaders={[
+            translate(`settings.pr_decoration.table.column.bitbucket.url`)
+          ]}
+          alm={ALM_KEYS.BITBUCKET}
+          definitions={definitions.map(({ key, url }) => ({
+            key,
+            additionalColumns: [url]
+          }))}
+          onDelete={props.onDelete}
+          onEdit={props.onEdit}
+        />
       </DeferredSpinner>
 
       {editedDefinition && (

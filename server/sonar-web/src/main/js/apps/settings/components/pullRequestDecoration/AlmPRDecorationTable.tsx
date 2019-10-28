@@ -21,22 +21,30 @@ import * as React from 'react';
 import { ButtonIcon, DeleteButton } from 'sonar-ui-common/components/controls/buttons';
 import EditIcon from 'sonar-ui-common/components/icons/EditIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { AzureBindingDefinition } from '../../../../types/alm-settings';
+import { ALM_KEYS } from '../../../../types/alm-settings';
 
-export interface AzureTableProps {
-  definitions: AzureBindingDefinition[];
+export interface AlmPRDecorationTableProps {
+  additionalColumnsHeaders: Array<string>;
+  alm: ALM_KEYS;
+  definitions: Array<{
+    key: string;
+    additionalColumns: Array<string>;
+  }>;
   onDelete: (definitionKey: string) => void;
-  onEdit: (config: AzureBindingDefinition) => void;
+  onEdit: (definitionKey: string) => void;
 }
 
-export default function AzureTable(props: AzureTableProps) {
-  const { definitions } = props;
+export default function AlmPRDecorationTable(props: AlmPRDecorationTableProps) {
+  const { additionalColumnsHeaders, alm, definitions } = props;
 
   return (
     <table className="data zebra fixed spacer-bottom">
       <thead>
         <tr>
           <th>{translate('settings.pr_decoration.table.column.name')}</th>
+          {additionalColumnsHeaders.map(h => (
+            <th key={h}>{h}</th>
+          ))}
           <th className="action-small text-center">
             {translate('settings.pr_decoration.table.column.edit')}
           </th>
@@ -48,21 +56,28 @@ export default function AzureTable(props: AzureTableProps) {
       <tbody>
         {definitions.length === 0 ? (
           <tr>
-            <td colSpan={3}>{translate('settings.pr_decoration.table.empty.azure')}</td>
+            <td colSpan={3 + additionalColumnsHeaders.length}>
+              {translate('settings.pr_decoration.table.empty', alm)}
+            </td>
           </tr>
         ) : (
-          definitions.map(definition => (
-            <tr key={definition.key}>
-              <td className="nowrap hide-overflow" title={definition.key}>
-                {definition.key}
+          definitions.map(({ key, additionalColumns }) => (
+            <tr key={key}>
+              <td className="nowrap hide-overflow" title={key}>
+                {key}
               </td>
+              {additionalColumns.map(value => (
+                <td className="nowrap hide-overflow" key={value} title={value}>
+                  {value}
+                </td>
+              ))}
               <td className="text-center">
-                <ButtonIcon onClick={() => props.onEdit(definition)}>
+                <ButtonIcon onClick={() => props.onEdit(key)}>
                   <EditIcon />
                 </ButtonIcon>
               </td>
               <td className="text-center">
-                <DeleteButton onClick={() => props.onDelete(definition.key)} />
+                <DeleteButton onClick={() => props.onDelete(key)} />
               </td>
             </tr>
           ))

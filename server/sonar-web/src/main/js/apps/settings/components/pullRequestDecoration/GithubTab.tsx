@@ -56,8 +56,9 @@ export default class GithubTab extends React.PureComponent<Props, State> {
     this.setState({ editedDefinition: { key: '', appId: '', url: '', privateKey: '' } });
   };
 
-  handleEdit = (config: GithubBindingDefinition) => {
-    this.setState({ editedDefinition: config });
+  handleEdit = (definitionKey: string) => {
+    const editedDefinition = this.props.definitions.find(d => d.key === definitionKey);
+    this.setState({ editedDefinition });
   };
 
   handleSubmit = (config: GithubBindingDefinition, originalKey: string) => {

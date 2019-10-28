@@ -10,7 +10,14 @@ exports[`should render correctly 1`] = `
     loading={true}
     timeout={100}
   >
-    <GithubTable
+    <AlmPRDecorationTable
+      additionalColumnsHeaders={
+        Array [
+          "settings.pr_decoration.table.column.github.url",
+          "settings.pr_decoration.table.column.app_id",
+        ]
+      }
+      alm="github"
       definitions={Array []}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
@@ -29,7 +36,14 @@ exports[`should render correctly 2`] = `
     loading={false}
     timeout={100}
   >
-    <GithubTable
+    <AlmPRDecorationTable
+      additionalColumnsHeaders={
+        Array [
+          "settings.pr_decoration.table.column.github.url",
+          "settings.pr_decoration.table.column.app_id",
+        ]
+      }
+      alm="github"
       definitions={Array []}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
@@ -48,7 +62,14 @@ exports[`should render correctly 3`] = `
     loading={false}
     timeout={100}
   >
-    <GithubTable
+    <AlmPRDecorationTable
+      additionalColumnsHeaders={
+        Array [
+          "settings.pr_decoration.table.column.github.url",
+          "settings.pr_decoration.table.column.app_id",
+        ]
+      }
+      alm="github"
       definitions={Array []}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
