@@ -29,6 +29,9 @@ public class DbVersion81 implements DbVersion {
       .add(3100, "Create ALM_SETTINGS table", CreateAlmSettingsTable.class)
       .add(3101, "Create PROJECT_ALM_SETTINGS table", CreateProjectAlmSettingsTable.class)
       .add(3102, "Migrate GitHub ALM settings from PROPERTIES to ALM_SETTINGS tables", MigrateGithubAlmSettings.class)
-      .add(3103, "Migrate Bitbucket ALM settings from PROPERTIES to ALM_SETTINGS tables", MigrateBitbucketAlmSettings.class);
+      .add(3103, "Migrate Bitbucket ALM settings from PROPERTIES to ALM_SETTINGS tables", MigrateBitbucketAlmSettings.class)
+      .add(3104, "Migrate Azure ALM settings from PROPERTIES to ALM_SETTINGS tables", MigrateAzureAlmSettings.class)
+      .add(3105, "Delete 'sonar.pullrequest.provider' property", DeleteSonarPullRequestProviderProperty.class)
+    ;
   }
 }
