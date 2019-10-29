@@ -59,7 +59,7 @@ it('should render MultiValueInput', () => {
 it('should render PropertySetInput', () => {
   const setting: T.Setting = {
     ...settingValue,
-    definition: { ...settingDefinition, type: 'PROPERTY_SET', fields: [] }
+    definition: { ...settingDefinition, type: 'PROPERTY_SET' }
   };
 
   const onChange = jest.fn();

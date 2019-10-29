@@ -803,6 +803,7 @@ declare namespace T {
   export interface SettingDefinition {
     description?: string;
     key: string;
+    multiValues?: boolean;
     name?: string;
     options: string[];
     type?: SettingType;

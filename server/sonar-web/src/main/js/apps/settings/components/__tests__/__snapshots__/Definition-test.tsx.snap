@@ -42,14 +42,10 @@ exports[`should render correctly 1`] = `
       setting={
         Object {
           "definition": Object {
-            "category": "general",
-            "defaultValue": "42",
             "description": "When Foo then Bar",
-            "fields": Array [],
             "key": "foo",
             "name": "Foo setting",
             "options": Array [],
-            "subCategory": "SubFoo",
             "type": "INTEGER",
           },
           "inherited": true,
@@ -70,14 +66,10 @@ exports[`should render correctly 1`] = `
       setting={
         Object {
           "definition": Object {
-            "category": "general",
-            "defaultValue": "42",
             "description": "When Foo then Bar",
-            "fields": Array [],
             "key": "foo",
             "name": "Foo setting",
             "options": Array [],
-            "subCategory": "SubFoo",
             "type": "INTEGER",
           },
           "inherited": true,

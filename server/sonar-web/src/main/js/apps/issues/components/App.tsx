@@ -778,13 +778,15 @@ export class App extends React.PureComponent<Props, State> {
 
   handlePopupToggle = (issue: string, popupName: string, open?: boolean) => {
     this.setState((state: State) => {
-      const samePopup =
-        state.openPopup && state.openPopup.name === popupName && state.openPopup.issue === issue;
+      const { openPopup } = state;
+      const samePopup = openPopup && openPopup.name === popupName && openPopup.issue === issue;
+
       if (open !== false && !samePopup) {
-        return { openPopup: { issue, name: popupName } };
+        return { ...state, openPopup: { issue, name: popupName } };
       } else if (open !== true && samePopup) {
-        return { openPopup: undefined };
+        return { ...state, openPopup: undefined };
       }
+
       return state;
     });
   };

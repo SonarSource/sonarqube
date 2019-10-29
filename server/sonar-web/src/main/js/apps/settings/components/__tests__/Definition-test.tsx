@@ -31,11 +31,7 @@ const setting: T.Setting = {
     name: 'Foo setting',
     description: 'When Foo then Bar',
     type: 'INTEGER',
-    category: 'general',
-    subCategory: 'SubFoo',
-    defaultValue: '42',
-    options: [],
-    fields: []
+    options: []
   }
 };
 

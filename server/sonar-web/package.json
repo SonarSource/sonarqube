@@ -73,7 +73,7 @@
     "@types/react-virtualized": "9.21.0",
     "@types/sanitize-html": "1.20.0",
     "@types/valid-url": "1.0.2",
-    "@typescript-eslint/parser": "1.5.0",
+    "@typescript-eslint/parser": "2.6.0",
     "autoprefixer": "9.5.0",
     "babel-core": "7.0.0-bridge.0",
     "babel-jest": "24.8.0",
@@ -118,7 +118,7 @@
     "style-loader": "0.23.1",
     "ts-jest": "24.0.2",
     "ts-loader": "5.3.3",
-    "typescript": "3.3.3333",
+    "typescript": "3.6.4",
     "webpack": "4.29.6",
     "webpack-bundle-analyzer": "3.3.2",
     "webpack-dev-server": "3.2.1"
