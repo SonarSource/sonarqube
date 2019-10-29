@@ -4,7 +4,7 @@ exports[`should render correctly 1`] = `
 <Fragment>
   <AlmDefinitionFormField
     autoFocus={true}
-    help="settings.pr_decoration.form.url.bitbucket.name.help"
+    help="settings.pr_decoration.form.bitbucket.name.help"
     id="bitbucket.name"
     maxLength={100}
     onFieldChange={[MockFunction]}
@@ -43,7 +43,7 @@ exports[`should render correctly 2`] = `
 <Fragment>
   <AlmDefinitionFormField
     autoFocus={true}
-    help="settings.pr_decoration.form.url.bitbucket.name.help"
+    help="settings.pr_decoration.form.bitbucket.name.help"
     id="bitbucket.name"
     maxLength={100}
     onFieldChange={[MockFunction]}

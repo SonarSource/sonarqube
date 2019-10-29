@@ -35,7 +35,7 @@ export default function BitbucketFormModal(props: BitbucketFormModalProps) {
     <>
       <AlmDefinitionFormField
         autoFocus={true}
-        help={translate('settings.pr_decoration.form.url.bitbucket.name.help')}
+        help={translate('settings.pr_decoration.form.bitbucket.name.help')}
         id="bitbucket.name"
         maxLength={100}
         onFieldChange={onFieldChange}
