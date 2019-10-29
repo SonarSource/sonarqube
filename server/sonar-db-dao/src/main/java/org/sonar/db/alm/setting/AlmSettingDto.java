@@ -155,7 +155,7 @@ public class AlmSettingDto {
     this.updatedAt = updatedAt;
   }
 
-  long getCreatedAt() {
+  public long getCreatedAt() {
     return createdAt;
   }
 
