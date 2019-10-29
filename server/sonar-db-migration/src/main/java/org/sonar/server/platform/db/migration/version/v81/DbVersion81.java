@@ -27,6 +27,8 @@ public class DbVersion81 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(3100, "Create ALM_SETTINGS table", CreateAlmSettingsTable.class)
-      .add(3101, "Create PROJECT_ALM_SETTINGS table", CreateProjectAlmSettingsTable.class);
+      .add(3101, "Create PROJECT_ALM_SETTINGS table", CreateProjectAlmSettingsTable.class)
+      .add(3102, "Migrate GitHub ALM settings from PROPERTIES to ALM_SETTINGS tables", MigrateGithubAlmSettings.class)
+    ;
   }
 }
