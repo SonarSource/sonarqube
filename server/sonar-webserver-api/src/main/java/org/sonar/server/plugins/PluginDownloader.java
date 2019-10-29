@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.HttpDownloader;
@@ -136,6 +137,7 @@ public class PluginDownloader implements Startable {
 
   private void downloadRelease(Release release) throws URISyntaxException, IOException {
     String url = release.getDownloadUrl();
+    Objects.requireNonNull(url, "Download URL should not be null");
 
     URI uri = new URI(url);
     if (url.startsWith("file:")) {
