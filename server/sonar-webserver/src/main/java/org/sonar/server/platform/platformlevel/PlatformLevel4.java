@@ -38,7 +38,6 @@ import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PlatformEditionProvider;
-import org.sonar.server.almsettings.AlmSettingsWsModule;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.LogOAuthWarning;
 import org.sonar.server.authentication.ws.AuthenticationWsModule;
@@ -470,7 +469,6 @@ public class PlatformLevel4 extends PlatformLevel {
       PropertiesWs.class,
       org.sonar.server.property.ws.IndexAction.class,
       SettingsWsModule.class,
-      AlmSettingsWsModule.class,
 
       TypeValidationModule.class,
 
