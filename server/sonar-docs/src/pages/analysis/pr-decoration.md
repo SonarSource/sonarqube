@@ -47,7 +47,7 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | ### Setting your global settings
 |
-| Go to **[Administration > General Settings > Pull Requests](/#sonarqube-admin#/admin/settings?category=pull_request/)**, select the **GitHub Enterprise** tab, and click the **Create configuration** button to set your Configuration Name, ALM Instance URL, GitHub App ID, and your GitHub App's Private Key (that was generated above in the **Creating a GitHub App** section).
+| Go to **[Administration > Configuration > General Settings > Pull Requests](/#sonarqube-admin#/admin/settings?category=pull_request_decoration/)**, select the **GitHub Enterprise** tab, and click the **Create configuration** button to set your Configuration Name, ALM Instance URL, GitHub App ID, and your GitHub App's Private Key (that was generated above in the **Creating a GitHub App** section).
 |
 | **Note:** Make sure the Configuration name is succinct and easily recognizable as it will be used at the project level to identify the correct ALM configuration.
 |
@@ -64,7 +64,7 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | ### Setting your global settings
 |
-| Go to **[Administration > General Settings > Pull Requests](/#sonarqube-admin#/admin/settings?category=pull_request/)**, select the **Bitbucket Server** tab, and click the **Create configuration** button to set your  Configuration name, Bitbucket Server URL, and Personal Access token.
+| Go to **[Administration > Configuration > General Settings > Pull Requests](/#sonarqube-admin#/admin/settings?category=pull_request_decoration/)**, select the **Bitbucket Server** tab, and click the **Create configuration** button to set your  Configuration name, Bitbucket Server URL, and Personal Access token.
 |
 | **Note:** Make sure the Configuration name is succinct and easily recognizable as it will be used at the project level to identify the correct ALM configuration.
 |
@@ -79,7 +79,7 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | ### Setting your global settings
 |
-| Go to **[Administration > General Settings > Pull Requests](/#sonarqube-admin#/admin/settings?category=pull_request/)**, select the **Azure DevOps Server** tab, and click the **Create configuration** button to set your  Configuration name and Personal Access token.
+| Go to **[Administration > Configuration > General Settings > Pull Requests](/#sonarqube-admin#/admin/settings?category=pull_request_decoration/)**, select the **Azure DevOps Server** tab, and click the **Create configuration** button to set your  Configuration name and Personal Access token.
 |
 | **Note:** Make sure the Configuration name is succinct and easily recognizable as it will be used at the project level to identify the correct ALM configuration.
 |
@@ -91,4 +91,4 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 SonarQube lets you decorate Pull Requests from multiple ALM instances. To do this, you can create a configuration (as shown in the previous section) for each of your ALM instances. That instance configuration can then be assigned to the appropriate projects. 
 
 ## Issue links
-During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. However, for this to work correctly, the instance's **Server base URL** (**[Administration > Configuration > General Settings > General General](/#sonarqube-admin#/admin/settings)**) must be set correctly. Otherwise the links will default to `localhost`.
+During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. However, for this to work correctly, the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) must be set correctly. Otherwise the links will default to `localhost`.
