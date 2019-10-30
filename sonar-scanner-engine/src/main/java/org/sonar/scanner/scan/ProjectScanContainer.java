@@ -20,12 +20,10 @@
 package org.sonar.scanner.scan;
 
 import javax.annotation.Nullable;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
+import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
@@ -78,6 +76,7 @@ import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
 import org.sonar.scanner.postjob.DefaultPostJobContext;
 import org.sonar.scanner.postjob.PostJobOptimizer;
 import org.sonar.scanner.postjob.PostJobsExecutor;
+import org.sonar.scanner.qualitygate.QualityGateCheck;
 import org.sonar.scanner.report.ActiveRulesPublisher;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
 import org.sonar.scanner.report.AnalysisWarningsPublisher;
@@ -250,6 +249,9 @@ public class ProjectScanContainer extends ComponentContainer {
       SourcePublisher.class,
       ChangedLinesPublisher.class,
 
+      //QualityGate check
+      QualityGateCheck.class,
+
       // Cpd
       CpdExecutor.class,
       CpdSettings.class,
@@ -352,6 +354,11 @@ public class ProjectScanContainer extends ComponentContainer {
 
     getComponentByType(CpdExecutor.class).execute();
     getComponentByType(ReportPublisher.class).execute();
+
+    if (properties.shouldWaitForQualityGate()) {
+      LOG.info("------------- Quality Gate wait enabled");
+      getComponentByType(QualityGateCheck.class).await();
+    }
 
     getComponentByType(PostJobsExecutor.class).execute();
 

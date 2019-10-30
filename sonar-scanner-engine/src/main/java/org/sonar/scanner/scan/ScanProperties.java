@@ -22,9 +22,9 @@ package org.sonar.scanner.scan;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 
 import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
 import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
@@ -41,6 +41,8 @@ public class ScanProperties {
   public static final String PRELOAD_FILE_METADATA_KEY = "sonar.preloadFileMetadata";
   public static final String FORCE_RELOAD_KEY = "sonar.scm.forceReloadAll";
   public static final String SCM_REVISION = "sonar.scm.revision";
+  public static final String QUALITY_GATE_WAIT = "sonar.qualitygate.wait";
+  public static final String QUALITY_GATE_TIMEOUT_IN_SEC = "sonar.qualitygate.timeout";
 
   private final Configuration configuration;
   private final DefaultInputProject project;
@@ -81,6 +83,14 @@ public class ScanProperties {
     } else {
       return project.getWorkDir().resolve(METADATA_DUMP_FILENAME);
     }
+  }
+
+  public boolean shouldWaitForQualityGate() {
+    return configuration.getBoolean(QUALITY_GATE_WAIT).orElse(false);
+  }
+
+  public int qualityGateWaitTimeout() {
+    return configuration.getInt(QUALITY_GATE_TIMEOUT_IN_SEC).orElse(300);
   }
 
   /**
