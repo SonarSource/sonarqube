@@ -98,7 +98,7 @@ public final class ScmPublisher {
     for (DefaultInputFile f : componentStore.allFilesToPublish()) {
       if (configuration.forceReloadAll() || f.status() != Status.SAME) {
         addIfNotEmpty(filesToBlame, f);
-      } else if (!branchConfiguration.isShortOrPullRequest()) {
+      } else if (!branchConfiguration.isPullRequest()) {
         FileData fileData = projectRepositoriesSupplier.get().fileData(componentStore.findModule(f).key(), f);
         if (fileData == null || StringUtils.isEmpty(fileData.revision())) {
           addIfNotEmpty(filesToBlame, f);

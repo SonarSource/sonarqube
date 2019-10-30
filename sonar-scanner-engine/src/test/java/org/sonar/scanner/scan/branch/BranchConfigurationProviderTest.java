@@ -29,9 +29,7 @@ import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.sonar.scanner.scan.ProjectConfiguration;
-import org.sonar.scanner.scan.ProjectServerSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -45,11 +43,11 @@ public class BranchConfigurationProviderTest {
   private BranchConfiguration config = mock(BranchConfiguration.class);
   private ProjectBranches branches = mock(ProjectBranches.class);
   private ProjectPullRequests pullRequests = mock(ProjectPullRequests.class);
-  private ProjectReactor reactor = mock(ProjectReactor.class);;
-  private Map<String, String> projectSettings = new HashMap<>();;
+  private ProjectReactor reactor = mock(ProjectReactor.class);
+  ;
+  private Map<String, String> projectSettings = new HashMap<>();
+  ;
   private ProjectDefinition root = mock(ProjectDefinition.class);
-  private GlobalServerSettings globalServerSettings = mock(GlobalServerSettings.class);
-  private ProjectServerSettings projectServerSettings = mock(ProjectServerSettings.class);
 
   @Captor
   private ArgumentCaptor<Supplier<Map<String, String>>> settingsCaptor;
@@ -81,6 +79,6 @@ public class BranchConfigurationProviderTest {
     BranchConfiguration result = provider.provide(null, projectConfiguration, branches, pullRequests);
 
     assertThat(result.targetBranchName()).isNull();
-    assertThat(result.branchType()).isEqualTo(BranchType.LONG);
+    assertThat(result.branchType()).isEqualTo(BranchType.BRANCH);
   }
 }

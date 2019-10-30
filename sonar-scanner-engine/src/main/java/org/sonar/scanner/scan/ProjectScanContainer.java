@@ -340,7 +340,7 @@ public class ProjectScanContainer extends ComponentContainer {
       LOG.info("Pull request {} for merge into {} from {}", branchConfig.pullRequestKey(), pullRequestBaseToDisplayName(branchConfig.targetBranchName()),
         branchConfig.branchName());
     } else if (branchConfig.branchName() != null) {
-      LOG.info("Branch name: {}, type: {}", branchConfig.branchName(), branchTypeToDisplayName(branchConfig.branchType()));
+      LOG.info("Branch name: {}", branchConfig.branchName());
     }
 
     getComponentByType(ProjectFileIndexer.class).index();
@@ -372,17 +372,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private static String pullRequestBaseToDisplayName(@Nullable String pullRequestBase) {
     return pullRequestBase != null ? pullRequestBase : "default branch";
-  }
-
-  private static String branchTypeToDisplayName(BranchType branchType) {
-    switch (branchType) {
-      case LONG:
-        return "long living";
-      case SHORT:
-        return "short living";
-      default:
-        throw new UnsupportedOperationException("unknown branch type: " + branchType);
-    }
   }
 
   private void scanRecursively(InputModuleHierarchy tree, DefaultInputModule module) {

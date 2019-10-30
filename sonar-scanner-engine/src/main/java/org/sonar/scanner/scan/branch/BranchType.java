@@ -20,5 +20,5 @@
 package org.sonar.scanner.scan.branch;
 
 public enum BranchType {
-  SHORT, LONG, PULL_REQUEST
+  BRANCH, PULL_REQUEST
 }

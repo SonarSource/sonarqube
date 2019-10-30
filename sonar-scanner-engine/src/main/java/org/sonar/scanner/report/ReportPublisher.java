@@ -47,6 +47,7 @@ import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchType;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.HttpException;
@@ -57,9 +58,7 @@ import static java.net.URLEncoder.encode;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
-import static org.sonar.scanner.scan.branch.BranchType.LONG;
 import static org.sonar.scanner.scan.branch.BranchType.PULL_REQUEST;
-import static org.sonar.scanner.scan.branch.BranchType.SHORT;
 
 public class ReportPublisher implements Startable {
 
@@ -254,21 +253,11 @@ public class ReportPublisher implements Startable {
         .url();
     }
 
-    if (onLongLivingBranch(branchConfiguration)) {
+    if (onBranch(branchConfiguration)) {
       return httpUrl.newBuilder()
         .addPathSegment(DASHBOARD)
         .addEncodedQueryParameter(ID, encoded(effectiveKey))
         .addEncodedQueryParameter(BRANCH, encoded(branchConfiguration.branchName()))
-        .build()
-        .url();
-    }
-
-    if (onShortLivingBranch(branchConfiguration)) {
-      return httpUrl.newBuilder()
-        .addPathSegment(DASHBOARD)
-        .addEncodedQueryParameter(ID, encoded(effectiveKey))
-        .addEncodedQueryParameter(BRANCH, encoded(branchConfiguration.branchName()))
-        .addQueryParameter(RESOLVED, "false")
         .build()
         .url();
     }
@@ -288,12 +277,8 @@ public class ReportPublisher implements Startable {
     return branchConfiguration.branchName() != null && (branchConfiguration.branchType() == PULL_REQUEST);
   }
 
-  private static boolean onShortLivingBranch(BranchConfiguration branchConfiguration) {
-    return branchConfiguration.branchName() != null && (branchConfiguration.branchType() == SHORT);
-  }
-
-  private static boolean onLongLivingBranch(BranchConfiguration branchConfiguration) {
-    return branchConfiguration.branchName() != null && (branchConfiguration.branchType() == LONG);
+  private static boolean onBranch(BranchConfiguration branchConfiguration) {
+    return branchConfiguration.branchName() != null && (branchConfiguration.branchType() == BranchType.BRANCH);
   }
 
   private static boolean onMainBranch(BranchConfiguration branchConfiguration) {
@@ -305,7 +290,7 @@ public class ReportPublisher implements Startable {
       return EMPTY;
     }
     try {
-      return encode(queryParameter, "UTF-8");
+      return encode(queryParameter, StandardCharsets.UTF_8.name());
     } catch (UnsupportedEncodingException e) {
       throw new IllegalStateException("Unable to urlencode " + queryParameter, e);
     }

@@ -75,7 +75,7 @@ public class BranchMediumTest {
   }
 
   @Test
-  public void should_not_skip_report_for_unchanged_files_in_short_branch() {
+  public void should_not_skip_report_for_unchanged_files_in_pr() {
     // sanity check, normally report gets generated
     AnalysisResult result = getResult(tester);
     final DefaultInputFile file = (DefaultInputFile) result.inputFile(FILE_PATH);
@@ -85,11 +85,11 @@ public class BranchMediumTest {
     assertThat(result.getReportReader().hasCoverage(fileId)).isTrue();
     assertThat(result.getReportReader().readFileSource(fileId)).isNotNull();
 
-    // file is not skipped for short branches (need coverage, duplications coming soon)
-    AnalysisResult result2 = getResult(tester.setBranchType(BranchType.SHORT));
-    final DefaultInputFile fileOnShortBranch = (DefaultInputFile) result2.inputFile(FILE_PATH);
-    assertThat(result2.getReportComponent(fileOnShortBranch)).isNotNull();
-    fileId = fileOnShortBranch.scannerId();
+    // file is not skipped for pull requests (need coverage, duplications coming soon)
+    AnalysisResult result2 = getResult(tester.setBranchType(BranchType.PULL_REQUEST));
+    final DefaultInputFile fileInPr = (DefaultInputFile) result2.inputFile(FILE_PATH);
+    assertThat(result2.getReportComponent(fileInPr)).isNotNull();
+    fileId = fileInPr.scannerId();
     assertThat(result2.getReportReader().readChangesets(fileId)).isNull();
     assertThat(result2.getReportReader().hasCoverage(fileId)).isTrue();
     assertThat(result2.getReportReader().readFileSource(fileId)).isNull();
@@ -104,11 +104,11 @@ public class BranchMediumTest {
       .setBranchName(branchName)
       .setBranchTarget(branchTarget)
       .setLongLivingSonarReferenceBranch(branchTarget)
-      .setBranchType(BranchType.SHORT));
+      .setBranchType(BranchType.BRANCH));
 
     ScannerReport.Metadata metadata = result.getReportReader().readMetadata();
     assertThat(metadata.getBranchName()).isEqualTo(branchName);
-    assertThat(metadata.getBranchType()).isEqualTo(ScannerReport.Metadata.BranchType.SHORT);
+    assertThat(metadata.getBranchType()).isEqualTo(ScannerReport.Metadata.BranchType.BRANCH);
     assertThat(metadata.getMergeBranchName()).isEqualTo(branchTarget);
   }
 

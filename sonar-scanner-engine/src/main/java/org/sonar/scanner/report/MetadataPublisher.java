@@ -25,6 +25,8 @@ import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -32,8 +34,6 @@ import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cpd.CpdSettings;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType;
@@ -173,10 +173,8 @@ public class MetadataPublisher implements ReportPublisherStep {
     if (branchType == org.sonar.scanner.scan.branch.BranchType.PULL_REQUEST) {
       return BranchType.PULL_REQUEST;
     }
-    if (branchType == org.sonar.scanner.scan.branch.BranchType.LONG) {
-      return BranchType.LONG;
-    }
-    return BranchType.SHORT;
+
+    return BranchType.BRANCH;
   }
 
   private static String toSonarQubePath(Path path) {

@@ -380,7 +380,7 @@ public class ScannerMediumTester extends ExternalResource {
 
   private static class FakeBranchConfiguration implements BranchConfiguration {
 
-    private BranchType branchType = BranchType.LONG;
+    private BranchType branchType = BranchType.BRANCH;
     private String branchName = null;
     private String branchTarget = null;
     private String longLivingSonarReferenceBranch = null;
@@ -410,7 +410,7 @@ public class ScannerMediumTester extends ExternalResource {
 
     @Override
     public String pullRequestKey() {
-      throw new UnsupportedOperationException();
+      return "1'";
     }
   }
 

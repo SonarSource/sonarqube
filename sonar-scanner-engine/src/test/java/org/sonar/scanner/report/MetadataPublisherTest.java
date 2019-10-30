@@ -38,14 +38,14 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cpd.CpdSettings;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.fs.InputModuleHierarchy;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -221,10 +221,13 @@ public class MetadataPublisherTest {
   }
 
   @Test
-  public void write_long_lived_branch_info() throws Exception {
-    String branchName = "long-lived";
+  public void write_branch_info() throws Exception {
+    String branchName = "name";
+    String targetName = "target";
+
     when(branches.branchName()).thenReturn(branchName);
-    when(branches.branchType()).thenReturn(BranchType.LONG);
+    when(branches.branchType()).thenReturn(BranchType.BRANCH);
+    when(branches.targetBranchName()).thenReturn(targetName);
 
     File outputDir = temp.newFolder();
     underTest.publish(new ScannerReportWriter(outputDir));
@@ -232,27 +235,9 @@ public class MetadataPublisherTest {
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     ScannerReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getBranchName()).isEqualTo(branchName);
-    assertThat(metadata.getBranchType()).isEqualTo(ScannerReport.Metadata.BranchType.LONG);
-  }
-
-  @Test
-  public void write_short_lived_branch_info() throws Exception {
-    String branchName = "feature";
-    String targetBranchName = "short-lived";
-    String longLivingSonarReferenceBranch = "long-lived";
-    when(branches.branchName()).thenReturn(branchName);
-    when(branches.targetBranchName()).thenReturn(targetBranchName);
-    when(branches.longLivingSonarReferenceBranch()).thenReturn(longLivingSonarReferenceBranch);
-
-    File outputDir = temp.newFolder();
-    underTest.publish(new ScannerReportWriter(outputDir));
-
-    ScannerReportReader reader = new ScannerReportReader(outputDir);
-    ScannerReport.Metadata metadata = reader.readMetadata();
-    assertThat(metadata.getBranchName()).isEqualTo(branchName);
-    assertThat(metadata.getBranchType()).isEqualTo(ScannerReport.Metadata.BranchType.SHORT);
-    assertThat(metadata.getMergeBranchName()).isEqualTo(longLivingSonarReferenceBranch);
-    assertThat(metadata.getTargetBranchName()).isEqualTo(targetBranchName);
+    assertThat(metadata.getBranchType()).isEqualTo(ScannerReport.Metadata.BranchType.BRANCH);
+    assertThat(metadata.getMergeBranchName()).isEmpty();
+    assertThat(metadata.getTargetBranchName()).isEqualTo(targetName);
   }
 
   @Test

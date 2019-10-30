@@ -153,8 +153,7 @@ public class TaskFormatter {
         Common.BranchType branchType = componentDtoCache.getBranchType(taskUuid)
           .orElseThrow(() -> new IllegalStateException(format("Could not find branch type of task '%s'", taskUuid)));
         switch (branchType) {
-          case LONG:
-          case SHORT:
+          case BRANCH:
             builder.setBranchType(branchType);
             builder.setBranch(b);
             break;

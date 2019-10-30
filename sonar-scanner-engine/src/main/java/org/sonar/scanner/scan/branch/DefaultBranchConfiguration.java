@@ -26,7 +26,7 @@ import javax.annotation.concurrent.Immutable;
 public class DefaultBranchConfiguration implements BranchConfiguration {
   @Override
   public BranchType branchType() {
-    return BranchType.LONG;
+    return BranchType.BRANCH;
   }
 
   @CheckForNull

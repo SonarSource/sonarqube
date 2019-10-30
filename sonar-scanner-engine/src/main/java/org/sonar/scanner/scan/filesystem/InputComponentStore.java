@@ -79,7 +79,7 @@ public class InputComponentStore extends DefaultFileSystem.Cache {
 
   public Iterable<DefaultInputFile> allChangedFilesToPublish() {
     return allFilesToPublishStream()
-      .filter(f -> !branchConfiguration.isShortOrPullRequest() || f.status() != InputFile.Status.SAME)::iterator;
+      .filter(f -> !branchConfiguration.isPullRequest() || f.status() != InputFile.Status.SAME)::iterator;
   }
 
   @Override

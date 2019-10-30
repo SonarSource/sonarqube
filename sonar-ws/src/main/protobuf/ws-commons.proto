@@ -129,6 +129,7 @@ enum BranchType {
   LONG = 1;
   SHORT = 2;
   PULL_REQUEST = 3;
+  BRANCH = 4;
 }
 
 message Organization {

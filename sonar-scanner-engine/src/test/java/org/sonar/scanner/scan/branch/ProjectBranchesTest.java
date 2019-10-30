@@ -34,14 +34,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(DataProviderRunner.class)
 public class ProjectBranchesTest {
 
-  private static final BranchInfo mainBranch = new BranchInfo("main", BranchType.LONG, true, null);
-  private static final BranchInfo shortBranch = new BranchInfo("short", BranchType.SHORT, false, null);
-  private static final BranchInfo longBranch = new BranchInfo("long", BranchType.LONG, false, null);
+  private static final BranchInfo mainBranch = new BranchInfo("main", BranchType.BRANCH, true, null);
+  private static final BranchInfo branch = new BranchInfo("branch", BranchType.BRANCH, false, null);
   private static final BranchInfo pullRequest = new BranchInfo("pull-request", BranchType.PULL_REQUEST, false, null);
 
-  private static final List<BranchInfo> nonMainBranches = Arrays.asList(shortBranch, longBranch, pullRequest);
+  private static final List<BranchInfo> nonMainBranches = Arrays.asList(branch, pullRequest);
 
-  private static final List<BranchInfo> allBranches = Arrays.asList(shortBranch, longBranch, pullRequest, mainBranch);
+  private static final List<BranchInfo> allBranches = Arrays.asList(branch, pullRequest, mainBranch);
 
   private final ProjectBranches underTest = new ProjectBranches(allBranches);
 
@@ -63,7 +62,7 @@ public class ProjectBranchesTest {
   @DataProvider
   public static Object[][] branchNamesAndBranches() {
     return allBranches.stream()
-      .map(b -> new Object[]{b.name(), b})
+      .map(b -> new Object[] {b.name(), b})
       .toArray(Object[][]::new);
   }
 

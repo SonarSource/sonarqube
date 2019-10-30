@@ -214,7 +214,7 @@ public class DefaultSensorStorage implements SensorStorage {
   }
 
   private boolean shouldSkipStorage(DefaultInputFile defaultInputFile) {
-    return branchConfiguration.isShortOrPullRequest() && defaultInputFile.status() == InputFile.Status.SAME;
+    return branchConfiguration.isPullRequest() && defaultInputFile.status() == InputFile.Status.SAME;
   }
 
   /**

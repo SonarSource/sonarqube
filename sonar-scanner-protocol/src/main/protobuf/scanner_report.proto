@@ -70,8 +70,7 @@ message Metadata {
 
   enum BranchType {
     UNSET = 0;
-    LONG = 1;
-    SHORT = 2;
+    BRANCH = 1;
     PULL_REQUEST = 3;
   }
 }

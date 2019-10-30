@@ -24,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -67,7 +68,6 @@ public class LogListenerTest {
     .setLogOutput(new SimpleLogListener());
 
   private File baseDir;
-
   private ImmutableMap.Builder<String, String> builder;
 
   @BeforeClass
@@ -87,13 +87,13 @@ public class LogListenerTest {
   }
 
   @Before
-  public void prepare() throws IOException {
+  public void prepare() {
     stdOutTarget = new ByteArrayOutputStream();
     stdErrTarget = new ByteArrayOutputStream();
     System.setOut(new PrintStream(stdOutTarget));
     System.setErr(new PrintStream(stdErrTarget));
     // logger from the batch might write to it asynchronously
-    logOutput = Collections.synchronizedList(new LinkedList<LogEvent>());
+    logOutput = Collections.synchronizedList(new LinkedList<>());
     logOutputStr = new StringBuilder();
 
     baseDir = temp.getRoot();
@@ -130,12 +130,12 @@ public class LogListenerTest {
   }
 
   @Test
-  public void testChangeLogForAnalysis() throws IOException, InterruptedException {
+  public void testChangeLogForAnalysis() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     tester.newAnalysis()
       .properties(builder
@@ -158,7 +158,7 @@ public class LogListenerTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     tester.newAnalysis()
       .properties(builder
@@ -182,7 +182,7 @@ public class LogListenerTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     tester.newAnalysis()
       .properties(builder
@@ -209,7 +209,7 @@ public class LogListenerTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
     File xooFileMeasure = new File(srcDir, "sample.xoo.measures");
-    FileUtils.write(xooFileMeasure, "foo:bar");
+    FileUtils.write(xooFileMeasure, "foo:bar", StandardCharsets.UTF_8);
 
     try {
       tester.newAnalysis()
@@ -228,7 +228,7 @@ public class LogListenerTest {
       for (LogEvent e : logOutput) {
         if (e.level == Level.ERROR) {
           assertThat(e.msg).contains("Error processing line 1 of file", "src" + File.separator + "sample.xoo.measures",
-            "java.lang.IllegalStateException: Unknow metric with key: foo",
+            "java.lang.IllegalStateException: Unknown metric with key: foo",
             "at org.sonar.xoo.lang.MeasureSensor.saveMeasure");
 
         }

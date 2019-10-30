@@ -61,7 +61,7 @@ public class DefaultActiveRulesLoaderTest {
   public void setUp() {
     wsClient = mock(DefaultScannerWsClient.class);
     BranchConfiguration branchConfig = mock(BranchConfiguration.class);
-    when(branchConfig.isShortOrPullRequest()).thenReturn(false);
+    when(branchConfig.isPullRequest()).thenReturn(false);
     loader = new DefaultActiveRulesLoader(wsClient);
   }
 

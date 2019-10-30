@@ -58,7 +58,7 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
   @Override
   public void publish(ScannerReportWriter writer) {
     String targetBranchName = branchConfiguration.targetBranchName();
-    if (scmConfiguration.isDisabled() || !branchConfiguration.isShortOrPullRequest() || targetBranchName == null) {
+    if (scmConfiguration.isDisabled() || !branchConfiguration.isPullRequest() || targetBranchName == null) {
       return;
     }
 
