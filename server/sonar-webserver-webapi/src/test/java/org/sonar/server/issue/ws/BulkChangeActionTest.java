@@ -399,11 +399,6 @@ public class BulkChangeActionTest {
   }
 
   @Test
-  public void send_no_notification_on_short_branch() {
-    verifySendNoNotification(BranchType.SHORT);
-  }
-
-  @Test
   public void send_no_notification_on_PR() {
     verifySendNoNotification(BranchType.PULL_REQUEST);
   }

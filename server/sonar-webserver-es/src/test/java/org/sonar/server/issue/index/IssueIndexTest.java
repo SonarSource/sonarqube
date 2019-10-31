@@ -300,9 +300,9 @@ public class IssueIndexTest {
       newDoc(branch3).setType(CODE_SMELL).setResolution(null), newDoc(branch3).setType(CODE_SMELL).setResolution(null),
       newDoc(fileOnBranch3).setType(CODE_SMELL).setResolution(null), newDoc(fileOnBranch3).setType(CODE_SMELL).setResolution(RESOLUTION_FIXED));
 
-    List<BranchStatistics> branchStatistics = underTest.searchBranchStatistics(project.uuid(), asList(branch1.uuid(), branch2.uuid(), branch3.uuid()));
+    List<PrStatistics> prStatistics = underTest.searchBranchStatistics(project.uuid(), asList(branch1.uuid(), branch2.uuid(), branch3.uuid()));
 
-    assertThat(branchStatistics).extracting(BranchStatistics::getBranchUuid, BranchStatistics::getBugs, BranchStatistics::getVulnerabilities, BranchStatistics::getCodeSmells)
+    assertThat(prStatistics).extracting(PrStatistics::getBranchUuid, PrStatistics::getBugs, PrStatistics::getVulnerabilities, PrStatistics::getCodeSmells)
       .containsExactlyInAnyOrder(
         tuple(branch1.uuid(), 1L, 1L, 1L),
         tuple(branch3.uuid(), 0L, 0L, 3L));
@@ -320,10 +320,10 @@ public class IssueIndexTest {
       branchUuids.add(branch.uuid());
     });
 
-    List<BranchStatistics> branchStatistics = underTest.searchBranchStatistics(project.uuid(), branchUuids);
+    List<PrStatistics> prStatistics = underTest.searchBranchStatistics(project.uuid(), branchUuids);
 
-    assertThat(branchStatistics)
-      .extracting(BranchStatistics::getBranchUuid, BranchStatistics::getBugs, BranchStatistics::getVulnerabilities, BranchStatistics::getCodeSmells)
+    assertThat(prStatistics)
+      .extracting(PrStatistics::getBranchUuid, PrStatistics::getBugs, PrStatistics::getVulnerabilities, PrStatistics::getCodeSmells)
       .hasSize(15)
       .containsAll(expectedResult);
   }

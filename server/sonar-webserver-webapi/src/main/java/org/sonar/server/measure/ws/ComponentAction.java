@@ -40,7 +40,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
@@ -139,22 +138,22 @@ public class ComponentAction implements MeasuresWsAction {
       checkPermissions(component);
       SnapshotDto analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, component.projectUuid()).orElse(null);
 
-      boolean isSLBorPR = isSLBorPR(dbSession, component, branch, pullRequest);
+      boolean isPR = isPR(pullRequest);
 
       Set<String> metricKeysToRequest = new HashSet<>(request.metricKeys);
 
-      if (isSLBorPR) {
-        SLBorPRMeasureFix.addReplacementMetricKeys(metricKeysToRequest);
+      if (isPR) {
+        PrMeasureFix.addReplacementMetricKeys(metricKeysToRequest);
       }
 
       List<MetricDto> metrics = searchMetrics(dbSession, metricKeysToRequest);
       List<LiveMeasureDto> measures = searchMeasures(dbSession, component, metrics);
       Map<MetricDto, LiveMeasureDto> measuresByMetric = getMeasuresByMetric(measures, metrics);
 
-      if (isSLBorPR) {
+      if (isPR) {
         Set<String> originalMetricKeys = new HashSet<>(request.metricKeys);
-        SLBorPRMeasureFix.createReplacementMeasures(metrics, measuresByMetric, originalMetricKeys);
-        SLBorPRMeasureFix.removeMetricsNotRequested(metrics, originalMetricKeys);
+        PrMeasureFix.createReplacementMeasures(metrics, measuresByMetric, originalMetricKeys);
+        PrMeasureFix.removeMetricsNotRequested(metrics, originalMetricKeys);
       }
 
       Optional<Measures.Period> period = snapshotToWsPeriods(analysis);
@@ -216,11 +215,7 @@ public class ComponentAction implements MeasuresWsAction {
     }
   }
 
-  private boolean isSLBorPR(DbSession dbSession, ComponentDto component, @Nullable String branch, @Nullable String pullRequest) {
-    if (branch != null) {
-      return dbClient.branchDao().selectByUuid(dbSession, component.projectUuid())
-        .map(b -> b.getBranchType() == BranchType.SHORT).orElse(false);
-    }
+  private boolean isPR(@Nullable String pullRequest) {
     return pullRequest != null;
   }
 

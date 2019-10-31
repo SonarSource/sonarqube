@@ -147,7 +147,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
   }
 
   private static long getBeginningOfLeakPeriod(Optional<SnapshotDto> lastAnalysis, BranchDto branch) {
-    if (isSLBorPR(branch)) {
+    if (isPR(branch)) {
       return 0L;
     } else {
       Optional<Long> beginningOfLeakPeriod = lastAnalysis.map(SnapshotDto::getPeriodDate);
@@ -155,12 +155,12 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     }
   }
 
-  private static boolean isSLBorPR(BranchDto branch) {
-    return branch.getBranchType() == BranchType.SHORT || branch.getBranchType() == BranchType.PULL_REQUEST;
+  private static boolean isPR(BranchDto branch) {
+    return branch.getBranchType() == BranchType.PULL_REQUEST;
   }
 
   private static boolean shouldUseLeakFormulas(SnapshotDto lastAnalysis, BranchDto branch) {
-    return lastAnalysis.getPeriodDate() != null || isSLBorPR(branch);
+    return lastAnalysis.getPeriodDate() != null || isPR(branch);
   }
 
   @CheckForNull

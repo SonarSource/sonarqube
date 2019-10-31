@@ -48,7 +48,7 @@ public class NewLinesRepository {
   }
 
   public boolean newLinesAvailable() {
-    return analysisMetadataHolder.isSLBorPR() || periodHolder.hasPeriod();
+    return analysisMetadataHolder.isPullRequest() || periodHolder.hasPeriod();
   }
 
   public Optional<Set<Integer>> getNewLines(Component file) {
@@ -66,7 +66,7 @@ public class NewLinesRepository {
    * if a line is new or not.
    */
   private Optional<Set<Integer>> computeNewLinesFromScm(Component component) {
-    if (!periodHolder.hasPeriod() && !analysisMetadataHolder.isSLBorPR()) {
+    if (!periodHolder.hasPeriod() && !analysisMetadataHolder.isPullRequest()) {
       return Optional.empty();
     }
 
@@ -79,8 +79,8 @@ public class NewLinesRepository {
     Changeset[] allChangesets = scmInfo.getAllChangesets();
     Set<Integer> lines = new HashSet<>();
 
-    // in SLB/PRs, we consider changes introduced in this analysis as new, hence subtracting 1.
-    long referenceDate = analysisMetadataHolder.isSLBorPR() ? analysisMetadataHolder.getAnalysisDate() - 1 : periodHolder.getPeriod().getSnapshotDate();
+    // in PRs, we consider changes introduced in this analysis as new, hence subtracting 1.
+    long referenceDate = analysisMetadataHolder.isPullRequest() ? analysisMetadataHolder.getAnalysisDate() - 1 : periodHolder.getPeriod().getSnapshotDate();
     for (int i=0; i<allChangesets.length; i++) {
       if (isLineInPeriod(allChangesets[i].getDate(), referenceDate)) {
         lines.add(i+1);
@@ -98,7 +98,7 @@ public class NewLinesRepository {
   }
 
   private Optional<Set<Integer>> getChangedLinesFromReport(Component file) {
-    if (analysisMetadataHolder.isSLBorPR()) {
+    if (analysisMetadataHolder.isPullRequest()) {
       return reportChangedLinesCache.computeIfAbsent(file, this::readFromReport);
     }
 

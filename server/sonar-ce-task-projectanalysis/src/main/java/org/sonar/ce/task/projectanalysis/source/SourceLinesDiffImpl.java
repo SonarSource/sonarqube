@@ -56,7 +56,7 @@ public class SourceLinesDiffImpl implements SourceLinesDiff {
   private List<String> getDBLines(Component component) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String uuid;
-      if (analysisMetadataHolder.isSLBorPR()) {
+      if (analysisMetadataHolder.isPullRequest()) {
         uuid = mergeAndTargetBranchComponentUuids.getTargetBranchComponentUuid(component.getDbKey());
         if (uuid == null) {
           uuid = mergeAndTargetBranchComponentUuids.getMergeBranchComponentUuid(component.getDbKey());

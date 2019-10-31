@@ -29,7 +29,6 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
@@ -108,20 +107,6 @@ public class ShowActionTest {
     ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("branch", "unknown")
-      .execute();
-  }
-
-  @Test
-  public void throw_IAE_if_branch_is_a_SLB() {
-    ComponentDto project = componentDb.insertMainBranch();
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch").setBranchType(BranchType.SHORT));
-    logInAsProjectAdministrator(project);
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Not a long-living branch: 'branch'");
-
-    ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("branch", "branch")
       .execute();
   }
 

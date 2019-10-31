@@ -85,7 +85,7 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
       if (input.getOtherFileRef() != 0) {
         checkArgument(input.getOtherFileRef() != file.getReportAttributes().getRef(), "file and otherFile references can not be the same");
         Component otherComponent = treeRootHolder.getReportTreeComponentByRef(input.getOtherFileRef());
-        if (analysisMetadataHolder.isSLBorPR() && otherComponent.getStatus() == Component.Status.SAME) {
+        if (analysisMetadataHolder.isPullRequest() && otherComponent.getStatus() == Component.Status.SAME) {
           return new InExtendedProjectDuplicate(otherComponent, convert(input.getRange()));
         } else {
           return new InProjectDuplicate(otherComponent, convert(input.getRange()));

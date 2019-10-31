@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 
 public class IssueTrackingDelegatorTest {
   @Mock
-  private ShortBranchOrPullRequestTrackerExecution shortBranchTracker;
+  private PullRequestTrackerExecution shortBranchTracker;
   @Mock
   private MergeBranchTrackerExecution mergeBranchTracker;
   @Mock
@@ -62,7 +62,6 @@ public class IssueTrackingDelegatorTest {
 
   @Test
   public void delegate_regular_tracker() {
-    when(analysisMetadataHolder.isShortLivingBranch()).thenReturn(false);
     when(analysisMetadataHolder.getBranch()).thenReturn(mock(Branch.class));
 
     underTest.track(component);
@@ -89,25 +88,11 @@ public class IssueTrackingDelegatorTest {
   }
 
   @Test
-  public void delegate_short_branch_tracker() {
-    Branch branch = mock(Branch.class);
-    when(branch.getType()).thenReturn(BranchType.SHORT);
-    when(analysisMetadataHolder.getBranch()).thenReturn(mock(Branch.class));
-    when(analysisMetadataHolder.isSLBorPR()).thenReturn(true);
-
-    underTest.track(component);
-
-    verify(shortBranchTracker).track(component);
-    verifyZeroInteractions(tracker);
-    verifyZeroInteractions(mergeBranchTracker);
-  }
-
-  @Test
   public void delegate_pull_request_tracker() {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     when(analysisMetadataHolder.getBranch()).thenReturn(mock(Branch.class));
-    when(analysisMetadataHolder.isSLBorPR()).thenReturn(true);
+    when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
 
     underTest.track(component);
 

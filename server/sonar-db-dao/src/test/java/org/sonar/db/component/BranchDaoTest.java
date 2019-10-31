@@ -61,7 +61,7 @@ public class BranchDaoTest {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U2");
-    dto.setBranchType(BranchType.SHORT);
+    dto.setBranchType(BranchType.LONG);
     dto.setKey("feature/foo");
 
     underTest.insert(dbSession, dto);
@@ -70,7 +70,7 @@ public class BranchDaoTest {
     assertThat(map).contains(
       entry("projectUuid", "U1"),
       entry("uuid", "U2"),
-      entry("branchType", "SHORT"),
+      entry("branchType", "LONG"),
       entry("kee", "feature/foo"),
       entry("mergeBranchUuid", null),
       entry("pullRequestBinary", null),
@@ -125,20 +125,12 @@ public class BranchDaoTest {
     };
   }
 
-  @DataProvider
-  public static Object[][] nonLongBranchType() {
-    return new Object[][] {
-      {BranchType.SHORT},
-      {BranchType.PULL_REQUEST}
-    };
-  }
-
   @Test
   public void insert_branch_with_all_fields_and_max_length_values() {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid(repeat("a", 50));
     dto.setUuid(repeat("b", 50));
-    dto.setBranchType(BranchType.SHORT);
+    dto.setBranchType(BranchType.LONG);
     dto.setKey(repeat("c", 255));
     dto.setMergeBranchUuid(repeat("d", 50));
 
@@ -234,7 +226,7 @@ public class BranchDaoTest {
 
     // the fields that can't be updated. New values are ignored.
     dto.setProjectUuid("ignored");
-    dto.setBranchType(BranchType.SHORT);
+    dto.setBranchType(BranchType.LONG);
     underTest.upsert(dbSession, dto);
 
     BranchDto loaded = underTest.selectByBranchKey(dbSession, "U1", "foo").get();
@@ -270,7 +262,7 @@ public class BranchDaoTest {
 
     // the fields that can't be updated. New values are ignored.
     dto.setProjectUuid("ignored");
-    dto.setBranchType(BranchType.SHORT);
+    dto.setBranchType(BranchType.LONG);
     underTest.upsert(dbSession, dto);
 
     BranchDto loaded = underTest.selectByPullRequestKey(dbSession, "U1", "foo").get();
@@ -351,7 +343,7 @@ public class BranchDaoTest {
     BranchDto featureBranch = new BranchDto();
     featureBranch.setProjectUuid("U1");
     featureBranch.setUuid("U2");
-    featureBranch.setBranchType(BranchType.SHORT);
+    featureBranch.setBranchType(BranchType.LONG);
     featureBranch.setKey("feature/foo");
     featureBranch.setMergeBranchUuid("U3");
     underTest.insert(dbSession, featureBranch);
@@ -380,7 +372,7 @@ public class BranchDaoTest {
     BranchDto featureBranch = new BranchDto();
     featureBranch.setProjectUuid("U1");
     featureBranch.setUuid("U2");
-    featureBranch.setBranchType(BranchType.SHORT);
+    featureBranch.setBranchType(BranchType.LONG);
     featureBranch.setKey("feature/foo");
     featureBranch.setMergeBranchUuid("U3");
     underTest.insert(dbSession, featureBranch);

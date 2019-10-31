@@ -85,16 +85,6 @@ public class BranchPersisterImplTest {
   }
 
   @Test
-  public void persist_fails_with_ISE_if_no_component_for_short_branches() {
-    analysisMetadataHolder.setBranch(createBranch(BranchType.SHORT, false, "foo"));
-    treeRootHolder.setRoot(BRANCH);
-
-    expectMissingComponentISE();
-
-    underTest.persist(dbTester.getSession());
-  }
-
-  @Test
   public void persist_fails_with_ISE_if_no_component_for_pull_request() {
     analysisMetadataHolder.setBranch(createBranch(BranchType.PULL_REQUEST, false, "12"));
     treeRootHolder.setRoot(BRANCH);

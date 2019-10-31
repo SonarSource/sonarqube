@@ -107,7 +107,7 @@ public class ListActionTest {
     ComponentDto project = componentDb.insertMainBranch();
 
     createBranches(project, 5, BranchType.LONG);
-    createBranches(project, 3, BranchType.SHORT);
+    createBranches(project, 3, BranchType.PULL_REQUEST);
 
     logInAsProjectAdministrator(project);
 

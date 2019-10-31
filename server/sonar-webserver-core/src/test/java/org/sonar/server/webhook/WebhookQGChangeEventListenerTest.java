@@ -66,7 +66,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.db.component.BranchType.LONG;
-import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
@@ -147,7 +146,7 @@ public class WebhookQGChangeEventListenerTest {
   public void onIssueChanges_calls_webhook_for_changeEvent_with_webhook_enabled(@Nullable EvaluatedQualityGate newQualityGate) {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPublicProject(organization);
-    ComponentAndBranch branch = insertProjectBranch(project, BranchType.SHORT, "foo");
+    ComponentAndBranch branch = insertProjectBranch(project, BranchType.LONG, "foo");
     SnapshotDto analysis = insertAnalysisTask(branch);
     Configuration configuration = mock(Configuration.class);
     mockPayloadSupplierConsumedByWebhooks();
@@ -166,7 +165,7 @@ public class WebhookQGChangeEventListenerTest {
         new Project(project.uuid(), project.getKey(), project.name()),
         null,
         new Analysis(analysis.getUuid(), analysis.getCreatedAt(), analysis.getRevision()),
-        new Branch(false, "foo", Branch.Type.SHORT),
+        new Branch(false, "foo", Branch.Type.LONG),
         newQualityGate,
         null,
         properties));
@@ -193,8 +192,8 @@ public class WebhookQGChangeEventListenerTest {
   }
 
   @Test
-  public void onIssueChanges_calls_webhook_on_short_branch() {
-    onIssueChangesCallsWebhookOnBranch(SHORT);
+  public void onIssueChanges_calls_webhook_on_pr() {
+    onIssueChangesCallsWebhookOnBranch(BranchType.PULL_REQUEST);
   }
 
   public void onIssueChangesCallsWebhookOnBranch(BranchType branchType) {

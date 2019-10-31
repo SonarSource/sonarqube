@@ -54,7 +54,7 @@ public class LoadQualityGateStep implements ComputationStep {
       qualityGate = Optional.of(getOrganizationDefaultQualityGate());
     }
 
-    if (analysisMetadataHolder.isSLBorPR()) {
+    if (analysisMetadataHolder.isPullRequest()) {
       qualityGate = filterQGForSLB(qualityGate);
     }
 

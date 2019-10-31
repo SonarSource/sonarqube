@@ -3,13 +3,9 @@
     {
       "name": "feature/foo",
       "isMain": false,
-      "type": "SHORT",
-      "mergeBranch": "master",
+      "type": "LONG",
       "status": {
-        "qualityGateStatus": "OK",
-        "bugs": 1,
-        "vulnerabilities": 0,
-        "codeSmells": 0
+        "qualityGateStatus": "OK"
       },
       "analysisDate": "2017-04-03T13:37:00+0100"
     },

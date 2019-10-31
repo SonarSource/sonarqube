@@ -56,25 +56,7 @@ public class LoadQualityGateStepTest {
 
   @Before
   public void setUp() {
-    when(analysisMetadataHolder.isShortLivingBranch()).thenReturn(false);
     when(analysisMetadataHolder.getOrganization()).thenReturn(mock(Organization.class));
-  }
-
-  @Test
-  public void filter_conditions_on_short_living_branch() {
-
-    Metric newMetric = new MetricImpl(1, "new_key", "name", Metric.MetricType.INT);
-    Metric metric = new MetricImpl(2, "key", "name", Metric.MetricType.INT);
-    Condition variation = new Condition(newMetric, Condition.Operator.GREATER_THAN.getDbValue(), "1.0");
-    Condition condition = new Condition(metric, Condition.Operator.GREATER_THAN.getDbValue(), "1.0");
-
-    when(analysisMetadataHolder.isSLBorPR()).thenReturn(true);
-    QualityGate defaultGate = new QualityGate(1, "qg", Arrays.asList(variation, condition));
-    when(qualityGateService.findDefaultQualityGate(any(Organization.class))).thenReturn(defaultGate);
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(mutableQualityGateHolder.getQualityGate().get().getConditions()).containsExactly(variation);
   }
 
   @Test
@@ -84,7 +66,7 @@ public class LoadQualityGateStepTest {
     Condition variation = new Condition(newMetric, Condition.Operator.GREATER_THAN.getDbValue(), "1.0");
     Condition condition = new Condition(metric, Condition.Operator.GREATER_THAN.getDbValue(), "1.0");
 
-    when(analysisMetadataHolder.isSLBorPR()).thenReturn(true);
+    when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
     QualityGate defaultGate = new QualityGate(1, "qg", Arrays.asList(variation, condition));
     when(qualityGateService.findDefaultQualityGate(any(Organization.class))).thenReturn(defaultGate);
 

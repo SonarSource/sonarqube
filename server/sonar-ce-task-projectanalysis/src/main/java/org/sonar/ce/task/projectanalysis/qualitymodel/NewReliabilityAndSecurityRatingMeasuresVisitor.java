@@ -106,7 +106,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
   }
 
   private void computeAndSaveMeasures(Component component, Path<Counter> path) {
-    if (!periodHolder.hasPeriod() && !analysisMetadataHolder.isSLBorPR()) {
+    if (!periodHolder.hasPeriod() && !analysisMetadataHolder.isPullRequest()) {
       return;
     }
     initRatingsToA(path);
@@ -131,7 +131,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
       .stream()
       .filter(issue -> issue.resolution() == null)
       .filter(issue -> issue.type().equals(BUG) || issue.type().equals(VULNERABILITY))
-      .forEach(issue -> path.current().processIssue(issue, analysisMetadataHolder.isSLBorPR(), periodHolder));
+      .forEach(issue -> path.current().processIssue(issue, analysisMetadataHolder.isPullRequest(), periodHolder));
   }
 
   private static void addToParent(Path<Counter> path) {
@@ -153,8 +153,8 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
       newRatingValueByMetric.forEach((metric, rating) -> rating.increment(otherCounter.newRatingValueByMetric.get(metric)));
     }
 
-    void processIssue(Issue issue, boolean isSLBorPR, PeriodHolder periodHolder) {
-      if (isSLBorPR || isOnPeriod((DefaultIssue) issue, periodHolder.getPeriod())) {
+    void processIssue(Issue issue, boolean isPR, PeriodHolder periodHolder) {
+      if (isPR || isOnPeriod((DefaultIssue) issue, periodHolder.getPeriod())) {
         Rating rating = RATING_BY_SEVERITY.get(issue.severity());
         if (issue.type().equals(BUG)) {
           newRatingValueByMetric.get(NEW_RELIABILITY_RATING_KEY).increment(rating);

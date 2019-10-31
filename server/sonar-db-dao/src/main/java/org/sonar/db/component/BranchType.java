@@ -31,6 +31,8 @@ public enum BranchType {
    */
   SHORT,
 
+  BRANCH,
+
   /**
    * Pull request
    */

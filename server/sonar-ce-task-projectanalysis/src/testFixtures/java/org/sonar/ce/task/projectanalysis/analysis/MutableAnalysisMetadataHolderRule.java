@@ -195,11 +195,6 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public boolean isShortLivingBranch() {
-    return delegate.isShortLivingBranch();
-  }
-
-  @Override
   public boolean isLongLivingBranch() {
     return delegate.isLongLivingBranch();
   }

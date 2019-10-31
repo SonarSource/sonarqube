@@ -77,7 +77,7 @@ public class SourceLinesDiffImplTest {
     mockLineHashesInDb(2, CONTENT);
     setLineHashesInReport(component, CONTENT);
 
-    when(analysisMetadataHolder.isSLBorPR()).thenReturn(true);
+    when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
     when(mergeAndTargetBranchComponentUuids.getTargetBranchComponentUuid(component.getKey())).thenReturn("uuid_2");
 
     assertThat(underTest.computeMatchingLines(component)).containsExactly(1, 2, 3, 4, 5, 6, 7);
@@ -91,7 +91,7 @@ public class SourceLinesDiffImplTest {
     mockLineHashesInDb(2, CONTENT);
     setLineHashesInReport(component, CONTENT);
 
-    when(analysisMetadataHolder.isSLBorPR()).thenReturn(true);
+    when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
     when(mergeAndTargetBranchComponentUuids.getMergeBranchComponentUuid(component.getKey())).thenReturn("uuid_2");
 
     assertThat(underTest.computeMatchingLines(component)).containsExactly(1, 2, 3, 4, 5, 6, 7);

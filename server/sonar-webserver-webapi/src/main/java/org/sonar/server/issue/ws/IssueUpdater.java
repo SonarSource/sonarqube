@@ -49,7 +49,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
-import static org.sonar.db.component.BranchType.SHORT;
 
 public class IssueUpdater {
 
@@ -96,10 +95,10 @@ public class IssueUpdater {
     if (
       // since this method is called after an update of the issue, date should never be null
       issue.updateDate() == null
-      // name of rule is displayed in notification, rule must therefor be present
-      || !rule.isPresent()
-      // notification are not supported on PRs and short lived branches
-      || !hasNotificationSupport(branchDto)) {
+        // name of rule is displayed in notification, rule must therefor be present
+        || !rule.isPresent()
+        // notification are not supported on PRs and short lived branches
+        || !hasNotificationSupport(branchDto)) {
       return issueDto;
     }
 
@@ -126,7 +125,7 @@ public class IssueUpdater {
   }
 
   private static boolean hasNotificationSupport(BranchDto branch) {
-    return branch.getBranchType() != PULL_REQUEST && branch.getBranchType() != SHORT;
+    return branch.getBranchType() != PULL_REQUEST;
   }
 
   private ComponentDto getComponent(DbSession dbSession, DefaultIssue issue, @Nullable String componentUuid) {

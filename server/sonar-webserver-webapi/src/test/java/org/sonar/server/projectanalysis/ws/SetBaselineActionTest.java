@@ -97,7 +97,7 @@ public class SetBaselineActionTest {
 
   @DataProvider
   public static Object[][] nullOrEmpty() {
-    return new Object[][]{
+    return new Object[][] {
       {null},
       {""},
       {"     "},
@@ -150,7 +150,7 @@ public class SetBaselineActionTest {
       .put(PARAM_BRANCH, "branch key")
       .put(PARAM_ANALYSIS, "analysis uuid");
 
-    return new Object[][]{
+    return new Object[][] {
       {builder.put(PARAM_PROJECT, null).map, "The 'project' parameter is missing"},
       {builder.put(PARAM_PROJECT, "").map, "The 'project' parameter is missing"},
       {builder.put(PARAM_ANALYSIS, null).map, "The 'analysis' parameter is missing"},
@@ -184,7 +184,7 @@ public class SetBaselineActionTest {
   public static Object[][] nonexistentParamsAndFailureMessage() {
     MapBuilder builder = new MapBuilder();
 
-    return new Object[][]{
+    return new Object[][] {
       {builder.put(PARAM_PROJECT, "nonexistent").map, "Component 'nonexistent' on branch .* not found"},
       {builder.put(PARAM_BRANCH, "nonexistent").map, "Component .* on branch 'nonexistent' not found"},
       {builder.put(PARAM_ANALYSIS, "nonexistent").map, "Analysis 'nonexistent' is not found"},
@@ -248,21 +248,6 @@ public class SetBaselineActionTest {
       otherAnalysis.getUuid(), branch.getKey(), project.getKey()));
 
     call(project.getKey(), branch.getKey(), otherAnalysis.getUuid());
-  }
-
-  @Test
-  public void fail_when_branch_is_not_long() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.SHORT);
-    db.components().insertProjectBranch(project, branch);
-    ComponentDto branchComponentDto = ComponentTesting.newProjectBranch(project, branch);
-    SnapshotDto analysis = db.components().insertSnapshot(branchComponentDto);
-    logInAsProjectAdministrator(project);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("Not a long-living branch: '%s'", branch.getKey()));
-
-    call(project.getKey(), branch.getKey(), analysis.getUuid());
   }
 
   @Test

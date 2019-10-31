@@ -50,18 +50,17 @@ public class SiblingComponentsWithOpenIssues {
 
   private void loadUuidsByKey() {
     String currentBranchUuid = treeRootHolder.getRoot().getUuid();
-    String longLivingReferenceBranchUuid;
+    String referenceBranchUuid;
 
-    if (metadataHolder.isSLBorPR()) {
-      longLivingReferenceBranchUuid = metadataHolder.getBranch().getMergeBranchUuid();
+    if (metadataHolder.isPullRequest()) {
+      referenceBranchUuid = metadataHolder.getBranch().getMergeBranchUuid();
     } else {
-      longLivingReferenceBranchUuid = currentBranchUuid;
+      referenceBranchUuid = currentBranchUuid;
     }
 
     uuidsByKey = new HashMap<>();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<KeyWithUuidDto> components = dbClient.componentDao().selectAllSiblingComponentKeysHavingOpenIssues(dbSession,
-        longLivingReferenceBranchUuid, currentBranchUuid);
+      List<KeyWithUuidDto> components = dbClient.componentDao().selectAllSiblingComponentKeysHavingOpenIssues(dbSession, referenceBranchUuid, currentBranchUuid);
       for (KeyWithUuidDto dto : components) {
         uuidsByKey.computeIfAbsent(removeBranchAndPullRequestFromKey(dto.key()), s -> new HashSet<>()).add(dto.uuid());
       }

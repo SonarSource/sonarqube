@@ -271,25 +271,6 @@ public class QualityGateEventsStepTest {
   }
 
   @Test
-  public void no_alert_on_short_living_branches() {
-    Branch shortBranch = mock(Branch.class);
-    when(shortBranch.getType()).thenReturn(BranchType.SHORT);
-    analysisMetadataHolder.setBranch(shortBranch);
-    TreeRootHolder treeRootHolder = mock(TreeRootHolder.class);
-    MetricRepository metricRepository = mock(MetricRepository.class);
-    MeasureRepository measureRepository = mock(MeasureRepository.class);
-    EventRepository eventRepository = mock(EventRepository.class);
-    NotificationService notificationService = mock(NotificationService.class);
-
-    QualityGateEventsStep underTest = new QualityGateEventsStep(treeRootHolder, metricRepository, measureRepository,
-      eventRepository, notificationService, analysisMetadataHolder);
-
-    underTest.execute(new TestComputationStepContext());
-
-    verifyZeroInteractions(treeRootHolder, metricRepository, measureRepository, eventRepository, notificationService);
-  }
-
-  @Test
   public void no_alert_on_pull_request_branches() {
     Branch shortBranch = mock(Branch.class);
     when(shortBranch.getType()).thenReturn(BranchType.PULL_REQUEST);

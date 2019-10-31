@@ -75,22 +75,6 @@ public interface AnalysisMetadataHolder {
    *
    * @throws IllegalStateException if branch has not been set
    */
-  boolean isShortLivingBranch();
-
-  /**
-   * Convenience method equivalent to do the check using {@link #getBranch()}
-   *
-   * @throws IllegalStateException if branch has not been set
-   */
-  default boolean isSLBorPR() {
-    return isShortLivingBranch() || isPullRequest();
-  }
-
-  /**
-   * Convenience method equivalent to do the check using {@link #getBranch()}
-   *
-   * @throws IllegalStateException if branch has not been set
-   */
   boolean isLongLivingBranch();
 
   /**

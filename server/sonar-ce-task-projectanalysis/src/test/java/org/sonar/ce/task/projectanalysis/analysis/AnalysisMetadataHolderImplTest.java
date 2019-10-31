@@ -398,48 +398,6 @@ public class AnalysisMetadataHolderImplTest {
   }
 
   @Test
-  public void getIsShortLivingBranch_throws_ISE_when_holder_is_not_initialized() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Branch has not been set");
-
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-    underTest.isShortLivingBranch();
-  }
-
-  @Test
-  public void getIsShortLivingBranch_returns_true() {
-    Branch branch = mock(Branch.class);
-    when(branch.getType()).thenReturn(BranchType.SHORT);
-
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-    underTest.setBranch(branch);
-
-    assertThat(underTest.isShortLivingBranch()).isTrue();
-  }
-
-  @Test
-  public void getIsSLBorPR_returns_true() {
-    Branch branch = mock(Branch.class);
-    when(branch.getType()).thenReturn(BranchType.SHORT);
-
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-    underTest.setBranch(branch);
-
-    assertThat(underTest.isSLBorPR()).isTrue();
-  }
-
-  @Test
-  public void getIsSLBorPR_returns_false() {
-    Branch branch = mock(Branch.class);
-    when(branch.getType()).thenReturn(BranchType.LONG);
-
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-    underTest.setBranch(branch);
-
-    assertThat(underTest.isSLBorPR()).isFalse();
-  }
-
-  @Test
   public void getPullRequestBranch_returns_true() {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);

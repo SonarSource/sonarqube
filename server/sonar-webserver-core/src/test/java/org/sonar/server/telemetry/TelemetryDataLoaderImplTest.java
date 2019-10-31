@@ -60,7 +60,7 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.core.platform.EditionProvider.Edition.DEVELOPER;
 import static org.sonar.db.component.BranchType.LONG;
-import static org.sonar.db.component.BranchType.SHORT;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 public class TelemetryDataLoaderImplTest {
   @Rule
@@ -145,20 +145,20 @@ public class TelemetryDataLoaderImplTest {
   }
 
   @Test
-  public void take_biggest_long_living_branches() {
+  public void take_largest_branches() {
     server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
     ComponentDto project = db.components().insertMainBranch(db.getDefaultOrganization());
-    ComponentDto longBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
-    ComponentDto shortBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(SHORT));
+    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
     db.measures().insertLiveMeasure(project, ncloc, m -> m.setValue(10d));
-    db.measures().insertLiveMeasure(longBranch, ncloc, m -> m.setValue(20d));
-    db.measures().insertLiveMeasure(shortBranch, ncloc, m -> m.setValue(30d));
+    db.measures().insertLiveMeasure(branch1, ncloc, m -> m.setValue(20d));
+    db.measures().insertLiveMeasure(pr, ncloc, m -> m.setValue(30d));
     projectMeasuresIndexer.indexOnStartup(emptySet());
 
     TelemetryData data = communityUnderTest.load();
 
-    assertThat(data.getNcloc()).isEqualTo(20l);
+    assertThat(data.getNcloc()).isEqualTo(20L);
   }
 
   @Test

@@ -67,31 +67,11 @@ public class LiveQualityGateComputerImplTest {
   private LiveQualityGateComputerImpl underTest = new LiveQualityGateComputerImpl(db.getDbClient(), new QualityGateFinder(db.getDbClient()), qualityGateEvaluator);
 
   @Test
-  public void loadQualityGate_returns_hardcoded_gate_for_short_living_branches() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
-
-    BranchDto branch = newBranchDto(project).setBranchType(BranchType.SHORT);
-    db.components().insertProjectBranch(project, branch);
-    MetricDto metric1 = db.measures().insertMetric(m -> m.setKey("new_metric"));
-    MetricDto metric2 = db.measures().insertMetric(m -> m.setKey("metric"));
-
-    QGateWithOrgDto gate = db.qualityGates().insertQualityGate(organization);
-    db.qualityGates().setDefaultQualityGate(organization, gate);
-
-    db.qualityGates().addCondition(gate, metric1);
-    db.qualityGates().addCondition(gate, metric2);
-
-    QualityGate result = underTest.loadQualityGate(db.getSession(), organization, project, branch);
-    assertThat(result.getConditions()).extracting(Condition::getMetricKey).containsExactly("new_metric");
-  }
-
-  @Test
   public void loadQualityGate_returns_hardcoded_gate_for_pull_requests() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPublicProject(organization);
 
-    BranchDto branch = newBranchDto(project).setBranchType(BranchType.SHORT);
+    BranchDto branch = newBranchDto(project).setBranchType(BranchType.PULL_REQUEST);
     db.components().insertProjectBranch(project, branch);
     MetricDto metric1 = db.measures().insertMetric(m -> m.setKey("new_metric"));
     MetricDto metric2 = db.measures().insertMetric(m -> m.setKey("metric"));

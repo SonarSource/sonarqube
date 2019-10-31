@@ -19,6 +19,8 @@
  */
 package org.sonar.server.newcodeperiod.ws;
 
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,7 +33,6 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
@@ -42,9 +43,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-
-import javax.annotation.Nullable;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -116,21 +114,6 @@ public class UnsetActionTest {
       .setParam("project", project.getKey())
       .setParam("type", "previous_version")
       .setParam("branch", "unknown")
-      .execute();
-  }
-
-  @Test
-  public void throw_IAE_if_branch_is_a_SLB() {
-    ComponentDto project = componentDb.insertMainBranch();
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch").setBranchType(BranchType.SHORT));
-    logInAsProjectAdministrator(project);
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Not a long-living branch: 'branch'");
-
-    ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("type", "previous_version")
-      .setParam("branch", "branch")
       .execute();
   }
 

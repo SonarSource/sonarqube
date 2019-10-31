@@ -45,15 +45,15 @@ public class MergeAndTargetBranchComponentUuidsTest {
   private MergeAndTargetBranchComponentUuids underTest;
   private Branch branch = mock(Branch.class);
 
-  private ComponentDto longBranch1;
-  private ComponentDto longBranch1File;
-  private ComponentDto shortBranch1File;
-  private ComponentDto shortBranch2File;
+  private ComponentDto branch1;
+  private ComponentDto branch1File;
+  private ComponentDto pr1File;
+  private ComponentDto pr2File;
   private Project project;
-  private ComponentDto shortBranch1;
-  private ComponentDto shortBranch2;
-  private ComponentDto longBranch2;
-  private ComponentDto longBranch2File;
+  private ComponentDto pr1;
+  private ComponentDto pr2;
+  private ComponentDto branch2;
+  private ComponentDto branch2File;
 
   @Before
   public void setUp() {
@@ -64,40 +64,40 @@ public class MergeAndTargetBranchComponentUuidsTest {
 
     ComponentDto projectDto = db.components().insertMainBranch();
     when(project.getUuid()).thenReturn(projectDto.uuid());
-    longBranch1 = db.components().insertProjectBranch(projectDto, b -> b.setKey("longBranch1"));
-    longBranch2 = db.components().insertProjectBranch(projectDto, b -> b.setKey("longBranch2"));
-    shortBranch1 = db.components().insertProjectBranch(projectDto, b -> b.setKey("shortBranch1").setBranchType(BranchType.SHORT).setMergeBranchUuid(longBranch1.uuid()));
-    shortBranch2 = db.components().insertProjectBranch(projectDto, b -> b.setKey("shortBranch2").setBranchType(BranchType.SHORT).setMergeBranchUuid(longBranch1.uuid()));
-    longBranch1File = ComponentTesting.newFileDto(longBranch1, null, "file").setUuid("long1File");
-    longBranch2File = ComponentTesting.newFileDto(longBranch2, null, "file").setUuid("long2File");
-    shortBranch1File = ComponentTesting.newFileDto(shortBranch1, null, "file").setUuid("file1");
-    shortBranch2File = ComponentTesting.newFileDto(shortBranch2, null, "file").setUuid("file2");
-    db.components().insertComponents(longBranch1File, shortBranch1File, shortBranch2File, longBranch2File);
+    branch1 = db.components().insertProjectBranch(projectDto, b -> b.setKey("branch1"));
+    branch2 = db.components().insertProjectBranch(projectDto, b -> b.setKey("branch2"));
+    pr1 = db.components().insertProjectBranch(projectDto, b -> b.setKey("pr1").setBranchType(BranchType.PULL_REQUEST).setMergeBranchUuid(branch1.uuid()));
+    pr2 = db.components().insertProjectBranch(projectDto, b -> b.setKey("pr2").setBranchType(BranchType.PULL_REQUEST).setMergeBranchUuid(branch1.uuid()));
+    branch1File = ComponentTesting.newFileDto(branch1, null, "file").setUuid("branch1File");
+    branch2File = ComponentTesting.newFileDto(branch2, null, "file").setUuid("branch2File");
+    pr1File = ComponentTesting.newFileDto(pr1, null, "file").setUuid("file1");
+    pr2File = ComponentTesting.newFileDto(pr2, null, "file").setUuid("file2");
+    db.components().insertComponents(branch1File, pr1File, pr2File, branch2File);
   }
 
   @Test
   public void should_support_db_key_when_looking_for_merge_component() {
-    when(branch.getMergeBranchUuid()).thenReturn(longBranch1.uuid());
-    when(branch.getType()).thenReturn(BranchType.SHORT);
+    when(branch.getMergeBranchUuid()).thenReturn(branch1.uuid());
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     when(branch.getTargetBranchName()).thenReturn("notAnalyzedBranch");
-    db.components().insertSnapshot(newAnalysis(longBranch1));
-    assertThat(underTest.getMergeBranchComponentUuid(shortBranch1File.getDbKey())).isEqualTo(longBranch1File.uuid());
-    assertThat(underTest.getTargetBranchComponentUuid(shortBranch1File.getDbKey())).isNull();
+    db.components().insertSnapshot(newAnalysis(branch1));
+    assertThat(underTest.getMergeBranchComponentUuid(pr1File.getDbKey())).isEqualTo(branch1File.uuid());
+    assertThat(underTest.getTargetBranchComponentUuid(pr1File.getDbKey())).isNull();
     assertThat(underTest.hasMergeBranchAnalysis()).isTrue();
     assertThat(underTest.hasTargetBranchAnalysis()).isFalse();
     assertThat(underTest.areTargetAndMergeBranchesDifferent()).isTrue();
-    assertThat(underTest.getMergeBranchName()).isEqualTo("longBranch1");
+    assertThat(underTest.getMergeBranchName()).isEqualTo("branch1");
   }
 
   @Test
   public void should_support_db_key_when_looking_for_target_component() {
-    when(branch.getMergeBranchUuid()).thenReturn(longBranch1.uuid());
-    when(branch.getTargetBranchName()).thenReturn("shortBranch2");
-    when(branch.getType()).thenReturn(BranchType.SHORT);
-    db.components().insertSnapshot(newAnalysis(longBranch1));
-    db.components().insertSnapshot(newAnalysis(shortBranch2));
-    assertThat(underTest.getMergeBranchComponentUuid(shortBranch1File.getDbKey())).isEqualTo(longBranch1File.uuid());
-    assertThat(underTest.getTargetBranchComponentUuid(shortBranch1File.getDbKey())).isEqualTo(shortBranch2File.uuid());
+    when(branch.getMergeBranchUuid()).thenReturn(branch1.uuid());
+    when(branch.getTargetBranchName()).thenReturn("branch2");
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    db.components().insertSnapshot(newAnalysis(branch1));
+    db.components().insertSnapshot(newAnalysis(branch2));
+    assertThat(underTest.getMergeBranchComponentUuid(pr1File.getDbKey())).isEqualTo(branch1File.uuid());
+    assertThat(underTest.getTargetBranchComponentUuid(pr1File.getDbKey())).isEqualTo(branch2File.uuid());
     assertThat(underTest.hasMergeBranchAnalysis()).isTrue();
     assertThat(underTest.hasTargetBranchAnalysis()).isTrue();
     assertThat(underTest.areTargetAndMergeBranchesDifferent()).isTrue();
@@ -105,42 +105,42 @@ public class MergeAndTargetBranchComponentUuidsTest {
 
   @Test
   public void should_support_key_when_looking_for_merge_component() {
-    when(branch.getMergeBranchUuid()).thenReturn(longBranch1.uuid());
-    when(branch.getType()).thenReturn(BranchType.SHORT);
+    when(branch.getMergeBranchUuid()).thenReturn(branch1.uuid());
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     when(branch.getTargetBranchName()).thenReturn("notAnalyzedBranch");
-    db.components().insertSnapshot(newAnalysis(longBranch1));
-    assertThat(underTest.getMergeBranchComponentUuid(shortBranch1File.getKey())).isEqualTo(longBranch1File.uuid());
+    db.components().insertSnapshot(newAnalysis(branch1));
+    assertThat(underTest.getMergeBranchComponentUuid(pr1File.getKey())).isEqualTo(branch1File.uuid());
   }
 
   @Test
   public void return_null_if_file_doesnt_exist() {
-    when(branch.getMergeBranchUuid()).thenReturn(longBranch1.uuid());
-    when(branch.getType()).thenReturn(BranchType.SHORT);
+    when(branch.getMergeBranchUuid()).thenReturn(branch1.uuid());
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     when(branch.getTargetBranchName()).thenReturn("notAnalyzedBranch");
-    db.components().insertSnapshot(newAnalysis(longBranch1));
+    db.components().insertSnapshot(newAnalysis(branch1));
     assertThat(underTest.getMergeBranchComponentUuid("doesnt exist")).isNull();
   }
 
   @Test
   public void skip_init_if_no_merge_branch_analysis() {
-    when(branch.getMergeBranchUuid()).thenReturn(longBranch1.uuid());
-    when(branch.getType()).thenReturn(BranchType.SHORT);
+    when(branch.getMergeBranchUuid()).thenReturn(branch1.uuid());
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     when(branch.getTargetBranchName()).thenReturn("notAnalyzedBranch");
-    assertThat(underTest.getMergeBranchComponentUuid(shortBranch1File.getDbKey())).isNull();
+    assertThat(underTest.getMergeBranchComponentUuid(pr1File.getDbKey())).isNull();
   }
 
   @Test
-  public void should_skip_target_components_init_on_long_branches() {
-    when(branch.getMergeBranchUuid()).thenReturn(longBranch1.uuid());
+  public void should_skip_target_components_init_on_branches() {
+    when(branch.getMergeBranchUuid()).thenReturn(branch1.uuid());
     when(branch.getType()).thenReturn(BranchType.LONG);
-    when(branch.getTargetBranchName()).thenThrow(new IllegalStateException("Unsupported on long branches"));
-    db.components().insertSnapshot(newAnalysis(longBranch1));
+    when(branch.getTargetBranchName()).thenThrow(new IllegalStateException("Unsupported on branches"));
+    db.components().insertSnapshot(newAnalysis(branch1));
 
-    assertThat(underTest.getMergeBranchComponentUuid(longBranch2File.getDbKey())).isEqualTo(longBranch1File.uuid());
-    assertThat(underTest.getTargetBranchComponentUuid(longBranch2File.getDbKey())).isNull();
+    assertThat(underTest.getMergeBranchComponentUuid(branch2File.getDbKey())).isEqualTo(branch1File.uuid());
+    assertThat(underTest.getTargetBranchComponentUuid(branch2File.getDbKey())).isNull();
     assertThat(underTest.hasMergeBranchAnalysis()).isTrue();
     assertThat(underTest.hasTargetBranchAnalysis()).isFalse();
     assertThat(underTest.areTargetAndMergeBranchesDifferent()).isTrue();
-    assertThat(underTest.getMergeBranchName()).isEqualTo("longBranch1");
+    assertThat(underTest.getMergeBranchName()).isEqualTo("branch1");
   }
 }

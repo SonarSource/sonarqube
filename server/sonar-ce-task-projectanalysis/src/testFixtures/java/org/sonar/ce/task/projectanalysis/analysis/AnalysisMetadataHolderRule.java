@@ -251,12 +251,6 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   }
 
   @Override
-  public boolean isShortLivingBranch() {
-    Branch property = this.branch.getProperty();
-    return property != null && property.getType() == BranchType.SHORT;
-  }
-
-  @Override
   public boolean isLongLivingBranch() {
     Branch property = this.branch.getProperty();
     return property != null && property.getType() == BranchType.LONG;

@@ -38,12 +38,12 @@ import static org.sonar.api.measures.CoreMetrics.MINOR_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MINOR_VIOLATIONS_KEY;
 
-public class SLBorPRMeasureFixTest {
+public class prMeasureFixTest {
 
   @Test
   public void should_add_replacement_metrics() {
     List<String> metricList = new ArrayList<>(Arrays.asList(NEW_BUGS_KEY, NEW_MINOR_VIOLATIONS_KEY));
-    SLBorPRMeasureFix.addReplacementMetricKeys(metricList);
+    PrMeasureFix.addReplacementMetricKeys(metricList);
     assertThat(metricList).contains(BUGS_KEY, NEW_BUGS_KEY, MINOR_VIOLATIONS_KEY, NEW_MINOR_VIOLATIONS_KEY);
   }
 
@@ -57,7 +57,7 @@ public class SLBorPRMeasureFixTest {
 
     List<MetricDto> metricList = new ArrayList<>(Arrays.asList(dto1, dto2, dto3, dto4));
 
-    SLBorPRMeasureFix.removeMetricsNotRequested(metricList, originalMetricList);
+    PrMeasureFix.removeMetricsNotRequested(metricList, originalMetricList);
     assertThat(metricList).containsOnly(dto2, dto3, dto4);
   }
 
@@ -83,7 +83,7 @@ public class SLBorPRMeasureFixTest {
     measureByMetric.put(violationsMetric, violations);
     measureByMetric.put(newViolationsMetric, newViolations);
 
-    SLBorPRMeasureFix.createReplacementMeasures(metricList, measureByMetric, requestedKeys);
+    PrMeasureFix.createReplacementMeasures(metricList, measureByMetric, requestedKeys);
     assertThat(measureByMetric.entrySet()).extracting(e -> e.getKey().getKey(), e -> e.getValue().getValue(), e -> e.getValue().getVariation())
       .containsOnly(tuple(NEW_BUGS_KEY, null, 10.0),
         tuple(MINOR_VIOLATIONS_KEY, 20.0, null),

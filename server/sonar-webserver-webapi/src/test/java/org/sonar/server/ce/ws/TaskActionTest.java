@@ -55,6 +55,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 
@@ -162,15 +163,15 @@ public class TaskActionTest {
   }
 
   @Test
-  public void long_living_branch_in_past_activity() {
+  public void branch_in_past_activity() {
     logInAsRoot();
     ComponentDto project = db.components().insertMainBranch();
     userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
-    db.components().insertSnapshot(longLivingBranch);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    db.components().insertSnapshot(branch);
     CeActivityDto activity = createAndPersistArchivedTask(project);
-    insertCharacteristic(activity, BRANCH_KEY, longLivingBranch.getBranch());
-    insertCharacteristic(activity, BRANCH_TYPE_KEY, LONG.name());
+    insertCharacteristic(activity, BRANCH_KEY, branch.getBranch());
+    insertCharacteristic(activity, BRANCH_TYPE_KEY, BRANCH.name());
 
     Ce.TaskResponse taskResponse = ws.newRequest()
       .setParam("id", SOME_TASK_UUID)
@@ -178,17 +179,17 @@ public class TaskActionTest {
 
     assertThat(taskResponse.getTask())
       .extracting(Ce.Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getComponentKey)
-      .containsExactlyInAnyOrder(SOME_TASK_UUID, longLivingBranch.getBranch(), Common.BranchType.LONG, longLivingBranch.getKey());
+      .containsExactlyInAnyOrder(SOME_TASK_UUID, branch.getBranch(), Common.BranchType.BRANCH, branch.getKey());
   }
 
   @Test
-  public void long_living_branch_in_queue_analysis() {
+  public void branch_in_queue_analysis() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setRoot();
     String branch = "my_branch";
     CeQueueDto queueDto = createAndPersistQueueTask(null, user);
     insertCharacteristic(queueDto, BRANCH_KEY, branch);
-    insertCharacteristic(queueDto, BRANCH_TYPE_KEY, LONG.name());
+    insertCharacteristic(queueDto, BRANCH_TYPE_KEY, BRANCH.name());
 
     Ce.TaskResponse taskResponse = ws.newRequest()
       .setParam("id", SOME_TASK_UUID)
@@ -196,7 +197,7 @@ public class TaskActionTest {
 
     assertThat(taskResponse.getTask())
       .extracting(Ce.Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::hasComponentKey)
-      .containsExactlyInAnyOrder(SOME_TASK_UUID, branch, Common.BranchType.LONG, false);
+      .containsExactlyInAnyOrder(SOME_TASK_UUID, branch, Common.BranchType.BRANCH, false);
   }
 
   @Test

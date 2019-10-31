@@ -149,7 +149,7 @@ public class IssueCounter extends IssueVisitor {
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
     currentCounters.add(issue);
-    if (analysisMetadataHolder.isSLBorPR()) {
+    if (analysisMetadataHolder.isPullRequest()) {
       currentCounters.addOnPeriod(issue);
     } else if (periodHolder.hasPeriod()) {
       Period period = periodHolder.getPeriod();
@@ -197,7 +197,7 @@ public class IssueCounter extends IssueVisitor {
   }
 
   private void addNewMeasures(Component component) {
-    if (!periodHolder.hasPeriod() && !analysisMetadataHolder.isSLBorPR()) {
+    if (!periodHolder.hasPeriod() && !analysisMetadataHolder.isPullRequest()) {
       return;
     }
     double unresolvedVariations = (double) currentCounters.counterForPeriod().unresolved;

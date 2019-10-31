@@ -195,11 +195,6 @@ public class BuildComponentTreeStepTest {
     verifyComponentByRef(FILE_1_REF, "generated", REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1, null);
   }
 
-  @DataProvider
-  public static Object[][] shortLivingBranchAndPullRequest() {
-    return new Object[][] {{BranchType.SHORT}, {BranchType.PULL_REQUEST}};
-  }
-
   @Test
   public void generate_keys_when_using_existing_branch() {
     ComponentDto projectDto = dbTester.components().insertMainBranch();

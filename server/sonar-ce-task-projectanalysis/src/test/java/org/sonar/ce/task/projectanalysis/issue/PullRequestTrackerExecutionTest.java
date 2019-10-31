@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
-public class ShortBranchOrPullRequestTrackerExecutionTest {
+public class PullRequestTrackerExecutionTest {
   static final String FILE_UUID = "FILE_UUID";
   static final String FILE_KEY = "FILE_KEY";
   static final int FILE_REF = 2;
@@ -66,7 +66,7 @@ public class ShortBranchOrPullRequestTrackerExecutionTest {
   @Mock
   private NewLinesRepository newLinesRepository;
 
-  private ShortBranchOrPullRequestTrackerExecution underTest;
+  private PullRequestTrackerExecution underTest;
 
   private List<DefaultIssue> rawIssues = new ArrayList<>();
   private List<DefaultIssue> baseIssues = new ArrayList<>();
@@ -83,7 +83,7 @@ public class ShortBranchOrPullRequestTrackerExecutionTest {
     when(mergeFactory.createForTargetBranch(FILE)).thenReturn(createInput(targetBranchIssues));
 
     Tracker<DefaultIssue, DefaultIssue> tracker = new Tracker<>();
-    underTest = new ShortBranchOrPullRequestTrackerExecution(baseFactory, rawFactory, mergeFactory, tracker, newLinesRepository);
+    underTest = new PullRequestTrackerExecution(baseFactory, rawFactory, mergeFactory, tracker, newLinesRepository);
   }
 
   @Test

@@ -65,7 +65,6 @@ import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchType.LONG;
-import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.DEFAULT;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.QUALITY_GATE_ERROR;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.QUALITY_GATE_OK;
@@ -321,23 +320,6 @@ public class MeasureActionTest {
   }
 
   @Test
-  public void return_error_on_short_living_branch() throws ParseException {
-    ComponentDto project = db.components().insertMainBranch();
-    ComponentDto shortBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(SHORT));
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(USER, project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
-
-    TestResponse response = ws.newRequest()
-      .setParam("project", shortBranch.getKey())
-      .setParam("branch", shortBranch.getBranch())
-      .setParam("metric", metric.getKey())
-      .execute();
-
-    checkError(response, "Project is invalid");
-  }
-
-  @Test
   public void return_error_on_private_project() throws ParseException {
     ComponentDto project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser();
@@ -472,6 +454,7 @@ public class MeasureActionTest {
     assertThat(newResponse.getInput()).isEmpty();
     assertThat(newResponse.getStatus()).isEqualTo(304);
   }
+
   private MetricDto createQualityGateMetric() {
     return db.measures().insertMetric(m -> m.setKey(CoreMetrics.ALERT_STATUS_KEY).setValueType(LEVEL.name()));
   }

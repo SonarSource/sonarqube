@@ -28,13 +28,11 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_BRANCH;
@@ -105,9 +103,6 @@ public class UnsetBaselineAction implements ProjectAnalysesWsAction {
 
     BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, project.uuid())
       .orElseThrow(() -> new NotFoundException(format("Branch '%s' is not found", branchKey)));
-
-    checkArgument(branchDto.getBranchType() == BranchType.LONG,
-      "Not a long-living branch: '%s'", branchKey);
 
     return project;
   }

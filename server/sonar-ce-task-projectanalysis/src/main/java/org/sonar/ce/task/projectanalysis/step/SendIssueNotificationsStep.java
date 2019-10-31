@@ -60,7 +60,6 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.StreamSupport.stream;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
-import static org.sonar.db.component.BranchType.SHORT;
 
 /**
  * Reads issues from disk cache and send related notifications. For performance reasons,
@@ -94,7 +93,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     BranchType branchType = analysisMetadataHolder.getBranch().getType();
-    if (branchType == PULL_REQUEST || branchType == SHORT) {
+    if (branchType == PULL_REQUEST) {
       return;
     }
 

@@ -249,21 +249,6 @@ public class SetActionTest {
       .execute();
   }
 
-  @Test
-  public void throw_IAE_if_branch_is_a_SLB() {
-    ComponentDto project = componentDb.insertMainBranch();
-    ComponentDto branch = componentDb.insertProjectBranch(project, b -> b.setKey("branch").setBranchType(BranchType.SHORT));
-    logInAsProjectAdministrator(project);
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Not a long-living branch: 'branch'");
-
-    ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("type", "previous_version")
-      .setParam("branch", "branch")
-      .execute();
-  }
-
   // permission
   @Test
   public void throw_NFE_if_no_project_permission() {

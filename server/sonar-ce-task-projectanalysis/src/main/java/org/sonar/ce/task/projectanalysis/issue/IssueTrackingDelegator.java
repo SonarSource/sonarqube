@@ -30,22 +30,22 @@ import org.sonar.db.component.BranchType;
 import static java.util.Collections.emptyMap;
 
 public class IssueTrackingDelegator {
-  private final ShortBranchOrPullRequestTrackerExecution shortBranchOrPullRequestTracker;
+  private final PullRequestTrackerExecution pullRequestTracker;
   private final TrackerExecution tracker;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final MergeBranchTrackerExecution mergeBranchTracker;
 
-  public IssueTrackingDelegator(ShortBranchOrPullRequestTrackerExecution shortBranchOrPullRequestTracker, MergeBranchTrackerExecution longBranchTracker,
+  public IssueTrackingDelegator(PullRequestTrackerExecution pullRequestTracker, MergeBranchTrackerExecution longBranchTracker,
                                 TrackerExecution tracker, AnalysisMetadataHolder analysisMetadataHolder) {
-    this.shortBranchOrPullRequestTracker = shortBranchOrPullRequestTracker;
+    this.pullRequestTracker = pullRequestTracker;
     this.mergeBranchTracker = longBranchTracker;
     this.tracker = tracker;
     this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   public TrackingResult track(Component component) {
-    if (analysisMetadataHolder.isSLBorPR()) {
-      return standardResult(shortBranchOrPullRequestTracker.track(component));
+    if (analysisMetadataHolder.isPullRequest()) {
+      return standardResult(pullRequestTracker.track(component));
     } else if (isFirstAnalysisSecondaryLongLivingBranch()) {
       Tracking<DefaultIssue, DefaultIssue> tracking = mergeBranchTracker.track(component);
       return new TrackingResult(tracking.getMatchedRaws(), emptyMap(), Stream.empty(), tracking.getUnmatchedRaws());

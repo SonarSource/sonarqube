@@ -127,7 +127,7 @@ public class IntegrateIssuesVisitorTest {
   private ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule, new MapSettings().asConfig(), System2.INSTANCE);
   private IssueTrackingDelegator trackingDelegator;
   private TrackerExecution tracker;
-  private ShortBranchOrPullRequestTrackerExecution shortBranchTracker;
+  private PullRequestTrackerExecution shortBranchTracker;
   private MergeBranchTrackerExecution mergeBranchTracker;
   private ActiveRulesHolder activeRulesHolder = new AlwaysActiveRulesHolderImpl();
   private IssueCache issueCache;
@@ -148,7 +148,7 @@ public class IntegrateIssuesVisitorTest {
     TrackerMergeOrTargetBranchInputFactory mergeInputFactory = new TrackerMergeOrTargetBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbClient);
     ClosedIssuesInputFactory closedIssuesInputFactory = new ClosedIssuesInputFactory(issuesLoader, dbClient, movedFilesRepository);
     tracker = new TrackerExecution(baseInputFactory, rawInputFactory, closedIssuesInputFactory, new Tracker<>(), issuesLoader, analysisMetadataHolder);
-    shortBranchTracker = new ShortBranchOrPullRequestTrackerExecution(baseInputFactory, rawInputFactory, mergeInputFactory, new Tracker<>(), newLinesRepository);
+    shortBranchTracker = new PullRequestTrackerExecution(baseInputFactory, rawInputFactory, mergeInputFactory, new Tracker<>(), newLinesRepository);
     mergeBranchTracker = new MergeBranchTrackerExecution(rawInputFactory, mergeInputFactory, new Tracker<>());
 
     trackingDelegator = new IssueTrackingDelegator(shortBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);

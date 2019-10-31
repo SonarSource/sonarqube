@@ -142,7 +142,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     new PostProjectAnalysisTasksExecutor(
       ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
       system2, new PostProjectAnalysisTask[] {postProjectAnalysisTask1, postProjectAnalysisTask2})
-        .finished(allStepsExecuted);
+      .finished(allStepsExecuted);
 
     inOrder.verify(postProjectAnalysisTask1).finished(taskContextCaptor.capture());
     inOrder.verify(postProjectAnalysisTask1).getDescription();
@@ -280,7 +280,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     analysisMetadataHolder.setBranch(new Branch() {
       @Override
       public BranchType getType() {
-        return BranchType.SHORT;
+        return BranchType.BRANCH;
       }
 
       @Override
@@ -326,7 +326,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     org.sonar.api.ce.posttask.Branch branch = taskContextCaptor.getValue().getProjectAnalysis().getBranch().get();
     assertThat(branch.isMain()).isFalse();
     assertThat(branch.getName()).hasValue("feature/foo");
-    assertThat(branch.getType()).isEqualTo(BranchImpl.Type.SHORT);
+    assertThat(branch.getType()).isEqualTo(BranchImpl.Type.BRANCH);
   }
 
   @Test
@@ -430,7 +430,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     new PostProjectAnalysisTasksExecutor(
       ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
       system2, new PostProjectAnalysisTask[] {logStatisticsTask})
-        .finished(allStepsExecuted);
+      .finished(allStepsExecuted);
 
     verify(logStatisticsTask).finished(taskContextCaptor.capture());
 
@@ -458,7 +458,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     new PostProjectAnalysisTasksExecutor(
       ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
       system2, new PostProjectAnalysisTask[] {postProjectAnalysisTask1, postProjectAnalysisTask2, postProjectAnalysisTask3})
-        .finished(allStepsExecuted);
+      .finished(allStepsExecuted);
 
     inOrder.verify(postProjectAnalysisTask1).finished(taskContextCaptor.capture());
     inOrder.verify(postProjectAnalysisTask1).getDescription();

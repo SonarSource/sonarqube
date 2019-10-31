@@ -39,7 +39,7 @@ import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.issue.index.BranchStatistics;
+import org.sonar.server.issue.index.PrStatistics;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectPullRequests;
@@ -109,8 +109,8 @@ public class ListAction implements PullRequestWsAction {
         .selectByUuids(dbSession, pullRequests.stream().map(BranchDto::getMergeBranchUuid).filter(Objects::nonNull).collect(toList()))
         .stream().collect(uniqueIndex(BranchDto::getUuid));
 
-      Map<String, BranchStatistics> branchStatisticsByBranchUuid = issueIndex.searchBranchStatistics(project.uuid(), pullRequestUuids).stream()
-        .collect(uniqueIndex(BranchStatistics::getBranchUuid, Function.identity()));
+      Map<String, PrStatistics> branchStatisticsByBranchUuid = issueIndex.searchBranchStatistics(project.uuid(), pullRequestUuids).stream()
+        .collect(uniqueIndex(PrStatistics::getBranchUuid, Function.identity()));
       Map<String, LiveMeasureDto> qualityGateMeasuresByComponentUuids = dbClient.liveMeasureDao()
         .selectByComponentUuidsAndMetricKeys(dbSession, pullRequestUuids, singletonList(ALERT_STATUS_KEY)).stream()
         .collect(uniqueIndex(LiveMeasureDto::getComponentUuid));
@@ -135,7 +135,7 @@ public class ListAction implements PullRequestWsAction {
   }
 
   private static void addPullRequest(ProjectPullRequests.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid,
-    @Nullable LiveMeasureDto qualityGateMeasure, BranchStatistics branchStatistics, @Nullable String analysisDate) {
+    @Nullable LiveMeasureDto qualityGateMeasure, PrStatistics prStatistics, @Nullable String analysisDate) {
     Optional<BranchDto> mergeBranch = Optional.ofNullable(mergeBranchesByUuid.get(branch.getMergeBranchUuid()));
 
     ProjectPullRequests.PullRequest.Builder builder = ProjectPullRequests.PullRequest.newBuilder();
@@ -160,18 +160,18 @@ public class ListAction implements PullRequestWsAction {
     }
 
     ofNullable(analysisDate).ifPresent(builder::setAnalysisDate);
-    setQualityGate(builder, qualityGateMeasure, branchStatistics);
+    setQualityGate(builder, qualityGateMeasure, prStatistics);
     response.addPullRequests(builder);
   }
 
-  private static void setQualityGate(ProjectPullRequests.PullRequest.Builder builder, @Nullable LiveMeasureDto qualityGateMeasure, @Nullable BranchStatistics branchStatistics) {
+  private static void setQualityGate(ProjectPullRequests.PullRequest.Builder builder, @Nullable LiveMeasureDto qualityGateMeasure, @Nullable PrStatistics prStatistics) {
     ProjectPullRequests.Status.Builder statusBuilder = ProjectPullRequests.Status.newBuilder();
     if (qualityGateMeasure != null) {
       ofNullable(qualityGateMeasure.getDataAsString()).ifPresent(statusBuilder::setQualityGateStatus);
     }
-    statusBuilder.setBugs(branchStatistics == null ? 0L : branchStatistics.getBugs());
-    statusBuilder.setVulnerabilities(branchStatistics == null ? 0L : branchStatistics.getVulnerabilities());
-    statusBuilder.setCodeSmells(branchStatistics == null ? 0L : branchStatistics.getCodeSmells());
+    statusBuilder.setBugs(prStatistics == null ? 0L : prStatistics.getBugs());
+    statusBuilder.setVulnerabilities(prStatistics == null ? 0L : prStatistics.getVulnerabilities());
+    statusBuilder.setCodeSmells(prStatistics == null ? 0L : prStatistics.getCodeSmells());
     builder.setStatus(statusBuilder);
   }
 }

@@ -97,7 +97,6 @@ import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builde
 import static org.sonar.ce.task.projectanalysis.step.SendIssueNotificationsStep.NOTIF_TYPES;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
-import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -202,12 +201,12 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     Integer[] backDatedEfforts = IntStream.range(0, 1 + random.nextInt(10)).mapToObj(i -> 10 + random.nextInt(100)).toArray(Integer[]::new);
     Duration expectedEffort = Duration.create(stream(efforts).mapToInt(i -> i).sum());
     List<DefaultIssue> issues = concat(stream(efforts)
-      .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
-        .setCreationDate(new Date(ANALYSE_DATE))),
+        .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
+          .setCreationDate(new Date(ANALYSE_DATE))),
       stream(backDatedEfforts)
         .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
           .setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS))))
-            .collect(toList());
+      .collect(toList());
     shuffle(issues);
     DiskCache<DefaultIssue>.DiskAppender issueCache = this.issueCache.newAppender();
     issues.forEach(issueCache::append);
@@ -266,22 +265,6 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     verify(newIssuesNotificationMock).setStatistics(eq(branch.longName()), any(NewIssuesStatistics.Stats.class));
     verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
     verifyStatistics(context, 1, 0, 0);
-  }
-
-  @Test
-  public void do_not_send_global_new_issues_notification_on_short_branch() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
-    ComponentDto branch = setUpBranch(project, SHORT);
-    issueCache.newAppender().append(
-      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
-    when(notificationService.hasProjectSubscribersForTypes(project.uuid(), NOTIF_TYPES)).thenReturn(true);
-    analysisMetadataHolder.setProject(Project.from(project));
-    analysisMetadataHolder.setBranch(newBranch(SHORT));
-
-    TestComputationStepContext context = new TestComputationStepContext();
-    underTest.execute(context);
-
-    verifyZeroInteractions(notificationService, newIssuesNotificationMock);
   }
 
   @Test
@@ -356,14 +339,14 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     Integer[] assignedToOther = IntStream.range(0, 3).mapToObj(i -> 10).toArray(Integer[]::new);
 
     List<DefaultIssue> issues = concat(stream(assigned)
-      .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
-        .setAssigneeUuid(perceval.getUuid())
-        .setCreationDate(new Date(ANALYSE_DATE))),
+        .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
+          .setAssigneeUuid(perceval.getUuid())
+          .setCreationDate(new Date(ANALYSE_DATE))),
       stream(assignedToOther)
         .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
           .setAssigneeUuid(arthur.getUuid())
           .setCreationDate(new Date(ANALYSE_DATE))))
-            .collect(toList());
+      .collect(toList());
     shuffle(issues);
     IssueCache issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     DiskCache<DefaultIssue>.DiskAppender newIssueCache = issueCache.newAppender();
@@ -429,14 +412,14 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     Integer[] backDatedEfforts = IntStream.range(0, 1 + random.nextInt(10)).mapToObj(i -> 10 + random.nextInt(100)).toArray(Integer[]::new);
     Duration expectedEffort = Duration.create(stream(efforts).mapToInt(i -> i).sum());
     List<DefaultIssue> issues = concat(stream(efforts)
-      .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
-        .setAssigneeUuid(user.getUuid())
-        .setCreationDate(new Date(ANALYSE_DATE))),
+        .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
+          .setAssigneeUuid(user.getUuid())
+          .setCreationDate(new Date(ANALYSE_DATE))),
       stream(backDatedEfforts)
         .map(effort -> new DefaultIssue().setType(randomRuleType).setEffort(Duration.create(effort))
           .setAssigneeUuid(user.getUuid())
           .setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS))))
-            .collect(toList());
+      .collect(toList());
     shuffle(issues);
     DiskCache<DefaultIssue>.DiskAppender issueCache = this.issueCache.newAppender();
     issues.forEach(issueCache::append);

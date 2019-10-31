@@ -247,13 +247,6 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   }
 
   @Override
-  public boolean isShortLivingBranch() {
-    checkState(this.branch.isInitialized(), BRANCH_NOT_SET);
-    Branch prop = branch.getProperty();
-    return prop != null && prop.getType() == BranchType.SHORT;
-  }
-
-  @Override
   public boolean isLongLivingBranch() {
     checkState(this.branch.isInitialized(), BRANCH_NOT_SET);
     Branch prop = branch.getProperty();

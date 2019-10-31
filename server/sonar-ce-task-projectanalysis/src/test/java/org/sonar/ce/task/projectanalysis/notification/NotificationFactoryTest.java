@@ -570,15 +570,11 @@ public class NotificationFactoryTest {
     Branch mainBranch = mock(Branch.class);
     when(mainBranch.isMain()).thenReturn(true);
     when(mainBranch.getType()).thenReturn(BranchType.LONG);
-    Branch shortBranch = mock(Branch.class);
-    when(shortBranch.isMain()).thenReturn(false);
-    when(shortBranch.getType()).thenReturn(BranchType.SHORT);
     Branch pr = mock(Branch.class);
     when(pr.isMain()).thenReturn(false);
     when(pr.getType()).thenReturn(BranchType.PULL_REQUEST);
     return new Object[][] {
       {mainBranch},
-      {shortBranch},
       {pr}
     };
   }

@@ -97,7 +97,7 @@ public class BuildComponentTreeStep implements ComputationStep {
 
       Component reportTreeRoot = builder.buildProject(reportProject, relativePathFromScmRoot);
 
-      if (analysisMetadataHolder.isSLBorPR()) {
+      if (analysisMetadataHolder.isPullRequest()) {
         Component changedComponentTreeRoot = builder.buildChangedComponentTreeRoot(reportTreeRoot);
         treeRootHolder.setRoots(changedComponentTreeRoot, reportTreeRoot);
       } else {

@@ -122,9 +122,6 @@ public class SetBaselineAction implements ProjectAnalysesWsAction {
     BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, project.uuid())
       .orElseThrow(() -> new NotFoundException(format("Branch '%s' is not found", branchKey)));
 
-    checkArgument(branchDto.getBranchType() == BranchType.LONG,
-      "Not a long-living branch: '%s'", branchKey);
-
     return project;
   }
 

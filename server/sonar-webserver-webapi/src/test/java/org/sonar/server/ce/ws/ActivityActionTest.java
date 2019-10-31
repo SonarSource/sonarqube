@@ -73,6 +73,7 @@ import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MAX_EXECUTED_AT;
@@ -394,34 +395,34 @@ public class ActivityActionTest {
   }
 
   @Test
-  public void long_living_branch_in_past_activity() {
+  public void branch_in_past_activity() {
     logInAsSystemAdministrator();
     ComponentDto project = db.components().insertMainBranch();
     userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
-    SnapshotDto analysis = db.components().insertSnapshot(longLivingBranch);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    SnapshotDto analysis = db.components().insertSnapshot(branch);
     CeActivityDto activity = insertActivity("T1", project, SUCCESS, analysis);
-    insertCharacteristic(activity, BRANCH_KEY, longLivingBranch.getBranch());
-    insertCharacteristic(activity, BRANCH_TYPE_KEY, LONG.name());
+    insertCharacteristic(activity, BRANCH_KEY, branch.getBranch());
+    insertCharacteristic(activity, BRANCH_TYPE_KEY, BRANCH.name());
 
     ActivityResponse response = ws.newRequest().executeProtobuf(ActivityResponse.class);
 
     assertThat(response.getTasksList())
       .extracting(Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus, Ce.Task::getComponentKey)
       .containsExactlyInAnyOrder(
-        tuple("T1", longLivingBranch.getBranch(), Common.BranchType.LONG, Ce.TaskStatus.SUCCESS, longLivingBranch.getKey()));
+        tuple("T1", branch.getBranch(), Common.BranchType.BRANCH, Ce.TaskStatus.SUCCESS, branch.getKey()));
   }
 
   @Test
-  public void long_living_branch_in_queue_analysis() {
+  public void branch_in_queue_analysis() {
     logInAsSystemAdministrator();
     String branch = "ny_branch";
     CeQueueDto queue1 = insertQueue("T1", null, IN_PROGRESS);
     insertCharacteristic(queue1, BRANCH_KEY, branch);
-    insertCharacteristic(queue1, BRANCH_TYPE_KEY, LONG.name());
+    insertCharacteristic(queue1, BRANCH_TYPE_KEY, BRANCH.name());
     CeQueueDto queue2 = insertQueue("T2", null, PENDING);
     insertCharacteristic(queue2, BRANCH_KEY, branch);
-    insertCharacteristic(queue2, BRANCH_TYPE_KEY, LONG.name());
+    insertCharacteristic(queue2, BRANCH_TYPE_KEY, BRANCH.name());
 
     ActivityResponse response = ws.newRequest()
       .setParam("status", "FAILED,IN_PROGRESS,PENDING")
@@ -430,8 +431,8 @@ public class ActivityActionTest {
     assertThat(response.getTasksList())
       .extracting(Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus)
       .containsExactlyInAnyOrder(
-        tuple("T1", branch, Common.BranchType.LONG, Ce.TaskStatus.IN_PROGRESS),
-        tuple("T2", branch, Common.BranchType.LONG, Ce.TaskStatus.PENDING));
+        tuple("T1", branch, Common.BranchType.BRANCH, Ce.TaskStatus.IN_PROGRESS),
+        tuple("T2", branch, Common.BranchType.BRANCH, Ce.TaskStatus.PENDING));
   }
 
   @Test

@@ -79,7 +79,7 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
       return new Condition(metricKey, operator, conditionDto.getErrorThreshold());
     });
 
-    if (branch.getBranchType() == BranchType.PULL_REQUEST || branch.getBranchType() == BranchType.SHORT) {
+    if (branch.getBranchType() == BranchType.PULL_REQUEST) {
       conditions = conditions.filter(Condition::isOnLeakPeriod);
     }
 

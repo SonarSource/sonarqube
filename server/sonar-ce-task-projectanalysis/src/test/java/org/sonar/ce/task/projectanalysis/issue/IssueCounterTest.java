@@ -311,10 +311,10 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void count_all_issues_as_new_issues_if_pr_or_slb() {
+  public void count_all_issues_as_new_issues_if_pr() {
     periodsHolder.setPeriod(null);
     Branch branch = mock(Branch.class);
-    when(branch.getType()).thenReturn(BranchType.SHORT);
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     analysisMetadataHolder.setBranch(branch);
 
     underTest.beforeComponent(FILE1);

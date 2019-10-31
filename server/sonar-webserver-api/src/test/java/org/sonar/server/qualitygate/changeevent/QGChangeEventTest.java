@@ -44,7 +44,7 @@ public class QGChangeEventTest {
     .setDbKey("foo")
     .setUuid("bar");
   private BranchDto branch = new BranchDto()
-    .setBranchType(BranchType.SHORT)
+    .setBranchType(BranchType.BRANCH)
     .setUuid("bar")
     .setProjectUuid("doh")
     .setMergeBranchUuid("zop");
@@ -124,7 +124,7 @@ public class QGChangeEventTest {
     QGChangeEvent underTest = new QGChangeEvent(project, branch, analysis, configuration, previousStatus, supplier);
 
     assertThat(underTest.toString())
-      .isEqualTo("QGChangeEvent{project=bar:foo, branch=SHORT:bar:doh:zop, analysis=pto:8999999765" +
+      .isEqualTo("QGChangeEvent{project=bar:foo, branch=BRANCH:bar:doh:zop, analysis=pto:8999999765" +
         ", projectConfiguration=" + configuration.toString() +
         ", previousStatus=" + previousStatus +
         ", qualityGateSupplier=" + supplier + "}");

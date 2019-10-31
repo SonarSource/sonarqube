@@ -51,7 +51,6 @@ import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchType.LONG;
-import static org.sonar.db.component.BranchType.SHORT;
 
 public class QualityGateActionTest {
 
@@ -185,20 +184,6 @@ public class QualityGateActionTest {
 
     TestResponse response = ws.newRequest()
       .setParam("project", directory.getKey())
-      .execute();
-
-    checkError(response, "Project is invalid");
-  }
-
-  @Test
-  public void return_error_on_short_living_branch() throws ParseException {
-    ComponentDto project = db.components().insertMainBranch(p -> p.setPrivate(false));
-    userSession.registerComponents(project);
-    ComponentDto shortBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(SHORT));
-
-    TestResponse response = ws.newRequest()
-      .setParam("project", shortBranch.getKey())
-      .setParam("branch", shortBranch.getBranch())
       .execute();
 
     checkError(response, "Project is invalid");

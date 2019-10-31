@@ -844,7 +844,7 @@ public class IssueIndex {
       .collect(MoreCollectors.toList(projectUuids.size()));
   }
 
-  public List<BranchStatistics> searchBranchStatistics(String projectUuid, List<String> branchUuids) {
+  public List<PrStatistics> searchBranchStatistics(String projectUuid, List<String> branchUuids) {
     if (branchUuids.isEmpty()) {
       return Collections.emptyList();
     }
@@ -864,7 +864,7 @@ public class IssueIndex {
           .field(FIELD_ISSUE_TYPE)));
     SearchResponse response = request.get();
     return ((StringTerms) response.getAggregations().get("branchUuids")).getBuckets().stream()
-      .map(bucket -> new BranchStatistics(bucket.getKeyAsString(),
+      .map(bucket -> new PrStatistics(bucket.getKeyAsString(),
         ((StringTerms) bucket.getAggregations().get("types")).getBuckets()
           .stream()
           .collect(uniqueIndex(StringTerms.Bucket::getKeyAsString, InternalTerms.Bucket::getDocCount))))

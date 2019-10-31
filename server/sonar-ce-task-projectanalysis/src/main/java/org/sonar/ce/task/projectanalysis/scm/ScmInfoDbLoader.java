@@ -60,7 +60,7 @@ public class ScmInfoDbLoader {
   }
 
   private Optional<String> getFileUUid(Component file) {
-    if (!analysisMetadataHolder.isFirstAnalysis() && !analysisMetadataHolder.isSLBorPR()) {
+    if (!analysisMetadataHolder.isFirstAnalysis() && !analysisMetadataHolder.isPullRequest()) {
       return Optional.of(file.getUuid());
     }
 

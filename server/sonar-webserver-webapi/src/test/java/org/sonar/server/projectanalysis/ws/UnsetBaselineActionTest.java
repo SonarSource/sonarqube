@@ -227,19 +227,6 @@ public class UnsetBaselineActionTest {
   }
 
   @Test
-  public void fail_with_IAE_when_branch_is_short() {
-    ComponentDto project = newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = newBranchDto(project.projectUuid(), BranchType.SHORT);
-    db.components().insertProjectBranch(project, branch);
-    logInAsProjectAdministrator(project);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("Not a long-living branch: '%s'", branch.getKey()));
-
-    call(project.getKey(), branch.getKey());
-  }
-
-  @Test
   public void fail_with_NotFoundException_when_branch_is_pull_request() {
     ComponentDto project = newPrivateProjectDto(db.organizations().insert());
     BranchDto branch = newBranchDto(project.projectUuid(), BranchType.LONG);

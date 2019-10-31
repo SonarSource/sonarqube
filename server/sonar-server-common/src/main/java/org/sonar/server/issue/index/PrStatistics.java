@@ -26,14 +26,14 @@ import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 
-public class BranchStatistics {
+public class PrStatistics {
 
   private final String branchUuid;
   private final long bugs;
   private final long vulnerabilities;
   private final long codeSmells;
 
-  public BranchStatistics(String branchUuid, Map<String, Long> issueCountByType) {
+  public PrStatistics(String branchUuid, Map<String, Long> issueCountByType) {
     this.branchUuid = branchUuid;
     this.bugs = getNonNullValue(issueCountByType, BUG);
     this.vulnerabilities = getNonNullValue(issueCountByType, VULNERABILITY);

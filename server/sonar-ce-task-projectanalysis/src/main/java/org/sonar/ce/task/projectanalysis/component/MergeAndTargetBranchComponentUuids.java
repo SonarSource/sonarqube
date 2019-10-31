@@ -67,7 +67,7 @@ public class MergeAndTargetBranchComponentUuids {
 
         initForMergeBranch(mergeBranchUuid, dbSession);
 
-        if (analysisMetadataHolder.isSLBorPR()) {
+        if (analysisMetadataHolder.isPullRequest()) {
           initForTargetBranch(mergeBranchUuid, dbSession);
         } else {
           hasTargetBranchAnalysis = false;

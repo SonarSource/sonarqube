@@ -59,7 +59,7 @@ public class ProjectBadgesSupport {
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action
       .createParam(PARAM_BRANCH)
-      .setDescription("Long living branch key")
+      .setDescription("Branch key")
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
   }
 

@@ -43,7 +43,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
@@ -605,24 +604,6 @@ public class SearchActionTest {
 
     assertThat(result).extracting(Analysis::getKey).containsExactlyInAnyOrder(analysis.getUuid());
     assertThat(result.get(0).getEventsList()).extracting(Event::getKey).containsExactlyInAnyOrder(event.getUuid());
-  }
-
-  @Test
-  public void fail_if_branch_is_short_lived() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch").setBranchType(BranchType.SHORT));
-    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(branch));
-    EventDto event = db.events().insertEvent(newEvent(analysis).setCategory(QUALITY_GATE.getLabel()));
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Branch 'my_branch' is not of type LONG");
-    call(SearchRequest.builder()
-      .setProject(project.getKey())
-      .setBranch("my_branch")
-      .build())
-      .getAnalysesList();
-
   }
 
   @Test

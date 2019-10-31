@@ -40,20 +40,15 @@ message Branch {
   optional string name = 1;
   optional bool isMain = 2;
   optional sonarqube.ws.commons.BranchType type = 3;
-  // Merge branch is only present for short living branch
-  optional string mergeBranch = 4;
+  reserved 4;
   optional Status status = 5;
   optional bool isOrphan = 6;
   optional string analysisDate = 7;
 }
 
 message Status {
-  // Quality gate status is only present for long living branch
   optional string qualityGateStatus = 1;
-  // Merge bugs, vulnerabilities and codeSmell are only present for short living branch
-  optional int64 bugs = 2;
-  optional int64 vulnerabilities = 3;
-  optional int64 codeSmells = 4;
+  reserved 2, 3, 4;
 }
 
 

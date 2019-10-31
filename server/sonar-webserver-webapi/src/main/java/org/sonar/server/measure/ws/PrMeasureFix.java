@@ -65,7 +65,7 @@ import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
  * See SONAR-11736
  * This class should be removed in 8.0.
  */
-class SLBorPRMeasureFix {
+class PrMeasureFix {
   static final BiMap<String, String> METRICS;
 
   static {
@@ -95,7 +95,7 @@ class SLBorPRMeasureFix {
     METRICS.put(NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, RELIABILITY_REMEDIATION_EFFORT_KEY);
   }
 
-  private SLBorPRMeasureFix() {
+  private PrMeasureFix() {
     // static only
   }
 

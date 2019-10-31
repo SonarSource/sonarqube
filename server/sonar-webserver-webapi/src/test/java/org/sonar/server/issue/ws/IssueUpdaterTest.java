@@ -93,7 +93,8 @@ public class IssueUpdaterTest {
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
   private IssueUpdater underTest = new IssueUpdater(dbClient,
-    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), notificationManager, issueChangePostProcessor, issuesChangesSerializer);
+    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), notificationManager, issueChangePostProcessor,
+    issuesChangesSerializer);
 
   @Test
   public void update_issue() {
@@ -199,23 +200,6 @@ public class IssueUpdaterTest {
     assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
     assertThat(changedIssue.getProject()).isEqualTo(projectBranchOf(db, branch));
     assertThat(builder.getChange()).isEqualTo(new UserChange(issue.updateDate().getTime(), userOf(changeAuthor)));
-  }
-
-  @Test
-  public void verify_no_notification_on_short_branch() {
-    RuleDto rule = db.rules().insertRule();
-    ComponentDto project = db.components().insertMainBranch();
-    ComponentDto branch = db.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.SHORT));
-    ComponentDto file = db.components().insertComponent(newFileDto(branch));
-    RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
-    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), branch, file)
-      .setType(randomTypeExceptHotspot)).setSeverity(MAJOR).toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
-    issueFieldsSetter.setSeverity(issue, BLOCKER, context);
-
-    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
-
-    verifyZeroInteractions(notificationManager);
   }
 
   @Test

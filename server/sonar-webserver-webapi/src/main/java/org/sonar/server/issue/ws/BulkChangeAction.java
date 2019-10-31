@@ -312,7 +312,7 @@ public class BulkChangeAction implements IssuesWsAction {
   }
 
   private static boolean hasNotificationSupport(@Nullable BranchDto branch) {
-    return branch != null && branch.getBranchType() != BranchType.PULL_REQUEST && branch.getBranchType() != BranchType.SHORT;
+    return branch != null && branch.getBranchType() != BranchType.PULL_REQUEST;
   }
 
   private static long oldestUpdateDate(Collection<DefaultIssue> issues) {
@@ -360,7 +360,7 @@ public class BulkChangeAction implements IssuesWsAction {
       this.issues = getAuthorizedIssues(allIssues);
       this.componentsByUuid = getComponents(dbSession,
         issues.stream().map(DefaultIssue::componentUuid).collect(MoreCollectors.toSet())).stream()
-          .collect(uniqueIndex(ComponentDto::uuid, identity()));
+        .collect(uniqueIndex(ComponentDto::uuid, identity()));
       this.rulesByKey = dbClient.ruleDao().selectDefinitionByKeys(dbSession,
         issues.stream().map(DefaultIssue::ruleKey).collect(MoreCollectors.toSet())).stream()
         .collect(uniqueIndex(RuleDefinitionDto::getKey, identity()));

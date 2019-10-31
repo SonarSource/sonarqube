@@ -64,25 +64,8 @@ public class ValidateProjectStepTest {
     .setAnalysisDate(new Date(DEFAULT_ANALYSIS_TIME))
     .setBranch(DEFAULT_BRANCH);
 
-  DbClient dbClient = dbTester.getDbClient();
-
-  ValidateProjectStep underTest = new ValidateProjectStep(dbClient, treeRootHolder, analysisMetadataHolder);
-
-  @Test
-  public void fail_if_slb_is_targeting_master_with_modules() {
-    ComponentDto masterProject = dbTester.components().insertMainBranch();
-    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newModuleDto(masterProject));
-    setBranch(BranchType.SHORT, masterProject.uuid());
-    dbTester.getSession().commit();
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("DEFG")
-      .setKey("branch")
-      .build());
-
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Due to an upgrade, you need first to re-analyze the target branch 'master' before analyzing this short-lived branch.");
-    underTest.execute(new TestComputationStepContext());
-  }
+  private DbClient dbClient = dbTester.getDbClient();
+  private ValidateProjectStep underTest = new ValidateProjectStep(dbClient, treeRootHolder, analysisMetadataHolder);
 
   @Test
   public void fail_if_pr_is_targeting_branch_with_modules() {
@@ -98,19 +81,6 @@ public class ValidateProjectStepTest {
 
     thrown.expect(MessageException.class);
     thrown.expectMessage("Due to an upgrade, you need first to re-analyze the target branch 'mergeBranch' before analyzing this pull request.");
-    underTest.execute(new TestComputationStepContext());
-  }
-
-  @Test
-  public void dont_fail_if_slb_is_targeting_branch_without_modules() {
-    ComponentDto masterProject = dbTester.components().insertMainBranch();
-    setBranch(BranchType.SHORT, masterProject.uuid());
-    dbTester.getSession().commit();
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("DEFG")
-      .setKey("branch")
-      .build());
-
     underTest.execute(new TestComputationStepContext());
   }
 

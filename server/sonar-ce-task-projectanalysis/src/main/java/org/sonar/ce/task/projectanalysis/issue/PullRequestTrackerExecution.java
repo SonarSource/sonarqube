@@ -33,14 +33,14 @@ import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.core.util.stream.MoreCollectors;
 
-public class ShortBranchOrPullRequestTrackerExecution {
+public class PullRequestTrackerExecution {
   private final TrackerBaseInputFactory baseInputFactory;
   private final TrackerRawInputFactory rawInputFactory;
   private final TrackerMergeOrTargetBranchInputFactory mergeInputFactory;
   private final Tracker<DefaultIssue, DefaultIssue> tracker;
   private final NewLinesRepository newLinesRepository;
 
-  public ShortBranchOrPullRequestTrackerExecution(TrackerBaseInputFactory baseInputFactory, TrackerRawInputFactory rawInputFactory,
+  public PullRequestTrackerExecution(TrackerBaseInputFactory baseInputFactory, TrackerRawInputFactory rawInputFactory,
     TrackerMergeOrTargetBranchInputFactory mergeInputFactory, Tracker<DefaultIssue, DefaultIssue> tracker, NewLinesRepository newLinesRepository) {
     this.baseInputFactory = baseInputFactory;
     this.rawInputFactory = rawInputFactory;

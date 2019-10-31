@@ -98,7 +98,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
 
     action.createParam(PARAM_BRANCH)
-      .setDescription("Key of a long lived branch")
+      .setDescription("Key of a branch")
       .setSince("6.6")
       .setInternal(true)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
@@ -182,21 +182,8 @@ public class SearchAction implements ProjectAnalysesWsAction {
 
   private void addProject(SearchData.Builder data) {
     ComponentDto project = loadComponent(data.getDbSession(), data.getRequest());
-    checkBranchType(project.uuid(), data.getDbSession(), data.getRequest().getBranch());
     checkArgument(Scopes.PROJECT.equals(project.scope()) && ALLOWED_QUALIFIERS.contains(project.qualifier()), "A project, portfolio or application is required");
     data.setProject(project);
-  }
-
-  private void checkBranchType(String rootComponentUuid, DbSession dbSession, @Nullable String branchName) {
-    if (branchName == null) {
-      return;
-    }
-    Optional<BranchDto> branch = branchDao.selectByUuid(dbSession, rootComponentUuid);
-    BranchDto branchDto = branch
-      .orElseThrow(() -> new IllegalArgumentException(String.format("Branch '%s' not found", branchName)));
-    if (branchDto.getBranchType() != BranchType.LONG) {
-      throw new IllegalArgumentException(String.format("Branch '%s' is not of type LONG", branchName));
-    }
   }
 
   private ComponentDto loadComponent(DbSession dbSession, SearchRequest request) {
