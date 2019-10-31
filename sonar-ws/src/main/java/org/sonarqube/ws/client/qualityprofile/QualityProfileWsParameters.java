@@ -60,6 +60,7 @@ public class QualityProfileWsParameters {
   public static final String PARAM_KEY = "key";
   public static final String PARAM_QUALITY_PROFILE = "qualityProfile";
   public static final String PARAM_PROJECT = "project";
+  public static final String PARAM_PROJECT_KEY = "projectKey";
   public static final String PARAM_QUERY = "q";
   public static final String PARAM_RESET = "reset";
   public static final String PARAM_RULE = "rule";

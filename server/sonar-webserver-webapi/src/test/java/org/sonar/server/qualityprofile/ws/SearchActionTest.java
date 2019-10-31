@@ -68,6 +68,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class SearchActionTest {
@@ -273,6 +274,26 @@ public class SearchActionTest {
       .containsExactlyInAnyOrder(defaultProfileOnXoo2.getKee())
       .doesNotContain(defaultProfileOnXoo1.getKee(), profileOnXoo1.getKee());
   }
+
+  @Test
+  public void filter_on_deprecated_project_key_and_default() {
+    ComponentDto project = db.components().insertPrivateProject();
+    QProfileDto profileOnXoo1 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO1.getKey()));
+    QProfileDto defaultProfileOnXoo1 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO1.getKey()));
+    QProfileDto defaultProfileOnXoo2 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO2.getKey()));
+    db.qualityProfiles().associateWithProject(project, profileOnXoo1);
+    db.qualityProfiles().setAsDefault(defaultProfileOnXoo1, defaultProfileOnXoo2);
+
+    SearchWsResponse result = call(ws.newRequest()
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+      .setParam(PARAM_DEFAULTS, "true"));
+
+    assertThat(result.getProfilesList())
+      .extracting(QualityProfile::getKey)
+      .containsExactlyInAnyOrder(defaultProfileOnXoo2.getKee())
+      .doesNotContain(defaultProfileOnXoo1.getKee(), profileOnXoo1.getKee());
+  }
+
 
   @Test
   public void empty_when_filtering_on_project_and_no_language_installed() {
@@ -562,6 +583,7 @@ public class SearchActionTest {
 
     WebService.Param projectKey = definition.param("project");
     assertThat(projectKey.description()).isEqualTo("Project key");
+    assertThat(projectKey.deprecatedKey()).isEqualTo("projectKey");
 
     WebService.Param language = definition.param("language");
     assertThat(language.possibleValues()).containsExactly("xoo1", "xoo2");

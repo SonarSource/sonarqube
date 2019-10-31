@@ -48,8 +48,8 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.language.LanguageParamUtils;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
@@ -69,6 +69,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class SearchAction implements QProfileWsAction {
@@ -114,6 +115,8 @@ public class SearchAction implements QProfileWsAction {
 
     action.createParam(PARAM_PROJECT)
       .setDescription("Project key")
+      // still used by Scanner for MSBuild 4.7.1
+      .setDeprecatedKey(PARAM_PROJECT_KEY, "6.5")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action
