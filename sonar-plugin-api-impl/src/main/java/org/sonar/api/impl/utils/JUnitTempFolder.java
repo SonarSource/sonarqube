@@ -19,17 +19,15 @@
  */
 package org.sonar.api.impl.utils;
 
+import java.io.File;
+import java.io.IOException;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.sonar.api.utils.TempFolder;
-
-import javax.annotation.Nullable;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Implementation of {@link org.sonar.api.utils.TempFolder} to be used
@@ -104,5 +102,9 @@ public class JUnitTempFolder extends ExternalResource implements TempFolder {
     } catch (IOException e) {
       throw new IllegalStateException("Fail to create temp file", e);
     }
+  }
+
+  public File getRoot() {
+    return junit.getRoot();
   }
 }

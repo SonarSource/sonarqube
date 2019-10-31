@@ -30,23 +30,24 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.impl.utils.JUnitTempFolder;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.client.MockWsResponse;
 import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
 
@@ -66,7 +67,7 @@ public class ReportPublisherTest {
   public LogTester logTester = new LogTester();
 
   @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  public JUnitTempFolder reportTempFolder = new JUnitTempFolder();
 
   @Rule
   public ExpectedException exception = ExpectedException.none();
@@ -79,29 +80,26 @@ public class ReportPublisherTest {
   DefaultInputModule root;
   AnalysisContextReportPublisher contextPublisher = mock(AnalysisContextReportPublisher.class);
   BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
-  ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
-    new ReportPublisherStep[0], branchConfiguration);
+  CeTaskReportDataHolder reportMetadataHolder = mock(CeTaskReportDataHolder.class);
+  ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, reportTempFolder,
+    new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder);
 
   @Before
-  public void setUp() throws IOException {
-    root = new DefaultInputModule(ProjectDefinition.create().setKey("org.sonarsource.sonarqube:sonarqube").setBaseDir(temp.newFolder()).setWorkDir(temp.getRoot()));
+  public void setUp() {
+    root = new DefaultInputModule(
+      ProjectDefinition.create().setKey("org.sonarsource.sonarqube:sonarqube").setBaseDir(reportTempFolder.newDir()).setWorkDir(reportTempFolder.getRoot()));
     when(moduleHierarchy.root()).thenReturn(root);
     when(server.getPublicRootUrl()).thenReturn("https://localhost");
     when(server.getVersion()).thenReturn("6.4");
-    when(properties.metadataFilePath()).thenReturn(temp.newFolder().toPath()
+    when(properties.metadataFilePath()).thenReturn(reportTempFolder.newDir().toPath()
       .resolve("folder")
       .resolve("report-task.txt"));
   }
 
   @Test
-  public void log_and_dump_information_about_report_uploading() throws IOException {
+  public void dump_information_about_report_uploading() throws IOException {
     when(properties.organizationKey()).thenReturn(Optional.of("MyOrg"));
-    underTest.logSuccess("TASK-123");
-
-    assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("ANALYSIS SUCCESSFUL, you can browse https://localhost/dashboard?id=org.sonarsource.sonarqube%3Asonarqube")
-      .contains("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report")
-      .contains("More about the report processing at https://localhost/api/ce/task?id=TASK-123");
+    underTest.prepareAndDumpMetadata("TASK-123");
 
     assertThat(readFileToString(properties.metadataFilePath().toFile(), StandardCharsets.UTF_8)).isEqualTo(
       "organization=MyOrg\n" +
@@ -114,7 +112,7 @@ public class ReportPublisherTest {
   }
 
   @Test
-  public void parse_upload_error_message() throws IOException {
+  public void parse_upload_error_message() {
     HttpException ex = new HttpException("url", 404, "{\"errors\":[{\"msg\":\"Organization with key 'MyOrg' does not exist\"}]}");
     WsResponse response = mock(WsResponse.class);
     when(response.failIfNotSuccessful()).thenThrow(ex);
@@ -122,18 +120,14 @@ public class ReportPublisherTest {
 
     exception.expect(MessageException.class);
     exception.expectMessage("Failed to upload report - Organization with key 'MyOrg' does not exist");
-    underTest.upload(temp.newFile());
+    underTest.upload(reportTempFolder.newFile());
   }
 
   @Test
-  public void log_public_url_if_defined_for_main_branch() throws IOException {
+  public void dump_public_url_if_defined_for_main_branch() throws IOException {
     when(server.getPublicRootUrl()).thenReturn("https://publicserver/sonarqube");
 
-    underTest.logSuccess("TASK-123");
-
-    assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube")
-      .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
+    underTest.prepareAndDumpMetadata("TASK-123");
 
     assertThat(readFileToString(properties.metadataFilePath().toFile(), StandardCharsets.UTF_8)).isEqualTo(
       "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
@@ -145,17 +139,14 @@ public class ReportPublisherTest {
   }
 
   @Test
-  public void log_public_url_if_defined_for_long_living_branches() throws IOException {
+  public void dump_public_url_if_defined_for_long_living_branches() throws IOException {
     when(server.getPublicRootUrl()).thenReturn("https://publicserver/sonarqube");
     when(branchConfiguration.branchType()).thenReturn(LONG);
     when(branchConfiguration.branchName()).thenReturn("branch-6.7");
     ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
-      new ReportPublisherStep[0], branchConfiguration);
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder);
 
-    underTest.logSuccess("TASK-123");
-    assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube&branch=branch-6.7")
-      .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
+    underTest.prepareAndDumpMetadata("TASK-123");
 
     assertThat(readFileToString(properties.metadataFilePath().toFile(), StandardCharsets.UTF_8)).isEqualTo(
       "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
@@ -167,17 +158,14 @@ public class ReportPublisherTest {
   }
 
   @Test
-  public void log_public_url_if_defined_for_short_living_branches() throws IOException {
+  public void dump_public_url_if_defined_for_short_living_branches() throws IOException {
     when(server.getPublicRootUrl()).thenReturn("https://publicserver/sonarqube");
     when(branchConfiguration.branchType()).thenReturn(SHORT);
     when(branchConfiguration.branchName()).thenReturn("branch-6.7");
     ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
-      new ReportPublisherStep[0], branchConfiguration);
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder);
 
-    underTest.logSuccess("TASK-123");
-    assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube&branch=branch-6.7&resolved=false")
-      .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
+    underTest.prepareAndDumpMetadata("TASK-123");
 
     assertThat(readFileToString(properties.metadataFilePath().toFile(), StandardCharsets.UTF_8)).isEqualTo(
       "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
@@ -189,20 +177,16 @@ public class ReportPublisherTest {
   }
 
   @Test
-  public void log_public_url_if_defined_for_pull_request() throws IOException {
+  public void dump_public_url_if_defined_for_pull_request() throws IOException {
     when(server.getPublicRootUrl()).thenReturn("https://publicserver/sonarqube");
     when(branchConfiguration.branchName()).thenReturn("Bitbucket cloud Widget");
     when(branchConfiguration.branchType()).thenReturn(PULL_REQUEST);
     when(branchConfiguration.pullRequestKey()).thenReturn("105");
 
     ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
-      new ReportPublisherStep[0], branchConfiguration);
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder);
 
-    underTest.logSuccess("TASK-123");
-
-    assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube&pullRequest=105")
-      .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
+    underTest.prepareAndDumpMetadata("TASK-123");
 
     assertThat(readFileToString(properties.metadataFilePath().toFile(), StandardCharsets.UTF_8)).isEqualTo(
       "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
@@ -223,19 +207,28 @@ public class ReportPublisherTest {
   }
 
   @Test
-  public void log_but_not_dump_information_when_report_is_not_uploaded() throws IOException {
-    underTest.logSuccess(/* report not uploaded, no server task */null);
-
-    assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("ANALYSIS SUCCESSFUL")
-      .doesNotContain("dashboard/index");
-
+  public void should_not_dump_information_when_medium_test_enabled() {
+    when(mode.isMediumTest()).thenReturn(true);
+    underTest.start();
+    underTest.execute();
     assertThat(properties.metadataFilePath()).doesNotExist();
   }
 
   @Test
-  public void log_and_dump_information_to_custom_path() throws IOException {
-    underTest.logSuccess("TASK-123");
+  public void should_upload_and_dump_information() {
+    MockWsResponse submitMockResponse = new MockWsResponse();
+    submitMockResponse.setContent(Ce.SubmitResponse.newBuilder().setTaskId("task-1234").build().toByteArray());
+    when(wsClient.call(any())).thenReturn(submitMockResponse);
+    underTest.start();
+    underTest.execute();
+
+    assertThat(properties.metadataFilePath()).exists();
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Report metadata written to " + properties.metadataFilePath());
+  }
+
+  @Test
+  public void dump_information_to_custom_path() {
+    underTest.prepareAndDumpMetadata("TASK-123");
 
     assertThat(properties.metadataFilePath()).exists();
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Report metadata written to " + properties.metadataFilePath());
@@ -244,7 +237,7 @@ public class ReportPublisherTest {
   @Test
   public void should_not_delete_report_if_property_is_set() throws IOException {
     when(properties.shouldKeepReport()).thenReturn(true);
-    Path reportDir = temp.getRoot().toPath().resolve("scanner-report");
+    Path reportDir = reportTempFolder.getRoot().toPath().resolve("scanner-report");
     Files.createDirectory(reportDir);
 
     underTest.start();
@@ -254,7 +247,7 @@ public class ReportPublisherTest {
 
   @Test
   public void should_delete_report_by_default() throws IOException {
-    Path reportDir = temp.getRoot().toPath().resolve("scanner-report");
+    Path reportDir = reportTempFolder.getRoot().toPath().resolve("scanner-report");
     Files.createDirectory(reportDir);
 
     underTest.start();
@@ -277,7 +270,7 @@ public class ReportPublisherTest {
     when(response.contentStream()).thenReturn(in);
 
     when(wsClient.call(any(WsRequest.class))).thenReturn(response);
-    underTest.upload(temp.newFile());
+    underTest.upload(reportTempFolder.newFile());
 
     ArgumentCaptor<WsRequest> capture = ArgumentCaptor.forClass(WsRequest.class);
     verify(wsClient).call(capture.capture());
@@ -308,7 +301,7 @@ public class ReportPublisherTest {
     when(response.contentStream()).thenReturn(in);
 
     when(wsClient.call(any(WsRequest.class))).thenReturn(response);
-    underTest.upload(temp.newFile());
+    underTest.upload(reportTempFolder.newFile());
 
     ArgumentCaptor<WsRequest> capture = ArgumentCaptor.forClass(WsRequest.class);
     verify(wsClient).call(capture.capture());
@@ -343,7 +336,7 @@ public class ReportPublisherTest {
     when(response.contentStream()).thenReturn(in);
 
     when(wsClient.call(any(WsRequest.class))).thenReturn(response);
-    underTest.upload(temp.newFile());
+    underTest.upload(reportTempFolder.newFile());
 
     ArgumentCaptor<WsRequest> capture = ArgumentCaptor.forClass(WsRequest.class);
     verify(wsClient).call(capture.capture());

@@ -57,6 +57,7 @@ import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LogOutput;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
+import org.sonar.scanner.report.CeTaskReportDataHolder;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.MetricsRepository;
 import org.sonar.scanner.repository.MetricsRepositoryLoader;
@@ -95,6 +96,7 @@ public class ScannerMediumTester extends ExternalResource {
   private final FakeQualityProfileLoader qualityProfiles = new FakeQualityProfileLoader();
   private final FakeActiveRulesLoader activeRules = new FakeActiveRulesLoader();
   private final FakeSonarRuntime sonarRuntime = new FakeSonarRuntime();
+  private final CeTaskReportDataHolder reportMetadataHolder = new CeTaskReportDataHolder();
   private LogOutput logOutput = null;
 
   private static void createWorkingDirs() throws IOException {
@@ -294,6 +296,7 @@ public class ScannerMediumTester extends ExternalResource {
           tester.globalSettingsLoader,
           tester.projectSettingsLoader,
           tester.sonarRuntime,
+          tester.reportMetadataHolder,
           result)
         .setLogOutput(tester.logOutput)
         .build().execute();

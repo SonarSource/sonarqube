@@ -40,8 +40,8 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -79,13 +79,15 @@ public class ReportPublisher implements Startable {
   private final Server server;
   private final BranchConfiguration branchConfiguration;
   private final ScanProperties properties;
+  private final CeTaskReportDataHolder ceTaskReportDataHolder;
 
   private Path reportDir;
   private ScannerReportWriter writer;
   private ScannerReportReader reader;
 
   public ReportPublisher(ScanProperties properties, DefaultScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
-    InputModuleHierarchy moduleHierarchy, GlobalAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers, BranchConfiguration branchConfiguration) {
+    InputModuleHierarchy moduleHierarchy, GlobalAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers, BranchConfiguration branchConfiguration,
+    CeTaskReportDataHolder ceTaskReportDataHolder) {
     this.wsClient = wsClient;
     this.server = server;
     this.contextPublisher = contextPublisher;
@@ -95,6 +97,7 @@ public class ReportPublisher implements Startable {
     this.publishers = publishers;
     this.branchConfiguration = branchConfiguration;
     this.properties = properties;
+    this.ceTaskReportDataHolder = ceTaskReportDataHolder;
   }
 
   @Override
@@ -132,15 +135,14 @@ public class ReportPublisher implements Startable {
   }
 
   public void execute() {
-    String taskId = null;
     File report = generateReportFile();
     if (properties.shouldKeepReport()) {
       LOG.info("Analysis report generated in " + reportDir);
     }
     if (!analysisMode.isMediumTest()) {
-      taskId = upload(report);
+      String taskId = upload(report);
+      prepareAndDumpMetadata(taskId);
     }
-    logSuccess(taskId);
   }
 
   private File generateReportFile() {
@@ -204,36 +206,28 @@ public class ReportPublisher implements Startable {
     }
   }
 
-  void logSuccess(@Nullable String taskId) {
-    if (taskId == null) {
-      LOG.info("ANALYSIS SUCCESSFUL");
-    } else {
+  void prepareAndDumpMetadata(String taskId) {
+    Map<String, String> metadata = new LinkedHashMap<>();
 
-      Map<String, String> metadata = new LinkedHashMap<>();
+    properties.organizationKey().ifPresent(org -> metadata.put("organization", org));
+    metadata.put("projectKey", moduleHierarchy.root().key());
+    metadata.put("serverUrl", server.getPublicRootUrl());
+    metadata.put("serverVersion", server.getVersion());
+    properties.branch().ifPresent(branch -> metadata.put("branch", branch));
 
-      properties.organizationKey().ifPresent(org -> metadata.put("organization", org));
-      metadata.put("projectKey", moduleHierarchy.root().key());
-      metadata.put("serverUrl", server.getPublicRootUrl());
-      metadata.put("serverVersion", server.getVersion());
-      properties.branch().ifPresent(branch -> metadata.put("branch", branch));
+    URL dashboardUrl = buildDashboardUrl(server.getPublicRootUrl(), moduleHierarchy.root().key());
+    metadata.put("dashboardUrl", dashboardUrl.toExternalForm());
 
-      URL dashboardUrl = buildDashboardUrl(server.getPublicRootUrl(), moduleHierarchy.root().key());
-      metadata.put("dashboardUrl", dashboardUrl.toExternalForm());
+    URL taskUrl = HttpUrl.parse(server.getPublicRootUrl()).newBuilder()
+      .addPathSegment("api").addPathSegment("ce").addPathSegment("task")
+      .addQueryParameter(ID, taskId)
+      .build()
+      .url();
+    metadata.put("ceTaskId", taskId);
+    metadata.put("ceTaskUrl", taskUrl.toExternalForm());
 
-      URL taskUrl = HttpUrl.parse(server.getPublicRootUrl()).newBuilder()
-        .addPathSegment("api").addPathSegment("ce").addPathSegment("task")
-        .addQueryParameter(ID, taskId)
-        .build()
-        .url();
-      metadata.put("ceTaskId", taskId);
-      metadata.put("ceTaskUrl", taskUrl.toExternalForm());
-
-      LOG.info("ANALYSIS SUCCESSFUL, you can browse {}", dashboardUrl);
-      LOG.info("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report");
-      LOG.info("More about the report processing at {}", taskUrl);
-
-      dumpMetadata(metadata);
-    }
+    ceTaskReportDataHolder.init(taskId, taskUrl.toExternalForm(), dashboardUrl.toExternalForm());
+    dumpMetadata(metadata);
   }
 
   private URL buildDashboardUrl(String publicUrl, String effectiveKey) {

@@ -19,21 +19,17 @@
  */
 package org.sonar.scanner.qualitygate;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
-import java.util.Properties;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
+import org.sonar.scanner.report.CeTaskReportDataHolder;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Ce.TaskStatus;
@@ -51,14 +47,19 @@ public class QualityGateCheck implements Startable {
   private static final int POLLING_INTERVAL_IN_MS = 5000;
 
   private final DefaultScannerWsClient wsClient;
+  private final GlobalAnalysisMode analysisMode;
+  private final CeTaskReportDataHolder reportMetadataHolder;
   private final ScanProperties properties;
 
   private long qualityGateTimeoutInMs;
   private boolean enabled;
 
-  public QualityGateCheck(ScanProperties properties, DefaultScannerWsClient wsClient) {
+  public QualityGateCheck(DefaultScannerWsClient wsClient, GlobalAnalysisMode analysisMode, CeTaskReportDataHolder reportMetadataHolder,
+    ScanProperties properties) {
     this.wsClient = wsClient;
     this.properties = properties;
+    this.reportMetadataHolder = reportMetadataHolder;
+    this.analysisMode = analysisMode;
   }
 
   @Override
@@ -73,12 +74,16 @@ public class QualityGateCheck implements Startable {
   }
 
   public void await() {
+    if (!analysisMode.isMediumTest()) {
+      throw new IllegalStateException("Quality Gate check not available in medium test mode");
+    }
+
     if (!enabled) {
-      LOG.debug("Quality Gate Check disabled - skipping");
+      LOG.debug("Quality Gate check disabled - skipping");
       return;
     }
 
-    String taskId = readTaskIdFromMetaDataFile();
+    String taskId = reportMetadataHolder.getCeTaskId();
 
     Ce.Task task = waitForCeTaskToFinish(taskId);
 
@@ -93,19 +98,7 @@ public class QualityGateCheck implements Startable {
     } else if (Status.NONE.equals(qualityGateStatus)) {
       LOG.info("No Quality Gate is associated with the analysis - skipping");
     } else {
-      LOG.info("Quality Gate - FAILED");
       throw MessageException.of("Quality Gate - FAILED");
-    }
-  }
-
-  private String readTaskIdFromMetaDataFile() {
-    Path file = properties.metadataFilePath();
-    try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-      Properties metadata = new Properties();
-      metadata.load(reader);
-      return metadata.getProperty("ceTaskId");
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to read metadata file: " + file, e);
     }
   }
 
