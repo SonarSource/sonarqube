@@ -19,7 +19,6 @@
  */
 package org.sonar.process;
 
-import java.lang.reflect.ReflectPermission;
 import java.security.Permission;
 import java.security.ProtectionDomain;
 import java.security.SecurityPermission;
@@ -35,8 +34,8 @@ public class SecurityManagementTest {
 
   private Permission allowedRuntime = new RuntimePermission("getFileSystemAttributes");
   private Permission deniedRuntime = new RuntimePermission("getClassLoader");
-  private Permission reflect = new ReflectPermission("suppressAccessChecks");
-  private Permission security = new SecurityPermission("setPolicy");
+  private Permission allowedSecurity = new SecurityPermission("getProperty.key");
+  private Permission deniedSecurity = new SecurityPermission("setPolicy");
 
   @Test
   public void policy_restricts_class_realm() {
@@ -47,10 +46,10 @@ public class SecurityManagementTest {
       }
     };
 
+    assertThat(policy.implies(pd, allowedSecurity)).isTrue();
+    assertThat(policy.implies(pd, deniedSecurity)).isFalse();
     assertThat(policy.implies(pd, allowedRuntime)).isTrue();
     assertThat(policy.implies(pd, deniedRuntime)).isFalse();
-    assertThat(policy.implies(pd, reflect)).isFalse();
-    assertThat(policy.implies(pd, security)).isFalse();
   }
 
   @Test
@@ -62,9 +61,9 @@ public class SecurityManagementTest {
       }
     };
 
+    assertThat(policy.implies(pd, allowedSecurity)).isTrue();
+    assertThat(policy.implies(pd, deniedSecurity)).isTrue();
     assertThat(policy.implies(pd, allowedRuntime)).isTrue();
     assertThat(policy.implies(pd, deniedRuntime)).isTrue();
-    assertThat(policy.implies(pd, reflect)).isTrue();
-    assertThat(policy.implies(pd, security)).isTrue();
   }
 }

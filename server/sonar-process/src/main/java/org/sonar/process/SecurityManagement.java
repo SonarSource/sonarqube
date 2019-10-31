@@ -19,7 +19,6 @@
  */
 package org.sonar.process;
 
-import java.lang.reflect.ReflectPermission;
 import java.security.Permission;
 import java.security.Policy;
 import java.security.ProtectionDomain;
@@ -40,18 +39,29 @@ public class SecurityManagement {
   }
 
   static class CustomPolicy extends Policy {
-    private static final Set<String> ALLOWED_RUNTIME_PERMISSIONS = new HashSet<>(Arrays.asList("getFileSystemAttributes", "readFileDescriptor", "writeFileDescriptor",
-      "getStackTrace", "setDefaultUncaughtExceptionHandler", "manageProcess", "localeServiceProvider", "LoggerFinder"));
+    private static final Set<String> BLOCKED_RUNTIME_PERMISSIONS = new HashSet<>(Arrays.asList(
+      "createClassLoader",
+      "getClassLoader",
+      "setContextClassLoader",
+      "enableContextClassLoaderOverride",
+      "closeClassLoader",
+      "setSecurityManager",
+      "createSecurityManager"
+    ));
+    private static final Set<String> BLOCKED_SECURITY_PERMISSIONS = new HashSet<>(Arrays.asList(
+      "createAccessControlContext",
+      "setPolicy"
+    ));
 
     @Override
     public boolean implies(ProtectionDomain domain, Permission permission) {
       // classloader used to load plugins
       String clName = getDomainClassLoaderName(domain);
       if ("org.sonar.classloader.ClassRealm".equals(clName)) {
-        if (permission instanceof RuntimePermission && !ALLOWED_RUNTIME_PERMISSIONS.contains(permission.getName())) {
+        if (permission instanceof RuntimePermission && BLOCKED_RUNTIME_PERMISSIONS.contains(permission.getName())) {
           return false;
         }
-        if (permission instanceof ReflectPermission || permission instanceof SecurityPermission) {
+        if (permission instanceof SecurityPermission && BLOCKED_SECURITY_PERMISSIONS.contains(permission.getName())) {
           return false;
         }
       }
