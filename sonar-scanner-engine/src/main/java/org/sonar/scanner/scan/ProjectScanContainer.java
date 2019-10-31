@@ -81,6 +81,7 @@ import org.sonar.scanner.qualitygate.QualityGateCheck;
 import org.sonar.scanner.report.ActiveRulesPublisher;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
 import org.sonar.scanner.report.AnalysisWarningsPublisher;
+import org.sonar.scanner.report.CeTaskReportDataHolder;
 import org.sonar.scanner.report.ChangedLinesPublisher;
 import org.sonar.scanner.report.ComponentsPublisher;
 import org.sonar.scanner.report.ContextPropertiesPublisher;
@@ -250,6 +251,8 @@ public class ProjectScanContainer extends ComponentContainer {
       SourcePublisher.class,
       ChangedLinesPublisher.class,
       AnalysisResultReporter.class,
+
+      CeTaskReportDataHolder.class,
 
       //QualityGate check
       QualityGateCheck.class,

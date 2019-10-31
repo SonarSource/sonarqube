@@ -23,9 +23,9 @@ import static java.util.Objects.requireNonNull;
 
 public class CeTaskReportDataHolder {
   private boolean initialized = false;
-  private String ceTaskId;
-  private String ceTaskUrl;
-  private String dashboardUrl;
+  private String ceTaskId = null;
+  private String ceTaskUrl = null;
+  private String dashboardUrl= null;
 
   public void init(String ceTaskId, String ceTaskUrl, String dashboardUrl) {
     requireNonNull(ceTaskId, "CE task id must not be null");

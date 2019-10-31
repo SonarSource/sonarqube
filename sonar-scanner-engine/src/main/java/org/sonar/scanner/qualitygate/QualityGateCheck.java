@@ -74,13 +74,13 @@ public class QualityGateCheck implements Startable {
   }
 
   public void await() {
-    if (!analysisMode.isMediumTest()) {
-      throw new IllegalStateException("Quality Gate check not available in medium test mode");
-    }
-
     if (!enabled) {
       LOG.debug("Quality Gate check disabled - skipping");
       return;
+    }
+
+    if (analysisMode.isMediumTest()) {
+      throw new IllegalStateException("Quality Gate check not available in medium test mode");
     }
 
     String taskId = reportMetadataHolder.getCeTaskId();
@@ -95,8 +95,6 @@ public class QualityGateCheck implements Startable {
 
     if (Status.OK.equals(qualityGateStatus)) {
       LOG.info("Quality Gate - OK");
-    } else if (Status.NONE.equals(qualityGateStatus)) {
-      LOG.info("No Quality Gate is associated with the analysis - skipping");
     } else {
       throw MessageException.of("Quality Gate - FAILED");
     }
@@ -124,17 +122,17 @@ public class QualityGateCheck implements Startable {
         throw MessageException.of(String.format("Failed to get CE Task status - %s", DefaultScannerWsClient.createErrorMessage(e)));
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
-        throw MessageException.of("Quality Gate Check has been interrupted", e);
+        throw MessageException.of("Quality Gate check has been interrupted", e);
       }
     }
-    throw MessageException.of("Quality Gate Check timeout exceeded");
+    throw MessageException.of("Quality Gate check timeout exceeded");
   }
 
   private static Ce.Task parseCeTaskResponse(WsResponse response) {
     try (InputStream protobuf = response.contentStream()) {
       return Ce.TaskResponse.parser().parseFrom(protobuf).getTask();
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException("Failed to parse response from " + response.requestUrl(), e);
     }
   }
 
@@ -155,7 +153,7 @@ public class QualityGateCheck implements Startable {
     try (InputStream protobuf = response.contentStream()) {
       return Qualitygates.ProjectStatusResponse.parser().parseFrom(protobuf).getProjectStatus();
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException("Failed to parse response from " + response.requestUrl(), e);
     }
   }
 }
