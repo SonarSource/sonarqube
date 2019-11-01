@@ -97,7 +97,7 @@ describe('createSnippets', () => {
     });
 
     expect(results).toHaveLength(1);
-    expect(results[0]).toEqual({ index: 0, start: 14, end: 28 });
+    expect(results[0]).toEqual({ index: 0, start: 11, end: 28 });
   });
 
   it('should merge snippets correctly, even when not in sequence', () => {
@@ -119,8 +119,8 @@ describe('createSnippets', () => {
     });
 
     expect(results).toHaveLength(2);
-    expect(results[0]).toEqual({ index: 0, start: 12, end: 23 });
-    expect(results[1]).toEqual({ index: 1, start: 45, end: 49 });
+    expect(results[0]).toEqual({ index: 0, start: 9, end: 23 });
+    expect(results[1]).toEqual({ index: 1, start: 42, end: 52 });
   });
 
   it('should merge three snippets together', () => {
@@ -145,48 +145,29 @@ describe('createSnippets', () => {
     });
 
     expect(results).toHaveLength(2);
-    expect(results[0]).toEqual({ index: 0, start: 14, end: 25 });
-    expect(results[1]).toEqual({ index: 1, start: 45, end: 49 });
+    expect(results[0]).toEqual({ index: 0, start: 11, end: 28 });
+    expect(results[1]).toEqual({ index: 1, start: 42, end: 52 });
   });
 
   it("should prepend the issue's main location if necessary", () => {
     const locations = [
       mockFlowLocation({
-        textRange: { startLine: 47, startOffset: 2, endLine: 47, endOffset: 3 }
+        textRange: { startLine: 65, startOffset: 2, endLine: 65, endOffset: 3 }
       }),
       mockFlowLocation({
-        textRange: { startLine: 22, startOffset: 2, endLine: 22, endOffset: 3 }
+        textRange: { startLine: 32, startOffset: 2, endLine: 32, endOffset: 3 }
       })
     ];
     const results = createSnippets({
       locations,
       issue: mockIssue(false, {
-        textRange: { startLine: 5, endLine: 5, startOffset: 0, endOffset: 0 }
+        textRange: { startLine: 12, endLine: 12, startOffset: 0, endOffset: 0 }
       }),
       addIssueLocation: true
     });
 
     expect(results).toHaveLength(3);
-    expect(results[0]).toEqual({ index: 0, start: 3, end: 14 });
-  });
-
-  it('should handle last component', () => {
-    const locations = [
-      mockFlowLocation({
-        textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
-      }),
-      mockFlowLocation({
-        textRange: { startLine: 19, startOffset: 2, endLine: 19, endOffset: 3 }
-      })
-    ];
-    const results = createSnippets({
-      locations,
-      issue: mockIssue(false, locations[1]),
-      addIssueLocation: false
-    });
-
-    expect(results).toHaveLength(1);
-    expect(results[0]).toEqual({ index: 0, start: 14, end: 28 });
+    expect(results[0]).toEqual({ index: 0, start: 7, end: 21 });
   });
 });
 
@@ -197,7 +178,7 @@ describe('expandSnippet', () => {
     const result = expandSnippet({ direction: 'up', snippetIndex: 0, snippets });
 
     expect(result).toHaveLength(1);
-    expect(result[0]).toEqual({ start: 4, end: 18, index: 0 });
+    expect(result[0]).toEqual({ start: 0, end: 18, index: 0 });
   });
 
   it('should add lines below', () => {
@@ -206,21 +187,21 @@ describe('expandSnippet', () => {
     const result = expandSnippet({ direction: 'down', snippetIndex: 0, snippets });
 
     expect(result).toHaveLength(1);
-    expect(result[0]).toEqual({ start: 4, end: 18, index: 0 });
+    expect(result[0]).toEqual({ start: 4, end: 58, index: 0 });
   });
 
   it('should merge snippets if necessary', () => {
     const snippets = [
-      { index: 1, start: 4, end: 8 },
-      { index: 2, start: 38, end: 42 },
-      { index: 3, start: 17, end: 21 }
+      { index: 1, start: 4, end: 14 },
+      { index: 2, start: 72, end: 82 },
+      { index: 3, start: 37, end: 47 }
     ];
 
     const result = expandSnippet({ direction: 'down', snippetIndex: 1, snippets });
 
     expect(result).toHaveLength(3);
-    expect(result[0]).toEqual({ index: 1, start: 4, end: 21 });
-    expect(result[1]).toEqual({ index: 2, start: 38, end: 42 });
-    expect(result[2]).toEqual({ index: 3, start: 17, end: 21, toDelete: true });
+    expect(result[0]).toEqual({ index: 1, start: 4, end: 64 });
+    expect(result[1]).toEqual({ index: 2, start: 72, end: 82 });
+    expect(result[2]).toEqual({ index: 3, start: 37, end: 47, toDelete: true });
   });
 });

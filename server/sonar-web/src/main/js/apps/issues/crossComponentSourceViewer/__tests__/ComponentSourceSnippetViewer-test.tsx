@@ -49,7 +49,7 @@ it('should render correctly with secondary locations', () => {
   // issue with secondary locations but no flows
   const issue = mockIssue(true, {
     flows: [],
-    textRange: { startLine: 5, endLine: 5, startOffset: 5, endOffset: 10 }
+    textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 10 }
   });
 
   const snippetGroup: T.SnippetGroup = {
@@ -63,42 +63,45 @@ it('should render correctly with secondary locations', () => {
         textRange: { startLine: 54, endLine: 54, startOffset: 0, endOffset: 0 }
       })
     ],
-    ...mockSnippetsByComponent('a', [...range(3, 15), 32, 33, 34, 35, 36, 52, 53, 54, 55, 56])
+    ...mockSnippetsByComponent('a', [...range(2, 17), ...range(29, 39), ...range(49, 59)])
   };
   const wrapper = shallowRender({ issue, snippetGroup });
   expect(wrapper.state('snippets')).toHaveLength(3);
-  expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 3, end: 14 });
-  expect(wrapper.state('snippets')[1]).toEqual({ index: 1, start: 32, end: 36 });
-  expect(wrapper.state('snippets')[2]).toEqual({ index: 2, start: 52, end: 56 });
+  expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 2, end: 16 });
+  expect(wrapper.state('snippets')[1]).toEqual({ index: 1, start: 29, end: 39 });
+  expect(wrapper.state('snippets')[2]).toEqual({ index: 2, start: 49, end: 59 });
 });
 
 it('should expand block', async () => {
   (getSources as jest.Mock).mockResolvedValueOnce(
-    Object.values(mockSnippetsByComponent('a', [22, 23, 24, 25, 26, 27, 28, 29, 30, 31]).sources)
+    Object.values(mockSnippetsByComponent('a', range(6, 59)).sources)
   );
+  const issue = mockIssue(true, {
+    textRange: { startLine: 64, endLine: 64, startOffset: 5, endOffset: 10 }
+  });
   const snippetGroup: T.SnippetGroup = {
     locations: [
       mockFlowLocation({
         component: 'a',
-        textRange: { startLine: 34, endLine: 34, startOffset: 0, endOffset: 0 }
+        textRange: { startLine: 64, endLine: 64, startOffset: 0, endOffset: 0 }
       }),
       mockFlowLocation({
         component: 'a',
-        textRange: { startLine: 54, endLine: 54, startOffset: 0, endOffset: 0 }
+        textRange: { startLine: 87, endLine: 87, startOffset: 0, endOffset: 0 }
       })
     ],
-    ...mockSnippetsByComponent('a', [32, 33, 34, 35, 36, 52, 53, 54, 55, 56])
+    ...mockSnippetsByComponent('a', [...range(59, 73), ...range(82, 92)])
   };
 
-  const wrapper = shallowRender({ snippetGroup });
+  const wrapper = shallowRender({ issue, snippetGroup });
 
   wrapper.instance().expandBlock(0, 'up');
   await waitAndUpdate(wrapper);
 
-  expect(getSources).toHaveBeenCalledWith({ from: 19, key: 'a', to: 31 });
+  expect(getSources).toHaveBeenCalledWith({ from: 6, key: 'a', to: 58 });
   expect(wrapper.state('snippets')).toHaveLength(2);
-  expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 22, end: 36 });
-  expect(Object.keys(wrapper.state('additionalLines'))).toHaveLength(10);
+  expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 9, end: 73 });
+  expect(Object.keys(wrapper.state('additionalLines'))).toHaveLength(53);
 });
 
 it('should expand full component', async () => {
@@ -137,7 +140,7 @@ it('should get the right branch when expanding', async () => {
   );
   const snippetGroup: T.SnippetGroup = {
     locations: [mockFlowLocation()],
-    ...mockSnippetsByComponent('a', [1, 2, 3, 4])
+    ...mockSnippetsByComponent('a', [1, 2, 3, 4, 5, 6, 7])
   };
 
   const wrapper = shallowRender({
@@ -148,7 +151,7 @@ it('should get the right branch when expanding', async () => {
   wrapper.instance().expandBlock(0, 'down');
   await waitAndUpdate(wrapper);
 
-  expect(getSources).toHaveBeenCalledWith({ branch: 'asdf', from: 5, key: 'a', to: 17 });
+  expect(getSources).toHaveBeenCalledWith({ branch: 'asdf', from: 8, key: 'a', to: 60 });
 });
 
 it('should handle correctly open/close issue', () => {
