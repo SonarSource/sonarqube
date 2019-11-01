@@ -167,14 +167,14 @@ public class IssueSnippetsAction implements SourcesWsAction {
     TreeSet<Integer> lines = linesPerComponent.computeIfAbsent(componentUuid, c -> new TreeSet<>());
     IntStream.rangeClosed(start, end).forEach(lines::add);
 
-    // If two snippets in the same component are 3 lines apart of each other, include those 3 lines.
+    // If two snippets in the same component are 10 lines apart of each other, include those 10 lines.
     Integer closestToStart = lines.lower(start);
-    if (closestToStart != null && closestToStart >= start - 4) {
+    if (closestToStart != null && closestToStart >= start - 11) {
       IntStream.range(closestToStart + 1, start).forEach(lines::add);
     }
 
     Integer closestToEnd = lines.higher(end);
-    if (closestToEnd != null && closestToEnd <= end + 4) {
+    if (closestToEnd != null && closestToEnd <= end + 11) {
       IntStream.range(end + 1, closestToEnd).forEach(lines::add);
     }
 

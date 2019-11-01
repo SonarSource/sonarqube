@@ -19,7 +19,7 @@
  */
 const LINES_ABOVE = 5;
 const LINES_BELOW = 5;
-export const MERGE_DISTANCE = 4; // Merge if snippets are four lines away (separated by 3 lines) or fewer
+export const MERGE_DISTANCE = 11; // Merge if snippets are eleven lines away (separated by 10 lines) or fewer
 export const LINES_BELOW_ISSUE = 9;
 export const EXPAND_BY_LINES = 50;
 

@@ -60,16 +60,16 @@ it('should render correctly with secondary locations', () => {
       }),
       mockFlowLocation({
         component: 'a',
-        textRange: { startLine: 54, endLine: 54, startOffset: 0, endOffset: 0 }
+        textRange: { startLine: 74, endLine: 74, startOffset: 0, endOffset: 0 }
       })
     ],
-    ...mockSnippetsByComponent('a', [...range(2, 17), ...range(29, 39), ...range(49, 59)])
+    ...mockSnippetsByComponent('a', [...range(2, 17), ...range(29, 39), ...range(69, 79)])
   };
   const wrapper = shallowRender({ issue, snippetGroup });
   expect(wrapper.state('snippets')).toHaveLength(3);
   expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 2, end: 16 });
   expect(wrapper.state('snippets')[1]).toEqual({ index: 1, start: 29, end: 39 });
-  expect(wrapper.state('snippets')[2]).toEqual({ index: 2, start: 49, end: 59 });
+  expect(wrapper.state('snippets')[2]).toEqual({ index: 2, start: 69, end: 79 });
 });
 
 it('should expand block', async () => {
@@ -77,20 +77,20 @@ it('should expand block', async () => {
     Object.values(mockSnippetsByComponent('a', range(6, 59)).sources)
   );
   const issue = mockIssue(true, {
-    textRange: { startLine: 64, endLine: 64, startOffset: 5, endOffset: 10 }
+    textRange: { startLine: 74, endLine: 74, startOffset: 5, endOffset: 10 }
   });
   const snippetGroup: T.SnippetGroup = {
     locations: [
       mockFlowLocation({
         component: 'a',
-        textRange: { startLine: 64, endLine: 64, startOffset: 0, endOffset: 0 }
+        textRange: { startLine: 74, endLine: 74, startOffset: 0, endOffset: 0 }
       }),
       mockFlowLocation({
         component: 'a',
-        textRange: { startLine: 87, endLine: 87, startOffset: 0, endOffset: 0 }
+        textRange: { startLine: 107, endLine: 107, startOffset: 0, endOffset: 0 }
       })
     ],
-    ...mockSnippetsByComponent('a', [...range(59, 73), ...range(82, 92)])
+    ...mockSnippetsByComponent('a', [...range(69, 83), ...range(102, 112)])
   };
 
   const wrapper = shallowRender({ issue, snippetGroup });
@@ -98,9 +98,9 @@ it('should expand block', async () => {
   wrapper.instance().expandBlock(0, 'up');
   await waitAndUpdate(wrapper);
 
-  expect(getSources).toHaveBeenCalledWith({ from: 6, key: 'a', to: 58 });
+  expect(getSources).toHaveBeenCalledWith({ from: 9, key: 'a', to: 68 });
   expect(wrapper.state('snippets')).toHaveLength(2);
-  expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 9, end: 73 });
+  expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 19, end: 83 });
   expect(Object.keys(wrapper.state('additionalLines'))).toHaveLength(53);
 });
 
@@ -151,7 +151,7 @@ it('should get the right branch when expanding', async () => {
   wrapper.instance().expandBlock(0, 'down');
   await waitAndUpdate(wrapper);
 
-  expect(getSources).toHaveBeenCalledWith({ branch: 'asdf', from: 8, key: 'a', to: 60 });
+  expect(getSources).toHaveBeenCalledWith({ branch: 'asdf', from: 8, key: 'a', to: 67 });
 });
 
 it('should handle correctly open/close issue', () => {

@@ -152,10 +152,10 @@ describe('createSnippets', () => {
   it("should prepend the issue's main location if necessary", () => {
     const locations = [
       mockFlowLocation({
-        textRange: { startLine: 65, startOffset: 2, endLine: 65, endOffset: 3 }
+        textRange: { startLine: 85, startOffset: 2, endLine: 85, endOffset: 3 }
       }),
       mockFlowLocation({
-        textRange: { startLine: 32, startOffset: 2, endLine: 32, endOffset: 3 }
+        textRange: { startLine: 42, startOffset: 2, endLine: 42, endOffset: 3 }
       })
     ];
     const results = createSnippets({
@@ -193,7 +193,7 @@ describe('expandSnippet', () => {
   it('should merge snippets if necessary', () => {
     const snippets = [
       { index: 1, start: 4, end: 14 },
-      { index: 2, start: 72, end: 82 },
+      { index: 2, start: 82, end: 92 },
       { index: 3, start: 37, end: 47 }
     ];
 
@@ -201,7 +201,7 @@ describe('expandSnippet', () => {
 
     expect(result).toHaveLength(3);
     expect(result[0]).toEqual({ index: 1, start: 4, end: 64 });
-    expect(result[1]).toEqual({ index: 2, start: 72, end: 82 });
+    expect(result[1]).toEqual({ index: 2, start: 82, end: 92 });
     expect(result[2]).toEqual({ index: 3, start: 37, end: 47, toDelete: true });
   });
 });
