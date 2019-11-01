@@ -87,11 +87,11 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
   }
 
   createSnippetsFromProps() {
-    const snippets = createSnippets(
-      this.props.snippetGroup.locations,
-      this.props.last,
-      this.props.issue.secondaryLocations.length > 0 ? this.props.issue : undefined
-    );
+    const snippets = createSnippets({
+      locations: this.props.snippetGroup.locations,
+      issue: this.props.issue,
+      addIssueLocation: this.props.issue.secondaryLocations.length > 0
+    });
 
     this.setState({ snippets });
   }
@@ -115,6 +115,22 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
     }
 
     return { wrapper, table };
+  }
+
+  /*
+   * Clean after animation
+   */
+  cleanDom(index: number) {
+    const nodes = this.getNodes(index);
+
+    if (!nodes) {
+      return;
+    }
+
+    const { wrapper, table } = nodes;
+
+    table.style.marginTop = '';
+    wrapper.style.maxHeight = '';
   }
 
   setMaxHeight(index: number, value?: number, up = false) {
@@ -220,6 +236,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
           // Wait for transition to finish before updating dom
           setTimeout(() => {
             this.setState({ snippets: newSnippets.filter(s => !s.toDelete) });
+            this.cleanDom(snippetIndex);
           }, 200);
         }
       );

@@ -20,7 +20,7 @@
 const LINES_ABOVE = 2;
 const LINES_BELOW = 2;
 export const MERGE_DISTANCE = 4; // Merge if snippets are four lines away (separated by 3 lines) or fewer
-export const LINES_BELOW_LAST = 9;
+export const LINES_BELOW_ISSUE = 9;
 export const EXPAND_BY_LINES = 10;
 
 function unknownComponent(key: string): T.SnippetsByComponent {
@@ -54,21 +54,29 @@ function getPrimaryLocation(issue: T.Issue): T.FlowLocation {
   };
 }
 
-export function createSnippets(
-  locations: T.FlowLocation[],
-  last: boolean,
-  issue?: T.Issue
-): T.Snippet[] {
+function addLinesBellow(params: { issue: T.Issue; locationEnd: number }) {
+  const { issue, locationEnd } = params;
+  const issueEndLine = (issue.textRange && issue.textRange.endLine) || 0;
+
+  if (!issueEndLine || issueEndLine === locationEnd) {
+    return locationEnd + LINES_BELOW_ISSUE;
+  }
+
+  return locationEnd + LINES_BELOW;
+}
+
+export function createSnippets(params: {
+  locations: T.FlowLocation[];
+  issue: T.Issue;
+  addIssueLocation: boolean;
+}): T.Snippet[] {
+  const { locations, issue, addIssueLocation } = params;
   // For each location's range (2 above and 2 below), and then compare with other ranges
   // to merge snippets that collide.
-  return (issue ? [getPrimaryLocation(issue), ...locations] : locations).reduce(
+  return (addIssueLocation ? [getPrimaryLocation(issue), ...locations] : locations).reduce(
     (snippets: T.Snippet[], loc, index) => {
       const startIndex = Math.max(1, loc.textRange.startLine - LINES_ABOVE);
-      const endIndex =
-        loc.textRange.endLine +
-        ((issue && index === 0) || (last && index === locations.length - 1)
-          ? LINES_BELOW_LAST
-          : LINES_BELOW);
+      const endIndex = addLinesBellow({ issue, locationEnd: loc.textRange.endLine });
 
       let firstCollision: { start: number; end: number } | undefined;
 

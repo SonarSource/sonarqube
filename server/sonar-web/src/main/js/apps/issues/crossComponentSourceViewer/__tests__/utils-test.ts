@@ -82,97 +82,108 @@ describe('groupLocationsByComponent', () => {
 
 describe('createSnippets', () => {
   it('should merge snippets correctly', () => {
-    const results = createSnippets(
-      [
-        mockFlowLocation({
-          textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
-        }),
-        mockFlowLocation({
-          textRange: { startLine: 19, startOffset: 2, endLine: 19, endOffset: 3 }
-        })
-      ],
-      false
-    );
+    const locations = [
+      mockFlowLocation({
+        textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
+      }),
+      mockFlowLocation({
+        textRange: { startLine: 19, startOffset: 2, endLine: 19, endOffset: 3 }
+      })
+    ];
+    const results = createSnippets({
+      locations,
+      issue: mockIssue(false, locations[1]),
+      addIssueLocation: false
+    });
 
     expect(results).toHaveLength(1);
-    expect(results[0]).toEqual({ index: 0, start: 14, end: 21 });
+    expect(results[0]).toEqual({ index: 0, start: 14, end: 28 });
   });
 
   it('should merge snippets correctly, even when not in sequence', () => {
-    const results = createSnippets(
-      [
-        mockFlowLocation({
-          textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
-        }),
-        mockFlowLocation({
-          textRange: { startLine: 47, startOffset: 2, endLine: 47, endOffset: 3 }
-        }),
-        mockFlowLocation({
-          textRange: { startLine: 14, startOffset: 2, endLine: 14, endOffset: 3 }
-        })
-      ],
-      false
-    );
+    const locations = [
+      mockFlowLocation({
+        textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
+      }),
+      mockFlowLocation({
+        textRange: { startLine: 47, startOffset: 2, endLine: 47, endOffset: 3 }
+      }),
+      mockFlowLocation({
+        textRange: { startLine: 14, startOffset: 2, endLine: 14, endOffset: 3 }
+      })
+    ];
+    const results = createSnippets({
+      locations,
+      issue: mockIssue(false, locations[2]),
+      addIssueLocation: false
+    });
 
     expect(results).toHaveLength(2);
-    expect(results[0]).toEqual({ index: 0, start: 12, end: 18 });
+    expect(results[0]).toEqual({ index: 0, start: 12, end: 23 });
     expect(results[1]).toEqual({ index: 1, start: 45, end: 49 });
   });
 
   it('should merge three snippets together', () => {
-    const results = createSnippets(
-      [
-        mockFlowLocation({
-          textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
-        }),
-        mockFlowLocation({
-          textRange: { startLine: 47, startOffset: 2, endLine: 47, endOffset: 3 }
-        }),
-        mockFlowLocation({
-          textRange: { startLine: 22, startOffset: 2, endLine: 22, endOffset: 3 }
-        }),
-        mockFlowLocation({
-          textRange: { startLine: 18, startOffset: 2, endLine: 18, endOffset: 3 }
-        })
-      ],
-      false
-    );
+    const locations = [
+      mockFlowLocation({
+        textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
+      }),
+      mockFlowLocation({
+        textRange: { startLine: 47, startOffset: 2, endLine: 47, endOffset: 3 }
+      }),
+      mockFlowLocation({
+        textRange: { startLine: 23, startOffset: 2, endLine: 23, endOffset: 3 }
+      }),
+      mockFlowLocation({
+        textRange: { startLine: 18, startOffset: 2, endLine: 18, endOffset: 3 }
+      })
+    ];
+    const results = createSnippets({
+      locations,
+      issue: mockIssue(false, locations[0]),
+      addIssueLocation: false
+    });
 
     expect(results).toHaveLength(2);
-    expect(results[0]).toEqual({ index: 0, start: 14, end: 24 });
+    expect(results[0]).toEqual({ index: 0, start: 14, end: 25 });
     expect(results[1]).toEqual({ index: 1, start: 45, end: 49 });
   });
 
   it("should prepend the issue's main location if necessary", () => {
-    const results = createSnippets(
-      [
-        mockFlowLocation({
-          textRange: { startLine: 47, startOffset: 2, endLine: 47, endOffset: 3 }
-        }),
-        mockFlowLocation({
-          textRange: { startLine: 22, startOffset: 2, endLine: 22, endOffset: 3 }
-        })
-      ],
-      false,
-      mockIssue(false, { textRange: { startLine: 5, endLine: 5, startOffset: 0, endOffset: 0 } })
-    );
+    const locations = [
+      mockFlowLocation({
+        textRange: { startLine: 47, startOffset: 2, endLine: 47, endOffset: 3 }
+      }),
+      mockFlowLocation({
+        textRange: { startLine: 22, startOffset: 2, endLine: 22, endOffset: 3 }
+      })
+    ];
+    const results = createSnippets({
+      locations,
+      issue: mockIssue(false, {
+        textRange: { startLine: 5, endLine: 5, startOffset: 0, endOffset: 0 }
+      }),
+      addIssueLocation: true
+    });
 
     expect(results).toHaveLength(3);
     expect(results[0]).toEqual({ index: 0, start: 3, end: 14 });
   });
 
   it('should handle last component', () => {
-    const results = createSnippets(
-      [
-        mockFlowLocation({
-          textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
-        }),
-        mockFlowLocation({
-          textRange: { startLine: 19, startOffset: 2, endLine: 19, endOffset: 3 }
-        })
-      ],
-      true
-    );
+    const locations = [
+      mockFlowLocation({
+        textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
+      }),
+      mockFlowLocation({
+        textRange: { startLine: 19, startOffset: 2, endLine: 19, endOffset: 3 }
+      })
+    ];
+    const results = createSnippets({
+      locations,
+      issue: mockIssue(false, locations[1]),
+      addIssueLocation: false
+    });
 
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual({ index: 0, start: 14, end: 28 });

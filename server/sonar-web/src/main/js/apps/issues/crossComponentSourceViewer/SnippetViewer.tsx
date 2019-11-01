@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import classNames from 'classnames';
+import * as React from 'react';
 import ExpandSnippetIcon from 'sonar-ui-common/components/icons/ExpandSnippetIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { scrollHorizontally } from 'sonar-ui-common/helpers/scrolling';
@@ -30,7 +30,7 @@ import {
   optimizeLocationMessage,
   optimizeSelectedIssue
 } from '../../../components/SourceViewer/helpers/lines';
-import { inSnippet, LINES_BELOW_LAST } from './utils';
+import { inSnippet, LINES_BELOW_ISSUE } from './utils';
 
 interface Props {
   branchLike: T.BranchLike | undefined;
@@ -185,7 +185,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
         .filter(l => inSnippet(l, snippet) && (l === issueLine || openIssuesByLine[l]))
     );
     const verticalBuffer = last
-      ? Math.max(0, LINES_BELOW_LAST - (bottomLine - lowestVisibleIssue))
+      ? Math.max(0, LINES_BELOW_ISSUE - (bottomLine - lowestVisibleIssue))
       : 0;
 
     const displayDuplications = snippet.some(s => !!s.duplicated);
