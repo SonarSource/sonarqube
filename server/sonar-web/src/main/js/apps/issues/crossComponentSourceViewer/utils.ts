@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const LINES_ABOVE = 2;
-const LINES_BELOW = 2;
+const LINES_ABOVE = 5;
+const LINES_BELOW = 5;
 export const MERGE_DISTANCE = 4; // Merge if snippets are four lines away (separated by 3 lines) or fewer
 export const LINES_BELOW_ISSUE = 9;
 export const EXPAND_BY_LINES = 10;

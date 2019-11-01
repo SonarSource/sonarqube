@@ -116,6 +116,48 @@
         "coveredConditions": 9,
         "duplicated": true,
         "isNew": true
+      },
+      {
+        "line": 8,
+        "code": "\u003cp\u003eSOURCE_8\u003c/p\u003e",
+        "scmRevision": "REVISION_8",
+        "scmDate": "1974-10-03T03:40:00+0100",
+        "utLineHits": 8,
+        "lineHits": 8,
+        "utConditions": 9,
+        "conditions": 9,
+        "utCoveredConditions": 10,
+        "coveredConditions": 10,
+        "duplicated": true,
+        "isNew": true
+      },
+      {
+        "line": 9,
+        "code": "\u003cp\u003eSOURCE_9\u003c/p\u003e",
+        "scmRevision": "REVISION_9",
+        "scmDate": "1974-10-03T03:40:00+0100",
+        "utLineHits": 9,
+        "lineHits": 9,
+        "utConditions": 10,
+        "conditions": 10,
+        "utCoveredConditions": 11,
+        "coveredConditions": 11,
+        "duplicated": true,
+        "isNew": true
+      },
+      {
+        "line": 10,
+        "code": "\u003cp\u003eSOURCE_10\u003c/p\u003e",
+        "scmRevision": "REVISION_10",
+        "scmDate": "1974-10-03T03:40:00+0100",
+        "utLineHits": 10,
+        "lineHits": 10,
+        "utConditions": 11,
+        "conditions": 11,
+        "utCoveredConditions": 12,
+        "coveredConditions": 12,
+        "duplicated": true,
+        "isNew": true
       }
     ]
   },
@@ -132,6 +174,34 @@
       "measures": {}
     },
     "sources": [
+      {
+        "line": 1,
+        "code": "\u003cp\u003eSOURCE_1\u003c/p\u003e",
+        "scmRevision": "REVISION_1",
+        "scmDate": "1974-10-03T03:40:00+0100",
+        "utLineHits": 1,
+        "lineHits": 1,
+        "utConditions": 2,
+        "conditions": 2,
+        "utCoveredConditions": 3,
+        "coveredConditions": 3,
+        "duplicated": true,
+        "isNew": true
+      },
+      {
+        "line": 2,
+        "code": "\u003cp\u003eSOURCE_2\u003c/p\u003e",
+        "scmRevision": "REVISION_2",
+        "scmDate": "1974-10-03T03:40:00+0100",
+        "utLineHits": 2,
+        "lineHits": 2,
+        "utConditions": 3,
+        "conditions": 3,
+        "utCoveredConditions": 4,
+        "coveredConditions": 4,
+        "duplicated": true,
+        "isNew": true
+      },
       {
         "line": 3,
         "code": "<p>SOURCE_3</p>",

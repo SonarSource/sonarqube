@@ -149,9 +149,9 @@ public class IssueSnippetsAction implements SourcesWsAction {
     for (DbIssues.Flow flow : locations.getFlowList()) {
       for (DbIssues.Location l : flow.getLocationList()) {
         if (l.hasComponentId()) {
-          addTextRange(linesPerComponent, l.getComponentId(), l.getTextRange(), 2);
+          addTextRange(linesPerComponent, l.getComponentId(), l.getTextRange(), 5);
         } else {
-          addTextRange(linesPerComponent, componentUuid, l.getTextRange(), 2);
+          addTextRange(linesPerComponent, componentUuid, l.getTextRange(), 5);
         }
       }
     }
@@ -161,7 +161,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
 
   private static void addTextRange(Map<String, TreeSet<Integer>> linesPerComponent, String componentUuid,
                                    DbCommons.TextRange textRange, int numLinesAfterIssue) {
-    int start = textRange.getStartLine() - 2;
+    int start = textRange.getStartLine() - 5;
     int end = textRange.getEndLine() + numLinesAfterIssue;
 
     TreeSet<Integer> lines = linesPerComponent.computeIfAbsent(componentUuid, c -> new TreeSet<>());

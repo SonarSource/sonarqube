@@ -13,6 +13,34 @@
     },
     "sources": [
       {
+        "line": 1,
+        "code": "\u003cp\u003eSOURCE_1\u003c/p\u003e",
+        "scmRevision": "REVISION_1",
+        "scmDate": "1974-10-02T21:40:00-0500",
+        "utLineHits": 1,
+        "lineHits": 1,
+        "utConditions": 2,
+        "conditions": 2,
+        "utCoveredConditions": 3,
+        "coveredConditions": 3,
+        "duplicated": true,
+        "isNew": true
+      },
+      {
+        "line": 2,
+        "code": "\u003cp\u003eSOURCE_2\u003c/p\u003e",
+        "scmRevision": "REVISION_2",
+        "scmDate": "1974-10-02T21:40:00-0500",
+        "utLineHits": 2,
+        "lineHits": 2,
+        "utConditions": 3,
+        "conditions": 3,
+        "utCoveredConditions": 4,
+        "coveredConditions": 4,
+        "duplicated": true,
+        "isNew": true
+      },
+      {
         "line": 3,
         "code": "\u003cp\u003eSOURCE_3\u003c/p\u003e",
         "scmRevision": "REVISION_3",
@@ -177,6 +205,48 @@
         "conditions": 15,
         "utCoveredConditions": 16,
         "coveredConditions": 16,
+        "duplicated": true,
+        "isNew": true
+      },
+      {
+        "line": 15,
+        "code": "\u003cp\u003eSOURCE_15\u003c/p\u003e",
+        "scmRevision": "REVISION_15",
+        "scmDate": "1974-10-02T21:40:00-0500",
+        "utLineHits": 15,
+        "lineHits": 15,
+        "utConditions": 16,
+        "conditions": 16,
+        "utCoveredConditions": 17,
+        "coveredConditions": 17,
+        "duplicated": true,
+        "isNew": true
+      },
+      {
+        "line": 16,
+        "code": "\u003cp\u003eSOURCE_16\u003c/p\u003e",
+        "scmRevision": "REVISION_16",
+        "scmDate": "1974-10-02T21:40:00-0500",
+        "utLineHits": 16,
+        "lineHits": 16,
+        "utConditions": 17,
+        "conditions": 17,
+        "utCoveredConditions": 18,
+        "coveredConditions": 18,
+        "duplicated": true,
+        "isNew": true
+      },
+      {
+        "line": 17,
+        "code": "\u003cp\u003eSOURCE_17\u003c/p\u003e",
+        "scmRevision": "REVISION_17",
+        "scmDate": "1974-10-02T21:40:00-0500",
+        "utLineHits": 17,
+        "lineHits": 17,
+        "utConditions": 18,
+        "conditions": 18,
+        "utCoveredConditions": 19,
+        "coveredConditions": 19,
         "duplicated": true,
         "isNew": true
       }
