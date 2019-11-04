@@ -47,8 +47,8 @@ public class AnalysisResultReporter {
       LOG.info("ANALYSIS SUCCESSFUL, you can browse {}", ceTaskReportDataHolder.getDashboardUrl());
       if (!scanProperties.shouldWaitForQualityGate()) {
         LOG.info("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report");
+        LOG.info("More about the report processing at {}", ceTaskReportDataHolder.getCeTaskUrl());
       }
-      LOG.info("More about the report processing at {}", ceTaskReportDataHolder.getCeTaskUrl());
     }
   }
 }

@@ -96,9 +96,7 @@ public class QualityGateCheck implements Startable {
     if (Status.OK.equals(qualityGateStatus)) {
       LOG.info("Quality Gate - OK");
     } else {
-      LOG.info("Quality Gate - FAILED, you can browse {}", ceTaskReportDataHolder.getDashboardUrl());
-      LOG.info("More about the report processing at {}", ceTaskReportDataHolder.getCeTaskUrl());
-      throw MessageException.of("Quality Gate - FAILED");
+      throw MessageException.of("Quality Gate - FAILED, you can browse " + ceTaskReportDataHolder.getDashboardUrl());
     }
   }
 

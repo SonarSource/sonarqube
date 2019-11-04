@@ -78,8 +78,6 @@ public class AnalysisResultReporterTest {
     underTest.report();
 
     assertThat(logTester.logs(LoggerLevel.INFO))
-      .containsExactly(
-        "ANALYSIS SUCCESSFUL, you can browse " + dashboardUrl,
-        "More about the report processing at " + ceTaskUrl);
+      .containsExactly("ANALYSIS SUCCESSFUL, you can browse " + dashboardUrl);
   }
 }
