@@ -54,7 +54,7 @@ interface Props {
     index: number,
     line: number
   ) => React.ReactNode;
-  scroll?: (element: HTMLElement) => void;
+  scroll?: (element: HTMLElement, offset: number) => void;
   snippetGroup: T.SnippetGroup;
 }
 
@@ -160,13 +160,13 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
     }
   }
 
-  expandBlock = (snippetIndex: number, direction: T.ExpandDirection) => {
+  expandBlock = (snippetIndex: number, direction: T.ExpandDirection): Promise<void> => {
     const { branchLike, snippetGroup } = this.props;
     const { key } = snippetGroup.component;
     const { snippets } = this.state;
     const snippet = snippets.find(s => s.index === snippetIndex);
     if (!snippet) {
-      return;
+      return Promise.reject();
     }
     // Extend by EXPAND_BY_LINES and add buffer for merging snippets
     const extension = EXPAND_BY_LINES + MERGE_DISTANCE - 1;
@@ -180,7 +180,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
             from: snippet.end + 1,
             to: snippet.end + extension
           };
-    getSources({
+    return getSources({
       key,
       ...range,
       ...getBranchLikeQuery(branchLike)
@@ -192,17 +192,14 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
           return lineMap;
         }, {})
       )
-      .then(
-        newLinesMapped => this.animateBlockExpansion(snippetIndex, direction, newLinesMapped),
-        () => {}
-      );
+      .then(newLinesMapped => this.animateBlockExpansion(snippetIndex, direction, newLinesMapped));
   };
 
   animateBlockExpansion(
     snippetIndex: number,
     direction: T.ExpandDirection,
     newLinesMapped: T.Dict<T.SourceLine>
-  ) {
+  ): Promise<void> {
     if (this.mounted) {
       const { snippets } = this.state;
 
@@ -218,29 +215,32 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
       deletedSnippets.forEach(s => this.setMaxHeight(s.index));
       this.setMaxHeight(snippetIndex);
 
-      this.setState(
-        ({ additionalLines, snippets }) => {
-          const combinedLines = { ...additionalLines, ...newLinesMapped };
-          return {
-            additionalLines: combinedLines,
-            snippets
-          };
-        },
-        () => {
-          // Set max-height 0 to trigger CSS transitions
-          deletedSnippets.forEach(s => {
-            this.setMaxHeight(s.index, 0);
-          });
-          this.setMaxHeight(snippetIndex, undefined, direction === 'up');
+      return new Promise(resolve => {
+        this.setState(
+          ({ additionalLines, snippets }) => {
+            const combinedLines = { ...additionalLines, ...newLinesMapped };
+            return {
+              additionalLines: combinedLines,
+              snippets
+            };
+          },
+          () => {
+            // Set max-height 0 to trigger CSS transitions
+            deletedSnippets.forEach(s => {
+              this.setMaxHeight(s.index, 0);
+            });
+            this.setMaxHeight(snippetIndex, undefined, direction === 'up');
 
-          // Wait for transition to finish before updating dom
-          setTimeout(() => {
-            this.setState({ snippets: newSnippets.filter(s => !s.toDelete) });
-            this.cleanDom(snippetIndex);
-          }, 200);
-        }
-      );
+            // Wait for transition to finish before updating dom
+            setTimeout(() => {
+              this.setState({ snippets: newSnippets.filter(s => !s.toDelete) }, resolve);
+              this.cleanDom(snippetIndex);
+            }, 200);
+          }
+        );
+      });
     }
+    return Promise.resolve();
   }
 
   expandComponent = () => {

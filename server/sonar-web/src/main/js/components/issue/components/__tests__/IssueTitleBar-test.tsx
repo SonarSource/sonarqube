@@ -54,6 +54,16 @@ it('should count all code locations', () => {
     />
   );
   expect(element.find('LocationIndex')).toMatchSnapshot();
+
+  const elementWithLink = shallow(
+    <IssueTitleBar
+      displayLocationsCount={true}
+      displayLocationsLink={true}
+      issue={issueWithLocations}
+      togglePopup={jest.fn()}
+    />
+  );
+  expect(elementWithLink.find('LocationIndex')).toMatchSnapshot();
 });
 
 it('should have a correct permalink for security hotspots', () => {

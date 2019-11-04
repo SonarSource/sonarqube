@@ -263,6 +263,17 @@ describe('getNodes', () => {
     mockDom(rootNode.current!);
     expect(wrapper.instance().getNodes(3)).not.toBeUndefined();
   });
+
+  it('should enable cleaning the dom', async () => {
+    await waitAndUpdate(wrapper);
+    const rootNode = wrapper.instance().rootNodeRef;
+    mockDom(rootNode.current!);
+
+    expect(wrapper.instance().cleanDom(3));
+    const nodes = wrapper.instance().getNodes(3);
+    expect(nodes!.wrapper.style.maxHeight).toBe('');
+    expect(nodes!.table.style.marginTop).toBe('');
+  });
 });
 
 describe('getHeight', () => {

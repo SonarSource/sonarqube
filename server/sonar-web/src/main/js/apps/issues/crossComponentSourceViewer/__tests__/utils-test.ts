@@ -169,6 +169,25 @@ describe('createSnippets', () => {
     expect(results).toHaveLength(3);
     expect(results[0]).toEqual({ index: 0, start: 7, end: 21 });
   });
+
+  it('should work for location with no textrange', () => {
+    const locations = [
+      mockFlowLocation({
+        textRange: { startLine: 85, startOffset: 2, endLine: 85, endOffset: 3 }
+      })
+    ];
+
+    const results = createSnippets({
+      locations,
+      issue: mockIssue(false, {
+        textRange: undefined
+      }),
+      addIssueLocation: true
+    });
+
+    expect(results).toHaveLength(2);
+    expect(results[0]).toEqual({ index: 0, start: 1, end: 9 });
+  });
 });
 
 describe('expandSnippet', () => {

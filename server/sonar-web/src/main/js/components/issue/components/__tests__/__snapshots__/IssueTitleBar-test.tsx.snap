@@ -6,6 +6,12 @@ exports[`should count all code locations 1`] = `
 </LocationIndex>
 `;
 
+exports[`should count all code locations 2`] = `
+<LocationIndex>
+  7
+</LocationIndex>
+`;
+
 exports[`should render the titlebar correctly 1`] = `
 <div
   className="issue-row"

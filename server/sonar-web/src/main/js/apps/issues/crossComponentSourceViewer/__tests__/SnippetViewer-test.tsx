@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import { range } from 'lodash';
 import * as React from 'react';
+import { scrollHorizontally } from 'sonar-ui-common/helpers/scrolling';
 import {
   mockIssue,
   mockMainBranch,
@@ -27,6 +28,14 @@ import {
   mockSourceViewerFile
 } from '../../../../helpers/testMocks';
 import SnippetViewer from '../SnippetViewer';
+
+jest.mock('sonar-ui-common/helpers/scrolling', () => ({
+  scrollHorizontally: jest.fn()
+}));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 it('should render correctly', () => {
   const snippet = range(5, 8).map(line => mockSourceLine({ line }));
@@ -59,7 +68,7 @@ it('should render correctly when at the bottom of the file', () => {
 
 it('should correctly handle expansion', () => {
   const snippet = range(5, 8).map(line => mockSourceLine({ line }));
-  const expandBlock = jest.fn();
+  const expandBlock = jest.fn(() => Promise.resolve());
 
   const wrapper = shallowRender({
     expandBlock,
@@ -78,6 +87,29 @@ it('should correctly handle expansion', () => {
     .first()
     .simulate('click');
   expect(expandBlock).toHaveBeenCalledWith(2, 'down');
+});
+
+it('should handle scrolling', () => {
+  const scroll = jest.fn();
+  const wrapper = mountRender({ scroll });
+
+  const element = {} as HTMLElement;
+
+  wrapper.instance().doScroll(element);
+
+  expect(scroll).toHaveBeenCalledWith(element);
+
+  expect(scrollHorizontally).toHaveBeenCalled();
+  expect((scrollHorizontally as jest.Mock).mock.calls[0][0]).toBe(element);
+});
+
+it('should handle scrolling to expanded row', () => {
+  const scroll = jest.fn();
+  const wrapper = mountRender({ scroll });
+
+  wrapper.instance().scrollToLastExpandedRow();
+
+  expect(scroll).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<SnippetViewer['props']> = {}) {
@@ -109,6 +141,40 @@ function shallowRender(props: Partial<SnippetViewer['props']> = {}) {
       renderDuplicationPopup={jest.fn()}
       scroll={jest.fn()}
       snippet={[]}
+      {...props}
+    />
+  );
+}
+
+function mountRender(props: Partial<SnippetViewer['props']> = {}) {
+  return mount<SnippetViewer>(
+    <SnippetViewer
+      branchLike={mockMainBranch()}
+      component={mockSourceViewerFile()}
+      duplications={undefined}
+      duplicationsByLine={undefined}
+      expandBlock={jest.fn()}
+      handleCloseIssues={jest.fn()}
+      handleLinePopupToggle={jest.fn()}
+      handleOpenIssues={jest.fn()}
+      handleSymbolClick={jest.fn()}
+      highlightedLocationMessage={{ index: 0, text: '' }}
+      highlightedSymbols={[]}
+      index={0}
+      issue={mockIssue()}
+      issuesByLine={{}}
+      last={false}
+      linePopup={undefined}
+      loadDuplications={jest.fn()}
+      locations={[]}
+      locationsByLine={{}}
+      onIssueChange={jest.fn()}
+      onIssuePopupToggle={jest.fn()}
+      onLocationSelect={jest.fn()}
+      openIssuesByLine={{}}
+      renderDuplicationPopup={jest.fn()}
+      scroll={jest.fn()}
+      snippet={[mockSourceLine()]}
       {...props}
     />
   );

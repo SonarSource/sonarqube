@@ -58,13 +58,12 @@ export default class IssuesSourceViewer extends React.PureComponent<Props> {
     if (this.node) {
       const element = this.node.querySelector(`[data-issue="${this.props.openIssue.key}"]`);
       if (element) {
-        this.handleScroll(element, smooth);
+        this.handleScroll(element, undefined, smooth);
       }
     }
   };
 
-  handleScroll = (element: Element, smooth = true) => {
-    const offset = window.innerHeight / 2;
+  handleScroll = (element: Element, offset = window.innerHeight / 2, smooth = true) => {
     scrollToElement(element, { topOffset: offset - 100, bottomOffset: offset, smooth });
   };
 

@@ -37,7 +37,7 @@ interface Props {
   component: T.SourceViewerFile;
   duplications?: T.Duplication[];
   duplicationsByLine?: { [line: number]: number[] };
-  expandBlock: (snippetIndex: number, direction: T.ExpandDirection) => void;
+  expandBlock: (snippetIndex: number, direction: T.ExpandDirection) => Promise<void>;
   handleCloseIssues: (line: T.SourceLine) => void;
   handleLinePopupToggle: (line: T.SourceLine) => void;
   handleOpenIssues: (line: T.SourceLine) => void;
@@ -58,25 +58,25 @@ interface Props {
   onLocationSelect: (index: number) => void;
   openIssuesByLine: T.Dict<boolean>;
   renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
-  scroll?: (element: HTMLElement) => void;
+  scroll?: (element: HTMLElement, offset?: number) => void;
   snippet: T.SourceLine[];
 }
 
 const SCROLL_LEFT_OFFSET = 32;
 
 export default class SnippetViewer extends React.PureComponent<Props> {
-  node: React.RefObject<HTMLDivElement>;
+  snippetNodeRef: React.RefObject<HTMLDivElement>;
 
   constructor(props: Props) {
     super(props);
-    this.node = React.createRef();
+    this.snippetNodeRef = React.createRef();
   }
 
   doScroll = (element: HTMLElement) => {
     if (this.props.scroll) {
       this.props.scroll(element);
     }
-    const parent = this.node.current as Element;
+    const parent = this.snippetNodeRef.current as Element;
 
     if (parent) {
       scrollHorizontally(element, {
@@ -87,8 +87,24 @@ export default class SnippetViewer extends React.PureComponent<Props> {
     }
   };
 
+  scrollToLastExpandedRow = () => {
+    if (this.props.scroll) {
+      const snippetNode = this.snippetNodeRef.current as Element;
+      if (!snippetNode) {
+        return;
+      }
+      const rows = snippetNode.querySelectorAll('tr');
+      const lastRow = rows[rows.length - 1];
+      this.props.scroll(lastRow, 100);
+    }
+  };
+
   expandBlock = (direction: T.ExpandDirection) => () =>
-    this.props.expandBlock(this.props.index, direction);
+    this.props.expandBlock(this.props.index, direction).then(() => {
+      if (direction === 'down') {
+        this.scrollToLastExpandedRow();
+      }
+    });
 
   renderLine({
     displayDuplications,
@@ -191,7 +207,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
     const displayDuplications = snippet.some(s => !!s.duplicated);
 
     return (
-      <div className="source-viewer-code snippet" ref={this.node}>
+      <div className="source-viewer-code snippet" ref={this.snippetNodeRef}>
         <div>
           {snippet[0].line > 1 && (
             <div className="expand-block expand-block-above">
