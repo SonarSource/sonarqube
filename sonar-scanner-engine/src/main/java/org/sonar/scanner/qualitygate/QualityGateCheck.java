@@ -48,17 +48,17 @@ public class QualityGateCheck implements Startable {
 
   private final DefaultScannerWsClient wsClient;
   private final GlobalAnalysisMode analysisMode;
-  private final CeTaskReportDataHolder reportMetadataHolder;
+  private final CeTaskReportDataHolder ceTaskReportDataHolder;
   private final ScanProperties properties;
 
   private long qualityGateTimeoutInMs;
   private boolean enabled;
 
-  public QualityGateCheck(DefaultScannerWsClient wsClient, GlobalAnalysisMode analysisMode, CeTaskReportDataHolder reportMetadataHolder,
+  public QualityGateCheck(DefaultScannerWsClient wsClient, GlobalAnalysisMode analysisMode, CeTaskReportDataHolder ceTaskReportDataHolder,
     ScanProperties properties) {
     this.wsClient = wsClient;
     this.properties = properties;
-    this.reportMetadataHolder = reportMetadataHolder;
+    this.ceTaskReportDataHolder = ceTaskReportDataHolder;
     this.analysisMode = analysisMode;
   }
 
@@ -83,7 +83,7 @@ public class QualityGateCheck implements Startable {
       throw new IllegalStateException("Quality Gate check not available in medium test mode");
     }
 
-    String taskId = reportMetadataHolder.getCeTaskId();
+    String taskId = ceTaskReportDataHolder.getCeTaskId();
 
     Ce.Task task = waitForCeTaskToFinish(taskId);
 
@@ -96,6 +96,8 @@ public class QualityGateCheck implements Startable {
     if (Status.OK.equals(qualityGateStatus)) {
       LOG.info("Quality Gate - OK");
     } else {
+      LOG.info("Quality Gate - FAILED, you can browse {}", ceTaskReportDataHolder.getDashboardUrl());
+      LOG.info("More about the report processing at {}", ceTaskReportDataHolder.getCeTaskUrl());
       throw MessageException.of("Quality Gate - FAILED");
     }
   }
