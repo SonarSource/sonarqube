@@ -57,6 +57,8 @@ export interface Props {
   branchLike: T.BranchLike | undefined;
   component: string;
   displayAllIssues?: boolean;
+  displayIssueLocationsCount?: boolean;
+  displayIssueLocationsLink?: boolean;
   displayLocationMarkers?: boolean;
   highlightedLine?: number;
   // `undefined` elements mean they are located in a different file,
@@ -123,6 +125,8 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
 
   static defaultProps = {
     displayAllIssues: false,
+    displayIssueLocationsCount: true,
+    displayIssueLocationsLink: true,
     displayLocationMarkers: true,
     loadComponent: defaultLoadComponent,
     loadIssues: defaultLoadIssues,
@@ -612,6 +616,8 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
         branchLike={this.props.branchLike}
         componentKey={this.props.component}
         displayAllIssues={this.props.displayAllIssues}
+        displayIssueLocationsCount={this.props.displayIssueLocationsCount}
+        displayIssueLocationsLink={this.props.displayIssueLocationsLink}
         displayLocationMarkers={this.props.displayLocationMarkers}
         duplications={this.state.duplications}
         duplicationsByLine={this.state.duplicationsByLine}

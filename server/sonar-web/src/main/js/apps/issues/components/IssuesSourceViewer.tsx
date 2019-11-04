@@ -134,6 +134,8 @@ export default class IssuesSourceViewer extends React.PureComponent<Props> {
             branchLike={this.props.branchLike}
             component={component}
             displayAllIssues={true}
+            displayIssueLocationsCount={true}
+            displayIssueLocationsLink={false}
             displayLocationMarkers={!allMessagesEmpty}
             highlightedLocationMessage={highlightedLocationMessage}
             highlightedLocations={highlightedLocations}

@@ -279,6 +279,8 @@ exports[`should render SourceViewer correctly 1`] = `
     }
     component="main.js"
     displayAllIssues={true}
+    displayIssueLocationsCount={true}
+    displayIssueLocationsLink={false}
     displayLocationMarkers={false}
     highlightedLocations={Array []}
     loadIssues={[MockFunction]}

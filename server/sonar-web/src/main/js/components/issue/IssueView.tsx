@@ -30,6 +30,8 @@ interface Props {
   branchLike?: T.BranchLike;
   checked?: boolean;
   currentPopup?: string;
+  displayLocationsCount?: boolean;
+  displayLocationsLink?: boolean;
   issue: T.Issue;
   onAssign: (login: string) => void;
   onChange: (issue: T.Issue) => void;
@@ -83,6 +85,8 @@ export default class IssueView extends React.PureComponent<Props> {
         <IssueTitleBar
           branchLike={this.props.branchLike}
           currentPopup={this.props.currentPopup}
+          displayLocationsCount={this.props.displayLocationsCount}
+          displayLocationsLink={this.props.displayLocationsLink}
           issue={issue}
           onFilter={this.props.onFilter}
           togglePopup={this.props.togglePopup}

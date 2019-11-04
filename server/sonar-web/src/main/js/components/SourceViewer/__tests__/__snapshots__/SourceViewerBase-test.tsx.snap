@@ -11,6 +11,8 @@ exports[`should render correctly 1`] = `
   }
   component="my-component"
   displayAllIssues={false}
+  displayIssueLocationsCount={true}
+  displayIssueLocationsLink={true}
   displayLocationMarkers={true}
   loadComponent={[Function]}
   loadIssues={[Function]}

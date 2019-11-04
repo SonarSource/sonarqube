@@ -214,7 +214,7 @@
 }
 
 .issue:not(.selected) .location-index {
-  background-color: var(--gray80);
+  background-color: var(--gray60);
 }
 
 .issue .menu:not(.issues-similar-issues-menu):not(.issue-changelog) {
