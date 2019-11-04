@@ -4,15 +4,15 @@
 <mapper namespace="org.sonar.db.alm.setting.AlmSettingMapper">
 
   <sql id="sqlColumns">
-    a.kee as key,
-    a.uuid as uuid,
-    a.alm_id as rawAlm,
-    a.url as url,
-    a.app_id as appId,
-    a.private_key as privateKey,
-    a.pat as personalAccessToken,
-    a.created_at as createdAt,
-    a.updated_at as updatedAt
+    a.kee as "key",
+    a.uuid as "uuid",
+    a.alm_id as "rawAlm",
+    a.url as "url",
+    a.app_id as "appId",
+    a.private_key as "privateKey",
+    a.pat as "personalAccessToken",
+    a.created_at as "createdAt",
+    a.updated_at as "updatedAt"
   </sql>
 
   <select id="selectByUuid" parameterType="string" resultType="org.sonar.db.alm.setting.AlmSettingDto">
