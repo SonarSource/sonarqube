@@ -39,6 +39,9 @@ public class DbVersion81 implements DbVersion {
       .add(3109, "Populate EXCLUDE_FROM_PURGE column", PopulateExcludeBranchFromPurgeColumn.class)
       .add(3110, "Remove 'sonar.branch.longLivedBranches.regex'", RemoveLLBRegexSetting.class)
       .add(3111, "Rename 'sonar.dbcleaner.daysBeforeDeletingInactiveShortLivingBranches' setting",
-        RenameDaysBeforeDeletingInactiveSLBSetting.class);
+        RenameDaysBeforeDeletingInactiveSLBSetting.class)
+      .add(3112, "Migrate short and long living branches types to common BRANCH type", MigrateSlbsAndLlbsToCommonType.class)
+      .add(3113, "Migrate short and long living branches types to common BRANCH type in ce tasks table",
+        MigrateSlbsAndLlbsToCommonTypeInCeTasks.class);
   }
 }

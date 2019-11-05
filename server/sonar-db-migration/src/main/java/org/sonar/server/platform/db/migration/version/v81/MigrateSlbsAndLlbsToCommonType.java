@@ -17,27 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v81;
 
-import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.api.utils.System2;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+@SupportsBlueGreen
+public class MigrateSlbsAndLlbsToCommonType extends DataChange {
+  private final System2 system;
 
-public class DbVersion81Test {
-
-  private DbVersion underTest = new DbVersion81();
-
-  @Test
-  public void migrationNumber_starts_at_3000() {
-    verifyMinimumMigrationNumber(underTest, 3100);
+  public MigrateSlbsAndLlbsToCommonType(Database db, System2 system) {
+    super(db);
+    this.system = system;
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 14);
-  }
+  @Override
+  protected void execute(Context context) throws SQLException {
+    long now = system.now();
 
+    context.prepareUpsert("update project_branches set branch_type = 'BRANCH', updated_at=? where branch_type = 'SHORT' or branch_type = 'LONG'")
+      .setLong(1, now)
+      .execute()
+      .commit();
+  }
 }

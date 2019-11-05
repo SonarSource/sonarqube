@@ -17,27 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v81;
 
-import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+@SupportsBlueGreen
+public class MigrateSlbsAndLlbsToCommonTypeInCeTasks extends DataChange {
+  static final String TABLE = "ce_task_characteristics";
 
-public class DbVersion81Test {
-
-  private DbVersion underTest = new DbVersion81();
-
-  @Test
-  public void migrationNumber_starts_at_3000() {
-    verifyMinimumMigrationNumber(underTest, 3100);
+  public MigrateSlbsAndLlbsToCommonTypeInCeTasks(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 14);
+  @Override
+  protected void execute(Context context) throws SQLException {
+    context.prepareUpsert("update " + TABLE + " set text_value = 'BRANCH' where kee = 'branchType' and text_value in ('LONG', 'SHORT')")
+      .execute()
+      .commit();
   }
-
 }
