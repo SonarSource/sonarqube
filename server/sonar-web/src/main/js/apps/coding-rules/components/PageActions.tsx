@@ -41,7 +41,7 @@ export default function PageActions(props: Props) {
 
       {props.paging && (
         <PageCounter
-          className="spacer-left flash flash-heavy"
+          className="spacer-left"
           current={props.selectedIndex}
           label={translate('coding_rules._rules')}
           total={props.paging.total}

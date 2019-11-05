@@ -30,7 +30,7 @@ interface Props {
 export default function IssuesCounter(props: Props) {
   return (
     <PageCounter
-      className="spacer-left flash flash-heavy"
+      className="spacer-left"
       current={props.current}
       label={translate('issues.issues')}
       total={props.total}
