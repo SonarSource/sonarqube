@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sortBy } from 'lodash';
+import { orderBy, sortBy } from 'lodash';
 
 export function isBranch(branchLike?: T.BranchLike): branchLike is T.Branch {
   return branchLike !== undefined && (branchLike as T.Branch).isMain !== undefined;
@@ -39,6 +39,10 @@ export function isLongLivingBranch(branchLike?: T.BranchLike): branchLike is T.L
 
 export function isMainBranch(branchLike?: T.BranchLike): branchLike is T.MainBranch {
   return isBranch(branchLike) && branchLike.isMain;
+}
+
+export function sortBranches(branches: T.Branch[]) {
+  return orderBy(branches, [b => b.isMain, b => b.name], ['desc', 'asc']);
 }
 
 export function isPullRequest(branchLike?: T.BranchLike): branchLike is T.PullRequest {

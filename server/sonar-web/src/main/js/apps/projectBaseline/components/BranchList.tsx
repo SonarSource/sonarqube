@@ -26,7 +26,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../api/newCodePeriod';
 import BranchIcon from '../../../components/icons-components/BranchIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import { isLongLivingBranch, isMainBranch, sortBranchesAsTree } from '../../../helpers/branches';
+import { isBranch, sortBranches } from '../../../helpers/branches';
 import BranchBaselineSettingModal from './BranchBaselineSettingModal';
 
 interface Props {
@@ -58,9 +58,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
   }
 
   sortAndFilterBranches(branchLikes: T.BranchLike[] = []) {
-    return sortBranchesAsTree(
-      branchLikes.filter(b => isMainBranch(b) || isLongLivingBranch(b))
-    ) as T.Branch[];
+    return sortBranches(branchLikes.filter(isBranch));
   }
 
   fetchBranches() {

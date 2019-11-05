@@ -17,20 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { IconProps } from 'sonar-ui-common/components/icons/Icon';
-import PullRequestIcon from 'sonar-ui-common/components/icons/PullRequestIcon';
-import ShortLivingBranchIcon from 'sonar-ui-common/components/icons/ShortLivingBranchIcon';
-import { isPullRequest } from '../../helpers/branches';
+import {
+  mockLongLivingBranch,
+  mockPullRequest,
+  mockShortLivingBranch
+} from '../../../helpers/testMocks';
+import BranchIcon, { BranchIconProps } from '../BranchIcon';
 
-export interface BranchIconProps extends IconProps {
-  branchLike: T.BranchLike;
-}
+it('should render short living branch icon for short living branch', () => {
+  const wrapper = shallowRender({ branchLike: mockShortLivingBranch() });
+  expect(wrapper).toMatchSnapshot();
+});
 
-export default function BranchIcon({ branchLike, ...props }: BranchIconProps) {
-  if (isPullRequest(branchLike)) {
-    return <PullRequestIcon {...props} />;
-  } else {
-    return <ShortLivingBranchIcon {...props} />;
-  }
+it('should render short living branch icon for long living branch', () => {
+  const wrapper = shallowRender({ branchLike: mockLongLivingBranch() });
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render pull request icon correctly', () => {
+  const wrapper = shallowRender({ branchLike: mockPullRequest() });
+  expect(wrapper).toMatchSnapshot();
+});
+
+function shallowRender(props: BranchIconProps) {
+  return shallow(<BranchIcon {...props} />);
 }

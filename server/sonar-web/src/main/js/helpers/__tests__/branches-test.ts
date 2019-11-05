@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isSameBranchLike, sortBranchesAsTree } from '../branches';
+import { isSameBranchLike, sortBranches, sortBranchesAsTree } from '../branches';
 import {
   mockLongLivingBranch,
   mockMainBranch,
@@ -59,6 +59,31 @@ describe('#sortBranchesAsTree', () => {
     expect(
       sortBranchesAsTree([main, shortFoo, shortBar, shortPre, longBaz, longQux, longQwe, pr])
     ).toEqual([main, pr, shortFoo, shortPre, longBaz, shortBar, longQux, longQwe]);
+  });
+});
+
+describe('#sortBranches', () => {
+  it('should sort branches correctly', () => {
+    const main = mockMainBranch();
+    const shortFoo = mockShortLivingBranch({ name: 'shortFoo', mergeBranch: 'master' });
+    const shortBar = mockShortLivingBranch({ name: 'shortBar', mergeBranch: 'longBaz' });
+    const shortPre = mockShortLivingBranch({ name: 'shortPre', mergeBranch: 'shortFoo' });
+    const longBaz = mockLongLivingBranch({ name: 'longBaz' });
+    const longQux = mockLongLivingBranch({ name: 'longQux' });
+    const longQwe = mockLongLivingBranch({ name: 'longQwe' });
+    const branchList = [shortFoo, longBaz, shortPre, longQux, main, longQwe, shortBar];
+
+    const sortedBrancList = sortBranches(branchList);
+
+    expect(sortedBrancList).toEqual([
+      main,
+      longBaz,
+      longQux,
+      longQwe,
+      shortBar,
+      shortFoo,
+      shortPre
+    ]);
   });
 });
 

@@ -17,20 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { IconProps } from 'sonar-ui-common/components/icons/Icon';
-import PullRequestIcon from 'sonar-ui-common/components/icons/PullRequestIcon';
-import ShortLivingBranchIcon from 'sonar-ui-common/components/icons/ShortLivingBranchIcon';
-import { isPullRequest } from '../../helpers/branches';
 
-export interface BranchIconProps extends IconProps {
-  branchLike: T.BranchLike;
-}
+import { fetchSettings } from '../actions';
+import { receiveDefinitions } from '../definitions';
 
-export default function BranchIcon({ branchLike, ...props }: BranchIconProps) {
-  if (isPullRequest(branchLike)) {
-    return <PullRequestIcon {...props} />;
-  } else {
-    return <ShortLivingBranchIcon {...props} />;
-  }
-}
+jest.mock('../../../../api/settings', () => ({
+  getDefinitions: jest.fn().mockResolvedValue([
+    {
+      key: 'SETTINGS_1_KEY',
+      type: 'SETTINGS_1_TYPE'
+    },
+    {
+      key: 'SETTINGS_2_KEY',
+      type: 'LICENSE'
+    }
+  ])
+}));
+
+jest.mock('../definitions', () => ({
+  receiveDefinitions: jest.fn()
+}));
+
+it('#fetchSettings should filter LICENSE type settings', async () => {
+  const dispatch = jest.fn();
+
+  await fetchSettings()(dispatch);
+
+  expect(receiveDefinitions).toHaveBeenCalledWith([
+    {
+      key: 'SETTINGS_1_KEY',
+      type: 'SETTINGS_1_TYPE'
+    }
+  ]);
+});

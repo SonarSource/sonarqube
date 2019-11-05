@@ -28,6 +28,7 @@ import {
   mockPullRequest,
   mockShortLivingBranch
 } from '../../../helpers/testMocks';
+import BranchBaselineSettingModal from '../components/BranchBaselineSettingModal';
 import BranchList from '../components/BranchList';
 
 jest.mock('../../../api/newCodePeriod', () => ({
@@ -55,7 +56,7 @@ it('should render correctly', async () => {
     ]
   });
   await waitAndUpdate(wrapper);
-  expect(wrapper.state('branches')).toHaveLength(2);
+  expect(wrapper.state().branches).toHaveLength(3);
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -78,14 +79,14 @@ it('should toggle popup', async () => {
 
   await waitAndUpdate(wrapper);
 
-  const nodes = wrapper.find('BranchBaselineSettingModal');
+  const nodes = wrapper.find(BranchBaselineSettingModal);
   expect(nodes).toHaveLength(1);
-  expect(nodes.first().prop('branch')).toEqual(mockMainBranch());
+  expect(nodes.first().props().branch).toEqual(mockMainBranch());
 
   wrapper.instance().closeEditModal('master', { type: 'NUMBER_OF_DAYS', value: '23' });
 
   expect(wrapper.find('BranchBaselineSettingModal')).toHaveLength(0);
-  expect(wrapper.state('branches').find(b => b.name === 'master')).toEqual({
+  expect(wrapper.state().branches.find(b => b.name === 'master')).toEqual({
     analysisDate: '2018-01-01',
     isMain: true,
     name: 'master',

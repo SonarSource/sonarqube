@@ -109,6 +109,43 @@ exports[`should render correctly 1`] = `
           </ActionsDropdown>
         </td>
       </tr>
+      <tr
+        key="feature/foo"
+      >
+        <td
+          className="nowrap"
+        >
+          <BranchIcon
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "isMain": false,
+                "mergeBranch": "master",
+                "name": "feature/foo",
+                "type": "SHORT",
+              }
+            }
+            className="little-spacer-right"
+          />
+          feature/foo
+        </td>
+        <td
+          className="huge-spacer-right nowrap"
+        >
+          branch_list.default_setting
+        </td>
+        <td
+          className="text-right"
+        >
+          <ActionsDropdown>
+            <ActionsDropdownItem
+              onClick={[Function]}
+            >
+              edit
+            </ActionsDropdownItem>
+          </ActionsDropdown>
+        </td>
+      </tr>
     </tbody>
   </table>
 </Fragment>
