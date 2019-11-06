@@ -88,6 +88,8 @@ public class BranchDto {
   @Nullable
   private byte[] pullRequestBinary;
 
+  private boolean excludeFromPurge;
+
   public String getUuid() {
     return uuid;
   }
@@ -171,6 +173,14 @@ public class BranchDto {
     return decodePullRequestData(pullRequestBinary);
   }
 
+  public boolean isExcludeFromPurge() {
+    return excludeFromPurge;
+  }
+
+  public void setExcludeFromPurge(boolean excludeFromPurge) {
+    this.excludeFromPurge = excludeFromPurge;
+  }
+
   private static byte[] encodePullRequestData(DbProjectBranches.PullRequestData pullRequestData) {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     try {
@@ -212,14 +222,14 @@ public class BranchDto {
 
   @Override
   public String toString() {
-    return new StringBuilder("BranchDto{")
-      .append("uuid='").append(uuid).append('\'')
-      .append(", projectUuid='").append(projectUuid).append('\'')
-      .append(", kee='").append(kee).append('\'')
-      .append(", keyType=").append(keyType)
-      .append(", branchType=").append(branchType)
-      .append(", mergeBranchUuid='").append(mergeBranchUuid).append('\'')
-      .append('}')
-      .toString();
+    return "BranchDto{" +
+      "uuid='" + uuid + '\'' +
+      ", projectUuid='" + projectUuid + '\'' +
+      ", kee='" + kee + '\'' +
+      ", keyType=" + keyType +
+      ", branchType=" + branchType +
+      ", mergeBranchUuid='" + mergeBranchUuid + '\'' +
+      ", excludeFromPurge=" + excludeFromPurge +
+      '}';
   }
 }

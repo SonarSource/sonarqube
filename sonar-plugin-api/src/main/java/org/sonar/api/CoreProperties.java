@@ -41,7 +41,9 @@ public interface CoreProperties {
 
   /**
    * @since 4.0
+   * @deprecated since 8.1. Database cleaning now has a dedicated category {@link CoreProperties#CATEGORY_HOUSEKEEPING}.
    */
+  @Deprecated
   String SUBCATEGORY_DATABASE_CLEANER = "databaseCleaner";
 
   /**
@@ -55,9 +57,19 @@ public interface CoreProperties {
   String SUBCATEGORY_DUPLICATIONS = "duplications";
 
   /**
+   * @since 8.1
+   */
+  String CATEGORY_HOUSEKEEPING = "housekeeping";
+
+  /**
    * @since 6.6
    */
-  String SUBCATEGORY_BRANCHES = "Branches";
+  String SUBCATEGORY_BRANCHES_AND_PULL_REQUESTS = "branchesAndPullRequests";
+
+  /**
+   * @since 8.1
+   */
+  String SUBCATEGORY_GENERAL = "general";
 
   /**
    * @since 4.0

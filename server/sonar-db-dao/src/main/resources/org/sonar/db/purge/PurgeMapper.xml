@@ -47,14 +47,14 @@
       AND ncp.branch_uuid=#{projectUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectStaleShortLivingBranchesAndPullRequests" parameterType="map" resultType="String">
+  <select id="selectStaleBranchesAndPullRequests" parameterType="map" resultType="String">
     select
       pb.uuid
     from
       project_branches pb
     where
         pb.project_uuid=#{projectUuid,jdbcType=VARCHAR}
-        and (pb.branch_type='SHORT' or pb.branch_type='PULL_REQUEST')
+        and pb.exclude_from_purge = ${_false}
         and pb.updated_at &lt; #{toDate}
   </select>
 

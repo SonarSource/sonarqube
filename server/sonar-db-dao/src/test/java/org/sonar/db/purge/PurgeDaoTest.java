@@ -127,7 +127,7 @@ public class PurgeDaoTest {
   public void purge_failed_ce_tasks() {
     ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto pastAnalysis = db.components().insertSnapshot(project, t -> t.setStatus(STATUS_PROCESSED).setLast(false));
-    SnapshotDto toBeDeletedAnalysis = db.components().insertSnapshot(project, t -> t.setStatus(STATUS_UNPROCESSED).setLast(false));
+    db.components().insertSnapshot(project, t -> t.setStatus(STATUS_UNPROCESSED).setLast(false));
     SnapshotDto lastAnalysis = db.components().insertSnapshot(project, t -> t.setStatus(STATUS_PROCESSED).setLast(true));
 
     underTest.purge(dbSession, newConfigurationWith30Days(project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
@@ -137,27 +137,27 @@ public class PurgeDaoTest {
   }
 
   @Test
-  public void purge_inactive_short_living_branches() {
+  public void purge_inactive_branches() {
     when(system2.now()).thenReturn(new Date().getTime());
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertMainBranch();
-    ComponentDto longBranch = db.components().insertProjectBranch(project);
-    ComponentDto recentShortBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.SHORT));
+    ComponentDto branch1 = db.components().insertProjectBranch(project);
+    ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
 
-    // short branch with other components and issues, updated 31 days ago
+    // branch with other components and issues, updated 31 days ago
     when(system2.now()).thenReturn(DateUtils.addDays(new Date(), -31).getTime());
-    ComponentDto shortBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.SHORT));
-    ComponentDto module = db.components().insertComponent(newModuleDto(shortBranch));
+    ComponentDto branch3 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    ComponentDto module = db.components().insertComponent(newModuleDto(branch3));
     ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
     ComponentDto file = db.components().insertComponent(newFileDto(subModule));
-    db.issues().insert(rule, shortBranch, file);
-    db.issues().insert(rule, shortBranch, subModule);
-    db.issues().insert(rule, shortBranch, module);
+    db.issues().insert(rule, branch3, file);
+    db.issues().insert(rule, branch3, subModule);
+    db.issues().insert(rule, branch3, module);
 
     underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
-    assertThat(uuidsIn("projects")).containsOnly(project.uuid(), longBranch.uuid(), recentShortBranch.uuid());
+    assertThat(uuidsIn("projects")).containsOnly(project.uuid(), branch1.uuid(), branch2.uuid());
   }
 
   @Test
@@ -185,7 +185,7 @@ public class PurgeDaoTest {
   }
 
   @Test
-  public void purge_inactive_SLB_when_analyzing_non_main_branch() {
+  public void purge_inactive_branches_when_analyzing_non_main_branch() {
     when(system2.now()).thenReturn(new Date().getTime());
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertMainBranch();
@@ -193,22 +193,22 @@ public class PurgeDaoTest {
 
     when(system2.now()).thenReturn(DateUtils.addDays(new Date(), -31).getTime());
 
-    // SLB updated 31 days ago
-    ComponentDto slb1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.SHORT));
+    // branch updated 31 days ago
+    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
 
-    // SLB with other components and issues, updated 31 days ago
-    ComponentDto slb2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
-    ComponentDto file = db.components().insertComponent(newFileDto(slb2));
-    db.issues().insert(rule, slb2, file);
+    // branch with other components and issues, updated 31 days ago
+    ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch2));
+    db.issues().insert(rule, branch2, file);
 
     // back to present
     when(system2.now()).thenReturn(new Date().getTime());
-    // analysing slb1
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, slb1.uuid(), slb1.getMainBranchProjectUuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    // analysing branch1
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, branch1.uuid(), branch1.getMainBranchProjectUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
-    // slb1 wasn't deleted since it was being analyzed!
-    assertThat(uuidsIn("projects")).containsOnly(project.uuid(), longBranch.uuid(), slb1.uuid());
+    // branch1 wasn't deleted since it was being analyzed!
+    assertThat(uuidsIn("projects")).containsOnly(project.uuid(), longBranch.uuid(), branch1.uuid());
   }
 
   @Test
@@ -483,8 +483,7 @@ public class PurgeDaoTest {
         .setProjectUuid(project1.uuid())
         .setBranchUuid(project1.uuid())
         .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
-        .setValue(analysis1.getUuid())
-    );
+        .setValue(analysis1.getUuid()));
     ComponentDto project2 = db.components().insertPrivateProject();
     SnapshotDto analysis2 = db.components().insertSnapshot(newSnapshot()
       .setComponentUuid(project2.uuid())
@@ -510,8 +509,7 @@ public class PurgeDaoTest {
         .setProjectUuid(project.uuid())
         .setBranchUuid(project.uuid())
         .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
-        .setValue(analysisProject.getUuid())
-    );
+        .setValue(analysisProject.getUuid()));
     ComponentDto branch1 = db.components().insertProjectBranch(project);
     SnapshotDto analysisBranch1 = db.components().insertSnapshot(newSnapshot()
       .setComponentUuid(branch1.uuid())
@@ -527,8 +525,7 @@ public class PurgeDaoTest {
         .setProjectUuid(project.uuid())
         .setBranchUuid(branch2.uuid())
         .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
-        .setValue(analysisBranch2.getUuid())
-    );
+        .setValue(analysisBranch2.getUuid()));
     dbSession.commit();
 
     assertThat(underTest.selectPurgeableAnalyses(project.uuid(), dbSession))
@@ -1178,8 +1175,8 @@ public class PurgeDaoTest {
   @Test
   public void delete_ce_analysis_older_than_180_and_scanner_context_older_than_40_days_of_project_and_branches_when_purging_project() {
     LocalDateTime now = LocalDateTime.now();
-    ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto branch1 = db.components().insertProjectBranch(project1);
+    ComponentDto project1 = db.components().insertMainBranch();
+    ComponentDto branch1 = db.components().insertProjectBranch(project1, b -> b.setExcludeFromPurge(true));
     Consumer<CeQueueDto> belongsToProject1 = t -> t.setMainComponentUuid(project1.uuid()).setComponentUuid(project1.uuid());
     Consumer<CeQueueDto> belongsToBranch1 = t -> t.setMainComponentUuid(project1.uuid()).setComponentUuid(branch1.uuid());
 

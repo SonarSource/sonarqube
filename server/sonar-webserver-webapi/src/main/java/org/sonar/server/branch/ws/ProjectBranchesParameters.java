@@ -27,12 +27,14 @@ public class ProjectBranchesParameters {
   public static final String ACTION_LIST = "list";
   public static final String ACTION_DELETE = "delete";
   public static final String ACTION_RENAME = "rename";
+  public static final String ACTION_SET_AUTOMATIC_DELETION_PROTECTION = "set_automatic_deletion_protection";
 
   // parameters
   public static final String PARAM_PROJECT = "project";
   public static final String PARAM_COMPONENT = "component";
   public static final String PARAM_BRANCH = "branch";
   public static final String PARAM_NAME = "name";
+  public static final String PARAM_VALUE = "value";
 
   private ProjectBranchesParameters() {
     // static utility class

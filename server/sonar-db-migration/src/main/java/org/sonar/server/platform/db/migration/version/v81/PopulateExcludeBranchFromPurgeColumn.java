@@ -17,18 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.branch.ws;
+package org.sonar.server.platform.db.migration.version.v81;
 
-import org.sonar.core.platform.Module;
+import java.sql.SQLException;
+import org.sonar.api.utils.System2;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-public class BranchWsModule extends Module {
+@SupportsBlueGreen
+public class PopulateExcludeBranchFromPurgeColumn extends DataChange {
+  private final System2 system;
+
+  public PopulateExcludeBranchFromPurgeColumn(Database db, System2 system) {
+    super(db);
+    this.system = system;
+  }
+
   @Override
-  protected void configureModule() {
-    add(
-      ListAction.class,
-      DeleteAction.class,
-      RenameAction.class,
-      SetAutomaticDeletionProtectionAction.class,
-      BranchesWs.class);
+  public void execute(Context context) throws SQLException {
+    Long now = system.now();
+    context.prepareUpsert("update project_branches set exclude_from_purge = true, updated_at = ? where branch_type = 'LONG'")
+      .setLong(1, now)
+      .execute()
+      .commit();
   }
 }

@@ -101,6 +101,22 @@ public class BranchDaoTest {
     assertThat(loaded.getBranchType()).isEqualTo(BranchType.LONG);
   }
 
+  @Test
+  public void updateExcludeFromPurge() {
+    BranchDto dto = new BranchDto();
+    dto.setProjectUuid("U1");
+    dto.setUuid("U1");
+    dto.setBranchType(BranchType.LONG);
+    dto.setKey("feature");
+    dto.setExcludeFromPurge(false);
+    underTest.insert(dbSession, dto);
+
+    underTest.updateExcludeFromPurge(dbSession, "U1", true);
+
+    BranchDto loaded = underTest.selectByBranchKey(dbSession, "U1", "feature").get();
+    assertThat(loaded.isExcludeFromPurge()).isTrue();
+  }
+
   @DataProvider
   public static Object[][] nullOrEmpty() {
     return new Object[][] {

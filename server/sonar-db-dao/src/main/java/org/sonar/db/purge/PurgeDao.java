@@ -41,6 +41,7 @@ import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.ComponentTreeQuery.Strategy;
 
 import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -75,14 +76,15 @@ public class PurgeDao implements Dao {
   }
 
   private static void purgeStaleBranches(PurgeCommands commands, PurgeConfiguration conf, PurgeMapper mapper, String rootUuid) {
-    Optional<Date> maxDate = conf.maxLiveDateOfInactiveShortLivingBranches();
+    Optional<Date> maxDate = conf.maxLiveDateOfInactiveBranches();
     if (!maxDate.isPresent()) {
       // not available if branch plugin is not installed
       return;
     }
     LOG.debug("<- Purge stale branches");
 
-    List<String> branchUuids = mapper.selectStaleShortLivingBranchesAndPullRequests(conf.projectUuid(), dateToLong(maxDate.get()));
+    Long maxDateValue = ofNullable(dateToLong(maxDate.get())).orElseThrow(IllegalStateException::new);
+    List<String> branchUuids = mapper.selectStaleBranchesAndPullRequests(conf.projectUuid(), maxDateValue);
 
     for (String branchUuid : branchUuids) {
       if (!rootUuid.equals(branchUuid)) {

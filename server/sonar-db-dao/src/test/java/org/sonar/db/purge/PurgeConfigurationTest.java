@@ -58,15 +58,15 @@ public class PurgeConfigurationTest {
   @Test
   public void should_have_empty_branch_purge_date() {
     PurgeConfiguration conf = new PurgeConfiguration("root", "project", emptySet(), 30, Optional.of(10), System2.INSTANCE, emptySet());
-    assertThat(conf.maxLiveDateOfInactiveShortLivingBranches()).isNotEmpty();
+    assertThat(conf.maxLiveDateOfInactiveBranches()).isNotEmpty();
     long tenDaysAgo = DateUtils.addDays(new Date(System2.INSTANCE.now()), -10).getTime();
-    assertThat(conf.maxLiveDateOfInactiveShortLivingBranches().get().getTime()).isBetween(tenDaysAgo - 5000, tenDaysAgo + 5000);
+    assertThat(conf.maxLiveDateOfInactiveBranches().get().getTime()).isBetween(tenDaysAgo - 5000, tenDaysAgo + 5000);
   }
 
   @Test
   public void should_calculate_branch_purge_date() {
     PurgeConfiguration conf = new PurgeConfiguration("root", "project", emptySet(), 30, Optional.empty(), System2.INSTANCE, emptySet());
-    assertThat(conf.maxLiveDateOfInactiveShortLivingBranches()).isEmpty();
+    assertThat(conf.maxLiveDateOfInactiveBranches()).isEmpty();
   }
 
   @Test

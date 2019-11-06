@@ -54,8 +54,8 @@ public class BranchesWs implements WebService {
   static void addBranchParam(NewAction action) {
     action
       .createParam(PARAM_BRANCH)
-      .setDescription("Name of the branch")
-      .setExampleValue("branch1")
+      .setDescription("Branch key")
+      .setExampleValue("feature/my_branch")
       .setRequired(true);
   }
 

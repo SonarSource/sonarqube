@@ -56,9 +56,10 @@ public class BranchDtoTest {
     underTest.setKey("K1");
     underTest.setBranchType(BranchType.LONG);
     underTest.setMergeBranchUuid("U3");
+    underTest.setExcludeFromPurge(true);
 
     assertThat(underTest.toString()).isEqualTo("BranchDto{uuid='U1', " +
-      "projectUuid='U2', kee='K1', keyType=null, branchType=LONG, mergeBranchUuid='U3'}");
+      "projectUuid='U2', kee='K1', keyType=null, branchType=LONG, mergeBranchUuid='U3', excludeFromPurge=true}");
   }
 
   @Test

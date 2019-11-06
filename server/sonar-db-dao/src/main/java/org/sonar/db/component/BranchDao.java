@@ -63,6 +63,11 @@ public class BranchDao implements Dao {
     return mapper(dbSession).updateMainBranchName(projectUuid, newBranchKey, now);
   }
 
+  public int updateExcludeFromPurge(DbSession dbSession, String branchUuid, boolean excludeFromPurge) {
+    long now = system2.now();
+    return mapper(dbSession).updateExcludeFromPurge(branchUuid, excludeFromPurge, now);
+  }
+
   public Optional<BranchDto> selectByBranchKey(DbSession dbSession, String projectUuid, String key) {
     return selectByKey(dbSession, projectUuid, key, KeyType.BRANCH);
   }

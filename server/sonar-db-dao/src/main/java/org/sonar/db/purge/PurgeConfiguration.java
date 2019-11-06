@@ -38,24 +38,24 @@ public class PurgeConfiguration {
   private final String projectUuid;
   private final Collection<String> scopesWithoutHistoricalData;
   private final int maxAgeInDaysOfClosedIssues;
-  private final Optional<Integer> maxAgeInDaysOfInactiveShortLivingBranches;
+  private final Optional<Integer> maxAgeInDaysOfInactiveBranches;
   private final System2 system2;
   private final Set<String> disabledComponentUuids;
 
   public PurgeConfiguration(String rootUuid, String projectUuid, Collection<String> scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues,
-    Optional<Integer> maxAgeInDaysOfInactiveShortLivingBranches, System2 system2, Set<String> disabledComponentUuids) {
+    Optional<Integer> maxAgeInDaysOfInactiveBranches, System2 system2, Set<String> disabledComponentUuids) {
     this.rootUuid = rootUuid;
     this.projectUuid = projectUuid;
     this.scopesWithoutHistoricalData = scopesWithoutHistoricalData;
     this.maxAgeInDaysOfClosedIssues = maxAgeInDaysOfClosedIssues;
     this.system2 = system2;
     this.disabledComponentUuids = disabledComponentUuids;
-    this.maxAgeInDaysOfInactiveShortLivingBranches = maxAgeInDaysOfInactiveShortLivingBranches;
+    this.maxAgeInDaysOfInactiveBranches = maxAgeInDaysOfInactiveBranches;
   }
 
   public static PurgeConfiguration newDefaultPurgeConfiguration(Configuration config, String rootUuid, String projectUuid, Set<String> disabledComponentUuids) {
     return new PurgeConfiguration(rootUuid, projectUuid, Arrays.asList(Scopes.DIRECTORY, Scopes.FILE), config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(),
-      config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_SHORT_LIVING_BRANCHES), System2.INSTANCE, disabledComponentUuids);
+      config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_BRANCHES), System2.INSTANCE, disabledComponentUuids);
   }
 
   /**
@@ -87,8 +87,8 @@ public class PurgeConfiguration {
     return maxLiveDateOfClosedIssues(new Date(system2.now()));
   }
 
-  public Optional<Date> maxLiveDateOfInactiveShortLivingBranches() {
-    return maxAgeInDaysOfInactiveShortLivingBranches.map(age -> DateUtils.addDays(new Date(system2.now()), -age));
+  public Optional<Date> maxLiveDateOfInactiveBranches() {
+    return maxAgeInDaysOfInactiveBranches.map(age -> DateUtils.addDays(new Date(system2.now()), -age));
   }
 
   @VisibleForTesting

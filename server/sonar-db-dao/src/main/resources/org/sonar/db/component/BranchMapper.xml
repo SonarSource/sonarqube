@@ -9,7 +9,8 @@
     pb.key_type as keyType,
     pb.branch_type as branchType,
     pb.merge_branch_uuid as mergeBranchUuid,
-    pb.pull_request_binary as pullRequestBinary
+    pb.pull_request_binary as pullRequestBinary,
+    pb.exclude_from_purge as excludeFromPurge
   </sql>
 
   <insert id="insert" parameterType="map" useGeneratedKeys="false">
@@ -22,7 +23,8 @@
       merge_branch_uuid,
       pull_request_binary,
       created_at,
-      updated_at
+      updated_at,
+      exclude_from_purge
     ) values (
       #{dto.uuid, jdbcType=VARCHAR},
       #{dto.projectUuid, jdbcType=VARCHAR},
@@ -32,7 +34,8 @@
       #{dto.mergeBranchUuid, jdbcType=VARCHAR},
       #{dto.pullRequestBinary, jdbcType=BINARY},
       #{now, jdbcType=BIGINT},
-      #{now, jdbcType=BIGINT}
+      #{now, jdbcType=BIGINT},
+      #{dto.excludeFromPurge, jdbcType=BOOLEAN}
     )
   </insert>
 
@@ -43,6 +46,15 @@
       updated_at = #{now, jdbcType=BIGINT}
     where
       uuid = #{projectUuid, jdbcType=VARCHAR}
+  </update>
+
+  <update id="updateExcludeFromPurge">
+    update project_branches
+    set
+      exclude_from_purge = #{excludeFromPurge, jdbcType=BOOLEAN},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      uuid = #{uuid, jdbcType=VARCHAR}
   </update>
 
   <update id="update" parameterType="map" useGeneratedKeys="false">

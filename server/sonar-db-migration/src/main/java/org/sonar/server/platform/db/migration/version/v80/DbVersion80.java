@@ -35,7 +35,6 @@ public class DbVersion80 implements DbVersion {
       .add(3006, "Create NEW_CODE_PERIOD table", CreateNewCodePeriodTable.class)
       .add(3007, "Populate NEW_CODE_PERIOD table", PopulateNewCodePeriodTable.class)
       .add(3008, "Remove leak period properties", RemoveLeakPeriodProperties.class)
-      .add(3009, "Remove GitHub login generation strategy property", RemoveGitHubLoginGenerationStrategyProperty.class)
-    ;
+      .add(3009, "Remove GitHub login generation strategy property", RemoveGitHubLoginGenerationStrategyProperty.class);
   }
 }

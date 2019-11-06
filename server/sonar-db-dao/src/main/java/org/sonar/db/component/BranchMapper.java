@@ -34,6 +34,9 @@ public interface BranchMapper {
 
   int updateManualBaseline(@Param("uuid") String uuid, @Nullable @Param("analysisUuid") String analysisUuid, @Param("now") long now);
 
+  int updateExcludeFromPurge(@Param("uuid") String uuid, @Param("excludeFromPurge") boolean excludeFromPurge,
+                             @Param("now") long now);
+
   BranchDto selectByKey(@Param("projectUuid") String projectUuid, @Param("key") String key, @Param("keyType") KeyType keyType);
 
   BranchDto selectByUuid(@Param("uuid") String uuid);
@@ -44,5 +47,5 @@ public interface BranchMapper {
 
   long countNonMainBranches();
 
-  long countByTypeAndCreationDate(@Param("branchType")String branchType, @Param("sinceDate") long sinceDate);
+  long countByTypeAndCreationDate(@Param("branchType") String branchType, @Param("sinceDate") long sinceDate);
 }

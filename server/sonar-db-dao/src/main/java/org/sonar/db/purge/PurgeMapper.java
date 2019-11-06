@@ -94,7 +94,7 @@ public interface PurgeMapper {
 
   List<String> selectOldClosedIssueKeys(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Long toDate);
 
-  List<String> selectStaleShortLivingBranchesAndPullRequests(@Param("projectUuid") String projectUuid, @Param("toDate") Long toDate);
+  List<String> selectStaleBranchesAndPullRequests(@Param("projectUuid") String projectUuid, @Param("toDate") Long toDate);
 
   @CheckForNull
   String selectSpecificAnalysisNewCodePeriod(@Param("projectUuid") String projectUuid);

@@ -41,8 +41,8 @@ public final class PurgeProperties {
           + "the DbCleaner keeps the most recent one and fully deletes the other ones.")
         .type(PropertyType.INTEGER)
         .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
+        .category(CoreProperties.CATEGORY_HOUSEKEEPING)
+        .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(1)
         .build(),
 
@@ -53,8 +53,8 @@ public final class PurgeProperties {
           + "the DbCleaner keeps the most recent one and fully deletes the other ones")
         .type(PropertyType.INTEGER)
         .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
+        .category(CoreProperties.CATEGORY_HOUSEKEEPING)
+        .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(2)
         .build(),
 
@@ -65,11 +65,10 @@ public final class PurgeProperties {
           + "the DbCleaner keeps the most recent one and fully deletes the other ones.")
         .type(PropertyType.INTEGER)
         .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
+        .category(CoreProperties.CATEGORY_HOUSEKEEPING)
+        .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(3)
         .build(),
-
 
       PropertyDefinition.builder(PurgeConstants.WEEKS_BEFORE_KEEPING_ONLY_ANALYSES_WITH_VERSION)
         .defaultValue("104")
@@ -77,8 +76,8 @@ public final class PurgeProperties {
         .description("After this number of weeks, the DbCleaner keeps only analyses with a version event associated.")
         .type(PropertyType.INTEGER)
         .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
+        .category(CoreProperties.CATEGORY_HOUSEKEEPING)
+        .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(4)
         .build(),
 
@@ -88,8 +87,8 @@ public final class PurgeProperties {
         .description("After this number of weeks, all analyses are fully deleted.")
         .type(PropertyType.INTEGER)
         .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
+        .category(CoreProperties.CATEGORY_HOUSEKEEPING)
+        .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(5)
         .build(),
 
@@ -99,10 +98,9 @@ public final class PurgeProperties {
         .description("Issues that have been closed for more than this number of days will be deleted.")
         .type(PropertyType.INTEGER)
         .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
+        .category(CoreProperties.CATEGORY_HOUSEKEEPING)
+        .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(6)
-        .build()
-      );
+        .build());
   }
 }
