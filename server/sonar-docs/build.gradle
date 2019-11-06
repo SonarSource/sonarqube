@@ -19,29 +19,29 @@ configurations {
 }
 
 dependencies {
-  languagePlugin 'com.sonarsource.abap:sonar-abap-plugin@jar'
-  languagePlugin 'com.sonarsource.slang:sonar-apex-plugin@jar'
+  languagePlugin 'com.sonarsource.abap:sonar-abap-plugin@jar' // private
+  languagePlugin 'com.sonarsource.slang:sonar-apex-plugin@jar' // private
   languagePlugin "org.sonarsource.dotnet:sonar-csharp-plugin@jar"
-  languagePlugin 'com.sonarsource.cpp:sonar-cfamily-plugin@jar'
-  languagePlugin 'com.sonarsource.cobol:sonar-cobol-plugin@jar'
+  languagePlugin 'com.sonarsource.cpp:sonar-cfamily-plugin@jar' // private
+  languagePlugin 'com.sonarsource.cobol:sonar-cobol-plugin@jar' // private
   languagePlugin 'org.sonarsource.css:sonar-css-plugin@jar'
   languagePlugin 'org.sonarsource.flex:sonar-flex-plugin@jar'
   languagePlugin 'org.sonarsource.java:sonar-java-plugin@jar'
   languagePlugin 'org.sonarsource.javascript:sonar-javascript-plugin@jar'
   languagePlugin "org.sonarsource.slang:sonar-kotlin-plugin@jar"
   languagePlugin 'org.sonarsource.php:sonar-php-plugin@jar'
-  languagePlugin 'com.sonarsource.pli:sonar-pli-plugin@jar'
-  languagePlugin 'com.sonarsource.plsql:sonar-plsql-plugin@jar'
+  languagePlugin 'com.sonarsource.pli:sonar-pli-plugin@jar' // private
+  languagePlugin 'com.sonarsource.plsql:sonar-plsql-plugin@jar' // private
   languagePlugin 'org.sonarsource.python:sonar-python-plugin@jar'
-  languagePlugin 'com.sonarsource.rpg:sonar-rpg-plugin@jar'
+  languagePlugin 'com.sonarsource.rpg:sonar-rpg-plugin@jar' // private
   languagePlugin 'org.sonarsource.slang:sonar-go-plugin@jar'
   languagePlugin "org.sonarsource.slang:sonar-ruby-plugin@jar"
   languagePlugin "org.sonarsource.slang:sonar-scala-plugin@jar"
-  languagePlugin 'com.sonarsource.swift:sonar-swift-plugin@jar'
+  languagePlugin 'com.sonarsource.swift:sonar-swift-plugin@jar' // private
   languagePlugin 'org.sonarsource.typescript:sonar-typescript-plugin@jar'
-  languagePlugin 'com.sonarsource.tsql:sonar-tsql-plugin@jar'
+  languagePlugin 'com.sonarsource.tsql:sonar-tsql-plugin@jar' // private
   languagePlugin "org.sonarsource.dotnet:sonar-vbnet-plugin@jar"
-  languagePlugin 'com.sonarsource.plugins.vb:sonar-vb-plugin@jar'
+  languagePlugin 'com.sonarsource.plugins.vb:sonar-vb-plugin@jar' // private
   languagePlugin 'org.sonarsource.html:sonar-html-plugin@jar'
   languagePlugin 'org.sonarsource.xml:sonar-xml-plugin@jar'
 }
