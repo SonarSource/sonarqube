@@ -301,20 +301,20 @@
 
 .baseline-marker > .wedge {
   border: 10px solid transparent;
-  border-left-color: var(--leakBorderColor);
+  border-left-color: var(--leakSecondaryColor);
 }
 
 .baseline-marker > hr {
   border: none;
   margin: 0 0 0 -11px;
-  background-color: var(--leakBorderColor);
+  background-color: var(--leakSecondaryColor);
   height: 2px;
   flex: 1 0 auto;
 }
 
 .baseline-marker > .label {
-  background-color: var(--leakColor);
-  border: 1px solid var(--leakBorderColor);
+  background-color: var(--leakPrimaryColor);
+  border: 1px solid var(--leakSecondaryColor);
   padding: 2px 8px;
   font-size: var(--verySmallFontSize);
 }
