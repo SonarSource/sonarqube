@@ -22,7 +22,7 @@ import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import MultiSelect from '../../../../components/common/MultiSelect';
 
-interface Props {
+export interface AddGraphMetricPopupProps {
   elements: string[];
   filterSelected: (query: string, selectedElements: string[]) => string[];
   metricsTypeFilter?: string[];
@@ -34,7 +34,11 @@ interface Props {
   selectedElements: string[];
 }
 
-export default function AddGraphMetricPopup({ elements, metricsTypeFilter, ...props }: Props) {
+export default function AddGraphMetricPopup({
+  elements,
+  metricsTypeFilter,
+  ...props
+}: AddGraphMetricPopupProps) {
   let footerNode: React.ReactNode = '';
 
   if (props.selectedElements.length >= 6) {
@@ -66,7 +70,7 @@ export default function AddGraphMetricPopup({ elements, metricsTypeFilter, ...pr
         filterSelected={props.filterSelected}
         footerNode={footerNode}
         onSearch={props.onSearch}
-        onSelect={props.onSelect}
+        onSelect={(item: string) => elements.includes(item) && props.onSelect(item)}
         onUnselect={props.onUnselect}
         placeholder={translate('search.search_for_tags')}
         renderLabel={props.renderLabel}
