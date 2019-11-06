@@ -152,6 +152,12 @@ subprojects {
       dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.6.0.1875'
       dependency 'org.sonarsource.html:sonar-html-plugin:3.2.0.2082'
       dependency 'org.sonarsource.xml:sonar-xml-plugin:2.0.1.2020'
+      dependencySet(group: 'com.sonarsource.security', version: '8.0.0.5505') {
+        entry "sonar-security-csharp-frontend-plugin"
+        entry "sonar-security-java-frontend-plugin"
+        entry "sonar-security-php-frontend-plugin"
+        entry "sonar-security-plugin"
+      }
       
       // please keep this list alphabetically ordered
       dependencySet(group: 'ch.qos.logback', version: '1.2.3') {
