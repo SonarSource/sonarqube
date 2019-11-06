@@ -34,7 +34,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.db.component.ComponentDto.removeBranchAndPullRequestFromKey;
 
 /**
- * Cache a map between component keys and uuids in the merge branch and optionally the target branch (for PR and SLB, and only if this target branch is analyzed)
+ * Cache a map between component keys and uuids in the merge branch and optionally the target branch (for PRs, and only if this target branch is analyzed)
  */
 public class MergeAndTargetBranchComponentUuids {
   private final AnalysisMetadataHolder analysisMetadataHolder;

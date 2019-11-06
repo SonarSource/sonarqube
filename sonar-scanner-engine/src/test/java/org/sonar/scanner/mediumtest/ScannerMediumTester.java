@@ -404,7 +404,7 @@ public class ScannerMediumTester extends ExternalResource {
 
     @CheckForNull
     @Override
-    public String longLivingSonarReferenceBranch() {
+    public String referenceBranchName() {
       return longLivingSonarReferenceBranch;
     }
 

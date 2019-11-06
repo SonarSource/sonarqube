@@ -34,6 +34,7 @@ public class ScannerProperties {
   public static final String ORGANIZATION = "sonar.organization";
 
   public static final String BRANCH_NAME = "sonar.branch.name";
+  @Deprecated
   public static final String BRANCH_TARGET = "sonar.branch.target";
 
   public static final String PULL_REQUEST_KEY = "sonar.pullrequest.key";
@@ -71,13 +72,6 @@ public class ScannerProperties {
       PropertyDefinition.builder(BRANCH_NAME)
         .name("Optional name of SonarQube/SCM branch")
         .description("Provide a name for the branch being analyzed. It might match an existing branch of the project, otherwise a new branch will be created.")
-        .hidden()
-        .build(),
-      PropertyDefinition.builder(BRANCH_TARGET)
-        .name("Optional name of target branch to merge into")
-        .description(
-          "Defines the target branch of the branch being analyzed. The main branch cannot have a target. "
-            + "If no target is defined, the main branch is used as the target.")
         .hidden()
         .build(),
       PropertyDefinition.builder(PULL_REQUEST_BRANCH)

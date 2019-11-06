@@ -26,11 +26,6 @@ import javax.annotation.concurrent.Immutable;
 public interface BranchConfiguration {
 
   /**
-   * The type of the branch we're on, determined by:
-   * - If the specified branch exists on the server, then its type
-   * - If the branch name matches the pattern of long-lived branches, then it's long-lived
-   * - Otherwise it's short-lived
-   *
    * @return type of the current branch
    */
   BranchType branchType();
@@ -40,7 +35,7 @@ public interface BranchConfiguration {
   }
 
   /**
-   * For long/short living branches, this is the value of sonar.branch.name, and fallback on the default branch name configured in SQ
+   * For branches, this is the value of sonar.branch.name, and fallback on the default branch name configured in SQ
    * For PR: the name of the branch containing PR changes (sonar.pullrequest.branch)
    *
    * @return null if the branch feature is not available or no branch was specified.
@@ -49,24 +44,22 @@ public interface BranchConfiguration {
   String branchName();
 
   /**
-   * The long living server branch from which we should load project settings/quality profiles/compare changed files/...
-   * For long living branches, this is the sonar.branch.target (default to default branch) in case of first analysis,
-   * otherwise it's the branch itself.
-   * For short living branches, we look at sonar.branch.target (default to default branch). If it exists but is a short living branch or PR, we will
-   * transitively use its own target.
+   * The branch from which we should load project settings/quality profiles/compare changed files/...
+   * For branches, it's the to default branch in case of first analysis, otherwise it's the branch itself.
    * For PR, we look at sonar.pullrequest.base (default to default branch). If it exists but is a short living branch or PR, we will
    * transitively use its own target. If base is not analyzed, we will use default branch.
    *
    * @return null if the branch feature is not available or no branch was specified.
    */
   @CheckForNull
-  String longLivingSonarReferenceBranch();
+  String referenceBranchName();
 
   /**
-   * Raw value of sonar.branch.target or sonar.pullrequest.base (fallback to the default branch).
+   * For P/Rs, it's the raw value of 'sonar.pullrequest.base'.
+   * For branches it's always null.
    * In the scanner side, it will be used by the SCM to compute changed files and changed lines.
    *
-   * @return null if the branch feature is not available, the branch being analyzed is the main branch or no branch was specified.
+   * @return null if the branch feature is not available or if it's not a P/R.
    */
   @CheckForNull
   String targetBranchName();

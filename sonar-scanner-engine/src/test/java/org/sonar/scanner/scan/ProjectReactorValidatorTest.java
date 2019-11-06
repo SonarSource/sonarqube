@@ -108,19 +108,6 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
-  public void fail_when_branch_target_is_specified_but_branch_plugin_not_present() {
-    ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
-    ProjectReactor reactor = new ProjectReactor(def);
-
-    when(settings.get(eq(ScannerProperties.BRANCH_TARGET))).thenReturn(Optional.of("feature1"));
-
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("To use the property \"sonar.branch.target\" and analyze branches, Developer Edition or above is required");
-
-    underTest.validate(reactor);
-  }
-
-  @Test
   public void fail_when_pull_request_id_specified_but_branch_plugin_not_present() {
     ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
     ProjectReactor reactor = new ProjectReactor(def);

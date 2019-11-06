@@ -43,7 +43,7 @@ public class DefaultBranchConfiguration implements BranchConfiguration {
 
   @CheckForNull
   @Override
-  public String longLivingSonarReferenceBranch() {
+  public String referenceBranchName() {
     return null;
   }
 

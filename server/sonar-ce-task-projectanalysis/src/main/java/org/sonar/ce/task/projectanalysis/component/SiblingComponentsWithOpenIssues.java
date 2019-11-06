@@ -33,7 +33,7 @@ import org.sonar.db.component.KeyWithUuidDto;
 import static org.sonar.db.component.ComponentDto.removeBranchAndPullRequestFromKey;
 
 /**
- * Cache a map of component key -> set&lt;uuid&gt; in sibling branches/PR that have open issues
+ * Cache a map of component key -> set&lt;uuid&gt; in sibling PRs that have open issues
  */
 public class SiblingComponentsWithOpenIssues {
   private final DbClient dbClient;
@@ -60,6 +60,7 @@ public class SiblingComponentsWithOpenIssues {
 
     uuidsByKey = new HashMap<>();
     try (DbSession dbSession = dbClient.openSession(false)) {
+      // for the time being it still tries to load from short living branches
       List<KeyWithUuidDto> components = dbClient.componentDao().selectAllSiblingComponentKeysHavingOpenIssues(dbSession, referenceBranchUuid, currentBranchUuid);
       for (KeyWithUuidDto dto : components) {
         uuidsByKey.computeIfAbsent(removeBranchAndPullRequestFromKey(dto.key()), s -> new HashSet<>()).add(dto.uuid());

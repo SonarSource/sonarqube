@@ -36,7 +36,6 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.core.config.ScannerProperties.BRANCHES_DOC_LINK;
 import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
-import static org.sonar.core.config.ScannerProperties.BRANCH_TARGET;
 import static org.sonar.core.config.ScannerProperties.PULL_REQUEST_BASE;
 import static org.sonar.core.config.ScannerProperties.PULL_REQUEST_BRANCH;
 import static org.sonar.core.config.ScannerProperties.PULL_REQUEST_KEY;
@@ -83,7 +82,7 @@ public class ProjectReactorValidator {
   }
 
   private void validateBranchParamsWhenPluginAbsent(List<String> validationMessages) {
-    for (String param : Arrays.asList(BRANCH_NAME, BRANCH_TARGET)) {
+    for (String param : Arrays.asList(BRANCH_NAME)) {
       if (isNotEmpty(settings.get(param).orElse(null))) {
         validationMessages.add(format("To use the property \"%s\" and analyze branches, Developer Edition or above is required. "
           + "See %s for more information.", param, BRANCHES_DOC_LINK));
