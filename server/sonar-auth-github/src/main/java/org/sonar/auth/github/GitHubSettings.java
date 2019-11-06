@@ -138,7 +138,7 @@ public class GitHubSettings {
         .build(),
       PropertyDefinition.builder(API_URL)
         .name("The API url for a GitHub instance.")
-        .description("The API url for a GitHub instance. https://api.github.com/ for github.com, https://github.company.com/api/v3/ when using Github Enterprise")
+        .description("The API url for a GitHub instance. https://api.github.com/ for Github.com, https://github.company.com/api/v3/ when using Github Enterprise")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(STRING)
@@ -148,7 +148,7 @@ public class GitHubSettings {
       PropertyDefinition.builder(WEB_URL)
         .name("The WEB url for a GitHub instance.")
         .description("The WEB url for a GitHub instance. " +
-          "https://github.com/ for github.com, https://github.company.com/ when using GitHub Enterprise.")
+          "https://github.com/ for Github.com, https://github.company.com/ when using GitHub Enterprise.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(STRING)
