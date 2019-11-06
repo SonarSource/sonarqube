@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.issue.commonrule;
 import java.util.Collection;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 /**
  * Generate the issues related to "common rules", which are

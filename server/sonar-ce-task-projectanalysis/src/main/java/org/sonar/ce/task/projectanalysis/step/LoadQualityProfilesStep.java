@@ -35,8 +35,6 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
-import static com.google.common.base.Strings.emptyToNull;
-
 public class LoadQualityProfilesStep implements ComputationStep {
 
   private final BatchReportReader batchReportReader;

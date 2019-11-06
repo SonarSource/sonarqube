@@ -20,7 +20,6 @@
 package org.sonar.server.platform.db.migration.version.v80;
 
 import java.sql.SQLException;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Map;

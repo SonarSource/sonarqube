@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.measure;
 
 import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerWrapper;
-import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerWrapper;
 
 public interface MeasureComputersHolder {
 

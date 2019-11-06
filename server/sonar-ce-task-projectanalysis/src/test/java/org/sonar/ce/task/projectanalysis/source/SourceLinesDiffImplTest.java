@@ -70,7 +70,7 @@ public class SourceLinesDiffImplTest {
   }
 
   @Test
-  public void should_find_diff_with_target_branch_for_slbs() {
+  public void should_find_diff_with_target_branch_for_prs() {
     Component component = fileComponent(FILE_REF);
     Component componentInTarget = fileComponent(2);
 
@@ -84,7 +84,7 @@ public class SourceLinesDiffImplTest {
   }
 
   @Test
-  public void should_find_diff_with_merge_branch_for_slbs_if_not_found_in_target() {
+  public void should_find_diff_with_merge_branch_for_prs_if_not_found_in_target() {
     Component component = fileComponent(FILE_REF);
     Component componentInTarget = fileComponent(2);
 

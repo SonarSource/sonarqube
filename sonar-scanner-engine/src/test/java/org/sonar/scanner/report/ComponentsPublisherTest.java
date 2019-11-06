@@ -128,7 +128,7 @@ public class ComponentsPublisherTest {
   }
 
   @Test
-  public void publish_unchanged_components_even_in_short_branches() throws IOException {
+  public void publish_unchanged_components_even_in_prs() throws IOException {
     when(branchConfiguration.isPullRequest()).thenReturn(true);
     ProjectInfo projectInfo = mock(ProjectInfo.class);
     when(projectInfo.getAnalysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));

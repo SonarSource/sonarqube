@@ -232,23 +232,6 @@ public class WebhookPayloadFactoryImplTest {
   }
 
   @Test
-  public void create_payload_on_short_branch() {
-    CeTask task = new CeTask("#1", CeTask.Status.SUCCESS);
-    ProjectAnalysis analysis = newAnalysis(task, null, new Branch(false, "feature/foo", Branch.Type.SHORT), 1_500_000_000_000L, emptyMap());
-
-    WebhookPayload payload = underTest.create(analysis);
-    assertJson(payload.getJson())
-      .isSimilarTo("{" +
-        "\"branch\": {" +
-        "  \"name\": \"feature/foo\"," +
-        "  \"type\": \"SHORT\"," +
-        "  \"isMain\": false," +
-        "  \"url\": \"http://foo/dashboard?id=P1&branch=feature%2Ffoo\"" +
-        "}" +
-        "}");
-  }
-
-  @Test
   public void create_payload_on_pull_request() {
     CeTask task = new CeTask("#1", CeTask.Status.SUCCESS);
     ProjectAnalysis analysis = newAnalysis(task, null, new Branch(false, "pr/foo", Branch.Type.PULL_REQUEST), 1_500_000_000_000L, emptyMap());

@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.function.Function;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 public class SourceLinesHashCache {
   private static final String FILE_NAME_PREFIX = "hashes-";

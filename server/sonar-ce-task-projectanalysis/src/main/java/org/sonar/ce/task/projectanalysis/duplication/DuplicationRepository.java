@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.duplication;
 
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 /**
  * Repository of code duplications in files of the project.

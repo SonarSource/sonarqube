@@ -64,7 +64,7 @@ public class ScmInfoDbLoader {
       return Optional.of(file.getUuid());
     }
 
-    // at this point, it's the first analysis of a LLB with copyFromPrevious flag true or any analysis of a PR/SLB
+    // at this point, it's the first analysis of a branch with copyFromPrevious flag true or any analysis of a PR
     Branch branch = analysisMetadataHolder.getBranch();
     if (!branch.isMain()) {
       String uuid = mergeBranchComponentUuid.getTargetBranchComponentUuid(file.getDbKey());

@@ -225,7 +225,7 @@ public class IssueDaoTest {
     ComponentDto file = db.components().insertComponent(newFileDto(projectBranch));
     IssueDto fpIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus("RESOLVED").setResolution("FALSE-POSITIVE"));
 
-    ShortBranchIssueDto fp = underTest.selectOpenByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())).get(0);
+    PrIssueDto fp = underTest.selectOpenByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())).get(0);
     assertThat(fp.getLine()).isEqualTo(fpIssue.getLine());
     assertThat(fp.getMessage()).isEqualTo(fpIssue.getMessage());
     assertThat(fp.getChecksum()).isEqualTo(fpIssue.getChecksum());

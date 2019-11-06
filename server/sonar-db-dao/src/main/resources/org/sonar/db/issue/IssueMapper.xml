@@ -289,7 +289,7 @@
       and i.updated_at &lt;&gt; #{updatedAt,jdbcType=BIGINT}
   </select>
 
-  <select id="selectOpenByComponentUuids" parameterType="map" resultType="ShortBranchIssue">
+  <select id="selectOpenByComponentUuids" parameterType="map" resultType="PrIssue">
     select
       i.kee as kee,
       i.message as message,

@@ -32,7 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.issue.ShortBranchIssueDto;
+import org.sonar.db.issue.PrIssueDto;
 
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
@@ -66,7 +66,7 @@ public class SiblingsIssuesLoader {
     }
   }
 
-  private static SiblingIssue toSiblingIssue(ShortBranchIssueDto dto) {
+  private static SiblingIssue toSiblingIssue(PrIssueDto dto) {
     return new SiblingIssue(dto.getKey(), dto.getLine(), dto.getMessage(), dto.getChecksum(), dto.getRuleKey(), dto.getStatus(), dto.getBranchKey(), dto.getKeyType(),
       longToDate(dto.getIssueUpdateDate()));
   }

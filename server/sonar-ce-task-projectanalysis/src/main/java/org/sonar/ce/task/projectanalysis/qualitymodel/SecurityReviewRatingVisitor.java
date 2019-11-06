@@ -37,7 +37,6 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
 public class SecurityReviewRatingVisitor extends TypeAwareVisitorAdapter {
 

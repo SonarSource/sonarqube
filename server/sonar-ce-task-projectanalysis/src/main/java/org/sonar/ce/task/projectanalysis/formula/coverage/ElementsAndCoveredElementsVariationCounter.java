@@ -23,10 +23,6 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.formula.Counter;
 import org.sonar.ce.task.projectanalysis.formula.CounterInitializationContext;
 import org.sonar.ce.task.projectanalysis.formula.counter.LongValue;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.formula.Counter;
-import org.sonar.ce.task.projectanalysis.formula.CounterInitializationContext;
-import org.sonar.ce.task.projectanalysis.formula.counter.LongValue;
 
 /**
  * A counter used to create measure variations which are based on a count of elements and coveredElements.

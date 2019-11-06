@@ -61,7 +61,7 @@ public class NewLinesRepository {
   }
 
   /**
-   * If the changed lines are not in the report or if we are not analyzing a short lived branch (or P/R) we fall back to this method.
+   * If the changed lines are not in the report or if we are not analyzing a P/R we fall back to this method.
    * If there is a period and SCM information, we compare the change dates of each line with the start of the period to figure out
    * if a line is new or not.
    */

@@ -19,12 +19,8 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
 import java.util.Collection;
 import javax.annotation.Nullable;
-import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

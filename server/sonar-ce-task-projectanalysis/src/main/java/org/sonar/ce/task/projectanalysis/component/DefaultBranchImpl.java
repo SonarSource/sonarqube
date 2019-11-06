@@ -71,7 +71,7 @@ public class DefaultBranchImpl implements Branch {
 
   @Override
   public String getTargetBranchName() {
-    throw new IllegalStateException("Only on a short lived branch or pull request");
+    throw new IllegalStateException("Only on a pull request");
   }
 
   @Override

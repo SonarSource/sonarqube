@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.measure;
 import com.google.common.base.Predicates;
 import javax.annotation.CheckForNull;
 import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerWrapper;
-import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerWrapper;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;

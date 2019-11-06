@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
@@ -74,7 +73,7 @@ public class IssueDao implements Dao {
     return mapper(dbSession).selectNonClosedByModuleOrProject(module.projectUuid(), likeModuleUuidPath);
   }
 
-  public List<ShortBranchIssueDto> selectOpenByComponentUuids(DbSession dbSession, Collection<String> componentUuids) {
+  public List<PrIssueDto> selectOpenByComponentUuids(DbSession dbSession, Collection<String> componentUuids) {
     return executeLargeInputs(componentUuids, mapper(dbSession)::selectOpenByComponentUuids);
   }
 

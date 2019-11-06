@@ -54,11 +54,11 @@ public interface Branch extends ComponentKeyGenerator {
   String getPullRequestKey();
 
   /**
-   * The target/base branch name of a SLB or PR.
+   * The target/base branch name of a PR.
    * Correspond to <pre>sonar.pullrequest.base</pre> or <pre>sonar.branch.target</pre>
    * It's not guaranteed to exist.
    *
-   * @throws IllegalStateException if this branch configuration is not a pull request or SLB.
+   * @throws IllegalStateException if this branch configuration is not a pull request.
    */
   String getTargetBranchName();
 }

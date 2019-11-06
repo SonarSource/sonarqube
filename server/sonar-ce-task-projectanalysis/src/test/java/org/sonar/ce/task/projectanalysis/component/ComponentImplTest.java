@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.component;
 
 import java.util.Arrays;
 import java.util.Collections;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

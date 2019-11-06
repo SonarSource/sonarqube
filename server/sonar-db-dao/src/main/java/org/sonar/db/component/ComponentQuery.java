@@ -200,7 +200,7 @@ public class ComponentQuery {
 
     /**
      * Filter on date of last analysis. On projects, all branches and pull requests are taken into
-     * account. For example the analysis of a short-lived branch is included in the filter
+     * account. For example the analysis of a branch is included in the filter
      * even if the main branch has never been analyzed.
      */
     public Builder setAnyBranchAnalyzedAfter(@Nullable Long l) {

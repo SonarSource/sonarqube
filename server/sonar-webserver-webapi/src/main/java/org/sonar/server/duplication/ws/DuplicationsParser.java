@@ -73,7 +73,7 @@ public class DuplicationsParser {
           String componentDbKey = bCursor.getAttrValue("r");
           if (from != null && size != null && componentDbKey != null) {
             if (disableLink) {
-              // flag means that the target refers to an unchanged file in SLBs/PRs that doesn't exist in DB.
+              // flag means that the target refers to an unchanged file in PRs that doesn't exist in DB.
               // Display as text without a link or other details.
               duplications.add(Duplication.newTextComponent(componentDbKey, Integer.valueOf(from), Integer.valueOf(size)));
             } else {

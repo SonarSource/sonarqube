@@ -43,7 +43,6 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTO
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
 public class DuplicationMeasuresTest {
   private static final int ROOT_REF = 1;

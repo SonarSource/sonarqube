@@ -20,9 +20,6 @@
 package org.sonar.ce.task.projectanalysis.event;
 
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.Component;
-
-import static org.sonar.ce.task.projectanalysis.component.Component.Type;
 
 public interface EventRepository {
   /**

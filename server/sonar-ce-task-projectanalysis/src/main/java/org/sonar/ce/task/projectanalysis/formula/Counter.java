@@ -21,8 +21,6 @@ package org.sonar.ce.task.projectanalysis.formula;
 
 import org.sonar.ce.task.projectanalysis.component.Component;
 
-import static org.sonar.ce.task.projectanalysis.component.Component.Type;
-
 /**
  * A counter is used to aggregate some data
  */

@@ -21,8 +21,6 @@ package org.sonar.ce.task.projectanalysis.source;
 
 import java.util.List;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepositoryImpl.LineHashesComputer;
 
 /**
  * Generates line hashes from source code included in the report.

@@ -20,7 +20,6 @@
 package org.sonar.server.source;
 
 import com.google.common.collect.Lists;
-
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;

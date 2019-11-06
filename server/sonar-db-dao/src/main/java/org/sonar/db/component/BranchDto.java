@@ -74,8 +74,8 @@ public class BranchDto {
 
   /**
    * UUID of the branch:
-   * - in which the short-lived branch or pull request will be merged into
-   * - that is the base of long-lived branch.
+   * - in which the pull request will be merged into
+   * - that is the base of a branch.
    * <p>
    * Can be null if information is not known.
    */

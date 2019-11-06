@@ -22,12 +22,11 @@ package org.sonar.ce.task.projectanalysis.issue;
 import javax.annotation.CheckForNull;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;

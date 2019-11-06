@@ -68,7 +68,7 @@ public class Duplication {
 
   /**
    * can be null if the file wasn't found in DB. This can happen if the target was removed (cross-project duplications) or
-   * if the target refers to an unchanged file in SLBs/PRs.
+   * if the target refers to an unchanged file in PRs.
    */
   @CheckForNull
   public ComponentDto componentDto() {

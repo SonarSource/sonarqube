@@ -19,7 +19,6 @@
  */
 package org.sonar.db.user;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,9 +27,9 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;

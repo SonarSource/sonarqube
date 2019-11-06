@@ -82,7 +82,7 @@ public class ChangedLinesPublisherTest {
   }
 
   @Test
-  public void skip_if_not_pr_or_slb() {
+  public void skip_if_not_pr() {
     when(branchConfiguration.isPullRequest()).thenReturn(false);
     publisher.publish(writer);
     verifyZeroInteractions(inputComponentStore, inputModuleHierarchy, provider);

@@ -74,7 +74,6 @@ import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
 import static org.sonar.db.component.BranchType.BRANCH;
-import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MAX_EXECUTED_AT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MIN_SUBMITTED_AT;

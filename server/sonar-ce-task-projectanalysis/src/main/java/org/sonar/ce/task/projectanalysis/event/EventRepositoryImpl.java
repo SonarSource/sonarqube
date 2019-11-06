@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.event;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;

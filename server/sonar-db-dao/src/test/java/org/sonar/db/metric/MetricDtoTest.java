@@ -25,9 +25,6 @@ import org.junit.rules.ExpectedException;
 
 import static com.google.common.base.Strings.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.measures.Metric.ValueType.DATA;
-import static org.sonar.api.measures.Metric.ValueType.INT;
-import static org.sonar.api.measures.Metric.ValueType.STRING;
 
 public class MetricDtoTest {
   @Rule

@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
 

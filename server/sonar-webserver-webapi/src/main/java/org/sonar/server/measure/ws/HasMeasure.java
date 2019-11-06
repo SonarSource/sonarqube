@@ -23,7 +23,6 @@ import com.google.common.collect.Table;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
 

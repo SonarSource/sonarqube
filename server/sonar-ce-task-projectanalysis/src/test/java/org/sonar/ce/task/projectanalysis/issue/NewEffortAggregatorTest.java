@@ -38,7 +38,6 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;

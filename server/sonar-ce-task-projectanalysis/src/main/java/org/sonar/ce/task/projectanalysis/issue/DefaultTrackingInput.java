@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Collection;
-
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.BlockHashSequence;
 import org.sonar.core.issue.tracking.Input;

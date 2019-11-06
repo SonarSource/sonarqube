@@ -61,7 +61,7 @@ public class LoadDuplicationsFromReportStepTest {
     builder(PROJECT, ROOT_REF)
       .addChildren(
         builder(FILE, FILE_1_REF).build(),
-        // status has no effect except if it's a SLB or PR
+        // status has no effect except if it's a PR
         builder(FILE, FILE_2_REF).setStatus(Component.Status.SAME).build())
       .build());
   @Rule

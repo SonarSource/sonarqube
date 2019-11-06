@@ -123,7 +123,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     components.forEach(c -> {
       IssueCounter issueCounter = new IssueCounter(dbClient.issueDao().selectIssueGroupsByBaseComponent(dbSession, c, beginningOfLeak));
       for (IssueMetricFormula formula : formulaFactory.getFormulas()) {
-        // use formulas when the leak period is defined, it's a PR/SLB, or the formula is not about the leak period
+        // use formulas when the leak period is defined, it's a PR, or the formula is not about the leak period
         if (shouldUseLeakFormulas(lastAnalysis.get(), branch) || !formula.isOnLeak()) {
           context.change(c, formula);
           try {

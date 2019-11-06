@@ -53,7 +53,7 @@ public class PullRequestTrackerExecution {
     Input<DefaultIssue> rawInput = rawInputFactory.create(component);
     Input<DefaultIssue> previousAnalysisInput = baseInputFactory.create(component);
 
-    // Step 1: track issues with merge branch (= long living)
+    // Step 1: track issues with merge branch
     Input<DefaultIssue> unmatchedRawsAfterMergeBranchTracking;
     if (mergeInputFactory.hasMergeBranchAnalysis()) {
       Input<DefaultIssue> mergeInput = mergeInputFactory.createForMergeBranch(component);
@@ -84,7 +84,7 @@ public class PullRequestTrackerExecution {
       unmatchedRawsAfterChangedLineFiltering = unmatchedRawsAfterTargetBranchTracking;
     }
 
-    // Step 4: track issues of previous analysis of the current branch/PR
+    // Step 4: track issues of previous analysis of the current PR
     return tracker.trackNonClosed(unmatchedRawsAfterChangedLineFiltering, previousAnalysisInput);
   }
 

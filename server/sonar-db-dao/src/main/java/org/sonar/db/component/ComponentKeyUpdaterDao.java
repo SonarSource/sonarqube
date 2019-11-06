@@ -42,7 +42,6 @@ import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.component.ComponentKeys.checkProjectKey;
-import static org.sonar.core.component.ComponentKeys.isValidProjectKey;
 
 /**
  * Class used to rename the key of a project and its resources.

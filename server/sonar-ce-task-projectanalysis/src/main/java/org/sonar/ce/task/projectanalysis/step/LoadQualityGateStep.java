@@ -55,13 +55,13 @@ public class LoadQualityGateStep implements ComputationStep {
     }
 
     if (analysisMetadataHolder.isPullRequest()) {
-      qualityGate = filterQGForSLB(qualityGate);
+      qualityGate = filterQGForPR(qualityGate);
     }
 
     qualityGateHolder.setQualityGate(qualityGate.orElseThrow(() -> new IllegalStateException("Quality gate not present")));
   }
 
-  private static Optional<QualityGate> filterQGForSLB(Optional<QualityGate> qualityGate) {
+  private static Optional<QualityGate> filterQGForPR(Optional<QualityGate> qualityGate) {
     return qualityGate.map(qg -> new QualityGate(qg.getId(), qg.getName(),
       qg.getConditions().stream().filter(Condition::useVariation).collect(Collectors.toList())));
   }

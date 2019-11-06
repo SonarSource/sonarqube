@@ -23,7 +23,6 @@ import java.util.List;
 import org.sonar.api.ce.measure.MeasureComputer;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 /**
  * This repository contains issues for only one component at a time. It's populated by {@link IntegrateIssuesVisitor} and

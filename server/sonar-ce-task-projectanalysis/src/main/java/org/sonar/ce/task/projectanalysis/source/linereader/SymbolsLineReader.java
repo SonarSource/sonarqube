@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.source.linereader;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.SetMultimap;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.Iterator;

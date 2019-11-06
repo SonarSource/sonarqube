@@ -27,7 +27,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.component.KeyType;
 
-public final class ShortBranchIssueDto implements Serializable {
+public final class PrIssueDto implements Serializable {
 
   private String kee;
   private String message;
@@ -46,7 +46,7 @@ public final class ShortBranchIssueDto implements Serializable {
     return kee;
   }
 
-  public ShortBranchIssueDto setKee(String s) {
+  public PrIssueDto setKee(String s) {
     this.kee = s;
     return this;
   }
@@ -56,7 +56,7 @@ public final class ShortBranchIssueDto implements Serializable {
     return message;
   }
 
-  public ShortBranchIssueDto setMessage(@Nullable String s) {
+  public PrIssueDto setMessage(@Nullable String s) {
     this.message = s;
     return this;
   }
@@ -66,7 +66,7 @@ public final class ShortBranchIssueDto implements Serializable {
     return line;
   }
 
-  public ShortBranchIssueDto setLine(@Nullable Integer i) {
+  public PrIssueDto setLine(@Nullable Integer i) {
     this.line = i;
     return this;
   }
@@ -78,7 +78,7 @@ public final class ShortBranchIssueDto implements Serializable {
     return branchKey;
   }
 
-  public ShortBranchIssueDto setBranchKey(String s) {
+  public PrIssueDto setBranchKey(String s) {
     this.branchKey = s;
     return this;
   }
@@ -87,7 +87,7 @@ public final class ShortBranchIssueDto implements Serializable {
     return keyType;
   }
 
-  public ShortBranchIssueDto setKeyType(KeyType s) {
+  public PrIssueDto setKeyType(KeyType s) {
     this.keyType = s;
     return this;
   }
@@ -96,7 +96,7 @@ public final class ShortBranchIssueDto implements Serializable {
     return status;
   }
 
-  public ShortBranchIssueDto setStatus(@Nullable String s) {
+  public PrIssueDto setStatus(@Nullable String s) {
     this.status = s;
     return this;
   }
@@ -106,7 +106,7 @@ public final class ShortBranchIssueDto implements Serializable {
     return checksum;
   }
 
-  public ShortBranchIssueDto setChecksum(@Nullable String s) {
+  public PrIssueDto setChecksum(@Nullable String s) {
     this.checksum = s;
     return this;
   }
@@ -127,7 +127,7 @@ public final class ShortBranchIssueDto implements Serializable {
     return issueUpdateDate;
   }
 
-  public ShortBranchIssueDto setIssueUpdateDate(Long issueUpdateDate) {
+  public PrIssueDto setIssueUpdateDate(Long issueUpdateDate) {
     this.issueUpdateDate = issueUpdateDate;
     return this;
   }

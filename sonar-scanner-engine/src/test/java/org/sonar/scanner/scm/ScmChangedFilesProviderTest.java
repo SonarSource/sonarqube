@@ -99,7 +99,7 @@ public class ScmChangedFilesProviderTest {
   }
 
   @Test
-  public void testNoOpInNonShortLivedBranch() {
+  public void testNoOpInBranch() {
     when(branchConfiguration.isPullRequest()).thenReturn(false);
     ScmChangedFiles scmChangedFiles = provider.provide(scmConfiguration, branchConfiguration, project);
 

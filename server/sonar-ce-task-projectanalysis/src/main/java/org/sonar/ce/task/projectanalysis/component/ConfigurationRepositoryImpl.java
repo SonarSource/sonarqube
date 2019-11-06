@@ -24,8 +24,6 @@ import com.google.common.base.Suppliers;
 import org.sonar.api.config.Configuration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.ProjectConfigurationFactory;
-import org.sonar.ce.task.projectanalysis.analysis.ProjectConfigurationFactory;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 
 /**
  * Repository of component settings implementation based on a memory cache.

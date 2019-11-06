@@ -23,8 +23,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
-import org.sonar.ce.task.projectanalysis.measure.Measure;
-import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
 
 import static java.util.Objects.requireNonNull;
 

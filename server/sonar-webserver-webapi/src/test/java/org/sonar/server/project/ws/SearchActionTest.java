@@ -71,7 +71,6 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZE
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECTS;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_IDS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
 public class SearchActionTest {

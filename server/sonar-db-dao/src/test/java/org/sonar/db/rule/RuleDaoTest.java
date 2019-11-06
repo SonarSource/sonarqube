@@ -19,7 +19,6 @@
  */
 package org.sonar.db.rule;
 
-import com.hazelcast.map.impl.querycache.accumulator.Accumulator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

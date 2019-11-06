@@ -23,7 +23,6 @@ import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
-import org.sonar.application.process.StreamGobbler;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

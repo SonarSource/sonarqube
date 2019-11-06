@@ -56,7 +56,6 @@ import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.component.BranchType.BRANCH;
-import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 
 public class TaskActionTest {

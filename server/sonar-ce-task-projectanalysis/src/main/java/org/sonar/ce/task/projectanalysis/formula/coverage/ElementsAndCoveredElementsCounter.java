@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.formula.coverage;
 
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.formula.Counter;
 import org.sonar.ce.task.projectanalysis.formula.CounterInitializationContext;
 

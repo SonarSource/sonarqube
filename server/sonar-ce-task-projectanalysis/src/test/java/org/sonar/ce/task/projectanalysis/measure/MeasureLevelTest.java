@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.measure;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 
 public class MeasureLevelTest {
   @Test

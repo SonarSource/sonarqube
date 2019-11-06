@@ -22,10 +22,8 @@ package org.sonar.server.platform.db.migration;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Adaptor for the DatabaseMigrationExecutorService interface which implementation of methods all throw

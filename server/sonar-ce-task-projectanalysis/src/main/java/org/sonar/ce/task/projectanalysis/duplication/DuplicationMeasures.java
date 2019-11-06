@@ -111,7 +111,7 @@ public class DuplicationMeasures {
     }
 
     protected void initializeForFile(Component file) {
-      // don't use measure since it won't be available for some files in the report tree in SLB
+      // don't use measure since it won't be available for some files in the report tree in PRs
       this.lineCount = file.getFileAttributes().getLines();
       Iterable<Duplication> duplications = requireNonNull(this.duplicationRepository, "DuplicationRepository missing")
         .getDuplications(file);

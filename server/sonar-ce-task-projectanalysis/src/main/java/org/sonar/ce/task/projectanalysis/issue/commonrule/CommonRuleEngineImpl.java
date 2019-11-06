@@ -24,7 +24,6 @@ import java.util.Collection;
 import javax.annotation.CheckForNull;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 public class CommonRuleEngineImpl implements CommonRuleEngine {
 

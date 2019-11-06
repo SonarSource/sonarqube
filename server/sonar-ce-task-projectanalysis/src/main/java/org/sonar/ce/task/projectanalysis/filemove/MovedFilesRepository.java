@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.filemove;
 import com.google.common.base.Optional;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 import static java.util.Objects.requireNonNull;
 

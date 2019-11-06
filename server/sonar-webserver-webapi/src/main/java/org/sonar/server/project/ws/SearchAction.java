@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -44,7 +43,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.SearchWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static org.sonar.api.resources.Qualifiers.APP;
@@ -52,8 +50,6 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.project.Visibility.PRIVATE;
 import static org.sonar.server.project.Visibility.PUBLIC;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -67,7 +63,6 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZE
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECTS;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_IDS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 

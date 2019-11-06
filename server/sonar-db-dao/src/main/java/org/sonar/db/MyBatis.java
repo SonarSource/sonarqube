@@ -73,7 +73,7 @@ import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
-import org.sonar.db.issue.ShortBranchIssueDto;
+import org.sonar.db.issue.PrIssueDto;
 import org.sonar.db.mapping.ProjectMappingDto;
 import org.sonar.db.mapping.ProjectMappingsMapper;
 import org.sonar.db.measure.LiveMeasureMapper;
@@ -190,7 +190,6 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("IssueChange", IssueChangeDto.class);
     confBuilder.loadAlias("KeyLongValue", KeyLongValue.class);
     confBuilder.loadAlias("Issue", IssueDto.class);
-    confBuilder.loadAlias("ShortBranchIssue", ShortBranchIssueDto.class);
     confBuilder.loadAlias("Measure", MeasureDto.class);
     confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
     confBuilder.loadAlias("Organization", OrganizationDto.class);
@@ -200,6 +199,7 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("PermissionTemplate", PermissionTemplateDto.class);
     confBuilder.loadAlias("PermissionTemplateUser", PermissionTemplateUserDto.class);
     confBuilder.loadAlias("Plugin", PluginDto.class);
+    confBuilder.loadAlias("PrIssue", PrIssueDto.class);
     confBuilder.loadAlias("ProjectAlmBinding", ProjectAlmBindingDto.class);
     confBuilder.loadAlias("ProjectQgateAssociation", ProjectQgateAssociationDto.class);
     confBuilder.loadAlias("ProjectMapping", ProjectMappingDto.class);

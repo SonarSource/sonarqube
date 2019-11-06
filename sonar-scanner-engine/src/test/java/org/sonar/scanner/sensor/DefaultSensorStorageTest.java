@@ -173,7 +173,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void should_skip_issue_on_short_branch_when_file_status_is_SAME() {
+  public void should_skip_issue_on_pr_when_file_status_is_SAME() {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setStatus(InputFile.Status.SAME).build();
     when(branchConfiguration.isPullRequest()).thenReturn(true);
 
@@ -195,7 +195,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void should_skip_highlighting_on_short_branch_when_file_status_is_SAME() {
+  public void should_skip_highlighting_on_pr_when_file_status_is_SAME() {
     DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php")
       .setContents("// comment")
       .setStatus(InputFile.Status.SAME).build();
@@ -223,7 +223,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void should_not_skip_file_measures_on_short_lived_branch_or_pull_request_when_file_status_is_SAME() {
+  public void should_not_skip_file_measures_on_pull_request_when_file_status_is_SAME() {
     DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setStatus(InputFile.Status.SAME).build();
     when(branchConfiguration.isPullRequest()).thenReturn(true);
 
