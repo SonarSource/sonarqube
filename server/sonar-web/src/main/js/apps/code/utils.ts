@@ -99,9 +99,14 @@ function storeChildrenBreadcrumbs(parentComponentKey: string, children: T.Breadc
   }
 }
 
-export function getCodeMetrics(qualifier: string, branchLike?: T.BranchLike) {
+export function getCodeMetrics(
+  qualifier: string,
+  branchLike?: T.BranchLike,
+  options: { includeQGStatus?: boolean } = {}
+) {
   if (['VW', 'SVW'].includes(qualifier)) {
-    return [...PORTFOLIO_METRICS];
+    const metrics = [...PORTFOLIO_METRICS];
+    return options.includeQGStatus ? metrics.concat('alert_status') : metrics;
   }
   if (qualifier === 'APP') {
     return [...APPLICATION_METRICS];
@@ -144,10 +149,7 @@ export function retrieveComponentChildren(
     });
   }
 
-  const metrics = getCodeMetrics(qualifier, branchLike);
-  if (['VW', 'SVW'].includes(qualifier)) {
-    metrics.push('alert_status');
-  }
+  const metrics = getCodeMetrics(qualifier, branchLike, { includeQGStatus: true });
 
   return getChildren(componentKey, metrics, {
     ps: PAGE_SIZE,
@@ -212,7 +214,7 @@ export function loadMoreChildren(
   qualifier: string,
   branchLike?: T.BranchLike
 ): Promise<Children> {
-  const metrics = getCodeMetrics(qualifier, branchLike);
+  const metrics = getCodeMetrics(qualifier, branchLike, { includeQGStatus: true });
 
   return getChildren(componentKey, metrics, {
     ps: PAGE_SIZE,

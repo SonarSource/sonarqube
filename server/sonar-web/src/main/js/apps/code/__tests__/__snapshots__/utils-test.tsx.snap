@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getCodeMetrics should return the right metrics for apps 1`] = `
+Array [
+  "alert_status",
+  "ncloc",
+  "bugs",
+  "vulnerabilities",
+  "code_smells",
+  "security_hotspots",
+  "coverage",
+  "duplicated_lines_density",
+]
+`;
+
+exports[`getCodeMetrics should return the right metrics for portfolios 1`] = `
+Array [
+  "releasability_rating",
+  "reliability_rating",
+  "security_rating",
+  "security_review_rating",
+  "sqale_rating",
+  "ncloc",
+]
+`;
+
+exports[`getCodeMetrics should return the right metrics for portfolios 2`] = `
+Array [
+  "releasability_rating",
+  "reliability_rating",
+  "security_rating",
+  "security_review_rating",
+  "sqale_rating",
+  "ncloc",
+  "alert_status",
+]
+`;
+
+exports[`getCodeMetrics should return the right metrics for projects 1`] = `
+Array [
+  "ncloc",
+  "bugs",
+  "vulnerabilities",
+  "code_smells",
+  "security_hotspots",
+  "coverage",
+  "duplicated_lines_density",
+]
+`;
+
+exports[`getCodeMetrics should return the right metrics for projects 2`] = `
+Array [
+  "new_lines",
+  "bugs",
+  "vulnerabilities",
+  "code_smells",
+  "security_hotspots",
+  "new_coverage",
+  "new_duplicated_lines_density",
+]
+`;
