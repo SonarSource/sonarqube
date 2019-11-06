@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first */
-jest.mock('../../../../api/branches', () => ({ renameBranch: jest.fn() }));
 
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { change, click, doAsync, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { renameBranch } from '../../../../api/branches';
+import { mockComponent } from '../../../../helpers/testMocks';
 import RenameBranchModal from '../RenameBranchModal';
+
+jest.mock('../../../../api/branches', () => ({ renameBranch: jest.fn() }));
 
 beforeEach(() => {
   (renameBranch as jest.Mock<any>).mockClear();
@@ -78,7 +79,12 @@ it('stops loading on WS error', async () => {
 function shallowRender(onRename: () => void = jest.fn(), onClose: () => void = jest.fn()) {
   const branch: T.MainBranch = { isMain: true, name: 'master' };
   const wrapper = shallow<RenameBranchModal>(
-    <RenameBranchModal branch={branch} component="foo" onClose={onClose} onRename={onRename} />
+    <RenameBranchModal
+      branch={branch}
+      component={mockComponent({ key: 'foo' })}
+      onClose={onClose}
+      onRename={onRename}
+    />
   );
   wrapper.instance().mounted = true;
   return wrapper;

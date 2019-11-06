@@ -20,35 +20,24 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockSetOfBranchAndPullRequest } from '../../../../helpers/mocks/branch-pull-request';
-import { mockComponent } from '../../../../helpers/testMocks';
-import { App, AppProps } from '../App';
-import BranchLikeTabs from '../BranchLikeTabs';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { getValues } from '../../../../api/settings';
+import { BRANCH_PULL_REQUEST_LIFETIME_SETTING, LifetimeInformation } from '../LifetimeInformation';
 
-it('should render correctly', () => {
+jest.mock('../../../../api/settings', () => ({
+  getValues: jest.fn().mockResolvedValue([{ value: '45' }])
+}));
+
+it('should render correctly', async () => {
   const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot('initial_state');
+
+  await waitAndUpdate(wrapper);
+
+  expect(getValues).toHaveBeenCalledWith({ keys: BRANCH_PULL_REQUEST_LIFETIME_SETTING });
+  expect(wrapper).toMatchSnapshot('after_fetching_data');
 });
 
-it('should properly notify that a branch or a pr has been changed/deleted', () => {
-  const onBranchesChange = jest.fn();
-  const wrapper = shallowRender({ onBranchesChange });
-
-  wrapper
-    .find(BranchLikeTabs)
-    .props()
-    .onBranchesChange();
-
-  expect(onBranchesChange).toHaveBeenCalled();
-});
-
-function shallowRender(props?: Partial<AppProps>) {
-  return shallow(
-    <App
-      branchLikes={mockSetOfBranchAndPullRequest()}
-      component={mockComponent()}
-      onBranchesChange={jest.fn()}
-      {...props}
-    />
-  );
+function shallowRender(props: Partial<LifetimeInformation['props']> = {}) {
+  return shallow<LifetimeInformation>(<LifetimeInformation canAdmin={true} {...props} />);
 }

@@ -1,0 +1,368 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="boxed-group boxed-group-inner"
+>
+  <table
+    className="data zebra zebra-hover"
+  >
+    <thead>
+      <tr>
+        <th>
+          tableTitle
+        </th>
+        <th
+          className="thin nowrap"
+        >
+          status
+        </th>
+        <th
+          className="thin nowrap text-right big-spacer-left"
+        >
+          branches.last_analysis_date
+        </th>
+        <th
+          className="thin nowrap text-right"
+        >
+          actions
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <Memo(BranchLikeRowRenderer)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": false,
+            "mergeBranch": "master",
+            "name": "slb-1",
+            "type": "SHORT",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        key="branch-slb-1"
+        onDelete={[Function]}
+        onRename={[Function]}
+      />
+      <Memo(BranchLikeRowRenderer)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": false,
+            "name": "llb-1",
+            "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        key="branch-llb-1"
+        onDelete={[Function]}
+        onRename={[Function]}
+      />
+      <Memo(BranchLikeRowRenderer)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        key="branch-master"
+        onDelete={[Function]}
+        onRename={[Function]}
+      />
+      <Memo(BranchLikeRowRenderer)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "base": "master",
+            "branch": "feature/foo/bar",
+            "key": "1",
+            "target": "master",
+            "title": "PR-1",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        key="pull-request-1"
+        onDelete={[Function]}
+        onRename={[Function]}
+      />
+      <Memo(BranchLikeRowRenderer)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": false,
+            "mergeBranch": "llb-1",
+            "name": "slb-2",
+            "type": "SHORT",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        key="branch-slb-2"
+        onDelete={[Function]}
+        onRename={[Function]}
+      />
+      <Memo(BranchLikeRowRenderer)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "base": "master",
+            "branch": "feature/foo/bar",
+            "key": "2",
+            "target": "master",
+            "title": "PR-2",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        key="pull-request-2"
+        onDelete={[Function]}
+        onRename={[Function]}
+      />
+      <Memo(BranchLikeRowRenderer)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": false,
+            "name": "llb-3",
+            "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        key="branch-llb-3"
+        onDelete={[Function]}
+        onRename={[Function]}
+      />
+      <Memo(BranchLikeRowRenderer)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": false,
+            "name": "llb-2",
+            "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        key="branch-llb-2"
+        onDelete={[Function]}
+        onRename={[Function]}
+      />
+      <Memo(BranchLikeRowRenderer)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "base": "master",
+            "branch": "feature/foo/bar",
+            "isOrphan": true,
+            "key": "2",
+            "target": "llb-100",
+            "title": "PR-2",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        key="pull-request-2"
+        onDelete={[Function]}
+        onRename={[Function]}
+      />
+    </tbody>
+  </table>
+</div>
+`;

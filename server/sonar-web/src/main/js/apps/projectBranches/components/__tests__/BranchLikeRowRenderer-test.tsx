@@ -20,34 +20,42 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockSetOfBranchAndPullRequest } from '../../../../helpers/mocks/branch-pull-request';
-import { mockComponent } from '../../../../helpers/testMocks';
-import { App, AppProps } from '../App';
-import BranchLikeTabs from '../BranchLikeTabs';
+import {
+  mockComponent,
+  mockLongLivingBranch,
+  mockMainBranch,
+  mockPullRequest,
+  mockShortLivingBranch
+} from '../../../../helpers/testMocks';
+import { BranchLikeRowRenderer, BranchLikeRowRendererProps } from '../BranchLikeRowRenderer';
 
-it('should render correctly', () => {
+it('should render correctly for pull request', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should properly notify that a branch or a pr has been changed/deleted', () => {
-  const onBranchesChange = jest.fn();
-  const wrapper = shallowRender({ onBranchesChange });
-
-  wrapper
-    .find(BranchLikeTabs)
-    .props()
-    .onBranchesChange();
-
-  expect(onBranchesChange).toHaveBeenCalled();
+it('should render correctly for short lived branch', () => {
+  const wrapper = shallowRender({ branchLike: mockShortLivingBranch() });
+  expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props?: Partial<AppProps>) {
+it('should render correctly for long lived branch', () => {
+  const wrapper = shallowRender({ branchLike: mockLongLivingBranch() });
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render correctly for mai branch', () => {
+  const wrapper = shallowRender({ branchLike: mockMainBranch() });
+  expect(wrapper).toMatchSnapshot();
+});
+
+function shallowRender(props?: Partial<BranchLikeRowRendererProps>) {
   return shallow(
-    <App
-      branchLikes={mockSetOfBranchAndPullRequest()}
+    <BranchLikeRowRenderer
+      branchLike={mockPullRequest()}
       component={mockComponent()}
-      onBranchesChange={jest.fn()}
+      onDelete={jest.fn()}
+      onRename={jest.fn()}
       {...props}
     />
   );

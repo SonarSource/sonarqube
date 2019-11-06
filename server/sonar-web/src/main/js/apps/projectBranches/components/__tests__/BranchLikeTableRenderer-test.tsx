@@ -22,32 +22,49 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockSetOfBranchAndPullRequest } from '../../../../helpers/mocks/branch-pull-request';
 import { mockComponent } from '../../../../helpers/testMocks';
-import { App, AppProps } from '../App';
-import BranchLikeTabs from '../BranchLikeTabs';
+import { BranchLikeRowRenderer } from '../BranchLikeRowRenderer';
+import { BranchLikeTableRenderer, BranchLikeTableRendererProps } from '../BranchLikeTableRenderer';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should properly notify that a branch or a pr has been changed/deleted', () => {
-  const onBranchesChange = jest.fn();
-  const wrapper = shallowRender({ onBranchesChange });
+it('should properly propagate delete event', () => {
+  const onDelete = jest.fn();
+  const wrapper = shallowRender({ onDelete });
 
   wrapper
-    .find(BranchLikeTabs)
+    .find(BranchLikeRowRenderer)
+    .first()
     .props()
-    .onBranchesChange();
+    .onDelete();
 
-  expect(onBranchesChange).toHaveBeenCalled();
+  expect(onDelete).toHaveBeenCalled();
 });
 
-function shallowRender(props?: Partial<AppProps>) {
+it('should properly propagate rename event', () => {
+  const onDelete = jest.fn();
+  const onRename = jest.fn();
+  const wrapper = shallowRender({ onDelete, onRename });
+
+  wrapper
+    .find(BranchLikeRowRenderer)
+    .first()
+    .props()
+    .onRename();
+
+  expect(onRename).toHaveBeenCalled();
+});
+
+function shallowRender(props?: Partial<BranchLikeTableRendererProps>) {
   return shallow(
-    <App
+    <BranchLikeTableRenderer
       branchLikes={mockSetOfBranchAndPullRequest()}
       component={mockComponent()}
-      onBranchesChange={jest.fn()}
+      onDelete={jest.fn()}
+      onRename={jest.fn()}
+      tableTitle="tableTitle"
       {...props}
     />
   );

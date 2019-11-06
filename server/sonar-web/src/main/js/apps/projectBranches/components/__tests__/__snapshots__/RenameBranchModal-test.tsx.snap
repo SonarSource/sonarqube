@@ -2,7 +2,7 @@
 
 exports[`renders 1`] = `
 <Modal
-  contentLabel="branches.rename"
+  contentLabel="project_branch_pull_request.branch.rename"
   onRequestClose={[MockFunction]}
   size="small"
 >
@@ -10,7 +10,7 @@ exports[`renders 1`] = `
     className="modal-head"
   >
     <h2>
-      branches.rename
+      project_branch_pull_request.branch.rename
     </h2>
   </header>
   <form
@@ -65,7 +65,7 @@ exports[`renders 1`] = `
 
 exports[`renders 2`] = `
 <Modal
-  contentLabel="branches.rename"
+  contentLabel="project_branch_pull_request.branch.rename"
   onRequestClose={[MockFunction]}
   size="small"
 >
@@ -73,7 +73,7 @@ exports[`renders 2`] = `
     className="modal-head"
   >
     <h2>
-      branches.rename
+      project_branch_pull_request.branch.rename
     </h2>
   </header>
   <form
@@ -128,7 +128,7 @@ exports[`renders 2`] = `
 
 exports[`renders 3`] = `
 <Modal
-  contentLabel="branches.rename"
+  contentLabel="project_branch_pull_request.branch.rename"
   onRequestClose={[MockFunction]}
   size="small"
 >
@@ -136,7 +136,7 @@ exports[`renders 3`] = `
     className="modal-head"
   >
     <h2>
-      branches.rename
+      project_branch_pull_request.branch.rename
     </h2>
   </header>
   <form

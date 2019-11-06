@@ -20,34 +20,31 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockSetOfBranchAndPullRequest } from '../../../../helpers/mocks/branch-pull-request';
-import { mockComponent } from '../../../../helpers/testMocks';
-import { App, AppProps } from '../App';
-import BranchLikeTabs from '../BranchLikeTabs';
+import {
+  LifetimeInformationRenderer,
+  LifetimeInformationRendererProps
+} from '../LifetimeInformationRenderer';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should properly notify that a branch or a pr has been changed/deleted', () => {
-  const onBranchesChange = jest.fn();
-  const wrapper = shallowRender({ onBranchesChange });
-
-  wrapper
-    .find(BranchLikeTabs)
-    .props()
-    .onBranchesChange();
-
-  expect(onBranchesChange).toHaveBeenCalled();
+it('should render correctly when user is admin', () => {
+  const wrapper = shallowRender({ canAdmin: true });
+  expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props?: Partial<AppProps>) {
+it('should render correctly if not lifetime has been fetch', () => {
+  const wrapper = shallowRender({ branchAndPullRequestLifeTimeInDays: undefined });
+  expect(wrapper).toMatchSnapshot();
+});
+
+function shallowRender(props?: Partial<LifetimeInformationRendererProps>) {
   return shallow(
-    <App
-      branchLikes={mockSetOfBranchAndPullRequest()}
-      component={mockComponent()}
-      onBranchesChange={jest.fn()}
+    <LifetimeInformationRenderer
+      branchAndPullRequestLifeTimeInDays="30"
+      loading={true}
       {...props}
     />
   );

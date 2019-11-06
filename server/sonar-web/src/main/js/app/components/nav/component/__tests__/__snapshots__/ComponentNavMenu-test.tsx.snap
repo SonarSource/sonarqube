@@ -161,7 +161,7 @@ exports[`should work for all qualifiers 1`] = `
               }
             }
           >
-            project_branches.page
+            project_branch_pull_request.page
           </Link>
         </li>
         <li>
@@ -902,7 +902,7 @@ exports[`should work with extensions 2`] = `
             }
           }
         >
-          project_branches.page
+          project_branch_pull_request.page
         </Link>
       </li>
       <li>
@@ -1071,7 +1071,7 @@ exports[`should work with multiple extensions 2`] = `
             }
           }
         >
-          project_branches.page
+          project_branch_pull_request.page
         </Link>
       </li>
       <li>

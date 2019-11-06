@@ -1,165 +1,108 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders sorted list of branches 1`] = `
+exports[`should render correctly 1`] = `
 <div
   className="page page-limited"
 >
   <header
     className="page-header"
   >
-    <h1
-      className="page-title"
-    >
-      project_branches.page
+    <h1>
+      project_branch_pull_request.page
     </h1>
-    <p
-      className="page-description"
-    >
-      project_branches.page.description
-    </p>
-    <p
-      className="page-description"
-    >
-      <FormattedMessage
-        defaultMessage="project_branches.page.life_time"
-        id="project_branches.page.life_time"
-        values={
-          Object {
-            "days": "100",
-          }
-        }
-      />
-      <br />
-      <FormattedMessage
-        defaultMessage="project_branches.page.life_time.admin"
-        id="project_branches.page.life_time.admin"
-        values={
-          Object {
-            "settings": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              to="/admin/settings"
-            >
-              settings.page
-            </Link>,
-          }
-        }
-      />
-    </p>
+    <Connect(LifetimeInformation) />
   </header>
-  <div
-    className="boxed-group boxed-group-inner"
-  >
-    <table
-      className="data zebra zebra-hover"
-    >
-      <thead>
-        <tr>
-          <th>
-            branch
-          </th>
-          <th
-            className="thin nowrap"
-          >
-            status
-          </th>
-          <th
-            className="thin nowrap text-right big-spacer-left"
-          >
-            branches.last_analysis_date
-          </th>
-          <th
-            className="thin nowrap text-right"
-          >
-            actions
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <BranchRow
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "isMain": true,
-              "name": "master",
-            }
-          }
-          component="foo"
-          isOrphan={false}
-          onChange={[MockFunction]}
-        />
-        <BranchRow
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "base": "master",
-              "branch": "feature/foo/bar",
-              "key": "1001",
-              "target": "master",
-              "title": "Foo Bar feature",
-            }
-          }
-          component="foo"
-          onChange={[MockFunction]}
-        />
-        <BranchRow
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "isMain": false,
-              "mergeBranch": "master",
-              "name": "feature/foo",
-              "type": "SHORT",
-            }
-          }
-          component="foo"
-          onChange={[MockFunction]}
-        />
-        <BranchRow
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "isMain": false,
-              "name": "branch-6.7",
-              "type": "LONG",
-            }
-          }
-          component="foo"
-          isOrphan={false}
-          onChange={[MockFunction]}
-        />
-        <tr>
-          <td
-            colSpan={4}
-          >
-            <div
-              className="display-inline-block text-middle"
-            >
-              branches.orphan_branches
-            </div>
-            <HelpTooltip
-              className="spacer-left"
-              overlay="branches.orphan_branches.tooltip"
-            />
-          </td>
-        </tr>
-        <BranchRow
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "isMain": false,
-              "isOrphan": true,
-              "mergeBranch": "foobar",
-              "name": "feature",
-              "type": "SHORT",
-            }
-          }
-          component="foo"
-          isOrphan={true}
-          onChange={[MockFunction]}
-        />
-      </tbody>
-    </table>
-  </div>
+  <BranchLikeTabs
+    branchLikes={
+      Array [
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "mergeBranch": "master",
+          "name": "slb-1",
+          "type": "SHORT",
+        },
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "name": "llb-1",
+          "type": "LONG",
+        },
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": true,
+          "name": "master",
+        },
+        Object {
+          "analysisDate": "2018-01-01",
+          "base": "master",
+          "branch": "feature/foo/bar",
+          "key": "1",
+          "target": "master",
+          "title": "PR-1",
+        },
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "mergeBranch": "llb-1",
+          "name": "slb-2",
+          "type": "SHORT",
+        },
+        Object {
+          "analysisDate": "2018-01-01",
+          "base": "master",
+          "branch": "feature/foo/bar",
+          "key": "2",
+          "target": "master",
+          "title": "PR-2",
+        },
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "name": "llb-3",
+          "type": "LONG",
+        },
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "name": "llb-2",
+          "type": "LONG",
+        },
+        Object {
+          "analysisDate": "2018-01-01",
+          "base": "master",
+          "branch": "feature/foo/bar",
+          "isOrphan": true,
+          "key": "2",
+          "target": "llb-100",
+          "title": "PR-2",
+        },
+      ]
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    onBranchesChange={[MockFunction]}
+  />
 </div>
 `;

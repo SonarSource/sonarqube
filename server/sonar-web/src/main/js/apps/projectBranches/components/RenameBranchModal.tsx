@@ -25,7 +25,7 @@ import { renameBranch } from '../../../api/branches';
 
 interface Props {
   branch: T.MainBranch;
-  component: string;
+  component: T.Component;
   onClose: () => void;
   onRename: () => void;
 }
@@ -53,7 +53,7 @@ export default class RenameBranchModal extends React.PureComponent<Props, State>
       return;
     }
     this.setState({ loading: true });
-    renameBranch(this.props.component, this.state.name).then(
+    renameBranch(this.props.component.key, this.state.name).then(
       () => {
         if (this.mounted) {
           this.setState({ loading: false });
@@ -74,7 +74,7 @@ export default class RenameBranchModal extends React.PureComponent<Props, State>
 
   render() {
     const { branch } = this.props;
-    const header = translate('branches.rename');
+    const header = translate('project_branch_pull_request.branch.rename');
     const submitDisabled =
       this.state.loading || !this.state.name || this.state.name === branch.name;
 

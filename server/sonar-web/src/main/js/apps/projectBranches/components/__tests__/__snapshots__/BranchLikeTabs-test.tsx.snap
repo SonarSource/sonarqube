@@ -1,0 +1,274 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render all tabs correctly 1`] = `
+<Fragment>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected={0}
+    tabs={
+      Array [
+        Object {
+          "key": 0,
+          "label": <React.Fragment>
+            <ShortLivingBranchIcon />
+            <span
+              className="spacer-left"
+            >
+              project_branch_pull_request.tabs.branches
+            </span>
+          </React.Fragment>,
+        },
+        Object {
+          "key": 1,
+          "label": <React.Fragment>
+            <PullRequestIcon />
+            <span
+              className="spacer-left"
+            >
+              project_branch_pull_request.tabs.pull_requests
+            </span>
+          </React.Fragment>,
+        },
+      ]
+    }
+  />
+  <Memo(BranchLikeTableRenderer)
+    branchLikes={
+      Array [
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": true,
+          "name": "master",
+        },
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "name": "llb-1",
+          "type": "LONG",
+        },
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "name": "llb-2",
+          "type": "LONG",
+        },
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "name": "llb-3",
+          "type": "LONG",
+        },
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "mergeBranch": "master",
+          "name": "slb-1",
+          "type": "SHORT",
+        },
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "mergeBranch": "llb-1",
+          "name": "slb-2",
+          "type": "SHORT",
+        },
+      ]
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    onDelete={[Function]}
+    onRename={[Function]}
+    tableTitle="project_branch_pull_request.table.branch"
+  />
+</Fragment>
+`;
+
+exports[`should render all tabs correctly 2`] = `
+<Fragment>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected={1}
+    tabs={
+      Array [
+        Object {
+          "key": 0,
+          "label": <React.Fragment>
+            <ShortLivingBranchIcon />
+            <span
+              className="spacer-left"
+            >
+              project_branch_pull_request.tabs.branches
+            </span>
+          </React.Fragment>,
+        },
+        Object {
+          "key": 1,
+          "label": <React.Fragment>
+            <PullRequestIcon />
+            <span
+              className="spacer-left"
+            >
+              project_branch_pull_request.tabs.pull_requests
+            </span>
+          </React.Fragment>,
+        },
+      ]
+    }
+  />
+  <Memo(BranchLikeTableRenderer)
+    branchLikes={
+      Array [
+        Object {
+          "analysisDate": "2018-01-01",
+          "base": "master",
+          "branch": "feature/foo/bar",
+          "key": "1",
+          "target": "master",
+          "title": "PR-1",
+        },
+        Object {
+          "analysisDate": "2018-01-01",
+          "base": "master",
+          "branch": "feature/foo/bar",
+          "key": "2",
+          "target": "master",
+          "title": "PR-2",
+        },
+        Object {
+          "analysisDate": "2018-01-01",
+          "base": "master",
+          "branch": "feature/foo/bar",
+          "isOrphan": true,
+          "key": "2",
+          "target": "llb-100",
+          "title": "PR-2",
+        },
+      ]
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    onDelete={[Function]}
+    onRename={[Function]}
+    tableTitle="project_branch_pull_request.table.pull_request"
+  />
+</Fragment>
+`;
+
+exports[`should render deletion modal correctly 1`] = `
+<DeleteBranchModal
+  branchLike={
+    Object {
+      "analysisDate": "2018-01-01",
+      "base": "master",
+      "branch": "feature/foo/bar",
+      "key": "1001",
+      "target": "master",
+      "title": "Foo Bar feature",
+    }
+  }
+  component={
+    Object {
+      "breadcrumbs": Array [],
+      "key": "my-project",
+      "name": "MyProject",
+      "organization": "foo",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "deleted": false,
+          "key": "my-qp",
+          "language": "ts",
+          "name": "Sonar way",
+        },
+      ],
+      "tags": Array [],
+    }
+  }
+  onClose={[Function]}
+  onDelete={[Function]}
+/>
+`;
+
+exports[`should render renaming modal correctly 1`] = `
+<RenameBranchModal
+  branch={
+    Object {
+      "analysisDate": "2018-01-01",
+      "isMain": true,
+      "name": "master",
+    }
+  }
+  component={
+    Object {
+      "breadcrumbs": Array [],
+      "key": "my-project",
+      "name": "MyProject",
+      "organization": "foo",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "deleted": false,
+          "key": "my-qp",
+          "language": "ts",
+          "name": "Sonar way",
+        },
+      ],
+      "tags": Array [],
+    }
+  }
+  onClose={[Function]}
+  onRename={[Function]}
+/>
+`;

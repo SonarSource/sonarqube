@@ -17,12 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import { getAppState, Store } from '../../../store/rootReducer';
-import App from './App';
 
-const mapStateToProps = (state: Store) => ({
-  canAdmin: getAppState(state).canAdmin
-});
+import {
+  mockLongLivingBranch,
+  mockMainBranch,
+  mockPullRequest,
+  mockShortLivingBranch
+} from '../testMocks';
 
-export default connect(mapStateToProps)(App);
+export function mockSetOfBranchAndPullRequest(): T.BranchLike[] {
+  return [
+    mockShortLivingBranch({ name: 'slb-1' }),
+    mockLongLivingBranch({ name: 'llb-1' }),
+    mockMainBranch(),
+    mockPullRequest({ key: '1', title: 'PR-1' }),
+    mockShortLivingBranch({ name: 'slb-2', mergeBranch: 'llb-1' }),
+    mockPullRequest({ key: '2', title: 'PR-2' }),
+    mockLongLivingBranch({ name: 'llb-3' }),
+    mockLongLivingBranch({ name: 'llb-2' }),
+    mockPullRequest({ key: '2', title: 'PR-2', target: 'llb-100', isOrphan: true })
+  ];
+}

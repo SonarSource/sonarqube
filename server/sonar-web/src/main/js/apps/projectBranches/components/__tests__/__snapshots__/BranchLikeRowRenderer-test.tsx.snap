@@ -1,11 +1,68 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders main branch 1`] = `
+exports[`should render correctly for long lived branch 1`] = `
 <tr>
   <td>
     <BranchIcon
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "name": "branch-6.7",
+          "type": "LONG",
+        }
+      }
+      className="little-spacer-right"
+    />
+    branch-6.7
+  </td>
+  <td
+    className="thin nowrap"
+  >
+    <Connect(BranchStatus)
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "name": "branch-6.7",
+          "type": "LONG",
+        }
+      }
+      component="my-project"
+    />
+  </td>
+  <td
+    className="thin nowrap text-right big-spacer-left"
+  >
+    <DateFromNow
+      date="2018-01-01"
+    />
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <ActionsDropdown
+      className="big-spacer-left"
+    >
+      <ActionsDropdownItem
+        className="js-delete"
+        destructive={true}
+        onClick={[MockFunction]}
+      >
+        project_branch_pull_request.branch.delete
+      </ActionsDropdownItem>
+    </ActionsDropdown>
+  </td>
+</tr>
+`;
+
+exports[`should render correctly for mai branch 1`] = `
+<tr>
+  <td>
+    <BranchIcon
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
           "isMain": true,
           "name": "master",
         }
@@ -25,34 +82,39 @@ exports[`renders main branch 1`] = `
     <Connect(BranchStatus)
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "isMain": true,
           "name": "master",
         }
       }
-      component="foo"
+      component="my-project"
     />
   </td>
   <td
     className="thin nowrap text-right big-spacer-left"
-  />
+  >
+    <DateFromNow
+      date="2018-01-01"
+    />
+  </td>
   <td
     className="thin nowrap text-right"
   >
     <ActionsDropdown
-      className="ig-spacer-left"
+      className="big-spacer-left"
     >
       <ActionsDropdownItem
         className="js-rename"
-        onClick={[Function]}
+        onClick={[MockFunction]}
       >
-        branches.rename
+        project_branch_pull_request.branch.rename
       </ActionsDropdownItem>
     </ActionsDropdown>
   </td>
 </tr>
 `;
 
-exports[`renders pull request 1`] = `
+exports[`should render correctly for pull request 1`] = `
 <tr>
   <td>
     <BranchIcon
@@ -66,7 +128,7 @@ exports[`renders pull request 1`] = `
           "title": "Foo Bar feature",
         }
       }
-      className="little-spacer-right big-spacer-left"
+      className="little-spacer-right"
     />
     1001 – Foo Bar feature
   </td>
@@ -84,7 +146,7 @@ exports[`renders pull request 1`] = `
           "title": "Foo Bar feature",
         }
       }
-      component="foo"
+      component="my-project"
     />
   </td>
   <td
@@ -98,21 +160,21 @@ exports[`renders pull request 1`] = `
     className="thin nowrap text-right"
   >
     <ActionsDropdown
-      className="ig-spacer-left"
+      className="big-spacer-left"
     >
       <ActionsDropdownItem
         className="js-delete"
         destructive={true}
-        onClick={[Function]}
+        onClick={[MockFunction]}
       >
-        branches.pull_request.delete
+        project_branch_pull_request.pull_request.delete
       </ActionsDropdownItem>
     </ActionsDropdown>
   </td>
 </tr>
 `;
 
-exports[`renders short-living branch 1`] = `
+exports[`should render correctly for short lived branch 1`] = `
 <tr>
   <td>
     <BranchIcon
@@ -125,7 +187,7 @@ exports[`renders short-living branch 1`] = `
           "type": "SHORT",
         }
       }
-      className="little-spacer-right big-spacer-left"
+      className="little-spacer-right"
     />
     feature/foo
   </td>
@@ -142,7 +204,7 @@ exports[`renders short-living branch 1`] = `
           "type": "SHORT",
         }
       }
-      component="foo"
+      component="my-project"
     />
   </td>
   <td
@@ -156,14 +218,14 @@ exports[`renders short-living branch 1`] = `
     className="thin nowrap text-right"
   >
     <ActionsDropdown
-      className="ig-spacer-left"
+      className="big-spacer-left"
     >
       <ActionsDropdownItem
         className="js-delete"
         destructive={true}
-        onClick={[Function]}
+        onClick={[MockFunction]}
       >
-        branches.delete
+        project_branch_pull_request.branch.delete
       </ActionsDropdownItem>
     </ActionsDropdown>
   </td>

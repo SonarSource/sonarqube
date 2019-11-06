@@ -17,11 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { click, doAsync, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { deleteBranch, deletePullRequest } from '../../../../api/branches';
-import { mockPullRequest, mockShortLivingBranch } from '../../../../helpers/testMocks';
+import {
+  mockComponent,
+  mockPullRequest,
+  mockShortLivingBranch
+} from '../../../../helpers/testMocks';
 import DeleteBranchModal from '../DeleteBranchModal';
 
 jest.mock('../../../../api/branches', () => ({
@@ -101,7 +106,7 @@ function shallowRender(
   const wrapper = shallow<DeleteBranchModal>(
     <DeleteBranchModal
       branchLike={branchLike}
-      component="foo"
+      component={mockComponent({ key: 'foo' })}
       onClose={onClose}
       onDelete={onDelete}
     />

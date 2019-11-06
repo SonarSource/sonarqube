@@ -2,14 +2,14 @@
 
 exports[`renders 1`] = `
 <Modal
-  contentLabel="branches.delete"
+  contentLabel="project_branch_pull_request.branch.delete"
   onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
   >
     <h2>
-      branches.delete
+      project_branch_pull_request.branch.delete
     </h2>
   </header>
   <form
@@ -18,7 +18,7 @@ exports[`renders 1`] = `
     <div
       className="modal-body"
     >
-      branches.delete.are_you_sure.feature/foo
+      project_branch_pull_request.branch.delete.are_you_sure.feature/foo
     </div>
     <footer
       className="modal-foot"
@@ -41,14 +41,14 @@ exports[`renders 1`] = `
 
 exports[`renders 2`] = `
 <Modal
-  contentLabel="branches.delete"
+  contentLabel="project_branch_pull_request.branch.delete"
   onRequestClose={[MockFunction]}
 >
   <header
     className="modal-head"
   >
     <h2>
-      branches.delete
+      project_branch_pull_request.branch.delete
     </h2>
   </header>
   <form
@@ -57,7 +57,7 @@ exports[`renders 2`] = `
     <div
       className="modal-body"
     >
-      branches.delete.are_you_sure.feature/foo
+      project_branch_pull_request.branch.delete.are_you_sure.feature/foo
     </div>
     <footer
       className="modal-foot"

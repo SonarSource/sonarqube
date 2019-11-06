@@ -267,7 +267,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
         <Link
           activeClassName="active"
           to={{ pathname: '/project/branches', query: { id: this.props.component.key } }}>
-          {translate('project_branches.page')}
+          {translate('project_branch_pull_request.page')}
         </Link>
       </li>
     );

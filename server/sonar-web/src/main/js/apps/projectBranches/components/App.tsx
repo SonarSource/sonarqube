@@ -18,163 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import { getValues } from '../../../api/settings';
-import {
-  getBranchLikeKey,
-  isPullRequest,
-  isShortLivingBranch,
-  sortBranchesAsTree
-} from '../../../helpers/branches';
-import BranchRow from './BranchRow';
+import BranchLikeTabs from './BranchLikeTabs';
+import LifetimeInformation from './LifetimeInformation';
 
-interface Props {
+export interface AppProps {
   branchLikes: T.BranchLike[];
-  canAdmin?: boolean;
-  component: { key: string };
+  component: T.Component;
   onBranchesChange: () => void;
 }
 
-interface State {
-  branchLifeTime?: string;
-  loading: boolean;
+export function App(props: AppProps) {
+  const { branchLikes, component, onBranchesChange } = props;
+
+  return (
+    <div className="page page-limited">
+      <header className="page-header">
+        <h1>{translate('project_branch_pull_request.page')}</h1>
+        <LifetimeInformation />
+      </header>
+
+      <BranchLikeTabs
+        branchLikes={branchLikes}
+        component={component}
+        onBranchesChange={onBranchesChange}
+      />
+    </div>
+  );
 }
 
-const BRANCH_LIFETIME_SETTING = 'sonar.dbcleaner.daysBeforeDeletingInactiveShortLivingBranches';
-
-export default class App extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: true };
-
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchPurgeSetting();
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchPurgeSetting() {
-    this.setState({ loading: true });
-    getValues({ keys: BRANCH_LIFETIME_SETTING }).then(
-      settings => {
-        if (this.mounted) {
-          this.setState({
-            loading: false,
-            branchLifeTime: settings.length > 0 ? settings[0].value : undefined
-          });
-        }
-      },
-      () => {
-        this.setState({ loading: false });
-      }
-    );
-  }
-
-  isOrphan = (branchLike: T.BranchLike) => {
-    return (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) && branchLike.isOrphan;
-  };
-
-  renderBranchLifeTime() {
-    const { branchLifeTime } = this.state;
-    if (!branchLifeTime) {
-      return null;
-    }
-
-    return (
-      <p className="page-description">
-        <FormattedMessage
-          defaultMessage={translate('project_branches.page.life_time')}
-          id="project_branches.page.life_time"
-          values={{ days: formatMeasure(this.state.branchLifeTime, 'INT') }}
-        />
-        {this.props.canAdmin && (
-          <>
-            <br />
-            <FormattedMessage
-              defaultMessage={translate('project_branches.page.life_time.admin')}
-              id="project_branches.page.life_time.admin"
-              values={{ settings: <Link to="/admin/settings">{translate('settings.page')}</Link> }}
-            />
-          </>
-        )}
-      </p>
-    );
-  }
-
-  render() {
-    const { branchLikes, component, onBranchesChange } = this.props;
-
-    if (this.state.loading) {
-      return (
-        <div className="page page-limited">
-          <header className="page-header">
-            <h1 className="page-title">{translate('project_branches.page')}</h1>
-          </header>
-          <i className="spinner" />
-        </div>
-      );
-    }
-
-    return (
-      <div className="page page-limited">
-        <header className="page-header">
-          <h1 className="page-title">{translate('project_branches.page')}</h1>
-          <p className="page-description">{translate('project_branches.page.description')}</p>
-          {this.renderBranchLifeTime()}
-        </header>
-
-        <div className="boxed-group boxed-group-inner">
-          <table className="data zebra zebra-hover">
-            <thead>
-              <tr>
-                <th>{translate('branch')}</th>
-                <th className="thin nowrap">{translate('status')}</th>
-                <th className="thin nowrap text-right big-spacer-left">
-                  {translate('branches.last_analysis_date')}
-                </th>
-                <th className="thin nowrap text-right">{translate('actions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortBranchesAsTree(branchLikes).map((branchLike, index) => {
-                const isOrphan = this.isOrphan(branchLike);
-                const previous = index > 0 ? branchLikes[index - 1] : undefined;
-                const isPreviousOrphan = previous !== undefined && this.isOrphan(previous);
-                const showOrphanHeader = isOrphan && !isPreviousOrphan;
-                return (
-                  <React.Fragment key={getBranchLikeKey(branchLike)}>
-                    {showOrphanHeader && (
-                      <tr>
-                        <td colSpan={4}>
-                          <div className="display-inline-block text-middle">
-                            {translate('branches.orphan_branches')}
-                          </div>
-                          <HelpTooltip
-                            className="spacer-left"
-                            overlay={translate('branches.orphan_branches.tooltip')}
-                          />
-                        </td>
-                      </tr>
-                    )}
-                    <BranchRow
-                      branchLike={branchLike}
-                      component={component.key}
-                      isOrphan={isOrphan}
-                      onChange={onBranchesChange}
-                    />
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    );
-  }
-}
+export default React.memo(App);
