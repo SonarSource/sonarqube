@@ -33,12 +33,12 @@ public class IssueTrackingDelegator {
   private final PullRequestTrackerExecution pullRequestTracker;
   private final TrackerExecution tracker;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final MergeBranchTrackerExecution mergeBranchTracker;
+  private final ReferenceBranchTrackerExecution referenceBranchTracker;
 
-  public IssueTrackingDelegator(PullRequestTrackerExecution pullRequestTracker, MergeBranchTrackerExecution longBranchTracker,
+  public IssueTrackingDelegator(PullRequestTrackerExecution pullRequestTracker, ReferenceBranchTrackerExecution referenceBranchTracker,
                                 TrackerExecution tracker, AnalysisMetadataHolder analysisMetadataHolder) {
     this.pullRequestTracker = pullRequestTracker;
-    this.mergeBranchTracker = longBranchTracker;
+    this.referenceBranchTracker = referenceBranchTracker;
     this.tracker = tracker;
     this.analysisMetadataHolder = analysisMetadataHolder;
   }
@@ -46,8 +46,8 @@ public class IssueTrackingDelegator {
   public TrackingResult track(Component component) {
     if (analysisMetadataHolder.isPullRequest()) {
       return standardResult(pullRequestTracker.track(component));
-    } else if (isFirstAnalysisSecondaryLongLivingBranch()) {
-      Tracking<DefaultIssue, DefaultIssue> tracking = mergeBranchTracker.track(component);
+    } else if (isFirstAnalysisSecondaryBranch()) {
+      Tracking<DefaultIssue, DefaultIssue> tracking = referenceBranchTracker.track(component);
       return new TrackingResult(tracking.getMatchedRaws(), emptyMap(), Stream.empty(), tracking.getUnmatchedRaws());
     } else {
       return standardResult(tracker.track(component));
@@ -61,7 +61,7 @@ public class IssueTrackingDelegator {
   /**
    * Special case where we want to do the issue tracking with the merge branch, and copy matched issue to the current branch.
    */
-  private boolean isFirstAnalysisSecondaryLongLivingBranch() {
+  private boolean isFirstAnalysisSecondaryBranch() {
     if (analysisMetadataHolder.isFirstAnalysis()) {
       Branch branch = analysisMetadataHolder.getBranch();
       return !branch.isMain() && branch.getType() == BranchType.LONG;

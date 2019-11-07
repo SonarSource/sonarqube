@@ -77,7 +77,7 @@ public class XooBlameCommand extends BlameCommand {
   }
 
   private static BlameLine convertToBlameLine(CSVRecord csvRecord) {
-    checkState(csvRecord.size() == 3, "Not enough fields on line %s", csvRecord);
+    checkState(csvRecord.size() >= 3, "Not enough fields on line %s", csvRecord);
     String revision = trimToNull(csvRecord.get(0));
     String author = trimToNull(csvRecord.get(1));
     BlameLine blameLine = new BlameLine().revision(revision).author(author);

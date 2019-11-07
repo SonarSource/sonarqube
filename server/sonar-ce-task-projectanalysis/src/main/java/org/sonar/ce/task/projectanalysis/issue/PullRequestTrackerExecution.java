@@ -31,20 +31,17 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.issue.tracking.Tracking;
-import org.sonar.core.util.stream.MoreCollectors;
 
 public class PullRequestTrackerExecution {
   private final TrackerBaseInputFactory baseInputFactory;
   private final TrackerRawInputFactory rawInputFactory;
-  private final TrackerMergeOrTargetBranchInputFactory mergeInputFactory;
   private final Tracker<DefaultIssue, DefaultIssue> tracker;
   private final NewLinesRepository newLinesRepository;
 
-  public PullRequestTrackerExecution(TrackerBaseInputFactory baseInputFactory, TrackerRawInputFactory rawInputFactory,
-    TrackerMergeOrTargetBranchInputFactory mergeInputFactory, Tracker<DefaultIssue, DefaultIssue> tracker, NewLinesRepository newLinesRepository) {
+  public PullRequestTrackerExecution(TrackerBaseInputFactory baseInputFactory, TrackerRawInputFactory rawInputFactory, Tracker<DefaultIssue, DefaultIssue> tracker,
+    NewLinesRepository newLinesRepository) {
     this.baseInputFactory = baseInputFactory;
     this.rawInputFactory = rawInputFactory;
-    this.mergeInputFactory = mergeInputFactory;
     this.tracker = tracker;
     this.newLinesRepository = newLinesRepository;
   }
@@ -53,38 +50,11 @@ public class PullRequestTrackerExecution {
     Input<DefaultIssue> rawInput = rawInputFactory.create(component);
     Input<DefaultIssue> previousAnalysisInput = baseInputFactory.create(component);
 
-    // Step 1: track issues with merge branch
-    Input<DefaultIssue> unmatchedRawsAfterMergeBranchTracking;
-    if (mergeInputFactory.hasMergeBranchAnalysis()) {
-      Input<DefaultIssue> mergeInput = mergeInputFactory.createForMergeBranch(component);
-      Tracking<DefaultIssue, DefaultIssue> mergeTracking = tracker.trackNonClosed(rawInput, mergeInput);
-      List<DefaultIssue> unmatchedRaws = mergeTracking.getUnmatchedRaws().collect(MoreCollectors.toList());
-      unmatchedRawsAfterMergeBranchTracking = new DefaultTrackingInput(unmatchedRaws, rawInput.getLineHashSequence(), rawInput.getBlockHashSequence());
-    } else {
-      unmatchedRawsAfterMergeBranchTracking = rawInput;
-    }
+    // Step 1: if there is no analysis or merge or target branch, keep only issues on changed lines
+    List<DefaultIssue> filteredRaws = keepIssuesHavingAtLeastOneLocationOnChangedLines(component, rawInput.getIssues());
+    Input<DefaultIssue> unmatchedRawsAfterChangedLineFiltering = new DefaultTrackingInput(filteredRaws, rawInput.getLineHashSequence(), rawInput.getBlockHashSequence());
 
-    // Step 2: track remaining unmatched issues with target branch
-    Input<DefaultIssue> unmatchedRawsAfterTargetBranchTracking;
-    if (mergeInputFactory.hasTargetBranchAnalysis() && mergeInputFactory.areTargetAndMergeBranchesDifferent()) {
-      Input<DefaultIssue> targetInput = mergeInputFactory.createForTargetBranch(component);
-      Tracking<DefaultIssue, DefaultIssue> mergeTracking = tracker.trackNonClosed(unmatchedRawsAfterMergeBranchTracking, targetInput);
-      List<DefaultIssue> unmatchedRaws = mergeTracking.getUnmatchedRaws().collect(MoreCollectors.toList());
-      unmatchedRawsAfterTargetBranchTracking = new DefaultTrackingInput(unmatchedRaws, rawInput.getLineHashSequence(), rawInput.getBlockHashSequence());
-    } else {
-      unmatchedRawsAfterTargetBranchTracking = unmatchedRawsAfterMergeBranchTracking;
-    }
-
-    // Step 3: if there is no analysis or merge or target branch, keep only issues on changed lines
-    Input<DefaultIssue> unmatchedRawsAfterChangedLineFiltering;
-    if (!mergeInputFactory.hasTargetBranchAnalysis() || !mergeInputFactory.hasMergeBranchAnalysis()) {
-      List<DefaultIssue> filteredRaws = keepIssuesHavingAtLeastOneLocationOnChangedLines(component, unmatchedRawsAfterTargetBranchTracking.getIssues());
-      unmatchedRawsAfterChangedLineFiltering = new DefaultTrackingInput(filteredRaws, rawInput.getLineHashSequence(), rawInput.getBlockHashSequence());
-    } else {
-      unmatchedRawsAfterChangedLineFiltering = unmatchedRawsAfterTargetBranchTracking;
-    }
-
-    // Step 4: track issues of previous analysis of the current PR
+    // Step 2: track issues of previous analysis of the current PR
     return tracker.trackNonClosed(unmatchedRawsAfterChangedLineFiltering, previousAnalysisInput);
   }
 

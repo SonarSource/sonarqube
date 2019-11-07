@@ -128,7 +128,7 @@ public class IntegrateIssuesVisitorTest {
   private IssueTrackingDelegator trackingDelegator;
   private TrackerExecution tracker;
   private PullRequestTrackerExecution shortBranchTracker;
-  private MergeBranchTrackerExecution mergeBranchTracker;
+  private ReferenceBranchTrackerExecution mergeBranchTracker;
   private ActiveRulesHolder activeRulesHolder = new AlwaysActiveRulesHolderImpl();
   private IssueCache issueCache;
 
@@ -148,8 +148,8 @@ public class IntegrateIssuesVisitorTest {
     TrackerMergeOrTargetBranchInputFactory mergeInputFactory = new TrackerMergeOrTargetBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbClient);
     ClosedIssuesInputFactory closedIssuesInputFactory = new ClosedIssuesInputFactory(issuesLoader, dbClient, movedFilesRepository);
     tracker = new TrackerExecution(baseInputFactory, rawInputFactory, closedIssuesInputFactory, new Tracker<>(), issuesLoader, analysisMetadataHolder);
-    shortBranchTracker = new PullRequestTrackerExecution(baseInputFactory, rawInputFactory, mergeInputFactory, new Tracker<>(), newLinesRepository);
-    mergeBranchTracker = new MergeBranchTrackerExecution(rawInputFactory, mergeInputFactory, new Tracker<>());
+    shortBranchTracker = new PullRequestTrackerExecution(baseInputFactory, rawInputFactory, new Tracker<>(), newLinesRepository);
+    mergeBranchTracker = new ReferenceBranchTrackerExecution(rawInputFactory, mergeInputFactory, new Tracker<>());
 
     trackingDelegator = new IssueTrackingDelegator(shortBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
     treeRootHolder.setRoot(PROJECT);

@@ -39,7 +39,7 @@ public class IssueTrackingDelegatorTest {
   @Mock
   private PullRequestTrackerExecution shortBranchTracker;
   @Mock
-  private MergeBranchTrackerExecution mergeBranchTracker;
+  private ReferenceBranchTrackerExecution mergeBranchTracker;
   @Mock
   private TrackerExecution tracker;
   @Mock

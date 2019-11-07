@@ -69,7 +69,7 @@ import org.sonar.ce.task.projectanalysis.issue.IssueTrackingDelegator;
 import org.sonar.ce.task.projectanalysis.issue.IssueVisitors;
 import org.sonar.ce.task.projectanalysis.issue.IssuesRepositoryVisitor;
 import org.sonar.ce.task.projectanalysis.issue.LoadComponentUuidsHavingOpenIssuesVisitor;
-import org.sonar.ce.task.projectanalysis.issue.MergeBranchTrackerExecution;
+import org.sonar.ce.task.projectanalysis.issue.ReferenceBranchTrackerExecution;
 import org.sonar.ce.task.projectanalysis.issue.MovedIssueVisitor;
 import org.sonar.ce.task.projectanalysis.issue.NewEffortAggregator;
 import org.sonar.ce.task.projectanalysis.issue.RemoveProcessedComponentsVisitor;
@@ -279,7 +279,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       Tracker.class,
       TrackerExecution.class,
       PullRequestTrackerExecution.class,
-      MergeBranchTrackerExecution.class,
+      ReferenceBranchTrackerExecution.class,
       ComponentIssuesLoader.class,
       BaseIssuesLoader.class,
       IssueTrackingDelegator.class,

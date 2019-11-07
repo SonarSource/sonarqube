@@ -24,12 +24,12 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.issue.tracking.Tracking;
 
-public class MergeBranchTrackerExecution {
+public class ReferenceBranchTrackerExecution {
   private final TrackerRawInputFactory rawInputFactory;
   private final TrackerMergeOrTargetBranchInputFactory mergeInputFactory;
   private final Tracker<DefaultIssue, DefaultIssue> tracker;
 
-  public MergeBranchTrackerExecution(TrackerRawInputFactory rawInputFactory, TrackerMergeOrTargetBranchInputFactory mergeInputFactory,
+  public ReferenceBranchTrackerExecution(TrackerRawInputFactory rawInputFactory, TrackerMergeOrTargetBranchInputFactory mergeInputFactory,
     Tracker<DefaultIssue, DefaultIssue> tracker) {
     this.rawInputFactory = rawInputFactory;
     this.mergeInputFactory = mergeInputFactory;

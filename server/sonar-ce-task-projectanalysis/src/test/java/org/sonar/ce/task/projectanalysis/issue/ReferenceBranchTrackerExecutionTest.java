@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class MergeBranchTrackerExecutionTest {
+public class ReferenceBranchTrackerExecutionTest {
   @Mock
   private TrackerRawInputFactory rawInputFactory;
   @Mock
@@ -43,12 +43,12 @@ public class MergeBranchTrackerExecutionTest {
   @Mock
   private Component component;
 
-  private MergeBranchTrackerExecution underTest;
+  private ReferenceBranchTrackerExecution underTest;
 
   @Before
   public void before() {
     MockitoAnnotations.initMocks(this);
-    underTest = new MergeBranchTrackerExecution(rawInputFactory, mergeInputFactory, tracker);
+    underTest = new ReferenceBranchTrackerExecution(rawInputFactory, mergeInputFactory, tracker);
   }
 
   @Test

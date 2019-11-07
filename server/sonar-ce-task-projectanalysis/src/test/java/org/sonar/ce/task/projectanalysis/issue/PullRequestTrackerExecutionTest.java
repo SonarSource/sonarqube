@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
@@ -44,46 +42,36 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
 public class PullRequestTrackerExecutionTest {
-  static final String FILE_UUID = "FILE_UUID";
-  static final String FILE_KEY = "FILE_KEY";
-  static final int FILE_REF = 2;
+  private static final String FILE_UUID = "FILE_UUID";
+  private static final String FILE_KEY = "FILE_KEY";
+  private static final int FILE_REF = 2;
 
-  static final Component FILE = builder(Component.Type.FILE, FILE_REF)
+  private static final Component FILE = builder(Component.Type.FILE, FILE_REF)
     .setKey(FILE_KEY)
     .setUuid(FILE_UUID)
     .build();
 
-  @Mock
-  private TrackerRawInputFactory rawFactory;
-  @Mock
-  private TrackerBaseInputFactory baseFactory;
-  @Mock
-  private TrackerMergeOrTargetBranchInputFactory mergeFactory;
-  @Mock
-  private NewLinesRepository newLinesRepository;
+  private TrackerRawInputFactory rawFactory = mock(TrackerRawInputFactory.class);
+  private TrackerBaseInputFactory baseFactory = mock(TrackerBaseInputFactory.class);
+  private NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
 
   private PullRequestTrackerExecution underTest;
 
   private List<DefaultIssue> rawIssues = new ArrayList<>();
   private List<DefaultIssue> baseIssues = new ArrayList<>();
-  private List<DefaultIssue> mergeBranchIssues = new ArrayList<>();
-  private List<DefaultIssue> targetBranchIssues = new ArrayList<>();
 
   @Before
   public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
-
     when(rawFactory.create(FILE)).thenReturn(createInput(rawIssues));
     when(baseFactory.create(FILE)).thenReturn(createInput(baseIssues));
-    when(mergeFactory.createForMergeBranch(FILE)).thenReturn(createInput(mergeBranchIssues));
-    when(mergeFactory.createForTargetBranch(FILE)).thenReturn(createInput(targetBranchIssues));
 
     Tracker<DefaultIssue, DefaultIssue> tracker = new Tracker<>();
-    underTest = new PullRequestTrackerExecution(baseFactory, rawFactory, mergeFactory, tracker, newLinesRepository);
+    underTest = new PullRequestTrackerExecution(baseFactory, rawFactory, tracker, newLinesRepository);
   }
 
   @Test
@@ -96,8 +84,6 @@ public class PullRequestTrackerExecutionTest {
     issue2.setLocations(DbIssues.Locations.newBuilder().setTextRange(DbCommons.TextRange.newBuilder().setStartLine(2).setEndLine(2)).build());
     rawIssues.add(issue2);
 
-    when(mergeFactory.hasMergeBranchAnalysis()).thenReturn(false);
-    when(mergeFactory.hasTargetBranchAnalysis()).thenReturn(true);
     when(newLinesRepository.getNewLines(FILE)).thenReturn(Optional.of(new HashSet<>(Arrays.asList(1, 3))));
 
     Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE);
@@ -134,8 +120,6 @@ public class PullRequestTrackerExecutionTest {
       .build());
     rawIssues.add(issueWithALocationOnADifferentFile);
 
-    when(mergeFactory.hasMergeBranchAnalysis()).thenReturn(false);
-    when(mergeFactory.hasTargetBranchAnalysis()).thenReturn(false);
     when(newLinesRepository.getNewLines(FILE)).thenReturn(Optional.of(new HashSet<>(Arrays.asList(7, 10))));
 
     Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE);
@@ -146,66 +130,28 @@ public class PullRequestTrackerExecutionTest {
   }
 
   @Test
-  public void track_and_ignore_issues_from_merge_branch() {
-    rawIssues.add(createIssue(1, RuleTesting.XOO_X1));
-    rawIssues.add(createIssue(2, RuleTesting.XOO_X2));
-    rawIssues.add(createIssue(3, RuleTesting.XOO_X3));
+  public void track_and_ignore_issues_from_previous_analysis() {
+    when(newLinesRepository.getNewLines(FILE)).thenReturn(Optional.of(new HashSet<>(Arrays.asList(1, 2, 3))));
 
-    when(mergeFactory.hasMergeBranchAnalysis()).thenReturn(true);
-    when(mergeFactory.hasTargetBranchAnalysis()).thenReturn(true);
-    when(mergeFactory.areTargetAndMergeBranchesDifferent()).thenReturn(true);
-    mergeBranchIssues.add(rawIssues.get(0));
-
-    baseIssues.add(rawIssues.get(0));
-    baseIssues.add(rawIssues.get(1));
-
-    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE);
-    assertThat(tracking.getMatchedRaws()).isEqualTo(Collections.singletonMap(rawIssues.get(1), rawIssues.get(1)));
-    assertThat(tracking.getUnmatchedRaws()).containsOnly(rawIssues.get(2));
-  }
-
-  @Test
-  public void track_and_ignore_issues_from_target_branch() {
-    rawIssues.add(createIssue(1, RuleTesting.XOO_X1));
-    rawIssues.add(createIssue(2, RuleTesting.XOO_X2));
-    rawIssues.add(createIssue(3, RuleTesting.XOO_X3));
-
-    when(mergeFactory.hasMergeBranchAnalysis()).thenReturn(true);
-    when(mergeFactory.hasTargetBranchAnalysis()).thenReturn(true);
-    when(mergeFactory.areTargetAndMergeBranchesDifferent()).thenReturn(true);
-    targetBranchIssues.add(rawIssues.get(0));
+    rawIssues.add(createIssue(1, RuleTesting.XOO_X1)
+      .setLocations(DbIssues.Locations.newBuilder().setTextRange(DbCommons.TextRange.newBuilder().setStartLine(1).setEndLine(1)).build()));
+    rawIssues.add(createIssue(2, RuleTesting.XOO_X2)
+      .setLocations(DbIssues.Locations.newBuilder().setTextRange(DbCommons.TextRange.newBuilder().setStartLine(2).setEndLine(2)).build()));
+    rawIssues.add(createIssue(3, RuleTesting.XOO_X3)
+      .setLocations(DbIssues.Locations.newBuilder().setTextRange(DbCommons.TextRange.newBuilder().setStartLine(3).setEndLine(3)).build()));
 
     baseIssues.add(rawIssues.get(0));
-    baseIssues.add(rawIssues.get(1));
 
     Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE);
-    assertThat(tracking.getMatchedRaws()).isEqualTo(Collections.singletonMap(rawIssues.get(1), rawIssues.get(1)));
-    assertThat(tracking.getUnmatchedRaws()).containsOnly(rawIssues.get(2));
-  }
-
-  @Test
-  public void track_and_ignore_issues_from_merge_and_target_branch() {
-    rawIssues.add(createIssue(1, RuleTesting.XOO_X1));
-    rawIssues.add(createIssue(2, RuleTesting.XOO_X2));
-    rawIssues.add(createIssue(3, RuleTesting.XOO_X3));
-
-    when(mergeFactory.hasMergeBranchAnalysis()).thenReturn(true);
-    when(mergeFactory.hasTargetBranchAnalysis()).thenReturn(true);
-    when(mergeFactory.areTargetAndMergeBranchesDifferent()).thenReturn(true);
-    mergeBranchIssues.add(rawIssues.get(0));
-    targetBranchIssues.add(rawIssues.get(1));
-
-    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE);
-    assertThat(tracking.getMatchedRaws()).isEmpty();
+    assertThat(tracking.getMatchedRaws()).isEqualTo(Collections.singletonMap(rawIssues.get(0), rawIssues.get(0)));
     assertThat(tracking.getUnmatchedRaws()).containsOnly(rawIssues.get(2));
   }
 
   private DefaultIssue createIssue(int line, RuleKey ruleKey) {
-    DefaultIssue issue = new DefaultIssue()
+    return new DefaultIssue()
       .setRuleKey(ruleKey)
       .setLine(line)
       .setMessage("msg" + line);
-    return issue;
   }
 
   private Input<DefaultIssue> createInput(Collection<DefaultIssue> issues) {
