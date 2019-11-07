@@ -37,7 +37,6 @@ import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.DefaultFileLinesContextFactory;
 import org.sonar.scanner.ProjectInfo;
-import org.sonar.scanner.analysis.AnalysisResultReporter;
 import org.sonar.scanner.analysis.AnalysisTempFolderProvider;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
@@ -250,11 +249,10 @@ public class ProjectScanContainer extends ComponentContainer {
       TestExecutionPublisher.class,
       SourcePublisher.class,
       ChangedLinesPublisher.class,
-      AnalysisResultReporter.class,
 
       CeTaskReportDataHolder.class,
 
-      //QualityGate check
+      // QualityGate check
       QualityGateCheck.class,
 
       // Cpd
@@ -361,11 +359,9 @@ public class ProjectScanContainer extends ComponentContainer {
     getComponentByType(ReportPublisher.class).execute();
 
     if (properties.shouldWaitForQualityGate()) {
-      LOG.info("------------- Quality Gate wait enabled");
+      LOG.info("------------- Check Quality Gate status");
       getComponentByType(QualityGateCheck.class).await();
     }
-
-    getComponentByType(AnalysisResultReporter.class).report();
 
     getComponentByType(PostJobsExecutor.class).execute();
 

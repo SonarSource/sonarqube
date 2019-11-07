@@ -83,20 +83,22 @@ public class QualityGateCheck implements Startable {
       throw new IllegalStateException("Quality Gate check not available in medium test mode");
     }
 
+    LOG.info("Waiting for the analysis report to be processed (max {}s)", properties.qualityGateWaitTimeout());
     String taskId = ceTaskReportDataHolder.getCeTaskId();
 
     Ce.Task task = waitForCeTaskToFinish(taskId);
 
     if (!TaskStatus.SUCCESS.equals(task.getStatus())) {
-      throw MessageException.of(String.format("CE Task finished abnormally with status: %s", task.getStatus().name()));
+      throw MessageException.of(String.format("CE Task finished abnormally with status: %s, you can check details here: %s",
+        task.getStatus().name(), ceTaskReportDataHolder.getCeTaskUrl()));
     }
 
     Status qualityGateStatus = getQualityGateStatus(task.getAnalysisId());
 
     if (Status.OK.equals(qualityGateStatus)) {
-      LOG.info("Quality Gate - OK");
+      LOG.info("QUALITY GATE STATUS: PASSED - View details on " + ceTaskReportDataHolder.getDashboardUrl());
     } else {
-      throw MessageException.of("Quality Gate - FAILED, you can browse " + ceTaskReportDataHolder.getDashboardUrl());
+      throw MessageException.of("QUALITY GATE STATUS: FAILED - View details on " + ceTaskReportDataHolder.getDashboardUrl());
     }
   }
 
@@ -113,8 +115,6 @@ public class QualityGateCheck implements Startable {
         if (TASK_TERMINAL_STATUSES.contains(task.getStatus())) {
           return task;
         }
-        LOG.debug("Received CE task with status {} ", task.getStatus());
-        LOG.info("Waiting {} ms for task to finish...", POLLING_INTERVAL_IN_MS);
 
         Thread.sleep(POLLING_INTERVAL_IN_MS);
         currentTime += POLLING_INTERVAL_IN_MS;
@@ -122,10 +122,10 @@ public class QualityGateCheck implements Startable {
         throw MessageException.of(String.format("Failed to get CE Task status - %s", DefaultScannerWsClient.createErrorMessage(e)));
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
-        throw MessageException.of("Quality Gate check has been interrupted", e);
+        throw new IllegalStateException("Quality Gate check has been interrupted", e);
       }
     }
-    throw MessageException.of("Quality Gate check timeout exceeded");
+    throw MessageException.of("Quality Gate check timeout exceeded - View details on " + ceTaskReportDataHolder.getDashboardUrl());
   }
 
   private static Ce.Task parseCeTaskResponse(WsResponse response) {

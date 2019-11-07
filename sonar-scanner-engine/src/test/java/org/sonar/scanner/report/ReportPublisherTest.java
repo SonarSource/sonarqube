@@ -211,11 +211,19 @@ public class ReportPublisherTest {
     when(mode.isMediumTest()).thenReturn(true);
     underTest.start();
     underTest.execute();
+
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains("ANALYSIS SUCCESSFUL")
+      .doesNotContain("dashboard/index");
+
     assertThat(properties.metadataFilePath()).doesNotExist();
   }
 
   @Test
   public void should_upload_and_dump_information() {
+    when(reportMetadataHolder.getDashboardUrl()).thenReturn("https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube");
+    when(reportMetadataHolder.getCeTaskUrl()).thenReturn("https://publicserver/sonarqube/api/ce/task?id=TASK-123");
+
     MockWsResponse submitMockResponse = new MockWsResponse();
     submitMockResponse.setContent(Ce.SubmitResponse.newBuilder().setTaskId("task-1234").build().toByteArray());
     when(wsClient.call(any())).thenReturn(submitMockResponse);
@@ -223,7 +231,11 @@ public class ReportPublisherTest {
     underTest.execute();
 
     assertThat(properties.metadataFilePath()).exists();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Report metadata written to " + properties.metadataFilePath());
+    assertThat(logTester.logs(LoggerLevel.DEBUG))
+      .contains("Report metadata written to " + properties.metadataFilePath());
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube")
+      .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
   }
 
   @Test

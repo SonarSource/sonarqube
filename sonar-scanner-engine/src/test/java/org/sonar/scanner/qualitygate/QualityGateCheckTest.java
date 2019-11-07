@@ -22,6 +22,7 @@ package org.sonar.scanner.qualitygate;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -64,12 +65,16 @@ public class QualityGateCheckTest {
 
   QualityGateCheck underTest = new QualityGateCheck(wsClient, analysisMode, reportMetadataHolder, properties);
 
+  @Before
+  public void before() {
+    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
+    when(reportMetadataHolder.getDashboardUrl()).thenReturn("http://dashboard-url.com");
+  }
+
   @Test
   public void should_pass_if_quality_gate_ok() {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
-
-    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
 
     MockWsResponse ceTaskWsResponse = getCeTaskWsResponse(TaskStatus.SUCCESS);
     doReturn(ceTaskWsResponse).when(wsClient).call(newGetCeTaskRequest());
@@ -84,15 +89,15 @@ public class QualityGateCheckTest {
     underTest.stop();
 
     assertThat(logTester.logs())
-      .containsOnly("Quality Gate - OK");
+      .containsOnly(
+        "Waiting for the analysis report to be processed (max 5s)",
+        "QUALITY GATE STATUS: PASSED - View details on http://dashboard-url.com");
   }
 
   @Test
   public void should_wait_and_then_pass_if_quality_gate_ok() {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(10);
-
-    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
 
     MockWsResponse pendingTask = getCeTaskWsResponse(TaskStatus.PENDING);
     MockWsResponse successTask = getCeTaskWsResponse(TaskStatus.SUCCESS);
@@ -106,15 +111,13 @@ public class QualityGateCheckTest {
     underTest.await();
 
     assertThat(logTester.logs())
-      .contains("Quality Gate - OK");
+      .contains("QUALITY GATE STATUS: PASSED - View details on http://dashboard-url.com");
   }
 
   @Test
   public void should_fail_if_quality_gate_none() {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
-
-    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
 
     MockWsResponse ceTaskWsResponse = getCeTaskWsResponse(TaskStatus.SUCCESS);
     doReturn(ceTaskWsResponse).when(wsClient).call(newGetCeTaskRequest());
@@ -125,7 +128,7 @@ public class QualityGateCheckTest {
     underTest.start();
 
     exception.expect(MessageException.class);
-    exception.expectMessage("Quality Gate - FAILED");
+    exception.expectMessage("QUALITY GATE STATUS: FAILED - View details on http://dashboard-url.com");
     underTest.await();
   }
 
@@ -134,8 +137,6 @@ public class QualityGateCheckTest {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
 
-    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
-
     MockWsResponse ceTaskWsResponse = getCeTaskWsResponse(TaskStatus.SUCCESS);
     doReturn(ceTaskWsResponse).when(wsClient).call(newGetCeTaskRequest());
 
@@ -145,7 +146,7 @@ public class QualityGateCheckTest {
     underTest.start();
 
     exception.expect(MessageException.class);
-    exception.expectMessage("Quality Gate - FAILED");
+    exception.expectMessage("QUALITY GATE STATUS: FAILED - View details on http://dashboard-url.com");
     underTest.await();
   }
 
@@ -153,8 +154,6 @@ public class QualityGateCheckTest {
   public void should_wait_and_then_fail_if_quality_gate_error() {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(10);
-
-    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
 
     MockWsResponse pendingTask = getCeTaskWsResponse(TaskStatus.PENDING);
     MockWsResponse successTask = getCeTaskWsResponse(TaskStatus.SUCCESS);
@@ -166,7 +165,7 @@ public class QualityGateCheckTest {
     underTest.start();
 
     exception.expect(MessageException.class);
-    exception.expectMessage("Quality Gate - FAILED");
+    exception.expectMessage("QUALITY GATE STATUS: FAILED - View details on http://dashboard-url.com");
 
     underTest.await();
   }
@@ -176,15 +175,13 @@ public class QualityGateCheckTest {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(1);
 
-    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
-
     MockWsResponse ceTaskWsResponse = getCeTaskWsResponse(TaskStatus.PENDING);
     doReturn(ceTaskWsResponse).when(wsClient).call(newGetCeTaskRequest());
 
     underTest.start();
 
     exception.expect(MessageException.class);
-    exception.expectMessage("Quality Gate check timeout exceeded");
+    exception.expectMessage("Quality Gate check timeout exceeded - View details on http://dashboard-url.com");
     underTest.await();
   }
 
@@ -192,8 +189,6 @@ public class QualityGateCheckTest {
   public void should_fail_if_cant_call_ws_for_quality_gate() {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
-
-    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
 
     MockWsResponse ceTaskWsResponse = getCeTaskWsResponse(TaskStatus.SUCCESS);
     doReturn(ceTaskWsResponse).when(wsClient).call(newGetCeTaskRequest());
@@ -211,8 +206,6 @@ public class QualityGateCheckTest {
   public void should_fail_if_invalid_response_from_quality_gate_ws() {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
-
-    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
 
     MockWsResponse ceTaskWsResponse = getCeTaskWsResponse(TaskStatus.SUCCESS);
     doReturn(ceTaskWsResponse).when(wsClient).call(newGetCeTaskRequest());
@@ -234,8 +227,6 @@ public class QualityGateCheckTest {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
 
-    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
-
     when(wsClient.call(newGetCeTaskRequest())).thenThrow(new HttpException("task-url", 400, "content"));
 
     underTest.start();
@@ -249,8 +240,6 @@ public class QualityGateCheckTest {
   public void should_fail_if_invalid_response_from_ws_task() {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
-
-    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
 
     MockWsResponse getCeTaskRequest = new MockWsResponse();
     getCeTaskRequest.setRequestUrl("ce-task-url");
@@ -270,8 +259,6 @@ public class QualityGateCheckTest {
   public void should_fail_if_task_not_succeeded(TaskStatus taskStatus) {
     when(properties.shouldWaitForQualityGate()).thenReturn(true);
     when(properties.qualityGateWaitTimeout()).thenReturn(5);
-
-    when(reportMetadataHolder.getCeTaskId()).thenReturn("task-1234");
 
     MockWsResponse ceTaskWsResponse = getCeTaskWsResponse(taskStatus);
     when(wsClient.call(newGetCeTaskRequest())).thenReturn(ceTaskWsResponse);
