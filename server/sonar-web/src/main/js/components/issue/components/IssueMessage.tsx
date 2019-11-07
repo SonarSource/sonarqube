@@ -43,13 +43,14 @@ export default class IssueMessage extends React.PureComponent<Props> {
   render() {
     return (
       <div className="issue-message">
-        <span className="little-spacer-right">{this.props.message}</span>
+        <span className="spacer-right">{this.props.message}</span>
         <Button
           aria-label={translate('issue.rule_details')}
-          className="button button-grey button-tiny spacer-right text-top"
+          className="button button-link issue-see-rule spacer-right text-top"
           onClick={this.handleClick}>
           {translate('issue.see_rule')}
         </Button>
+
         {this.props.engine && (
           <Tooltip
             overlay={translateWithParameters('issue.from_external_rule_engine', this.props.engine)}>

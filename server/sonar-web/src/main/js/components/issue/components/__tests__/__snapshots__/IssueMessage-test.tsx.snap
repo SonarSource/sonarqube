@@ -5,13 +5,13 @@ exports[`should render with the message and a link to open the rule 1`] = `
   className="issue-message"
 >
   <span
-    className="little-spacer-right"
+    className="spacer-right"
   >
     Reduce the number of conditional operators (4) used in the expression
   </span>
   <Button
     aria-label="issue.rule_details"
-    className="button button-grey button-tiny spacer-right text-top"
+    className="button button-link issue-see-rule spacer-right text-top"
     onClick={[Function]}
   >
     issue.see_rule

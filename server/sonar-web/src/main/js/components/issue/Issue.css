@@ -97,6 +97,11 @@
   white-space: nowrap;
 }
 
+.issue-see-rule {
+  border-bottom: none;
+  line-height: 16px;
+}
+
 .issue-changelog {
   width: 450px;
   max-height: 320px;
