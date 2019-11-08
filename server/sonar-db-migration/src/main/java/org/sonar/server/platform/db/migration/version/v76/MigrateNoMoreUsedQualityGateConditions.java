@@ -169,23 +169,11 @@ public class MigrateNoMoreUsedQualityGateConditions extends DataChange {
   }
 
   private static void markConditionsUsingLeakPeriodUsingSameMetricAsOtherConditionOnOverallAsToBeDeleted(List<QualityGateCondition> allConditions) {
-    Map<Integer, List<QualityGateCondition>> conditionsByMetricId = new HashMap<>();
-    for (QualityGateCondition c : allConditions) {
-      if (c.isToBeDeleted()) {
-        return;
-      }
-      int metricId = c.getMetricId();
-      if (!conditionsByMetricId.containsKey(metricId)) {
-        conditionsByMetricId.put(metricId, new ArrayList<>(singletonList(c)));
-      } else {
-        List<QualityGateCondition> qualityGateConditions = conditionsByMetricId.get(metricId);
-        qualityGateConditions.add(c);
-        conditionsByMetricId.put(metricId, qualityGateConditions);
-      }
-    }
+    Map<Integer, List<QualityGateCondition>> conditionsByMetricId = allConditions.stream()
+      .filter(c -> !c.isToBeDeleted())
+      .collect(Collectors.groupingBy(QualityGateCondition::getMetricId));
 
-    for (Map.Entry<Integer, List<QualityGateCondition>> entry : conditionsByMetricId.entrySet()) {
-      List<QualityGateCondition> conditions = entry.getValue();
+    for (List<QualityGateCondition> conditions : conditionsByMetricId.values()) {
       if (conditions.size() > 1) {
         conditions.stream()
           .filter(QualityGateCondition::hasLeakPeriod)
