@@ -22,7 +22,9 @@ package org.sonar.server.platform.db.migration.version.v76;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +40,7 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.Upsert;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -106,6 +109,7 @@ public class MigrateNoMoreUsedQualityGateConditions extends DataChange {
       markNoMoreSupportedConditionsAsToBeDeleted(migrationContext, conditions);
       markConditionsHavingOnlyWarningAsToBeDeleted(conditions);
       markConditionsUsingLeakPeriodHavingNoRelatedLeakMetricAsToBeDeleted(migrationContext, conditions);
+      markConditionsUsingLeakPeriodUsingSameMetricAsOtherConditionOnOverallAsToBeDeleted(conditions);
       markConditionsUsingLeakPeriodHavingAlreadyRelatedConditionAsToBeDeleted(migrationContext, conditions);
       updateConditionsUsingLeakPeriod(migrationContext, conditions);
       updateConditionsHavingErrorAndWarningByRemovingWarning(migrationContext, conditions);
@@ -162,6 +166,32 @@ public class MigrateNoMoreUsedQualityGateConditions extends DataChange {
           condition.setToBeDeleted();
         }
       });
+  }
+
+  private static void markConditionsUsingLeakPeriodUsingSameMetricAsOtherConditionOnOverallAsToBeDeleted(List<QualityGateCondition> allConditions) {
+    Map<Integer, List<QualityGateCondition>> conditionsByMetricId = new HashMap<>();
+    for (QualityGateCondition c : allConditions) {
+      if (c.isToBeDeleted()) {
+        return;
+      }
+      int metricId = c.getMetricId();
+      if (!conditionsByMetricId.containsKey(metricId)) {
+        conditionsByMetricId.put(metricId, new ArrayList<>(singletonList(c)));
+      } else {
+        List<QualityGateCondition> qualityGateConditions = conditionsByMetricId.get(metricId);
+        qualityGateConditions.add(c);
+        conditionsByMetricId.put(metricId, qualityGateConditions);
+      }
+    }
+
+    for (Map.Entry<Integer, List<QualityGateCondition>> entry : conditionsByMetricId.entrySet()) {
+      List<QualityGateCondition> conditions = entry.getValue();
+      if (conditions.size() > 1) {
+        conditions.stream()
+          .filter(QualityGateCondition::hasLeakPeriod)
+          .forEach(QualityGateCondition::setToBeDeleted);
+      }
+    }
   }
 
   private static void markConditionsUsingLeakPeriodHavingAlreadyRelatedConditionAsToBeDeleted(MigrationContext migrationContext, List<QualityGateCondition> conditions) {

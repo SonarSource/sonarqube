@@ -89,8 +89,21 @@ public class MigrateNoMoreUsedQualityGateConditionsTest {
     assertConditions(
       tuple(conditionWithError, issues, "5", null, null),
       tuple(conditionWithErrorAndWarning1, coverage, "5", null, null),
-      tuple(conditionWithErrorAndWarning2, newLines, "7", null, 1L)
-    );
+      tuple(conditionWithErrorAndWarning2, newLines, "7", null, 1L));
+  }
+
+  @Test
+  public void delete_conditions_on_leak_using_same_metric_as_other_condition_on_overall() throws SQLException {
+    long qualityGate = insertQualityGate(false);
+    long issues = insertMetric("violations", DIRECTION_WORST, "INT");
+    long conditionOnOverallValue = insertCondition(qualityGate, issues, "GT", "5", null, null);
+    // Same condition but on leak period => will be deleted
+    long conditionOnLeakValue = insertCondition(qualityGate, issues, "GT", "15", null, 1);
+
+    underTest.execute();
+
+    assertConditions(
+      tuple(conditionOnOverallValue, issues, "5", null, null));
   }
 
   @Test
