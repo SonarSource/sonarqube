@@ -75,7 +75,7 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
   },
   {
     key: PULL_REQUEST_DECORATION_CATEGORY,
-    name: translate('property.category.pull_request'),
+    name: translate('settings.pr_decoration.category'),
     renderComponent: getPullRequestDecorationComponent,
     availableGlobally: true,
     availableForProject: false,

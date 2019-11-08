@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { GithubBindingDefinition } from '../../../../types/alm-settings';
 import { AlmDefinitionFormField } from './AlmDefinitionFormField';
@@ -35,19 +34,24 @@ export default function GithubFormModal(props: GithubFormModalProps) {
     <>
       <AlmDefinitionFormField
         autoFocus={true}
-        help={translate('settings.pr_decoration.form.github.name.help')}
-        id="github.name"
+        help={translate('settings.pr_decoration.form.name.github.help')}
+        id="name.github"
         onFieldChange={onFieldChange}
         propKey="key"
         value={formData.key}
       />
       <AlmDefinitionFormField
         help={
-          <FormattedMessage
-            defaultMessage={translate('settings.pr_decoration.form.url.github.help')}
-            id="settings.pr_decoration.form.url.github.help"
-            values={{ example: 'https://github.company.com/api/v3' }}
-          />
+          <>
+            {translate('settings.pr_decoration.form.url.github.help1')}
+            <br />
+            <em>https://github.company.com/api/v3</em>
+            <br />
+            <br />
+            {translate('settings.pr_decoration.form.url.github.help2')}
+            <br />
+            <em>https://api.github.com/</em>
+          </>
         }
         id="url.github"
         maxLength={2000}

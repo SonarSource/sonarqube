@@ -43,7 +43,7 @@ export interface PRDecorationTabsProps {
 export const almName = {
   [ALM_KEYS.AZURE]: 'Azure DevOps Server',
   [ALM_KEYS.BITBUCKET]: 'Bitbucket Server',
-  [ALM_KEYS.GITHUB]: 'Github Enterprise'
+  [ALM_KEYS.GITHUB]: 'GitHub'
 };
 
 export default function PRDecorationTabs(props: PRDecorationTabsProps) {

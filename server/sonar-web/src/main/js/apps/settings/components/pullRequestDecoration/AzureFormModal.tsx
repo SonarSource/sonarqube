@@ -34,8 +34,8 @@ export default function AzureFormModal(props: AzureFormModalProps) {
     <>
       <AlmDefinitionFormField
         autoFocus={true}
-        help={translate('settings.pr_decoration.form.azure.name.help')}
-        id="azure.name"
+        help={translate('settings.pr_decoration.form.name.azure.help')}
+        id="name.azure"
         onFieldChange={onFieldChange}
         propKey="key"
         value={formData.key}

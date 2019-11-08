@@ -4,8 +4,8 @@ exports[`should render correctly 1`] = `
 <Fragment>
   <AlmDefinitionFormField
     autoFocus={true}
-    help="settings.pr_decoration.form.bitbucket.name.help"
-    id="bitbucket.name"
+    help="settings.pr_decoration.form.name.bitbucket.help"
+    id="name.bitbucket"
     maxLength={100}
     onFieldChange={[MockFunction]}
     propKey="key"
@@ -43,8 +43,8 @@ exports[`should render correctly 2`] = `
 <Fragment>
   <AlmDefinitionFormField
     autoFocus={true}
-    help="settings.pr_decoration.form.bitbucket.name.help"
-    id="bitbucket.name"
+    help="settings.pr_decoration.form.name.bitbucket.help"
+    id="name.bitbucket"
     maxLength={100}
     onFieldChange={[MockFunction]}
     propKey="key"

@@ -30,7 +30,7 @@ exports[`should render correctly 1`] = `
               src="/images/alm/github.svg"
               width={16}
             />
-            Github Enterprise
+            GitHub
           </React.Fragment>,
         },
         Object {
@@ -103,7 +103,7 @@ exports[`should render correctly 2`] = `
               src="/images/alm/github.svg"
               width={16}
             />
-            Github Enterprise
+            GitHub
           </React.Fragment>,
         },
         Object {
@@ -181,7 +181,7 @@ exports[`should render correctly 3`] = `
               src="/images/alm/github.svg"
               width={16}
             />
-            Github Enterprise
+            GitHub
           </React.Fragment>,
         },
         Object {
@@ -254,7 +254,7 @@ exports[`should render correctly 4`] = `
               src="/images/alm/github.svg"
               width={16}
             />
-            Github Enterprise
+            GitHub
           </React.Fragment>,
         },
         Object {

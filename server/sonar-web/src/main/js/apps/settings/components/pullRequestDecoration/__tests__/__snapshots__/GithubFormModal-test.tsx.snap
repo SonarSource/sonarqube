@@ -4,23 +4,28 @@ exports[`should render correctly 1`] = `
 <Fragment>
   <AlmDefinitionFormField
     autoFocus={true}
-    help="settings.pr_decoration.form.github.name.help"
-    id="github.name"
+    help="settings.pr_decoration.form.name.github.help"
+    id="name.github"
     onFieldChange={[MockFunction]}
     propKey="key"
     value=""
   />
   <AlmDefinitionFormField
     help={
-      <FormattedMessage
-        defaultMessage="settings.pr_decoration.form.url.github.help"
-        id="settings.pr_decoration.form.url.github.help"
-        values={
-          Object {
-            "example": "https://github.company.com/api/v3",
-          }
-        }
-      />
+      <React.Fragment>
+        settings.pr_decoration.form.url.github.help1
+        <br />
+        <em>
+          https://github.company.com/api/v3
+        </em>
+        <br />
+        <br />
+        settings.pr_decoration.form.url.github.help2
+        <br />
+        <em>
+          https://api.github.com/
+        </em>
+      </React.Fragment>
     }
     id="url.github"
     maxLength={2000}
@@ -49,23 +54,28 @@ exports[`should render correctly 2`] = `
 <Fragment>
   <AlmDefinitionFormField
     autoFocus={true}
-    help="settings.pr_decoration.form.github.name.help"
-    id="github.name"
+    help="settings.pr_decoration.form.name.github.help"
+    id="name.github"
     onFieldChange={[MockFunction]}
     propKey="key"
     value="key"
   />
   <AlmDefinitionFormField
     help={
-      <FormattedMessage
-        defaultMessage="settings.pr_decoration.form.url.github.help"
-        id="settings.pr_decoration.form.url.github.help"
-        values={
-          Object {
-            "example": "https://github.company.com/api/v3",
-          }
-        }
-      />
+      <React.Fragment>
+        settings.pr_decoration.form.url.github.help1
+        <br />
+        <em>
+          https://github.company.com/api/v3
+        </em>
+        <br />
+        <br />
+        settings.pr_decoration.form.url.github.help2
+        <br />
+        <em>
+          https://api.github.com/
+        </em>
+      </React.Fragment>
     }
     id="url.github"
     maxLength={2000}

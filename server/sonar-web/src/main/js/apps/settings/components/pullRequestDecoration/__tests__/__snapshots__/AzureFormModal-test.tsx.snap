@@ -4,8 +4,8 @@ exports[`should render correctly 1`] = `
 <Fragment>
   <AlmDefinitionFormField
     autoFocus={true}
-    help="settings.pr_decoration.form.azure.name.help"
-    id="azure.name"
+    help="settings.pr_decoration.form.name.azure.help"
+    id="name.azure"
     onFieldChange={[MockFunction]}
     propKey="key"
     value=""
@@ -25,8 +25,8 @@ exports[`should render correctly 2`] = `
 <Fragment>
   <AlmDefinitionFormField
     autoFocus={true}
-    help="settings.pr_decoration.form.azure.name.help"
-    id="azure.name"
+    help="settings.pr_decoration.form.name.azure.help"
+    id="name.azure"
     onFieldChange={[MockFunction]}
     propKey="key"
     value="key"
