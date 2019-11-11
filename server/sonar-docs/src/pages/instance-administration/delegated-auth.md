@@ -34,12 +34,12 @@ All the parameters required to activate and configure this feature are available
 Using Http header authentication is an easy way integrate your SonarQube deployment with an in-house SSO implementation.
 
 ## GitHub Authentication
-You can delegate authentication to GitHub Enterprise using a dedicated GitHub OAuth application. Alternately, if you're using the pull request decoration provided as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/) you can harness the [GitHub application needed for PR decoration](/analysis/pr-decoration/) to also provide authentication.
+You can delegate authentication to GitHub Enterprise and GitHub.com using a dedicated GitHub OAuth application. Alternately, if you're using the pull request decoration provided as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/) you can harness the [GitHub application needed for PR decoration](/analysis/pr-decoration/) to also provide authentication.
 
 ### Dedicated GitHub OAuth application
 1. You'll need to first create a GitHub OAuth application. Click [here](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) for general instructions:
    1. "Homepage URL" is the public URL to your SonarQube server, for example "https://sonarqube.mycompany.com". For security reasons HTTP is not supported. HTTPS must be used. The public URL is configured in SonarQube at **[Administration -> General -> Server base URL](/#sonarqube-admin#/admin/settings)**
-   1. "Authorization callback URL" is <Homepage URL>/oauth2/callback, for example "https://sonarqube.mycompany.com/oauth2/callback"
+   1. For **GitHub Enterprise** "Authorization callback URL" and for **GitHub.com** "User authorization callback URL" is <Homepage URL>/oauth2/callback, for example "https://sonarqube.mycompany.com/oauth2/callback"
 1. In SonarQube, navigate to **[Administration > Configuration > General Settings > Security > GitHub](/#sonarqube-admin#/admin/settings?category=security)**:
    1. Set **Enabled** to `true`
    1. Set the **Client ID** to the value provided by the GitHub developer application

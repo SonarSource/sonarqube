@@ -5,16 +5,16 @@ url: /analysis/pr-decoration/
 
 _Pull Request decoration is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/)._
 
-You can add SonarQube analysis and a Quality Gate to your Pull Requests (PR) directly in your ALM provider's interface.
+You can add SonarQube analysis and a Quality Gate to your Pull Requests (PR) in your ALM provider's interface.
 
 ## Pull Request Decoration by provider
 
 Click your ALM provider below to expand the instructions on decorating your Pull Requests.
 
 [[collapse]]
-| ## GitHub Enterprise  
+| ## GitHub Enterprise  and GitHub.com
 |
-|*Minimum GitHub Enterprise Version 2.14*
+|*For GitHub Enterprise, the minimum version is Version 2.14*
 |
 | ### Creating a GitHub App
 |
@@ -28,7 +28,7 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |	| Permission          | Access       |
 |	|---------------------|--------------|
 |	| Checks              | Read & write |
-|	| Repository metadata | Read-only    |
+|	| **GitHub Enterprise:** Repository metadata <br/> **GitHub.com:** Metadata | Read-only    |
 |	| Pull Requests       | Read-only    |
 |	| Commit statuses     | Read-only    |
 |
@@ -36,24 +36,25 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 | 1. Click **Create GitHub App**. This will take you to your new GitHub App's page.
 | 1. Scroll down to the bottom of your app page and click **Generate Private Key**. This downloads a `.pem` file that you'll use in the **Setting your global settings** section.  
 |
-| ### Installing your app
-| To install your app in your GitHub organizations:
+| ### Installing your app 
 |
-| 1. Go to your GitHub App URL. GitHub App URLs are formatted as: `https://<your-github-enterprise-address>/github-apps/<YourAppName>`.  
-|	For example, if your GitHub Enterprise address is `github-enterprise-1.yoursite.com` and your app name is `SonarQubePRChecks`, your GitHub App URL will be `https://github-enterprise-1.yoursite.com/github-apps/SonarQubePRChecks`.
-| 2. From your GitHub App page, click the **Install** or **Configure** button.
-| 3. Choose the organization where you want to install your app from the list.
-| 4. Click the **Install** button. 
+| Install your GitHub App from the app's settings page. See the [GitHub instructions](https://developer.github.com/apps/installing-github-apps/) for more information.
 |
 | ### Setting your global settings
 |
-| Go to **[Administration > Configuration > General Settings > Pull Requests](/#sonarqube-admin#/admin/settings?category=pull_request_decoration/)**, select the **GitHub Enterprise** tab, and click the **Create configuration** button to set your Configuration Name, ALM Instance URL, GitHub App ID, and your GitHub App's Private Key (that was generated above in the **Creating a GitHub App** section).
+| To set your global settings in SonarQube:
+|
+| 1. Navigate to **Administration > Configuration > General Settings > Pull Request Decoration**.
+| 1. Select the **GitHub** tab.
+| 1. Click the **Create configuration** button.
+|
+| From here, set your **Configuration Name**, **GitHub Instance URL**, **GitHub App ID**, and your GitHub App's **Private Key** (that was generated above in the **Creating a GitHub App** section).
 |
 | **Note:** Make sure the Configuration name is succinct and easily recognizable as it will be used at the project level to identify the correct ALM configuration.
 |
 | ### Setting your project settings
 |
-| Go to **Administration > General Settings > Pull Request decoration**, select your Configuration Name (created in the previous section), then set your Repository identifier.
+| Go to **Administration > General Settings > Pull Request Decoration**, select your **Configuration Name**, and set your **Repository identifier**.
 
 [[collapse]]
 | ## Bitbucket Server
@@ -64,13 +65,20 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | ### Setting your global settings
 |
-| Go to **[Administration > Configuration > General Settings > Pull Requests](/#sonarqube-admin#/admin/settings?category=pull_request_decoration/)**, select the **Bitbucket Server** tab, and click the **Create configuration** button to set your  Configuration name, Bitbucket Server URL, and Personal Access token.
+| A Bitbucket Server user account is used to decorate Pull Requests. You need a [Personal Access Token](https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html) from this account with **Write** permission.
+| 
+| To set your global settings in SonarQube:  
+| 1. Navigate to **Administration > Configuration > General Settings > Pull Request Decoration**.
+| 1. Select the **Bitbucket Server** tab.
+| 1. Click the **Create configuration** button. 
+|
+| From here, set your  **Configuration name**, **Bitbucket Server URL**, and the **Personal Access Token** of the account you're using to decorate your Pull Requests.
 |
 | **Note:** Make sure the Configuration name is succinct and easily recognizable as it will be used at the project level to identify the correct ALM configuration.
 |
 | ### Setting your project settings
 |
-| Go to **Administration > General Settings > Pull Request decoration**, select your Configuration name, then set your Project Key and Repo Slug.
+| Go to **Administration > General Settings > Pull Request Decoration**, select your **Configuration name**, and set your **Project Key** and **Repo Slug**.
 
 [[collapse]]
 | ## Azure DevOps Server
@@ -79,13 +87,20 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | ### Setting your global settings
 |
-| Go to **[Administration > Configuration > General Settings > Pull Requests](/#sonarqube-admin#/admin/settings?category=pull_request_decoration/)**, select the **Azure DevOps Server** tab, and click the **Create configuration** button to set your  Configuration name and Personal Access token.
+| An Azure DevOps Server user account is used to decorate Pull Requests. You need a [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=tfs-2017&tabs=preview-page) from this account with the scope authorized for **Code > Read & Write**.
+|
+| To set your global settings in SonarQube:
+| 1. Navigate to **Administration > Configuration > General Settings > Pull Request Decoration**.
+| 1. Select the **Azure DevOps Server** tab.
+| 1. Click the **Create configuration** button.
+|
+| From here, set your **Configuration name** and the **Personal Access Token** of the account you're using to decorate your Pull Requests.
 |
 | **Note:** Make sure the Configuration name is succinct and easily recognizable as it will be used at the project level to identify the correct ALM configuration.
 |
 | ### Setting your project settings
 |
-| Go to **Administration > General Settings > Pull Request decoration** and select your Configuration name.
+| Go to **Administration > General Settings > Pull Request Decoration** and select your **Configuration name**.
 
 ## Multiple ALM instances
 SonarQube lets you decorate Pull Requests from multiple ALM instances. To do this, you can create a configuration (as shown in the previous section) for each of your ALM instances. That instance configuration can then be assigned to the appropriate projects. 

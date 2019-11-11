@@ -33,6 +33,7 @@ To add projects directly to a Portfolio or standard sub-Portfolio first make sur
 
 ## Adding Applications to a Portfolio
 To add an Application to a Portfolio, first make sure your Application is [already created](/user-guide/applications/). Then:
+
 1. Navigate to the Portfolios configuration page by going to **[Administration > Configuration > Portfolios](/#sonarqube-admint#/admin/extension/governance/views_console/)**.
 2. Select the Portfolio where you want to add your Application
 3. Click **Add Portfolio**
