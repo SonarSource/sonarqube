@@ -176,8 +176,7 @@ public class ScrollForFileMoveComponentDaoTest {
   @DataProvider
   public static Object[][] branchTypes() {
     return new Object[][] {
-      {BranchType.LONG},
-      {BranchType.SHORT},
+      {BranchType.BRANCH},
       {BranchType.PULL_REQUEST}
     };
   }

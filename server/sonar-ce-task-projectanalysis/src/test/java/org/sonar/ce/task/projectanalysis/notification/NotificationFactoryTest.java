@@ -569,7 +569,7 @@ public class NotificationFactoryTest {
   public static Object[][] noBranchNameBranches() {
     Branch mainBranch = mock(Branch.class);
     when(mainBranch.isMain()).thenReturn(true);
-    when(mainBranch.getType()).thenReturn(BranchType.LONG);
+    when(mainBranch.getType()).thenReturn(BranchType.BRANCH);
     Branch pr = mock(Branch.class);
     when(pr.isMain()).thenReturn(false);
     when(pr.getType()).thenReturn(BranchType.PULL_REQUEST);
@@ -580,7 +580,7 @@ public class NotificationFactoryTest {
   }
 
   @Test
-  public void newIssuesChangesNotification_creates_project_from_TreeRootHolder_and_branch_name_from_long_branch() {
+  public void newIssuesChangesNotification_creates_project_from_TreeRootHolder_and_branch_name_from_branch() {
     RuleKey ruleKey = RuleKey.of("foo", "bar");
     DefaultIssue issue = new DefaultIssue()
       .setRuleKey(ruleKey)
@@ -592,7 +592,7 @@ public class NotificationFactoryTest {
     ruleRepository.add(ruleKey);
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(new Random().nextLong());
-    analysisMetadata.setBranch(newBranch(BranchType.LONG, branchName));
+    analysisMetadata.setBranch(newBranch(BranchType.BRANCH, branchName));
     IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
     when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
 
@@ -622,7 +622,7 @@ public class NotificationFactoryTest {
     ruleRepository.add(ruleKey);
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(new Random().nextLong());
-    analysisMetadata.setBranch(newBranch(BranchType.LONG, branchName));
+    analysisMetadata.setBranch(newBranch(BranchType.BRANCH, branchName));
     IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
     when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
 
@@ -650,7 +650,7 @@ public class NotificationFactoryTest {
     ruleRepository.add(ruleKey);
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(new Random().nextLong());
-    analysisMetadata.setBranch(newBranch(BranchType.LONG, randomAlphabetic(12)));
+    analysisMetadata.setBranch(newBranch(BranchType.BRANCH, randomAlphabetic(12)));
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Can not find DTO for assignee uuid " + assigneeUuid);
@@ -673,7 +673,7 @@ public class NotificationFactoryTest {
     ruleRepository.add(ruleKey);
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(new Random().nextLong());
-    analysisMetadata.setBranch(newBranch(BranchType.LONG, randomAlphabetic(12)));
+    analysisMetadata.setBranch(newBranch(BranchType.BRANCH, randomAlphabetic(12)));
     IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
     when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
 
@@ -703,7 +703,7 @@ public class NotificationFactoryTest {
     ruleRepository.add(ruleKey);
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(analysisDate);
-    analysisMetadata.setBranch(newBranch(BranchType.LONG, randomAlphabetic(12)));
+    analysisMetadata.setBranch(newBranch(BranchType.BRANCH, randomAlphabetic(12)));
     IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
     when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
 
@@ -733,7 +733,7 @@ public class NotificationFactoryTest {
       .forEach(ruleKey -> ruleRepository.add(ruleKey));
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(analysisDate);
-    analysisMetadata.setBranch(newBranch(BranchType.LONG, randomAlphabetic(12)));
+    analysisMetadata.setBranch(newBranch(BranchType.BRANCH, randomAlphabetic(12)));
     IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
     when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
 

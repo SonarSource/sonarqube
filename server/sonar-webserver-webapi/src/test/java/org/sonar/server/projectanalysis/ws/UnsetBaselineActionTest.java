@@ -229,7 +229,7 @@ public class UnsetBaselineActionTest {
   @Test
   public void fail_with_NotFoundException_when_branch_is_pull_request() {
     ComponentDto project = newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = newBranchDto(project.projectUuid(), BranchType.LONG);
+    BranchDto branch = newBranchDto(project.projectUuid(), BranchType.BRANCH);
     db.components().insertProjectBranch(project, branch);
     ComponentDto pullRequest = newProjectBranch(project, branch);
     logInAsProjectAdministrator(project);

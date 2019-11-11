@@ -62,7 +62,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.MAJOR;
-import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.projectBranchOf;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.projectOf;
@@ -174,10 +174,10 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void verify_notification_on_long_branch() {
+  public void verify_notification_on_branch() {
     RuleDto rule = db.rules().insertRule();
     ComponentDto project = db.components().insertMainBranch();
-    ComponentDto branch = db.components().insertProjectBranch(project, t -> t.setBranchType(LONG));
+    ComponentDto branch = db.components().insertProjectBranch(project, t -> t.setBranchType(BRANCH));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
     DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), branch, file)

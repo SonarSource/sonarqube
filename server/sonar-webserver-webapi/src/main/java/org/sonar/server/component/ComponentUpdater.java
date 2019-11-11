@@ -128,7 +128,7 @@ public class ComponentUpdater {
 
   private void createMainBranch(DbSession session, String componentUuid) {
     BranchDto branch = new BranchDto()
-      .setBranchType(BranchType.LONG)
+      .setBranchType(BranchType.BRANCH)
       .setUuid(componentUuid)
       .setKey(BranchDto.DEFAULT_MAIN_BRANCH_NAME)
       .setMergeBranchUuid(null)

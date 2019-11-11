@@ -41,7 +41,7 @@ public class DefaultBranchImplTest {
     DefaultBranchImpl branch = new DefaultBranchImpl();
 
     assertThat(branch.isMain()).isTrue();
-    assertThat(branch.getType()).isEqualTo(BranchType.LONG);
+    assertThat(branch.getType()).isEqualTo(BranchType.BRANCH);
     assertThat(branch.getName()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
     assertThat(branch.supportsCrossProjectCpd()).isTrue();
 

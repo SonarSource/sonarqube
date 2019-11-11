@@ -132,7 +132,7 @@ public class MergeAndTargetBranchComponentUuidsTest {
   @Test
   public void should_skip_target_components_init_on_branches() {
     when(branch.getMergeBranchUuid()).thenReturn(branch1.uuid());
-    when(branch.getType()).thenReturn(BranchType.LONG);
+    when(branch.getType()).thenReturn(BranchType.BRANCH);
     when(branch.getTargetBranchName()).thenThrow(new IllegalStateException("Unsupported on branches"));
     db.components().insertSnapshot(newAnalysis(branch1));
 

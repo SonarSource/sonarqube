@@ -412,7 +412,7 @@ public class PostProjectAnalysisTaskTester {
   public static final class BranchBuilder {
     private boolean isMain = true;
     private String name = null;
-    private Branch.Type type = Branch.Type.LONG;
+    private Branch.Type type = Branch.Type.BRANCH;
 
     private BranchBuilder() {
       // prevents instantiation outside PostProjectAnalysisTaskTester

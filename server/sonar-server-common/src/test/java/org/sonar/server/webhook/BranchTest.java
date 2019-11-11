@@ -30,7 +30,7 @@ public class BranchTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private Branch underTest = new Branch(true, "b", Branch.Type.LONG);
+  private Branch underTest = new Branch(true, "b", Branch.Type.BRANCH);
 
   @Test
   public void constructor_throws_NPE_if_type_is_null() {
@@ -44,12 +44,12 @@ public class BranchTest {
   public void verify_getters() {
     assertThat(underTest.isMain()).isTrue();
     assertThat(underTest.getName()).contains("b");
-    assertThat(underTest.getType()).isEqualTo(Branch.Type.LONG);
+    assertThat(underTest.getType()).isEqualTo(Branch.Type.BRANCH);
 
 
-    Branch underTestWithNull = new Branch(false, null, Branch.Type.LONG);
+    Branch underTestWithNull = new Branch(false, null, Branch.Type.BRANCH);
     assertThat(underTestWithNull.isMain()).isFalse();
     assertThat(underTestWithNull.getName()).isEmpty();
-    assertThat(underTestWithNull.getType()).isEqualTo(Branch.Type.LONG);
+    assertThat(underTestWithNull.getType()).isEqualTo(Branch.Type.BRANCH);
   }
 }

@@ -64,7 +64,7 @@ public class IssueTrackingDelegator {
   private boolean isFirstAnalysisSecondaryBranch() {
     if (analysisMetadataHolder.isFirstAnalysis()) {
       Branch branch = analysisMetadataHolder.getBranch();
-      return !branch.isMain() && branch.getType() == BranchType.LONG;
+      return !branch.isMain();
     }
     return false;
   }

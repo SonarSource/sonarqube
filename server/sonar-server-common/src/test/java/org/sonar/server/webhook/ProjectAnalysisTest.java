@@ -39,7 +39,7 @@ public class ProjectAnalysisTest {
   private final CeTask ceTask = new CeTask("id", CeTask.Status.SUCCESS);
   private final Project project = new Project("uuid", "key", "name");
   private final Analysis analysis = new Analysis("analysis_uuid", 1_500L, "sha1");
-  private final Branch branch = new Branch(true, "name", Branch.Type.LONG);
+  private final Branch branch = new Branch(true, "name", Branch.Type.BRANCH);
   private final EvaluatedQualityGate qualityGate = EvaluatedQualityGate.newBuilder()
     .setQualityGate(new QualityGate("id", "name", emptySet()))
     .setStatus(Metric.Level.ERROR)
@@ -148,6 +148,6 @@ public class ProjectAnalysisTest {
   @Test
   public void verify_toString() {
     assertThat(underTest.toString()).isEqualTo(
-      "ProjectAnalysis{project=Project{uuid='uuid', key='key', name='name'}, ceTask=CeTask{id='id', status=SUCCESS}, branch=Branch{main=true, name='name', type=LONG}, qualityGate=EvaluatedQualityGate{qualityGate=QualityGate{id=id, name='name', conditions=[]}, status=ERROR, evaluatedConditions=[]}, updatedAt=1, properties={a=b}, analysis=Analysis{uuid='analysis_uuid', date=1500, revision=sha1}}");
+      "ProjectAnalysis{project=Project{uuid='uuid', key='key', name='name'}, ceTask=CeTask{id='id', status=SUCCESS}, branch=Branch{main=true, name='name', type=BRANCH}, qualityGate=EvaluatedQualityGate{qualityGate=QualityGate{id=id, name='name', conditions=[]}, status=ERROR, evaluatedConditions=[]}, updatedAt=1, properties={a=b}, analysis=Analysis{uuid='analysis_uuid', date=1500, revision=sha1}}");
   }
 }

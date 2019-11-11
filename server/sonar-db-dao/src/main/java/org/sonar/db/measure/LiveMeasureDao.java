@@ -98,13 +98,13 @@ public class LiveMeasureDao implements Dao {
 
   /**
    * Example:
-   * If Main Branch = 0 LOCs (provisioned but never analyzed) and the "largest long-lived branch" is 120 LOCs, I'm expecting to consider the value 120.
-   * If Main Branch = 100 LOCs and the "largest long-lived branch" is 120 LOCs, I'm expecting to consider the value 120.
-   * If Main Branch = 100 LOCs and the "largest long-lived branch" is 80 LOCs, I'm expecting to consider the value 100.
+   * If Main Branch = 0 LOCs (provisioned but never analyzed) and the "largest branch" is 120 LOCs, I'm expecting to consider the value 120.
+   * If Main Branch = 100 LOCs and the "largest branch" is 120 LOCs, I'm expecting to consider the value 120.
+   * If Main Branch = 100 LOCs and the "largest branch" is 80 LOCs, I'm expecting to consider the value 100.
    */
   public long sumNclocOfBiggestLongLivingBranch(DbSession dbSession, SumNclocDbQuery dbQuery) {
     Long ncloc = mapper(dbSession).sumNclocOfBiggestLongLivingBranch(
-      NCLOC_KEY, KeyType.BRANCH, BranchType.LONG, dbQuery.getOrganizationUuid(), dbQuery.getOnlyPrivateProjects(), dbQuery.getProjectUuidToExclude());
+      NCLOC_KEY, KeyType.BRANCH, BranchType.BRANCH, dbQuery.getOrganizationUuid(), dbQuery.getOnlyPrivateProjects(), dbQuery.getProjectUuidToExclude());
     return ncloc == null ? 0L : ncloc;
   }
 

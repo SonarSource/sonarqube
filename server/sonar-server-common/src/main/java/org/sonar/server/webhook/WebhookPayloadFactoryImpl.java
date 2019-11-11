@@ -123,7 +123,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
 
   private String branchUrlOf(Project project, Branch branch) {
     Branch.Type branchType = branch.getType();
-    if (branchType == Branch.Type.LONG || branchType == Branch.Type.SHORT) {
+    if (branchType == Branch.Type.BRANCH) {
       if (branch.isMain()) {
         return projectUrlOf(project);
       }

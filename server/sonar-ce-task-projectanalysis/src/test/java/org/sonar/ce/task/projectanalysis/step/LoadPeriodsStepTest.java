@@ -105,7 +105,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     organization = dbTester.organizations().insert();
     project = dbTester.components().insertMainBranch(organization);
 
-    when(analysisMetadataHolder.isLongLivingBranch()).thenReturn(true);
+    when(analysisMetadataHolder.isBranch()).thenReturn(true);
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(false);
     when(analysisMetadataHolder.getAnalysisDate()).thenReturn(analysisDate.toInstant().toEpochMilli());
   }
@@ -122,11 +122,11 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @Test
   public void no_period_if_not_LLB() {
-    when(analysisMetadataHolder.isLongLivingBranch()).thenReturn(false);
+    when(analysisMetadataHolder.isBranch()).thenReturn(false);
     underTest.execute(new TestComputationStepContext());
 
     verify(analysisMetadataHolder).isFirstAnalysis();
-    verify(analysisMetadataHolder).isLongLivingBranch();
+    verify(analysisMetadataHolder).isBranch();
     assertThat(periodsHolder.hasPeriod()).isFalse();
     verifyNoMoreInteractions(analysisMetadataHolder);
   }
@@ -356,7 +356,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   @Test
   @UseDataProvider("anyValidLeakPeriodSettingValue")
   public void leak_period_setting_is_ignored_for_PR(NewCodePeriodType type, @Nullable String value) {
-    when(analysisMetadataHolder.isLongLivingBranch()).thenReturn(false);
+    when(analysisMetadataHolder.isBranch()).thenReturn(false);
 
     dbTester.newCodePeriods().insert(type, value);
 

@@ -200,7 +200,7 @@ public class PopulateNewCodePeriodTableTest {
       "PROJECT_UUID", "pb-uuid-" + mainBranchUid,
       "KEE", "pb-key-" + uid,
       "KEY_TYPE", "TSR",
-      "BRANCH_TYPE", "LONG",
+      "BRANCH_TYPE", "BRANCH",
       "MERGE_BRANCH_UUID", "mb-uuid-" + mainBranchUid,
       "MANUAL_BASELINE_ANALYSIS_UUID", manualBaseline,
       "CREATED_AT", System2.INSTANCE.now(),

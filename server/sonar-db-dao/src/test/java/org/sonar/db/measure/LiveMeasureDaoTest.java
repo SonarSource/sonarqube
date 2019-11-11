@@ -278,9 +278,9 @@ public class LiveMeasureDaoTest {
     db.measures().insertLiveMeasure(simpleProject, ncloc, m -> m.setValue(10d));
 
     ComponentDto projectWithBiggerLongLivingBranch = db.components().insertMainBranch(organization);
-    ComponentDto bigLongLivingLongBranch = db.components().insertProjectBranch(projectWithBiggerLongLivingBranch, b -> b.setBranchType(BranchType.LONG));
+    ComponentDto bigBranch = db.components().insertProjectBranch(projectWithBiggerLongLivingBranch, b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertLiveMeasure(projectWithBiggerLongLivingBranch, ncloc, m -> m.setValue(100d));
-    db.measures().insertLiveMeasure(bigLongLivingLongBranch, ncloc, m -> m.setValue(200d));
+    db.measures().insertLiveMeasure(bigBranch, ncloc, m -> m.setValue(200d));
 
     ComponentDto projectWithLinesButNoLoc = db.components().insertMainBranch(organization);
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, lines, m -> m.setValue(365d));
@@ -317,12 +317,12 @@ public class LiveMeasureDaoTest {
     db.measures().insertLiveMeasure(simpleProject, ncloc, m -> m.setValue(10d));
 
     ComponentDto projectWithBiggerLongLivingBranch = db.components().insertMainBranch(organization);
-    ComponentDto bigLongLivingBranch = db.components().insertProjectBranch(projectWithBiggerLongLivingBranch, b -> b.setBranchType(BranchType.LONG));
+    ComponentDto bigBranch = db.components().insertProjectBranch(projectWithBiggerLongLivingBranch, b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertLiveMeasure(projectWithBiggerLongLivingBranch, ncloc, m -> m.setValue(100d));
-    db.measures().insertLiveMeasure(bigLongLivingBranch, ncloc, m -> m.setValue(200d));
+    db.measures().insertLiveMeasure(bigBranch, ncloc, m -> m.setValue(200d));
 
     ComponentDto projectToExclude = db.components().insertMainBranch(organization);
-    ComponentDto projectToExcludeBranch = db.components().insertProjectBranch(projectToExclude, b -> b.setBranchType(BranchType.LONG));
+    ComponentDto projectToExcludeBranch = db.components().insertProjectBranch(projectToExclude, b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertLiveMeasure(projectToExclude, ncloc, m -> m.setValue(300d));
     db.measures().insertLiveMeasure(projectToExcludeBranch, ncloc, m -> m.setValue(400d));
 

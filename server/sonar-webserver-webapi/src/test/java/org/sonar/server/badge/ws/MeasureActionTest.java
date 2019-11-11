@@ -64,7 +64,7 @@ import static org.sonar.api.measures.Metric.ValueType.PERCENT;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.DEFAULT;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.QUALITY_GATE_ERROR;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.QUALITY_GATE_OK;
@@ -220,12 +220,12 @@ public class MeasureActionTest {
     userSession.registerComponents(project);
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
     db.measures().insertLiveMeasure(project, metric, m -> m.setValue(5_000d));
-    ComponentDto longBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
-    db.measures().insertLiveMeasure(longBranch, metric, m -> m.setValue(10_000d));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    db.measures().insertLiveMeasure(branch, metric, m -> m.setValue(10_000d));
 
     TestResponse response = ws.newRequest()
-      .setParam("project", longBranch.getKey())
-      .setParam("branch", longBranch.getBranch())
+      .setParam("project", branch.getKey())
+      .setParam("branch", branch.getBranch())
       .setParam("metric", metric.getKey())
       .execute();
 
@@ -234,8 +234,8 @@ public class MeasureActionTest {
     // Second call with If-None-Match must return 304
     response = ws.newRequest()
       .setHeader("If-None-Match", response.getHeader("ETag"))
-      .setParam("project", longBranch.getKey())
-      .setParam("branch", longBranch.getBranch())
+      .setParam("project", branch.getKey())
+      .setParam("branch", branch.getBranch())
       .setParam("metric", metric.getKey())
       .execute();
 
@@ -277,7 +277,7 @@ public class MeasureActionTest {
   @Test
   public void return_error_if_branch_does_not_exist() throws ParseException {
     ComponentDto project = db.components().insertMainBranch();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     userSession.addProjectPermission(USER, project);
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
 

@@ -87,10 +87,10 @@ public class LiveQualityGateComputerImplTest {
   }
 
   @Test
-  public void loadQualityGate_on_long_branch_returns_organization_default_gate() {
+  public void loadQualityGate_on_branch_returns_organization_default_gate() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPublicProject(organization);
-    BranchDto branch = newBranchDto(project).setBranchType(BranchType.LONG);
+    BranchDto branch = newBranchDto(project).setBranchType(BranchType.BRANCH);
     db.components().insertProjectBranch(project, branch);
 
     MetricDto metric = db.measures().insertMetric();

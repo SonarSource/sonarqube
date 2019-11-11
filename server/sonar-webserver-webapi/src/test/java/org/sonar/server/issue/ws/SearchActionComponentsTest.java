@@ -65,7 +65,7 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
-import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -656,7 +656,7 @@ public class SearchActionComponentsTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insertIssue(newIssue(rule, project, file));
 
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
     IssueDto branchIssue = db.issues().insertIssue(newIssue(rule, branch, branchFile));
     allowAnyoneOnProjects(project);
@@ -693,7 +693,7 @@ public class SearchActionComponentsTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
     IssueDto branchIssue = db.issues().insertIssue(newIssue(rule, branch, branchFile));
     allowAnyoneOnProjects(project);

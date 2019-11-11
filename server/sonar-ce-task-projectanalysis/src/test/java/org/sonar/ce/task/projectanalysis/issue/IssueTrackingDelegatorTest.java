@@ -74,7 +74,7 @@ public class IssueTrackingDelegatorTest {
   @Test
   public void delegate_merge_tracker() {
     Branch branch = mock(Branch.class);
-    when(branch.getType()).thenReturn(BranchType.LONG);
+    when(branch.getType()).thenReturn(BranchType.BRANCH);
     when(branch.isMain()).thenReturn(false);
     when(analysisMetadataHolder.getBranch()).thenReturn(branch);
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(true);

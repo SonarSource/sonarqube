@@ -366,11 +366,11 @@ public class BulkChangeActionTest {
   }
 
   @Test
-  public void send_notification_on_long_branch() {
+  public void send_notification_on_branch() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     ComponentDto project = db.components().insertMainBranch();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature").setBranchType(BranchType.LONG));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature").setBranchType(BranchType.BRANCH));
     ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
     RuleDefinitionDto rule = db.rules().insert();

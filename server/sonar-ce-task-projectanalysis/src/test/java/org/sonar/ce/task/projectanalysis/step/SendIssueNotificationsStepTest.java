@@ -95,7 +95,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.step.SendIssueNotificationsStep.NOTIF_TYPES;
-import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -247,14 +247,14 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void send_global_new_issues_notification_on_long_branch() {
+  public void send_global_new_issues_notification_on_branch() {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto());
-    ComponentDto branch = setUpBranch(project, LONG);
+    ComponentDto branch = setUpBranch(project, BRANCH);
     issueCache.newAppender().append(
       new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
     when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setProject(Project.from(project));
-    analysisMetadataHolder.setBranch(newBranch(BranchType.LONG));
+    analysisMetadataHolder.setBranch(newBranch(BranchType.BRANCH));
 
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
@@ -285,14 +285,14 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void do_not_send_global_new_issues_notification_on_long_branch_if_issue_has_been_backdated() {
+  public void do_not_send_global_new_issues_notification_on_branch_if_issue_has_been_backdated() {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto());
-    ComponentDto branch = setUpBranch(project, LONG);
+    ComponentDto branch = setUpBranch(project, BRANCH);
     issueCache.newAppender().append(
       new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS))).close();
     when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setProject(Project.from(project));
-    analysisMetadataHolder.setBranch(newBranch(BranchType.LONG));
+    analysisMetadataHolder.setBranch(newBranch(BranchType.BRANCH));
 
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
@@ -548,16 +548,16 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void send_issues_change_notification_on_long_branch() {
-    sendIssueChangeNotificationOnLongBranch(ANALYSE_DATE);
+  public void send_issues_change_notification_on_branch() {
+    sendIssueChangeNotificationOnBranch(ANALYSE_DATE);
   }
 
   @Test
-  public void send_issues_change_notification_on_long_branch_even_if_issue_is_backdated() {
-    sendIssueChangeNotificationOnLongBranch(ANALYSE_DATE - FIVE_MINUTES_IN_MS);
+  public void send_issues_change_notification_on_branch_even_if_issue_is_backdated() {
+    sendIssueChangeNotificationOnBranch(ANALYSE_DATE - FIVE_MINUTES_IN_MS);
   }
 
-  private void sendIssueChangeNotificationOnLongBranch(long issueCreatedAt) {
+  private void sendIssueChangeNotificationOnBranch(long issueCreatedAt) {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto branch = newProjectBranch(project, newBranchDto(project).setKey(BRANCH_NAME));
     ComponentDto file = newFileDto(branch);
@@ -575,7 +575,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     when(notificationService.hasProjectSubscribersForTypes(project.uuid(), NOTIF_TYPES)).thenReturn(true);
     IssuesChangesNotification issuesChangesNotification = mock(IssuesChangesNotification.class);
     when(notificationFactory.newIssuesChangesNotification(anySet(), anyMap())).thenReturn(issuesChangesNotification);
-    analysisMetadataHolder.setBranch(newBranch(BranchType.LONG));
+    analysisMetadataHolder.setBranch(newBranch(BranchType.BRANCH));
 
     underTest.execute(new TestComputationStepContext());
 

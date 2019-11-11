@@ -262,7 +262,7 @@ public class NewEffortAggregatorTest {
   @Test
   public void no_measures_if_no_periods() {
     Branch branch = mock(Branch.class);
-    when(branch.getType()).thenReturn(BranchType.LONG);
+    when(branch.getType()).thenReturn(BranchType.BRANCH);
     analysisMetadataHolder.setBranch(branch);
     periodsHolder.setPeriod(null);
     DefaultIssue unresolved = newCodeSmellIssue(10);

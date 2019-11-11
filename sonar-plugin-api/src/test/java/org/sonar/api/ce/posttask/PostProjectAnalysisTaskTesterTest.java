@@ -33,6 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.ce.posttask.Branch.Type.BRANCH;
 
 public class PostProjectAnalysisTaskTesterTest {
   @Rule
@@ -173,7 +174,7 @@ public class PostProjectAnalysisTaskTesterTest {
     PostProjectAnalysisTask projectAnalysisTask = mock(PostProjectAnalysisTask.class);
     doAnswer(i -> {
       PostProjectAnalysisTask.Context context = i.getArgument(0);
-      expected.forEach((k,v) ->  context.getLogStatistics().add(k, v));
+      expected.forEach((k, v) -> context.getLogStatistics().add(k, v));
       return null;
     }).when(projectAnalysisTask).finished(any(PostProjectAnalysisTask.Context.class));
     PostProjectAnalysisTaskTester underTest = PostProjectAnalysisTaskTester.of(projectAnalysisTask);
@@ -182,6 +183,13 @@ public class PostProjectAnalysisTaskTesterTest {
     underTest.execute();
 
     assertThat(underTest.getLogStatistics()).isEqualTo(expected);
+  }
+
+  @Test
+  public void branch_builder_builds_branch_of_type_branch_by_default() {
+    Branch branch = PostProjectAnalysisTaskTester.newBranchBuilder().build();
+
+    assertThat(branch.getType()).isEqualTo(BRANCH);
   }
 
   private static class CaptorPostProjectAnalysisTask implements PostProjectAnalysisTask {

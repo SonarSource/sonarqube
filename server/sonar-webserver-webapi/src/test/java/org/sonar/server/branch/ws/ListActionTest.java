@@ -36,11 +36,9 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.permission.index.PermissionIndexerTester;
-import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.BranchType;
@@ -60,7 +58,7 @@ import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -77,12 +75,11 @@ public class ListActionTest {
 
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
-  private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
   private PermissionIndexerTester permissionIndexerTester = new PermissionIndexerTester(es, issueIndexer);
 
   private MetricDto qualityGateStatus;
 
-  public WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes), issueIndex));
+  public WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), resourceTypes)));
 
   @Before
   public void setUp() throws Exception {
@@ -107,7 +104,7 @@ public class ListActionTest {
     db.measures().insertLiveMeasure(project, qualityGateStatus, m -> m.setData("ERROR"));
 
     ComponentDto branch = db.components()
-      .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(LONG));
+      .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BRANCH));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(branch).setLast(true).setCreatedAt(parseDateTime("2017-04-03T13:37:00+0100").getTime()));
     db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
@@ -136,7 +133,7 @@ public class ListActionTest {
     db.measures().insertLiveMeasure(project, qualityGateStatus, m -> m.setData("ERROR"));
 
     ComponentDto branch = db.components()
-      .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(LONG));
+      .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BRANCH));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(branch).setLast(true).setCreatedAt(parseDateTime("2017-04-03T13:37:00+0100").getTime()));
     db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
@@ -166,7 +163,7 @@ public class ListActionTest {
 
     assertThat(response.getBranchesList())
       .extracting(Branch::getName, Branch::getIsMain, Branch::getType)
-      .containsExactlyInAnyOrder(tuple("master", true, BranchType.LONG));
+      .containsExactlyInAnyOrder(tuple("master", true, BranchType.BRANCH));
   }
 
   @Test
@@ -181,7 +178,7 @@ public class ListActionTest {
 
     assertThat(response.getBranchesList())
       .extracting(Branch::getName, Branch::getIsMain, Branch::getType)
-      .containsExactlyInAnyOrder(tuple("head", true, BranchType.LONG));
+      .containsExactlyInAnyOrder(tuple("head", true, BranchType.BRANCH));
   }
 
   @Test
@@ -211,16 +208,16 @@ public class ListActionTest {
     assertThat(response.getBranchesList())
       .extracting(Branch::getName, Branch::getType)
       .containsExactlyInAnyOrder(
-        tuple("master", BranchType.LONG),
-        tuple("feature/foo", BranchType.LONG),
-        tuple("feature/bar", BranchType.LONG));
+        tuple("master", BranchType.BRANCH),
+        tuple("feature/foo", BranchType.BRANCH),
+        tuple("feature/bar", BranchType.BRANCH));
   }
 
   @Test
   public void status_on_branch() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.LONG));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.BRANCH));
     db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
 
     ListWsResponse response = ws.newRequest()
@@ -238,7 +235,7 @@ public class ListActionTest {
 
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(USER, project);
-    ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.LONG));
+    ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.BRANCH));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(branch2).setCreatedAt(lastAnalysisBranch));
     db.commit();
@@ -253,8 +250,8 @@ public class ListActionTest {
       .extracting(ProjectBranches.Branch::getType, ProjectBranches.Branch::hasAnalysisDate,
         b -> "".equals(b.getAnalysisDate()) ? null : dateToLong(parseDateTime(b.getAnalysisDate())))
       .containsExactlyInAnyOrder(
-        tuple(BranchType.LONG, false, null),
-        tuple(BranchType.LONG, true, lastAnalysisBranch));
+        tuple(BranchType.BRANCH, false, null),
+        tuple(BranchType.BRANCH, true, lastAnalysisBranch));
   }
 
   @Test
@@ -271,8 +268,8 @@ public class ListActionTest {
     assertThat(response.getBranchesList())
       .extracting(Branch::getName, Branch::getType)
       .containsExactlyInAnyOrder(
-        tuple("feature/foo", BranchType.LONG),
-        tuple("feature/bar", BranchType.LONG));
+        tuple("feature/foo", BranchType.BRANCH),
+        tuple("feature/bar", BranchType.BRANCH));
   }
 
   @Test

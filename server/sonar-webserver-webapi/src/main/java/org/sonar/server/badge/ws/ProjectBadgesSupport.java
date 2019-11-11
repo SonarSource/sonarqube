@@ -33,7 +33,7 @@ import org.sonar.server.user.UserSession;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
@@ -81,7 +81,7 @@ public class ProjectBadgesSupport {
     if (project.isPrivate()) {
       throw generateInvalidProjectExcpetion();
     }
-    if (branch.isPresent() && !branch.get().getBranchType().equals(LONG)) {
+    if (branch.isPresent() && !branch.get().getBranchType().equals(BRANCH)) {
       throw generateInvalidProjectExcpetion();
     }
     if (!project.qualifier().equals(PROJECT) && !project.qualifier().equals(APP)) {

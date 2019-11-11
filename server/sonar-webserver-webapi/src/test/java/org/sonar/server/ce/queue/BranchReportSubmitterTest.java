@@ -281,7 +281,7 @@ public class BranchReportSubmitterTest {
     when(mainComponentKey.getMainBranchComponentKey()).thenReturn(mainComponentKey);
 
     BranchSupport.ComponentKey componentKey = mockComponentKey(branch.getKey(), branch.getDbKey());
-    when(componentKey.getBranch()).thenReturn(Optional.ofNullable(branch).map(b -> new BranchSupport.Branch(b.name(), BranchType.LONG)));
+    when(componentKey.getBranch()).thenReturn(Optional.ofNullable(branch).map(b -> new BranchSupport.Branch(b.name(), BranchType.BRANCH)));
     when(componentKey.getMainBranchComponentKey()).thenReturn(mainComponentKey);
 
     return componentKey;

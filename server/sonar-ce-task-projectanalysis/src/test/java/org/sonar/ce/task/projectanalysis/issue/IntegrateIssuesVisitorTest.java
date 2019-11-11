@@ -160,7 +160,7 @@ public class IntegrateIssuesVisitorTest {
 
   @Test
   public void process_new_issue() {
-    when(analysisMetadataHolder.isLongLivingBranch()).thenReturn(true);
+    when(analysisMetadataHolder.isBranch()).thenReturn(true);
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository("xoo")
@@ -265,11 +265,11 @@ public class IntegrateIssuesVisitorTest {
     when(mergeBranchComponentsUuids.getMergeBranchComponentUuid(FILE_KEY)).thenReturn(FILE_UUID_ON_BRANCH);
     when(mergeAndTargetBranchComponentUuids.getMergeBranchName()).thenReturn("master");
 
-    when(analysisMetadataHolder.isLongLivingBranch()).thenReturn(true);
+    when(analysisMetadataHolder.isBranch()).thenReturn(true);
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(true);
     Branch branch = mock(Branch.class);
     when(branch.isMain()).thenReturn(false);
-    when(branch.getType()).thenReturn(BranchType.LONG);
+    when(branch.getType()).thenReturn(BranchType.BRANCH);
     when(analysisMetadataHolder.getBranch()).thenReturn(branch);
 
     RuleKey ruleKey = RuleTesting.XOO_X1;

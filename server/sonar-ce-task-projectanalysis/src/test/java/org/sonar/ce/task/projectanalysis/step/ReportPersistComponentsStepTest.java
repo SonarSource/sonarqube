@@ -662,7 +662,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
     @Override
     public BranchType getType() {
-      return BranchType.LONG;
+      return BranchType.BRANCH;
     }
 
     @Override

@@ -445,4 +445,30 @@ public class AnalysisMetadataHolderImplTest {
     underTest.setScmRevision("    ");
     assertThat(underTest.getScmRevision()).isEmpty();
   }
+
+  @Test
+  public void isBranch_returns_true_for_initialized_branch() {
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.BRANCH);
+    underTest.setBranch(branch);
+
+    assertThat(underTest.isBranch()).isTrue();
+  }
+
+  @Test
+  public void isBranch_returns_false_for_pr() {
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    underTest.setBranch(branch);
+
+    assertThat(underTest.isBranch()).isFalse();
+  }
+
+  @Test
+  public void isBranch_throws_ISE_for_not_initialized_branch() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Branch has not been set");
+
+    underTest.isBranch();
+  }
 }

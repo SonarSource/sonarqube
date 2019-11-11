@@ -1220,7 +1220,7 @@ public class AuthorizationDaoTest {
   @Test
   public void keepAuthorizedLoginsOnProject_return_correct_users_on_branch() {
     ComponentDto project = db.components().insertPrivateProject(organization);
-    ComponentDto branch = db.components().insertProjectBranch(project, c -> c.setBranchType(BranchType.LONG));
+    ComponentDto branch = db.components().insertProjectBranch(project, c -> c.setBranchType(BranchType.BRANCH));
 
     GroupDto userGroup = db.users().insertGroup(organization, "USERS");
     GroupDto adminGroup = db.users().insertGroup(organization, "ADMIN");

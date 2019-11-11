@@ -233,7 +233,7 @@ public class ComponentTesting {
   }
 
   public static BranchDto newBranchDto(ComponentDto project) {
-    return newBranchDto(project.projectUuid(), BranchType.LONG);
+    return newBranchDto(project.projectUuid(), BranchType.BRANCH);
   }
 
   public static BranchDto newBranchDto(ComponentDto branchComponent, BranchType branchType) {

@@ -103,7 +103,7 @@ public class ComponentUpdaterTest {
     assertThat(branch).isPresent();
     assertThat(branch.get().getKey()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
     assertThat(branch.get().getMergeBranchUuid()).isNull();
-    assertThat(branch.get().getBranchType()).isEqualTo(BranchType.LONG);
+    assertThat(branch.get().getBranchType()).isEqualTo(BranchType.BRANCH);
     assertThat(branch.get().getUuid()).isEqualTo(returned.uuid());
     assertThat(branch.get().getProjectUuid()).isEqualTo(returned.uuid());
   }
@@ -176,7 +176,7 @@ public class ComponentUpdaterTest {
     assertThat(branch).isPresent();
     assertThat(branch.get().getKey()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
     assertThat(branch.get().getMergeBranchUuid()).isNull();
-    assertThat(branch.get().getBranchType()).isEqualTo(BranchType.LONG);
+    assertThat(branch.get().getBranchType()).isEqualTo(BranchType.BRANCH);
     assertThat(branch.get().getUuid()).isEqualTo(returned.uuid());
     assertThat(branch.get().getProjectUuid()).isEqualTo(returned.uuid());
   }

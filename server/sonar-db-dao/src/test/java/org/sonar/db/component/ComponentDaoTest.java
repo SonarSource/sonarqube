@@ -71,7 +71,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.parseDate;
-import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -221,7 +221,7 @@ public class ComponentDaoTest {
   @Test
   public void selectByKeyAndBranch() {
     ComponentDto project = db.components().insertMainBranch();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch").setBranchType(LONG));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch").setBranchType(BRANCH));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
     assertThat(underTest.selectByKeyAndBranch(dbSession, project.getKey(), "master").get().uuid()).isEqualTo(project.uuid());
@@ -1617,12 +1617,12 @@ public class ComponentDaoTest {
     long recentTime = 3_000_000_000L;
     // project with only a non-main and old analyzed branch
     ComponentDto oldProject = db.components().insertMainBranch();
-    ComponentDto oldProjectBranch = db.components().insertProjectBranch(oldProject, newBranchDto(oldProject).setBranchType(BranchType.LONG));
+    ComponentDto oldProjectBranch = db.components().insertProjectBranch(oldProject, newBranchDto(oldProject).setBranchType(BRANCH));
     db.components().insertSnapshot(oldProjectBranch, s -> s.setLast(true).setCreatedAt(aLongTimeAgo));
 
     // project with only a old main branch and a recent non-main branch
     ComponentDto recentProject = db.components().insertMainBranch();
-    ComponentDto recentProjectBranch = db.components().insertProjectBranch(recentProject, newBranchDto(recentProject).setBranchType(BranchType.LONG));
+    ComponentDto recentProjectBranch = db.components().insertProjectBranch(recentProject, newBranchDto(recentProject).setBranchType(BRANCH));
     db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(recentTime).setLast(true));
     db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(aLongTimeAgo).setLast(false));
 
@@ -1969,8 +1969,8 @@ public class ComponentDaoTest {
     final ComponentDto project1 = db.components().insertMainBranch(organizationDto, b -> b.setName("foo"));
     insertMeasure(20d, project1, metric);
 
-    // long branch of project1 - returned
-    insertMeasure(30d, db.components().insertProjectBranch(project1, b -> b.setBranchType(BranchType.LONG)), metric);
+    // branch of project1 - returned
+    insertMeasure(30d, db.components().insertProjectBranch(project1, b -> b.setBranchType(BRANCH)), metric);
 
     // project2 - returned
     insertMeasure(10d, db.components().insertMainBranch(organizationDto, b -> b.setName("bar")), metric);

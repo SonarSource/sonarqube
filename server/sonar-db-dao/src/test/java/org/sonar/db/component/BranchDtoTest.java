@@ -54,12 +54,12 @@ public class BranchDtoTest {
     underTest.setUuid("U1");
     underTest.setProjectUuid("U2");
     underTest.setKey("K1");
-    underTest.setBranchType(BranchType.LONG);
+    underTest.setBranchType(BranchType.BRANCH);
     underTest.setMergeBranchUuid("U3");
     underTest.setExcludeFromPurge(true);
 
     assertThat(underTest.toString()).isEqualTo("BranchDto{uuid='U1', " +
-      "projectUuid='U2', kee='K1', keyType=null, branchType=LONG, mergeBranchUuid='U3', excludeFromPurge=true}");
+      "projectUuid='U2', kee='K1', keyType=null, branchType=BRANCH, mergeBranchUuid='U3', excludeFromPurge=true}");
   }
 
   @Test
@@ -67,7 +67,7 @@ public class BranchDtoTest {
     underTest.setUuid("U1");
     underTest.setProjectUuid("U2");
     underTest.setKey("K1");
-    underTest.setBranchType(BranchType.LONG);
+    underTest.setBranchType(BranchType.BRANCH);
     underTest.setMergeBranchUuid("U3");
 
     BranchDto toCompare = new BranchDto();
@@ -75,7 +75,7 @@ public class BranchDtoTest {
     toCompare.setUuid("U1");
     toCompare.setProjectUuid("U2");
     toCompare.setKey("K1");
-    toCompare.setBranchType(BranchType.LONG);
+    toCompare.setBranchType(BranchType.BRANCH);
     toCompare.setMergeBranchUuid("U3");
 
     assertThat(underTest).isEqualTo(toCompare);

@@ -40,7 +40,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Common;
@@ -57,7 +56,6 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.BRANCH;
-import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_LIST;
@@ -71,13 +69,11 @@ public class ListAction implements BranchWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
-  private final IssueIndex issueIndex;
 
-  public ListAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, IssueIndex issueIndex) {
+  public ListAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
-    this.issueIndex = issueIndex;
   }
 
   @Override
@@ -103,7 +99,7 @@ public class ListAction implements BranchWsAction {
       checkArgument(ALLOWED_QUALIFIERS.contains(project.qualifier()), "Invalid project");
 
       Collection<BranchDto> branches = dbClient.branchDao().selectByComponent(dbSession, project).stream()
-        .filter(b -> b.getBranchType() == LONG || b.getBranchType() == BRANCH)
+        .filter(b -> b.getBranchType() == BRANCH)
         .collect(toList());
       List<String> branchUuids = branches.stream().map(BranchDto::getUuid).collect(toList());
 

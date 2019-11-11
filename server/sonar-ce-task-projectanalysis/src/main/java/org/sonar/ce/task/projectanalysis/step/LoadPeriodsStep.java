@@ -69,7 +69,7 @@ public class LoadPeriodsStep implements ComputationStep {
 
   @Override
   public void execute(ComputationStep.Context context) {
-    if (analysisMetadataHolder.isFirstAnalysis() || !analysisMetadataHolder.isLongLivingBranch()) {
+    if (analysisMetadataHolder.isFirstAnalysis() || !analysisMetadataHolder.isBranch()) {
       periodsHolder.setPeriod(null);
       return;
     }

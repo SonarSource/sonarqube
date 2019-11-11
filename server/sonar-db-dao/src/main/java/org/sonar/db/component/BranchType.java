@@ -22,11 +22,6 @@ package org.sonar.db.component;
 public enum BranchType {
 
   /**
-   * Long-lived branch
-   */
-  LONG,
-
-  /**
    * Short-lived branch
    */
   SHORT,

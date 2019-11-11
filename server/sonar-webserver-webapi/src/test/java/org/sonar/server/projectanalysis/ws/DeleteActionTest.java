@@ -41,7 +41,7 @@ import org.sonar.server.ws.WsActionTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
@@ -101,7 +101,7 @@ public class DeleteActionTest {
     String analysisUuid = RandomStringUtils.randomAlphabetic(12);
     ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setUuid(analysisUuid).setLast(false));
-    BranchDto branch = newBranchDto(project, LONG);
+    BranchDto branch = newBranchDto(project, BRANCH);
     db.getDbClient().branchDao().insert(db.getSession(), branch);
     db.newCodePeriods().insert(new NewCodePeriodDto()
       .setProjectUuid(project.uuid())

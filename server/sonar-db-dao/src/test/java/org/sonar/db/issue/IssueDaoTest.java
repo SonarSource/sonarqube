@@ -198,7 +198,7 @@ public class IssueDaoTest {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto projectBranch = db.components().insertProjectBranch(project,
       b -> b.setKey("feature/foo")
-        .setBranchType(BranchType.LONG));
+        .setBranchType(BranchType.BRANCH));
 
     ComponentDto file = db.components().insertComponent(newFileDto(projectBranch));
 
@@ -220,7 +220,7 @@ public class IssueDaoTest {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto projectBranch = db.components().insertProjectBranch(project,
       b -> b.setKey("feature/foo")
-        .setBranchType(BranchType.LONG));
+        .setBranchType(BranchType.BRANCH));
 
     ComponentDto file = db.components().insertComponent(newFileDto(projectBranch));
     IssueDto fpIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus("RESOLVED").setResolution("FALSE-POSITIVE"));

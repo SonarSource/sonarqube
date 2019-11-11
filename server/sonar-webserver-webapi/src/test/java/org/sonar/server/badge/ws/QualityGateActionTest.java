@@ -50,7 +50,7 @@ import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.BRANCH;
 
 public class QualityGateActionTest {
 
@@ -145,17 +145,17 @@ public class QualityGateActionTest {
   }
 
   @Test
-  public void quality_gate_on_long_living_branch() {
+  public void quality_gate_on_branch() {
     ComponentDto project = db.components().insertMainBranch(p -> p.setPrivate(false));
     userSession.registerComponents(project);
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData(OK.name()));
-    ComponentDto longBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
-    db.measures().insertLiveMeasure(longBranch, metric, m -> m.setData(ERROR.name()));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    db.measures().insertLiveMeasure(branch, metric, m -> m.setData(ERROR.name()));
 
     TestResponse response = ws.newRequest()
-      .setParam("project", longBranch.getKey())
-      .setParam("branch", longBranch.getBranch())
+      .setParam("project", branch.getKey())
+      .setParam("branch", branch.getBranch())
       .execute();
 
     checkResponse(response, ERROR);
@@ -227,7 +227,7 @@ public class QualityGateActionTest {
   public void return_error_on_not_existing_branch() throws ParseException {
     ComponentDto project = db.components().insertMainBranch(p -> p.setPrivate(false));
     userSession.registerComponents(project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
 
     TestResponse response = ws.newRequest()
       .setParam("project", branch.getKey())

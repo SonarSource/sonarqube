@@ -65,7 +65,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
-import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
@@ -146,7 +146,7 @@ public class WebhookQGChangeEventListenerTest {
   public void onIssueChanges_calls_webhook_for_changeEvent_with_webhook_enabled(@Nullable EvaluatedQualityGate newQualityGate) {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPublicProject(organization);
-    ComponentAndBranch branch = insertProjectBranch(project, BranchType.LONG, "foo");
+    ComponentAndBranch branch = insertProjectBranch(project, BRANCH, "foo");
     SnapshotDto analysis = insertAnalysisTask(branch);
     Configuration configuration = mock(Configuration.class);
     mockPayloadSupplierConsumedByWebhooks();
@@ -165,7 +165,7 @@ public class WebhookQGChangeEventListenerTest {
         new Project(project.uuid(), project.getKey(), project.name()),
         null,
         new Analysis(analysis.getUuid(), analysis.getCreatedAt(), analysis.getRevision()),
-        new Branch(false, "foo", Branch.Type.LONG),
+        new Branch(false, "foo", Branch.Type.BRANCH),
         newQualityGate,
         null,
         properties));
@@ -187,8 +187,8 @@ public class WebhookQGChangeEventListenerTest {
   }
 
   @Test
-  public void onIssueChanges_calls_webhook_on_long_branch() {
-    onIssueChangesCallsWebhookOnBranch(BranchType.LONG);
+  public void onIssueChanges_calls_webhook_on_branch() {
+    onIssueChangesCallsWebhookOnBranch(BRANCH);
   }
 
   @Test
@@ -277,7 +277,7 @@ public class WebhookQGChangeEventListenerTest {
 
   public ComponentAndBranch insertMainBranch(OrganizationDto organization) {
     ComponentDto project = newPrivateProjectDto(organization);
-    BranchDto branch = newBranchDto(project, LONG).setKey("master");
+    BranchDto branch = newBranchDto(project, BRANCH).setKey("master");
     dbTester.components().insertComponent(project);
     dbClient.branchDao().insert(dbTester.getSession(), branch);
     dbTester.commit();

@@ -79,7 +79,7 @@ public class SetBaselineActionTest {
   public void set_baseline_on_main_branch(@Nullable String branchName) {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     BranchDto branch = new BranchDto()
-      .setBranchType(BranchType.LONG)
+      .setBranchType(BranchType.BRANCH)
       .setProjectUuid(project.uuid())
       .setUuid(project.uuid())
       .setKey("master");
@@ -107,7 +107,7 @@ public class SetBaselineActionTest {
   @Test
   public void set_baseline_on_long_living_branch() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.LONG);
+    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.BRANCH);
     db.components().insertProjectBranch(project, branch);
     ComponentDto branchComponentDto = ComponentTesting.newProjectBranch(project, branch);
     SnapshotDto analysis = db.components().insertSnapshot(branchComponentDto);
@@ -123,7 +123,7 @@ public class SetBaselineActionTest {
   @Test
   public void fail_when_user_is_not_admin() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.LONG);
+    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.BRANCH);
     db.components().insertProjectBranch(project, branch);
     ComponentDto branchComponentDto = ComponentTesting.newProjectBranch(project, branch);
     SnapshotDto analysis = db.components().insertSnapshot(branchComponentDto);
@@ -162,7 +162,7 @@ public class SetBaselineActionTest {
   @UseDataProvider("nonexistentParamsAndFailureMessage")
   public void fail_with_IAE_when_required_param_nonexistent(Map<String, String> nonexistentParams, String regex) {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.LONG);
+    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.BRANCH);
     db.components().insertProjectBranch(project, branch);
     ComponentDto branchComponentDto = ComponentTesting.newProjectBranch(project, branch);
     SnapshotDto analysis = db.components().insertSnapshot(branchComponentDto);
@@ -194,14 +194,14 @@ public class SetBaselineActionTest {
   @Test
   public void fail_when_branch_does_not_belong_to_project() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.LONG);
+    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.BRANCH);
     db.components().insertProjectBranch(project, branch);
     ComponentDto branchComponentDto = ComponentTesting.newProjectBranch(project, branch);
     SnapshotDto analysis = db.components().insertSnapshot(branchComponentDto);
     logInAsProjectAdministrator(project);
 
     ComponentDto otherProject = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    BranchDto otherBranch = ComponentTesting.newBranchDto(otherProject.projectUuid(), BranchType.LONG);
+    BranchDto otherBranch = ComponentTesting.newBranchDto(otherProject.projectUuid(), BranchType.BRANCH);
     db.components().insertProjectBranch(otherProject, otherBranch);
     ComponentTesting.newProjectBranch(otherProject, otherBranch);
 
@@ -215,7 +215,7 @@ public class SetBaselineActionTest {
   public void fail_when_analysis_does_not_belong_to_main_branch_of_project() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     BranchDto branch = new BranchDto()
-      .setBranchType(BranchType.LONG)
+      .setBranchType(BranchType.BRANCH)
       .setProjectUuid(project.uuid())
       .setUuid(project.uuid())
       .setKey("master");
@@ -236,7 +236,7 @@ public class SetBaselineActionTest {
   @Test
   public void fail_when_analysis_does_not_belong_to_non_main_branch_of_project() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.LONG);
+    BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.BRANCH);
     db.components().insertProjectBranch(project, branch);
     logInAsProjectAdministrator(project);
 

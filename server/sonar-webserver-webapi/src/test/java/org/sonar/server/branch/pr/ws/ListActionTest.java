@@ -68,7 +68,7 @@ import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.server.branch.pr.ws.PullRequestsWsParameters.PARAM_PROJECT;
@@ -113,11 +113,11 @@ public class ListActionTest {
   @Test
   public void json_example() {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("sonarqube"));
-    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(LONG));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BRANCH));
     ComponentDto pullRequest = db.components().insertProjectBranch(project,
       b -> b.setKey("123")
         .setBranchType(PULL_REQUEST)
-        .setMergeBranchUuid(longLivingBranch.uuid())
+        .setMergeBranchUuid(branch.uuid())
         .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder()
           .setBranch("feature/bar")
           .setTitle("Add feature X")
@@ -176,7 +176,7 @@ public class ListActionTest {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto longLivingBranch = db.components().insertProjectBranch(project,
-      b -> b.setKey("long").setBranchType(BranchType.LONG));
+      b -> b.setKey("long").setBranchType(BranchType.BRANCH));
     ComponentDto pullRequestOnLong = db.components().insertProjectBranch(project,
       b -> b.setKey("pull_request_on_long")
         .setBranchType(PULL_REQUEST)
@@ -243,7 +243,7 @@ public class ListActionTest {
   public void status_on_pull_requests() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
-    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     ComponentDto pullRequest = db.components().insertProjectBranch(project,
       b -> b.setKey("pr-123")
         .setBranchType(PULL_REQUEST)
@@ -276,7 +276,7 @@ public class ListActionTest {
   public void status_on_pull_request_with_no_issue() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
-    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     db.components().insertProjectBranch(project,
       b -> b.setKey("pr-123")
         .setBranchType(PULL_REQUEST)
@@ -309,7 +309,7 @@ public class ListActionTest {
         .setMergeBranchUuid(project.uuid())
         .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/pr1").build()));
 
-    ComponentDto longLivingBranch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
+    ComponentDto longLivingBranch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
 
     ComponentDto pullRequest2 = db.components().insertProjectBranch(project,
       b -> b.setKey("pr2")

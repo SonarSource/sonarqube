@@ -30,7 +30,7 @@ import org.sonar.db.organization.OrganizationDto;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
-import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.BRANCH;
 
 public class ComponentDbTester {
   private final DbTester db;
@@ -252,7 +252,7 @@ public class ComponentDbTester {
   }
 
   public final ComponentDto insertMainBranch(ComponentDto project) {
-    BranchDto branchDto = ComponentTesting.newBranchDto(project, LONG);
+    BranchDto branchDto = ComponentTesting.newBranchDto(project, BRANCH);
     insertComponent(project);
     dbClient.branchDao().insert(dbSession, branchDto);
     db.commit();
@@ -262,7 +262,7 @@ public class ComponentDbTester {
   @SafeVarargs
   public final ComponentDto insertMainBranch(OrganizationDto organization, String mainBranchName, Consumer<ComponentDto>... dtoPopulators) {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(organization);
-    BranchDto branchDto = ComponentTesting.newBranchDto(project, LONG).setKey(mainBranchName);
+    BranchDto branchDto = ComponentTesting.newBranchDto(project, BRANCH).setKey(mainBranchName);
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(project));
     insertComponent(project);
     dbClient.branchDao().insert(dbSession, branchDto);
@@ -273,7 +273,7 @@ public class ComponentDbTester {
   @SafeVarargs
   public final ComponentDto insertProjectBranch(ComponentDto project, Consumer<BranchDto>... dtoPopulators) {
     // MainBranchProjectUuid will be null if it's a main branch
-    BranchDto branchDto = ComponentTesting.newBranchDto(firstNonNull(project.getMainBranchProjectUuid(), project.projectUuid()), LONG);
+    BranchDto branchDto = ComponentTesting.newBranchDto(firstNonNull(project.getMainBranchProjectUuid(), project.projectUuid()), BRANCH);
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(branchDto));
     ComponentDto branch = ComponentTesting.newProjectBranch(project, branchDto);
     insertComponent(branch);

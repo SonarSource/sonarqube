@@ -43,7 +43,7 @@
     where
       (p.kee=#{dbKey,jdbcType=VARCHAR} OR p.kee=#{key,jdbcType=VARCHAR})
       and pb.kee=#{branch,jdbcType=VARCHAR}
-      and (pb.branch_type='LONG' or pb.branch_type='SHORT')
+      and (pb.branch_type='BRANCH')
   </select>
 
   <select id="selectPrByKeyAndBranchKey" parameterType="String" resultType="Component">
@@ -775,7 +775,7 @@
     where
       m.name = 'ncloc'
       and b.key_type = 'BRANCH'
-      and b.branch_type = 'LONG'
+      and b.branch_type = 'BRANCH'
       and p.enabled = ${_true}
       and p.private = ${_true}
       and p.scope = 'PRJ'

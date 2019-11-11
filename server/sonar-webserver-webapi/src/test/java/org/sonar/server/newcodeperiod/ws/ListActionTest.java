@@ -103,10 +103,10 @@ public class ListActionTest {
   }
 
   @Test
-  public void list_only_LLB() {
+  public void list_only_branches() {
     ComponentDto project = componentDb.insertMainBranch();
 
-    createBranches(project, 5, BranchType.LONG);
+    createBranches(project, 5, BranchType.BRANCH);
     createBranches(project, 3, BranchType.PULL_REQUEST);
 
     logInAsProjectAdministrator(project);
@@ -118,7 +118,7 @@ public class ListActionTest {
     assertThat(response).isNotNull();
     assertThat(response.getNewCodePeriodsCount()).isEqualTo(6);
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getBranchKey)
-      .contains("master", "LONG_0", "LONG_1", "LONG_2", "LONG_3", "LONG_4");
+      .contains("master", "BRANCH_0", "BRANCH_1", "BRANCH_2", "BRANCH_3", "BRANCH_4");
 
     //check if global default is set
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getType)
@@ -130,7 +130,7 @@ public class ListActionTest {
     ComponentDto project = componentDb.insertMainBranch();
     tester.insert(new NewCodePeriodDto().setType(NewCodePeriodType.SPECIFIC_ANALYSIS).setValue("uuid"));
 
-    createBranches(project, 5, BranchType.LONG);
+    createBranches(project, 5, BranchType.BRANCH);
 
     logInAsProjectAdministrator(project);
 
@@ -141,7 +141,7 @@ public class ListActionTest {
     assertThat(response).isNotNull();
     assertThat(response.getNewCodePeriodsCount()).isEqualTo(6);
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getBranchKey)
-      .contains("master", "LONG_0", "LONG_1", "LONG_2", "LONG_3", "LONG_4");
+      .contains("master", "BRANCH_0", "BRANCH_1", "BRANCH_2", "BRANCH_3", "BRANCH_4");
 
     //check if global default is set
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getType)
@@ -164,7 +164,7 @@ public class ListActionTest {
       .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
       .setValue("project_uuid"));
 
-    createBranches(projectWithOwnSettings, 5, BranchType.LONG);
+    createBranches(projectWithOwnSettings, 5, BranchType.BRANCH);
 
     logInAsProjectAdministrator(projectWithOwnSettings, projectWithGlobalSettings);
 
@@ -176,7 +176,7 @@ public class ListActionTest {
     assertThat(response).isNotNull();
     assertThat(response.getNewCodePeriodsCount()).isEqualTo(6);
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getBranchKey)
-      .contains("master", "LONG_0", "LONG_1", "LONG_2", "LONG_3", "LONG_4");
+      .contains("master", "BRANCH_0", "BRANCH_1", "BRANCH_2", "BRANCH_3", "BRANCH_4");
 
     //check if project setting is set
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getType)

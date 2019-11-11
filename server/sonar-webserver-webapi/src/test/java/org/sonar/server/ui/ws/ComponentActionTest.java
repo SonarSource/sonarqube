@@ -268,19 +268,19 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void quality_gate_for_a_long_living_branch() {
+  public void quality_gate_for_a_branch() {
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org"));
     db.qualityGates().createDefaultQualityGate(organization);
     ComponentDto project = db.components().insertPrivateProject(organization);
-    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way"));
     db.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
     String json = ws.newRequest()
-      .setParam("componentKey", longLivingBranch.getKey())
-      .setParam("branch", longLivingBranch.getBranch())
+      .setParam("componentKey", branch.getKey())
+      .setParam("branch", branch.getBranch())
       .execute()
       .getInput();
 

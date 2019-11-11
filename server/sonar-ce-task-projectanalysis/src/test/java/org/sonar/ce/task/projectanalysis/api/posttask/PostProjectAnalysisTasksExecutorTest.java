@@ -115,7 +115,7 @@ public class PostProjectAnalysisTasksExecutorTest {
       CONDITION_1, ConditionStatus.create(ConditionStatus.EvaluationStatus.OK, "value"),
       CONDITION_2, ConditionStatus.NO_VALUE_STATUS));
     Branch branch = mock(Branch.class);
-    when(branch.getType()).thenReturn(BranchType.LONG);
+    when(branch.getType()).thenReturn(BranchType.BRANCH);
     analysisMetadataHolder
       .setBranch(branch)
       .setOrganizationsEnabled(new Random().nextBoolean())

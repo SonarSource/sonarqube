@@ -172,8 +172,8 @@ public class ShowAction implements NewCodePeriodsWsAction {
     BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, project.uuid())
       .orElseThrow(() -> new NotFoundException(format("Branch '%s' is not found", branchKey)));
 
-    checkArgument(branchDto.getBranchType() == BranchType.LONG,
-      "Not a long-living branch: '%s'", branchKey);
+    checkArgument(branchDto.getBranchType() == BranchType.BRANCH,
+      "Not a branch: '%s'", branchKey);
 
     return project;
   }

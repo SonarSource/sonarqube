@@ -61,7 +61,7 @@ public class BranchDaoTest {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U2");
-    dto.setBranchType(BranchType.LONG);
+    dto.setBranchType(BranchType.BRANCH);
     dto.setKey("feature/foo");
 
     underTest.insert(dbSession, dto);
@@ -70,7 +70,7 @@ public class BranchDaoTest {
     assertThat(map).contains(
       entry("projectUuid", "U1"),
       entry("uuid", "U2"),
-      entry("branchType", "LONG"),
+      entry("branchType", "BRANCH"),
       entry("kee", "feature/foo"),
       entry("mergeBranchUuid", null),
       entry("pullRequestBinary", null),
@@ -83,14 +83,14 @@ public class BranchDaoTest {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U1");
-    dto.setBranchType(BranchType.LONG);
+    dto.setBranchType(BranchType.BRANCH);
     dto.setKey("feature");
     underTest.insert(dbSession, dto);
 
     BranchDto dto2 = new BranchDto();
     dto2.setProjectUuid("U2");
     dto2.setUuid("U2");
-    dto2.setBranchType(BranchType.LONG);
+    dto2.setBranchType(BranchType.BRANCH);
     dto2.setKey("branch");
     underTest.insert(dbSession, dto2);
 
@@ -98,7 +98,7 @@ public class BranchDaoTest {
     BranchDto loaded = underTest.selectByBranchKey(dbSession, "U1", "master").get();
     assertThat(loaded.getMergeBranchUuid()).isNull();
     assertThat(loaded.getProjectUuid()).isEqualTo("U1");
-    assertThat(loaded.getBranchType()).isEqualTo(BranchType.LONG);
+    assertThat(loaded.getBranchType()).isEqualTo(BranchType.BRANCH);
   }
 
   @Test
@@ -106,7 +106,7 @@ public class BranchDaoTest {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U1");
-    dto.setBranchType(BranchType.LONG);
+    dto.setBranchType(BranchType.BRANCH);
     dto.setKey("feature");
     dto.setExcludeFromPurge(false);
     underTest.insert(dbSession, dto);
@@ -146,7 +146,7 @@ public class BranchDaoTest {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid(repeat("a", 50));
     dto.setUuid(repeat("b", 50));
-    dto.setBranchType(BranchType.LONG);
+    dto.setBranchType(BranchType.BRANCH);
     dto.setKey(repeat("c", 255));
     dto.setMergeBranchUuid(repeat("d", 50));
 
@@ -233,7 +233,7 @@ public class BranchDaoTest {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U2");
-    dto.setBranchType(BranchType.LONG);
+    dto.setBranchType(BranchType.BRANCH);
     dto.setKey("foo");
     underTest.insert(dbSession, dto);
 
@@ -242,13 +242,13 @@ public class BranchDaoTest {
 
     // the fields that can't be updated. New values are ignored.
     dto.setProjectUuid("ignored");
-    dto.setBranchType(BranchType.LONG);
+    dto.setBranchType(BranchType.BRANCH);
     underTest.upsert(dbSession, dto);
 
     BranchDto loaded = underTest.selectByBranchKey(dbSession, "U1", "foo").get();
     assertThat(loaded.getMergeBranchUuid()).isEqualTo("U3");
     assertThat(loaded.getProjectUuid()).isEqualTo("U1");
-    assertThat(loaded.getBranchType()).isEqualTo(BranchType.LONG);
+    assertThat(loaded.getBranchType()).isEqualTo(BranchType.BRANCH);
   }
 
   @Test
@@ -278,7 +278,7 @@ public class BranchDaoTest {
 
     // the fields that can't be updated. New values are ignored.
     dto.setProjectUuid("ignored");
-    dto.setBranchType(BranchType.LONG);
+    dto.setBranchType(BranchType.BRANCH);
     underTest.upsert(dbSession, dto);
 
     BranchDto loaded = underTest.selectByPullRequestKey(dbSession, "U1", "foo").get();
@@ -352,14 +352,14 @@ public class BranchDaoTest {
     BranchDto mainBranch = new BranchDto();
     mainBranch.setProjectUuid("U1");
     mainBranch.setUuid("U1");
-    mainBranch.setBranchType(BranchType.LONG);
+    mainBranch.setBranchType(BranchType.BRANCH);
     mainBranch.setKey("master");
     underTest.insert(dbSession, mainBranch);
 
     BranchDto featureBranch = new BranchDto();
     featureBranch.setProjectUuid("U1");
     featureBranch.setUuid("U2");
-    featureBranch.setBranchType(BranchType.LONG);
+    featureBranch.setBranchType(BranchType.BRANCH);
     featureBranch.setKey("feature/foo");
     featureBranch.setMergeBranchUuid("U3");
     underTest.insert(dbSession, featureBranch);
@@ -381,14 +381,14 @@ public class BranchDaoTest {
     BranchDto mainBranch = new BranchDto();
     mainBranch.setProjectUuid("U1");
     mainBranch.setUuid("U1");
-    mainBranch.setBranchType(BranchType.LONG);
+    mainBranch.setBranchType(BranchType.BRANCH);
     mainBranch.setKey("master");
     underTest.insert(dbSession, mainBranch);
 
     BranchDto featureBranch = new BranchDto();
     featureBranch.setProjectUuid("U1");
     featureBranch.setUuid("U2");
-    featureBranch.setBranchType(BranchType.LONG);
+    featureBranch.setBranchType(BranchType.BRANCH);
     featureBranch.setKey("feature/foo");
     featureBranch.setMergeBranchUuid("U3");
     underTest.insert(dbSession, featureBranch);
@@ -410,7 +410,7 @@ public class BranchDaoTest {
     BranchDto mainBranch = new BranchDto();
     mainBranch.setProjectUuid("U1");
     mainBranch.setUuid("U1");
-    mainBranch.setBranchType(BranchType.LONG);
+    mainBranch.setBranchType(BranchType.BRANCH);
     mainBranch.setKey("master");
     underTest.insert(dbSession, mainBranch);
 
@@ -479,15 +479,15 @@ public class BranchDaoTest {
 
   @Test
   public void countByTypeAndCreationDate() {
-    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.LONG, 0L)).isEqualTo(0);
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, 0L)).isEqualTo(0);
 
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto longBranch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
-    ComponentDto longBranch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
+    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
-    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.LONG, 0L)).isEqualTo(2);
-    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.LONG, NOW)).isEqualTo(2);
-    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.LONG, NOW + 100)).isEqualTo(0);
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, 0L)).isEqualTo(2);
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, NOW)).isEqualTo(2);
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, NOW + 100)).isEqualTo(0);
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, 0L)).isEqualTo(1);
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, NOW)).isEqualTo(1);
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, NOW + 100)).isEqualTo(0);

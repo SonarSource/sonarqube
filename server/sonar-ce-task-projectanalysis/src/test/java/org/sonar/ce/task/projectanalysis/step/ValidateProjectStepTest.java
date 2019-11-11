@@ -88,7 +88,7 @@ public class ValidateProjectStepTest {
   public void dont_fail_for_long_forked_from_master_with_modules() {
     ComponentDto masterProject = dbTester.components().insertMainBranch();
     dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newModuleDto(masterProject));
-    setBranch(BranchType.LONG, masterProject.uuid());
+    setBranch(BranchType.BRANCH, masterProject.uuid());
     dbTester.getSession().commit();
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("DEFG")

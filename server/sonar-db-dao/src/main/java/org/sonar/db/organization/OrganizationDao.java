@@ -145,7 +145,7 @@ public class OrganizationDao implements Dao {
   public List<OrganizationWithNclocDto> selectOrganizationsWithNcloc(DbSession dbSession, List<String> organizationUuids) {
     List<OrganizationWithNclocDto> result = new ArrayList<>();
     executeLargeUpdates(organizationUuids, chunk ->
-      result.addAll(getMapper(dbSession).selectOrganizationsWithNcloc(NCLOC_KEY, chunk, KeyType.BRANCH, BranchType.LONG))
+      result.addAll(getMapper(dbSession).selectOrganizationsWithNcloc(NCLOC_KEY, chunk, KeyType.BRANCH, BranchType.BRANCH))
     );
     return result;
   }

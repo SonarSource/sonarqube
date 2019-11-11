@@ -75,7 +75,7 @@ public interface AnalysisMetadataHolder {
    *
    * @throws IllegalStateException if branch has not been set
    */
-  boolean isLongLivingBranch();
+  boolean isBranch();
 
   /**
    * Convenience method equivalent to do the check using {@link #getBranch()}

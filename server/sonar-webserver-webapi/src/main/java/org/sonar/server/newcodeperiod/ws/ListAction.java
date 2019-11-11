@@ -44,7 +44,7 @@ import org.sonarqube.ws.NewCodePeriods;
 import org.sonarqube.ws.NewCodePeriods.ListWSResponse;
 
 import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.NewCodePeriods.ShowWSResponse.newBuilder;
 
@@ -85,7 +85,7 @@ public class ListAction implements NewCodePeriodsWsAction {
       ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
       userSession.checkComponentPermission(UserRole.ADMIN, project);
       Collection<BranchDto> branches = dbClient.branchDao().selectByComponent(dbSession, project).stream()
-        .filter(b -> b.getBranchType() == LONG)
+        .filter(b -> b.getBranchType() == BRANCH)
         .collect(toList());
 
       List<NewCodePeriodDto> newCodePeriods = newCodePeriodDao.selectAllByProject(dbSession, project.uuid());

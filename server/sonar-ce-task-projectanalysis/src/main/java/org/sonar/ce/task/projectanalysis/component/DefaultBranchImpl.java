@@ -41,7 +41,7 @@ public class DefaultBranchImpl implements Branch {
 
   @Override
   public BranchType getType() {
-    return BranchType.LONG;
+    return BranchType.BRANCH;
   }
 
   @Override

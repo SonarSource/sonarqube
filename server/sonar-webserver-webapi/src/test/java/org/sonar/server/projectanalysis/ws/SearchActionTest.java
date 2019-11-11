@@ -72,7 +72,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -146,7 +146,7 @@ public class SearchActionTest {
       .setCreatedAt(parseDateTime("2015-11-11T10:00:00+0100").getTime())
       .setProjectVersion("1.2")
       .setBuildString("1.2.0.321"));
-    BranchDto branchDto = newBranchDto(project, LONG);
+    BranchDto branchDto = newBranchDto(project, BRANCH);
     db.getDbClient().branchDao().insert(db.getSession(), branchDto);
     db.newCodePeriods().insert(new NewCodePeriodDto()
       .setProjectUuid(project.uuid())

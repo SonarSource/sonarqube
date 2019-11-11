@@ -66,7 +66,7 @@ public class SiblingComponentsWithOpenIssuesTest {
   public void setUp() {
     ComponentDto project = db.components().insertMainBranch();
 
-    long1 = db.components().insertProjectBranch(project, b -> b.setKey("long1"), b -> b.setBranchType(BranchType.LONG));
+    long1 = db.components().insertProjectBranch(project, b -> b.setKey("long1"), b -> b.setBranchType(BranchType.BRANCH));
     long1short1 = db.components().insertProjectBranch(project,
       b -> b.setKey("long1short1"),
       b -> b.setBranchType(BranchType.SHORT),
@@ -98,7 +98,7 @@ public class SiblingComponentsWithOpenIssuesTest {
       .setDbKey(fileKey + ":BRANCH:long1short2"));
     db.issues().insertIssue(IssueTesting.newIssue(rule, long1short2, fileXWithOneResolvedIssueOnLong1Short2).setStatus("RESOLVED"));
 
-    long2 = db.components().insertProjectBranch(project, b -> b.setKey("long2"), b -> b.setBranchType(BranchType.LONG));
+    long2 = db.components().insertProjectBranch(project, b -> b.setKey("long2"), b -> b.setBranchType(BranchType.BRANCH));
     ComponentDto long2short1 = db.components().insertProjectBranch(project,
       b -> b.setKey("long2short1"),
       b -> b.setBranchType(BranchType.SHORT),
@@ -117,7 +117,7 @@ public class SiblingComponentsWithOpenIssuesTest {
   @Test
   public void should_find_sibling_components_with_open_issues_for_long1() {
     setRoot(long1);
-    setBranch(BranchType.LONG);
+    setBranch(BranchType.BRANCH);
 
     assertThat(underTest.getUuids(fileWithNoIssuesOnLong1.getKey())).isEmpty();
     assertThat(underTest.getUuids(fileWithOneOpenIssueOnLong1Short1.getKey())).containsOnly(fileWithOneOpenIssueOnLong1Short1.uuid());
@@ -149,7 +149,7 @@ public class SiblingComponentsWithOpenIssuesTest {
   @Test
   public void should_find_sibling_components_with_open_issues_for_long2() {
     setRoot(long2);
-    setBranch(BranchType.LONG);
+    setBranch(BranchType.BRANCH);
 
     underTest = new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, db.getDbClient());
 
@@ -162,7 +162,7 @@ public class SiblingComponentsWithOpenIssuesTest {
   public void should_find_sibling_components_with_open_issues_from_short() {
     ComponentDto project = db.components().insertMainBranch();
     setRoot(project);
-    setBranch(BranchType.LONG);
+    setBranch(BranchType.BRANCH);
 
     ComponentDto branch = db.components().insertProjectBranch(project,
       b -> b.setBranchType(BranchType.SHORT),
@@ -182,7 +182,7 @@ public class SiblingComponentsWithOpenIssuesTest {
   public void should_find_sibling_components_with_open_issues_from_pullrequest() {
     ComponentDto project = db.components().insertMainBranch();
     setRoot(project);
-    setBranch(BranchType.LONG);
+    setBranch(BranchType.BRANCH);
 
     ComponentDto pullRequest = db.components().insertProjectBranch(project,
       b -> b.setBranchType(BranchType.PULL_REQUEST),
@@ -202,10 +202,10 @@ public class SiblingComponentsWithOpenIssuesTest {
   public void should_not_find_sibling_components_on_derived_long() {
     ComponentDto project = db.components().insertMainBranch();
     setRoot(project);
-    setBranch(BranchType.LONG);
+    setBranch(BranchType.BRANCH);
 
     ComponentDto derivedLongBranch = db.components().insertProjectBranch(project,
-      b -> b.setBranchType(BranchType.LONG),
+      b -> b.setBranchType(BranchType.BRANCH),
       b -> b.setMergeBranchUuid(project.uuid()));
 
     RuleDefinitionDto rule = db.rules().insert();

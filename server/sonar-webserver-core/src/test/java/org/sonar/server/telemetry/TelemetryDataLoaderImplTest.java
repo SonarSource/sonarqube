@@ -59,7 +59,7 @@ import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.core.platform.EditionProvider.Edition.DEVELOPER;
-import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 public class TelemetryDataLoaderImplTest {
@@ -149,7 +149,7 @@ public class TelemetryDataLoaderImplTest {
     server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
     ComponentDto project = db.components().insertMainBranch(db.getDefaultOrganization());
-    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
     db.measures().insertLiveMeasure(project, ncloc, m -> m.setValue(10d));
     db.measures().insertLiveMeasure(branch1, ncloc, m -> m.setValue(20d));
