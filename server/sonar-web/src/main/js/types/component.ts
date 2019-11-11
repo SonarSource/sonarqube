@@ -18,26 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { mockSetOfBranchAndPullRequest } from '../../../../../helpers/mocks/branch-pull-request';
-import { mockComponent } from '../../../../../helpers/testMocks';
-import { ComponentNavHeader, ComponentNavHeaderProps } from '../ComponentNavHeader';
-
-it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
-});
-
-function shallowRender(props?: Partial<ComponentNavHeaderProps>) {
-  const branchLikes = mockSetOfBranchAndPullRequest();
-
-  return shallow(
-    <ComponentNavHeader
-      branchLikes={branchLikes}
-      component={mockComponent()}
-      currentBranchLike={branchLikes[0]}
-      {...props}
-    />
-  );
+export enum ComponentQualifier {
+  Application = 'APP',
+  Directory = 'DIR',
+  Developper = 'DEV',
+  File = 'FIL',
+  Portfolio = 'VW',
+  Project = 'TRK',
+  SubPortfolio = 'SVW',
+  SubProject = 'BRC',
+  TestFile = 'UTS'
 }

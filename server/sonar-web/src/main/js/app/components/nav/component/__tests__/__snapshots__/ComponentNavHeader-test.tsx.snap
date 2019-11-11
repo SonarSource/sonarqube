@@ -1,137 +1,160 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should not render breadcrumbs with one element 1`] = `
-<header
-  className="navbar-context-header"
->
-  <OrganizationHelmet
-    title="My Project"
+exports[`should render correctly 1`] = `
+<Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="MyProject"
   />
-  <QualifierIcon
-    className="spacer-right"
-    qualifier="TRK"
-  />
-  <span
-    className="navbar-context-header-breadcrumb-link"
-    title="My Project"
+  <header
+    className="display-flex-center flex-shrink"
   >
-    My Project
-  </span>
-</header>
-`;
-
-exports[`should render alm links 1`] = `
-<header
-  className="navbar-context-header"
->
-  <OrganizationHelmet
-    organization={
-      Object {
-        "key": "foo",
-        "name": "The Foo Organization",
-        "projectVisibility": "public",
+    <ComponentBreadcrumb
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
       }
-    }
-    title="My Project"
-  />
-  <OrganizationAvatar
-    organization={
-      Object {
-        "key": "foo",
-        "name": "The Foo Organization",
-        "projectVisibility": "public",
+      currentBranchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "mergeBranch": "master",
+          "name": "slb-1",
+          "type": "SHORT",
+        }
       }
-    }
-  />
-  <OrganizationLink
-    className="navbar-context-header-breadcrumb-link link-base-color link-no-underline spacer-left"
-    organization={
-      Object {
-        "key": "foo",
-        "name": "The Foo Organization",
-        "projectVisibility": "public",
-      }
-    }
-  >
-    The Foo Organization
-  </OrganizationLink>
-  <span
-    className="slash-separator"
-  />
-  <QualifierIcon
-    className="spacer-right"
-    qualifier="TRK"
-  />
-  <span
-    className="navbar-context-header-breadcrumb-link"
-    title="My Project"
-  >
-    My Project
-  </span>
-  <a
-    className="link-no-underline"
-    href="https://bitbucket.org/foo"
-    rel="noopener noreferrer"
-    target="_blank"
-  >
-    <img
-      alt="bitbucket"
-      className="text-text-top spacer-left"
-      height={16}
-      src="/images/sonarcloud/bitbucket.svg"
-      width={16}
     />
-  </a>
-</header>
-`;
-
-exports[`should render organization 1`] = `
-<header
-  className="navbar-context-header"
->
-  <OrganizationHelmet
-    organization={
-      Object {
-        "key": "foo",
-        "name": "The Foo Organization",
-        "projectVisibility": "public",
+    <Connect(withAppState(Component))
+      branchLikes={
+        Array [
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": false,
+            "mergeBranch": "master",
+            "name": "slb-1",
+            "type": "SHORT",
+          },
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": false,
+            "name": "llb-1",
+            "type": "LONG",
+          },
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          },
+          Object {
+            "analysisDate": "2018-01-01",
+            "base": "master",
+            "branch": "feature/foo/bar",
+            "key": "1",
+            "target": "master",
+            "title": "PR-1",
+          },
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": false,
+            "mergeBranch": "llb-1",
+            "name": "slb-2",
+            "type": "SHORT",
+          },
+          Object {
+            "analysisDate": "2018-01-01",
+            "base": "master",
+            "branch": "feature/foo/bar",
+            "key": "2",
+            "target": "master",
+            "title": "PR-2",
+          },
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": false,
+            "name": "llb-3",
+            "type": "LONG",
+          },
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": false,
+            "name": "llb-2",
+            "type": "LONG",
+          },
+          Object {
+            "analysisDate": "2018-01-01",
+            "base": "master",
+            "branch": "feature/foo/bar",
+            "isOrphan": true,
+            "key": "2",
+            "target": "llb-100",
+            "title": "PR-2",
+          },
+        ]
       }
-    }
-    title="My Project"
-  />
-  <OrganizationAvatar
-    organization={
-      Object {
-        "key": "foo",
-        "name": "The Foo Organization",
-        "projectVisibility": "public",
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
       }
-    }
-  />
-  <OrganizationLink
-    className="navbar-context-header-breadcrumb-link link-base-color link-no-underline spacer-left"
-    organization={
-      Object {
-        "key": "foo",
-        "name": "The Foo Organization",
-        "projectVisibility": "public",
+      currentBranchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "mergeBranch": "master",
+          "name": "slb-1",
+          "type": "SHORT",
+        }
       }
-    }
-  >
-    The Foo Organization
-  </OrganizationLink>
-  <span
-    className="slash-separator"
-  />
-  <QualifierIcon
-    className="spacer-right"
-    qualifier="TRK"
-  />
-  <span
-    className="navbar-context-header-breadcrumb-link"
-    title="My Project"
-  >
-    My Project
-  </span>
-</header>
+    />
+    <Memo(CurrentBranchLikeMergeInformation)
+      currentBranchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "mergeBranch": "master",
+          "name": "slb-1",
+          "type": "SHORT",
+        }
+      }
+    />
+  </header>
+</Fragment>
 `;

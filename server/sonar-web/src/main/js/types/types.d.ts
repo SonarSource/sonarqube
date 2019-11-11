@@ -108,23 +108,6 @@ declare namespace T {
     webAnalyticsJsPath?: string;
   }
 
-  export interface Branch {
-    analysisDate?: string;
-    isMain: boolean;
-    name: string;
-    status?: { qualityGateStatus: Status };
-  }
-
-  export type BranchLike = Branch | PullRequest;
-
-  export type BranchParameters = { branch?: string } | { pullRequest?: string };
-
-  export type BranchType = 'LONG' | 'SHORT';
-
-  export interface BranchWithNewCodePeriod extends Branch {
-    newCodePeriod?: NewCodePeriod;
-  }
-
   export interface Breadcrumb {
     key: string;
     name: string;
@@ -455,15 +438,6 @@ declare namespace T {
     settings?: CurrentUserSetting[];
   }
 
-  export interface LongLivingBranch extends Branch {
-    isMain: false;
-    type: 'LONG';
-  }
-
-  export interface MainBranch extends Branch {
-    isMain: true;
-  }
-
   export interface Measure extends MeasureIntern {
     metric: string;
   }
@@ -669,18 +643,6 @@ declare namespace T {
     url: string;
   }
 
-  export interface PullRequest {
-    analysisDate?: string;
-    base: string;
-    branch: string;
-    key: string;
-    isOrphan?: true;
-    status?: { qualityGateStatus: Status };
-    target: string;
-    title: string;
-    url?: string;
-  }
-
   export interface QualityGate {
     actions?: {
       associateProjects?: boolean;
@@ -832,13 +794,6 @@ declare namespace T {
     parentValues?: string[];
     value?: string;
     values?: string[];
-  }
-
-  export interface ShortLivingBranch extends Branch {
-    isMain: false;
-    isOrphan?: true;
-    mergeBranch: string;
-    type: 'SHORT';
   }
 
   export interface Snippet {

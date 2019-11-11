@@ -20,7 +20,7 @@ exports[`should render correctly 1`] = `
         <th
           className="thin nowrap text-right big-spacer-left"
         >
-          branches.last_analysis_date
+          project_branch_pull_request.last_analysis_date
         </th>
         <th
           className="thin nowrap text-right"

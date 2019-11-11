@@ -1,0 +1,185 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CurrentBranchLikeRenderer should render correctly for application when there are many branchlikes 1`] = `
+<span
+  className="display-flex-center flex-shrink text-ellipsis"
+>
+  <BranchLikeIcon
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": true,
+        "name": "master",
+      }
+    }
+  />
+  <span
+    className="spacer-left spacer-right flex-shrink text-ellipsis"
+    title="master"
+  >
+    master
+  </span>
+  <DropdownIcon />
+</span>
+`;
+
+exports[`CurrentBranchLikeRenderer should render correctly for application when there is only one branch and the user CAN'T admin the application 1`] = `
+<span
+  className="display-flex-center flex-shrink text-ellipsis"
+>
+  <BranchLikeIcon
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": true,
+        "name": "master",
+      }
+    }
+  />
+  <span
+    className="spacer-left spacer-right flex-shrink text-ellipsis"
+    title="master"
+  >
+    master
+  </span>
+</span>
+`;
+
+exports[`CurrentBranchLikeRenderer should render correctly for application when there is only one branch and the user can admin the application 1`] = `
+<span
+  className="display-flex-center flex-shrink text-ellipsis"
+>
+  <BranchLikeIcon
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": true,
+        "name": "master",
+      }
+    }
+  />
+  <span
+    className="spacer-left spacer-right flex-shrink text-ellipsis"
+    title="master"
+  >
+    master
+  </span>
+  <HelpTooltip
+    overlay={
+      <React.Fragment>
+        <p>
+          application.branches.help
+        </p>
+        <hr
+          className="spacer-top spacer-bottom"
+        />
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/admin/extension/governance/console",
+              "query": Object {
+                "id": "my-project",
+                "qualifier": "APP",
+              },
+            }
+          }
+        >
+          application.branches.link
+        </Link>
+      </React.Fragment>
+    }
+  >
+    <PlusCircleIcon
+      fill="#4b9fd5"
+      size={12}
+    />
+  </HelpTooltip>
+</span>
+`;
+
+exports[`CurrentBranchLikeRenderer should render correctly for project when branches support is disabled 1`] = `
+<span
+  className="display-flex-center flex-shrink text-ellipsis"
+>
+  <BranchLikeIcon
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": true,
+        "name": "master",
+      }
+    }
+  />
+  <span
+    className="spacer-left spacer-right flex-shrink text-ellipsis"
+    title="master"
+  >
+    master
+  </span>
+  <DocTooltip
+    data-test="branches-support-disabled"
+    doc={Promise {}}
+  >
+    <PlusCircleIcon
+      fill="#4b9fd5"
+      size={12}
+    />
+  </DocTooltip>
+</span>
+`;
+
+exports[`CurrentBranchLikeRenderer should render correctly for project when there are many branchlikes 1`] = `
+<span
+  className="display-flex-center flex-shrink text-ellipsis"
+>
+  <BranchLikeIcon
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": true,
+        "name": "master",
+      }
+    }
+  />
+  <span
+    className="spacer-left spacer-right flex-shrink text-ellipsis"
+    title="master"
+  >
+    master
+  </span>
+  <DropdownIcon />
+</span>
+`;
+
+exports[`CurrentBranchLikeRenderer should render correctly for project when there is only one branchlike 1`] = `
+<span
+  className="display-flex-center flex-shrink text-ellipsis"
+>
+  <BranchLikeIcon
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": true,
+        "name": "master",
+      }
+    }
+  />
+  <span
+    className="spacer-left spacer-right flex-shrink text-ellipsis"
+    title="master"
+  >
+    master
+  </span>
+  <DocTooltip
+    data-test="only-one-branch-like"
+    doc={Promise {}}
+  >
+    <PlusCircleIcon
+      fill="#4b9fd5"
+      size={12}
+    />
+  </DocTooltip>
+</span>
+`;

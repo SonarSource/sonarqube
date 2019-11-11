@@ -20,24 +20,28 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockSetOfBranchAndPullRequest } from '../../../../../helpers/mocks/branch-pull-request';
-import { mockComponent } from '../../../../../helpers/testMocks';
-import { ComponentNavHeader, ComponentNavHeaderProps } from '../ComponentNavHeader';
+import {
+  mockLongLivingBranch,
+  mockPullRequest,
+  mockShortLivingBranch
+} from '../../../helpers/testMocks';
+import BranchLikeIcon, { BranchLikeIconProps } from '../BranchLikeIcon';
 
-it('should render correctly', () => {
-  const wrapper = shallowRender();
+it('should render short living branch icon for short living branch', () => {
+  const wrapper = shallowRender({ branchLike: mockShortLivingBranch() });
   expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props?: Partial<ComponentNavHeaderProps>) {
-  const branchLikes = mockSetOfBranchAndPullRequest();
+it('should render short living branch icon for long living branch', () => {
+  const wrapper = shallowRender({ branchLike: mockLongLivingBranch() });
+  expect(wrapper).toMatchSnapshot();
+});
 
-  return shallow(
-    <ComponentNavHeader
-      branchLikes={branchLikes}
-      component={mockComponent()}
-      currentBranchLike={branchLikes[0]}
-      {...props}
-    />
-  );
+it('should render pull request icon correctly', () => {
+  const wrapper = shallowRender({ branchLike: mockPullRequest() });
+  expect(wrapper).toMatchSnapshot();
+});
+
+function shallowRender(props: BranchLikeIconProps) {
+  return shallow(<BranchLikeIcon {...props} />);
 }

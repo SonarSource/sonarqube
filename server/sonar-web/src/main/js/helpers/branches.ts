@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { orderBy, sortBy } from 'lodash';
+
+import { orderBy } from 'lodash';
 
 export function isBranch(branchLike?: T.BranchLike): branchLike is T.Branch {
   return branchLike !== undefined && (branchLike as T.Branch).isMain !== undefined;
@@ -96,58 +97,32 @@ export function isSameBranchLike(a: T.BranchLike | undefined, b: T.BranchLike | 
   return a === b;
 }
 
-export function sortBranchesAsTree(branchLikes: T.BranchLike[]) {
-  const result: T.BranchLike[] = [];
-
+export function getBrancheLikesAsTree(branchLikes: T.BranchLike[]): T.BranchLikeTree {
   const mainBranch = branchLikes.find(isMainBranch);
-  const longLivingBranches = branchLikes.filter(isLongLivingBranch);
-  const shortLivingBranches = branchLikes.filter(isShortLivingBranch);
-  const pullRequests = branchLikes.filter(isPullRequest);
-
-  // main branch is always first
-  if (mainBranch) {
-    result.push(
-      mainBranch,
-      ...getPullRequests(mainBranch.name),
-      ...getNestedShortLivingBranches(mainBranch.name)
-    );
-  }
-
-  // then all long-living branches
-  sortBy(longLivingBranches, 'name').forEach(longLivingBranch => {
-    result.push(
-      longLivingBranch,
-      ...getPullRequests(longLivingBranch.name),
-      ...getNestedShortLivingBranches(longLivingBranch.name)
-    );
-  });
-
-  // finally all orhpan pull requests and branches
-  result.push(
-    ...sortBy(pullRequests.filter(pr => pr.isOrphan), pullRequest => pullRequest.key),
-    ...sortBy(shortLivingBranches.filter(branch => branch.isOrphan), branch => branch.name)
+  const branches = orderBy(branchLikes.filter(isBranch).filter(b => !isMainBranch(b)), b => b.name);
+  const pullRequests = orderBy(branchLikes.filter(isPullRequest), b => b.key);
+  const parentlessPullRequests = pullRequests.filter(
+    pr => !pr.isOrphan && ![mainBranch, ...branches].find(b => !!b && b.name === pr.base)
   );
+  const orphanPullRequests = pullRequests.filter(pr => pr.isOrphan);
 
-  return result;
+  const tree: T.BranchLikeTree = {
+    branchTree: branches.map(b => ({ branch: b, pullRequests: getPullRequests(b) })),
+    parentlessPullRequests,
+    orphanPullRequests
+  };
 
-  /** Get all short-living branches (possibly nested) which should be merged to a given branch */
-  function getNestedShortLivingBranches(mergeBranch: string) {
-    const found: T.ShortLivingBranch[] = shortLivingBranches.filter(
-      branch => branch.mergeBranch === mergeBranch
-    );
-
-    let i = 0;
-    while (i < found.length) {
-      const current = found[i];
-      found.push(...shortLivingBranches.filter(branch => branch.mergeBranch === current.name));
-      i++;
-    }
-
-    return sortBy(found, branch => branch.name);
+  if (mainBranch) {
+    tree.mainBranchTree = {
+      branch: mainBranch,
+      pullRequests: getPullRequests(mainBranch)
+    };
   }
 
-  function getPullRequests(base: string) {
-    return sortBy(pullRequests.filter(pr => pr.base === base), pullRequest => pullRequest.key);
+  return tree;
+
+  function getPullRequests(branch: T.Branch) {
+    return pullRequests.filter(pr => !pr.isOrphan && pr.base === branch.name);
   }
 }
 

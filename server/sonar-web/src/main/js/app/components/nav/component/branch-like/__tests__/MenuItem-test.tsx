@@ -20,23 +20,40 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockSetOfBranchAndPullRequest } from '../../../../../helpers/mocks/branch-pull-request';
-import { mockComponent } from '../../../../../helpers/testMocks';
-import { ComponentNavHeader, ComponentNavHeaderProps } from '../ComponentNavHeader';
+import { click } from 'sonar-ui-common/helpers/testUtils';
+import {
+  mockComponent,
+  mockMainBranch,
+  mockPullRequest
+} from '../../../../../../helpers/testMocks';
+import { MenuItem, MenuItemProps } from '../MenuItem';
 
-it('should render correctly', () => {
-  const wrapper = shallowRender();
+it('should render a main branch correctly', () => {
+  const wrapper = shallowRender({ branchLike: mockMainBranch() });
   expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props?: Partial<ComponentNavHeaderProps>) {
-  const branchLikes = mockSetOfBranchAndPullRequest();
+it('should render a non-main branch, indented and selected item correctly', () => {
+  const wrapper = shallowRender({ branchLike: mockPullRequest(), indent: true, selected: true });
+  expect(wrapper).toMatchSnapshot();
+});
 
+it('should propagate click event correctly', () => {
+  const onSelect = jest.fn();
+  const wrapper = shallowRender({ onSelect });
+
+  click(wrapper.find('li'));
+  expect(onSelect).toHaveBeenCalled();
+});
+
+function shallowRender(props?: Partial<MenuItemProps>) {
   return shallow(
-    <ComponentNavHeader
-      branchLikes={branchLikes}
+    <MenuItem
+      branchLike={mockMainBranch()}
       component={mockComponent()}
-      currentBranchLike={branchLikes[0]}
+      onSelect={jest.fn()}
+      selected={false}
+      setSelectedNode={jest.fn()}
       {...props}
     />
   );

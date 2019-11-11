@@ -42,7 +42,7 @@ export function BranchLikeTableRenderer(props: BranchLikeTableRendererProps) {
             <th>{tableTitle}</th>
             <th className="thin nowrap">{translate('status')}</th>
             <th className="thin nowrap text-right big-spacer-left">
-              {translate('branches.last_analysis_date')}
+              {translate('project_branch_pull_request.last_analysis_date')}
             </th>
             <th className="thin nowrap text-right">{translate('actions')}</th>
           </tr>

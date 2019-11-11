@@ -3,7 +3,7 @@
 exports[`should render correctly for long lived branch 1`] = `
 <tr>
   <td>
-    <BranchIcon
+    <BranchLikeIcon
       branchLike={
         Object {
           "analysisDate": "2018-01-01",
@@ -59,7 +59,7 @@ exports[`should render correctly for long lived branch 1`] = `
 exports[`should render correctly for mai branch 1`] = `
 <tr>
   <td>
-    <BranchIcon
+    <BranchLikeIcon
       branchLike={
         Object {
           "analysisDate": "2018-01-01",
@@ -117,7 +117,7 @@ exports[`should render correctly for mai branch 1`] = `
 exports[`should render correctly for pull request 1`] = `
 <tr>
   <td>
-    <BranchIcon
+    <BranchLikeIcon
       branchLike={
         Object {
           "analysisDate": "2018-01-01",
@@ -177,7 +177,7 @@ exports[`should render correctly for pull request 1`] = `
 exports[`should render correctly for short lived branch 1`] = `
 <tr>
   <td>
-    <BranchIcon
+    <BranchLikeIcon
       branchLike={
         Object {
           "analysisDate": "2018-01-01",

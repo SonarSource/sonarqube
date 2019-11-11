@@ -19,12 +19,7 @@
  */
 import { getBaseUrl, Location } from 'sonar-ui-common/helpers/urls';
 import { getProfilePath } from '../apps/quality-profiles/utils';
-import {
-  getBranchLikeQuery,
-  isLongLivingBranch,
-  isPullRequest,
-  isShortLivingBranch
-} from './branches';
+import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branches';
 
 type Query = Location['query'];
 
@@ -47,10 +42,8 @@ export function getComponentBackgroundTaskUrl(componentKey: string, status?: str
 export function getBranchLikeUrl(project: string, branchLike?: T.BranchLike): Location {
   if (isPullRequest(branchLike)) {
     return getPullRequestUrl(project, branchLike.key);
-  } else if (isShortLivingBranch(branchLike)) {
+  } else if (isBranch(branchLike) && !isMainBranch(branchLike)) {
     return getShortLivingBranchUrl(project, branchLike.name);
-  } else if (isLongLivingBranch(branchLike)) {
-    return getLongLivingBranchUrl(project, branchLike.name);
   } else {
     return getProjectUrl(project);
   }

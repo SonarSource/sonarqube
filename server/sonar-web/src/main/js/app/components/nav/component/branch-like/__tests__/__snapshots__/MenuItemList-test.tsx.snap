@@ -1,0 +1,428 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ul
+  className="item-list"
+>
+  <li
+    className="item"
+  >
+    <span
+      className="note"
+    >
+      no_results
+    </span>
+  </li>
+  <Memo(MenuItem)
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": true,
+        "name": "master",
+      }
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    key="branch-master"
+    onSelect={[MockFunction]}
+    selected={false}
+    setSelectedNode={[Function]}
+  />
+  <li
+    className="item header"
+  >
+    <span
+      className="big-spacer-left"
+    >
+      branch_like_navigation.pull_requests
+    </span>
+  </li>
+  <Memo(MenuItem)
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "base": "master",
+        "branch": "feature/foo/bar",
+        "key": "1",
+        "target": "master",
+        "title": "PR-1",
+      }
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    indent={true}
+    key="pull-request-1"
+    onSelect={[MockFunction]}
+    selected={false}
+    setSelectedNode={[Function]}
+  />
+  <Memo(MenuItem)
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "base": "master",
+        "branch": "feature/foo/bar",
+        "key": "2",
+        "target": "master",
+        "title": "PR-2",
+      }
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    indent={true}
+    key="pull-request-2"
+    onSelect={[MockFunction]}
+    selected={false}
+    setSelectedNode={[Function]}
+  />
+  <hr />
+  <Memo(MenuItem)
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": false,
+        "name": "llb-1",
+        "type": "LONG",
+      }
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    key="branch-llb-1"
+    onSelect={[MockFunction]}
+    selected={false}
+    setSelectedNode={[Function]}
+  />
+  <hr />
+  <Memo(MenuItem)
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": false,
+        "name": "llb-2",
+        "type": "LONG",
+      }
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    key="branch-llb-2"
+    onSelect={[MockFunction]}
+    selected={false}
+    setSelectedNode={[Function]}
+  />
+  <hr />
+  <Memo(MenuItem)
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": false,
+        "name": "llb-3",
+        "type": "LONG",
+      }
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    key="branch-llb-3"
+    onSelect={[MockFunction]}
+    selected={false}
+    setSelectedNode={[Function]}
+  />
+  <hr />
+  <Memo(MenuItem)
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": false,
+        "mergeBranch": "master",
+        "name": "slb-1",
+        "type": "SHORT",
+      }
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    key="branch-slb-1"
+    onSelect={[MockFunction]}
+    selected={true}
+    setSelectedNode={[Function]}
+  />
+  <hr />
+  <Memo(MenuItem)
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": false,
+        "mergeBranch": "llb-1",
+        "name": "slb-2",
+        "type": "SHORT",
+      }
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    key="branch-slb-2"
+    onSelect={[MockFunction]}
+    selected={false}
+    setSelectedNode={[Function]}
+  />
+  <hr />
+  <li
+    className="item header"
+  >
+    branch_like_navigation.pull_requests
+  </li>
+  <Memo(MenuItem)
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "base": "not-in-the-list",
+        "branch": "feature/foo/bar",
+        "key": "1001",
+        "target": "master",
+        "title": "Foo Bar feature",
+      }
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    key="pull-request-1001"
+    onSelect={[MockFunction]}
+    selected={false}
+    setSelectedNode={[Function]}
+  />
+  <li
+    className="item header"
+  >
+    branch_like_navigation.orphan_pull_requests
+    <HelpTooltip
+      className="little-spacer-left"
+      overlay="branch_like_navigation.orphan_pull_requests.tooltip"
+    />
+  </li>
+  <Memo(MenuItem)
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "base": "master",
+        "branch": "feature/foo/bar",
+        "isOrphan": true,
+        "key": "2",
+        "target": "llb-100",
+        "title": "PR-2",
+      }
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    key="pull-request-2"
+    onSelect={[MockFunction]}
+    selected={false}
+    setSelectedNode={[Function]}
+  />
+</ul>
+`;

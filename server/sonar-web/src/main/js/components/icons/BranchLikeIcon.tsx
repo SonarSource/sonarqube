@@ -23,11 +23,11 @@ import PullRequestIcon from 'sonar-ui-common/components/icons/PullRequestIcon';
 import ShortLivingBranchIcon from 'sonar-ui-common/components/icons/ShortLivingBranchIcon';
 import { isPullRequest } from '../../helpers/branches';
 
-export interface BranchIconProps extends IconProps {
+export interface BranchLikeIconProps extends IconProps {
   branchLike: T.BranchLike;
 }
 
-export default function BranchIcon({ branchLike, ...props }: BranchIconProps) {
+export default function BranchLikeIcon({ branchLike, ...props }: BranchLikeIconProps) {
   if (isPullRequest(branchLike)) {
     return <PullRequestIcon {...props} />;
   } else {

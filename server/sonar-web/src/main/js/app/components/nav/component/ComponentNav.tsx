@@ -91,8 +91,6 @@ export default class ComponentNav extends React.PureComponent<Props> {
             branchLikes={this.props.branchLikes}
             component={component}
             currentBranchLike={currentBranchLike}
-            // to close dropdown on any location change
-            location={this.props.location}
           />
           <ComponentNavMeta
             branchLike={currentBranchLike}

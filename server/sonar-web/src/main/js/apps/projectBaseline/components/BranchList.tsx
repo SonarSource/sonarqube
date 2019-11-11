@@ -24,7 +24,7 @@ import ActionsDropdown, {
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../api/newCodePeriod';
-import BranchIcon from '../../../components/icons-components/BranchIcon';
+import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { isBranch, sortBranches } from '../../../helpers/branches';
 import BranchBaselineSettingModal from './BranchBaselineSettingModal';
@@ -176,7 +176,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
             {branches.map(branch => (
               <tr key={branch.name}>
                 <td className="nowrap">
-                  <BranchIcon branchLike={branch} className="little-spacer-right" />
+                  <BranchLikeIcon branchLike={branch} className="little-spacer-right" />
                   {branch.name}
                   {branch.isMain && (
                     <div className="badge spacer-left">{translate('branches.main_branch')}</div>

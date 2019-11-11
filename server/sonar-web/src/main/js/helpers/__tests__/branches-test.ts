@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isSameBranchLike, sortBranches, sortBranchesAsTree } from '../branches';
+
+import { getBrancheLikesAsTree, isSameBranchLike, sortBranches } from '../branches';
 import {
   mockLongLivingBranch,
   mockMainBranch,
@@ -25,40 +26,57 @@ import {
   mockShortLivingBranch
 } from '../testMocks';
 
-describe('#sortBranchesAsTree', () => {
-  it('sorts main branch and short-living branches', () => {
-    const main = mockMainBranch();
-    const foo = mockShortLivingBranch({ name: 'foo' });
-    const bar = mockShortLivingBranch({ name: 'bar' });
-    expect(sortBranchesAsTree([main, foo, bar])).toEqual([main, bar, foo]);
-  });
+describe('#getBrancheLikesAsTree', () => {
+  it('should correctly map branches and prs to tree object', () => {
+    const main = mockMainBranch({ name: 'master' });
+    const llb1 = mockLongLivingBranch({ name: 'llb1' });
+    const llb2 = mockLongLivingBranch({ name: 'llb2' });
+    const slb1 = mockShortLivingBranch({ name: 'slb1' });
+    const slb2 = mockShortLivingBranch({ name: 'slb2' });
 
-  it('sorts main branch and long-living branches', () => {
-    const main = mockMainBranch();
-    const foo = mockLongLivingBranch({ name: 'foo' });
-    const bar = mockLongLivingBranch({ name: 'bar' });
-    expect(sortBranchesAsTree([main, foo, bar])).toEqual([main, bar, foo]);
-  });
+    const mainPr1 = mockPullRequest({ base: main.name, key: 'PR1' });
+    const mainPr2 = mockPullRequest({ base: main.name, key: 'PR2' });
+    const llb1Pr1 = mockPullRequest({ base: llb1.name, key: 'PR1' });
+    const llb1Pr2 = mockPullRequest({ base: llb1.name, key: 'PR2' });
+    const llb2Pr1 = mockPullRequest({ base: llb2.name, key: 'PR1' });
+    const llb2Pr2 = mockPullRequest({ base: llb2.name, key: 'PR1' });
+    const orphanPR1 = mockPullRequest({ isOrphan: true, key: 'PR1' });
+    const orphanPR2 = mockPullRequest({ isOrphan: true, key: 'PR2' });
+    const parentlessPR1 = mockPullRequest({ base: 'not_present_branch_1', key: 'PR1' });
+    const parentlessPR2 = mockPullRequest({ base: 'not_present_branch_2', key: 'PR2' });
 
-  it('sorts all types of branches', () => {
-    const main = mockMainBranch();
-    const shortFoo = mockShortLivingBranch({ name: 'shortFoo', mergeBranch: 'master' });
-    const shortBar = mockShortLivingBranch({ name: 'shortBar', mergeBranch: 'longBaz' });
-    const shortPre = mockShortLivingBranch({ name: 'shortPre', mergeBranch: 'shortFoo' });
-    const longBaz = mockLongLivingBranch({ name: 'longBaz' });
-    const longQux = mockLongLivingBranch({ name: 'longQux' });
-    const longQwe = mockLongLivingBranch({ name: 'longQwe' });
-    const pr = mockPullRequest({ base: 'master' });
-    // - main                     - main
-    //    - shortFoo                - shortFoo
-    //      - shortPre              - shortPre
-    //    - longBaz       ---->   - longBaz
-    //       - shortBar             - shortBar
-    //       - longQwe            - longQwe
-    //    - longQux               - longQux
     expect(
-      sortBranchesAsTree([main, shortFoo, shortBar, shortPre, longBaz, longQux, longQwe, pr])
-    ).toEqual([main, pr, shortFoo, shortPre, longBaz, shortBar, longQux, longQwe]);
+      getBrancheLikesAsTree([
+        llb2,
+        llb1,
+        main,
+        orphanPR2,
+        orphanPR1,
+        slb2,
+        slb1,
+        mainPr2,
+        mainPr1,
+        parentlessPR2,
+        parentlessPR1,
+        llb2Pr2,
+        llb2Pr1,
+        llb1Pr2,
+        llb1Pr1
+      ])
+    ).toEqual({
+      mainBranchTree: {
+        branch: main,
+        pullRequests: [mainPr1, mainPr2]
+      },
+      branchTree: [
+        { branch: llb1, pullRequests: [llb1Pr1, llb1Pr2] },
+        { branch: llb2, pullRequests: [llb2Pr1, llb2Pr1] },
+        { branch: slb1, pullRequests: [] },
+        { branch: slb2, pullRequests: [] }
+      ],
+      parentlessPullRequests: [parentlessPR1, parentlessPR2],
+      orphanPullRequests: [orphanPR1, orphanPR2]
+    });
   });
 });
 

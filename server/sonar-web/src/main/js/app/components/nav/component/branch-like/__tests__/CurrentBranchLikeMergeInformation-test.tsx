@@ -20,24 +20,24 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockSetOfBranchAndPullRequest } from '../../../../../helpers/mocks/branch-pull-request';
-import { mockComponent } from '../../../../../helpers/testMocks';
-import { ComponentNavHeader, ComponentNavHeaderProps } from '../ComponentNavHeader';
+import { mockMainBranch, mockPullRequest } from '../../../../../../helpers/testMocks';
+import {
+  CurrentBranchLikeMergeInformation,
+  CurrentBranchLikeMergeInformationProps
+} from '../CurrentBranchLikeMergeInformation';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props?: Partial<ComponentNavHeaderProps>) {
-  const branchLikes = mockSetOfBranchAndPullRequest();
+it('should not render for non-pull-request branch like', () => {
+  const wrapper = shallowRender({ currentBranchLike: mockMainBranch() });
+  expect(wrapper.type()).toBeNull();
+});
 
+function shallowRender(props?: Partial<CurrentBranchLikeMergeInformationProps>) {
   return shallow(
-    <ComponentNavHeader
-      branchLikes={branchLikes}
-      component={mockComponent()}
-      currentBranchLike={branchLikes[0]}
-      {...props}
-    />
+    <CurrentBranchLikeMergeInformation currentBranchLike={mockPullRequest()} {...props} />
   );
 }

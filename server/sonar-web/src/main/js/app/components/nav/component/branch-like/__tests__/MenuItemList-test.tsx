@@ -17,42 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ComponentNavBranchesMenuItem, { Props } from '../ComponentNavBranchesMenuItem';
+import { getBrancheLikesAsTree } from '../../../../../../helpers/branches';
+import { mockSetOfBranchAndPullRequest } from '../../../../../../helpers/mocks/branch-pull-request';
+import { mockComponent, mockPullRequest } from '../../../../../../helpers/testMocks';
+import { MenuItemList, MenuItemListProps } from '../MenuItemList';
 
-const component = { key: 'component' } as T.Component;
-
-const shortBranch: T.ShortLivingBranch = {
-  isMain: false,
-  mergeBranch: 'master',
-  name: 'foo',
-  status: { qualityGateStatus: 'ERROR' },
-  type: 'SHORT'
-};
-
-const mainBranch: T.MainBranch = { isMain: true, name: 'master' };
-
-it('renders main branch', () => {
-  expect(shallowRender({ branchLike: mainBranch })).toMatchSnapshot();
+it('should render correctly', () => {
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
 });
 
-it('renders short-living branch', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
+function shallowRender(props?: Partial<MenuItemListProps>) {
+  const branchLikes = [
+    ...mockSetOfBranchAndPullRequest(),
+    mockPullRequest({ base: 'not-in-the-list' })
+  ];
+  const branchLikeTree = getBrancheLikesAsTree(branchLikes);
 
-it('renders short-living orhpan branch', () => {
-  const orhpan: T.ShortLivingBranch = { ...shortBranch, isOrphan: true };
-  expect(shallowRender({ branchLike: orhpan })).toMatchSnapshot();
-});
-
-function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
   return shallow(
-    <ComponentNavBranchesMenuItem
-      branchLike={shortBranch}
-      component={component}
+    <MenuItemList
+      branchLikeTree={branchLikeTree}
+      component={mockComponent()}
+      hasResults={false}
       onSelect={jest.fn()}
-      selected={false}
+      selectedBranchLike={branchLikes[0]}
       {...props}
     />
   );

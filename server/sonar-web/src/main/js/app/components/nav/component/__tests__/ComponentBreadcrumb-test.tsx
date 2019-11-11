@@ -20,28 +20,33 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import {
-  mockLongLivingBranch,
-  mockPullRequest,
-  mockShortLivingBranch
-} from '../../../helpers/testMocks';
-import BranchIcon, { BranchIconProps } from '../BranchIcon';
+import { mockComponent, mockMainBranch } from '../../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../../types/component';
+import { ComponentBreadcrumb } from '../ComponentBreadcrumb';
 
-it('should render short living branch icon for short living branch', () => {
-  const wrapper = shallowRender({ branchLike: mockShortLivingBranch() });
+it('should render correctly', () => {
+  const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should render short living branch icon for long living branch', () => {
-  const wrapper = shallowRender({ branchLike: mockLongLivingBranch() });
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should render pull request icon correctly', () => {
-  const wrapper = shallowRender({ branchLike: mockPullRequest() });
-  expect(wrapper).toMatchSnapshot();
-});
-
-function shallowRender(props: BranchIconProps) {
-  return shallow(<BranchIcon {...props} />);
+function shallowRender() {
+  return shallow(
+    <ComponentBreadcrumb
+      component={mockComponent({
+        breadcrumbs: [
+          {
+            key: 'parent-portfolio',
+            name: 'parent-portfolio',
+            qualifier: ComponentQualifier.Portfolio
+          },
+          {
+            key: 'child-portfolio',
+            name: 'child-portfolio',
+            qualifier: ComponentQualifier.SubPortfolio
+          }
+        ]
+      })}
+      currentBranchLike={mockMainBranch()}
+    />
+  );
 }

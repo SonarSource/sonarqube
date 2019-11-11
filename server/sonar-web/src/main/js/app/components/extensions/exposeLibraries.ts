@@ -67,7 +67,7 @@ import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import NotFound from '../../../app/components/NotFound';
 import Favorite from '../../../components/controls/Favorite';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
-import BranchIcon from '../../../components/icons-components/BranchIcon';
+import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
@@ -125,7 +125,7 @@ const exposeLibraries = () => {
     AlertErrorIcon,
     AlertSuccessIcon,
     AlertWarnIcon,
-    BranchIcon,
+    BranchIcon: BranchLikeIcon,
     Button,
     Checkbox,
     CheckIcon,

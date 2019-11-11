@@ -1,0 +1,201 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<span
+  className="big-spacer-left flex-shrink branch-like-navigation-toggler-container"
+>
+  <Memo(CurrentBranchLike)
+    branchesEnabled={false}
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    currentBranchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": false,
+        "mergeBranch": "master",
+        "name": "slb-1",
+        "type": "SHORT",
+      }
+    }
+    hasManyBranches={true}
+  />
+</span>
+`;
+
+exports[`should render the menu trigger if branches are enabled 1`] = `
+<span
+  className="big-spacer-left flex-shrink branch-like-navigation-toggler-container dropdown"
+>
+  <Toggler
+    onRequestClose={[Function]}
+    open={false}
+    overlay={
+      <withRouter(Menu)
+        branchLikes={
+          Array [
+            Object {
+              "analysisDate": "2018-01-01",
+              "isMain": false,
+              "mergeBranch": "master",
+              "name": "slb-1",
+              "type": "SHORT",
+            },
+            Object {
+              "analysisDate": "2018-01-01",
+              "isMain": false,
+              "name": "llb-1",
+              "type": "LONG",
+            },
+            Object {
+              "analysisDate": "2018-01-01",
+              "isMain": true,
+              "name": "master",
+            },
+            Object {
+              "analysisDate": "2018-01-01",
+              "base": "master",
+              "branch": "feature/foo/bar",
+              "key": "1",
+              "target": "master",
+              "title": "PR-1",
+            },
+            Object {
+              "analysisDate": "2018-01-01",
+              "isMain": false,
+              "mergeBranch": "llb-1",
+              "name": "slb-2",
+              "type": "SHORT",
+            },
+            Object {
+              "analysisDate": "2018-01-01",
+              "base": "master",
+              "branch": "feature/foo/bar",
+              "key": "2",
+              "target": "master",
+              "title": "PR-2",
+            },
+            Object {
+              "analysisDate": "2018-01-01",
+              "isMain": false,
+              "name": "llb-3",
+              "type": "LONG",
+            },
+            Object {
+              "analysisDate": "2018-01-01",
+              "isMain": false,
+              "name": "llb-2",
+              "type": "LONG",
+            },
+            Object {
+              "analysisDate": "2018-01-01",
+              "base": "master",
+              "branch": "feature/foo/bar",
+              "isOrphan": true,
+              "key": "2",
+              "target": "llb-100",
+              "title": "PR-2",
+            },
+          ]
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        currentBranchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": false,
+            "mergeBranch": "master",
+            "name": "slb-1",
+            "type": "SHORT",
+          }
+        }
+        onClose={[Function]}
+      />
+    }
+  >
+    <a
+      className="link-base-color link-no-underline"
+      href="#"
+      onClick={[Function]}
+    >
+      <Memo(CurrentBranchLike)
+        branchesEnabled={true}
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        currentBranchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": false,
+            "mergeBranch": "master",
+            "name": "slb-1",
+            "type": "SHORT",
+          }
+        }
+        hasManyBranches={true}
+      />
+    </a>
+  </Toggler>
+</span>
+`;

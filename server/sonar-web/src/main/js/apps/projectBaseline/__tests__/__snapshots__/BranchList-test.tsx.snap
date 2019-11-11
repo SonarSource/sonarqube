@@ -29,7 +29,7 @@ exports[`should render correctly 1`] = `
         <td
           className="nowrap"
         >
-          <BranchIcon
+          <BranchLikeIcon
             branchLike={
               Object {
                 "analysisDate": "2018-01-01",
@@ -79,7 +79,7 @@ exports[`should render correctly 1`] = `
         <td
           className="nowrap"
         >
-          <BranchIcon
+          <BranchLikeIcon
             branchLike={
               Object {
                 "analysisDate": "2018-01-01",
@@ -115,7 +115,7 @@ exports[`should render correctly 1`] = `
         <td
           className="nowrap"
         >
-          <BranchIcon
+          <BranchLikeIcon
             branchLike={
               Object {
                 "analysisDate": "2018-01-01",

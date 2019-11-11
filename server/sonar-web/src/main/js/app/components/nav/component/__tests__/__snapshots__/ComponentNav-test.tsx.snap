@@ -8,7 +8,7 @@ exports[`renders 1`] = `
   <div
     className="navbar-context-justified"
   >
-    <Connect(ComponentNavHeader)
+    <Memo(ComponentNavHeader)
       branchLikes={Array []}
       component={
         Object {
@@ -25,7 +25,6 @@ exports[`renders 1`] = `
           "qualifier": "TRK",
         }
       }
-      location={Object {}}
     />
     <Connect(ComponentNavMeta)
       component={

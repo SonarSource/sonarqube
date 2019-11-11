@@ -24,7 +24,7 @@ import ActionsDropdown, {
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import BranchStatus from '../../../components/common/BranchStatus';
-import BranchIcon from '../../../components/icons-components/BranchIcon';
+import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { getBranchLikeDisplayName, isMainBranch, isPullRequest } from '../../../helpers/branches';
 
@@ -41,7 +41,7 @@ export function BranchLikeRowRenderer(props: BranchLikeRowRendererProps) {
   return (
     <tr>
       <td>
-        <BranchIcon branchLike={branchLike} className="little-spacer-right" />
+        <BranchLikeIcon branchLike={branchLike} className="little-spacer-right" />
         {getBranchLikeDisplayName(branchLike)}
         {isMainBranch(branchLike) && (
           <div className="badge spacer-left">{translate('branches.main_branch')}</div>

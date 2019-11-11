@@ -1,0 +1,335 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<DropdownOverlay
+  className="branch-like-navigation-menu"
+  noPadding={true}
+>
+  <div
+    className="search-box-container"
+  >
+    <SearchBox
+      autoFocus={true}
+      onChange={[Function]}
+      onKeyDown={[Function]}
+      placeholder="branch_like_navigation.search_for_branch_like"
+      value=""
+    />
+  </div>
+  <div
+    className="item-list-container"
+  >
+    <Memo(MenuItemList)
+      branchLikeTree={
+        Object {
+          "branchTree": Array [
+            Object {
+              "branch": Object {
+                "analysisDate": "2018-01-01",
+                "isMain": false,
+                "name": "llb-1",
+                "type": "LONG",
+              },
+              "pullRequests": Array [],
+            },
+            Object {
+              "branch": Object {
+                "analysisDate": "2018-01-01",
+                "isMain": false,
+                "name": "llb-2",
+                "type": "LONG",
+              },
+              "pullRequests": Array [],
+            },
+            Object {
+              "branch": Object {
+                "analysisDate": "2018-01-01",
+                "isMain": false,
+                "name": "llb-3",
+                "type": "LONG",
+              },
+              "pullRequests": Array [],
+            },
+            Object {
+              "branch": Object {
+                "analysisDate": "2018-01-01",
+                "isMain": false,
+                "mergeBranch": "master",
+                "name": "slb-1",
+                "type": "SHORT",
+              },
+              "pullRequests": Array [],
+            },
+            Object {
+              "branch": Object {
+                "analysisDate": "2018-01-01",
+                "isMain": false,
+                "mergeBranch": "llb-1",
+                "name": "slb-2",
+                "type": "SHORT",
+              },
+              "pullRequests": Array [],
+            },
+          ],
+          "mainBranchTree": Object {
+            "branch": Object {
+              "analysisDate": "2018-01-01",
+              "isMain": true,
+              "name": "master",
+            },
+            "pullRequests": Array [
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1",
+                "target": "master",
+                "title": "PR-1",
+              },
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "2",
+                "target": "master",
+                "title": "PR-2",
+              },
+            ],
+          },
+          "orphanPullRequests": Array [
+            Object {
+              "analysisDate": "2018-01-01",
+              "base": "master",
+              "branch": "feature/foo/bar",
+              "isOrphan": true,
+              "key": "2",
+              "target": "llb-100",
+              "title": "PR-2",
+            },
+          ],
+          "parentlessPullRequests": Array [],
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      hasResults={true}
+      onSelect={[Function]}
+      selectedBranchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": true,
+          "name": "master",
+        }
+      }
+    />
+  </div>
+  <div
+    className="hint-container text-right"
+  >
+    <Link
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/branches",
+          "query": Object {
+            "id": "my-project",
+          },
+        }
+      }
+    >
+      branch_like_navigation.manage
+    </Link>
+  </div>
+</DropdownOverlay>
+`;
+
+exports[`should render correctly with no current branch like 1`] = `
+<DropdownOverlay
+  className="branch-like-navigation-menu"
+  noPadding={true}
+>
+  <div
+    className="search-box-container"
+  >
+    <SearchBox
+      autoFocus={true}
+      onChange={[Function]}
+      onKeyDown={[Function]}
+      placeholder="branch_like_navigation.search_for_branch_like"
+      value=""
+    />
+  </div>
+  <div
+    className="item-list-container"
+  >
+    <Memo(MenuItemList)
+      branchLikeTree={
+        Object {
+          "branchTree": Array [
+            Object {
+              "branch": Object {
+                "analysisDate": "2018-01-01",
+                "isMain": false,
+                "name": "llb-1",
+                "type": "LONG",
+              },
+              "pullRequests": Array [],
+            },
+            Object {
+              "branch": Object {
+                "analysisDate": "2018-01-01",
+                "isMain": false,
+                "name": "llb-2",
+                "type": "LONG",
+              },
+              "pullRequests": Array [],
+            },
+            Object {
+              "branch": Object {
+                "analysisDate": "2018-01-01",
+                "isMain": false,
+                "name": "llb-3",
+                "type": "LONG",
+              },
+              "pullRequests": Array [],
+            },
+            Object {
+              "branch": Object {
+                "analysisDate": "2018-01-01",
+                "isMain": false,
+                "mergeBranch": "master",
+                "name": "slb-1",
+                "type": "SHORT",
+              },
+              "pullRequests": Array [],
+            },
+            Object {
+              "branch": Object {
+                "analysisDate": "2018-01-01",
+                "isMain": false,
+                "mergeBranch": "llb-1",
+                "name": "slb-2",
+                "type": "SHORT",
+              },
+              "pullRequests": Array [],
+            },
+          ],
+          "mainBranchTree": Object {
+            "branch": Object {
+              "analysisDate": "2018-01-01",
+              "isMain": true,
+              "name": "master",
+            },
+            "pullRequests": Array [
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1",
+                "target": "master",
+                "title": "PR-1",
+              },
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "2",
+                "target": "master",
+                "title": "PR-2",
+              },
+            ],
+          },
+          "orphanPullRequests": Array [
+            Object {
+              "analysisDate": "2018-01-01",
+              "base": "master",
+              "branch": "feature/foo/bar",
+              "isOrphan": true,
+              "key": "2",
+              "target": "llb-100",
+              "title": "PR-2",
+            },
+          ],
+          "parentlessPullRequests": Array [],
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      hasResults={true}
+      onSelect={[Function]}
+      selectedBranchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "isMain": false,
+          "mergeBranch": "master",
+          "name": "slb-1",
+          "type": "SHORT",
+        }
+      }
+    />
+  </div>
+  <div
+    className="hint-container text-right"
+  >
+    <Link
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/branches",
+          "query": Object {
+            "id": "my-project",
+          },
+        }
+      }
+    >
+      branch_like_navigation.manage
+    </Link>
+  </div>
+</DropdownOverlay>
+`;
