@@ -55,7 +55,7 @@ public class PurgeConfiguration {
 
   public static PurgeConfiguration newDefaultPurgeConfiguration(Configuration config, String rootUuid, String projectUuid, Set<String> disabledComponentUuids) {
     return new PurgeConfiguration(rootUuid, projectUuid, Arrays.asList(Scopes.DIRECTORY, Scopes.FILE), config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(),
-      config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_BRANCHES), System2.INSTANCE, disabledComponentUuids);
+      config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_BRANCHES_AND_PRS), System2.INSTANCE, disabledComponentUuids);
   }
 
   /**

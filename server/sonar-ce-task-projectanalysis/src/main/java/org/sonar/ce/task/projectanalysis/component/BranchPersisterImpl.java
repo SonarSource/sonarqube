@@ -19,7 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
+import java.util.List;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -30,6 +33,10 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbProjectBranches;
 
+import static java.util.Arrays.asList;
+import static java.util.Optional.ofNullable;
+import static org.sonar.core.config.PurgeConstants.BRANCHES_TO_KEEP_WHEN_INACTIVE;
+
 /**
  * Creates or updates the data in table {@code PROJECT_BRANCHES} for the current root.
  */
@@ -37,11 +44,14 @@ public class BranchPersisterImpl implements BranchPersister {
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final Configuration configuration;
 
-  public BranchPersisterImpl(DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder) {
+  public BranchPersisterImpl(DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
+    Configuration configuration) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.configuration = configuration;
   }
 
   public void persist(DbSession dbSession) {
@@ -52,16 +62,28 @@ public class BranchPersisterImpl implements BranchPersister {
       .orElseThrow(() -> new IllegalStateException("Component has been deleted by end-user during analysis"));
 
     // insert or update in table project_branches
-    dbClient.branchDao().upsert(dbSession, toBranchDto(branchComponentDto, branch));
+    dbClient.branchDao().upsert(dbSession, toBranchDto(branchComponentDto, branch, checkIfExcludedFromPurge()));
   }
 
-  protected BranchDto toBranchDto(ComponentDto componentDto, Branch branch) {
+  private boolean checkIfExcludedFromPurge() {
+    if (analysisMetadataHolder.getBranch().isMain()) {
+      return true;
+    }
+
+    List<String> excludeFromPurgeEntries = asList(ofNullable(configuration.getStringArray(BRANCHES_TO_KEEP_WHEN_INACTIVE)).orElse(new String[0]));
+    return excludeFromPurgeEntries.stream()
+      .map(Pattern::compile)
+      .anyMatch(excludePattern -> excludePattern.matcher(analysisMetadataHolder.getBranch().getName()).matches());
+  }
+
+  protected BranchDto toBranchDto(ComponentDto componentDto, Branch branch, boolean excludeFromPurge) {
     BranchDto dto = new BranchDto();
     dto.setUuid(componentDto.uuid());
 
     // MainBranchProjectUuid will be null if it's a main branch
     dto.setProjectUuid(firstNonNull(componentDto.getMainBranchProjectUuid(), componentDto.projectUuid()));
     dto.setBranchType(branch.getType());
+    dto.setExcludeFromPurge(excludeFromPurge);
 
     // merge branch is only present if it's not a main branch and not an application
     if (!branch.isMain() && !Qualifiers.APP.equals(componentDto.qualifier())) {

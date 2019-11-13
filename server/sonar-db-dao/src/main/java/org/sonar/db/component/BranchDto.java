@@ -177,8 +177,9 @@ public class BranchDto {
     return excludeFromPurge;
   }
 
-  public void setExcludeFromPurge(boolean excludeFromPurge) {
+  public BranchDto setExcludeFromPurge(boolean excludeFromPurge) {
     this.excludeFromPurge = excludeFromPurge;
+    return this;
   }
 
   private static byte[] encodePullRequestData(DbProjectBranches.PullRequestData pullRequestData) {

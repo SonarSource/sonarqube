@@ -132,6 +132,7 @@ public class ComponentUpdater {
       .setUuid(componentUuid)
       .setKey(BranchDto.DEFAULT_MAIN_BRANCH_NAME)
       .setMergeBranchUuid(null)
+      .setExcludeFromPurge(true)
       .setProjectUuid(componentUuid);
     dbClient.branchDao().upsert(session, branch);
   }

@@ -253,6 +253,7 @@ public class ComponentDbTester {
 
   public final ComponentDto insertMainBranch(ComponentDto project) {
     BranchDto branchDto = ComponentTesting.newBranchDto(project, BRANCH);
+    branchDto.setExcludeFromPurge(true);
     insertComponent(project);
     dbClient.branchDao().insert(dbSession, branchDto);
     db.commit();

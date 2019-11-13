@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -45,6 +46,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
+import static org.sonar.core.config.PurgeConstants.BRANCHES_TO_KEEP_WHEN_INACTIVE;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
@@ -62,7 +64,9 @@ public class BranchPersisterImplTest {
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
-  private BranchPersister underTest = new BranchPersisterImpl(dbTester.getDbClient(), treeRootHolder, analysisMetadataHolder);
+  private Configuration configuration = mock(Configuration.class);
+
+  private BranchPersister underTest = new BranchPersisterImpl(dbTester.getDbClient(), treeRootHolder, analysisMetadataHolder, configuration);
 
   @Test
   public void persist_fails_with_ISE_if_no_component_for_main_branches() {
@@ -121,6 +125,53 @@ public class BranchPersisterImplTest {
     assertThat(branchDto.get().getMergeBranchUuid()).isEqualTo(mergeBranchUuid);
     assertThat(branchDto.get().getProjectUuid()).isEqualTo(MAIN.getUuid());
     assertThat(branchDto.get().getPullRequestData()).isNull();
+  }
+
+  @Test
+  public void main_branch_is_excluded_from_branch_purge_by_default() {
+    analysisMetadataHolder.setBranch(createBranch(BRANCH, true, "master"));
+    treeRootHolder.setRoot(MAIN);
+    dbTester.components().insertMainBranch(p -> p.setDbKey(MAIN.getDbKey()).setUuid(MAIN.getUuid()));
+    dbTester.commit();
+
+    underTest.persist(dbTester.getSession());
+
+    Optional<BranchDto> branchDto = dbTester.getDbClient().branchDao().selectByUuid(dbTester.getSession(), MAIN.getUuid());
+    assertThat(branchDto.get().isExcludeFromPurge()).isTrue();
+  }
+
+  @Test
+  public void non_main_branch_is_excluded_from_branch_purge_if_matches_sonar_dbcleaner_keepFromPurge_property() {
+    when(configuration.getStringArray(BRANCHES_TO_KEEP_WHEN_INACTIVE)).thenReturn(new String[] {"BRANCH.*"});
+
+    analysisMetadataHolder.setBranch(createBranch(BRANCH, false, "BRANCH_KEY"));
+    treeRootHolder.setRoot(BRANCH1);
+    ComponentDto mainComponent = dbTester.components().insertMainBranch(p -> p.setDbKey(MAIN.getDbKey()).setUuid(MAIN.getUuid()));
+    ComponentDto component = ComponentTesting.newProjectBranch(mainComponent, new BranchDto().setUuid(BRANCH1.getUuid()).setKey(BRANCH1.getKey()).setBranchType(BRANCH));
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), component);
+    dbTester.commit();
+
+    underTest.persist(dbTester.getSession());
+
+    Optional<BranchDto> branchDto = dbTester.getDbClient().branchDao().selectByUuid(dbTester.getSession(), BRANCH1.getUuid());
+    assertThat(branchDto.get().isExcludeFromPurge()).isTrue();
+  }
+
+  @Test
+  public void non_main_branch_is_included_in_branch_purge_if_branch_name_does_not_match_sonar_dbcleaner_keepFromPurge_property() {
+    when(configuration.getStringArray(BRANCHES_TO_KEEP_WHEN_INACTIVE)).thenReturn(new String[] {"foobar-.*"});
+
+    analysisMetadataHolder.setBranch(createBranch(BRANCH, false, "BRANCH_KEY"));
+    treeRootHolder.setRoot(BRANCH1);
+    ComponentDto mainComponent = dbTester.components().insertMainBranch(p -> p.setDbKey(MAIN.getDbKey()).setUuid(MAIN.getUuid()));
+    ComponentDto component = ComponentTesting.newProjectBranch(mainComponent, new BranchDto().setUuid(BRANCH1.getUuid()).setKey(BRANCH1.getKey()).setBranchType(BRANCH));
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), component);
+    dbTester.commit();
+
+    underTest.persist(dbTester.getSession());
+
+    Optional<BranchDto> branchDto = dbTester.getDbClient().branchDao().selectByUuid(dbTester.getSession(), BRANCH1.getUuid());
+    assertThat(branchDto.get().isExcludeFromPurge()).isFalse();
   }
 
   @DataProvider

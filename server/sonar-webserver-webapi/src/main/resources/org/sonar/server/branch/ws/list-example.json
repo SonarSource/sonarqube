@@ -18,7 +18,7 @@
         "qualityGateStatus": "ERROR"
       },
       "analysisDate": "2017-04-01T01:15:42+0100",
-      "excludedFromPurge": false
+      "excludedFromPurge": true
     }
   ]
 }

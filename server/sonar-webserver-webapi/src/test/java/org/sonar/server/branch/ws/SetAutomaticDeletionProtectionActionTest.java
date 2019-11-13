@@ -154,7 +154,7 @@ public class SetAutomaticDeletionProtectionActionTest {
     assertThat(db.countRowsOfTable("project_branches")).isEqualTo(2);
     Optional<BranchDto> mainBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.uuid());
     assertThat(mainBranch.get().getKey()).isEqualTo("master");
-    assertThat(mainBranch.get().isExcludeFromPurge()).isFalse();
+    assertThat(mainBranch.get().isExcludeFromPurge()).isTrue();
 
     Optional<BranchDto> branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), branch.uuid());
     assertThat(branchDto.get().getKey()).isEqualTo("branch1");
