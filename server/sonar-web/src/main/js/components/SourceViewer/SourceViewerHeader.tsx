@@ -39,7 +39,7 @@ import MeasuresOverlay from './components/MeasuresOverlay';
 
 interface Props {
   branchLike: T.BranchLike | undefined;
-  issues?: T.Issue[];
+  componentMeasures?: T.Measure[];
   openComponent: WorkspaceContextShape['openComponent'];
   showMeasures?: boolean;
   sourceViewerFile: T.SourceViewerFile;
@@ -48,6 +48,13 @@ interface Props {
 interface State {
   measuresOverlay: boolean;
 }
+
+const METRIC_KEY_FOR_ISSUE_TYPE: { [type in T.IssueType]: string } = {
+  BUG: 'bugs',
+  VULNERABILITY: 'vulnerabilities',
+  CODE_SMELL: 'code_smells',
+  SECURITY_HOTSPOT: 'security_hotspots'
+};
 
 export default class SourceViewerHeader extends React.PureComponent<Props, State> {
   state: State = { measuresOverlay: false };
@@ -68,10 +75,10 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
   };
 
   renderIssueMeasures = () => {
-    const { branchLike, issues, sourceViewerFile } = this.props;
+    const { branchLike, componentMeasures, sourceViewerFile } = this.props;
     return (
-      issues &&
-      issues.length > 0 && (
+      componentMeasures &&
+      componentMeasures.length > 0 && (
         <>
           <div className="source-viewer-header-measure-separator" />
 
@@ -83,7 +90,9 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
               types: type
             };
 
-            const total = issues.filter(issue => issue.type === type).length;
+            const measure = componentMeasures.find(
+              m => m.metric === METRIC_KEY_FOR_ISSUE_TYPE[type]
+            );
             return (
               <div className="source-viewer-header-measure" key={type}>
                 <span className="source-viewer-header-measure-label">
@@ -91,7 +100,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
                 </span>
                 <span className="source-viewer-header-measure-value">
                   <Link to={getComponentIssuesUrl(sourceViewerFile.project, params)}>
-                    {formatMeasure(total, 'INT')}
+                    {formatMeasure((measure && measure.value) || 0, 'INT')}
                   </Link>
                 </span>
               </div>

@@ -327,6 +327,7 @@ export class App extends React.PureComponent<Props, State> {
               <SourceViewerWrapper
                 branchLike={branchLike}
                 component={sourceViewer.key}
+                componentMeasures={sourceViewer.measures}
                 isFile={true}
                 location={location}
                 onGoToParent={this.handleGoToParent}

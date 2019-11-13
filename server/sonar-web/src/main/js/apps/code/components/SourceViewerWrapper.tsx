@@ -26,6 +26,7 @@ import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 interface Props {
   branchLike?: T.BranchLike;
   component: string;
+  componentMeasures: T.Measure[] | undefined;
   location: Pick<Location, 'query'>;
   onIssueChange?: (issue: T.Issue) => void;
 }
@@ -44,7 +45,7 @@ export class SourceViewerWrapper extends React.PureComponent<Props> {
   };
 
   render() {
-    const { branchLike, component, location } = this.props;
+    const { branchLike, component, componentMeasures, location } = this.props;
     const { line } = location.query;
     const finalLine = line ? Number(line) : undefined;
 
@@ -53,6 +54,7 @@ export class SourceViewerWrapper extends React.PureComponent<Props> {
         aroundLine={finalLine}
         branchLike={branchLike}
         component={component}
+        componentMeasures={componentMeasures}
         highlightedLine={finalLine}
         onIssueChange={this.props.onIssueChange}
         onLoaded={this.scrollToLine}

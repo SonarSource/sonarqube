@@ -56,6 +56,7 @@ export interface Props {
   aroundLine?: number;
   branchLike: T.BranchLike | undefined;
   component: string;
+  componentMeasures?: T.Measure[];
   displayAllIssues?: boolean;
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
@@ -664,7 +665,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
         {({ openComponent }) => (
           <SourceViewerHeader
             branchLike={this.props.branchLike}
-            issues={this.state.issues}
+            componentMeasures={this.props.componentMeasures}
             openComponent={openComponent}
             showMeasures={this.props.showMeasures}
             sourceViewerFile={sourceViewerFile}

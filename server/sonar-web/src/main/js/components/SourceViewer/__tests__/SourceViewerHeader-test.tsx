@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockIssue, mockMainBranch, mockSourceViewerFile } from '../../../helpers/testMocks';
+import { mockMainBranch, mockSourceViewerFile } from '../../../helpers/testMocks';
 import SourceViewerHeader from '../SourceViewerHeader';
 
 it('should render correctly for a regular file', () => {
@@ -36,24 +36,23 @@ it('should render correctly for a unit test', () => {
 });
 
 it('should render correctly if issue details are passed', () => {
-  const issues = [
-    mockIssue(false, { type: 'VULNERABILITY' }),
-    mockIssue(false, { type: 'VULNERABILITY' }),
-    mockIssue(false, { type: 'CODE_SMELL' }),
-    mockIssue(false, { type: 'SECURITY_HOTSPOT' }),
-    mockIssue(false, { type: 'SECURITY_HOTSPOT' })
+  const componentMeasures: T.Measure[] = [
+    { metric: 'code_smells', value: '1' },
+    { metric: 'unused_metric_to_be_ignored', value: '42' },
+    { metric: 'security_hotspots', value: '2' },
+    { metric: 'vulnerabilities', value: '2' }
   ];
 
   expect(
     shallowRender({
-      issues,
+      componentMeasures,
       showMeasures: true
     })
   ).toMatchSnapshot();
 
   expect(
     shallowRender({
-      issues,
+      componentMeasures,
       showMeasures: false
     })
       .find('.source-viewer-header-measure')
