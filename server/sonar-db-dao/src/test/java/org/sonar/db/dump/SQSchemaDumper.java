@@ -97,7 +97,7 @@ class SQSchemaDumper {
         }
 
         String cleanedSql = sql
-          .replaceAll(" PUBLIC\\.", " ")
+          .replaceAll(" \"PUBLIC\"\\.", " ")
           .replaceAll(" MEMORY TABLE ", " TABLE ");
         if (cleanedSql.startsWith("CREATE TABLE")) {
           cleanedSql = fixAutoIncrementIdColumn(cleanedSql);
@@ -121,8 +121,8 @@ class SQSchemaDumper {
    * </ul>
    */
   private String fixAutoIncrementIdColumn(String cleanedSql) {
-    String res = fixAutoIncrementIdColumn(cleanedSql, "ID INTEGER DEFAULT (NEXT VALUE FOR ", "ID INTEGER NOT NULL AUTO_INCREMENT (1,1)");
-    res = fixAutoIncrementIdColumn(res, "ID BIGINT DEFAULT (NEXT VALUE FOR ", "ID BIGINT NOT NULL AUTO_INCREMENT (1,1)");
+    String res = fixAutoIncrementIdColumn(cleanedSql, "\"ID\" INTEGER DEFAULT (NEXT VALUE FOR ", "\"ID\" INTEGER NOT NULL AUTO_INCREMENT (1,1)");
+    res = fixAutoIncrementIdColumn(res, "\"ID\" BIGINT DEFAULT (NEXT VALUE FOR ", "\"ID\" BIGINT NOT NULL AUTO_INCREMENT (1,1)");
     return res;
   }
 

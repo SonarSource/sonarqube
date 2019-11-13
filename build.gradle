@@ -189,7 +189,7 @@ subprojects {
       dependency 'com.google.code.gson:gson:2.8.5'
       dependency 'com.google.guava:guava:28.1-jre'
       dependency "com.google.protobuf:protobuf-java:${protobufVersion}"
-      dependency 'com.h2database:h2:1.3.176'
+      dependency 'com.h2database:h2:1.4.199'
       dependencySet(group: 'com.hazelcast', version: '3.12.3') {
         entry 'hazelcast'
         entry 'hazelcast-client'
