@@ -21,7 +21,7 @@ import { debounce, uniq, without } from 'lodash';
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import { toNotSoISOString } from 'sonar-ui-common/helpers/dates';
+import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getComponents, Project } from '../../api/components';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
@@ -86,7 +86,7 @@ export default class App extends React.PureComponent<Props, State> {
   requestProjects = () => {
     const { analyzedBefore } = this.state;
     const parameters = {
-      analyzedBefore: analyzedBefore && toNotSoISOString(analyzedBefore),
+      analyzedBefore: analyzedBefore && toShortNotSoISOString(analyzedBefore),
       onProvisionedOnly: this.state.provisioned || undefined,
       organization: this.props.organization.key,
       p: this.state.page !== 1 ? this.state.page : undefined,
