@@ -37,6 +37,8 @@ public class DbVersion81 implements DbVersion {
       .add(3107, "Migrate default branches to keep global setting", MigrateDefaultBranchesToKeepSetting.class)
       .add(3108, "Add EXCLUDE_FROM_PURGE column", AddExcludeBranchFromPurgeColumn.class)
       .add(3109, "Populate EXCLUDE_FROM_PURGE column", PopulateExcludeBranchFromPurgeColumn.class)
-      .add(3110, "Remove 'sonar.branch.longLivedBranches.regex'", RemoveLLBRegexSetting.class);
+      .add(3110, "Remove 'sonar.branch.longLivedBranches.regex'", RemoveLLBRegexSetting.class)
+      .add(3111, "Rename 'sonar.dbcleaner.daysBeforeDeletingInactiveShortLivingBranches' setting",
+        RenameDaysBeforeDeletingInactiveSLBSetting.class);
   }
 }

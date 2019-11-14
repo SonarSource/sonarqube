@@ -17,27 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v81;
 
-import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+@SupportsBlueGreen
+public class RenameDaysBeforeDeletingInactiveSLBSetting extends DataChange {
+  static final String TABLE = "properties";
+  static final String OLD_PROPERTY_NAME = "sonar.dbcleaner.daysBeforeDeletingInactiveShortLivingBranches";
+  static final String NEW_PROPERTY_NAME = "sonar.dbcleaner.daysBeforeDeletingInactiveBranchesAndPRs";
 
-public class DbVersion81Test {
-
-  private DbVersion underTest = new DbVersion81();
-
-  @Test
-  public void migrationNumber_starts_at_3000() {
-    verifyMinimumMigrationNumber(underTest, 3100);
+  public RenameDaysBeforeDeletingInactiveSLBSetting(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 12);
+  @Override
+  protected void execute(Context context) throws SQLException {
+    context.prepareUpsert("update " + TABLE + " set prop_key='" + NEW_PROPERTY_NAME + "' where prop_key='" + OLD_PROPERTY_NAME + "'")
+      .execute()
+      .commit();
   }
-
 }
