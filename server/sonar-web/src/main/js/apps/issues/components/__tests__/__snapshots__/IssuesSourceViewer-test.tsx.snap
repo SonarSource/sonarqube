@@ -6,6 +6,7 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
     branchLike={
       Object {
         "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
         "isMain": true,
         "name": "master",
       }
@@ -273,6 +274,7 @@ exports[`should render SourceViewer correctly 1`] = `
     branchLike={
       Object {
         "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
         "isMain": true,
         "name": "master",
       }

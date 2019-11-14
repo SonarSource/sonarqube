@@ -33,6 +33,7 @@ exports[`should render correctly 1`] = `
             branchLike={
               Object {
                 "analysisDate": "2018-01-01",
+                "excludedFromPurge": true,
                 "isMain": true,
                 "name": "master",
                 "newCodePeriod": Object {
@@ -83,6 +84,7 @@ exports[`should render correctly 1`] = `
             branchLike={
               Object {
                 "analysisDate": "2018-01-01",
+                "excludedFromPurge": true,
                 "isMain": false,
                 "name": "branch-6.7",
                 "type": "LONG",
@@ -119,6 +121,7 @@ exports[`should render correctly 1`] = `
             branchLike={
               Object {
                 "analysisDate": "2018-01-01",
+                "excludedFromPurge": true,
                 "isMain": false,
                 "mergeBranch": "master",
                 "name": "feature/foo",

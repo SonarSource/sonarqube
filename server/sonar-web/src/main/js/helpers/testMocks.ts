@@ -743,6 +743,7 @@ export function mockShortLivingBranch(
 ): T.ShortLivingBranch {
   return {
     analysisDate: '2018-01-01',
+    excludedFromPurge: true,
     isMain: false,
     name: 'feature/foo',
     mergeBranch: 'master',
@@ -826,6 +827,7 @@ export function mockLongLivingBranch(
 ): T.LongLivingBranch {
   return {
     analysisDate: '2018-01-01',
+    excludedFromPurge: true,
     isMain: false,
     name: 'branch-6.7',
     type: 'LONG',
@@ -886,6 +888,7 @@ export function mockDocumentationEntry(
 export function mockMainBranch(overrides: Partial<T.MainBranch> = {}): T.MainBranch {
   return {
     analysisDate: '2018-01-01',
+    excludedFromPurge: true,
     isMain: true,
     name: 'master',
     ...overrides

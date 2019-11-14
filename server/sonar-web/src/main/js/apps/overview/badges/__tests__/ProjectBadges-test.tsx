@@ -36,6 +36,7 @@ jest.mock('../../../../helpers/urls', () => ({
 jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
 const shortBranch: T.ShortLivingBranch = {
+  excludedFromPurge: true,
   isMain: false,
   mergeBranch: '',
   name: 'branch-6.6',

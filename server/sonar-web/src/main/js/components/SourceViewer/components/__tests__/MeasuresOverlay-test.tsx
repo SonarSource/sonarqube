@@ -151,6 +151,7 @@ const sourceViewerFile: T.SourceViewerFile = {
 
 const branchLike: T.ShortLivingBranch = {
   isMain: false,
+  excludedFromPurge: true,
   mergeBranch: 'master',
   name: 'feature',
   type: 'SHORT'

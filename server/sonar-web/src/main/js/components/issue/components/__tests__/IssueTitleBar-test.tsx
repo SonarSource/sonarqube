@@ -28,6 +28,7 @@ const issueWithLocations: T.Issue = mockIssue(true);
 it('should render the titlebar correctly', () => {
   const branch: T.ShortLivingBranch = {
     isMain: false,
+    excludedFromPurge: true,
     mergeBranch: 'master',
     name: 'feature-1.0',
     type: 'SHORT'

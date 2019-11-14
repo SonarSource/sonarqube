@@ -53,6 +53,7 @@ exports[`renders correctly 1`] = `
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
             "isMain": true,
             "name": "master",
           }
@@ -105,6 +106,7 @@ exports[`should not render the tutorial 1`] = `
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
             "isMain": true,
             "name": "master",
           }
@@ -154,6 +156,7 @@ exports[`should render another message when there are branches 1`] = `
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
             "isMain": true,
             "name": "master",
           }
@@ -168,6 +171,7 @@ exports[`should render another message when there are branches 1`] = `
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
             "isMain": true,
             "name": "master",
           }
@@ -217,6 +221,7 @@ exports[`should render another message when there are branches 2`] = `
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
             "isMain": true,
             "name": "master",
           }
@@ -231,6 +236,7 @@ exports[`should render another message when there are branches 2`] = `
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
             "isMain": true,
             "name": "master",
           }

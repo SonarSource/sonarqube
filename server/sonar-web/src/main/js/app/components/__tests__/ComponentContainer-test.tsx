@@ -79,7 +79,7 @@ jest.mock('../nav/component/ComponentNav', () => ({
 
 const Inner = () => <div />;
 
-const mainBranch: T.MainBranch = { isMain: true, name: 'master' };
+const mainBranch: T.MainBranch = mockMainBranch();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -88,7 +88,7 @@ beforeEach(() => {
 it('changes component', () => {
   const wrapper = shallowRender();
   wrapper.setState({
-    branchLikes: [{ isMain: true, name: 'master' }],
+    branchLikes: [mockMainBranch()],
     component: { qualifier: 'TRK', visibility: 'public' } as T.Component,
     loading: false
   });

@@ -27,7 +27,7 @@ import {
   mockPullRequest,
   mockShortLivingBranch
 } from '../../../../helpers/testMocks';
-import { BranchLikeRowRenderer, BranchLikeRowRendererProps } from '../BranchLikeRowRenderer';
+import { BranchLikeRow, BranchLikeRowProps } from '../BranchLikeRow';
 
 it('should render correctly for pull request', () => {
   const wrapper = shallowRender();
@@ -35,23 +35,23 @@ it('should render correctly for pull request', () => {
 });
 
 it('should render correctly for short lived branch', () => {
-  const wrapper = shallowRender({ branchLike: mockShortLivingBranch() });
+  const wrapper = shallowRender({ branchLike: mockShortLivingBranch(), displayPurgeSetting: true });
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should render correctly for long lived branch', () => {
-  const wrapper = shallowRender({ branchLike: mockLongLivingBranch() });
+  const wrapper = shallowRender({ branchLike: mockLongLivingBranch(), displayPurgeSetting: true });
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should render correctly for mai branch', () => {
-  const wrapper = shallowRender({ branchLike: mockMainBranch() });
+it('should render correctly for main branch', () => {
+  const wrapper = shallowRender({ branchLike: mockMainBranch(), displayPurgeSetting: true });
   expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props?: Partial<BranchLikeRowRendererProps>) {
+function shallowRender(props?: Partial<BranchLikeRowProps>) {
   return shallow(
-    <BranchLikeRowRenderer
+    <BranchLikeRow
       branchLike={mockPullRequest()}
       component={mockComponent()}
       onDelete={jest.fn()}

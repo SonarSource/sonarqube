@@ -32,34 +32,39 @@ exports[`should render all tabs correctly 1`] = `
       ]
     }
   />
-  <Memo(BranchLikeTableRenderer)
+  <Memo(BranchLikeTable)
     branchLikes={
       Array [
         Object {
           "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
           "isMain": true,
           "name": "master",
         },
         Object {
           "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
           "isMain": false,
           "name": "llb-1",
           "type": "LONG",
         },
         Object {
           "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
           "isMain": false,
           "name": "llb-2",
           "type": "LONG",
         },
         Object {
           "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
           "isMain": false,
           "name": "llb-3",
           "type": "LONG",
         },
         Object {
           "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
           "isMain": false,
           "mergeBranch": "master",
           "name": "slb-1",
@@ -67,6 +72,7 @@ exports[`should render all tabs correctly 1`] = `
         },
         Object {
           "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
           "isMain": false,
           "mergeBranch": "llb-1",
           "name": "slb-2",
@@ -97,9 +103,10 @@ exports[`should render all tabs correctly 1`] = `
         "tags": Array [],
       }
     }
+    displayPurgeSetting={true}
     onDelete={[Function]}
     onRename={[Function]}
-    tableTitle="project_branch_pull_request.table.branch"
+    title="project_branch_pull_request.table.branch"
   />
 </Fragment>
 `;
@@ -136,7 +143,7 @@ exports[`should render all tabs correctly 2`] = `
       ]
     }
   />
-  <Memo(BranchLikeTableRenderer)
+  <Memo(BranchLikeTable)
     branchLikes={
       Array [
         Object {
@@ -189,9 +196,10 @@ exports[`should render all tabs correctly 2`] = `
         "tags": Array [],
       }
     }
+    displayPurgeSetting={false}
     onDelete={[Function]}
     onRename={[Function]}
-    tableTitle="project_branch_pull_request.table.pull_request"
+    title="project_branch_pull_request.table.pull_request"
   />
 </Fragment>
 `;
@@ -241,6 +249,7 @@ exports[`should render renaming modal correctly 1`] = `
   branch={
     Object {
       "analysisDate": "2018-01-01",
+      "excludedFromPurge": true,
       "isMain": true,
       "name": "master",
     }

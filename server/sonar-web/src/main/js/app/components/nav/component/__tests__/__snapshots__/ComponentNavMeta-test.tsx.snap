@@ -102,6 +102,7 @@ exports[`#ComponentNavMeta renders status of short-living branch 1`] = `
       branchLike={
         Object {
           "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
           "isMain": false,
           "mergeBranch": "master",
           "name": "feature/foo",

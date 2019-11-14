@@ -50,6 +50,10 @@ export function isPullRequest(branchLike?: T.BranchLike): branchLike is T.PullRe
   return branchLike !== undefined && (branchLike as T.PullRequest).key !== undefined;
 }
 
+export function sortPullRequests(pullRequests: T.PullRequest[]) {
+  return orderBy(pullRequests, pr => getPullRequestDisplayName(pr));
+}
+
 export function getPullRequestDisplayName(pullRequest: T.PullRequest) {
   return `${pullRequest.key} – ${pullRequest.title}`;
 }

@@ -24,8 +24,9 @@ import { Components } from '../Components';
 const COMPONENT = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
 const PORTFOLIO = { key: 'bar', name: 'Bar', qualifier: 'VW' };
 const METRICS = { coverage: { id: '1', key: 'coverage', type: 'PERCENT', name: 'Coverage' } };
-const BRANCH = {
+const BRANCH: T.ShortLivingBranch = {
   isMain: false,
+  excludedFromPurge: true,
   name: 'feature',
   mergeBranch: 'master',
   type: 'SHORT'

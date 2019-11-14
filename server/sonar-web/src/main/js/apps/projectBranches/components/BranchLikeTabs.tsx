@@ -23,8 +23,14 @@ import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import PullRequestIcon from 'sonar-ui-common/components/icons/PullRequestIcon';
 import ShortLivingBranchIcon from 'sonar-ui-common/components/icons/ShortLivingBranchIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { isBranch, isMainBranch, isPullRequest, sortBranches } from '../../../helpers/branches';
-import BranchLikeTableRenderer from './BranchLikeTableRenderer';
+import {
+  isBranch,
+  isMainBranch,
+  isPullRequest,
+  sortBranches,
+  sortPullRequests
+} from '../../../helpers/branches';
+import BranchLikeTable from './BranchLikeTable';
 import DeleteBranchModal from './DeleteBranchModal';
 import RenameBranchModal from './RenameBranchModal';
 
@@ -92,27 +98,27 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
     const { branchLikes, component } = this.props;
     const { currentTab, deleting, renaming } = this.state;
 
-    let tableTitle = '';
-    let branchLikesToDisplay: T.BranchLike[] = [];
-
-    if (currentTab === Tabs.Branch) {
-      tableTitle = translate('project_branch_pull_request.table.branch');
-      branchLikesToDisplay = sortBranches(branchLikes.filter(isBranch));
-    } else if (currentTab === Tabs.PullRequest) {
-      tableTitle = translate('project_branch_pull_request.table.pull_request');
-      branchLikesToDisplay = branchLikes.filter(isPullRequest);
-    }
+    const isBranchMode = currentTab === Tabs.Branch;
+    const branchLikesToDisplay: T.BranchLike[] = isBranchMode
+      ? sortBranches(branchLikes.filter(isBranch))
+      : sortPullRequests(branchLikes.filter(isPullRequest));
+    const title = translate(
+      isBranchMode
+        ? 'project_branch_pull_request.table.branch'
+        : 'project_branch_pull_request.table.pull_request'
+    );
 
     return (
       <>
         <BoxedTabs onSelect={this.onTabSelect} selected={currentTab} tabs={TABS} />
 
-        <BranchLikeTableRenderer
+        <BranchLikeTable
           branchLikes={branchLikesToDisplay}
           component={component}
+          displayPurgeSetting={isBranchMode}
           onDelete={this.onDeleteBranchLike}
           onRename={this.onRenameBranchLike}
-          tableTitle={tableTitle}
+          title={title}
         />
 
         {deleting && (

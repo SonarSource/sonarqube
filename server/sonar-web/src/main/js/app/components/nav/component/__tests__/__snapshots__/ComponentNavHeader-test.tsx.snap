@@ -37,6 +37,7 @@ exports[`should render correctly 1`] = `
       currentBranchLike={
         Object {
           "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
           "isMain": false,
           "mergeBranch": "master",
           "name": "slb-1",
@@ -49,6 +50,7 @@ exports[`should render correctly 1`] = `
         Array [
           Object {
             "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
             "isMain": false,
             "mergeBranch": "master",
             "name": "slb-1",
@@ -56,12 +58,14 @@ exports[`should render correctly 1`] = `
           },
           Object {
             "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
             "isMain": false,
             "name": "llb-1",
             "type": "LONG",
           },
           Object {
             "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
             "isMain": true,
             "name": "master",
           },
@@ -75,6 +79,7 @@ exports[`should render correctly 1`] = `
           },
           Object {
             "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
             "isMain": false,
             "mergeBranch": "llb-1",
             "name": "slb-2",
@@ -90,12 +95,14 @@ exports[`should render correctly 1`] = `
           },
           Object {
             "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
             "isMain": false,
             "name": "llb-3",
             "type": "LONG",
           },
           Object {
             "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
             "isMain": false,
             "name": "llb-2",
             "type": "LONG",
@@ -137,6 +144,7 @@ exports[`should render correctly 1`] = `
       currentBranchLike={
         Object {
           "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
           "isMain": false,
           "mergeBranch": "master",
           "name": "slb-1",
@@ -148,6 +156,7 @@ exports[`should render correctly 1`] = `
       currentBranchLike={
         Object {
           "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
           "isMain": false,
           "mergeBranch": "master",
           "name": "slb-1",

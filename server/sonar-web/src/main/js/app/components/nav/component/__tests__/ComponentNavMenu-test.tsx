@@ -19,9 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockMainBranch } from '../../../../../helpers/testMocks';
 import { ComponentNavMenu } from '../ComponentNavMenu';
 
-const mainBranch: T.MainBranch = { isMain: true, name: 'master' };
+const mainBranch: T.MainBranch = mockMainBranch();
 
 const baseComponent = {
   breadcrumbs: [],
@@ -97,6 +98,7 @@ it('should render correctly for security extensions', () => {
 it('should work for short-living branches', () => {
   const branch: T.ShortLivingBranch = {
     isMain: false,
+    excludedFromPurge: true,
     mergeBranch: 'master',
     name: 'feature',
     type: 'SHORT'
@@ -118,7 +120,12 @@ it('should work for short-living branches', () => {
 });
 
 it('should work for long-living branches', () => {
-  const branch: T.LongLivingBranch = { isMain: false, name: 'release', type: 'LONG' };
+  const branch: T.LongLivingBranch = {
+    excludedFromPurge: true,
+    isMain: false,
+    name: 'release',
+    type: 'LONG'
+  };
   [true, false].forEach(showSettings =>
     expect(
       shallow(

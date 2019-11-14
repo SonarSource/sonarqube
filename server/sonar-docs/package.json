@@ -21,7 +21,7 @@
     "react-dom": "16.8.6",
     "react-helmet": "5.2.0",
     "react-typography": "0.16.19",
-    "sonar-ui-common": "0.0.36",
+    "sonar-ui-common": "0.0.40",
     "typography": "0.16.19"
   },
   "devDependencies": {

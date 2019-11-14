@@ -42,3 +42,11 @@ export function deletePullRequest(data: { project: string; pullRequest: string }
 export function renameBranch(project: string, name: string) {
   return post('/api/project_branches/rename', { project, name }).catch(throwGlobalError);
 }
+
+export function excludeBranchFromPurge(projectKey: string, branchName: string, excluded: boolean) {
+  return post('/api/project_branches/set_automatic_deletion_protection', {
+    project: projectKey,
+    branch: branchName,
+    value: excluded
+  }).catch(throwGlobalError);
+}

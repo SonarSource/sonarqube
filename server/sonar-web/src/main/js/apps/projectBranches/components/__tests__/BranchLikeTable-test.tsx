@@ -22,11 +22,16 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockSetOfBranchAndPullRequest } from '../../../../helpers/mocks/branch-pull-request';
 import { mockComponent } from '../../../../helpers/testMocks';
-import { BranchLikeRowRenderer } from '../BranchLikeRowRenderer';
-import { BranchLikeTableRenderer, BranchLikeTableRendererProps } from '../BranchLikeTableRenderer';
+import { BranchLikeRow } from '../BranchLikeRow';
+import { BranchLikeTable, BranchLikeTableProps } from '../BranchLikeTable';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render purge setting correctly', () => {
+  const wrapper = shallowRender({ displayPurgeSetting: true });
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -35,7 +40,7 @@ it('should properly propagate delete event', () => {
   const wrapper = shallowRender({ onDelete });
 
   wrapper
-    .find(BranchLikeRowRenderer)
+    .find(BranchLikeRow)
     .first()
     .props()
     .onDelete();
@@ -49,7 +54,7 @@ it('should properly propagate rename event', () => {
   const wrapper = shallowRender({ onDelete, onRename });
 
   wrapper
-    .find(BranchLikeRowRenderer)
+    .find(BranchLikeRow)
     .first()
     .props()
     .onRename();
@@ -57,14 +62,14 @@ it('should properly propagate rename event', () => {
   expect(onRename).toHaveBeenCalled();
 });
 
-function shallowRender(props?: Partial<BranchLikeTableRendererProps>) {
+function shallowRender(props?: Partial<BranchLikeTableProps>) {
   return shallow(
-    <BranchLikeTableRenderer
+    <BranchLikeTable
       branchLikes={mockSetOfBranchAndPullRequest()}
       component={mockComponent()}
       onDelete={jest.fn()}
       onRename={jest.fn()}
-      tableTitle="tableTitle"
+      title="title"
       {...props}
     />
   );

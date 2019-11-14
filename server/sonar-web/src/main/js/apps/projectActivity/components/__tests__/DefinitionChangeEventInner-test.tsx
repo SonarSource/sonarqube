@@ -43,7 +43,12 @@ it('should render', () => {
 });
 
 it('should render for a branch', () => {
-  const branch: T.LongLivingBranch = { name: 'feature-x', isMain: false, type: 'LONG' };
+  const branch: T.LongLivingBranch = {
+    excludedFromPurge: true,
+    name: 'feature-x',
+    isMain: false,
+    type: 'LONG'
+  };
   const event: DefinitionChangeEvent = {
     category: 'DEFINITION_CHANGE',
     key: 'foo1234',

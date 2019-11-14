@@ -19,10 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockMainBranch } from '../../../../helpers/testMocks';
 import AnalysesList from '../AnalysesList';
 
 it('should render show more link', () => {
-  const branchLike = { analysisDate: '2018-03-08T09:49:22+0100', isMain: true, name: 'master' };
+  const branchLike: T.MainBranch = mockMainBranch();
   const component = {
     breadcrumbs: [{ key: 'foo', name: 'foo', qualifier: 'TRK' }],
     key: 'foo',

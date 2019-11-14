@@ -23,6 +23,7 @@ declare namespace T {
 
   export interface Branch {
     analysisDate?: string;
+    excludedFromPurge: boolean;
     isMain: boolean;
     name: string;
     status?: { qualityGateStatus: Status };

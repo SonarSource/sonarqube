@@ -14,6 +14,7 @@ exports[`should render correctly for coverage 1`] = `
     branchLike={
       Object {
         "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
         "isMain": false,
         "mergeBranch": "master",
         "name": "feature/foo",
@@ -47,6 +48,7 @@ exports[`should render correctly for coverage 2`] = `
     branchLike={
       Object {
         "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
         "isMain": false,
         "mergeBranch": "master",
         "name": "feature/foo",
@@ -70,6 +72,7 @@ exports[`should render correctly for coverage 2`] = `
             branchLike={
               Object {
                 "analysisDate": "2018-01-01",
+                "excludedFromPurge": true,
                 "isMain": false,
                 "mergeBranch": "master",
                 "name": "feature/foo",
@@ -102,6 +105,7 @@ exports[`should render correctly for duplications 1`] = `
     branchLike={
       Object {
         "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
         "isMain": false,
         "mergeBranch": "master",
         "name": "feature/foo",

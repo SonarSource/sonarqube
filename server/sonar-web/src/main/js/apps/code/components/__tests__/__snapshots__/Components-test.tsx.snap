@@ -178,6 +178,7 @@ exports[`renders correctly for leak 1`] = `
     <withScrollTo(Component)
       branchLike={
         Object {
+          "excludedFromPurge": true,
           "isMain": false,
           "mergeBranch": "master",
           "name": "feature",
@@ -221,6 +222,7 @@ exports[`renders correctly for leak 1`] = `
     <withScrollTo(Component)
       branchLike={
         Object {
+          "excludedFromPurge": true,
           "isMain": false,
           "mergeBranch": "master",
           "name": "feature",

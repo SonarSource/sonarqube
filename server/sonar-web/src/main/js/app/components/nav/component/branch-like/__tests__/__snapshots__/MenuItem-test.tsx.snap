@@ -16,6 +16,7 @@ exports[`should render a main branch correctly 1`] = `
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
             "isMain": true,
             "name": "master",
           }
@@ -39,6 +40,7 @@ exports[`should render a main branch correctly 1`] = `
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
             "isMain": true,
             "name": "master",
           }

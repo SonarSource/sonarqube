@@ -23,7 +23,7 @@ import * as React from 'react';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import { mockSetOfBranchAndPullRequest } from '../../../../helpers/mocks/branch-pull-request';
 import { mockComponent, mockMainBranch, mockPullRequest } from '../../../../helpers/testMocks';
-import { BranchLikeTableRenderer } from '../BranchLikeTableRenderer';
+import { BranchLikeTable } from '../BranchLikeTable';
 import BranchLikeTabs, { Tabs } from '../BranchLikeTabs';
 import DeleteBranchModal from '../DeleteBranchModal';
 import RenameBranchModal from '../RenameBranchModal';
@@ -46,7 +46,7 @@ it('should render deletion modal correctly', () => {
   const wrapper = shallowRender({ onBranchesChange });
 
   wrapper
-    .find(BranchLikeTableRenderer)
+    .find(BranchLikeTable)
     .props()
     .onDelete(mockPullRequest());
   expect(wrapper.state().deleting).toBeDefined();
@@ -60,7 +60,7 @@ it('should render deletion modal correctly', () => {
   expect(wrapper.find(DeleteBranchModal).exists()).toBeFalsy();
 
   wrapper
-    .find(BranchLikeTableRenderer)
+    .find(BranchLikeTable)
     .props()
     .onDelete(mockPullRequest());
   wrapper
@@ -77,7 +77,7 @@ it('should render renaming modal correctly', () => {
   const wrapper = shallowRender({ onBranchesChange });
 
   wrapper
-    .find(BranchLikeTableRenderer)
+    .find(BranchLikeTable)
     .props()
     .onRename(mockMainBranch());
   expect(wrapper.state().renaming).toBeDefined();
@@ -91,7 +91,7 @@ it('should render renaming modal correctly', () => {
   expect(wrapper.find(RenameBranchModal).exists()).toBeFalsy();
 
   wrapper
-    .find(BranchLikeTableRenderer)
+    .find(BranchLikeTable)
     .props()
     .onRename(mockMainBranch());
   wrapper
@@ -107,7 +107,7 @@ it('should NOT render renaming modal for non-main branch', () => {
   const wrapper = shallowRender();
 
   wrapper
-    .find(BranchLikeTableRenderer)
+    .find(BranchLikeTable)
     .props()
     .onRename(mockPullRequest());
   expect(wrapper.state().renaming).toBeDefined();

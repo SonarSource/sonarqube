@@ -26,35 +26,50 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import BranchStatus from '../../../components/common/BranchStatus';
 import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import { getBranchLikeDisplayName, isMainBranch, isPullRequest } from '../../../helpers/branches';
+import {
+  getBranchLikeDisplayName,
+  isBranch,
+  isMainBranch,
+  isPullRequest
+} from '../../../helpers/branches';
+import BranchPurgeSetting from './BranchPurgeSetting';
 
-export interface BranchLikeRowRendererProps {
+export interface BranchLikeRowProps {
   branchLike: T.BranchLike;
   component: T.Component;
+  displayPurgeSetting?: boolean;
   onDelete: () => void;
   onRename: () => void;
 }
 
-export function BranchLikeRowRenderer(props: BranchLikeRowRendererProps) {
-  const { branchLike, component, onDelete, onRename } = props;
+export function BranchLikeRow(props: BranchLikeRowProps) {
+  const { branchLike, component, displayPurgeSetting, onDelete, onRename } = props;
+  const branchLikeDisplayName = getBranchLikeDisplayName(branchLike);
 
   return (
     <tr>
-      <td>
+      <td className="nowrap hide-overflow">
         <BranchLikeIcon branchLike={branchLike} className="little-spacer-right" />
-        {getBranchLikeDisplayName(branchLike)}
-        {isMainBranch(branchLike) && (
-          <div className="badge spacer-left">{translate('branches.main_branch')}</div>
-        )}
+        <span title={branchLikeDisplayName}>{branchLikeDisplayName}</span>
+        <span>
+          {isMainBranch(branchLike) && (
+            <div className="badge spacer-left">{translate('branches.main_branch')}</div>
+          )}
+        </span>
       </td>
-      <td className="thin nowrap">
+      <td className="nowrap">
         <BranchStatus branchLike={branchLike} component={component.key} />
       </td>
-      <td className="thin nowrap text-right big-spacer-left">
+      <td className="nowrap">
         {branchLike.analysisDate && <DateFromNow date={branchLike.analysisDate} />}
       </td>
-      <td className="thin nowrap text-right">
-        <ActionsDropdown className="big-spacer-left">
+      {displayPurgeSetting && isBranch(branchLike) && (
+        <td className="nowrap">
+          <BranchPurgeSetting branch={branchLike} component={component} />
+        </td>
+      )}
+      <td className="nowrap">
+        <ActionsDropdown>
           {isMainBranch(branchLike) ? (
             <ActionsDropdownItem className="js-rename" onClick={onRename}>
               {translate('project_branch_pull_request.branch.rename')}
@@ -74,4 +89,4 @@ export function BranchLikeRowRenderer(props: BranchLikeRowRendererProps) {
   );
 }
 
-export default React.memo(BranchLikeRowRenderer);
+export default React.memo(BranchLikeRow);

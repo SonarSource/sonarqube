@@ -19,39 +19,63 @@
  */
 
 import * as React from 'react';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBranchLikeKey } from '../../../helpers/branches';
-import BranchLikeRowRenderer from './BranchLikeRowRenderer';
+import BranchLikeRow from './BranchLikeRow';
 
-export interface BranchLikeTableRendererProps {
-  component: T.Component;
-  tableTitle: string;
+export interface BranchLikeTableProps {
   branchLikes: T.BranchLike[];
+  component: T.Component;
+  displayPurgeSetting?: boolean;
   onDelete: (branchLike: T.BranchLike) => void;
   onRename: (branchLike: T.BranchLike) => void;
+  title: string;
 }
 
-export function BranchLikeTableRenderer(props: BranchLikeTableRendererProps) {
-  const { branchLikes, component, onDelete, onRename, tableTitle } = props;
+export function BranchLikeTable(props: BranchLikeTableProps) {
+  const { branchLikes, component, displayPurgeSetting, onDelete, onRename, title } = props;
 
   return (
     <div className="boxed-group boxed-group-inner">
-      <table className="data zebra zebra-hover">
+      <table className="data zebra zebra-hover fixed">
         <thead>
           <tr>
-            <th>{tableTitle}</th>
-            <th className="thin nowrap">{translate('status')}</th>
-            <th className="thin nowrap text-right big-spacer-left">
+            <th className="nowrap">{title}</th>
+            <th className="nowrap" style={{ width: '80px' }}>
+              {translate('status')}
+            </th>
+            <th className="nowrap" style={{ width: '140px' }}>
               {translate('project_branch_pull_request.last_analysis_date')}
             </th>
-            <th className="thin nowrap text-right">{translate('actions')}</th>
+            {displayPurgeSetting && (
+              <th className="nowrap" style={{ width: '150px' }}>
+                <div className="display-flex-center">
+                  <span>
+                    {translate(
+                      'project_branch_pull_request.branch.auto_deletion.keep_when_inactive'
+                    )}
+                  </span>
+                  <HelpTooltip
+                    className="little-spacer-left"
+                    overlay={translate(
+                      'project_branch_pull_request.branch.auto_deletion.keep_when_inactive.tooltip'
+                    )}
+                  />
+                </div>
+              </th>
+            )}
+            <th className="nowrap" style={{ width: '50px' }}>
+              {translate('actions')}
+            </th>
           </tr>
         </thead>
         <tbody>
           {branchLikes.map(branchLike => (
-            <BranchLikeRowRenderer
+            <BranchLikeRow
               branchLike={branchLike}
               component={component}
+              displayPurgeSetting={displayPurgeSetting}
               key={getBranchLikeKey(branchLike)}
               onDelete={() => onDelete(branchLike)}
               onRename={() => onRename(branchLike)}
@@ -63,4 +87,4 @@ export function BranchLikeTableRenderer(props: BranchLikeTableRendererProps) {
   );
 }
 
-export default React.memo(BranchLikeTableRenderer);
+export default React.memo(BranchLikeTable);

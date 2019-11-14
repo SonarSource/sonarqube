@@ -45,6 +45,7 @@ exports[`render code 1`] = `
     branchLike={
       Object {
         "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
         "isMain": false,
         "mergeBranch": "master",
         "name": "feature/foo",

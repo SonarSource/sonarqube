@@ -88,6 +88,7 @@ it('should toggle popup', async () => {
   expect(wrapper.find('BranchBaselineSettingModal')).toHaveLength(0);
   expect(wrapper.state().branches.find(b => b.name === 'master')).toEqual({
     analysisDate: '2018-01-01',
+    excludedFromPurge: true,
     isMain: true,
     name: 'master',
     newCodePeriod: {

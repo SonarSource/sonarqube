@@ -22,7 +22,7 @@ import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { change, click, doAsync, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { renameBranch } from '../../../../api/branches';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent, mockMainBranch } from '../../../../helpers/testMocks';
 import RenameBranchModal from '../RenameBranchModal';
 
 jest.mock('../../../../api/branches', () => ({ renameBranch: jest.fn() }));
@@ -77,7 +77,7 @@ it('stops loading on WS error', async () => {
 });
 
 function shallowRender(onRename: () => void = jest.fn(), onClose: () => void = jest.fn()) {
-  const branch: T.MainBranch = { isMain: true, name: 'master' };
+  const branch = mockMainBranch();
   const wrapper = shallow<RenameBranchModal>(
     <RenameBranchModal
       branch={branch}
