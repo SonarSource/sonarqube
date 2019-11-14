@@ -46,12 +46,7 @@ import { receiveValues } from './values';
 export function fetchSettings(component?: string) {
   return (dispatch: Dispatch) => {
     return getDefinitions(component).then(definitions => {
-      const filtered = definitions
-        .filter(definition => definition.type !== 'LICENSE')
-        // do not display this setting on project level
-        .filter(
-          definition => !component || definition.key !== 'sonar.branch.longLivedBranches.regex'
-        );
+      const filtered = definitions.filter(definition => definition.type !== 'LICENSE');
       dispatch(receiveDefinitions(filtered));
     });
   };

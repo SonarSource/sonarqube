@@ -181,11 +181,6 @@ public interface CoreProperties {
    */
   String PROJECT_DATE_PROPERTY = "sonar.projectDate";
 
-  /**
-   * @since 6.6
-   */
-  String LONG_LIVED_BRANCHES_REGEX = "sonar.branch.longLivedBranches.regex";
-
   /* Exclusions */
   String PROJECT_INCLUSIONS_PROPERTY = "sonar.inclusions";
   String PROJECT_EXCLUSIONS_PROPERTY = "sonar.exclusions";

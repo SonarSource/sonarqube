@@ -17,27 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import Modal from 'sonar-ui-common/components/controls/Modal';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import SettingForm from './SettingForm';
+package org.sonar.server.platform.db.migration.version.v81;
 
-interface Props {
-  onChange: () => void;
-  onClose: () => void;
-  project: string;
-  setting: T.SettingValue;
-}
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-export default function LongBranchesPatternForm(props: Props) {
-  const header = translate('branches.detection_of_long_living_branches');
+@SupportsBlueGreen
+public class RemoveLLBRegexSetting extends DataChange {
 
-  return (
-    <Modal contentLabel={header} onRequestClose={props.onClose}>
-      <header className="modal-head">
-        <h2>{header}</h2>
-      </header>
-      <SettingForm {...props} />
-    </Modal>
-  );
+  public RemoveLLBRegexSetting(Database db) {
+    super(db);
+  }
+
+  @Override
+  protected void execute(Context context) throws SQLException {
+    context.prepareUpsert("delete from properties where prop_key='sonar.branch.longLivedBranches.regex'")
+      .execute()
+      .commit();
+  }
 }

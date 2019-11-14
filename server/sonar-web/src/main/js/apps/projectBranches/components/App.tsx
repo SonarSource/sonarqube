@@ -31,7 +31,6 @@ import {
   sortBranchesAsTree
 } from '../../../helpers/branches';
 import BranchRow from './BranchRow';
-import LongBranchesPattern from './LongBranchesPattern';
 
 interface Props {
   branchLikes: T.BranchLike[];
@@ -126,7 +125,6 @@ export default class App extends React.PureComponent<Props, State> {
       <div className="page page-limited">
         <header className="page-header">
           <h1 className="page-title">{translate('project_branches.page')}</h1>
-          <LongBranchesPattern project={component.key} />
           <p className="page-description">{translate('project_branches.page.description')}</p>
           {this.renderBranchLifeTime()}
         </header>

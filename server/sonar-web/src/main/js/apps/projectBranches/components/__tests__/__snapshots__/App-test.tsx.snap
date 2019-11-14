@@ -12,9 +12,6 @@ exports[`renders sorted list of branches 1`] = `
     >
       project_branches.page
     </h1>
-    <LongBranchesPattern
-      project="foo"
-    />
     <p
       className="page-description"
     >
