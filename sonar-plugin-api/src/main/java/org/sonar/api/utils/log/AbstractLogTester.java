@@ -21,7 +21,7 @@ package org.sonar.api.utils.log;
 
 import java.util.List;
 
-class AbstractLogTester {
+class AbstractLogTester<G extends AbstractLogTester> {
 
   protected void before() {
     // this shared instance breaks compatibility with parallel execution of tests
@@ -42,9 +42,9 @@ class AbstractLogTester {
    * Enable/disable debug logs. Info, warn and error logs are always enabled.
    * By default INFO logs are enabled when LogTester is started.
    */
-  public AbstractLogTester setLevel(LoggerLevel level) {
+  public G setLevel(LoggerLevel level) {
     Loggers.getFactory().setLevel(level);
-    return this;
+    return (G) this;
   }
 
   /**
@@ -77,8 +77,8 @@ class AbstractLogTester {
     return ((ListInterceptor) LogInterceptors.get()).getLogs(level);
   }
 
-  public AbstractLogTester clear() {
+  public G clear() {
     ((ListInterceptor) LogInterceptors.get()).clear();
-    return this;
+    return (G) this;
   }
 }

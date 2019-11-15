@@ -56,7 +56,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  *
  * @since 8.1
  */
-public class LogTesterJUnit5 extends AbstractLogTester implements BeforeTestExecutionCallback, AfterTestExecutionCallback {
+public class LogTesterJUnit5 extends AbstractLogTester<LogTesterJUnit5> implements BeforeTestExecutionCallback, AfterTestExecutionCallback {
 
   @Override
   public void beforeTestExecution(ExtensionContext context) throws Exception {

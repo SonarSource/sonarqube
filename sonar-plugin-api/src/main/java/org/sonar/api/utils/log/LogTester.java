@@ -56,7 +56,7 @@ import org.junit.runners.model.Statement;
  *
  * @since 5.1
  */
-public class LogTester extends AbstractLogTester implements TestRule {
+public class LogTester extends AbstractLogTester<LogTester> implements TestRule {
   public Statement apply(Statement base, Description description) {
     return statement(base);
   }
