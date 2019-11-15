@@ -25,6 +25,8 @@ dependencies {
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'javax.servlet:javax.servlet-api'
   compileOnly 'junit:junit'
+  // Used by LogTesterJUnit5
+  compileOnly 'org.junit.jupiter:junit-jupiter-api'
   compileOnly 'org.slf4j:slf4j-api'
 
   testCompile 'com.google.guava:guava'

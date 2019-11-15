@@ -19,14 +19,14 @@
  */
 package org.sonar.api.utils.log;
 
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
+import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
  * <b>For tests only</b>
  * <br>
- * This JUnit rule allows to configure and access logs in tests. By default
+ * This JUnit 5 extension allows to configure and access logs in tests. By default
  * trace level is enabled.
  * <br>
  * Warning - not compatible with parallel execution of tests in the same JVM fork.
@@ -41,11 +41,11 @@ import org.junit.runners.model.Statement;
  *   }
  * }
  *
- * public class MyTest {
- *   &#064;org.junit.Rule
- *   public LogTester logTester = new LogTester();
+ * class MyClassTests {
+ *   &#064;org.junit.jupiter.api.extension.RegisterExtension
+ *   LogTesterJUnit5 logTester = new LogTesterJUnit5();
  *
- *   &#064;org.junit.Test
+ *   &#064;org.junit.jupiter.api.Test
  *   public void test_log() {
  *     new MyClass().doSomething();
  *
@@ -54,24 +54,17 @@ import org.junit.runners.model.Statement;
  * }
  * </pre>
  *
- * @since 5.1
+ * @since 8.1
  */
-public class LogTester extends AbstractLogTester implements TestRule {
-  public Statement apply(Statement base, Description description) {
-    return statement(base);
+public class LogTesterJUnit5 extends AbstractLogTester implements BeforeTestExecutionCallback, AfterTestExecutionCallback {
+
+  @Override
+  public void beforeTestExecution(ExtensionContext context) throws Exception {
+    before();
   }
 
-  private Statement statement(final Statement base) {
-    return new Statement() {
-      @Override
-      public void evaluate() throws Throwable {
-        before();
-        try {
-          base.evaluate();
-        } finally {
-          after();
-        }
-      }
-    };
+  @Override
+  public void afterTestExecution(ExtensionContext context) throws Exception {
+    after();
   }
 }
