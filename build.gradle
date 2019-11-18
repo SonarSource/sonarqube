@@ -33,23 +33,6 @@ if (project.hasProperty('time-tracker')) {
   }
 }
 
-ext {
-  slangVersion = '1.5.0.315'
-  dotnetVersion = '7.17.0.9346'
-
-  // Analyze SonarQube with SonarQube!
-  versionInSources = version
-}
-
-apply plugin: 'org.sonarqube'
-sonarqube {
-  properties {
-    property 'sonar.projectName', projectTitle
-    property 'sonar.projectVersion', versionInSources
-    property 'sonar.buildString', version
-  }
-}
-
 
 if (!JavaVersion.current().java11Compatible) {
   throw new GradleException("JDK 11+ is required to perform this build. It's currently " + System.getProperty("java.home") + ".")
@@ -59,12 +42,15 @@ allprojects {
   apply plugin: 'com.jfrog.artifactory'
   apply plugin: 'maven-publish'
 
+  ext.versionInSources = version
   ext.buildNumber = System.getProperty("buildNumber")
-  ext.versionWithoutBuildNumber = version
-  // Replaces the version defined in sources, usually x.y-SNAPSHOT, by a version identifying the build.
-  if (version.endsWith('-SNAPSHOT') && ext.buildNumber != null) {
-    def versionSuffix = (version.toString().count('.') == 1 ? ".0.${ext.buildNumber}" : ".${ext.buildNumber}")
-    version = version.replace('-SNAPSHOT', versionSuffix)
+  // when no buildNumber is provided, then project version must end with '-SNAPSHOT'
+  if (ext.buildNumber == null) {
+      version = "${version}-SNAPSHOT".toString()
+      ext.versionWithoutBuildNumber = version
+  } else {
+      ext.versionWithoutBuildNumber = version
+      version = (version.toString().count('.') == 1 ? "${version}.0.${ext.buildNumber}" : "${version}.${ext.buildNumber}").toString()
   }
 
   ext {
@@ -88,6 +74,20 @@ allprojects {
       }
     }
   }
+}
+
+ext {
+    slangVersion = '1.5.0.315'
+    dotnetVersion = '7.17.0.9346'
+}
+
+apply plugin: 'org.sonarqube'
+sonarqube {
+    properties {
+        property 'sonar.projectName', projectTitle
+        property 'sonar.projectVersion', "${versionInSources}-SNAPSHOT"
+        property 'sonar.buildString', version
+    }
 }
 
 subprojects {
