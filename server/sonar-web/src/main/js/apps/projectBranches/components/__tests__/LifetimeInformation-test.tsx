@@ -22,7 +22,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getValues } from '../../../../api/settings';
-import { BRANCH_PULL_REQUEST_LIFETIME_SETTING, LifetimeInformation } from '../LifetimeInformation';
+import { SettingsKey } from '../../../../types/settings';
+import { LifetimeInformation } from '../LifetimeInformation';
 
 jest.mock('../../../../api/settings', () => ({
   getValues: jest.fn().mockResolvedValue([{ value: '45' }])
@@ -34,7 +35,9 @@ it('should render correctly', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(getValues).toHaveBeenCalledWith({ keys: BRANCH_PULL_REQUEST_LIFETIME_SETTING });
+  expect(getValues).toHaveBeenCalledWith({
+    keys: SettingsKey.DaysBeforeDeletingInactiveBranchesAndPRs
+  });
   expect(wrapper).toMatchSnapshot('after_fetching_data');
 });
 

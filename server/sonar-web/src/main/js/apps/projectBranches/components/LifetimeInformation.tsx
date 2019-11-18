@@ -22,6 +22,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { getValues } from '../../../api/settings';
 import { getAppState, Store } from '../../../store/rootReducer';
+import { SettingsKey } from '../../../types/settings';
 import LifetimeInformationRenderer from './LifetimeInformationRenderer';
 
 interface Props {
@@ -32,9 +33,6 @@ interface State {
   branchAndPullRequestLifeTimeInDays?: string;
   loading: boolean;
 }
-
-export const BRANCH_PULL_REQUEST_LIFETIME_SETTING =
-  'sonar.dbcleaner.daysBeforeDeletingInactiveShortLivingBranches';
 
 export class LifetimeInformation extends React.PureComponent<Props, State> {
   mounted = false;
@@ -50,7 +48,7 @@ export class LifetimeInformation extends React.PureComponent<Props, State> {
   }
 
   fetchBranchAndPullRequestLifetimeSetting() {
-    getValues({ keys: BRANCH_PULL_REQUEST_LIFETIME_SETTING }).then(
+    getValues({ keys: SettingsKey.DaysBeforeDeletingInactiveBranchesAndPRs }).then(
       settings => {
         if (this.mounted) {
           this.setState({
