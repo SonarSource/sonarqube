@@ -43,7 +43,7 @@ message Metadata {
 
   string branch_name = 9;
   BranchType branch_type = 10;
-  string merge_branch_name = 11;
+  string reference_branch_name = 11;
 
   string relative_path_from_scm_root = 12;
   string scm_revision_id = 13;
@@ -71,7 +71,7 @@ message Metadata {
   enum BranchType {
     UNSET = 0;
     BRANCH = 1;
-    PULL_REQUEST = 3;
+    PULL_REQUEST = 2;
   }
 }
 

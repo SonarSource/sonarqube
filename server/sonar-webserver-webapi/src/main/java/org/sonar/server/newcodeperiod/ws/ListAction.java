@@ -66,7 +66,7 @@ public class ListAction implements NewCodePeriodsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("list")
-      .setDescription("List the New Code Periods for all long lived branches in a project.<br>" +
+      .setDescription("List the New Code Periods for all branches in a project.<br>" +
         "Requires the permission to browse the project")
       .setSince("8.0")
       .setResponseExample(getClass().getResource("list-example.json"))

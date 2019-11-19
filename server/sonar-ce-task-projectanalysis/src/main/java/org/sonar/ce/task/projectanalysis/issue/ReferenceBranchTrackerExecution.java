@@ -26,17 +26,17 @@ import org.sonar.core.issue.tracking.Tracking;
 
 public class ReferenceBranchTrackerExecution {
   private final TrackerRawInputFactory rawInputFactory;
-  private final TrackerMergeOrTargetBranchInputFactory mergeInputFactory;
+  private final TrackerReferenceBranchInputFactory referenceBranchInputFactory;
   private final Tracker<DefaultIssue, DefaultIssue> tracker;
 
-  public ReferenceBranchTrackerExecution(TrackerRawInputFactory rawInputFactory, TrackerMergeOrTargetBranchInputFactory mergeInputFactory,
+  public ReferenceBranchTrackerExecution(TrackerRawInputFactory rawInputFactory, TrackerReferenceBranchInputFactory referenceBranchInputFactory,
     Tracker<DefaultIssue, DefaultIssue> tracker) {
     this.rawInputFactory = rawInputFactory;
-    this.mergeInputFactory = mergeInputFactory;
+    this.referenceBranchInputFactory = referenceBranchInputFactory;
     this.tracker = tracker;
   }
 
   public Tracking<DefaultIssue, DefaultIssue> track(Component component) {
-    return tracker.trackNonClosed(rawInputFactory.create(component), mergeInputFactory.createForMergeBranch(component));
+    return tracker.trackNonClosed(rawInputFactory.create(component), referenceBranchInputFactory.create(component));
   }
 }

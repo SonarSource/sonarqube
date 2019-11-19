@@ -236,7 +236,7 @@ public class MetadataPublisherTest {
     ScannerReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getBranchName()).isEqualTo(branchName);
     assertThat(metadata.getBranchType()).isEqualTo(ScannerReport.Metadata.BranchType.BRANCH);
-    assertThat(metadata.getMergeBranchName()).isEmpty();
+    assertThat(metadata.getReferenceBranchName()).isEmpty();
     assertThat(metadata.getTargetBranchName()).isEqualTo(targetName);
   }
 

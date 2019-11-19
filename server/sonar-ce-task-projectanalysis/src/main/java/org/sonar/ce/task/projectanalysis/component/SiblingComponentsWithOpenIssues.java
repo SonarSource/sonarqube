@@ -53,14 +53,13 @@ public class SiblingComponentsWithOpenIssues {
     String referenceBranchUuid;
 
     if (metadataHolder.isPullRequest()) {
-      referenceBranchUuid = metadataHolder.getBranch().getMergeBranchUuid();
+      referenceBranchUuid = metadataHolder.getBranch().getReferenceBranchUuid();
     } else {
       referenceBranchUuid = currentBranchUuid;
     }
 
     uuidsByKey = new HashMap<>();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      // for the time being it still tries to load from short living branches
       List<KeyWithUuidDto> components = dbClient.componentDao().selectAllSiblingComponentKeysHavingOpenIssues(dbSession, referenceBranchUuid, currentBranchUuid);
       for (KeyWithUuidDto dto : components) {
         uuidsByKey.computeIfAbsent(removeBranchAndPullRequestFromKey(dto.key()), s -> new HashSet<>()).add(dto.uuid());

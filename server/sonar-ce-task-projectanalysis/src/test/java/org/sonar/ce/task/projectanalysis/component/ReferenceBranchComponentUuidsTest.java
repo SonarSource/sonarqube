@@ -35,14 +35,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
-public class MergeAndTargetBranchComponentUuidsTest {
+public class ReferenceBranchComponentUuidsTest {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
   @Rule
   public DbTester db = DbTester.create();
 
-  private MergeAndTargetBranchComponentUuids underTest;
+  private ReferenceBranchComponentUuids underTest;
   private Branch branch = mock(Branch.class);
 
   private ComponentDto branch1;
@@ -57,7 +57,7 @@ public class MergeAndTargetBranchComponentUuidsTest {
 
   @Before
   public void setUp() {
-    underTest = new MergeAndTargetBranchComponentUuids(analysisMetadataHolder, db.getDbClient());
+    underTest = new ReferenceBranchComponentUuids(analysisMetadataHolder, db.getDbClient());
     project = mock(Project.class);
     analysisMetadataHolder.setProject(project);
     analysisMetadataHolder.setBranch(branch);
@@ -76,71 +76,39 @@ public class MergeAndTargetBranchComponentUuidsTest {
   }
 
   @Test
-  public void should_support_db_key_when_looking_for_merge_component() {
-    when(branch.getMergeBranchUuid()).thenReturn(branch1.uuid());
+  public void should_support_db_key_when_looking_for_reference_component() {
+    when(branch.getReferenceBranchUuid()).thenReturn(branch1.uuid());
     when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     when(branch.getTargetBranchName()).thenReturn("notAnalyzedBranch");
     db.components().insertSnapshot(newAnalysis(branch1));
-    assertThat(underTest.getMergeBranchComponentUuid(pr1File.getDbKey())).isEqualTo(branch1File.uuid());
-    assertThat(underTest.getTargetBranchComponentUuid(pr1File.getDbKey())).isNull();
-    assertThat(underTest.hasMergeBranchAnalysis()).isTrue();
-    assertThat(underTest.hasTargetBranchAnalysis()).isFalse();
-    assertThat(underTest.areTargetAndMergeBranchesDifferent()).isTrue();
-    assertThat(underTest.getMergeBranchName()).isEqualTo("branch1");
+    assertThat(underTest.getComponentUuid(pr1File.getDbKey())).isEqualTo(branch1File.uuid());
+    assertThat(underTest.hasReferenceBranchAnalysis()).isTrue();
+    assertThat(underTest.getReferenceBranchName()).isEqualTo("branch1");
   }
 
   @Test
-  public void should_support_db_key_when_looking_for_target_component() {
-    when(branch.getMergeBranchUuid()).thenReturn(branch1.uuid());
-    when(branch.getTargetBranchName()).thenReturn("branch2");
-    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
-    db.components().insertSnapshot(newAnalysis(branch1));
-    db.components().insertSnapshot(newAnalysis(branch2));
-    assertThat(underTest.getMergeBranchComponentUuid(pr1File.getDbKey())).isEqualTo(branch1File.uuid());
-    assertThat(underTest.getTargetBranchComponentUuid(pr1File.getDbKey())).isEqualTo(branch2File.uuid());
-    assertThat(underTest.hasMergeBranchAnalysis()).isTrue();
-    assertThat(underTest.hasTargetBranchAnalysis()).isTrue();
-    assertThat(underTest.areTargetAndMergeBranchesDifferent()).isTrue();
-  }
-
-  @Test
-  public void should_support_key_when_looking_for_merge_component() {
-    when(branch.getMergeBranchUuid()).thenReturn(branch1.uuid());
+  public void should_support_key_when_looking_for_reference_component() {
+    when(branch.getReferenceBranchUuid()).thenReturn(branch1.uuid());
     when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     when(branch.getTargetBranchName()).thenReturn("notAnalyzedBranch");
     db.components().insertSnapshot(newAnalysis(branch1));
-    assertThat(underTest.getMergeBranchComponentUuid(pr1File.getKey())).isEqualTo(branch1File.uuid());
+    assertThat(underTest.getComponentUuid(pr1File.getKey())).isEqualTo(branch1File.uuid());
   }
 
   @Test
   public void return_null_if_file_doesnt_exist() {
-    when(branch.getMergeBranchUuid()).thenReturn(branch1.uuid());
+    when(branch.getReferenceBranchUuid()).thenReturn(branch1.uuid());
     when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     when(branch.getTargetBranchName()).thenReturn("notAnalyzedBranch");
     db.components().insertSnapshot(newAnalysis(branch1));
-    assertThat(underTest.getMergeBranchComponentUuid("doesnt exist")).isNull();
+    assertThat(underTest.getComponentUuid("doesnt exist")).isNull();
   }
 
   @Test
-  public void skip_init_if_no_merge_branch_analysis() {
-    when(branch.getMergeBranchUuid()).thenReturn(branch1.uuid());
+  public void skip_init_if_no_reference_branch_analysis() {
+    when(branch.getReferenceBranchUuid()).thenReturn(branch1.uuid());
     when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     when(branch.getTargetBranchName()).thenReturn("notAnalyzedBranch");
-    assertThat(underTest.getMergeBranchComponentUuid(pr1File.getDbKey())).isNull();
-  }
-
-  @Test
-  public void should_skip_target_components_init_on_branches() {
-    when(branch.getMergeBranchUuid()).thenReturn(branch1.uuid());
-    when(branch.getType()).thenReturn(BranchType.BRANCH);
-    when(branch.getTargetBranchName()).thenThrow(new IllegalStateException("Unsupported on branches"));
-    db.components().insertSnapshot(newAnalysis(branch1));
-
-    assertThat(underTest.getMergeBranchComponentUuid(branch2File.getDbKey())).isEqualTo(branch1File.uuid());
-    assertThat(underTest.getTargetBranchComponentUuid(branch2File.getDbKey())).isNull();
-    assertThat(underTest.hasMergeBranchAnalysis()).isTrue();
-    assertThat(underTest.hasTargetBranchAnalysis()).isFalse();
-    assertThat(underTest.areTargetAndMergeBranchesDifferent()).isTrue();
-    assertThat(underTest.getMergeBranchName()).isEqualTo("branch1");
+    assertThat(underTest.getComponentUuid(pr1File.getDbKey())).isNull();
   }
 }

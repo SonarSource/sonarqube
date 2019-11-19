@@ -348,7 +348,7 @@ public class ComponentDao implements Dao {
   }
 
   /**
-   * Returns components with open issues from branches that use a certain long living branch as reference (merge branch).
+   * Returns components with open issues from P/Rs that use a certain branch as reference (reference branch).
    * Excludes components from the current branch.
    */
   public List<KeyWithUuidDto> selectAllSiblingComponentKeysHavingOpenIssues(DbSession dbSession, String referenceBranchUuid, String currentBranchUuid) {

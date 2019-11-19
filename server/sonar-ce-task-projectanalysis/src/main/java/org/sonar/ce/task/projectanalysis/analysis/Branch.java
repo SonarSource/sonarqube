@@ -36,11 +36,11 @@ public interface Branch extends ComponentKeyGenerator {
   String getName();
 
   /**
-   * Indicates the first LLB branch from which it was forked.
+   * Indicates the UUID of the branch used as reference
    *
    * @throws IllegalStateException for main branches or legacy branches.
    */
-  String getMergeBranchUuid();
+  String getReferenceBranchUuid();
 
   /**
    * Whether the cross-project duplication tracker can be enabled

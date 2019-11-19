@@ -75,7 +75,7 @@ public class MarketplaceAction implements NavigationWsAction {
         .setOnlyPrivateProjects(false)
         .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
         .build();
-      return dbClient.liveMeasureDao().sumNclocOfBiggestLongLivingBranch(dbSession, query);
+      return dbClient.liveMeasureDao().sumNclocOfBiggestBranch(dbSession, query);
     }
   }
 }

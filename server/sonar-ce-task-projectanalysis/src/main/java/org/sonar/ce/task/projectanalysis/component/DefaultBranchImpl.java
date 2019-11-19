@@ -50,7 +50,7 @@ public class DefaultBranchImpl implements Branch {
   }
 
   @Override
-  public String getMergeBranchUuid() {
+  public String getReferenceBranchUuid() {
     throw new IllegalStateException("Not valid for the main branch");
   }
 

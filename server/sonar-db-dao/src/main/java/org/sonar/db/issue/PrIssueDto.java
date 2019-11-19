@@ -72,7 +72,7 @@ public final class PrIssueDto implements Serializable {
   }
 
   /**
-   * Branch name for SLB, PR key for PR
+   * Branch name for BRANCH, PR key for PR
    */
   public String getBranchKey() {
     return branchKey;

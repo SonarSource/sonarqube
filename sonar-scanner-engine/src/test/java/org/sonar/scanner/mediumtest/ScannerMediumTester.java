@@ -383,7 +383,7 @@ public class ScannerMediumTester extends ExternalResource {
     private BranchType branchType = BranchType.BRANCH;
     private String branchName = null;
     private String branchTarget = null;
-    private String longLivingSonarReferenceBranch = null;
+    private String referenceBranchName = null;
 
     @Override
     public BranchType branchType() {
@@ -405,7 +405,7 @@ public class ScannerMediumTester extends ExternalResource {
     @CheckForNull
     @Override
     public String referenceBranchName() {
-      return longLivingSonarReferenceBranch;
+      return referenceBranchName;
     }
 
     @Override
@@ -462,8 +462,8 @@ public class ScannerMediumTester extends ExternalResource {
     return this;
   }
 
-  public ScannerMediumTester setLongLivingSonarReferenceBranch(String longLivingSonarReferenceBranch) {
-    this.branchConfiguration.longLivingSonarReferenceBranch = longLivingSonarReferenceBranch;
+  public ScannerMediumTester setReferenceBranchName(String referenceBranchNam) {
+    this.branchConfiguration.referenceBranchName = referenceBranchNam;
     return this;
   }
 

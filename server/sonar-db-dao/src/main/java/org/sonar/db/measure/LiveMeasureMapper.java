@@ -52,7 +52,7 @@ public interface LiveMeasureMapper {
     @Param("baseUuidPath") String baseUuidPath,
     ResultHandler<LiveMeasureDto> resultHandler);
 
-  Long sumNclocOfBiggestLongLivingBranch(
+  Long sumNclocOfBiggestBranch(
     @Param("ncloc") String nclocKey,
     @Param("branch") KeyType branchOrPullRequest,
     @Param("branchType") BranchType branchType,

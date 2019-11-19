@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.component;
 
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -49,133 +48,111 @@ public class SiblingComponentsWithOpenIssuesTest {
 
   private SiblingComponentsWithOpenIssues underTest;
 
-  private ComponentDto long1;
-  private ComponentDto fileWithNoIssuesOnLong1;
-  private ComponentDto fileWithOneOpenIssueOnLong1Short1;
-  private ComponentDto fileWithOneResolvedIssueOnLong1Short1;
-  private ComponentDto fileWithOneOpenTwoResolvedIssuesOnLong1Short1;
-  private ComponentDto fileXWithOneResolvedIssueOnLong1Short1;
-  private ComponentDto fileXWithOneResolvedIssueOnLong1Short2;
+  private ComponentDto branch1;
+  private ComponentDto fileWithNoIssuesOnBranch1;
+  private ComponentDto fileWithOneOpenIssueOnBranch1Pr1;
+  private ComponentDto fileWithOneResolvedIssueOnBranch1Pr1;
+  private ComponentDto fileWithOneOpenTwoResolvedIssuesOnBranch1Pr1;
+  private ComponentDto fileXWithOneResolvedIssueOnBranch1Pr1;
+  private ComponentDto fileXWithOneResolvedIssueOnBranch1Pr2;
 
-  private ComponentDto long2;
-  private ComponentDto fileWithOneOpenIssueOnLong2Short1;
-  private ComponentDto fileWithOneResolvedIssueOnLong2Short1;
-  private ComponentDto long1short1;
+  private ComponentDto branch2;
+  private ComponentDto fileWithOneOpenIssueOnBranch2Pr1;
+  private ComponentDto fileWithOneResolvedIssueOnBranch2Pr1;
+  private ComponentDto branch1pr1;
 
   @Before
   public void setUp() {
     ComponentDto project = db.components().insertMainBranch();
 
-    long1 = db.components().insertProjectBranch(project, b -> b.setKey("long1"), b -> b.setBranchType(BranchType.BRANCH));
-    long1short1 = db.components().insertProjectBranch(project,
-      b -> b.setKey("long1short1"),
-      b -> b.setBranchType(BranchType.SHORT),
-      b -> b.setMergeBranchUuid(long1.uuid()));
-    ComponentDto long1short2 = db.components().insertProjectBranch(project,
-      b -> b.setKey("long1short2"),
-      b -> b.setBranchType(BranchType.SHORT),
-      b -> b.setMergeBranchUuid(long1.uuid()));
+    branch1 = db.components().insertProjectBranch(project, b -> b.setKey("branch1"), b -> b.setBranchType(BranchType.BRANCH));
+    branch1pr1 = db.components().insertProjectBranch(project,
+      b -> b.setKey("branch1pr1"),
+      b -> b.setBranchType(BranchType.PULL_REQUEST),
+      b -> b.setMergeBranchUuid(branch1.uuid()));
+    ComponentDto branch1pr2 = db.components().insertProjectBranch(project,
+      b -> b.setKey("branch1pr2"),
+      b -> b.setBranchType(BranchType.PULL_REQUEST),
+      b -> b.setMergeBranchUuid(branch1.uuid()));
 
-    fileWithNoIssuesOnLong1 = db.components().insertComponent(ComponentTesting.newFileDto(long1, null));
+    fileWithNoIssuesOnBranch1 = db.components().insertComponent(ComponentTesting.newFileDto(branch1, null));
 
     RuleDefinitionDto rule = db.rules().insert();
 
-    fileWithOneOpenIssueOnLong1Short1 = db.components().insertComponent(ComponentTesting.newFileDto(long1short1, null));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, long1short1, fileWithOneOpenIssueOnLong1Short1));
+    fileWithOneOpenIssueOnBranch1Pr1 = db.components().insertComponent(ComponentTesting.newFileDto(branch1pr1, null));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1pr1, fileWithOneOpenIssueOnBranch1Pr1));
 
-    fileWithOneResolvedIssueOnLong1Short1 = db.components().insertComponent(ComponentTesting.newFileDto(long1short1, null));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, long1short1, fileWithOneResolvedIssueOnLong1Short1).setStatus("RESOLVED"));
+    fileWithOneResolvedIssueOnBranch1Pr1 = db.components().insertComponent(ComponentTesting.newFileDto(branch1pr1, null));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1pr1, fileWithOneResolvedIssueOnBranch1Pr1).setStatus("RESOLVED"));
 
-    fileWithOneOpenTwoResolvedIssuesOnLong1Short1 = db.components().insertComponent(ComponentTesting.newFileDto(long1short1, null));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, long1short1, fileWithOneOpenTwoResolvedIssuesOnLong1Short1));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, long1short1, fileWithOneOpenTwoResolvedIssuesOnLong1Short1).setStatus("RESOLVED"));
+    fileWithOneOpenTwoResolvedIssuesOnBranch1Pr1 = db.components().insertComponent(ComponentTesting.newFileDto(branch1pr1, null));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1pr1, fileWithOneOpenTwoResolvedIssuesOnBranch1Pr1));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1pr1, fileWithOneOpenTwoResolvedIssuesOnBranch1Pr1).setStatus("RESOLVED"));
 
     String fileKey = "file-x";
-    fileXWithOneResolvedIssueOnLong1Short1 = db.components().insertComponent(ComponentTesting.newFileDto(long1short1, null)
-      .setDbKey(fileKey + ":BRANCH:long1short1"));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, long1short1, fileXWithOneResolvedIssueOnLong1Short1).setStatus("RESOLVED"));
-    fileXWithOneResolvedIssueOnLong1Short2 = db.components().insertComponent(ComponentTesting.newFileDto(long1short2, null)
-      .setDbKey(fileKey + ":BRANCH:long1short2"));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, long1short2, fileXWithOneResolvedIssueOnLong1Short2).setStatus("RESOLVED"));
+    fileXWithOneResolvedIssueOnBranch1Pr1 = db.components().insertComponent(ComponentTesting.newFileDto(branch1pr1, null)
+      .setDbKey(fileKey + ":BRANCH:branch1pr1"));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1pr1, fileXWithOneResolvedIssueOnBranch1Pr1).setStatus("RESOLVED"));
+    fileXWithOneResolvedIssueOnBranch1Pr2 = db.components().insertComponent(ComponentTesting.newFileDto(branch1pr2, null)
+      .setDbKey(fileKey + ":BRANCH:branch1pr2"));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1pr2, fileXWithOneResolvedIssueOnBranch1Pr2).setStatus("RESOLVED"));
 
-    long2 = db.components().insertProjectBranch(project, b -> b.setKey("long2"), b -> b.setBranchType(BranchType.BRANCH));
-    ComponentDto long2short1 = db.components().insertProjectBranch(project,
-      b -> b.setKey("long2short1"),
-      b -> b.setBranchType(BranchType.SHORT),
-      b -> b.setMergeBranchUuid(long2.uuid()));
+    branch2 = db.components().insertProjectBranch(project, b -> b.setKey("branch2"), b -> b.setBranchType(BranchType.BRANCH));
+    ComponentDto branch2pr1 = db.components().insertProjectBranch(project,
+      b -> b.setKey("branch2pr1"),
+      b -> b.setBranchType(BranchType.PULL_REQUEST),
+      b -> b.setMergeBranchUuid(branch2.uuid()));
 
-    fileWithOneOpenIssueOnLong2Short1 = db.components().insertComponent(ComponentTesting.newFileDto(long2short1, null));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, long2short1, fileWithOneOpenIssueOnLong2Short1));
+    fileWithOneOpenIssueOnBranch2Pr1 = db.components().insertComponent(ComponentTesting.newFileDto(branch2pr1, null));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch2pr1, fileWithOneOpenIssueOnBranch2Pr1));
 
-    fileWithOneResolvedIssueOnLong2Short1 = db.components().insertComponent(ComponentTesting.newFileDto(long2short1, null));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, long2short1, fileWithOneResolvedIssueOnLong2Short1).setStatus("RESOLVED"));
+    fileWithOneResolvedIssueOnBranch2Pr1 = db.components().insertComponent(ComponentTesting.newFileDto(branch2pr1, null));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch2pr1, fileWithOneResolvedIssueOnBranch2Pr1).setStatus("RESOLVED"));
 
-    setRoot(long1);
+    setRoot(branch1);
     underTest = new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, db.getDbClient());
   }
 
   @Test
-  public void should_find_sibling_components_with_open_issues_for_long1() {
-    setRoot(long1);
+  public void should_find_sibling_components_with_open_issues_for_branch1() {
+    setRoot(branch1);
     setBranch(BranchType.BRANCH);
 
-    assertThat(underTest.getUuids(fileWithNoIssuesOnLong1.getKey())).isEmpty();
-    assertThat(underTest.getUuids(fileWithOneOpenIssueOnLong1Short1.getKey())).containsOnly(fileWithOneOpenIssueOnLong1Short1.uuid());
-    assertThat(underTest.getUuids(fileWithOneResolvedIssueOnLong1Short1.getKey())).containsOnly(fileWithOneResolvedIssueOnLong1Short1.uuid());
-    assertThat(underTest.getUuids(fileWithOneOpenTwoResolvedIssuesOnLong1Short1.getKey())).containsOnly(fileWithOneOpenTwoResolvedIssuesOnLong1Short1.uuid());
+    assertThat(underTest.getUuids(fileWithNoIssuesOnBranch1.getKey())).isEmpty();
+    assertThat(underTest.getUuids(fileWithOneOpenIssueOnBranch1Pr1.getKey())).containsOnly(fileWithOneOpenIssueOnBranch1Pr1.uuid());
+    assertThat(underTest.getUuids(fileWithOneResolvedIssueOnBranch1Pr1.getKey())).containsOnly(fileWithOneResolvedIssueOnBranch1Pr1.uuid());
+    assertThat(underTest.getUuids(fileWithOneOpenTwoResolvedIssuesOnBranch1Pr1.getKey())).containsOnly(fileWithOneOpenTwoResolvedIssuesOnBranch1Pr1.uuid());
 
-    assertThat(fileXWithOneResolvedIssueOnLong1Short1.getKey()).isEqualTo(fileXWithOneResolvedIssueOnLong1Short2.getKey());
-    assertThat(underTest.getUuids(fileXWithOneResolvedIssueOnLong1Short1.getKey())).containsOnly(
-      fileXWithOneResolvedIssueOnLong1Short1.uuid(),
-      fileXWithOneResolvedIssueOnLong1Short2.uuid());
+    assertThat(fileXWithOneResolvedIssueOnBranch1Pr1.getKey()).isEqualTo(fileXWithOneResolvedIssueOnBranch1Pr2.getKey());
+    assertThat(underTest.getUuids(fileXWithOneResolvedIssueOnBranch1Pr1.getKey())).containsOnly(
+      fileXWithOneResolvedIssueOnBranch1Pr1.uuid(),
+      fileXWithOneResolvedIssueOnBranch1Pr2.uuid());
   }
 
   @Test
-  @Ignore
-  public void should_find_sibling_components_with_open_issues_for_short1() {
-    // TODO fix this test class
-    setRoot(long1short1);
-    setBranch(BranchType.SHORT, long1.uuid());
+  public void should_find_sibling_components_with_open_issues_for_pr1() {
+    setRoot(branch1pr1);
+    setBranch(BranchType.PULL_REQUEST, branch1.uuid());
 
-    assertThat(underTest.getUuids(fileWithNoIssuesOnLong1.getKey())).isEmpty();
-    assertThat(underTest.getUuids(fileWithOneOpenIssueOnLong1Short1.getKey())).isEmpty();
-    assertThat(underTest.getUuids(fileWithOneResolvedIssueOnLong1Short1.getKey())).isEmpty();
-    assertThat(underTest.getUuids(fileWithOneOpenTwoResolvedIssuesOnLong1Short1.getKey())).isEmpty();
+    assertThat(underTest.getUuids(fileWithNoIssuesOnBranch1.getKey())).isEmpty();
+    assertThat(underTest.getUuids(fileWithOneOpenIssueOnBranch1Pr1.getKey())).isEmpty();
+    assertThat(underTest.getUuids(fileWithOneResolvedIssueOnBranch1Pr1.getKey())).isEmpty();
+    assertThat(underTest.getUuids(fileWithOneOpenTwoResolvedIssuesOnBranch1Pr1.getKey())).isEmpty();
 
-    assertThat(underTest.getUuids(fileXWithOneResolvedIssueOnLong1Short1.getKey())).containsOnly(
-      fileXWithOneResolvedIssueOnLong1Short2.uuid());
+    assertThat(underTest.getUuids(fileXWithOneResolvedIssueOnBranch1Pr1.getKey())).containsOnly(
+      fileXWithOneResolvedIssueOnBranch1Pr2.uuid());
   }
 
   @Test
-  public void should_find_sibling_components_with_open_issues_for_long2() {
-    setRoot(long2);
+  public void should_find_sibling_components_with_open_issues_for_branch2() {
+    setRoot(branch2);
     setBranch(BranchType.BRANCH);
 
     underTest = new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, db.getDbClient());
 
-    assertThat(underTest.getUuids(fileWithOneResolvedIssueOnLong1Short1.getKey())).isEmpty();
-    assertThat(underTest.getUuids(fileWithOneResolvedIssueOnLong2Short1.getKey())).containsOnly(fileWithOneResolvedIssueOnLong2Short1.uuid());
-    assertThat(underTest.getUuids(fileWithOneOpenIssueOnLong2Short1.getKey())).containsOnly(fileWithOneOpenIssueOnLong2Short1.uuid());
-  }
-
-  @Test
-  public void should_find_sibling_components_with_open_issues_from_short() {
-    ComponentDto project = db.components().insertMainBranch();
-    setRoot(project);
-    setBranch(BranchType.BRANCH);
-
-    ComponentDto branch = db.components().insertProjectBranch(project,
-      b -> b.setBranchType(BranchType.SHORT),
-      b -> b.setMergeBranchUuid(project.uuid()));
-
-    RuleDefinitionDto rule = db.rules().insert();
-
-    ComponentDto fileWithResolvedIssueOnShort = db.components().insertComponent(ComponentTesting.newFileDto(branch, null));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, branch, fileWithResolvedIssueOnShort).setStatus("RESOLVED"));
-
-    underTest = new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, db.getDbClient());
-
-    assertThat(underTest.getUuids(fileWithResolvedIssueOnShort.getKey())).hasSize(1);
+    assertThat(underTest.getUuids(fileWithOneResolvedIssueOnBranch1Pr1.getKey())).isEmpty();
+    assertThat(underTest.getUuids(fileWithOneResolvedIssueOnBranch2Pr1.getKey())).containsOnly(fileWithOneResolvedIssueOnBranch2Pr1.uuid());
+    assertThat(underTest.getUuids(fileWithOneOpenIssueOnBranch2Pr1.getKey())).containsOnly(fileWithOneOpenIssueOnBranch2Pr1.uuid());
   }
 
   @Test
@@ -199,23 +176,23 @@ public class SiblingComponentsWithOpenIssuesTest {
   }
 
   @Test
-  public void should_not_find_sibling_components_on_derived_long() {
+  public void should_not_find_sibling_components_on_derived_branch() {
     ComponentDto project = db.components().insertMainBranch();
     setRoot(project);
     setBranch(BranchType.BRANCH);
 
-    ComponentDto derivedLongBranch = db.components().insertProjectBranch(project,
+    ComponentDto derivedBranch = db.components().insertProjectBranch(project,
       b -> b.setBranchType(BranchType.BRANCH),
       b -> b.setMergeBranchUuid(project.uuid()));
 
     RuleDefinitionDto rule = db.rules().insert();
 
-    ComponentDto fileWithResolvedIssueOnDerivedLongBranch = db.components().insertComponent(ComponentTesting.newFileDto(derivedLongBranch, null));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, derivedLongBranch, fileWithResolvedIssueOnDerivedLongBranch).setStatus("RESOLVED"));
+    ComponentDto fileWithResolvedIssueOnDerivedBranch = db.components().insertComponent(ComponentTesting.newFileDto(derivedBranch, null));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, derivedBranch, fileWithResolvedIssueOnDerivedBranch).setStatus("RESOLVED"));
 
     underTest = new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, db.getDbClient());
 
-    assertThat(underTest.getUuids(fileWithResolvedIssueOnDerivedLongBranch.getKey())).isEmpty();
+    assertThat(underTest.getUuids(fileWithResolvedIssueOnDerivedBranch.getKey())).isEmpty();
   }
 
   private void setRoot(ComponentDto componentDto) {
@@ -231,7 +208,7 @@ public class SiblingComponentsWithOpenIssuesTest {
   private void setBranch(BranchType currentBranchType, @Nullable String mergeBranchUuid) {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(currentBranchType);
-    when(branch.getMergeBranchUuid()).thenReturn(mergeBranchUuid);
+    when(branch.getReferenceBranchUuid()).thenReturn(mergeBranchUuid);
     metadataHolder.setBranch(branch);
   }
 }

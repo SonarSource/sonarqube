@@ -277,9 +277,9 @@ public class LiveMeasureDaoTest {
     ComponentDto simpleProject = db.components().insertMainBranch(organization);
     db.measures().insertLiveMeasure(simpleProject, ncloc, m -> m.setValue(10d));
 
-    ComponentDto projectWithBiggerLongLivingBranch = db.components().insertMainBranch(organization);
-    ComponentDto bigBranch = db.components().insertProjectBranch(projectWithBiggerLongLivingBranch, b -> b.setBranchType(BranchType.BRANCH));
-    db.measures().insertLiveMeasure(projectWithBiggerLongLivingBranch, ncloc, m -> m.setValue(100d));
+    ComponentDto projectWithBiggerBranch = db.components().insertMainBranch(organization);
+    ComponentDto bigBranch = db.components().insertProjectBranch(projectWithBiggerBranch, b -> b.setBranchType(BranchType.BRANCH));
+    db.measures().insertLiveMeasure(projectWithBiggerBranch, ncloc, m -> m.setValue(100d));
     db.measures().insertLiveMeasure(bigBranch, ncloc, m -> m.setValue(200d));
 
     ComponentDto projectWithLinesButNoLoc = db.components().insertMainBranch(organization);
@@ -290,7 +290,7 @@ public class LiveMeasureDaoTest {
       .setOnlyPrivateProjects(false)
       .setOrganizationUuid(organization.getUuid())
       .build();
-    long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession(), query);
+    long result = underTest.sumNclocOfBiggestBranch(db.getSession(), query);
 
     assertThat(result).isEqualTo(10L + 200L);
   }
@@ -303,7 +303,7 @@ public class LiveMeasureDaoTest {
       .setOnlyPrivateProjects(false)
       .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .build();
-    long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession(), query);
+    long result = underTest.sumNclocOfBiggestBranch(db.getSession(), query);
 
     assertThat(result).isEqualTo(0L);
   }
@@ -316,9 +316,9 @@ public class LiveMeasureDaoTest {
     ComponentDto simpleProject = db.components().insertMainBranch(organization);
     db.measures().insertLiveMeasure(simpleProject, ncloc, m -> m.setValue(10d));
 
-    ComponentDto projectWithBiggerLongLivingBranch = db.components().insertMainBranch(organization);
-    ComponentDto bigBranch = db.components().insertProjectBranch(projectWithBiggerLongLivingBranch, b -> b.setBranchType(BranchType.BRANCH));
-    db.measures().insertLiveMeasure(projectWithBiggerLongLivingBranch, ncloc, m -> m.setValue(100d));
+    ComponentDto projectWithBiggerBranch = db.components().insertMainBranch(organization);
+    ComponentDto bigBranch = db.components().insertProjectBranch(projectWithBiggerBranch, b -> b.setBranchType(BranchType.BRANCH));
+    db.measures().insertLiveMeasure(projectWithBiggerBranch, ncloc, m -> m.setValue(100d));
     db.measures().insertLiveMeasure(bigBranch, ncloc, m -> m.setValue(200d));
 
     ComponentDto projectToExclude = db.components().insertMainBranch(organization);
@@ -331,7 +331,7 @@ public class LiveMeasureDaoTest {
       .setProjectUuidToExclude(projectToExclude.uuid())
       .setOnlyPrivateProjects(false)
       .build();
-    long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession(), query);
+    long result = underTest.sumNclocOfBiggestBranch(db.getSession(), query);
 
     assertThat(result).isEqualTo(10L + 200L);
   }

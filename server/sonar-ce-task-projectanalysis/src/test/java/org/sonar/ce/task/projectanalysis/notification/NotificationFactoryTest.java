@@ -537,7 +537,7 @@ public class NotificationFactoryTest {
 
   @Test
   @UseDataProvider("noBranchNameBranches")
-  public void newIssuesChangesNotification_creates_project_from_TreeRootHolder_and_branch_name_only_on_long_non_main_branches(Branch branch) {
+  public void newIssuesChangesNotification_creates_project_from_TreeRootHolder_and_branch_name_only_on_non_main_branches(Branch branch) {
     RuleKey ruleKey = RuleKey.of("foo", "bar");
     DefaultIssue issue = new DefaultIssue()
       .setRuleKey(ruleKey)
@@ -592,7 +592,7 @@ public class NotificationFactoryTest {
     ruleRepository.add(ruleKey);
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(new Random().nextLong());
-    analysisMetadata.setBranch(newBranch(BranchType.BRANCH, branchName));
+    analysisMetadata.setBranch(newNonMainBranch(BranchType.BRANCH, branchName));
     IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
     when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
 
@@ -622,7 +622,7 @@ public class NotificationFactoryTest {
     ruleRepository.add(ruleKey);
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(new Random().nextLong());
-    analysisMetadata.setBranch(newBranch(BranchType.BRANCH, branchName));
+    analysisMetadata.setBranch(newNonMainBranch(BranchType.BRANCH, branchName));
     IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
     when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
 
@@ -650,7 +650,7 @@ public class NotificationFactoryTest {
     ruleRepository.add(ruleKey);
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(new Random().nextLong());
-    analysisMetadata.setBranch(newBranch(BranchType.BRANCH, randomAlphabetic(12)));
+    analysisMetadata.setBranch(newNonMainBranch(BranchType.BRANCH, randomAlphabetic(12)));
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Can not find DTO for assignee uuid " + assigneeUuid);
@@ -673,7 +673,7 @@ public class NotificationFactoryTest {
     ruleRepository.add(ruleKey);
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(new Random().nextLong());
-    analysisMetadata.setBranch(newBranch(BranchType.BRANCH, randomAlphabetic(12)));
+    analysisMetadata.setBranch(newNonMainBranch(BranchType.BRANCH, randomAlphabetic(12)));
     IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
     when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
 
@@ -703,7 +703,7 @@ public class NotificationFactoryTest {
     ruleRepository.add(ruleKey);
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(analysisDate);
-    analysisMetadata.setBranch(newBranch(BranchType.BRANCH, randomAlphabetic(12)));
+    analysisMetadata.setBranch(newNonMainBranch(BranchType.BRANCH, randomAlphabetic(12)));
     IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
     when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
 
@@ -733,7 +733,7 @@ public class NotificationFactoryTest {
       .forEach(ruleKey -> ruleRepository.add(ruleKey));
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(analysisDate);
-    analysisMetadata.setBranch(newBranch(BranchType.BRANCH, randomAlphabetic(12)));
+    analysisMetadata.setBranch(newNonMainBranch(BranchType.BRANCH, randomAlphabetic(12)));
     IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
     when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
 
@@ -769,12 +769,12 @@ public class NotificationFactoryTest {
     return builderCaptor.getValue();
   }
 
-  private static Branch newBranch(BranchType branchType, String branchName) {
-    Branch longBranch = mock(Branch.class);
-    when(longBranch.isMain()).thenReturn(false);
-    when(longBranch.getType()).thenReturn(branchType);
-    when(longBranch.getName()).thenReturn(branchName);
-    return longBranch;
+  private static Branch newNonMainBranch(BranchType branchType, String branchName) {
+    Branch nonMainBranch = mock(Branch.class);
+    when(nonMainBranch.isMain()).thenReturn(false);
+    when(nonMainBranch.getType()).thenReturn(branchType);
+    when(nonMainBranch.getName()).thenReturn(branchName);
+    return nonMainBranch;
   }
 
   private static Durations readDurationsField(NewIssuesNotification notification) {

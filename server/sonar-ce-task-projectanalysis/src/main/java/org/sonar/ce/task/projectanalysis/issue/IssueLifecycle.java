@@ -97,21 +97,21 @@ public class IssueLifecycle {
     }
   }
 
-  public void copyExistingOpenIssueFromLongLivingBranch(DefaultIssue raw, DefaultIssue base, String fromLongBranchName) {
+  public void copyExistingOpenIssueFromBranch(DefaultIssue raw, DefaultIssue base, String branchName) {
     raw.setKey(Uuids.create());
     raw.setNew(false);
-    copyAttributesOfIssueFromOtherBranch(raw, base);
-    raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_LONG_BRANCH, fromLongBranchName, analysisMetadataHolder.getBranch().getName());
+    copyAttributesOfIssueFromAnotherBranch(raw, base);
+    raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_BRANCH, branchName, analysisMetadataHolder.getBranch().getName());
   }
 
-  public void mergeConfirmedOrResolvedFromShortLivingBranchOrPr(DefaultIssue raw, DefaultIssue base, KeyType branchType, String fromShortBranchNameOrPR) {
-    copyAttributesOfIssueFromOtherBranch(raw, base);
-    String from = (branchType == KeyType.PULL_REQUEST ? "#" : "") + fromShortBranchNameOrPR;
+  public void mergeConfirmedOrResolvedFromPr(DefaultIssue raw, DefaultIssue base, String pr) {
+    copyAttributesOfIssueFromAnotherBranch(raw, base);
+    String from = "#" + pr;
     String to = analysisMetadataHolder.isPullRequest() ? ("#" + analysisMetadataHolder.getPullRequestKey()) : analysisMetadataHolder.getBranch().getName();
-    raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_SHORT_BRANCH, from, to);
+    raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_BRANCH, from, to);
   }
 
-  private void copyAttributesOfIssueFromOtherBranch(DefaultIssue to, DefaultIssue from) {
+  private void copyAttributesOfIssueFromAnotherBranch(DefaultIssue to, DefaultIssue from) {
     to.setCopied(true);
     copyFields(to, from);
     if (from.manualSeverity()) {

@@ -165,7 +165,7 @@ public class PurgeDaoTest {
     when(system2.now()).thenReturn(new Date().getTime());
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertMainBranch();
-    ComponentDto longBranch = db.components().insertProjectBranch(project);
+    ComponentDto nonMainBranch = db.components().insertProjectBranch(project);
     ComponentDto recentPullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
 
     // pull request with other components and issues, updated 31 days ago
@@ -181,7 +181,7 @@ public class PurgeDaoTest {
     underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
-    assertThat(uuidsIn("projects")).containsOnly(project.uuid(), longBranch.uuid(), recentPullRequest.uuid());
+    assertThat(uuidsIn("projects")).containsOnly(project.uuid(), nonMainBranch.uuid(), recentPullRequest.uuid());
   }
 
   @Test
@@ -189,7 +189,7 @@ public class PurgeDaoTest {
     when(system2.now()).thenReturn(new Date().getTime());
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertMainBranch();
-    ComponentDto longBranch = db.components().insertProjectBranch(project);
+    ComponentDto nonMainBranch = db.components().insertProjectBranch(project);
 
     when(system2.now()).thenReturn(DateUtils.addDays(new Date(), -31).getTime());
 
@@ -208,7 +208,7 @@ public class PurgeDaoTest {
     dbSession.commit();
 
     // branch1 wasn't deleted since it was being analyzed!
-    assertThat(uuidsIn("projects")).containsOnly(project.uuid(), longBranch.uuid(), branch1.uuid());
+    assertThat(uuidsIn("projects")).containsOnly(project.uuid(), nonMainBranch.uuid(), branch1.uuid());
   }
 
   @Test

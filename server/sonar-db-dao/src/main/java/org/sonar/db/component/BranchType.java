@@ -20,16 +20,6 @@
 package org.sonar.db.component;
 
 public enum BranchType {
-
-  /**
-   * Short-lived branch
-   */
-  SHORT,
-
   BRANCH,
-
-  /**
-   * Pull request
-   */
   PULL_REQUEST
 }

@@ -34,7 +34,7 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.core.hash.SourceHashComputer;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
@@ -70,9 +70,9 @@ public class ScmInfoDbLoaderTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   private Branch branch = mock(Branch.class);
-  private MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids = mock(MergeAndTargetBranchComponentUuids.class);
+  private ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
 
-  private ScmInfoDbLoader underTest = new ScmInfoDbLoader(analysisMetadataHolder, dbTester.getDbClient(), mergeAndTargetBranchComponentUuids);
+  private ScmInfoDbLoader underTest = new ScmInfoDbLoader(analysisMetadataHolder, dbTester.getDbClient(), referenceBranchComponentUuids);
 
   @Test
   public void returns_ScmInfo_from_DB() {
@@ -90,20 +90,20 @@ public class ScmInfoDbLoaderTest {
   }
 
   @Test
-  public void read_from_merge_branch_if_no_base() {
+  public void read_from_reference_branch_if_no_base() {
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);
 
-    String mergeFileUuid = "mergeFileUuid";
+    String referenceFileUuid = "referenceFileUuid";
     String hash = computeSourceHash(1);
 
-    when(mergeAndTargetBranchComponentUuids.getMergeBranchComponentUuid(FILE.getDbKey())).thenReturn(mergeFileUuid);
-    addFileSourceInDb("henry", DATE_1, "rev-1", hash, mergeFileUuid);
+    when(referenceBranchComponentUuids.getComponentUuid(FILE.getDbKey())).thenReturn(referenceFileUuid);
+    addFileSourceInDb("henry", DATE_1, "rev-1", hash, referenceFileUuid);
 
     DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
     assertThat(scmInfo.fileHash()).isEqualTo(hash);
-    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from DB for file 'mergeFileUuid'");
+    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from DB for file 'referenceFileUuid'");
   }
 
   @Test
@@ -116,7 +116,7 @@ public class ScmInfoDbLoaderTest {
     String targetBranchFileUuid = "targetBranchFileUuid";
     String hash = computeSourceHash(1);
 
-    when(mergeAndTargetBranchComponentUuids.getMergeBranchComponentUuid(FILE.getDbKey())).thenReturn(targetBranchFileUuid);
+    when(referenceBranchComponentUuids.getComponentUuid(FILE.getDbKey())).thenReturn(targetBranchFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, targetBranchFileUuid);
 
     DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
@@ -137,7 +137,7 @@ public class ScmInfoDbLoaderTest {
   }
 
   @Test
-  public void do_not_read_from_db_on_first_analysis_if_there_is_no_merge_branch() {
+  public void do_not_read_from_db_on_first_analysis_if_there_is_no_reference_branch() {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     analysisMetadataHolder.setBaseAnalysis(null);
@@ -145,18 +145,6 @@ public class ScmInfoDbLoaderTest {
 
     assertThat(underTest.getScmInfo(FILE)).isEmpty();
     assertThat(logTester.logs(TRACE)).isEmpty();
-  }
-
-  @Test
-  public void do_not_read_from_db_on_pr_is_there_is_no_target_and_merge_branch() {
-    analysisMetadataHolder.setBaseAnalysis(null);
-    analysisMetadataHolder.setBranch(mock(Branch.class));
-
-    assertThat(underTest.getScmInfo(FILE)).isEmpty();
-    assertThat(logTester.logs(TRACE)).isEmpty();
-
-    verify(mergeAndTargetBranchComponentUuids).getMergeBranchComponentUuid(FILE.getDbKey());
-    verify(mergeAndTargetBranchComponentUuids).getTargetBranchComponentUuid(FILE.getDbKey());
   }
 
   private static List<String> generateLines(int lineCount) {

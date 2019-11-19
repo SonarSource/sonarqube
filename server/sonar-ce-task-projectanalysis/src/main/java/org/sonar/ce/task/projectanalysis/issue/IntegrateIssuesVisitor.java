@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
-import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache;
 import org.sonar.core.issue.DefaultIssue;
@@ -39,17 +39,17 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final IssueVisitors issueVisitors;
   private final IssueTrackingDelegator issueTracking;
   private final SiblingsIssueMerger issueStatusCopier;
-  private final MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids;
+  private final ReferenceBranchComponentUuids referenceBranchComponentUuids;
 
   public IntegrateIssuesVisitor(IssueCache issueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors, IssueTrackingDelegator issueTracking,
-    SiblingsIssueMerger issueStatusCopier, MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids) {
+    SiblingsIssueMerger issueStatusCopier, ReferenceBranchComponentUuids referenceBranchComponentUuids) {
     super(CrawlerDepthLimit.FILE, POST_ORDER);
     this.issueCache = issueCache;
     this.issueLifecycle = issueLifecycle;
     this.issueVisitors = issueVisitors;
     this.issueTracking = issueTracking;
     this.issueStatusCopier = issueStatusCopier;
-    this.mergeAndTargetBranchComponentUuids = mergeAndTargetBranchComponentUuids;
+    this.referenceBranchComponentUuids = referenceBranchComponentUuids;
   }
 
   @Override
@@ -87,7 +87,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     for (Map.Entry<DefaultIssue, DefaultIssue> entry : matched.entrySet()) {
       DefaultIssue raw = entry.getKey();
       DefaultIssue base = entry.getValue();
-      issueLifecycle.copyExistingOpenIssueFromLongLivingBranch(raw, base, mergeAndTargetBranchComponentUuids.getMergeBranchName());
+      issueLifecycle.copyExistingOpenIssueFromBranch(raw, base, referenceBranchComponentUuids.getReferenceBranchName());
       process(component, raw, cacheAppender);
     }
   }

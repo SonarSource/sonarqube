@@ -27,7 +27,7 @@ import java.util.Optional;
 public interface Branch {
 
   enum Type {
-    LONG, SHORT, BRANCH, PULL_REQUEST
+    BRANCH, PULL_REQUEST
   }
 
   boolean isMain();

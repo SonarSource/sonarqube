@@ -289,7 +289,7 @@ public class PostProjectAnalysisTasksExecutorTest {
       }
 
       @Override
-      public String getMergeBranchUuid() {
+      public String getReferenceBranchUuid() {
         throw new UnsupportedOperationException();
       }
 

@@ -103,13 +103,13 @@ public class BranchMediumTest {
     AnalysisResult result = getResult(tester
       .setBranchName(branchName)
       .setBranchTarget(branchTarget)
-      .setLongLivingSonarReferenceBranch(branchTarget)
+      .setReferenceBranchName(branchTarget)
       .setBranchType(BranchType.BRANCH));
 
     ScannerReport.Metadata metadata = result.getReportReader().readMetadata();
     assertThat(metadata.getBranchName()).isEqualTo(branchName);
     assertThat(metadata.getBranchType()).isEqualTo(ScannerReport.Metadata.BranchType.BRANCH);
-    assertThat(metadata.getMergeBranchName()).isEqualTo(branchTarget);
+    assertThat(metadata.getReferenceBranchName()).isEqualTo(branchTarget);
   }
 
   private AnalysisResult getResult(ScannerMediumTester tester) {

@@ -90,11 +90,11 @@ public class ValidateProjectStep implements ComputationStep {
     if (!analysisMetadataHolder.isPullRequest()) {
       return;
     }
-    String mergeBranchUuid = analysisMetadataHolder.getBranch().getMergeBranchUuid();
-    int moduleCount = dbClient.componentDao().countEnabledModulesByProjectUuid(session, mergeBranchUuid);
+    String referenceBranchUuid = analysisMetadataHolder.getBranch().getReferenceBranchUuid();
+    int moduleCount = dbClient.componentDao().countEnabledModulesByProjectUuid(session, referenceBranchUuid);
     if (moduleCount > 0) {
-      Optional<BranchDto> opt = dbClient.branchDao().selectByUuid(session, mergeBranchUuid);
-      checkState(opt.isPresent(), "Merge branch '%s' does not exist", mergeBranchUuid);
+      Optional<BranchDto> opt = dbClient.branchDao().selectByUuid(session, referenceBranchUuid);
+      checkState(opt.isPresent(), "Reference branch '%s' does not exist", referenceBranchUuid);
       throw MessageException.of(String.format(
         "Due to an upgrade, you need first to re-analyze the target branch '%s' before analyzing this pull request.", opt.get().getKey()));
     }

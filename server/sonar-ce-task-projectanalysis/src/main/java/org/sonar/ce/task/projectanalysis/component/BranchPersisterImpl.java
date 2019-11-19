@@ -87,7 +87,7 @@ public class BranchPersisterImpl implements BranchPersister {
 
     // merge branch is only present if it's not a main branch and not an application
     if (!branch.isMain() && !Qualifiers.APP.equals(componentDto.qualifier())) {
-      dto.setMergeBranchUuid(branch.getMergeBranchUuid());
+      dto.setMergeBranchUuid(branch.getReferenceBranchUuid());
     }
 
     if (branch.getType() == BranchType.PULL_REQUEST) {

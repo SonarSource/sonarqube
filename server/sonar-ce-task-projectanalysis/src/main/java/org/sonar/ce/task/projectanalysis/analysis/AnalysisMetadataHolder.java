@@ -90,7 +90,7 @@ public interface AnalysisMetadataHolder {
   boolean isCrossProjectDuplicationEnabled();
 
   /**
-   * Branch being analyzed. Can be of any type: long or short, main or not.
+   * Branch being analyzed.
    *
    * @throws IllegalStateException if branch has not been set
    */

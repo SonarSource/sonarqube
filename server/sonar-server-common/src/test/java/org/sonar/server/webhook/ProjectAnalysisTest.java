@@ -105,7 +105,7 @@ public class ProjectAnalysisTest {
     assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, null, null, qualityGate, 1L, properties));
     assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, new Analysis("foo", 1_500L, "sha1"), null, qualityGate, 1L, properties));
     assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, null, qualityGate, 1L, properties));
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, new Branch(false, "B", Branch.Type.LONG), qualityGate, 1L, properties));
+    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, new Branch(false, "B", Branch.Type.BRANCH), qualityGate, 1L, properties));
     assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, null, 1L, properties));
     EvaluatedQualityGate otherQualityGate = EvaluatedQualityGate.newBuilder()
       .setQualityGate(new QualityGate("A", "B", emptySet()))
@@ -131,7 +131,7 @@ public class ProjectAnalysisTest {
     assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(project, ceTask, new Analysis("foo", 1_500L, "sha1"), null, qualityGate, 1L, properties).hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, null, qualityGate, 1L, properties).hashCode());
     assertThat(underTest.hashCode())
-      .isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, new Branch(false, "B", Branch.Type.SHORT), qualityGate, 1L, properties).hashCode());
+      .isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, new Branch(false, "B", Branch.Type.BRANCH), qualityGate, 1L, properties).hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, null, 1L, properties).hashCode());
     EvaluatedQualityGate otherQualityGate = EvaluatedQualityGate.newBuilder()
       .setQualityGate(new QualityGate("A", "B", emptySet()))

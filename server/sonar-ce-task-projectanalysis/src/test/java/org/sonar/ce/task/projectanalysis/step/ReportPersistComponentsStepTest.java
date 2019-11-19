@@ -671,7 +671,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     }
 
     @Override
-    public String getMergeBranchUuid() {
+    public String getReferenceBranchUuid() {
       throw new UnsupportedOperationException();
     }
 

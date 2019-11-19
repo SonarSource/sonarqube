@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LazyInput;
@@ -31,60 +31,42 @@ import org.sonar.core.issue.tracking.LineHashSequence;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
-public class TrackerMergeOrTargetBranchInputFactory {
+public class TrackerReferenceBranchInputFactory {
   private static final LineHashSequence EMPTY_LINE_HASH_SEQUENCE = new LineHashSequence(Collections.emptyList());
 
   private final ComponentIssuesLoader componentIssuesLoader;
   private final DbClient dbClient;
-  private final MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids;
+  private final ReferenceBranchComponentUuids referenceBranchComponentUuids;
 
-  public TrackerMergeOrTargetBranchInputFactory(ComponentIssuesLoader componentIssuesLoader, MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids,
-    DbClient dbClient) {
+  public TrackerReferenceBranchInputFactory(ComponentIssuesLoader componentIssuesLoader, ReferenceBranchComponentUuids referenceBranchComponentUuids, DbClient dbClient) {
     this.componentIssuesLoader = componentIssuesLoader;
-    this.mergeAndTargetBranchComponentUuids = mergeAndTargetBranchComponentUuids;
+    this.referenceBranchComponentUuids = referenceBranchComponentUuids;
     this.dbClient = dbClient;
     // TODO detect file moves?
   }
 
-  public boolean hasMergeBranchAnalysis() {
-    return mergeAndTargetBranchComponentUuids.hasMergeBranchAnalysis();
+  public Input<DefaultIssue> create(Component component) {
+    String referenceBranchComponentUuid = referenceBranchComponentUuids.getComponentUuid(component.getDbKey());
+    return new ReferenceLazyInput(component.getType(), referenceBranchComponentUuid);
   }
 
-  public boolean hasTargetBranchAnalysis() {
-    return mergeAndTargetBranchComponentUuids.hasTargetBranchAnalysis();
-  }
-
-  public boolean areTargetAndMergeBranchesDifferent() {
-    return mergeAndTargetBranchComponentUuids.areTargetAndMergeBranchesDifferent();
-  }
-
-  public Input<DefaultIssue> createForMergeBranch(Component component) {
-    String mergeBranchComponentUuid = mergeAndTargetBranchComponentUuids.getMergeBranchComponentUuid(component.getDbKey());
-    return new MergeOrTargetLazyInput(component.getType(), mergeBranchComponentUuid);
-  }
-
-  public Input<DefaultIssue> createForTargetBranch(Component component) {
-    String targetBranchComponentUuid = mergeAndTargetBranchComponentUuids.getTargetBranchComponentUuid(component.getDbKey());
-    return new MergeOrTargetLazyInput(component.getType(), targetBranchComponentUuid);
-  }
-
-  private class MergeOrTargetLazyInput extends LazyInput<DefaultIssue> {
+  private class ReferenceLazyInput extends LazyInput<DefaultIssue> {
     private final Component.Type type;
-    private final String mergeOrTargetBranchComponentUuid;
+    private final String referenceBranchComponentUuid;
 
-    private MergeOrTargetLazyInput(Component.Type type, @Nullable String mergeOrTargetBranchComponentUuid) {
+    private ReferenceLazyInput(Component.Type type, @Nullable String referenceBranchComponentUuid) {
       this.type = type;
-      this.mergeOrTargetBranchComponentUuid = mergeOrTargetBranchComponentUuid;
+      this.referenceBranchComponentUuid = referenceBranchComponentUuid;
     }
 
     @Override
     protected LineHashSequence loadLineHashSequence() {
-      if (mergeOrTargetBranchComponentUuid == null || type != Component.Type.FILE) {
+      if (referenceBranchComponentUuid == null || type != Component.Type.FILE) {
         return EMPTY_LINE_HASH_SEQUENCE;
       }
 
       try (DbSession session = dbClient.openSession(false)) {
-        List<String> hashes = dbClient.fileSourceDao().selectLineHashes(session, mergeOrTargetBranchComponentUuid);
+        List<String> hashes = dbClient.fileSourceDao().selectLineHashes(session, referenceBranchComponentUuid);
         if (hashes == null || hashes.isEmpty()) {
           return EMPTY_LINE_HASH_SEQUENCE;
         }
@@ -94,10 +76,10 @@ public class TrackerMergeOrTargetBranchInputFactory {
 
     @Override
     protected List<DefaultIssue> loadIssues() {
-      if (mergeOrTargetBranchComponentUuid == null) {
+      if (referenceBranchComponentUuid == null) {
         return Collections.emptyList();
       }
-      return componentIssuesLoader.loadOpenIssuesWithChanges(mergeOrTargetBranchComponentUuid);
+      return componentIssuesLoader.loadOpenIssuesWithChanges(referenceBranchComponentUuid);
     }
   }
 

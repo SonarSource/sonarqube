@@ -25,7 +25,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDto;
@@ -35,12 +35,12 @@ public class ScmInfoDbLoader {
 
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final DbClient dbClient;
-  private final MergeAndTargetBranchComponentUuids mergeBranchComponentUuid;
+  private final ReferenceBranchComponentUuids referenceBranchComponentUuid;
 
-  public ScmInfoDbLoader(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient, MergeAndTargetBranchComponentUuids mergeBranchComponentUuid) {
+  public ScmInfoDbLoader(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient, ReferenceBranchComponentUuids referenceBranchComponentUuid) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.dbClient = dbClient;
-    this.mergeBranchComponentUuid = mergeBranchComponentUuid;
+    this.referenceBranchComponentUuid = referenceBranchComponentUuid;
   }
 
   public Optional<DbScmInfo> getScmInfo(Component file) {
@@ -67,11 +67,7 @@ public class ScmInfoDbLoader {
     // at this point, it's the first analysis of a branch with copyFromPrevious flag true or any analysis of a PR
     Branch branch = analysisMetadataHolder.getBranch();
     if (!branch.isMain()) {
-      String uuid = mergeBranchComponentUuid.getTargetBranchComponentUuid(file.getDbKey());
-      if (uuid == null) {
-        uuid = mergeBranchComponentUuid.getMergeBranchComponentUuid(file.getDbKey());
-      }
-      return Optional.ofNullable(uuid);
+      return Optional.ofNullable(referenceBranchComponentUuid.getComponentUuid(file.getDbKey()));
     }
 
     return Optional.empty();

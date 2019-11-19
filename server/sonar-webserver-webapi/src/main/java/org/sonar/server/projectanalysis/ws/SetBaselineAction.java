@@ -60,7 +60,7 @@ public class SetBaselineAction implements ProjectAnalysesWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set_baseline")
-      .setDescription("Set an analysis as the baseline of the New Code Period on a project or a long-lived branch.<br/>" +
+      .setDescription("Set an analysis as the baseline of the New Code Period on a project or a branch.<br/>" +
         "This manually set baseline.<br/>" +
         "Requires one of the following permissions:" +
         "<ul>" +

@@ -42,7 +42,7 @@
     and lm.component_uuid = #{componentUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="sumNclocOfBiggestLongLivingBranch" parameterType="map" resultType="long">
+  <select id="sumNclocOfBiggestBranch" parameterType="map" resultType="long">
     select sum(sumncloc.maxncloc) from (
       select b.project_uuid as projectUuid, max(lm.value) as maxncloc
       from live_measures lm

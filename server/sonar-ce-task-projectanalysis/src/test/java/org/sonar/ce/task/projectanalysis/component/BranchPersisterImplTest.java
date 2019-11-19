@@ -224,7 +224,7 @@ public class BranchPersisterImplTest {
     when(branch.getType()).thenReturn(type);
     when(branch.getName()).thenReturn(name);
     when(branch.isMain()).thenReturn(isMain);
-    when(branch.getMergeBranchUuid()).thenReturn(mergeBranchUuid);
+    when(branch.getReferenceBranchUuid()).thenReturn(mergeBranchUuid);
     when(branch.getTargetBranchName()).thenReturn(mergeBranchUuid);
     return branch;
   }

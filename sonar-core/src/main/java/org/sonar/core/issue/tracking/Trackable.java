@@ -36,6 +36,7 @@ public interface Trackable {
   /**
    * Trimmed message of issue
    */
+  @CheckForNull
   String getMessage();
 
   @CheckForNull

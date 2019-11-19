@@ -37,7 +37,7 @@ public class ReferenceBranchTrackerExecutionTest {
   @Mock
   private TrackerRawInputFactory rawInputFactory;
   @Mock
-  private TrackerMergeOrTargetBranchInputFactory mergeInputFactory;
+  private TrackerReferenceBranchInputFactory mergeInputFactory;
   @Mock
   private Tracker<DefaultIssue, DefaultIssue> tracker;
   @Mock
@@ -57,7 +57,7 @@ public class ReferenceBranchTrackerExecutionTest {
     Input<DefaultIssue> mergeInput = mock(Input.class);
     NonClosedTracking<DefaultIssue, DefaultIssue> result = mock(NonClosedTracking.class);
     when(rawInputFactory.create(component)).thenReturn(rawInput);
-    when(mergeInputFactory.createForMergeBranch(component)).thenReturn(mergeInput);
+    when(mergeInputFactory.create(component)).thenReturn(mergeInput);
     when(tracker.trackNonClosed(rawInput, mergeInput)).thenReturn(result);
 
     assertThat(underTest.track(component)).isEqualTo(result);

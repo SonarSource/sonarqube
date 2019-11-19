@@ -50,11 +50,11 @@ public class PullRequestTrackerExecution {
     Input<DefaultIssue> rawInput = rawInputFactory.create(component);
     Input<DefaultIssue> previousAnalysisInput = baseInputFactory.create(component);
 
-    // Step 1: if there is no analysis or merge or target branch, keep only issues on changed lines
+    // Step 1: only keep issues on changed lines
     List<DefaultIssue> filteredRaws = keepIssuesHavingAtLeastOneLocationOnChangedLines(component, rawInput.getIssues());
     Input<DefaultIssue> unmatchedRawsAfterChangedLineFiltering = new DefaultTrackingInput(filteredRaws, rawInput.getLineHashSequence(), rawInput.getBlockHashSequence());
 
-    // Step 2: track issues of previous analysis of the current PR
+    // Step 2: track issues with previous analysis of the current PR
     return tracker.trackNonClosed(unmatchedRawsAfterChangedLineFiltering, previousAnalysisInput);
   }
 
@@ -67,8 +67,7 @@ public class PullRequestTrackerExecution {
       return Collections.emptyList();
     }
     final Set<Integer> newLines = newLinesOpt.get();
-    return issues
-      .stream()
+    return issues.stream()
       .filter(i -> IssueLocations.allLinesFor(i, component.getUuid()).anyMatch(newLines::contains))
       .collect(Collectors.toList());
   }

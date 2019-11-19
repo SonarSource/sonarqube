@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.base.Optional;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -36,7 +35,7 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
@@ -67,6 +66,7 @@ import org.sonar.server.issue.IssueFieldsSetter;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -116,18 +116,19 @@ public class IntegrateIssuesVisitorTest {
   private MovedFilesRepository movedFilesRepository = mock(MovedFilesRepository.class);
   private IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
   private IssueVisitor issueVisitor = mock(IssueVisitor.class);
-  private MergeAndTargetBranchComponentUuids mergeBranchComponentsUuids = mock(MergeAndTargetBranchComponentUuids.class);
+  private ReferenceBranchComponentUuids mergeBranchComponentsUuids = mock(ReferenceBranchComponentUuids.class);
   private SiblingsIssueMerger issueStatusCopier = mock(SiblingsIssueMerger.class);
-  private MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids = mock(MergeAndTargetBranchComponentUuids.class);
+  private ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
   private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
   private NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
 
   private ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
 
-  private ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule, new MapSettings().asConfig(), System2.INSTANCE);
+  private ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule, new MapSettings().asConfig(),
+    System2.INSTANCE);
   private IssueTrackingDelegator trackingDelegator;
   private TrackerExecution tracker;
-  private PullRequestTrackerExecution shortBranchTracker;
+  private PullRequestTrackerExecution prBranchTracker;
   private ReferenceBranchTrackerExecution mergeBranchTracker;
   private ActiveRulesHolder activeRulesHolder = new AlwaysActiveRulesHolderImpl();
   private IssueCache issueCache;
@@ -144,18 +145,19 @@ public class IntegrateIssuesVisitorTest {
     DbClient dbClient = dbTester.getDbClient();
     TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, new CommonRuleEngineImpl(),
       issueFilter, ruleRepositoryRule, activeRulesHolder);
-    TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbClient, movedFilesRepository, mock(ReportModulesPath.class), analysisMetadataHolder, new IssueFieldsSetter(), mock(ComponentsWithUnprocessedIssues.class));
-    TrackerMergeOrTargetBranchInputFactory mergeInputFactory = new TrackerMergeOrTargetBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbClient);
+    TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbClient, movedFilesRepository, mock(ReportModulesPath.class), analysisMetadataHolder,
+      new IssueFieldsSetter(), mock(ComponentsWithUnprocessedIssues.class));
+    TrackerReferenceBranchInputFactory mergeInputFactory = new TrackerReferenceBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbClient);
     ClosedIssuesInputFactory closedIssuesInputFactory = new ClosedIssuesInputFactory(issuesLoader, dbClient, movedFilesRepository);
     tracker = new TrackerExecution(baseInputFactory, rawInputFactory, closedIssuesInputFactory, new Tracker<>(), issuesLoader, analysisMetadataHolder);
-    shortBranchTracker = new PullRequestTrackerExecution(baseInputFactory, rawInputFactory, new Tracker<>(), newLinesRepository);
+    prBranchTracker = new PullRequestTrackerExecution(baseInputFactory, rawInputFactory, new Tracker<>(), newLinesRepository);
     mergeBranchTracker = new ReferenceBranchTrackerExecution(rawInputFactory, mergeInputFactory, new Tracker<>());
 
-    trackingDelegator = new IssueTrackingDelegator(shortBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
+    trackingDelegator = new IssueTrackingDelegator(prBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
     treeRootHolder.setRoot(PROJECT);
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
-    underTest = new IntegrateIssuesVisitor(issueCache, issueLifecycle, issueVisitors, trackingDelegator, issueStatusCopier, mergeAndTargetBranchComponentUuids);
+    underTest = new IntegrateIssuesVisitor(issueCache, issueLifecycle, issueVisitors, trackingDelegator, issueStatusCopier, referenceBranchComponentUuids);
   }
 
   @Test
@@ -176,7 +178,7 @@ public class IntegrateIssuesVisitorTest {
     DefaultIssue capturedIssue = defaultIssueCaptor.getValue();
     assertThat(capturedIssue.ruleKey().rule()).isEqualTo("S001");
 
-    verify(issueStatusCopier).tryMerge(FILE, Collections.singletonList(capturedIssue));
+    verify(issueStatusCopier).tryMerge(FILE, singletonList(capturedIssue));
 
     verify(issueLifecycle).doAutomaticTransition(capturedIssue);
 
@@ -260,10 +262,10 @@ public class IntegrateIssuesVisitorTest {
   }
 
   @Test
-  public void copy_issues_when_creating_new_long_living_branch() {
+  public void copy_issues_when_creating_new_non_main_branch() {
 
-    when(mergeBranchComponentsUuids.getMergeBranchComponentUuid(FILE_KEY)).thenReturn(FILE_UUID_ON_BRANCH);
-    when(mergeAndTargetBranchComponentUuids.getMergeBranchName()).thenReturn("master");
+    when(mergeBranchComponentsUuids.getComponentUuid(FILE_KEY)).thenReturn(FILE_UUID_ON_BRANCH);
+    when(referenceBranchComponentUuids.getReferenceBranchName()).thenReturn("master");
 
     when(analysisMetadataHolder.isBranch()).thenReturn(true);
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(true);
@@ -283,14 +285,14 @@ public class IntegrateIssuesVisitorTest {
       .setRuleKey(ruleKey.rule())
       .setSeverity(Constants.Severity.BLOCKER)
       .build();
-    reportReader.putIssues(FILE_REF, asList(reportIssue));
+    reportReader.putIssues(FILE_REF, singletonList(reportIssue));
     fileSourceRepository.addLine(FILE_REF, "line1");
 
     underTest.visitAny(FILE);
 
     ArgumentCaptor<DefaultIssue> rawIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
     ArgumentCaptor<DefaultIssue> baseIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(issueLifecycle).copyExistingOpenIssueFromLongLivingBranch(rawIssueCaptor.capture(), baseIssueCaptor.capture(), eq("master"));
+    verify(issueLifecycle).copyExistingOpenIssueFromBranch(rawIssueCaptor.capture(), baseIssueCaptor.capture(), eq("master"));
     assertThat(rawIssueCaptor.getValue().severity()).isEqualTo(Severity.BLOCKER);
     assertThat(baseIssueCaptor.getValue().severity()).isEqualTo(Severity.MAJOR);
 

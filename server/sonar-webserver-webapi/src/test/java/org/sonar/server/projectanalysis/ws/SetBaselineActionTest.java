@@ -105,7 +105,7 @@ public class SetBaselineActionTest {
   }
 
   @Test
-  public void set_baseline_on_long_living_branch() {
+  public void set_baseline_on_non_main_branch() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     BranchDto branch = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.BRANCH);
     db.components().insertProjectBranch(project, branch);

@@ -97,7 +97,7 @@ public class IssueUpdater {
       issue.updateDate() == null
         // name of rule is displayed in notification, rule must therefor be present
         || !rule.isPresent()
-        // notification are not supported on PRs and short lived branches
+        // notification are not supported on PRs
         || !hasNotificationSupport(branchDto)) {
       return issueDto;
     }

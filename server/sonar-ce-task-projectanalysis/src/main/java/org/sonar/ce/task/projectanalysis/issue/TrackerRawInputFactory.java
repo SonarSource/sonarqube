@@ -277,7 +277,7 @@ public class TrackerRawInputFactory {
     private Optional<DbIssues.Location> convertLocation(ScannerReport.IssueLocation source) {
       DbIssues.Location.Builder target = DbIssues.Location.newBuilder();
       if (source.getComponentRef() != 0 && source.getComponentRef() != component.getReportAttributes().getRef()) {
-        // SONAR-10781 Component might not exist because on short living branch and PR, only changed components are included in the report
+        // SONAR-10781 Component might not exist because on PR, only changed components are included in the report
         Optional<Component> optionalComponent = treeRootHolder.getOptionalComponentByRef(source.getComponentRef());
         if (!optionalComponent.isPresent()) {
           return Optional.empty();

@@ -114,7 +114,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
         .setOnlyPrivateProjects(false)
         .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
         .build();
-      data.setNcloc(dbClient.liveMeasureDao().sumNclocOfBiggestLongLivingBranch(dbSession, query));
+      data.setNcloc(dbClient.liveMeasureDao().sumNclocOfBiggestBranch(dbSession, query));
     }
 
     Optional<String> installationDateProperty = internalProperties.read(InternalProperties.INSTALLATION_DATE);

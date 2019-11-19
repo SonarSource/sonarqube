@@ -88,7 +88,7 @@ public class UnsetBaselineActionTest {
   }
 
   @Test
-  public void does_not_fail_and_has_no_effect_when_there_is_no_baseline_on_long_living_branch() {
+  public void does_not_fail_and_has_no_effect_when_there_is_no_baseline_on_non_main_branch() {
     ComponentDto project = db.components().insertMainBranch(db.organizations().insert());
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto analysis = db.components().insertSnapshot(project);
@@ -114,10 +114,10 @@ public class UnsetBaselineActionTest {
   }
 
   @Test
-  public void unset_baseline_when_it_is_set_long_living_branch() {
+  public void unset_baseline_when_it_is_set_non_main_branch() {
     ComponentDto project = db.components().insertMainBranch(db.organizations().insert());
     ComponentDto branch = db.components().insertProjectBranch(project);
-    SnapshotDto projectAnalysis = db.components().insertSnapshot(branch);
+    db.components().insertSnapshot(branch);
     SnapshotDto branchAnalysis = db.components().insertSnapshot(project);
     db.newCodePeriods().insert(project.projectUuid(), branch.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, branchAnalysis.getUuid());
 

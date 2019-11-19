@@ -45,7 +45,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.KeyType;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -112,19 +111,19 @@ public class SiblingsIssueMergerTest {
       issueLifecycle);
     projectDto = db.components().insertMainBranch(p -> p.setDbKey(PROJECT_KEY).setUuid(PROJECT_UUID));
     branch1Dto = db.components().insertProjectBranch(projectDto, b -> b.setKey("myBranch1")
-      .setBranchType(BranchType.SHORT)
+      .setBranchType(BranchType.PULL_REQUEST)
       .setMergeBranchUuid(projectDto.uuid()));
     branch2Dto = db.components().insertProjectBranch(projectDto, b -> b.setKey("myBranch2")
-      .setBranchType(BranchType.SHORT)
+      .setBranchType(BranchType.PULL_REQUEST)
       .setMergeBranchUuid(projectDto.uuid()));
     branch3Dto = db.components().insertProjectBranch(projectDto, b -> b.setKey("myBranch3")
-      .setBranchType(BranchType.SHORT)
+      .setBranchType(BranchType.PULL_REQUEST)
       .setMergeBranchUuid(projectDto.uuid()));
-    fileOnBranch1Dto = db.components().insertComponent(newFileDto(branch1Dto).setDbKey(FILE_1_KEY + ":BRANCH:myBranch1"));
-    fileOnBranch2Dto = db.components().insertComponent(newFileDto(branch2Dto).setDbKey(FILE_1_KEY + ":BRANCH:myBranch2"));
-    fileOnBranch3Dto = db.components().insertComponent(newFileDto(branch3Dto).setDbKey(FILE_1_KEY + ":BRANCH:myBranch3"));
+    fileOnBranch1Dto = db.components().insertComponent(newFileDto(branch1Dto).setDbKey(FILE_1_KEY + ":PULL_REQUEST:myBranch1"));
+    fileOnBranch2Dto = db.components().insertComponent(newFileDto(branch2Dto).setDbKey(FILE_1_KEY + ":PULL_REQUEST:myBranch2"));
+    fileOnBranch3Dto = db.components().insertComponent(newFileDto(branch3Dto).setDbKey(FILE_1_KEY + ":PULL_REQUEST:myBranch3"));
     rule = db.rules().insert();
-    when(branch.getMergeBranchUuid()).thenReturn(projectDto.uuid());
+    when(branch.getReferenceBranchUuid()).thenReturn(projectDto.uuid());
     metadataHolder.setBranch(branch);
   }
 
@@ -152,7 +151,7 @@ public class SiblingsIssueMergerTest {
     copier.tryMerge(FILE_1, Collections.singleton(newIssue));
 
     ArgumentCaptor<DefaultIssue> issueToMerge = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranchOrPr(eq(newIssue), issueToMerge.capture(), eq(KeyType.BRANCH), eq("myBranch1"));
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromPr(eq(newIssue), issueToMerge.capture(), eq("myBranch1"));
 
     assertThat(issueToMerge.getValue().key()).isEqualTo("issue1");
   }
@@ -171,7 +170,7 @@ public class SiblingsIssueMergerTest {
     copier.tryMerge(FILE_1, Collections.singleton(newIssue));
 
     ArgumentCaptor<DefaultIssue> issueToMerge = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranchOrPr(eq(newIssue), issueToMerge.capture(), eq(KeyType.BRANCH), eq("myBranch1"));
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromPr(eq(newIssue), issueToMerge.capture(), eq("myBranch1"));
 
     assertThat(issueToMerge.getValue().key()).isEqualTo("issue1");
   }
@@ -188,7 +187,7 @@ public class SiblingsIssueMergerTest {
     copier.tryMerge(FILE_1, Collections.singleton(newIssue));
 
     ArgumentCaptor<DefaultIssue> issueToMerge = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranchOrPr(eq(newIssue), issueToMerge.capture(), eq(KeyType.BRANCH), eq("myBranch2"));
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromPr(eq(newIssue), issueToMerge.capture(), eq("myBranch2"));
 
     assertThat(issueToMerge.getValue().key()).isEqualTo("issue");
     assertThat(issueToMerge.getValue().defaultIssueComments()).isNotEmpty();

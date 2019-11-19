@@ -122,12 +122,9 @@ enum RuleType {
 }
 
 enum BranchType {
-  // Zero is required in order to not get LONG as default value
-  // See http://androiddevblog.com/protocol-buffers-pitfall-adding-enum-values/
-  UNKNOWN_BRANCH_TYPE = 0;
+  reserved 1, 2;
 
-  LONG = 1;
-  SHORT = 2;
+  UNKNOWN_BRANCH_TYPE = 0;
   PULL_REQUEST = 3;
   BRANCH = 4;
 }

@@ -42,7 +42,7 @@ public class SiblingsIssueMerger {
   }
 
   /**
-   * Look for all unclosed issues in branches/PR targeting the same long living branch, and run
+   * Look for all unclosed issues in PR targeting the same branch, and run
    * a light issue tracking to find matches. Then merge issue attributes in the new issues. 
    */
   public void tryMerge(Component component, Collection<DefaultIssue> newIssues) {
@@ -55,7 +55,7 @@ public class SiblingsIssueMerger {
 
     for (Map.Entry<DefaultIssue, SiblingIssue> e : matchedRaws.entrySet()) {
       SiblingIssue issue = e.getValue();
-      issueLifecycle.mergeConfirmedOrResolvedFromShortLivingBranchOrPr(e.getKey(), defaultIssues.get(issue), issue.getBranchType(), issue.getBranchKey());
+      issueLifecycle.mergeConfirmedOrResolvedFromPr(e.getKey(), defaultIssues.get(issue), issue.getPrKey());
     }
   }
 }

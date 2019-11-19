@@ -199,15 +199,15 @@ public class WebhookQGChangeEventListenerTest {
   public void onIssueChangesCallsWebhookOnBranch(BranchType branchType) {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentAndBranch mainBranch = insertMainBranch(organization);
-    ComponentAndBranch longBranch = insertProjectBranch(mainBranch.component, branchType, "foo");
-    SnapshotDto analysis = insertAnalysisTask(longBranch);
+    ComponentAndBranch nonMainBranch = insertProjectBranch(mainBranch.component, branchType, "foo");
+    SnapshotDto analysis = insertAnalysisTask(nonMainBranch);
     Configuration configuration = mock(Configuration.class);
-    QGChangeEvent qualityGateEvent = newQGChangeEvent(longBranch, analysis, configuration, null);
+    QGChangeEvent qualityGateEvent = newQGChangeEvent(nonMainBranch, analysis, configuration, null);
     mockWebhookEnabled(qualityGateEvent.getProject());
 
     underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
-    verifyWebhookCalled(longBranch, analysis, qualityGateEvent.getProject());
+    verifyWebhookCalled(nonMainBranch, analysis, qualityGateEvent.getProject());
   }
 
   @DataProvider

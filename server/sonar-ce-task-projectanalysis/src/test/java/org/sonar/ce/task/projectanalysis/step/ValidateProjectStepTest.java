@@ -101,7 +101,7 @@ public class ValidateProjectStepTest {
   private void setBranch(BranchType type, @Nullable String mergeBranchUuid) {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(type);
-    when(branch.getMergeBranchUuid()).thenReturn(mergeBranchUuid);
+    when(branch.getReferenceBranchUuid()).thenReturn(mergeBranchUuid);
     analysisMetadataHolder.setBranch(branch);
   }
 

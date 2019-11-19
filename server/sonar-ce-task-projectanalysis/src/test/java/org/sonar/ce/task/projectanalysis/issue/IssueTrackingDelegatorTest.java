@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 
 public class IssueTrackingDelegatorTest {
   @Mock
-  private PullRequestTrackerExecution shortBranchTracker;
+  private PullRequestTrackerExecution prBranchTracker;
   @Mock
   private ReferenceBranchTrackerExecution mergeBranchTracker;
   @Mock
@@ -54,10 +54,10 @@ public class IssueTrackingDelegatorTest {
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    underTest = new IssueTrackingDelegator(shortBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
+    underTest = new IssueTrackingDelegator(prBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
     when(tracker.track(component)).thenReturn(trackingResult);
     when(mergeBranchTracker.track(component)).thenReturn(trackingResult);
-    when(shortBranchTracker.track(component)).thenReturn(trackingResult);
+    when(prBranchTracker.track(component)).thenReturn(trackingResult);
   }
 
   @Test
@@ -67,7 +67,7 @@ public class IssueTrackingDelegatorTest {
     underTest.track(component);
 
     verify(tracker).track(component);
-    verifyZeroInteractions(shortBranchTracker);
+    verifyZeroInteractions(prBranchTracker);
     verifyZeroInteractions(mergeBranchTracker);
   }
 
@@ -83,7 +83,7 @@ public class IssueTrackingDelegatorTest {
 
     verify(mergeBranchTracker).track(component);
     verifyZeroInteractions(tracker);
-    verifyZeroInteractions(shortBranchTracker);
+    verifyZeroInteractions(prBranchTracker);
 
   }
 
@@ -96,7 +96,7 @@ public class IssueTrackingDelegatorTest {
 
     underTest.track(component);
 
-    verify(shortBranchTracker).track(component);
+    verify(prBranchTracker).track(component);
     verifyZeroInteractions(tracker);
     verifyZeroInteractions(mergeBranchTracker);
   }

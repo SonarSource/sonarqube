@@ -49,7 +49,7 @@ public final class Branch {
   }
 
   public enum Type {
-    LONG, SHORT, PULL_REQUEST, BRANCH
+    PULL_REQUEST, BRANCH
   }
 
   @Override

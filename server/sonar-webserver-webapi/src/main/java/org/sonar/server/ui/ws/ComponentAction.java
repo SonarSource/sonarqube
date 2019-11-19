@@ -162,19 +162,20 @@ public class ComponentAction implements NavigationWsAction {
       OrganizationDto org = componentFinder.getOrganization(session, component);
       Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, component.projectUuid());
 
-      JsonWriter json = response.newJsonWriter();
-      json.beginObject();
-      writeComponent(json, session, component, org, analysis.orElse(null));
-      writeAlmDetails(json, session, rootProject);
-      writeProfiles(json, session, component);
-      writeQualityGate(json, session, org, rootProject);
-      if (userSession.hasComponentPermission(ADMIN, component) ||
-        userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, org) ||
-        userSession.hasPermission(ADMINISTER_QUALITY_GATES, org)) {
-        writeConfiguration(json, component, org);
+      try (JsonWriter json = response.newJsonWriter()) {
+        json.beginObject();
+        writeComponent(json, session, component, org, analysis.orElse(null));
+        writeAlmDetails(json, session, rootProject);
+        writeProfiles(json, session, component);
+        writeQualityGate(json, session, org, rootProject);
+        if (userSession.hasComponentPermission(ADMIN, component) ||
+          userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, org) ||
+          userSession.hasPermission(ADMINISTER_QUALITY_GATES, org)) {
+          writeConfiguration(json, component, org);
+        }
+        writeBreadCrumbs(json, session, component);
+        json.endObject().close();
       }
-      writeBreadCrumbs(json, session, component);
-      json.endObject().close();
     }
   }
 

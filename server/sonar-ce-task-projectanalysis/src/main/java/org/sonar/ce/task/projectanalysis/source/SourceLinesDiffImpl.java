@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDao;
@@ -33,15 +33,15 @@ public class SourceLinesDiffImpl implements SourceLinesDiff {
   private final DbClient dbClient;
   private final FileSourceDao fileSourceDao;
   private final SourceLinesHashRepository sourceLinesHash;
-  private final MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids;
+  private final ReferenceBranchComponentUuids referenceBranchComponentUuids;
   private final AnalysisMetadataHolder analysisMetadataHolder;
 
   public SourceLinesDiffImpl(DbClient dbClient, FileSourceDao fileSourceDao, SourceLinesHashRepository sourceLinesHash,
-    MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids, AnalysisMetadataHolder analysisMetadataHolder) {
+    ReferenceBranchComponentUuids referenceBranchComponentUuids, AnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
     this.fileSourceDao = fileSourceDao;
     this.sourceLinesHash = sourceLinesHash;
-    this.mergeAndTargetBranchComponentUuids = mergeAndTargetBranchComponentUuids;
+    this.referenceBranchComponentUuids = referenceBranchComponentUuids;
     this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
@@ -57,10 +57,7 @@ public class SourceLinesDiffImpl implements SourceLinesDiff {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String uuid;
       if (analysisMetadataHolder.isPullRequest()) {
-        uuid = mergeAndTargetBranchComponentUuids.getTargetBranchComponentUuid(component.getDbKey());
-        if (uuid == null) {
-          uuid = mergeAndTargetBranchComponentUuids.getMergeBranchComponentUuid(component.getDbKey());
-        }
+        uuid = referenceBranchComponentUuids.getComponentUuid(component.getDbKey());
       } else {
         uuid = component.getUuid();
       }

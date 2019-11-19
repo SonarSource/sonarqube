@@ -215,7 +215,7 @@ public class MeasureActionTest {
   }
 
   @Test
-  public void measure_on_long_living_branch() {
+  public void measure_on_non_main_branch() {
     ComponentDto project = db.components().insertMainBranch(p -> p.setPrivate(false));
     userSession.registerComponents(project);
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
