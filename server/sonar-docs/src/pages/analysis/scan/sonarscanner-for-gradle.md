@@ -126,7 +126,7 @@ Property|Gradle default
 `sonar.tests`|`${sourceSets.test.allSource.srcDirs}` (filtered to only include existing directories)
 `sonar.java.binaries`|`${sourceSets.main.output.classesDir}`
 `sonar.java.libraries`|`${sourceSets.main.compileClasspath}` (filtering to only include files; rt.jar and jfxrt.jar added if necessary)
-`sonar.java.test.binaries`|`${sourceSets.test.output.classeDir}`
+`sonar.java.test.binaries`|`${sourceSets.test.output.classesDir}`
 `sonar.java.test.libraries`|`${sourceSets.test.compileClasspath}` (filtering to only include files; rt.jar and jfxrt.jar added if necessary)
 `sonar.junit.reportPaths`|`${test.testResultsDir}` (if the directory exists)
 
