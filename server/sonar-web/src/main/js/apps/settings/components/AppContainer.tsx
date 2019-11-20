@@ -109,7 +109,7 @@ export class App extends React.PureComponent<Props & WithRouterProps, State> {
           <div className="side-tabs-main">
             {foundAdditionalCategory && shouldRenderAdditionalCategory ? (
               foundAdditionalCategory.renderComponent({
-                parentComponent: this.props.component,
+                component: this.props.component,
                 selectedCategory: originalCategory
               })
             ) : (

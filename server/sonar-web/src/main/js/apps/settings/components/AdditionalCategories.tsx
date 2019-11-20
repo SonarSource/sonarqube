@@ -34,17 +34,17 @@ import PullRequestDecoration from './pullRequestDecoration/PullRequestDecoration
 import PullRequestDecorationBinding from './pullRequestDecorationBinding/PRDecorationBinding';
 
 export interface AdditionalCategoryComponentProps {
-  parentComponent: T.Component | undefined;
+  component: T.Component | undefined;
   selectedCategory: string;
 }
 
 export interface AdditionalCategory {
-  key: string;
-  name: string;
-  renderComponent: (props: AdditionalCategoryComponentProps) => React.ReactNode;
   availableGlobally: boolean;
   availableForProject: boolean;
   displayTab: boolean;
+  key: string;
+  name: string;
+  renderComponent: (props: AdditionalCategoryComponentProps) => React.ReactNode;
   requiresBranchesEnabled?: boolean;
 }
 
@@ -110,6 +110,5 @@ function getPullRequestDecorationComponent() {
 }
 
 function getPullRequestDecorationBindingComponent(props: AdditionalCategoryComponentProps) {
-  const { parentComponent } = props;
-  return parentComponent && <PullRequestDecorationBinding component={parentComponent} />;
+  return props.component && <PullRequestDecorationBinding component={props.component} />;
 }

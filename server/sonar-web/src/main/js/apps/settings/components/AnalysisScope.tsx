@@ -25,7 +25,7 @@ import { AdditionalCategoryComponentProps } from './AdditionalCategories';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
 
 export function AnalysisScope(props: AdditionalCategoryComponentProps) {
-  const { parentComponent, selectedCategory } = props;
+  const { component, selectedCategory } = props;
 
   return (
     <>
@@ -56,7 +56,7 @@ export function AnalysisScope(props: AdditionalCategoryComponentProps) {
       </table>
 
       <div className="settings-sub-category">
-        <CategoryDefinitionsList category={selectedCategory} component={parentComponent} />
+        <CategoryDefinitionsList category={selectedCategory} component={component} />
       </div>
     </>
   );

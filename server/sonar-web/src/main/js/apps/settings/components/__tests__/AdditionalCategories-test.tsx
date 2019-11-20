@@ -18,15 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { shallow } from 'enzyme';
-import * as React from 'react';
+import { find } from 'lodash';
 import { mockComponent } from '../../../../helpers/testMocks';
-import { AnalysisScope } from '../AnalysisScope';
+import { ADDITIONAL_CATEGORIES } from '../AdditionalCategories';
+import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../AdditionalCategoryKeys';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+it('should render additional categories component correctly', () => {
+  ADDITIONAL_CATEGORIES.forEach(cat => {
+    expect(
+      cat.renderComponent({
+        component: mockComponent(),
+        selectedCategory: 'TEST'
+      })
+    ).toMatchSnapshot();
+  });
 });
 
-function shallowRender() {
-  return shallow(<AnalysisScope component={mockComponent()} selectedCategory="TEST" />);
-}
+it('should not render pull request decoration binding component when the component is not defined', () => {
+  const category = find(
+    ADDITIONAL_CATEGORIES,
+    c => c.key === PULL_REQUEST_DECORATION_BINDING_CATEGORY
+  );
+
+  if (!category) {
+    fail('category should be defined');
+  } else {
+    expect(
+      category.renderComponent({ component: undefined, selectedCategory: '' })
+    ).toBeUndefined();
+  }
+});

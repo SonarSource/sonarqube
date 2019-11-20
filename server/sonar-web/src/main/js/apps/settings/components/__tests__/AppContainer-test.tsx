@@ -24,7 +24,9 @@ import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import {
   ANALYSIS_SCOPE_CATEGORY,
   LANGUAGES_CATEGORY,
-  NEW_CODE_PERIOD_CATEGORY
+  NEW_CODE_PERIOD_CATEGORY,
+  PULL_REQUEST_DECORATION_BINDING_CATEGORY,
+  PULL_REQUEST_DECORATION_CATEGORY
 } from '../AdditionalCategoryKeys';
 import { App } from '../AppContainer';
 
@@ -56,6 +58,24 @@ it('should render languages correctly', async () => {
 it('should render analysis scope correctly', async () => {
   const wrapper = shallowRender({
     location: mockLocation({ query: { category: ANALYSIS_SCOPE_CATEGORY } })
+  });
+
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render pull request decoration correctly', async () => {
+  const wrapper = shallowRender({
+    location: mockLocation({ query: { category: PULL_REQUEST_DECORATION_CATEGORY } })
+  });
+
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render pull request decoration binding correctly', async () => {
+  const wrapper = shallowRender({
+    location: mockLocation({ query: { category: PULL_REQUEST_DECORATION_BINDING_CATEGORY } })
   });
 
   await waitAndUpdate(wrapper);

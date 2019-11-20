@@ -25,21 +25,15 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { getSettingsAppAllCategories, Store } from '../../../store/rootReducer';
 import { getCategoryName } from '../utils';
+import { AdditionalCategoryComponentProps } from './AdditionalCategories';
 import { LANGUAGES_CATEGORY } from './AdditionalCategoryKeys';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
 import { CATEGORY_OVERRIDES } from './CategoryOverrides';
 
-export interface LanguagesProps {
+export interface LanguagesProps extends AdditionalCategoryComponentProps {
   categories: string[];
-  component?: T.Component;
   location: Location;
-  selectedCategory: string;
   router: Router;
-}
-
-interface LanguagesState {
-  availableLanguages: SelectOption[];
-  selectedLanguage: string | undefined;
 }
 
 interface SelectOption {
@@ -48,79 +42,63 @@ interface SelectOption {
   value: string;
 }
 
-export class Languages extends React.PureComponent<LanguagesProps, LanguagesState> {
-  constructor(props: LanguagesProps) {
-    super(props);
+export function Languages(props: LanguagesProps) {
+  const { categories, component, location, router, selectedCategory } = props;
+  const { availableLanguages, selectedLanguage } = getLanguages(categories, selectedCategory);
 
-    this.state = {
-      availableLanguages: [],
-      selectedLanguage: undefined
-    };
-  }
-
-  componentDidMount() {
-    const { selectedCategory, categories } = this.props;
-    const lowerCasedLanguagesCategory = LANGUAGES_CATEGORY.toLowerCase();
-    const lowerCasedSelectedCategory = selectedCategory.toLowerCase();
-
-    const availableLanguages = categories
-      .filter(c => CATEGORY_OVERRIDES[c.toLowerCase()] === lowerCasedLanguagesCategory)
-      .map(c => ({
-        label: getCategoryName(c),
-        value: c.toLowerCase(),
-        originalValue: c
-      }));
-
-    let selectedLanguage = undefined;
-
-    if (
-      lowerCasedSelectedCategory !== lowerCasedLanguagesCategory &&
-      availableLanguages.find(c => c.value === lowerCasedSelectedCategory)
-    ) {
-      selectedLanguage = lowerCasedSelectedCategory;
-    }
-
-    this.setState({
-      availableLanguages,
-      selectedLanguage
-    });
-  }
-
-  handleOnChange = (newOption: SelectOption) => {
-    this.setState({ selectedLanguage: newOption.value });
-
-    const { location, router } = this.props;
-
+  const handleOnChange = (newOption: SelectOption) => {
     router.push({
       ...location,
       query: { ...location.query, category: newOption.originalValue }
     });
   };
 
-  render() {
-    const { component } = this.props;
-    const { availableLanguages, selectedLanguage } = this.state;
-
-    return (
-      <>
-        <h2 className="settings-sub-category-name">{translate('property.category.languages')}</h2>
-        <div data-test="language-select">
-          <Select
-            className="input-large"
-            onChange={this.handleOnChange}
-            options={availableLanguages}
-            placeholder={translate('settings.languages.select_a_language_placeholder')}
-            value={selectedLanguage}
-          />
+  return (
+    <>
+      <h2 className="settings-sub-category-name">{translate('property.category.languages')}</h2>
+      <div data-test="language-select">
+        <Select
+          className="input-large"
+          onChange={handleOnChange}
+          options={availableLanguages}
+          placeholder={translate('settings.languages.select_a_language_placeholder')}
+          value={selectedLanguage}
+        />
+      </div>
+      {selectedLanguage && (
+        <div className="settings-sub-category">
+          <CategoryDefinitionsList category={selectedLanguage} component={component} />
         </div>
-        {selectedLanguage && (
-          <div className="settings-sub-category">
-            <CategoryDefinitionsList category={selectedLanguage} component={component} />
-          </div>
-        )}
-      </>
-    );
+      )}
+    </>
+  );
+}
+
+function getLanguages(categories: string[], selectedCategory: string) {
+  const lowerCasedLanguagesCategory = LANGUAGES_CATEGORY.toLowerCase();
+  const lowerCasedSelectedCategory = selectedCategory.toLowerCase();
+
+  const availableLanguages = categories
+    .filter(c => CATEGORY_OVERRIDES[c.toLowerCase()] === lowerCasedLanguagesCategory)
+    .map(c => ({
+      label: getCategoryName(c),
+      value: c.toLowerCase(),
+      originalValue: c
+    }));
+
+  let selectedLanguage = undefined;
+
+  if (
+    lowerCasedSelectedCategory !== lowerCasedLanguagesCategory &&
+    availableLanguages.find(c => c.value === lowerCasedSelectedCategory)
+  ) {
+    selectedLanguage = lowerCasedSelectedCategory;
   }
+
+  return {
+    availableLanguages,
+    selectedLanguage
+  };
 }
 
 export default withRouter(

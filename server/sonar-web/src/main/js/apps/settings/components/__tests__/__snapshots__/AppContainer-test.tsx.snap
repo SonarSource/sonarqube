@@ -141,3 +141,73 @@ exports[`should render newCodePeriod correctly 1`] = `
   </div>
 </div>
 `;
+
+exports[`should render pull request decoration binding correctly 1`] = `
+<div
+  className="page page-limited"
+  id="settings-page"
+>
+  <Suggestions
+    suggestions="settings"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="settings.page"
+  />
+  <PageHeader />
+  <div
+    className="side-tabs-layout settings-layout"
+  >
+    <div
+      className="side-tabs-side"
+    >
+      <Connect(CategoriesList)
+        defaultCategory="general"
+        selectedCategory="pull_request_decoration_binding"
+      />
+    </div>
+    <div
+      className="side-tabs-main"
+    >
+      <Connect(SubCategoryDefinitionsList)
+        category="pull_request_decoration_binding"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render pull request decoration correctly 1`] = `
+<div
+  className="page page-limited"
+  id="settings-page"
+>
+  <Suggestions
+    suggestions="settings"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="settings.page"
+  />
+  <PageHeader />
+  <div
+    className="side-tabs-layout settings-layout"
+  >
+    <div
+      className="side-tabs-side"
+    >
+      <Connect(CategoriesList)
+        defaultCategory="general"
+        selectedCategory="pull_request_decoration"
+      />
+    </div>
+    <div
+      className="side-tabs-main"
+    >
+      <PullRequestDecoration />
+    </div>
+  </div>
+</div>
+`;

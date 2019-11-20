@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
+import Select from 'sonar-ui-common/components/controls/Select';
+import { mockComponent, mockLocation, mockRouter } from '../../../../helpers/testMocks';
+import CategoryDefinitionsList from '../CategoryDefinitionsList';
 import { Languages, LanguagesProps } from '../Languages';
 
 it('should render correctly', () => {
@@ -36,17 +39,29 @@ it('should correctly handle a change of the selected language', () => {
   const push = jest.fn();
   const router = mockRouter({ push });
   const wrapper = shallowRender({ router });
-  expect(wrapper.state().selectedLanguage).toBe('java');
+  expect(wrapper.find(CategoryDefinitionsList).props().category).toBe('java');
 
-  wrapper.instance().handleOnChange({ label: '', originalValue: 'CoBoL', value: 'cobol' });
-  expect(wrapper.state().selectedLanguage).toBe('cobol');
-  expect(push).toHaveBeenCalledWith(expect.objectContaining({ query: { category: 'CoBoL' } }));
+  const { onChange } = wrapper.find(Select).props();
+
+  if (!onChange) {
+    fail('onChange should be defined');
+  } else {
+    onChange({ label: '', originalValue: 'CoBoL', value: 'cobol' });
+    expect(push).toHaveBeenCalledWith(expect.objectContaining({ query: { category: 'CoBoL' } }));
+  }
+});
+
+it('should correctly show the subcategory for a component', () => {
+  const component = mockComponent();
+  const wrapper = shallowRender({ component });
+  expect(wrapper.find(CategoryDefinitionsList).props().component).toBe(component);
 });
 
 function shallowRender(props: Partial<LanguagesProps> = {}) {
-  return shallow<Languages>(
+  return shallow(
     <Languages
       categories={['Java', 'JavaScript', 'COBOL']}
+      component={undefined}
       location={mockLocation()}
       router={mockRouter()}
       selectedCategory="java"
