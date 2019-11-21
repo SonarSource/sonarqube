@@ -19,7 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockBranch, mockMainBranch } from '../../../../../helpers/mocks/branch-like';
+import {
+  mockBranch,
+  mockMainBranch,
+  mockPullRequest
+} from '../../../../../helpers/mocks/branch-like';
 import { ComponentNavMenu } from '../ComponentNavMenu';
 
 const mainBranch = mockMainBranch();
@@ -111,6 +115,24 @@ it('should work for a branch', () => {
         <ComponentNavMenu
           appState={{ branchesEnabled: true }}
           branchLike={branch}
+          component={{
+            ...baseComponent,
+            configuration: { showSettings },
+            extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
+          }}
+        />
+      )
+    ).toMatchSnapshot()
+  );
+});
+
+it('should work for pull requests', () => {
+  [true, false].forEach(showSettings =>
+    expect(
+      shallow(
+        <ComponentNavMenu
+          appState={{ branchesEnabled: true }}
+          branchLike={mockPullRequest()}
           component={{
             ...baseComponent,
             configuration: { showSettings },

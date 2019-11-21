@@ -198,7 +198,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
   renderAdministration() {
     const { branchLike } = this.props;
 
-    if (!this.getConfiguration().showSettings || (branchLike && !isMainBranch(branchLike))) {
+    if (!this.getConfiguration().showSettings || isPullRequest(branchLike)) {
       return null;
     }
 
