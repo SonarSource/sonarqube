@@ -76,11 +76,6 @@ allprojects {
   }
 }
 
-ext {
-    slangVersion = '1.5.0.315'
-    dotnetVersion = '7.17.0.9346'
-}
-
 apply plugin: 'org.sonarqube'
 sonarqube {
     properties {
@@ -123,42 +118,44 @@ subprojects {
   // Central place for definition dependency versions and exclusions.
   dependencyManagement {
     dependencies {
-      // language plugin list
-      dependency 'com.sonarsource.abap:sonar-abap-plugin:3.8.0.2034'
-      dependency 'com.sonarsource.slang:sonar-apex-plugin:1.7.0.883'
-      dependency "org.sonarsource.dotnet:sonar-csharp-plugin:${dotnetVersion}"
-      dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.4.0.11646'
-      dependency 'com.sonarsource.cobol:sonar-cobol-plugin:4.4.0.3403'
-      dependency 'org.sonarsource.css:sonar-css-plugin:1.1.1.1010'
-      dependency 'org.sonarsource.flex:sonar-flex-plugin:2.5.1.1831'
-      dependency 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.0.2.475'
-      dependency 'org.sonarsource.java:sonar-java-plugin:5.14.0.18788'
-      dependency 'org.sonarsource.javascript:sonar-javascript-plugin:5.2.1.7778'
-      dependency "org.sonarsource.slang:sonar-kotlin-plugin:${slangVersion}"
-      dependency 'org.sonarsource.php:sonar-php-plugin:3.2.0.4868'
-      dependency 'com.sonarsource.pli:sonar-pli-plugin:1.10.0.1880'
-      dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.4.1.2576'
-      dependency 'org.sonarsource.python:sonar-python-plugin:1.16.0.4432'
-      dependency 'com.sonarsource.rpg:sonar-rpg-plugin:2.3.0.1187'
-      dependency 'org.sonarsource.scm.git:sonar-scm-git-plugin:1.9.1.1834'
-      dependency 'org.sonarsource.scm.svn:sonar-scm-svn-plugin:1.9.0.1295'
-      dependency 'org.sonarsource.slang:sonar-go-plugin:1.6.0.719'
-      dependency "org.sonarsource.slang:sonar-ruby-plugin:${slangVersion}"
-      dependency "org.sonarsource.slang:sonar-scala-plugin:${slangVersion}"
-      dependency 'com.sonarsource.swift:sonar-swift-plugin:4.1.0.3087'
-      dependency 'org.sonarsource.typescript:sonar-typescript-plugin:1.9.0.3766'
-      dependency 'com.sonarsource.tsql:sonar-tsql-plugin:1.4.0.3334'
-      dependency "org.sonarsource.dotnet:sonar-vbnet-plugin:${dotnetVersion}"
-      dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.6.0.1875'
-      dependency 'org.sonarsource.html:sonar-html-plugin:3.2.0.2082'
-      dependency 'org.sonarsource.xml:sonar-xml-plugin:2.0.1.2020'
-      dependencySet(group: 'com.sonarsource.security', version: '8.0.0.5505') {
-        entry "sonar-security-csharp-frontend-plugin"
-        entry "sonar-security-java-frontend-plugin"
-        entry "sonar-security-php-frontend-plugin"
-        entry "sonar-security-plugin"
-      }
-      
+      // bundled plugin list -- keep it alphabetically ordered
+      // comment is used by the Plugin Update bot to identify bundled plugins to check updates for
+      // comment format is: // bundled_plugin:[updateCenterKey]:[githubRepository]
+      //    updateCenterKey: Update Center Plugin key, last release will be resolved from repox when not provided
+      //    githubRepository: name of github repository of the plugin in the SonarSource organisation
+      dependency 'com.sonarsource.abap:sonar-abap-plugin:3.8.0.2034' // bundled_plugin:abap:sonar-abap
+      dependency 'com.sonarsource.cobol:sonar-cobol-plugin:4.4.0.3403' // bundled_plugin:cobol:sonar-cobol
+      dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.4.0.11646' // bundled_plugin:cpp:sonar-cpp
+      dependency 'com.sonarsource.pli:sonar-pli-plugin:1.10.0.1880' // bundled_plugin:pli:sonar-pli
+      dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.4.1.2576' // bundled_plugin:plsql:sonar-plsql
+      dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.6.0.1875' // bundled_plugin:vb:sonar-vb
+      dependency 'com.sonarsource.rpg:sonar-rpg-plugin:2.3.0.1187' // bundled_plugin:rpg:sonar-rpg
+      dependency 'com.sonarsource.security:sonar-security-csharp-frontend-plugin:8.0.0.5505' // bundled_plugin::sonar-security
+      dependency 'com.sonarsource.security:sonar-security-java-frontend-plugin:8.0.0.5505' // bundled_plugin::sonar-security
+      dependency 'com.sonarsource.security:sonar-security-php-frontend-plugin:8.0.0.5505' // bundled_plugin::sonar-security
+      dependency 'com.sonarsource.security:sonar-security-plugin:8.0.0.5505' // bundled_plugin::sonar-security
+      dependency 'com.sonarsource.slang:sonar-apex-plugin:1.7.0.883' // bundled_plugin:sonarapex:slang-enterprise
+      dependency 'com.sonarsource.swift:sonar-swift-plugin:4.1.0.3087' // bundled_plugin:swift:sonar-swift
+      dependency 'com.sonarsource.tsql:sonar-tsql-plugin:1.4.0.3334' // bundled_plugin:tsql:sonar-tsql
+      dependency 'org.sonarsource.css:sonar-css-plugin:1.1.1.1010' // bundled_plugin:cssfamily:sonar-css
+      dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:7.17.0.9346' // bundled_plugin:csharp:sonar-dotnet
+      dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:7.17.0.9346' // bundled_plugin:vbnet:sonar-dotnet
+      dependency 'org.sonarsource.flex:sonar-flex-plugin:2.5.1.1831' // bundled_plugin:flex:sonar-flex
+      dependency 'org.sonarsource.html:sonar-html-plugin:3.2.0.2082' // bundled_plugin:web:sonar-html
+      dependency 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.0.2.475' // bundled_plugin:jacoco:sonar-jacoco
+      dependency 'org.sonarsource.java:sonar-java-plugin:5.14.0.18788' // bundled_plugin:java:sonar-java
+      dependency 'org.sonarsource.javascript:sonar-javascript-plugin:5.2.1.7778' // bundled_plugin:javascript:SonarJS
+      dependency 'org.sonarsource.php:sonar-php-plugin:3.2.0.4868' // bundled_plugin:php:sonar-php
+      dependency 'org.sonarsource.python:sonar-python-plugin:1.16.0.4432' // bundled_plugin:python:sonar-python
+      dependency 'org.sonarsource.scm.git:sonar-scm-git-plugin:1.9.1.1834' // bundled_plugin:scmgit:sonar-scm-git
+      dependency 'org.sonarsource.scm.svn:sonar-scm-svn-plugin:1.9.0.1295' // bundled_plugin:scmsvn:sonar-scm-svn
+      dependency 'org.sonarsource.slang:sonar-go-plugin:1.6.0.719' // bundled_plugin:go:slang-enterprise
+      dependency 'org.sonarsource.slang:sonar-kotlin-plugin:1.5.0.315' // bundled_plugin:kotlin:slang-enterprise
+      dependency 'org.sonarsource.slang:sonar-ruby-plugin:1.5.0.315' // bundled_plugin:ruby:slang-enterprise
+      dependency 'org.sonarsource.slang:sonar-scala-plugin:1.5.0.315' // bundled_plugin:sonarscala:slang-enterprise
+      dependency 'org.sonarsource.typescript:sonar-typescript-plugin:1.9.0.3766' // bundled_plugin:typescript:SonarTS
+      dependency 'org.sonarsource.xml:sonar-xml-plugin:2.0.1.2020' // bundled_plugin:xml:sonar-xml
+
       // please keep this list alphabetically ordered
       dependencySet(group: 'ch.qos.logback', version: '1.2.3') {
         entry 'logback-access'
