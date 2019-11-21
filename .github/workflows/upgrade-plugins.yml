@@ -1,0 +1,43 @@
+name: Upgrade SonarQube bundled plugins
+on:
+# use push to test the bot
+#  push:
+#    branches-ignore:
+#      - 'bot/upgrade_plugins**'
+  schedule:
+    # at 9 every Monday
+    - cron:  '0 9 * * MON'
+
+jobs:
+  upgrade-plugins-job:
+    # prevent job to run on public repository sonarsource/sonarqube (where action sources are not available)
+    if: github.repository == 'sonarsource/sonar-enterprise' 
+    runs-on: ubuntu-latest
+    name: Upgrades the version of plugins bundled into SonarQube
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+          ref: master
+      - name: Upgrade plugins in build and create JIRA ticket
+        id: upgrade-plugins
+        uses: ./private/github/actions/upgrade-plugins
+        env:
+          GITHUB_ORG_TOKEN: ${{ secrets.GITHUB_ORG_TOKEN }}
+          JIRA_LOGIN: ${{ secrets.JIRA_LOGIN }}
+          JIRA_PASSWORD: ${{ secrets.JIRA_PASSWORD }}
+          REPOX_API_KEY: ${{ secrets.REPOX_API_KEY }}
+          REPOX_LOGIN: ${{ secrets.REPOX_LOGIN }}
+        with:
+          build_gradle_path: build.gradle
+      - name: Create Pull Request
+        if: steps.upgrade-plugins.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v1.5.1
+        env:
+          COMMIT_MESSAGE: ${{ steps.upgrade-plugins.outputs.commit_message }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_ORG_TOKEN }}
+          PULL_REQUEST_TITLE: ${{ steps.upgrade-plugins.outputs.commit_message }}
+          PULL_REQUEST_BODY: Auto-generated pull request to apply plugin upgrades. Release notes in [${{ steps.upgrade-plugins.outputs.jira_ticket }}](https://jira.sonarsource.com/browse/${{ steps.upgrade-plugins.outputs.jira_ticket }}).
+          PULL_REQUEST_BRANCH: bot/upgrade_plugins
+          BRANCH_SUFFIX: timestamp
+          PULL_REQUEST_LABELS: bot
