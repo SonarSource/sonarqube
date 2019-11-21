@@ -23,7 +23,6 @@ import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DetachIcon from 'sonar-ui-common/components/icons/DetachIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import BranchStatus from '../../../../components/common/BranchStatus';
-import Favorite from '../../../../components/controls/Favorite';
 import HomePageSelect from '../../../../components/controls/HomePageSelect';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import { isBranch, isMainBranch, isPullRequest } from '../../../../helpers/branch-like';
@@ -62,14 +61,7 @@ export function ComponentNavMeta({ branchLike, component, currentUser, warnings 
       )}
       {isLoggedIn(currentUser) && (
         <div className="navbar-context-meta-secondary">
-          {mainBranch && (
-            <Favorite
-              component={component.key}
-              favorite={Boolean(component.isFavorite)}
-              qualifier={component.qualifier}
-            />
-          )}
-          {isABranch && currentPage !== undefined && (
+          {mainBranch && currentPage !== undefined && (
             <HomePageSelect className="spacer-left" currentPage={currentPage} />
           )}
         </div>

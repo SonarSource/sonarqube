@@ -19,23 +19,30 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import Favorite from '../../../../../components/controls/Favorite';
 import { mockSetOfBranchAndPullRequest } from '../../../../../helpers/mocks/branch-like';
-import { mockComponent } from '../../../../../helpers/testMocks';
-import { ComponentNavHeader, ComponentNavHeaderProps } from '../ComponentNavHeader';
+import { mockComponent, mockCurrentUser } from '../../../../../helpers/testMocks';
+import { Header, HeaderProps } from '../Header';
 
 it('should render correctly', () => {
-  const wrapper = shallowRender();
+  const wrapper = shallowRender({ currentUser: mockCurrentUser({ isLoggedIn: true }) });
   expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props?: Partial<ComponentNavHeaderProps>) {
+it('should not render favorite button if the user is not logged in', () => {
+  const wrapper = shallowRender();
+  expect(wrapper.find(Favorite).exists()).toBeFalsy();
+});
+
+function shallowRender(props?: Partial<HeaderProps>) {
   const branchLikes = mockSetOfBranchAndPullRequest();
 
   return shallow(
-    <ComponentNavHeader
+    <Header
       branchLikes={branchLikes}
       component={mockComponent()}
       currentBranchLike={branchLikes[0]}
+      currentUser={mockCurrentUser()}
       {...props}
     />
   );

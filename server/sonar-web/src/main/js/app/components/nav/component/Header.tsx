@@ -19,25 +19,38 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { connect } from 'react-redux';
+import Favorite from '../../../../components/controls/Favorite';
+import { isLoggedIn } from '../../../../helpers/users';
+import { getCurrentUser, Store } from '../../../../store/rootReducer';
 import { BranchLike } from '../../../../types/branch-like';
 import BranchLikeNavigation from './branch-like/BranchLikeNavigation';
 import CurrentBranchLikeMergeInformation from './branch-like/CurrentBranchLikeMergeInformation';
 import { ComponentBreadcrumb } from './ComponentBreadcrumb';
 
-export interface ComponentNavHeaderProps {
+export interface HeaderProps {
   branchLikes: BranchLike[];
   component: T.Component;
   currentBranchLike: BranchLike | undefined;
+  currentUser: T.CurrentUser;
 }
 
-export function ComponentNavHeader(props: ComponentNavHeaderProps) {
-  const { branchLikes, component, currentBranchLike } = props;
+export function Header(props: HeaderProps) {
+  const { branchLikes, component, currentBranchLike, currentUser } = props;
 
   return (
     <>
       <Helmet title={component.name} />
       <header className="display-flex-center flex-shrink">
         <ComponentBreadcrumb component={component} currentBranchLike={currentBranchLike} />
+        {isLoggedIn(currentUser) && (
+          <Favorite
+            className="spacer-left"
+            component={component.key}
+            favorite={Boolean(component.isFavorite)}
+            qualifier={component.qualifier}
+          />
+        )}
         {currentBranchLike && (
           <>
             <BranchLikeNavigation
@@ -53,4 +66,8 @@ export function ComponentNavHeader(props: ComponentNavHeaderProps) {
   );
 }
 
-export default React.memo(ComponentNavHeader);
+const mapStateToProps = (state: Store) => ({
+  currentUser: getCurrentUser(state)
+});
+
+export default connect(mapStateToProps)(React.memo(Header));

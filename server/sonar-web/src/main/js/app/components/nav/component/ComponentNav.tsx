@@ -25,9 +25,9 @@ import { rawSizes } from '../../../theme';
 import RecentHistory from '../../RecentHistory';
 import './ComponentNav.css';
 import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
-import ComponentNavHeader from './ComponentNavHeader';
 import ComponentNavMenu from './ComponentNavMenu';
 import ComponentNavMeta from './ComponentNavMeta';
+import Header from './Header';
 
 interface Props {
   branchLikes: BranchLike[];
@@ -88,7 +88,7 @@ export default class ComponentNav extends React.PureComponent<Props> {
         id="context-navigation"
         notif={notifComponent}>
         <div className="navbar-context-justified">
-          <ComponentNavHeader
+          <Header
             branchLikes={this.props.branchLikes}
             component={component}
             currentBranchLike={currentBranchLike}

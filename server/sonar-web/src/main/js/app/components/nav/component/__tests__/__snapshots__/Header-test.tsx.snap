@@ -43,6 +43,12 @@ exports[`should render correctly 1`] = `
         }
       }
     />
+    <Favorite
+      className="spacer-left"
+      component="my-project"
+      favorite={false}
+      qualifier="TRK"
+    />
     <Connect(withAppState(Component))
       branchLikes={
         Array [
