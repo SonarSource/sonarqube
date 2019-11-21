@@ -138,7 +138,7 @@ subprojects {
       dependency 'org.sonarsource.php:sonar-php-plugin:3.2.0.4868'
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.10.0.1880'
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.4.1.2576'
-      dependency 'org.sonarsource.python:sonar-python-plugin:1.16.0.4432'
+      dependency 'org.sonarsource.python:sonar-python-plugin:2.1.0.5269'
       dependency 'com.sonarsource.rpg:sonar-rpg-plugin:2.3.0.1187'
       dependency 'org.sonarsource.scm.git:sonar-scm-git-plugin:1.9.1.1834'
       dependency 'org.sonarsource.scm.svn:sonar-scm-svn-plugin:1.9.0.1295'
