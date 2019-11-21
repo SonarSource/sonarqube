@@ -25,7 +25,6 @@ public class UpdateCenterWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      UploadAction.class,
       InstalledPluginsAction.class,
       UpdateCenterWs.class
 
