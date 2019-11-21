@@ -10,7 +10,7 @@ exports[`should render correctly 1`] = `
   <header
     className="display-flex-center flex-shrink"
   >
-    <ComponentBreadcrumb
+    <Breadcrumb
       component={
         Object {
           "breadcrumbs": Array [],

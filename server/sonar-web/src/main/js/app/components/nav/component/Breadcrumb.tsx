@@ -30,7 +30,7 @@ interface Props {
   currentBranchLike: BranchLike | undefined;
 }
 
-export function ComponentBreadcrumb(props: Props) {
+export function Breadcrumb(props: Props) {
   const {
     component: { breadcrumbs },
     currentBranchLike
@@ -69,4 +69,4 @@ export function ComponentBreadcrumb(props: Props) {
   );
 }
 
-export default React.memo(ComponentBreadcrumb);
+export default React.memo(Breadcrumb);

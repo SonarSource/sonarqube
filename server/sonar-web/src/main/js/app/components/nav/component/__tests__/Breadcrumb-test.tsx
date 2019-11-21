@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockMainBranch } from '../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../../types/component';
-import { ComponentBreadcrumb } from '../ComponentBreadcrumb';
+import { Breadcrumb } from '../Breadcrumb';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
@@ -31,7 +31,7 @@ it('should render correctly', () => {
 
 function shallowRender() {
   return shallow(
-    <ComponentBreadcrumb
+    <Breadcrumb
       component={mockComponent({
         breadcrumbs: [
           {

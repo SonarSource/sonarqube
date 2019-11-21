@@ -26,7 +26,7 @@ import { getCurrentUser, Store } from '../../../../store/rootReducer';
 import { BranchLike } from '../../../../types/branch-like';
 import BranchLikeNavigation from './branch-like/BranchLikeNavigation';
 import CurrentBranchLikeMergeInformation from './branch-like/CurrentBranchLikeMergeInformation';
-import { ComponentBreadcrumb } from './ComponentBreadcrumb';
+import { Breadcrumb } from './Breadcrumb';
 
 export interface HeaderProps {
   branchLikes: BranchLike[];
@@ -42,7 +42,7 @@ export function Header(props: HeaderProps) {
     <>
       <Helmet title={component.name} />
       <header className="display-flex-center flex-shrink">
-        <ComponentBreadcrumb component={component} currentBranchLike={currentBranchLike} />
+        <Breadcrumb component={component} currentBranchLike={currentBranchLike} />
         {isLoggedIn(currentUser) && (
           <Favorite
             className="spacer-left"
