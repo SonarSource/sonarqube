@@ -1,31 +1,34 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`#ComponentNavMeta renders meta for a branch 1`] = `
-<div
-  className="navbar-context-meta flex-0"
->
+exports[`should render correctly for a branch 1`] = `
+<Fragment>
   <div
-    className="spacer-left text-ellipsis"
+    className="display-flex-center flex-0 small"
   >
-    <DateTimeFormatter
-      date="2017-01-02T00:00:00.000Z"
-    />
-  </div>
-  <Tooltip
-    mouseEnterDelay={0.5}
-    overlay="version 0.0.1"
-  >
-    <div
-      className="spacer-left text-limited"
+    <span
+      className="header-meta-warnings"
     >
-      version
-       
-      0.0.1
-    </div>
-  </Tooltip>
-  <div
-    className="navbar-context-meta-secondary"
-  >
+      <ComponentNavWarnings
+        warnings={
+          Array [
+            "ERROR_1",
+            "ERROR_2",
+          ]
+        }
+      />
+    </span>
+    <span
+      className="spacer-left nowrap note"
+    >
+      <DateTimeFormatter
+        date="2017-01-02T00:00:00.000Z"
+      />
+    </span>
+    <span
+      className="spacer-left nowrap note"
+    >
+      version 0.0.1
+    </span>
     <Connect(HomePageSelect)
       className="spacer-left"
       currentPage={
@@ -37,19 +40,33 @@ exports[`#ComponentNavMeta renders meta for a branch 1`] = `
       }
     />
   </div>
-</div>
+</Fragment>
 `;
 
-exports[`#ComponentNavMeta renders meta for pull request 1`] = `
-<div
-  className="navbar-context-meta flex-0"
->
+exports[`should render correctly for a pull request 1`] = `
+<Fragment>
   <div
-    className="spacer-left text-ellipsis"
+    className="display-flex-center flex-0 small"
   >
-    <DateTimeFormatter
-      date="2017-01-02T00:00:00.000Z"
-    />
+    <span
+      className="header-meta-warnings"
+    >
+      <ComponentNavWarnings
+        warnings={
+          Array [
+            "ERROR_1",
+            "ERROR_2",
+          ]
+        }
+      />
+    </span>
+    <span
+      className="spacer-left nowrap note"
+    >
+      <DateTimeFormatter
+        date="2017-01-02T00:00:00.000Z"
+      />
+    </span>
   </div>
   <div
     className="navbar-context-meta-secondary display-inline-flex-center"
@@ -81,5 +98,5 @@ exports[`#ComponentNavMeta renders meta for pull request 1`] = `
       component="my-project"
     />
   </div>
-</div>
+</Fragment>
 `;

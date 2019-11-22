@@ -17,17 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as classNames from 'classnames';
 import * as React from 'react';
 import ContextNavBar from 'sonar-ui-common/components/ui/ContextNavBar';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 import { BranchLike } from '../../../../types/branch-like';
+import { ComponentQualifier } from '../../../../types/component';
 import { rawSizes } from '../../../theme';
 import RecentHistory from '../../RecentHistory';
-import './ComponentNav.css';
 import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
-import ComponentNavMenu from './ComponentNavMenu';
-import ComponentNavMeta from './ComponentNavMeta';
 import Header from './Header';
+import HeaderMeta from './HeaderMeta';
+import Menu from './Menu';
 
 interface Props {
   branchLikes: BranchLike[];
@@ -37,7 +38,6 @@ interface Props {
   currentTaskOnSameBranch?: boolean;
   isInProgress?: boolean;
   isPending?: boolean;
-  location: {};
   warnings: string[];
 }
 
@@ -57,7 +57,14 @@ export default class ComponentNav extends React.PureComponent<Props> {
   populateRecentHistory = () => {
     const { breadcrumbs } = this.props.component;
     const { qualifier } = breadcrumbs[breadcrumbs.length - 1];
-    if (['TRK', 'VW', 'APP', 'DEV'].indexOf(qualifier) !== -1) {
+    if (
+      [
+        ComponentQualifier.Project,
+        ComponentQualifier.Portfolio,
+        ComponentQualifier.Application,
+        ComponentQualifier.Developper
+      ].includes(qualifier as ComponentQualifier)
+    ) {
       RecentHistory.add(
         this.props.component.key,
         this.props.component.name,
@@ -87,24 +94,25 @@ export default class ComponentNav extends React.PureComponent<Props> {
         height={notifComponent ? contextNavHeight + 30 : contextNavHeight}
         id="context-navigation"
         notif={notifComponent}>
-        <div className="navbar-context-justified">
+        <div
+          className={classNames(
+            'display-flex-center display-flex-space-between little-padded-top',
+            {
+              'padded-bottom': this.props.warnings.length === 0
+            }
+          )}>
           <Header
             branchLikes={this.props.branchLikes}
             component={component}
             currentBranchLike={currentBranchLike}
           />
-          <ComponentNavMeta
+          <HeaderMeta
             branchLike={currentBranchLike}
             component={component}
             warnings={this.props.warnings}
           />
         </div>
-        <ComponentNavMenu
-          branchLike={currentBranchLike}
-          component={component}
-          // to re-render selected menu item
-          location={this.props.location}
-        />
+        <Menu branchLike={currentBranchLike} component={component} />
       </ContextNavBar>
     );
   }

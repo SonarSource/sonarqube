@@ -23,11 +23,12 @@ import { Link } from 'react-router';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import NavBarTabs from 'sonar-ui-common/components/ui/NavBarTabs';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { hasMessage, translate } from 'sonar-ui-common/helpers/l10n';
 import { withAppState } from '../../../../components/hoc/withAppState';
 import { getBranchLikeQuery, isMainBranch, isPullRequest } from '../../../../helpers/branch-like';
 import { isSonarCloud } from '../../../../helpers/system';
 import { BranchLike } from '../../../../types/branch-like';
+import { ComponentQualifier } from '../../../../types/component';
 
 const SETTINGS_URLS = [
   '/project/admin',
@@ -50,25 +51,26 @@ interface Props {
   appState: Pick<T.AppState, 'branchesEnabled'>;
   branchLike: BranchLike | undefined;
   component: T.Component;
-  location?: any;
 }
 
-export class ComponentNavMenu extends React.PureComponent<Props> {
+export class Menu extends React.PureComponent<Props> {
   isProject() {
-    return this.props.component.qualifier === 'TRK';
+    return this.props.component.qualifier === ComponentQualifier.Project;
   }
 
   isDeveloper() {
-    return this.props.component.qualifier === 'DEV';
+    return this.props.component.qualifier === ComponentQualifier.Developper;
   }
 
   isPortfolio() {
     const { qualifier } = this.props.component;
-    return qualifier === 'VW' || qualifier === 'SVW';
+    return (
+      qualifier === ComponentQualifier.Portfolio || qualifier === ComponentQualifier.SubPortfolio
+    );
   }
 
   isApplication() {
-    return this.props.component.qualifier === 'APP';
+    return this.props.component.qualifier === ComponentQualifier.Application;
   }
 
   getConfiguration() {
@@ -125,13 +127,10 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderIssuesLink() {
-    const { location = { pathname: '' } } = this.props;
-    const isIssuesActive = location.pathname.startsWith('/project/issues');
     return (
       <li>
         <Link
           activeClassName="active"
-          className={classNames({ active: isIssuesActive })}
           to={{ pathname: '/project/issues', query: { ...this.getQuery(), resolved: 'false' } }}>
           {translate('issues.page')}
         </Link>
@@ -196,7 +195,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderAdministration() {
-    const { branchLike } = this.props;
+    const { branchLike, component } = this.props;
 
     if (!this.getConfiguration().showSettings || isPullRequest(branchLike)) {
       return null;
@@ -222,7 +221,9 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
             href="#"
             id="component-navigation-admin"
             onClick={onToggleClick}>
-            {translate('layout.settings')}
+            {hasMessage('layout.settings', component.qualifier)
+              ? translate('layout.settings', component.qualifier)
+              : translate('layout.settings')}
             <DropdownIcon className="little-spacer-left" />
           </a>
         )}
@@ -276,7 +277,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
       <li key="branches">
         <Link
           activeClassName="active"
-          to={{ pathname: '/project/branches', query: { id: this.props.component.key } }}>
+          to={{ pathname: '/project/branches', query: this.getQuery() }}>
           {translate('project_branch_pull_request.page')}
         </Link>
       </li>
@@ -291,7 +292,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
       <li key="baseline">
         <Link
           activeClassName="active"
-          to={{ pathname: '/project/baseline', query: { id: this.props.component.key } }}>
+          to={{ pathname: '/project/baseline', query: this.getQuery() }}>
           {translate('project_baseline.page')}
         </Link>
       </li>
@@ -306,7 +307,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
       <li key="profiles">
         <Link
           activeClassName="active"
-          to={{ pathname: '/project/quality_profiles', query: { id: this.props.component.key } }}>
+          to={{ pathname: '/project/quality_profiles', query: this.getQuery() }}>
           {translate('project_quality_profiles.page')}
         </Link>
       </li>
@@ -321,7 +322,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
       <li key="quality_gate">
         <Link
           activeClassName="active"
-          to={{ pathname: '/project/quality_gate', query: { id: this.props.component.key } }}>
+          to={{ pathname: '/project/quality_gate', query: this.getQuery() }}>
           {translate('project_quality_gate.page')}
         </Link>
       </li>
@@ -336,7 +337,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
       <li key="custom_measures">
         <Link
           activeClassName="active"
-          to={{ pathname: '/custom_measures', query: { id: this.props.component.key } }}>
+          to={{ pathname: '/custom_measures', query: this.getQuery() }}>
           {translate('custom_measures.page')}
         </Link>
       </li>
@@ -349,9 +350,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
     }
     return (
       <li key="links">
-        <Link
-          activeClassName="active"
-          to={{ pathname: '/project/links', query: { id: this.props.component.key } }}>
+        <Link activeClassName="active" to={{ pathname: '/project/links', query: this.getQuery() }}>
           {translate('project_links.page')}
         </Link>
       </li>
@@ -364,9 +363,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
     }
     return (
       <li key="permissions">
-        <Link
-          activeClassName="active"
-          to={{ pathname: '/project_roles', query: { id: this.props.component.key } }}>
+        <Link activeClassName="active" to={{ pathname: '/project_roles', query: this.getQuery() }}>
           {translate('permissions.page')}
         </Link>
       </li>
@@ -381,7 +378,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
       <li key="background_tasks">
         <Link
           activeClassName="active"
-          to={{ pathname: '/project/background_tasks', query: { id: this.props.component.key } }}>
+          to={{ pathname: '/project/background_tasks', query: this.getQuery() }}>
           {translate('background_tasks.page')}
         </Link>
       </li>
@@ -394,9 +391,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
     }
     return (
       <li key="update_key">
-        <Link
-          activeClassName="active"
-          to={{ pathname: '/project/key', query: { id: this.props.component.key } }}>
+        <Link activeClassName="active" to={{ pathname: '/project/key', query: this.getQuery() }}>
           {translate('update_key.page')}
         </Link>
       </li>
@@ -411,7 +406,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
       <li key="webhooks">
         <Link
           activeClassName="active"
-          to={{ pathname: '/project/webhooks', query: { id: this.props.component.key } }}>
+          to={{ pathname: '/project/webhooks', query: this.getQuery() }}>
           {translate('webhooks.page')}
         </Link>
       </li>
@@ -425,7 +420,13 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
       return null;
     }
 
-    if (qualifier !== 'TRK' && qualifier !== 'VW' && qualifier !== 'APP') {
+    if (
+      ![
+        ComponentQualifier.Project,
+        ComponentQualifier.Portfolio,
+        ComponentQualifier.Application
+      ].includes(qualifier as ComponentQualifier)
+    ) {
       return null;
     }
 
@@ -433,7 +434,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
       <li key="project_delete">
         <Link
           activeClassName="active"
-          to={{ pathname: '/project/deletion', query: { id: this.props.component.key } }}>
+          to={{ pathname: '/project/deletion', query: this.getQuery() }}>
           {translate('deletion.page')}
         </Link>
       </li>
@@ -442,7 +443,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
 
   renderExtension = ({ key, name }: T.Extension, isAdmin: boolean) => {
     const pathname = isAdmin ? `/project/admin/extension/${key}` : `/project/extension/${key}`;
-    const query = { id: this.props.component.key, qualifier: this.props.component.qualifier };
+    const query = { ...this.getQuery(), qualifier: this.props.component.qualifier };
     return (
       <li key={key}>
         <Link activeClassName="active" to={{ pathname, query }}>
@@ -499,19 +500,21 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
 
   render() {
     return (
-      <NavBarTabs>
-        {this.renderDashboardLink()}
-        {this.renderIssuesLink()}
-        {this.renderSecurityHotspotsLink()}
-        {this.renderSecurityReports()}
-        {this.renderComponentMeasuresLink()}
-        {this.renderCodeLink()}
-        {this.renderActivityLink()}
-        {this.renderAdministration()}
-        {this.renderExtensions()}
-      </NavBarTabs>
+      <div className="display-flex-center display-flex-space-between">
+        <NavBarTabs>
+          {this.renderDashboardLink()}
+          {this.renderIssuesLink()}
+          {this.renderSecurityHotspotsLink()}
+          {this.renderSecurityReports()}
+          {this.renderComponentMeasuresLink()}
+          {this.renderCodeLink()}
+          {this.renderActivityLink()}
+          {this.renderExtensions()}
+        </NavBarTabs>
+        <NavBarTabs>{this.renderAdministration()}</NavBarTabs>
+      </div>
     );
   }
 }
 
-export default withAppState(ComponentNavMenu);
+export default withAppState(Menu);

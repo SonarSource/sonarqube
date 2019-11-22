@@ -35,7 +35,6 @@ it('renders', () => {
       branchLikes={[]}
       component={component}
       currentBranchLike={undefined}
-      location={{}}
       warnings={[]}
     />
   );

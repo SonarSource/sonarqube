@@ -6,7 +6,7 @@ exports[`renders 1`] = `
   id="context-navigation"
 >
   <div
-    className="navbar-context-justified"
+    className="display-flex-center display-flex-space-between little-padder-top padder-bottom"
   >
     <Connect(Component)
       branchLikes={Array []}
@@ -26,7 +26,7 @@ exports[`renders 1`] = `
         }
       }
     />
-    <Connect(ComponentNavMeta)
+    <Connect(HeaderMeta)
       component={
         Object {
           "breadcrumbs": Array [
@@ -45,7 +45,7 @@ exports[`renders 1`] = `
       warnings={Array []}
     />
   </div>
-  <Connect(withAppState(ComponentNavMenu))
+  <Connect(withAppState(Menu))
     component={
       Object {
         "breadcrumbs": Array [
@@ -61,7 +61,6 @@ exports[`renders 1`] = `
         "qualifier": "TRK",
       }
     }
-    location={Object {}}
   />
 </ContextNavBar>
 `;

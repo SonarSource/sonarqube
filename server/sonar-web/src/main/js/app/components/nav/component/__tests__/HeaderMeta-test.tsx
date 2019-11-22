@@ -19,46 +19,54 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import HomePageSelect from '../../../../../components/controls/HomePageSelect';
 import { mockBranch, mockPullRequest } from '../../../../../helpers/mocks/branch-like';
-import { mockComponent, mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
-import { ComponentNavMeta, getCurrentPage, Props } from '../ComponentNavMeta';
+import { mockComponent, mockCurrentUser } from '../../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../../types/component';
+import { getCurrentPage, HeaderMeta, HeaderMetaProps } from '../HeaderMeta';
 
-describe('#ComponentNavMeta', () => {
-  it('renders meta for a branch', () => {
-    expect(
-      shallowRender({ branchLike: mockBranch(), currentUser: mockLoggedInUser() })
-    ).toMatchSnapshot();
-  });
+it('should render correctly for a branch', () => {
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
+});
 
-  it('renders meta for pull request', () => {
-    expect(
-      shallowRender({
-        branchLike: mockPullRequest({
-          url: 'https://example.com/pull/1234'
-        })
-      })
-    ).toMatchSnapshot();
+it('should render correctly for a pull request', () => {
+  const wrapper = shallowRender({
+    branchLike: mockPullRequest({
+      url: 'https://example.com/pull/1234'
+    })
   });
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render correctly when the user is not logged in', () => {
+  const wrapper = shallowRender({ currentUser: { isLoggedIn: false } });
+  expect(wrapper.find(HomePageSelect).exists()).toBeFalsy();
 });
 
 describe('#getCurrentPage', () => {
-  it('should return a portfolio page', () => {
-    expect(getCurrentPage(mockComponent({ key: 'foo', qualifier: 'VW' }), undefined)).toEqual({
+  test('should return a portfolio page', () => {
+    expect(
+      getCurrentPage(
+        mockComponent({ key: 'foo', qualifier: ComponentQualifier.Portfolio }),
+        undefined
+      )
+    ).toEqual({
       type: 'PORTFOLIO',
       component: 'foo'
     });
   });
 
-  it('should return an app page', () => {
+  test('should return an application page', () => {
     expect(
       getCurrentPage(
-        mockComponent({ key: 'foo', qualifier: 'APP' }),
+        mockComponent({ key: 'foo', qualifier: ComponentQualifier.Application }),
         mockBranch({ name: 'develop' })
       )
     ).toEqual({ type: 'APPLICATION', component: 'foo', branch: 'develop' });
   });
 
-  it('should return a project page', () => {
+  test('should return a project page', () => {
     expect(getCurrentPage(mockComponent(), mockBranch({ name: 'feature/foo' }))).toEqual({
       type: 'PROJECT',
       component: 'my-project',
@@ -67,13 +75,13 @@ describe('#getCurrentPage', () => {
   });
 });
 
-function shallowRender(props: Partial<Props> = {}) {
+function shallowRender(props: Partial<HeaderMetaProps> = {}) {
   return shallow(
-    <ComponentNavMeta
+    <HeaderMeta
       branchLike={mockBranch()}
       component={mockComponent({ analysisDate: '2017-01-02T00:00:00.000Z', version: '0.0.1' })}
-      currentUser={mockCurrentUser()}
-      warnings={[]}
+      currentUser={mockCurrentUser({ isLoggedIn: true })}
+      warnings={['ERROR_1', 'ERROR_2']}
       {...props}
     />
   );

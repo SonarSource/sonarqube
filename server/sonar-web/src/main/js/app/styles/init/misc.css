@@ -140,6 +140,22 @@ th.hide-overflow {
   padding: calc(2 * var(--gridSize));
 }
 
+.padded-top {
+  padding-top: var(--gridSize) !important;
+}
+
+.padded-bottom {
+  padding-bottom: var(--gridSize) !important;
+}
+
+.little-padded-top {
+  padding-top: calc(var(--gridSize) / 2) !important;
+}
+
+.little-padded-bottom {
+  padding-bottom: calc(var(--gridSize) / 2) !important;
+}
+
 td.little-spacer-left {
   padding-left: 4px !important;
 }

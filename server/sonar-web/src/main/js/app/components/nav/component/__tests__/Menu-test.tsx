@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable sonarjs/no-duplicate-string */
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
@@ -24,7 +25,8 @@ import {
   mockMainBranch,
   mockPullRequest
 } from '../../../../../helpers/mocks/branch-like';
-import { ComponentNavMenu } from '../ComponentNavMenu';
+import { ComponentQualifier } from '../../../../../types/component';
+import { Menu } from '../Menu';
 
 const mainBranch = mockMainBranch();
 
@@ -43,11 +45,7 @@ it('should work with extensions', () => {
     extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
   };
   const wrapper = shallow(
-    <ComponentNavMenu
-      appState={{ branchesEnabled: true }}
-      branchLike={mainBranch}
-      component={component}
-    />
+    <Menu appState={{ branchesEnabled: true }} branchLike={mainBranch} component={component} />
   );
   expect(wrapper.find('Dropdown[data-test="extensions"]')).toMatchSnapshot();
   expect(wrapper.find('Dropdown[data-test="administration"]')).toMatchSnapshot();
@@ -69,11 +67,7 @@ it('should work with multiple extensions', () => {
     ]
   };
   const wrapper = shallow(
-    <ComponentNavMenu
-      appState={{ branchesEnabled: true }}
-      branchLike={mainBranch}
-      component={component}
-    />
+    <Menu appState={{ branchesEnabled: true }} branchLike={mainBranch} component={component} />
   );
   expect(wrapper.find('Dropdown[data-test="extensions"]')).toMatchSnapshot();
   expect(wrapper.find('Dropdown[data-test="administration"]')).toMatchSnapshot();
@@ -95,11 +89,7 @@ it('should render correctly for security extensions', () => {
     ]
   };
   const wrapper = shallow(
-    <ComponentNavMenu
-      appState={{ branchesEnabled: true }}
-      branchLike={mainBranch}
-      component={component}
-    />
+    <Menu appState={{ branchesEnabled: true }} branchLike={mainBranch} component={component} />
   );
   expect(wrapper.find('Dropdown[data-test="extensions"]')).toMatchSnapshot();
   expect(wrapper.find('Dropdown[data-test="security"]')).toMatchSnapshot();
@@ -112,7 +102,7 @@ it('should work for a branch', () => {
   [true, false].forEach(showSettings =>
     expect(
       shallow(
-        <ComponentNavMenu
+        <Menu
           appState={{ branchesEnabled: true }}
           branchLike={branch}
           component={{
@@ -130,7 +120,7 @@ it('should work for pull requests', () => {
   [true, false].forEach(showSettings =>
     expect(
       shallow(
-        <ComponentNavMenu
+        <Menu
           appState={{ branchesEnabled: true }}
           branchLike={mockPullRequest()}
           component={{
@@ -145,18 +135,19 @@ it('should work for pull requests', () => {
 });
 
 it('should work for all qualifiers', () => {
-  ['TRK', 'VW', 'SVW', 'APP'].forEach(checkWithQualifier);
+  [
+    ComponentQualifier.Project,
+    ComponentQualifier.Portfolio,
+    ComponentQualifier.SubPortfolio,
+    ComponentQualifier.Application
+  ].forEach(checkWithQualifier);
   expect.assertions(4);
 
   function checkWithQualifier(qualifier: string) {
     const component = { ...baseComponent, configuration: { showSettings: true }, qualifier };
     expect(
       shallow(
-        <ComponentNavMenu
-          appState={{ branchesEnabled: true }}
-          branchLike={mainBranch}
-          component={component}
-        />
+        <Menu appState={{ branchesEnabled: true }} branchLike={mainBranch} component={component} />
       )
     ).toMatchSnapshot();
   }

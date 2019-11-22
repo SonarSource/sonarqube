@@ -19,56 +19,58 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DetachIcon from 'sonar-ui-common/components/icons/DetachIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import BranchStatus from '../../../../components/common/BranchStatus';
 import HomePageSelect from '../../../../components/controls/HomePageSelect';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
-import { isBranch, isMainBranch, isPullRequest } from '../../../../helpers/branch-like';
+import { isBranch, isPullRequest } from '../../../../helpers/branch-like';
 import { isLoggedIn } from '../../../../helpers/users';
 import { getCurrentUser, Store } from '../../../../store/rootReducer';
 import { BranchLike } from '../../../../types/branch-like';
+import { ComponentQualifier } from '../../../../types/component';
 import ComponentNavWarnings from './ComponentNavWarnings';
+import './HeaderMeta.css';
 
-export interface Props {
+export interface HeaderMetaProps {
   branchLike?: BranchLike;
   currentUser: T.CurrentUser;
   component: T.Component;
   warnings: string[];
 }
 
-export function ComponentNavMeta({ branchLike, component, currentUser, warnings }: Props) {
-  const mainBranch = !branchLike || isMainBranch(branchLike);
+export function HeaderMeta(props: HeaderMetaProps) {
+  const { branchLike, component, currentUser, warnings } = props;
+
   const isABranch = isBranch(branchLike);
   const currentPage = getCurrentPage(component, branchLike);
   const displayVersion = component.version !== undefined && isABranch;
 
   return (
-    <div className="navbar-context-meta flex-0">
-      {warnings.length > 0 && <ComponentNavWarnings warnings={warnings} />}
-      {component.analysisDate && (
-        <div className="spacer-left text-ellipsis">
-          <DateTimeFormatter date={component.analysisDate} />
-        </div>
-      )}
-      {displayVersion && (
-        <Tooltip mouseEnterDelay={0.5} overlay={`${translate('version')} ${component.version}`}>
-          <div className="spacer-left text-limited">
-            {translate('version')} {component.version}
-          </div>
-        </Tooltip>
-      )}
-      {isLoggedIn(currentUser) && (
-        <div className="navbar-context-meta-secondary">
-          {mainBranch && currentPage !== undefined && (
-            <HomePageSelect className="spacer-left" currentPage={currentPage} />
-          )}
-        </div>
-      )}
+    <>
+      <div className="display-flex-center flex-0 small">
+        {warnings.length > 0 && (
+          <span className="header-meta-warnings">
+            <ComponentNavWarnings warnings={warnings} />
+          </span>
+        )}
+        {component.analysisDate && (
+          <span className="spacer-left nowrap note">
+            <DateTimeFormatter date={component.analysisDate} />
+          </span>
+        )}
+        {displayVersion && (
+          <span className="spacer-left nowrap note">{`${translate('version')} ${
+            component.version
+          }`}</span>
+        )}
+        {isLoggedIn(currentUser) && isABranch && currentPage !== undefined && (
+          <HomePageSelect className="spacer-left" currentPage={currentPage} />
+        )}
+      </div>
       {isPullRequest(branchLike) && (
         <div className="navbar-context-meta-secondary display-inline-flex-center">
-          {isPullRequest(branchLike) && branchLike.url !== undefined && (
+          {branchLike.url !== undefined && (
             <a
               className="display-inline-flex-center big-spacer-right"
               href={branchLike.url}
@@ -81,22 +83,35 @@ export function ComponentNavMeta({ branchLike, component, currentUser, warnings 
           <BranchStatus branchLike={branchLike} component={component.key} />
         </div>
       )}
-    </div>
+    </>
   );
 }
 
 export function getCurrentPage(component: T.Component, branchLike: BranchLike | undefined) {
   let currentPage: T.HomePage | undefined;
-  if (component.qualifier === 'VW' || component.qualifier === 'SVW') {
-    currentPage = { type: 'PORTFOLIO', component: component.key };
-  } else if (component.qualifier === 'APP') {
-    const branch = isBranch(branchLike) ? branchLike.name : undefined;
-    currentPage = { type: 'APPLICATION', component: component.key, branch };
-  } else if (component.qualifier === 'TRK') {
-    // when home page is set to the default branch of a project, its name is returned as `undefined`
-    const branch = isBranch(branchLike) ? branchLike.name : undefined;
-    currentPage = { type: 'PROJECT', component: component.key, branch };
+
+  switch (component.qualifier) {
+    case ComponentQualifier.Portfolio:
+    case ComponentQualifier.SubPortfolio:
+      currentPage = { type: 'PORTFOLIO', component: component.key };
+      break;
+    case ComponentQualifier.Application:
+      currentPage = {
+        type: 'APPLICATION',
+        component: component.key,
+        branch: isBranch(branchLike) ? branchLike.name : undefined
+      };
+      break;
+    case ComponentQualifier.Project:
+      // when home page is set to the default branch of a project, its name is returned as `undefined`
+      currentPage = {
+        type: 'PROJECT',
+        component: component.key,
+        branch: isBranch(branchLike) ? branchLike.name : undefined
+      };
+      break;
   }
+
   return currentPage;
 }
 
@@ -104,4 +119,4 @@ const mapStateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state)
 });
 
-export default connect(mapStateToProps)(ComponentNavMeta);
+export default connect(mapStateToProps)(HeaderMeta);

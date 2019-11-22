@@ -326,7 +326,6 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             currentTaskOnSameBranch={currentTask && this.isSameBranch(currentTask, branchLike)}
             isInProgress={isInProgress}
             isPending={isPending}
-            location={this.props.location}
             warnings={this.state.warnings}
           />
         )}
