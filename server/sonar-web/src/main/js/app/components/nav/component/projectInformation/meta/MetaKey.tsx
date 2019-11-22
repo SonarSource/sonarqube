@@ -17,29 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import ComponentNav from '../ComponentNav';
+import { ClipboardButton } from 'sonar-ui-common/components/controls/clipboard';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 
-const component = {
-  breadcrumbs: [{ key: 'component', name: 'component', qualifier: 'TRK' }],
-  key: 'component',
-  name: 'component',
-  organization: 'org',
-  qualifier: 'TRK'
-};
+interface Props {
+  componentKey: string;
+  qualifier: string;
+}
 
-it('renders', () => {
-  const wrapper = shallow(
-    <ComponentNav
-      branchLikes={[]}
-      component={component}
-      currentBranchLike={undefined}
-      isInProgress={true}
-      isPending={true}
-      onComponentChange={jest.fn()}
-      warnings={[]}
-    />
+export default function MetaKey({ componentKey, qualifier }: Props) {
+  return (
+    <>
+      <h3>{translate('overview.project_key', qualifier)}</h3>
+      <div className="display-flex-center">
+        <input className="overview-key" readOnly={true} type="text" value={componentKey} />
+        <ClipboardButton className="little-spacer-left" copyValue={componentKey} />
+      </div>
+    </>
   );
-  expect(wrapper).toMatchSnapshot();
-});
+}

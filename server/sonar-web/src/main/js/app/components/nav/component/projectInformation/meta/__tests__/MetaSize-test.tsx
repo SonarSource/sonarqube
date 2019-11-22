@@ -17,29 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ComponentNav from '../ComponentNav';
+import { mockComponent, mockMeasure } from '../../../../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../../../../types/component';
+import { MetricKey } from '../../../../../../../types/metrics';
+import MetaSize, { MetaSizeProps } from '../MetaSize';
 
-const component = {
-  breadcrumbs: [{ key: 'component', name: 'component', qualifier: 'TRK' }],
-  key: 'component',
-  name: 'component',
-  organization: 'org',
-  qualifier: 'TRK'
-};
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('project');
+  expect(
+    shallowRender({ component: mockComponent({ qualifier: ComponentQualifier.Application }) })
+  ).toMatchSnapshot('application');
+});
 
-it('renders', () => {
-  const wrapper = shallow(
-    <ComponentNav
-      branchLikes={[]}
-      component={component}
-      currentBranchLike={undefined}
-      isInProgress={true}
-      isPending={true}
-      onComponentChange={jest.fn()}
-      warnings={[]}
+function shallowRender(props: Partial<MetaSizeProps> = {}) {
+  return shallow<MetaSizeProps>(
+    <MetaSize
+      component={mockComponent()}
+      measures={[
+        mockMeasure({ metric: MetricKey.ncloc }),
+        mockMeasure({ metric: MetricKey.projects })
+      ]}
+      {...props}
     />
   );
-  expect(wrapper).toMatchSnapshot();
-});
+}

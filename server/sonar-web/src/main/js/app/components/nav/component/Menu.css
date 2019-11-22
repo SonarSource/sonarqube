@@ -17,29 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import ComponentNav from '../ComponentNav';
+.navbar-tabs > li > a.menu-button {
+  color: var(--darkBlue);
+}
 
-const component = {
-  breadcrumbs: [{ key: 'component', name: 'component', qualifier: 'TRK' }],
-  key: 'component',
-  name: 'component',
-  organization: 'org',
-  qualifier: 'TRK'
-};
-
-it('renders', () => {
-  const wrapper = shallow(
-    <ComponentNav
-      branchLikes={[]}
-      component={component}
-      currentBranchLike={undefined}
-      isInProgress={true}
-      isPending={true}
-      onComponentChange={jest.fn()}
-      warnings={[]}
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
-});
+.navbar-tabs > li > a.menu-button:hover {
+  color: var(--blue);
+  border-bottom-color: transparent;
+}

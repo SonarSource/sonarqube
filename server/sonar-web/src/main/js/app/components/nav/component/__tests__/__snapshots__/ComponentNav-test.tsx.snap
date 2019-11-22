@@ -2,11 +2,32 @@
 
 exports[`renders 1`] = `
 <ContextNavBar
-  height={72}
+  height={102}
   id="context-navigation"
+  notif={
+    <ComponentNavBgTaskNotif
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "component",
+              "name": "component",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "component",
+          "name": "component",
+          "organization": "org",
+          "qualifier": "TRK",
+        }
+      }
+      isInProgress={true}
+      isPending={true}
+    />
+  }
 >
   <div
-    className="display-flex-center display-flex-space-between little-padder-top padder-bottom"
+    className="display-flex-center display-flex-space-between little-padded-top padded-bottom"
   >
     <Connect(Component)
       branchLikes={Array []}
@@ -61,6 +82,31 @@ exports[`renders 1`] = `
         "qualifier": "TRK",
       }
     }
+    onToggleProjectInfo={[Function]}
   />
+  <InfoDrawer
+    displayed={false}
+    onClose={[Function]}
+    top={120}
+  >
+    <Connect(ProjectInformation)
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "component",
+              "name": "component",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "component",
+          "name": "component",
+          "organization": "org",
+          "qualifier": "TRK",
+        }
+      }
+      onComponentChange={[MockFunction]}
+    />
+  </InfoDrawer>
 </ContextNavBar>
 `;

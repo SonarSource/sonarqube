@@ -17,29 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import * as classNames from 'classnames';
 import * as React from 'react';
-import ComponentNav from '../ComponentNav';
+import BackIcon from 'sonar-ui-common/components/icons/BackIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 
-const component = {
-  breadcrumbs: [{ key: 'component', name: 'component', qualifier: 'TRK' }],
-  key: 'component',
-  name: 'component',
-  organization: 'org',
-  qualifier: 'TRK'
-};
+export interface InfoDrawerPageProps {
+  children: React.ReactNode;
+  displayed: boolean;
+  onPageChange: () => void;
+}
 
-it('renders', () => {
-  const wrapper = shallow(
-    <ComponentNav
-      branchLikes={[]}
-      component={component}
-      currentBranchLike={undefined}
-      isInProgress={true}
-      isPending={true}
-      onComponentChange={jest.fn()}
-      warnings={[]}
-    />
+export default function InfoDrawerPage(props: InfoDrawerPageProps) {
+  const { children, displayed, onPageChange } = props;
+  return (
+    <div
+      className={classNames(
+        'info-drawer-page info-drawer-pane display-flex-column overflow-hidden',
+        {
+          open: displayed
+        }
+      )}>
+      <h2 className="back-button big-padded bordered-bottom" onClick={() => onPageChange()}>
+        <BackIcon className="little-spacer-right" />
+        {translate('back')}
+      </h2>
+
+      {displayed && <div className="overflow-y-auto big-padded">{children}</div>}
+    </div>
   );
-  expect(wrapper).toMatchSnapshot();
-});
+}

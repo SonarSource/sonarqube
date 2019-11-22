@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly 1`] = `
+<div
+  className="display-flex-column"
+>
+  <h3>
+    overview.badges.get_badge.TRK
+  </h3>
+  <p
+    className="big-spacer-bottom"
+  >
+    overview.badges.description.TRK
+  </p>
+  <BadgeButton
+    onClick={[Function]}
+    selected={true}
+    type="measure"
+    url="host/api/project_badges/measure?branch=branch-6.7&project=foo&metric=alert_status"
+  />
+  <p
+    className="huge-spacer-bottom spacer-top"
+  >
+    overview.badges.measure.description.TRK
+  </p>
+  <BadgeButton
+    onClick={[Function]}
+    selected={false}
+    type="quality_gate"
+    url="host/api/project_badges/quality_gate?branch=branch-6.7&project=foo"
+  />
+  <p
+    className="huge-spacer-bottom spacer-top"
+  >
+    overview.badges.quality_gate.description.TRK
+  </p>
+  <BadgeParams
+    className="big-spacer-bottom display-flex-column"
+    metrics={
+      Object {
+        "coverage": Object {
+          "id": "coverage",
+          "key": "coverage",
+          "name": "Coverage",
+          "type": "PERCENT",
+        },
+        "new_code_smells": Object {
+          "id": "new_code_smells",
+          "key": "new_code_smells",
+          "name": "New_code_smells",
+          "type": "PERCENT",
+        },
+      }
+    }
+    options={
+      Object {
+        "color": "white",
+        "metric": "alert_status",
+      }
+    }
+    type="measure"
+    updateOptions={[Function]}
+  />
+  <CodeSnippet
+    isOneLine={true}
+    snippet="[![alert_status](host/api/project_badges/measure?branch=branch-6.7&project=foo&metric=alert_status)](/dashboard)"
+  />
+</div>
+`;

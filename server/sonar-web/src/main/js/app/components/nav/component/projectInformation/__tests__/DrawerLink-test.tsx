@@ -19,27 +19,22 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ComponentNav from '../ComponentNav';
+import { DrawerLink, DrawerLinkProps } from '../DrawerLink';
 
-const component = {
-  breadcrumbs: [{ key: 'component', name: 'component', qualifier: 'TRK' }],
-  key: 'component',
-  name: 'component',
-  organization: 'org',
-  qualifier: 'TRK'
-};
-
-it('renders', () => {
-  const wrapper = shallow(
-    <ComponentNav
-      branchLikes={[]}
-      component={component}
-      currentBranchLike={undefined}
-      isInProgress={true}
-      isPending={true}
-      onComponentChange={jest.fn()}
-      warnings={[]}
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
 });
+
+it('should call onPageChange when clicked', () => {
+  const onPageChange = jest.fn();
+  const to = 'target';
+  const wrapper = shallowRender({ onPageChange, to });
+
+  wrapper.simulate('click');
+
+  expect(onPageChange).toBeCalledWith(to);
+});
+
+function shallowRender(props: Partial<DrawerLinkProps<string>> = {}) {
+  return shallow(<DrawerLink label="switch page" onPageChange={jest.fn()} to="id" {...props} />);
+}

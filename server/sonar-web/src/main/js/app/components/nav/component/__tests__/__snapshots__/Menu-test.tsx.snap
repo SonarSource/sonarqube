@@ -84,6 +84,24 @@ exports[`should work for a branch 1`] = `
         style={Object {}}
         to={
           Object {
+            "pathname": "/security_hotspots",
+            "query": Object {
+              "branch": "release",
+              "id": "foo",
+            },
+          }
+        }
+      >
+        layout.security_hotspots
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
             "pathname": "/component_measures",
             "query": Object {
               "branch": "release",
@@ -235,6 +253,19 @@ exports[`should work for a branch 1`] = `
     >
       <Component />
     </Dropdown>
+    <li>
+      <a
+        className="menu-button"
+        onClick={[Function]}
+        role="button"
+        tabIndex={0}
+      >
+        <BulletListIcon
+          className="little-spacer-right"
+        />
+        project.info.title
+      </a>
+    </li>
   </NavBarTabs>
 </div>
 `;
@@ -288,6 +319,24 @@ exports[`should work for a branch 2`] = `
         style={Object {}}
         to={
           Object {
+            "pathname": "/security_hotspots",
+            "query": Object {
+              "branch": "release",
+              "id": "foo",
+            },
+          }
+        }
+      >
+        layout.security_hotspots
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
             "pathname": "/component_measures",
             "query": Object {
               "branch": "release",
@@ -336,7 +385,21 @@ exports[`should work for a branch 2`] = `
       </Link>
     </li>
   </NavBarTabs>
-  <NavBarTabs />
+  <NavBarTabs>
+    <li>
+      <a
+        className="menu-button"
+        onClick={[Function]}
+        role="button"
+        tabIndex={0}
+      >
+        <BulletListIcon
+          className="little-spacer-right"
+        />
+        project.info.title
+      </a>
+    </li>
+  </NavBarTabs>
 </div>
 `;
 
@@ -378,6 +441,23 @@ exports[`should work for all qualifiers 1`] = `
         }
       >
         issues.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/security_hotspots",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        layout.security_hotspots
       </Link>
     </li>
     <li>
@@ -530,6 +610,19 @@ exports[`should work for all qualifiers 1`] = `
     >
       <Component />
     </Dropdown>
+    <li>
+      <a
+        className="menu-button"
+        onClick={[Function]}
+        role="button"
+        tabIndex={0}
+      >
+        <BulletListIcon
+          className="little-spacer-right"
+        />
+        project.info.title
+      </a>
+    </li>
   </NavBarTabs>
 </div>
 `;
@@ -803,6 +896,23 @@ exports[`should work for all qualifiers 4`] = `
         style={Object {}}
         to={
           Object {
+            "pathname": "/security_hotspots",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        layout.security_hotspots
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
             "pathname": "/component_measures",
             "query": Object {
               "id": "foo",
@@ -878,6 +988,19 @@ exports[`should work for all qualifiers 4`] = `
     >
       <Component />
     </Dropdown>
+    <li>
+      <a
+        className="menu-button"
+        onClick={[Function]}
+        role="button"
+        tabIndex={0}
+      >
+        <BulletListIcon
+          className="little-spacer-right"
+        />
+        application.info.title
+      </a>
+    </li>
   </NavBarTabs>
 </div>
 `;
@@ -922,6 +1045,24 @@ exports[`should work for pull requests 1`] = `
         }
       >
         issues.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/security_hotspots",
+            "query": Object {
+              "id": "foo",
+              "pullRequest": "1001",
+            },
+          }
+        }
+      >
+        layout.security_hotspots
       </Link>
     </li>
     <li>
@@ -1005,6 +1146,24 @@ exports[`should work for pull requests 2`] = `
         }
       >
         issues.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/security_hotspots",
+            "query": Object {
+              "id": "foo",
+              "pullRequest": "1001",
+            },
+          }
+        }
+      >
+        layout.security_hotspots
       </Link>
     </li>
     <li>

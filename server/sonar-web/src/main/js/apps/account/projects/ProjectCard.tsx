@@ -25,8 +25,8 @@ import Level from 'sonar-ui-common/components/ui/Level';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import MetaLink from '../../overview/meta/MetaLink';
-import { orderLinks } from '../../projectLinks/utils';
+import MetaLink from '../../../app/components/nav/component/projectInformation/meta/MetaLink';
+import { orderLinks } from '../../../helpers/projectLinks';
 
 interface Props {
   project: T.MyProject;

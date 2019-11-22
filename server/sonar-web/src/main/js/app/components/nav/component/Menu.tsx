@@ -21,6 +21,7 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import { Link } from 'react-router';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
+import BulletListIcon from 'sonar-ui-common/components/icons/BulletListIcon';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import NavBarTabs from 'sonar-ui-common/components/ui/NavBarTabs';
 import { hasMessage, translate } from 'sonar-ui-common/helpers/l10n';
@@ -29,6 +30,7 @@ import { getBranchLikeQuery, isMainBranch, isPullRequest } from '../../../../hel
 import { isSonarCloud } from '../../../../helpers/system';
 import { BranchLike } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
+import './Menu.css';
 
 const SETTINGS_URLS = [
   '/project/admin',
@@ -51,6 +53,7 @@ interface Props {
   appState: Pick<T.AppState, 'branchesEnabled'>;
   branchLike: BranchLike | undefined;
   component: T.Component;
+  onToggleProjectInfo: () => void;
 }
 
 export class Menu extends React.PureComponent<Props> {
@@ -247,6 +250,31 @@ export class Menu extends React.PureComponent<Props> {
       ...this.renderAdminExtensions(),
       this.renderDeletionLink()
     ];
+  }
+
+  renderProjectInformationButton() {
+    if (isPullRequest(this.props.branchLike)) {
+      return null;
+    }
+
+    return (
+      (this.isProject() || this.isApplication()) && (
+        <li>
+          <a
+            className="menu-button"
+            onClick={(e: React.SyntheticEvent<HTMLAnchorElement>) => {
+              e.preventDefault();
+              e.currentTarget.blur();
+              this.props.onToggleProjectInfo();
+            }}
+            role="button"
+            tabIndex={0}>
+            <BulletListIcon className="little-spacer-right" />
+            {translate(this.isProject() ? 'project' : 'application', 'info.title')}
+          </a>
+        </li>
+      )
+    );
   }
 
   renderSettingsLink() {
@@ -511,7 +539,10 @@ export class Menu extends React.PureComponent<Props> {
           {this.renderActivityLink()}
           {this.renderExtensions()}
         </NavBarTabs>
-        <NavBarTabs>{this.renderAdministration()}</NavBarTabs>
+        <NavBarTabs>
+          {this.renderAdministration()}
+          {this.renderProjectInformationButton()}
+        </NavBarTabs>
       </div>
     );
   }

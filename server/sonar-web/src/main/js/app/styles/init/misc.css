@@ -137,7 +137,7 @@ th.hide-overflow {
 }
 
 .big-padded {
-  padding: calc(2 * var(--gridSize));
+  padding: calc(2 * var(--gridSize)) !important;
 }
 
 .padded-top {
@@ -150,10 +150,6 @@ th.hide-overflow {
 
 .little-padded-top {
   padding-top: calc(var(--gridSize) / 2) !important;
-}
-
-.little-padded-bottom {
-  padding-bottom: calc(var(--gridSize) / 2) !important;
 }
 
 td.little-spacer-left {
@@ -210,6 +206,10 @@ th.huge-spacer-right {
   float: right !important;
 }
 
+.borderless {
+  border: none !important;
+}
+
 .bordered {
   border: 1px solid var(--barBorderColor);
 }
@@ -232,6 +232,10 @@ th.huge-spacer-right {
 
 .overflow-hidden {
   overflow: hidden !important;
+}
+
+.overflow-y-auto {
+  overflow-y: auto !important;
 }
 
 .max-width-100 {
@@ -299,6 +303,10 @@ th.huge-spacer-right {
 
 .abs-width-600 {
   width: 600px !important;
+}
+
+.max-height-100 {
+  max-height: 100% !important;
 }
 
 .justify {

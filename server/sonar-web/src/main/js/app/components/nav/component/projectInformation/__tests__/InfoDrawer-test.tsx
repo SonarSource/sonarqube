@@ -19,27 +19,26 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ComponentNav from '../ComponentNav';
+import InfoDrawer, { InfoDrawerProps } from '../InfoDrawer';
 
-const component = {
-  breadcrumbs: [{ key: 'component', name: 'component', qualifier: 'TRK' }],
-  key: 'component',
-  name: 'component',
-  organization: 'org',
-  qualifier: 'TRK'
-};
-
-it('renders', () => {
-  const wrapper = shallow(
-    <ComponentNav
-      branchLikes={[]}
-      component={component}
-      currentBranchLike={undefined}
-      isInProgress={true}
-      isPending={true}
-      onComponentChange={jest.fn()}
-      warnings={[]}
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ displayed: true })).toMatchSnapshot('displayed');
 });
+
+it('should call onClose when button is clicked', () => {
+  const onClose = jest.fn();
+  const wrapper = shallowRender({ onClose });
+
+  wrapper.find('ClearButton').simulate('click');
+
+  expect(onClose).toBeCalled();
+});
+
+function shallowRender(props: Partial<InfoDrawerProps> = {}) {
+  return shallow(
+    <InfoDrawer displayed={false} onClose={jest.fn()} top={120} {...props}>
+      <span>content</span>
+    </InfoDrawer>
+  );
+}

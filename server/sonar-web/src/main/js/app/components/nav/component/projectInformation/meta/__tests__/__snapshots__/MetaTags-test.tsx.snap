@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render with tags and admin rights 1`] = `
+<div
+  className="project-info-tags"
+>
+  <Dropdown
+    closeOnClick={false}
+    closeOnClickOutside={true}
+    overlay={
+      <MetaTagsSelector
+        project="my-second-project"
+        selectedTags={
+          Array [
+            "foo",
+            "bar",
+          ]
+        }
+        setProjectTags={[Function]}
+      />
+    }
+    overlayPlacement="bottom-left"
+  >
+    <ButtonLink
+      innerRef={[Function]}
+      stopPropagation={true}
+    >
+      <TagsList
+        allowUpdate={true}
+        tags={
+          Array [
+            "foo",
+            "bar",
+          ]
+        }
+      />
+    </ButtonLink>
+  </Dropdown>
+</div>
+`;
+
+exports[`should render without tags and admin rights 1`] = `
+<div
+  className="big-spacer-top project-info-tags"
+>
+  <TagsList
+    allowUpdate={false}
+    className="note"
+    tags={
+      Array [
+        "no_tags",
+      ]
+    }
+  />
+</div>
+`;

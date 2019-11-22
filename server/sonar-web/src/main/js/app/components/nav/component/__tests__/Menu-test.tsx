@@ -44,9 +44,7 @@ it('should work with extensions', () => {
     configuration: { showSettings: true, extensions: [{ key: 'foo', name: 'Foo' }] },
     extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
   };
-  const wrapper = shallow(
-    <Menu appState={{ branchesEnabled: true }} branchLike={mainBranch} component={component} />
-  );
+  const wrapper = shallowRender({ component });
   expect(wrapper.find('Dropdown[data-test="extensions"]')).toMatchSnapshot();
   expect(wrapper.find('Dropdown[data-test="administration"]')).toMatchSnapshot();
 });
@@ -66,9 +64,7 @@ it('should work with multiple extensions', () => {
       { key: 'component-bar', name: 'ComponentBar' }
     ]
   };
-  const wrapper = shallow(
-    <Menu appState={{ branchesEnabled: true }} branchLike={mainBranch} component={component} />
-  );
+  const wrapper = shallowRender({ component });
   expect(wrapper.find('Dropdown[data-test="extensions"]')).toMatchSnapshot();
   expect(wrapper.find('Dropdown[data-test="administration"]')).toMatchSnapshot();
 });
@@ -88,30 +84,25 @@ it('should render correctly for security extensions', () => {
       { key: 'component-bar', name: 'ComponentBar' }
     ]
   };
-  const wrapper = shallow(
-    <Menu appState={{ branchesEnabled: true }} branchLike={mainBranch} component={component} />
-  );
+  const wrapper = shallowRender({ component });
   expect(wrapper.find('Dropdown[data-test="extensions"]')).toMatchSnapshot();
   expect(wrapper.find('Dropdown[data-test="security"]')).toMatchSnapshot();
 });
 
 it('should work for a branch', () => {
-  const branch = mockBranch({
+  const branchLike = mockBranch({
     name: 'release'
   });
   [true, false].forEach(showSettings =>
     expect(
-      shallow(
-        <Menu
-          appState={{ branchesEnabled: true }}
-          branchLike={branch}
-          component={{
-            ...baseComponent,
-            configuration: { showSettings },
-            extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
-          }}
-        />
-      )
+      shallowRender({
+        branchLike,
+        component: {
+          ...baseComponent,
+          configuration: { showSettings },
+          extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
+        }
+      })
     ).toMatchSnapshot()
   );
 });
@@ -119,17 +110,14 @@ it('should work for a branch', () => {
 it('should work for pull requests', () => {
   [true, false].forEach(showSettings =>
     expect(
-      shallow(
-        <Menu
-          appState={{ branchesEnabled: true }}
-          branchLike={mockPullRequest()}
-          component={{
-            ...baseComponent,
-            configuration: { showSettings },
-            extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
-          }}
-        />
-      )
+      shallowRender({
+        branchLike: mockPullRequest(),
+        component: {
+          ...baseComponent,
+          configuration: { showSettings },
+          extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
+        }
+      })
     ).toMatchSnapshot()
   );
 });
@@ -145,10 +133,18 @@ it('should work for all qualifiers', () => {
 
   function checkWithQualifier(qualifier: string) {
     const component = { ...baseComponent, configuration: { showSettings: true }, qualifier };
-    expect(
-      shallow(
-        <Menu appState={{ branchesEnabled: true }} branchLike={mainBranch} component={component} />
-      )
-    ).toMatchSnapshot();
+    expect(shallowRender({ component })).toMatchSnapshot();
   }
 });
+
+function shallowRender(props: Partial<Menu['props']>) {
+  return shallow<Menu>(
+    <Menu
+      appState={{ branchesEnabled: true }}
+      branchLike={mainBranch}
+      component={baseComponent}
+      onToggleProjectInfo={jest.fn()}
+      {...props}
+    />
+  );
+}

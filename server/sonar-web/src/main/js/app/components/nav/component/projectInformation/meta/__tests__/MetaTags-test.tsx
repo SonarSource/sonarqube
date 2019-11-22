@@ -19,27 +19,36 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ComponentNav from '../ComponentNav';
+import { mockComponent } from '../../../../../../../helpers/testMocks';
+import MetaTags from '../MetaTags';
 
-const component = {
-  breadcrumbs: [{ key: 'component', name: 'component', qualifier: 'TRK' }],
-  key: 'component',
-  name: 'component',
-  organization: 'org',
-  qualifier: 'TRK'
-};
+const component = mockComponent({
+  configuration: {
+    showSettings: false
+  }
+});
 
-it('renders', () => {
-  const wrapper = shallow(
-    <ComponentNav
-      branchLikes={[]}
-      component={component}
-      currentBranchLike={undefined}
-      isInProgress={true}
-      isPending={true}
-      onComponentChange={jest.fn()}
-      warnings={[]}
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
+const componentWithTags = mockComponent({
+  key: 'my-second-project',
+  tags: ['foo', 'bar'],
+  configuration: {
+    showSettings: true
+  },
+  name: 'MySecondProject'
+});
+
+it('should render without tags and admin rights', () => {
+  expect(
+    shallow(<MetaTags component={component} onComponentChange={jest.fn()} />, {
+      disableLifecycleMethods: true
+    })
+  ).toMatchSnapshot();
+});
+
+it('should render with tags and admin rights', () => {
+  expect(
+    shallow(<MetaTags component={componentWithTags} onComponentChange={jest.fn()} />, {
+      disableLifecycleMethods: true
+    })
+  ).toMatchSnapshot();
 });

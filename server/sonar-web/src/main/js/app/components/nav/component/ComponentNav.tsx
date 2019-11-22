@@ -29,6 +29,8 @@ import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
 import Header from './Header';
 import HeaderMeta from './HeaderMeta';
 import Menu from './Menu';
+import InfoDrawer from './projectInformation/InfoDrawer';
+import ProjectInformation from './projectInformation/ProjectInformation';
 
 interface Props {
   branchLikes: BranchLike[];
@@ -38,24 +40,27 @@ interface Props {
   currentTaskOnSameBranch?: boolean;
   isInProgress?: boolean;
   isPending?: boolean;
+  onComponentChange: (changes: Partial<T.Component>) => void;
   warnings: string[];
 }
 
-export default class ComponentNav extends React.PureComponent<Props> {
-  mounted = false;
+export default function ComponentNav(props: Props) {
+  const {
+    branchLikes,
+    component,
+    currentBranchLike,
+    currentTask,
+    currentTaskOnSameBranch,
+    isInProgress,
+    isPending,
+    warnings
+  } = props;
+  const { contextNavHeightRaw, globalNavHeightRaw } = rawSizes;
 
-  componentDidMount() {
-    this.populateRecentHistory();
-  }
+  const [displayProjectInfo, setDisplayProjectInfo] = React.useState(false);
 
-  componentDidUpdate(prevProps: Props) {
-    if (this.props.component.key !== prevProps.component.key) {
-      this.populateRecentHistory();
-    }
-  }
-
-  populateRecentHistory = () => {
-    const { breadcrumbs } = this.props.component;
+  React.useEffect(() => {
+    const { breadcrumbs, key, name, organization } = component;
     const { qualifier } = breadcrumbs[breadcrumbs.length - 1];
     if (
       [
@@ -65,55 +70,53 @@ export default class ComponentNav extends React.PureComponent<Props> {
         ComponentQualifier.Developper
       ].includes(qualifier as ComponentQualifier)
     ) {
-      RecentHistory.add(
-        this.props.component.key,
-        this.props.component.name,
-        qualifier.toLowerCase(),
-        this.props.component.organization
-      );
+      RecentHistory.add(key, name, qualifier.toLowerCase(), organization);
     }
-  };
+  }, [component, component.key]);
 
-  render() {
-    const { component, currentBranchLike, currentTask, isInProgress, isPending } = this.props;
-    const contextNavHeight = rawSizes.contextNavHeightRaw;
-    let notifComponent;
-    if (isInProgress || isPending || (currentTask && currentTask.status === STATUSES.FAILED)) {
-      notifComponent = (
-        <ComponentNavBgTaskNotif
-          component={component}
-          currentTask={currentTask}
-          currentTaskOnSameBranch={this.props.currentTaskOnSameBranch}
-          isInProgress={isInProgress}
-          isPending={isPending}
-        />
-      );
-    }
-    return (
-      <ContextNavBar
-        height={notifComponent ? contextNavHeight + 30 : contextNavHeight}
-        id="context-navigation"
-        notif={notifComponent}>
-        <div
-          className={classNames(
-            'display-flex-center display-flex-space-between little-padded-top',
-            {
-              'padded-bottom': this.props.warnings.length === 0
-            }
-          )}>
-          <Header
-            branchLikes={this.props.branchLikes}
-            component={component}
-            currentBranchLike={currentBranchLike}
-          />
-          <HeaderMeta
-            branchLike={currentBranchLike}
-            component={component}
-            warnings={this.props.warnings}
-          />
-        </div>
-        <Menu branchLike={currentBranchLike} component={component} />
-      </ContextNavBar>
+  let notifComponent;
+  if (isInProgress || isPending || (currentTask && currentTask.status === STATUSES.FAILED)) {
+    notifComponent = (
+      <ComponentNavBgTaskNotif
+        component={component}
+        currentTask={currentTask}
+        currentTaskOnSameBranch={currentTaskOnSameBranch}
+        isInProgress={isInProgress}
+        isPending={isPending}
+      />
     );
   }
+
+  const contextNavHeight = notifComponent ? contextNavHeightRaw + 30 : contextNavHeightRaw;
+
+  return (
+    <ContextNavBar height={contextNavHeight} id="context-navigation" notif={notifComponent}>
+      <div
+        className={classNames('display-flex-center display-flex-space-between little-padded-top', {
+          'padded-bottom': warnings.length === 0
+        })}>
+        <Header
+          branchLikes={branchLikes}
+          component={component}
+          currentBranchLike={currentBranchLike}
+        />
+        <HeaderMeta branchLike={currentBranchLike} component={component} warnings={warnings} />
+      </div>
+      <Menu
+        branchLike={currentBranchLike}
+        component={component}
+        onToggleProjectInfo={() => setDisplayProjectInfo(!displayProjectInfo)}
+      />
+      <InfoDrawer
+        displayed={displayProjectInfo}
+        onClose={() => setDisplayProjectInfo(false)}
+        top={globalNavHeightRaw + contextNavHeightRaw}>
+        <ProjectInformation
+          branchLike={currentBranchLike}
+          component={component}
+          onComponentChange={props.onComponentChange}
+        />
+      </InfoDrawer>
+    </ContextNavBar>
+  );
 }

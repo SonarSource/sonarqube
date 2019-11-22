@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { orderLinks } from '../../helpers/projectLinks';
 import LinkRow from './LinkRow';
-import { orderLinks } from './utils';
 
 interface Props {
   links: T.ProjectLink[];

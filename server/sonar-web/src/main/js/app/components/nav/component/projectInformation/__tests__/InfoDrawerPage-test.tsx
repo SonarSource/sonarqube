@@ -19,27 +19,26 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ComponentNav from '../ComponentNav';
+import InfoDrawerPage, { InfoDrawerPageProps } from '../InfoDrawerPage';
 
-const component = {
-  breadcrumbs: [{ key: 'component', name: 'component', qualifier: 'TRK' }],
-  key: 'component',
-  name: 'component',
-  organization: 'org',
-  qualifier: 'TRK'
-};
-
-it('renders', () => {
-  const wrapper = shallow(
-    <ComponentNav
-      branchLikes={[]}
-      component={component}
-      currentBranchLike={undefined}
-      isInProgress={true}
-      isPending={true}
-      onComponentChange={jest.fn()}
-      warnings={[]}
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ displayed: true })).toMatchSnapshot();
 });
+
+it('should call onPageChange when clicked', () => {
+  const onPageChange = jest.fn();
+  const wrapper = shallowRender({ onPageChange });
+
+  wrapper.find('.back-button').simulate('click');
+
+  expect(onPageChange).toBeCalledTimes(1);
+});
+
+function shallowRender(props: Partial<InfoDrawerPageProps> = {}) {
+  return shallow(
+    <InfoDrawerPage displayed={false} onPageChange={jest.fn()} {...props}>
+      <div>content</div>
+    </InfoDrawerPage>
+  );
+}

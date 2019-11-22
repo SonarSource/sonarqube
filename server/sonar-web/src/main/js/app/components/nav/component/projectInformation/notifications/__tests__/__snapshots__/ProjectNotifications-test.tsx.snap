@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <h3>
+    project.info.notifications
+  </h3>
+  <Alert
+    className="spacer-top"
+    variant="info"
+  >
+    notification.dispatcher.information
+  </Alert>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <table
+      className="data zebra notifications-table"
+    >
+      <thead>
+        <tr>
+          <th
+            aria-label="project"
+          />
+          <th
+            className="text-center"
+            key="channel1"
+          >
+            <h4>
+              notification.channel.channel1
+            </h4>
+          </th>
+          <th
+            className="text-center"
+            key="channel2"
+          >
+            <h4>
+              notification.channel.channel2
+            </h4>
+          </th>
+        </tr>
+      </thead>
+      <NotificationsList
+        channels={
+          Array [
+            "channel1",
+            "channel2",
+          ]
+        }
+        checkboxId={[Function]}
+        notifications={
+          Array [
+            Object {
+              "channel": "channel1",
+              "organization": "org",
+              "project": "foo",
+              "projectName": "Foo",
+              "type": "type-global",
+            },
+          ]
+        }
+        onAdd={[Function]}
+        onRemove={[Function]}
+        project={true}
+        types={
+          Array [
+            "type-common",
+          ]
+        }
+      />
+    </table>
+  </DeferredSpinner>
+</Fragment>
+`;

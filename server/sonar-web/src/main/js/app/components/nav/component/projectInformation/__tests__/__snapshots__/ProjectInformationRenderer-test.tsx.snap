@@ -1,0 +1,996 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should handle missing quality profiles and quality gates 1`] = `
+<Fragment>
+  <div>
+    <h2
+      className="big-padded bordered-bottom"
+    >
+      project.info.title
+    </h2>
+  </div>
+  <div
+    className="overflow-y-auto"
+  >
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <div
+        className="display-flex-center"
+      >
+        <h3
+          className="spacer-right"
+        >
+          project.info.description
+        </h3>
+      </div>
+      <MetaTags
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": undefined,
+            "qualityProfiles": undefined,
+            "tags": Array [],
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
+    <div
+      className="big-padded bordered-bottom it__project-loc-value"
+    >
+      <MetaSize
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": undefined,
+            "qualityProfiles": undefined,
+            "tags": Array [],
+          }
+        }
+        measures={Array []}
+      />
+    </div>
+    <MetaLinks
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": undefined,
+          "qualityProfiles": undefined,
+          "tags": Array [],
+        }
+      }
+    />
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <MetaKey
+        componentKey="my-project"
+        qualifier="TRK"
+      />
+    </div>
+    <Memo(DrawerLink)
+      label="overview.badges.get_badge.TRK"
+      onPageChange={[MockFunction]}
+      to={1}
+    />
+    <Memo(DrawerLink)
+      label="project.info.to_notifications"
+      onPageChange={[MockFunction]}
+      to={2}
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`should render a private project correctly 1`] = `
+<Fragment>
+  <div>
+    <h2
+      className="big-padded bordered-bottom"
+    >
+      project.info.title
+    </h2>
+  </div>
+  <div
+    className="overflow-y-auto"
+  >
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <div
+        className="display-flex-center"
+      >
+        <h3
+          className="spacer-right"
+        >
+          project.info.description
+        </h3>
+        <Connect(PrivacyBadge)
+          qualifier="TRK"
+          tooltipProps={
+            Object {
+              "projectKey": "my-project",
+            }
+          }
+          visibility="private"
+        />
+      </div>
+      <MetaTags
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+            "visibility": "private",
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
+    <div
+      className="big-padded bordered-bottom it__project-loc-value"
+    >
+      <MetaSize
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+            "visibility": "private",
+          }
+        }
+        measures={Array []}
+      />
+    </div>
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <MetaQualityGate
+        qualityGate={
+          Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          }
+        }
+      />
+      <Connect(MetaQualityProfiles)
+        headerClassName="big-spacer-top"
+        profiles={
+          Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ]
+        }
+      />
+    </div>
+    <MetaLinks
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+          "visibility": "private",
+        }
+      }
+    />
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <MetaKey
+        componentKey="my-project"
+        qualifier="TRK"
+      />
+    </div>
+    <Memo(DrawerLink)
+      label="overview.badges.get_badge.TRK"
+      onPageChange={[MockFunction]}
+      to={1}
+    />
+    <Memo(DrawerLink)
+      label="project.info.to_notifications"
+      onPageChange={[MockFunction]}
+      to={2}
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`should render an app correctly: default 1`] = `
+<Fragment>
+  <div>
+    <h2
+      className="big-padded bordered-bottom"
+    >
+      application.info.title
+    </h2>
+  </div>
+  <div
+    className="overflow-y-auto"
+  >
+    <div
+      className="big-padded bordered-bottom it__project-loc-value"
+    >
+      <MetaSize
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "APP",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        measures={Array []}
+      />
+    </div>
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <MetaQualityGate
+        qualityGate={
+          Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          }
+        }
+      />
+      <Connect(MetaQualityProfiles)
+        headerClassName="big-spacer-top"
+        profiles={
+          Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ]
+        }
+      />
+    </div>
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <MetaKey
+        componentKey="my-project"
+        qualifier="APP"
+      />
+    </div>
+    <Memo(DrawerLink)
+      label="overview.badges.get_badge.APP"
+      onPageChange={[MockFunction]}
+      to={1}
+    />
+    <Memo(DrawerLink)
+      label="project.info.to_notifications"
+      onPageChange={[MockFunction]}
+      to={2}
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly: default 1`] = `
+<Fragment>
+  <div>
+    <h2
+      className="big-padded bordered-bottom"
+    >
+      project.info.title
+    </h2>
+  </div>
+  <div
+    className="overflow-y-auto"
+  >
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <div
+        className="display-flex-center"
+      >
+        <h3
+          className="spacer-right"
+        >
+          project.info.description
+        </h3>
+        <Connect(PrivacyBadge)
+          qualifier="TRK"
+          tooltipProps={
+            Object {
+              "projectKey": "my-project",
+            }
+          }
+          visibility="public"
+        />
+      </div>
+      <MetaTags
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+            "visibility": "public",
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
+    <div
+      className="big-padded bordered-bottom it__project-loc-value"
+    >
+      <MetaSize
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+            "visibility": "public",
+          }
+        }
+        measures={Array []}
+      />
+    </div>
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <MetaQualityGate
+        qualityGate={
+          Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          }
+        }
+      />
+      <Connect(MetaQualityProfiles)
+        headerClassName="big-spacer-top"
+        profiles={
+          Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ]
+        }
+      />
+    </div>
+    <MetaLinks
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+          "visibility": "public",
+        }
+      }
+    />
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <MetaKey
+        componentKey="my-project"
+        qualifier="TRK"
+      />
+    </div>
+    <Memo(DrawerLink)
+      label="overview.badges.get_badge.TRK"
+      onPageChange={[MockFunction]}
+      to={1}
+    />
+    <Memo(DrawerLink)
+      label="project.info.to_notifications"
+      onPageChange={[MockFunction]}
+      to={2}
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly: no badges 1`] = `
+<Fragment>
+  <div>
+    <h2
+      className="big-padded bordered-bottom"
+    >
+      project.info.title
+    </h2>
+  </div>
+  <div
+    className="overflow-y-auto"
+  >
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <div
+        className="display-flex-center"
+      >
+        <h3
+          className="spacer-right"
+        >
+          project.info.description
+        </h3>
+        <Connect(PrivacyBadge)
+          qualifier="TRK"
+          tooltipProps={
+            Object {
+              "projectKey": "my-project",
+            }
+          }
+          visibility="public"
+        />
+      </div>
+      <MetaTags
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+            "visibility": "public",
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
+    <div
+      className="big-padded bordered-bottom it__project-loc-value"
+    >
+      <MetaSize
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+            "visibility": "public",
+          }
+        }
+        measures={Array []}
+      />
+    </div>
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <MetaQualityGate
+        qualityGate={
+          Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          }
+        }
+      />
+      <Connect(MetaQualityProfiles)
+        headerClassName="big-spacer-top"
+        profiles={
+          Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ]
+        }
+      />
+    </div>
+    <MetaLinks
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+          "visibility": "public",
+        }
+      }
+    />
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <MetaKey
+        componentKey="my-project"
+        qualifier="TRK"
+      />
+    </div>
+    <Memo(DrawerLink)
+      label="project.info.to_notifications"
+      onPageChange={[MockFunction]}
+      to={2}
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly: no badges, no notifications 1`] = `
+<Fragment>
+  <div>
+    <h2
+      className="big-padded bordered-bottom"
+    >
+      project.info.title
+    </h2>
+  </div>
+  <div
+    className="overflow-y-auto"
+  >
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <div
+        className="display-flex-center"
+      >
+        <h3
+          className="spacer-right"
+        >
+          project.info.description
+        </h3>
+        <Connect(PrivacyBadge)
+          qualifier="TRK"
+          tooltipProps={
+            Object {
+              "projectKey": "my-project",
+            }
+          }
+          visibility="public"
+        />
+      </div>
+      <MetaTags
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+            "visibility": "public",
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
+    <div
+      className="big-padded bordered-bottom it__project-loc-value"
+    >
+      <MetaSize
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+            "visibility": "public",
+          }
+        }
+        measures={Array []}
+      />
+    </div>
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <MetaQualityGate
+        qualityGate={
+          Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          }
+        }
+      />
+      <Connect(MetaQualityProfiles)
+        headerClassName="big-spacer-top"
+        profiles={
+          Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ]
+        }
+      />
+    </div>
+    <MetaLinks
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+          "visibility": "public",
+        }
+      }
+    />
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <MetaKey
+        componentKey="my-project"
+        qualifier="TRK"
+      />
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly: with notifications 1`] = `
+<Fragment>
+  <div>
+    <h2
+      className="big-padded bordered-bottom"
+    >
+      project.info.title
+    </h2>
+  </div>
+  <div
+    className="overflow-y-auto"
+  >
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <div
+        className="display-flex-center"
+      >
+        <h3
+          className="spacer-right"
+        >
+          project.info.description
+        </h3>
+        <Connect(PrivacyBadge)
+          qualifier="TRK"
+          tooltipProps={
+            Object {
+              "projectKey": "my-project",
+            }
+          }
+          visibility="public"
+        />
+      </div>
+      <MetaTags
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+            "visibility": "public",
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
+    <div
+      className="big-padded bordered-bottom it__project-loc-value"
+    >
+      <MetaSize
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+            "visibility": "public",
+          }
+        }
+        measures={Array []}
+      />
+    </div>
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <MetaQualityGate
+        qualityGate={
+          Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          }
+        }
+      />
+      <Connect(MetaQualityProfiles)
+        headerClassName="big-spacer-top"
+        profiles={
+          Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ]
+        }
+      />
+    </div>
+    <MetaLinks
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+          "visibility": "public",
+        }
+      }
+    />
+    <div
+      className="big-padded bordered-bottom"
+    >
+      <MetaKey
+        componentKey="my-project"
+        qualifier="TRK"
+      />
+    </div>
+    <Memo(DrawerLink)
+      label="overview.badges.get_badge.TRK"
+      onPageChange={[MockFunction]}
+      to={1}
+    />
+  </div>
+</Fragment>
+`;

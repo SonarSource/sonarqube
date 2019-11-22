@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<div
+  className="info-drawer info-drawer-pane"
+  style={
+    Object {
+      "top": 120,
+    }
+  }
+>
+  <div
+    className="close-button"
+  >
+    <ClearButton
+      onClick={[MockFunction]}
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly: displayed 1`] = `
+<div
+  className="info-drawer info-drawer-pane open"
+  style={
+    Object {
+      "top": 120,
+    }
+  }
+>
+  <div
+    className="close-button"
+  >
+    <ClearButton
+      onClick={[MockFunction]}
+    />
+  </div>
+  <EscKeydownHandler
+    onKeydown={[MockFunction]}
+  >
+    <OutsideClickHandler
+      onClickOutside={[MockFunction]}
+    >
+      <div
+        className="display-flex-column max-height-100"
+      >
+        <span>
+          content
+        </span>
+      </div>
+    </OutsideClickHandler>
+  </EscKeydownHandler>
+</div>
+`;

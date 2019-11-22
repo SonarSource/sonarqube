@@ -17,29 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import ComponentNav from '../ComponentNav';
+import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
 
-const component = {
-  breadcrumbs: [{ key: 'component', name: 'component', qualifier: 'TRK' }],
-  key: 'component',
-  name: 'component',
-  organization: 'org',
-  qualifier: 'TRK'
-};
+export interface DrawerLinkProps<P> {
+  label: string;
+  onPageChange: (page: P) => void;
+  to: P;
+}
 
-it('renders', () => {
-  const wrapper = shallow(
-    <ComponentNav
-      branchLikes={[]}
-      component={component}
-      currentBranchLike={undefined}
-      isInProgress={true}
-      isPending={true}
-      onComponentChange={jest.fn()}
-      warnings={[]}
-    />
+export function DrawerLink<P>(props: DrawerLinkProps<P>) {
+  const { label, to } = props;
+
+  return (
+    <a
+      className="display-flex-space-between bordered-bottom big-padded"
+      onClick={() => props.onPageChange(to)}
+      role="link"
+      tabIndex={0}>
+      {label}
+      <ChevronRightIcon />
+    </a>
   );
-  expect(wrapper).toMatchSnapshot();
-});
+}
+
+export default React.memo(DrawerLink);

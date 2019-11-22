@@ -17,29 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import ComponentNav from '../ComponentNav';
+import { Link } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getQualityGateUrl } from '../../../../../../helpers/urls';
 
-const component = {
-  breadcrumbs: [{ key: 'component', name: 'component', qualifier: 'TRK' }],
-  key: 'component',
-  name: 'component',
-  organization: 'org',
-  qualifier: 'TRK'
-};
+interface Props {
+  qualityGate: { isDefault?: boolean; key: string; name: string };
+}
 
-it('renders', () => {
-  const wrapper = shallow(
-    <ComponentNav
-      branchLikes={[]}
-      component={component}
-      currentBranchLike={undefined}
-      isInProgress={true}
-      isPending={true}
-      onComponentChange={jest.fn()}
-      warnings={[]}
-    />
+export default function MetaQualityGate({ qualityGate }: Props) {
+  return (
+    <>
+      <h3>{translate('project.info.quality_gate')}</h3>
+
+      <ul className="project-info-list">
+        <li>
+          {qualityGate.isDefault && (
+            <span className="note spacer-right">({translate('default')})</span>
+          )}
+          <Link to={getQualityGateUrl(qualityGate.key)}>{qualityGate.name}</Link>
+        </li>
+      </ul>
+    </>
   );
-  expect(wrapper).toMatchSnapshot();
-});
+}

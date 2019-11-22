@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: application 1`] = `
+<Fragment>
+  <h3>
+    metric.ncloc.name
+  </h3>
+  <div
+    className="display-flex-center"
+  >
+    <DrilldownLink
+      className="huge"
+      component="my-project"
+      metric="ncloc"
+    >
+      1
+    </DrilldownLink>
+    <span
+      className="spacer-left"
+    >
+      <SizeRating
+        value={1}
+      />
+    </span>
+    <span
+      className="huge-spacer-left display-inline-flex-center"
+    >
+      <DrilldownLink
+        component="my-project"
+        metric="projects"
+      >
+        <span
+          className="big"
+        >
+          1
+        </span>
+      </DrilldownLink>
+      <span
+        className="little-spacer-left text-muted"
+      >
+        metric.projects.name
+      </span>
+    </span>
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly: project 1`] = `
+<Fragment>
+  <h3>
+    metric.ncloc.name
+  </h3>
+  <div
+    className="display-flex-center"
+  >
+    <DrilldownLink
+      className="huge"
+      component="my-project"
+      metric="ncloc"
+    >
+      1
+    </DrilldownLink>
+    <span
+      className="spacer-left"
+    >
+      <SizeRating
+        value={1}
+      />
+    </span>
+  </div>
+</Fragment>
+`;

@@ -1,0 +1,241 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<Fragment>
+  <Memo(ProjectInformationRenderer)
+    canConfigureNotifications={false}
+    canUseBadges={true}
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    onComponentChange={[MockFunction]}
+    onPageChange={[Function]}
+  />
+  <InfoDrawerPage
+    displayed={false}
+    onPageChange={[Function]}
+  >
+    <ProjectBadges
+      metrics={
+        Object {
+          "coverage": Object {
+            "id": "coverage",
+            "key": "coverage",
+            "name": "Coverage",
+            "type": "PERCENT",
+          },
+        }
+      }
+      project="my-project"
+      qualifier="TRK"
+    />
+  </InfoDrawerPage>
+</Fragment>
+`;
+
+exports[`should render correctly: logged in user 1`] = `
+<Fragment>
+  <Memo(ProjectInformationRenderer)
+    canConfigureNotifications={true}
+    canUseBadges={true}
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    onComponentChange={[MockFunction]}
+    onPageChange={[Function]}
+  />
+  <InfoDrawerPage
+    displayed={false}
+    onPageChange={[Function]}
+  >
+    <ProjectBadges
+      metrics={
+        Object {
+          "coverage": Object {
+            "id": "coverage",
+            "key": "coverage",
+            "name": "Coverage",
+            "type": "PERCENT",
+          },
+        }
+      }
+      project="my-project"
+      qualifier="TRK"
+    />
+  </InfoDrawerPage>
+  <InfoDrawerPage
+    displayed={false}
+    onPageChange={[Function]}
+  >
+    <withNotifications(ProjectNotifications)
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </InfoDrawerPage>
+</Fragment>
+`;
+
+exports[`should render correctly: measures loaded 1`] = `
+<Fragment>
+  <Memo(ProjectInformationRenderer)
+    canConfigureNotifications={false}
+    canUseBadges={true}
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    measures={
+      Array [
+        Object {
+          "bestValue": true,
+          "metric": "bugs",
+          "periods": Array [
+            Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
+          ],
+          "value": "1.0",
+        },
+      ]
+    }
+    onComponentChange={[MockFunction]}
+    onPageChange={[Function]}
+  />
+  <InfoDrawerPage
+    displayed={false}
+    onPageChange={[Function]}
+  >
+    <ProjectBadges
+      metrics={
+        Object {
+          "coverage": Object {
+            "id": "coverage",
+            "key": "coverage",
+            "name": "Coverage",
+            "type": "PERCENT",
+          },
+        }
+      }
+      project="my-project"
+      qualifier="TRK"
+    />
+  </InfoDrawerPage>
+</Fragment>
+`;
+
+exports[`should render correctly: private 1`] = `
+<Fragment>
+  <Memo(ProjectInformationRenderer)
+    canConfigureNotifications={false}
+    canUseBadges={false}
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+        "visibility": "private",
+      }
+    }
+    onComponentChange={[MockFunction]}
+    onPageChange={[Function]}
+  />
+</Fragment>
+`;
