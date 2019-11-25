@@ -164,7 +164,8 @@ public class ComponentAction implements NavigationWsAction {
 
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
-        writeComponent(json, session, component, org, analysis.orElse(null));
+        boolean isFavourite = isFavourite(session, rootProject);
+        writeComponent(json, component, org, analysis.orElse(null), isFavourite);
         writeAlmDetails(json, session, rootProject);
         writeProfiles(json, session, component);
         writeQualityGate(json, session, org, rootProject);
@@ -194,7 +195,7 @@ public class ComponentAction implements NavigationWsAction {
   private void writeAlmDetails(JsonWriter json, DbSession session, ComponentDto component) {
     Optional<ProjectAlmBindingDto> bindingOpt = dbClient.projectAlmBindingsDao().selectByProjectUuid(session, component.uuid());
     bindingOpt.ifPresent(b -> {
-      String almId = String.valueOf(b.getAlm().getId());
+      String almId = b.getAlm().getId();
       json.name("alm").beginObject()
         .prop("key", almId)
         .prop("url", b.getUrl())
@@ -218,13 +219,13 @@ public class ComponentAction implements NavigationWsAction {
       .endObject();
   }
 
-  private void writeComponent(JsonWriter json, DbSession session, ComponentDto component, OrganizationDto organizationDto, @Nullable SnapshotDto analysis) {
+  private void writeComponent(JsonWriter json, ComponentDto component, OrganizationDto organizationDto, @Nullable SnapshotDto analysis, boolean isFavourite) {
     json.prop("key", component.getKey())
       .prop("organization", organizationDto.getKey())
       .prop("id", component.uuid())
       .prop("name", component.name())
       .prop("description", component.description())
-      .prop("isFavorite", isFavourite(session, component));
+      .prop("isFavorite", isFavourite);
     String branch = component.getBranch();
     if (branch != null) {
       json.prop("branch", branch);

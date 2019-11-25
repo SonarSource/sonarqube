@@ -153,6 +153,31 @@ public class ComponentActionTest {
   }
 
   @Test
+  public void return_favourite_for_branch() {
+    ComponentDto project = insertOrganizationAndProject();
+    ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey("feature1").setUuid("xyz"));    UserDto user = db.users().insertUser("obiwan");
+    propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId(user.getId()));
+    userSession.logIn(user).addProjectPermission(UserRole.USER, project);
+    init();
+
+    String json = ws.newRequest()
+      .setParam("componentKey", project.getKey())
+      .setParam("branch", branch.getBranch())
+      .execute()
+      .getInput();
+
+    assertJson(json).isSimilarTo("{\n" +
+      "  \"organization\": \"my-org\",\n" +
+      "  \"key\": \"polop\",\n" +
+      "  \"isFavorite\": true,\n" +
+      "  \"id\": \"xyz\",\n" +
+      "  \"branch\": \"feature1\"," +
+      "  \"name\": \"Polop\",\n" +
+      "  \"description\": \"test project\"\n" +
+      "}\n");
+  }
+
+  @Test
   public void return_component_info_when_snapshot() {
     ComponentDto project = insertOrganizationAndProject();
     db.components().insertSnapshot(project, snapshot -> snapshot
