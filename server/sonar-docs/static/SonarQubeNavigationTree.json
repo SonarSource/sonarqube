@@ -70,8 +70,6 @@
         "title": "Branches",
         "children": [
           "/branches/overview/",
-          "/branches/short-lived-branches/",
-          "/branches/long-lived-branches/",
           "/branches/branches-faq/"
         ]
       },

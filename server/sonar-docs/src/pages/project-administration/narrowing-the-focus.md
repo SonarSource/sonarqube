@@ -12,7 +12,7 @@ If {instance}'s results aren't relevant, no one will want to use it. That's why 
 * exclude files/directories from Duplications detection but analyze all other aspects
 * exclude files/directories from Coverage calculations but analyze all other aspects
 
-You can make these changes globally or at a project level. At both levels, the navigation path is the same: **Administration > General Settings > Analysis Scope**.
+You can make these changes globally or at a project level. At both levels, the navigation path is  **Administration > General Settings > Analysis Scope**.
 
 ## Patterns
 
@@ -127,7 +127,7 @@ PATH #2 = `bank/bankcard/**/*`
 
 You can prevent some files from being checked for duplications.
 
-To do so, go to **Administration > General Settings > Analysis Scope > Duplications** and set the *Duplication Exclusions* property. See the Patterns section for more details on the syntax.
+To do so, go to [Administration > General Settings > Analysis Scope > Duplications](/#sonarqube-admin#/admin/settings) and set the *Duplication Exclusions* property. See the Patterns section for more details on the syntax.
 
 ## Ignore Code Coverage
 

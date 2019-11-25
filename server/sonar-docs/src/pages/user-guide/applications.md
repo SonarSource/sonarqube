@@ -23,6 +23,8 @@ An Application is automatically re-calculated after each analysis of one of its 
 
 ## Applications and Branch Analysis
 
-Long-lived Branches are available for applications. They allow you to aggregate long-lived branches from the projects in an application.
+Branches are available for Applications. They allow you to aggregate branches from the projects in an Application.
+
+**Note:** Avoid adding branches to your application that will be deleted to prevent issues with your Application status.
 
 Once an Application has been set up, anyone with administration rights on the Application can manually create a new branch in the **Administration > Edit Definition** interface. Branches can also be managed from the global **Administration > Configuration > Portfolios** interface. For each Application branch you can choose which project branch should be included, or whether the project should be represented in the branch at all.

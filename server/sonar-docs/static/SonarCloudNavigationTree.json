@@ -36,19 +36,14 @@
         ]
       },
       "/analysis/coverage/",
-      "/analysis/external-issues/",      
+      "/analysis/external-issues/",
       "/analysis/background-tasks/",
       "/analysis/generic-issue/",
       "/analysis/generic-test/",
       "/analysis/pull-request/",
       {
         "title": "Branches",
-        "children": [
-          "/branches/overview/",
-          "/branches/short-lived-branches/",
-          "/branches/long-lived-branches/",
-          "/branches/branches-faq/"
-        ]
+        "children": ["/branches/overview/", "/branches/branches-faq/"]
       },
       "/analysis/supported-languages/"
     ]

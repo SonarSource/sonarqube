@@ -30,4 +30,4 @@ These parameters enable PR analysis:
 | --------------------- | ---------------------------------- |
 | `sonar.pullrequest.key` | Unique identifier of your PR. Must correspond to the key of the PR in GitHub or Azure DevOps.<br/> e.g.: `sonar.pullrequest.key=5` |
 | `sonar.pullrequest.branch` | The name of the branch that contains the changes to be merged.<br/> e.g.: `sonar.pullrequest.branch=feature/my-new-feature` |
-| `sonar.pullrequest.base` | The long-lived branch into which the PR will be merged. <br/> Default: master <br/> e.g.: `sonar.pullrequest.base=master` |
+| `sonar.pullrequest.base` | The branch into which the PR will be merged. <br/> Default: master <br/> e.g.: `sonar.pullrequest.base=master` |

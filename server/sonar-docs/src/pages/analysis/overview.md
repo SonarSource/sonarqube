@@ -67,7 +67,7 @@ By default, only files that are recognized by a language analyzer are loaded int
 For example if your SonarQube instance had only SonarJava SonarJS on board, all .java and .js files would be loaded, but .xml files would be ignored.
 
 ## What about branches and pull requests?
-_Developer Edition_ adds the ability to analyze your project's release / [long-lived branches](/branches/long-lived-branches/), feature / [short-lived branches](/branches/short-lived-branches/), and [pull requests](/analysis/pull-request/) as well as the ability to automatically decorate pull requests in some SCM interfaces. For more on branches see the [branches overview](/branches/overview/).
+_Developer Edition_ adds the ability to analyze your project's [branches](/branches/overview/) and [pull requests](/analysis/pull-request/) as well as the ability to automatically decorate pull requests in some ALM interfaces. 
 <!-- /sonarqube -->
 
 ## What happens during analysis?

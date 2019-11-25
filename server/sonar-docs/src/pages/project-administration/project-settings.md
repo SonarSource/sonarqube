@@ -38,14 +38,14 @@ The new key must contain at least one non-digit character. Allowed characters ar
 
 ### Default Issue Assignee
 
-When new issues are created during an analysis, they are assigned to the last committer where the issue was raised. When it is not possible to identify the last committer, issues can be assigned to a default assignee, at **Administration > General Settings > Issues**.
+When new issues are created during an analysis, they are assigned to the last committer where the issue was raised. When it is not possible to identify the last committer, issues can be assigned to a default assignee, at ]Administration  > General Settings > Issues](/#sonarqube-admin#/admin/settings).
 
 ### Setting Quality Gate and Quality Profiles  
 
 Project administrators can select which ...
 
-* Quality profiles (go to **Administration > Quality Profiles**)
-* Quality gate (go to **Administration > Quality Gate**)
+* Quality profiles (go to **Administration  > Quality Profiles**)
+* Quality gate (go to **Administration  > Quality Gate**)
 
 ... to use on their project.
 
