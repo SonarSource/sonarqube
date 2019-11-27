@@ -19,11 +19,12 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import LongLivingBranchIcon from 'sonar-ui-common/components/icons/LongLivingBranchIcon';
+import BranchIcon from 'sonar-ui-common/components/icons/BranchIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { colors } from '../../../app/theme';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { BranchLike } from '../../../types/branch-like';
 
 export function getTooltip(component: T.ComponentMeasure) {
   const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
@@ -50,7 +51,7 @@ export function mostCommonPrefix(strings: string[]) {
 }
 
 export interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   canBrowse?: boolean;
   component: T.ComponentMeasure;
   previous?: T.ComponentMeasure;
@@ -115,7 +116,7 @@ export default function ComponentName({
         </span>
         {component.branch ? (
           <span className="text-ellipsis spacer-left">
-            <LongLivingBranchIcon className="little-spacer-right" />
+            <BranchIcon className="little-spacer-right" />
             <span className="note">{component.branch}</span>
           </span>
         ) : (

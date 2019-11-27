@@ -25,20 +25,15 @@ import { getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/nav';
 import { STATUSES } from '../../../apps/background-tasks/constants';
+import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { isSonarCloud } from '../../../helpers/system';
-import {
-  mockComponent,
-  mockLocation,
-  mockLongLivingBranch,
-  mockMainBranch,
-  mockPullRequest,
-  mockRouter,
-  mockShortLivingBranch
-} from '../../../helpers/testMocks';
+import { mockComponent, mockLocation, mockRouter } from '../../../helpers/testMocks';
 import { ComponentContainer } from '../ComponentContainer';
 
 jest.mock('../../../api/branches', () => {
-  const { mockMainBranch, mockPullRequest } = require.requireActual('../../../helpers/testMocks');
+  const { mockMainBranch, mockPullRequest } = require.requireActual(
+    '../../../helpers/mocks/branch-like'
+  );
   return {
     getBranches: jest
       .fn()
@@ -79,7 +74,7 @@ jest.mock('../nav/component/ComponentNav', () => ({
 
 const Inner = () => <div />;
 
-const mainBranch: T.MainBranch = mockMainBranch();
+const mainBranch = mockMainBranch();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -154,40 +149,23 @@ it('filters correctly the pending tasks for a main branch', () => {
   const wrapper = shallowRender();
   const component = wrapper.instance();
   const mainBranch = mockMainBranch();
-  const shortBranch = mockShortLivingBranch();
-  const longBranch = mockLongLivingBranch();
+  const branch3 = mockBranch({ name: 'branch-3' });
+  const branch2 = mockBranch({ name: 'branch-2' });
   const pullRequest = mockPullRequest();
 
   expect(component.isSameBranch({}, undefined)).toBeTruthy();
   expect(component.isSameBranch({}, mainBranch)).toBeTruthy();
-  expect(component.isSameBranch({}, shortBranch)).toBeFalsy();
-  expect(
-    component.isSameBranch({ branch: shortBranch.name, branchType: 'SHORT' }, shortBranch)
-  ).toBeTruthy();
-  expect(
-    component.isSameBranch({ branch: 'feature', branchType: 'SHORT' }, longBranch)
-  ).toBeFalsy();
-  expect(
-    component.isSameBranch({ branch: 'feature', branchType: 'SHORT' }, longBranch)
-  ).toBeFalsy();
-  expect(
-    component.isSameBranch({ branch: 'branch-6.6', branchType: 'LONG' }, longBranch)
-  ).toBeFalsy();
-  expect(
-    component.isSameBranch({ branch: longBranch.name, branchType: 'LONG' }, longBranch)
-  ).toBeTruthy();
-  expect(
-    component.isSameBranch({ branch: 'branch-6.7', branchType: 'LONG' }, pullRequest)
-  ).toBeFalsy();
+  expect(component.isSameBranch({}, branch3)).toBeFalsy();
+  expect(component.isSameBranch({ branch: branch3.name }, branch3)).toBeTruthy();
+  expect(component.isSameBranch({ branch: 'feature' }, branch2)).toBeFalsy();
+  expect(component.isSameBranch({ branch: 'branch-6.6' }, branch2)).toBeFalsy();
+  expect(component.isSameBranch({ branch: branch2.name }, branch2)).toBeTruthy();
+  expect(component.isSameBranch({ branch: 'branch-6.7' }, pullRequest)).toBeFalsy();
   expect(component.isSameBranch({ pullRequest: pullRequest.key }, pullRequest)).toBeTruthy();
 
   const currentTask = { pullRequest: pullRequest.key, status: STATUSES.IN_PROGRESS } as T.Task;
   const failedTask = { ...currentTask, status: STATUSES.FAILED };
-  const pendingTasks = [
-    currentTask,
-    { branch: shortBranch.name, branchType: 'SHORT' } as T.Task,
-    {} as T.Task
-  ];
+  const pendingTasks = [currentTask, { branch: branch3.name } as T.Task, {} as T.Task];
   expect(component.getCurrentTask(currentTask, undefined)).toBe(undefined);
   expect(component.getCurrentTask(failedTask, mainBranch)).toBe(failedTask);
   expect(component.getCurrentTask(currentTask, mainBranch)).toBe(undefined);

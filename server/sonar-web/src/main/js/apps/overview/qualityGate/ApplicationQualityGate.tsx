@@ -24,10 +24,11 @@ import Level from 'sonar-ui-common/components/ui/Level';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ApplicationProject, getApplicationQualityGate } from '../../../api/quality-gates';
 import DocTooltip from '../../../components/docs/DocTooltip';
+import { Branch } from '../../../types/branch-like';
 import ApplicationQualityGateProject from './ApplicationQualityGateProject';
 
 interface Props {
-  branch?: T.LongLivingBranch;
+  branch?: Branch;
   component: T.LightComponent;
 }
 

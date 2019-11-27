@@ -22,7 +22,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import Toggle from 'sonar-ui-common/components/controls/Toggle';
 import { excludeBranchFromPurge } from '../../../../api/branches';
-import { mockComponent, mockLongLivingBranch, mockMainBranch } from '../../../../helpers/testMocks';
+import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../helpers/testMocks';
 import BranchPurgeSetting from '../BranchPurgeSetting';
 
 jest.mock('../../../../api/branches', () => ({
@@ -61,7 +62,7 @@ it('should correctly call the webservice if the user changes the value', () => {
 function shallowRender(props?: Partial<BranchPurgeSetting['props']>) {
   return shallow<BranchPurgeSetting>(
     <BranchPurgeSetting
-      branch={mockLongLivingBranch({ excludedFromPurge: true })}
+      branch={mockBranch({ excludedFromPurge: true })}
       component={mockComponent()}
       {...props}
     />

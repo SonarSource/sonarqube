@@ -160,7 +160,7 @@ foo:src/index.tsx"
   <span
     className="text-ellipsis spacer-left"
   >
-    <LongLivingBranchIcon
+    <BranchIcon
       className="little-spacer-right"
     />
     <span
@@ -239,7 +239,7 @@ foo"
   <span
     className="text-ellipsis spacer-left"
   >
-    <LongLivingBranchIcon
+    <BranchIcon
       className="little-spacer-right"
     />
     <span

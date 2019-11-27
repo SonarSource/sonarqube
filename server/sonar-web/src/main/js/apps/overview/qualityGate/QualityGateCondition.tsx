@@ -28,12 +28,13 @@ import {
 } from 'sonar-ui-common/helpers/measures';
 import Measure from '../../../components/measure/Measure';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
-import { getBranchLikeQuery, isPullRequest, isShortLivingBranch } from '../../../helpers/branches';
+import { getBranchLikeQuery, isPullRequest } from '../../../helpers/branch-like';
 import { getPeriodValue, isDiffMetric } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: Pick<T.Component, 'key'>;
   condition: T.QualityGateStatusConditionEnhanced;
 }
@@ -86,7 +87,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
       'overview-quality-gate-condition-' + condition.level.toLowerCase(),
       {
         'overview-quality-gate-condition-leak':
-          condition.period != null && !isPullRequest(branchLike) && !isShortLivingBranch(branchLike)
+          condition.period != null && !isPullRequest(branchLike)
       }
     );
 

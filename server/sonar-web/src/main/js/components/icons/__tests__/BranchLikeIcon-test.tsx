@@ -20,20 +20,11 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import {
-  mockLongLivingBranch,
-  mockPullRequest,
-  mockShortLivingBranch
-} from '../../../helpers/testMocks';
+import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import BranchLikeIcon, { BranchLikeIconProps } from '../BranchLikeIcon';
 
-it('should render short living branch icon for short living branch', () => {
-  const wrapper = shallowRender({ branchLike: mockShortLivingBranch() });
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should render short living branch icon for long living branch', () => {
-  const wrapper = shallowRender({ branchLike: mockLongLivingBranch() });
+it('should render branch icon correctly', () => {
+  const wrapper = shallowRender({ branchLike: mockBranch() });
   expect(wrapper).toMatchSnapshot();
 });
 

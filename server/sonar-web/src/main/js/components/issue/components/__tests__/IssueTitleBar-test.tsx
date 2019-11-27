@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockIssue } from '../../../../helpers/testMocks';
 import IssueTitleBar from '../IssueTitleBar';
 
@@ -26,13 +27,7 @@ const issue: T.Issue = mockIssue();
 const issueWithLocations: T.Issue = mockIssue(true);
 
 it('should render the titlebar correctly', () => {
-  const branch: T.ShortLivingBranch = {
-    isMain: false,
-    excludedFromPurge: true,
-    mergeBranch: 'master',
-    name: 'feature-1.0',
-    type: 'SHORT'
-  };
+  const branch = mockBranch({ name: 'feature-1.0' });
   const element = shallow(
     <IssueTitleBar branchLike={branch} issue={issue} togglePopup={jest.fn()} />
   );

@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockIssue, mockPullRequest, mockSourceLine } from '../../../../helpers/testMocks';
+import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
+import { mockIssue, mockSourceLine } from '../../../../helpers/testMocks';
 import Line from '../Line';
 
 it('should render correctly', () => {

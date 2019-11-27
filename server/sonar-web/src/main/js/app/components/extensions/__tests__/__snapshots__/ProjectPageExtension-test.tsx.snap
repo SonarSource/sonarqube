@@ -12,6 +12,7 @@ exports[`should render correctly 1`] = `
     Object {
       "branchLike": Object {
         "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
         "isMain": true,
         "name": "master",
       },

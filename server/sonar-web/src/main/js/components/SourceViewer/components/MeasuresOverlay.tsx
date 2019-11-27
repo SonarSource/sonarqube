@@ -31,17 +31,18 @@ import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getFacets } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { ISSUE_TYPES, SEVERITIES } from '../../../helpers/constants';
 import { enhanceMeasuresWithMetrics, getDisplayMetrics } from '../../../helpers/measures';
 import { getBranchLikeUrl } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 import Measure from '../../measure/Measure';
 import SeverityHelper from '../../shared/SeverityHelper';
 import CoverageRating from '../../ui/CoverageRating';
 import MeasuresOverlayMeasure from './MeasuresOverlayMeasure';
 
 interface Props {
-  branchLike: T.BranchLike | undefined;
+  branchLike: BranchLike | undefined;
   onClose: () => void;
   sourceViewerFile: T.SourceViewerFile;
 }

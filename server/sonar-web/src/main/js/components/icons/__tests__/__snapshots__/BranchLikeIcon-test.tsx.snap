@@ -1,7 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should render branch icon correctly 1`] = `<BranchIcon />`;
+
 exports[`should render pull request icon correctly 1`] = `<PullRequestIcon />`;
-
-exports[`should render short living branch icon for long living branch 1`] = `<ShortLivingBranchIcon />`;
-
-exports[`should render short living branch icon for short living branch 1`] = `<ShortLivingBranchIcon />`;

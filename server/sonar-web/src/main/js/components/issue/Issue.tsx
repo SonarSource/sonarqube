@@ -20,12 +20,13 @@
 import * as key from 'keymaster';
 import * as React from 'react';
 import { setIssueAssignee } from '../../api/issues';
+import { BranchLike } from '../../types/branch-like';
 import { updateIssue } from './actions';
 import './Issue.css';
 import IssueView from './IssueView';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   checked?: boolean;
   displayLocationsCount?: boolean;
   displayLocationsLink?: boolean;

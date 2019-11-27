@@ -21,15 +21,16 @@
 import * as React from 'react';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getBranchLikeKey } from '../../../helpers/branches';
+import { getBranchLikeKey } from '../../../helpers/branch-like';
+import { BranchLike } from '../../../types/branch-like';
 import BranchLikeRow from './BranchLikeRow';
 
 export interface BranchLikeTableProps {
-  branchLikes: T.BranchLike[];
+  branchLikes: BranchLike[];
   component: T.Component;
   displayPurgeSetting?: boolean;
-  onDelete: (branchLike: T.BranchLike) => void;
-  onRename: (branchLike: T.BranchLike) => void;
+  onDelete: (branchLike: BranchLike) => void;
+  onRename: (branchLike: BranchLike) => void;
   title: string;
 }
 

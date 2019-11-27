@@ -22,12 +22,13 @@ import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getProjectActivity } from '../../../api/projectActivity';
 import PreviewGraph from '../../../components/preview-graph/PreviewGraph';
-import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
+import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { getActivityUrl } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 import Analysis from './Analysis';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: T.Component;
   history?: {
     [metric: string]: Array<{ date: Date; value?: string }>;

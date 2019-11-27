@@ -30,25 +30,26 @@ import {
   isBranch,
   isPullRequest,
   isSameBranchLike
-} from '../../../../../helpers/branches';
+} from '../../../../../helpers/branch-like';
 import { getBranchLikeUrl } from '../../../../../helpers/urls';
+import { BranchLike, BranchLikeTree } from '../../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../../types/component';
 import MenuItemList from './MenuItemList';
 
 interface Props {
-  branchLikes: T.BranchLike[];
+  branchLikes: BranchLike[];
   canAdminComponent?: boolean;
   component: T.Component;
-  currentBranchLike: T.BranchLike;
+  currentBranchLike: BranchLike;
   onClose: () => void;
   router: Pick<Router, 'push'>;
 }
 
 interface State {
-  branchLikesToDisplay: T.BranchLike[];
-  branchLikesToDisplayTree: T.BranchLikeTree;
+  branchLikesToDisplay: BranchLike[];
+  branchLikesToDisplayTree: BranchLikeTree;
   query: string;
-  selectedBranchLike: T.BranchLike | undefined;
+  selectedBranchLike: BranchLike | undefined;
 }
 
 export class Menu extends React.PureComponent<Props, State> {
@@ -70,7 +71,7 @@ export class Menu extends React.PureComponent<Props, State> {
     };
   }
 
-  processBranchLikes = (branchLikes: T.BranchLike[]) => {
+  processBranchLikes = (branchLikes: BranchLike[]) => {
     const tree = getBrancheLikesAsTree(branchLikes);
     return {
       branchLikesToDisplay: [
@@ -128,9 +129,9 @@ export class Menu extends React.PureComponent<Props, State> {
   handleSearchChange = (query: string) => {
     const q = query.toLowerCase();
 
-    const filterBranch = (branch: T.BranchLike) =>
+    const filterBranch = (branch: BranchLike) =>
       isBranch(branch) && branch.name.toLowerCase().includes(q);
-    const filterPullRequest = (pr: T.BranchLike) =>
+    const filterPullRequest = (pr: BranchLike) =>
       isPullRequest(pr) && (pr.title.toLowerCase().includes(q) || pr.key.toLowerCase().includes(q));
 
     const filteredBranchLikes = this.props.branchLikes.filter(
@@ -144,7 +145,7 @@ export class Menu extends React.PureComponent<Props, State> {
     });
   };
 
-  handleOnSelect = (branchLike: T.BranchLike) => {
+  handleOnSelect = (branchLike: BranchLike) => {
     this.setState({ selectedBranchLike: branchLike }, () => {
       this.props.onClose();
       this.props.router.push(getBranchLikeUrl(this.props.component.key, branchLike));

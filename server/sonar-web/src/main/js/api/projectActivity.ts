@@ -19,6 +19,7 @@
  */
 import { getJSON, post, postJSON, RequestData } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { BranchParameters } from '../types/branch-like';
 
 export function getProjectActivity(
   data: {
@@ -27,7 +28,7 @@ export function getProjectActivity(
     from?: string;
     p?: number;
     ps?: number;
-  } & T.BranchParameters
+  } & BranchParameters
 ): Promise<{ analyses: T.Analysis[]; paging: T.Paging }> {
   return getJSON('/api/project_analyses/search', data).catch(throwGlobalError);
 }

@@ -16,9 +16,7 @@ exports[`should render correctly for coverage 1`] = `
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": false,
-        "mergeBranch": "master",
-        "name": "feature/foo",
-        "type": "SHORT",
+        "name": "branch-6.7",
       }
     }
     component="my-project"
@@ -50,9 +48,7 @@ exports[`should render correctly for coverage 2`] = `
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": false,
-        "mergeBranch": "master",
-        "name": "feature/foo",
-        "type": "SHORT",
+        "name": "branch-6.7",
       }
     }
     component="my-project"
@@ -74,9 +70,7 @@ exports[`should render correctly for coverage 2`] = `
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
                 "isMain": false,
-                "mergeBranch": "master",
-                "name": "feature/foo",
-                "type": "SHORT",
+                "name": "branch-6.7",
               }
             }
             component="my-project"
@@ -107,9 +101,7 @@ exports[`should render correctly for duplications 1`] = `
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": false,
-        "mergeBranch": "master",
-        "name": "feature/foo",
-        "type": "SHORT",
+        "name": "branch-6.7",
       }
     }
     component="my-project"

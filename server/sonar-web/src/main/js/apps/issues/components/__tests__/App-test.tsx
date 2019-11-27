@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
 import { KEYCODE_MAP, keydown, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import {
   mockComponent,
   mockCurrentUser,
@@ -28,7 +29,6 @@ import {
   mockIssue,
   mockLocation,
   mockLoggedInUser,
-  mockPullRequest,
   mockRouter
 } from '../../../../helpers/testMocks';
 import {

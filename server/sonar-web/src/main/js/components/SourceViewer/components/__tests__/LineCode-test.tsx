@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockIssue, mockShortLivingBranch, mockSourceLine } from '../../../../helpers/testMocks';
+import { mockBranch } from '../../../../helpers/mocks/branch-like';
+import { mockIssue, mockSourceLine } from '../../../../helpers/testMocks';
 import LineCode from '../LineCode';
 
 it('render code', () => {
@@ -29,7 +30,7 @@ it('render code', () => {
 function shallowRender(props: Partial<LineCode['props']> = {}) {
   return shallow(
     <LineCode
-      branchLike={mockShortLivingBranch()}
+      branchLike={mockBranch()}
       displayLocationMarkers={true}
       highlightedLocationMessage={{ index: 0, text: 'location description' }}
       highlightedSymbols={['sym-9']}

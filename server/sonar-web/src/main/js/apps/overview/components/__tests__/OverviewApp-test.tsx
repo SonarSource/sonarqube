@@ -22,13 +22,8 @@ import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getMeasuresAndMeta } from '../../../../api/measures';
 import { getAllTimeMachineData } from '../../../../api/time-machine';
-import {
-  mockComponent,
-  mockLongLivingBranch,
-  mockMainBranch,
-  mockMeasure,
-  mockMetric
-} from '../../../../helpers/testMocks';
+import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockComponent, mockMeasure, mockMetric } from '../../../../helpers/testMocks';
 import { OverviewApp } from '../OverviewApp';
 
 jest.mock('../../../../api/measures', () => {
@@ -111,7 +106,7 @@ it('should show the correct message if the project is empty', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper.find('h3').text()).toBe('overview.project.main_branch_empty');
 
-  wrapper.setProps({ branchLike: mockLongLivingBranch({ name: 'branch-foo' }) });
+  wrapper.setProps({ branchLike: mockBranch({ name: 'branch-foo' }) });
   await waitAndUpdate(wrapper);
   expect(wrapper.find('h3').text()).toBe('overview.project.branch_X_empty.branch-foo');
 
@@ -133,7 +128,7 @@ it('should show the correct message if the project has no lines of code', async 
   await waitAndUpdate(wrapper);
   expect(wrapper.find('h3').text()).toBe('overview.project.main_branch_no_lines_of_code');
 
-  wrapper.setProps({ branchLike: mockLongLivingBranch({ name: 'branch-foo' }) });
+  wrapper.setProps({ branchLike: mockBranch({ name: 'branch-foo' }) });
   await waitAndUpdate(wrapper);
   expect(wrapper.find('h3').text()).toBe('overview.project.branch_X_no_lines_of_code.branch-foo');
 

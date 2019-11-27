@@ -21,6 +21,7 @@ import { omitBy } from 'lodash';
 import { getJSON, post, postJSON, RequestData } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { isCategoryDefinition } from '../apps/settings/utils';
+import { BranchParameters } from '../types/branch-like';
 
 export function getDefinitions(component?: string): Promise<T.SettingCategoryDefinition[]> {
   return getJSON('/api/settings/list_definitions', { component }).then(
@@ -30,7 +31,7 @@ export function getDefinitions(component?: string): Promise<T.SettingCategoryDef
 }
 
 export function getValues(
-  data: { keys: string; component?: string } & T.BranchParameters
+  data: { keys: string; component?: string } & BranchParameters
 ): Promise<T.SettingValue[]> {
   return getJSON('/api/settings/values', data).then(r => r.settings);
 }
@@ -57,13 +58,13 @@ export function setSettingValue(
 }
 
 export function setSimpleSettingValue(
-  data: { component?: string; value: string; key: string } & T.BranchParameters
+  data: { component?: string; value: string; key: string } & BranchParameters
 ): Promise<void | Response> {
   return post('/api/settings/set', data).catch(throwGlobalError);
 }
 
 export function resetSettingValue(
-  data: { keys: string; component?: string } & T.BranchParameters
+  data: { keys: string; component?: string } & BranchParameters
 ): Promise<void> {
   return post('/api/settings/reset', data);
 }

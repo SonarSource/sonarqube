@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockMainBranch, mockSourceViewerFile } from '../../../helpers/testMocks';
+import { mockMainBranch } from '../../../helpers/mocks/branch-like';
+import { mockSourceViewerFile } from '../../../helpers/testMocks';
 import SourceViewerHeaderSlim, { Props } from '../SourceViewerHeaderSlim';
 
 it('should render correctly', () => {

@@ -23,14 +23,15 @@ import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import ChevronDownIcon from 'sonar-ui-common/components/icons/ChevronDownIcon';
 import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getMeasuresAndMeta } from '../../../api/measures';
-import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
+import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
+import { BranchLike } from '../../../types/branch-like';
 import QualityGateCondition from './QualityGateCondition';
 
 const LEVEL_ORDER = ['ERROR', 'WARN'];
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: Pick<T.Component, 'key'>;
   collapsible?: boolean;
   conditions: T.QualityGateStatusCondition[];

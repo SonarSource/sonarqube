@@ -26,18 +26,19 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../api/newCodePeriod';
 import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import { isBranch, sortBranches } from '../../../helpers/branches';
+import { isBranch, sortBranches } from '../../../helpers/branch-like';
+import { BranchLike, BranchWithNewCodePeriod } from '../../../types/branch-like';
 import BranchBaselineSettingModal from './BranchBaselineSettingModal';
 
 interface Props {
-  branchLikes: T.BranchLike[];
+  branchLikes: BranchLike[];
   component: T.Component;
   inheritedSetting: T.NewCodePeriod;
 }
 
 interface State {
-  branches: T.BranchWithNewCodePeriod[];
-  editedBranch?: T.BranchWithNewCodePeriod;
+  branches: BranchWithNewCodePeriod[];
+  editedBranch?: BranchWithNewCodePeriod;
   loading: boolean;
 }
 
@@ -57,7 +58,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  sortAndFilterBranches(branchLikes: T.BranchLike[] = []) {
+  sortAndFilterBranches(branchLikes: BranchLike[] = []) {
     return sortBranches(branchLikes.filter(isBranch));
   }
 
@@ -103,7 +104,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
     return branches.slice(0);
   };
 
-  openEditModal = (branch: T.BranchWithNewCodePeriod) => {
+  openEditModal = (branch: BranchWithNewCodePeriod) => {
     this.setState({ editedBranch: branch });
   };
 

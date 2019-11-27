@@ -23,8 +23,9 @@ import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import LinkIcon from 'sonar-ui-common/components/icons/LinkIcon';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 import LocationIndex from '../../common/LocationIndex';
 import { WorkspaceContext } from '../../workspace/context';
 import IssueChangelog from './IssueChangelog';
@@ -32,7 +33,7 @@ import IssueMessage from './IssueMessage';
 import SimilarIssuesFilter from './SimilarIssuesFilter';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   currentPopup?: string;
   displayLocationsCount?: boolean;
   displayLocationsLink?: boolean;

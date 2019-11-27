@@ -19,6 +19,7 @@
  */
 import { combineReducers } from 'redux';
 import settingsApp, * as fromSettingsApp from '../apps/settings/store/rootReducer';
+import { BranchLike } from '../types/branch-like';
 import appState from './appState';
 import branches, * as fromBranches from './branches';
 import globalMessages, * as fromGlobalMessages from './globalMessages';
@@ -136,7 +137,7 @@ export function getSettingsAppValidationMessage(state: Store, key: string) {
 export function getBranchStatusByBranchLike(
   state: Store,
   component: string,
-  branchLike: T.BranchLike
+  branchLike: BranchLike
 ) {
   return fromBranches.getBranchStatusByBranchLike(state.branches, component, branchLike);
 }

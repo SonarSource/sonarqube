@@ -28,14 +28,15 @@ import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import {
   getBranchLikeDisplayName,
   getBranchLikeQuery,
-  isLongLivingBranch,
+  isBranch,
   isMainBranch,
   isSameBranchLike
-} from '../../../helpers/branches';
+} from '../../../helpers/branch-like';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics, Store } from '../../../store/rootReducer';
+import { BranchLike } from '../../../types/branch-like';
 import {
   DEFAULT_GRAPH,
   getDisplayedHistoryMetrics,
@@ -53,7 +54,7 @@ import '../styles.css';
 import { HISTORY_METRICS_LIST, METRICS } from '../utils';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: T.Component;
   fetchMetrics: () => void;
   onComponentChange: (changes: {}) => void;
@@ -251,7 +252,7 @@ export class OverviewApp extends React.PureComponent<Props, State> {
       <div className="overview-main page-main">
         {component.qualifier === 'APP' ? (
           <ApplicationQualityGate
-            branch={isLongLivingBranch(branchLike) ? branchLike : undefined}
+            branch={isBranch(branchLike) && !isMainBranch(branchLike) ? branchLike : undefined}
             component={component}
           />
         ) : (

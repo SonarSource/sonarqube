@@ -23,7 +23,8 @@ import { getSources } from '../../../api/components';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { BranchLike } from '../../../types/branch-like';
 import SnippetViewer from './SnippetViewer';
 import {
   createSnippets,
@@ -34,7 +35,7 @@ import {
 } from './utils';
 
 interface Props {
-  branchLike: T.BranchLike | undefined;
+  branchLike: BranchLike | undefined;
   duplications?: T.Duplication[];
   duplicationsByLine?: { [line: number]: number[] };
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;

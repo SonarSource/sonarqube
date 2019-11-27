@@ -31,14 +31,15 @@ import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { collapsedDirFromPath, fileFromPath } from 'sonar-ui-common/helpers/path';
 import { omitNil } from 'sonar-ui-common/helpers/request';
 import { getBaseUrl, getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
-import { getBranchLikeQuery, isMainBranch } from '../../helpers/branches';
+import { getBranchLikeQuery, isMainBranch } from '../../helpers/branch-like';
 import { getBranchLikeUrl, getCodeUrl, getComponentIssuesUrl } from '../../helpers/urls';
+import { BranchLike } from '../../types/branch-like';
 import Favorite from '../controls/Favorite';
 import { WorkspaceContextShape } from '../workspace/context';
 import MeasuresOverlay from './components/MeasuresOverlay';
 
 interface Props {
-  branchLike: T.BranchLike | undefined;
+  branchLike: BranchLike | undefined;
   componentMeasures?: T.Measure[];
   openComponent: WorkspaceContextShape['openComponent'];
   showMeasures?: boolean;

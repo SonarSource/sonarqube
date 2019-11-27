@@ -18,28 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { getBrancheLikesAsTree, isSameBranchLike, sortBranches } from '../branches';
-import {
-  mockLongLivingBranch,
-  mockMainBranch,
-  mockPullRequest,
-  mockShortLivingBranch
-} from '../testMocks';
+import { getBrancheLikesAsTree, isSameBranchLike, sortBranches } from '../branch-like';
+import { mockBranch, mockMainBranch, mockPullRequest } from '../mocks/branch-like';
 
 describe('#getBrancheLikesAsTree', () => {
   it('should correctly map branches and prs to tree object', () => {
     const main = mockMainBranch({ name: 'master' });
-    const llb1 = mockLongLivingBranch({ name: 'llb1' });
-    const llb2 = mockLongLivingBranch({ name: 'llb2' });
-    const slb1 = mockShortLivingBranch({ name: 'slb1' });
-    const slb2 = mockShortLivingBranch({ name: 'slb2' });
+    const branch1 = mockBranch({ name: 'branch-1' });
+    const branch2 = mockBranch({ name: 'branch-2' });
+    const branch3 = mockBranch({ name: 'branch-3' });
+    const branch4 = mockBranch({ name: 'branch-4' });
 
     const mainPr1 = mockPullRequest({ base: main.name, key: 'PR1' });
     const mainPr2 = mockPullRequest({ base: main.name, key: 'PR2' });
-    const llb1Pr1 = mockPullRequest({ base: llb1.name, key: 'PR1' });
-    const llb1Pr2 = mockPullRequest({ base: llb1.name, key: 'PR2' });
-    const llb2Pr1 = mockPullRequest({ base: llb2.name, key: 'PR1' });
-    const llb2Pr2 = mockPullRequest({ base: llb2.name, key: 'PR1' });
+    const llb1Pr1 = mockPullRequest({ base: branch1.name, key: 'PR1' });
+    const llb1Pr2 = mockPullRequest({ base: branch1.name, key: 'PR2' });
+    const llb2Pr1 = mockPullRequest({ base: branch2.name, key: 'PR1' });
+    const llb2Pr2 = mockPullRequest({ base: branch2.name, key: 'PR1' });
     const orphanPR1 = mockPullRequest({ isOrphan: true, key: 'PR1' });
     const orphanPR2 = mockPullRequest({ isOrphan: true, key: 'PR2' });
     const parentlessPR1 = mockPullRequest({ base: 'not_present_branch_1', key: 'PR1' });
@@ -47,13 +42,13 @@ describe('#getBrancheLikesAsTree', () => {
 
     expect(
       getBrancheLikesAsTree([
-        llb2,
-        llb1,
+        branch2,
+        branch1,
         main,
         orphanPR2,
         orphanPR1,
-        slb2,
-        slb1,
+        branch4,
+        branch3,
         mainPr2,
         mainPr1,
         parentlessPR2,
@@ -69,10 +64,10 @@ describe('#getBrancheLikesAsTree', () => {
         pullRequests: [mainPr1, mainPr2]
       },
       branchTree: [
-        { branch: llb1, pullRequests: [llb1Pr1, llb1Pr2] },
-        { branch: llb2, pullRequests: [llb2Pr1, llb2Pr1] },
-        { branch: slb1, pullRequests: [] },
-        { branch: slb2, pullRequests: [] }
+        { branch: branch1, pullRequests: [llb1Pr1, llb1Pr2] },
+        { branch: branch2, pullRequests: [llb2Pr1, llb2Pr1] },
+        { branch: branch3, pullRequests: [] },
+        { branch: branch4, pullRequests: [] }
       ],
       parentlessPullRequests: [parentlessPR1, parentlessPR2],
       orphanPullRequests: [orphanPR1, orphanPR2]
@@ -83,40 +78,32 @@ describe('#getBrancheLikesAsTree', () => {
 describe('#sortBranches', () => {
   it('should sort branches correctly', () => {
     const main = mockMainBranch();
-    const shortFoo = mockShortLivingBranch({ name: 'shortFoo', mergeBranch: 'master' });
-    const shortBar = mockShortLivingBranch({ name: 'shortBar', mergeBranch: 'longBaz' });
-    const shortPre = mockShortLivingBranch({ name: 'shortPre', mergeBranch: 'shortFoo' });
-    const longBaz = mockLongLivingBranch({ name: 'longBaz' });
-    const longQux = mockLongLivingBranch({ name: 'longQux' });
-    const longQwe = mockLongLivingBranch({ name: 'longQwe' });
-    const branchList = [shortFoo, longBaz, shortPre, longQux, main, longQwe, shortBar];
+    const foo = mockBranch({ name: 'shortFoo' });
+    const bar = mockBranch({ name: 'shortBar' });
+    const pre = mockBranch({ name: 'shortPre' });
+    const baz = mockBranch({ name: 'longBaz' });
+    const qux = mockBranch({ name: 'longQux' });
+    const qwe = mockBranch({ name: 'longQwe' });
+    const branchList = [foo, baz, pre, qux, main, qwe, bar];
 
     const sortedBrancList = sortBranches(branchList);
 
-    expect(sortedBrancList).toEqual([
-      main,
-      longBaz,
-      longQux,
-      longQwe,
-      shortBar,
-      shortFoo,
-      shortPre
-    ]);
+    expect(sortedBrancList).toEqual([main, baz, qux, qwe, bar, foo, pre]);
   });
 });
 
 describe('#isSameBranchLike', () => {
   it('compares different kinds', () => {
     const main = mockMainBranch();
-    const short = mockShortLivingBranch({ name: 'foo' });
-    const long = mockLongLivingBranch({ name: 'foo' });
+    const foo = mockBranch({ name: 'foo' });
+    const foo1 = mockBranch({ name: 'foo-1' });
     const pr = mockPullRequest();
     expect(isSameBranchLike(main, pr)).toBeFalsy();
-    expect(isSameBranchLike(main, short)).toBeFalsy();
-    expect(isSameBranchLike(main, long)).toBeFalsy();
-    expect(isSameBranchLike(pr, short)).toBeFalsy();
-    expect(isSameBranchLike(pr, long)).toBeFalsy();
-    expect(isSameBranchLike(short, long)).toBeFalsy();
+    expect(isSameBranchLike(main, foo1)).toBeFalsy();
+    expect(isSameBranchLike(main, foo)).toBeFalsy();
+    expect(isSameBranchLike(pr, foo1)).toBeFalsy();
+    expect(isSameBranchLike(pr, foo)).toBeFalsy();
+    expect(isSameBranchLike(foo1, foo)).toBeFalsy();
   });
 
   it('compares pull requests', () => {
@@ -129,23 +116,9 @@ describe('#isSameBranchLike', () => {
   });
 
   it('compares branches', () => {
-    expect(
-      isSameBranchLike(mockLongLivingBranch({ name: 'foo' }), mockLongLivingBranch({ name: 'foo' }))
-    ).toBeTruthy();
-    expect(
-      isSameBranchLike(
-        mockShortLivingBranch({ name: 'foo' }),
-        mockShortLivingBranch({ name: 'foo' })
-      )
-    ).toBeTruthy();
-    expect(
-      isSameBranchLike(mockLongLivingBranch({ name: 'foo' }), mockLongLivingBranch({ name: 'bar' }))
-    ).toBeFalsy();
-    expect(
-      isSameBranchLike(
-        mockShortLivingBranch({ name: 'foo' }),
-        mockShortLivingBranch({ name: 'bar' })
-      )
-    ).toBeFalsy();
+    expect(isSameBranchLike(mockBranch({ name: 'foo' }), mockBranch({ name: 'foo' }))).toBeTruthy();
+    expect(isSameBranchLike(mockBranch({ name: 'foo' }), mockBranch({ name: 'foo' }))).toBeTruthy();
+    expect(isSameBranchLike(mockBranch({ name: 'foo' }), mockBranch({ name: 'bar' }))).toBeFalsy();
+    expect(isSameBranchLike(mockBranch({ name: 'foo' }), mockBranch({ name: 'bar' }))).toBeFalsy();
   });
 });

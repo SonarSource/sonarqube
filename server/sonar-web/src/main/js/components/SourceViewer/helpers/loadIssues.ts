@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { searchIssues } from '../../../api/issues';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { parseIssueFromResponse } from '../../../helpers/issues';
+import { BranchLike } from '../../../types/branch-like';
 
 // maximum possible value
 const PAGE_SIZE = 500;
 
-function buildQuery(component: string, branchLike: T.BranchLike | undefined) {
+function buildQuery(component: string, branchLike: BranchLike | undefined) {
   return {
     additionalFields: '_all',
     resolved: 'false',
@@ -78,7 +79,7 @@ export default function loadIssues(
   component: string,
   _fromLine: number,
   toLine: number,
-  branchLike: T.BranchLike | undefined
+  branchLike: BranchLike | undefined
 ): Promise<T.Issue[]> {
   const query = buildQuery(component, branchLike);
   return new Promise(resolve => {

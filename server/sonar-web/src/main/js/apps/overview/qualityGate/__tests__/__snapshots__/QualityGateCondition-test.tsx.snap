@@ -348,7 +348,6 @@ exports[`should work with branch 1`] = `
     Object {
       "pathname": "/project/issues",
       "query": Object {
-        "branch": "branch-6.7",
         "id": "abcd-key",
         "resolved": "false",
         "sinceLeakPeriod": "true",

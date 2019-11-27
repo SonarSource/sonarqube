@@ -46,13 +46,13 @@ import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
 import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
 import AlertWarnIcon from 'sonar-ui-common/components/icons/AlertWarnIcon';
+import BranchIcon from 'sonar-ui-common/components/icons/BranchIcon';
 import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
 import ClearIcon from 'sonar-ui-common/components/icons/ClearIcon';
 import DetachIcon from 'sonar-ui-common/components/icons/DetachIcon';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import HelpIcon from 'sonar-ui-common/components/icons/HelpIcon';
 import LockIcon from 'sonar-ui-common/components/icons/LockIcon';
-import LongLivingBranchIcon from 'sonar-ui-common/components/icons/LongLivingBranchIcon';
 import PlusCircleIcon from 'sonar-ui-common/components/icons/PlusCircleIcon';
 import PullRequestIcon from 'sonar-ui-common/components/icons/PullRequestIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
@@ -75,9 +75,9 @@ import CoverageRating from '../../../components/ui/CoverageRating';
 import {
   getBranchLikeQuery,
   isBranch,
-  isLongLivingBranch,
+  isMainBranch,
   isPullRequest
-} from '../../../helpers/branches';
+} from '../../../helpers/branch-like';
 import * as measures from '../../../helpers/measures';
 import {
   getStandards,
@@ -101,7 +101,7 @@ const exposeLibraries = () => {
   global.SonarHelpers = {
     getBranchLikeQuery,
     isBranch,
-    isLongLivingBranch,
+    isMainBranch,
     isPullRequest,
     getStandards,
     renderCWECategory,
@@ -149,7 +149,7 @@ const exposeLibraries = () => {
     Level,
     ListFooter,
     LockIcon,
-    LongLivingBranchIcon,
+    LongLivingBranchIcon: BranchIcon,
     Modal,
     NotFound,
     PlusCircleIcon,

@@ -30,10 +30,11 @@ import {
   optimizeLocationMessage,
   optimizeSelectedIssue
 } from '../../../components/SourceViewer/helpers/lines';
+import { BranchLike } from '../../../types/branch-like';
 import { inSnippet, LINES_BELOW_ISSUE } from './utils';
 
 interface Props {
-  branchLike: T.BranchLike | undefined;
+  branchLike: BranchLike | undefined;
   component: T.SourceViewerFile;
   duplications?: T.Duplication[];
   duplicationsByLine?: { [line: number]: number[] };

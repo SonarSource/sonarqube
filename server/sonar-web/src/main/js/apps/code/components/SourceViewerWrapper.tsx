@@ -22,9 +22,10 @@ import * as React from 'react';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
+import { BranchLike } from '../../../types/branch-like';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: string;
   componentMeasures: T.Measure[] | undefined;
   location: Pick<Location, 'query'>;

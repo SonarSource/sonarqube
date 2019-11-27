@@ -23,16 +23,53 @@ import IssueChangelogDiff from '../IssueChangelogDiff';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should render correctly file diff', () => {
   expect(
     shallowRender({ diff: { key: 'file', oldValue: 'foo/bar.js', newValue: 'bar/baz.js' } })
   ).toMatchSnapshot();
+});
+
+it('should render correctly branch diff', () => {
   expect(
-    shallowRender({ diff: { key: 'from_long_branch', oldValue: 'foo', newValue: 'bar' } })
+    shallowRender({
+      diff: {
+        // Legacy key
+        key: 'from_long_branch',
+        oldValue: 'foo',
+        newValue: 'bar'
+      }
+    })
   ).toMatchSnapshot();
+
   expect(
-    shallowRender({ diff: { key: 'from_short_branch', oldValue: 'foo', newValue: 'bar' } })
+    shallowRender({
+      diff: {
+        // Legacy key
+        key: 'from_short_branch',
+        oldValue: 'foo',
+        newValue: 'bar'
+      }
+    })
   ).toMatchSnapshot();
+
+  expect(
+    shallowRender({
+      diff: {
+        key: 'from_branch',
+        oldValue: 'foo',
+        newValue: 'bar'
+      }
+    })
+  ).toMatchSnapshot();
+});
+
+it('should render correctly line diff', () => {
   expect(shallowRender({ diff: { key: 'line', oldValue: '80' } })).toMatchSnapshot();
+});
+
+it('should render correctly effort diff', () => {
   expect(shallowRender({ diff: { key: 'effort', newValue: '12' } })).toMatchSnapshot();
   expect(
     shallowRender({ diff: { key: 'effort', newValue: '12', oldValue: '10' } })

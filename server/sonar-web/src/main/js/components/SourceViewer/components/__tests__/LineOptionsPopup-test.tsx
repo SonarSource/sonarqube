@@ -19,13 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import LineOptionsPopup from '../LineOptionsPopup';
 
 jest.mock('../../SourceViewerContext', () => ({
   SourceViewerContext: {
     Consumer: (props: any) =>
       props.children({
-        branchLike: { isMain: false, name: 'feature', type: 'SHORT' },
+        branchLike: mockBranch({ name: 'feature' }),
         file: { project: 'prj', key: 'foo' }
       })
   }

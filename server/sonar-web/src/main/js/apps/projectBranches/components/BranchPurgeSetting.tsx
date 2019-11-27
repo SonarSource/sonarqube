@@ -24,10 +24,11 @@ import Toggle from 'sonar-ui-common/components/controls/Toggle';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { excludeBranchFromPurge } from '../../../api/branches';
-import { isMainBranch } from '../../../helpers/branches';
+import { isMainBranch } from '../../../helpers/branch-like';
+import { Branch } from '../../../types/branch-like';
 
 interface Props {
-  branch: T.Branch;
+  branch: Branch;
   component: T.Component;
 }
 

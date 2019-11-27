@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import BranchIcon from 'sonar-ui-common/components/icons/BranchIcon';
 import LinkIcon from 'sonar-ui-common/components/icons/LinkIcon';
-import LongLivingBranchIcon from 'sonar-ui-common/components/icons/LongLivingBranchIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { splitPath } from 'sonar-ui-common/helpers/path';
@@ -30,10 +30,11 @@ import {
   getComponentDrilldownUrlWithSelection,
   getProjectUrl
 } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 import { View } from '../utils';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: T.ComponentMeasureEnhanced;
   onClick: (component: string) => void;
   metric: T.Metric;
@@ -76,7 +77,7 @@ export default class ComponentCell extends React.PureComponent<Props> {
           <>
             {component.branch ? (
               <>
-                <LongLivingBranchIcon className="spacer-left little-spacer-right" />
+                <BranchIcon className="spacer-left little-spacer-right" />
                 <span className="note">{component.branch}</span>
               </>
             ) : (

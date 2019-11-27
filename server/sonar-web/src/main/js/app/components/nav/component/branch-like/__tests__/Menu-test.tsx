@@ -24,8 +24,11 @@ import { Link } from 'react-router';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import { KeyCodes } from 'sonar-ui-common/helpers/keycodes';
 import { click, mockEvent } from 'sonar-ui-common/helpers/testUtils';
-import { mockSetOfBranchAndPullRequest } from '../../../../../../helpers/mocks/branch-pull-request';
-import { mockComponent, mockPullRequest, mockRouter } from '../../../../../../helpers/testMocks';
+import {
+  mockPullRequest,
+  mockSetOfBranchAndPullRequest
+} from '../../../../../../helpers/mocks/branch-like';
+import { mockComponent, mockRouter } from '../../../../../../helpers/testMocks';
 import { Menu } from '../Menu';
 import { MenuItemList } from '../MenuItemList';
 
@@ -98,7 +101,7 @@ it('should handle keyboard shortcut correctly', () => {
 
     onKeyDown(mockEvent({ keyCode: KeyCodes.DownArrow }));
     onKeyDown(mockEvent({ keyCode: KeyCodes.DownArrow }));
-    expect(wrapper.state().selectedBranchLike).toBe(branchLikes[7]);
+    expect(wrapper.state().selectedBranchLike).toBe(branchLikes[0]);
 
     onKeyDown(mockEvent({ keyCode: KeyCodes.Enter }));
     expect(push).toHaveBeenCalled();

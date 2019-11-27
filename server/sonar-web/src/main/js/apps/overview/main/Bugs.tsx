@@ -22,7 +22,7 @@ import BugIcon from 'sonar-ui-common/components/icons/BugIcon';
 import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import { isLongLivingBranch } from '../../../helpers/branches';
+import { isBranch, isMainBranch } from '../../../helpers/branch-like';
 import ApplicationLeakPeriodLegend from '../components/ApplicationLeakPeriodLegend';
 import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import { getMetricName } from '../utils';
@@ -62,7 +62,7 @@ export class Bugs extends React.PureComponent<ComposedProps> {
       <div className="overview-domain-leak">
         {component.qualifier === 'APP' ? (
           <ApplicationLeakPeriodLegend
-            branch={isLongLivingBranch(branchLike) ? branchLike : undefined}
+            branch={isBranch(branchLike) && !isMainBranch(branchLike) ? branchLike : undefined}
             component={component}
           />
         ) : (

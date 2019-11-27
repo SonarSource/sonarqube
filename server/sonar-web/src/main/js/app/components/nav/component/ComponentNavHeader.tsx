@@ -19,14 +19,15 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
+import { BranchLike } from '../../../../types/branch-like';
 import BranchLikeNavigation from './branch-like/BranchLikeNavigation';
 import CurrentBranchLikeMergeInformation from './branch-like/CurrentBranchLikeMergeInformation';
 import { ComponentBreadcrumb } from './ComponentBreadcrumb';
 
 export interface ComponentNavHeaderProps {
-  branchLikes: T.BranchLike[];
+  branchLikes: BranchLike[];
   component: T.Component;
-  currentBranchLike: T.BranchLike | undefined;
+  currentBranchLike: BranchLike | undefined;
 }
 
 export function ComponentNavHeader(props: ComponentNavHeaderProps) {

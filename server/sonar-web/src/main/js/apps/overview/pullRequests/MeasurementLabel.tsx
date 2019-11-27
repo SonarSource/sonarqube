@@ -25,10 +25,11 @@ import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getLeakValue } from '../../../components/measure/utils';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { findMeasure } from '../../../helpers/measures';
+import { BranchLike } from '../../../types/branch-like';
 import { MEASUREMENTS_MAP, MeasurementType } from '../utils';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   className?: string;
   component: T.Component;
   measures: T.Measure[];

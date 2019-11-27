@@ -19,11 +19,12 @@
  */
 import * as React from 'react';
 import Issue from '../../../components/issue/Issue';
+import { BranchLike } from '../../../types/branch-like';
 import { Query } from '../utils';
 import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 
 interface Props {
-  branchLike: T.BranchLike | undefined;
+  branchLike: BranchLike | undefined;
   checked: boolean;
   component: T.Component | undefined;
   issue: T.Issue;

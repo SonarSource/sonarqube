@@ -23,10 +23,11 @@ import Rating from 'sonar-ui-common/components/ui/Rating';
 import { getLeakValue, getRatingTooltip } from '../../../components/measure/utils';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { findMeasure } from '../../../helpers/measures';
+import { BranchLike } from '../../../types/branch-like';
 import { getRatingName, IssueType, ISSUETYPE_MAP } from '../utils';
 
 interface Props {
-  branchLike?: T.ShortLivingBranch | T.PullRequest;
+  branchLike?: BranchLike;
   component: T.Component;
   measures: T.Measure[];
   type: IssueType;

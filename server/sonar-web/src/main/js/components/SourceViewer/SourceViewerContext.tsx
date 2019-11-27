@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { BranchLike } from '../../types/branch-like';
 
 interface SourceViewerContextShape {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   file: T.SourceViewerFile;
 }
 
 export const SourceViewerContext = React.createContext<SourceViewerContextShape>({
-  branchLike: {} as T.BranchLike,
+  branchLike: {} as BranchLike,
   file: {} as T.SourceViewerFile
 });

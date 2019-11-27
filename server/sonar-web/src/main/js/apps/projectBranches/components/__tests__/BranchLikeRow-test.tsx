@@ -20,13 +20,8 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import {
-  mockComponent,
-  mockLongLivingBranch,
-  mockMainBranch,
-  mockPullRequest,
-  mockShortLivingBranch
-} from '../../../../helpers/testMocks';
+import { mockBranch, mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../helpers/testMocks';
 import { BranchLikeRow, BranchLikeRowProps } from '../BranchLikeRow';
 
 it('should render correctly for pull request', () => {
@@ -34,13 +29,8 @@ it('should render correctly for pull request', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should render correctly for short lived branch', () => {
-  const wrapper = shallowRender({ branchLike: mockShortLivingBranch(), displayPurgeSetting: true });
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should render correctly for long lived branch', () => {
-  const wrapper = shallowRender({ branchLike: mockLongLivingBranch(), displayPurgeSetting: true });
+it('should render correctly for branch', () => {
+  const wrapper = shallowRender({ branchLike: mockBranch(), displayPurgeSetting: true });
   expect(wrapper).toMatchSnapshot();
 });
 

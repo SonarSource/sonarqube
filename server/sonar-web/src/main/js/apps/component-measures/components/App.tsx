@@ -40,14 +40,10 @@ import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { enhanceMeasure } from '../../../components/measure/utils';
 import '../../../components/search-navigator.css';
-import {
-  getBranchLikeQuery,
-  isPullRequest,
-  isSameBranchLike,
-  isShortLivingBranch
-} from '../../../helpers/branches';
+import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { fetchBranchStatus } from '../../../store/rootActions';
+import { BranchLike } from '../../../types/branch-like';
 import Sidebar from '../sidebar/Sidebar';
 import '../style.css';
 import {
@@ -68,9 +64,9 @@ import MeasureOverviewContainer from './MeasureOverviewContainer';
 import MeasuresEmpty from './MeasuresEmpty';
 
 interface Props extends WithRouterProps {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: T.ComponentMeasure;
-  fetchBranchStatus: (branchLike: T.BranchLike, projectKey: string) => Promise<void>;
+  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
 }
 
 interface State {
@@ -240,7 +236,7 @@ export class App extends React.PureComponent<Props, State> {
 
   refreshBranchStatus = () => {
     const { branchLike, component } = this.props;
-    if (branchLike && component && (isPullRequest(branchLike) || isShortLivingBranch(branchLike))) {
+    if (branchLike && component && isPullRequest(branchLike)) {
       this.props.fetchBranchStatus(branchLike, component.key);
     }
   };
@@ -270,7 +266,7 @@ export class App extends React.PureComponent<Props, State> {
     }
 
     const hideDrilldown =
-      (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) &&
+      isPullRequest(branchLike) &&
       (metric.key === 'coverage' || metric.key === 'duplicated_lines_density');
 
     if (hideDrilldown) {

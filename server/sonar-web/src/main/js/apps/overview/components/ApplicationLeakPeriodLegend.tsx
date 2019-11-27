@@ -25,9 +25,10 @@ import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n
 import { getApplicationLeak } from '../../../api/application';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTooltipFormatter from '../../../components/intl/DateTooltipFormatter';
+import { Branch } from '../../../types/branch-like';
 
 interface Props {
-  branch?: T.LongLivingBranch;
+  branch?: Branch;
   component: T.LightComponent;
 }
 

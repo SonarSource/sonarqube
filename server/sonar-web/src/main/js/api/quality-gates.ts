@@ -19,6 +19,7 @@
  */
 import { getJSON, post, postJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { BranchParameters } from '../types/branch-like';
 
 export function fetchQualityGates(data: {
   organization?: string;
@@ -174,7 +175,7 @@ export function getQualityGateProjectStatus(
   data: {
     projectKey?: string;
     projectId?: string;
-  } & T.BranchParameters
+  } & BranchParameters
 ): Promise<T.QualityGateProjectStatus> {
   return getJSON('/api/qualitygates/project_status', data)
     .then(r => r.projectStatus)

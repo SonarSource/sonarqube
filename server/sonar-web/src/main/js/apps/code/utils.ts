@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getBreadcrumbs, getChildren, getComponent } from '../../api/components';
-import { getBranchLikeQuery, isPullRequest, isShortLivingBranch } from '../../helpers/branches';
+import { getBranchLikeQuery, isPullRequest } from '../../helpers/branch-like';
+import { BranchLike } from '../../types/branch-like';
 import {
   addComponent,
   addComponentBreadcrumbs,
@@ -75,8 +76,8 @@ function prepareChildren(r: any): Children {
   };
 }
 
-export function showLeakMeasure(branchLike?: T.BranchLike) {
-  return isShortLivingBranch(branchLike) || isPullRequest(branchLike);
+export function showLeakMeasure(branchLike?: BranchLike) {
+  return isPullRequest(branchLike);
 }
 
 function skipRootDir(breadcrumbs: T.ComponentMeasure[]) {
@@ -101,7 +102,7 @@ function storeChildrenBreadcrumbs(parentComponentKey: string, children: T.Breadc
 
 export function getCodeMetrics(
   qualifier: string,
-  branchLike?: T.BranchLike,
+  branchLike?: BranchLike,
   options: { includeQGStatus?: boolean } = {}
 ) {
   if (['VW', 'SVW'].includes(qualifier)) {
@@ -117,7 +118,7 @@ export function getCodeMetrics(
   return [...METRICS];
 }
 
-function retrieveComponentBase(componentKey: string, qualifier: string, branchLike?: T.BranchLike) {
+function retrieveComponentBase(componentKey: string, qualifier: string, branchLike?: BranchLike) {
   const existing = getComponentFromBucket(componentKey);
   if (existing) {
     return Promise.resolve(existing);
@@ -138,7 +139,7 @@ function retrieveComponentBase(componentKey: string, qualifier: string, branchLi
 export function retrieveComponentChildren(
   componentKey: string,
   qualifier: string,
-  branchLike?: T.BranchLike
+  branchLike?: BranchLike
 ): Promise<{ components: T.ComponentMeasure[]; page: number; total: number }> {
   const existing = getComponentChildren(componentKey);
   if (existing) {
@@ -167,7 +168,7 @@ export function retrieveComponentChildren(
 
 function retrieveComponentBreadcrumbs(
   component: string,
-  branchLike?: T.BranchLike
+  branchLike?: BranchLike
 ): Promise<T.Breadcrumb[]> {
   const existing = getComponentBreadcrumbs(component);
   if (existing) {
@@ -185,7 +186,7 @@ function retrieveComponentBreadcrumbs(
 export function retrieveComponent(
   componentKey: string,
   qualifier: string,
-  branchLike?: T.BranchLike
+  branchLike?: BranchLike
 ): Promise<{
   breadcrumbs: T.Breadcrumb[];
   component: T.ComponentMeasure;
@@ -212,7 +213,7 @@ export function loadMoreChildren(
   componentKey: string,
   page: number,
   qualifier: string,
-  branchLike?: T.BranchLike
+  branchLike?: BranchLike
 ): Promise<Children> {
   const metrics = getCodeMetrics(qualifier, branchLike, { includeQGStatus: true });
 

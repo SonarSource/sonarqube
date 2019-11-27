@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockIssue, mockMainBranch } from '../../../../helpers/testMocks';
+import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockIssue } from '../../../../helpers/testMocks';
 import IssuesSourceViewer from '../IssuesSourceViewer';
 
 it('should render SourceViewer correctly', () => {

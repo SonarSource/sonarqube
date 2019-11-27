@@ -21,12 +21,13 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import { withScrollTo } from '../../../components/hoc/withScrollTo';
 import { WorkspaceContext } from '../../../components/workspace/context';
+import { BranchLike } from '../../../types/branch-like';
 import ComponentMeasure from './ComponentMeasure';
 import ComponentName from './ComponentName';
 import ComponentPin from './ComponentPin';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   canBePinned?: boolean;
   canBrowse?: boolean;
   component: T.ComponentMeasure;

@@ -22,12 +22,13 @@ import { last } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import { isMainBranch } from '../../../../helpers/branches';
+import { isMainBranch } from '../../../../helpers/branch-like';
 import { getProjectUrl } from '../../../../helpers/urls';
+import { BranchLike } from '../../../../types/branch-like';
 
 interface Props {
   component: T.Component;
-  currentBranchLike: T.BranchLike | undefined;
+  currentBranchLike: BranchLike | undefined;
 }
 
 export function ComponentBreadcrumb(props: Props) {

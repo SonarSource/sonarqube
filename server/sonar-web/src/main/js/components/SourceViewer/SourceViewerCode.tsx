@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { BranchLike } from '../../types/branch-like';
 import Line from './components/Line';
 import { getSecondaryIssueLocationsForLine } from './helpers/issueLocations';
 import {
@@ -38,7 +39,7 @@ const ZERO_LINE = {
 };
 
 interface Props {
-  branchLike: T.BranchLike | undefined;
+  branchLike: BranchLike | undefined;
   componentKey: string;
   displayAllIssues?: boolean;
   displayIssueLocationsCount?: boolean;

@@ -10,7 +10,7 @@ exports[`should render all tabs correctly 1`] = `
         Object {
           "key": 0,
           "label": <React.Fragment>
-            <ShortLivingBranchIcon />
+            <BranchIcon />
             <span
               className="spacer-left"
             >
@@ -45,38 +45,31 @@ exports[`should render all tabs correctly 1`] = `
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
-          "name": "llb-1",
-          "type": "LONG",
+          "name": "branch-1",
         },
         Object {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
-          "name": "llb-2",
-          "type": "LONG",
+          "name": "branch-11",
         },
         Object {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
-          "name": "llb-3",
-          "type": "LONG",
+          "name": "branch-12",
         },
         Object {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
-          "mergeBranch": "master",
-          "name": "slb-1",
-          "type": "SHORT",
+          "name": "branch-2",
         },
         Object {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
-          "mergeBranch": "llb-1",
-          "name": "slb-2",
-          "type": "SHORT",
+          "name": "branch-3",
         },
       ]
     }
@@ -121,7 +114,7 @@ exports[`should render all tabs correctly 2`] = `
         Object {
           "key": 0,
           "label": <React.Fragment>
-            <ShortLivingBranchIcon />
+            <BranchIcon />
             <span
               className="spacer-left"
             >

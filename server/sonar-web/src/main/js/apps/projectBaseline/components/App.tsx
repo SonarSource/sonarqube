@@ -24,13 +24,14 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getNewCodePeriod, resetNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import { BranchLike } from '../../../types/branch-like';
 import '../styles.css';
 import { getSettingValue } from '../utils';
 import BranchList from './BranchList';
 import ProjectBaselineSelector from './ProjectBaselineSelector';
 
 interface Props {
-  branchLikes: T.BranchLike[];
+  branchLikes: BranchLike[];
   branchesEnabled?: boolean;
   canAdmin?: boolean;
   component: T.Component;

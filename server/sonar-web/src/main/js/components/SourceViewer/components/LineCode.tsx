@@ -19,6 +19,7 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import { BranchLike } from '../../../types/branch-like';
 import LocationIndex from '../../common/LocationIndex';
 import LocationMessage from '../../common/LocationMessage';
 import {
@@ -30,7 +31,7 @@ import {
 import LineIssuesList from './LineIssuesList';
 
 interface Props {
-  branchLike: T.BranchLike | undefined;
+  branchLike: BranchLike | undefined;
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
   displayLocationMarkers?: boolean;

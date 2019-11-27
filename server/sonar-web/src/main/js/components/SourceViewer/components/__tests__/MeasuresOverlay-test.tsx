@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import MeasuresOverlay from '../MeasuresOverlay';
 
 jest.mock('../../../../api/issues', () => ({
@@ -149,13 +150,7 @@ const sourceViewerFile: T.SourceViewerFile = {
   uuid: 'abcd123'
 };
 
-const branchLike: T.ShortLivingBranch = {
-  isMain: false,
-  excludedFromPurge: true,
-  mergeBranch: 'master',
-  name: 'feature',
-  type: 'SHORT'
-};
+const branchLike = mockBranch({ name: 'feature' });
 
 it('should render source file', async () => {
   const wrapper = shallowRender();

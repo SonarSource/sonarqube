@@ -24,7 +24,8 @@ import { parseDate } from 'sonar-ui-common/helpers/dates';
 import { getAllMetrics } from '../../../api/metrics';
 import * as api from '../../../api/projectActivity';
 import { getAllTimeMachineData } from '../../../api/time-machine';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { BranchLike } from '../../../types/branch-like';
 import * as actions from '../actions';
 import {
   customMetricsChanged,
@@ -41,7 +42,7 @@ import {
 import ProjectActivityApp from './ProjectActivityApp';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: T.Component;
   location: Location;
   router: Pick<InjectedRouter, 'push' | 'replace'>;

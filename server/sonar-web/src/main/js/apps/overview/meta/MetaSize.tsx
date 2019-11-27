@@ -24,10 +24,11 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import LanguageDistributionContainer from '../../../components/charts/LanguageDistributionContainer';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
+import { BranchLike } from '../../../types/branch-like';
 import { getMetricName } from '../utils';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: T.LightComponent;
   measures: T.MeasureEnhanced[];
 }

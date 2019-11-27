@@ -21,13 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../api/newCodePeriod';
-import {
-  mockComponent,
-  mockLongLivingBranch,
-  mockMainBranch,
-  mockPullRequest,
-  mockShortLivingBranch
-} from '../../../helpers/testMocks';
+import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../helpers/testMocks';
 import BranchBaselineSettingModal from '../components/BranchBaselineSettingModal';
 import BranchList from '../components/BranchList';
 
@@ -50,8 +45,8 @@ it('should render correctly', async () => {
   const wrapper = shallowRender({
     branchLikes: [
       mockMainBranch(),
-      mockLongLivingBranch(),
-      mockShortLivingBranch(),
+      mockBranch(),
+      mockBranch({ name: 'branch-7.0' }),
       mockPullRequest()
     ]
   });
@@ -73,7 +68,7 @@ it('should handle reset', () => {
 });
 
 it('should toggle popup', async () => {
-  const wrapper = shallowRender({ branchLikes: [mockMainBranch(), mockLongLivingBranch()] });
+  const wrapper = shallowRender({ branchLikes: [mockMainBranch(), mockBranch()] });
 
   wrapper.setState({ editedBranch: mockMainBranch() });
 

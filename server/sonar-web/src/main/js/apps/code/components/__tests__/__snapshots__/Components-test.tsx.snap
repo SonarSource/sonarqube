@@ -165,7 +165,11 @@ exports[`renders correctly for leak 1`] = `
       }
     }
     canBePinned={true}
-    metrics={Array []}
+    metrics={
+      Array [
+        "coverage",
+      ]
+    }
     rootComponent={
       Object {
         "key": "foo",
@@ -178,11 +182,10 @@ exports[`renders correctly for leak 1`] = `
     <withScrollTo(Component)
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
-          "mergeBranch": "master",
           "name": "feature",
-          "type": "SHORT",
         }
       }
       canBePinned={true}
@@ -194,7 +197,16 @@ exports[`renders correctly for leak 1`] = `
         }
       }
       key="foo"
-      metrics={Array []}
+      metrics={
+        Array [
+          Object {
+            "id": "1",
+            "key": "coverage",
+            "name": "Coverage",
+            "type": "PERCENT",
+          },
+        ]
+      }
       rootComponent={
         Object {
           "key": "foo",
@@ -212,7 +224,7 @@ exports[`renders correctly for leak 1`] = `
          
       </td>
       <td
-        colSpan={4}
+        colSpan={5}
       >
          
       </td>
@@ -222,11 +234,10 @@ exports[`renders correctly for leak 1`] = `
     <withScrollTo(Component)
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
-          "mergeBranch": "master",
           "name": "feature",
-          "type": "SHORT",
         }
       }
       canBePinned={true}
@@ -239,7 +250,16 @@ exports[`renders correctly for leak 1`] = `
         }
       }
       key="foo"
-      metrics={Array []}
+      metrics={
+        Array [
+          Object {
+            "id": "1",
+            "key": "coverage",
+            "name": "Coverage",
+            "type": "PERCENT",
+          },
+        ]
+      }
       rootComponent={
         Object {
           "key": "foo",
@@ -255,7 +275,7 @@ exports[`renders correctly for leak 1`] = `
         colSpan={3}
       />
       <td
-        colSpan={4}
+        colSpan={5}
       />
     </tr>
   </tbody>

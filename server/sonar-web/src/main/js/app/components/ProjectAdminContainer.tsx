@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { BranchLike } from '../../types/branch-like';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import A11ySkipTarget from './a11y/A11ySkipTarget';
 
 interface Props {
   children: JSX.Element;
-  branchLike?: T.BranchLike;
-  branchLikes: T.BranchLike[];
+  branchLike?: BranchLike;
+  branchLikes: BranchLike[];
   component: T.Component;
   isInProgress?: boolean;
   isPending?: boolean;

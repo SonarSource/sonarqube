@@ -24,6 +24,7 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { toNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { setNewCodePeriod } from '../../../api/newCodePeriod';
+import { BranchWithNewCodePeriod } from '../../../types/branch-like';
 import { getSettingValue, validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
 import BaselineSettingDays from './BaselineSettingDays';
@@ -31,7 +32,7 @@ import BaselineSettingPreviousVersion from './BaselineSettingPreviousVersion';
 import BranchAnalysisList from './BranchAnalysisList';
 
 interface Props {
-  branch: T.BranchWithNewCodePeriod;
+  branch: BranchWithNewCodePeriod;
   component: string;
   onClose: (branch?: string, newSetting?: T.NewCodePeriod) => void;
 }

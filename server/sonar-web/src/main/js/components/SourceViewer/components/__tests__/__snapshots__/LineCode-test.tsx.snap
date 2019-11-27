@@ -47,9 +47,7 @@ exports[`render code 1`] = `
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": false,
-        "mergeBranch": "master",
-        "name": "feature/foo",
-        "type": "SHORT",
+        "name": "branch-6.7",
       }
     }
     issues={

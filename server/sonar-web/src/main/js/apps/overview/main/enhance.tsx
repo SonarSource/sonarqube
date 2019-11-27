@@ -26,7 +26,7 @@ import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n'
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getWrappedDisplayName } from '../../../components/hoc/utils';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import {
   getPeriodValue,
   getRatingTooltip,
@@ -39,10 +39,11 @@ import {
   getComponentIssuesUrl,
   getMeasureHistoryUrl
 } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 import Timeline from '../components/Timeline';
 
 export interface EnhanceProps {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: T.Component;
   measures: T.MeasureEnhanced[];
   leakPeriod?: T.Period;

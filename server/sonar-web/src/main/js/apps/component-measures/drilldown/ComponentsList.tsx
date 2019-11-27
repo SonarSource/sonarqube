@@ -19,13 +19,14 @@
  */
 import * as React from 'react';
 import { getLocalizedMetricName } from 'sonar-ui-common/helpers/l10n';
+import { BranchLike } from '../../../types/branch-like';
 import { complementary } from '../config/complementary';
 import { View } from '../utils';
 import ComponentsListRow from './ComponentsListRow';
 import EmptyResult from './EmptyResult';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   components: T.ComponentMeasureEnhanced[];
   onClick: (component: string) => void;
   metric: T.Metric;

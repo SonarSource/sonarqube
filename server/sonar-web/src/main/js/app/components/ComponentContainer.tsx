@@ -29,17 +29,16 @@ import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import {
   getBranchLikeQuery,
   isBranch,
-  isLongLivingBranch,
   isMainBranch,
-  isPullRequest,
-  isShortLivingBranch
-} from '../../helpers/branches';
+  isPullRequest
+} from '../../helpers/branch-like';
 import { isSonarCloud } from '../../helpers/system';
 import {
   fetchOrganization,
   registerBranchStatus,
   requireAuthorization
 } from '../../store/rootActions';
+import { BranchLike } from '../../types/branch-like';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import { ComponentContext } from './ComponentContext';
 import ComponentNav from './nav/component/ComponentNav';
@@ -48,14 +47,14 @@ interface Props {
   children: React.ReactElement;
   fetchOrganization: (organization: string) => void;
   location: Pick<Location, 'query'>;
-  registerBranchStatus: (branchLike: T.BranchLike, component: string, status: T.Status) => void;
+  registerBranchStatus: (branchLike: BranchLike, component: string, status: T.Status) => void;
   requireAuthorization: (router: Pick<Router, 'replace'>) => void;
   router: Pick<Router, 'replace'>;
 }
 
 interface State {
-  branchLike?: T.BranchLike;
-  branchLikes: T.BranchLike[];
+  branchLike?: BranchLike;
+  branchLikes: BranchLike[];
   component?: T.Component;
   currentTask?: T.Task;
   isPending: boolean;
@@ -143,8 +142,8 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   fetchBranches = (
     component: T.Component
   ): Promise<{
-    branchLike?: T.BranchLike;
-    branchLikes: T.BranchLike[];
+    branchLike?: BranchLike;
+    branchLikes: BranchLike[];
     component: T.Component;
   }> => {
     const breadcrumb = component.breadcrumbs.find(({ qualifier }) => {
@@ -222,7 +221,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     );
   };
 
-  fetchWarnings = (component: T.Component, branchLike?: T.BranchLike) => {
+  fetchWarnings = (component: T.Component, branchLike?: BranchLike) => {
     if (component.qualifier === 'TRK') {
       getAnalysisStatus({
         component: component.key,
@@ -236,14 +235,14 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     }
   };
 
-  getCurrentBranchLike = (branchLikes: T.BranchLike[]) => {
+  getCurrentBranchLike = (branchLikes: BranchLike[]) => {
     const { query } = this.props.location;
     return query.pullRequest
       ? branchLikes.find(b => isPullRequest(b) && b.key === query.pullRequest)
       : branchLikes.find(b => isBranch(b) && (query.branch ? b.name === query.branch : b.isMain));
   };
 
-  getCurrentTask = (current: T.Task, branchLike?: T.BranchLike) => {
+  getCurrentTask = (current: T.Task, branchLike?: BranchLike) => {
     if (!current) {
       return undefined;
     }
@@ -253,26 +252,23 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       : undefined;
   };
 
-  getPendingTasks = (pendingTasks: T.Task[], branchLike?: T.BranchLike) => {
+  getPendingTasks = (pendingTasks: T.Task[], branchLike?: BranchLike) => {
     return pendingTasks.filter(task => this.isSameBranch(task, branchLike));
   };
 
-  isSameBranch = (
-    task: Pick<T.Task, 'branch' | 'branchType' | 'pullRequest'>,
-    branchLike?: T.BranchLike
-  ) => {
+  isSameBranch = (task: Pick<T.Task, 'branch' | 'pullRequest'>, branchLike?: BranchLike) => {
     if (branchLike && !isMainBranch(branchLike)) {
       if (isPullRequest(branchLike)) {
         return branchLike.key === task.pullRequest;
       }
-      if (isShortLivingBranch(branchLike) || isLongLivingBranch(branchLike)) {
-        return branchLike.type === task.branchType && branchLike.name === task.branch;
+      if (isBranch(branchLike)) {
+        return branchLike.name === task.branch;
       }
     }
     return !task.branch && !task.pullRequest;
   };
 
-  registerBranchStatuses = (branchLikes: T.BranchLike[], component: T.Component) => {
+  registerBranchStatuses = (branchLikes: BranchLike[], component: T.Component) => {
     branchLikes.forEach(branchLike => {
       if (branchLike.status) {
         this.props.registerBranchStatus(

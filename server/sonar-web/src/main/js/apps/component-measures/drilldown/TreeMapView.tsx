@@ -33,10 +33,11 @@ import { isDefined } from 'sonar-ui-common/helpers/types';
 import { colors } from '../../../app/theme';
 import ColorBoxLegend from '../../../components/charts/ColorBoxLegend';
 import { isDiffMetric } from '../../../helpers/measures';
+import { BranchLike } from '../../../types/branch-like';
 import EmptyResult from './EmptyResult';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   components: T.ComponentMeasureEnhanced[];
   handleSelect: (component: string) => void;
   metric: T.Metric;

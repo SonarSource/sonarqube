@@ -19,17 +19,11 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import LongLivingBranchIcon from 'sonar-ui-common/components/icons/LongLivingBranchIcon';
+import BranchIcon from 'sonar-ui-common/components/icons/BranchIcon';
 import PullRequestIcon from 'sonar-ui-common/components/icons/PullRequestIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import ShortLivingBranchIcon from 'sonar-ui-common/components/icons/ShortLivingBranchIcon';
 import Organization from '../../../components/shared/Organization';
-import {
-  getLongLivingBranchUrl,
-  getProjectUrl,
-  getPullRequestUrl,
-  getShortLivingBranchUrl
-} from '../../../helpers/urls';
+import { getBranchUrl, getProjectUrl, getPullRequestUrl } from '../../../helpers/urls';
 import TaskType from './TaskType';
 
 interface Props {
@@ -48,11 +42,10 @@ export default function TaskComponent({ task }: Props) {
 
   return (
     <td>
-      {task.branchType === 'SHORT' && <ShortLivingBranchIcon className="little-spacer-right" />}
-      {task.branchType === 'LONG' && <LongLivingBranchIcon className="little-spacer-right" />}
+      {task.branch !== undefined && <BranchIcon className="little-spacer-right" />}
       {task.pullRequest !== undefined && <PullRequestIcon className="little-spacer-right" />}
 
-      {!task.branchType && !task.pullRequest && task.componentQualifier && (
+      {!task.branch && !task.pullRequest && task.componentQualifier && (
         <span className="little-spacer-right">
           <QualifierIcon qualifier={task.componentQualifier} />
         </span>
@@ -87,11 +80,7 @@ export default function TaskComponent({ task }: Props) {
 
 function getTaskComponentUrl(componentKey: string, task: T.Task) {
   if (task.branch) {
-    if (task.branchType === 'SHORT') {
-      return getShortLivingBranchUrl(componentKey, task.branch);
-    } else if (task.branchType === 'LONG') {
-      return getLongLivingBranchUrl(componentKey, task.branch);
-    }
+    return getBranchUrl(componentKey, task.branch);
   } else if (task.pullRequest) {
     return getPullRequestUrl(componentKey, task.pullRequest);
   }

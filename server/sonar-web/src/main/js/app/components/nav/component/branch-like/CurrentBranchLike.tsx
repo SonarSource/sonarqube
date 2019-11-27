@@ -26,15 +26,16 @@ import PlusCircleIcon from 'sonar-ui-common/components/icons/PlusCircleIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import DocTooltip from '../../../../../components/docs/DocTooltip';
 import BranchLikeIcon from '../../../../../components/icons/BranchLikeIcon';
-import { getBranchLikeDisplayName } from '../../../../../helpers/branches';
+import { getBranchLikeDisplayName } from '../../../../../helpers/branch-like';
 import { getPortfolioAdminUrl } from '../../../../../helpers/urls';
+import { BranchLike } from '../../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../../types/component';
 import { colors } from '../../../../theme';
 
 export interface CurrentBranchLikeProps {
   branchesEnabled: boolean;
   component: T.Component;
-  currentBranchLike: T.BranchLike;
+  currentBranchLike: BranchLike;
   hasManyBranches: boolean;
 }
 

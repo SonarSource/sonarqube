@@ -31,11 +31,12 @@ import {
   isBranch,
   isMainBranch,
   isPullRequest
-} from '../../../helpers/branches';
+} from '../../../helpers/branch-like';
+import { BranchLike } from '../../../types/branch-like';
 import BranchPurgeSetting from './BranchPurgeSetting';
 
 export interface BranchLikeRowProps {
-  branchLike: T.BranchLike;
+  branchLike: BranchLike;
   component: T.Component;
   displayPurgeSetting?: boolean;
   onDelete: () => void;

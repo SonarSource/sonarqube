@@ -21,13 +21,9 @@ import { groupBy, memoize, sortBy, toPairs } from 'lodash';
 import { getLocalizedMetricName } from 'sonar-ui-common/helpers/l10n';
 import { cleanQuery, parseAsString, serializeString } from 'sonar-ui-common/helpers/query';
 import { enhanceMeasure } from '../../components/measure/utils';
-import {
-  isLongLivingBranch,
-  isMainBranch,
-  isPullRequest,
-  isShortLivingBranch
-} from '../../helpers/branches';
+import { isBranch, isPullRequest } from '../../helpers/branch-like';
 import { getDisplayMetrics, isDiffMetric } from '../../helpers/measures';
+import { BranchLike } from '../../types/branch-like';
 import { bubbles } from './config/bubbles';
 import { domains } from './config/domains';
 
@@ -149,14 +145,14 @@ export function hasFacetStat(metric: string): boolean {
   return metric !== 'alert_status';
 }
 
-export function hasFullMeasures(branch?: T.BranchLike) {
-  return !branch || isLongLivingBranch(branch) || isMainBranch(branch);
+export function hasFullMeasures(branch?: BranchLike) {
+  return !branch || isBranch(branch);
 }
 
-export function getMeasuresPageMetricKeys(metrics: T.Dict<T.Metric>, branch?: T.BranchLike) {
+export function getMeasuresPageMetricKeys(metrics: T.Dict<T.Metric>, branch?: BranchLike) {
   const metricKeys = getDisplayMetrics(Object.values(metrics)).map(metric => metric.key);
 
-  if (isPullRequest(branch) || isShortLivingBranch(branch)) {
+  if (isPullRequest(branch)) {
     return metricKeys.filter(key => isDiffMetric(key));
   } else {
     return metricKeys;

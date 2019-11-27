@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockMainBranch } from '../../../../../helpers/testMocks';
+import { mockBranch, mockMainBranch } from '../../../../../helpers/mocks/branch-like';
 import { ComponentNavMenu } from '../ComponentNavMenu';
 
-const mainBranch: T.MainBranch = mockMainBranch();
+const mainBranch = mockMainBranch();
 
 const baseComponent = {
   breadcrumbs: [],
@@ -95,37 +95,10 @@ it('should render correctly for security extensions', () => {
   expect(wrapper.find('Dropdown[data-test="security"]')).toMatchSnapshot();
 });
 
-it('should work for short-living branches', () => {
-  const branch: T.ShortLivingBranch = {
-    isMain: false,
-    excludedFromPurge: true,
-    mergeBranch: 'master',
-    name: 'feature',
-    type: 'SHORT'
-  };
-  const component = {
-    ...baseComponent,
-    configuration: { showSettings: true },
-    extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
-  };
-  expect(
-    shallow(
-      <ComponentNavMenu
-        appState={{ branchesEnabled: true }}
-        branchLike={branch}
-        component={component}
-      />
-    )
-  ).toMatchSnapshot();
-});
-
-it('should work for long-living branches', () => {
-  const branch: T.LongLivingBranch = {
-    excludedFromPurge: true,
-    isMain: false,
-    name: 'release',
-    type: 'LONG'
-  };
+it('should work for a branch', () => {
+  const branch = mockBranch({
+    name: 'release'
+  });
   [true, false].forEach(showSettings =>
     expect(
       shallow(

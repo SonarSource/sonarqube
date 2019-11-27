@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { mockMainBranch } from '../../../helpers/mocks/branch-like';
 import SourceViewerBase from '../SourceViewerBase';
-import { mockMainBranch } from '../../../helpers/testMocks';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();

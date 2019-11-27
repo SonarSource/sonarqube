@@ -20,7 +20,8 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent, mockMainBranch } from '../../../../../helpers/testMocks';
+import { mockMainBranch } from '../../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../../types/component';
 import { ComponentBreadcrumb } from '../ComponentBreadcrumb';
 

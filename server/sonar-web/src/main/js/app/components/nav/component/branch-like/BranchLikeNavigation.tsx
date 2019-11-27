@@ -22,15 +22,16 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import { withAppState } from '../../../../../components/hoc/withAppState';
+import { BranchLike } from '../../../../../types/branch-like';
 import './BranchLikeNavigation.css';
 import CurrentBranchLike from './CurrentBranchLike';
 import Menu from './Menu';
 
 export interface BranchLikeNavigationProps {
   appState: Pick<T.AppState, 'branchesEnabled'>;
-  branchLikes: T.BranchLike[];
+  branchLikes: BranchLike[];
   component: T.Component;
-  currentBranchLike: T.BranchLike;
+  currentBranchLike: BranchLike;
 }
 
 export function BranchLikeNavigation(props: BranchLikeNavigationProps) {

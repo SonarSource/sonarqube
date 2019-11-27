@@ -20,8 +20,8 @@
 
 import * as React from 'react';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
+import BranchIcon from 'sonar-ui-common/components/icons/BranchIcon';
 import PullRequestIcon from 'sonar-ui-common/components/icons/PullRequestIcon';
-import ShortLivingBranchIcon from 'sonar-ui-common/components/icons/ShortLivingBranchIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   isBranch,
@@ -29,21 +29,22 @@ import {
   isPullRequest,
   sortBranches,
   sortPullRequests
-} from '../../../helpers/branches';
+} from '../../../helpers/branch-like';
+import { BranchLike } from '../../../types/branch-like';
 import BranchLikeTable from './BranchLikeTable';
 import DeleteBranchModal from './DeleteBranchModal';
 import RenameBranchModal from './RenameBranchModal';
 
 interface Props {
-  branchLikes: T.BranchLike[];
+  branchLikes: BranchLike[];
   component: T.Component;
   onBranchesChange: () => void;
 }
 
 interface State {
   currentTab: Tabs;
-  deleting?: T.BranchLike;
-  renaming?: T.BranchLike;
+  deleting?: BranchLike;
+  renaming?: BranchLike;
 }
 
 export enum Tabs {
@@ -56,7 +57,7 @@ const TABS = [
     key: Tabs.Branch,
     label: (
       <>
-        <ShortLivingBranchIcon />
+        <BranchIcon />
         <span className="spacer-left">
           {translate('project_branch_pull_request.tabs.branches')}
         </span>
@@ -83,9 +84,9 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
     this.setState({ currentTab });
   };
 
-  onDeleteBranchLike = (branchLike: T.BranchLike) => this.setState({ deleting: branchLike });
+  onDeleteBranchLike = (branchLike: BranchLike) => this.setState({ deleting: branchLike });
 
-  onRenameBranchLike = (branchLike: T.BranchLike) => this.setState({ renaming: branchLike });
+  onRenameBranchLike = (branchLike: BranchLike) => this.setState({ renaming: branchLike });
 
   onClose = () => this.setState({ deleting: undefined, renaming: undefined });
 
@@ -99,7 +100,7 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
     const { currentTab, deleting, renaming } = this.state;
 
     const isBranchMode = currentTab === Tabs.Branch;
-    const branchLikesToDisplay: T.BranchLike[] = isBranchMode
+    const branchLikesToDisplay: BranchLike[] = isBranchMode
       ? sortBranches(branchLikes.filter(isBranch))
       : sortPullRequests(branchLikes.filter(isPullRequest));
     const title = translate(

@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
 import { Location } from 'sonar-ui-common/helpers/urls';
+import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { isSonarCloud } from '../../../../helpers/system';
 import ProjectBadges from '../ProjectBadges';
 
@@ -35,13 +36,7 @@ jest.mock('../../../../helpers/urls', () => ({
 
 jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
-const shortBranch: T.ShortLivingBranch = {
-  excludedFromPurge: true,
-  isMain: false,
-  mergeBranch: '',
-  name: 'branch-6.6',
-  type: 'SHORT'
-};
+const shortBranch = mockBranch({ name: 'branch-6.6' });
 
 it('should display the modal after click on sonarcloud', () => {
   (isSonarCloud as jest.Mock).mockImplementation(() => true);

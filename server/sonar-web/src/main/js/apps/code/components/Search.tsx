@@ -23,10 +23,11 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getTree } from '../../../api/components';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { BranchLike } from '../../../types/branch-like';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: T.ComponentMeasure;
   location: Location;
   onSearchClear: () => void;

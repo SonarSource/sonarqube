@@ -20,6 +20,7 @@
 import * as React from 'react';
 import ContextNavBar from 'sonar-ui-common/components/ui/ContextNavBar';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
+import { BranchLike } from '../../../../types/branch-like';
 import { rawSizes } from '../../../theme';
 import RecentHistory from '../../RecentHistory';
 import './ComponentNav.css';
@@ -29,8 +30,8 @@ import ComponentNavMenu from './ComponentNavMenu';
 import ComponentNavMeta from './ComponentNavMeta';
 
 interface Props {
-  branchLikes: T.BranchLike[];
-  currentBranchLike: T.BranchLike | undefined;
+  branchLikes: BranchLike[];
+  currentBranchLike: BranchLike | undefined;
   component: T.Component;
   currentTask?: T.Task;
   currentTaskOnSameBranch?: boolean;

@@ -19,6 +19,7 @@
  */
 import { getJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { BranchParameters } from '../types/branch-like';
 
 export function getGlobalNavigation(): Promise<T.AppState> {
   return getJSON('/api/navigation/global');
@@ -27,7 +28,7 @@ export function getGlobalNavigation(): Promise<T.AppState> {
 type NavComponent = T.Omit<T.Component, 'alm' | 'qualifier' | 'leakPeriodDate' | 'path' | 'tags'>;
 
 export function getComponentNavigation(
-  data: { component: string } & T.BranchParameters
+  data: { component: string } & BranchParameters
 ): Promise<NavComponent> {
   return getJSON('/api/navigation/component', data).catch(throwGlobalError);
 }

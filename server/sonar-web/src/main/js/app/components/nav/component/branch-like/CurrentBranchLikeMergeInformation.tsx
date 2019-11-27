@@ -21,10 +21,11 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { isPullRequest } from '../../../../../helpers/branches';
+import { isPullRequest } from '../../../../../helpers/branch-like';
+import { BranchLike } from '../../../../../types/branch-like';
 
 export interface CurrentBranchLikeMergeInformationProps {
-  currentBranchLike: T.BranchLike;
+  currentBranchLike: BranchLike;
 }
 
 export function CurrentBranchLikeMergeInformation(props: CurrentBranchLikeMergeInformationProps) {

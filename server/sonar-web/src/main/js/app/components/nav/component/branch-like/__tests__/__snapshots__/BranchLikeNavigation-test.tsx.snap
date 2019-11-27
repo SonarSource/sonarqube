@@ -34,9 +34,7 @@ exports[`should render correctly 1`] = `
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": false,
-        "mergeBranch": "master",
-        "name": "slb-1",
-        "type": "SHORT",
+        "name": "branch-11",
       }
     }
     hasManyBranches={true}
@@ -59,16 +57,13 @@ exports[`should render the menu trigger if branches are enabled 1`] = `
               "analysisDate": "2018-01-01",
               "excludedFromPurge": true,
               "isMain": false,
-              "mergeBranch": "master",
-              "name": "slb-1",
-              "type": "SHORT",
+              "name": "branch-11",
             },
             Object {
               "analysisDate": "2018-01-01",
               "excludedFromPurge": true,
               "isMain": false,
-              "name": "llb-1",
-              "type": "LONG",
+              "name": "branch-1",
             },
             Object {
               "analysisDate": "2018-01-01",
@@ -88,9 +83,7 @@ exports[`should render the menu trigger if branches are enabled 1`] = `
               "analysisDate": "2018-01-01",
               "excludedFromPurge": true,
               "isMain": false,
-              "mergeBranch": "llb-1",
-              "name": "slb-2",
-              "type": "SHORT",
+              "name": "branch-12",
             },
             Object {
               "analysisDate": "2018-01-01",
@@ -104,15 +97,13 @@ exports[`should render the menu trigger if branches are enabled 1`] = `
               "analysisDate": "2018-01-01",
               "excludedFromPurge": true,
               "isMain": false,
-              "name": "llb-3",
-              "type": "LONG",
+              "name": "branch-3",
             },
             Object {
               "analysisDate": "2018-01-01",
               "excludedFromPurge": true,
               "isMain": false,
-              "name": "llb-2",
-              "type": "LONG",
+              "name": "branch-2",
             },
             Object {
               "analysisDate": "2018-01-01",
@@ -153,9 +144,7 @@ exports[`should render the menu trigger if branches are enabled 1`] = `
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
-            "mergeBranch": "master",
-            "name": "slb-1",
-            "type": "SHORT",
+            "name": "branch-11",
           }
         }
         onClose={[Function]}
@@ -197,9 +186,7 @@ exports[`should render the menu trigger if branches are enabled 1`] = `
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
-            "mergeBranch": "master",
-            "name": "slb-1",
-            "type": "SHORT",
+            "name": "branch-11",
           }
         }
         hasManyBranches={true}

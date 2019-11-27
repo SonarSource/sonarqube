@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getChildren } from '../../../api/components';
-import { mockMainBranch, mockPullRequest } from '../../../helpers/testMocks';
+import { mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { addComponent, addComponentChildren, getComponentBreadcrumbs } from '../bucket';
 import { getCodeMetrics, loadMoreChildren, retrieveComponentChildren } from '../utils';
 

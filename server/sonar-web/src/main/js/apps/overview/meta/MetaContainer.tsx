@@ -31,6 +31,7 @@ import {
   getOrganizationByKey,
   Store
 } from '../../../store/rootReducer';
+import { BranchLike } from '../../../types/branch-like';
 import AnalysesList from '../events/AnalysesList';
 import MetaKey from './MetaKey';
 import MetaLinks from './MetaLinks';
@@ -54,7 +55,7 @@ interface StateToProps {
 }
 
 interface OwnProps {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: T.Component;
   history?: {
     [metric: string]: Array<{ date: Date; value?: string }>;

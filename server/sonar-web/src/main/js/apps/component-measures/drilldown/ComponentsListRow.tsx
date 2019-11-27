@@ -19,12 +19,13 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import { BranchLike } from '../../../types/branch-like';
 import { View } from '../utils';
 import ComponentCell from './ComponentCell';
 import MeasureCell from './MeasureCell';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: T.ComponentMeasureEnhanced;
   isSelected: boolean;
   onClick: (component: string) => void;

@@ -84,7 +84,7 @@ exports[`should render 2`] = `
                 className="nowrap"
                 title="master"
               >
-                <LongLivingBranchIcon
+                <BranchIcon
                   className="little-spacer-left text-text-top"
                 />
                 master
@@ -127,7 +127,7 @@ exports[`should render 2`] = `
                 className="nowrap"
                 title="master"
               >
-                <LongLivingBranchIcon
+                <BranchIcon
                   className="little-spacer-left text-text-top"
                 />
                 master
@@ -208,7 +208,7 @@ exports[`should render for a branch 1`] = `
                 className="nowrap"
                 title="feature-x"
               >
-                <LongLivingBranchIcon
+                <BranchIcon
                   className="little-spacer-left text-text-top"
                 />
                 feature-x
@@ -248,7 +248,7 @@ exports[`should render for a branch 1`] = `
               className="nowrap"
               title="feature-y"
             >
-              <LongLivingBranchIcon
+              <BranchIcon
                 className="little-spacer-left text-text-top"
               />
               feature-y
@@ -257,7 +257,7 @@ exports[`should render for a branch 1`] = `
               className="nowrap"
               title="master"
             >
-              <LongLivingBranchIcon
+              <BranchIcon
                 className="little-spacer-left text-text-top"
               />
               master

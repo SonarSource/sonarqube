@@ -23,13 +23,14 @@ import { Link } from 'react-router';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { getLeakValue } from '../../../components/measure/utils';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { findMeasure } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 import { getMetricName, IssueType, ISSUETYPE_MAP } from '../utils';
 
 export interface Props {
-  branchLike?: T.ShortLivingBranch | T.PullRequest;
+  branchLike?: BranchLike;
   className?: string;
   component: T.Component;
   docTooltip?: Promise<{ default: string }>;

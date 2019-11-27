@@ -27,11 +27,12 @@ import LanguageDistributionContainer from '../../../components/charts/LanguageDi
 import Measure from '../../../components/measure/Measure';
 import { isDiffMetric } from '../../../helpers/measures';
 import { getMeasureHistoryUrl } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 import { hasFullMeasures } from '../utils';
 import LeakPeriodLegend from './LeakPeriodLegend';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: T.ComponentMeasure;
   leakPeriod?: T.Period;
   measureValue?: string;

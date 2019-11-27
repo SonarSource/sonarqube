@@ -53,9 +53,7 @@ exports[`should render correctly 1`] = `
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
-            "mergeBranch": "master",
-            "name": "slb-1",
-            "type": "SHORT",
+            "name": "branch-11",
           }
         }
         component={
@@ -81,7 +79,7 @@ exports[`should render correctly 1`] = `
             "tags": Array [],
           }
         }
-        key="branch-slb-1"
+        key="branch-branch-11"
         onDelete={[Function]}
         onRename={[Function]}
       />
@@ -91,8 +89,7 @@ exports[`should render correctly 1`] = `
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
-            "name": "llb-1",
-            "type": "LONG",
+            "name": "branch-1",
           }
         }
         component={
@@ -118,7 +115,7 @@ exports[`should render correctly 1`] = `
             "tags": Array [],
           }
         }
-        key="branch-llb-1"
+        key="branch-branch-1"
         onDelete={[Function]}
         onRename={[Function]}
       />
@@ -202,9 +199,7 @@ exports[`should render correctly 1`] = `
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
-            "mergeBranch": "llb-1",
-            "name": "slb-2",
-            "type": "SHORT",
+            "name": "branch-12",
           }
         }
         component={
@@ -230,7 +225,7 @@ exports[`should render correctly 1`] = `
             "tags": Array [],
           }
         }
-        key="branch-slb-2"
+        key="branch-branch-12"
         onDelete={[Function]}
         onRename={[Function]}
       />
@@ -278,8 +273,7 @@ exports[`should render correctly 1`] = `
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
-            "name": "llb-3",
-            "type": "LONG",
+            "name": "branch-3",
           }
         }
         component={
@@ -305,7 +299,7 @@ exports[`should render correctly 1`] = `
             "tags": Array [],
           }
         }
-        key="branch-llb-3"
+        key="branch-branch-3"
         onDelete={[Function]}
         onRename={[Function]}
       />
@@ -315,8 +309,7 @@ exports[`should render correctly 1`] = `
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
-            "name": "llb-2",
-            "type": "LONG",
+            "name": "branch-2",
           }
         }
         component={
@@ -342,7 +335,7 @@ exports[`should render correctly 1`] = `
             "tags": Array [],
           }
         }
-        key="branch-llb-2"
+        key="branch-branch-2"
         onDelete={[Function]}
         onRename={[Function]}
       />
@@ -463,9 +456,7 @@ exports[`should render purge setting correctly 1`] = `
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
-            "mergeBranch": "master",
-            "name": "slb-1",
-            "type": "SHORT",
+            "name": "branch-11",
           }
         }
         component={
@@ -492,7 +483,7 @@ exports[`should render purge setting correctly 1`] = `
           }
         }
         displayPurgeSetting={true}
-        key="branch-slb-1"
+        key="branch-branch-11"
         onDelete={[Function]}
         onRename={[Function]}
       />
@@ -502,8 +493,7 @@ exports[`should render purge setting correctly 1`] = `
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
-            "name": "llb-1",
-            "type": "LONG",
+            "name": "branch-1",
           }
         }
         component={
@@ -530,7 +520,7 @@ exports[`should render purge setting correctly 1`] = `
           }
         }
         displayPurgeSetting={true}
-        key="branch-llb-1"
+        key="branch-branch-1"
         onDelete={[Function]}
         onRename={[Function]}
       />
@@ -616,9 +606,7 @@ exports[`should render purge setting correctly 1`] = `
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
-            "mergeBranch": "llb-1",
-            "name": "slb-2",
-            "type": "SHORT",
+            "name": "branch-12",
           }
         }
         component={
@@ -645,7 +633,7 @@ exports[`should render purge setting correctly 1`] = `
           }
         }
         displayPurgeSetting={true}
-        key="branch-slb-2"
+        key="branch-branch-12"
         onDelete={[Function]}
         onRename={[Function]}
       />
@@ -694,8 +682,7 @@ exports[`should render purge setting correctly 1`] = `
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
-            "name": "llb-3",
-            "type": "LONG",
+            "name": "branch-3",
           }
         }
         component={
@@ -722,7 +709,7 @@ exports[`should render purge setting correctly 1`] = `
           }
         }
         displayPurgeSetting={true}
-        key="branch-llb-3"
+        key="branch-branch-3"
         onDelete={[Function]}
         onRename={[Function]}
       />
@@ -732,8 +719,7 @@ exports[`should render purge setting correctly 1`] = `
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
-            "name": "llb-2",
-            "type": "LONG",
+            "name": "branch-2",
           }
         }
         component={
@@ -760,7 +746,7 @@ exports[`should render purge setting correctly 1`] = `
           }
         }
         displayPurgeSetting={true}
-        key="branch-llb-2"
+        key="branch-branch-2"
         onDelete={[Function]}
         onRename={[Function]}
       />

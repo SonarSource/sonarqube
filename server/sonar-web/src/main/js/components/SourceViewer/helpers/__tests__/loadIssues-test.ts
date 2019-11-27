@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mockMainBranch } from '../../../../helpers/testMocks';
+import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import loadIssues from '../loadIssues';
 
 jest.mock('../../../../api/issues', () => ({

@@ -22,17 +22,18 @@ import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { isBranch, isLongLivingBranch, isMainBranch } from '../../../helpers/branches';
+import { isBranch, isMainBranch } from '../../../helpers/branch-like';
 import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
+import { BranchLike } from '../../../types/branch-like';
 import AnalyzeTutorial from '../../tutorials/analyzeProject/AnalyzeTutorial';
 import AnalyzeTutorialSonarCloud from '../../tutorials/analyzeProject/AnalyzeTutorialSonarCloud';
 import MetaContainer from '../meta/MetaContainer';
 
 interface OwnProps {
-  branchLike?: T.BranchLike;
-  branchLikes: T.BranchLike[];
+  branchLike?: BranchLike;
+  branchLikes: BranchLike[];
   component: T.Component;
   hasAnalyses?: boolean;
   onComponentChange: (changes: {}) => void;
@@ -55,7 +56,8 @@ export function EmptyOverview({
   const hasBranches = branchLikes.length > 1;
   const hasBadBranchConfig =
     branchLikes.length > 2 ||
-    (branchLikes.length === 2 && branchLikes.some(branch => isLongLivingBranch(branch)));
+    (branchLikes.length === 2 &&
+      branchLikes.some(branch => isBranch(branch) && !isMainBranch(branchLike)));
   return (
     <div className="page page-limited">
       <div className="overview page-with-sidebar">
@@ -106,7 +108,7 @@ export function WarningMessage({
   branchLike,
   message
 }: {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   message: string;
 }) {
   if (!isBranch(branchLike)) {

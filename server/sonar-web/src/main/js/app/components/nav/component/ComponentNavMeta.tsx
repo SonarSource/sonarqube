@@ -26,18 +26,14 @@ import BranchStatus from '../../../../components/common/BranchStatus';
 import Favorite from '../../../../components/controls/Favorite';
 import HomePageSelect from '../../../../components/controls/HomePageSelect';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
-import {
-  isLongLivingBranch,
-  isMainBranch,
-  isPullRequest,
-  isShortLivingBranch
-} from '../../../../helpers/branches';
+import { isBranch, isMainBranch, isPullRequest } from '../../../../helpers/branch-like';
 import { isLoggedIn } from '../../../../helpers/users';
 import { getCurrentUser, Store } from '../../../../store/rootReducer';
+import { BranchLike } from '../../../../types/branch-like';
 import ComponentNavWarnings from './ComponentNavWarnings';
 
 export interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   currentUser: T.CurrentUser;
   component: T.Component;
   warnings: string[];
@@ -45,9 +41,9 @@ export interface Props {
 
 export function ComponentNavMeta({ branchLike, component, currentUser, warnings }: Props) {
   const mainBranch = !branchLike || isMainBranch(branchLike);
-  const longBranch = isLongLivingBranch(branchLike);
+  const isABranch = isBranch(branchLike);
   const currentPage = getCurrentPage(component, branchLike);
-  const displayVersion = component.version !== undefined && (mainBranch || longBranch);
+  const displayVersion = component.version !== undefined && isABranch;
 
   return (
     <div className="navbar-context-meta flex-0">
@@ -73,12 +69,12 @@ export function ComponentNavMeta({ branchLike, component, currentUser, warnings 
               qualifier={component.qualifier}
             />
           )}
-          {(mainBranch || longBranch) && currentPage !== undefined && (
+          {isABranch && currentPage !== undefined && (
             <HomePageSelect className="spacer-left" currentPage={currentPage} />
           )}
         </div>
       )}
-      {(isShortLivingBranch(branchLike) || isPullRequest(branchLike)) && (
+      {isPullRequest(branchLike) && (
         <div className="navbar-context-meta-secondary display-inline-flex-center">
           {isPullRequest(branchLike) && branchLike.url !== undefined && (
             <a
@@ -97,16 +93,16 @@ export function ComponentNavMeta({ branchLike, component, currentUser, warnings 
   );
 }
 
-export function getCurrentPage(component: T.Component, branchLike: T.BranchLike | undefined) {
+export function getCurrentPage(component: T.Component, branchLike: BranchLike | undefined) {
   let currentPage: T.HomePage | undefined;
   if (component.qualifier === 'VW' || component.qualifier === 'SVW') {
     currentPage = { type: 'PORTFOLIO', component: component.key };
   } else if (component.qualifier === 'APP') {
-    const branch = isLongLivingBranch(branchLike) ? branchLike.name : undefined;
+    const branch = isBranch(branchLike) ? branchLike.name : undefined;
     currentPage = { type: 'APPLICATION', component: component.key, branch };
   } else if (component.qualifier === 'TRK') {
     // when home page is set to the default branch of a project, its name is returned as `undefined`
-    const branch = isLongLivingBranch(branchLike) ? branchLike.name : undefined;
+    const branch = isBranch(branchLike) ? branchLike.name : undefined;
     currentPage = { type: 'PROJECT', component: component.key, branch };
   }
   return currentPage;

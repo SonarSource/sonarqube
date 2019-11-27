@@ -28,7 +28,8 @@ import {
   getDuplications,
   getSources
 } from '../../api/components';
-import { getBranchLikeQuery, isSameBranchLike } from '../../helpers/branches';
+import { getBranchLikeQuery, isSameBranchLike } from '../../helpers/branch-like';
+import { BranchLike } from '../../types/branch-like';
 import { WorkspaceContext } from '../workspace/context';
 import DuplicationPopup from './components/DuplicationPopup';
 import {
@@ -54,7 +55,7 @@ import './styles.css';
 
 export interface Props {
   aroundLine?: number;
-  branchLike: T.BranchLike | undefined;
+  branchLike: BranchLike | undefined;
   component: string;
   componentMeasures?: T.Measure[];
   displayAllIssues?: boolean;
@@ -68,19 +69,19 @@ export interface Props {
   highlightedLocationMessage?: { index: number; text: string | undefined };
   loadComponent: (
     component: string,
-    branchLike: T.BranchLike | undefined
+    branchLike: BranchLike | undefined
   ) => Promise<T.SourceViewerFile>;
   loadIssues: (
     component: string,
     from: number,
     to: number,
-    branchLike: T.BranchLike | undefined
+    branchLike: BranchLike | undefined
   ) => Promise<T.Issue[]>;
   loadSources: (
     component: string,
     from: number,
     to: number,
-    branchLike: T.BranchLike | undefined
+    branchLike: BranchLike | undefined
   ) => Promise<T.SourceLine[]>;
   onLoaded?: (component: T.SourceViewerFile, sources: T.SourceLine[], issues: T.Issue[]) => void;
   onLocationSelect?: (index: number) => void;
@@ -657,7 +658,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     );
   }
 
-  renderHeader(branchLike: T.BranchLike | undefined, sourceViewerFile: T.SourceViewerFile) {
+  renderHeader(branchLike: BranchLike | undefined, sourceViewerFile: T.SourceViewerFile) {
     return this.props.slimHeader ? (
       <SourceViewerHeaderSlim branchLike={branchLike} sourceViewerFile={sourceViewerFile} />
     ) : (
@@ -722,7 +723,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
   }
 }
 
-function defaultLoadComponent(component: string, branchLike: T.BranchLike | undefined) {
+function defaultLoadComponent(component: string, branchLike: BranchLike | undefined) {
   return Promise.all([
     getComponentForSourceViewer({ component, ...getBranchLikeQuery(branchLike) }),
     getComponentData({ component, ...getBranchLikeQuery(branchLike) })
@@ -736,7 +737,7 @@ function defaultLoadSources(
   key: string,
   from: number | undefined,
   to: number | undefined,
-  branchLike: T.BranchLike | undefined
+  branchLike: BranchLike | undefined
 ) {
   return getSources({ key, from, to, ...getBranchLikeQuery(branchLike) });
 }

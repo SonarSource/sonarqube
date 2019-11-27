@@ -28,13 +28,14 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from 'sonar-ui-common/helpers/path';
 import { getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
-import { getBranchLikeQuery, isMainBranch } from '../../helpers/branches';
+import { getBranchLikeQuery, isMainBranch } from '../../helpers/branch-like';
 import { getBranchLikeUrl, getComponentIssuesUrl } from '../../helpers/urls';
+import { BranchLike } from '../../types/branch-like';
 import Favorite from '../controls/Favorite';
 import './SourceViewerHeaderSlim.css';
 
 export interface Props {
-  branchLike: T.BranchLike | undefined;
+  branchLike: BranchLike | undefined;
   expandable?: boolean;
   loading?: boolean;
   onExpand?: () => void;

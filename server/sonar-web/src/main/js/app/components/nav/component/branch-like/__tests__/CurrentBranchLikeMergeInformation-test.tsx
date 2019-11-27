@@ -20,7 +20,7 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockMainBranch, mockPullRequest } from '../../../../../../helpers/testMocks';
+import { mockMainBranch, mockPullRequest } from '../../../../../../helpers/mocks/branch-like';
 import {
   CurrentBranchLikeMergeInformation,
   CurrentBranchLikeMergeInformationProps

@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent, mockMeasure, mockShortLivingBranch } from '../../../../helpers/testMocks';
+import { mockBranch } from '../../../../helpers/mocks/branch-like';
+import { mockComponent, mockMeasure } from '../../../../helpers/testMocks';
 import MeasurementLabel from '../MeasurementLabel';
 
 it('should render correctly for coverage', () => {
@@ -50,7 +51,7 @@ it('should render correctly with no value', () => {
 function shallowRender(props: Partial<MeasurementLabel['props']> = {}) {
   return shallow(
     <MeasurementLabel
-      branchLike={mockShortLivingBranch()}
+      branchLike={mockBranch()}
       component={mockComponent()}
       measures={[mockMeasure({ metric: 'new_coverage' })]}
       type="COVERAGE"

@@ -128,28 +128,7 @@ exports[`should render correctly for leak 1`] = `
 </div>
 `;
 
-exports[`should render with long living branch 1`] = `
-<Link
-  className="js-show-history spacer-left button button-small"
-  onlyActiveOnIndex={false}
-  style={Object {}}
-  to={
-    Object {
-      "pathname": "/project/activity",
-      "query": Object {
-        "branch": "branch-6.7",
-        "custom_metrics": "reliability_rating",
-        "graph": "custom",
-        "id": "foo",
-      },
-    }
-  }
->
-  <HistoryIcon />
-</Link>
-`;
-
-exports[`should render with short living branch 1`] = `
+exports[`should render with a branch 1`] = `
 <div
   className="measure-details-header big-spacer-bottom"
 >
@@ -169,6 +148,7 @@ exports[`should render with short living branch 1`] = `
       >
         <strong>
           <Measure
+            className="leak-box"
             metricKey="new_reliability_rating"
             metricType="RATING"
             value="3.0"
@@ -178,7 +158,26 @@ exports[`should render with short living branch 1`] = `
     </div>
     <div
       className="measure-details-primary-actions"
-    />
+    >
+      <InjectIntl(LeakPeriodLegend)
+        className="spacer-left"
+        component={
+          Object {
+            "key": "foo",
+            "name": "Foo",
+            "qualifier": "TRK",
+          }
+        }
+        period={
+          Object {
+            "date": "2017-05-16T13:50:02+0200",
+            "index": 1,
+            "mode": "previous_version",
+            "parameter": "6,4",
+          }
+        }
+      />
+    </div>
   </div>
 </div>
 `;

@@ -21,9 +21,10 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import Level from 'sonar-ui-common/components/ui/Level';
 import { getBranchStatusByBranchLike, Store } from '../../store/rootReducer';
+import { BranchLike } from '../../types/branch-like';
 
 interface Props {
-  branchLike: T.BranchLike;
+  branchLike: BranchLike;
   component: string;
   status?: string;
 }

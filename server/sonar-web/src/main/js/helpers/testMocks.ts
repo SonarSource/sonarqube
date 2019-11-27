@@ -577,18 +577,6 @@ export function mockQualityGate(overrides: Partial<T.QualityGate> = {}): T.Quali
   };
 }
 
-export function mockPullRequest(overrides: Partial<T.PullRequest> = {}): T.PullRequest {
-  return {
-    analysisDate: '2018-01-01',
-    base: 'master',
-    branch: 'feature/foo/bar',
-    key: '1001',
-    target: 'master',
-    title: 'Foo Bar feature',
-    ...overrides
-  };
-}
-
 export function mockQualityProfile(overrides: Partial<Profile> = {}): Profile {
   return {
     activeDeprecatedRuleCount: 2,
@@ -738,20 +726,6 @@ export function mockRuleDetailsParameter(
   };
 }
 
-export function mockShortLivingBranch(
-  overrides: Partial<T.ShortLivingBranch> = {}
-): T.ShortLivingBranch {
-  return {
-    analysisDate: '2018-01-01',
-    excludedFromPurge: true,
-    isMain: false,
-    name: 'feature/foo',
-    mergeBranch: 'master',
-    type: 'SHORT',
-    ...overrides
-  };
-}
-
 export function mockSourceViewerFile(
   overrides: Partial<T.SourceViewerFile> = {}
 ): T.SourceViewerFile {
@@ -822,19 +796,6 @@ export function mockStandaloneSysInfo(overrides: Partial<any> = {}): T.SysInfoSt
   };
 }
 
-export function mockLongLivingBranch(
-  overrides: Partial<T.LongLivingBranch> = {}
-): T.LongLivingBranch {
-  return {
-    analysisDate: '2018-01-01',
-    excludedFromPurge: true,
-    isMain: false,
-    name: 'branch-6.7',
-    type: 'LONG',
-    ...overrides
-  };
-}
-
 export function mockStore(state: any = {}, reducer = (state: any) => state): Store {
   return createStore(reducer, state);
 }
@@ -881,16 +842,6 @@ export function mockDocumentationEntry(
     text: 'Lorem ipsum dolor sit amet fredum',
     title: 'Lorem',
     url: '/lorem/ipsum',
-    ...overrides
-  };
-}
-
-export function mockMainBranch(overrides: Partial<T.MainBranch> = {}): T.MainBranch {
-  return {
-    analysisDate: '2018-01-01',
-    excludedFromPurge: true,
-    isMain: true,
-    name: 'master',
     ...overrides
   };
 }

@@ -87,7 +87,6 @@ exports[`should render correctly 1`] = `
                 "excludedFromPurge": true,
                 "isMain": false,
                 "name": "branch-6.7",
-                "type": "LONG",
               }
             }
             className="little-spacer-right"
@@ -112,7 +111,7 @@ exports[`should render correctly 1`] = `
         </td>
       </tr>
       <tr
-        key="feature/foo"
+        key="branch-7.0"
       >
         <td
           className="nowrap"
@@ -123,14 +122,12 @@ exports[`should render correctly 1`] = `
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
                 "isMain": false,
-                "mergeBranch": "master",
-                "name": "feature/foo",
-                "type": "SHORT",
+                "name": "branch-7.0",
               }
             }
             className="little-spacer-right"
           />
-          feature/foo
+          branch-7.0
         </td>
         <td
           className="huge-spacer-right nowrap"

@@ -22,11 +22,10 @@ import { range, times } from 'lodash';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getSources } from '../../../../api/components';
+import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import {
   mockFlowLocation,
   mockIssue,
-  mockMainBranch,
-  mockShortLivingBranch,
   mockSnippetsByComponent,
   mockSourceLine,
   mockSourceViewerFile
@@ -144,7 +143,7 @@ it('should get the right branch when expanding', async () => {
   };
 
   const wrapper = shallowRender({
-    branchLike: mockShortLivingBranch({ name: 'asdf' }),
+    branchLike: mockBranch({ name: 'asdf' }),
     snippetGroup
   });
 

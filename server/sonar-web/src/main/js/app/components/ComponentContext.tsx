@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { BranchLike } from '../../types/branch-like';
 
 interface ComponentContextType {
-  branchLike: T.BranchLike | undefined;
+  branchLike: BranchLike | undefined;
   component: T.Component | undefined;
 }
 

@@ -21,11 +21,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
-import {
-  mockComponent,
-  mockMainBranch,
-  mockPullRequest
-} from '../../../../../../helpers/testMocks';
+import { mockMainBranch, mockPullRequest } from '../../../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../../../helpers/testMocks';
 import { MenuItem, MenuItemProps } from '../MenuItem';
 
 it('should render a main branch correctly', () => {

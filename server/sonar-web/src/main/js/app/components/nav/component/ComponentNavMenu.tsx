@@ -25,13 +25,9 @@ import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import NavBarTabs from 'sonar-ui-common/components/ui/NavBarTabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { withAppState } from '../../../../components/hoc/withAppState';
-import {
-  getBranchLikeQuery,
-  isMainBranch,
-  isPullRequest,
-  isShortLivingBranch
-} from '../../../../helpers/branches';
+import { getBranchLikeQuery, isMainBranch, isPullRequest } from '../../../../helpers/branch-like';
 import { isSonarCloud } from '../../../../helpers/system';
+import { BranchLike } from '../../../../types/branch-like';
 
 const SETTINGS_URLS = [
   '/project/admin',
@@ -52,7 +48,7 @@ const SETTINGS_URLS = [
 
 interface Props {
   appState: Pick<T.AppState, 'branchesEnabled'>;
-  branchLike: T.BranchLike | undefined;
+  branchLike: BranchLike | undefined;
   component: T.Component;
   location?: any;
 }
@@ -113,7 +109,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
   renderActivityLink() {
     const { branchLike } = this.props;
 
-    if (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) {
+    if (isPullRequest(branchLike)) {
       return null;
     }
 
@@ -159,7 +155,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
     const { branchLike, component } = this.props;
     const { extensions = [] } = component;
 
-    if (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) {
+    if (isPullRequest(branchLike)) {
       return null;
     }
 

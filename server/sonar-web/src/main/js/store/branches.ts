@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getBranchLikeKey } from '../helpers/branches';
+import { getBranchLikeKey } from '../helpers/branch-like';
+import { BranchLike } from '../types/branch-like';
 import { ActionType } from './utils/actions';
 
 export interface BranchStatusData {
@@ -37,7 +38,7 @@ const enum Actions {
 type Action = ActionType<typeof registerBranchStatusAction, Actions.RegisterBranchStatus>;
 
 export function registerBranchStatusAction(
-  branchLike: T.BranchLike,
+  branchLike: BranchLike,
   component: string,
   status: T.Status,
   conditions?: T.QualityGateStatusCondition[],
@@ -78,7 +79,7 @@ export default function(state: State = { byComponent: {} }, action: Action): Sta
 export function getBranchStatusByBranchLike(
   state: State,
   component: string,
-  branchLike: T.BranchLike
+  branchLike: BranchLike
 ): BranchStatusData {
   const branchLikeKey = getBranchLikeKey(branchLike);
   return state.byComponent[component] && state.byComponent[component][branchLikeKey];

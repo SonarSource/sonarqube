@@ -28,10 +28,11 @@ import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { isPullRequest, isSameBranchLike, isShortLivingBranch } from '../../../helpers/branches';
+import { isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import { getCodeUrl, getProjectUrl } from '../../../helpers/urls';
 import { fetchBranchStatus, fetchMetrics } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
+import { BranchLike } from '../../../types/branch-like';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import '../code.css';
 import { loadMoreChildren, retrieveComponent, retrieveComponentChildren } from '../utils';
@@ -45,12 +46,12 @@ interface StateToProps {
 }
 
 interface DispatchToProps {
-  fetchBranchStatus: (branchLike: T.BranchLike, projectKey: string) => Promise<void>;
+  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
   fetchMetrics: () => void;
 }
 
 interface OwnProps {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: T.Component;
   location: Pick<Location, 'query'>;
   router: Pick<InjectedRouter, 'push'>;
@@ -231,7 +232,7 @@ export class App extends React.PureComponent<Props, State> {
 
   refreshBranchStatus = () => {
     const { branchLike, component } = this.props;
-    if (branchLike && component && (isPullRequest(branchLike) || isShortLivingBranch(branchLike))) {
+    if (branchLike && component && isPullRequest(branchLike)) {
       this.props.fetchBranchStatus(branchLike, component.key);
     }
   };

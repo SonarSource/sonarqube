@@ -23,13 +23,14 @@ import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import BranchStatus from '../../../../../components/common/BranchStatus';
 import BranchLikeIcon from '../../../../../components/icons/BranchLikeIcon';
-import { getBranchLikeDisplayName, isMainBranch } from '../../../../../helpers/branches';
+import { getBranchLikeDisplayName, isMainBranch } from '../../../../../helpers/branch-like';
+import { BranchLike } from '../../../../../types/branch-like';
 
 export interface MenuItemProps {
-  branchLike: T.BranchLike;
+  branchLike: BranchLike;
   component: T.Component;
   indent?: boolean;
-  onSelect: (branchLike: T.BranchLike) => void;
+  onSelect: (branchLike: BranchLike) => void;
   selected: boolean;
   setSelectedNode?: (node: HTMLLIElement) => void;
 }

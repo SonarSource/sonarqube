@@ -26,9 +26,10 @@ import { getComponentTree } from '../../../api/components';
 import { getMeasures } from '../../../api/measures';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
-import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
+import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { getPeriodValue, isDiffMetric } from '../../../helpers/measures';
 import { getProjectUrl } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 import { complementary } from '../config/complementary';
 import FilesView from '../drilldown/FilesView';
 import TreeMapView from '../drilldown/TreeMapView';
@@ -39,7 +40,7 @@ import MeasureHeader from './MeasureHeader';
 import MeasureViewSelect from './MeasureViewSelect';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   leakPeriod?: T.Period;
   requestedMetric: Pick<T.Metric, 'key' | 'direction'>;
   metrics: T.Dict<T.Metric>;

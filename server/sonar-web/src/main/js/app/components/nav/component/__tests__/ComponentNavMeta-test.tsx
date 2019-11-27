@@ -19,24 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import {
-  mockComponent,
-  mockCurrentUser,
-  mockLoggedInUser,
-  mockLongLivingBranch,
-  mockPullRequest,
-  mockShortLivingBranch
-} from '../../../../../helpers/testMocks';
+import { mockBranch, mockPullRequest } from '../../../../../helpers/mocks/branch-like';
+import { mockComponent, mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
 import { ComponentNavMeta, getCurrentPage, Props } from '../ComponentNavMeta';
 
 describe('#ComponentNavMeta', () => {
-  it('renders status of short-living branch', () => {
-    expect(shallowRender()).toMatchSnapshot();
-  });
-
-  it('renders meta for long-living branch', () => {
+  it('renders meta for a branch', () => {
     expect(
-      shallowRender({ branchLike: mockLongLivingBranch(), currentUser: mockLoggedInUser() })
+      shallowRender({ branchLike: mockBranch(), currentUser: mockLoggedInUser() })
     ).toMatchSnapshot();
   });
 
@@ -63,16 +53,16 @@ describe('#getCurrentPage', () => {
     expect(
       getCurrentPage(
         mockComponent({ key: 'foo', qualifier: 'APP' }),
-        mockLongLivingBranch({ name: 'develop' })
+        mockBranch({ name: 'develop' })
       )
     ).toEqual({ type: 'APPLICATION', component: 'foo', branch: 'develop' });
   });
 
-  it('should return a portfolio page', () => {
-    expect(getCurrentPage(mockComponent(), mockShortLivingBranch())).toEqual({
+  it('should return a project page', () => {
+    expect(getCurrentPage(mockComponent(), mockBranch({ name: 'feature/foo' }))).toEqual({
       type: 'PROJECT',
       component: 'my-project',
-      branch: undefined
+      branch: 'feature/foo'
     });
   });
 });
@@ -80,7 +70,7 @@ describe('#getCurrentPage', () => {
 function shallowRender(props: Partial<Props> = {}) {
   return shallow(
     <ComponentNavMeta
-      branchLike={mockShortLivingBranch()}
+      branchLike={mockBranch()}
       component={mockComponent({ analysisDate: '2017-01-02T00:00:00.000Z', version: '0.0.1' })}
       currentUser={mockCurrentUser()}
       warnings={[]}

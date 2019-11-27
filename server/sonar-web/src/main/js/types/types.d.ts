@@ -944,7 +944,6 @@ declare namespace T {
   export interface Task {
     analysisId?: string;
     branch?: string;
-    branchType?: string;
     componentKey?: string;
     componentName?: string;
     componentQualifier?: string;

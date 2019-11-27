@@ -18,23 +18,48 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import {
-  mockLongLivingBranch,
-  mockMainBranch,
-  mockPullRequest,
-  mockShortLivingBranch
-} from '../testMocks';
+import { Branch, BranchLike, MainBranch, PullRequest } from '../../types/branch-like';
 
-export function mockSetOfBranchAndPullRequest(): T.BranchLike[] {
+export function mockBranch(overrides: Partial<Branch> = {}): Branch {
+  return {
+    analysisDate: '2018-01-01',
+    excludedFromPurge: true,
+    isMain: false,
+    name: 'branch-6.7',
+    ...overrides
+  };
+}
+
+export function mockMainBranch(overrides: Partial<MainBranch> = {}): MainBranch {
+  return mockBranch({
+    isMain: true,
+    name: 'master',
+    ...overrides
+  }) as MainBranch;
+}
+
+export function mockPullRequest(overrides: Partial<PullRequest> = {}): PullRequest {
+  return {
+    analysisDate: '2018-01-01',
+    base: 'master',
+    branch: 'feature/foo/bar',
+    key: '1001',
+    target: 'master',
+    title: 'Foo Bar feature',
+    ...overrides
+  };
+}
+
+export function mockSetOfBranchAndPullRequest(): BranchLike[] {
   return [
-    mockShortLivingBranch({ name: 'slb-1' }),
-    mockLongLivingBranch({ name: 'llb-1' }),
+    mockBranch({ name: 'branch-11' }),
+    mockBranch({ name: 'branch-1' }),
     mockMainBranch(),
     mockPullRequest({ key: '1', title: 'PR-1' }),
-    mockShortLivingBranch({ name: 'slb-2', mergeBranch: 'llb-1' }),
+    mockBranch({ name: 'branch-12' }),
     mockPullRequest({ key: '2', title: 'PR-2' }),
-    mockLongLivingBranch({ name: 'llb-3' }),
-    mockLongLivingBranch({ name: 'llb-2' }),
+    mockBranch({ name: 'branch-3' }),
+    mockBranch({ name: 'branch-2' }),
     mockPullRequest({ key: '2', title: 'PR-2', target: 'llb-100', isOrphan: true })
   ];
 }

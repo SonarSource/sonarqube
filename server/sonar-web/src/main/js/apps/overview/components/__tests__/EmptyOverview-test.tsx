@@ -19,12 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import {
-  mockComponent,
-  mockLoggedInUser,
-  mockMainBranch,
-  mockPullRequest
-} from '../../../../helpers/testMocks';
+import { mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
+import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { EmptyOverview, WarningMessage } from '../EmptyOverview';
 
 const branch = mockMainBranch();

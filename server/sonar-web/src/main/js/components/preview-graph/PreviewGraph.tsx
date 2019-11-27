@@ -33,8 +33,9 @@ import {
   Serie,
   splitSeriesInGraphs
 } from '../../apps/projectActivity/utils';
-import { getBranchLikeQuery } from '../../helpers/branches';
+import { getBranchLikeQuery } from '../../helpers/branch-like';
 import { getShortType } from '../../helpers/measures';
+import { BranchLike } from '../../types/branch-like';
 import { Router, withRouter } from '../hoc/withRouter';
 import PreviewGraphTooltips from './PreviewGraphTooltips';
 
@@ -43,7 +44,7 @@ interface History {
 }
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   history?: History;
   metrics: T.Dict<T.Metric>;
   project: string;

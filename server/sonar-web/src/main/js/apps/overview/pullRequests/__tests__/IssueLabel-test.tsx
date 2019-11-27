@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent, mockMeasure, mockPullRequest } from '../../../../helpers/testMocks';
+import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
+import { mockComponent, mockMeasure } from '../../../../helpers/testMocks';
 import IssueLabel, { Props } from '../IssueLabel';
 
 it('should render correctly for bugs', () => {

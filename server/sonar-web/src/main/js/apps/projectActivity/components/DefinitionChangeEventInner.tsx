@@ -22,13 +22,14 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import BranchIcon from 'sonar-ui-common/components/icons/BranchIcon';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import LongLivingBranchIcon from 'sonar-ui-common/components/icons/LongLivingBranchIcon';
 import ProjectEventIcon from 'sonar-ui-common/components/icons/ProjectEventIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { limitComponentName } from 'sonar-ui-common/helpers/path';
-import { isMainBranch } from '../../../helpers/branches';
+import { isMainBranch } from '../../../helpers/branch-like';
 import { getProjectUrl } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 
 export type DefinitionChangeEvent = T.AnalysisEvent &
   Required<Pick<T.AnalysisEvent, 'definitionChange'>>;
@@ -38,7 +39,7 @@ export function isDefinitionChangeEvent(event: T.AnalysisEvent): event is Defini
 }
 
 interface Props {
-  branchLike: T.BranchLike | undefined;
+  branchLike: BranchLike | undefined;
   event: DefinitionChangeEvent;
 }
 
@@ -68,7 +69,7 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
 
   renderBranch = (branch = translate('branches.main_branch')) => (
     <span className="nowrap" title={branch}>
-      <LongLivingBranchIcon className="little-spacer-left text-text-top" />
+      <BranchIcon className="little-spacer-left text-text-top" />
       {branch}
     </span>
   );

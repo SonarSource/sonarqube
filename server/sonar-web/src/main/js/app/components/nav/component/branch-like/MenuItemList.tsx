@@ -23,15 +23,16 @@ import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { isDefined } from 'sonar-ui-common/helpers/types';
-import { getBranchLikeKey, isSameBranchLike } from '../../../../../helpers/branches';
+import { getBranchLikeKey, isSameBranchLike } from '../../../../../helpers/branch-like';
+import { BranchLike, BranchLikeTree } from '../../../../../types/branch-like';
 import MenuItem from './MenuItem';
 
 export interface MenuItemListProps {
-  branchLikeTree: T.BranchLikeTree;
+  branchLikeTree: BranchLikeTree;
   component: T.Component;
   hasResults: boolean;
-  onSelect: (branchLike: T.BranchLike) => void;
-  selectedBranchLike: T.BranchLike | undefined;
+  onSelect: (branchLike: BranchLike) => void;
+  selectedBranchLike: BranchLike | undefined;
 }
 
 export function MenuItemList(props: MenuItemListProps) {
@@ -46,7 +47,7 @@ export function MenuItemList(props: MenuItemListProps) {
 
   const { branchLikeTree, component, hasResults, onSelect, selectedBranchLike } = props;
 
-  const renderItem = (branchLike: T.BranchLike, indent?: boolean) => (
+  const renderItem = (branchLike: BranchLike, indent?: boolean) => (
     <MenuItem
       branchLike={branchLike}
       component={component}

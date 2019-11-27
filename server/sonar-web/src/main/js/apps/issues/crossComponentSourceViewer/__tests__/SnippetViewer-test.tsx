@@ -21,12 +21,8 @@ import { mount, shallow } from 'enzyme';
 import { range } from 'lodash';
 import * as React from 'react';
 import { scrollHorizontally } from 'sonar-ui-common/helpers/scrolling';
-import {
-  mockIssue,
-  mockMainBranch,
-  mockSourceLine,
-  mockSourceViewerFile
-} from '../../../../helpers/testMocks';
+import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockIssue, mockSourceLine, mockSourceViewerFile } from '../../../../helpers/testMocks';
 import SnippetViewer from '../SnippetViewer';
 
 jest.mock('sonar-ui-common/helpers/scrolling', () => ({

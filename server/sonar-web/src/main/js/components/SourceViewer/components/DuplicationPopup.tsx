@@ -26,13 +26,14 @@ import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from 'sonar-ui-common/helpers/path';
-import { isPullRequest, isShortLivingBranch } from '../../../helpers/branches';
+import { isPullRequest } from '../../../helpers/branch-like';
 import { getProjectUrl } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 import { WorkspaceContextShape } from '../../workspace/context';
 
 interface Props {
   blocks: T.DuplicationBlock[];
-  branchLike: T.BranchLike | undefined;
+  branchLike: BranchLike | undefined;
   duplicatedFiles?: T.Dict<T.DuplicatedFile>;
   inRemovedComponent: boolean;
   onClose: () => void;
@@ -43,7 +44,7 @@ interface Props {
 export default class DuplicationPopup extends React.PureComponent<Props> {
   shouldLink() {
     const { branchLike } = this.props;
-    return !isShortLivingBranch(branchLike) && !isPullRequest(branchLike);
+    return !isPullRequest(branchLike);
   }
 
   isDifferentComponent = (

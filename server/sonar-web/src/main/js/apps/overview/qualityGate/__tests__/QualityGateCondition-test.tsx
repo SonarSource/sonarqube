@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockLongLivingBranch } from '../../../../helpers/testMocks';
+import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import QualityGateCondition from '../QualityGateCondition';
 
 const mockRatingCondition = (metric: string): T.QualityGateStatusConditionEnhanced => ({
@@ -137,7 +137,7 @@ it('should work with branch', () => {
   expect(
     shallow(
       <QualityGateCondition
-        branchLike={mockLongLivingBranch()}
+        branchLike={mockMainBranch()}
         component={{ key: 'abcd-key' }}
         condition={condition}
       />

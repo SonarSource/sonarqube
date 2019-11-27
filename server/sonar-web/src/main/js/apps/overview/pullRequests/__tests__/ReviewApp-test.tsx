@@ -21,11 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getMeasures } from '../../../../api/measures';
-import {
-  mockComponent,
-  mockPullRequest,
-  mockQualityGateStatusCondition
-} from '../../../../helpers/testMocks';
+import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
+import { mockComponent, mockQualityGateStatusCondition } from '../../../../helpers/testMocks';
 import { ReviewApp } from '../ReviewApp';
 
 jest.mock('../../../../api/measures', () => {

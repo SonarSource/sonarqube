@@ -23,17 +23,18 @@ import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import { getBaseUrl, getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
-import { isPullRequest, isShortLivingBranch } from '../../../helpers/branches';
+import { isPullRequest } from '../../../helpers/branch-like';
 import { isSonarCloud } from '../../../helpers/system';
 import { getProjectUrl } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 import OverviewApp from './OverviewApp';
 
 const EmptyOverview = lazyLoad(() => import('./EmptyOverview'));
 const ReviewApp = lazyLoad(() => import('../pullRequests/ReviewApp'));
 
 interface Props {
-  branchLike?: T.BranchLike;
-  branchLikes: T.BranchLike[];
+  branchLike?: BranchLike;
+  branchLikes: BranchLike[];
   component: T.Component;
   isInProgress?: boolean;
   isPending?: boolean;
@@ -75,7 +76,7 @@ export class App extends React.PureComponent<Props> {
           </Helmet>
         )}
 
-        {isShortLivingBranch(branchLike) || isPullRequest(branchLike) ? (
+        {isPullRequest(branchLike) ? (
           <>
             <Suggestions suggestions="pull_requests" />
             <ReviewApp branchLike={branchLike} component={component} />

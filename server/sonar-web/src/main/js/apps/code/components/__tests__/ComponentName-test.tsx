@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponentMeasure, mockMainBranch } from '../../../../helpers/testMocks';
+import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockComponentMeasure } from '../../../../helpers/testMocks';
 import ComponentName, { getTooltip, mostCommonPrefix, Props } from '../ComponentName';
 
 describe('#getTooltip', () => {

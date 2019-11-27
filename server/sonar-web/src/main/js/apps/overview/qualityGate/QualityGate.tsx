@@ -23,11 +23,12 @@ import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import Level from 'sonar-ui-common/components/ui/Level';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import DocTooltip from '../../../components/docs/DocTooltip';
+import { BranchLike } from '../../../types/branch-like';
 import EmptyQualityGate from './EmptyQualityGate';
 import QualityGateConditions from './QualityGateConditions';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component: Pick<T.Component, 'key' | 'qualifier'>;
   measures: T.MeasureEnhanced[];
 }

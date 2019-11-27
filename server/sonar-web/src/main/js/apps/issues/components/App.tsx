@@ -47,11 +47,11 @@ import {
   fillBranchLike,
   getBranchLikeQuery,
   isPullRequest,
-  isSameBranchLike,
-  isShortLivingBranch
-} from '../../../helpers/branches';
+  isSameBranchLike
+} from '../../../helpers/branch-like';
 import { isSonarCloud } from '../../../helpers/system';
 import { fetchBranchStatus } from '../../../store/rootActions';
+import { BranchLike } from '../../../types/branch-like';
 import * as actions from '../actions';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
 import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeader';
@@ -99,10 +99,10 @@ interface FetchIssuesPromise {
 }
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   component?: T.Component;
   currentUser: T.CurrentUser;
-  fetchBranchStatus: (branchLike: T.BranchLike, projectKey: string) => Promise<void>;
+  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
   fetchIssues: (query: T.RawQuery, requestOrganizations?: boolean) => Promise<FetchIssuesPromise>;
   hideAuthorFacet?: boolean;
   location: Pick<Location, 'pathname' | 'query'>;
@@ -827,7 +827,7 @@ export class App extends React.PureComponent<Props, State> {
   handleReload = () => {
     this.fetchFirstIssues();
     this.refreshBranchStatus();
-    if (isShortLivingBranch(this.props.branchLike) || isPullRequest(this.props.branchLike)) {
+    if (isPullRequest(this.props.branchLike)) {
       this.props.onBranchesChange();
     }
   };
@@ -880,7 +880,7 @@ export class App extends React.PureComponent<Props, State> {
 
   refreshBranchStatus = () => {
     const { branchLike, component } = this.props;
-    if (branchLike && component && (isPullRequest(branchLike) || isShortLivingBranch(branchLike))) {
+    if (branchLike && component && isPullRequest(branchLike)) {
       this.props.fetchBranchStatus(branchLike, component.key);
     }
   };

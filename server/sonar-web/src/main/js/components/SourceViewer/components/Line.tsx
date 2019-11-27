@@ -20,6 +20,7 @@
 import * as classNames from 'classnames';
 import { times } from 'lodash';
 import * as React from 'react';
+import { BranchLike } from '../../../types/branch-like';
 import './Line.css';
 import LineCode from './LineCode';
 import LineCoverage from './LineCoverage';
@@ -30,7 +31,7 @@ import LineNumber from './LineNumber';
 import LineSCM from './LineSCM';
 
 interface Props {
-  branchLike: T.BranchLike | undefined;
+  branchLike: BranchLike | undefined;
   displayAllIssues?: boolean;
   displayCoverage: boolean;
   displayDuplications: boolean;

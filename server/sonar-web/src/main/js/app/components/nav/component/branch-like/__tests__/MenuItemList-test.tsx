@@ -20,9 +20,12 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { getBrancheLikesAsTree } from '../../../../../../helpers/branches';
-import { mockSetOfBranchAndPullRequest } from '../../../../../../helpers/mocks/branch-pull-request';
-import { mockComponent, mockPullRequest } from '../../../../../../helpers/testMocks';
+import { getBrancheLikesAsTree } from '../../../../../../helpers/branch-like';
+import {
+  mockPullRequest,
+  mockSetOfBranchAndPullRequest
+} from '../../../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../../../helpers/testMocks';
 import { MenuItemList, MenuItemListProps } from '../MenuItemList';
 
 it('should render correctly', () => {

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`#ComponentNavMeta renders meta for long-living branch 1`] = `
+exports[`#ComponentNavMeta renders meta for a branch 1`] = `
 <div
   className="navbar-context-meta flex-0"
 >
@@ -76,37 +76,6 @@ exports[`#ComponentNavMeta renders meta for pull request 1`] = `
           "target": "master",
           "title": "Foo Bar feature",
           "url": "https://example.com/pull/1234",
-        }
-      }
-      component="my-project"
-    />
-  </div>
-</div>
-`;
-
-exports[`#ComponentNavMeta renders status of short-living branch 1`] = `
-<div
-  className="navbar-context-meta flex-0"
->
-  <div
-    className="spacer-left text-ellipsis"
-  >
-    <DateTimeFormatter
-      date="2017-01-02T00:00:00.000Z"
-    />
-  </div>
-  <div
-    className="navbar-context-meta-secondary display-inline-flex-center"
-  >
-    <Connect(BranchStatus)
-      branchLike={
-        Object {
-          "analysisDate": "2018-01-01",
-          "excludedFromPurge": true,
-          "isMain": false,
-          "mergeBranch": "master",
-          "name": "feature/foo",
-          "type": "SHORT",
         }
       }
       component="my-project"

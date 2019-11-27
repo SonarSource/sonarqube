@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockLongLivingBranch } from '../../../helpers/testMocks';
+import { mockBranch } from '../../../helpers/mocks/branch-like';
 import { BranchStatus } from '../BranchStatus';
 
 it('should render correctly', () => {
@@ -29,7 +29,5 @@ it('should render correctly', () => {
 });
 
 function shallowRender(status?: string) {
-  return shallow(
-    <BranchStatus branchLike={mockLongLivingBranch()} component="foo" status={status} />
-  );
+  return shallow(<BranchStatus branchLike={mockBranch()} component="foo" status={status} />);
 }

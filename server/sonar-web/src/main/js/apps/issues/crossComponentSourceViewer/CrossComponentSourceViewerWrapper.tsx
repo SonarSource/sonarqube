@@ -33,12 +33,13 @@ import {
 } from '../../../components/SourceViewer/helpers/indexing';
 import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
 import { WorkspaceContext } from '../../../components/workspace/context';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { BranchLike } from '../../../types/branch-like';
 import ComponentSourceSnippetViewer from './ComponentSourceSnippetViewer';
 import { groupLocationsByComponent } from './utils';
 
 interface Props {
-  branchLike: T.Branch | T.PullRequest | undefined;
+  branchLike: BranchLike | undefined;
   highlightedLocationMessage?: { index: number; text: string | undefined };
   issue: T.Issue;
   issues: T.Issue[];

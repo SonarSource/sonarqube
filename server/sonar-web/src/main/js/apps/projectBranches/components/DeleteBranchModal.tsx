@@ -22,10 +22,11 @@ import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/contro
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { deleteBranch, deletePullRequest } from '../../../api/branches';
-import { getBranchLikeDisplayName, isPullRequest } from '../../../helpers/branches';
+import { getBranchLikeDisplayName, isPullRequest } from '../../../helpers/branch-like';
+import { BranchLike } from '../../../types/branch-like';
 
 interface Props {
-  branchLike: T.BranchLike;
+  branchLike: BranchLike;
   component: T.Component;
   onClose: () => void;
   onDelete: () => void;

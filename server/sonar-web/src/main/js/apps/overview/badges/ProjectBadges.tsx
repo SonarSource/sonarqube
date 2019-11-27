@@ -22,15 +22,16 @@ import { Button, ResetButtonLink } from 'sonar-ui-common/components/controls/but
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../components/common/CodeSnippet';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { isSonarCloud } from '../../../helpers/system';
+import { BranchLike } from '../../../types/branch-like';
 import BadgeButton from './BadgeButton';
 import BadgeParams from './BadgeParams';
 import './styles.css';
 import { BadgeOptions, BadgeType, getBadgeSnippet, getBadgeUrl } from './utils';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   metrics: T.Dict<T.Metric>;
   project: string;
   qualifier: string;

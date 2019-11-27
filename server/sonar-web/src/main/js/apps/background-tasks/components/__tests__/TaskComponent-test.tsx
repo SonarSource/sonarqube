@@ -39,11 +39,7 @@ it('renders correctly', () => {
 });
 
 it('renders correctly for branches and pullrequest', () => {
-  expect(
-    shallow(<TaskComponent task={{ ...TASK, branch: 'feature', branchType: 'SHORT' }} />)
-  ).toMatchSnapshot();
-  expect(
-    shallow(<TaskComponent task={{ ...TASK, branch: 'branch-6.7', branchType: 'LONG' }} />)
-  ).toMatchSnapshot();
+  expect(shallow(<TaskComponent task={{ ...TASK, branch: 'feature' }} />)).toMatchSnapshot();
+  expect(shallow(<TaskComponent task={{ ...TASK, branch: 'branch-6.7' }} />)).toMatchSnapshot();
   expect(shallow(<TaskComponent task={{ ...TASK, pullRequest: 'pr-89' }} />)).toMatchSnapshot();
 });

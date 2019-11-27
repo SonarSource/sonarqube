@@ -22,9 +22,10 @@ import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/contro
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { renameBranch } from '../../../api/branches';
+import { MainBranch } from '../../../types/branch-like';
 
 interface Props {
-  branch: T.MainBranch;
+  branch: MainBranch;
   component: T.Component;
   onClose: () => void;
   onRename: () => void;

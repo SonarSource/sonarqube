@@ -19,11 +19,12 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { BranchLike } from '../../../types/branch-like';
 import BranchLikeTabs from './BranchLikeTabs';
 import LifetimeInformation from './LifetimeInformation';
 
 export interface AppProps {
-  branchLikes: T.BranchLike[];
+  branchLikes: BranchLike[];
   component: T.Component;
   onBranchesChange: () => void;
 }

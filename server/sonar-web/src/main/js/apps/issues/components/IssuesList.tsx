@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { BranchLike } from '../../../types/branch-like';
 import { Query, scrollToIssue } from '../utils';
 import ListItem from './ListItem';
 
 interface Props {
-  branchLike: T.BranchLike | undefined;
+  branchLike: BranchLike | undefined;
   checked: string[];
   component: T.Component | undefined;
   issues: T.Issue[];

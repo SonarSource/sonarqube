@@ -24,8 +24,9 @@ import { getLanguages } from '../api/languages';
 import { getAllMetrics } from '../api/metrics';
 import { getOrganization, getOrganizationNavigation, getOrganizations } from '../api/organizations';
 import { getQualityGateProjectStatus } from '../api/quality-gates';
-import { getBranchLikeQuery } from '../helpers/branches';
+import { getBranchLikeQuery } from '../helpers/branch-like';
 import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGates';
+import { BranchLike } from '../types/branch-like';
 import { requireAuthorization as requireAuthorizationAction } from './appState';
 import { registerBranchStatusAction } from './branches';
 import { addGlobalErrorMessage } from './globalMessages';
@@ -65,7 +66,7 @@ export const fetchOrganization = (key: string) => (dispatch: Dispatch) => {
   );
 };
 
-export function fetchBranchStatus(branchLike: T.BranchLike, projectKey: string) {
+export function fetchBranchStatus(branchLike: BranchLike, projectKey: string) {
   return (dispatch: Dispatch<any>) => {
     getQualityGateProjectStatus({ projectKey, ...getBranchLikeQuery(branchLike) }).then(
       projectStatus => {
@@ -114,11 +115,7 @@ export function requireAuthorization(router: Pick<InjectedRouter, 'replace'>) {
   return requireAuthorizationAction();
 }
 
-export function registerBranchStatus(
-  branchLike: T.BranchLike,
-  component: string,
-  status: T.Status
-) {
+export function registerBranchStatus(branchLike: BranchLike, component: string, status: T.Status) {
   return (dispatch: Dispatch) => {
     dispatch(registerBranchStatusAction(branchLike, component, status));
   };

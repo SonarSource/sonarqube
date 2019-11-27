@@ -49,7 +49,7 @@ exports[`renders correctly 2`] = `
 
 exports[`renders correctly for branches and pullrequest 1`] = `
 <td>
-  <ShortLivingBranchIcon
+  <BranchIcon
     className="little-spacer-right"
   />
   <Connect(Organization)
@@ -95,7 +95,7 @@ exports[`renders correctly for branches and pullrequest 1`] = `
 
 exports[`renders correctly for branches and pullrequest 2`] = `
 <td>
-  <LongLivingBranchIcon
+  <BranchIcon
     className="little-spacer-right"
   />
   <Connect(Organization)

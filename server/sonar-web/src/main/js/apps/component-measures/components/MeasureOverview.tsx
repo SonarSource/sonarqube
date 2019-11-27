@@ -23,7 +23,8 @@ import PageActions from 'sonar-ui-common/components/ui/PageActions';
 import { getComponentLeaves } from '../../../api/components';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
-import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
+import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
+import { BranchLike } from '../../../types/branch-like';
 import BubbleChart from '../drilldown/BubbleChart';
 import { enhanceComponent, getBubbleMetrics, hasFullMeasures, isFileType } from '../utils';
 import Breadcrumbs from './Breadcrumbs';
@@ -31,7 +32,7 @@ import LeakPeriodLegend from './LeakPeriodLegend';
 import MeasureContentHeader from './MeasureContentHeader';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   className?: string;
   component: T.ComponentMeasure;
   domain: string;

@@ -20,13 +20,14 @@
 import * as React from 'react';
 import { InjectedRouter } from 'react-router';
 import { getComponentShow } from '../../../api/components';
-import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
+import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { getProjectUrl } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 import { isViewType, Query } from '../utils';
 import MeasureOverview from './MeasureOverview';
 
 interface Props {
-  branchLike?: T.BranchLike;
+  branchLike?: BranchLike;
   className?: string;
   domain: string;
   leakPeriod?: T.Period;

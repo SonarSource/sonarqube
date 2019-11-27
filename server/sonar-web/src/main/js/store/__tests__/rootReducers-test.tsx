@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mockPullRequest } from '../../helpers/testMocks';
+import { mockPullRequest } from '../../helpers/mocks/branch-like';
 import * as fromBranches from '../branches';
 import { getBranchStatusByBranchLike, Store } from '../rootReducer';
 

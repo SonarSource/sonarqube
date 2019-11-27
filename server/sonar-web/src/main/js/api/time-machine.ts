@@ -19,6 +19,7 @@
  */
 import { getJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { BranchParameters } from '../types/branch-like';
 
 interface TimeMachineResponse {
   measures: {
@@ -36,7 +37,7 @@ export function getTimeMachineData(
     p?: number;
     ps?: number;
     to?: string;
-  } & T.BranchParameters
+  } & BranchParameters
 ): Promise<TimeMachineResponse> {
   return getJSON('/api/measures/search_history', data).catch(throwGlobalError);
 }
@@ -48,7 +49,7 @@ export function getAllTimeMachineData(
     from?: string;
     p?: number;
     to?: string;
-  } & T.BranchParameters,
+  } & BranchParameters,
   prev?: TimeMachineResponse
 ): Promise<TimeMachineResponse> {
   return getTimeMachineData({ ...data, ps: 1000 }).then(r => {

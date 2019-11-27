@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly for long lived branch 1`] = `
+exports[`should render correctly for branch 1`] = `
 <tr>
   <td
     className="nowrap hide-overflow"
@@ -12,7 +12,6 @@ exports[`should render correctly for long lived branch 1`] = `
           "excludedFromPurge": true,
           "isMain": false,
           "name": "branch-6.7",
-          "type": "LONG",
         }
       }
       className="little-spacer-right"
@@ -34,7 +33,6 @@ exports[`should render correctly for long lived branch 1`] = `
           "excludedFromPurge": true,
           "isMain": false,
           "name": "branch-6.7",
-          "type": "LONG",
         }
       }
       component="my-project"
@@ -57,7 +55,6 @@ exports[`should render correctly for long lived branch 1`] = `
           "excludedFromPurge": true,
           "isMain": false,
           "name": "branch-6.7",
-          "type": "LONG",
         }
       }
       component={
@@ -263,110 +260,6 @@ exports[`should render correctly for pull request 1`] = `
         onClick={[MockFunction]}
       >
         project_branch_pull_request.pull_request.delete
-      </ActionsDropdownItem>
-    </ActionsDropdown>
-  </td>
-</tr>
-`;
-
-exports[`should render correctly for short lived branch 1`] = `
-<tr>
-  <td
-    className="nowrap hide-overflow"
-  >
-    <BranchLikeIcon
-      branchLike={
-        Object {
-          "analysisDate": "2018-01-01",
-          "excludedFromPurge": true,
-          "isMain": false,
-          "mergeBranch": "master",
-          "name": "feature/foo",
-          "type": "SHORT",
-        }
-      }
-      className="little-spacer-right"
-    />
-    <span
-      title="feature/foo"
-    >
-      feature/foo
-    </span>
-    <span />
-  </td>
-  <td
-    className="nowrap"
-  >
-    <Connect(BranchStatus)
-      branchLike={
-        Object {
-          "analysisDate": "2018-01-01",
-          "excludedFromPurge": true,
-          "isMain": false,
-          "mergeBranch": "master",
-          "name": "feature/foo",
-          "type": "SHORT",
-        }
-      }
-      component="my-project"
-    />
-  </td>
-  <td
-    className="nowrap"
-  >
-    <DateFromNow
-      date="2018-01-01"
-    />
-  </td>
-  <td
-    className="nowrap"
-  >
-    <BranchPurgeSetting
-      branch={
-        Object {
-          "analysisDate": "2018-01-01",
-          "excludedFromPurge": true,
-          "isMain": false,
-          "mergeBranch": "master",
-          "name": "feature/foo",
-          "type": "SHORT",
-        }
-      }
-      component={
-        Object {
-          "breadcrumbs": Array [],
-          "key": "my-project",
-          "name": "MyProject",
-          "organization": "foo",
-          "qualifier": "TRK",
-          "qualityGate": Object {
-            "isDefault": true,
-            "key": "30",
-            "name": "Sonar way",
-          },
-          "qualityProfiles": Array [
-            Object {
-              "deleted": false,
-              "key": "my-qp",
-              "language": "ts",
-              "name": "Sonar way",
-            },
-          ],
-          "tags": Array [],
-        }
-      }
-    />
-  </td>
-  <td
-    className="nowrap"
-  >
-    <ActionsDropdown>
-      <ActionsDropdownItem
-        className="js-delete"
-        destructive={true}
-        onClick={[MockFunction]}
-      >
-        project_branch_pull_request.branch.delete
       </ActionsDropdownItem>
     </ActionsDropdown>
   </td>

@@ -19,12 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import {
-  mockComponent,
-  mockMainBranch,
-  mockMeasureEnhanced,
-  mockMetric
-} from '../../../../helpers/testMocks';
+import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockComponent, mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
 import { ComposedProps } from '../enhance';
 import VulnerabilitiesAndHotspots from '../VulnerabilitiesAndHotspots';
 

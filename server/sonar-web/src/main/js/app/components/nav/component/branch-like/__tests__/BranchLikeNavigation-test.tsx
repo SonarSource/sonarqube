@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import { click } from 'sonar-ui-common/helpers/testUtils';
-import { mockSetOfBranchAndPullRequest } from '../../../../../../helpers/mocks/branch-pull-request';
+import { mockSetOfBranchAndPullRequest } from '../../../../../../helpers/mocks/branch-like';
 import { mockAppState, mockComponent } from '../../../../../../helpers/testMocks';
 import { BranchLikeNavigation, BranchLikeNavigationProps } from '../BranchLikeNavigation';
 

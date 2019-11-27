@@ -25,9 +25,10 @@ import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getMeasures } from '../../../api/measures';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { fetchBranchStatus } from '../../../store/rootActions';
 import { getBranchStatusByBranchLike, Store } from '../../../store/rootReducer';
+import { BranchLike } from '../../../types/branch-like';
 import QualityGateConditions from '../qualityGate/QualityGateConditions';
 import '../styles.css';
 import { IssueType, MeasurementType, PR_METRICS } from '../utils';
@@ -38,7 +39,7 @@ import LargeQualityGateBadge from './LargeQualityGateBadge';
 import MeasurementLabel from './MeasurementLabel';
 
 interface OwnProps {
-  branchLike: T.PullRequest | T.ShortLivingBranch;
+  branchLike: BranchLike;
   component: T.Component;
 }
 
@@ -49,7 +50,7 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  fetchBranchStatus: (branchLike: T.BranchLike, projectKey: string) => Promise<void>;
+  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
 }
 
 type Props = OwnProps & StateProps & DispatchProps;

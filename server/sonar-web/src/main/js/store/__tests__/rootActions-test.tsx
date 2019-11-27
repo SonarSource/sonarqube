@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mockLongLivingBranch, mockQualityGateStatusCondition } from '../../helpers/testMocks';
+import { mockBranch } from '../../helpers/mocks/branch-like';
+import { mockQualityGateStatusCondition } from '../../helpers/testMocks';
 import { registerBranchStatusAction } from '../branches';
 import { fetchBranchStatus, registerBranchStatus } from '../rootActions';
 
@@ -47,7 +48,7 @@ jest.mock('../../api/quality-gates', () => {
 });
 
 describe('branch store actions', () => {
-  const branchLike = mockLongLivingBranch();
+  const branchLike = mockBranch();
   const component = 'foo';
   const status = 'OK';
 
