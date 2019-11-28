@@ -75,6 +75,7 @@ public class DoTransitionAction implements IssuesWsAction {
         "The transitions involving security hotspots require the permission 'Administer Security Hotspot'.")
       .setSince("3.6")
       .setChangelog(
+        new Change("8.1", SET_AS_IN_REVIEW + " transition has been deprecated"),
         new Change("7.8", format("added '%s', %s, %s and %s transitions for security hotspots ", SET_AS_IN_REVIEW, RESOLVE_AS_REVIEWED, OPEN_AS_VULNERABILITY, RESET_AS_TO_REVIEW)),
         new Change("7.3", "added transitions for security hotspots"),
         new Change("6.5", "the database ids of the components are removed from the response"),

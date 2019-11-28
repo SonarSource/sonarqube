@@ -42,6 +42,7 @@ public class DbVersion81 implements DbVersion {
         RenameDaysBeforeDeletingInactiveSLBSetting.class)
       .add(3112, "Migrate short and long living branches types to common BRANCH type", MigrateSlbsAndLlbsToCommonType.class)
       .add(3113, "Migrate short and long living branches types to common BRANCH type in ce tasks table",
-        MigrateSlbsAndLlbsToCommonTypeInCeTasks.class);
+        MigrateSlbsAndLlbsToCommonTypeInCeTasks.class)
+      .add(3114, "Drop 'In Review' Security Hotspots status ", DropSecurityHotSpotsInReviewStatus.class);
   }
 }

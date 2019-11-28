@@ -39,7 +39,6 @@ import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
-import static org.sonar.api.issue.Issue.STATUS_IN_REVIEW;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
@@ -64,7 +63,7 @@ public class IssueWorkflow implements Startable {
   public void start() {
     StateMachine.Builder builder = StateMachine.builder()
       .states(STATUS_OPEN, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_RESOLVED, STATUS_CLOSED,
-              STATUS_TO_REVIEW, STATUS_IN_REVIEW, STATUS_REVIEWED);
+        STATUS_TO_REVIEW, STATUS_REVIEWED);
     buildManualTransitions(builder);
     buildAutomaticTransitions(builder);
     buildSecurityHotspotTransitions(builder);
@@ -160,19 +159,8 @@ public class IssueWorkflow implements Startable {
 
   private static void buildSecurityHotspotTransitions(StateMachine.Builder builder) {
     builder
-      .transition(Transition.builder(DefaultTransitions.SET_AS_IN_REVIEW)
-        .from(STATUS_TO_REVIEW).to(STATUS_IN_REVIEW)
-        .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
-        .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
-        .build())
       .transition(Transition.builder(DefaultTransitions.RESOLVE_AS_REVIEWED)
         .from(STATUS_TO_REVIEW).to(STATUS_REVIEWED)
-        .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
-        .functions(new SetResolution(RESOLUTION_FIXED))
-        .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
-        .build())
-      .transition(Transition.builder(DefaultTransitions.RESOLVE_AS_REVIEWED)
-        .from(STATUS_IN_REVIEW).to(STATUS_REVIEWED)
         .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
         .functions(new SetResolution(RESOLUTION_FIXED))
         .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
@@ -191,24 +179,12 @@ public class IssueWorkflow implements Startable {
         .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.OPEN_AS_VULNERABILITY)
-        .from(STATUS_IN_REVIEW).to(STATUS_OPEN)
-        .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
-        .functions(new SetType(RuleType.VULNERABILITY))
-        .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
-        .build())
-      .transition(Transition.builder(DefaultTransitions.OPEN_AS_VULNERABILITY)
         .from(STATUS_TO_REVIEW).to(STATUS_OPEN)
         .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
         .functions(new SetType(RuleType.VULNERABILITY))
         .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
         .build())
 
-      .transition(Transition.builder(DefaultTransitions.RESET_AS_TO_REVIEW)
-        .from(STATUS_IN_REVIEW).to(STATUS_TO_REVIEW)
-        .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
-        .functions(new SetResolution(null))
-        .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
-        .build())
       .transition(Transition.builder(DefaultTransitions.RESET_AS_TO_REVIEW)
         .from(STATUS_REVIEWED).to(STATUS_TO_REVIEW)
         .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
@@ -253,12 +229,6 @@ public class IssueWorkflow implements Startable {
         .build())
       .transition(Transition.builder(AUTOMATIC_CLOSE_TRANSITION)
         .from(STATUS_TO_REVIEW).to(STATUS_CLOSED)
-        .conditions(IsBeingClosed.INSTANCE, new HasType(RuleType.SECURITY_HOTSPOT))
-        .functions(SetClosed.INSTANCE, SetCloseDate.INSTANCE)
-        .automatic()
-        .build())
-      .transition(Transition.builder(AUTOMATIC_CLOSE_TRANSITION)
-        .from(STATUS_IN_REVIEW).to(STATUS_CLOSED)
         .conditions(IsBeingClosed.INSTANCE, new HasType(RuleType.SECURITY_HOTSPOT))
         .functions(SetClosed.INSTANCE, SetCloseDate.INSTANCE)
         .automatic()

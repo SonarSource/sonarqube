@@ -26,11 +26,11 @@ import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
-import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -176,49 +176,52 @@ public class IssueIndexSecurityReportsTest {
 
     assertThat(cweByOwasp.get("a1")).extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
       SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-      SecurityStandardCategoryStatistics::getInReviewSecurityHotspots, SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
       .containsExactlyInAnyOrder(
-        tuple("123", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 0L),
-        tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 0L),
-        tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L, 0L));
+        tuple("123", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L),
+        tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L),
+        tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L));
     assertThat(cweByOwasp.get("a3")).extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
       SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-      SecurityStandardCategoryStatistics::getInReviewSecurityHotspots, SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
       .containsExactlyInAnyOrder(
-        tuple("123", 2L /* openvul1, openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 0L),
-        tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 1L /* toReviewHotspot */, 0L),
-        tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L, 0L));
+        tuple("123", 2L /* openvul1, openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L),
+        tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L/* toReviewHotspot */, 0L),
+        tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L));
   }
 
   private List<SecurityStandardCategoryStatistics> indexIssuesAndAssertOwaspReport(boolean includeCwe) {
     OrganizationDto org = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(org);
     indexIssues(
-      newDoc("openvul1", project).setOwaspTop10(asList("a1", "a3")).setCwe(asList("123", "456")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR),
-      newDoc("openvul2", project).setOwaspTop10(asList("a3", "a6")).setCwe(asList("123")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED).setSeverity(Severity.MINOR),
+      newDoc("openvul1", project).setOwaspTop10(asList("a1", "a3")).setCwe(asList("123", "456")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+        .setSeverity(Severity.MAJOR),
+      newDoc("openvul2", project).setOwaspTop10(asList("a3", "a6")).setCwe(asList("123")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR),
       newDoc("notowaspvul", project).setOwaspTop10(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
-      newDoc("toreviewhotspot1", project).setOwaspTop10(asList("a1", "a3")).setCwe(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("toreviewhotspot1", project).setOwaspTop10(asList("a1", "a3")).setCwe(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_TO_REVIEW),
       newDoc("toreviewhotspot2", project).setOwaspTop10(asList("a3", "a6")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("inreviewhotspot", project).setOwaspTop10(asList("a5", "a3")).setCwe(asList("456")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_IN_REVIEW),
-      newDoc("reviewedHotspot", project).setOwaspTop10(asList("a3", "a8")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setResolution(Issue.RESOLUTION_FIXED),
+      newDoc("reviewedHotspot", project).setOwaspTop10(asList("a3", "a8")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
+        .setResolution(Issue.RESOLUTION_FIXED),
       newDoc("notowasphotspot", project).setOwaspTop10(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
 
     List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, includeCwe);
     assertThat(owaspTop10Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
         SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-        SecurityStandardCategoryStatistics::getInReviewSecurityHotspots, SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
       .containsExactlyInAnyOrder(
-        tuple("a1", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L, 0L),
-        tuple("a2", 0L, OptionalInt.empty(), 0L, 0L, 0L),
-        tuple("a3", 2L /* openvul1,openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 2L/* toreviewhotspot1,toreviewhotspot2 */, 1L /* inReviewHotspot */, 1L /* reviewedHotspot */),
-        tuple("a4", 0L, OptionalInt.empty(), 0L, 0L, 0L),
-        tuple("a5", 0L, OptionalInt.empty(), 0L, 1L/* inReviewHotspot */, 0L),
-        tuple("a6", 1L /* openvul2 */, OptionalInt.of(2) /* MINOR = B */, 1L /* toreviewhotspot2 */, 0L, 0L),
-        tuple("a7", 0L, OptionalInt.empty(), 0L, 0L, 0L),
-        tuple("a8", 0L, OptionalInt.empty(), 0L, 0L, 1L /* reviewedHotspot */),
-        tuple("a9", 0L, OptionalInt.empty(), 0L, 0L, 0L),
-        tuple("a10", 0L, OptionalInt.empty(), 0L, 0L, 0L));
+        tuple("a1", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L),
+        tuple("a2", 0L, OptionalInt.empty(), 0L, 0L),
+        tuple("a3", 2L /* openvul1,openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 2L/* toreviewhotspot1,toreviewhotspot2 */, 1L /* reviewedHotspot */),
+        tuple("a4", 0L, OptionalInt.empty(), 0L, 0L),
+        tuple("a5", 0L, OptionalInt.empty(), 0L, 0L),
+        tuple("a6", 1L /* openvul2 */, OptionalInt.of(2) /* MINOR = B */, 1L /* toreviewhotspot2 */, 0L),
+        tuple("a7", 0L, OptionalInt.empty(), 0L, 0L),
+        tuple("a8", 0L, OptionalInt.empty(), 0L, 1L /* reviewedHotspot */),
+        tuple("a9", 0L, OptionalInt.empty(), 0L, 0L),
+        tuple("a10", 0L, OptionalInt.empty(), 0L, 0L));
     return owaspTop10Report;
   }
 
@@ -235,21 +238,25 @@ public class IssueIndexSecurityReportsTest {
         .setResolution(Issue.RESOLUTION_FIXED)
         .setSeverity(Severity.BLOCKER),
       newDoc("notsansvul", project).setSansTop25(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
-      newDoc("toreviewhotspot1", project).setSansTop25(asList(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("toreviewhotspot2", project).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("toreviewhotspot1", project).setSansTop25(asList(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("toreviewhotspot2", project).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_TO_REVIEW),
       newDoc("inReviewHotspot", project).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_IN_REVIEW),
-      newDoc("reviewedHotspot", project).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setResolution(Issue.RESOLUTION_FIXED),
+      newDoc("reviewedHotspot", project).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
+        .setResolution(Issue.RESOLUTION_FIXED),
       newDoc("notowasphotspot", project).setSansTop25(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
 
     List<SecurityStandardCategoryStatistics> sansTop25Report = underTest.getSansTop25Report(project.uuid(), false, false);
     assertThat(sansTop25Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
         SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-        SecurityStandardCategoryStatistics::getInReviewSecurityHotspots, SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
       .containsExactlyInAnyOrder(
-        tuple(SANS_TOP_25_INSECURE_INTERACTION, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L, 0L),
-        tuple(SANS_TOP_25_RISKY_RESOURCE, 2L /* openvul1,openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 2L/* toreviewhotspot1,toreviewhotspot2 */, 1L /* inReviewHotspot */,1L /* reviewedHotspot */),
-        tuple(SANS_TOP_25_POROUS_DEFENSES, 1L /* openvul2 */, OptionalInt.of(2)/* MINOR = B */, 1L/* openhotspot2 */, 0L, 0L));
+        tuple(SANS_TOP_25_INSECURE_INTERACTION, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L),
+        tuple(SANS_TOP_25_RISKY_RESOURCE, 2L /* openvul1,openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 2L/* toreviewhotspot1,toreviewhotspot2 */,
+          1L /* reviewedHotspot */),
+        tuple(SANS_TOP_25_POROUS_DEFENSES, 1L /* openvul2 */, OptionalInt.of(2)/* MINOR = B */, 1L/* openhotspot2 */, 0L));
 
     assertThat(sansTop25Report).allMatch(category -> category.getChildren().isEmpty());
   }
@@ -270,10 +277,12 @@ public class IssueIndexSecurityReportsTest {
         .setResolution(Issue.RESOLUTION_FIXED)
         .setSeverity(Severity.BLOCKER),
       newDoc("notsansvul", project2).setSansTop25(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
-      newDoc("toreviewhotspot1", project1).setSansTop25(asList(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("toreviewhotspot2", project2).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("inReviewHotspot", project1).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_IN_REVIEW),
-      newDoc("reviewedHotspot", project2).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setResolution(Issue.RESOLUTION_FIXED),
+      newDoc("toreviewhotspot1", project1).setSansTop25(asList(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("toreviewhotspot2", project2).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("reviewedHotspot", project2).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
+        .setResolution(Issue.RESOLUTION_FIXED),
       newDoc("notowasphotspot", project1).setSansTop25(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
 
     indexView(portfolio1.uuid(), singletonList(project1.uuid()));
@@ -283,11 +292,11 @@ public class IssueIndexSecurityReportsTest {
     assertThat(sansTop25Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
         SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-        SecurityStandardCategoryStatistics::getInReviewSecurityHotspots, SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
       .containsExactlyInAnyOrder(
-        tuple(SANS_TOP_25_INSECURE_INTERACTION, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L, 0L),
-        tuple(SANS_TOP_25_RISKY_RESOURCE, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L/* toreviewhotspot1 */, 1L /* inReviewHotspot */, 0L),
-        tuple(SANS_TOP_25_POROUS_DEFENSES, 0L, OptionalInt.empty(), 0L, 0L, 0L));
+        tuple(SANS_TOP_25_INSECURE_INTERACTION, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L),
+        tuple(SANS_TOP_25_RISKY_RESOURCE, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L/* toreviewhotspot1 */, 0L),
+        tuple(SANS_TOP_25_POROUS_DEFENSES, 0L, OptionalInt.empty(), 0L, 0L));
 
     assertThat(sansTop25Report).allMatch(category -> category.getChildren().isEmpty());
   }

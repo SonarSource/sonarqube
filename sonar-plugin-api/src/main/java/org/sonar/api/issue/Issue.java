@@ -82,8 +82,9 @@ public interface Issue extends Serializable {
   String STATUS_TO_REVIEW = "TO_REVIEW";
 
   /**
-   * @since 7.8
+   * @deprecated since 8.1, status has been mapped as `TO_REVIEW`
    */
+  @Deprecated
   String STATUS_IN_REVIEW = "IN_REVIEW";
 
   /**
@@ -97,7 +98,7 @@ public interface Issue extends Serializable {
    * @since 4.4
    */
   List<String> STATUSES = unmodifiableList(asList(STATUS_OPEN, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_RESOLVED, STATUS_CLOSED,
-    STATUS_TO_REVIEW, STATUS_IN_REVIEW, STATUS_REVIEWED));
+    STATUS_TO_REVIEW, STATUS_REVIEWED));
 
   /**
    * Unique generated key. It looks like "d2de809c-1512-4ae2-9f34-f5345c9f1a13".

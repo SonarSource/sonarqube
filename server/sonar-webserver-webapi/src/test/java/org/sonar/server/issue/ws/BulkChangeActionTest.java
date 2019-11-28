@@ -30,10 +30,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
@@ -77,12 +77,12 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.sonar.api.issue.DefaultTransitions.SET_AS_IN_REVIEW;
+import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
-import static org.sonar.api.issue.Issue.STATUS_IN_REVIEW;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
@@ -347,7 +347,7 @@ public class BulkChangeActionTest {
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issue.getKey()))
-      .setDoTransition(SET_AS_IN_REVIEW)
+      .setDoTransition(RESOLVE_AS_REVIEWED)
       .setSendNotifications(true)
       .build());
 
@@ -357,8 +357,8 @@ public class BulkChangeActionTest {
     assertThat(builder.getIssues()).hasSize(1);
     ChangedIssue changedIssue = builder.getIssues().iterator().next();
     assertThat(changedIssue.getKey()).isEqualTo(issue.getKey());
-    assertThat(changedIssue.getNewStatus()).isEqualTo(STATUS_IN_REVIEW);
-    assertThat(changedIssue.getNewResolution()).isEmpty();
+    assertThat(changedIssue.getNewStatus()).isEqualTo(STATUS_REVIEWED);
+    assertThat(changedIssue.getNewResolution()).hasValue(RESOLUTION_FIXED);
     assertThat(changedIssue.getAssignee()).isEmpty();
     assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
     assertThat(builder.getChange()).isEqualTo(new UserChange(NOW, userOf(user)));

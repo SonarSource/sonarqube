@@ -42,7 +42,7 @@ public interface DefaultTransitions {
   String WONT_FIX = "wontfix";
 
   /**
-   * @since 7.8
+   * @deprecated since 8.1, transition has no effect
    */
   String SET_AS_IN_REVIEW = "setinreview";
 

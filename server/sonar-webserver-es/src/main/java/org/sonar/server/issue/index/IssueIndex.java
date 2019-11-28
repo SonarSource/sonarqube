@@ -930,12 +930,10 @@ public class IssueIndex {
 
     long toReviewSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get(AGG_TO_REVIEW_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
       .getValue();
-    long inReviewSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get(AGG_IN_REVIEW_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
-      .getValue();
     long reviewedSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get(AGG_REVIEWED_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
       .getValue();
 
-    return new SecurityStandardCategoryStatistics(categoryName, vulnerabilities, severityRating, inReviewSecurityHotspots, toReviewSecurityHotspots,
+    return new SecurityStandardCategoryStatistics(categoryName, vulnerabilities, severityRating, toReviewSecurityHotspots,
       reviewedSecurityHotspots, children);
   }
 
