@@ -74,6 +74,7 @@ import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteModule;
 import org.sonar.server.favorite.ws.FavoriteWsModule;
 import org.sonar.server.health.NodeHealthModule;
+import org.sonar.server.hotspot.ws.HotspotsWsModule;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.CommentAction;
@@ -428,6 +429,9 @@ public class PlatformLevel4 extends PlatformLevel {
       AddTagsAction.class,
       RemoveTagsAction.class,
       IssueChangePostProcessorImpl.class,
+
+      // hotspots
+      HotspotsWsModule.class,
 
       // source
       SourceWsModule.class,
