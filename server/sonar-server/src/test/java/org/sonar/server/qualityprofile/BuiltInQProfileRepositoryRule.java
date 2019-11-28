@@ -95,7 +95,7 @@ public class BuiltInQProfileRepositoryRule extends ExternalResource implements B
       RuleKey ruleKey = RuleKey.of(rule.repoKey(), rule.ruleKey());
       RuleDefinitionDto ruleDefinition = rulesByRuleKey.get(ruleKey);
       Preconditions.checkState(ruleDefinition != null, "Rule '%s' not found", ruleKey);
-      builder.addRule(rule, ruleDefinition.getId());
+      builder.addRule(new BuiltInQProfile.ActiveRule(ruleDefinition.getId(), rule));
     });
     return builder
       .build();

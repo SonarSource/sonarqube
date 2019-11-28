@@ -20,9 +20,11 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,7 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -98,7 +101,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
       .collect(Collectors.toSet());
 
     checkState(languagesWithoutBuiltInQProfiles.isEmpty(), "The following languages have no built-in quality profiles: %s",
-      languagesWithoutBuiltInQProfiles.stream().collect(Collectors.joining()));
+      String.join("", languagesWithoutBuiltInQProfiles));
   }
 
   private Map<String, Map<String, BuiltInQualityProfile>> validateAndClean(BuiltInQualityProfilesDefinition.Context context) {
@@ -120,24 +123,33 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     if (rulesProfilesByLanguage.isEmpty()) {
       return Collections.emptyList();
     }
+    Map<RuleKey, RuleDefinitionDto> rulesByRuleKey = loadRuleDefinitionsByRuleKey();
+    Map<String, List<BuiltInQProfile.Builder>> buildersByLanguage = rulesProfilesByLanguage
+      .entrySet()
+      .stream()
+      .collect(MoreCollectors.uniqueIndex(
+        Map.Entry::getKey,
+        rulesProfilesByLanguageAndName -> toQualityProfileBuilders(rulesProfilesByLanguageAndName, rulesByRuleKey)));
+    return buildersByLanguage
+      .entrySet()
+      .stream()
+      .filter(BuiltInQProfileRepositoryImpl::ensureAtMostOneDeclaredDefault)
+      .map(entry -> toQualityProfiles(entry.getValue()))
+      .flatMap(Collection::stream)
+      .collect(MoreCollectors.toList());
+  }
 
+  private Map<RuleKey, RuleDefinitionDto> loadRuleDefinitionsByRuleKey() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Map<RuleKey, RuleDefinitionDto> rulesByRuleKey = dbClient.ruleDao().selectAllDefinitions(dbSession)
-        .stream()
-        .collect(MoreCollectors.uniqueIndex(RuleDefinitionDto::getKey));
-      Map<String, List<BuiltInQProfile.Builder>> buildersByLanguage = rulesProfilesByLanguage
-        .entrySet()
-        .stream()
-        .collect(MoreCollectors.uniqueIndex(
-          Map.Entry::getKey,
-          rulesProfilesByLanguageAndName -> toQualityProfileBuilders(rulesProfilesByLanguageAndName, rulesByRuleKey)));
-      return buildersByLanguage
-        .entrySet()
-        .stream()
-        .filter(BuiltInQProfileRepositoryImpl::ensureAtMostOneDeclaredDefault)
-        .map(entry -> toQualityProfiles(entry.getValue()))
-        .flatMap(Collection::stream)
-        .collect(MoreCollectors.toList());
+      List<RuleDefinitionDto> ruleDefinitions = dbClient.ruleDao().selectAllDefinitions(dbSession);
+      Multimap<Integer, DeprecatedRuleKeyDto> deprecatedRuleKeysByRuleId = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession).stream()
+        .collect(MoreCollectors.index(DeprecatedRuleKeyDto::getRuleId));
+      Map<RuleKey, RuleDefinitionDto> rulesByRuleKey = new HashMap<>();
+      for (RuleDefinitionDto ruleDefinition : ruleDefinitions) {
+        rulesByRuleKey.put(ruleDefinition.getKey(), ruleDefinition);
+        deprecatedRuleKeysByRuleId.get(ruleDefinition.getId()).forEach(t -> rulesByRuleKey.put(RuleKey.of(t.getOldRepositoryKey(), t.getOldRuleKey()), ruleDefinition));
+      }
+      return rulesByRuleKey;
     }
   }
 
@@ -186,7 +198,8 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
       RuleKey ruleKey = RuleKey.of(builtInActiveRule.repoKey(), builtInActiveRule.ruleKey());
       RuleDefinitionDto ruleDefinition = rulesByRuleKey.get(ruleKey);
       checkState(ruleDefinition != null, "Rule with key '%s' not found", ruleKey);
-      builder.addRule(builtInActiveRule, ruleDefinition.getId());
+      builder.addRule(new BuiltInQProfile.ActiveRule(ruleDefinition.getId(), ruleDefinition.getKey(),
+        builtInActiveRule.overriddenSeverity(), builtInActiveRule.overriddenParams()));
     });
     return builder;
   }
