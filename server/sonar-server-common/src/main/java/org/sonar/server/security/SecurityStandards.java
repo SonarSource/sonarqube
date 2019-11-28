@@ -19,24 +19,23 @@
  */
 package org.sonar.server.security;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
+import static java.util.Collections.singleton;
 
-public class SecurityStandardHelper {
+@Immutable
+public final class SecurityStandards {
 
   public static final String UNKNOWN_STANDARD = "unknown";
   public static final String SANS_TOP_25_INSECURE_INTERACTION = "insecure-interaction";
@@ -49,12 +48,12 @@ public class SecurityStandardHelper {
   private static final Set<String> INSECURE_CWE = new HashSet<>(asList("89", "78", "79", "434", "352", "601"));
   private static final Set<String> RISKY_CWE = new HashSet<>(asList("120", "22", "494", "829", "676", "131", "134", "190"));
   private static final Set<String> POROUS_CWE = new HashSet<>(asList("306", "862", "798", "311", "807", "250", "863", "732", "327", "307", "759"));
-  public static final Map<String, Set<String>> SANS_TOP_25_CWE_MAPPING = ImmutableMap.of(
+  public static final Map<String, Set<String>> CWES_BY_SANS_TOP_25 = ImmutableMap.of(
     SANS_TOP_25_INSECURE_INTERACTION, INSECURE_CWE,
     SANS_TOP_25_RISKY_RESOURCE, RISKY_CWE,
     SANS_TOP_25_POROUS_DEFENSES, POROUS_CWE);
 
-  public static final Map<String, Set<String>> SONARSOURCE_CWE_MAPPING = ImmutableMap.<String, Set<String>>builder()
+  public static final Map<String, Set<String>> CWES_BY_SQ_CATEGORY = ImmutableMap.<String, Set<String>>builder()
     .put("sql-injection", ImmutableSet.of("89", "564"))
     .put("command-injection", ImmutableSet.of("77", "78", "88", "214"))
     .put("path-traversal-injection", ImmutableSet.of("22"))
@@ -75,65 +74,85 @@ public class SecurityStandardHelper {
     .put("insecure-conf", ImmutableSet.of("102", "215", "311", "315", "346", "614", "489", "942"))
     .put("file-manipulation", ImmutableSet.of("97", "73"))
     .build();
-  public static final String SONARSOURCE_OTHER_CWES_CATEGORY = "others";
-  public static final Ordering<String> SONARSOURCE_CATEGORY_ORDERING = Ordering.explicit(
-    ImmutableList.<String>builder().addAll(SONARSOURCE_CWE_MAPPING.keySet()).add(SONARSOURCE_OTHER_CWES_CATEGORY).build());
+  public static final String SQ_OTHER_CATEGORY = "others";
+  public static final Set<String> SQ_CATEGORIES = ImmutableSet.<String>builder().addAll(CWES_BY_SQ_CATEGORY.keySet()).add(SQ_OTHER_CATEGORY).build();
+  public static final Ordering<String> SQ_CATEGORIES_ORDERING = Ordering.explicit(
+    ImmutableList.<String>builder().addAll(CWES_BY_SQ_CATEGORY.keySet()).add(SQ_OTHER_CATEGORY).build());
 
-  private static final Splitter SECURITY_STANDARDS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
+  private final Set<String> standards;
+  private final Set<String> cwe;
+  private final Set<String> owaspTop10;
+  private final Set<String> sansTop25;
+  private final Set<String> sq;
 
-  private SecurityStandardHelper() {
-    // Utility class
+  private SecurityStandards(Set<String> standards, Set<String> cwe, Set<String> owaspTop10, Set<String> sansTop25, Set<String> sq) {
+    this.standards = standards;
+    this.cwe = cwe;
+    this.owaspTop10 = owaspTop10;
+    this.sansTop25 = sansTop25;
+    this.sq = sq;
   }
 
-  public static List<String> getSecurityStandards(@Nullable String securityStandards) {
-    return securityStandards == null ? emptyList() : SECURITY_STANDARDS_SPLITTER.splitToList(securityStandards);
+  public Set<String> getStandards() {
+    return standards;
   }
 
-  public static List<String> getSansTop25(Collection<String> cwe) {
-    return SANS_TOP_25_CWE_MAPPING
-      .keySet()
-      .stream()
-      .filter(k -> cwe.stream().anyMatch(SANS_TOP_25_CWE_MAPPING.get(k)::contains))
-      .collect(toList());
+  public Set<String> getCwe() {
+    return cwe;
   }
 
-  public static List<String> getSonarSourceSecurityCategories(Collection<String> cwe) {
-    List<String> result = SONARSOURCE_CWE_MAPPING
-      .keySet()
-      .stream()
-      .filter(k -> cwe.stream().anyMatch(SONARSOURCE_CWE_MAPPING.get(k)::contains))
-      .collect(toList());
-    return result.isEmpty() ? singletonList(SONARSOURCE_OTHER_CWES_CATEGORY) : result;
+  public Set<String> getOwaspTop10() {
+    return owaspTop10;
   }
 
-  public static List<String> getOwaspTop10(Collection<String> securityStandards) {
+  public Set<String> getSansTop25() {
+    return sansTop25;
+  }
+
+  public Set<String> getSq() {
+    return sq;
+  }
+
+  public static SecurityStandards fromSecurityStandards(Set<String> securityStandards) {
+    Set<String> standards = securityStandards.stream()
+      .filter(Objects::nonNull)
+      .collect(MoreCollectors.toSet());
+    Set<String> owaspTop10 = toOwaspTop10(standards);
+    Set<String> cwe = toCwe(standards);
+    Set<String> sansTop25 = toSansTop25(cwe);
+    Set<String> sq = toSonarSourceSecurityCategories(cwe);
+    return new SecurityStandards(standards, cwe, owaspTop10, sansTop25, sq);
+  }
+
+  private static Set<String> toOwaspTop10(Set<String> securityStandards) {
     return securityStandards.stream()
       .filter(s -> s.startsWith(OWASP_TOP10_PREFIX))
       .map(s -> s.substring(OWASP_TOP10_PREFIX.length()))
-      .collect(toList());
+      .collect(MoreCollectors.toSet());
   }
 
-  public static List<String> getCwe(Collection<String> securityStandards) {
-    List<String> result = securityStandards.stream()
+  private static Set<String> toCwe(Collection<String> securityStandards) {
+    Set<String> result = securityStandards.stream()
       .filter(s -> s.startsWith(CWE_PREFIX))
       .map(s -> s.substring(CWE_PREFIX.length()))
-      .collect(toList());
-    return result.isEmpty() ? singletonList(UNKNOWN_STANDARD) : result;
+      .collect(MoreCollectors.toSet());
+    return result.isEmpty() ? singleton(UNKNOWN_STANDARD) : result;
   }
 
-  public static List<String> getSansTop25(String securityStandards) {
-    return getSansTop25(getCwe(getSecurityStandards(securityStandards)));
+  private static Set<String> toSansTop25(Collection<String> cwe) {
+    return CWES_BY_SANS_TOP_25
+      .keySet()
+      .stream()
+      .filter(k -> cwe.stream().anyMatch(CWES_BY_SANS_TOP_25.get(k)::contains))
+      .collect(MoreCollectors.toSet());
   }
 
-  public static List<String> getSonarSourceSecurityCategories(String securityStandards) {
-    return getSonarSourceSecurityCategories(getCwe(getSecurityStandards(securityStandards)));
-  }
-
-  public static List<String> getOwaspTop10(String securityStandards) {
-    return getOwaspTop10(getSecurityStandards(securityStandards));
-  }
-
-  public static List<String> getCwe(String securityStandards) {
-    return getCwe(getSecurityStandards(securityStandards));
+  private static Set<String> toSonarSourceSecurityCategories(Collection<String> cwe) {
+    Set<String> result = CWES_BY_SQ_CATEGORY
+      .keySet()
+      .stream()
+      .filter(k -> cwe.stream().anyMatch(CWES_BY_SQ_CATEGORY.get(k)::contains))
+      .collect(MoreCollectors.toSet());
+    return result.isEmpty() ? singleton(SQ_OTHER_CATEGORY) : result;
   }
 }

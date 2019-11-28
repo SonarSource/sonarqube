@@ -19,8 +19,6 @@
  */
 package org.sonar.db.rule;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
@@ -48,9 +46,6 @@ public class RuleForIndexingDto {
   private int type;
   private long createdAt;
   private long updatedAt;
-
-  private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
-  private static final Splitter SECURITY_STANDARDS_SPLITTER = TAGS_SPLITTER;
 
   public Integer getId() {
     return id;
@@ -88,12 +83,12 @@ public class RuleForIndexingDto {
     return isTemplate;
   }
 
-  public String getSystemTags() {
-    return systemTags;
+  public Set<String> getSystemTags() {
+    return RuleDefinitionDto.deserializeTagsString(systemTags);
   }
 
-  public String getSecurityStandards() {
-    return securityStandards;
+  public Set<String> getSecurityStandards() {
+    return RuleDefinitionDto.deserializeSecurityStandardsString(securityStandards);
   }
 
   public String getTemplateRuleKey() {
@@ -139,13 +134,5 @@ public class RuleForIndexingDto {
 
   public RuleKey getRuleKey() {
     return RuleKey.of(repository, pluginRuleKey);
-  }
-
-  public Set<String> getSystemTagsAsSet() {
-    return ImmutableSet.copyOf(TAGS_SPLITTER.split(systemTags == null ? "" : systemTags));
-  }
-
-  public Set<String> getSecurityStandardsAsSet() {
-    return ImmutableSet.copyOf(SECURITY_STANDARDS_SPLITTER.split(securityStandards == null ? "" : securityStandards));
   }
 }

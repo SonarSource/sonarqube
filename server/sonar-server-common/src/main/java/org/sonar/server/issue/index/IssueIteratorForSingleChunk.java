@@ -27,7 +27,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.CheckForNull;
@@ -39,15 +38,13 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ResultSetIterator;
+import org.sonar.server.security.SecurityStandards;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.db.DatabaseUtils.getLong;
-import static org.sonar.server.security.SecurityStandardHelper.getCwe;
-import static org.sonar.server.security.SecurityStandardHelper.getOwaspTop10;
-import static org.sonar.server.security.SecurityStandardHelper.getSansTop25;
-import static org.sonar.server.security.SecurityStandardHelper.getSecurityStandards;
-import static org.sonar.server.security.SecurityStandardHelper.getSonarSourceSecurityCategories;
+import static org.sonar.db.rule.RuleDefinitionDto.deserializeSecurityStandardsString;
+import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
 
 /**
  * Scrolls over table ISSUES and reads documents to populate
@@ -231,14 +228,12 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       String tags = rs.getString(21);
       doc.setTags(IssueIteratorForSingleChunk.TAGS_SPLITTER.splitToList(tags == null ? "" : tags));
       doc.setType(RuleType.valueOf(rs.getInt(22)));
-      String securityStandards = rs.getString(23);
 
-      List<String> standards = getSecurityStandards(securityStandards);
-      doc.setOwaspTop10(getOwaspTop10(standards));
-      List<String> cwe = getCwe(standards);
-      doc.setCwe(cwe);
-      doc.setSansTop25(getSansTop25(cwe));
-      doc.setSonarSourceSecurityCategories(getSonarSourceSecurityCategories(cwe));
+      SecurityStandards securityStandards = fromSecurityStandards(deserializeSecurityStandardsString(rs.getString(23)));
+      doc.setOwaspTop10(securityStandards.getOwaspTop10());
+      doc.setCwe(securityStandards.getCwe());
+      doc.setSansTop25(securityStandards.getSansTop25());
+      doc.setSonarSourceSecurityCategories(securityStandards.getSq());
       return doc;
     }
 

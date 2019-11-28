@@ -957,8 +957,8 @@ public class RuleDaoTest {
     assertThat(firstRule.getStatus()).isEqualTo(r1.getStatus());
     assertThat(firstRule.isExternal()).isFalse();
     assertThat(firstRule.isTemplate()).isEqualTo(r1.isTemplate());
-    assertThat(firstRule.getSystemTagsAsSet()).isEqualTo(r1.getSystemTags());
-    assertThat(firstRule.getSecurityStandardsAsSet()).isEqualTo(r1.getSecurityStandards());
+    assertThat(firstRule.getSystemTags()).isEqualTo(r1.getSystemTags());
+    assertThat(firstRule.getSecurityStandards()).isEqualTo(r1.getSecurityStandards());
     assertThat(firstRule.getTemplateRuleKey()).isNull();
     assertThat(firstRule.getTemplateRepository()).isNull();
     assertThat(firstRule.getInternalKey()).isEqualTo(r1.getConfigKey());
@@ -1036,8 +1036,8 @@ public class RuleDaoTest {
     assertThat(firstRule.getSeverityAsString()).isEqualTo(SeverityUtil.getSeverityFromOrdinal(r1.getSeverity()));
     assertThat(firstRule.getStatus()).isEqualTo(r1.getStatus());
     assertThat(firstRule.isTemplate()).isEqualTo(r1.isTemplate());
-    assertThat(firstRule.getSystemTagsAsSet()).isEqualTo(r1.getSystemTags());
-    assertThat(firstRule.getSecurityStandardsAsSet()).isEqualTo(r1.getSecurityStandards());
+    assertThat(firstRule.getSystemTags()).isEqualTo(r1.getSystemTags());
+    assertThat(firstRule.getSecurityStandards()).isEqualTo(r1.getSecurityStandards());
     assertThat(firstRule.getInternalKey()).isEqualTo(r1.getConfigKey());
     assertThat(firstRule.getLanguage()).isEqualTo(r1.getLanguage());
     assertThat(firstRule.getType()).isEqualTo(r1.getType());

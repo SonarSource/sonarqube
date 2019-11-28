@@ -19,11 +19,10 @@
  */
 package org.sonar.db.rule;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -36,6 +35,8 @@ import org.sonar.db.rule.RuleDto.Scope;
 import static com.google.common.base.Preconditions.checkArgument;
 
 public class RuleDefinitionDto {
+
+  private static final Splitter SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
   private Integer id;
   private String repositoryKey;
@@ -90,6 +91,26 @@ public class RuleDefinitionDto {
 
   private long createdAt;
   private long updatedAt;
+
+  public static Set<String> deserializeTagsString(@Nullable String tags) {
+    return deserializeStringSet(tags);
+  }
+
+  public static Set<String> deserializeSecurityStandardsString(@Nullable String securityStandards) {
+    return deserializeStringSet(securityStandards);
+  }
+
+  private static Set<String> deserializeStringSet(@Nullable String securityStandards) {
+    if (securityStandards == null || securityStandards.isEmpty()) {
+      return ImmutableSet.of();
+    }
+
+    return ImmutableSet.copyOf(SPLITTER.split(securityStandards));
+  }
+
+  private static String serializeStringSet(@Nullable Set<String> strings) {
+    return strings == null || strings.isEmpty() ? null : StringUtils.join(strings, ',');
+  }
 
   public RuleKey getKey() {
     if (key == null) {
@@ -300,7 +321,7 @@ public class RuleDefinitionDto {
   }
 
   public Set<String> getSystemTags() {
-    return systemTags == null ? new HashSet<>() : new TreeSet<>(Arrays.asList(StringUtils.split(systemTags, ',')));
+    return deserializeTagsString(systemTags);
   }
 
   private String getSystemTagsField() {
@@ -312,12 +333,12 @@ public class RuleDefinitionDto {
   }
 
   public RuleDefinitionDto setSystemTags(Set<String> tags) {
-    this.systemTags = tags.isEmpty() ? null : StringUtils.join(tags, ',');
+    this.systemTags = serializeStringSet(tags);
     return this;
   }
 
   public Set<String> getSecurityStandards() {
-    return securityStandards == null ? new HashSet<>() : new TreeSet<>(Arrays.asList(StringUtils.split(securityStandards, ',')));
+    return deserializeSecurityStandardsString(securityStandards);
   }
 
   private String getSecurityStandardsField() {
@@ -329,7 +350,7 @@ public class RuleDefinitionDto {
   }
 
   public RuleDefinitionDto setSecurityStandards(Set<String> standards) {
-    this.securityStandards = standards.isEmpty() ? null : StringUtils.join(standards, ',');
+    this.securityStandards = serializeStringSet(standards);
     return this;
   }
 

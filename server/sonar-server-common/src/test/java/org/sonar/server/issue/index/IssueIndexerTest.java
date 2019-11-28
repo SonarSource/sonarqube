@@ -48,6 +48,7 @@ import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.IndexPermissions;
+import org.sonar.server.security.SecurityStandards;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -57,10 +58,8 @@ import static org.junit.rules.ExpectedException.none;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
-import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_POROUS_DEFENSES;
-import static org.sonar.server.security.SecurityStandardHelper.SONARSOURCE_OTHER_CWES_CATEGORY;
-import static org.sonar.server.security.SecurityStandardHelper.UNKNOWN_STANDARD;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
+import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
 
 public class IssueIndexerTest {
 
@@ -136,10 +135,10 @@ public class IssueIndexerTest {
     assertThat(doc.line()).isEqualTo(issue.getLine());
     // functional date
     assertThat(doc.updateDate()).isEqualToIgnoringMillis(new Date(issue.getIssueUpdateTime()));
-    assertThat(doc.getCwe()).containsExactlyInAnyOrder(UNKNOWN_STANDARD);
+    assertThat(doc.getCwe()).containsExactlyInAnyOrder(SecurityStandards.UNKNOWN_STANDARD);
     assertThat(doc.getOwaspTop10()).isEmpty();
     assertThat(doc.getSansTop25()).isEmpty();
-    assertThat(doc.getSonarSourceSecurityCategories()).containsExactlyInAnyOrder(SONARSOURCE_OTHER_CWES_CATEGORY);
+    assertThat(doc.getSonarSourceSecurityCategories()).containsOnly(SecurityStandards.SQ_OTHER_CATEGORY);
   }
 
   @Test

@@ -86,8 +86,8 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE_EXTENSION;
-import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_INSECURE_INTERACTION;
-import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_RISKY_RESOURCE;
+import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
+import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
 
 public class RuleIndexTest {
 

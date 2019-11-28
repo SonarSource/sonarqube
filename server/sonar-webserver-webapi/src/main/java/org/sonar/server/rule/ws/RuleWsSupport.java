@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule.ws;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -39,6 +38,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 import org.sonar.server.rule.index.RuleIndexDefinition;
+import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
@@ -50,6 +50,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
@@ -71,11 +72,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_STATUSES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TEMPLATE_KEY;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
-import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_CWE_MAPPING;
-import static org.sonar.server.security.SecurityStandardHelper.SONARSOURCE_CWE_MAPPING;
-import static org.sonar.server.security.SecurityStandardHelper.SONARSOURCE_OTHER_CWES_CATEGORY;
-import static org.sonar.server.security.SecurityStandardHelper.UNKNOWN_STANDARD;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
+import static org.sonar.server.security.SecurityStandards.SQ_OTHER_CATEGORY;
 
 @ServerSide
 public class RuleWsSupport {
@@ -141,8 +138,8 @@ public class RuleWsSupport {
 
     action
       .createParam(PARAM_CWE)
-      .setDescription("Comma-separated list of CWE identifiers. Use '" + UNKNOWN_STANDARD + "' to select rules not associated to any CWE.")
-      .setExampleValue("12,125," + UNKNOWN_STANDARD);
+      .setDescription("Comma-separated list of CWE identifiers. Use '" + SecurityStandards.UNKNOWN_STANDARD + "' to select rules not associated to any CWE.")
+      .setExampleValue("12,125," + SecurityStandards.UNKNOWN_STANDARD);
 
     action.createParam(PARAM_OWASP_TOP_10)
       .setDescription("Comma-separated list of OWASP Top 10 lowercase categories.")
@@ -152,14 +149,14 @@ public class RuleWsSupport {
     action.createParam(PARAM_SANS_TOP_25)
       .setDescription("Comma-separated list of SANS Top 25 categories.")
       .setSince("7.3")
-      .setPossibleValues(SANS_TOP_25_CWE_MAPPING.keySet());
+      .setPossibleValues(SecurityStandards.CWES_BY_SANS_TOP_25.keySet());
 
     action
       .createParam(PARAM_SONARSOURCE_SECURITY)
-      .setDescription("Comma-separated list of SonarSource security categories. Use '" + SONARSOURCE_OTHER_CWES_CATEGORY + "' to select rules not associated" +
+      .setDescription("Comma-separated list of SonarSource security categories. Use '" + SQ_OTHER_CATEGORY + "' to select rules not associated" +
         " with any category")
       .setSince("7.8")
-      .setPossibleValues(ImmutableList.builder().addAll(SONARSOURCE_CWE_MAPPING.keySet()).add(SONARSOURCE_OTHER_CWES_CATEGORY).build())
+      .setPossibleValues(SecurityStandards.SQ_CATEGORIES)
       .setExampleValue("sql-injection,command-injection,others");
 
     action

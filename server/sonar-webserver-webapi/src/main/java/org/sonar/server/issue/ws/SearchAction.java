@@ -54,6 +54,7 @@ import org.sonar.server.issue.SearchRequest;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.issue.index.IssueQueryFactory;
+import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 
@@ -84,12 +85,11 @@ import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
 import static org.sonar.server.issue.index.IssueQuery.SORT_BY_ASSIGNEE;
 import static org.sonar.server.issue.index.IssueQueryFactory.UNKNOWN;
-import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_INSECURE_INTERACTION;
-import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_POROUS_DEFENSES;
-import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_RISKY_RESOURCE;
-import static org.sonar.server.security.SecurityStandardHelper.SONARSOURCE_CWE_MAPPING;
-import static org.sonar.server.security.SecurityStandardHelper.SONARSOURCE_OTHER_CWES_CATEGORY;
-import static org.sonar.server.security.SecurityStandardHelper.UNKNOWN_STANDARD;
+import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
+import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
+import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
+import static org.sonar.server.security.SecurityStandards.SQ_OTHER_CATEGORY;
+import static org.sonar.server.security.SecurityStandards.UNKNOWN_STANDARD;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
@@ -273,10 +273,10 @@ public class SearchAction implements IssuesWsAction, Startable {
       .setDescription("Comma-separated list of CWE identifiers. Use '" + UNKNOWN_STANDARD + "' to select issues not associated to any CWE.")
       .setExampleValue("12,125," + UNKNOWN_STANDARD);
     action.createParam(PARAM_SONARSOURCE_SECURITY)
-      .setDescription("Comma-separated list of SonarSource security categories. Use '" + SONARSOURCE_OTHER_CWES_CATEGORY + "' to select issues not associated" +
+      .setDescription("Comma-separated list of SonarSource security categories. Use '" + SQ_OTHER_CATEGORY + "' to select issues not associated" +
         " with any category")
       .setSince("7.8")
-      .setPossibleValues(ImmutableList.builder().addAll(SONARSOURCE_CWE_MAPPING.keySet()).add(SONARSOURCE_OTHER_CWES_CATEGORY).build());
+      .setPossibleValues(SecurityStandards.SQ_CATEGORIES);
     action.createParam(DEPRECATED_PARAM_AUTHORS)
       .setDeprecatedSince("7.7")
       .setDescription("This parameter is deprecated, please use '%s' instead", PARAM_AUTHOR)

@@ -82,6 +82,7 @@ import org.sonar.server.es.StickyFacetBuilder;
 import org.sonar.server.issue.index.IssueQuery.PeriodStart;
 import org.sonar.server.permission.index.AuthorizationDoc;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
+import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
@@ -152,12 +153,10 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_STAT
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TAGS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TYPE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
-import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_CWE_MAPPING;
-import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_INSECURE_INTERACTION;
-import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_POROUS_DEFENSES;
-import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_RISKY_RESOURCE;
-import static org.sonar.server.security.SecurityStandardHelper.SONARSOURCE_CWE_MAPPING;
-import static org.sonar.server.security.SecurityStandardHelper.SONARSOURCE_OTHER_CWES_CATEGORY;
+import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
+import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
+import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
+import static org.sonar.server.security.SecurityStandards.SQ_CATEGORIES;
 import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_AUTHORS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
@@ -874,15 +873,14 @@ public class IssueIndex {
   public List<SecurityStandardCategoryStatistics> getSansTop25Report(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
     SearchRequestBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     Stream.of(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)
-      .forEach(sansCategory -> request.addAggregation(createAggregation(FIELD_ISSUE_SANS_TOP_25, sansCategory, includeCwe, Optional.of(SANS_TOP_25_CWE_MAPPING))));
+      .forEach(sansCategory -> request.addAggregation(createAggregation(FIELD_ISSUE_SANS_TOP_25, sansCategory, includeCwe, Optional.of(SecurityStandards.CWES_BY_SANS_TOP_25))));
     return processSecurityReportSearchResults(request, includeCwe);
   }
 
   public List<SecurityStandardCategoryStatistics> getSonarSourceReport(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
     SearchRequestBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
-    Stream.concat(SONARSOURCE_CWE_MAPPING.keySet().stream(), Stream.of(SONARSOURCE_OTHER_CWES_CATEGORY))
-      .forEach(sonarsourceCategory -> request.addAggregation(
-        createAggregation(FIELD_ISSUE_SONARSOURCE_SECURITY, sonarsourceCategory, includeCwe, Optional.of(SONARSOURCE_CWE_MAPPING))));
+    SQ_CATEGORIES.forEach(sonarsourceCategory -> request.addAggregation(
+        createAggregation(FIELD_ISSUE_SONARSOURCE_SECURITY, sonarsourceCategory, includeCwe, Optional.of(SecurityStandards.CWES_BY_SQ_CATEGORY))));
     return processSecurityReportSearchResults(request, includeCwe);
   }
 

@@ -81,7 +81,7 @@ public class RuleExtensionDoc extends BaseDoc {
     return new RuleExtensionDoc()
       .setRuleId(rule.getId())
       .setScope(RuleExtensionScope.system())
-      .setTags(rule.getSystemTagsAsSet());
+      .setTags(rule.getSystemTags());
   }
 
   public static RuleExtensionDoc of(RuleExtensionForIndexingDto rule) {

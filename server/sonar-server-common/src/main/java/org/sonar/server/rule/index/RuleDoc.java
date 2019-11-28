@@ -35,7 +35,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleForIndexingDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.es.BaseDoc;
-import org.sonar.server.security.SecurityStandardHelper;
+import org.sonar.server.security.SecurityStandards;
 
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 
@@ -268,7 +268,7 @@ public class RuleDoc extends BaseDoc {
   }
 
   public static RuleDoc of(RuleForIndexingDto dto) {
-    Collection<String> cwe = SecurityStandardHelper.getCwe(dto.getSecurityStandardsAsSet());
+    SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(dto.getSecurityStandards());
     RuleDoc ruleDoc = new RuleDoc()
       .setId(dto.getId())
       .setKey(dto.getRuleKey().toString())
@@ -277,10 +277,10 @@ public class RuleDoc extends BaseDoc {
       .setIsTemplate(dto.isTemplate())
       .setIsExternal(dto.isExternal())
       .setLanguage(dto.getLanguage())
-      .setCwe(cwe)
-      .setOwaspTop10(SecurityStandardHelper.getOwaspTop10(dto.getSecurityStandardsAsSet()))
-      .setSansTop25(SecurityStandardHelper.getSansTop25(cwe))
-      .setSonarSourceSecurityCategories(SecurityStandardHelper.getSonarSourceSecurityCategories(cwe))
+      .setCwe(securityStandards.getCwe())
+      .setOwaspTop10(securityStandards.getOwaspTop10())
+      .setSansTop25(securityStandards.getSansTop25())
+      .setSonarSourceSecurityCategories(securityStandards.getSq())
       .setName(dto.getName())
       .setRuleKey(dto.getPluginRuleKey())
       .setSeverity(dto.getSeverityAsString())
