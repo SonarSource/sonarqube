@@ -21,7 +21,8 @@ import * as React from 'react';
 import NotFound from '../NotFound';
 import Extension from './Extension';
 
-interface Props {
+export interface ProjectPageExtensionProps {
+  branchLike?: T.BranchLike;
   component: T.Component;
   location: { query: { id: string } };
   params: {
@@ -30,14 +31,14 @@ interface Props {
   };
 }
 
-export default function ProjectPageExtension(props: Props) {
+export default function ProjectPageExtension(props: ProjectPageExtensionProps) {
   const { extensionKey, pluginKey } = props.params;
-  const { component } = props;
+  const { branchLike, component } = props;
   const extension =
     component.extensions &&
     component.extensions.find(p => p.key === `${pluginKey}/${extensionKey}`);
   return extension ? (
-    <Extension extension={extension} options={{ component }} />
+    <Extension extension={extension} options={{ branchLike, component }} />
   ) : (
     <NotFound withContainer={false} />
   );
