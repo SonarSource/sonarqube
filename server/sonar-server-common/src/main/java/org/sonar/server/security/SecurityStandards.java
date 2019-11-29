@@ -22,6 +22,7 @@ package org.sonar.server.security;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -64,9 +65,28 @@ public final class SecurityStandards {
     SANS_TOP_25_POROUS_DEFENSES, POROUS_CWE);
 
   public enum VulnerabilityProbability {
-    HIGH,
-    MEDIUM,
-    LOW
+    HIGH(3),
+    MEDIUM(2),
+    LOW(1);
+
+    private final int score;
+
+    VulnerabilityProbability(int index) {
+      this.score = index;
+    }
+
+    public int getScore() {
+      return score;
+    }
+
+    public static Optional<VulnerabilityProbability> byScore(@Nullable Integer score) {
+      if (score == null) {
+        return Optional.empty();
+      }
+      return Arrays.stream(values())
+        .filter(t -> t.score == score)
+        .findFirst();
+    }
   }
 
   public enum SQCategory {

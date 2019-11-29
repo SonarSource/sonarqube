@@ -19,12 +19,18 @@
  */
 package org.sonar.server.hotspot.ws;
 
+import com.google.common.collect.Ordering;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
@@ -48,6 +54,8 @@ import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
+import org.sonar.server.security.SecurityStandards;
+import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -55,6 +63,7 @@ import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Hotspots.Component;
 import org.sonarqube.ws.Hotspots.SearchWsResponse;
 
+import static java.util.Collections.singleton;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -63,6 +72,7 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.issue.IssueTesting.newIssue;
 
 public class SearchActionTest {
   private static final Random RANDOM = new Random();
@@ -131,8 +141,7 @@ public class SearchActionTest {
   public void fails_with_ForbiddenException_if_project_is_private_and_not_allowed() {
     ComponentDto project = dbTester.components().insertPrivateProject();
     userSessionRule.registerComponents(project);
-    TestRequest request = actionTester.newRequest()
-      .setParam("projectKey", project.getKey());
+    TestRequest request = newRequest(project);
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class)
@@ -144,8 +153,7 @@ public class SearchActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);
 
-    SearchWsResponse response = actionTester.newRequest()
-      .setParam("projectKey", project.getKey())
+    SearchWsResponse response = newRequest(project)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList()).isEmpty();
@@ -159,8 +167,7 @@ public class SearchActionTest {
     userSessionRule.registerComponents(project);
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
 
-    SearchWsResponse response = actionTester.newRequest()
-      .setParam("projectKey", project.getKey())
+    SearchWsResponse response = newRequest(project)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList()).isEmpty();
@@ -182,8 +189,7 @@ public class SearchActionTest {
       });
     indexIssues();
 
-    SearchWsResponse response = actionTester.newRequest()
-      .setParam("projectKey", project.getKey())
+    SearchWsResponse response = newRequest(project)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList()).isEmpty();
@@ -212,8 +218,7 @@ public class SearchActionTest {
       .toArray(IssueDto[]::new);
     indexIssues();
 
-    SearchWsResponse response = actionTester.newRequest()
-      .setParam("projectKey", project.getKey())
+    SearchWsResponse response = newRequest(project)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -244,8 +249,7 @@ public class SearchActionTest {
       .toArray(IssueDto[]::new);
     indexIssues();
 
-    SearchWsResponse responseProject1 = actionTester.newRequest()
-      .setParam("projectKey", project1.getKey())
+    SearchWsResponse responseProject1 = newRequest(project1)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(responseProject1.getHotspotsList())
@@ -258,8 +262,7 @@ public class SearchActionTest {
       .extracting(Hotspots.Rule::getKey)
       .containsOnly(Arrays.stream(hotspots2).map(t -> t.getRuleKey().toString()).toArray(String[]::new));
 
-    SearchWsResponse responseProject2 = actionTester.newRequest()
-      .setParam("projectKey", project2.getKey())
+    SearchWsResponse responseProject2 = newRequest(project2)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(responseProject2.getHotspotsList())
@@ -289,8 +292,7 @@ public class SearchActionTest {
       t -> t.setType(SECURITY_HOTSPOT).setResolution(randomAlphabetic(5)));
     indexIssues();
 
-    SearchWsResponse response = actionTester.newRequest()
-      .setParam("projectKey", project.getKey())
+    SearchWsResponse response = newRequest(project)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -314,8 +316,7 @@ public class SearchActionTest {
         .setAuthorLogin(randomAlphabetic(8)));
     indexIssues();
 
-    SearchWsResponse response = actionTester.newRequest()
-      .setParam("projectKey", project.getKey())
+    SearchWsResponse response = newRequest(project)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList()).hasSize(1);
@@ -352,8 +353,7 @@ public class SearchActionTest {
         .setAuthorLogin(null));
     indexIssues();
 
-    SearchWsResponse response = actionTester.newRequest()
-      .setParam("projectKey", project.getKey())
+    SearchWsResponse response = newRequest(project)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -383,8 +383,7 @@ public class SearchActionTest {
     IssueDto projectHotspot = dbTester.issues().insert(rule, project, project, t -> t.setType(SECURITY_HOTSPOT));
     indexIssues();
 
-    SearchWsResponse response = actionTester.newRequest()
-      .setParam("projectKey", project.getKey())
+    SearchWsResponse response = newRequest(project)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -413,6 +412,176 @@ public class SearchActionTest {
     assertThat(actualFile.getName()).isEqualTo(file.name());
     assertThat(actualFile.getLongName()).isEqualTo(file.longName());
     assertThat(actualFile.getPath()).isEqualTo(file.path());
+  }
+
+  @Test
+  public void returns_hotspots_ordered_by_vulnerabilityProbability_score_then_rule_id() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    List<IssueDto> hotspots = Arrays.stream(SQCategory.values())
+      .sorted(Ordering.from(Comparator.<SQCategory>comparingInt(t1 -> t1.getVulnerability().getScore()).reversed())
+        .thenComparing(SQCategory::getKey))
+      .flatMap(sqCategory -> {
+        Set<String> cwes = SecurityStandards.CWES_BY_SQ_CATEGORY.get(sqCategory);
+        Set<String> securityStandards = singleton("cwe:" + (cwes == null ? "unknown" : cwes.iterator().next()));
+        RuleDefinitionDto rule1 = newRule(
+          SECURITY_HOTSPOT,
+          t -> t.setName("rule_" + sqCategory.name() + "_a").setSecurityStandards(securityStandards));
+        RuleDefinitionDto rule2 = newRule(
+          SECURITY_HOTSPOT,
+          t -> t.setName("rule_" + sqCategory.name() + "_b").setSecurityStandards(securityStandards));
+        return Stream.of(
+          newIssue(rule1, project, file).setKee(sqCategory + "_a").setType(SECURITY_HOTSPOT),
+          newIssue(rule2, project, file).setKee(sqCategory + "_b").setType(SECURITY_HOTSPOT));
+      })
+      .collect(Collectors.toList());
+    String[] expectedHotspotKeys = hotspots.stream().map(IssueDto::getKey).toArray(String[]::new);
+    // insert hotspots in random order
+    Collections.shuffle(hotspots);
+    hotspots.forEach(dbTester.issues()::insertIssue);
+    indexIssues();
+
+    SearchWsResponse response = newRequest(project)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(Hotspots.Hotspot::getKey)
+      .containsExactly(expectedHotspotKeys);
+  }
+
+  @Test
+  public void returns_hotspots_ordered_by_file_path_then_line_then_key() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project).setPath("b/c/a"));
+    ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project).setPath("b/c/b"));
+    ComponentDto file3 = dbTester.components().insertComponent(newFileDto(project).setPath("a/a/d"));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    List<IssueDto> hotspots = Stream.of(
+      newIssue(rule, project, file3).setType(SECURITY_HOTSPOT).setLine(8),
+      newIssue(rule, project, file3).setType(SECURITY_HOTSPOT).setLine(10),
+      newIssue(rule, project, file1).setType(SECURITY_HOTSPOT).setLine(null),
+      newIssue(rule, project, file1).setType(SECURITY_HOTSPOT).setLine(9),
+      newIssue(rule, project, file1).setType(SECURITY_HOTSPOT).setLine(11).setKee("a"),
+      newIssue(rule, project, file1).setType(SECURITY_HOTSPOT).setLine(11).setKee("b"),
+      newIssue(rule, project, file2).setType(SECURITY_HOTSPOT).setLine(null),
+      newIssue(rule, project, file2).setType(SECURITY_HOTSPOT).setLine(2))
+      .collect(Collectors.toList());
+    String[] expectedHotspotKeys = hotspots.stream().map(IssueDto::getKey).toArray(String[]::new);
+    // insert hotspots in random order
+    Collections.shuffle(hotspots);
+    hotspots.forEach(dbTester.issues()::insertIssue);
+    indexIssues();
+
+    SearchWsResponse response = newRequest(project)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(Hotspots.Hotspot::getKey)
+      .containsExactly(expectedHotspotKeys);
+  }
+
+  @Test
+  public void returns_first_page_with_100_results_by_default() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    int total = 436;
+    List<IssueDto> hotspots = IntStream.range(0, total)
+      .mapToObj(i -> newIssue(rule, project, file).setType(SECURITY_HOTSPOT).setLine(i))
+      .map(i -> dbTester.issues().insertIssue(i))
+      .collect(Collectors.toList());
+    indexIssues();
+
+    TestRequest request = newRequest(project);
+
+    SearchWsResponse response = request.executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(Hotspots.Hotspot::getKey)
+      .containsExactly(hotspots.stream().limit(100).map(IssueDto::getKey).toArray(String[]::new));
+    assertThat(response.getPaging().getTotal()).isEqualTo(hotspots.size());
+    assertThat(response.getPaging().getPageIndex()).isEqualTo(1);
+    assertThat(response.getPaging().getPageSize()).isEqualTo(100);
+  }
+
+  @Test
+  public void returns_specified_page_with_100_results_by_default() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+
+    verifyPaging(project, file, rule, 336, 100);
+  }
+
+  @Test
+  public void returns_specified_page_with_specified_number_of_results() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    int total = 336;
+    int pageSize = 1 + new Random().nextInt(100);
+
+    verifyPaging(project, file, rule, total, pageSize);
+  }
+
+  private void verifyPaging(ComponentDto project, ComponentDto file, RuleDefinitionDto rule, int total, int pageSize) {
+    List<IssueDto> hotspots = IntStream.range(0, total)
+      .mapToObj(i -> newIssue(rule, project, file).setType(SECURITY_HOTSPOT).setLine(i).setKee("issue_" + i))
+      .map(i -> dbTester.issues().insertIssue(i))
+      .collect(Collectors.toList());
+    indexIssues();
+
+    SearchWsResponse response = newRequest(project)
+      .setParam("p", "3")
+      .setParam("ps", String.valueOf(pageSize))
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(Hotspots.Hotspot::getKey)
+      .containsExactly(hotspots.stream().skip(2 * pageSize).limit(pageSize).map(IssueDto::getKey).toArray(String[]::new));
+    assertThat(response.getPaging().getTotal()).isEqualTo(hotspots.size());
+    assertThat(response.getPaging().getPageIndex()).isEqualTo(3);
+    assertThat(response.getPaging().getPageSize()).isEqualTo(pageSize);
+
+    response = newRequest(project)
+      .setParam("p", "4")
+      .setParam("ps", String.valueOf(pageSize))
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(Hotspots.Hotspot::getKey)
+      .containsExactly(hotspots.stream().skip(3 * pageSize).limit(pageSize).map(IssueDto::getKey).toArray(String[]::new));
+    assertThat(response.getPaging().getTotal()).isEqualTo(hotspots.size());
+    assertThat(response.getPaging().getPageIndex()).isEqualTo(4);
+    assertThat(response.getPaging().getPageSize()).isEqualTo(pageSize);
+
+    int emptyPage = (hotspots.size() / pageSize) + 10;
+    response = newRequest(project)
+      .setParam("p", String.valueOf(emptyPage))
+      .setParam("ps", String.valueOf(pageSize))
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(Hotspots.Hotspot::getKey)
+      .isEmpty();
+    assertThat(response.getPaging().getTotal()).isEqualTo(hotspots.size());
+    assertThat(response.getPaging().getPageIndex()).isEqualTo(emptyPage);
+    assertThat(response.getPaging().getPageSize()).isEqualTo(pageSize);
+  }
+
+  private TestRequest newRequest(ComponentDto project) {
+    return actionTester.newRequest()
+      .setParam("projectKey", project.getKey());
   }
 
   private void indexPermissions() {

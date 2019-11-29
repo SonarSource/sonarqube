@@ -50,6 +50,7 @@ import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.IndexPermissions;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.SQCategory;
+import org.sonar.server.security.SecurityStandards.VulnerabilityProbability;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -140,6 +141,7 @@ public class IssueIndexerTest {
     assertThat(doc.getOwaspTop10()).isEmpty();
     assertThat(doc.getSansTop25()).isEmpty();
     assertThat(doc.getSonarSourceSecurityCategory()).isEqualTo(SQCategory.OTHERS);
+    assertThat(doc.getVulnerabilityProbability()).isEqualTo(VulnerabilityProbability.LOW);
   }
 
   @Test

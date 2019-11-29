@@ -149,10 +149,11 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_RULE
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SANS_TOP_25;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SEVERITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SONARSOURCE_SECURITY;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SQ_SECURITY_CATEGORY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_STATUS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TAGS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TYPE;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_VULNERABILITY_PROBABILITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
@@ -232,7 +233,7 @@ public class IssueIndex {
     SANS_TOP_25(PARAM_SANS_TOP_25, FIELD_ISSUE_SANS_TOP_25, DEFAULT_FACET_SIZE),
     CWE(PARAM_CWE, FIELD_ISSUE_CWE, DEFAULT_FACET_SIZE),
     CREATED_AT(PARAM_CREATED_AT, FIELD_ISSUE_FUNC_CREATED_AT, DEFAULT_FACET_SIZE),
-    SONARSOURCE_SECURITY(PARAM_SONARSOURCE_SECURITY, FIELD_ISSUE_SONARSOURCE_SECURITY, DEFAULT_FACET_SIZE);
+    SONARSOURCE_SECURITY(PARAM_SONARSOURCE_SECURITY, FIELD_ISSUE_SQ_SECURITY_CATEGORY, DEFAULT_FACET_SIZE);
 
     private final String name;
     private final String fieldName;
@@ -300,6 +301,13 @@ public class IssueIndex {
     this.sorting.add(IssueQuery.SORT_BY_FILE_LINE, FIELD_ISSUE_LINE);
     this.sorting.add(IssueQuery.SORT_BY_FILE_LINE, FIELD_ISSUE_SEVERITY_VALUE).reverse();
     this.sorting.add(IssueQuery.SORT_BY_FILE_LINE, FIELD_ISSUE_KEY);
+    this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_VULNERABILITY_PROBABILITY).reverse();
+    this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_SQ_SECURITY_CATEGORY);
+    this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_RULE_ID);
+    this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_PROJECT_UUID);
+    this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_FILE_PATH);
+    this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_LINE);
+    this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_KEY);
 
     // by default order by created date, project, file, line and issue key (in order to be deterministic when same ms)
     this.sorting.addDefault(FIELD_ISSUE_FUNC_CREATED_AT).reverse();
@@ -391,7 +399,7 @@ public class IssueIndex {
     filters.put(FIELD_ISSUE_SANS_TOP_25, createTermsFilter(FIELD_ISSUE_SANS_TOP_25, query.sansTop25()));
     filters.put(FIELD_ISSUE_CWE, createTermsFilter(FIELD_ISSUE_CWE, query.cwe()));
     addSeverityFilter(query, filters);
-    filters.put(FIELD_ISSUE_SONARSOURCE_SECURITY, createTermsFilter(FIELD_ISSUE_SONARSOURCE_SECURITY, query.sonarsourceSecurity()));
+    filters.put(FIELD_ISSUE_SQ_SECURITY_CATEGORY, createTermsFilter(FIELD_ISSUE_SQ_SECURITY_CATEGORY, query.sonarsourceSecurity()));
 
     addComponentRelatedFilters(query, filters);
     addDatesFilter(filters, query);
@@ -885,7 +893,7 @@ public class IssueIndex {
     Arrays.stream(SQCategory.values())
       .forEach(sonarsourceCategory -> request.addAggregation(
         newSecurityReportSubAggregations(
-          AggregationBuilders.filter(sonarsourceCategory.getKey(), boolQuery().filter(termQuery(FIELD_ISSUE_SONARSOURCE_SECURITY, sonarsourceCategory.getKey()))),
+          AggregationBuilders.filter(sonarsourceCategory.getKey(), boolQuery().filter(termQuery(FIELD_ISSUE_SQ_SECURITY_CATEGORY, sonarsourceCategory.getKey()))),
           includeCwe,
           Optional.ofNullable(SecurityStandards.CWES_BY_SQ_CATEGORY.get(sonarsourceCategory)))));
     return processSecurityReportSearchResults(request, includeCwe);

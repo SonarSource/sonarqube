@@ -33,6 +33,7 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.permission.index.AuthorizationDoc;
 import org.sonar.server.security.SecurityStandards;
+import org.sonar.server.security.SecurityStandards.VulnerabilityProbability;
 
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 
@@ -330,12 +331,23 @@ public class IssueDoc extends BaseDoc {
 
   @CheckForNull
   public SecurityStandards.SQCategory getSonarSourceSecurityCategory() {
-    String key = getNullableField(IssueIndexDefinition.FIELD_ISSUE_SONARSOURCE_SECURITY);
+    String key = getNullableField(IssueIndexDefinition.FIELD_ISSUE_SQ_SECURITY_CATEGORY);
     return SecurityStandards.SQCategory.fromKey(key).orElse(null);
   }
 
   public IssueDoc setSonarSourceSecurityCategory(@Nullable SecurityStandards.SQCategory c) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_SONARSOURCE_SECURITY, c == null ? null : c.getKey());
+    setField(IssueIndexDefinition.FIELD_ISSUE_SQ_SECURITY_CATEGORY, c == null ? null : c.getKey());
+    return this;
+  }
+
+  @CheckForNull
+  public VulnerabilityProbability getVulnerabilityProbability() {
+    Integer score = getNullableField(IssueIndexDefinition.FIELD_ISSUE_VULNERABILITY_PROBABILITY);
+    return VulnerabilityProbability.byScore(score).orElse(null);
+  }
+
+  public IssueDoc setVulnerabilityProbability(@Nullable VulnerabilityProbability v) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_VULNERABILITY_PROBABILITY, v == null ? null : v.getScore());
     return this;
   }
 }

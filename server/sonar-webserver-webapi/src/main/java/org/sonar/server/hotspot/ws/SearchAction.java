@@ -38,6 +38,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -52,6 +53,7 @@ import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -59,6 +61,7 @@ import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -80,7 +83,6 @@ public class SearchAction implements HotspotsWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-
     WebService.NewAction action = controller
       .createAction("search")
       .setHandler(this)
@@ -99,50 +101,67 @@ public class SearchAction implements HotspotsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    WsRequest wsRequest = toWsRequest(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
-      ComponentDto project = dbClient.componentDao().selectByKey(dbSession, projectKey)
-        .filter(t -> Scopes.PROJECT.equals(t.scope()) && Qualifiers.PROJECT.equals(t.qualifier()))
-        .filter(ComponentDto::isEnabled)
-        .filter(t -> t.getMainBranchProjectUuid() == null)
-        .orElseThrow(() -> new NotFoundException(String.format("Project '%s' not found", projectKey)));
-      userSession.checkComponentPermission(UserRole.USER, project);
+      ComponentDto project = validateRequest(dbSession, wsRequest);
 
-      List<IssueDto> orderedIssues = searchHotspots(request, dbSession, project);
-      SearchResponseData searchResponseData = new SearchResponseData(orderedIssues);
+      SearchResponseData searchResponseData = searchHotspots(wsRequest, dbSession, project);
       loadComponents(dbSession, searchResponseData);
       loadRules(dbSession, searchResponseData);
       writeProtobuf(formatResponse(searchResponseData), request, response);
     }
   }
 
-  private List<IssueDto> searchHotspots(Request request, DbSession dbSession, ComponentDto project) {
-    List<String> issueKeys = searchHotspots(request, project);
+  private static WsRequest toWsRequest(Request request) {
+    return new WsRequest(request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE), request.mandatoryParam(PARAM_PROJECT_KEY));
+  }
 
-    List<IssueDto> unorderedIssues = dbClient.issueDao().selectByKeys(dbSession, issueKeys);
-    Map<String, IssueDto> unorderedIssuesMap = unorderedIssues
+  private ComponentDto validateRequest(DbSession dbSession, WsRequest wsRequest) {
+    ComponentDto project = dbClient.componentDao().selectByKey(dbSession, wsRequest.getProjectKey())
+      .filter(t -> Scopes.PROJECT.equals(t.scope()) && Qualifiers.PROJECT.equals(t.qualifier()))
+      .filter(ComponentDto::isEnabled)
+      .filter(t -> t.getMainBranchProjectUuid() == null)
+      .orElseThrow(() -> new NotFoundException(String.format("Project '%s' not found", wsRequest.getProjectKey())));
+    userSession.checkComponentPermission(UserRole.USER, project);
+    return project;
+  }
+
+  private SearchResponseData searchHotspots(WsRequest wsRequest, DbSession dbSession, ComponentDto project) {
+    SearchResponse result = doIndexSearch(wsRequest, project);
+    List<String> issueKeys = Arrays.stream(result.getHits().getHits())
+      .map(SearchHit::getId)
+      .collect(MoreCollectors.toList(result.getHits().getHits().length));
+
+    List<IssueDto> hotspots = toIssueDtos(dbSession, issueKeys);
+
+    Paging paging = forPageIndex(wsRequest.getPage()).withPageSize(wsRequest.getIndex()).andTotal((int) result.getHits().getTotalHits());
+    return new SearchResponseData(paging, hotspots);
+  }
+
+  private List<IssueDto> toIssueDtos(DbSession dbSession, List<String> issueKeys) {
+    List<IssueDto> unorderedHotspots = dbClient.issueDao().selectByKeys(dbSession, issueKeys);
+    Map<String, IssueDto> hotspotsByKey = unorderedHotspots
       .stream()
-      .collect(uniqueIndex(IssueDto::getKey, unorderedIssues.size()));
+      .collect(uniqueIndex(IssueDto::getKey, unorderedHotspots.size()));
 
     return issueKeys.stream()
-      .map(unorderedIssuesMap::get)
+      .map(hotspotsByKey::get)
       .filter(Objects::nonNull)
       .collect(Collectors.toList());
   }
 
-  private List<String> searchHotspots(Request request, ComponentDto project) {
+  private SearchResponse doIndexSearch(WsRequest wsRequest, ComponentDto project) {
     IssueQuery.Builder builder = IssueQuery.builder()
       .projectUuids(Collections.singletonList(project.uuid()))
       .organizationUuid(project.getOrganizationUuid())
       .types(Collections.singleton(RuleType.SECURITY_HOTSPOT.name()))
-      .resolved(false);
+      .resolved(false)
+      .sort(IssueQuery.SORT_HOTSPOTS)
+      .asc(true);
     IssueQuery query = builder.build();
     SearchOptions searchOptions = new SearchOptions()
-      .setPage(request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE));
-    SearchResponse result = issueIndex.search(query, searchOptions);
-    return Arrays.stream(result.getHits().getHits())
-      .map(SearchHit::getId)
-      .collect(MoreCollectors.toList(result.getHits().getHits().length));
+      .setPage(wsRequest.page, wsRequest.index);
+    return issueIndex.search(query, searchOptions);
   }
 
   private void loadComponents(DbSession dbSession, SearchResponseData searchResponseData) {
@@ -167,12 +186,23 @@ public class SearchAction implements HotspotsWsAction {
 
   private Hotspots.SearchWsResponse formatResponse(SearchResponseData searchResponseData) {
     Hotspots.SearchWsResponse.Builder responseBuilder = Hotspots.SearchWsResponse.newBuilder();
+    formatPaging(searchResponseData, responseBuilder);
     if (!searchResponseData.isEmpty()) {
       formatHotspots(searchResponseData, responseBuilder);
       formatComponents(searchResponseData, responseBuilder);
       formatRules(searchResponseData, responseBuilder);
     }
     return responseBuilder.build();
+  }
+
+  private void formatPaging(SearchResponseData searchResponseData, Hotspots.SearchWsResponse.Builder responseBuilder) {
+    Paging paging = searchResponseData.getPaging();
+    Common.Paging.Builder pagingBuilder = Common.Paging.newBuilder()
+      .setPageIndex(paging.pageIndex())
+      .setPageSize(paging.pageSize())
+      .setTotal(paging.total());
+
+    responseBuilder.setPaging(pagingBuilder.build());
   }
 
   private static void formatHotspots(SearchResponseData searchResponseData, Hotspots.SearchWsResponse.Builder responseBuilder) {
@@ -248,17 +278,47 @@ public class SearchAction implements HotspotsWsAction {
     }
   }
 
+  private static final class WsRequest {
+    private final int page;
+    private final int index;
+    private final String projectKey;
+
+    private WsRequest(int page, int index, String projectKey) {
+      this.page = page;
+      this.index = index;
+      this.projectKey = projectKey;
+    }
+
+    int getPage() {
+      return page;
+    }
+
+    int getIndex() {
+      return index;
+    }
+
+    String getProjectKey() {
+      return projectKey;
+    }
+  }
+
   private static final class SearchResponseData {
+    private final Paging paging;
     private final List<IssueDto> orderedHotspots;
     private final Set<ComponentDto> components = new HashSet<>();
     private final Set<RuleDefinitionDto> rules = new HashSet<>();
 
-    private SearchResponseData(List<IssueDto> orderedHotspots) {
+    private SearchResponseData(Paging paging, List<IssueDto> orderedHotspots) {
+      this.paging = paging;
       this.orderedHotspots = orderedHotspots;
     }
 
     boolean isEmpty() {
       return orderedHotspots.isEmpty();
+    }
+
+    public Paging getPaging() {
+      return paging;
     }
 
     List<IssueDto> getOrderedHotspots() {

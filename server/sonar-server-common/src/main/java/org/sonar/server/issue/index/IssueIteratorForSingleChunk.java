@@ -230,10 +230,12 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setType(RuleType.valueOf(rs.getInt(22)));
 
       SecurityStandards securityStandards = fromSecurityStandards(deserializeSecurityStandardsString(rs.getString(23)));
+      SecurityStandards.SQCategory sqCategory = securityStandards.getSqCategory();
       doc.setOwaspTop10(securityStandards.getOwaspTop10());
       doc.setCwe(securityStandards.getCwe());
       doc.setSansTop25(securityStandards.getSansTop25());
-      doc.setSonarSourceSecurityCategory(securityStandards.getSqCategory());
+      doc.setSonarSourceSecurityCategory(sqCategory);
+      doc.setVulnerabilityProbability(sqCategory.getVulnerability());
       return doc;
     }
 
