@@ -22,6 +22,7 @@ package org.sonar.server.issue.index;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -83,6 +84,7 @@ import org.sonar.server.issue.index.IssueQuery.PeriodStart;
 import org.sonar.server.permission.index.AuthorizationDoc;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.security.SecurityStandards;
+import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
@@ -156,7 +158,6 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
-import static org.sonar.server.security.SecurityStandards.SQ_CATEGORIES;
 import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_AUTHORS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
@@ -873,29 +874,33 @@ public class IssueIndex {
   public List<SecurityStandardCategoryStatistics> getSansTop25Report(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
     SearchRequestBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     Stream.of(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)
-      .forEach(sansCategory -> request.addAggregation(createAggregation(FIELD_ISSUE_SANS_TOP_25, sansCategory, includeCwe, Optional.of(SecurityStandards.CWES_BY_SANS_TOP_25))));
+      .forEach(sansCategory -> request.addAggregation(newSecurityReportSubAggregations(
+        AggregationBuilders.filter(sansCategory, boolQuery().filter(termQuery(FIELD_ISSUE_SANS_TOP_25, sansCategory))),
+        includeCwe,
+        Optional.ofNullable(SecurityStandards.CWES_BY_SANS_TOP_25.get(sansCategory)))));
     return processSecurityReportSearchResults(request, includeCwe);
   }
 
   public List<SecurityStandardCategoryStatistics> getSonarSourceReport(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
     SearchRequestBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
-    SQ_CATEGORIES.forEach(sonarsourceCategory -> request.addAggregation(
-        createAggregation(FIELD_ISSUE_SONARSOURCE_SECURITY, sonarsourceCategory, includeCwe, Optional.of(SecurityStandards.CWES_BY_SQ_CATEGORY))));
+    Arrays.stream(SQCategory.values())
+      .forEach(sonarsourceCategory -> request.addAggregation(
+        newSecurityReportSubAggregations(
+          AggregationBuilders.filter(sonarsourceCategory.getKey(), boolQuery().filter(termQuery(FIELD_ISSUE_SONARSOURCE_SECURITY, sonarsourceCategory.getKey()))),
+          includeCwe,
+          Optional.ofNullable(SecurityStandards.CWES_BY_SQ_CATEGORY.get(sonarsourceCategory)))));
     return processSecurityReportSearchResults(request, includeCwe);
   }
 
   public List<SecurityStandardCategoryStatistics> getOwaspTop10Report(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
     SearchRequestBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     IntStream.rangeClosed(1, 10).mapToObj(i -> "a" + i)
-      .forEach(owaspCategory -> request.addAggregation(createAggregation(FIELD_ISSUE_OWASP_TOP_10, owaspCategory, includeCwe, Optional.empty())));
+      .forEach(owaspCategory -> request.addAggregation(
+        newSecurityReportSubAggregations(
+          AggregationBuilders.filter(owaspCategory, boolQuery().filter(termQuery(FIELD_ISSUE_OWASP_TOP_10, owaspCategory))),
+          includeCwe,
+          Optional.empty())));
     return processSecurityReportSearchResults(request, includeCwe);
-  }
-
-  private static AggregationBuilder createAggregation(String categoryField, String category, boolean includeCwe, Optional<Map<String, Set<String>>> categoryToCwesMap) {
-    return addSecurityReportSubAggregations(AggregationBuilders
-        .filter(category, boolQuery()
-          .filter(termQuery(categoryField, category))),
-      includeCwe, categoryToCwesMap.map(m -> m.get(category)));
   }
 
   private static List<SecurityStandardCategoryStatistics> processSecurityReportSearchResults(SearchRequestBuilder request, boolean includeCwe) {
@@ -935,7 +940,7 @@ public class IssueIndex {
       reviewedSecurityHotspots, children);
   }
 
-  private static AggregationBuilder addSecurityReportSubAggregations(AggregationBuilder categoriesAggs, boolean includeCwe, Optional<Set<String>> cwesInCategory) {
+  private static AggregationBuilder newSecurityReportSubAggregations(AggregationBuilder categoriesAggs, boolean includeCwe, Optional<Set<String>> cwesInCategory) {
     AggregationBuilder aggregationBuilder = addSecurityReportIssueCountAggregations(categoriesAggs);
     if (includeCwe) {
       final TermsAggregationBuilder cwesAgg = AggregationBuilders.terms(AGG_CWES)
@@ -945,8 +950,7 @@ public class IssueIndex {
       cwesInCategory.ifPresent(set -> {
         cwesAgg.includeExclude(new IncludeExclude(set.toArray(new String[0]), new String[0]));
       });
-      categoriesAggs
-        .subAggregation(addSecurityReportIssueCountAggregations(cwesAgg));
+      categoriesAggs.subAggregation(addSecurityReportIssueCountAggregations(cwesAgg));
     }
     return aggregationBuilder;
   }

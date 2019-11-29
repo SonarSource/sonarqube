@@ -39,8 +39,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ResultSetIterator;
 import org.sonar.server.security.SecurityStandards;
+import org.sonar.server.security.SecurityStandards.SQCategory;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.db.DatabaseUtils.getLong;
 import static org.sonar.db.rule.RuleDefinitionDto.deserializeSecurityStandardsString;
@@ -233,7 +235,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setOwaspTop10(securityStandards.getOwaspTop10());
       doc.setCwe(securityStandards.getCwe());
       doc.setSansTop25(securityStandards.getSansTop25());
-      doc.setSonarSourceSecurityCategories(securityStandards.getSq());
+      doc.setSonarSourceSecurityCategories(securityStandards.getSq().stream().map(SQCategory::getKey).collect(toList()));
       return doc;
     }
 

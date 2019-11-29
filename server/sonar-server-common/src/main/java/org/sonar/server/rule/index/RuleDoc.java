@@ -36,7 +36,9 @@ import org.sonar.db.rule.RuleForIndexingDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.security.SecurityStandards;
+import org.sonar.server.security.SecurityStandards.SQCategory;
 
+import static java.util.stream.Collectors.toList;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 
 
@@ -280,7 +282,7 @@ public class RuleDoc extends BaseDoc {
       .setCwe(securityStandards.getCwe())
       .setOwaspTop10(securityStandards.getOwaspTop10())
       .setSansTop25(securityStandards.getSansTop25())
-      .setSonarSourceSecurityCategories(securityStandards.getSq())
+      .setSonarSourceSecurityCategories(securityStandards.getSq().stream().map(SQCategory::getKey).collect(toList()))
       .setName(dto.getName())
       .setRuleKey(dto.getPluginRuleKey())
       .setSeverity(dto.getSeverityAsString())

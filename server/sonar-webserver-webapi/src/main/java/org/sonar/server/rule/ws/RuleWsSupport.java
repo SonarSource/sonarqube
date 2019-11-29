@@ -19,11 +19,13 @@
  */
 package org.sonar.server.rule.ws;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -39,6 +41,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.security.SecurityStandards;
+import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
@@ -72,7 +75,6 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_STATUSES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TEMPLATE_KEY;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
-import static org.sonar.server.security.SecurityStandards.SQ_OTHER_CATEGORY;
 
 @ServerSide
 public class RuleWsSupport {
@@ -153,10 +155,10 @@ public class RuleWsSupport {
 
     action
       .createParam(PARAM_SONARSOURCE_SECURITY)
-      .setDescription("Comma-separated list of SonarSource security categories. Use '" + SQ_OTHER_CATEGORY + "' to select rules not associated" +
+      .setDescription("Comma-separated list of SonarSource security categories. Use '" + SQCategory.OTHERS.getKey() + "' to select rules not associated" +
         " with any category")
       .setSince("7.8")
-      .setPossibleValues(SecurityStandards.SQ_CATEGORIES)
+      .setPossibleValues(Arrays.stream(SQCategory.values()).map(SQCategory::getKey).collect(Collectors.toList()))
       .setExampleValue("sql-injection,command-injection,others");
 
     action
