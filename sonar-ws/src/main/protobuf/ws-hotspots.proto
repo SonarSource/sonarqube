@@ -31,7 +31,7 @@ message SearchWsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
   repeated Hotspot hotspots = 2;
   repeated Component components = 3;
-  optional sonarqube.ws.commons.Rules rules = 4;
+  repeated Rule rules = 4;
 }
 
 message Hotspot {
@@ -58,4 +58,11 @@ message Component {
   optional string name = 4;
   optional string longName = 5;
   optional string path = 6;
+}
+
+message Rule {
+  optional string key = 1;
+  optional string name = 2;
+  optional string securityCategory = 3;
+  optional string vulnerabilityProbability = 4;
 }

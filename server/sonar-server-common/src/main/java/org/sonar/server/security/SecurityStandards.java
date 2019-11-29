@@ -34,6 +34,9 @@ import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
+import static org.sonar.server.security.SecurityStandards.VulnerabilityProbability.HIGH;
+import static org.sonar.server.security.SecurityStandards.VulnerabilityProbability.LOW;
+import static org.sonar.server.security.SecurityStandards.VulnerabilityProbability.MEDIUM;
 
 @Immutable
 public final class SecurityStandards {
@@ -54,36 +57,48 @@ public final class SecurityStandards {
     SANS_TOP_25_RISKY_RESOURCE, RISKY_CWE,
     SANS_TOP_25_POROUS_DEFENSES, POROUS_CWE);
 
+  public enum VulnerabilityProbability {
+    HIGH,
+    MEDIUM,
+    LOW
+  }
+
   public enum SQCategory {
-    SQL_INJECTION("sql-injection"),
-    COMMAND_INJECTION("command-injection"),
-    PATH_TRAVERSAL_INJECTION("path-traversal-injection"),
-    LDAP_INJECTION("ldap-injection"),
-    XPATH_INJECT("xpath-injection"),
-    RCE("rce"),
-    DOS("dos"),
-    SSRF("ssrf"),
-    CSRF("csrf"),
-    XSS("xss"),
-    LOG_INJECTION("log-injection"),
-    HTTP_RESPONSE_SPLITTING("http-response-splitting"),
-    OPEN_REDIRECT("open-redirect"),
-    XXE("xxe"),
-    OBJECT_INJECTION("object-injection"),
-    WEAK_CRYPTOGRAPHY("weak-cryptography"),
-    AUTH("auth"),
-    INSECURE_CONF("insecure-conf"),
-    FILE_MANIPULATION("file-manipulation"),
-    OTHERS("others");
+    SQL_INJECTION("sql-injection", HIGH),
+    COMMAND_INJECTION("command-injection", HIGH),
+    PATH_TRAVERSAL_INJECTION("path-traversal-injection", HIGH),
+    LDAP_INJECTION("ldap-injection", LOW),
+    XPATH_INJECTION("xpath-injection", LOW),
+    RCE("rce", MEDIUM),
+    DOS("dos", MEDIUM),
+    SSRF("ssrf", MEDIUM),
+    CSRF("csrf", HIGH),
+    XSS("xss", HIGH),
+    LOG_INJECTION("log-injection", LOW),
+    HTTP_RESPONSE_SPLITTING("http-response-splitting", LOW),
+    OPEN_REDIRECT("open-redirect", MEDIUM),
+    XXE("xxe", MEDIUM),
+    OBJECT_INJECTION("object-injection", LOW),
+    WEAK_CRYPTOGRAPHY("weak-cryptography", MEDIUM),
+    AUTH("auth", HIGH),
+    INSECURE_CONF("insecure-conf", LOW),
+    FILE_MANIPULATION("file-manipulation", LOW),
+    OTHERS("others", LOW);
 
     private final String key;
+    private final VulnerabilityProbability vulnerability;
 
-    SQCategory(String key) {
+    SQCategory(String key, VulnerabilityProbability vulnerability) {
       this.key = key;
+      this.vulnerability = vulnerability;
     }
 
     public String getKey() {
       return key;
+    }
+
+    public VulnerabilityProbability getVulnerability() {
+      return vulnerability;
     }
   }
 
@@ -92,7 +107,7 @@ public final class SecurityStandards {
     .put(SQCategory.COMMAND_INJECTION, ImmutableSet.of("77", "78", "88", "214"))
     .put(SQCategory.PATH_TRAVERSAL_INJECTION, ImmutableSet.of("22"))
     .put(SQCategory.LDAP_INJECTION, ImmutableSet.of("90"))
-    .put(SQCategory.XPATH_INJECT, ImmutableSet.of("643"))
+    .put(SQCategory.XPATH_INJECTION, ImmutableSet.of("643"))
     .put(SQCategory.RCE, ImmutableSet.of("94", "95"))
     .put(SQCategory.DOS, ImmutableSet.of("400", "624"))
     .put(SQCategory.SSRF, ImmutableSet.of("918"))
@@ -108,6 +123,7 @@ public final class SecurityStandards {
     .put(SQCategory.INSECURE_CONF, ImmutableSet.of("102", "215", "311", "315", "346", "614", "489", "942"))
     .put(SQCategory.FILE_MANIPULATION, ImmutableSet.of("97", "73"))
     .build();
+  public static final Ordering<SQCategory> SQ_CATEGORY_ORDERING = Ordering.explicit(Arrays.stream(SQCategory.values()).collect(Collectors.toList()));
   public static final Ordering<String> SQ_CATEGORY_KEYS_ORDERING = Ordering.explicit(Arrays.stream(SQCategory.values()).map(SQCategory::getKey).collect(Collectors.toList()));
 
   private final Set<String> standards;

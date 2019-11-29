@@ -28,9 +28,6 @@ import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.resources.AbstractLanguage;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -54,8 +51,6 @@ import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.Common;
-import org.sonarqube.ws.Common.RuleStatus;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Hotspots.Component;
 import org.sonarqube.ws.Hotspots.SearchWsResponse;
@@ -63,8 +58,6 @@ import org.sonarqube.ws.Hotspots.SearchWsResponse;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -88,8 +81,7 @@ public class SearchActionTest {
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private StartupIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
 
-  private Languages languages = mock(Languages.class);
-  private SearchAction underTest = new SearchAction(dbClient, userSessionRule, issueIndex, defaultOrganizationProvider, languages);
+  private SearchAction underTest = new SearchAction(dbClient, userSessionRule, issueIndex, defaultOrganizationProvider);
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
@@ -158,7 +150,7 @@ public class SearchActionTest {
 
     assertThat(response.getHotspotsList()).isEmpty();
     assertThat(response.getComponentsList()).isEmpty();
-    assertThat(response.getRules().getRulesList()).isEmpty();
+    assertThat(response.getRulesList()).isEmpty();
   }
 
   @Test
@@ -173,7 +165,7 @@ public class SearchActionTest {
 
     assertThat(response.getHotspotsList()).isEmpty();
     assertThat(response.getComponentsList()).isEmpty();
-    assertThat(response.getRules().getRulesList()).isEmpty();
+    assertThat(response.getRulesList()).isEmpty();
   }
 
   @Test
@@ -196,7 +188,7 @@ public class SearchActionTest {
 
     assertThat(response.getHotspotsList()).isEmpty();
     assertThat(response.getComponentsList()).isEmpty();
-    assertThat(response.getRules().getRulesList()).isEmpty();
+    assertThat(response.getRulesList()).isEmpty();
   }
 
   @Test
@@ -230,8 +222,8 @@ public class SearchActionTest {
     assertThat(response.getComponentsList())
       .extracting(Component::getKey)
       .containsOnly(project.getKey(), fileWithHotspot.getKey());
-    assertThat(response.getRules().getRulesList())
-      .extracting(Common.Rule::getKey)
+    assertThat(response.getRulesList())
+      .extracting(Hotspots.Rule::getKey)
       .containsOnly(Arrays.stream(hotspots).map(t -> t.getRuleKey().toString()).toArray(String[]::new));
   }
 
@@ -262,8 +254,8 @@ public class SearchActionTest {
     assertThat(responseProject1.getComponentsList())
       .extracting(Component::getKey)
       .containsOnly(project1.getKey(), file1.getKey());
-    assertThat(responseProject1.getRules().getRulesList())
-      .extracting(Common.Rule::getKey)
+    assertThat(responseProject1.getRulesList())
+      .extracting(Hotspots.Rule::getKey)
       .containsOnly(Arrays.stream(hotspots2).map(t -> t.getRuleKey().toString()).toArray(String[]::new));
 
     SearchWsResponse responseProject2 = actionTester.newRequest()
@@ -276,8 +268,8 @@ public class SearchActionTest {
     assertThat(responseProject2.getComponentsList())
       .extracting(Component::getKey)
       .containsOnly(project2.getKey(), file2.getKey());
-    assertThat(responseProject2.getRules().getRulesList())
-      .extracting(Common.Rule::getKey)
+    assertThat(responseProject2.getRulesList())
+      .extracting(Hotspots.Rule::getKey)
       .containsOnly(Arrays.stream(hotspots2).map(t -> t.getRuleKey().toString()).toArray(String[]::new));
   }
 
@@ -421,54 +413,6 @@ public class SearchActionTest {
     assertThat(actualFile.getName()).isEqualTo(file.name());
     assertThat(actualFile.getLongName()).isEqualTo(file.longName());
     assertThat(actualFile.getPath()).isEqualTo(file.path());
-  }
-
-  @Test
-  public void returns_details_of_rule_with_language_name_when_available() {
-    ComponentDto project = dbTester.components().insertPublicProject();
-    userSessionRule.registerComponents(project);
-    indexPermissions();
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    String language1 = randomAlphabetic(3);
-    String language2 = randomAlphabetic(2);
-    RuleDefinitionDto rule1a = newRule(SECURITY_HOTSPOT, t -> t.setLanguage(language1));
-    RuleDefinitionDto rule1b = newRule(SECURITY_HOTSPOT, t -> t.setLanguage(language1));
-    RuleDefinitionDto rule2 = newRule(SECURITY_HOTSPOT, t -> t.setLanguage(language2));
-    when(languages.get(language1)).thenReturn(new AbstractLanguage(language1, language1 + "_name") {
-      @Override
-      public String[] getFileSuffixes() {
-        return new String[0];
-      }
-    });
-    IssueDto hotspot1a = dbTester.issues().insert(rule1a, project, file, t -> t.setType(SECURITY_HOTSPOT));
-    IssueDto hotspot1b = dbTester.issues().insert(rule1b, project, file, t -> t.setType(SECURITY_HOTSPOT));
-    IssueDto hotspot2 = dbTester.issues().insert(rule2, project, file, t -> t.setType(SECURITY_HOTSPOT));
-    indexIssues();
-
-    SearchWsResponse response = actionTester.newRequest()
-      .setParam("projectKey", project.getKey())
-      .executeProtobuf(SearchWsResponse.class);
-
-    assertThat(response.getHotspotsList()).hasSize(3);
-    assertThat(response.getRules().getRulesList()).hasSize(3);
-    Map<RuleKey, Common.Rule> rulesByKey = response.getRules().getRulesList()
-      .stream()
-      .collect(uniqueIndex(t -> RuleKey.parse(t.getKey())));
-    Common.Rule actualRule1a = rulesByKey.get(hotspot1a.getRuleKey());
-    assertThat(actualRule1a.getName()).isEqualTo(rule1a.getName());
-    assertThat(actualRule1a.getLang()).isEqualTo(rule1a.getLanguage());
-    assertThat(actualRule1a.getLangName()).isEqualTo(rule1a.getLanguage() + "_name");
-    assertThat(actualRule1a.getStatus()).isEqualTo(RuleStatus.valueOf(rule1a.getStatus().name()));
-    Common.Rule actualRule1b = rulesByKey.get(hotspot1b.getRuleKey());
-    assertThat(actualRule1b.getName()).isEqualTo(rule1b.getName());
-    assertThat(actualRule1b.getLang()).isEqualTo(rule1b.getLanguage());
-    assertThat(actualRule1b.getLangName()).isEqualTo(rule1b.getLanguage() + "_name");
-    assertThat(actualRule1b.getStatus()).isEqualTo(RuleStatus.valueOf(rule1b.getStatus().name()));
-    Common.Rule actualRule2 = rulesByKey.get(hotspot2.getRuleKey());
-    assertThat(actualRule2.getName()).isEqualTo(rule2.getName());
-    assertThat(actualRule2.getLang()).isEqualTo(rule2.getLanguage());
-    assertThat(actualRule2.hasLangName()).isFalse();
-    assertThat(actualRule2.getStatus()).isEqualTo(RuleStatus.valueOf(rule2.getStatus().name()));
   }
 
   private void indexPermissions() {

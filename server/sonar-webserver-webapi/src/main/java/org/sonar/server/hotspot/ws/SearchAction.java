@@ -31,8 +31,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
@@ -52,8 +50,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -72,14 +70,12 @@ public class SearchAction implements HotspotsWsAction {
   private final UserSession userSession;
   private final IssueIndex issueIndex;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
-  private final Languages languages;
 
-  public SearchAction(DbClient dbClient, UserSession userSession, IssueIndex issueIndex, DefaultOrganizationProvider defaultOrganizationProvider, Languages languages) {
+  public SearchAction(DbClient dbClient, UserSession userSession, IssueIndex issueIndex, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
-    this.languages = languages;
   }
 
   @Override
@@ -194,15 +190,15 @@ public class SearchAction implements HotspotsWsAction {
         .setProject(hotspot.getProjectKey())
         .setRule(hotspot.getRuleKey().toString());
       ofNullable(hotspot.getStatus()).ifPresent(builder::setStatus);
-//    FIXME resolution field will be added later
-//      ofNullable(hotspot.getResolution()).ifPresent(builder::setResolution);
+      // FIXME resolution field will be added later
+      // ofNullable(hotspot.getResolution()).ifPresent(builder::setResolution);
       ofNullable(hotspot.getLine()).ifPresent(builder::setLine);
       builder.setMessage(nullToEmpty(hotspot.getMessage()));
       ofNullable(hotspot.getAssigneeUuid()).ifPresent(builder::setAssignee);
       // FIXME Filter author only if user is member of the organization (as done in issues/search WS)
-//      if (data.getUserOrganizationUuids().contains(component.getOrganizationUuid())) {
+      // if (data.getUserOrganizationUuids().contains(component.getOrganizationUuid())) {
       builder.setAuthor(nullToEmpty(hotspot.getAuthorLogin()));
-//      }
+      // }
       builder.setCreationDate(formatDateTime(hotspot.getIssueCreationDate()));
       builder.setUpdateDate(formatDateTime(hotspot.getIssueUpdateDate()));
 
@@ -237,28 +233,22 @@ public class SearchAction implements HotspotsWsAction {
       return;
     }
 
-    Common.Rules.Builder rulesBuilder = Common.Rules.newBuilder();
-    Common.Rule.Builder ruleBuilder = Common.Rule.newBuilder();
+    Hotspots.Rule.Builder ruleBuilder = Hotspots.Rule.newBuilder();
     for (RuleDefinitionDto rule : rules) {
+      SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(rule.getSecurityStandards());
+      SecurityStandards.SQCategory sqCategory = securityStandards.getSq()
+        .stream()
+        .min(SecurityStandards.SQ_CATEGORY_ORDERING)
+        .orElse(SecurityStandards.SQCategory.OTHERS);
       ruleBuilder
         .clear()
         .setKey(rule.getKey().toString())
         .setName(nullToEmpty(rule.getName()))
-        .setStatus(Common.RuleStatus.valueOf(rule.getStatus().name()));
+        .setSecurityCategory(sqCategory.getKey())
+        .setVulnerabilityProbability(sqCategory.getVulnerability().name());
 
-      String language = rule.getLanguage();
-      if (language == null) {
-        ruleBuilder.setLang("");
-      } else {
-        ruleBuilder.setLang(language);
-        Language lang = languages.get(language);
-        if (lang != null) {
-          ruleBuilder.setLangName(lang.getName());
-        }
-      }
-      rulesBuilder.addRules(ruleBuilder.build());
+      responseBuilder.addRules(ruleBuilder.build());
     }
-    responseBuilder.setRules(rulesBuilder.build());
   }
 
   private static final class SearchResponseData {
@@ -293,5 +283,6 @@ public class SearchAction implements HotspotsWsAction {
     Set<RuleDefinitionDto> getRules() {
       return rules;
     }
+
   }
 }
