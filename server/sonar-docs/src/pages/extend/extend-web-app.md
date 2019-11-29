@@ -98,6 +98,7 @@ The `options` object will contain the following:
 * `options.el`: a DOM node you must use to inject your content.
 * `options.currentUser`: information about the current user.
 * (optional) `options.component`: contains the information of the current project, application, or portfolio.
+* (optional) `options.branchLike`: contains the information of the current branch or pull request.
 
 [[info]]
 | SonarQube doesn't guarantee any JavaScript library availability at runtime (except React). If you need a library, include it in the final file.
