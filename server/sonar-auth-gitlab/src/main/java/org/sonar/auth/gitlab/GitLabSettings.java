@@ -48,7 +48,11 @@ public class GitLabSettings {
   }
 
   public String url() {
-    return configuration.get(GITLAB_AUTH_URL).orElse(null);
+    String url = configuration.get(GITLAB_AUTH_URL).orElse(null);
+    if (url != null && url.endsWith("/")) {
+      return url.substring(0, url.length() - 1);
+    }
+    return url;
   }
 
   public String applicationId() {

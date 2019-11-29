@@ -51,6 +51,11 @@ public class GitLabSettingsTest {
   @Test
   public void test_settings() {
     assertThat(config.url()).isEqualTo("https://gitlab.com");
+
+    settings.setProperty(GITLAB_AUTH_URL, "https://gitlab.com/api/");
+    assertThat(config.url()).isEqualTo("https://gitlab.com/api");
+
+
     settings.setProperty(GITLAB_AUTH_URL, "https://gitlab.com/api");
     assertThat(config.url()).isEqualTo("https://gitlab.com/api");
 
