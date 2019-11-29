@@ -22,9 +22,14 @@ package org.sonar.server.qualityprofile;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+
+import static org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInActiveRule;
+import static org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.OverriddenParam;
 
 /**
  * Represent a Quality Profile as computed from {@link BuiltInQualityProfilesDefinition} provided by installed plugins.
@@ -63,11 +68,19 @@ public final class BuiltInQProfile {
 
   static final class ActiveRule {
     private final int ruleId;
-    private final BuiltInQualityProfilesDefinition.BuiltInActiveRule builtIn;
+    private final RuleKey ruleKey;
+    private final String severity;
+    private final List<OverriddenParam> params;
 
-    ActiveRule(int ruleId, BuiltInQualityProfilesDefinition.BuiltInActiveRule builtIn) {
+    ActiveRule(int ruleId, BuiltInActiveRule builtIn) {
+      this(ruleId, RuleKey.of(builtIn.repoKey(), builtIn.ruleKey()), builtIn.overriddenSeverity(), builtIn.overriddenParams());
+    }
+
+    ActiveRule(int ruleId, RuleKey ruleKey, @Nullable String severity, List<OverriddenParam> params) {
       this.ruleId = ruleId;
-      this.builtIn = builtIn;
+      this.ruleKey = ruleKey;
+      this.severity = severity;
+      this.params = params;
     }
 
     public int getRuleId() {
@@ -75,11 +88,16 @@ public final class BuiltInQProfile {
     }
 
     public RuleKey getRuleKey() {
-      return RuleKey.of(builtIn.repoKey(), builtIn.ruleKey());
+      return ruleKey;
     }
 
-    public BuiltInQualityProfilesDefinition.BuiltInActiveRule getBuiltIn() {
-      return builtIn;
+    @CheckForNull
+    public String getSeverity() {
+      return severity;
+    }
+
+    public List<OverriddenParam> getParams() {
+      return params;
     }
   }
 
@@ -115,11 +133,6 @@ public final class BuiltInQProfile {
 
     Builder setComputedDefault(boolean flag) {
       computedDefault = flag;
-      return this;
-    }
-
-    Builder addRule(BuiltInQualityProfilesDefinition.BuiltInActiveRule rule, int ruleId) {
-      this.activeRules.add(new ActiveRule(ruleId, rule));
       return this;
     }
 

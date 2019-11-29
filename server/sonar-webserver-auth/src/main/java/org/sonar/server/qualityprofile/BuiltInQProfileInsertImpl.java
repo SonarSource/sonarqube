@@ -148,7 +148,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     dto.setProfileId(rulesProfileDto.getId());
     dto.setRuleId(ruleDefinitionDto.getId());
     dto.setKey(ActiveRuleKey.of(rulesProfileDto, ruleDefinitionDto.getKey()));
-    dto.setSeverity(firstNonNull(activeRule.getBuiltIn().overriddenSeverity(), ruleDefinitionDto.getSeverityString()));
+    dto.setSeverity(firstNonNull(activeRule.getSeverity(), ruleDefinitionDto.getSeverityString()));
     dto.setUpdatedAt(now);
     dto.setCreatedAt(now);
     dbClient.activeRuleDao().insert(dbSession, dto);
@@ -163,7 +163,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
 
   private List<ActiveRuleParamDto> insertActiveRuleParams(DbSession session, BuiltInQProfile.ActiveRule activeRule,
     ActiveRuleDto activeRuleDto) {
-    Map<String, String> valuesByParamKey = activeRule.getBuiltIn().overriddenParams()
+    Map<String, String> valuesByParamKey = activeRule.getParams()
       .stream()
       .collect(MoreCollectors.uniqueIndex(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue));
     return ruleRepository.getRuleParams(activeRule.getRuleKey())
