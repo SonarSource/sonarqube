@@ -19,14 +19,13 @@
  */
 package org.sonarqube.ws.client.projectbranches;
 
-import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.ProjectBranches.ListWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
-import org.sonarqube.ws.ProjectBranches.ListWsResponse;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_branches">Further information about this web service online</a>
@@ -50,8 +49,7 @@ public class ProjectBranchesService extends BaseService {
       new PostRequest(path("delete"))
         .setParam("branch", request.getBranch())
         .setParam("project", request.getProject())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -80,7 +78,15 @@ public class ProjectBranchesService extends BaseService {
       new PostRequest(path("rename"))
         .setParam("name", request.getName())
         .setParam("project", request.getProject())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  public void setAutomaticDeletionProtection(SetAutomaticDeletionProtectionRequest request) {
+    call(
+      new PostRequest(path("set_automatic_deletion_protection"))
+        .setParam("project", request.getProject())
+        .setParam("branch", request.getBranch())
+        .setParam("value", request.getValue())
+        .setMediaType(MediaTypes.JSON)).content();
   }
 }
