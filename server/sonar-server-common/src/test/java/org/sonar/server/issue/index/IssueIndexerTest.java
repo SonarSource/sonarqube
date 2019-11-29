@@ -139,7 +139,7 @@ public class IssueIndexerTest {
     assertThat(doc.getCwe()).containsExactlyInAnyOrder(SecurityStandards.UNKNOWN_STANDARD);
     assertThat(doc.getOwaspTop10()).isEmpty();
     assertThat(doc.getSansTop25()).isEmpty();
-    assertThat(doc.getSonarSourceSecurityCategories()).containsOnly(SQCategory.OTHERS.getKey());
+    assertThat(doc.getSonarSourceSecurityCategory()).isEqualTo(SQCategory.OTHERS);
   }
 
   @Test

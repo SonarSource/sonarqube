@@ -236,10 +236,7 @@ public class SearchAction implements HotspotsWsAction {
     Hotspots.Rule.Builder ruleBuilder = Hotspots.Rule.newBuilder();
     for (RuleDefinitionDto rule : rules) {
       SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(rule.getSecurityStandards());
-      SecurityStandards.SQCategory sqCategory = securityStandards.getSq()
-        .stream()
-        .min(SecurityStandards.SQ_CATEGORY_ORDERING)
-        .orElse(SecurityStandards.SQCategory.OTHERS);
+      SecurityStandards.SQCategory sqCategory = securityStandards.getSqCategory();
       ruleBuilder
         .clear()
         .setKey(rule.getKey().toString())

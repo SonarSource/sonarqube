@@ -20,13 +20,22 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.stream.Collectors;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.EnumSet;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -37,22 +46,31 @@ import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.security.SecurityStandards;
+import org.sonar.server.security.SecurityStandards.SQCategory;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE_EXTENSION;
+import static org.sonar.server.security.SecurityStandards.CWES_BY_SQ_CATEGORY;
+import static org.sonar.server.security.SecurityStandards.SQ_CATEGORY_KEYS_ORDERING;
 
+@RunWith(DataProviderRunner.class)
 public class RuleIndexerTest {
 
   @Rule
   public EsTester es = EsTester.create();
-
   @Rule
   public DbTester dbTester = DbTester.create();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private DbClient dbClient = dbTester.getDbClient();
   private final RuleIndexer underTest = new RuleIndexer(es.client(), dbClient);
@@ -122,7 +140,7 @@ public class RuleIndexerTest {
         .get()
         .getHits()
         .getHits()[0]
-        .getId()).isEqualTo(doc.getId());
+          .getId()).isEqualTo(doc.getId());
   }
 
   @Test
@@ -149,10 +167,48 @@ public class RuleIndexerTest {
 
   @Test
   public void index_long_rule_description() {
-    String description = IntStream.range(0, 100000).map(i -> i % 100).mapToObj(Integer::toString).collect(Collectors.joining(" "));
+    String description = IntStream.range(0, 100000).map(i -> i % 100).mapToObj(Integer::toString).collect(joining(" "));
     RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setDescription(description));
     underTest.commitAndIndex(dbTester.getSession(), rule.getId());
 
     assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(1);
+  }
+
+  @Test
+  @UseDataProvider("twoDifferentCategoriesButOTHERS")
+  public void log_a_warning_if_hotspot_rule_maps_to_multiple_SQCategories(SQCategory sqCategory1, SQCategory sqCategory2) {
+    Set<String> standards = Stream.of(sqCategory1, sqCategory2)
+      .flatMap(t -> CWES_BY_SQ_CATEGORY.get(t).stream().map(e -> "cwe:" + e))
+      .collect(toSet());
+    SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(standards);
+    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule().setType(RuleType.SECURITY_HOTSPOT).setSecurityStandards(standards));
+    OrganizationDto organization = dbTester.organizations().insert();
+    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+
+    assertThat(logTester.getLogs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.WARN).get(0))
+      .isEqualTo(format(
+        "Rule %s with CWEs '%s' maps to multiple SQ Security Categories: %s",
+        rule.getKey(),
+        String.join(", ", securityStandards.getCwe()),
+        ImmutableSet.of(sqCategory1, sqCategory2).stream()
+          .map(SQCategory::getKey)
+          .sorted(SQ_CATEGORY_KEYS_ORDERING)
+          .collect(joining(", "))));
+  }
+
+  @DataProvider
+  public static Object[][] twoDifferentCategoriesButOTHERS() {
+    EnumSet<SQCategory> sqCategories = EnumSet.allOf(SQCategory.class);
+    sqCategories.remove(SQCategory.OTHERS);
+
+    // pick two random categories
+    Random random = new Random();
+    SQCategory sqCategory1 = sqCategories.toArray(new SQCategory[0])[random.nextInt(sqCategories.size())];
+    sqCategories.remove(sqCategory1);
+    SQCategory sqCategory2 = sqCategories.toArray(new SQCategory[0])[random.nextInt(sqCategories.size())];
+    return new Object[][] {
+      {sqCategory1, sqCategory2}
+    };
   }
 }

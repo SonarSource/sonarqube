@@ -30,6 +30,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.permission.index.AuthorizationDoc;
+import org.sonar.server.security.SecurityStandards;
 
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 
@@ -315,12 +316,13 @@ public class IssueDoc extends BaseDoc {
   }
 
   @CheckForNull
-  public Collection<String> getSonarSourceSecurityCategories() {
-    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_SONARSOURCE_SECURITY);
+  public SecurityStandards.SQCategory getSonarSourceSecurityCategory() {
+    String key = getNullableField(IssueIndexDefinition.FIELD_ISSUE_SONARSOURCE_SECURITY);
+    return SecurityStandards.SQCategory.fromKey(key).orElse(null);
   }
 
-  public IssueDoc setSonarSourceSecurityCategories(@Nullable Collection<String> c) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_SONARSOURCE_SECURITY, c);
+  public IssueDoc setSonarSourceSecurityCategory(@Nullable SecurityStandards.SQCategory c) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_SONARSOURCE_SECURITY, c == null ? null : c.getKey());
     return this;
   }
 }

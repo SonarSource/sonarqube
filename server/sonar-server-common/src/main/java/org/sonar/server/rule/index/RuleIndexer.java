@@ -25,12 +25,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.es.RuleExtensionId;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleForIndexingDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
@@ -39,16 +42,19 @@ import org.sonar.server.es.IndexingListener;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToOneResilientIndexingListener;
 import org.sonar.server.es.ResilientIndexer;
+import org.sonar.server.security.SecurityStandards;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Stream.concat;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE_EXTENSION;
+import static org.sonar.server.security.SecurityStandards.SQ_CATEGORY_KEYS_ORDERING;
 
 public class RuleIndexer implements ResilientIndexer {
-
   private final EsClient esClient;
   private final DbClient dbClient;
 
@@ -71,7 +77,7 @@ public class RuleIndexer implements ResilientIndexer {
       // index all definitions and system extensions
       if (uninitializedIndexTypes.contains(TYPE_RULE)) {
         dbClient.ruleDao().scrollIndexingRules(dbSession, dto -> {
-          bulk.add(RuleDoc.of(dto).toIndexRequest());
+          bulk.add(ruleDocOf(dto).toIndexRequest());
           bulk.add(RuleExtensionDoc.of(dto).toIndexRequest());
         });
       }
@@ -142,7 +148,7 @@ public class RuleIndexer implements ResilientIndexer {
 
     dbClient.ruleDao().scrollIndexingRulesByKeys(dbSession, ruleIds,
       r -> {
-        bulkIndexer.add(RuleDoc.of(r).toIndexRequest());
+        bulkIndexer.add(ruleDocOf(r).toIndexRequest());
         bulkIndexer.add(RuleExtensionDoc.of(r).toIndexRequest());
         ruleIds.remove(r.getId());
       });
@@ -184,6 +190,21 @@ public class RuleIndexer implements ResilientIndexer {
     docIds.forEach(docId -> bulkIndexer.addDeletion(TYPE_RULE_EXTENSION, docId.getId(), String.valueOf(docId.getRuleId())));
 
     return Optional.of(bulkIndexer.stop());
+  }
+
+  private RuleDoc ruleDocOf(RuleForIndexingDto dto) {
+    SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(dto.getSecurityStandards());
+    if (!securityStandards.getIgnoredSQCategories().isEmpty()) {
+      Loggers.get(RuleIndexer.class).warn(
+        "Rule {} with CWEs '{}' maps to multiple SQ Security Categories: {}",
+        dto.getRuleKey(),
+        String.join(", ", securityStandards.getCwe()),
+        concat(Stream.of(securityStandards.getSqCategory()), securityStandards.getIgnoredSQCategories().stream())
+          .map(SecurityStandards.SQCategory::getKey)
+          .sorted(SQ_CATEGORY_KEYS_ORDERING)
+          .collect(joining(", ")));
+    }
+    return RuleDoc.of(dto, securityStandards);
   }
 
   private BulkIndexer createBulkIndexer(Size bulkSize, IndexingListener listener) {

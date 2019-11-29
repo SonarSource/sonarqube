@@ -22,18 +22,24 @@ package org.sonar.server.security;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.security.SecurityStandards.VulnerabilityProbability.HIGH;
 import static org.sonar.server.security.SecurityStandards.VulnerabilityProbability.LOW;
 import static org.sonar.server.security.SecurityStandards.VulnerabilityProbability.MEDIUM;
@@ -85,6 +91,7 @@ public final class SecurityStandards {
     FILE_MANIPULATION("file-manipulation", LOW),
     OTHERS("others", LOW);
 
+    private static final Map<String, SQCategory> SQ_CATEGORY_BY_KEY = stream(values()).collect(uniqueIndex(SQCategory::getKey));
     private final String key;
     private final VulnerabilityProbability vulnerability;
 
@@ -99,6 +106,10 @@ public final class SecurityStandards {
 
     public VulnerabilityProbability getVulnerability() {
       return vulnerability;
+    }
+
+    public static Optional<SQCategory> fromKey(@Nullable String key) {
+      return Optional.ofNullable(key).map(SQ_CATEGORY_BY_KEY::get);
     }
   }
 
@@ -123,21 +134,23 @@ public final class SecurityStandards {
     .put(SQCategory.INSECURE_CONF, ImmutableSet.of("102", "215", "311", "315", "346", "614", "489", "942"))
     .put(SQCategory.FILE_MANIPULATION, ImmutableSet.of("97", "73"))
     .build();
-  public static final Ordering<SQCategory> SQ_CATEGORY_ORDERING = Ordering.explicit(Arrays.stream(SQCategory.values()).collect(Collectors.toList()));
-  public static final Ordering<String> SQ_CATEGORY_KEYS_ORDERING = Ordering.explicit(Arrays.stream(SQCategory.values()).map(SQCategory::getKey).collect(Collectors.toList()));
+  private static final Ordering<SQCategory> SQ_CATEGORY_ORDERING = Ordering.explicit(stream(SQCategory.values()).collect(Collectors.toList()));
+  public static final Ordering<String> SQ_CATEGORY_KEYS_ORDERING = Ordering.explicit(stream(SQCategory.values()).map(SQCategory::getKey).collect(Collectors.toList()));
 
   private final Set<String> standards;
   private final Set<String> cwe;
   private final Set<String> owaspTop10;
   private final Set<String> sansTop25;
-  private final Set<SQCategory> sq;
+  private final SQCategory sqCategory;
+  private final Set<SQCategory> ignoredSQCategories;
 
-  private SecurityStandards(Set<String> standards, Set<String> cwe, Set<String> owaspTop10, Set<String> sansTop25, Set<SQCategory> sq) {
+  private SecurityStandards(Set<String> standards, Set<String> cwe, Set<String> owaspTop10, Set<String> sansTop25, SQCategory sqCategory, Set<SQCategory> ignoredSQCategories) {
     this.standards = standards;
     this.cwe = cwe;
     this.owaspTop10 = owaspTop10;
     this.sansTop25 = sansTop25;
-    this.sq = sq;
+    this.sqCategory = sqCategory;
+    this.ignoredSQCategories = ignoredSQCategories;
   }
 
   public Set<String> getStandards() {
@@ -156,33 +169,42 @@ public final class SecurityStandards {
     return sansTop25;
   }
 
-  public Set<SQCategory> getSq() {
-    return sq;
+  public SQCategory getSqCategory() {
+    return sqCategory;
   }
 
+  public Set<SQCategory> getIgnoredSQCategories() {
+    return ignoredSQCategories;
+  }
+
+  /**
+   * @throws IllegalStateException if {@code securityStandards} maps to multiple {@link SQCategory SQCategories}
+   */
   public static SecurityStandards fromSecurityStandards(Set<String> securityStandards) {
     Set<String> standards = securityStandards.stream()
       .filter(Objects::nonNull)
-      .collect(MoreCollectors.toSet());
-    Set<String> owaspTop10 = toOwaspTop10(standards);
+      .collect(toSet());
     Set<String> cwe = toCwe(standards);
+    Set<String> owaspTop10 = toOwaspTop10(standards);
     Set<String> sansTop25 = toSansTop25(cwe);
-    Set<SQCategory> sq = toSQCategories(cwe);
-    return new SecurityStandards(standards, cwe, owaspTop10, sansTop25, sq);
+    List<SQCategory> sq = toSortedSQCategories(cwe);
+    SQCategory sqCategory = sq.iterator().next();
+    Set<SQCategory> ignoredSQCategories = sq.stream().skip(1).collect(Collectors.toSet());
+    return new SecurityStandards(standards, cwe, owaspTop10, sansTop25, sqCategory, ignoredSQCategories);
   }
 
   private static Set<String> toOwaspTop10(Set<String> securityStandards) {
     return securityStandards.stream()
       .filter(s -> s.startsWith(OWASP_TOP10_PREFIX))
       .map(s -> s.substring(OWASP_TOP10_PREFIX.length()))
-      .collect(MoreCollectors.toSet());
+      .collect(toSet());
   }
 
   private static Set<String> toCwe(Collection<String> securityStandards) {
     Set<String> result = securityStandards.stream()
       .filter(s -> s.startsWith(CWE_PREFIX))
       .map(s -> s.substring(CWE_PREFIX.length()))
-      .collect(MoreCollectors.toSet());
+      .collect(toSet());
     return result.isEmpty() ? singleton(UNKNOWN_STANDARD) : result;
   }
 
@@ -191,15 +213,16 @@ public final class SecurityStandards {
       .keySet()
       .stream()
       .filter(k -> cwe.stream().anyMatch(CWES_BY_SANS_TOP_25.get(k)::contains))
-      .collect(MoreCollectors.toSet());
+      .collect(toSet());
   }
 
-  private static Set<SQCategory> toSQCategories(Collection<String> cwe) {
-    Set<SQCategory> result = CWES_BY_SQ_CATEGORY
+  private static List<SQCategory> toSortedSQCategories(Collection<String> cwe) {
+    List<SQCategory> result = CWES_BY_SQ_CATEGORY
       .keySet()
       .stream()
       .filter(k -> cwe.stream().anyMatch(CWES_BY_SQ_CATEGORY.get(k)::contains))
-      .collect(MoreCollectors.toSet());
-    return result.isEmpty() ? singleton(SQCategory.OTHERS) : result;
+      .sorted(SQ_CATEGORY_ORDERING)
+      .collect(toList());
+    return result.isEmpty() ? singletonList(SQCategory.OTHERS) : result;
   }
 }
