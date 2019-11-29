@@ -20,8 +20,10 @@
 import { uniq } from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
@@ -37,6 +39,7 @@ import { getLeakPeriod } from '../../../helpers/periods';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics, Store } from '../../../store/rootReducer';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
 import {
   DEFAULT_GRAPH,
   getDisplayedHistoryMetrics,
@@ -56,6 +59,8 @@ import { HISTORY_METRICS_LIST, METRICS } from '../utils';
 interface Props {
   branchLike?: BranchLike;
   component: T.Component;
+  isInProgress?: boolean;
+  isPending?: boolean;
   fetchMetrics: () => void;
   onComponentChange: (changes: {}) => void;
   metrics: T.Dict<T.Metric>;
@@ -101,9 +106,10 @@ export class OverviewApp extends React.PureComponent<Props, State> {
   };
 
   isEmpty = () => {
+    const { measures } = this.state;
     return (
-      this.state.measures === undefined ||
-      this.state.measures.find(measure => measure.metric.key === 'ncloc') === undefined
+      measures === undefined ||
+      measures.find(measure => ['lines', 'new_lines'].includes(measure.metric.key)) === undefined
     );
   };
 
@@ -164,7 +170,7 @@ export class OverviewApp extends React.PureComponent<Props, State> {
 
   renderEmpty = () => {
     const { branchLike, component } = this.props;
-    const isApp = component.qualifier === 'APP';
+    const isApp = component.qualifier === ComponentQualifier.Application;
 
     /* eslint-disable no-lonely-if */
     // - Is App
@@ -217,9 +223,32 @@ export class OverviewApp extends React.PureComponent<Props, State> {
     /* eslint-enable no-lonely-if */
     return (
       <div className="overview-main page-main">
+        {this.renderNewAnalysisRequired()}
         <h3>{title}</h3>
       </div>
     );
+  };
+
+  renderNewAnalysisRequired = () => {
+    const { component, isInProgress, isPending } = this.props;
+    const { measures, periods } = this.state;
+    const leakPeriod = getLeakPeriod(periods);
+
+    if (
+      !isInProgress &&
+      !isPending &&
+      component.qualifier !== ComponentQualifier.Application &&
+      measures.some(m => isDiffMetric(m.metric.key)) &&
+      leakPeriod === undefined
+    ) {
+      return (
+        <Alert className="big-spacer-bottom" display="inline" variant="warning">
+          {translate('overview.project.branch_needs_new_analysis')}
+        </Alert>
+      );
+    } else {
+      return null;
+    }
   };
 
   renderLoading = () => {
@@ -234,7 +263,9 @@ export class OverviewApp extends React.PureComponent<Props, State> {
     const { branchLike, component } = this.props;
     const { periods, measures, history, historyStartDate } = this.state;
     const leakPeriod =
-      component.qualifier === 'APP' ? this.getApplicationLeakPeriod() : getLeakPeriod(periods);
+      component.qualifier === ComponentQualifier.Application
+        ? this.getApplicationLeakPeriod()
+        : getLeakPeriod(periods);
     const domainProps = {
       branchLike,
       component,
@@ -250,7 +281,9 @@ export class OverviewApp extends React.PureComponent<Props, State> {
 
     return (
       <div className="overview-main page-main">
-        {component.qualifier === 'APP' ? (
+        {this.renderNewAnalysisRequired()}
+
+        {component.qualifier === ComponentQualifier.Application ? (
           <ApplicationQualityGate
             branch={isBranch(branchLike) && !isMainBranch(branchLike) ? branchLike : undefined}
             component={component}

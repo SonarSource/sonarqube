@@ -47,8 +47,7 @@ export class CodeSmells extends React.PureComponent<ComposedProps> {
   }
 
   renderLeak() {
-    const { leakPeriod } = this.props;
-    if (!leakPeriod) {
+    if (!this.props.hasDiffMetrics()) {
       return null;
     }
 

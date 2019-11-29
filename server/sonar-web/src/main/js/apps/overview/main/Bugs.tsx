@@ -54,18 +54,20 @@ export class Bugs extends React.PureComponent<ComposedProps> {
 
   renderLeak() {
     const { branchLike, component, leakPeriod } = this.props;
-    if (!leakPeriod) {
+    if (!this.props.hasDiffMetrics()) {
       return null;
     }
 
     return (
       <div className="overview-domain-leak">
-        {component.qualifier === 'APP' ? (
+        {component.qualifier === 'APP' && (
           <ApplicationLeakPeriodLegend
             branch={isBranch(branchLike) && !isMainBranch(branchLike) ? branchLike : undefined}
             component={component}
           />
-        ) : (
+        )}
+
+        {component.qualifier !== 'APP' && leakPeriod !== undefined && (
           <LeakPeriodLegend period={leakPeriod} />
         )}
 

@@ -31,10 +31,10 @@ jest.mock('../../../../api/measures', () => {
   return {
     getMeasuresAndMeta: jest.fn().mockResolvedValue({
       component: {
-        measures: [mockMeasure({ metric: 'ncloc' }), mockMeasure({ metric: 'coverage' })],
+        measures: [mockMeasure({ metric: 'lines' }), mockMeasure({ metric: 'coverage' })],
         name: 'foo'
       },
-      metrics: [mockMetric({ key: 'ncloc' }), mockMetric()]
+      metrics: [mockMetric({ key: 'lines' }), mockMetric()]
     })
   };
 });
@@ -50,7 +50,7 @@ jest.mock('../../../../api/time-machine', () => ({
       { metric: 'vulnerabilities', history: [{ date: '2019-01-05', value: '0' }] },
       { metric: 'sqale_index', history: [{ date: '2019-01-01', value: '1.0' }] },
       { metric: 'duplicated_lines_density', history: [{ date: '2019-01-02', value: '1.0' }] },
-      { metric: 'ncloc', history: [{ date: '2019-01-03', value: '10000' }] },
+      { metric: 'lines', history: [{ date: '2019-01-03', value: '10000' }] },
       { metric: 'coverage', history: [{ date: '2019-01-04', value: '95.5' }] }
     ]
   })
@@ -135,6 +135,25 @@ it('should show the correct message if the project has no lines of code', async 
   wrapper.setProps({ branchLike: undefined });
   await waitAndUpdate(wrapper);
   expect(wrapper.find('h3').text()).toBe('overview.project.no_lines_of_code');
+});
+
+it('should show a warning if the project has new measures, but no period info', async () => {
+  (getMeasuresAndMeta as jest.Mock).mockResolvedValue({
+    component: {
+      measures: [mockMeasure({ metric: 'bugs' }), mockMeasure({ metric: 'new_bugs' })],
+      name: 'foo'
+    },
+    metrics: [mockMetric({ key: 'bugs' }), mockMetric({ key: 'new_bugs' })]
+  });
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(
+    wrapper
+      .find('Alert')
+      .dive()
+      .text()
+  ).toContain('overview.project.branch_needs_new_analysis');
 });
 
 function getMockHelpers() {

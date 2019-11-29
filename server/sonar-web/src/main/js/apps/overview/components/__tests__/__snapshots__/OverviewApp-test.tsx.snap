@@ -61,7 +61,7 @@ exports[`should render correctly 2`] = `
               "bestValue": true,
               "metric": Object {
                 "id": "coverage",
-                "key": "ncloc",
+                "key": "lines",
                 "name": "Coverage",
                 "type": "PERCENT",
               },
@@ -149,7 +149,7 @@ exports[`should render correctly 2`] = `
                   "value": "1.0",
                 },
               ],
-              "ncloc": Array [
+              "lines": Array [
                 Object {
                   "date": "2019-01-03",
                   "value": "10000",
@@ -176,7 +176,7 @@ exports[`should render correctly 2`] = `
                 "bestValue": true,
                 "metric": Object {
                   "id": "coverage",
-                  "key": "ncloc",
+                  "key": "lines",
                   "name": "Coverage",
                   "type": "PERCENT",
                 },
@@ -261,7 +261,7 @@ exports[`should render correctly 2`] = `
                   "value": "1.0",
                 },
               ],
-              "ncloc": Array [
+              "lines": Array [
                 Object {
                   "date": "2019-01-03",
                   "value": "10000",
@@ -288,7 +288,7 @@ exports[`should render correctly 2`] = `
                 "bestValue": true,
                 "metric": Object {
                   "id": "coverage",
-                  "key": "ncloc",
+                  "key": "lines",
                   "name": "Coverage",
                   "type": "PERCENT",
                 },
@@ -373,7 +373,7 @@ exports[`should render correctly 2`] = `
                   "value": "1.0",
                 },
               ],
-              "ncloc": Array [
+              "lines": Array [
                 Object {
                   "date": "2019-01-03",
                   "value": "10000",
@@ -400,7 +400,7 @@ exports[`should render correctly 2`] = `
                 "bestValue": true,
                 "metric": Object {
                   "id": "coverage",
-                  "key": "ncloc",
+                  "key": "lines",
                   "name": "Coverage",
                   "type": "PERCENT",
                 },
@@ -485,7 +485,7 @@ exports[`should render correctly 2`] = `
                   "value": "1.0",
                 },
               ],
-              "ncloc": Array [
+              "lines": Array [
                 Object {
                   "date": "2019-01-03",
                   "value": "10000",
@@ -512,7 +512,7 @@ exports[`should render correctly 2`] = `
                 "bestValue": true,
                 "metric": Object {
                   "id": "coverage",
-                  "key": "ncloc",
+                  "key": "lines",
                   "name": "Coverage",
                   "type": "PERCENT",
                 },
@@ -597,7 +597,7 @@ exports[`should render correctly 2`] = `
                   "value": "1.0",
                 },
               ],
-              "ncloc": Array [
+              "lines": Array [
                 Object {
                   "date": "2019-01-03",
                   "value": "10000",
@@ -624,7 +624,7 @@ exports[`should render correctly 2`] = `
                 "bestValue": true,
                 "metric": Object {
                   "id": "coverage",
-                  "key": "ncloc",
+                  "key": "lines",
                   "name": "Coverage",
                   "type": "PERCENT",
                 },
@@ -714,7 +714,7 @@ exports[`should render correctly 2`] = `
                 "value": "1.0",
               },
             ],
-            "ncloc": Array [
+            "lines": Array [
               Object {
                 "date": "2019-01-03",
                 "value": "10000",
@@ -740,7 +740,7 @@ exports[`should render correctly 2`] = `
               "bestValue": true,
               "metric": Object {
                 "id": "coverage",
-                "key": "ncloc",
+                "key": "lines",
                 "name": "Coverage",
                 "type": "PERCENT",
               },

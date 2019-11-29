@@ -35,7 +35,7 @@ export function enhanceMeasure(measure: T.Measure, metrics: T.Dict<T.Metric>): T
   };
 }
 
-export function getLeakValue(measure: T.Measure | undefined): string | undefined {
+export function getLeakValue(measure: T.MeasureIntern | undefined): string | undefined {
   if (!measure || !measure.periods) {
     return undefined;
   }

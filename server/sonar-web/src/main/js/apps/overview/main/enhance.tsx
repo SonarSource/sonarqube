@@ -25,14 +25,10 @@ import Rating from 'sonar-ui-common/components/ui/Rating';
 import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getWrappedDisplayName } from '../../../components/hoc/utils';
+import { getLeakValue } from '../../../components/measure/utils';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import {
-  getPeriodValue,
-  getRatingTooltip,
-  getShortType,
-  isDiffMetric
-} from '../../../helpers/measures';
+import { getRatingTooltip, getShortType, isDiffMetric } from '../../../helpers/measures';
 import { getPeriodDate } from '../../../helpers/periods';
 import {
   getComponentDrilldownUrl,
@@ -55,6 +51,7 @@ export interface EnhanceProps {
 
 export interface ComposedProps extends EnhanceProps {
   getValue: (measure: T.MeasureEnhanced) => string | undefined;
+  hasDiffMetrics: () => boolean;
   renderHeader: (domain: string, label?: string) => React.ReactNode;
   renderMeasure: (metricKey: string, tooltip?: React.ReactNode) => React.ReactNode;
   renderRating: (metricKey: string) => React.ReactNode;
@@ -68,13 +65,15 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
     static displayName = getWrappedDisplayName(ComposedComponent, 'enhance');
 
     getValue = (measure: T.MeasureEnhanced) => {
-      const { leakPeriod } = this.props;
       if (!measure) {
         return '0';
       }
-      return isDiffMetric(measure.metric.key)
-        ? getPeriodValue(measure, leakPeriod ? leakPeriod.index : 0)
-        : measure.value;
+      return isDiffMetric(measure.metric.key) ? getLeakValue(measure) : measure.value;
+    };
+
+    hasDiffMetrics = () => {
+      const { measures } = this.props;
+      return measures.some(m => isDiffMetric(m.metric.key));
     };
 
     renderHeader = (domain: string, label?: string) => {
@@ -202,6 +201,7 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
         <ComposedComponent
           {...this.props}
           getValue={this.getValue}
+          hasDiffMetrics={this.hasDiffMetrics}
           renderHeader={this.renderHeader}
           renderHistoryLink={this.renderHistoryLink}
           renderIssues={this.renderIssues}

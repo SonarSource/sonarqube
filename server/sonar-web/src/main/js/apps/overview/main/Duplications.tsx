@@ -26,7 +26,6 @@ import {
 } from 'sonar-ui-common/helpers/measures';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
-import { getPeriodValue } from '../../../helpers/measures';
 import { getMetricName, getThreshold } from '../utils';
 import enhance, { ComposedProps } from './enhance';
 
@@ -88,15 +87,12 @@ export class Duplications extends React.PureComponent<ComposedProps> {
   }
 
   renderNewDuplications() {
-    const { branchLike, component, measures, leakPeriod } = this.props;
-    if (!leakPeriod) {
-      return null;
-    }
+    const { branchLike, component, measures } = this.props;
     const newDuplicationsMeasure = measures.find(
       measure => measure.metric.key === 'new_duplicated_lines_density'
     );
     const newDuplicationsValue =
-      newDuplicationsMeasure && getPeriodValue(newDuplicationsMeasure, leakPeriod.index);
+      newDuplicationsMeasure && this.props.getValue(newDuplicationsMeasure);
     const formattedValue =
       newDuplicationsMeasure && newDuplicationsValue ? (
         <div>
@@ -119,7 +115,7 @@ export class Duplications extends React.PureComponent<ComposedProps> {
       );
 
     const newLinesMeasure = measures.find(measure => measure.metric.key === 'new_lines');
-    const newLinesValue = newLinesMeasure && getPeriodValue(newLinesMeasure, leakPeriod.index);
+    const newLinesValue = newLinesMeasure && this.props.getValue(newLinesMeasure);
     const label =
       newLinesMeasure && newLinesValue !== undefined && Number(newLinesValue) > 0 ? (
         <div className="overview-domain-measure-label">
@@ -162,8 +158,7 @@ export class Duplications extends React.PureComponent<ComposedProps> {
   }
 
   renderLeak() {
-    const { leakPeriod } = this.props;
-    if (leakPeriod == null) {
+    if (!this.props.hasDiffMetrics()) {
       return null;
     }
     return (

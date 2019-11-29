@@ -26,7 +26,6 @@ import {
 import DocTooltip from '../../../components/docs/DocTooltip';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import CoverageRating from '../../../components/ui/CoverageRating';
-import { getPeriodValue } from '../../../helpers/measures';
 import { getMetricName, getThreshold } from '../utils';
 import enhance, { ComposedProps } from './enhance';
 
@@ -89,14 +88,10 @@ export class Coverage extends React.PureComponent<ComposedProps> {
   }
 
   renderNewCoverage() {
-    const { branchLike, component, leakPeriod, measures } = this.props;
-    if (!leakPeriod) {
-      return null;
-    }
+    const { branchLike, component, measures } = this.props;
 
     const newCoverageMeasure = measures.find(measure => measure.metric.key === 'new_coverage');
-    const newCoverageValue =
-      newCoverageMeasure && getPeriodValue(newCoverageMeasure, leakPeriod.index);
+    const newCoverageValue = newCoverageMeasure && this.props.getValue(newCoverageMeasure);
     const formattedValue =
       newCoverageMeasure && newCoverageValue !== undefined ? (
         <div>
@@ -119,8 +114,7 @@ export class Coverage extends React.PureComponent<ComposedProps> {
       );
 
     const newLinesToCover = measures.find(measure => measure.metric.key === 'new_lines_to_cover');
-    const newLinesToCoverValue =
-      newLinesToCover && getPeriodValue(newLinesToCover, leakPeriod.index);
+    const newLinesToCoverValue = newLinesToCover && this.props.getValue(newLinesToCover);
     const label =
       newLinesToCover && newLinesToCoverValue !== undefined && Number(newLinesToCoverValue) > 0 ? (
         <div className="overview-domain-measure-label">
@@ -165,8 +159,7 @@ export class Coverage extends React.PureComponent<ComposedProps> {
   }
 
   renderLeak() {
-    const { leakPeriod } = this.props;
-    if (!leakPeriod) {
+    if (!this.props.hasDiffMetrics()) {
       return null;
     }
     return (

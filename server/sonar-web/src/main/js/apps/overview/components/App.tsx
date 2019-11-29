@@ -97,6 +97,8 @@ export class App extends React.PureComponent<Props> {
               <OverviewApp
                 branchLike={branchLike}
                 component={component}
+                isInProgress={this.props.isInProgress}
+                isPending={this.props.isPending}
                 onComponentChange={this.props.onComponentChange}
               />
             )}
