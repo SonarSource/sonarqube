@@ -139,16 +139,12 @@ public final class SecurityStandards {
 
   private final Set<String> standards;
   private final Set<String> cwe;
-  private final Set<String> owaspTop10;
-  private final Set<String> sansTop25;
   private final SQCategory sqCategory;
   private final Set<SQCategory> ignoredSQCategories;
 
-  private SecurityStandards(Set<String> standards, Set<String> cwe, Set<String> owaspTop10, Set<String> sansTop25, SQCategory sqCategory, Set<SQCategory> ignoredSQCategories) {
+  private SecurityStandards(Set<String> standards, Set<String> cwe, SQCategory sqCategory, Set<SQCategory> ignoredSQCategories) {
     this.standards = standards;
     this.cwe = cwe;
-    this.owaspTop10 = owaspTop10;
-    this.sansTop25 = sansTop25;
     this.sqCategory = sqCategory;
     this.ignoredSQCategories = ignoredSQCategories;
   }
@@ -162,17 +158,20 @@ public final class SecurityStandards {
   }
 
   public Set<String> getOwaspTop10() {
-    return owaspTop10;
+    return toOwaspTop10(standards);
   }
 
   public Set<String> getSansTop25() {
-    return sansTop25;
+    return toSansTop25(cwe);
   }
 
   public SQCategory getSqCategory() {
     return sqCategory;
   }
 
+  /**
+   * If CWEs mapped to multiple {@link SQCategory}, those which are not taken into account are listed here.
+   */
   public Set<SQCategory> getIgnoredSQCategories() {
     return ignoredSQCategories;
   }
@@ -181,16 +180,12 @@ public final class SecurityStandards {
    * @throws IllegalStateException if {@code securityStandards} maps to multiple {@link SQCategory SQCategories}
    */
   public static SecurityStandards fromSecurityStandards(Set<String> securityStandards) {
-    Set<String> standards = securityStandards.stream()
-      .filter(Objects::nonNull)
-      .collect(toSet());
-    Set<String> cwe = toCwe(standards);
-    Set<String> owaspTop10 = toOwaspTop10(standards);
-    Set<String> sansTop25 = toSansTop25(cwe);
+    Set<String> standards = securityStandards.stream().filter(Objects::nonNull).collect(toSet());
+    Set<String> cwe = toCwes(standards);
     List<SQCategory> sq = toSortedSQCategories(cwe);
     SQCategory sqCategory = sq.iterator().next();
-    Set<SQCategory> ignoredSQCategories = sq.stream().skip(1).collect(Collectors.toSet());
-    return new SecurityStandards(standards, cwe, owaspTop10, sansTop25, sqCategory, ignoredSQCategories);
+    Set<SQCategory> ignoredSQCategories = sq.stream().skip(1).collect(toSet());
+    return new SecurityStandards(standards, cwe, sqCategory, ignoredSQCategories);
   }
 
   private static Set<String> toOwaspTop10(Set<String> securityStandards) {
@@ -200,7 +195,7 @@ public final class SecurityStandards {
       .collect(toSet());
   }
 
-  private static Set<String> toCwe(Collection<String> securityStandards) {
+  private static Set<String> toCwes(Collection<String> securityStandards) {
     Set<String> result = securityStandards.stream()
       .filter(s -> s.startsWith(CWE_PREFIX))
       .map(s -> s.substring(CWE_PREFIX.length()))
