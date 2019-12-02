@@ -132,10 +132,7 @@ public class UsersAction implements PermissionsWsAction {
       .setPageIndex(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setSearchQuery(textQuery);
-    project.ifPresent(projectId -> {
-      permissionQuery.setComponentUuid(projectId.getUuid());
-      permissionQuery.setComponentId(projectId.getId());
-    });
+    project.ifPresent(projectId -> permissionQuery.setComponent(projectId.getUuid(), projectId.getId()));
     if (permission != null) {
       if (project.isPresent()) {
         requestValidator.validateProjectPermission(permission);
@@ -183,7 +180,7 @@ public class UsersAction implements PermissionsWsAction {
     PermissionQuery.Builder queryBuilder = PermissionQuery.builder()
       .setOrganizationUuid(org.getUuid())
       .withAtLeastOnePermission();
-    project.ifPresent(p -> queryBuilder.setComponentUuid(p.getUuid()));
+    project.ifPresent(p -> queryBuilder.setComponent(p.getUuid(), p.getId()));
     return dbClient.userPermissionDao().selectUserPermissionsByQuery(dbSession, queryBuilder.build(), userIds);
   }
 }

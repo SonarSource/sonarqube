@@ -24,6 +24,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.WildcardPosition;
+import org.sonar.db.component.ComponentDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -160,12 +161,12 @@ public class PermissionQuery {
       return this;
     }
 
-    public Builder setComponentUuid(String componentUuid) {
-      this.componentUuid = componentUuid;
-      return this;
+    public Builder setComponent(ComponentDto component) {
+      return setComponent(component.uuid(), component.getId());
     }
 
-    public Builder setComponentId(Long componentId) {
+    public Builder setComponent(String componentUuid, long componentId) {
+      this.componentUuid = componentUuid;
       this.componentId = componentId;
       return this;
     }

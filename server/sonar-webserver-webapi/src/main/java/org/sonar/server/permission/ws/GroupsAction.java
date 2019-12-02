@@ -123,11 +123,7 @@ public class GroupsAction implements PermissionsWsAction {
       .setPageIndex(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setSearchQuery(textQuery);
-    if (project.isPresent()) {
-      permissionQuery.setComponentUuid(project.get().getUuid());
-      permissionQuery.setComponentId(project.get().getId());
-    }
-
+    project.ifPresent(projectId -> permissionQuery.setComponent(projectId.getUuid(), projectId.getId()));
     return permissionQuery.build();
   }
 
