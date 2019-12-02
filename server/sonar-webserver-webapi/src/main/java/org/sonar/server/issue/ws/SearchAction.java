@@ -52,6 +52,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.issue.SearchRequest;
+import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.issue.index.IssueQueryFactory;
@@ -481,7 +482,7 @@ public class SearchAction implements IssuesWsAction, Startable {
     }
     addMandatoryValuesToFacet(facets, PARAM_ASSIGNEES, assignees);
     addMandatoryValuesToFacet(facets, FACET_ASSIGNED_TO_ME, singletonList(userSession.getUuid()));
-    addMandatoryValuesToFacet(facets, PARAM_RULES, query.rules().stream().map(r -> Integer.toString(r.getId())).collect(toList()));
+    addMandatoryValuesToFacet(facets, PARAM_RULES, query.rules().stream().map(IssueDoc::formatRuleId).collect(toList()));
     addMandatoryValuesToFacet(facets, PARAM_LANGUAGES, request.getLanguages());
     addMandatoryValuesToFacet(facets, PARAM_TAGS, request.getTags());
     addMandatoryValuesToFacet(facets, PARAM_TYPES, RuleType.names());

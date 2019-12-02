@@ -72,7 +72,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
@@ -385,7 +384,7 @@ public class IssueIndex {
     filters.put(FIELD_ISSUE_AUTHOR_LOGIN, createTermsFilter(FIELD_ISSUE_AUTHOR_LOGIN, query.authors()));
     filters.put(FIELD_ISSUE_RULE_ID, createTermsFilter(
       FIELD_ISSUE_RULE_ID,
-      query.rules().stream().map(RuleDefinitionDto::getId).collect(toList())));
+      query.rules().stream().map(IssueDoc::formatRuleId).collect(toList())));
     filters.put(FIELD_ISSUE_STATUS, createTermsFilter(FIELD_ISSUE_STATUS, query.statuses()));
     filters.put(FIELD_ISSUE_ORGANIZATION_UUID, createTermFilter(FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));
     filters.put(FIELD_ISSUE_OWASP_TOP_10, createTermsFilter(FIELD_ISSUE_OWASP_TOP_10, query.owaspTop10()));
@@ -629,7 +628,7 @@ public class IssueIndex {
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, DIRECTORIES, query.directories().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, FILE_UUIDS, query.fileUuids().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, LANGUAGES, query.languages().toArray());
-      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, RULES, query.rules().stream().map(RuleDefinitionDto::getId).toArray());
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, RULES, query.rules().stream().map(IssueDoc::formatRuleId).toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, AUTHORS, query.authors().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, AUTHOR, query.authors().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, TAGS, query.tags().toArray());

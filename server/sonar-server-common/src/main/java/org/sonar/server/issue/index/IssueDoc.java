@@ -25,9 +25,11 @@ import java.util.Date;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.permission.index.AuthorizationDoc;
 import org.sonar.server.security.SecurityStandards;
@@ -79,7 +81,8 @@ public class IssueDoc extends BaseDoc {
   }
 
   public Integer ruleId() {
-    return getField(IssueIndexDefinition.FIELD_ISSUE_RULE_ID);
+    String field = getField(IssueIndexDefinition.FIELD_ISSUE_RULE_ID);
+    return Integer.valueOf(field);
   }
 
   public String language() {
@@ -190,8 +193,18 @@ public class IssueDoc extends BaseDoc {
   }
 
   public IssueDoc setRuleId(Integer s) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_RULE_ID, s);
+    // leftpad with 0 to have correct sorting on this fields (other 10 becomes lower than 9)
+    String str = formatRuleId(s);
+    setField(IssueIndexDefinition.FIELD_ISSUE_RULE_ID, str);
     return this;
+  }
+
+  public static String formatRuleId(RuleDefinitionDto dto) {
+    return formatRuleId(dto.getId());
+  }
+
+  private static String formatRuleId(int s) {
+    return StringUtils.leftPad(String.valueOf(s), 10, "0");
   }
 
   public IssueDoc setLanguage(@Nullable String s) {
