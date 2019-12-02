@@ -58,18 +58,31 @@
       select g.id as groupId, g.name as name, gr.role as permission, gr.resource_id as componentId, gr.id as id
       from groups g
       left join group_roles gr on g.id = gr.group_id
+      <if test="query.componentId == null">
+        and gr.resource_id is null
+      </if>
+      <if test="query.componentId != null">
+        and gr.resource_id = #{query.componentId,jdbcType=BIGINT}
+      </if>
       where
-      g.organization_uuid = #{query.organizationUuid,jdbcType=VARCHAR}
+        g.organization_uuid = #{query.organizationUuid,jdbcType=VARCHAR}
 
     union all
 
     select 0 as groupId, 'Anyone' as name, gr.role as permission, gr.resource_id as componentId, gr.id as id
     from group_roles gr
-    <if test="query.withAtLeastOnePermission()">
-      where
-      gr.organization_uuid = #{query.organizationUuid,jdbcType=VARCHAR} and
-      gr.group_id is null
-    </if>
+    <where>
+      <if test="query.componentId == null">
+        and gr.resource_id is null
+      </if>
+      <if test="query.componentId != null">
+        and gr.resource_id = #{query.componentId,jdbcType=BIGINT}
+      </if>
+      <if test="query.withAtLeastOnePermission()">
+        and gr.organization_uuid = #{query.organizationUuid,jdbcType=VARCHAR} and
+        gr.group_id is null
+      </if>
+    </where>
 
     ) sub
     left join projects p on sub.componentId = p.id

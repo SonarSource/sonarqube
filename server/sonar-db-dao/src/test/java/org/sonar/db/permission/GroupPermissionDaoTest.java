@@ -51,6 +51,7 @@ import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 
 public class GroupPermissionDaoTest {
 
@@ -137,6 +138,44 @@ public class GroupPermissionDaoTest {
   }
 
   @Test
+  public void selectGroupNamesByQuery_is_ordered_by_permissions_then_by_group_when_many_groups_for_global_permissions() {
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
+      GroupDto group = db.users().insertGroup(organizationDto, "Group-" + i);
+      // Add permission on project to be sure projects are excluded
+      db.users().insertProjectPermissionOnGroup(group, SCAN.getKey(), project);
+    });
+    String lastGroupName = "Group-" + (DEFAULT_PAGE_SIZE + 1);
+    db.users().insertPermissionOnGroup(db.users().selectGroup(organizationDto, lastGroupName).get(), SCAN);
+
+    assertThat(underTest.selectGroupNamesByQuery(dbSession, newQuery()
+      .setOrganizationUuid(organizationDto.getUuid()).build()))
+        .hasSize(DEFAULT_PAGE_SIZE)
+        .startsWith(ANYONE, lastGroupName, "Group-1");
+  }
+
+  @Test
+  public void selectGroupNamesByQuery_is_ordered_by_global_permissions_then_by_group_when_many_groups_for_project_permissions() {
+    OrganizationDto organizationDto = db.organizations().insert();
+    IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
+      GroupDto group = db.users().insertGroup(organizationDto, "Group-" + i);
+      // Add global permission to be sure they are excluded
+      db.users().insertPermissionOnGroup(group, SCAN.getKey());
+    });
+    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    String lastGroupName = "Group-" + (DEFAULT_PAGE_SIZE + 1);
+    db.users().insertProjectPermissionOnGroup(db.users().selectGroup(organizationDto, lastGroupName).get(), SCAN.getKey(), project);
+
+    assertThat(underTest.selectGroupNamesByQuery(dbSession, newQuery()
+      .setOrganizationUuid(organizationDto.getUuid())
+      .setComponent(project)
+      .build()))
+        .hasSize(DEFAULT_PAGE_SIZE)
+        .startsWith(ANYONE, lastGroupName, "Group-1");
+  }
+
+  @Test
   public void countGroupsByQuery() {
     OrganizationDto organizationDto = db.getDefaultOrganization();
     GroupDto group1 = db.users().insertGroup(organizationDto, "Group-1");
@@ -200,7 +239,8 @@ public class GroupPermissionDaoTest {
     db.users().insertProjectPermissionOnGroup(group3, "p1", anotherProject);
     db.users().insertPermissionOnGroup(group2, "p5");
 
-    PermissionQuery.Builder builderOnComponent = newQuery().setComponentUuid(project.uuid());
+    PermissionQuery.Builder builderOnComponent = newQuery()
+      .setComponent(project);
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
       builderOnComponent.withAtLeastOnePermission().build())).containsOnlyOnce(group1.getName());
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
@@ -225,7 +265,8 @@ public class GroupPermissionDaoTest {
     db.users().insertProjectPermissionOnGroup(group3, UserRole.SCAN, anotherProject);
     db.users().insertPermissionOnGroup(group2, SCAN);
 
-    PermissionQuery.Builder builderOnComponent = newQuery().setComponentUuid(project.uuid());
+    PermissionQuery.Builder builderOnComponent = newQuery()
+      .setComponent(project);
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
       builderOnComponent.withAtLeastOnePermission().build())).containsOnlyOnce(group1.getName());
     assertThat(underTest.selectGroupNamesByQuery(dbSession,

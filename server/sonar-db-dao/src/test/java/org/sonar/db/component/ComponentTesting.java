@@ -29,6 +29,7 @@ import org.sonar.db.organization.OrganizationDto;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentDto.BRANCH_KEY_SEPARATOR;
 import static org.sonar.db.component.ComponentDto.PULL_REQUEST_SEPARATOR;
@@ -139,6 +140,7 @@ public class ComponentTesting {
 
   private static ComponentDto newProjectDto(String organizationUuid, String uuid, boolean isPrivate) {
     return new ComponentDto()
+      .setId(nextLong())
       .setOrganizationUuid(organizationUuid)
       .setUuid(uuid)
       .setUuidPath(UUID_PATH_OF_ROOT)

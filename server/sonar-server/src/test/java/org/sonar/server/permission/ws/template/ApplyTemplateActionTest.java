@@ -37,7 +37,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.TestRequest;
-import org.sonar.server.ws.TestResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
@@ -59,7 +58,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   private PermissionTemplateDto template2;
 
   private PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
-     new TestProjectIndexers(), userSession, defaultTemplatesResolver);
+    new TestProjectIndexers(), userSession, defaultTemplatesResolver);
 
   @Override
   protected ApplyTemplateAction buildWsAction() {
@@ -191,7 +190,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getId());
   }
 
-  private TestResponse newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) {
+  private void newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) {
     TestRequest request = newRequest();
     if (templateUuid != null) {
       request.setParam(PARAM_TEMPLATE_ID, templateUuid);
@@ -202,8 +201,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     if (projectKey != null) {
       request.setParam(PARAM_PROJECT_KEY, projectKey);
     }
-
-    return request.execute();
+    request.execute();
   }
 
   private void addUserToTemplate(UserDto user, PermissionTemplateDto permissionTemplate, String permission) {
@@ -217,12 +215,12 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   }
 
   private List<String> selectProjectPermissionGroups(ComponentDto project, String permission) {
-    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(project.getOrganizationUuid()).setPermission(permission).setComponentUuid(project.uuid()).build();
+    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(project.getOrganizationUuid()).setPermission(permission).setComponent(project).build();
     return db.getDbClient().groupPermissionDao().selectGroupNamesByQuery(db.getSession(), query);
   }
 
   private List<Integer> selectProjectPermissionUsers(ComponentDto project, String permission) {
-    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(project.getOrganizationUuid()).setPermission(permission).setComponentUuid(project.uuid()).build();
+    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(project.getOrganizationUuid()).setPermission(permission).setComponent(project).build();
     return db.getDbClient().userPermissionDao().selectUserIdsByQuery(db.getSession(), query);
   }
 }
