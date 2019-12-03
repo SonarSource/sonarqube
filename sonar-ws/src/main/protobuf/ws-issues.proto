@@ -112,7 +112,7 @@ message Issue {
   optional int32 line = 8;
   optional string hash = 31;
   optional sonarqube.ws.commons.TextRange textRange = 9;
-  repeated Flow flows = 10;
+  repeated sonarqube.ws.commons.Flow flows = 10;
   optional string resolution = 11;
   optional string status = 12;
   optional string message = 13;
@@ -162,18 +162,6 @@ message Transitions {
 
 message Actions {
   repeated string actions = 1;
-}
-
-message Flow {
-  repeated Location locations = 1;
-}
-
-message Location {
-  optional string component = 4;
-  optional string unusedComponentId = 1;
-  // Only when component is a file. Can be empty for a file if this is an issue global to the file.
-  optional sonarqube.ws.commons.TextRange textRange = 2;
-  optional string msg = 3;
 }
 
 message Comment {

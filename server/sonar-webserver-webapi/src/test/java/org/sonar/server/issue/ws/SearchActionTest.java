@@ -71,7 +71,6 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.Severity;
-import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 
@@ -253,7 +252,7 @@ public class SearchActionTest {
     SearchWsResponse result = ws.newRequest().executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesCount()).isEqualTo(1);
-    assertThat(result.getIssues(0).getFlows(0).getLocationsList()).extracting(Issues.Location::getComponent, Issues.Location::getMsg)
+    assertThat(result.getIssues(0).getFlows(0).getLocationsList()).extracting(Common.Location::getComponent, Common.Location::getMsg)
       .containsExactlyInAnyOrder(
         tuple(file.getKey(), "FLOW MESSAGE"),
         tuple(anotherFile.getKey(), "ANOTHER FLOW MESSAGE"),

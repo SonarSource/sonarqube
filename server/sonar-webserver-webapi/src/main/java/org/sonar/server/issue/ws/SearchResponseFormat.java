@@ -39,6 +39,7 @@ import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.protobuf.DbIssues.Location;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
@@ -51,9 +52,7 @@ import org.sonarqube.ws.Issues.Actions;
 import org.sonarqube.ws.Issues.Comment;
 import org.sonarqube.ws.Issues.Comments;
 import org.sonarqube.ws.Issues.Component;
-import org.sonarqube.ws.Issues.Flow;
 import org.sonarqube.ws.Issues.Issue;
-import org.sonarqube.ws.Issues.Location;
 import org.sonarqube.ws.Issues.Operation;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.Issues.Transitions;
@@ -230,16 +229,16 @@ public class SearchResponseFormat {
       issueBuilder.setTextRange(convertTextRange(textRange));
     }
     for (DbIssues.Flow flow : locations.getFlowList()) {
-      Flow.Builder targetFlow = Flow.newBuilder();
-      for (DbIssues.Location flowLocation : flow.getLocationList()) {
+      Common.Flow.Builder targetFlow = Common.Flow.newBuilder();
+      for (Location flowLocation : flow.getLocationList()) {
         targetFlow.addLocations(convertLocation(issueBuilder, flowLocation, data));
       }
       issueBuilder.addFlows(targetFlow);
     }
   }
 
-  private static Location convertLocation(Issue.Builder issueBuilder, DbIssues.Location source, SearchResponseData data) {
-    Location.Builder target = Location.newBuilder();
+  private static Common.Location convertLocation(Issue.Builder issueBuilder, Location source, SearchResponseData data) {
+    Common.Location.Builder target = Common.Location.newBuilder();
     if (source.hasMsg()) {
       target.setMsg(source.getMsg());
     }
