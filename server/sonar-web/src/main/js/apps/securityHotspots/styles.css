@@ -1,0 +1,51 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2020 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+#security_hotspots .wrapper {
+  position: fixed;
+  /* top is defined programatically */
+  bottom: 0;
+  width: 100%;
+}
+
+#security_hotspots .layout-page {
+  margin: 0 auto;
+  min-width: var(--minPageWidth);
+  max-width: 1280px;
+  height: 100%;
+}
+
+#security_hotspots .filter-bar {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--gridSize) 20px;
+  border-bottom: 1px solid var(--barBorderColor);
+}
+
+#security_hotspots .sidebar {
+  flex: 1 0 30%;
+  border-right: 1px solid var(--barBorderColor);
+  height: 100%;
+  overflow-y: auto;
+}
+
+#security_hotspots .main {
+  flex: 1 0 70%;
+  overflow-y: auto;
+}

@@ -1,0 +1,166 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should handle collapse and expand 1`] = `
+<div
+  className="hotspot-category HIGH"
+>
+  <a
+    className="hotspot-category-header display-flex-space-between display-flex-center"
+    href="#"
+    onClick={[Function]}
+  >
+    <strong
+      className="flex-1"
+    >
+      Class Injection
+    </strong>
+    <span>
+      <span
+        className="hotspot-counter"
+      >
+        1
+      </span>
+      <ChevronDownIcon
+        className="big-spacer-left"
+      />
+    </span>
+  </a>
+</div>
+`;
+
+exports[`should handle collapse and expand 2`] = `
+<div
+  className="hotspot-category HIGH"
+>
+  <a
+    className="hotspot-category-header display-flex-space-between display-flex-center"
+    href="#"
+    onClick={[Function]}
+  >
+    <strong
+      className="flex-1"
+    >
+      Class Injection
+    </strong>
+    <span>
+      <span
+        className="hotspot-counter"
+      >
+        1
+      </span>
+      <ChevronUpIcon
+        className="big-spacer-left"
+      />
+    </span>
+  </a>
+  <ul>
+    <li
+      key="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+    >
+      <Memo(HotspotListItem)
+        hotspot={
+          Object {
+            "author": "Developer 1",
+            "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+            "creationDate": "2013-05-13T17:55:39+0200",
+            "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+            "line": 81,
+            "message": "'3' is a magic number.",
+            "project": "com.github.kevinsawicki:http-request",
+            "resolution": "FALSE-POSITIVE",
+            "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+            "securityCategory": "command-injection",
+            "status": "RESOLVED",
+            "updateDate": "2013-05-13T17:55:39+0200",
+            "vulnerabilityProbability": "HIGH",
+          }
+        }
+        onClick={[MockFunction]}
+        selected={false}
+      />
+    </li>
+  </ul>
+</div>
+`;
+
+exports[`should render correctly 1`] = `""`;
+
+exports[`should render correctly with hotspots 1`] = `
+<div
+  className="hotspot-category HIGH"
+>
+  <a
+    className="hotspot-category-header display-flex-space-between display-flex-center"
+    href="#"
+    onClick={[Function]}
+  >
+    <strong
+      className="flex-1"
+    >
+      Class Injection
+    </strong>
+    <span>
+      <span
+        className="hotspot-counter"
+      >
+        2
+      </span>
+      <ChevronUpIcon
+        className="big-spacer-left"
+      />
+    </span>
+  </a>
+  <ul>
+    <li
+      key="h1"
+    >
+      <Memo(HotspotListItem)
+        hotspot={
+          Object {
+            "author": "Developer 1",
+            "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+            "creationDate": "2013-05-13T17:55:39+0200",
+            "key": "h1",
+            "line": 81,
+            "message": "'3' is a magic number.",
+            "project": "com.github.kevinsawicki:http-request",
+            "resolution": "FALSE-POSITIVE",
+            "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+            "securityCategory": "command-injection",
+            "status": "RESOLVED",
+            "updateDate": "2013-05-13T17:55:39+0200",
+            "vulnerabilityProbability": "HIGH",
+          }
+        }
+        onClick={[MockFunction]}
+        selected={false}
+      />
+    </li>
+    <li
+      key="h2"
+    >
+      <Memo(HotspotListItem)
+        hotspot={
+          Object {
+            "author": "Developer 1",
+            "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+            "creationDate": "2013-05-13T17:55:39+0200",
+            "key": "h2",
+            "line": 81,
+            "message": "'3' is a magic number.",
+            "project": "com.github.kevinsawicki:http-request",
+            "resolution": "FALSE-POSITIVE",
+            "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+            "securityCategory": "command-injection",
+            "status": "RESOLVED",
+            "updateDate": "2013-05-13T17:55:39+0200",
+            "vulnerabilityProbability": "HIGH",
+          }
+        }
+        onClick={[MockFunction]}
+        selected={false}
+      />
+    </li>
+  </ul>
+</div>
+`;

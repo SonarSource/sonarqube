@@ -1,0 +1,104 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2020 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.hotspot-list-header {
+  padding: calc(2 * var(--gridSize)) var(--gridSize);
+}
+
+.hotspot-risk-header {
+  padding: var(--gridSize);
+}
+
+.hotspot-category {
+  background-color: white;
+  border: 1px solid var(--barBorderColor);
+}
+
+.hotspot-category .hotspot-category-header {
+  padding: calc(2 * var(--gridSize)) var(--gridSize);
+  color: var(--baseFontColor);
+  border-bottom: none;
+  border-left: 4px solid;
+}
+
+.hotspot-category .hotspot-category-header:hover {
+  color: var(--blue);
+}
+
+.hotspot-category.HIGH .hotspot-category-header {
+  border-left-color: var(--red);
+}
+
+.hotspot-category.MEDIUM .hotspot-category-header {
+  border-left-color: var(--orange);
+}
+
+.hotspot-category.LOW .hotspot-category-header {
+  border-left-color: var(--yellow);
+}
+
+.hotspot-item {
+  color: var(--baseFontColor);
+  display: block;
+  padding: var(--gridSize) calc(2 * var(--gridSize));
+  border: 1px solid transparent;
+  border-top-color: var(--barBorderColor);
+  transition: padding 0s, border 0s;
+}
+
+.hotspot-item:hover {
+  background-color: var(--veryLightBlue);
+  border: 1px dashed var(--blue);
+  color: var(--baseFontColor);
+}
+
+.hotspot-item.highlight {
+  background-color: var(--veryLightBlue);
+  color: var(--baseFontColor);
+  border: 1px solid var(--blue);
+  cursor: unset;
+}
+
+.hotspot-counter {
+  color: var(--baseFontColor);
+  background-color: var(--gray94);
+  border-radius: 50%;
+  padding: calc(var(--gridSize) / 2) var(--gridSize);
+}
+
+.hotspot-risk-badge {
+  color: white;
+  text-transform: uppercase;
+  display: inline-block;
+  text-align: center;
+  min-width: 48px;
+  padding: 0 var(--gridSize);
+  font-weight: bold;
+  border-radius: 2px;
+}
+
+.hotspot-risk-badge.HIGH {
+  background-color: var(--red);
+}
+.hotspot-risk-badge.MEDIUM {
+  background-color: var(--orange);
+}
+.hotspot-risk-badge.LOW {
+  background-color: var(--yellow);
+}

@@ -26,6 +26,7 @@ import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
 import { IndexRoute, Redirect, Route, RouteConfig, RouteProps, Router } from 'react-router';
 import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { ThemeProvider } from 'sonar-ui-common/components/theme';
 import getHistory from 'sonar-ui-common/helpers/getHistory';
 import aboutRoutes from '../../apps/about/routes';
@@ -234,6 +235,12 @@ export default function startReactApp(
                         )}
                       />
                       <Route path="project/issues" component={Issues} />
+                      <Route
+                        path="security_hotspots"
+                        component={lazyLoadComponent(() =>
+                          import('../../apps/securityHotspots/SecurityHotspotsApp')
+                        )}
+                      />
                       <RouteWithChildRoutes
                         path="project/quality_gate"
                         childRoutes={projectQualityGateRoutes}

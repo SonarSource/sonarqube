@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<a
+  className="hotspot-item"
+  href="#"
+  onClick={[Function]}
+>
+  <div
+    className="little-spacer-left"
+  >
+    '3' is a magic number.
+  </div>
+  <div
+    className="badge spacer-top"
+  >
+    issue.status.RESOLVED
+  </div>
+</a>
+`;
+
+exports[`should render correctly 2`] = `
+<a
+  className="hotspot-item highlight"
+  href="#"
+  onClick={[Function]}
+>
+  <div
+    className="little-spacer-left"
+  >
+    '3' is a magic number.
+  </div>
+  <div
+    className="badge spacer-top"
+  >
+    issue.status.RESOLVED
+  </div>
+</a>
+`;

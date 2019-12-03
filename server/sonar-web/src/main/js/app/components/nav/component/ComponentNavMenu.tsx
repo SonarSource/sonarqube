@@ -151,6 +151,18 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
     );
   }
 
+  renderSecurityHotspotsLink() {
+    return (
+      <li>
+        <Link
+          activeClassName="active"
+          to={{ pathname: '/security_hotspots', query: this.getQuery() }}>
+          {translate('layout.security_hotspots')}
+        </Link>
+      </li>
+    );
+  }
+
   renderSecurityReports() {
     const { branchLike, component } = this.props;
     const { extensions = [] } = component;
@@ -488,6 +500,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
       <NavBarTabs>
         {this.renderDashboardLink()}
         {this.renderIssuesLink()}
+        {this.renderSecurityHotspotsLink()}
         {this.renderSecurityReports()}
         {this.renderComponentMeasuresLink()}
         {this.renderCodeLink()}

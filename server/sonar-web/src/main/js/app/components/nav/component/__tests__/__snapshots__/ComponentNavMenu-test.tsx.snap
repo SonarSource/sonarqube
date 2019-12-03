@@ -82,6 +82,24 @@ exports[`should work for a branch 1`] = `
       style={Object {}}
       to={
         Object {
+          "pathname": "/security_hotspots",
+          "query": Object {
+            "branch": "release",
+            "id": "foo",
+          },
+        }
+      }
+    >
+      layout.security_hotspots
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
           "pathname": "/component_measures",
           "query": Object {
             "branch": "release",
@@ -179,6 +197,24 @@ exports[`should work for a branch 2`] = `
       style={Object {}}
       to={
         Object {
+          "pathname": "/security_hotspots",
+          "query": Object {
+            "branch": "release",
+            "id": "foo",
+          },
+        }
+      }
+    >
+      layout.security_hotspots
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
           "pathname": "/component_measures",
           "query": Object {
             "branch": "release",
@@ -265,6 +301,23 @@ exports[`should work for all qualifiers 1`] = `
       }
     >
       issues.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/security_hotspots",
+          "query": Object {
+            "id": "foo",
+          },
+        }
+      }
+    >
+      layout.security_hotspots
     </Link>
   </li>
   <li>
@@ -463,6 +516,23 @@ exports[`should work for all qualifiers 2`] = `
       style={Object {}}
       to={
         Object {
+          "pathname": "/security_hotspots",
+          "query": Object {
+            "id": "foo",
+          },
+        }
+      }
+    >
+      layout.security_hotspots
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
           "pathname": "/component_measures",
           "query": Object {
             "id": "foo",
@@ -584,6 +654,23 @@ exports[`should work for all qualifiers 3`] = `
       style={Object {}}
       to={
         Object {
+          "pathname": "/security_hotspots",
+          "query": Object {
+            "id": "foo",
+          },
+        }
+      }
+    >
+      layout.security_hotspots
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
           "pathname": "/component_measures",
           "query": Object {
             "id": "foo",
@@ -667,6 +754,23 @@ exports[`should work for all qualifiers 4`] = `
       }
     >
       issues.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/security_hotspots",
+          "query": Object {
+            "id": "foo",
+          },
+        }
+      }
+    >
+      layout.security_hotspots
     </Link>
   </li>
   <li>

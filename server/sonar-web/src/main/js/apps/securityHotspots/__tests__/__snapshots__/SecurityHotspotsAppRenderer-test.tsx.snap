@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  id="security_hotspots"
+>
+  <FilterBar />
+  <ScreenPositionHelper>
+    <Component />
+  </ScreenPositionHelper>
+</div>
+`;
+
+exports[`should render correctly with hotspots 1`] = `
+<div
+  id="security_hotspots"
+>
+  <FilterBar />
+  <ScreenPositionHelper>
+    <Component />
+  </ScreenPositionHelper>
+</div>
+`;
+
+exports[`should render correctly with hotspots 2`] = `
+<div
+  id="security_hotspots"
+>
+  <FilterBar />
+  <ScreenPositionHelper>
+    <Component />
+  </ScreenPositionHelper>
+</div>
+`;
