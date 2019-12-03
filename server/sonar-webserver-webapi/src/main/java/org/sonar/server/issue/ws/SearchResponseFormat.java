@@ -37,14 +37,13 @@ import org.sonar.api.utils.Paging;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
-import org.sonar.db.protobuf.DbIssues.Location;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.es.Facets;
 import org.sonar.server.issue.AvatarResolver;
+import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.workflow.Transition;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
@@ -78,11 +77,14 @@ public class SearchResponseFormat {
   private final Durations durations;
   private final Languages languages;
   private final AvatarResolver avatarFactory;
+  private final TextRangeResponseFormatter textRangeFormatter;
 
-  public SearchResponseFormat(Durations durations, Languages languages, AvatarResolver avatarFactory) {
+  public SearchResponseFormat(Durations durations, Languages languages, AvatarResolver avatarFactory,
+    TextRangeResponseFormatter textRangeFormatter) {
     this.durations = durations;
     this.languages = languages;
     this.avatarFactory = avatarFactory;
+    this.textRangeFormatter = textRangeFormatter;
   }
 
   SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging, Facets facets) {
@@ -219,57 +221,19 @@ public class SearchResponseFormat {
     return ruleKey.repository().replace(EXTERNAL_RULE_REPO_PREFIX, "");
   }
 
-  private static void completeIssueLocations(IssueDto dto, Issue.Builder issueBuilder, SearchResponseData data) {
+  private void completeIssueLocations(IssueDto dto, Issue.Builder issueBuilder, SearchResponseData data) {
     DbIssues.Locations locations = dto.parseLocations();
     if (locations == null) {
       return;
     }
-    if (locations.hasTextRange()) {
-      DbCommons.TextRange textRange = locations.getTextRange();
-      issueBuilder.setTextRange(convertTextRange(textRange));
-    }
+    textRangeFormatter.formatTextRange(locations, issueBuilder::setTextRange);
     for (DbIssues.Flow flow : locations.getFlowList()) {
       Common.Flow.Builder targetFlow = Common.Flow.newBuilder();
-      for (Location flowLocation : flow.getLocationList()) {
-        targetFlow.addLocations(convertLocation(issueBuilder, flowLocation, data));
+      for (DbIssues.Location flowLocation : flow.getLocationList()) {
+        targetFlow.addLocations(textRangeFormatter.formatLocation(flowLocation, issueBuilder.getComponent(), data.getComponentsByUuid()));
       }
-      issueBuilder.addFlows(targetFlow);
+      issueBuilder.addFlows(targetFlow.build());
     }
-  }
-
-  private static Common.Location convertLocation(Issue.Builder issueBuilder, Location source, SearchResponseData data) {
-    Common.Location.Builder target = Common.Location.newBuilder();
-    if (source.hasMsg()) {
-      target.setMsg(source.getMsg());
-    }
-    if (source.hasTextRange()) {
-      DbCommons.TextRange sourceRange = source.getTextRange();
-      Common.TextRange.Builder targetRange = convertTextRange(sourceRange);
-      target.setTextRange(targetRange);
-    }
-    if (source.hasComponentId()) {
-      ofNullable(data.getComponentByUuid(source.getComponentId())).ifPresent(c -> target.setComponent(c.getKey()));
-    } else {
-      target.setComponent(issueBuilder.getComponent());
-    }
-    return target.build();
-  }
-
-  private static Common.TextRange.Builder convertTextRange(DbCommons.TextRange sourceRange) {
-    Common.TextRange.Builder targetRange = Common.TextRange.newBuilder();
-    if (sourceRange.hasStartLine()) {
-      targetRange.setStartLine(sourceRange.getStartLine());
-    }
-    if (sourceRange.hasStartOffset()) {
-      targetRange.setStartOffset(sourceRange.getStartOffset());
-    }
-    if (sourceRange.hasEndLine()) {
-      targetRange.setEndLine(sourceRange.getEndLine());
-    }
-    if (sourceRange.hasEndOffset()) {
-      targetRange.setEndOffset(sourceRange.getEndOffset());
-    }
-    return targetRange;
   }
 
   private static void formatIssueTransitions(SearchResponseData data, Issue.Builder wsIssue, IssueDto dto) {

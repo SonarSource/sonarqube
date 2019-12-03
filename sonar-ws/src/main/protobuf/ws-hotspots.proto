@@ -31,23 +31,42 @@ message SearchWsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
   repeated Hotspot hotspots = 2;
   repeated Component components = 3;
+
+  message Hotspot {
+    optional string key = 1;
+    optional string component = 2;
+    optional string project = 3;
+    optional string securityCategory = 4;
+    optional string vulnerabilityProbability = 5;
+    optional string status = 6;
+  //  FIXME resolution field will be added later
+  //  optional string resolution = 7;
+    optional int32 line = 8;
+    optional string message = 9;
+    optional string assignee = 10;
+    optional string author = 11;
+    optional string creationDate = 12;
+    optional string updateDate = 13;
+  }
 }
 
-message Hotspot {
+// Response of GET api/hotspots/show
+message ShowWsResponse {
   optional string key = 1;
-  optional string component = 2;
-  optional string project = 3;
-  optional string securityCategory = 4;
-  optional string vulnerabilityProbability = 5;
-  optional string status = 6;
+  optional Component component = 2;
+  optional Component project = 3;
+  optional Rule rule = 4;
+  optional string status = 5;
 //  FIXME resolution field will be added later
-//  optional string resolution = 7;
-  optional int32 line = 8;
-  optional string message = 9;
-  optional string assignee = 10;
-  optional string author = 11;
-  optional string creationDate = 12;
-  optional string updateDate = 13;
+//  optional string resolution = 6;
+  optional int32 line = 7;
+  optional string message = 8;
+  optional string assignee = 9;
+  // SCM login of the committer who introduced the issue
+  optional string author = 10;
+  optional string creationDate = 11;
+  optional string updateDate = 12;
+  optional sonarqube.ws.commons.TextRange textRange = 13;
 }
 
 message Component {
@@ -57,4 +76,14 @@ message Component {
   optional string name = 4;
   optional string longName = 5;
   optional string path = 6;
+}
+
+message Rule {
+  optional string key = 1;
+  optional string name = 2;
+  optional string securityCategory = 3;
+  optional string vulnerabilityProbability = 4;
+  optional string riskDescription = 5;
+  optional string vulnerabilityDescription = 6;
+  optional string fixRecommendations = 7;
 }

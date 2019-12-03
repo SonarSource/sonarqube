@@ -97,8 +97,9 @@ public class SearchActionTest {
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private StartupIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
+  private HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(defaultOrganizationProvider);
 
-  private SearchAction underTest = new SearchAction(dbClient, userSessionRule, issueIndex, defaultOrganizationProvider);
+  private SearchAction underTest = new SearchAction(dbClient, userSessionRule, issueIndex, responseFormatter);
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
@@ -200,7 +201,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
-      .extracting(Hotspots.Hotspot::getKey)
+      .extracting(Hotspots.SearchWsResponse.Hotspot::getKey)
       .containsOnly(Arrays.stream(hotspots)
         .filter(t -> !t.getKey().equals(hotspotWithoutRule.getKey()))
         .map(IssueDto::getKey)
@@ -250,7 +251,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
-      .extracting(Hotspots.Hotspot::getKey)
+      .extracting(SearchWsResponse.Hotspot::getKey)
       .containsOnly(Arrays.stream(hotspots).map(IssueDto::getKey).toArray(String[]::new));
     assertThat(response.getComponentsList())
       .extracting(Component::getKey)
@@ -274,7 +275,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
-      .extracting(Hotspots.Hotspot::getKey)
+      .extracting(Hotspots.SearchWsResponse.Hotspot::getKey)
       .containsOnly(Arrays.stream(hotspots).map(IssueDto::getKey).toArray(String[]::new));
     assertThat(response.getComponentsList())
       .extracting(Component::getKey)
@@ -302,7 +303,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(responseProject1.getHotspotsList())
-      .extracting(Hotspots.Hotspot::getKey)
+      .extracting(SearchWsResponse.Hotspot::getKey)
       .doesNotContainAnyElementsOf(Arrays.stream(hotspots2).map(IssueDto::getKey).collect(Collectors.toList()));
     assertThat(responseProject1.getComponentsList())
       .extracting(Component::getKey)
@@ -312,7 +313,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(responseProject2.getHotspotsList())
-      .extracting(Hotspots.Hotspot::getKey)
+      .extracting(SearchWsResponse.Hotspot::getKey)
       .containsOnly(Arrays.stream(hotspots2).map(IssueDto::getKey).toArray(String[]::new));
     assertThat(responseProject2.getComponentsList())
       .extracting(Component::getKey)
@@ -339,7 +340,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
-      .extracting(Hotspots.Hotspot::getKey)
+      .extracting(SearchWsResponse.Hotspot::getKey)
       .containsOnly(unresolvedHotspot.getKey(), badlyClosedHotspot.getKey());
   }
 
@@ -363,7 +364,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList()).hasSize(1);
-    Hotspots.Hotspot actual = response.getHotspots(0);
+    SearchWsResponse.Hotspot actual = response.getHotspots(0);
     assertThat(actual.getComponent()).isEqualTo(file.getKey());
     assertThat(actual.getProject()).isEqualTo(project.getKey());
     assertThat(actual.getStatus()).isEqualTo(hotspot.getStatus());
@@ -392,7 +393,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList()).hasSize(1);
-    Hotspots.Hotspot actual = response.getHotspots(0);
+    Hotspots.SearchWsResponse.Hotspot actual = response.getHotspots(0);
     assertThat(actual.getSecurityCategory()).isEqualTo(expected.getKey());
     assertThat(actual.getVulnerabilityProbability()).isEqualTo(expected.getVulnerability().name());
   }
@@ -434,7 +435,7 @@ public class SearchActionTest {
 
     assertThat(response.getHotspotsList())
       .hasSize(1);
-    Hotspots.Hotspot actual = response.getHotspots(0);
+    SearchWsResponse.Hotspot actual = response.getHotspots(0);
     assertThat(actual.hasStatus()).isFalse();
     // FIXME resolution field will be added later
     // assertThat(actual.hasResolution()).isFalse();
@@ -463,7 +464,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
-      .extracting(Hotspots.Hotspot::getKey)
+      .extracting(SearchWsResponse.Hotspot::getKey)
       .containsOnly(fileHotspot.getKey(), dirHotspot.getKey(), projectHotspot.getKey());
     assertThat(response.getComponentsList()).hasSize(3);
     assertThat(response.getComponentsList())
@@ -523,7 +524,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
-      .extracting(Hotspots.Hotspot::getKey)
+      .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactly(expectedHotspotKeys);
   }
 
@@ -556,7 +557,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
-      .extracting(Hotspots.Hotspot::getKey)
+      .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactly(expectedHotspotKeys);
   }
 
@@ -579,7 +580,7 @@ public class SearchActionTest {
     SearchWsResponse response = request.executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
-      .extracting(Hotspots.Hotspot::getKey)
+      .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactly(hotspots.stream().limit(100).map(IssueDto::getKey).toArray(String[]::new));
     assertThat(response.getPaging().getTotal()).isEqualTo(hotspots.size());
     assertThat(response.getPaging().getPageIndex()).isEqualTo(1);
@@ -623,7 +624,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
-      .extracting(Hotspots.Hotspot::getKey)
+      .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactly(hotspots.stream().skip(2 * pageSize).limit(pageSize).map(IssueDto::getKey).toArray(String[]::new));
     assertThat(response.getPaging().getTotal()).isEqualTo(hotspots.size());
     assertThat(response.getPaging().getPageIndex()).isEqualTo(3);
@@ -635,7 +636,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
-      .extracting(Hotspots.Hotspot::getKey)
+      .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactly(hotspots.stream().skip(3 * pageSize).limit(pageSize).map(IssueDto::getKey).toArray(String[]::new));
     assertThat(response.getPaging().getTotal()).isEqualTo(hotspots.size());
     assertThat(response.getPaging().getPageIndex()).isEqualTo(4);
@@ -648,7 +649,7 @@ public class SearchActionTest {
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
-      .extracting(Hotspots.Hotspot::getKey)
+      .extracting(SearchWsResponse.Hotspot::getKey)
       .isEmpty();
     assertThat(response.getPaging().getTotal()).isEqualTo(hotspots.size());
     assertThat(response.getPaging().getPageIndex()).isEqualTo(emptyPage);

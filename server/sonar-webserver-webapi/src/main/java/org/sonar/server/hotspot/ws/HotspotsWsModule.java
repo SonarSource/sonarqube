@@ -25,8 +25,9 @@ public class HotspotsWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      HotspotWsResponseFormatter.class,
       SearchAction.class,
-      HotspotsWs.class
-    );
+      ShowAction.class,
+      HotspotsWs.class);
   }
 }

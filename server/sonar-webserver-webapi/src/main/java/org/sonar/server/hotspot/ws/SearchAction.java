@@ -51,13 +51,12 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueQuery;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
+import org.sonarqube.ws.Hotspots.SearchWsResponse;
 
-import static com.google.common.base.Strings.nullToEmpty;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
@@ -68,6 +67,7 @@ import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.WsUtils.nullToEmpty;
 
 public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_PROJECT_KEY = "projectKey";
@@ -75,13 +75,14 @@ public class SearchAction implements HotspotsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final IssueIndex issueIndex;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final HotspotWsResponseFormatter responseFormatter;
 
-  public SearchAction(DbClient dbClient, UserSession userSession, IssueIndex issueIndex, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public SearchAction(DbClient dbClient, UserSession userSession, IssueIndex issueIndex,
+    HotspotWsResponseFormatter responseFormatter) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.issueIndex = issueIndex;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.responseFormatter = responseFormatter;
   }
 
   @Override
@@ -187,8 +188,8 @@ public class SearchAction implements HotspotsWsAction {
     }
   }
 
-  private Hotspots.SearchWsResponse formatResponse(SearchResponseData searchResponseData) {
-    Hotspots.SearchWsResponse.Builder responseBuilder = Hotspots.SearchWsResponse.newBuilder();
+  private SearchWsResponse formatResponse(SearchResponseData searchResponseData) {
+    SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
     formatPaging(searchResponseData, responseBuilder);
     if (!searchResponseData.isEmpty()) {
       formatHotspots(searchResponseData, responseBuilder);
@@ -197,7 +198,7 @@ public class SearchAction implements HotspotsWsAction {
     return responseBuilder.build();
   }
 
-  private void formatPaging(SearchResponseData searchResponseData, Hotspots.SearchWsResponse.Builder responseBuilder) {
+  private void formatPaging(SearchResponseData searchResponseData, SearchWsResponse.Builder responseBuilder) {
     Paging paging = searchResponseData.getPaging();
     Common.Paging.Builder pagingBuilder = Common.Paging.newBuilder()
       .setPageIndex(paging.pageIndex())
@@ -207,13 +208,13 @@ public class SearchAction implements HotspotsWsAction {
     responseBuilder.setPaging(pagingBuilder.build());
   }
 
-  private static void formatHotspots(SearchResponseData searchResponseData, Hotspots.SearchWsResponse.Builder responseBuilder) {
+  private void formatHotspots(SearchResponseData searchResponseData, SearchWsResponse.Builder responseBuilder) {
     List<IssueDto> orderedHotspots = searchResponseData.getOrderedHotspots();
     if (orderedHotspots.isEmpty()) {
       return;
     }
 
-    Hotspots.Hotspot.Builder builder = Hotspots.Hotspot.newBuilder();
+    SearchWsResponse.Hotspot.Builder builder = SearchWsResponse.Hotspot.newBuilder();
     for (IssueDto hotspot : orderedHotspots) {
       RuleDefinitionDto rule = searchResponseData.getRule(hotspot.getRuleKey())
         // due to join with table Rule when retrieving data from Issues, this can't happen
@@ -244,7 +245,7 @@ public class SearchAction implements HotspotsWsAction {
     }
   }
 
-  private void formatComponents(SearchResponseData searchResponseData, Hotspots.SearchWsResponse.Builder responseBuilder) {
+  private void formatComponents(SearchResponseData searchResponseData, SearchWsResponse.Builder responseBuilder) {
     Set<ComponentDto> components = searchResponseData.getComponents();
     if (components.isEmpty()) {
       return;
@@ -252,16 +253,7 @@ public class SearchAction implements HotspotsWsAction {
 
     Hotspots.Component.Builder builder = Hotspots.Component.newBuilder();
     for (ComponentDto component : components) {
-      builder
-        .clear()
-        .setOrganization(defaultOrganizationProvider.get().getKey())
-        .setKey(component.getKey())
-        .setQualifier(component.qualifier())
-        .setName(component.name())
-        .setLongName(component.longName());
-      ofNullable(component.path()).ifPresent(builder::setPath);
-
-      responseBuilder.addComponents(builder.build());
+      responseBuilder.addComponents(responseFormatter.formatComponent(builder, component));
     }
   }
 

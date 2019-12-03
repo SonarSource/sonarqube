@@ -82,6 +82,10 @@ public class SearchResponseData {
     return componentsByUuid.get(uuid);
   }
 
+  public Map<String, ComponentDto> getComponentsByUuid() {
+    return componentsByUuid;
+  }
+
   public List<UserDto> getUsers() {
     return new ArrayList<>(usersByUuid.values());
   }

@@ -21,6 +21,7 @@ package org.sonar.server.issue.ws;
 
 import org.sonar.core.platform.Module;
 import org.sonar.server.issue.AvatarResolverImpl;
+import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.TransitionService;
@@ -45,6 +46,7 @@ public class IssueWsModule extends Module {
       IssuesWs.class,
       AvatarResolverImpl.class,
       SearchResponseLoader.class,
+      TextRangeResponseFormatter.class,
       SearchResponseFormat.class,
       OperationResponseWriter.class,
       AddCommentAction.class,
