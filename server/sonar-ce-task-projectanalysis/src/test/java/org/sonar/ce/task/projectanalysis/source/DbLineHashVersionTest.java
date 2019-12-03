@@ -21,7 +21,10 @@ package org.sonar.ce.task.projectanalysis.source;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -29,12 +32,17 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.source.LineHashVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DbLineHashVersionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private DbLineHashVersion underTest = new DbLineHashVersion(db.getDbClient());
+  private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
+  private ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
+  private DbLineHashVersion underTest = new DbLineHashVersion(db.getDbClient(), analysisMetadataHolder, referenceBranchComponentUuids);
 
   @Test
   public void hasLineHashWithSignificantCode_should_return_true() {
@@ -50,6 +58,47 @@ public class DbLineHashVersionTest {
   public void hasLineHashWithSignificantCode_should_return_false_if_file_is_not_found() {
     Component component = ReportComponent.builder(Component.Type.FILE, 1).setKey("key").setUuid("123").build();
     assertThat(underTest.hasLineHashesWithSignificantCode(component)).isFalse();
+  }
+
+  @Test
+  public void hasLineHashWithSignificantCode_should_return_false_if_pr_reference_doesnt_have_file() {
+    when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
+    Component component = ReportComponent.builder(Component.Type.FILE, 1).setKey("key").setUuid("123").build();
+    assertThat(underTest.hasLineHashesWithSignificantCode(component)).isFalse();
+
+    verify(analysisMetadataHolder).isPullRequest();
+    verify(referenceBranchComponentUuids).getComponentUuid(component.getDbKey());
+  }
+
+  @Test
+  public void hasLineHashWithSignificantCode_should_return_false_if_pr_reference_has_file_but_it_is_not_in_db() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+
+    when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
+    when(referenceBranchComponentUuids.getComponentUuid("key")).thenReturn(file.uuid());
+
+    Component component = ReportComponent.builder(Component.Type.FILE, 1).setKey("key").setUuid("123").build();
+    assertThat(underTest.hasLineHashesWithSignificantCode(component)).isFalse();
+
+    verify(analysisMetadataHolder).isPullRequest();
+    verify(referenceBranchComponentUuids).getComponentUuid(component.getDbKey());
+  }
+
+  @Test
+  public void hasLineHashWithSignificantCode_should_return_true_if_pr_reference_has_file_and_it_is_in_db() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    db.fileSources().insertFileSource(file, dto -> dto.setLineHashesVersion(LineHashVersion.WITH_SIGNIFICANT_CODE.getDbValue()));
+
+    when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
+    when(referenceBranchComponentUuids.getComponentUuid("key")).thenReturn(file.uuid());
+
+    Component component = ReportComponent.builder(Component.Type.FILE, 1).setKey("key").setUuid("123").build();
+    assertThat(underTest.hasLineHashesWithSignificantCode(component)).isTrue();
+
+    verify(analysisMetadataHolder).isPullRequest();
+    verify(referenceBranchComponentUuids).getComponentUuid(component.getDbKey());
   }
 
   @Test

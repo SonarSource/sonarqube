@@ -21,7 +21,10 @@ package org.sonar.ce.task.projectanalysis.source;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.LineHashVersion;
@@ -29,9 +32,13 @@ import org.sonar.db.source.LineHashVersion;
 public class DbLineHashVersion {
   private final Map<Component, LineHashVersion> lineHashVersionPerComponent = new HashMap<>();
   private final DbClient dbClient;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final ReferenceBranchComponentUuids referenceBranchComponentUuids;
 
-  public DbLineHashVersion(DbClient dbClient) {
+  public DbLineHashVersion(DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder, ReferenceBranchComponentUuids referenceBranchComponentUuids) {
     this.dbClient = dbClient;
+    this.analysisMetadataHolder = analysisMetadataHolder;
+    this.referenceBranchComponentUuids = referenceBranchComponentUuids;
   }
 
   /**
@@ -43,9 +50,24 @@ public class DbLineHashVersion {
     return lineHashVersionPerComponent.computeIfAbsent(component, this::compute) == LineHashVersion.WITH_SIGNIFICANT_CODE;
   }
 
+  @CheckForNull
   private LineHashVersion compute(Component component) {
     try (DbSession session = dbClient.openSession(false)) {
-      return dbClient.fileSourceDao().selectLineHashesVersion(session, component.getUuid());
+      String referenceComponentUuid = getReferenceComponentUuid(component);
+      if (referenceComponentUuid != null) {
+        return dbClient.fileSourceDao().selectLineHashesVersion(session, referenceComponentUuid);
+      } else {
+        return null;
+      }
+    }
+  }
+
+  @CheckForNull
+  private String getReferenceComponentUuid(Component component) {
+    if (analysisMetadataHolder.isPullRequest()) {
+      return referenceBranchComponentUuids.getComponentUuid(component.getDbKey());
+    } else {
+      return component.getUuid();
     }
   }
 }
