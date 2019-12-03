@@ -31,8 +31,6 @@ public class LdapUserMapping {
 
   private static final Logger LOG = Loggers.get(LdapUserMapping.class);
 
-  private static final String DEFAULT_OBJECT_CLASS = "inetOrgPerson";
-  private static final String DEFAULT_LOGIN_ATTRIBUTE = "uid";
   private static final String DEFAULT_NAME_ATTRIBUTE = "cn";
   private static final String DEFAULT_EMAIL_ATTRIBUTE = "mail";
   private static final String DEFAULT_REQUEST = "(&(objectClass=inetOrgPerson)(uid={login}))";
@@ -56,26 +54,11 @@ public class LdapUserMapping {
       }
     }
 
-    String objectClass = settings.getString(settingsPrefix + ".user.objectClass");
-    String loginAttribute = settings.getString(settingsPrefix + ".user.loginAttribute");
-
     this.baseDn = usersBaseDn;
     this.realNameAttribute = StringUtils.defaultString(settings.getString(settingsPrefix + ".user.realNameAttribute"), DEFAULT_NAME_ATTRIBUTE);
     this.emailAttribute = StringUtils.defaultString(settings.getString(settingsPrefix + ".user.emailAttribute"), DEFAULT_EMAIL_ATTRIBUTE);
 
-    String req;
-    if (StringUtils.isNotBlank(objectClass) || StringUtils.isNotBlank(loginAttribute)) {
-      objectClass = StringUtils.defaultString(objectClass, DEFAULT_OBJECT_CLASS);
-      loginAttribute = StringUtils.defaultString(loginAttribute, DEFAULT_LOGIN_ATTRIBUTE);
-      req = "(&(objectClass=" + objectClass + ")(" + loginAttribute + "={login}))";
-      // For backward compatibility with plugin versions lower than 1.2
-      Loggers.get(LdapGroupMapping.class)
-        .warn("Properties '{}.user.objectClass' and '{}.user.loginAttribute' are deprecated and should be " +
-          "replaced by single property '{}.user.request' with value: {}",
-          settingsPrefix, settingsPrefix, settingsPrefix, req);
-    } else {
-      req = StringUtils.defaultString(settings.getString(settingsPrefix + ".user.request"), DEFAULT_REQUEST);
-    }
+    String req = StringUtils.defaultString(settings.getString(settingsPrefix + ".user.request"), DEFAULT_REQUEST);
     req = StringUtils.replace(req, "{login}", "{0}");
     this.request = req;
   }

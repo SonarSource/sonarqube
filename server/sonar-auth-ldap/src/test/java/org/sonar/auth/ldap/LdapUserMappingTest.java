@@ -45,8 +45,7 @@ public class LdapUserMappingTest {
   public void activeDirectory() {
     MapSettings settings = new MapSettings()
       .setProperty("ldap.user.baseDn", "cn=users")
-      .setProperty("ldap.user.objectClass", "user")
-      .setProperty("ldap.user.loginAttribute", "sAMAccountName");
+      .setProperty("ldap.user.request", "(&(objectClass=user)(sAMAccountName={0}))");
 
     LdapUserMapping userMapping = new LdapUserMapping(settings, "ldap");
     LdapSearch search = userMapping.createSearch(null, "tester");
