@@ -38,6 +38,7 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.dialect.H2;
+import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.branch.BranchFeatureProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
@@ -80,12 +81,13 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final BranchFeatureProxy branchFeature;
   private final UserSession userSession;
   private final PlatformEditionProvider editionProvider;
+  private final MultipleAlmFeatureProvider multipleAlmFeatureProvider;
   private final WebAnalyticsLoader webAnalyticsLoader;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
     WebServer webServer, DbClient dbClient, OrganizationFlags organizationFlags,
     DefaultOrganizationProvider defaultOrganizationProvider, BranchFeatureProxy branchFeature, UserSession userSession, PlatformEditionProvider editionProvider,
-    WebAnalyticsLoader webAnalyticsLoader) {
+    MultipleAlmFeatureProvider multipleAlmFeatureProvider, WebAnalyticsLoader webAnalyticsLoader) {
     this.pageRepository = pageRepository;
     this.config = config;
     this.resourceTypes = resourceTypes;
@@ -97,6 +99,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
     this.branchFeature = branchFeature;
     this.userSession = userSession;
     this.editionProvider = editionProvider;
+    this.multipleAlmFeatureProvider = multipleAlmFeatureProvider;
     this.webAnalyticsLoader = webAnalyticsLoader;
     this.systemSettingValuesByKey = new HashMap<>();
   }
@@ -140,6 +143,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
       writeDatabaseProduction(json);
       writeOrganizationSupport(json);
       writeBranchSupport(json);
+      writeMultipleAlmEnabled(json);
       editionProvider.get().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
       json.prop("standalone", webServer.isStandalone());
       writeWebAnalytics(json);
@@ -200,6 +204,10 @@ public class GlobalAction implements NavigationWsAction, Startable {
 
   private void writeBranchSupport(JsonWriter json) {
     json.prop("branchesEnabled", branchFeature.isEnabled());
+  }
+
+  private void writeMultipleAlmEnabled(JsonWriter json) {
+    json.prop("multipleAlmEnabled", multipleAlmFeatureProvider.enabled());
   }
 
   private void writeWebAnalytics(JsonWriter json) {

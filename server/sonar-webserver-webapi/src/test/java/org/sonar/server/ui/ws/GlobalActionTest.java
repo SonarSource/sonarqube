@@ -37,6 +37,7 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.PostgreSql;
+import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
@@ -68,6 +69,7 @@ public class GlobalActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("foo");
   private BranchFeatureRule branchFeature = new BranchFeatureRule();
   private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
   private WebAnalyticsLoader webAnalyticsLoader = mock(WebAnalyticsLoader.class);
 
   private WsActionTester ws;
@@ -240,6 +242,17 @@ public class GlobalActionTest {
   }
 
   @Test
+  public void multiple_alm_enabled() {
+    init();
+    when(multipleAlmFeatureProvider.enabled()).thenReturn(true);
+    assertJson(call()).isSimilarTo("{\"multipleAlmEnabled\":true}");
+
+    when(multipleAlmFeatureProvider.enabled()).thenReturn(false);
+    assertJson(call()).isSimilarTo("{\"multipleAlmEnabled\":false}");
+
+  }
+
+  @Test
   public void can_admin_on_global_level() {
     init();
     userSession.logIn().setRoot();
@@ -350,7 +363,7 @@ public class GlobalActionTest {
     }});
     pageRepository.start();
     GlobalAction wsAction = new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
-      webServer, dbClient, organizationFlags, defaultOrganizationProvider, branchFeature, userSession, editionProvider, webAnalyticsLoader);
+      webServer, dbClient, organizationFlags, defaultOrganizationProvider, branchFeature, userSession, editionProvider, multipleAlmFeatureProvider, webAnalyticsLoader);
     ws = new WsActionTester(wsAction);
     wsAction.start();
   }

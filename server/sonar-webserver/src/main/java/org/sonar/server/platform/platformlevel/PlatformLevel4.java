@@ -38,6 +38,7 @@ import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PlatformEditionProvider;
+import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.LogOAuthWarning;
 import org.sonar.server.authentication.ws.AuthenticationWsModule;
@@ -502,6 +503,8 @@ public class PlatformLevel4 extends PlatformLevel {
       // Core Extensions
       CoreExtensionBootstraper.class,
       CoreExtensionStopper.class,
+
+      MultipleAlmFeatureProvider.class,
 
       // Compute engine (must be after Views and Developer Cockpit)
       ReportAnalysisFailureNotificationModule.class,
