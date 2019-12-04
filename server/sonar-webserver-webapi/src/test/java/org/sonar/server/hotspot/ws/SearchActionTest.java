@@ -19,7 +19,11 @@
  */
 package org.sonar.server.hotspot.ws;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,6 +37,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
@@ -64,6 +69,7 @@ import org.sonarqube.ws.Hotspots.Component;
 import org.sonarqube.ws.Hotspots.SearchWsResponse;
 
 import static java.util.Collections.singleton;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -74,6 +80,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 
+@RunWith(DataProviderRunner.class)
 public class SearchActionTest {
   private static final Random RANDOM = new Random();
 
@@ -158,7 +165,6 @@ public class SearchActionTest {
 
     assertThat(response.getHotspotsList()).isEmpty();
     assertThat(response.getComponentsList()).isEmpty();
-    assertThat(response.getRulesList()).isEmpty();
   }
 
   @Test
@@ -172,7 +178,33 @@ public class SearchActionTest {
 
     assertThat(response.getHotspotsList()).isEmpty();
     assertThat(response.getComponentsList()).isEmpty();
-    assertThat(response.getRulesList()).isEmpty();
+  }
+
+  @Test
+  public void does_not_fail_if_rule_of_hotspot_does_not_exist_in_DB() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    indexPermissions();
+    IssueDto[] hotspots = IntStream.range(0, 1 + RANDOM.nextInt(10))
+      .mapToObj(i -> {
+        RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+        return dbTester.issues().insert(rule, project, file, t -> t.setType(SECURITY_HOTSPOT));
+      })
+      .toArray(IssueDto[]::new);
+    indexIssues();
+    IssueDto hotspotWithoutRule = hotspots[RANDOM.nextInt(hotspots.length)];
+    dbTester.executeUpdateSql("delete from rules where id=" + hotspotWithoutRule.getRuleId());
+
+    SearchWsResponse response = newRequest(project)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(Hotspots.Hotspot::getKey)
+      .containsOnly(Arrays.stream(hotspots)
+        .filter(t -> !t.getKey().equals(hotspotWithoutRule.getKey()))
+        .map(IssueDto::getKey)
+        .toArray(String[]::new));
   }
 
   @Test
@@ -191,14 +223,10 @@ public class SearchActionTest {
 
     SearchWsResponse response = newRequest(project)
       .executeProtobuf(SearchWsResponse.class);
-
-    assertThat(response.getHotspotsList()).isEmpty();
-    assertThat(response.getComponentsList()).isEmpty();
-    assertThat(response.getRulesList()).isEmpty();
   }
 
   @Test
-  public void returns_hotspot_component_and_rule_when_project_has_hotspots() {
+  public void returns_hotspot_components_when_project_has_hotspots() {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);
     indexPermissions();
@@ -227,9 +255,30 @@ public class SearchActionTest {
     assertThat(response.getComponentsList())
       .extracting(Component::getKey)
       .containsOnly(project.getKey(), fileWithHotspot.getKey());
-    assertThat(response.getRulesList())
-      .extracting(Hotspots.Rule::getKey)
-      .containsOnly(Arrays.stream(hotspots).map(t -> t.getRuleKey().toString()).toArray(String[]::new));
+  }
+
+  @Test
+  public void returns_single_component_when_all_hotspots_are_on_project() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    IssueDto[] hotspots = IntStream.range(0, 1 + RANDOM.nextInt(10))
+      .mapToObj(i -> {
+        RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+        return dbTester.issues().insert(rule, project, project, t -> t.setType(SECURITY_HOTSPOT));
+      })
+      .toArray(IssueDto[]::new);
+    indexIssues();
+
+    SearchWsResponse response = newRequest(project)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(Hotspots.Hotspot::getKey)
+      .containsOnly(Arrays.stream(hotspots).map(IssueDto::getKey).toArray(String[]::new));
+    assertThat(response.getComponentsList())
+      .extracting(Component::getKey)
+      .containsOnly(project.getKey());
   }
 
   @Test
@@ -258,9 +307,6 @@ public class SearchActionTest {
     assertThat(responseProject1.getComponentsList())
       .extracting(Component::getKey)
       .containsOnly(project1.getKey(), file1.getKey());
-    assertThat(responseProject1.getRulesList())
-      .extracting(Hotspots.Rule::getKey)
-      .containsOnly(Arrays.stream(hotspots2).map(t -> t.getRuleKey().toString()).toArray(String[]::new));
 
     SearchWsResponse responseProject2 = newRequest(project2)
       .executeProtobuf(SearchWsResponse.class);
@@ -271,9 +317,6 @@ public class SearchActionTest {
     assertThat(responseProject2.getComponentsList())
       .extracting(Component::getKey)
       .containsOnly(project2.getKey(), file2.getKey());
-    assertThat(responseProject2.getRulesList())
-      .extracting(Hotspots.Rule::getKey)
-      .containsOnly(Arrays.stream(hotspots2).map(t -> t.getRuleKey().toString()).toArray(String[]::new));
   }
 
   @Test
@@ -323,7 +366,6 @@ public class SearchActionTest {
     Hotspots.Hotspot actual = response.getHotspots(0);
     assertThat(actual.getComponent()).isEqualTo(file.getKey());
     assertThat(actual.getProject()).isEqualTo(project.getKey());
-    assertThat(actual.getRule()).isEqualTo(hotspot.getRuleKey().toString());
     assertThat(actual.getStatus()).isEqualTo(hotspot.getStatus());
     // FIXME resolution field will be added later
     // assertThat(actual.getResolution()).isEqualTo(hotspot.getResolution());
@@ -333,6 +375,40 @@ public class SearchActionTest {
     assertThat(actual.getAuthor()).isEqualTo(hotspot.getAuthorLogin());
     assertThat(actual.getCreationDate()).isEqualTo(formatDateTime(hotspot.getIssueCreationDate()));
     assertThat(actual.getUpdateDate()).isEqualTo(formatDateTime(hotspot.getIssueUpdateDate()));
+  }
+
+  @Test
+  @UseDataProvider("allSQCategories")
+  public void returns_SQCategory_and_VulnerabilityProbability_of_rule(Set<String> securityStandards, SQCategory expected) {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT, t -> t.setSecurityStandards(securityStandards));
+    IssueDto hotspot = dbTester.issues().insert(rule, project, file, t -> t.setType(SECURITY_HOTSPOT));
+    indexIssues();
+
+    SearchWsResponse response = newRequest(project)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList()).hasSize(1);
+    Hotspots.Hotspot actual = response.getHotspots(0);
+    assertThat(actual.getSecurityCategory()).isEqualTo(expected.getKey());
+    assertThat(actual.getVulnerabilityProbability()).isEqualTo(expected.getVulnerability().name());
+  }
+
+  @DataProvider
+  public static Object[][] allSQCategories() {
+    Stream<Object[]> allCategoriesButOTHERS = SecurityStandards.CWES_BY_SQ_CATEGORY.entrySet()
+      .stream()
+      .map(t -> new Object[] {
+        t.getValue().stream().map(c -> "cwe:" + c).collect(toSet()),
+        t.getKey()
+      });
+    Stream<Object[]> sqCategoryOTHERS = Stream.of(
+      new Object[] {Collections.emptySet(), SQCategory.OTHERS},
+      new Object[] {ImmutableSet.of("foo", "donut", "acme"), SQCategory.OTHERS});
+    return Stream.concat(allCategoriesButOTHERS, sqCategoryOTHERS).toArray(Object[][]::new);
   }
 
   @Test

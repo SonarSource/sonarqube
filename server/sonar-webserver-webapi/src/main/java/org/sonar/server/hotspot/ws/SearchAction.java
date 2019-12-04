@@ -22,10 +22,12 @@ package org.sonar.server.hotspot.ws;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,7 +42,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -62,7 +63,9 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -130,7 +133,7 @@ public class SearchAction implements HotspotsWsAction {
     SearchResponse result = doIndexSearch(wsRequest, project);
     List<String> issueKeys = Arrays.stream(result.getHits().getHits())
       .map(SearchHit::getId)
-      .collect(MoreCollectors.toList(result.getHits().getHits().length));
+      .collect(toList(result.getHits().getHits().length));
 
     List<IssueDto> hotspots = toIssueDtos(dbSession, issueKeys);
 
@@ -190,7 +193,6 @@ public class SearchAction implements HotspotsWsAction {
     if (!searchResponseData.isEmpty()) {
       formatHotspots(searchResponseData, responseBuilder);
       formatComponents(searchResponseData, responseBuilder);
-      formatRules(searchResponseData, responseBuilder);
     }
     return responseBuilder.build();
   }
@@ -213,12 +215,18 @@ public class SearchAction implements HotspotsWsAction {
 
     Hotspots.Hotspot.Builder builder = Hotspots.Hotspot.newBuilder();
     for (IssueDto hotspot : orderedHotspots) {
+      RuleDefinitionDto rule = searchResponseData.getRule(hotspot.getRuleKey())
+        // due to join with table Rule when retrieving data from Issues, this can't happen
+        .orElseThrow(() -> new IllegalStateException(String.format(
+          "Rule with key '%s' not found for Hotspot '%s'", hotspot.getRuleKey(), hotspot.getKey())));
+      SecurityStandards.SQCategory sqCategory = fromSecurityStandards(rule.getSecurityStandards()).getSqCategory();
       builder
         .clear()
         .setKey(hotspot.getKey())
         .setComponent(hotspot.getComponentKey())
         .setProject(hotspot.getProjectKey())
-        .setRule(hotspot.getRuleKey().toString());
+        .setSecurityCategory(sqCategory.getKey())
+        .setVulnerabilityProbability(sqCategory.getVulnerability().name());
       ofNullable(hotspot.getStatus()).ifPresent(builder::setStatus);
       // FIXME resolution field will be added later
       // ofNullable(hotspot.getResolution()).ifPresent(builder::setResolution);
@@ -257,27 +265,6 @@ public class SearchAction implements HotspotsWsAction {
     }
   }
 
-  private void formatRules(SearchResponseData searchResponseData, Hotspots.SearchWsResponse.Builder responseBuilder) {
-    Set<RuleDefinitionDto> rules = searchResponseData.getRules();
-    if (rules.isEmpty()) {
-      return;
-    }
-
-    Hotspots.Rule.Builder ruleBuilder = Hotspots.Rule.newBuilder();
-    for (RuleDefinitionDto rule : rules) {
-      SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(rule.getSecurityStandards());
-      SecurityStandards.SQCategory sqCategory = securityStandards.getSqCategory();
-      ruleBuilder
-        .clear()
-        .setKey(rule.getKey().toString())
-        .setName(nullToEmpty(rule.getName()))
-        .setSecurityCategory(sqCategory.getKey())
-        .setVulnerabilityProbability(sqCategory.getVulnerability().name());
-
-      responseBuilder.addRules(ruleBuilder.build());
-    }
-  }
-
   private static final class WsRequest {
     private final int page;
     private final int index;
@@ -306,7 +293,7 @@ public class SearchAction implements HotspotsWsAction {
     private final Paging paging;
     private final List<IssueDto> orderedHotspots;
     private final Set<ComponentDto> components = new HashSet<>();
-    private final Set<RuleDefinitionDto> rules = new HashSet<>();
+    private final Map<RuleKey, RuleDefinitionDto> rulesByRuleKey = new HashMap<>();
 
     private SearchResponseData(Paging paging, List<IssueDto> orderedHotspots) {
       this.paging = paging;
@@ -334,11 +321,11 @@ public class SearchAction implements HotspotsWsAction {
     }
 
     void addRules(Collection<RuleDefinitionDto> rules) {
-      this.rules.addAll(rules);
+      rules.forEach(t -> rulesByRuleKey.put(t.getKey(), t));
     }
 
-    Set<RuleDefinitionDto> getRules() {
-      return rules;
+    Optional<RuleDefinitionDto> getRule(RuleKey ruleKey) {
+      return ofNullable(rulesByRuleKey.get(ruleKey));
     }
 
   }
