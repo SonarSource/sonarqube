@@ -32,6 +32,7 @@ import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.process.System2;
 import org.sonar.process.SystemExit;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.application.config.SonarQubeVersionHelper.getSonarqubeVersion;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 
@@ -88,10 +89,7 @@ public class App {
     if (MetadataLoader.loadEdition(org.sonar.api.utils.System2.INSTANCE) == SonarEdition.SONARCLOUD) {
       return;
     }
-
-    if (!javaVersion.isAtLeastJava11()) {
-      throw new IllegalStateException("SonarQube requires Java 11+ to run");
-    }
+    checkState(javaVersion.isAtLeastJava11(), "SonarQube requires Java 11 to run");
   }
 
   public static void main(String[] args) throws Exception {
