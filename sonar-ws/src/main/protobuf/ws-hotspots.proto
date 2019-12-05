@@ -57,8 +57,7 @@ message ShowWsResponse {
   optional Component project = 3;
   optional Rule rule = 4;
   optional string status = 5;
-//  FIXME resolution field will be added later
-//  optional string resolution = 6;
+  optional string resolution = 6;
   optional int32 line = 7;
   optional string message = 8;
   optional string assignee = 9;

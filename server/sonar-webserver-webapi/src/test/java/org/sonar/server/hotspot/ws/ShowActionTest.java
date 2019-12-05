@@ -30,9 +30,11 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -175,6 +177,37 @@ public class ShowActionTest {
   }
 
   @Test
+  @UseDataProvider("statusAndResolutionCombinations")
+  public void returns_status_and_resolution(String status, @Nullable String resolution) {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    userSessionRule.registerComponents(project);
+    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule).setStatus(status).setResolution(resolution));
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getStatus()).isEqualTo(status);
+    if (resolution == null) {
+      assertThat(response.hasResolution()).isFalse();
+    } else {
+      assertThat(response.getResolution()).isEqualTo(resolution);
+    }
+  }
+
+  @DataProvider
+  public static Object[][] statusAndResolutionCombinations() {
+    return new Object[][] {
+      {Issue.STATUS_TO_REVIEW, null},
+      {Issue.STATUS_REVIEWED, Issue.RESOLUTION_FIXED},
+      {Issue.STATUS_REVIEWED, Issue.RESOLUTION_SAFE},
+      {Issue.STATUS_CLOSED, Issue.RESOLUTION_REMOVED}
+    };
+  }
+
+  @Test
   public void returns_hotspot_component_and_rule() {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);
@@ -193,7 +226,7 @@ public class ShowActionTest {
   }
 
   @Test
-  public void returns_no_textrange_when_locations_have_none() {
+  public void returns_no_textRange_when_locations_have_none() {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));

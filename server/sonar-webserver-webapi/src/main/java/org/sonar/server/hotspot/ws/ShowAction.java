@@ -103,8 +103,7 @@ public class ShowAction implements HotspotsWsAction {
   private void formatHotspot(ShowWsResponse.Builder builder, IssueDto hotspot) {
     builder.setKey(hotspot.getKey());
     ofNullable(hotspot.getStatus()).ifPresent(builder::setStatus);
-    // FIXME resolution field will be added later
-    // ofNullable(hotspot.getResolution()).ifPresent(builder::setResolution);
+    ofNullable(hotspot.getResolution()).ifPresent(builder::setResolution);
     ofNullable(hotspot.getLine()).ifPresent(builder::setLine);
     builder.setMessage(nullToEmpty(hotspot.getMessage()));
     ofNullable(hotspot.getAssigneeUuid()).ifPresent(builder::setAssignee);
