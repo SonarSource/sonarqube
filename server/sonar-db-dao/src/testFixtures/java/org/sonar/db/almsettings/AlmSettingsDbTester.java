@@ -32,6 +32,8 @@ import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketAlmSetting
 import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketProjectAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubProjectAlmSettingDto;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newGitlabAlmSettingDto;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newGitlabProjectAlmSettingDto;
 
 public class AlmSettingsDbTester {
 
@@ -52,6 +54,11 @@ public class AlmSettingsDbTester {
   }
 
   @SafeVarargs
+  public final AlmSettingDto insertGitlabAlmSetting(Consumer<AlmSettingDto>... populators) {
+    return insert(newGitlabAlmSettingDto(), populators);
+  }
+
+  @SafeVarargs
   public final AlmSettingDto insertBitbucketAlmSetting(Consumer<AlmSettingDto>... populators) {
     return insert(newBitbucketAlmSettingDto(), populators);
   }
@@ -63,6 +70,10 @@ public class AlmSettingsDbTester {
 
   public ProjectAlmSettingDto insertAzureProjectAlmSetting(AlmSettingDto azureAlmSetting, ComponentDto project) {
     return insertProjectAlmSetting(newAzureProjectAlmSettingDto(azureAlmSetting, project));
+  }
+
+  public ProjectAlmSettingDto insertGitlabProjectAlmSetting(AlmSettingDto gitlabAlmSetting, ComponentDto project) {
+    return insertProjectAlmSetting(newGitlabProjectAlmSettingDto(gitlabAlmSetting, project));
   }
 
   @SafeVarargs

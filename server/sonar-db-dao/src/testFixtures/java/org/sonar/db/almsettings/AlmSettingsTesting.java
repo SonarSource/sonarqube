@@ -44,6 +44,13 @@ public class AlmSettingsTesting {
       .setAlm(ALM.AZURE_DEVOPS);
   }
 
+  public static AlmSettingDto newGitlabAlmSettingDto() {
+    return new AlmSettingDto()
+      .setKey(randomAlphanumeric(200))
+      .setPersonalAccessToken(randomAlphanumeric(2000))
+      .setAlm(ALM.GITLAB);
+  }
+
   public static AlmSettingDto newBitbucketAlmSettingDto() {
     return new AlmSettingDto()
       .setKey(randomAlphanumeric(200))
@@ -59,9 +66,15 @@ public class AlmSettingsTesting {
       .setAlmRepo(randomAlphanumeric(256));
   }
 
-  static ProjectAlmSettingDto newAzureProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ComponentDto project) {
+  static ProjectAlmSettingDto newAzureProjectAlmSettingDto(AlmSettingDto azureAlmSetting, ComponentDto project) {
     return new ProjectAlmSettingDto()
-      .setAlmSettingUuid(githubAlmSetting.getUuid())
+      .setAlmSettingUuid(azureAlmSetting.getUuid())
+      .setProjectUuid(project.uuid());
+  }
+
+  static ProjectAlmSettingDto newGitlabProjectAlmSettingDto(AlmSettingDto gitlabAlmSetting, ComponentDto project) {
+    return new ProjectAlmSettingDto()
+      .setAlmSettingUuid(gitlabAlmSetting.getUuid())
       .setProjectUuid(project.uuid());
   }
 

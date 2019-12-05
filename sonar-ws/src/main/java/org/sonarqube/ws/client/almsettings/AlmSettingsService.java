@@ -67,6 +67,20 @@ public class AlmSettingsService extends BaseService {
   /**
    *
    * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/create_gitlab">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public void createGitlab(CreateGitlabRequest request) {
+    call(
+      new PostRequest(path("create_gitlab"))
+        .setParam("key", request.getKey())
+        .setParam("personalAccessToken", request.getPersonalAccessToken())
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  /**
+   *
+   * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/create_bitbucket">Further information about this action online (including a response example)</a>
    * @since 8.1
    */
@@ -172,6 +186,19 @@ public class AlmSettingsService extends BaseService {
 
   /**
    * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/set_gitlab_binding">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public void setGitlabBinding(SetGitlabBindingRequest request) {
+    call(
+      new PostRequest(path("set_gitlab_binding"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setParam("project", request.getProject())
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  /**
+   * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/set_bitbucket_binding">Further information about this action online (including a response example)</a>
    * @since 8.1
    */
@@ -208,6 +235,21 @@ public class AlmSettingsService extends BaseService {
   public void updateAzure(UpdateAzureRequest request) {
     call(
       new PostRequest(path("update_azure"))
+        .setParam("key", request.getKey())
+        .setParam("newKey", request.getNewKey())
+        .setParam("personalAccessToken", request.getPersonalAccessToken())
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  /**
+   *
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/update_gitlab">Further information about this action online (including a response example)</a>
+   * @since 8.1
+   */
+  public void updateGitlab(UpdateGitlabRequest request) {
+    call(
+      new PostRequest(path("update_gitlab"))
         .setParam("key", request.getKey())
         .setParam("newKey", request.getNewKey())
         .setParam("personalAccessToken", request.getPersonalAccessToken())

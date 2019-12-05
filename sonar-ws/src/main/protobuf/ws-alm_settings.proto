@@ -29,6 +29,7 @@ message ListDefinitionsWsResponse {
   repeated AlmSettingGithub github = 1;
   repeated AlmSettingAzure azure = 2;
   repeated AlmSettingBitbucket bitbucket = 3;
+  repeated AlmSettingGitlab gitlab = 4;
 }
 
 message AlmSettingGithub {
@@ -49,6 +50,11 @@ message AlmSettingBitbucket {
   optional string personalAccessToken = 3;
 }
 
+message AlmSettingGitlab {
+  optional string key = 1;
+  optional string personalAccessToken = 2;
+}
+
 // WS api/alm_settings/get_binding
 message GetBindingWsResponse {
   optional string key = 1;
@@ -62,6 +68,7 @@ enum Alm {
   github = 0;
   azure = 1;
   bitbucket = 2;
+  gitlab = 3;
 }
 
 // WS api/alm_settings/list

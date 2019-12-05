@@ -24,7 +24,8 @@ import java.util.Locale;
 public enum ALM {
   GITHUB,
   BITBUCKET,
-  AZURE_DEVOPS;
+  AZURE_DEVOPS,
+  GITLAB;
 
   public static ALM fromId(String almId) {
     return ALM.valueOf(almId.toUpperCase(Locale.ENGLISH));
