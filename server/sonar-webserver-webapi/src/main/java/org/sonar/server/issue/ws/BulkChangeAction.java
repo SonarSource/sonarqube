@@ -82,6 +82,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.issue.DefaultTransitions.OPEN_AS_VULNERABILITY;
 import static org.sonar.api.issue.DefaultTransitions.REOPEN;
+import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
 import static org.sonar.api.issue.DefaultTransitions.SET_AS_IN_REVIEW;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rules.RuleType.BUG;
@@ -145,8 +146,7 @@ public class BulkChangeAction implements IssuesWsAction {
         "Requires authentication.")
       .setSince("3.7")
       .setChangelog(
-        new Change("8.1", OPEN_AS_VULNERABILITY + " transition is no more supported"),
-        new Change("8.1", SET_AS_IN_REVIEW + " transition is no more supported"),
+        new Change("8.1", format("transitions '%s', '%s' and '%s' are no more supported", SET_AS_IN_REVIEW, RESOLVE_AS_REVIEWED, OPEN_AS_VULNERABILITY)),
         new Change("6.3", "'actions' parameter is ignored"))
       .setHandler(this)
       .setResponseExample(getClass().getResource("bulk_change-example.json"))

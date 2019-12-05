@@ -48,15 +48,20 @@ public interface DefaultTransitions {
 
   /**
    * @since 7.8
-   */
-  String RESOLVE_AS_REVIEWED = "resolveasreviewed";
-
-  /**
-   * @since 7.8
    * @deprecated since 8.1, security hotspots can no longer be converted to vulnerabilities
    */
   @Deprecated
   String OPEN_AS_VULNERABILITY = "openasvulnerability";
+
+  /**
+   * @since 7.8
+   */
+  String RESOLVE_AS_REVIEWED = "resolveasreviewed";
+
+  /**
+   * @since 8.1
+   */
+  String RESOLVE_AS_SAFE = "resolveassafe";
 
   /**
    * @since 7.8

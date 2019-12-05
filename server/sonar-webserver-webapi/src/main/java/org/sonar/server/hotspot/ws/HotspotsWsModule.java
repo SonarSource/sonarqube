@@ -28,6 +28,7 @@ public class HotspotsWsModule extends Module {
       HotspotWsResponseFormatter.class,
       SearchAction.class,
       ShowAction.class,
+      ChangeStatusAction.class,
       HotspotsWs.class);
   }
 }

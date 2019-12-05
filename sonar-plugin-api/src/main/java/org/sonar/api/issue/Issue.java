@@ -74,7 +74,15 @@ public interface Issue extends Serializable {
    */
   String RESOLUTION_WONT_FIX = "WONTFIX";
 
+  /**
+   * Security Hotspot has been reviewed and resolved as safe.
+   * @since 8.1
+   */
+  String RESOLUTION_SAFE = "SAFE";
+
   List<String> RESOLUTIONS = unmodifiableList(asList(RESOLUTION_FALSE_POSITIVE, RESOLUTION_WONT_FIX, RESOLUTION_FIXED, RESOLUTION_REMOVED));
+
+  List<String> SECURITY_HOTSPOT_RESOLUTIONS = unmodifiableList(asList(RESOLUTION_FIXED, RESOLUTION_SAFE));
 
   /**
    * @since 7.8
