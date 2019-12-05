@@ -19,14 +19,37 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { ALM_KEYS } from '../../../../../types/alm-settings';
-import TabHeader, { TabHeaderProps } from '../TabHeader';
+import { TabHeader, TabHeaderProps } from '../TabHeader';
 
 it('should render correctly', () => {
   expect(shallowRender(ALM_KEYS.AZURE)).toMatchSnapshot();
   expect(shallowRender(ALM_KEYS.GITHUB)).toMatchSnapshot();
 });
 
+it('should only show the create button if certain conditions are met', () => {
+  expect(
+    shallowRender(ALM_KEYS.GITHUB, { appState: { multipleAlmEnabled: false }, definitionCount: 1 })
+      .find(Button)
+      .exists()
+  ).toBe(false);
+
+  expect(
+    shallowRender(ALM_KEYS.GITHUB, { appState: { multipleAlmEnabled: false }, definitionCount: 0 })
+      .find(Button)
+      .exists()
+  ).toBe(true);
+
+  expect(
+    shallowRender(ALM_KEYS.GITHUB, { appState: { multipleAlmEnabled: true }, definitionCount: 5 })
+      .find(Button)
+      .exists()
+  ).toBe(true);
+});
+
 function shallowRender(alm: ALM_KEYS, props: Partial<TabHeaderProps> = {}) {
-  return shallow(<TabHeader alm={alm} onCreate={jest.fn()} {...props} />);
+  return shallow(
+    <TabHeader alm={alm} appState={{}} definitionCount={0} onCreate={jest.fn()} {...props} />
+  );
 }

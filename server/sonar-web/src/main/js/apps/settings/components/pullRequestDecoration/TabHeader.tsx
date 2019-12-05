@@ -23,15 +23,23 @@ import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { withAppState } from '../../../../components/hoc/withAppState';
 import { ALM_KEYS } from '../../../../types/alm-settings';
 
 export interface TabHeaderProps {
   alm: ALM_KEYS;
+  appState: Pick<T.AppState, 'multipleAlmEnabled'>;
+  definitionCount: number;
   onCreate: () => void;
 }
 
-export default function TabHeader(props: TabHeaderProps) {
-  const { alm } = props;
+export function TabHeader(props: TabHeaderProps) {
+  const {
+    alm,
+    appState: { multipleAlmEnabled },
+    definitionCount
+  } = props;
+  const showButton = multipleAlmEnabled || definitionCount === 0;
   return (
     <>
       <Alert className="spacer-top huge-spacer-bottom" variant="info">
@@ -50,10 +58,14 @@ export default function TabHeader(props: TabHeaderProps) {
 
       <div className="big-spacer-bottom display-flex-space-between">
         <h4 className="display-inline">{translate('settings.pr_decoration.table.title')}</h4>
-        <Button data-test="settings__alm-create" onClick={props.onCreate}>
-          {translate('settings.pr_decoration.table.create')}
-        </Button>
+        {showButton && (
+          <Button data-test="settings__alm-create" onClick={props.onCreate}>
+            {translate('settings.pr_decoration.table.create')}
+          </Button>
+        )}
       </div>
     </>
   );
 }
+
+export default withAppState(TabHeader);

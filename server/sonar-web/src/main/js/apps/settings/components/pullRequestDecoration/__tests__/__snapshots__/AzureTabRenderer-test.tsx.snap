@@ -2,8 +2,9 @@
 
 exports[`should render correctly 1`] = `
 <Fragment>
-  <TabHeader
+  <Connect(withAppState(TabHeader))
     alm="azure"
+    definitionCount={0}
     onCreate={[MockFunction]}
   />
   <DeferredSpinner
@@ -23,8 +24,9 @@ exports[`should render correctly 1`] = `
 
 exports[`should render correctly 2`] = `
 <Fragment>
-  <TabHeader
+  <Connect(withAppState(TabHeader))
     alm="azure"
+    definitionCount={0}
     onCreate={[MockFunction]}
   />
   <DeferredSpinner
@@ -44,8 +46,9 @@ exports[`should render correctly 2`] = `
 
 exports[`should render correctly 3`] = `
 <Fragment>
-  <TabHeader
+  <Connect(withAppState(TabHeader))
     alm="azure"
+    definitionCount={0}
     onCreate={[MockFunction]}
   />
   <DeferredSpinner

@@ -40,7 +40,11 @@ export default function AzureTabRenderer(props: AzureTabRendererProps) {
   const { definitions, editedDefinition, loading } = props;
   return (
     <>
-      <TabHeader alm={ALM_KEYS.AZURE} onCreate={props.onCreate} />
+      <TabHeader
+        alm={ALM_KEYS.AZURE}
+        definitionCount={definitions.length}
+        onCreate={props.onCreate}
+      />
 
       <DeferredSpinner loading={loading}>
         <AlmPRDecorationTable

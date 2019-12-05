@@ -41,7 +41,11 @@ export default function GithubTabRenderer(props: GithubTabRendererProps) {
   const { definitions, editedDefinition, loading } = props;
   return (
     <>
-      <TabHeader alm={ALM_KEYS.GITHUB} onCreate={props.onCreate} />
+      <TabHeader
+        alm={ALM_KEYS.GITHUB}
+        definitionCount={definitions.length}
+        onCreate={props.onCreate}
+      />
 
       <DeferredSpinner loading={loading}>
         <AlmPRDecorationTable

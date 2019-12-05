@@ -99,6 +99,7 @@ declare namespace T {
     defaultOrganization: string;
     edition: 'community' | 'developer' | 'enterprise' | 'datacenter' | undefined;
     globalPages?: Extension[];
+    multipleAlmEnabled?: boolean;
     organizationsEnabled?: boolean;
     productionDatabase: boolean;
     qualifiers: string[];

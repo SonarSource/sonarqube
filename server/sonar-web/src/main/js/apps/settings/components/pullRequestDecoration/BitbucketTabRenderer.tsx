@@ -41,7 +41,11 @@ export default function BitbucketTabRenderer(props: BitbucketTabRendererProps) {
   const { definitions, editedDefinition, loading } = props;
   return (
     <>
-      <TabHeader alm={ALM_KEYS.BITBUCKET} onCreate={props.onCreate} />
+      <TabHeader
+        alm={ALM_KEYS.BITBUCKET}
+        definitionCount={definitions.length}
+        onCreate={props.onCreate}
+      />
 
       <DeferredSpinner loading={loading}>
         <AlmPRDecorationTable
