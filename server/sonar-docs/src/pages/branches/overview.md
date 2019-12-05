@@ -63,11 +63,11 @@ Inactive branches are branches that are no longer being analyzed. You can use Ho
 
 ### Deleting inactive branches
 
-You can set the number of days a branch can be inactive before it's deleted at **Administration > Housekeeping > Number of days before deleting inactive branches**. Branches that are inactive for the number of days that you set will be automatically deleted.
+You can set the number of days a branch can be inactive before it's deleted in the global settings at **Administration > General Settings > Housekeeping > Number of days before deleting inactive branches**. Branches that are inactive for the number of days that you set will be automatically deleted.
 
 ### Using patterns to keep inactive branches
 
-You can use naming patterns to protect specific branches, such as release branches, from automatic deletion. To do this, add a pattern using Java regular expressions under **Administration > Housekeeping > Branches > Branches to keep when inactive**. When a branch is created with a name that follows one of these patterns, it will be kept indefinitely. 
+You can use naming patterns to protect specific branches, such as release branches, from automatic deletion. To do this, add a pattern using Java regular expressions under **Administration > General Settings > Housekeeping > Branches > Branches to keep when inactive** at either the global or project level. When a branch is created with a name that follows one of these patterns, it will be kept indefinitely. 
 
 For example, adding the pattern `release/.*` would keep any branches named release/6.0, release/7, and so on.
 
@@ -75,6 +75,6 @@ For example, adding the pattern `release/.*` would keep any branches named relea
 
 ### Managing inactive branches at a project level
 
-You can set a branch to **Keep when inactive** at the project level from from the **Branches** tab at **Administration > Branches and Pull Requests**. Here, you can also turn off protection for a branch so it will be deleted when it's inactive for the number of days specified at **Administration > Housekeeping > Number of days before deleting inactive branches**. 
+You can set a branch to **Keep when inactive** at the project level from from the **Branches** tab at **Administration > Branches and Pull Requests**. Here, you can also turn off protection for a branch so it will be deleted when it's inactive for the number of days that has been specified in the global settings at **Administration > General Settings > Housekeeping > Number of days before deleting inactive branches**. 
 
 **Note:** The main branch is always protected from automatic deletion, even if it's inactive. This can't be changed.
