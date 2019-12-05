@@ -25,19 +25,13 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchResult;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 /**
  * @author Evgeny Mandrikov
  */
 public class LdapGroupMapping {
 
-  private static final Logger LOG = Loggers.get(LdapGroupMapping.class);
-
-  private static final String DEFAULT_OBJECT_CLASS = "groupOfUniqueNames";
   private static final String DEFAULT_ID_ATTRIBUTE = "cn";
-  private static final String DEFAULT_MEMBER_ATTRIBUTE = "uniqueMember";
   private static final String DEFAULT_REQUEST = "(&(objectClass=groupOfUniqueNames)(uniqueMember={dn}))";
 
   private final String baseDn;
@@ -52,20 +46,7 @@ public class LdapGroupMapping {
     this.baseDn = settings.getString(settingsPrefix + ".group.baseDn");
     this.idAttribute = StringUtils.defaultString(settings.getString(settingsPrefix + ".group.idAttribute"), DEFAULT_ID_ATTRIBUTE);
 
-    String objectClass = settings.getString(settingsPrefix + ".group.objectClass");
-    String memberAttribute = settings.getString(settingsPrefix + ".group.memberAttribute");
-
-    String req;
-    if (StringUtils.isNotBlank(objectClass) || StringUtils.isNotBlank(memberAttribute)) {
-      // For backward compatibility with plugin versions 1.1 and 1.1.1
-      objectClass = StringUtils.defaultString(objectClass, DEFAULT_OBJECT_CLASS);
-      memberAttribute = StringUtils.defaultString(memberAttribute, DEFAULT_MEMBER_ATTRIBUTE);
-      req = "(&(objectClass=" + objectClass + ")(" + memberAttribute + "=" + "{dn}))";
-      LOG.warn("Properties '" + settingsPrefix + ".group.objectClass' and '" + settingsPrefix + ".group.memberAttribute' are deprecated" +
-        " and should be replaced by single property '" + settingsPrefix + ".group.request' with value: " + req);
-    } else {
-      req = StringUtils.defaultString(settings.getString(settingsPrefix + ".group.request"), DEFAULT_REQUEST);
-    }
+    String req = StringUtils.defaultString(settings.getString(settingsPrefix + ".group.request"), DEFAULT_REQUEST);
     this.requiredUserAttributes = StringUtils.substringsBetween(req, "{", "}");
     for (int i = 0; i < requiredUserAttributes.length; i++) {
       req = StringUtils.replace(req, "{" + requiredUserAttributes[i] + "}", "{" + i + "}");
