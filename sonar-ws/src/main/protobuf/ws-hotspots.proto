@@ -66,6 +66,7 @@ message ShowWsResponse {
   optional string creationDate = 11;
   optional string updateDate = 12;
   optional sonarqube.ws.commons.TextRange textRange = 13;
+  repeated sonarqube.ws.commons.Changelog changelog = 14;
 }
 
 message Component {

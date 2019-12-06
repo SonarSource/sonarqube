@@ -21,9 +21,10 @@ package org.sonar.server.issue.ws;
 
 import org.sonar.core.platform.Module;
 import org.sonar.server.issue.AvatarResolverImpl;
-import org.sonar.server.issue.TextRangeResponseFormatter;
+import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
+import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueQueryFactory;
@@ -45,6 +46,7 @@ public class IssueWsModule extends Module {
       IssueQueryFactory.class,
       IssuesWs.class,
       AvatarResolverImpl.class,
+      IssueChangelog.class,
       SearchResponseLoader.class,
       TextRangeResponseFormatter.class,
       SearchResponseFormat.class,

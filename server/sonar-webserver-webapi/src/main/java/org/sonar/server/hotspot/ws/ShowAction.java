@@ -19,7 +19,9 @@
  */
 package org.sonar.server.hotspot.ws;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Objects;
+import java.util.Set;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
@@ -33,6 +35,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.IssueChangelog;
+import org.sonar.server.issue.IssueChangelog.ChangelogLoadingContext;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.user.UserSession;
@@ -54,12 +58,15 @@ public class ShowAction implements HotspotsWsAction {
   private final UserSession userSession;
   private final HotspotWsResponseFormatter responseFormatter;
   private final TextRangeResponseFormatter textRangeFormatter;
+  private final IssueChangelog issueChangelog;
 
-  public ShowAction(DbClient dbClient, UserSession userSession, HotspotWsResponseFormatter responseFormatter, TextRangeResponseFormatter textRangeFormatter) {
+  public ShowAction(DbClient dbClient, UserSession userSession, HotspotWsResponseFormatter responseFormatter,
+    TextRangeResponseFormatter textRangeFormatter, IssueChangelog issueChangelog) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.responseFormatter = responseFormatter;
     this.textRangeFormatter = textRangeFormatter;
+    this.issueChangelog = issueChangelog;
   }
 
   @Override
@@ -95,6 +102,7 @@ public class ShowAction implements HotspotsWsAction {
       formatComponents(components, responseBuilder);
       formatRule(responseBuilder, rule);
       formatTextRange(hotspot, responseBuilder);
+      formatChangelog(dbSession, hotspot, components, responseBuilder);
 
       writeProtobuf(responseBuilder.build(), request, response);
     }
@@ -138,6 +146,15 @@ public class ShowAction implements HotspotsWsAction {
 
   private void formatTextRange(IssueDto hotspot, ShowWsResponse.Builder responseBuilder) {
     textRangeFormatter.formatTextRange(hotspot, responseBuilder::setTextRange);
+  }
+
+  private void formatChangelog(DbSession dbSession, IssueDto hotspot, Components components, ShowWsResponse.Builder responseBuilder) {
+    Set<ComponentDto> preloadedComponents = ImmutableSet.of(components.project, components.component);
+    ChangelogLoadingContext changelogLoadingContext = issueChangelog
+      .newChangelogLoadingContext(dbSession, hotspot, ImmutableSet.of(), preloadedComponents);
+
+    issueChangelog.formatChangelog(dbSession, changelogLoadingContext)
+      .forEach(responseBuilder::addChangelog);
   }
 
   private RuleDefinitionDto loadRule(DbSession dbSession, IssueDto hotspot) {

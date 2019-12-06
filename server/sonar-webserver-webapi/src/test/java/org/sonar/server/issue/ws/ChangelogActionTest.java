@@ -38,6 +38,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.AvatarResolverImpl;
+import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -69,7 +70,10 @@ public class ChangelogActionTest {
 
   private ComponentDto project;
   private ComponentDto file;
-  private WsActionTester tester = new WsActionTester(new ChangelogAction(db.getDbClient(), new IssueFinder(db.getDbClient(), userSession), new AvatarResolverImpl(), userSession));
+  private IssueFinder issueFinder = new IssueFinder(db.getDbClient(), userSession);
+  private IssueChangelog issueChangelog = new IssueChangelog(db.getDbClient(), new AvatarResolverImpl());
+  private ChangelogAction underTest = new ChangelogAction(db.getDbClient(), issueFinder, userSession, issueChangelog);
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
