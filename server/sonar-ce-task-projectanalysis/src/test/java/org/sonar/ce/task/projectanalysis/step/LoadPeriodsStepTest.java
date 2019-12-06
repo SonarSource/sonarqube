@@ -288,7 +288,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     SnapshotDto analysis5 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227934800000L).setProjectVersion("1.1").setLast(true)); // 2008-11-29
     dbTester.events().insertEvent(newEvent(analysis1).setName("0.9").setCategory(CATEGORY_VERSION).setDate(analysis1.getCreatedAt()));
     dbTester.events().insertEvent(newEvent(analysis2).setName("1.0").setCategory(CATEGORY_VERSION).setDate(analysis2.getCreatedAt()));
-    dbTester.events().insertEvent(newEvent(analysis5).setName("1.1").setCategory(CATEGORY_VERSION).setDate(analysis4.getCreatedAt()));
+    dbTester.events().insertEvent(newEvent(analysis5).setName("1.1").setCategory(CATEGORY_VERSION).setDate(analysis5.getCreatedAt()));
     setupRoot(project, "1.1");
     setProjectPeriod(project.uuid(), NewCodePeriodType.PREVIOUS_VERSION, null);
 
@@ -297,6 +297,22 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     assertPeriod(NewCodePeriodType.PREVIOUS_VERSION, "1.0", analysis2.getCreatedAt());
 
     verifyDebugLogs("Resolving new code period by previous version: 1.0");
+  }
+
+  @Test
+  public void load_previous_version_when_version_is_changing() {
+    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setProjectVersion("0.9").setLast(false)); // 2008-11-11
+    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226494680000L).setProjectVersion("0.9").setLast(true)); // 2008-11-12
+
+    dbTester.events().insertEvent(newEvent(analysis2).setName("0.9").setCategory(CATEGORY_VERSION).setDate(analysis2.getCreatedAt()));
+    setupRoot(project, "1.0");
+    setProjectPeriod(project.uuid(), NewCodePeriodType.PREVIOUS_VERSION, null);
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertPeriod(NewCodePeriodType.PREVIOUS_VERSION, "0.9", analysis2.getCreatedAt());
+
+    verifyDebugLogs("Resolving new code period by previous version: 0.9");
   }
 
   @Test
@@ -313,10 +329,9 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void load_previous_version_with_previous_version_deleted() {
     SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setProjectVersion("0.9").setLast(false)); // 2008-11-11
     SnapshotDto analysis2 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226494680000L).setProjectVersion("1.0").setLast(false)); // 2008-11-12
-    SnapshotDto analysis3 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227157200000L).setProjectVersion("1.1").setLast(false)); // 2008-11-20
+    SnapshotDto analysis3 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227157200000L).setProjectVersion("1.1").setLast(true)); // 2008-11-20
     dbTester.events().insertEvent(newEvent(analysis1).setName("0.9").setCategory(CATEGORY_VERSION));
     // The "1.0" version was deleted from the history
-    dbTester.events().insertEvent(newEvent(analysis3).setName("1.1").setCategory(CATEGORY_VERSION));
     setupRoot(project, "1.1");
 
     underTest.execute(new TestComputationStepContext());
@@ -349,8 +364,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertPeriod(NewCodePeriodType.PREVIOUS_VERSION, null, analysis.getCreatedAt());
-    verifyDebugLogs("Resolving first analysis as new code period as there is only one existing version");
+    assertPeriod(NewCodePeriodType.PREVIOUS_VERSION, "0.9", analysis.getCreatedAt());
+    verifyDebugLogs("Resolving new code period by previous version: 0.9");
   }
 
   @Test
@@ -377,7 +392,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @DataProvider
   public static Object[][] zeroOrLess() {
-    return new Object[][]{
+    return new Object[][] {
       {0},
       {-1 - new Random().nextInt(30)}
     };
@@ -385,7 +400,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @DataProvider
   public static Object[][] stringConsideredAsVersions() {
-    return new Object[][]{
+    return new Object[][] {
       {randomAlphabetic(5)},
       {"1,3"},
       {"1.3"},
@@ -397,7 +412,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @DataProvider
   public static Object[][] projectVersionNullOrNot() {
-    return new Object[][]{
+    return new Object[][] {
       {null},
       {randomAlphabetic(15)},
     };
@@ -405,7 +420,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @DataProvider
   public static Object[][] anyValidLeakPeriodSettingValue() {
-    return new Object[][]{
+    return new Object[][] {
       // days
       {NewCodePeriodType.NUMBER_OF_DAYS, "100"},
       // previous_version

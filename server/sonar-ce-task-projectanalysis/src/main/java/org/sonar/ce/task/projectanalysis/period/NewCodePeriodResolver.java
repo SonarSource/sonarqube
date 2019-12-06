@@ -81,7 +81,7 @@ public class NewCodePeriodResolver {
       .orElseThrow(() -> new IllegalStateException("Analysis '" + value + "' of project '" + rootUuid
         + "' defined as the baseline does not exist"));
     LOG.debug("Resolving new code period with a specific analysis");
-    return newPeriod(NewCodePeriodType.SPECIFIC_ANALYSIS, value, Instant.ofEpochMilli(baseline.getCreatedAt()));
+    return newPeriod(NewCodePeriodType.SPECIFIC_ANALYSIS, value, baseline.getCreatedAt());
   }
 
   private Period resolveByPreviousVersion(DbSession dbSession, String projectUuid, String projectVersion) {
@@ -93,9 +93,10 @@ public class NewCodePeriodResolver {
     String mostRecentVersion = Optional.ofNullable(versions.iterator().next().getName())
       .orElseThrow(() -> new IllegalStateException("selectVersionsByMostRecentFirst returned a DTO which didn't have a name"));
 
-    if (versions.size() == 1) {
+    if (versions.size() == 1 && projectVersion.equals(mostRecentVersion)) {
       return findOldestAnalysis(dbSession, projectUuid);
     }
+
     return resolvePreviousVersion(dbSession, projectVersion, versions, mostRecentVersion);
   }
 
@@ -107,7 +108,7 @@ public class NewCodePeriodResolver {
     Instant targetDate = DateUtils.addDays(Instant.ofEpochMilli(referenceDate), -days);
     LOG.debug("Resolving new code period by {} days: {}", days, supplierToString(() -> logDate(targetDate)));
     SnapshotDto snapshot = findNearestSnapshotToTargetDate(snapshots, targetDate);
-    return newPeriod(NewCodePeriodType.NUMBER_OF_DAYS, String.valueOf((int) days), Instant.ofEpochMilli(snapshot.getCreatedAt()));
+    return newPeriod(NewCodePeriodType.NUMBER_OF_DAYS, String.valueOf((int) days), snapshot.getCreatedAt());
   }
 
   private Period resolvePreviousVersion(DbSession dbSession, String currentVersion, List<EventDto> versions, String mostRecentVersion) {
@@ -119,14 +120,14 @@ public class NewCodePeriodResolver {
   private Period findOldestAnalysis(DbSession dbSession, String projectUuid) {
     LOG.debug("Resolving first analysis as new code period as there is only one existing version");
     Optional<Period> period = dbClient.snapshotDao().selectOldestSnapshot(dbSession, projectUuid)
-      .map(dto -> newPeriod(NewCodePeriodType.PREVIOUS_VERSION, null, Instant.ofEpochMilli(dto.getCreatedAt())));
+      .map(dto -> newPeriod(NewCodePeriodType.PREVIOUS_VERSION, null, dto.getCreatedAt()));
     ensureNotOnFirstAnalysis(period.isPresent());
     return period.get();
   }
 
   private Period newPeriod(DbSession dbSession, EventDto previousVersion) {
     Optional<Period> period = dbClient.snapshotDao().selectByUuid(dbSession, previousVersion.getAnalysisUuid())
-      .map(dto -> newPeriod(NewCodePeriodType.PREVIOUS_VERSION, dto.getProjectVersion(), Instant.ofEpochMilli(dto.getCreatedAt())));
+      .map(dto -> newPeriod(NewCodePeriodType.PREVIOUS_VERSION, dto.getProjectVersion(), dto.getCreatedAt()));
     if (!period.isPresent()) {
       throw new IllegalStateException(format("Analysis '%s' for version event '%s' has been deleted",
         previousVersion.getAnalysisUuid(), previousVersion.getName()));
@@ -134,8 +135,8 @@ public class NewCodePeriodResolver {
     return period.get();
   }
 
-  private static Period newPeriod(NewCodePeriodType type, @Nullable String value, Instant instant) {
-    return new Period(type.name(), value, instant.toEpochMilli());
+  private static Period newPeriod(NewCodePeriodType type, @Nullable String value, long date) {
+    return new Period(type.name(), value, date);
   }
 
   private static Object supplierToString(Supplier<String> s) {
