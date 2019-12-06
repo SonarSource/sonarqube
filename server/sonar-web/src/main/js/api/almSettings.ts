@@ -28,6 +28,8 @@ import {
   BitbucketProjectAlmBinding,
   GithubBindingDefinition,
   GithubProjectAlmBinding,
+  GitlabBindingDefinition,
+  GitlabProjectAlmBinding,
   ProjectAlmBinding
 } from '../types/alm-settings';
 
@@ -67,6 +69,14 @@ export function updateBitbucketConfiguration(
   return post('/api/alm_settings/update_bitbucket', data).catch(throwGlobalError);
 }
 
+export function createGitlabConfiguration(data: GitlabBindingDefinition) {
+  return post('/api/alm_settings/create_gitlab', data).catch(throwGlobalError);
+}
+
+export function updateGitlabConfiguration(data: GitlabBindingDefinition & { newKey: string }) {
+  return post('/api/alm_settings/update_gitlab', data).catch(throwGlobalError);
+}
+
 export function deleteConfiguration(key: string) {
   return post('/api/alm_settings/delete', { key }).catch(throwGlobalError);
 }
@@ -95,4 +105,8 @@ export function setProjectBitbucketBinding(data: BitbucketProjectAlmBinding) {
 
 export function setProjectGithubBinding(data: GithubProjectAlmBinding) {
   return post('/api/alm_settings/set_github_binding', data).catch(throwGlobalError);
+}
+
+export function setProjectGitlabBinding(data: GitlabProjectAlmBinding) {
+  return post('/api/alm_settings/set_gitlab_binding', data).catch(throwGlobalError);
 }

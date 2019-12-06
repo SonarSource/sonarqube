@@ -24,7 +24,7 @@ import {
   createGithubConfiguration,
   updateGithubConfiguration
 } from '../../../../../api/almSettings';
-import { mockGithubDefinition } from '../../../../../helpers/testMocks';
+import { mockGithubDefinition } from '../../../../../helpers/mocks/alm-settings';
 import GithubTab from '../GithubTab';
 
 jest.mock('../../../../../api/almSettings', () => ({

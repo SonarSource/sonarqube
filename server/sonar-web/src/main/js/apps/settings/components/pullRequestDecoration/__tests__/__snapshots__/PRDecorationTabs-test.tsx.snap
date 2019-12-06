@@ -27,8 +27,8 @@ exports[`should render correctly 1`] = `
             <img
               alt="github"
               className="spacer-right"
+              height={16}
               src="/images/alm/github.svg"
-              width={16}
             />
             GitHub
           </React.Fragment>,
@@ -39,8 +39,8 @@ exports[`should render correctly 1`] = `
             <img
               alt="bitbucket"
               className="spacer-right"
+              height={16}
               src="/images/alm/bitbucket.svg"
-              width={16}
             />
             Bitbucket Server
           </React.Fragment>,
@@ -51,10 +51,22 @@ exports[`should render correctly 1`] = `
             <img
               alt="azure"
               className="spacer-right"
+              height={16}
               src="/images/alm/azure.svg"
-              width={16}
             />
             Azure DevOps Server
+          </React.Fragment>,
+        },
+        Object {
+          "key": "gitlab",
+          "label": <React.Fragment>
+            <img
+              alt="gitlab"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/gitlab.svg"
+            />
+            GitLab
           </React.Fragment>,
         },
       ]
@@ -100,8 +112,8 @@ exports[`should render correctly 2`] = `
             <img
               alt="github"
               className="spacer-right"
+              height={16}
               src="/images/alm/github.svg"
-              width={16}
             />
             GitHub
           </React.Fragment>,
@@ -112,8 +124,8 @@ exports[`should render correctly 2`] = `
             <img
               alt="bitbucket"
               className="spacer-right"
+              height={16}
               src="/images/alm/bitbucket.svg"
-              width={16}
             />
             Bitbucket Server
           </React.Fragment>,
@@ -124,10 +136,22 @@ exports[`should render correctly 2`] = `
             <img
               alt="azure"
               className="spacer-right"
+              height={16}
               src="/images/alm/azure.svg"
-              width={16}
             />
             Azure DevOps Server
+          </React.Fragment>,
+        },
+        Object {
+          "key": "gitlab",
+          "label": <React.Fragment>
+            <img
+              alt="gitlab"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/gitlab.svg"
+            />
+            GitLab
           </React.Fragment>,
         },
       ]
@@ -178,8 +202,8 @@ exports[`should render correctly 3`] = `
             <img
               alt="github"
               className="spacer-right"
+              height={16}
               src="/images/alm/github.svg"
-              width={16}
             />
             GitHub
           </React.Fragment>,
@@ -190,8 +214,8 @@ exports[`should render correctly 3`] = `
             <img
               alt="bitbucket"
               className="spacer-right"
+              height={16}
               src="/images/alm/bitbucket.svg"
-              width={16}
             />
             Bitbucket Server
           </React.Fragment>,
@@ -202,10 +226,22 @@ exports[`should render correctly 3`] = `
             <img
               alt="azure"
               className="spacer-right"
+              height={16}
               src="/images/alm/azure.svg"
-              width={16}
             />
             Azure DevOps Server
+          </React.Fragment>,
+        },
+        Object {
+          "key": "gitlab",
+          "label": <React.Fragment>
+            <img
+              alt="gitlab"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/gitlab.svg"
+            />
+            GitLab
           </React.Fragment>,
         },
       ]
@@ -242,7 +278,7 @@ exports[`should render correctly 4`] = `
   </div>
   <BoxedTabs
     onSelect={[MockFunction]}
-    selected="github"
+    selected="bitbucket"
     tabs={
       Array [
         Object {
@@ -251,8 +287,8 @@ exports[`should render correctly 4`] = `
             <img
               alt="github"
               className="spacer-right"
+              height={16}
               src="/images/alm/github.svg"
-              width={16}
             />
             GitHub
           </React.Fragment>,
@@ -263,8 +299,8 @@ exports[`should render correctly 4`] = `
             <img
               alt="bitbucket"
               className="spacer-right"
+              height={16}
               src="/images/alm/bitbucket.svg"
-              width={16}
             />
             Bitbucket Server
           </React.Fragment>,
@@ -275,10 +311,22 @@ exports[`should render correctly 4`] = `
             <img
               alt="azure"
               className="spacer-right"
+              height={16}
               src="/images/alm/azure.svg"
-              width={16}
             />
             Azure DevOps Server
+          </React.Fragment>,
+        },
+        Object {
+          "key": "gitlab",
+          "label": <React.Fragment>
+            <img
+              alt="gitlab"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/gitlab.svg"
+            />
+            GitLab
           </React.Fragment>,
         },
       ]
@@ -287,7 +335,92 @@ exports[`should render correctly 4`] = `
   <div
     className="boxed-group boxed-group-inner"
   >
-    <GithubTab
+    <BitbucketTab
+      definitions={Array []}
+      loading={false}
+      onDelete={[MockFunction]}
+      onUpdateDefinitions={[MockFunction]}
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly 5`] = `
+<Fragment>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.pr_decoration.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.pr_decoration.description
+  </div>
+  <BoxedTabs
+    onSelect={[MockFunction]}
+    selected="gitlab"
+    tabs={
+      Array [
+        Object {
+          "key": "github",
+          "label": <React.Fragment>
+            <img
+              alt="github"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/github.svg"
+            />
+            GitHub
+          </React.Fragment>,
+        },
+        Object {
+          "key": "bitbucket",
+          "label": <React.Fragment>
+            <img
+              alt="bitbucket"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/bitbucket.svg"
+            />
+            Bitbucket Server
+          </React.Fragment>,
+        },
+        Object {
+          "key": "azure",
+          "label": <React.Fragment>
+            <img
+              alt="azure"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/azure.svg"
+            />
+            Azure DevOps Server
+          </React.Fragment>,
+        },
+        Object {
+          "key": "gitlab",
+          "label": <React.Fragment>
+            <img
+              alt="gitlab"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/gitlab.svg"
+            />
+            GitLab
+          </React.Fragment>,
+        },
+      ]
+    }
+  />
+  <div
+    className="boxed-group boxed-group-inner"
+  >
+    <GitlabTab
       definitions={Array []}
       loading={false}
       onDelete={[MockFunction]}

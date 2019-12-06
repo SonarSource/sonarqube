@@ -23,11 +23,6 @@ import { InjectedRouter } from 'react-router';
 import { createStore, Store } from 'redux';
 import { DocumentationEntry } from '../apps/documentation/utils';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
-import {
-  AzureBindingDefinition,
-  BitbucketBindingDefinition,
-  GithubBindingDefinition
-} from '../types/alm-settings';
 
 export function mockAlmApplication(overrides: Partial<T.AlmApplication> = {}): T.AlmApplication {
   return {
@@ -51,39 +46,6 @@ export function mockAlmOrganization(overrides: Partial<T.AlmOrganization> = {}):
     privateRepos: 0,
     publicRepos: 3,
     url: 'http://example.com/foo',
-    ...overrides
-  };
-}
-
-export function mockAzureDefinition(
-  overrides: Partial<AzureBindingDefinition> = {}
-): AzureBindingDefinition {
-  return {
-    key: 'key',
-    personalAccessToken: 'asdf1234',
-    ...overrides
-  };
-}
-
-export function mockBitbucketDefinition(
-  overrides: Partial<BitbucketBindingDefinition> = {}
-): BitbucketBindingDefinition {
-  return {
-    key: 'key',
-    personalAccessToken: 'asdf1234',
-    url: 'http://bbs.enterprise.com',
-    ...overrides
-  };
-}
-
-export function mockGithubDefinition(
-  overrides: Partial<GithubBindingDefinition> = {}
-): GithubBindingDefinition {
-  return {
-    key: 'key',
-    url: 'http://github.enterprise.com',
-    appId: '123456',
-    privateKey: 'asdf1234',
     ...overrides
   };
 }

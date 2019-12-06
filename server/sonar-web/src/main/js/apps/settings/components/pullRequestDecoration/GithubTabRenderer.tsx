@@ -65,6 +65,7 @@ export default function GithubTabRenderer(props: GithubTabRendererProps) {
 
       {editedDefinition && (
         <AlmPRDecorationFormModal
+          alm={ALM_KEYS.GITHUB}
           bindingDefinition={editedDefinition}
           onCancel={props.onCancel}
           onSubmit={props.onSubmit}>

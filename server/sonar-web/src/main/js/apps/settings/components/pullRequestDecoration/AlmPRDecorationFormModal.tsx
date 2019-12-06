@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { AlmSettingsBinding } from '../../../../types/alm-settings';
+import { AlmSettingsBinding, ALM_KEYS } from '../../../../types/alm-settings';
 import AlmPRDecorationFormModalRenderer from './AlmPRDecorationFormModalRenderer';
 
 interface ChildrenProps<AlmBindingDefinitionType> {
@@ -27,6 +27,7 @@ interface ChildrenProps<AlmBindingDefinitionType> {
 }
 
 interface Props<B> {
+  alm: ALM_KEYS;
   children: (props: ChildrenProps<B>) => React.ReactNode;
   bindingDefinition: B;
   onCancel: () => void;
@@ -67,11 +68,12 @@ export default class AlmPRDecorationFormModal<
   };
 
   render() {
-    const { children, bindingDefinition } = this.props;
+    const { alm, children, bindingDefinition } = this.props;
     const { formData } = this.state;
 
     return (
       <AlmPRDecorationFormModalRenderer
+        alm={alm}
         canSubmit={this.canSubmit}
         onCancel={this.props.onCancel}
         onSubmit={this.handleFormSubmit}

@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockBitbucketDefinition } from '../../../../../helpers/testMocks';
+import { mockBitbucketDefinition } from '../../../../../helpers/mocks/alm-settings';
 import BitbucketFormModal, { BitbucketFormModalProps } from '../BitbucketFormModal';
 
 it('should render correctly', () => {

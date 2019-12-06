@@ -26,14 +26,15 @@ it('should render correctly', () => {
   expect(shallowRender({ loading: true })).toMatchSnapshot();
   expect(shallowRender({ definitionKeyForDeletion: 'keyToDelete' })).toMatchSnapshot();
   expect(shallowRender({ currentAlm: ALM_KEYS.AZURE })).toMatchSnapshot();
-  expect(shallowRender({ currentAlm: ALM_KEYS.GITHUB })).toMatchSnapshot();
+  expect(shallowRender({ currentAlm: ALM_KEYS.BITBUCKET })).toMatchSnapshot();
+  expect(shallowRender({ currentAlm: ALM_KEYS.GITLAB })).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<PRDecorationTabsProps> = {}) {
   return shallow(
     <PRDecorationTabs
       currentAlm={ALM_KEYS.GITHUB}
-      definitions={{ azure: [], bitbucket: [], github: [] }}
+      definitions={{ azure: [], bitbucket: [], github: [], gitlab: [] }}
       loading={false}
       onCancel={jest.fn()}
       onConfirmDelete={jest.fn()}

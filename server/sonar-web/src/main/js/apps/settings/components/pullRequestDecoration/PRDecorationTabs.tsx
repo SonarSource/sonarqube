@@ -26,6 +26,7 @@ import AzureTab from './AzureTab';
 import BitbucketTab from './BitbucketTab';
 import DeleteModal from './DeleteModal';
 import GithubTab from './GithubTab';
+import GitlabTab from './GitlabTab';
 
 export interface PRDecorationTabsProps {
   currentAlm: ALM_KEYS;
@@ -43,7 +44,8 @@ export interface PRDecorationTabsProps {
 export const almName = {
   [ALM_KEYS.AZURE]: 'Azure DevOps Server',
   [ALM_KEYS.BITBUCKET]: 'Bitbucket Server',
-  [ALM_KEYS.GITHUB]: 'GitHub'
+  [ALM_KEYS.GITHUB]: 'GitHub',
+  [ALM_KEYS.GITLAB]: 'GitLab'
 };
 
 export default function PRDecorationTabs(props: PRDecorationTabsProps) {
@@ -69,8 +71,8 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
                 <img
                   alt="github"
                   className="spacer-right"
+                  height={16}
                   src={`${getBaseUrl()}/images/alm/github.svg`}
-                  width={16}
                 />
                 {almName[ALM_KEYS.GITHUB]}
               </>
@@ -83,8 +85,8 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
                 <img
                   alt="bitbucket"
                   className="spacer-right"
+                  height={16}
                   src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
-                  width={16}
                 />
                 {almName[ALM_KEYS.BITBUCKET]}
               </>
@@ -97,10 +99,24 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
                 <img
                   alt="azure"
                   className="spacer-right"
+                  height={16}
                   src={`${getBaseUrl()}/images/alm/azure.svg`}
-                  width={16}
                 />
                 {almName[ALM_KEYS.AZURE]}
+              </>
+            )
+          },
+          {
+            key: ALM_KEYS.GITLAB,
+            label: (
+              <>
+                <img
+                  alt="gitlab"
+                  className="spacer-right"
+                  height={16}
+                  src={`${getBaseUrl()}/images/alm/gitlab.svg`}
+                />
+                {almName[ALM_KEYS.GITLAB]}
               </>
             )
           }
@@ -127,6 +143,14 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
         {currentAlm === ALM_KEYS.GITHUB && (
           <GithubTab
             definitions={definitions.github}
+            loading={loading}
+            onDelete={props.onDelete}
+            onUpdateDefinitions={props.onUpdateDefinitions}
+          />
+        )}
+        {currentAlm === ALM_KEYS.GITLAB && (
+          <GitlabTab
+            definitions={definitions.gitlab}
             loading={loading}
             onDelete={props.onDelete}
             onUpdateDefinitions={props.onUpdateDefinitions}

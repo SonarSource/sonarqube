@@ -64,6 +64,7 @@ export default function BitbucketTabRenderer(props: BitbucketTabRendererProps) {
 
       {editedDefinition && (
         <AlmPRDecorationFormModal
+          alm={ALM_KEYS.BITBUCKET}
           bindingDefinition={editedDefinition}
           onCancel={props.onCancel}
           onSubmit={props.onSubmit}>

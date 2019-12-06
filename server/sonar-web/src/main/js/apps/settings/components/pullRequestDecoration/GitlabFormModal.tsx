@@ -19,29 +19,29 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { AzureBindingDefinition } from '../../../../types/alm-settings';
+import { GitlabBindingDefinition } from '../../../../types/alm-settings';
 import { AlmDefinitionFormField } from './AlmDefinitionFormField';
 
-export interface AzureFormModalProps {
-  formData: AzureBindingDefinition;
-  onFieldChange: (fieldId: keyof AzureBindingDefinition, value: string) => void;
+export interface GitlabFormModalProps {
+  formData: GitlabBindingDefinition;
+  onFieldChange: (fieldId: keyof GitlabBindingDefinition, value: string) => void;
 }
 
-export default function AzureFormModal(props: AzureFormModalProps) {
+export function GitlabFormModal(props: GitlabFormModalProps) {
   const { formData, onFieldChange } = props;
 
   return (
     <>
       <AlmDefinitionFormField
         autoFocus={true}
-        help={translate('settings.pr_decoration.form.name.azure.help')}
-        id="name.azure"
+        help={translate('settings.pr_decoration.form.name.gitlab.help')}
+        id="name.gitlab"
         onFieldChange={onFieldChange}
         propKey="key"
         value={formData.key}
       />
       <AlmDefinitionFormField
-        help={translate('settings.pr_decoration.form.personal_access_token.azure.help')}
+        help={translate('settings.pr_decoration.form.personal_access_token.gitlab.help')}
         id="personal_access_token"
         isTextArea={true}
         onFieldChange={onFieldChange}
@@ -51,3 +51,5 @@ export default function AzureFormModal(props: AzureFormModalProps) {
     </>
   );
 }
+
+export default React.memo(GitlabFormModal);

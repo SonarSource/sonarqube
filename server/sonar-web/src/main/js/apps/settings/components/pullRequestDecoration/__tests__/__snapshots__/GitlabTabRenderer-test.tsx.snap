@@ -3,7 +3,7 @@
 exports[`should render correctly 1`] = `
 <Fragment>
   <Connect(withAppState(TabHeader))
-    alm="bitbucket"
+    alm="gitlab"
     definitionCount={0}
     onCreate={[MockFunction]}
   />
@@ -12,12 +12,8 @@ exports[`should render correctly 1`] = `
     timeout={100}
   >
     <AlmPRDecorationTable
-      additionalColumnsHeaders={
-        Array [
-          "settings.pr_decoration.table.column.bitbucket.url",
-        ]
-      }
-      alm="bitbucket"
+      additionalColumnsHeaders={Array []}
+      alm="gitlab"
       definitions={Array []}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
@@ -29,7 +25,7 @@ exports[`should render correctly 1`] = `
 exports[`should render correctly 2`] = `
 <Fragment>
   <Connect(withAppState(TabHeader))
-    alm="bitbucket"
+    alm="gitlab"
     definitionCount={0}
     onCreate={[MockFunction]}
   />
@@ -38,12 +34,8 @@ exports[`should render correctly 2`] = `
     timeout={100}
   >
     <AlmPRDecorationTable
-      additionalColumnsHeaders={
-        Array [
-          "settings.pr_decoration.table.column.bitbucket.url",
-        ]
-      }
-      alm="bitbucket"
+      additionalColumnsHeaders={Array []}
+      alm="gitlab"
       definitions={Array []}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
@@ -55,7 +47,7 @@ exports[`should render correctly 2`] = `
 exports[`should render correctly 3`] = `
 <Fragment>
   <Connect(withAppState(TabHeader))
-    alm="bitbucket"
+    alm="gitlab"
     definitionCount={0}
     onCreate={[MockFunction]}
   />
@@ -64,24 +56,19 @@ exports[`should render correctly 3`] = `
     timeout={100}
   >
     <AlmPRDecorationTable
-      additionalColumnsHeaders={
-        Array [
-          "settings.pr_decoration.table.column.bitbucket.url",
-        ]
-      }
-      alm="bitbucket"
+      additionalColumnsHeaders={Array []}
+      alm="gitlab"
       definitions={Array []}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
     />
   </DeferredSpinner>
   <AlmPRDecorationFormModal
-    alm="bitbucket"
+    alm="gitlab"
     bindingDefinition={
       Object {
-        "key": "key",
-        "personalAccessToken": "asdf1234",
-        "url": "http://bbs.enterprise.com",
+        "key": "foo",
+        "personalAccessToken": "foobar",
       }
     }
     onCancel={[MockFunction]}

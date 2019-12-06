@@ -24,7 +24,8 @@ import {
   getProjectAlmBinding,
   setProjectAzureBinding,
   setProjectBitbucketBinding,
-  setProjectGithubBinding
+  setProjectGithubBinding,
+  setProjectGitlabBinding
 } from '../../../../api/almSettings';
 import throwGlobalError from '../../../../app/utils/throwGlobalError';
 import { AlmSettingsInstance, ALM_KEYS, ProjectAlmBinding } from '../../../../types/alm-settings';
@@ -47,7 +48,8 @@ interface State {
 const FIELDS_BY_ALM: { [almKey in ALM_KEYS]: Array<keyof T.Omit<ProjectAlmBinding, 'key'>> } = {
   [ALM_KEYS.AZURE]: [],
   [ALM_KEYS.BITBUCKET]: ['repository', 'slug'],
-  [ALM_KEYS.GITHUB]: ['repository']
+  [ALM_KEYS.GITHUB]: ['repository'],
+  [ALM_KEYS.GITLAB]: []
 };
 
 export default class PRDecorationBinding extends React.PureComponent<Props, State> {
@@ -167,6 +169,13 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
           repository
         });
       }
+
+      case ALM_KEYS.GITLAB:
+        return setProjectGitlabBinding({
+          almSetting,
+          project
+        });
+
       default:
         return Promise.reject();
     }

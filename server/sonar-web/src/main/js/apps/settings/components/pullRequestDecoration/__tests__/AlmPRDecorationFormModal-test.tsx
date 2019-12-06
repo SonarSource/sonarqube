@@ -20,8 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { mockGithubDefinition } from '../../../../../helpers/testMocks';
-import { GithubBindingDefinition } from '../../../../../types/alm-settings';
+import { mockGithubDefinition } from '../../../../../helpers/mocks/alm-settings';
+import { ALM_KEYS, GithubBindingDefinition } from '../../../../../types/alm-settings';
 import AlmPRDecorationFormModal from '../AlmPRDecorationFormModal';
 
 it('should render correctly', () => {
@@ -80,6 +80,7 @@ function shallowRender(
 ) {
   return shallow<AlmPRDecorationFormModal<GithubBindingDefinition>>(
     <AlmPRDecorationFormModal
+      alm={ALM_KEYS.GITHUB}
       bindingDefinition={{ appId: '', key: '', privateKey: '', url: '' }}
       onCancel={jest.fn()}
       onSubmit={jest.fn()}

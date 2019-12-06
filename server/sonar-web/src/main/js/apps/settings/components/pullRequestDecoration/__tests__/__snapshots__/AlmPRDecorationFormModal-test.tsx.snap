@@ -2,6 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <AlmPRDecorationFormModalRenderer
+  alm="github"
   canSubmit={[Function]}
   onCancel={[MockFunction]}
   onSubmit={[Function]}

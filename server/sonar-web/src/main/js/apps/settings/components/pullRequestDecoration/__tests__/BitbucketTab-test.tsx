@@ -24,7 +24,7 @@ import {
   createBitbucketConfiguration,
   updateBitbucketConfiguration
 } from '../../../../../api/almSettings';
-import { mockBitbucketDefinition } from '../../../../../helpers/testMocks';
+import { mockBitbucketDefinition } from '../../../../../helpers/mocks/alm-settings';
 import BitbucketTab from '../BitbucketTab';
 
 jest.mock('../../../../../api/almSettings', () => ({

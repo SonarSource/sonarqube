@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockGithubDefinition } from '../../../../../helpers/testMocks';
+import { mockGithubDefinition } from '../../../../../helpers/mocks/alm-settings';
 import GithubFormModal, { GithubFormModalProps } from '../GithubFormModal';
 
 it('should render correctly', () => {

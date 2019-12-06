@@ -57,7 +57,13 @@ export function TabHeader(props: TabHeaderProps) {
       </Alert>
 
       <div className="big-spacer-bottom display-flex-space-between">
-        <h4 className="display-inline">{translate('settings.pr_decoration.table.title')}</h4>
+        <h4 className="display-inline">
+          {translate(
+            'settings',
+            alm === ALM_KEYS.GITLAB ? 'mr_decoration' : 'pr_decoration',
+            'table.title'
+          )}
+        </h4>
         {showButton && (
           <Button data-test="settings__alm-create" onClick={props.onCreate}>
             {translate('settings.pr_decoration.table.create')}

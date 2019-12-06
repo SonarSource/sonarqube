@@ -19,29 +19,29 @@
  */
 import * as React from 'react';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { ALM_KEYS, AzureBindingDefinition } from '../../../../types/alm-settings';
+import { ALM_KEYS, GitlabBindingDefinition } from '../../../../types/alm-settings';
 import AlmPRDecorationFormModal from './AlmPRDecorationFormModal';
 import AlmPRDecorationTable from './AlmPRDecorationTable';
-import AzureFormModal from './AzureFormModal';
+import GitlabFormModal from './GitlabFormModal';
 import TabHeader from './TabHeader';
 
-export interface AzureTabRendererProps {
-  editedDefinition?: AzureBindingDefinition;
-  definitions: AzureBindingDefinition[];
+export interface GitlabTabRendererProps {
+  editedDefinition?: GitlabBindingDefinition;
+  definitions: GitlabBindingDefinition[];
   loading: boolean;
   onCancel: () => void;
   onCreate: () => void;
   onDelete: (definitionKey: string) => void;
   onEdit: (definitionKey: string) => void;
-  onSubmit: (config: AzureBindingDefinition, originalKey: string) => void;
+  onSubmit: (config: GitlabBindingDefinition, originalKey: string) => void;
 }
 
-export default function AzureTabRenderer(props: AzureTabRendererProps) {
+export default function GitlabTabRenderer(props: GitlabTabRendererProps) {
   const { definitions, editedDefinition, loading } = props;
   return (
     <>
       <TabHeader
-        alm={ALM_KEYS.AZURE}
+        alm={ALM_KEYS.GITLAB}
         definitionCount={definitions.length}
         onCreate={props.onCreate}
       />
@@ -49,7 +49,7 @@ export default function AzureTabRenderer(props: AzureTabRendererProps) {
       <DeferredSpinner loading={loading}>
         <AlmPRDecorationTable
           additionalColumnsHeaders={[]}
-          alm={ALM_KEYS.AZURE}
+          alm={ALM_KEYS.GITLAB}
           definitions={definitions.map(({ key }) => ({
             key,
             additionalColumns: []
@@ -61,11 +61,11 @@ export default function AzureTabRenderer(props: AzureTabRendererProps) {
 
       {editedDefinition && (
         <AlmPRDecorationFormModal
-          alm={ALM_KEYS.AZURE}
+          alm={ALM_KEYS.GITLAB}
           bindingDefinition={editedDefinition}
           onCancel={props.onCancel}
           onSubmit={props.onSubmit}>
-          {childProps => <AzureFormModal {...childProps} />}
+          {childProps => <GitlabFormModal {...childProps} />}
         </AlmPRDecorationFormModal>
       )}
     </>

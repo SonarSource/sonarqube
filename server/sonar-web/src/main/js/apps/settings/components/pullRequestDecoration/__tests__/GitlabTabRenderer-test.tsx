@@ -19,25 +19,26 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ALM_KEYS } from '../../../../../types/alm-settings';
-import AlmPRDecorationFormModalRenderer, {
-  AlmPRDecorationFormModalProps
-} from '../AlmPRDecorationFormModalRenderer';
+import { mockGitlabDefinition } from '../../../../../helpers/mocks/alm-settings';
+import GitlabTabRenderer, { GitlabTabRendererProps } from '../GitlabTabRenderer';
 
 it('should render correctly', () => {
-  expect(shallowRender().dive()).toMatchSnapshot();
+  expect(shallowRender({ loading: true })).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ editedDefinition: mockGitlabDefinition() })).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<AlmPRDecorationFormModalProps> = {}) {
+function shallowRender(props: Partial<GitlabTabRendererProps> = {}) {
   return shallow(
-    <AlmPRDecorationFormModalRenderer
-      alm={ALM_KEYS.GITHUB}
-      canSubmit={jest.fn()}
+    <GitlabTabRenderer
+      definitions={[]}
+      loading={false}
       onCancel={jest.fn()}
+      onCreate={jest.fn()}
+      onDelete={jest.fn()}
+      onEdit={jest.fn()}
       onSubmit={jest.fn()}
-      originalKey=""
-      {...props}>
-      {() => null}
-    </AlmPRDecorationFormModalRenderer>
+      {...props}
+    />
   );
 }

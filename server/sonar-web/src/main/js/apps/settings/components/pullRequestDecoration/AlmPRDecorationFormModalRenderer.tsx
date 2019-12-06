@@ -22,8 +22,10 @@ import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/contro
 import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ALM_KEYS } from '../../../../types/alm-settings';
 
 export interface AlmPRDecorationFormModalProps {
+  alm: ALM_KEYS;
   canSubmit: () => boolean;
   children: React.ReactNode;
   onCancel: () => void;
@@ -32,8 +34,13 @@ export interface AlmPRDecorationFormModalProps {
 }
 
 export default function AlmPRDecorationFormModalRenderer(props: AlmPRDecorationFormModalProps) {
-  const { children, originalKey } = props;
-  const header = translate('settings.pr_decoration.form.header', originalKey ? 'edit' : 'create');
+  const { alm, children, originalKey } = props;
+  const header = translate(
+    'settings',
+    alm === ALM_KEYS.GITLAB ? 'mr_decoration' : 'pr_decoration',
+    'form.header',
+    originalKey ? 'edit' : 'create'
+  );
 
   return (
     <SimpleModal header={header} onClose={props.onCancel} onSubmit={props.onSubmit} size="medium">

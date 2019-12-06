@@ -8,6 +8,7 @@ exports[`should render correctly 1`] = `
       "azure": Array [],
       "bitbucket": Array [],
       "github": Array [],
+      "gitlab": Array [],
     }
   }
   loading={true}

@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockBitbucketDefinition } from '../../../../../helpers/testMocks';
+import { mockBitbucketDefinition } from '../../../../../helpers/mocks/alm-settings';
 import BitbucketTabRenderer, { BitbucketTabRendererProps } from '../BitbucketTabRenderer';
 
 it('should render correctly', () => {

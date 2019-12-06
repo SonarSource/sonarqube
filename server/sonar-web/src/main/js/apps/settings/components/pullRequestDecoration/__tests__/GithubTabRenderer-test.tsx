@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockGithubDefinition } from '../../../../../helpers/testMocks';
+import { mockGithubDefinition } from '../../../../../helpers/mocks/alm-settings';
 import GithubTabRenderer, { GithubTabRendererProps } from '../GithubTabRenderer';
 
 it('should render correctly', () => {

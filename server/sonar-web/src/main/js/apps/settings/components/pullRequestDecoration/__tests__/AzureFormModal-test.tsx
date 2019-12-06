@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockAzureDefinition } from '../../../../../helpers/testMocks';
+import { mockAzureDefinition } from '../../../../../helpers/mocks/alm-settings';
 import AzureFormModal, { AzureFormModalProps } from '../AzureFormModal';
 
 it('should render correctly', () => {

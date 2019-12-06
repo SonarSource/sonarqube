@@ -19,25 +19,20 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ALM_KEYS } from '../../../../../types/alm-settings';
-import AlmPRDecorationFormModalRenderer, {
-  AlmPRDecorationFormModalProps
-} from '../AlmPRDecorationFormModalRenderer';
+import { mockGitlabDefinition } from '../../../../../helpers/mocks/alm-settings';
+import { GitlabFormModal, GitlabFormModalProps } from '../GitlabFormModal';
 
 it('should render correctly', () => {
-  expect(shallowRender().dive()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ formData: mockGitlabDefinition() })).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<AlmPRDecorationFormModalProps> = {}) {
+function shallowRender(props: Partial<GitlabFormModalProps> = {}) {
   return shallow(
-    <AlmPRDecorationFormModalRenderer
-      alm={ALM_KEYS.GITHUB}
-      canSubmit={jest.fn()}
-      onCancel={jest.fn()}
-      onSubmit={jest.fn()}
-      originalKey=""
-      {...props}>
-      {() => null}
-    </AlmPRDecorationFormModalRenderer>
+    <GitlabFormModal
+      formData={{ key: '', personalAccessToken: '' }}
+      onFieldChange={jest.fn()}
+      {...props}
+    />
   );
 }

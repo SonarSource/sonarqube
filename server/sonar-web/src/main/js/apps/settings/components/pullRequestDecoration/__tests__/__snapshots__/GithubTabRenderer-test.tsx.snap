@@ -79,6 +79,7 @@ exports[`should render correctly 3`] = `
     />
   </DeferredSpinner>
   <AlmPRDecorationFormModal
+    alm="github"
     bindingDefinition={
       Object {
         "appId": "123456",

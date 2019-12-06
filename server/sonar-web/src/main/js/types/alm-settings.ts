@@ -20,7 +20,8 @@
 export const enum ALM_KEYS {
   AZURE = 'azure',
   BITBUCKET = 'bitbucket',
-  GITHUB = 'github'
+  GITHUB = 'github',
+  GITLAB = 'gitlab'
 }
 
 export interface AlmSettingsBinding {
@@ -37,6 +38,7 @@ export interface AlmSettingsBindingDefinitions {
   azure: AzureBindingDefinition[];
   bitbucket: BitbucketBindingDefinition[];
   github: GithubBindingDefinition[];
+  gitlab: GitlabBindingDefinition[];
 }
 
 export interface AzureBindingDefinition extends AlmSettingsBinding {
@@ -52,6 +54,10 @@ export interface GithubBindingDefinition extends AlmSettingsBinding {
   appId: string;
   privateKey: string;
   url: string;
+}
+
+export interface GitlabBindingDefinition extends AlmSettingsBinding {
+  personalAccessToken: string;
 }
 
 export interface ProjectAlmBinding {
@@ -76,4 +82,9 @@ export interface GithubProjectAlmBinding {
   almSetting: string;
   project: string;
   repository: string;
+}
+
+export interface GitlabProjectAlmBinding {
+  almSetting: string;
+  project: string;
 }
