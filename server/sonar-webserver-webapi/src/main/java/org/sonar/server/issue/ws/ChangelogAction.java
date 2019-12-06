@@ -46,8 +46,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.AvatarResolver;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Common.Changelog;
 import org.sonarqube.ws.Issues.ChangelogWsResponse;
-import org.sonarqube.ws.Issues.ChangelogWsResponse.Changelog;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.emptyToNull;

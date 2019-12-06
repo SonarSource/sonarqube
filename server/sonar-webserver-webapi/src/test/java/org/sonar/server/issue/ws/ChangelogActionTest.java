@@ -42,8 +42,8 @@ import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common.Changelog.Diff;
 import org.sonarqube.ws.Issues.ChangelogWsResponse;
-import org.sonarqube.ws.Issues.ChangelogWsResponse.Changelog.Diff;
 
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;

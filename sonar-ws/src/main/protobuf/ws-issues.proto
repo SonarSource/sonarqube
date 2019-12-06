@@ -226,24 +226,7 @@ message Component {
 
 // Response of GET api/issues/changelog
 message ChangelogWsResponse {
-  repeated Changelog changelog = 1;
-
-  message Changelog {
-    optional string user = 1;
-    optional string userName = 2;
-    // Email is no more returned since 6.3
-    optional string deprecatedEmail = 3;
-    optional string creationDate = 4;
-    repeated Diff diffs = 5;
-    optional string avatar = 6;
-    optional bool isUserActive = 7;
-
-    message Diff {
-      optional string key = 1;
-      optional string newValue = 2;
-      optional string oldValue = 3;
-    }
-  }
+  repeated sonarqube.ws.commons.Changelog changelog = 1;
 }
 
 // Response of POST api/issues/bulk_change
