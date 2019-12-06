@@ -37,6 +37,7 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TYPE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
@@ -105,9 +106,11 @@ public class SetTypeAction implements IssuesWsAction {
   private SearchResponseData setType(DbSession session, String issueKey, RuleType ruleType) {
     IssueDto issueDto = issueFinder.getByKey(session, issueKey);
     DefaultIssue issue = issueDto.toDefaultIssue();
-    if (issue.isFromHotspot()) {
+
+    if (SECURITY_HOTSPOT == issue.type()) {
       throw new IllegalArgumentException("Changing type of a security hotspot is not permitted");
     }
+
     userSession.checkComponentUuidPermission(ISSUE_ADMIN, issue.projectUuid());
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());

@@ -38,8 +38,7 @@
     p.path as filePath,
     root.kee as projectKey,
     i.project_uuid as projectUuid,
-    i.issue_type as type,
-    i.from_hotspot as "isFromHotspot"
+    i.issue_type as type
   </sql>
 
   <sql id="sortColumn">
@@ -96,8 +95,7 @@
     p.scope,
     p.organization_uuid as "organizationUuid",
     i.tags,
-    i.issue_type as "issueType",
-    i.from_hotspot as "isFromHotspot"
+    i.issue_type as "issueType"
   </sql>
 
 
@@ -105,7 +103,7 @@
     INSERT INTO issues (kee, rule_id, severity, manual_severity,
     message, line, locations, gap, effort, status, tags,
     resolution, checksum, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,
-    issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type, from_hotspot)
+    issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type)
     VALUES (#{kee,jdbcType=VARCHAR}, #{ruleId,jdbcType=INTEGER},
     #{severity,jdbcType=VARCHAR},
     #{manualSeverity,jdbcType=BOOLEAN}, #{message,jdbcType=VARCHAR}, #{line,jdbcType=INTEGER},
@@ -118,7 +116,7 @@
     #{issueAttributes,jdbcType=VARCHAR},
     #{issueCreationTime,jdbcType=BIGINT},#{issueUpdateTime,jdbcType=BIGINT}, #{issueCloseTime,jdbcType=BIGINT},
     #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT},
-    #{componentUuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, #{isFromHotspot,jdbcType=BOOLEAN})
+    #{componentUuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER})
   </insert>
 
   <!--
@@ -145,8 +143,7 @@
     issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
     issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
     updated_at=#{updatedAt,jdbcType=BIGINT},
-    issue_type=#{type,jdbcType=INTEGER},
-    from_hotspot=#{isFromHotspot,jdbcType=BOOLEAN}
+    issue_type=#{type,jdbcType=INTEGER}
     where kee = #{kee}
   </update>
 
@@ -175,8 +172,7 @@
     issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
     issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
     updated_at=#{updatedAt,jdbcType=BIGINT},
-    issue_type=#{type,jdbcType=INTEGER},
-    from_hotspot=#{isFromHotspot,jdbcType=BOOLEAN}
+    issue_type=#{type,jdbcType=INTEGER}
     where kee = #{kee} and updated_at &lt;= #{selectedAt}
   </update>
 
@@ -213,7 +209,7 @@
     (r.is_external is NULL or r.is_external = ${_false}) and
     i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
     i.status &lt;&gt; 'CLOSED' and
-    i.issue_type &lt;&gt; 4 and (i.from_hotspot is NULL or i.from_hotspot = ${_false})
+    i.issue_type &lt;&gt; 4
   </select>
 
   <select id="scrollClosedByComponentUuid" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
@@ -237,7 +233,6 @@
       and i.issue_close_date is not null
       and i.issue_close_date >= #{closeDateAfter,jdbcType=BIGINT}
       and i.issue_type &lt;&gt; 4
-      and (i.from_hotspot is null or i.from_hotspot = ${_false})
     order by
       i.kee, ic.issue_change_creation_date desc
   </select>
@@ -323,7 +318,7 @@
     i.project_uuid = #{projectUuid, jdbcType=VARCHAR} and
     p.module_uuid_path like  #{likeModuleUuidPath, jdbcType=VARCHAR} escape '/' and
     i.status &lt;&gt; 'CLOSED' and
-    i.issue_type &lt;&gt; 4 and (i.from_hotspot is NULL or i.from_hotspot = ${_false})
+    i.issue_type &lt;&gt; 4
   </select>
 
   <select id="selectIssueGroupsByBaseComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map">

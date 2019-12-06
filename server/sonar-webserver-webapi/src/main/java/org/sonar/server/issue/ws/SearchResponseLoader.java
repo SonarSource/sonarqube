@@ -234,10 +234,8 @@ public class SearchResponseLoader {
     }
     availableActions.add(ASSIGN_KEY);
     availableActions.add("set_tags");
-    if (!issue.isFromHotspot() && userSession.hasComponentPermission(ISSUE_ADMIN, project)) {
+    if (ruleType != RuleType.SECURITY_HOTSPOT && userSession.hasComponentPermission(ISSUE_ADMIN, project)) {
       availableActions.add(SET_TYPE_KEY);
-    }
-    if ((ruleType != RuleType.SECURITY_HOTSPOT && userSession.hasComponentPermission(ISSUE_ADMIN, project))) {
       availableActions.add(SET_SEVERITY_KEY);
     }
     return availableActions;

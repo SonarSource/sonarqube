@@ -53,7 +53,9 @@ public interface DefaultTransitions {
 
   /**
    * @since 7.8
+   * @deprecated since 8.1, security hotspots can no longer be converted to vulnerabilities
    */
+  @Deprecated
   String OPEN_AS_VULNERABILITY = "openasvulnerability";
 
   /**
@@ -65,5 +67,5 @@ public interface DefaultTransitions {
    * @since 4.4
    */
   List<String> ALL = unmodifiableList(asList(CONFIRM, UNCONFIRM, REOPEN, RESOLVE, FALSE_POSITIVE, WONT_FIX, CLOSE,
-    SET_AS_IN_REVIEW, RESOLVE_AS_REVIEWED, OPEN_AS_VULNERABILITY,RESET_AS_TO_REVIEW));
+    SET_AS_IN_REVIEW, RESOLVE_AS_REVIEWED, RESET_AS_TO_REVIEW));
 }

@@ -19,12 +19,21 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.collect.Sets;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -65,13 +74,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
-import static org.sonar.api.rules.RuleType.VULNERABILITY;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
+@RunWith(DataProviderRunner.class)
 public class SetTypeActionTest {
 
   @Rule
@@ -102,34 +112,28 @@ public class SetTypeActionTest {
     responseWriter, system2));
 
   @Test
-  public void set_type() {
+  @UseDataProvider("allTypesFromToExceptHotspots")
+  public void set_type(RuleType from, RuleType to) {
     long now = 1_999_777_234L;
     when(system2.now()).thenReturn(now);
-    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setType(CODE_SMELL));
+    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setType(from));
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
-    call(issueDto.getKey(), BUG.name());
+    call(issueDto.getKey(), to.name());
 
     verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
-    verifyContentOfPreloadedSearchResponseData(issueDto);
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
-    assertThat(issueReloaded.getType()).isEqualTo(BUG.getDbConstant());
+    assertThat(issueReloaded.getType()).isEqualTo(to.getDbConstant());
 
-    assertThat(issueChangePostProcessor.calledComponents())
-      .extracting(ComponentDto::uuid)
-      .containsExactlyInAnyOrder(issueDto.getComponentUuid());
-  }
-
-  @Test
-  public void prevent_changing_type_security_hotspot() {
-    long now = 1_999_777_234L;
-    when(system2.now()).thenReturn(now);
-    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setType(VULNERABILITY).setIsFromHotspot(true));
-    setUserWithBrowseAndAdministerIssuePermission(issueDto);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Changing type of a security hotspot is not permitted");
-    call(issueDto.getKey(), BUG.name());
+    if (from != to) {
+      verifyContentOfPreloadedSearchResponseData(issueDto);
+      assertThat(issueChangePostProcessor.calledComponents())
+        .extracting(ComponentDto::uuid)
+        .containsExactlyInAnyOrder(issueDto.getComponentUuid());
+    } else {
+      assertThat(issueChangePostProcessor.wasCalled())
+        .isFalse();
+    }
   }
 
   @Test
@@ -174,12 +178,25 @@ public class SetTypeActionTest {
   }
 
   @Test
-  public void fail_when_missing_administer_issue_permission() {
-    IssueDto issueDto = issueDbTester.insertIssue();
+  @UseDataProvider("allTypesExceptSecurityHotspot")
+  public void fail_type_except_hotspot_when_missing_administer_issue_permission(RuleType type) {
+    IssueDto issueDto = issueDbTester.insertIssue(issue -> issue.setType(type));
     logInAndAddProjectPermission("john", issueDto, USER);
 
     expectedException.expect(ForbiddenException.class);
-    call(issueDto.getKey(), BUG.name());
+    call(issueDto.getKey(), type.name());
+  }
+
+  @Test
+  @UseDataProvider("allTypesExceptSecurityHotspot")
+  public void fail_if_trying_to_change_type_of_a_hotspot(RuleType type) {
+    long now = 1_999_777_234L;
+    when(system2.now()).thenReturn(now);
+    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setType(SECURITY_HOTSPOT));
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
+
+    expectedException.expect(IllegalArgumentException.class);
+    call(issueDto.getKey(), type.name());
   }
 
   @Test
@@ -228,5 +245,26 @@ public class SetTypeActionTest {
     assertThat(preloadedSearchResponseData.getComponents())
       .extracting(ComponentDto::uuid)
       .containsOnly(issue.getComponentUuid(), issue.getProjectUuid());
+  }
+
+  @DataProvider
+  public static Object[][] allTypesExceptSecurityHotspot() {
+    return EnumSet.allOf(RuleType.class)
+      .stream()
+      .filter(ruleType -> SECURITY_HOTSPOT != ruleType)
+      .map(t -> new Object[] {t})
+      .toArray(Object[][]::new);
+  }
+
+  @DataProvider
+  public static Object[][] allTypesFromToExceptHotspots() {
+    Set<RuleType> set = EnumSet.allOf(RuleType.class)
+      .stream()
+      .filter(ruleType -> SECURITY_HOTSPOT != ruleType)
+      .collect(Collectors.toSet());
+    return Sets.cartesianProduct(set, set)
+      .stream()
+      .map(ruleTypes -> new Object[] {ruleTypes.get(0), ruleTypes.get(1)})
+      .toArray(Object[][]::new);
   }
 }

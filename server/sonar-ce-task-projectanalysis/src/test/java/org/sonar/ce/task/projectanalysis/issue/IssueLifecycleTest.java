@@ -87,7 +87,6 @@ public class IssueLifecycleTest {
     assertThat(issue.effort()).isEqualTo(DEFAULT_DURATION);
     assertThat(issue.isNew()).isTrue();
     assertThat(issue.isCopied()).isFalse();
-    assertThat(issue.isFromHotspot()).isFalse();
   }
 
   @Test
@@ -107,7 +106,6 @@ public class IssueLifecycleTest {
     assertThat(issue.effort()).isEqualTo(DEFAULT_DURATION);
     assertThat(issue.isNew()).isTrue();
     assertThat(issue.isCopied()).isFalse();
-    assertThat(issue.isFromHotspot()).isTrue();
   }
 
   @Test
@@ -296,70 +294,6 @@ public class IssueLifecycleTest {
     assertThat(raw.changes().get(1).diffs())
       .containsOnly(entry("file", new FieldDiffs.Diff("A", "B")));
 
-    verify(updater).setPastSeverity(raw, BLOCKER, issueChangeContext);
-    verify(updater).setPastLine(raw, 10);
-    verify(updater).setPastMessage(raw, "message", issueChangeContext);
-    verify(updater).setPastEffort(raw, Duration.create(15L), issueChangeContext);
-    verify(updater).setPastLocations(raw, issueLocations);
-  }
-
-  @Test
-  public void mergeExistingOpenIssue_vulnerability_changed_to_hotspot_should_be_to_review() {
-    rule.setType(RuleType.SECURITY_HOTSPOT);
-    DefaultIssue raw = new DefaultIssue()
-      .setNew(true)
-      .setKey("RAW_KEY")
-      .setRuleKey(XOO_X1)
-      .setCreationDate(parseDate("2015-10-01"))
-      .setUpdateDate(parseDate("2015-10-02"))
-      .setCloseDate(parseDate("2015-10-03"));
-
-    DbIssues.Locations issueLocations = DbIssues.Locations.newBuilder()
-      .setTextRange(DbCommons.TextRange.newBuilder()
-        .setStartLine(10)
-        .setEndLine(12)
-        .build())
-      .build();
-    DefaultIssue base = new DefaultIssue()
-      .setKey("BASE_KEY")
-      .setType(RuleType.VULNERABILITY)
-      // First analysis before rule was changed to hotspot
-      .setIsFromHotspot(false)
-      .setCreationDate(parseDate("2015-01-01"))
-      .setUpdateDate(parseDate("2015-01-02"))
-      .setResolution(RESOLUTION_FALSE_POSITIVE)
-      .setStatus(STATUS_RESOLVED)
-      .setSeverity(BLOCKER)
-      .setAssigneeUuid("base assignee uuid")
-      .setAuthorLogin("base author")
-      .setTags(newArrayList("base tag"))
-      .setSelectedAt(1000L)
-      .setLine(10)
-      .setMessage("message")
-      .setGap(15d)
-      .setEffort(Duration.create(15L))
-      .setManualSeverity(false)
-      .setLocations(issueLocations);
-
-    when(debtCalculator.calculate(raw)).thenReturn(DEFAULT_DURATION);
-
-    underTest.mergeExistingOpenIssue(raw, base);
-
-    assertThat(raw.isNew()).isFalse();
-    assertThat(raw.key()).isEqualTo("BASE_KEY");
-    assertThat(raw.creationDate()).isEqualTo(base.creationDate());
-    assertThat(raw.updateDate()).isEqualTo(base.updateDate());
-    assertThat(raw.assignee()).isEqualTo("base assignee uuid");
-    assertThat(raw.authorLogin()).isEqualTo("base author");
-    assertThat(raw.tags()).containsOnly("base tag");
-    assertThat(raw.effort()).isEqualTo(DEFAULT_DURATION);
-    assertThat(raw.selectedAt()).isEqualTo(1000L);
-    assertThat(raw.isFromHotspot()).isTrue();
-    assertThat(raw.isChanged()).isTrue();
-
-    verify(updater).setType(raw, RuleType.SECURITY_HOTSPOT, issueChangeContext);
-    verify(updater).setStatus(raw, STATUS_TO_REVIEW, issueChangeContext);
-    verify(updater).setResolution(raw, null, issueChangeContext);
     verify(updater).setPastSeverity(raw, BLOCKER, issueChangeContext);
     verify(updater).setPastLine(raw, 10);
     verify(updater).setPastMessage(raw, "message", issueChangeContext);

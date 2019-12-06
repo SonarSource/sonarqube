@@ -22,10 +22,10 @@ package org.sonar.server.issue;
 import java.util.Collection;
 import java.util.Map;
 import org.sonar.api.issue.Issue;
-import org.sonar.server.issue.workflow.IsUnResolved;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.server.issue.workflow.IsUnResolved;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -47,7 +47,7 @@ public class SetTypeAction extends Action {
   }
 
   private boolean isCurrentUserIssueAdmin(Issue issue) {
-    return !((DefaultIssue) issue).isFromHotspot() && userSession.hasComponentUuidPermission(UserRole.ISSUE_ADMIN, issue.projectUuid());
+    return userSession.hasComponentUuidPermission(UserRole.ISSUE_ADMIN, issue.projectUuid());
   }
 
   @Override

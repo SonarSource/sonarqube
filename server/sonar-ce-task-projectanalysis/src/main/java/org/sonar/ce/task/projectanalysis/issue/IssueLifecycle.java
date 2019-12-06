@@ -76,7 +76,6 @@ public class IssueLifecycle {
     issue.setCreationDate(changeContext.date());
     issue.setUpdateDate(changeContext.date());
     issue.setEffort(debtCalculator.calculate(issue));
-    issue.setIsFromHotspot(rule.getType() == RuleType.SECURITY_HOTSPOT);
     setType(issue, rule);
     setStatus(issue, rule);
   }
@@ -165,20 +164,9 @@ public class IssueLifecycle {
       // In case issue was moved from module or folder to the root project
       raw.setChanged(true);
     }
-    raw.setIsFromHotspot(rule.getType() == RuleType.SECURITY_HOTSPOT);
     setType(raw, rule);
     copyFields(raw, base);
     base.changes().forEach(raw::addChange);
-    if (raw.isFromHotspot() != base.isFromHotspot()) {
-      // This is to force DB update of the issue
-      raw.setChanged(true);
-    }
-    if (raw.isFromHotspot() && !base.isFromHotspot()) {
-      // First analysis after rule type was changed to security_hotspot. Issue will be reset to an open hotspot
-      updater.setType(raw, RuleType.SECURITY_HOTSPOT, changeContext);
-      updater.setStatus(raw, Issue.STATUS_TO_REVIEW, changeContext);
-      updater.setResolution(raw, null, changeContext);
-    }
 
     if (base.manualSeverity()) {
       raw.setManualSeverity(true);

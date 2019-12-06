@@ -188,7 +188,6 @@ public class SearchResponseFormat {
     if (dto.isExternal()) {
       issueBuilder.setExternalRuleEngine(engineNameFrom(dto.getRuleKey()));
     }
-    issueBuilder.setFromHotspot(dto.isFromHotspot());
     if (dto.getType() != RuleType.SECURITY_HOTSPOT.getDbConstant()) {
       issueBuilder.setSeverity(Common.Severity.valueOf(dto.getSeverity()));
     }

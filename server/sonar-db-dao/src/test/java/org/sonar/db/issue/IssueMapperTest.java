@@ -341,27 +341,6 @@ public class IssueMapperTest {
   }
 
   @Test
-  public void scrollClosedByComponentUuid_returns_closed_issues_without_isHotspot_flag() {
-    RuleType ruleType = randomSupportedRuleType();
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto component = randomComponent(organization);
-    IssueDto noHotspotFlagIssue = insertNewClosedIssue(component, ruleType);
-    IssueChangeDto noFlagIssueChange = insertToClosedDiff(noHotspotFlagIssue);
-    manuallySetToNullFromHotpotsColumn(noHotspotFlagIssue);
-    IssueDto issue = insertNewClosedIssue(component, ruleType);
-    IssueChangeDto issueChange = insertToClosedDiff(issue);
-
-    RecorderResultHandler resultHandler = new RecorderResultHandler();
-    underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
-
-    assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
-      .containsOnly(
-        tuple(issue.getKey(), issueChange.getChangeData()),
-        tuple(noHotspotFlagIssue.getKey(), noFlagIssueChange.getChangeData()));
-  }
-
-  @Test
   public void scrollClosedByComponentUuid_does_not_return_closed_issues_without_close_date() {
     RuleType ruleType = randomSupportedRuleType();
     OrganizationDto organization = dbTester.organizations().insert();
@@ -426,29 +405,6 @@ public class IssueMapperTest {
     assertThat(resultHandler.issues)
       .extracting(IssueDto::getKey)
       .containsOnly(issues[3].getKey(), issues[1].getKey(), issues[2].getKey(), issues[0].getKey());
-  }
-
-  private void manuallySetToNullFromHotpotsColumn(IssueDto fromHostSpotIssue) {
-    dbTester.executeUpdateSql("update issues set from_hotspot = null where kee = '" + fromHostSpotIssue.getKey() + "'");
-    dbTester.commit();
-  }
-
-  @Test
-  @UseDataProvider("closedIssuesSupportedRuleTypes")
-  public void scrollClosedByComponentUuid_does_not_return_closed_issues_with_isHotspot_flag_true(RuleType ruleType) {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto component = randomComponent(organization);
-    IssueDto fromHostSpotIssue = insertNewClosedIssue(component, ruleType, t -> t.setIsFromHotspot(true));
-    insertToClosedDiff(fromHostSpotIssue);
-    IssueDto issue = insertNewClosedIssue(component, ruleType);
-    IssueChangeDto issueChange = insertToClosedDiff(issue);
-
-    RecorderResultHandler resultHandler = new RecorderResultHandler();
-    underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
-
-    assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
-      .containsOnly(tuple(issue.getKey(), issueChange.getChangeData()));
   }
 
   @Test

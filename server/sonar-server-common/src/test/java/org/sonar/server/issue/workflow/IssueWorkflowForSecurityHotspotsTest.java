@@ -31,7 +31,6 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.issue.DefaultTransitions;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
@@ -44,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
-import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
@@ -93,7 +91,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
     List<Transition> transitions = underTest.outTransitions(issue);
 
-    assertThat(keys(transitions)).containsExactlyInAnyOrder("resolveasreviewed", "openasvulnerability");
+    assertThat(keys(transitions)).containsExactlyInAnyOrder("resolveasreviewed");
   }
 
   @Test
@@ -103,17 +101,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
     List<Transition> transitions = underTest.outTransitions(issue);
 
-    assertThat(keys(transitions)).containsExactlyInAnyOrder("openasvulnerability", "resetastoreview");
-  }
-
-  @Test
-  public void list_out_vulnerability_transitions_in_status_open() {
-    underTest.start();
-    DefaultIssue issue = new DefaultIssue().setType(RuleType.VULNERABILITY).setResolution(RESOLUTION_FIXED).setStatus(STATUS_OPEN).setIsFromHotspot(true);
-
-    List<Transition> transitions = underTest.outTransitions(issue);
-
-    assertThat(keys(transitions)).containsExactlyInAnyOrder("resolveasreviewed", "resetastoreview");
+    assertThat(keys(transitions)).containsExactlyInAnyOrder("resetastoreview");
   }
 
   @Test
@@ -121,7 +109,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
     underTest.start();
     DefaultIssue issue = new DefaultIssue()
       .setType(RuleType.SECURITY_HOTSPOT)
-      .setIsFromHotspot(true)
       .setStatus(STATUS_TO_REVIEW);
 
     boolean result = underTest.doManualTransition(issue, DefaultTransitions.RESOLVE_AS_REVIEWED, IssueChangeContext.createUser(new Date(), "USER1"));
@@ -132,63 +119,12 @@ public class IssueWorkflowForSecurityHotspotsTest {
   }
 
   @Test
-  public void open_as_vulnerability_from_to_review() {
-    underTest.start();
-    DefaultIssue issue = new DefaultIssue()
-      .setType(RuleType.SECURITY_HOTSPOT)
-      .setIsFromHotspot(true)
-      .setStatus(STATUS_TO_REVIEW)
-      .setResolution(null);
-
-    boolean result = underTest.doManualTransition(issue, DefaultTransitions.OPEN_AS_VULNERABILITY, IssueChangeContext.createUser(new Date(), "USER1"));
-
-    assertThat(result).isTrue();
-    assertThat(issue.type()).isEqualTo(RuleType.VULNERABILITY);
-    assertThat(issue.getStatus()).isEqualTo(Issue.STATUS_OPEN);
-    assertThat(issue.resolution()).isNull();
-  }
-
-  @Test
-  public void open_as_vulnerability_from_reviewed() {
-    underTest.start();
-    DefaultIssue issue = new DefaultIssue()
-      .setType(RuleType.SECURITY_HOTSPOT)
-      .setIsFromHotspot(true)
-      .setResolution(RESOLUTION_FIXED)
-      .setStatus(STATUS_REVIEWED);
-
-    boolean result = underTest.doManualTransition(issue, DefaultTransitions.OPEN_AS_VULNERABILITY, IssueChangeContext.createUser(new Date(), "USER1"));
-
-    assertThat(result).isTrue();
-    assertThat(issue.type()).isEqualTo(RuleType.VULNERABILITY);
-    assertThat(issue.getStatus()).isEqualTo(Issue.STATUS_OPEN);
-    assertThat(issue.resolution()).isNull();
-  }
-
-  @Test
   public void reset_as_to_review_from_reviewed() {
     underTest.start();
     DefaultIssue issue = new DefaultIssue()
       .setType(RuleType.SECURITY_HOTSPOT)
-      .setIsFromHotspot(true)
       .setStatus(STATUS_REVIEWED)
       .setResolution(RESOLUTION_FIXED);
-
-    boolean result = underTest.doManualTransition(issue, DefaultTransitions.RESET_AS_TO_REVIEW, IssueChangeContext.createUser(new Date(), "USER1"));
-    assertThat(result).isTrue();
-    assertThat(issue.type()).isEqualTo(RuleType.SECURITY_HOTSPOT);
-    assertThat(issue.getStatus()).isEqualTo(STATUS_TO_REVIEW);
-    assertThat(issue.resolution()).isNull();
-  }
-
-  @Test
-  public void reset_as_to_review_from_opened_as_vulnerability() {
-    underTest.start();
-    DefaultIssue issue = new DefaultIssue()
-      .setType(RuleType.VULNERABILITY)
-      .setIsFromHotspot(true)
-      .setStatus(STATUS_OPEN)
-      .setResolution(null);
 
     boolean result = underTest.doManualTransition(issue, DefaultTransitions.RESET_AS_TO_REVIEW, IssueChangeContext.createUser(new Date(), "USER1"));
     assertThat(result).isTrue();
@@ -236,26 +172,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
   }
 
   @Test
-  public void automatically_close_hotspots_opened_as_vulnerability() {
-    underTest.start();
-    DefaultIssue issue = new DefaultIssue()
-      .setType(RuleType.VULNERABILITY)
-      .setResolution(null)
-      .setStatus(STATUS_OPEN)
-      .setIsFromHotspot(true)
-      .setNew(false)
-      .setBeingClosed(true);
-    Date now = new Date();
-
-    underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
-
-    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
-    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
-    assertThat(issue.closeDate()).isNotNull();
-    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
-  }
-
-  @Test
   @UseDataProvider("allStatusesLeadingToClosed")
   public void do_not_automatically_reopen_closed_issues_of_security_hotspots(String previousStatus) {
     DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
@@ -290,43 +206,6 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
     assertThat(issue.status()).isEqualTo(STATUS_TO_REVIEW);
     assertThat(issue.resolution()).isNull();
-  }
-
-  @Test
-  @UseDataProvider("allStatusesLeadingToClosed")
-  public void do_not_automatically_reopen_closed_issues_of_manual_vulnerability(String previousStatus) {
-    DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
-      .map(resolution -> {
-        DefaultIssue issue = newClosedIssue(resolution);
-        setStatusPreviousToClosed(issue, previousStatus);
-        issue.setIsFromHotspot(true);
-        return issue;
-      })
-      .toArray(DefaultIssue[]::new);
-    Date now = new Date();
-    underTest.start();
-
-    Arrays.stream(issues).forEach(issue -> {
-      underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
-
-      assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
-      assertThat(issue.updateDate()).isNull();
-    });
-  }
-
-  @Test
-  public void do_not_allow_to_doManualTransition_when_condition_fails() {
-    underTest.start();
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      // Detect is only available on hotspot
-      .setType(RuleType.VULNERABILITY)
-      .setIsFromHotspot(false)
-      .setStatus(STATUS_OPEN)
-      .setResolution(null)
-      .setRuleKey(XOO_X1);
-
-    assertThat(underTest.doManualTransition(issue, DefaultTransitions.RESET_AS_TO_REVIEW, IssueChangeContext.createScan(new Date()))).isFalse();
   }
 
   private Collection<String> keys(List<Transition> transitions) {

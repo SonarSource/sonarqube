@@ -199,6 +199,7 @@ public class SearchAction implements IssuesWsAction, Startable {
         PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS)
       .setSince("3.6")
       .setChangelog(
+        new Change("8.1", "response field 'fromHotspot' has been deprecated and is no more populated"),
         new Change("8.1", format("Status %s for Security Hotspots has been deprecated", STATUS_IN_REVIEW)),
         new Change("7.8", format("added new Security Hotspots statuses : %s, %s and %s", STATUS_TO_REVIEW, STATUS_IN_REVIEW, STATUS_REVIEWED)),
         new Change("7.8", "Security hotspots are returned by default"),

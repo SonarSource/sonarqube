@@ -80,7 +80,7 @@ public class ComponentIssuesLoaderTest {
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
     Date issueDate = addDays(NOW, -10);
-    IssueDto issue = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL).setIsFromHotspot(false));
+    IssueDto issue = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL));
     db.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(issueDate, 10));
     db.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 3), 20));
     db.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 1), 30));
@@ -100,7 +100,7 @@ public class ComponentIssuesLoaderTest {
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
     Date issueDate = addDays(NOW, -10);
-    IssueDto issue = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL).setIsFromHotspot(false));
+    IssueDto issue = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL));
     db.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(issueDate, 10));
     db.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 2), null));
     db.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 1), 30));
@@ -120,9 +120,9 @@ public class ComponentIssuesLoaderTest {
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
     Date issueDate = addDays(NOW, -10);
-    IssueDto closedIssue = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL).setIsFromHotspot(false));
+    IssueDto closedIssue = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL));
     db.issues().insertFieldDiffs(closedIssue, newToClosedDiffsWithLine(issueDate, 10));
-    IssueDto issueNoCloseDate = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIsFromHotspot(false));
+    IssueDto issueNoCloseDate = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED));
     db.issues().insertFieldDiffs(issueNoCloseDate, newToClosedDiffsWithLine(issueDate, 10));
     when(system2.now()).thenReturn(NOW.getTime());
 
@@ -198,7 +198,7 @@ public class ComponentIssuesLoaderTest {
     };
     IssueDto[] issues = Arrays.stream(issueDates)
       .map(issueDate -> {
-        IssueDto closedIssue = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL).setIsFromHotspot(false));
+        IssueDto closedIssue = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL));
         db.issues().insertFieldDiffs(closedIssue, newToClosedDiffsWithLine(issueDate, 10));
         return closedIssue;
       })

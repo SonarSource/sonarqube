@@ -23,14 +23,11 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 
-/**
- * The vulnerability originally come from a hotspot that was moved to vulnerability by a security auditor.
- */
-enum IsManualVulnerability implements Condition {
+enum IsNotHotspot implements Condition {
   INSTANCE;
 
   @Override
   public boolean matches(Issue issue) {
-    return ((DefaultIssue) issue).type() == RuleType.VULNERABILITY && ((DefaultIssue) issue).isFromHotspot();
+    return ((DefaultIssue) issue).type() != RuleType.SECURITY_HOTSPOT;
   }
 }

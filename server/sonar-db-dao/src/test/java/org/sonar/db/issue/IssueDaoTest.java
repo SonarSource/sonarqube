@@ -142,7 +142,6 @@ public class IssueDaoTest {
     IssueDto openIssueOnProject = db.issues().insert(rule, project, project, i -> i.setStatus("OPEN").setResolution(null).setType(randomRuleTypeExceptHotspot()));
 
     IssueDto securityHotspot = db.issues().insert(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
-    IssueDto manualVulnerability = db.issues().insert(rule, project, file, i -> i.setType(RuleType.VULNERABILITY).setIsFromHotspot(true));
 
     RuleDefinitionDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
     IssueDto issueFromExteralruleOnFile = db.issues().insert(external, project, file, i -> i.setKee("ON_FILE_FROM_EXTERNAL").setType(randomRuleTypeExceptHotspot()));
@@ -174,7 +173,6 @@ public class IssueDaoTest {
       i -> i.setStatus("OPEN").setResolution(null).setType(randomRuleTypeExceptHotspot()));
 
     IssueDto securityHotspot = db.issues().insert(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
-    IssueDto manualVulnerability = db.issues().insert(rule, project, file, i -> i.setType(RuleType.VULNERABILITY).setIsFromHotspot(true));
 
     RuleDefinitionDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
     IssueDto issueFromExteralruleOnFile = db.issues().insert(external, project, file, i -> i.setKee("ON_FILE_FROM_EXTERNAL").setType(randomRuleTypeExceptHotspot()));
