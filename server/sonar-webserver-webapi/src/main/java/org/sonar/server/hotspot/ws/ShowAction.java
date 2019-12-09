@@ -21,7 +21,10 @@ package org.sonar.server.hotspot.ws;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
@@ -34,12 +37,15 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelog.ChangelogLoadingContext;
 import org.sonar.server.issue.TextRangeResponseFormatter;
+import org.sonar.server.issue.ws.UserResponseFormatter;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Hotspots.ShowWsResponse;
 
@@ -58,14 +64,17 @@ public class ShowAction implements HotspotsWsAction {
   private final UserSession userSession;
   private final HotspotWsResponseFormatter responseFormatter;
   private final TextRangeResponseFormatter textRangeFormatter;
+  private final UserResponseFormatter userFormatter;
   private final IssueChangelog issueChangelog;
 
   public ShowAction(DbClient dbClient, UserSession userSession, HotspotWsResponseFormatter responseFormatter,
-    TextRangeResponseFormatter textRangeFormatter, IssueChangelog issueChangelog) {
+    TextRangeResponseFormatter textRangeFormatter, UserResponseFormatter userFormatter,
+    IssueChangelog issueChangelog) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.responseFormatter = responseFormatter;
     this.textRangeFormatter = textRangeFormatter;
+    this.userFormatter = userFormatter;
     this.issueChangelog = issueChangelog;
   }
 
@@ -95,10 +104,12 @@ public class ShowAction implements HotspotsWsAction {
         .orElseThrow(() -> new NotFoundException(format("Hotspot '%s' does not exist", hotspotKey)));
 
       Components components = loadComponents(dbSession, hotspot);
+      Users users = loadUsers(dbSession, hotspot);
       RuleDefinitionDto rule = loadRule(dbSession, hotspot);
 
       ShowWsResponse.Builder responseBuilder = ShowWsResponse.newBuilder();
       formatHotspot(responseBuilder, hotspot);
+      formatUsers(responseBuilder, users, hotspot);
       formatComponents(components, responseBuilder);
       formatRule(responseBuilder, rule);
       formatTextRange(hotspot, responseBuilder);
@@ -108,19 +119,39 @@ public class ShowAction implements HotspotsWsAction {
     }
   }
 
+  private Users loadUsers(DbSession dbSession, IssueDto hotspot) {
+    UserDto assignee = ofNullable(hotspot.getAssigneeUuid())
+      .map(uuid -> dbClient.userDao().selectByUuid(dbSession, uuid))
+      .orElse(null);
+    UserDto author = ofNullable(hotspot.getAuthorLogin())
+      .map(login -> {
+        if (assignee != null && assignee.getLogin().equals(login)) {
+          return assignee;
+        }
+        return dbClient.userDao().selectByLogin(dbSession, login);
+      })
+      .orElse(null);
+    return new Users(assignee, author);
+  }
+
   private void formatHotspot(ShowWsResponse.Builder builder, IssueDto hotspot) {
     builder.setKey(hotspot.getKey());
     ofNullable(hotspot.getStatus()).ifPresent(builder::setStatus);
     ofNullable(hotspot.getResolution()).ifPresent(builder::setResolution);
     ofNullable(hotspot.getLine()).ifPresent(builder::setLine);
     builder.setMessage(nullToEmpty(hotspot.getMessage()));
-    ofNullable(hotspot.getAssigneeUuid()).ifPresent(builder::setAssignee);
-    // FIXME Filter author only if user is member of the organization (as done in issues/search WS)
-    // if (data.getUserOrganizationUuids().contains(component.getOrganizationUuid())) {
-    builder.setAuthor(nullToEmpty(hotspot.getAuthorLogin()));
-    // }
     builder.setCreationDate(formatDateTime(hotspot.getIssueCreationDate()));
     builder.setUpdateDate(formatDateTime(hotspot.getIssueUpdateDate()));
+  }
+
+  private void formatUsers(ShowWsResponse.Builder responseBuilder, Users users, IssueDto hotspot) {
+    Common.User.Builder userBuilder = Common.User.newBuilder();
+    users.getAssignee().map(t -> userFormatter.formatUser(userBuilder, t)).ifPresent(responseBuilder::setAssignee);
+
+    Common.User author = users.getAuthor()
+      .map(t -> userFormatter.formatUser(userBuilder, t))
+      .orElseGet(() -> userBuilder.clear().setLogin(nullToEmpty(hotspot.getAuthorLogin())).build());
+    responseBuilder.setAuthor(author);
   }
 
   private void formatComponents(Components components, ShowWsResponse.Builder responseBuilder) {
@@ -199,4 +230,23 @@ public class ShowAction implements HotspotsWsAction {
     }
   }
 
+  private static final class Users {
+    @CheckForNull
+    private final UserDto assignee;
+    @CheckForNull
+    private final UserDto author;
+
+    private Users(@Nullable UserDto assignee, @Nullable UserDto author) {
+      this.assignee = assignee;
+      this.author = author;
+    }
+
+    public Optional<UserDto> getAssignee() {
+      return ofNullable(assignee);
+    }
+
+    public Optional<UserDto> getAuthor() {
+      return ofNullable(author);
+    }
+  }
 }

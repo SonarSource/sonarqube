@@ -52,12 +52,16 @@ import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.AvatarResolver;
+import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelog.ChangelogLoadingContext;
 import org.sonar.server.issue.TextRangeResponseFormatter;
+import org.sonar.server.issue.ws.UserResponseFormatter;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.SQCategory;
@@ -65,6 +69,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Common.User;
 import org.sonarqube.ws.Hotspots;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -93,11 +98,13 @@ public class ShowActionTest {
   private DbClient dbClient = dbTester.getDbClient();
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
 
-  private TextRangeResponseFormatter textRangeFormatter = new TextRangeResponseFormatter();
+  private AvatarResolver avatarResolver = new AvatarResolverImpl();
   private HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(defaultOrganizationProvider);
   private IssueChangelog issueChangelog = Mockito.mock(IssueChangelog.class);
+  private UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
+  private TextRangeResponseFormatter textRangeFormatter = new TextRangeResponseFormatter();
 
-  private ShowAction underTest = new ShowAction(dbClient, userSessionRule, responseFormatter, textRangeFormatter, issueChangelog);
+  private ShowAction underTest = new ShowAction(dbClient, userSessionRule, responseFormatter, textRangeFormatter, userFormatter, issueChangelog);
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
@@ -281,6 +288,145 @@ public class ShowActionTest {
     assertThat(textRange.getEndOffset()).isEqualTo(endOffset);
   }
 
+  @Test
+  public void returns_no_assignee_when_user_does_not_exist() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
+      .setAssigneeUuid(randomAlphabetic(10)));
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.hasAssignee()).isFalse();
+  }
+
+  @Test
+  public void returns_assignee_details_when_user_exists() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    UserDto assignee = dbTester.users().insertUser();
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
+      .setAssigneeUuid(assignee.getUuid()));
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    User wsAssignee = response.getAssignee();
+    assertThat(wsAssignee.getLogin()).isEqualTo(assignee.getLogin());
+    assertThat(wsAssignee.getName()).isEqualTo(assignee.getName());
+    assertThat(wsAssignee.getActive()).isEqualTo(assignee.isActive());
+    assertThat(wsAssignee.getAvatar()).isEqualTo(avatarResolver.create(assignee));
+  }
+
+  @Test
+  public void returns_no_avatar_if_assignee_has_no_email() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    UserDto assignee = dbTester.users().insertUser(t -> t.setEmail(null));
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
+      .setAssigneeUuid(assignee.getUuid()));
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getAssignee().hasAvatar()).isFalse();
+  }
+
+  @Test
+  public void returns_inactive_when_author_is_inactive() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    UserDto assignee = dbTester.users().insertUser(t -> t.setActive(false));
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
+      .setAssigneeUuid(assignee.getUuid()));
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getAssignee().getActive()).isFalse();
+  }
+
+  @Test
+  public void returns_author_login_when_user_does_not_exist() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    String authorLogin = randomAlphabetic(10);
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
+      .setAuthorLogin(authorLogin));
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    User wsAuthor = response.getAuthor();
+    assertThat(wsAuthor.getLogin()).isEqualTo(authorLogin);
+    assertThat(wsAuthor.hasName()).isFalse();
+    assertThat(wsAuthor.hasActive()).isFalse();
+    assertThat(wsAuthor.hasAvatar()).isFalse();
+  }
+
+  @Test
+  public void returns_author_details_when_user_exists() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    UserDto author = dbTester.users().insertUser();
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
+      .setAuthorLogin(author.getLogin()));
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    User wsAuthor = response.getAuthor();
+    assertThat(wsAuthor.getLogin()).isEqualTo(author.getLogin());
+    assertThat(wsAuthor.getName()).isEqualTo(author.getName());
+    assertThat(wsAuthor.getActive()).isEqualTo(author.isActive());
+    assertThat(wsAuthor.getAvatar()).isEqualTo(avatarResolver.create(author));
+  }
+
+  @Test
+  public void returns_no_avatar_if_author_has_no_email() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    UserDto author = dbTester.users().insertUser(t -> t.setEmail(null));
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
+      .setAuthorLogin(author.getLogin()));
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getAuthor().hasAvatar()).isFalse();
+  }
+
+  @Test
+  public void returns_inactive_if_author_is_inactive() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    UserDto author = dbTester.users().insertUser(t -> t.setActive(false));
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
+      .setAuthorLogin(author.getLogin()));
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getAuthor().getActive()).isFalse();
+  }
+
   @DataProvider
   public static Object[][] randomTextRangeValues() {
     int startLine = RANDOM.nextInt(200);
@@ -329,6 +475,7 @@ public class ShowActionTest {
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
+
     Hotspots.Rule wsRule = response.getRule();
     assertThat(wsRule.getSecurityCategory()).isEqualTo(expected.getKey());
     assertThat(wsRule.getVulnerabilityProbability()).isEqualTo(expected.getVulnerability().name());
