@@ -26,9 +26,11 @@ public class HotspotsWsModule extends Module {
   protected void configureModule() {
     add(
       HotspotWsResponseFormatter.class,
+      HotspotWsSupport.class,
       SearchAction.class,
       ShowAction.class,
       ChangeStatusAction.class,
+      AddCommentAction.class,
       HotspotsWs.class);
   }
 }

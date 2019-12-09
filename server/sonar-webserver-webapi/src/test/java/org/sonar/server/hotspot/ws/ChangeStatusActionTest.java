@@ -90,7 +90,8 @@ public class ChangeStatusActionTest {
   private IssueUpdater issueUpdater = mock(IssueUpdater.class);
   private System2 system2 = mock(System2.class);
   private IssueFieldsSetter issueFieldsSetter = mock(IssueFieldsSetter.class);
-  private ChangeStatusAction underTest = new ChangeStatusAction(dbClient, userSessionRule, transitionService, issueFieldsSetter, system2, issueUpdater);
+  private HotspotWsSupport hotspotWsSupport = new HotspotWsSupport(dbClient, userSessionRule, system2);
+  private ChangeStatusAction underTest = new ChangeStatusAction(dbClient, hotspotWsSupport, transitionService, issueFieldsSetter, issueUpdater);
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test

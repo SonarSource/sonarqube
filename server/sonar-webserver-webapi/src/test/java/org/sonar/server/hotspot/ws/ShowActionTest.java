@@ -101,10 +101,11 @@ public class ShowActionTest {
   private AvatarResolver avatarResolver = new AvatarResolverImpl();
   private HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(defaultOrganizationProvider);
   private IssueChangelog issueChangelog = Mockito.mock(IssueChangelog.class);
+  private HotspotWsSupport hotspotWsSupport = new HotspotWsSupport(dbClient, userSessionRule, System2.INSTANCE);
   private UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
   private TextRangeResponseFormatter textRangeFormatter = new TextRangeResponseFormatter();
 
-  private ShowAction underTest = new ShowAction(dbClient, userSessionRule, responseFormatter, textRangeFormatter, userFormatter, issueChangelog);
+  private ShowAction underTest = new ShowAction(dbClient, hotspotWsSupport, responseFormatter, textRangeFormatter, userFormatter, issueChangelog);
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test

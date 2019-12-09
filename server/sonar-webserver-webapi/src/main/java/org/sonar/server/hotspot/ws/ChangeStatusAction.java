@@ -19,31 +19,23 @@
  */
 package org.sonar.server.hotspot.ws;
 
-import java.util.Date;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.DefaultTransitions;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.ws.IssueUpdater;
-import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.SECURITY_HOTSPOT_RESOLUTIONS;
@@ -58,19 +50,17 @@ public class ChangeStatusAction implements HotspotsWsAction {
   private static final String PARAM_COMMENT = "comment";
 
   private final DbClient dbClient;
-  private final UserSession userSession;
+  private final HotspotWsSupport hotspotWsSupport;
   private final TransitionService transitionService;
   private final IssueFieldsSetter issueFieldsSetter;
-  private final System2 system2;
   private final IssueUpdater issueUpdater;
 
-  public ChangeStatusAction(DbClient dbClient, UserSession userSession, TransitionService transitionService,
-    IssueFieldsSetter issueFieldsSetter, System2 system2, IssueUpdater issueUpdater) {
+  public ChangeStatusAction(DbClient dbClient, HotspotWsSupport hotspotWsSupport, TransitionService transitionService,
+    IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater) {
     this.dbClient = dbClient;
-    this.userSession = userSession;
+    this.hotspotWsSupport = hotspotWsSupport;
     this.transitionService = transitionService;
     this.issueFieldsSetter = issueFieldsSetter;
-    this.system2 = system2;
     this.issueUpdater = issueUpdater;
   }
 
@@ -102,16 +92,14 @@ public class ChangeStatusAction implements HotspotsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn();
+    hotspotWsSupport.checkLoggedIn();
 
     String hotspotKey = request.mandatoryParam(PARAM_HOTSPOT_KEY);
     String newStatus = request.mandatoryParam(PARAM_STATUS);
     String newResolution = resolutionParam(request, newStatus);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      IssueDto hotspot = dbClient.issueDao().selectByKey(dbSession, hotspotKey)
-        .filter(t -> t.getType() == RuleType.SECURITY_HOTSPOT.getDbConstant())
-        .orElseThrow(() -> new NotFoundException(format("Hotspot '%s' does not exist", hotspotKey)));
-      loadAndCheckProject(dbSession, hotspot);
+      IssueDto hotspot = hotspotWsSupport.loadHotspot(dbSession, hotspotKey);
+      hotspotWsSupport.loadAndCheckProject(dbSession, hotspot);
 
       if (needStatusUpdate(hotspot, newStatus, newResolution)) {
         String transitionKey = toTransitionKey(newStatus, newResolution);
@@ -132,15 +120,6 @@ public class ChangeStatusAction implements HotspotsWsAction {
     return resolution;
   }
 
-  private void loadAndCheckProject(DbSession dbSession, IssueDto hotspot) {
-    String projectUuid = hotspot.getProjectUuid();
-    checkArgument(projectUuid != null, "Hotspot '%s' has no project", hotspot.getKee());
-
-    ComponentDto project = dbClient.componentDao().selectByUuid(dbSession, projectUuid)
-      .orElseThrow(() -> new NotFoundException(format("Project with uuid '%s' does not exist", projectUuid)));
-    userSession.checkComponentPermission(UserRole.USER, project);
-  }
-
   private static boolean needStatusUpdate(IssueDto hotspot, String newStatus, String newResolution) {
     return !(hotspot.getStatus().equals(newStatus) && Objects.equals(hotspot.getResolution(), newResolution));
   }
@@ -157,7 +136,7 @@ public class ChangeStatusAction implements HotspotsWsAction {
 
   private void doTransition(DbSession session, IssueDto issueDto, String transitionKey, @Nullable String comment) {
     DefaultIssue defaultIssue = issueDto.toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
+    IssueChangeContext context = hotspotWsSupport.newIssueChangeContext();
     transitionService.checkTransitionPermission(transitionKey, defaultIssue);
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
       if (comment != null) {

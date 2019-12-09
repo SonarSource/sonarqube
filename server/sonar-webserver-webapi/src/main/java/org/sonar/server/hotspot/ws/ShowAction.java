@@ -26,11 +26,9 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -44,7 +42,6 @@ import org.sonar.server.issue.IssueChangelog.ChangelogLoadingContext;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.ws.UserResponseFormatter;
 import org.sonar.server.security.SecurityStandards;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Hotspots.ShowWsResponse;
@@ -61,17 +58,17 @@ public class ShowAction implements HotspotsWsAction {
   private static final String PARAM_HOTSPOT_KEY = "hotspot";
 
   private final DbClient dbClient;
-  private final UserSession userSession;
+  private final HotspotWsSupport hotspotWsSupport;
   private final HotspotWsResponseFormatter responseFormatter;
   private final TextRangeResponseFormatter textRangeFormatter;
   private final UserResponseFormatter userFormatter;
   private final IssueChangelog issueChangelog;
 
-  public ShowAction(DbClient dbClient, UserSession userSession, HotspotWsResponseFormatter responseFormatter,
-    TextRangeResponseFormatter textRangeFormatter, UserResponseFormatter userFormatter,
-    IssueChangelog issueChangelog) {
+  public ShowAction(DbClient dbClient, HotspotWsSupport hotspotWsSupport,
+    HotspotWsResponseFormatter responseFormatter, TextRangeResponseFormatter textRangeFormatter,
+    UserResponseFormatter userFormatter, IssueChangelog issueChangelog) {
     this.dbClient = dbClient;
-    this.userSession = userSession;
+    this.hotspotWsSupport = hotspotWsSupport;
     this.responseFormatter = responseFormatter;
     this.textRangeFormatter = textRangeFormatter;
     this.userFormatter = userFormatter;
@@ -99,9 +96,7 @@ public class ShowAction implements HotspotsWsAction {
   public void handle(Request request, Response response) throws Exception {
     String hotspotKey = request.mandatoryParam(PARAM_HOTSPOT_KEY);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      IssueDto hotspot = dbClient.issueDao().selectByKey(dbSession, hotspotKey)
-        .filter(t -> t.getType() == RuleType.SECURITY_HOTSPOT.getDbConstant())
-        .orElseThrow(() -> new NotFoundException(format("Hotspot '%s' does not exist", hotspotKey)));
+      IssueDto hotspot = hotspotWsSupport.loadHotspot(dbSession, hotspotKey);
 
       Components components = loadComponents(dbSession, hotspot);
       Users users = loadUsers(dbSession, hotspot);
@@ -195,16 +190,12 @@ public class ShowAction implements HotspotsWsAction {
   }
 
   private Components loadComponents(DbSession dbSession, IssueDto hotspot) {
-    String projectUuid = hotspot.getProjectUuid();
     String componentUuid = hotspot.getComponentUuid();
-    checkArgument(projectUuid != null, "Hotspot '%s' has no project", hotspot.getKee());
+
+    ComponentDto project = hotspotWsSupport.loadAndCheckProject(dbSession, hotspot);
+
     checkArgument(componentUuid != null, "Hotspot '%s' has no component", hotspot.getKee());
-
-    ComponentDto project = dbClient.componentDao().selectByUuid(dbSession, projectUuid)
-      .orElseThrow(() -> new NotFoundException(format("Project with uuid '%s' does not exist", projectUuid)));
-    userSession.checkComponentPermission(UserRole.USER, project);
-
-    boolean hotspotOnProject = Objects.equals(projectUuid, componentUuid);
+    boolean hotspotOnProject = Objects.equals(project.uuid(), componentUuid);
     ComponentDto component = hotspotOnProject ? project
       : dbClient.componentDao().selectByUuid(dbSession, componentUuid)
         .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
