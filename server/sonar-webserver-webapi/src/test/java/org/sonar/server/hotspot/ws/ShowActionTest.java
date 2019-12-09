@@ -59,8 +59,9 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.AvatarResolver;
 import org.sonar.server.issue.AvatarResolverImpl;
-import org.sonar.server.issue.IssueChangelog;
-import org.sonar.server.issue.IssueChangelog.ChangelogLoadingContext;
+import org.sonar.server.issue.IssueChangeWSSupport;
+import org.sonar.server.issue.IssueChangeWSSupport.FormattingContext;
+import org.sonar.server.issue.IssueChangeWSSupport.Load;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.ws.UserResponseFormatter;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -101,12 +102,12 @@ public class ShowActionTest {
 
   private AvatarResolver avatarResolver = new AvatarResolverImpl();
   private HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(defaultOrganizationProvider);
-  private IssueChangelog issueChangelog = Mockito.mock(IssueChangelog.class);
+  private IssueChangeWSSupport issueChangeSupport = Mockito.mock(IssueChangeWSSupport.class);
   private HotspotWsSupport hotspotWsSupport = new HotspotWsSupport(dbClient, userSessionRule, System2.INSTANCE);
   private UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
   private TextRangeResponseFormatter textRangeFormatter = new TextRangeResponseFormatter();
 
-  private ShowAction underTest = new ShowAction(dbClient, hotspotWsSupport, responseFormatter, textRangeFormatter, userFormatter, issueChangelog);
+  private ShowAction underTest = new ShowAction(dbClient, hotspotWsSupport, responseFormatter, textRangeFormatter, userFormatter, issueChangeSupport);
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
@@ -556,7 +557,7 @@ public class ShowActionTest {
   }
 
   @Test
-  public void returns_hotspot_changelog() {
+  public void returns_hotspot_changelog_and_comments() {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
@@ -565,13 +566,16 @@ public class ShowActionTest {
       .setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(DbCommons.TextRange.newBuilder().build())
         .build()));
-    ChangelogLoadingContext changelogLoadingContext = Mockito.mock(ChangelogLoadingContext.class);
+    FormattingContext formattingContext = Mockito.mock(FormattingContext.class);
     List<Common.Changelog> changelog = IntStream.range(0, 1 + new Random().nextInt(12))
       .mapToObj(i -> Common.Changelog.newBuilder().setUser("u" + i).build())
       .collect(Collectors.toList());
-    when(issueChangelog.newChangelogLoadingContext(any(), any(), anySet(), anySet())).thenReturn(changelogLoadingContext);
-    when(issueChangelog.formatChangelog(any(), eq(changelogLoadingContext)))
-      .thenReturn(changelog.stream());
+    List<Common.Comment> comments = IntStream.range(0, 1 + new Random().nextInt(12))
+      .mapToObj(i -> Common.Comment.newBuilder().setKey("u" + i).build())
+      .collect(Collectors.toList());
+    when(issueChangeSupport.newFormattingContext(any(), any(), any(), anySet(), anySet())).thenReturn(formattingContext);
+    when(issueChangeSupport.formatChangelog(any(), any())).thenReturn(changelog.stream());
+    when(issueChangeSupport.formatComments(any(), any(), any())).thenReturn(comments.stream());
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -579,10 +583,15 @@ public class ShowActionTest {
     assertThat(response.getChangelogList())
       .extracting(Common.Changelog::getUser)
       .containsExactly(changelog.stream().map(Common.Changelog::getUser).toArray(String[]::new));
-    verify(issueChangelog).newChangelogLoadingContext(any(DbSession.class),
-      argThat(new IssueDtoArgumentMatcher(hotspot)),
+    assertThat(response.getCommentList())
+      .extracting(Common.Comment::getKey)
+      .containsExactly(comments.stream().map(Common.Comment::getKey).toArray(String[]::new));
+    verify(issueChangeSupport).newFormattingContext(any(DbSession.class),
+      argThat(new IssueDtoSetArgumentMatcher(hotspot)),
+      eq(Load.ALL),
       eq(Collections.emptySet()), eq(ImmutableSet.of(project, file)));
-    verify(issueChangelog).formatChangelog(any(DbSession.class), eq(changelogLoadingContext));
+    verify(issueChangeSupport).formatChangelog(argThat(new IssueDtoArgumentMatcher(hotspot)), eq(formattingContext));
+    verify(issueChangeSupport).formatComments(argThat(new IssueDtoArgumentMatcher(hotspot)), any(Common.Comment.Builder.class), eq(formattingContext));
   }
 
   public void verifyRule(Hotspots.Rule wsRule, RuleDefinitionDto dto) {
@@ -636,6 +645,24 @@ public class ShowActionTest {
     return ruleDefinition;
   }
 
+  private static class IssueDtoSetArgumentMatcher implements ArgumentMatcher<Set<IssueDto>> {
+    private final IssueDto expected;
+
+    private IssueDtoSetArgumentMatcher(IssueDto expected) {
+      this.expected = expected;
+    }
+
+    @Override
+    public boolean matches(Set<IssueDto> argument) {
+      return argument != null && argument.size() == 1 && argument.iterator().next().getKey().equals(expected.getKey());
+    }
+
+    @Override
+    public String toString() {
+      return "Set<IssueDto>[" + expected.getKey() + "]";
+    }
+  }
+
   private static class IssueDtoArgumentMatcher implements ArgumentMatcher<IssueDto> {
     private final IssueDto expected;
 
@@ -646,6 +673,11 @@ public class ShowActionTest {
     @Override
     public boolean matches(IssueDto argument) {
       return argument != null && argument.getKey().equals(expected.getKey());
+    }
+
+    @Override
+    public String toString() {
+      return "IssueDto[key=" + expected.getKey() + "]";
     }
   }
 

@@ -38,8 +38,9 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.issue.IssueChangelog;
-import org.sonar.server.issue.IssueChangelog.ChangelogLoadingContext;
+import org.sonar.server.issue.IssueChangeWSSupport;
+import org.sonar.server.issue.IssueChangeWSSupport.FormattingContext;
+import org.sonar.server.issue.IssueChangeWSSupport.Load;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.ws.UserResponseFormatter;
 import org.sonar.server.security.SecurityStandards;
@@ -50,6 +51,7 @@ import org.sonarqube.ws.Hotspots.ShowWsResponse;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.lang.String.format;
+import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -63,17 +65,17 @@ public class ShowAction implements HotspotsWsAction {
   private final HotspotWsResponseFormatter responseFormatter;
   private final TextRangeResponseFormatter textRangeFormatter;
   private final UserResponseFormatter userFormatter;
-  private final IssueChangelog issueChangelog;
+  private final IssueChangeWSSupport issueChangeSupport;
 
   public ShowAction(DbClient dbClient, HotspotWsSupport hotspotWsSupport,
     HotspotWsResponseFormatter responseFormatter, TextRangeResponseFormatter textRangeFormatter,
-    UserResponseFormatter userFormatter, IssueChangelog issueChangelog) {
+    UserResponseFormatter userFormatter, IssueChangeWSSupport issueChangeSupport) {
     this.dbClient = dbClient;
     this.hotspotWsSupport = hotspotWsSupport;
     this.responseFormatter = responseFormatter;
     this.textRangeFormatter = textRangeFormatter;
     this.userFormatter = userFormatter;
-    this.issueChangelog = issueChangelog;
+    this.issueChangeSupport = issueChangeSupport;
   }
 
   @Override
@@ -109,7 +111,7 @@ public class ShowAction implements HotspotsWsAction {
       formatComponents(components, responseBuilder);
       formatRule(responseBuilder, rule);
       formatTextRange(hotspot, responseBuilder);
-      formatChangelog(dbSession, hotspot, components, responseBuilder);
+      formatChangeLogAndComments(dbSession, hotspot, components, responseBuilder);
 
       writeProtobuf(responseBuilder.build(), request, response);
     }
@@ -175,13 +177,15 @@ public class ShowAction implements HotspotsWsAction {
     textRangeFormatter.formatTextRange(hotspot, responseBuilder::setTextRange);
   }
 
-  private void formatChangelog(DbSession dbSession, IssueDto hotspot, Components components, ShowWsResponse.Builder responseBuilder) {
+  private void formatChangeLogAndComments(DbSession dbSession, IssueDto hotspot, Components components, ShowWsResponse.Builder responseBuilder) {
     Set<ComponentDto> preloadedComponents = ImmutableSet.of(components.project, components.component);
-    ChangelogLoadingContext changelogLoadingContext = issueChangelog
-      .newChangelogLoadingContext(dbSession, hotspot, ImmutableSet.of(), preloadedComponents);
+    FormattingContext formattingContext = issueChangeSupport
+      .newFormattingContext(dbSession, singleton(hotspot), Load.ALL, ImmutableSet.of(), preloadedComponents);
 
-    issueChangelog.formatChangelog(dbSession, changelogLoadingContext)
+    issueChangeSupport.formatChangelog(hotspot, formattingContext)
       .forEach(responseBuilder::addChangelog);
+    issueChangeSupport.formatComments(hotspot, Common.Comment.newBuilder(), formattingContext)
+      .forEach(responseBuilder::addComment);
   }
 
   private RuleDefinitionDto loadRule(DbSession dbSession, IssueDto hotspot) {

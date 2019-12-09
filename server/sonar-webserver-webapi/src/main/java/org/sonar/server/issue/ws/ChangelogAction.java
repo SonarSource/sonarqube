@@ -30,12 +30,14 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.issue.IssueChangelog;
+import org.sonar.server.issue.IssueChangeWSSupport;
+import org.sonar.server.issue.IssueChangeWSSupport.Load;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.ChangelogWsResponse;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Collections.singleton;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_CHANGELOG;
@@ -46,13 +48,13 @@ public class ChangelogAction implements IssuesWsAction {
   private final DbClient dbClient;
   private final IssueFinder issueFinder;
   private final UserSession userSession;
-  private final IssueChangelog issueChangelog;
+  private final IssueChangeWSSupport issueChangeSupport;
 
-  public ChangelogAction(DbClient dbClient, IssueFinder issueFinder, UserSession userSession, IssueChangelog issueChangelog) {
+  public ChangelogAction(DbClient dbClient, IssueFinder issueFinder, UserSession userSession, IssueChangeWSSupport issueChangeSupport) {
     this.dbClient = dbClient;
     this.issueFinder = issueFinder;
     this.userSession = userSession;
-    this.issueChangelog = issueChangelog;
+    this.issueChangeSupport = issueChangeSupport;
   }
 
   @Override
@@ -86,10 +88,10 @@ public class ChangelogAction implements IssuesWsAction {
       return ChangelogWsResponse.newBuilder().build();
     }
 
-    IssueChangelog.ChangelogLoadingContext loadingContext = issueChangelog.newChangelogLoadingContext(dbSession, issue);
+    IssueChangeWSSupport.FormattingContext formattingContext = issueChangeSupport.newFormattingContext(dbSession, singleton(issue), Load.CHANGE_LOG);
 
     ChangelogWsResponse.Builder builder = ChangelogWsResponse.newBuilder();
-    issueChangelog.formatChangelog(dbSession, loadingContext)
+    issueChangeSupport.formatChangelog(issue, formattingContext)
       .forEach(builder::addChangelog);
     return builder.build();
   }
