@@ -20,7 +20,7 @@
 package org.sonar.api.batch.fs.internal.fs;
 
 import java.io.File;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,8 +62,8 @@ public class DefaultFileSystemTest {
 
   @Test
   public void test_encoding() throws Exception {
-    fs.setEncoding(Charset.forName("ISO-8859-1"));
-    assertThat(fs.encoding()).isEqualTo(Charset.forName("ISO-8859-1"));
+    fs.setEncoding(StandardCharsets.ISO_8859_1);
+    assertThat(fs.encoding()).isEqualTo(StandardCharsets.ISO_8859_1);
   }
 
   @Test

@@ -124,7 +124,7 @@ public class UpdateKeyActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
+  public void fail_when_using_branch_db_key() {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);

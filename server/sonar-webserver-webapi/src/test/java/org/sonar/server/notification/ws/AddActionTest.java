@@ -327,7 +327,7 @@ public class AddActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
+  public void fail_when_using_branch_db_key() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));

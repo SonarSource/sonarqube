@@ -237,7 +237,7 @@ public class PurgeDaoTest {
     dbSession.commit();
 
     assertThat(db.select("select metric_id as \"METRIC\",analysis_uuid as \"ANALYSIS\" from project_measures"))
-      .extracting(t -> ((Long) t.get("METRIC")).intValue(), t -> (String) t.get("ANALYSIS"))
+      .extracting(t -> ((Long) t.get("METRIC")).intValue(), t -> t.get("ANALYSIS"))
       .containsOnly(
         tuple(metricWithHistory.getId(), lastAnalysis.getUuid()),
         tuple(metricWithoutHistory.getId(), lastAnalysis.getUuid()),

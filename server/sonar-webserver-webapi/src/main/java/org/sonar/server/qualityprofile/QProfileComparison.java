@@ -93,10 +93,10 @@ public class QProfileComparison {
 
     private final QProfileDto left;
     private final QProfileDto right;
-    private final Map<RuleKey, ActiveRuleDto> inLeft = Maps.newHashMap();
-    private final Map<RuleKey, ActiveRuleDto> inRight = Maps.newHashMap();
-    private final Map<RuleKey, ActiveRuleDiff> modified = Maps.newHashMap();
-    private final Map<RuleKey, ActiveRuleDto> same = Maps.newHashMap();
+    private final Map<RuleKey, ActiveRuleDto> inLeft = new HashMap<>();
+    private final Map<RuleKey, ActiveRuleDto> inRight = new HashMap<>();
+    private final Map<RuleKey, ActiveRuleDiff> modified = new HashMap<>();
+    private final Map<RuleKey, ActiveRuleDto> same = new HashMap<>();
 
     public QProfileComparisonResult(QProfileDto left, QProfileDto right) {
       this.left = left;

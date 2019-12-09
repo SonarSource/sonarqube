@@ -28,7 +28,7 @@ public class TestSettingsTest {
   TestSettings underTest = new TestSettings();
 
   @Test
-  public void get_string_value() throws Exception {
+  public void get_string_value() {
     underTest.setValue("key", "value");
 
     assertThat(underTest.getString("key")).isEqualTo("value");
@@ -36,7 +36,7 @@ public class TestSettingsTest {
   }
 
   @Test
-  public void get_string_array_value() throws Exception {
+  public void get_string_array_value() {
     underTest.setValue("key", "value1,value2");
 
     assertThat(underTest.getStringArray("key")).containsOnly("value1", "value2");

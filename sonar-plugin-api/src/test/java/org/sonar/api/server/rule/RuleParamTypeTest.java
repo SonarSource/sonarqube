@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RuleParamTypeTest {
 
   @Test
-  public void testEquals() throws Exception {
+  public void testEquals() {
     RuleParamType noOptions = RuleParamType.INTEGER;
     RuleParamType withOptions1 = RuleParamType.singleListOfValues("one", "two");
     RuleParamType withOptions2 = RuleParamType.singleListOfValues("three", "four");
@@ -47,12 +47,12 @@ public class RuleParamTypeTest {
   }
 
   @Test
-  public void testHashCode() throws Exception {
+  public void testHashCode() {
     assertThat(RuleParamType.INTEGER.hashCode()).isEqualTo(RuleParamType.INTEGER.hashCode());
   }
 
   @Test
-  public void testInteger() throws Exception {
+  public void testInteger() {
     RuleParamType type = RuleParamType.INTEGER;
     assertThat(type.toString()).isEqualTo("INTEGER");
     assertThat(RuleParamType.parse(type.toString()).type()).isEqualTo("INTEGER");
@@ -61,7 +61,7 @@ public class RuleParamTypeTest {
   }
 
   @Test
-  public void testListOfValues() throws Exception {
+  public void testListOfValues() {
     RuleParamType selectList = RuleParamType.parse("SINGLE_SELECT_LIST,values=\"foo,bar\",");
     assertThat(selectList.type()).isEqualTo("SINGLE_SELECT_LIST");
     assertThat(selectList.values()).containsOnly("foo", "bar");
@@ -89,7 +89,7 @@ public class RuleParamTypeTest {
   }
 
   @Test
-  public void testMultipleListOfValues() throws Exception {
+  public void testMultipleListOfValues() {
     RuleParamType selectList = RuleParamType.parse("SINGLE_SELECT_LIST,values=\"foo,bar\",multiple=true");
     assertThat(selectList.type()).isEqualTo("SINGLE_SELECT_LIST");
     assertThat(selectList.values()).containsOnly("foo", "bar");

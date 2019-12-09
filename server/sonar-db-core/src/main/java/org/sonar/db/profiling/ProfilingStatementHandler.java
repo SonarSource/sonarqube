@@ -36,7 +36,7 @@ class ProfilingStatementHandler implements InvocationHandler {
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     if (method.getName().startsWith("execute")) {
       Profiler profiler = Profiler.create(ProfiledDataSource.SQL_LOGGER).start();
-      Object result = null;
+      Object result;
       try {
         result = InvocationUtils.invokeQuietly(statement, method, args);
       } finally {

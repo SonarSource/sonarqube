@@ -19,6 +19,7 @@
  */
 package org.sonar.duplications.java;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import org.junit.Test;
@@ -33,7 +34,6 @@ import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -149,7 +149,7 @@ public class JavaDuplicationsFunctionalTest {
   }
 
   private String source(String... lines) {
-    return asList(lines).stream().collect(joining("\n"));
+    return Arrays.stream(lines).collect(joining("\n"));
   }
 
   private static List<CloneGroup> detect2(String... fragments) {
@@ -180,7 +180,7 @@ public class JavaDuplicationsFunctionalTest {
   private static BlockChunker BLOCK_CHUNKER = new BlockChunker(BLOCK_SIZE);
 
   private List<CloneGroup> detect(String... lines) {
-    String sourceCode = asList(lines).stream().collect(joining("\n"));
+    String sourceCode = Arrays.stream(lines).collect(joining("\n"));
     MemoryCloneIndex index = new MemoryCloneIndex();
     List<Statement> statements = STATEMENT_CHUNKER.chunk(TOKEN_CHUNKER.chunk(sourceCode));
     List<Block> blocks = BLOCK_CHUNKER.chunk("resourceId", statements);

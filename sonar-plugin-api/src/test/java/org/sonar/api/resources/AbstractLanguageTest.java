@@ -69,7 +69,7 @@ public class AbstractLanguageTest {
     new TooLongKeyLanguage();
   }
 
-  class TooLongKeyLanguage extends AbstractLanguage {
+  static class TooLongKeyLanguage extends AbstractLanguage {
     public TooLongKeyLanguage() {
       super("aKeyWhichIsVeryVeryVeryVeryVeryLong");
     }

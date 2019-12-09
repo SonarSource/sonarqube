@@ -20,7 +20,6 @@
 package org.sonar.server.startup;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,7 +112,7 @@ public class RegisterMetrics implements Startable {
   @VisibleForTesting
   List<Metric> getPluginMetrics() {
     List<Metric> metricsToRegister = newArrayList();
-    Map<String, Metrics> metricsByRepository = Maps.newHashMap();
+    Map<String, Metrics> metricsByRepository = new HashMap<>();
     for (Metrics metrics : metricsRepositories) {
       checkMetrics(metricsByRepository, metrics);
       metricsToRegister.addAll(metrics.getMetrics());

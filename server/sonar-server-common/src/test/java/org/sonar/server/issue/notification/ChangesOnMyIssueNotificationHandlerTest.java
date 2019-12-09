@@ -447,8 +447,7 @@ public class ChangesOnMyIssueNotificationHandlerTest {
   }
 
   private static IssuesChangesNotification newNotification(@Nullable String projectKey, @Nullable String assignee, @Nullable String changeAuthor) {
-    IssuesChangesNotification notification = mock(IssuesChangesNotification.class);
-    return notification;
+    return mock(IssuesChangesNotification.class);
   }
 
   private static NotificationManager.EmailRecipient emailRecipientOf(String login) {

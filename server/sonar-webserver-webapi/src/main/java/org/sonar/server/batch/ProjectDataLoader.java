@@ -20,6 +20,7 @@
 package org.sonar.server.batch;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -39,7 +40,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
@@ -98,7 +98,7 @@ public class ProjectDataLoader {
   }
 
   private static void addFileDataPerModule(MultiModuleProjectRepository data, List<ComponentDto> moduleChildren, List<FilePathWithHashDto> files) {
-    Map<String, String> moduleKeysByUuid = newHashMap();
+    Map<String, String> moduleKeysByUuid = new HashMap<>();
     for (ComponentDto module : moduleChildren) {
       moduleKeysByUuid.put(module.uuid(), module.getKey());
     }

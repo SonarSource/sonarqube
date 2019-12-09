@@ -124,8 +124,8 @@ public class LogbackHelper extends AbstractLogHelper {
     return rootContext;
   }
 
-  private void applyLevelByProperty(Props props, Logger logger, List<String> properties) {
-    logger.setLevel(resolveLevel(props, properties.stream().toArray(String[]::new)));
+  private static void applyLevelByProperty(Props props, Logger logger, List<String> properties) {
+    logger.setLevel(resolveLevel(props, properties.toArray(new String[0])));
   }
 
   private static void applyHardcodedLevel(LoggerContext rootContext, String loggerName, Level newLevel) {

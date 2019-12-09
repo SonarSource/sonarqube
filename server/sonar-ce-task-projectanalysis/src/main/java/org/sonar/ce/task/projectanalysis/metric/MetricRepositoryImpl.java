@@ -48,13 +48,10 @@ public class MetricRepositoryImpl implements MetricRepository, Startable {
 
   @Override
   public void start() {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       List<MetricDto> metricList = dbClient.metricDao().selectEnabled(dbSession);
       this.metricsByKey = from(metricList).transform(MetricDtoToMetric.INSTANCE).uniqueIndex(MetricToKey.INSTANCE);
       this.metricsById = from(metricList).transform(MetricDtoToMetric.INSTANCE).uniqueIndex(MetricToId.INSTANCE);
-    } finally {
-      dbSession.close();
     }
   }
 

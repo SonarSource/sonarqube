@@ -70,7 +70,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   }
 
   @Test
-  public void add_user_to_template() throws Exception {
+  public void add_user_to_template() {
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest(user.getLogin(), permissionTemplate.getUuid(), CODEVIEWER);
@@ -109,7 +109,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   }
 
   @Test
-  public void does_not_add_a_user_twice() throws Exception {
+  public void does_not_add_a_user_twice() {
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest(user.getLogin(), permissionTemplate.getUuid(), ISSUE_ADMIN);
@@ -119,7 +119,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   }
 
   @Test
-  public void fail_if_not_a_project_permission() throws Exception {
+  public void fail_if_not_a_project_permission() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -128,7 +128,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   }
 
   @Test
-  public void fail_if_not_admin_of_default_organization() throws Exception {
+  public void fail_if_not_admin_of_default_organization() {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
 
     expectedException.expect(ForbiddenException.class);
@@ -137,7 +137,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   }
 
   @Test
-  public void fail_if_user_missing() throws Exception {
+  public void fail_if_user_missing() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -146,7 +146,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   }
 
   @Test
-  public void fail_if_permission_missing() throws Exception {
+  public void fail_if_permission_missing() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -155,7 +155,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   }
 
   @Test
-  public void fail_if_template_uuid_and_name_are_missing() throws Exception {
+  public void fail_if_template_uuid_and_name_are_missing() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -164,7 +164,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   }
 
   @Test
-  public void fail_if_user_does_not_exist() throws Exception {
+  public void fail_if_user_does_not_exist() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -174,7 +174,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   }
 
   @Test
-  public void fail_if_template_key_does_not_exist() throws Exception {
+  public void fail_if_template_key_does_not_exist() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -195,7 +195,8 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
       .setParam(PARAM_PERMISSION, CODEVIEWER)
       .setParam(PARAM_TEMPLATE_NAME, permissionTemplate.getName().toUpperCase())
       .setParam(PARAM_ORGANIZATION, "Unknown")
-      .execute();  }
+      .execute();
+  }
 
   @Test
   public void fail_to_add_permission_when_user_is_not_member_of_given_organization() {

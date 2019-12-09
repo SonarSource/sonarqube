@@ -50,7 +50,7 @@ public class DefaultRulesLoaderTest {
   @Test
   public void testError() throws IOException {
     DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class);
-    InputStream is = ByteSource.wrap(new String("trash").getBytes()).openBufferedStream();
+    InputStream is = ByteSource.wrap("trash".getBytes()).openBufferedStream();
     WsTestUtil.mockStream(wsClient, is);
     DefaultRulesLoader loader = new DefaultRulesLoader(wsClient);
 

@@ -25,6 +25,8 @@ import java.nio.charset.Charset;
 import java.sql.SQLException;
 import org.apache.commons.io.FileUtils;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class DumpSQSchema {
 
   public static void main(String[] args) {
@@ -36,7 +38,7 @@ public class DumpSQSchema {
         System.exit(1);
       }
 
-      Charset charset = Charset.forName("UTF8");
+      Charset charset = UTF_8;
       String oldContent = FileUtils.readFileToString(targetFile, charset);
       String newContent = dumper.dumpToText();
       boolean upToDate = newContent.equals(oldContent);

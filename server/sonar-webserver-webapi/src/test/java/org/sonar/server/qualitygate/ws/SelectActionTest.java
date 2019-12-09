@@ -304,7 +304,7 @@ public class SelectActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
+  public void fail_when_using_branch_db_key() {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     ComponentDto project = db.components().insertMainBranch(organization);

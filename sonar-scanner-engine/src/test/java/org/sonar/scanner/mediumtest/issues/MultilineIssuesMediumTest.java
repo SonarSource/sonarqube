@@ -62,7 +62,7 @@ public class MultilineIssuesMediumTest {
   }
 
   @Test
-  public void testIssueRange() throws Exception {
+  public void testIssueRange() {
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/Single.xoo"));
     assertThat(issues).hasSize(1);
     Issue issue = issues.get(0);
@@ -74,7 +74,7 @@ public class MultilineIssuesMediumTest {
   }
 
   @Test
-  public void testMultilineIssueRange() throws Exception {
+  public void testMultilineIssueRange() {
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/Multiline.xoo"));
     assertThat(issues).hasSize(1);
     Issue issue = issues.get(0);
@@ -86,7 +86,7 @@ public class MultilineIssuesMediumTest {
   }
 
   @Test
-  public void testFlowWithSingleLocation() throws Exception {
+  public void testFlowWithSingleLocation() {
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/Multiple.xoo"));
     assertThat(issues).hasSize(1);
     Issue issue = issues.get(0);
@@ -108,7 +108,7 @@ public class MultilineIssuesMediumTest {
   }
 
   @Test
-  public void testFlowsWithMultipleElements() throws Exception {
+  public void testFlowsWithMultipleElements() {
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/WithFlow.xoo"));
     assertThat(issues).hasSize(1);
     Issue issue = issues.get(0);

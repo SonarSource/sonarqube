@@ -20,7 +20,6 @@
 package org.sonar.scanner.scan.branch;
 
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.api.scanner.ScannerSide;
 
 @ScannerSide

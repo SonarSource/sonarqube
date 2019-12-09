@@ -58,7 +58,6 @@ public class ActiveRuleIndexerTest {
   private ActiveRuleIndexer underTest = new ActiveRuleIndexer(db.getDbClient(), es.client());
   private RuleDefinitionDto rule1;
   private RuleDefinitionDto rule2;
-  private OrganizationDto org;
   private QProfileDto profile1;
   private QProfileDto profile2;
 
@@ -66,7 +65,7 @@ public class ActiveRuleIndexerTest {
   public void before() {
     rule1 = db.rules().insert();
     rule2 = db.rules().insert();
-    org = db.organizations().insert();
+    OrganizationDto org = db.organizations().insert();
     profile1 = db.qualityProfiles().insert(org);
     profile2 = db.qualityProfiles().insert(org);
   }

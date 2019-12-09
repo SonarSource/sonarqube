@@ -81,7 +81,7 @@ public class RuleRepositoryImplTest {
   private RuleRepositoryImpl underTest = new RuleRepositoryImpl(adHocRuleCreator, dbClient, analysisMetadataHolder);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(dbClient.openSession(anyBoolean())).thenReturn(dbSession);
     when(dbClient.ruleDao()).thenReturn(ruleDao);
     when(ruleDao.selectAll(any(DbSession.class), eq(ORGANIZATION_UUID))).thenReturn(ImmutableList.of(AB_RULE));

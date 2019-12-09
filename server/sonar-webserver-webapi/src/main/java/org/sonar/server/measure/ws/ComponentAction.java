@@ -91,8 +91,8 @@ public class ComponentAction implements MeasuresWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_COMPONENT)
-      .setDescription(format("Return component with specified measures.<br>" +
-        "Requires the following permission: 'Browse' on the project of specified component."))
+      .setDescription("Return component with specified measures.<br>" +
+        "Requires the following permission: 'Browse' on the project of specified component.")
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.4")
       .setChangelog(

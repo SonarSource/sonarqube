@@ -20,7 +20,6 @@
 package org.sonar.scanner.mediumtest.coverage;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Rule;
@@ -41,7 +40,7 @@ public class GenericCoverageMediumTest {
     .addDefaultQProfile("xoo", "Sonar Way");
 
   @Test
-  public void singleReport() throws IOException {
+  public void singleReport() {
 
     File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-coverage");
 
@@ -68,7 +67,7 @@ public class GenericCoverageMediumTest {
   }
 
   @Test
-  public void twoReports() throws IOException {
+  public void twoReports() {
 
     File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-coverage");
 

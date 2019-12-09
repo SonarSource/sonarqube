@@ -83,7 +83,7 @@ public class CustomMeasureJsonWriter {
 
   private static String measureValue(CustomMeasureDto measure, MetricDto metric) {
     Metric.ValueType metricType = Metric.ValueType.valueOf(metric.getValueType());
-    Double doubleValue = measure.getValue();
+    double doubleValue = measure.getValue();
     String stringValue = measure.getTextValue();
 
     switch (metricType) {
@@ -91,9 +91,8 @@ public class CustomMeasureJsonWriter {
         return doubleValue == 1.0d ? "true" : "false";
       case INT:
       case MILLISEC:
-        return String.valueOf(doubleValue.intValue());
+        return String.valueOf((int) doubleValue);
       case WORK_DUR:
-        return String.valueOf(doubleValue.longValue());
       case FLOAT:
       case PERCENT:
       case RATING:

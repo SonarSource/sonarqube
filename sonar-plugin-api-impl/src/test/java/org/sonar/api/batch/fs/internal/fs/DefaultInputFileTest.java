@@ -33,7 +33,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Rule;
@@ -50,7 +49,6 @@ import org.sonar.api.batch.fs.internal.SensorStrategy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class DefaultInputFileTest {
 
@@ -74,7 +72,7 @@ public class DefaultInputFileTest {
   }
 
   @Test
-  public void test() throws Exception {
+  public void test() {
 
     Metadata metadata = new Metadata(42, 42, "", new int[0], new int[0], 10);
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, (f) -> f.setMetadata(metadata))
@@ -152,7 +150,7 @@ public class DefaultInputFileTest {
   }
 
   @Test
-  public void test_equals_and_hashcode() throws Exception {
+  public void test_equals_and_hashcode() {
     DefaultInputFile f1 = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), (f) -> mock(Metadata.class));
     DefaultInputFile f1a = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), (f) -> mock(Metadata.class));
     DefaultInputFile f2 = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), "src/Bar.php", null), (f) -> mock(Metadata.class));
@@ -168,7 +166,7 @@ public class DefaultInputFileTest {
   }
 
   @Test
-  public void test_toString() throws Exception {
+  public void test_toString() {
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), (f) -> mock(Metadata.class));
     assertThat(file.toString()).isEqualTo(MODULE_RELATIVE_PATH);
   }

@@ -19,8 +19,6 @@
  */
 package org.sonar.scanner.scm;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,11 +29,9 @@ import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.System2;
 import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class DefaultBlameOutputTest {
 

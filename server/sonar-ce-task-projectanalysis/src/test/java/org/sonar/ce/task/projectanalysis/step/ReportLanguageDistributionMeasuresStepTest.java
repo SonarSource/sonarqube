@@ -66,7 +66,7 @@ public class ReportLanguageDistributionMeasuresStepTest {
   ComputationStep underTest = new LanguageDistributionMeasuresStep(treeRootHolder, metricRepository, measureRepository);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(

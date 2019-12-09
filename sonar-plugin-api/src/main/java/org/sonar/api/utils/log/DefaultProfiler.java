@@ -25,7 +25,6 @@ import org.sonar.api.utils.System2;
 import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 
 class DefaultProfiler extends Profiler {
 
@@ -165,7 +164,7 @@ class DefaultProfiler extends Profiler {
       if (sb.length() > 0) {
         sb.append(CONTEXT_SEPARATOR);
       }
-      sb.append(entry.getKey()).append("=").append(Objects.toString(entry.getValue()));
+      sb.append(entry.getKey()).append("=").append(entry.getValue());
     }
   }
 

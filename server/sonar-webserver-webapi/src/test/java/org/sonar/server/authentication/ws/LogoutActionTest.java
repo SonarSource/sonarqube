@@ -19,11 +19,9 @@
  */
 package org.sonar.server.authentication.ws;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Rule;
@@ -88,7 +86,7 @@ public class LogoutActionTest {
   }
 
   @Test
-  public void return_400_on_get_request() throws Exception {
+  public void return_400_on_get_request() {
     when(request.getMethod()).thenReturn("GET");
 
     underTest.doFilter(request, response, chain);
@@ -132,7 +130,7 @@ public class LogoutActionTest {
     verifyZeroInteractions(chain);
   }
 
-  private void executeRequest() throws IOException, ServletException {
+  private void executeRequest() {
     when(request.getMethod()).thenReturn("POST");
     underTest.doFilter(request, response, chain);
   }

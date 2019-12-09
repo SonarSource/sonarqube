@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -54,8 +55,6 @@ import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.asList;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 import static java.sql.ResultSetMetaData.columnNoNulls;
 import static java.sql.ResultSetMetaData.columnNullable;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -209,9 +208,9 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
   private static List<Map<String, Object>> getHashMap(ResultSet resultSet) throws Exception {
     ResultSetMetaData metaData = resultSet.getMetaData();
     int colCount = metaData.getColumnCount();
-    List<Map<String, Object>> rows = newArrayList();
+    List<Map<String, Object>> rows = new ArrayList<>();
     while (resultSet.next()) {
-      Map<String, Object> columns = newHashMap();
+      Map<String, Object> columns = new HashMap<>();
       for (int i = 1; i <= colCount; i++) {
         Object value = resultSet.getObject(i);
         if (value instanceof Clob) {

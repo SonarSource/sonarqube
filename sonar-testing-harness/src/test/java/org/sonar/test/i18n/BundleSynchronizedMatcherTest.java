@@ -104,7 +104,7 @@ public class BundleSynchronizedMatcherTest {
   }
 
   @Test
-  public void testExtractDefaultBundleName() throws Exception {
+  public void testExtractDefaultBundleName() {
     // OK
     assertThat(BundleSynchronizedMatcher.extractDefaultBundleName("myPlugin_fr.properties"), is("myPlugin.properties"));
     assertThat(BundleSynchronizedMatcher.extractDefaultBundleName("myPlugin_fr_QB.properties"), is("myPlugin.properties"));

@@ -202,7 +202,7 @@ public class HealthCheckerImplTest {
       .map(HardcodedHealthClusterCheck::new)
       .map(ClusterHealthCheck.class::cast)
       .toArray(ClusterHealthCheck[]::new);
-    String[] expectedCauses = causesGroups.stream().flatMap(Arrays::stream).collect(Collectors.toSet()).stream().toArray(String[]::new);
+    String[] expectedCauses = causesGroups.stream().flatMap(Arrays::stream).toArray(String[]::new);
 
     HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, new NodeHealthCheck[0], clusterHealthChecks, sharedHealthState);
 

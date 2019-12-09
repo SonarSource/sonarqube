@@ -22,7 +22,6 @@ package org.sonar.server.platform.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.SystemInfoWriter;
 import org.sonar.server.tester.UserSessionRule;
@@ -39,12 +38,7 @@ public class InfoActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private SystemInfoWriter jsonWriter = new SystemInfoWriter() {
-    @Override
-    public void write(JsonWriter json) {
-      json.prop("key", "value");
-    }
-  };
+  private SystemInfoWriter jsonWriter = json -> json.prop("key", "value");
   private InfoAction underTest = new InfoAction(userSessionRule, jsonWriter);
   private WsActionTester ws = new WsActionTester(underTest);
 

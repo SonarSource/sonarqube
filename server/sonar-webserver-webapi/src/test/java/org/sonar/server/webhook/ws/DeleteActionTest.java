@@ -152,7 +152,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void fail_if_not_logged_in() throws Exception {
+  public void fail_if_not_logged_in() {
 
     OrganizationDto organization = organizationDbTester.insert();
     WebhookDto dto = webhookDbTester.insertWebhook(organization);

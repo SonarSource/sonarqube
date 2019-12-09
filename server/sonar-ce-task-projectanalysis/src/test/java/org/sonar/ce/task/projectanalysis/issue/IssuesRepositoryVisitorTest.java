@@ -57,7 +57,7 @@ public class IssuesRepositoryVisitorTest {
   IssuesRepositoryVisitor underTest = new IssuesRepositoryVisitor(componentIssuesRepository);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     treeRootHolder.setRoot(PROJECT);
   }
 

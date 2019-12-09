@@ -89,7 +89,7 @@ public class CePluginJarExploderTest {
     return new File("src/test/plugins/sonar-test2-plugin/target/sonar-test2-plugin-0.1-SNAPSHOT.jar");
   }
 
-  private class DumbFileSystem implements ServerFileSystem {
+  private static class DumbFileSystem implements ServerFileSystem {
     private final TemporaryFolder temp;
     private File tempDir;
 

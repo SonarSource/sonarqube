@@ -144,7 +144,7 @@ public class AppNodesClusterHostsConsistencyTest {
     return member;
   }
 
-  private class TestHazelcastMember implements HazelcastMember {
+  private static class TestHazelcastMember implements HazelcastMember {
     private final Map<Member, List<String>> hostsPerMember;
     private final Cluster cluster = mock(Cluster.class);
 

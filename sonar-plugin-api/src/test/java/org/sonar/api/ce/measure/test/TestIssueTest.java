@@ -36,7 +36,7 @@ public class TestIssueTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void create_issue() throws Exception {
+  public void create_issue() {
     Issue issue = new TestIssue.Builder()
       .setKey("ABCD")
       .setRuleKey(RuleKey.of("xoo", "S01"))
@@ -56,7 +56,7 @@ public class TestIssueTest {
   }
 
   @Test
-  public void create_issue_with_minimal_fields() throws Exception {
+  public void create_issue_with_minimal_fields() {
     Issue issue = new TestIssue.Builder()
       .setKey("ABCD")
       .setRuleKey(RuleKey.of("xoo", "S01"))
@@ -70,7 +70,7 @@ public class TestIssueTest {
   }
 
   @Test
-  public void fail_with_NPE_when_building_issue_without_key() throws Exception {
+  public void fail_with_NPE_when_building_issue_without_key() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key cannot be null");
 
@@ -84,7 +84,7 @@ public class TestIssueTest {
   }
 
   @Test
-  public void fail_with_NPE_when_creating_issue_with_null_key() throws Exception {
+  public void fail_with_NPE_when_creating_issue_with_null_key() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key cannot be null");
 
@@ -92,7 +92,7 @@ public class TestIssueTest {
   }
 
   @Test
-  public void fail_with_NPE_when_building_issue_without_rule_key() throws Exception {
+  public void fail_with_NPE_when_building_issue_without_rule_key() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("ruleKey cannot be null");
 
@@ -106,7 +106,7 @@ public class TestIssueTest {
   }
 
   @Test
-  public void fail_with_NPE_when_creating_issue_with_null_rule_key() throws Exception {
+  public void fail_with_NPE_when_creating_issue_with_null_rule_key() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("ruleKey cannot be null");
 
@@ -114,7 +114,7 @@ public class TestIssueTest {
   }
 
   @Test
-  public void fail_with_IAE_when_building_issue_with_invalid_resolution() throws Exception {
+  public void fail_with_IAE_when_building_issue_with_invalid_resolution() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("resolution 'unknown' is invalid");
 
@@ -129,7 +129,7 @@ public class TestIssueTest {
   }
 
   @Test
-  public void fail_with_NPE_when_building_issue_without_severity() throws Exception {
+  public void fail_with_NPE_when_building_issue_without_severity() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("severity cannot be null");
 
@@ -143,7 +143,7 @@ public class TestIssueTest {
   }
 
   @Test
-  public void fail_with_NPE_when_creating_issue_with_null_severity() throws Exception {
+  public void fail_with_NPE_when_creating_issue_with_null_severity() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("severity cannot be null");
 
@@ -151,7 +151,7 @@ public class TestIssueTest {
   }
 
   @Test
-  public void fail_with_IAE_when_building_issue_with_invalid_severity() throws Exception {
+  public void fail_with_IAE_when_building_issue_with_invalid_severity() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("severity 'unknown' is invalid");
 
@@ -166,7 +166,7 @@ public class TestIssueTest {
   }
 
   @Test
-  public void fail_with_NPE_when_building_issue_without_status() throws Exception {
+  public void fail_with_NPE_when_building_issue_without_status() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("status cannot be null");
 
@@ -180,7 +180,7 @@ public class TestIssueTest {
   }
 
   @Test
-  public void fail_with_NPE_when_creating_issue_with_null_status() throws Exception {
+  public void fail_with_NPE_when_creating_issue_with_null_status() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("status cannot be null");
 
@@ -188,7 +188,7 @@ public class TestIssueTest {
   }
 
   @Test
-  public void fail_with_IAE_when_building_issue_with_invalid_status() throws Exception {
+  public void fail_with_IAE_when_building_issue_with_invalid_status() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("status 'unknown' is invalid");
 

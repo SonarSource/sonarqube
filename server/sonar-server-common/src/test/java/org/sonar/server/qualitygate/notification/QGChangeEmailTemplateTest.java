@@ -196,7 +196,7 @@ public class QGChangeEmailTemplateTest {
   }
 
   private Notification createNotification(String alertName, String alertText, String alertLevel, String isNewAlert) {
-    Notification notification = new Notification("alerts")
+    return new Notification("alerts")
         .setFieldValue("projectName", "Foo")
         .setFieldValue("projectKey", "org.sonar.foo:foo")
         .setFieldValue("projectId", "45")
@@ -205,7 +205,6 @@ public class QGChangeEmailTemplateTest {
         .setFieldValue("alertText", alertText)
         .setFieldValue("alertLevel", alertLevel)
         .setFieldValue("isNewAlert", isNewAlert);
-    return notification;
   }
 
 }

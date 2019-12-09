@@ -450,7 +450,7 @@ public class RecoveryIndexerTest {
     }
   }
 
-  private class HardFailingFakeIndexer implements ResilientIndexer {
+  private static class HardFailingFakeIndexer implements ResilientIndexer {
     private final Set<IndexType> types;
     private final List<Collection<EsQueueDto>> called = new ArrayList<>();
 
@@ -476,7 +476,7 @@ public class RecoveryIndexerTest {
     }
   }
 
-  private class SoftFailingFakeIndexer implements ResilientIndexer {
+  private static class SoftFailingFakeIndexer implements ResilientIndexer {
     private final Set<IndexType> types;
     private final List<Collection<EsQueueDto>> called = new ArrayList<>();
 

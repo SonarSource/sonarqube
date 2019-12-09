@@ -35,20 +35,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AbstractStoppableExecutorServiceTest {
-  private static final Callable<String> SOME_CALLABLE = new Callable<String>() {
-    @Override
-    public String call() {
-      return null;
-    }
-  };
-  private static final Runnable SOME_RUNNABLE = new Runnable() {
-    @Override
-    public void run() {
+  private static final Callable<String> SOME_CALLABLE = () -> null;
+  private static final Runnable SOME_RUNNABLE = () -> {
 
-    }
   };
   private static final String SOME_STRING = "some string";
-  private static final long SOME_LONG = 100l;
+  private static final long SOME_LONG = 100L;
   private static final int TIMEOUT = 5;
   private static final TimeUnit TIMEOUT_UNIT = TimeUnit.SECONDS;
 

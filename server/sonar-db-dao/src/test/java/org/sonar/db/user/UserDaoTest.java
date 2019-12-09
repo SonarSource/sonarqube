@@ -320,7 +320,7 @@ public class UserDaoTest {
 
   @Test
   public void insert_user() {
-    Long date = DateUtils.parseDate("2014-06-20").getTime();
+    long date = DateUtils.parseDate("2014-06-20").getTime();
 
     UserDto userDto = new UserDto()
       .setId(1)

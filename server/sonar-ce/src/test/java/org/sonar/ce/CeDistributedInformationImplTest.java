@@ -104,8 +104,7 @@ public class CeDistributedInformationImplTest {
     connectedClients.add(clientUUID1);
     connectedClients.add(clientUUID2);
     connectedClients.add(clientUUID3);
-    Map modifiableWorkerMap = new HashMap();
-    modifiableWorkerMap.putAll(workerMap);
+    Map modifiableWorkerMap = new HashMap(workerMap);
 
     when(hzClientWrapper.getUuid()).thenReturn(clientUUID1);
     when(hzClientWrapper.getMemberUuids()).thenReturn(connectedClients);

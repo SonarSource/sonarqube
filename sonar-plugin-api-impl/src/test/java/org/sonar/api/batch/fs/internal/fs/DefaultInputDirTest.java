@@ -47,7 +47,7 @@ public class DefaultInputDirTest {
   }
 
   @Test
-  public void testEqualsAndHashCode() throws Exception {
+  public void testEqualsAndHashCode() {
     DefaultInputDir inputDir1 = new DefaultInputDir("ABCDE", "src");
 
     DefaultInputDir inputDir2 = new DefaultInputDir("ABCDE", "src");

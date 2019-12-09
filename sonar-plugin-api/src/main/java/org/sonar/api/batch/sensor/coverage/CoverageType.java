@@ -30,6 +30,6 @@ public enum CoverageType {
 
   UNIT,
   IT,
-  OVERALL;
+  OVERALL
 
 }

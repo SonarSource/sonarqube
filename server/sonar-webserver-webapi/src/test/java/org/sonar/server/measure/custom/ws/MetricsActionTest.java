@@ -64,7 +64,7 @@ public class MetricsActionTest {
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     defaultProject = insertDefaultProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, defaultProject);
   }

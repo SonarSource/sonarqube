@@ -259,7 +259,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void delete_admin_group_fails_if_no_admin_users_left() throws Exception {
+  public void delete_admin_group_fails_if_no_admin_users_left() {
     // admin users are part of the group to be deleted
     OrganizationDto org = db.organizations().insert();
     db.users().insertDefaultGroup(org);
@@ -276,7 +276,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void delete_admin_group_succeeds_if_other_groups_have_administrators() throws Exception {
+  public void delete_admin_group_succeeds_if_other_groups_have_administrators() {
     OrganizationDto org = db.organizations().insert();
     db.users().insertDefaultGroup(org);
     GroupDto adminGroup1 = db.users().insertGroup(org, "admins");

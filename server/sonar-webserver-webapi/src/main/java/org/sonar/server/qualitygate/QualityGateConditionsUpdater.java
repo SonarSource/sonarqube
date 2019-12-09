@@ -231,10 +231,9 @@ public class QualityGateConditionsUpdater {
     return isNullOrEmpty(value) || RATING_VALID_INT_VALUES.contains(value);
   }
 
-  @SuppressWarnings("unchecked")
   private static boolean check(boolean expression, List<String> errors, String message, String... args) {
     if (!expression) {
-      errors.add(format(message, (Object[]) args));
+      errors.add(format(message, args));
     }
     return expression;
   }

@@ -32,7 +32,7 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class Result<T> {
 
-  private T object = null;
+  private T object;
   private final List<Message> errors = newArrayList();
 
   private Result(@Nullable T object) {

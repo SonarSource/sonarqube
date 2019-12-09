@@ -22,7 +22,6 @@ package org.sonar.db.component;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -128,7 +127,7 @@ public class ComponentKeyUpdaterDao implements Dao {
         branchModules.forEach(module -> branchBaseKeys.put(module.getKey(), branchBaseKey(module.getKey())));
       });
 
-    Map<ResourceDto, List<ResourceDto>> allResourcesByModuleMap = Maps.newHashMap();
+    Map<ResourceDto, List<ResourceDto>> allResourcesByModuleMap = new HashMap<>();
     for (ResourceDto module : modules) {
       allResourcesByModuleMap.put(module, mapper.selectProjectResources(module.getUuid()));
     }

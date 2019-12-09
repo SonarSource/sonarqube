@@ -31,7 +31,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.user.UserSession;
 
-import static java.util.Optional.ofNullable;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM;
@@ -122,7 +121,7 @@ public class UpdateAction implements WebhooksWsAction {
 
       String projectUuid = webhookDto.getProjectUuid();
       if (projectUuid != null) {
-        Optional<ComponentDto> optionalDto = ofNullable(dbClient.componentDao().selectByUuid(dbSession, projectUuid).orElse(null));
+        Optional<ComponentDto> optionalDto = dbClient.componentDao().selectByUuid(dbSession, projectUuid);
         ComponentDto componentDto = checkStateWithOptional(optionalDto, "the requested project '%s' was not found", projectUuid);
         webhookSupport.checkPermission(componentDto);
         updateWebhook(dbSession, webhookDto, name, url, secret);

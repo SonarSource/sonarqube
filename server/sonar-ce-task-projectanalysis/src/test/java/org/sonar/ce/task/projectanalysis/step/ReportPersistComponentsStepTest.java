@@ -87,7 +87,6 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   private Date now;
   private MutableDisabledComponentsHolder disabledComponentsHolder = mock(MutableDisabledComponentsHolder.class, RETURNS_DEEP_STUBS);
   private PersistComponentsStep underTest;
-  private BranchPersister branchPersister;
 
   @Before
   public void setup() throws Exception {
@@ -95,7 +94,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     when(system2.now()).thenReturn(now.getTime());
 
     db.organizations().insertForUuid(ORGANIZATION_UUID);
-    branchPersister = mock(BranchPersister.class);
+    BranchPersister branchPersister = mock(BranchPersister.class);
     underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister);
   }
 

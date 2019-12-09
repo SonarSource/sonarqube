@@ -185,7 +185,7 @@ public class ProjectReactorBuilder {
   }
 
   private void checkUnsupportedIssueExclusions(Map<String, String> moduleProperties, Map<String, String> parentProps) {
-    UNSUPPORTED_PROPS_FOR_MODULES.stream().forEach(p -> {
+    UNSUPPORTED_PROPS_FOR_MODULES.forEach(p -> {
       if (moduleProperties.containsKey(p) && !Objects.equals(moduleProperties.get(p), parentProps.get(p))) {
         warnOnceUnsupportedIssueExclusions(
           "Specifying issue exclusions at module level is not supported anymore. Configure the property '" + p + "' and any other issue exclusions at project level.");

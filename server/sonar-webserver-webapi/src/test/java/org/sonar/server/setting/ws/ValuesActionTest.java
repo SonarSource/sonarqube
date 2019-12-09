@@ -95,7 +95,7 @@ public class ValuesActionTest {
   private ComponentDto project;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
   }
 
@@ -747,7 +747,7 @@ public class ValuesActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
+  public void fail_when_using_branch_db_key() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
     userSession.logIn().addProjectPermission(UserRole.USER, project);

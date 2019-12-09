@@ -104,18 +104,18 @@ public class Durations {
    *
    */
   public String format(Duration duration) {
-    Long durationInMinutes = duration.toMinutes();
+    long durationInMinutes = duration.toMinutes();
     if (durationInMinutes == 0) {
       return "0";
     }
     boolean isNegative = durationInMinutes < 0;
-    Long absDuration = Math.abs(durationInMinutes);
+    long absDuration = Math.abs(durationInMinutes);
 
     int days = ((Double) ((double) absDuration / HOURS_IN_DAY / 60)).intValue();
-    Long remainingDuration = absDuration - (days * HOURS_IN_DAY * 60);
-    int hours = ((Double) (remainingDuration.doubleValue() / 60)).intValue();
+    long remainingDuration = absDuration - (days * HOURS_IN_DAY * 60);
+    int hours = ((Double) ((double) remainingDuration / 60)).intValue();
     remainingDuration = remainingDuration - (hours * 60);
-    int minutes = remainingDuration.intValue();
+    int minutes = (int) remainingDuration;
 
     return format(days, hours, minutes, isNegative);
   }

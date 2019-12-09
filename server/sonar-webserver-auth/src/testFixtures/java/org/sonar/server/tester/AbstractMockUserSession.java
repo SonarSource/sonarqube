@@ -22,6 +22,7 @@ package org.sonar.server.tester;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -33,7 +34,6 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.AbstractUserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Maps.newHashMap;
 
 public abstract class AbstractMockUserSession<T extends AbstractMockUserSession> extends AbstractUserSession {
   private static final Set<String> PUBLIC_PERMISSIONS = ImmutableSet.of(UserRole.USER, UserRole.CODEVIEWER); // FIXME to check with Simon
@@ -41,7 +41,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   private final Class<T> clazz;
   private HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
   private final HashMultimap<String, OrganizationPermission> permissionsByOrganizationUuid = HashMultimap.create();
-  private Map<String, String> projectUuidByComponentUuid = newHashMap();
+  private Map<String, String> projectUuidByComponentUuid = new HashMap<>();
   private Set<String> projectPermissions = new HashSet<>();
   private Set<String> organizationMembership = new HashSet<>();
   private boolean systemAdministrator = false;

@@ -19,9 +19,7 @@
  */
 package org.sonar.server.platform.web;
 
-import java.io.IOException;
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
@@ -53,7 +51,7 @@ public class WebServiceReroutingFilterTest {
   private WebServiceReroutingFilter underTest = new WebServiceReroutingFilter(webServiceEngine);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(request.getContextPath()).thenReturn("/sonarqube");
   }
 
@@ -65,7 +63,7 @@ public class WebServiceReroutingFilterTest {
   }
 
   @Test
-  public void redirect_components_update_key() throws Exception {
+  public void redirect_components_update_key() {
     when(request.getServletPath()).thenReturn("/api/components/update_key");
     when(request.getMethod()).thenReturn("POST");
 
@@ -75,7 +73,7 @@ public class WebServiceReroutingFilterTest {
   }
 
   @Test
-  public void redirect_components_bulk_update_key() throws IOException, ServletException {
+  public void redirect_components_bulk_update_key() {
     when(request.getServletPath()).thenReturn("/api/components/bulk_update_key");
     when(request.getMethod()).thenReturn("POST");
 

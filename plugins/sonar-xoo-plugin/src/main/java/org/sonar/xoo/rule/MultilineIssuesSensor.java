@@ -21,11 +21,11 @@ package org.sonar.xoo.rule;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -70,10 +70,10 @@ public class MultilineIssuesSensor implements Sensor {
   }
 
   private static void createIssues(InputFile file, SensorContext context) {
-    Map<Integer, TextPointer> startIssuesPositions = Maps.newHashMap();
-    Map<Integer, TextPointer> endIssuesPositions = Maps.newHashMap();
-    Map<Integer, Table<Integer, Integer, TextPointer>> startFlowsPositions = Maps.newHashMap();
-    Map<Integer, Table<Integer, Integer, TextPointer>> endFlowsPositions = Maps.newHashMap();
+    Map<Integer, TextPointer> startIssuesPositions = new HashMap<>();
+    Map<Integer, TextPointer> endIssuesPositions = new HashMap<>();
+    Map<Integer, Table<Integer, Integer, TextPointer>> startFlowsPositions = new HashMap<>();
+    Map<Integer, Table<Integer, Integer, TextPointer>> endFlowsPositions = new HashMap<>();
 
     parseIssues(file, context, startIssuesPositions, endIssuesPositions);
     parseFlows(file, startFlowsPositions, endFlowsPositions);

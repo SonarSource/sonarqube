@@ -19,7 +19,7 @@
  */
 package org.sonar.server.rule.index;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -36,7 +36,7 @@ public class RuleExtensionDoc extends BaseDoc {
   }
 
   public RuleExtensionDoc() {
-    super(TYPE_RULE_EXTENSION, Maps.newHashMapWithExpectedSize(4));
+    super(TYPE_RULE_EXTENSION, new HashMap<>(4));
   }
 
   @Override

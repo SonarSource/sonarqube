@@ -104,9 +104,9 @@ public class ConfigurationTest {
     String randomKey = RandomStringUtils.randomAlphabetic(3);
     String randomNumberOfWhitespaces = StringUtils.repeat(" ", 1 + new Random().nextInt(10));
 
-    assertThat(t.apply(underTest.put(randomKey, randomNumberOfWhitespaces + String.valueOf(value)), randomKey)).isEqualTo(Optional.of(value));
-    assertThat(t.apply(underTest.put(randomKey, String.valueOf(value) + randomNumberOfWhitespaces), randomKey)).isEqualTo(Optional.of(value));
-    assertThat(t.apply(underTest.put(randomKey, randomNumberOfWhitespaces + String.valueOf(value) + randomNumberOfWhitespaces), randomKey)).isEqualTo(Optional.of(value));
+    assertThat(t.apply(underTest.put(randomKey, randomNumberOfWhitespaces + value), randomKey)).isEqualTo(Optional.of(value));
+    assertThat(t.apply(underTest.put(randomKey, value + randomNumberOfWhitespaces), randomKey)).isEqualTo(Optional.of(value));
+    assertThat(t.apply(underTest.put(randomKey, randomNumberOfWhitespaces + value + randomNumberOfWhitespaces), randomKey)).isEqualTo(Optional.of(value));
   }
 
   private static class DumpMapConfiguration implements Configuration {

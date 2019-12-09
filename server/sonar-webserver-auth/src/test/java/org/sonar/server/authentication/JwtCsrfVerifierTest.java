@@ -54,7 +54,7 @@ public class JwtCsrfVerifierTest {
   private JwtCsrfVerifier underTest = new JwtCsrfVerifier();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(request.getContextPath()).thenReturn("");
   }
 

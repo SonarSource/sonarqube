@@ -80,14 +80,14 @@ public class StatusActionTest {
   }
 
   @Test
-  public void status_is_UP_if_platform_is_UP_and_restartFlag_is_false_whatever_databaseMigration_status_is() throws Exception {
+  public void status_is_UP_if_platform_is_UP_and_restartFlag_is_false_whatever_databaseMigration_status_is() {
     for (DatabaseMigrationState.Status databaseMigrationStatus : DatabaseMigrationState.Status.values()) {
       verifyStatus(Platform.Status.UP, databaseMigrationStatus, STATUS_UP);
     }
   }
 
   @Test
-  public void status_is_RESTARTING_if_platform_is_UP_and_restartFlag_is_true_whatever_databaseMigration_status_is() throws Exception {
+  public void status_is_RESTARTING_if_platform_is_UP_and_restartFlag_is_true_whatever_databaseMigration_status_is() {
     restartFlagHolder.set();
 
     for (DatabaseMigrationState.Status databaseMigrationStatus : DatabaseMigrationState.Status.values()) {
@@ -96,54 +96,54 @@ public class StatusActionTest {
   }
 
   @Test
-  public void status_is_DOWN_if_platform_is_BOOTING_whatever_databaseMigration_status_is() throws Exception {
+  public void status_is_DOWN_if_platform_is_BOOTING_whatever_databaseMigration_status_is() {
     for (DatabaseMigrationState.Status databaseMigrationStatus : DatabaseMigrationState.Status.values()) {
       verifyStatus(Platform.Status.BOOTING, databaseMigrationStatus, STATUS_DOWN);
     }
   }
 
   @Test
-  public void status_is_DB_MIGRATION_NEEDED_if_platform_is_SAFEMODE_and_databaseMigration_is_NONE() throws Exception {
+  public void status_is_DB_MIGRATION_NEEDED_if_platform_is_SAFEMODE_and_databaseMigration_is_NONE() {
     verifyStatus(Platform.Status.SAFEMODE, DatabaseMigrationState.Status.NONE, STATUS_MIGRATION_NEEDED);
   }
 
   @Test
-  public void status_is_DB_MIGRATION_RUNNING_if_platform_is_SAFEMODE_and_databaseMigration_is_RUNNING() throws Exception {
+  public void status_is_DB_MIGRATION_RUNNING_if_platform_is_SAFEMODE_and_databaseMigration_is_RUNNING() {
     verifyStatus(Platform.Status.SAFEMODE, DatabaseMigrationState.Status.RUNNING, STATUS_MIGRATION_RUNNING);
   }
 
   @Test
-  public void status_is_STATUS_STARTING_if_platform_is_SAFEMODE_and_databaseMigration_is_SUCCEEDED() throws Exception {
+  public void status_is_STATUS_STARTING_if_platform_is_SAFEMODE_and_databaseMigration_is_SUCCEEDED() {
     verifyStatus(Platform.Status.SAFEMODE, DatabaseMigrationState.Status.SUCCEEDED, STATUS_STARTING);
   }
 
   @Test
-  public void status_is_DOWN_if_platform_is_SAFEMODE_and_databaseMigration_is_FAILED() throws Exception {
+  public void status_is_DOWN_if_platform_is_SAFEMODE_and_databaseMigration_is_FAILED() {
     verifyStatus(Platform.Status.SAFEMODE, DatabaseMigrationState.Status.FAILED, STATUS_DOWN);
   }
 
   @Test
-  public void status_is_STARTING_if_platform_is_STARTING_and_databaseMigration_is_NONE() throws Exception {
+  public void status_is_STARTING_if_platform_is_STARTING_and_databaseMigration_is_NONE() {
     verifyStatus(Platform.Status.STARTING, DatabaseMigrationState.Status.NONE, STATUS_STARTING);
   }
 
   @Test
-  public void status_is_DB_MIGRATION_RUNNING_if_platform_is_STARTING_and_databaseMigration_is_RUNNING() throws Exception {
+  public void status_is_DB_MIGRATION_RUNNING_if_platform_is_STARTING_and_databaseMigration_is_RUNNING() {
     verifyStatus(Platform.Status.STARTING, DatabaseMigrationState.Status.RUNNING, STATUS_MIGRATION_RUNNING);
   }
 
   @Test
-  public void status_is_STARTING_if_platform_is_STARTING_and_databaseMigration_is_SUCCEEDED() throws Exception {
+  public void status_is_STARTING_if_platform_is_STARTING_and_databaseMigration_is_SUCCEEDED() {
     verifyStatus(Platform.Status.STARTING, DatabaseMigrationState.Status.SUCCEEDED, STATUS_STARTING);
   }
 
   @Test
-  public void status_is_DOWN_if_platform_is_STARTING_and_databaseMigration_is_FAILED() throws Exception {
+  public void status_is_DOWN_if_platform_is_STARTING_and_databaseMigration_is_FAILED() {
     verifyStatus(Platform.Status.STARTING, DatabaseMigrationState.Status.FAILED, STATUS_DOWN);
   }
 
   @Test
-  public void safety_test_for_new_platform_status() throws Exception {
+  public void safety_test_for_new_platform_status() {
     for (Platform.Status platformStatus : filter(asList(Platform.Status.values()), not(in(SUPPORTED_PLATFORM_STATUSES)))) {
       for (DatabaseMigrationState.Status databaseMigrationStatus : DatabaseMigrationState.Status.values()) {
         verifyStatus(platformStatus, databaseMigrationStatus, STATUS_DOWN);

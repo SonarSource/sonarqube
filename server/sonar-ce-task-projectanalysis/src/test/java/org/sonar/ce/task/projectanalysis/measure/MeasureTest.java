@@ -218,7 +218,7 @@ public class MeasureTest {
     assertThat(newMeasureBuilder().setQualityGateStatus(someStatus).create(false, null).getQualityGateStatus()).isEqualTo(someStatus);
     assertThat(newMeasureBuilder().setQualityGateStatus(someStatus).create(1, null).getQualityGateStatus()).isEqualTo(someStatus);
     assertThat(newMeasureBuilder().setQualityGateStatus(someStatus).create((long) 1, null).getQualityGateStatus()).isEqualTo(someStatus);
-    assertThat(newMeasureBuilder().setQualityGateStatus(someStatus).create((double) 1, 1, null).getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(newMeasureBuilder().setQualityGateStatus(someStatus).create(1, 1, null).getQualityGateStatus()).isEqualTo(someStatus);
     assertThat(newMeasureBuilder().setQualityGateStatus(someStatus).create("str").getQualityGateStatus()).isEqualTo(someStatus);
     assertThat(newMeasureBuilder().setQualityGateStatus(someStatus).create(Measure.Level.OK).getQualityGateStatus()).isEqualTo(someStatus);
   }
@@ -263,7 +263,7 @@ public class MeasureTest {
     assertThat(newMeasureBuilder().create(false, someData).getData()).isEqualTo(someData);
     assertThat(newMeasureBuilder().create(1, someData).getData()).isEqualTo(someData);
     assertThat(newMeasureBuilder().create((long) 1, someData).getData()).isEqualTo(someData);
-    assertThat(newMeasureBuilder().create((double) 1, 1, someData).getData()).isEqualTo(someData);
+    assertThat(newMeasureBuilder().create(1, 1, someData).getData()).isEqualTo(someData);
   }
 
   @Test

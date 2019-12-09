@@ -55,7 +55,7 @@ class URIPredicate extends AbstractFilePredicate {
       return Collections.emptyList();
     }
     InputFile f = index.inputFile(relative.get());
-    return f != null ? Arrays.asList(f) : Collections.<InputFile>emptyList();
+    return f != null ? Arrays.asList(f) : Collections.emptyList();
   }
 
   @Override

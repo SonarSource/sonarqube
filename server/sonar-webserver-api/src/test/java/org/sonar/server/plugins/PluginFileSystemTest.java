@@ -40,15 +40,12 @@ public class PluginFileSystemTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private MapSettings settings = new MapSettings();
-  private Path targetJarPath;
-  private Path targetFolder;
-  private Path sourceFolder;
 
   @Before
   public void setUp() throws IOException {
-    sourceFolder = temp.newFolder("source").toPath();
-    targetFolder = temp.newFolder("target").toPath();
-    targetJarPath = targetFolder.resolve("test.jar");
+    Path sourceFolder = temp.newFolder("source").toPath();
+    Path targetFolder = temp.newFolder("target").toPath();
+    Path targetJarPath = targetFolder.resolve("test.jar");
     Files.createFile(targetJarPath);
   }
 

@@ -52,7 +52,7 @@ public class DbMigrationsStepTest {
     ProjectAnalysisDataChange[] dataChanges = IntStream.range(0, 5 + new Random().nextInt(5))
       .mapToObj(i -> mock(ProjectAnalysisDataChange.class))
       .toArray(ProjectAnalysisDataChange[]::new);
-    InOrder inOrder = Mockito.inOrder((Object[]) dataChanges);
+    InOrder inOrder = Mockito.inOrder(dataChanges);
     when(projectAnalysisDataChanges.getDataChanges()).thenReturn(Arrays.asList(dataChanges));
 
     underTest.execute(new TestComputationStepContext());

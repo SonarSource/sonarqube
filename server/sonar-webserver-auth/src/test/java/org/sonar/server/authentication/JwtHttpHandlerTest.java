@@ -84,7 +84,7 @@ public class JwtHttpHandlerTest {
   private JwtHttpHandler underTest = new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(system2.now()).thenReturn(NOW);
     when(request.getSession()).thenReturn(httpSession);
     when(jwtSerializer.encode(any(JwtSerializer.JwtSession.class))).thenReturn(JWT_TOKEN);

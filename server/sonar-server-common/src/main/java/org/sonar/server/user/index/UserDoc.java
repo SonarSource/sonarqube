@@ -19,7 +19,7 @@
  */
 package org.sonar.server.user.index;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -35,7 +35,7 @@ public class UserDoc extends BaseDoc {
   }
 
   public UserDoc() {
-    this(Maps.newHashMap());
+    this(new HashMap<>());
   }
 
   @Override

@@ -80,7 +80,7 @@ public class PurgeProfilerTest {
     verify(logger).info(contains("bar: 5ms"));
   }
 
-  private class MockedClock extends PurgeProfiler.Clock {
+  private static class MockedClock extends PurgeProfiler.Clock {
     private long now = 0;
 
     @Override

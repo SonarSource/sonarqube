@@ -77,7 +77,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void toList_builds_an_ImmutableList() {
-    List<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(toList());
+    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toList());
     assertThat(res).isInstanceOf(ImmutableList.class)
       .containsExactly(1, 2, 3, 4, 5);
   }
@@ -89,7 +89,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void toList_with_size_builds_an_ImmutableList() {
-    List<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(toList(30));
+    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toList(30));
     assertThat(res).isInstanceOf(ImmutableList.class)
       .containsExactly(1, 2, 3, 4, 5);
   }
@@ -101,7 +101,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void toSet_builds_an_ImmutableSet() {
-    Set<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(toSet());
+    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toSet());
     assertThat(res).isInstanceOf(ImmutableSet.class)
       .containsExactly(1, 2, 3, 4, 5);
   }
@@ -139,7 +139,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void toArrayList_builds_an_ArrayList() {
-    List<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(toArrayList());
+    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toArrayList());
     assertThat(res).isInstanceOf(ArrayList.class)
       .containsExactly(1, 2, 3, 4, 5);
   }
@@ -151,7 +151,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void toArrayList_with_size_builds_an_ArrayList() {
-    List<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(toArrayList(30));
+    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toArrayList(30));
     assertThat(res).isInstanceOf(ArrayList.class)
       .containsExactly(1, 2, 3, 4, 5);
   }
@@ -163,7 +163,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void toHashSet_builds_an_HashSet() {
-    Set<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(toHashSet());
+    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toHashSet());
     assertThat(res).isInstanceOf(HashSet.class)
       .containsExactly(1, 2, 3, 4, 5);
   }
@@ -175,7 +175,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void toHashSet_with_size_builds_an_ArrayList() {
-    Set<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(toHashSet(30));
+    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toHashSet(30));
     assertThat(res).isInstanceOf(HashSet.class)
       .containsExactly(1, 2, 3, 4, 5);
   }
@@ -568,11 +568,6 @@ public class MoreCollectorsTest {
     assertThat(multimap.keySet()).isEqualTo(HUGE_SET);
   }
 
-
-
-
-
-
   @Test
   public void unorderedFlattenIndex_empty_stream_returns_empty_map() {
     assertThat(Collections.<MyObj2>emptyList().stream()
@@ -639,29 +634,6 @@ public class MoreCollectorsTest {
     assertThat(multimap.keySet()).isEqualTo(HUGE_SET);
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   @Test
   public void join_on_empty_stream_returns_empty_string() {
     assertThat(Collections.emptyList().stream().collect(join(Joiner.on(",")))).isEmpty();
@@ -677,7 +649,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void join_applies_joiner_to_stream() {
-    assertThat(Arrays.asList("1", "2", "3", "4").stream().collect(join(Joiner.on(","))))
+    assertThat(Stream.of("1", "2", "3", "4").collect(join(Joiner.on(","))))
       .isEqualTo("1,2,3,4");
   }
 
@@ -693,7 +665,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void join_supports_null_if_joiner_does() {
-    Stream<String> stream = Arrays.asList("1", null).stream();
+    Stream<String> stream = Stream.of("1", null);
 
     expectedException.expect(NullPointerException.class);
 

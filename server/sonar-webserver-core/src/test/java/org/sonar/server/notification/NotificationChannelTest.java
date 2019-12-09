@@ -34,7 +34,7 @@ public class NotificationChannelTest {
     assertThat(channel.toString()).isEqualTo("FakeNotificationChannel");
   }
 
-  private class FakeNotificationChannel extends NotificationChannel {
+  private static class FakeNotificationChannel extends NotificationChannel {
     @Override
     public boolean deliver(Notification notification, String username) {
       return true;

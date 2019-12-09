@@ -59,7 +59,7 @@ public class PathPatternTest {
   }
 
   @Test
-  public void match_relative_path_and_insensitive_file_extension() throws Exception {
+  public void match_relative_path_and_insensitive_file_extension() {
     PathPattern pattern = PathPattern.create("**/*Foo.java");
 
     IndexedFile indexedFile = new DefaultIndexedFile("ABCDE", baseDir, "src/main/java/org/MyFoo.JAVA", null);
@@ -70,7 +70,7 @@ public class PathPatternTest {
   }
 
   @Test
-  public void match_absolute_path() throws Exception {
+  public void match_absolute_path() {
     PathPattern pattern = PathPattern.create("file:**/src/main/**Foo.java");
     assertThat(pattern.toString()).isEqualTo("file:**/src/main/**Foo.java");
 
@@ -86,7 +86,7 @@ public class PathPatternTest {
   }
 
   @Test
-  public void match_absolute_path_and_insensitive_file_extension() throws Exception {
+  public void match_absolute_path_and_insensitive_file_extension() {
     PathPattern pattern = PathPattern.create("file:**/src/main/**Foo.java");
     assertThat(pattern.toString()).isEqualTo("file:**/src/main/**Foo.java");
 

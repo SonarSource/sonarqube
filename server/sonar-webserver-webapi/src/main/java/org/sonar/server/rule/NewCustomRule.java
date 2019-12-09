@@ -21,7 +21,7 @@ package org.sonar.server.rule;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -39,7 +39,7 @@ public class NewCustomRule {
   private String severity;
   private RuleStatus status;
   private RuleType type;
-  private final Map<String, String> parameters = Maps.newHashMap();
+  private final Map<String, String> parameters = new HashMap<>();
 
   private boolean preventReactivation = false;
 

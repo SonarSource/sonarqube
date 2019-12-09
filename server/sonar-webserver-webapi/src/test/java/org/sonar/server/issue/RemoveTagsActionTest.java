@@ -20,6 +20,7 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,7 +28,6 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.core.issue.DefaultIssue;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,9 +41,8 @@ public class RemoveTagsActionTest {
   private RemoveTagsAction action = new RemoveTagsAction(issueUpdater);
 
   @Test
-  @SuppressWarnings("unchecked")
   public void should_execute() {
-    Map<String, Object> properties = newHashMap();
+    Map<String, Object> properties = new HashMap<>();
     properties.put("tags", "tag2,tag3");
 
     DefaultIssue issue = mock(DefaultIssue.class);
@@ -61,7 +60,7 @@ public class RemoveTagsActionTest {
     throwable.expect(IllegalArgumentException.class);
     throwable.expectMessage("Tag 'th ag' is invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
 
-    Map<String, Object> properties = newHashMap();
+    Map<String, Object> properties = new HashMap<>();
     properties.put("tags", "th ag");
 
     DefaultIssue issue = mock(DefaultIssue.class);

@@ -72,7 +72,7 @@ public class ChangelogActionTest {
   private WsActionTester tester = new WsActionTester(new ChangelogAction(db.getDbClient(), new IssueFinder(db.getDbClient(), userSession), new AvatarResolverImpl(), userSession));
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     project = db.components().insertPrivateProject();
     file = db.components().insertComponent(newFileDto(project));
   }

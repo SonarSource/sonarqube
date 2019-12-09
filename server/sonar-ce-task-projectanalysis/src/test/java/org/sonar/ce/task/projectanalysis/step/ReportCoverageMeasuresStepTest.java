@@ -75,7 +75,7 @@ public class ReportCoverageMeasuresStepTest {
   CoverageMeasuresStep underTest = new CoverageMeasuresStep(treeRootHolder, metricRepository, measureRepository, reportReader);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(

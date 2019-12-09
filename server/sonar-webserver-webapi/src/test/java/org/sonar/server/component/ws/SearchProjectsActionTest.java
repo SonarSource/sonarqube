@@ -138,7 +138,7 @@ public class SearchProjectsActionTest {
   private RequestBuilder request = SearchProjectsRequest.builder();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     projectsInWarning.update(0L);
   }
 

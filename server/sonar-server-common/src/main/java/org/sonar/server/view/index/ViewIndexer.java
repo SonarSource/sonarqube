@@ -21,6 +21,7 @@ package org.sonar.server.view.index;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +41,6 @@ import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToOneResilientIndexingListener;
 import org.sonar.server.es.ResilientIndexer;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 
@@ -62,7 +62,7 @@ public class ViewIndexer implements ResilientIndexer {
   @Override
   public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Map<String, String> viewAndProjectViewUuidMap = newHashMap();
+      Map<String, String> viewAndProjectViewUuidMap = new HashMap<>();
       for (UuidWithProjectUuidDto uuidWithProjectUuidDto : dbClient.componentDao().selectAllViewsAndSubViews(dbSession)) {
         viewAndProjectViewUuidMap.put(uuidWithProjectUuidDto.getUuid(), uuidWithProjectUuidDto.getProjectUuid());
       }
@@ -78,7 +78,7 @@ public class ViewIndexer implements ResilientIndexer {
    */
   public void index(String rootViewUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Map<String, String> viewAndProjectViewUuidMap = newHashMap();
+      Map<String, String> viewAndProjectViewUuidMap = new HashMap<>();
       for (ComponentDto viewOrSubView : dbClient.componentDao().selectEnabledDescendantModules(dbSession, rootViewUuid)) {
         viewAndProjectViewUuidMap.put(viewOrSubView.uuid(), viewOrSubView.projectUuid());
       }

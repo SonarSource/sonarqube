@@ -70,7 +70,7 @@ public class XMLProfileSerializerTest {
     assertSimilarXml("exportRuleParameters.xml", writer.toString());
   }
 
-  private void assertSimilarXml(String fileWithExpectedXml, String xml) throws IOException, SAXException {
+  private void assertSimilarXml(String fileWithExpectedXml, String xml) throws IOException {
     String pathToExpectedXml = "XMLProfileSerializerTest/" + fileWithExpectedXml;
     assertThat(xml).isXmlEqualTo(IOUtils.toString(getClass().getResource(pathToExpectedXml)));
   }

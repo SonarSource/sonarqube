@@ -43,7 +43,7 @@ public class LdapUsersProviderTest {
   public static LdapServer infosupportServer = new LdapServer(USERS_INFOSUPPORT_COM_LDIF, "infosupport.com", "dc=infosupport,dc=com");
 
   @Test
-  public void test() throws Exception {
+  public void test() {
     Settings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, infosupportServer);
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings, new LdapAutodiscovery());
     LdapUsersProvider usersProvider = new LdapUsersProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings());

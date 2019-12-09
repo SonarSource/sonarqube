@@ -60,7 +60,7 @@ public class QualityGateServiceImplTest {
   private QualityGateServiceImpl underTest = new QualityGateServiceImpl(dbClient, metricRepository);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(dbClient.qualityGateDao()).thenReturn(qualityGateDao);
     when(dbClient.gateConditionDao()).thenReturn(qualityGateConditionDao);
 

@@ -98,7 +98,7 @@ public class ReportSubmitterTest {
   private ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), ossEditionBranchSupport);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     defaultOrganizationKey = db.getDefaultOrganization().getKey();
     defaultOrganizationUuid = db.getDefaultOrganization().getUuid();
   }

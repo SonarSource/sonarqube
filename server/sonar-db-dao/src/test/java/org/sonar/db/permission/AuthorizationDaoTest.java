@@ -77,7 +77,7 @@ public class AuthorizationDaoTest {
   private String randomPermission = "p" + random.nextInt();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     organization = db.organizations().insert();
     user = db.users().insertUser();
     group1 = db.users().insertGroup(organization, "group1");

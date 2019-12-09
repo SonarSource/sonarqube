@@ -138,7 +138,7 @@ public class ComputeEngineContainerImplTest {
           .map(ComponentAdapter::getComponentImplementation)
           .collect(Collectors.toList())).doesNotContain(
             (Class) CeDistributedInformationImpl.class).contains(
-              (Class) StandaloneCeDistributedInformation.class);
+              StandaloneCeDistributedInformation.class);
       assertThat(picoContainer.getParent().getParent().getParent().getParent()).isNull();
     } finally {
       underTest.stop();

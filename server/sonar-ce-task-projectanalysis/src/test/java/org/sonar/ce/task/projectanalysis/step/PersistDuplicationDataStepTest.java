@@ -79,7 +79,7 @@ public class PersistDuplicationDataStepTest extends BaseStepTest {
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(DUPLICATIONS_DATA_KEY).setValueType(Metric.ValueType.STRING.name()));
     insertComponent(PROJECT_KEY, PROJECT_UUID);
     insertComponent(FILE_1_KEY, FILE_1_UUID);

@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.postjob;
 
-import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.AnalysisMode;
@@ -32,12 +31,11 @@ public class DefaultPostJobContextTest {
 
   private DefaultPostJobContext context;
   private MapSettings settings;
-  private AnalysisMode analysisMode;
 
   @Before
-  public void setUp() throws IOException {
+  public void setUp() {
     settings = new MapSettings();
-    analysisMode = mock(AnalysisMode.class);
+    AnalysisMode analysisMode = mock(AnalysisMode.class);
     context = new DefaultPostJobContext(settings.asConfig(), settings, analysisMode);
   }
 

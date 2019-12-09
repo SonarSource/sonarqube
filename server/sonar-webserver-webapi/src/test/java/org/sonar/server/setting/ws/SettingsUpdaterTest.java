@@ -65,7 +65,7 @@ public class SettingsUpdaterTest {
   SettingsUpdater underTest= new SettingsUpdater(dbClient, definitions);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
   }
 

@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class HttpExceptionTest {
   @Test
-  public void test_exception() throws Exception {
+  public void test_exception() {
     HttpException exception = new HttpException("http://localhost:9000/api/search", 500, "error");
     assertThat(exception.code()).isEqualTo(500);
     assertThat(exception.url()).isEqualTo("http://localhost:9000/api/search");

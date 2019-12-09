@@ -103,7 +103,7 @@ public class AddCommentActionTest {
     new AddCommentAction(system2, userSession, dbClient, new IssueFinder(dbClient, userSession), issueUpdater, new IssueFieldsSetter(), responseWriter));
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(system2.now()).thenReturn(NOW);
   }
 

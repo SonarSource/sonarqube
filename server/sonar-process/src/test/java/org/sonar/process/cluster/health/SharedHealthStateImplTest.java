@@ -115,7 +115,7 @@ public class SharedHealthStateImplTest {
     when(hazelcastMember.getClusterTime()).thenReturn(clusterTime);
 
     assertThat(underTest.readAll())
-      .containsOnly(expected.values().stream().toArray(NodeHealth[]::new));
+      .containsOnly(expected.values().toArray(new NodeHealth[0]));
     assertThat(logging.getLogs()).isEmpty();
   }
 

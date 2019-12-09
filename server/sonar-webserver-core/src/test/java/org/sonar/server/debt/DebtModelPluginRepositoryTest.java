@@ -20,12 +20,12 @@
 package org.sonar.server.debt;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
@@ -111,7 +111,7 @@ public class DebtModelPluginRepositoryTest {
   }
 
   private void initModel() {
-    Map<String, ClassLoader> contributingPluginKeyToClassLoader = Maps.newHashMap();
+    Map<String, ClassLoader> contributingPluginKeyToClassLoader = new HashMap<>();
     contributingPluginKeyToClassLoader.put("csharp", newClassLoader());
     contributingPluginKeyToClassLoader.put("java", newClassLoader());
     underTest = new DebtModelPluginRepository(contributingPluginKeyToClassLoader, TEST_XML_PREFIX_PATH);
@@ -119,15 +119,12 @@ public class DebtModelPluginRepositoryTest {
 
   private ClassLoader newClassLoader() {
     ClassLoader loader = mock(ClassLoader.class);
-    when(loader.getResourceAsStream(anyString())).thenAnswer(new Answer<InputStream>() {
-      public InputStream answer(InvocationOnMock invocation) throws Throwable {
-        return new FileInputStream(Resources.getResource((String) invocation.getArguments()[0]).getPath());
-      }
-    });
+    when(loader.getResourceAsStream(anyString())).thenAnswer(
+      (Answer<InputStream>) invocation -> new FileInputStream(Resources.getResource((String) invocation.getArguments()[0]).getPath()));
     return loader;
   }
 
-  class FakePlugin implements Plugin {
+  static class FakePlugin implements Plugin {
     @Override public void define(Context context) {
 
     }

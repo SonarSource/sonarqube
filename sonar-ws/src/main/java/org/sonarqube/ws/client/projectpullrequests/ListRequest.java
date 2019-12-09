@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.projectpullrequests;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**

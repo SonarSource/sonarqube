@@ -236,7 +236,7 @@ public class ProjectAlmBindingDaoTest {
     underTest.insertOrUpdate(dbSession, BITBUCKETCLOUD, ANOTHER_REPO, "foo", null, "http://foo");
 
     assertThat(underTest.selectByRepoIds(dbSession, GITHUB, Arrays.asList(A_REPO, ANOTHER_REPO, "foo")))
-      .extracting(ProjectAlmBindingDto::getUuid, t -> t.getAlm(), ProjectAlmBindingDto::getRepoId, ProjectAlmBindingDto::getProjectUuid,
+      .extracting(ProjectAlmBindingDto::getUuid, ProjectAlmBindingDto::getAlm, ProjectAlmBindingDto::getRepoId, ProjectAlmBindingDto::getProjectUuid,
         ProjectAlmBindingDto::getUrl, ProjectAlmBindingDto::getGithubSlug)
       .containsExactlyInAnyOrder(
         tuple("uuid1", GITHUB, A_REPO, A_UUID, A_URL, A_GITHUB_SLUG),

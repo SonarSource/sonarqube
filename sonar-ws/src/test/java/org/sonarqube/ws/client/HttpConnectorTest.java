@@ -384,7 +384,7 @@ public class HttpConnectorTest {
   }
 
   @Test
-  public void http_error() throws Exception {
+  public void http_error() {
     server.enqueue(new MockResponse().setResponseCode(404));
     PostRequest request = new PostRequest("api/issues/search");
     underTest = HttpConnector.newBuilder().url(serverUrl).build();
@@ -394,7 +394,7 @@ public class HttpConnectorTest {
   }
 
   @Test
-  public void support_base_url_ending_with_slash() throws Exception {
+  public void support_base_url_ending_with_slash() {
     assertThat(serverUrl).endsWith("/");
     underTest = HttpConnector.newBuilder().url(StringUtils.removeEnd(serverUrl, "/")).build();
     GetRequest request = new GetRequest("api/issues/search");

@@ -47,7 +47,7 @@ public class SortingTest {
   }
 
   @Test
-  public void ascending_sort_on_single_field() throws Exception {
+  public void ascending_sort_on_single_field() {
     Sorting sorting = new Sorting();
     sorting.add("updatedAt");
 
@@ -57,7 +57,7 @@ public class SortingTest {
   }
 
   @Test
-  public void descending_sort_on_single_field() throws Exception {
+  public void descending_sort_on_single_field() {
     Sorting sorting = new Sorting();
     sorting.add("updatedAt");
 
@@ -67,7 +67,7 @@ public class SortingTest {
   }
 
   @Test
-  public void ascending_sort_on_single_field_with_missing_in_last_position() throws Exception {
+  public void ascending_sort_on_single_field_with_missing_in_last_position() {
     Sorting sorting = new Sorting();
     sorting.add("updatedAt").missingLast();
 
@@ -77,7 +77,7 @@ public class SortingTest {
   }
 
   @Test
-  public void descending_sort_on_single_field_with_missing_in_last_position() throws Exception {
+  public void descending_sort_on_single_field_with_missing_in_last_position() {
     Sorting sorting = new Sorting();
     sorting.add("updatedAt").missingLast();
 
@@ -87,7 +87,7 @@ public class SortingTest {
   }
 
   @Test
-  public void sort_on_multiple_fields() throws Exception {
+  public void sort_on_multiple_fields() {
     // asc => file asc, line asc, severity desc, key asc
     Sorting sorting = new Sorting();
     sorting.add("fileLine", "file");

@@ -45,7 +45,6 @@ public class UpgradesActionTest {
   private static final String JSON_EMPTY_UPGRADE_LIST = "{" +
     "  \"upgrades\":" + "[]" +
     "}";
-  private static Release release;
 
   private UpdateCenterMatrixFactory updateCenterFactory = mock(UpdateCenterMatrixFactory.class);
   private UpdateCenter updateCenter = mock(UpdateCenter.class);
@@ -75,7 +74,7 @@ public class UpgradesActionTest {
       .setTermsConditionsUrl("http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf")
       .setIssueTrackerUrl("http://jira.sonarsource.com/browse/VIEWS");
 
-    release = new Release(new Sonar(), Version.create("5.1.0.5498"))
+    Release release = new Release(new Sonar(), Version.create("5.1.0.5498"))
       .setDate(DateUtils.parseDate("2015-04-02"))
       .setDescription("New overall layout, merge Issues Drilldown [...]")
       .setDownloadUrl("http://dist.sonar.codehaus.org/sonarqube-5.1.zip")

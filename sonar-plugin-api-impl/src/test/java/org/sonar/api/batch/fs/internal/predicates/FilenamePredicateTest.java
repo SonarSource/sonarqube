@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.fs.internal.predicates;
 
-import java.io.IOException;
 import java.util.Collections;
 import org.junit.Test;
 import org.sonar.api.batch.fs.FileSystem;
@@ -31,7 +30,7 @@ import static org.mockito.Mockito.when;
 
 public class FilenamePredicateTest {
   @Test
-  public void should_match_file_by_filename() throws IOException {
+  public void should_match_file_by_filename() {
     String filename = "some name";
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.filename()).thenReturn(filename);
@@ -40,7 +39,7 @@ public class FilenamePredicateTest {
   }
 
   @Test
-  public void should_not_match_file_by_different_filename() throws IOException {
+  public void should_not_match_file_by_different_filename() {
     String filename = "some name";
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.filename()).thenReturn(filename + "x");
@@ -49,7 +48,7 @@ public class FilenamePredicateTest {
   }
 
   @Test
-  public void should_find_matching_file_in_index() throws IOException {
+  public void should_find_matching_file_in_index() {
     String filename = "some name";
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.filename()).thenReturn(filename);

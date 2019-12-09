@@ -46,7 +46,7 @@ public class TasksMediumTest {
     .registerPlugin("faketask", new FakeTaskPlugin());
 
   @Test
-  public void failWhenCallingTask() throws Exception {
+  public void failWhenCallingTask() {
     try {
       tester.newAnalysis()
         .properties(ImmutableMap.<String, String>builder()
@@ -59,7 +59,7 @@ public class TasksMediumTest {
   }
 
   @Test
-  public void failWhenCallingViews() throws Exception {
+  public void failWhenCallingViews() {
     try {
       tester.newAnalysis()
         .properties(ImmutableMap.<String, String>builder()

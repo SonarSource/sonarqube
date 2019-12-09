@@ -19,13 +19,13 @@
  */
 package org.sonar.scanner.repository;
 
-import com.google.common.collect.Maps;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -45,7 +45,7 @@ public class ProjectRepositoriesSupplierTest {
   @Before
   public void setUp() {
     underTest = new ProjectRepositoriesSupplier(loader, props, branchConfiguration);
-    Map<String, FileData> fileMap = Maps.newHashMap();
+    Map<String, FileData> fileMap = emptyMap();
     project = new SingleProjectRepository(fileMap);
     when(props.getProjectKey()).thenReturn("key");
   }

@@ -103,7 +103,7 @@ class MeasureMatrix {
   void setValue(ComponentDto component, String metricKey, Rating value) {
     changeCell(component, metricKey, m -> {
       Double initialValue = m.getValue();
-      if (initialValue != null && Double.compare(initialValue, (double) value.getIndex()) == 0) {
+      if (initialValue != null && Double.compare(initialValue, value.getIndex()) == 0) {
         return false;
       }
       m.setData(value.name());
@@ -141,7 +141,7 @@ class MeasureMatrix {
   }
 
   void setLeakValue(ComponentDto component, String metricKey, Rating variation) {
-    setLeakValue(component, metricKey, (double) variation.getIndex());
+    setLeakValue(component, metricKey, variation.getIndex());
   }
 
   Stream<LiveMeasureDto> getChanged() {

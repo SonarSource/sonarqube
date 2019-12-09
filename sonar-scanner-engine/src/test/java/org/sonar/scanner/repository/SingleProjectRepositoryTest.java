@@ -20,10 +20,10 @@
 package org.sonar.scanner.repository;
 
 import java.util.Date;
-import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
 
+import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 
@@ -34,7 +34,7 @@ public class SingleProjectRepositoryTest {
   @Before
   public void setUp() {
     Date lastAnalysisDate = new Date();
-    repository = new SingleProjectRepository(Maps.newHashMap("/Abc.java", new FileData("123", "456")));
+    repository = new SingleProjectRepository(singletonMap("/Abc.java", new FileData("123", "456")));
   }
 
   @Test

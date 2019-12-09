@@ -19,7 +19,7 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -55,7 +55,7 @@ public class RuleUpdate {
   private String markdownDescription;
   private String severity;
   private RuleStatus status;
-  private final Map<String, String> parameters = Maps.newHashMap();
+  private final Map<String, String> parameters = new HashMap<>();
   private OrganizationDto organization;
 
   private RuleUpdate(RuleKey ruleKey, RuleUpdateUseCase useCase) {

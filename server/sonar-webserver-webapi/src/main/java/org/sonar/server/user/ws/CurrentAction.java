@@ -168,7 +168,7 @@ public class CurrentAction implements UsersWsAction {
   }
 
   private Optional<CurrentWsResponse.Homepage> projectHomepage(DbSession dbSession, UserDto user) {
-    Optional<ComponentDto> projectOptional = ofNullable(dbClient.componentDao().selectByUuid(dbSession, of(user.getHomepageParameter()).orElse(EMPTY)).orElse(null));
+    Optional<ComponentDto> projectOptional = dbClient.componentDao().selectByUuid(dbSession, of(user.getHomepageParameter()).orElse(EMPTY));
     if (shouldCleanProjectHomepage(projectOptional)) {
       cleanUserHomepageInDb(dbSession, user);
       return empty();
@@ -186,7 +186,7 @@ public class CurrentAction implements UsersWsAction {
   }
 
   private Optional<CurrentWsResponse.Homepage> applicationAndPortfolioHomepage(DbSession dbSession, UserDto user) {
-    Optional<ComponentDto> componentOptional = ofNullable(dbClient.componentDao().selectByUuid(dbSession, of(user.getHomepageParameter()).orElse(EMPTY)).orElse(null));
+    Optional<ComponentDto> componentOptional = dbClient.componentDao().selectByUuid(dbSession, of(user.getHomepageParameter()).orElse(EMPTY));
     if (shouldCleanApplicationOrPortfolioHomepage(componentOptional)) {
       cleanUserHomepageInDb(dbSession, user);
       return empty();

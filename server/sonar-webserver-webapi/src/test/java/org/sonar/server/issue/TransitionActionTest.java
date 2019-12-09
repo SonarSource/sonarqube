@@ -66,7 +66,7 @@ public class TransitionActionTest {
   private TransitionAction action = new TransitionAction(transitionService);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     workflow.start();
     when(context.issue()).thenReturn(issue);
     when(context.issueChangeContext()).thenReturn(IssueChangeContext.createUser(new Date(), "user_uuid"));

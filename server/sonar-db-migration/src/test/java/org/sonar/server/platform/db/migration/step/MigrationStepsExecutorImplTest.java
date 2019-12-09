@@ -165,7 +165,7 @@ public class MigrationStepsExecutorImplTest {
     private boolean called = false;
 
     @Override
-    public void execute() throws SQLException {
+    public void execute() {
       checkState(!called, "execute must not be called twice");
       this.called = true;
       calledSteps.add(getClass());
@@ -205,7 +205,7 @@ public class MigrationStepsExecutorImplTest {
     private static final RuntimeException THROWN_EXCEPTION = new RuntimeException("Faking failing migration step");
 
     @Override
-    public void execute() throws SQLException {
+    public void execute() {
       throw THROWN_EXCEPTION;
     }
   }

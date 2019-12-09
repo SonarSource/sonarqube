@@ -66,7 +66,7 @@ public class GroupPermissionDaoTest {
   private String defaultOrganizationUuid;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     defaultOrganizationUuid = db.getDefaultOrganization().getUuid();
   }
 

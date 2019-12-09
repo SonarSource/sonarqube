@@ -19,16 +19,11 @@
  */
 package org.sonar.api.utils;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import org.junit.Test;
-
-import javax.annotation.Nullable;
-
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.junit.Test;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FieldUtils2Test {
@@ -82,16 +77,11 @@ public class FieldUtils2Test {
     assertThat(fields).contains("INTERFACE_FIELD");
   }
 
-  private static List<String> fieldsName(List<Field> fields){
-    return newArrayList(Iterables.transform(fields, new Function<Field, String>() {
-      @Override
-      public String apply(@Nullable Field input) {
-        return input != null ? input.getName() : null;
-      }
-    }));
+  private static List<String> fieldsName(List<Field> fields) {
+    return fields.stream().map(f -> f != null ? f.getName() : null).collect(Collectors.toList());
   }
 
-  static interface InterfaceWithFields {
+  interface InterfaceWithFields {
     String INTERFACE_FIELD = "foo";
   }
 

@@ -92,7 +92,7 @@ public class SetTagsAction implements IssuesWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     String key = request.mandatoryParam(PARAM_ISSUE);
-    List<String> tags = MoreObjects.firstNonNull(request.paramAsStrings(PARAM_TAGS), Collections.<String>emptyList());
+    List<String> tags = MoreObjects.firstNonNull(request.paramAsStrings(PARAM_TAGS), Collections.emptyList());
     SearchResponseData preloadedSearchResponseData = setTags(key, tags);
     responseWriter.write(key, preloadedSearchResponseData, request, response);
   }

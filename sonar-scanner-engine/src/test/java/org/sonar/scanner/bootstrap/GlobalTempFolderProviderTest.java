@@ -103,7 +103,7 @@ public class GlobalTempFolderProviderTest {
     File userHome = temp.newFolder();
 
     when(system.envVariable("SONAR_USER_HOME")).thenReturn(null);
-    when(system.property("user.home")).thenReturn(userHome.getAbsolutePath().toString());
+    when(system.property("user.home")).thenReturn(userHome.getAbsolutePath());
 
     // if nothing is defined, it will be in {user.home}/.sonar/.sonartmp
     File defaultSonarHome = new File(userHome.getAbsolutePath(), ".sonar");
@@ -121,7 +121,7 @@ public class GlobalTempFolderProviderTest {
   }
 
   @Test
-  public void dotWorkingDir() throws IOException {
+  public void dotWorkingDir() {
     File sonarHome = temp.getRoot();
     String globalWorkDir = ".";
     RawScannerProperties globalProperties = new RawScannerProperties(

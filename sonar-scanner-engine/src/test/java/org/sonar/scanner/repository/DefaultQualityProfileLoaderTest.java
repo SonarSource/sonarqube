@@ -106,7 +106,7 @@ public class DefaultQualityProfileLoaderTest {
   }
 
   @Test
-  public void load_throws_MessageException_if_organization_is_not_found_after_trying_default() throws IOException {
+  public void load_throws_MessageException_if_organization_is_not_found_after_trying_default() {
     HttpException e = new HttpException("", 404, "{\"errors\":[{\"msg\":\"No organization with key 'myorg'\"}]}");
     WsTestUtil.mockException(wsClient, e);
 

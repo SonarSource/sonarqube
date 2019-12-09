@@ -61,7 +61,7 @@ public class TrackerBaseInputFactoryTest {
     new IssueFieldsSetter(), mock(ComponentsWithUnprocessedIssues.class));
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.fileSourceDao()).thenReturn(fileSourceDao);
     when(movedFilesRepository.getOriginalFile(any(Component.class)))

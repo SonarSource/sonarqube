@@ -20,9 +20,9 @@
 package org.sonar.server.search;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class BaseDocTest {
 
   @Test
   public void getField() {
-    Map<String, Object> fields = Maps.newHashMap();
+    Map<String, Object> fields = new HashMap<>();
     fields.put("a_string", "foo");
     fields.put("a_int", 42);
     fields.put("a_null", null);
@@ -81,7 +81,7 @@ public class BaseDocTest {
 
   @Test
   public void getFieldAsDate() {
-    BaseDoc doc = new BaseDoc(someType, Maps.newHashMap()) {
+    BaseDoc doc = new BaseDoc(someType, new HashMap<>()) {
       @Override
       public String getId() {
         return null;
@@ -98,7 +98,7 @@ public class BaseDocTest {
 
   @Test
   public void getNullableFieldAsDate() {
-    BaseDoc doc = new BaseDoc(someType, Maps.newHashMap()) {
+    BaseDoc doc = new BaseDoc(someType, new HashMap<>()) {
       @Override
       public String getId() {
         return null;

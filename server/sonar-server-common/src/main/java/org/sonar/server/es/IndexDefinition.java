@@ -19,7 +19,7 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.server.ServerSide;
 import org.sonar.server.es.newindex.NewAuthorizedIndex;
@@ -33,7 +33,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 public interface IndexDefinition {
 
   class IndexDefinitionContext {
-    private final Map<String, NewIndex> byKey = Maps.newHashMap();
+    private final Map<String, NewIndex> byKey = new HashMap<>();
 
     public NewRegularIndex create(Index index, SettingsConfiguration settingsConfiguration) {
       String indexName = index.getName();

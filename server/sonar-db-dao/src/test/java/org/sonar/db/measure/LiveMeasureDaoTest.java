@@ -58,7 +58,7 @@ public class LiveMeasureDaoTest {
   private MetricDto metric;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     metric = db.measures().insertMetric();
   }
 

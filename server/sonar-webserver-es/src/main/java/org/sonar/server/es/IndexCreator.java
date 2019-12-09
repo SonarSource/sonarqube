@@ -114,7 +114,7 @@ public class IndexCreator implements Startable {
     String indexName = mainType.getIndex().getName();
     String readOnly = client.nativeClient().admin().indices().getSettings(new GetSettingsRequest().indices(indexName)).actionGet()
       .getSetting(indexName, "index.blocks.read_only_allow_delete");
-    return readOnly != null && "true".equalsIgnoreCase(readOnly);
+    return "true".equalsIgnoreCase(readOnly);
   }
 
   private void removeReadOnly(IndexType.IndexMainType mainType) {

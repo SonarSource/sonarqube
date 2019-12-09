@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
 import org.sonar.scanner.scan.EmptyExternalProjectKeyAndOrganization;
@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.entry;
 public class ProcessedScannerPropertiesTest {
   @Test
   public void test_copy_of_properties() {
-    Map<String, String> map = Maps.newHashMap();
+    Map<String, String> map = new HashMap<>();
     map.put("foo", "bar");
 
     ProcessedScannerProperties underTest = new ProcessedScannerProperties(

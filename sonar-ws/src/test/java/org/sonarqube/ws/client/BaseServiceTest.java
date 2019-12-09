@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client;
 
-import java.io.IOException;
 import org.junit.Test;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Testing;
@@ -34,10 +33,10 @@ public class BaseServiceTest {
   WsConnector wsConnector = mock(WsConnector.class);
 
   @Test
-  public void test_call() throws Exception {
+  public void test_call() {
     new BaseService(wsConnector, "api/issues") {
 
-      public void test() throws IOException {
+      public void test() {
         GetRequest get = new GetRequest(path("issue")).setMediaType(MediaTypes.JSON);
         when(wsConnector.call(get)).thenReturn(new MockWsResponse().setContent("ok"));
 

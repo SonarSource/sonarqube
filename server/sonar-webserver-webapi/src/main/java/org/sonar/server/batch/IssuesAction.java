@@ -23,6 +23,7 @@ import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.sonar.api.resources.Scopes;
@@ -42,7 +43,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -160,7 +160,7 @@ public class IssuesAction implements BatchWsAction {
   }
 
   private Map<String, String> keysByUUid(DbSession session, ComponentDto component) {
-    Map<String, String> keysByUUid = newHashMap();
+    Map<String, String> keysByUUid = new HashMap<>();
     if (Scopes.PROJECT.equals(component.scope())) {
       List<ComponentDto> modulesTree = dbClient.componentDao().selectDescendantModules(session, component.uuid());
       for (ComponentDto componentDto : modulesTree) {

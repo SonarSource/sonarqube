@@ -33,7 +33,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -41,7 +40,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -108,8 +106,7 @@ public class SearchActionTest {
 
   private DbClient dbClient = db.getDbClient();
 
-  private WsActionTester ws = new WsActionTester(new SearchAction(dbClient, TestComponentFinder.from(db),
-    userSession, new BranchDao(System2.INSTANCE)));
+  private WsActionTester ws = new WsActionTester(new SearchAction(dbClient, TestComponentFinder.from(db), userSession));
   private UuidFactoryFast uuidFactoryFast = UuidFactoryFast.getInstance();
 
   @DataProvider

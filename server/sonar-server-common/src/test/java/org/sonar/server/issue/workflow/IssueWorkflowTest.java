@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.workflow;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -473,11 +472,6 @@ public class IssueWorkflowTest {
   }
 
   private Collection<String> keys(List<Transition> transitions) {
-    return Collections2.transform(transitions, new Function<Transition, String>() {
-      @Override
-      public String apply(@Nullable Transition transition) {
-        return transition.key();
-      }
-    });
+    return Collections2.transform(transitions, Transition::key);
   }
 }

@@ -19,21 +19,18 @@
  */
 package org.sonar.ce.taskprocessor;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.lang.String.format;
 
@@ -42,8 +39,6 @@ import static java.lang.String.format;
  * PicoContainer the current object belongs to.
  */
 public class CeTaskProcessorRepositoryImpl implements CeTaskProcessorRepository {
-  private static final Joiner COMMA_JOINER = Joiner.on(", ");
-
   private final Map<String, CeTaskProcessor> taskProcessorByCeTaskType;
 
   public CeTaskProcessorRepositoryImpl(CeTaskProcessor[] taskProcessors) {
@@ -58,7 +53,7 @@ public class CeTaskProcessorRepositoryImpl implements CeTaskProcessorRepository 
   private static Map<String, CeTaskProcessor> indexTaskProcessors(CeTaskProcessor[] taskProcessors) {
     Multimap<String, CeTaskProcessor> permissiveIndex = buildPermissiveCeTaskProcessorIndex(taskProcessors);
     checkUniqueHandlerPerCeTaskType(permissiveIndex);
-    return ImmutableMap.copyOf(Maps.transformValues(permissiveIndex.asMap(), CeTaskProcessorCollectionToFirstElement.INSTANCE));
+    return permissiveIndex.asMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> CeTaskProcessorCollectionToFirstElement.INSTANCE.apply(y.getValue())));
   }
 
   private static Multimap<String, CeTaskProcessor> buildPermissiveCeTaskProcessorIndex(CeTaskProcessor[] taskProcessors) {
@@ -79,7 +74,7 @@ public class CeTaskProcessorRepositoryImpl implements CeTaskProcessorRepository 
           "There can be only one CeTaskProcessor instance registered as the processor for CeTask type %s. " +
             "More than one found. Please fix your configuration: %s",
           entry.getKey(),
-          COMMA_JOINER.join(from(entry.getValue()).transform(ToClassName.INSTANCE).toSortedList(CASE_INSENSITIVE_ORDER))));
+          entry.getValue().stream().map(ToClassName.INSTANCE).sorted(CASE_INSENSITIVE_ORDER).collect(Collectors.joining(", "))));
     }
   }
 

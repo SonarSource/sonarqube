@@ -51,7 +51,7 @@ public class GroupMembershipDaoTest {
   private GroupMembershipDao underTest = db.getDbClient().groupMembershipDao();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     organizationDto = db.organizations().insert();
     user1 = db.users().insertUser(u -> u.setLogin("admin login").setName("Admin name").setEmail("admin@email.com"));
     user2 = db.users().insertUser(u -> u.setLogin("not.admin").setName("Not Admin").setEmail("Not Admin"));

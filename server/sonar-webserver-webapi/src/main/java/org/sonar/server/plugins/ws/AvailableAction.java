@@ -68,7 +68,7 @@ public class AvailableAction implements PluginsWsAction {
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
+  public void handle(Request request, Response response) {
     userSession.checkIsSystemAdministrator();
 
     JsonWriter jsonWriter = response.newJsonWriter();

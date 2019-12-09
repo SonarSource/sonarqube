@@ -80,7 +80,7 @@ public class DeleteTemplateActionTest {
   private WsActionTester underTestWithViews;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     GroupWsSupport groupWsSupport = new GroupWsSupport(dbClient, TestDefaultOrganizationProvider.from(db), new DefaultGroupFinder(db.getDbClient()));
     this.underTestWithoutViews = new WsActionTester(new DeleteTemplateAction(dbClient, userSession,
       new PermissionWsSupport(dbClient, new ComponentFinder(dbClient, resourceTypes), groupWsSupport), defaultTemplatesResolver));
@@ -184,12 +184,12 @@ public class DeleteTemplateActionTest {
   }
 
   @Test
-  public void fail_to_delete_by_uuid_if_template_is_default_template_for_project_without_views() throws Exception {
+  public void fail_to_delete_by_uuid_if_template_is_default_template_for_project_without_views() {
     fail_to_delete_by_uuid_if_template_is_default_template_for_project(this.underTestWithoutViews);
   }
 
   @Test
-  public void fail_to_delete_by_uuid_if_template_is_default_template_for_project_with_views() throws Exception {
+  public void fail_to_delete_by_uuid_if_template_is_default_template_for_project_with_views() {
     fail_to_delete_by_uuid_if_template_is_default_template_for_project(this.underTestWithViews);
   }
 
@@ -207,12 +207,12 @@ public class DeleteTemplateActionTest {
   }
 
   @Test
-  public void fail_to_delete_by_name_if_template_is_default_template_for_project_without_views() throws Exception {
+  public void fail_to_delete_by_name_if_template_is_default_template_for_project_without_views() {
     fail_to_delete_by_name_if_template_is_default_template_for_project(this.underTestWithoutViews);
   }
 
   @Test
-  public void fail_to_delete_by_name_if_template_is_default_template_for_project_with_views() throws Exception {
+  public void fail_to_delete_by_name_if_template_is_default_template_for_project_with_views() {
     fail_to_delete_by_name_if_template_is_default_template_for_project(this.underTestWithViews);
   }
 
@@ -435,8 +435,7 @@ public class DeleteTemplateActionTest {
     return request.execute();
   }
 
-  private TestResponse newRequestByName(WsActionTester actionTester, @Nullable OrganizationDto organizationDto, @Nullable PermissionTemplateDto permissionTemplateDto)
-    throws Exception {
+  private TestResponse newRequestByName(WsActionTester actionTester, @Nullable OrganizationDto organizationDto, @Nullable PermissionTemplateDto permissionTemplateDto) {
     return newRequestByName(
       actionTester,
       organizationDto == null ? null : organizationDto.getKey(),

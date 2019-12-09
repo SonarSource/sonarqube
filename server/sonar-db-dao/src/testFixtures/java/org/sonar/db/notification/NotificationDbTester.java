@@ -34,12 +34,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class NotificationDbTester {
   private static final String PROP_NOTIFICATION_PREFIX = "notification";
 
-  private final DbTester db;
   private final DbClient dbClient;
   private final DbSession dbSession;
 
   public NotificationDbTester(DbTester db) {
-    this.db = db;
     this.dbClient = db.getDbClient();
     this.dbSession = db.getSession();
   }

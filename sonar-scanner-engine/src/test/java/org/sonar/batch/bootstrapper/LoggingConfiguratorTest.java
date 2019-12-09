@@ -21,7 +21,6 @@ package org.sonar.batch.bootstrapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,7 +54,7 @@ public class LoggingConfiguratorTest {
     listener = new SimpleLogListener();
   }
 
-  private class SimpleLogListener implements LogOutput {
+  private static class SimpleLogListener implements LogOutput {
     String msg;
     LogOutput.Level level;
 
@@ -67,7 +66,7 @@ public class LoggingConfiguratorTest {
   }
 
   @Test
-  public void testWithFile() throws FileNotFoundException, IOException {
+  public void testWithFile() throws IOException {
     InputStream is = this.getClass().getResourceAsStream(DEFAULT_CLASSPATH_CONF);
     File tmpFolder = folder.getRoot();
     File testFile = new File(tmpFolder, "test");
@@ -86,7 +85,7 @@ public class LoggingConfiguratorTest {
   }
 
   @Test
-  public void testCustomAppender() throws UnsupportedEncodingException {
+  public void testCustomAppender() {
     conf.setLogOutput(listener);
     LoggingConfigurator.apply(conf);
 
@@ -129,7 +128,7 @@ public class LoggingConfiguratorTest {
   }
 
   @Test
-  public void testFormatNoEffect() throws UnsupportedEncodingException {
+  public void testFormatNoEffect() {
     conf.setLogOutput(listener);
     conf.setFormat("%t");
 

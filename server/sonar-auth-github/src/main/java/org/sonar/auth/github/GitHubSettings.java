@@ -142,7 +142,7 @@ public class GitHubSettings {
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(STRING)
-        .defaultValue(valueOf("https://api.github.com/"))
+        .defaultValue("https://api.github.com/")
         .index(7)
         .build(),
       PropertyDefinition.builder(WEB_URL)
@@ -152,7 +152,7 @@ public class GitHubSettings {
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(STRING)
-        .defaultValue(valueOf("https://github.com/"))
+        .defaultValue("https://github.com/")
         .index(8)
         .build(),
       PropertyDefinition.builder(ORGANIZATIONS)

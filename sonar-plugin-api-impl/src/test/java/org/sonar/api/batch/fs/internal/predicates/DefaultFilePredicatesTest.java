@@ -166,7 +166,7 @@ public class DefaultFilePredicatesTest {
   public void has_languages() {
     assertThat(predicates.hasLanguages(Arrays.asList("java", "php")).apply(javaFile)).isTrue();
     assertThat(predicates.hasLanguages(Arrays.asList("cobol", "php")).apply(javaFile)).isFalse();
-    assertThat(predicates.hasLanguages(Collections.<String>emptyList()).apply(javaFile)).isTrue();
+    assertThat(predicates.hasLanguages(Collections.emptyList()).apply(javaFile)).isTrue();
   }
 
   @Test
@@ -193,7 +193,7 @@ public class DefaultFilePredicatesTest {
     // empty
     assertThat(predicates.and().apply(javaFile)).isTrue();
     assertThat(predicates.and(new FilePredicate[0]).apply(javaFile)).isTrue();
-    assertThat(predicates.and(Collections.<FilePredicate>emptyList()).apply(javaFile)).isTrue();
+    assertThat(predicates.and(Collections.emptyList()).apply(javaFile)).isTrue();
 
     // two arguments
     assertThat(predicates.and(predicates.all(), predicates.all()).apply(javaFile)).isTrue();
@@ -214,7 +214,7 @@ public class DefaultFilePredicatesTest {
     // empty
     assertThat(predicates.or().apply(javaFile)).isTrue();
     assertThat(predicates.or(new FilePredicate[0]).apply(javaFile)).isTrue();
-    assertThat(predicates.or(Collections.<FilePredicate>emptyList()).apply(javaFile)).isTrue();
+    assertThat(predicates.or(Collections.emptyList()).apply(javaFile)).isTrue();
 
     // two arguments
     assertThat(predicates.or(predicates.all(), predicates.all()).apply(javaFile)).isTrue();

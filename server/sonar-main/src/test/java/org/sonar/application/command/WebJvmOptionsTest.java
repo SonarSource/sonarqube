@@ -52,7 +52,7 @@ public class WebJvmOptionsTest {
   }
 
   @Test
-  public void constructor_sets_mandatory_JVM_options_for_java11() throws IOException {
+  public void constructor_sets_mandatory_JVM_options_for_java11() {
     when(javaVersion.isAtLeastJava11()).thenReturn(true);
     underTest = new WebJvmOptions(tmpDir, javaVersion);
 

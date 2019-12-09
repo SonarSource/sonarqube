@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.mediumtest;
 
-import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -364,7 +363,7 @@ public class ScannerMediumTester extends ExternalResource {
   }
 
   private static class FakeProjectRepositoriesLoader implements ProjectRepositoriesLoader {
-    private Map<String, FileData> fileDataMap = Maps.newHashMap();
+    private Map<String, FileData> fileDataMap = new HashMap<>();
 
     @Override
     public ProjectRepositories load(String projectKey, @Nullable String branchBase) {

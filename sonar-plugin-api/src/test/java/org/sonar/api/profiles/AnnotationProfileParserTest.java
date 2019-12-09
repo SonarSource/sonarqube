@@ -21,7 +21,6 @@ package org.sonar.api.profiles;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -40,14 +39,11 @@ public class AnnotationProfileParserTest {
   @Test
   public void shouldParseAnnotatedClasses() {
     RuleFinder ruleFinder = mock(RuleFinder.class);
-    when(ruleFinder.findByKey(anyString(), anyString())).thenAnswer(new Answer<Rule>() {
-      public Rule answer(InvocationOnMock iom) throws Throwable {
-        return Rule.create((String) iom.getArguments()[0], (String) iom.getArguments()[1], (String) iom.getArguments()[1]);
-      }
-    });
+    when(ruleFinder.findByKey(anyString(), anyString())).thenAnswer(
+      (Answer) iom -> Rule.create((String) iom.getArguments()[0], (String) iom.getArguments()[1], (String) iom.getArguments()[1]));
 
     ValidationMessages messages = ValidationMessages.create();
-    RulesProfile profile = new AnnotationProfileParser(ruleFinder).parse("squid", "Foo way", "java", Lists.<Class>newArrayList(FakeRule.class), messages);
+    RulesProfile profile = new AnnotationProfileParser(ruleFinder).parse("squid", "Foo way", "java", Lists.newArrayList(FakeRule.class), messages);
 
     assertThat(profile.getName()).isEqualTo("Foo way");
     assertThat(profile.getLanguage()).isEqualTo("java");
@@ -58,14 +54,11 @@ public class AnnotationProfileParserTest {
   @Test
   public void shouldParseOnlyWantedProfile() {
     RuleFinder ruleFinder = mock(RuleFinder.class);
-    when(ruleFinder.findByKey(anyString(), anyString())).thenAnswer(new Answer<Rule>() {
-      public Rule answer(InvocationOnMock iom) throws Throwable {
-        return Rule.create((String) iom.getArguments()[0], (String) iom.getArguments()[1], (String) iom.getArguments()[1]);
-      }
-    });
+    when(ruleFinder.findByKey(anyString(), anyString())).thenAnswer(
+      (Answer<Rule>) iom -> Rule.create((String) iom.getArguments()[0], (String) iom.getArguments()[1], (String) iom.getArguments()[1]));
 
     ValidationMessages messages = ValidationMessages.create();
-    RulesProfile profile = new AnnotationProfileParser(ruleFinder).parse("squid", "Foo way", "java", Lists.<Class>newArrayList(FakeRule.class, RuleOnOtherProfile.class), messages);
+    RulesProfile profile = new AnnotationProfileParser(ruleFinder).parse("squid", "Foo way", "java", Lists.newArrayList(FakeRule.class, RuleOnOtherProfile.class), messages);
 
     assertThat(profile.getActiveRule("squid", "fake")).isNotNull();
     assertThat(profile.getActiveRule("squid", "other")).isNull();

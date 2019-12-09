@@ -371,7 +371,7 @@ public class IssuesChangesNotificationBuilder {
     protected final long date;
 
     private Change(long date) {
-      this.date = requireNonNull(date, "date can't be null");
+      this.date = date;
     }
 
     public long getDate() {

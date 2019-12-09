@@ -19,9 +19,7 @@
  */
 package org.sonar.server.authentication.ws;
 
-import java.io.IOException;
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
@@ -81,7 +79,7 @@ public class LoginActionTest {
   private LoginAction underTest = new LoginAction(credentialsAuthentication, jwtHttpHandler, threadLocalUserSession, authenticationEvent, userSessionFactory);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     threadLocalUserSession.unload();
     dbClient.userDao().insert(dbSession, user);
     dbSession.commit();
@@ -171,7 +169,7 @@ public class LoginActionTest {
     verify(authenticationEvent).loginFailure(eq(request), any(AuthenticationException.class));
   }
 
-  private void executeRequest(String login, String password) throws IOException, ServletException {
+  private void executeRequest(String login, String password) {
     when(request.getMethod()).thenReturn("POST");
     when(request.getParameter("login")).thenReturn(login);
     when(request.getParameter("password")).thenReturn(password);

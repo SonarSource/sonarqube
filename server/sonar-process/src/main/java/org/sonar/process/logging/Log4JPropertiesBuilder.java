@@ -150,7 +150,7 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
   }
 
   private void applyLevelByProperty(Props props, String loggerKey, List<String> properties) {
-    putLevel(loggerKey, resolveLevel(props, properties.stream().toArray(String[]::new)));
+    putLevel(loggerKey, resolveLevel(props, properties.toArray(new String[0])));
   }
 
   private void applyHardcodedLevel(String loggerName, Level newLevel) {

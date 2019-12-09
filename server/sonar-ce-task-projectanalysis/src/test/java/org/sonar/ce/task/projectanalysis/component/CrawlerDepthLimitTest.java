@@ -20,13 +20,13 @@
 package org.sonar.ce.task.projectanalysis.component;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,18 +43,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(DataProviderRunner.class)
 public class CrawlerDepthLimitTest {
-  private static final Set<Type> REPORT_TYPES = from(asList(Type.values())).filter(new Predicate<Type>() {
-    @Override
-    public boolean apply(Type input) {
-      return input.isReportType();
-    }
-  }).toSet();
-  private static final Set<Type> VIEWS_TYPES = from(asList(Type.values())).filter(new Predicate<Type>() {
-    @Override
-    public boolean apply(Type input) {
-      return input.isViewsType();
-    }
-  }).toSet();
+  private static final Set<Type> REPORT_TYPES = Arrays.stream(Type.values()).filter(Type::isReportType).collect(Collectors.toSet());
+  private static final Set<Type> VIEWS_TYPES = Arrays.stream(Type.values()).filter(Type::isViewsType).collect(Collectors.toSet());
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -258,7 +248,7 @@ public class CrawlerDepthLimitTest {
     for (Type type : types) {
       assertThat(depthLimit.isHigherThan(type)).as("isHigherThan(%s)", type).isTrue();
     }
-    for (Type reportType : from(REPORT_TYPES).filter(not(in(Arrays.asList(types))))) {
+    for (Type reportType : from(REPORT_TYPES).filter(not(in(asList(types))))) {
       assertThat(depthLimit.isHigherThan(reportType)).as("isHigherThan(%s)", reportType).isFalse();
     }
   }
@@ -267,7 +257,7 @@ public class CrawlerDepthLimitTest {
     for (Type type : types) {
       assertThat(depthLimit.isHigherThan(type)).as("isHigherThan(%s)", type).isTrue();
     }
-    for (Type reportType : from(VIEWS_TYPES).filter(not(in(Arrays.asList(types))))) {
+    for (Type reportType : from(VIEWS_TYPES).filter(not(in(asList(types))))) {
       assertThat(depthLimit.isHigherThan(reportType)).as("isHigherThan(%s)", reportType).isFalse();
     }
   }
@@ -276,7 +266,7 @@ public class CrawlerDepthLimitTest {
     for (Type type : types) {
       assertThat(depthLimit.isDeeperThan(type)).as("isDeeperThan(%s)", type).isTrue();
     }
-    for (Type reportType : from(REPORT_TYPES).filter(not(in(Arrays.asList(types))))) {
+    for (Type reportType : from(REPORT_TYPES).filter(not(in(asList(types))))) {
       assertThat(depthLimit.isDeeperThan(reportType)).as("isDeeperThan(%s)", reportType).isFalse();
     }
   }
@@ -285,7 +275,7 @@ public class CrawlerDepthLimitTest {
     for (Type type : types) {
       assertThat(depthLimit.isDeeperThan(type)).as("isDeeperThan(%s)", type).isTrue();
     }
-    for (Type reportType : from(VIEWS_TYPES).filter(not(in(Arrays.asList(types))))) {
+    for (Type reportType : from(VIEWS_TYPES).filter(not(in(asList(types))))) {
       assertThat(depthLimit.isDeeperThan(reportType)).as("isDeeperThan(%s)", reportType).isFalse();
     }
   }

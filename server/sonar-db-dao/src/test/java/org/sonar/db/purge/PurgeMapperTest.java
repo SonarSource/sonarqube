@@ -41,7 +41,7 @@ public class PurgeMapperTest {
   private PurgeMapper purgeMapper;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbSession = db.getDbClient().openSession(false);
     purgeMapper = dbSession.getMapper(PurgeMapper.class);
   }

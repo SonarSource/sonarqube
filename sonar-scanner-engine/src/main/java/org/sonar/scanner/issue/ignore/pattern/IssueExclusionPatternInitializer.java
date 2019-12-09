@@ -49,7 +49,7 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
     return hasFileContentPattern() || hasMulticriteriaPatterns();
   }
 
-  private final void loadFileContentPatterns() {
+  private void loadFileContentPatterns() {
     // Patterns Block
     blockPatterns = new ArrayList<>();
     for (String id : getSettings().getStringArray(IssueExclusionProperties.PATTERNS_BLOCK_KEY)) {

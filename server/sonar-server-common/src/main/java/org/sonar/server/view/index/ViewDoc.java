@@ -19,7 +19,7 @@
  */
 package org.sonar.server.view.index;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.sonar.server.es.BaseDoc;
@@ -33,7 +33,7 @@ public class ViewDoc extends BaseDoc {
   }
 
   public ViewDoc() {
-    super(TYPE_VIEW, Maps.newHashMap());
+    super(TYPE_VIEW, new HashMap<>());
   }
 
   @Override

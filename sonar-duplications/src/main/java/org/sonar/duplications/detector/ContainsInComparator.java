@@ -34,25 +34,17 @@ public final class ContainsInComparator implements Comparator<ClonePart> {
   /**
    * Defines order by resourceId.
    */
-  public static final Comparator<ClonePart> RESOURCE_ID_COMPARATOR = new Comparator<ClonePart>() {
-    @Override
-    public int compare(ClonePart o1, ClonePart o2) {
-      return FastStringComparator.INSTANCE.compare(o1.getResourceId(), o2.getResourceId());
-    }
-  };
+  public static final Comparator<ClonePart> RESOURCE_ID_COMPARATOR = (o1, o2) -> FastStringComparator.INSTANCE.compare(o1.getResourceId(), o2.getResourceId());
 
   /**
    * Defines order by resourceId and by unitStart.
    */
-  public static final Comparator<ClonePart> CLONEPART_COMPARATOR = new Comparator<ClonePart>() {
-    @Override
-    public int compare(ClonePart o1, ClonePart o2) {
-      int c = RESOURCE_ID_COMPARATOR.compare(o1, o2);
-      if (c == 0) {
-        return o1.getUnitStart() - o2.getUnitStart();
-      }
-      return c;
+  public static final Comparator<ClonePart> CLONEPART_COMPARATOR = (o1, o2) -> {
+    int c = RESOURCE_ID_COMPARATOR.compare(o1, o2);
+    if (c == 0) {
+      return o1.getUnitStart() - o2.getUnitStart();
     }
+    return c;
   };
 
   private final int l1;

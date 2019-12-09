@@ -220,7 +220,7 @@ public class UserSessionFilterTest {
   }
 
   @Test
-  public void just_for_fun_and_coverage() throws ServletException {
+  public void just_for_fun_and_coverage() {
     UserSessionFilter filter = new UserSessionFilter();
     filter.init(mock(FilterConfig.class));
     filter.destroy();

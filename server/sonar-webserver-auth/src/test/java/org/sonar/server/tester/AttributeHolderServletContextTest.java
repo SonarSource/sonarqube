@@ -28,7 +28,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.SessionTrackingMode;
@@ -84,7 +83,7 @@ public class AttributeHolderServletContextTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void getResource_is_not_supported() throws Exception {
+  public void getResource_is_not_supported() {
     servletContext.getResource(SOME_STRING);
   }
 
@@ -106,7 +105,7 @@ public class AttributeHolderServletContextTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void getServlet_is_not_supported() throws ServletException {
+  public void getServlet_is_not_supported() {
     servletContext.getServlet(SOME_STRING);
 
   }
@@ -250,7 +249,7 @@ public class AttributeHolderServletContextTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void createServlet_is_not_supported() throws ServletException {
+  public void createServlet_is_not_supported() {
     servletContext.createServlet(Servlet.class);
   }
 
@@ -295,7 +294,7 @@ public class AttributeHolderServletContextTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void createFilter_is_not_supported() throws ServletException {
+  public void createFilter_is_not_supported() {
     servletContext.createFilter(Filter.class);
   }
 
@@ -346,7 +345,7 @@ public class AttributeHolderServletContextTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void createListener_is_not_supported() throws ServletException {
+  public void createListener_is_not_supported() {
     servletContext.createListener(EventListener.class);
   }
 

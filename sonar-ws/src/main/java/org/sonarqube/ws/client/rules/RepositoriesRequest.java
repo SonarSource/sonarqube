@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.rules;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**

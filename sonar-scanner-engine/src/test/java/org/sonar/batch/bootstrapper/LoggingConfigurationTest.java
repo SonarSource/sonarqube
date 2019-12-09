@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ public class LoggingConfigurationTest {
 
   @Test
   public void testSetVerboseAnalysis() {
-    Map<String, String> props = Maps.newHashMap();
+    Map<String, String> props = new HashMap<>();
     LoggingConfiguration conf = new LoggingConfiguration(null).setProperties(props);
     assertThat(conf.getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_DEFAULT);
 
@@ -65,7 +65,7 @@ public class LoggingConfigurationTest {
 
   @Test
   public void test_deprecated_log_properties() {
-    Map<String, String> properties = Maps.newHashMap();
+    Map<String, String> properties = new HashMap<>();
     assertThat(new LoggingConfiguration(null).setProperties(properties)
       .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_DEFAULT);
 
@@ -90,7 +90,7 @@ public class LoggingConfigurationTest {
 
   @Test
   public void test_log_level_property() {
-    Map<String, String> properties = Maps.newHashMap();
+    Map<String, String> properties = new HashMap<>();
     LoggingConfiguration conf = new LoggingConfiguration(null).setProperties(properties);
     assertThat(conf.getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo("INFO");
 

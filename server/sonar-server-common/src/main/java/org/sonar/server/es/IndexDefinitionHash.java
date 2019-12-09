@@ -49,15 +49,15 @@ class IndexDefinitionHash {
       index.getAttributes());
   }
 
-  private static String of(String str, Map<?,?>... maps) {
+  private static String of(String str, Map<?, ?>... maps) {
     StringBuilder sb = new StringBuilder(str);
-    for (Map<?,?> map : maps) {
+    for (Map<?, ?> map : maps) {
       appendMap(sb, map);
     }
     return DigestUtils.sha256Hex(sb.toString());
   }
 
-  private static void appendMap(StringBuilder sb, Map<?,?> attributes) {
+  private static void appendMap(StringBuilder sb, Map<?, ?> attributes) {
     for (Object entry : sort(attributes).entrySet()) {
       sb.append(((Map.Entry) entry).getKey());
       sb.append(DELIMITER);
@@ -74,13 +74,13 @@ class IndexDefinitionHash {
     } else if (value instanceof IndexType) {
       sb.append(((IndexType) value).format());
     } else {
-      sb.append(String.valueOf(value));
+      sb.append(value);
     }
   }
 
-  private static SortedMap<?,?> sort(Map<?,?> map) {
+  private static SortedMap<?, ?> sort(Map<?, ?> map) {
     if (map instanceof ImmutableSortedMap) {
-      return (ImmutableSortedMap<?,?>) map;
+      return (ImmutableSortedMap<?, ?>) map;
     }
     return ImmutableSortedMap.copyOf(map);
   }

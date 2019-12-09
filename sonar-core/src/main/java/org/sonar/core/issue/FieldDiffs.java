@@ -19,12 +19,11 @@
  */
 package org.sonar.core.issue;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Maps;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
@@ -40,8 +39,6 @@ import static com.google.common.base.Strings.isNullOrEmpty;
  * @since 3.6
  */
 public class FieldDiffs implements Serializable {
-
-  public static final Splitter FIELDS_SPLITTER = Splitter.on(',').omitEmptyStrings();
   private static final String CHAR_TO_ESCAPE = "|,{}=:";
 
   private String issueKey;
@@ -51,11 +48,11 @@ public class FieldDiffs implements Serializable {
   public static final String ENCODING_PREFIX = "{base64:";
   public static final String ENCODING_SUFFIX = "}";
 
-  private final Map<String, Diff> diffs = Maps.newLinkedHashMap();
+  private final Map<String, Diff> diffs = new LinkedHashMap<>();
 
   public Map<String, Diff> diffs() {
     if (diffs.containsKey(ASSIGNEE)) {
-      Map<String, Diff> result = Maps.newLinkedHashMap(diffs);
+      Map<String, Diff> result = new LinkedHashMap<>(diffs);
       result.put(ASSIGNEE, decode(result.get(ASSIGNEE)));
       return result;
     }
@@ -147,8 +144,12 @@ public class FieldDiffs implements Serializable {
     if (isNullOrEmpty(s)) {
       return diffs;
     }
-    Iterable<String> fields = FIELDS_SPLITTER.split(s);
-    for (String field : fields) {
+
+    for (String field : s.split(",")) {
+      if (field.isEmpty()) {
+        continue;
+      }
+
       String[] keyValues = field.split("=", 2);
       if (keyValues.length == 2) {
         String values = keyValues[1];
@@ -168,8 +169,8 @@ public class FieldDiffs implements Serializable {
   @SuppressWarnings("unchecked")
   Diff decode(Diff encoded) {
     return new Diff(
-        decodeField(encoded.oldValue),
-        decodeField(encoded.newValue)
+      decodeField(encoded.oldValue),
+      decodeField(encoded.newValue)
     );
   }
 

@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.scan;
 
-import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,9 +37,11 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.scanner.bootstrap.RawScannerProperties;
 import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
+import org.sonar.scanner.bootstrap.RawScannerProperties;
 
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -391,19 +392,18 @@ public class ProjectReactorBuilderTest {
   @Test
   public void shouldInitRootWorkDir() {
     ProjectReactorBuilder builder = new ProjectReactorBuilder(new ProcessedScannerProperties(
-      new RawScannerProperties(Maps.newHashMap()), new EmptyExternalProjectKeyAndOrganization()),
+      new RawScannerProperties(emptyMap()), new EmptyExternalProjectKeyAndOrganization()),
       mock(AnalysisWarnings.class));
     File baseDir = new File("target/tmp/baseDir");
 
-    File workDir = builder.initRootProjectWorkDir(baseDir, Maps.newHashMap());
+    File workDir = builder.initRootProjectWorkDir(baseDir, emptyMap());
 
     assertThat(workDir).isEqualTo(new File(baseDir, ".sonar"));
   }
 
   @Test
   public void shouldInitWorkDirWithCustomRelativeFolder() {
-    Map<String, String> props = Maps.newHashMap();
-    props.put("sonar.working.directory", ".foo");
+    Map<String, String> props = singletonMap("sonar.working.directory", ".foo");
     ProjectReactorBuilder builder = new ProjectReactorBuilder(new ProcessedScannerProperties(
       new RawScannerProperties(props),
       new EmptyExternalProjectKeyAndOrganization()),
@@ -417,8 +417,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldInitRootWorkDirWithCustomAbsoluteFolder() {
-    Map<String, String> props = Maps.newHashMap();
-    props.put("sonar.working.directory", new File("src").getAbsolutePath());
+    Map<String, String> props = singletonMap("sonar.working.directory", new File("src").getAbsolutePath());
     ProjectReactorBuilder builder = new ProjectReactorBuilder(new ProcessedScannerProperties(
       new RawScannerProperties(props), new EmptyExternalProjectKeyAndOrganization()),
       mock(AnalysisWarnings.class));
@@ -431,17 +430,14 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldFailIf2ModulesWithSameKey() {
-    Map<String, String> props = new HashMap<>();
-    props.put("sonar.projectKey", "root");
+    Map<String, String> props = singletonMap("sonar.projectKey", "root");
     ProjectDefinition root = ProjectDefinition.create().setProperties(props);
 
-    Map<String, String> props1 = new HashMap<>();
-    props1.put("sonar.projectKey", "mod1");
+    Map<String, String> props1 = singletonMap("sonar.projectKey", "mod1");
     root.addSubProject(ProjectDefinition.create().setProperties(props1));
 
     // Check uniqueness of a new module: OK
-    Map<String, String> props2 = new HashMap<>();
-    props2.put("sonar.projectKey", "mod2");
+    Map<String, String> props2 = singletonMap("sonar.projectKey", "mod2");
     ProjectDefinition mod2 = ProjectDefinition.create().setProperties(props2);
     ProjectReactorBuilder.checkUniquenessOfChildKey(mod2, root);
 
@@ -501,21 +497,13 @@ public class ProjectReactorBuilderTest {
   }
 
   private Map<String, String> loadProps(String projectFolder) {
-    Map<String, String> props = Maps.newHashMap();
+    Map<String, String> props = new HashMap<>();
     Properties runnerProps = toProperties(getResource(this.getClass(), projectFolder + "/sonar-project.properties"));
     for (final String name : runnerProps.stringPropertyNames()) {
       props.put(name, runnerProps.getProperty(name));
     }
     props.put("sonar.projectBaseDir", getResource(this.getClass(), projectFolder).getAbsolutePath());
     return props;
-  }
-
-  public Map<String, String> toMap(Properties props) {
-    Map<String, String> result = new HashMap<>();
-    for (Map.Entry<Object, Object> entry : props.entrySet()) {
-      result.put(entry.getKey().toString(), entry.getValue().toString());
-    }
-    return result;
   }
 
   @Test

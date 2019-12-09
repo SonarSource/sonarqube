@@ -32,13 +32,12 @@ public class GroupTesting {
   }
 
   public static GroupDto newGroupDto() {
-    GroupDto group = new GroupDto()
+    return new GroupDto()
       .setId(nextInt())
       .setOrganizationUuid(randomAlphanumeric(40))
       .setName(randomAlphanumeric(255))
       .setDescription(randomAlphanumeric(200))
       .setCreatedAt(new Date(nextLong()))
       .setUpdatedAt(new Date(nextLong()));
-    return group;
   }
 }

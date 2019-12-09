@@ -104,10 +104,10 @@ public class Duration implements Serializable {
    */
   public String encode(int hoursInDay) {
     int days = ((Double) ((double) durationInMinutes / hoursInDay / MINUTES_IN_ONE_HOUR)).intValue();
-    Long remainingDuration = durationInMinutes - (days * hoursInDay * MINUTES_IN_ONE_HOUR);
-    int hours = ((Double) (remainingDuration.doubleValue() / MINUTES_IN_ONE_HOUR)).intValue();
+    long remainingDuration = durationInMinutes - (days * hoursInDay * MINUTES_IN_ONE_HOUR);
+    int hours = ((Double) ((double) remainingDuration / MINUTES_IN_ONE_HOUR)).intValue();
     remainingDuration = remainingDuration - (hours * MINUTES_IN_ONE_HOUR);
-    int minutes = remainingDuration.intValue();
+    int minutes = (int) remainingDuration;
 
     StringBuilder stringBuilder = new StringBuilder();
     if (days > 0) {

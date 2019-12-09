@@ -92,7 +92,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
   private VisitorsCrawler underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(ratingSettings.getDebtRatingGrid()).thenReturn(new DebtRatingGrid(RATING_GRID));
     underTest = new VisitorsCrawler(Arrays.asList(new NewMaintainabilityMeasuresVisitor(metricRepository, measureRepository, newLinesRepository, ratingSettings)));
   }

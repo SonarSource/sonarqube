@@ -391,8 +391,7 @@ public class PermissionIndexerTest {
   }
 
   private ComponentDto createUnindexedPublicProject() {
-    ComponentDto project = db.components().insertPublicProject();
-    return project;
+    return db.components().insertPublicProject();
   }
 
   private ComponentDto createAndIndexPrivateProject() {

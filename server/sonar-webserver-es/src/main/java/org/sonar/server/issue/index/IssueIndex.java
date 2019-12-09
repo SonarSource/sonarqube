@@ -510,7 +510,7 @@ public class IssueIndex {
     String facetName = ASSIGNEES.getName();
 
     // Same as in super.stickyFacetBuilder
-    Map<String, QueryBuilder> assigneeFilters = Maps.newHashMap(filters);
+    Map<String, QueryBuilder> assigneeFilters = new HashMap<>(filters);
     assigneeFilters.remove(IS_ASSIGNED_FILTER);
     assigneeFilters.remove(fieldName);
     StickyFacetBuilder stickyFacetBuilder = newStickyFacetBuilder(query, assigneeFilters, queryBuilder);
@@ -895,8 +895,8 @@ public class IssueIndex {
 
   private static AggregationBuilder createAggregation(String categoryField, String category, boolean includeCwe, Optional<Map<String, Set<String>>> categoryToCwesMap) {
     return addSecurityReportSubAggregations(AggregationBuilders
-      .filter(category, boolQuery()
-        .filter(termQuery(categoryField, category))),
+        .filter(category, boolQuery()
+          .filter(termQuery(categoryField, category))),
       includeCwe, categoryToCwesMap.map(m -> m.get(category)));
   }
 

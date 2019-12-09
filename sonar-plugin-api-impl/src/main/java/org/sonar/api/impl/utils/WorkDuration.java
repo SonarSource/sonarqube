@@ -78,31 +78,31 @@ public class WorkDuration implements Serializable {
     int minutes = 0;
 
     long time = duration;
-    Long currentTime = time / WorkDuration.DAY_POSITION_IN_LONG;
+    long currentTime = time / WorkDuration.DAY_POSITION_IN_LONG;
     if (currentTime > 0) {
-      days = currentTime.intValue();
+      days = (int) currentTime;
       time = time - (currentTime * WorkDuration.DAY_POSITION_IN_LONG);
     }
 
     currentTime = time / WorkDuration.HOUR_POSITION_IN_LONG;
     if (currentTime > 0) {
-      hours = currentTime.intValue();
+      hours = (int) currentTime;
       time = time - (currentTime * WorkDuration.HOUR_POSITION_IN_LONG);
     }
 
     currentTime = time / WorkDuration.MINUTE_POSITION_IN_LONG;
     if (currentTime > 0) {
-      minutes = currentTime.intValue();
+      minutes = (int) currentTime;
     }
     return WorkDuration.create(days, hours, minutes, hoursInDay);
   }
 
   static WorkDuration createFromMinutes(long duration, int hoursInDay) {
     int days = (int)(duration / (double)hoursInDay / 60.0);
-    Long currentDurationInMinutes = duration - (60L * days * hoursInDay);
+    long currentDurationInMinutes = duration - (60L * days * hoursInDay);
     int hours = (int)(currentDurationInMinutes / 60.0);
     currentDurationInMinutes = currentDurationInMinutes - (60L * hours);
-    return new WorkDuration(duration, days, hours, currentDurationInMinutes.intValue(), hoursInDay);
+    return new WorkDuration(duration, days, hours, (int) currentDurationInMinutes, hoursInDay);
   }
 
   /**

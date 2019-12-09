@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.languages;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**

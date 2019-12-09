@@ -31,32 +31,32 @@ public class TestMeasureTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void create_double_measure() throws Exception {
+  public void create_double_measure() {
     assertThat(TestMeasure.createMeasure(10d).getDoubleValue()).isEqualTo(10d);
   }
 
   @Test
-  public void create_int_measure() throws Exception {
+  public void create_int_measure() {
     assertThat(TestMeasure.createMeasure(10).getIntValue()).isEqualTo(10);
   }
 
   @Test
-  public void create_long_measure() throws Exception {
+  public void create_long_measure() {
     assertThat(TestMeasure.createMeasure(10L).getLongValue()).isEqualTo(10L);
   }
 
   @Test
-  public void create_string_measure() throws Exception {
+  public void create_string_measure() {
     assertThat(TestMeasure.createMeasure("value").getStringValue()).isEqualTo("value");
   }
 
   @Test
-  public void create_boolean_measure() throws Exception {
+  public void create_boolean_measure() {
     assertThat(TestMeasure.createMeasure(true).getBooleanValue()).isTrue();
   }
 
   @Test
-  public void getDoubleValue_fails_with_ISE_when_not_a_double() throws Exception {
+  public void getDoubleValue_fails_with_ISE_when_not_a_double() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Not a double measure");
 
@@ -64,7 +64,7 @@ public class TestMeasureTest {
   }
 
   @Test
-  public void getIntValue_fails_with_ISE_when_not_an_int() throws Exception {
+  public void getIntValue_fails_with_ISE_when_not_an_int() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Not an integer measure");
 
@@ -72,7 +72,7 @@ public class TestMeasureTest {
   }
 
   @Test
-  public void getLongValue_fails_with_ISE_when_not_a_long() throws Exception {
+  public void getLongValue_fails_with_ISE_when_not_a_long() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Not a long measure");
 
@@ -80,7 +80,7 @@ public class TestMeasureTest {
   }
 
   @Test
-  public void getStringValue_fails_with_ISE_when_not_a_string() throws Exception {
+  public void getStringValue_fails_with_ISE_when_not_a_string() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Not a string measure");
 
@@ -88,7 +88,7 @@ public class TestMeasureTest {
   }
 
   @Test
-  public void getBooleanValue_fails_with_ISE_when_not_a_boolean() throws Exception {
+  public void getBooleanValue_fails_with_ISE_when_not_a_boolean() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Not a boolean measure");
 

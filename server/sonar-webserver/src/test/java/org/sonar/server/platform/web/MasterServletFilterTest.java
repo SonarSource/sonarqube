@@ -129,7 +129,7 @@ public class MasterServletFilterTest {
   }
 
   @Test
-  public void display_servlet_filter_patterns_in_INFO_log() throws Exception {
+  public void display_servlet_filter_patterns_in_INFO_log() {
     ServletFilter filter = new PatternFilter(UrlPattern.builder().includes("/api/issues").excludes("/batch/projects").build());
     FilterConfig config = mock(FilterConfig.class);
     MasterServletFilter master = new MasterServletFilter();

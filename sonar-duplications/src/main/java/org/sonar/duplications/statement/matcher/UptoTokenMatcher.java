@@ -19,6 +19,7 @@
  */
 package org.sonar.duplications.statement.matcher;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,9 +42,7 @@ public class UptoTokenMatcher extends TokenMatcher {
       // otherwise we will always try to consume everything, but will never succeed
       throw new IllegalArgumentException();
     }
-    for (String uptoMatchToken : uptoMatchTokens) {
-      this.uptoMatchTokens.add(uptoMatchToken);
-    }
+    this.uptoMatchTokens.addAll(Arrays.asList(uptoMatchTokens));
   }
 
   @Override

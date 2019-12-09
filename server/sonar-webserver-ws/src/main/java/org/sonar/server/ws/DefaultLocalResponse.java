@@ -20,7 +20,6 @@
 package org.sonar.server.ws;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -28,6 +27,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.IOUtils;
@@ -41,7 +41,7 @@ public class DefaultLocalResponse implements Response, LocalConnector.LocalRespo
 
   private final InMemoryStream stream = new InMemoryStream();
   private final ByteArrayOutputStream output = new ByteArrayOutputStream();
-  private final Map<String, String> headers = Maps.newHashMap();
+  private final Map<String, String> headers = new HashMap<>();
 
   @Override
   public int getStatus() {

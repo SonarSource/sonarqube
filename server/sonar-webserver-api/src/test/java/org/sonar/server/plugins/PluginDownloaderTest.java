@@ -306,7 +306,7 @@ public class PluginDownloaderTest {
     assertThat(new File(downloadDir, "testdep-1.0.jar")).exists();
   }
 
-  class HasFileName implements ArgumentMatcher<File> {
+  static class HasFileName implements ArgumentMatcher<File> {
     private final String name;
 
     HasFileName(String name) {

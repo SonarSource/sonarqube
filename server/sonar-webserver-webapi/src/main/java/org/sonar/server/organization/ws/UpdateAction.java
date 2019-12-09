@@ -119,7 +119,7 @@ public class UpdateAction implements OrganizationsWsAction {
   private OrganizationDto getDto(DbSession dbSession, String key) {
     Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByKey(dbSession, key);
     if (!organizationDto.isPresent()) {
-      throw new NotFoundException(format("Organization not found for key '%s'", (Object) key));
+      throw new NotFoundException(format("Organization not found for key '%s'", key));
     }
     return organizationDto.get();
   }

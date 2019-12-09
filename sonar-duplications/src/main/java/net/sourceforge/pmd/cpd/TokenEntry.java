@@ -67,7 +67,7 @@ public class TokenEntry implements Comparable<TokenEntry> {
       i = TOKENS.size() + 1;
       TOKENS.put(image, i);
     }
-    this.identifier = i.intValue();
+    this.identifier = i;
     this.tokenSrcID = tokenSrcID;
     this.beginLine = beginLine;
     this.index = tokenCount++;

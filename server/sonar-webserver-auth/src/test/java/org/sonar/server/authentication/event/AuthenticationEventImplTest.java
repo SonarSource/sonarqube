@@ -53,7 +53,7 @@ public class AuthenticationEventImplTest {
   private AuthenticationEventImpl underTest = new AuthenticationEventImpl();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     logTester.setLevel(LoggerLevel.DEBUG);
   }
 

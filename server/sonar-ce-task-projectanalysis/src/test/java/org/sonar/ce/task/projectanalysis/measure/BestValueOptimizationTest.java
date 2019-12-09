@@ -146,9 +146,9 @@ public class BestValueOptimizationTest {
     Predicate<Measure> underTest = BestValueOptimization.from(createMetric(Metric.MetricType.RATING, A.getIndex()), FILE_COMPONENT);
 
     assertThat(underTest.test(newMeasureBuilder().create(A.getIndex()))).isTrue();
-    assertThat(underTest.test(newMeasureBuilder().setVariation((double) A.getIndex()).createNoValue())).isTrue();
+    assertThat(underTest.test(newMeasureBuilder().setVariation(A.getIndex()).createNoValue())).isTrue();
     assertThat(underTest.test(newMeasureBuilder().create(B.getIndex()))).isFalse();
-    assertThat(underTest.test(newMeasureBuilder().setVariation((double) B.getIndex()).createNoValue())).isFalse();
+    assertThat(underTest.test(newMeasureBuilder().setVariation(B.getIndex()).createNoValue())).isFalse();
   }
 
   @Test

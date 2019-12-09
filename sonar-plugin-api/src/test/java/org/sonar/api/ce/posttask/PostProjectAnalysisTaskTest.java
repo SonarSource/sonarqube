@@ -36,11 +36,8 @@ public class PostProjectAnalysisTaskTest {
 
   @Test
   public void default_implementation_of_finished_ProjectAnalysis_throws_ISE() {
-    PostProjectAnalysisTask underTest = new PostProjectAnalysisTask() {
-      @Override
-      public String getDescription() {
-        throw new UnsupportedOperationException("getDescription not implemented");
-      }
+    PostProjectAnalysisTask underTest = () -> {
+      throw new UnsupportedOperationException("getDescription not implemented");
     };
 
     try {

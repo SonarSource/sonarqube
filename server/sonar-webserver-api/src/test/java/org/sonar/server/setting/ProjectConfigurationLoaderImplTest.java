@@ -54,7 +54,7 @@ public class ProjectConfigurationLoaderImplTest {
   private ProjectConfigurationLoaderImpl underTest = new ProjectConfigurationLoaderImpl(globalSettings, dbClient);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(dbClient.openSession(anyBoolean()))
       .thenThrow(new IllegalStateException("ProjectConfigurationLoaderImpl should not open DB session"));
     when(dbClient.propertiesDao()).thenReturn(propertiesDao);

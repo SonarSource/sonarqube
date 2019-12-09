@@ -22,9 +22,9 @@ package org.sonar.db.metric;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,9 +68,11 @@ public class MetricDao implements Dao {
   }
 
   public List<MetricDto> selectEnabled(DbSession session, @Nullable Boolean isCustom, int offset, int limit) {
-    Map<String, Object> properties = Maps.newHashMapWithExpectedSize(1);
+    Map<String, Object> properties;
     if (isCustom != null) {
-      properties.put("isCustom", isCustom);
+      properties = Collections.singletonMap("isCustom", isCustom);
+    } else {
+      properties = Collections.emptyMap();
     }
 
     return mapper(session).selectAllEnabled(properties, new RowBounds(offset, limit));

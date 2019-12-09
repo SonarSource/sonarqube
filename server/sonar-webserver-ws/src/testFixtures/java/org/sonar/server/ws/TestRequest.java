@@ -23,7 +23,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Maps;
 import com.google.protobuf.GeneratedMessageV3;
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -47,7 +46,7 @@ public class TestRequest extends ValidatingRequest {
   private final ListMultimap<String, String> multiParams = ArrayListMultimap.create();
   private final Map<String, String> params = new HashMap<>();
   private final Map<String, String> headers = new HashMap<>();
-  private final Map<String, Part> parts = Maps.newHashMap();
+  private final Map<String, Part> parts = new HashMap<>();
   private String payload = "";
   private boolean payloadConsumed = false;
   private String method = "GET";

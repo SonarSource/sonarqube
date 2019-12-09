@@ -164,7 +164,7 @@ public class ProcessLauncherImplTest {
     File homeDir = temp.newFolder();
     File dataDir = temp.newFolder();
     File logDir = temp.newFolder();
-    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> new TestProcessBuilder());
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, TestProcessBuilder::new);
     EsScriptCommand command = createEsScriptCommand(tempDir, homeDir, dataDir, logDir);
 
     File outdatedEsDir = new File(dataDir, "es");

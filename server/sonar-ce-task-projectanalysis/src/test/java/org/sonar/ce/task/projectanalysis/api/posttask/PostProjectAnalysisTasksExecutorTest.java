@@ -109,7 +109,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     new PostProjectAnalysisTask[] {postProjectAnalysisTask});
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     qualityGateHolder.setQualityGate(new QualityGate(QUALITY_GATE_ID, QUALITY_GATE_NAME, of(CONDITION_1, CONDITION_2)));
     qualityGateStatusHolder.setStatus(QualityGateStatus.OK, ImmutableMap.of(
       CONDITION_1, ConditionStatus.create(ConditionStatus.EvaluationStatus.OK, "value"),

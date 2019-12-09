@@ -43,7 +43,7 @@ public class ScannerUtilsTest {
     assertThat(ScannerUtils.describe(new TestClass())).isEqualTo("overridden");
   }
 
-  class TestClass {
+  static class TestClass {
     @Override
     public String toString() {
       return "overridden";

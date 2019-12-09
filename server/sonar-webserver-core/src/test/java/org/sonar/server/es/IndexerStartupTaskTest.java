@@ -47,7 +47,7 @@ public class IndexerStartupTaskTest {
   private final IndexerStartupTask underTest = new IndexerStartupTask(es.client(), settings.asConfig(), metadataIndex, indexer);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     doReturn(ImmutableSet.of(TYPE_FAKE)).when(indexer).getIndexTypes();
   }
 

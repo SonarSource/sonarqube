@@ -49,7 +49,7 @@ public class WebhookPayloadFactoryImplTest {
   private WebhookPayloadFactory underTest = new WebhookPayloadFactoryImpl(server, system2);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(server.getPublicRootUrl()).thenReturn("http://foo");
     when(system2.now()).thenReturn(1_500_999L);
   }

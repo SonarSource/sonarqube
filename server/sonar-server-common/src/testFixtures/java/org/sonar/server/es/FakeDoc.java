@@ -19,14 +19,14 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 
 import static org.sonar.server.es.newindex.FakeIndexDefinition.INT_FIELD;
 import static org.sonar.server.es.newindex.FakeIndexDefinition.TYPE_FAKE;
 
 public class FakeDoc extends BaseDoc {
   public FakeDoc() {
-    super(TYPE_FAKE, Maps.newHashMap());
+    super(TYPE_FAKE, new HashMap<>());
   }
 
   @Override

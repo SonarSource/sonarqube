@@ -39,7 +39,7 @@ public class DefaultServerUpgradeStatusTest {
   private DefaultServerUpgradeStatus underTest = new DefaultServerUpgradeStatus(dbVersion, migrationSteps, new ConfigurationBridge(settings));
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(migrationSteps.getMaxMigrationNumber()).thenReturn(LAST_VERSION);
   }
 

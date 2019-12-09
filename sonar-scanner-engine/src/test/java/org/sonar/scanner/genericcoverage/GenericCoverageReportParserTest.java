@@ -222,7 +222,7 @@ public class GenericCoverageReportParserTest {
     new GenericCoverageReportParser().parse(report, context);
   }
 
-  private void parseCoverageReportFile(String reportLocation) throws Exception {
+  private void parseCoverageReportFile(String reportLocation) {
     new GenericCoverageReportParser().parse(new File(reportLocation), context);
   }
 

@@ -74,7 +74,7 @@ public class ViewsCommentMeasuresStepTest {
   ComputationStep underTest = new CommentMeasuresStep(treeRootHolder, metricRepository, measureRepository);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     treeRootHolder.setRoot(
       builder(VIEW, ROOT_REF)
         .addChildren(

@@ -61,8 +61,7 @@ public class IssueFinderTest {
   @Test
   public void get_by_issue_key() {
     IssueDto issueDto = insertIssue();
-    String permission = USER;
-    addProjectPermission(issueDto, permission);
+    addProjectPermission(issueDto, USER);
 
     IssueDto result = underTest.getByKey(db.getSession(), issueDto.getKey());
 

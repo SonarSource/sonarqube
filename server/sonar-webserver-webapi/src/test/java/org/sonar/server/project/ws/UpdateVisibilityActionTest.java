@@ -625,7 +625,7 @@ public class UpdateVisibilityActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
+  public void fail_when_using_branch_db_key() {
     ComponentDto project = dbTester.components().insertMainBranch();
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = dbTester.components().insertProjectBranch(project);

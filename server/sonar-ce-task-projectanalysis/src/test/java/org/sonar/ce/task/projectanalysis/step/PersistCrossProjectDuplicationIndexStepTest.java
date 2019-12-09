@@ -84,7 +84,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
   private ComputationStep underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(baseAnalysis.getUuid()).thenReturn(BASE_ANALYSIS_UUID);
     analysisMetadataHolder.setUuid(ANALYSIS_UUID);
     analysisMetadataHolder.setBaseAnalysis(baseAnalysis);

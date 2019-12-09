@@ -19,6 +19,7 @@
  */
 package org.sonar.duplications.detector.original;
 
+import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
 
@@ -40,9 +41,7 @@ public class BlocksGroupTest {
 
   public static BlocksGroup newBlocksGroup(Block... blocks) {
     BlocksGroup result = BlocksGroup.empty();
-    for (Block block : blocks) {
-      result.blocks.add(block);
-    }
+    result.blocks.addAll(Arrays.asList(blocks));
     return result;
   }
 

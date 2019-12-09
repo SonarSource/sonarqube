@@ -103,7 +103,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     integrateCrossProjectDuplications, dbClient);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert());
     dbClient.componentDao().insert(dbSession, project);
     SnapshotDto projectSnapshot = SnapshotTesting.newAnalysis(project);

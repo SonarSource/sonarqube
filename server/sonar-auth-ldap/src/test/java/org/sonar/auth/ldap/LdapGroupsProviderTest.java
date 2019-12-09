@@ -44,7 +44,7 @@ public class LdapGroupsProviderTest {
   public static LdapServer infosupportServer = new LdapServer(USERS_INFOSUPPORT_COM_LDIF, "infosupport.com", "dc=infosupport,dc=com");
 
   @Test
-  public void defaults() throws Exception {
+  public void defaults() {
     MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, null);
 
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings, new LdapAutodiscovery());

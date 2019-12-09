@@ -19,7 +19,8 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +28,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.tester.AnonymousMockUserSession;
 
-import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,7 +52,7 @@ public class CommentActionTest {
   @Test
   public void should_execute() {
     String comment = "My bulk change comment";
-    Map<String, Object> properties = newHashMap();
+    Map<String, Object> properties = new HashMap<>();
     properties.put("comment", comment);
     DefaultIssue issue = mock(DefaultIssue.class);
 
@@ -64,10 +65,9 @@ public class CommentActionTest {
 
   @Test
   public void should_verify_fail_if_parameter_not_found() {
-    Map<String, Object> properties = newHashMap();
-    properties.put("unknwown", "unknown value");
+    Map<String, Object> properties = singletonMap("unknwown", "unknown value");
     try {
-      action.verify(properties, Lists.newArrayList(), new AnonymousMockUserSession());
+      action.verify(properties, new ArrayList<>(), new AnonymousMockUserSession());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Missing parameter : 'comment'");

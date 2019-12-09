@@ -81,7 +81,7 @@ public class RuleRepositoryRule extends ExternalResource implements RuleReposito
 
   public RuleRepositoryRule add(DumbRule rule) {
     rulesByKey.put(requireNonNull(rule.getKey()), rule);
-    rulesById.put(requireNonNull(rule.getId()), rule);
+    rulesById.put(rule.getId(), rule);
     return this;
   }
 

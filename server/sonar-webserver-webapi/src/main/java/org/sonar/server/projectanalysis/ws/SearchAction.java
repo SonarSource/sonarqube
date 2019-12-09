@@ -33,7 +33,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
@@ -65,13 +64,11 @@ public class SearchAction implements ProjectAnalysesWsAction {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
-  private final BranchDao branchDao;
 
-  public SearchAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, BranchDao branchDao) {
+  public SearchAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
-    this.branchDao = branchDao;
   }
 
   @Override

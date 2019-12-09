@@ -31,7 +31,7 @@ public class ResponseExampleActionTest {
   private WebService.Action action;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     WebService.NewController newController = context.createController("api/ws");
     underTest.define(newController);
     newController.done();

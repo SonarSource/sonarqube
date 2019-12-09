@@ -19,7 +19,7 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Configuration;
@@ -33,7 +33,7 @@ import org.sonar.server.es.newindex.NewIndex;
 @ServerSide
 public class IndexDefinitions implements Startable {
 
-  private final Map<String, BuiltIndex> byKey = Maps.newHashMap();
+  private final Map<String, BuiltIndex> byKey = new HashMap<>();
   private final IndexDefinition[] defs;
   private final Configuration config;
 

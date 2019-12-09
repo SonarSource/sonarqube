@@ -119,11 +119,8 @@ public class DataChangeTest {
     new DataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
-        context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).get(new RowReader<Long>() {
-          @Override
-          public Long read(Row row) {
-            throw new IllegalStateException("Unexpected error");
-          }
+        context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).get((RowReader<Long>) row -> {
+          throw new IllegalStateException("Unexpected error");
         });
       }
     }.execute();
@@ -140,11 +137,8 @@ public class DataChangeTest {
     new DataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
-        context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).list(new RowReader<Long>() {
-          @Override
-          public Long read(Row row) {
-            throw new IllegalStateException("Unexpected error");
-          }
+        context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).list((RowReader<Long>) row -> {
+          throw new IllegalStateException("Unexpected error");
         });
       }
     }.execute();
@@ -155,12 +149,11 @@ public class DataChangeTest {
   public void bad_parameterized_query() throws Exception {
     insertPersons();
 
-    final List<Long> ids = new ArrayList<>();
     DataChange change = new DataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
         // parameter value is not set
-        ids.addAll(context.prepareSelect("select id from persons where id>=?").list(Select.LONG_READER));
+        context.prepareSelect("select id from persons where id>=?").list(Select.LONG_READER);
       }
     };
 
@@ -177,12 +170,7 @@ public class DataChangeTest {
     new DataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
-        context.prepareSelect("select id from persons order by id desc").scroll(new Select.RowHandler() {
-          @Override
-          public void handle(Row row) throws SQLException {
-            ids.add(row.getNullableLong(1));
-          }
-        });
+        context.prepareSelect("select id from persons order by id desc").scroll(row -> ids.add(row.getNullableLong(1)));
       }
     }.execute();
     assertThat(ids).containsExactly(3L, 2L, 1L);
@@ -372,11 +360,8 @@ public class DataChangeTest {
       @Override
       public void execute(Context context) throws SQLException {
         final Upsert upsert = context.prepareUpsert("update persons set login=?, age=? where id=?");
-        context.prepareSelect("select id from persons").scroll(new Select.RowHandler() {
-          @Override
-          public void handle(Row row) {
-            throw new IllegalStateException("Unexpected error");
-          }
+        context.prepareSelect("select id from persons").scroll(row -> {
+          throw new IllegalStateException("Unexpected error");
         });
         upsert.commit().close();
       }
@@ -393,16 +378,13 @@ public class DataChangeTest {
         MassUpdate massUpdate = context.prepareMassUpdate();
         massUpdate.select("select id from persons where id>=?").setLong(1, 2L);
         massUpdate.update("update persons set login=?, age=? where id=?");
-        massUpdate.execute(new MassUpdate.Handler() {
-          @Override
-          public boolean handle(Row row, SqlStatement update) throws SQLException {
-            long id = row.getNullableLong(1);
-            update
-              .setString(1, "login" + id)
-              .setInt(2, 10 + (int) id)
-              .setLong(3, id);
-            return true;
-          }
+        massUpdate.execute((row, update) -> {
+          long id = row.getNullableLong(1);
+          update
+            .setString(1, "login" + id)
+            .setInt(2, 10 + (int) id)
+            .setLong(3, id);
+          return true;
         });
       }
     }.execute();
@@ -425,11 +407,8 @@ public class DataChangeTest {
         MassUpdate massUpdate = context.prepareMassUpdate();
         massUpdate.select("select id from persons where id>=?").setLong(1, 2L);
         massUpdate.update("update persons set login=?, age=? where id=?");
-        massUpdate.execute(new MassUpdate.Handler() {
-          @Override
-          public boolean handle(Row row, SqlStatement update) {
-            throw new IllegalStateException("Unexpected error");
-          }
+        massUpdate.execute((row, update) -> {
+          throw new IllegalStateException("Unexpected error");
         });
       }
     }.execute();
@@ -445,12 +424,7 @@ public class DataChangeTest {
         MassUpdate massUpdate = context.prepareMassUpdate();
         massUpdate.select("select id from persons where id>=?").setLong(1, 2L);
         massUpdate.update("update persons set login=?, age=? where id=?");
-        massUpdate.execute(new MassUpdate.Handler() {
-          @Override
-          public boolean handle(Row row, SqlStatement update) {
-            return false;
-          }
-        });
+        massUpdate.execute((row, update) -> false);
       }
     }.execute();
 
@@ -467,12 +441,7 @@ public class DataChangeTest {
         MassUpdate massUpdate = context.prepareMassUpdate();
         massUpdate.select("select id from persons where id>=?").setLong(1, 2L);
         // update is not set
-        massUpdate.execute(new MassUpdate.Handler() {
-          @Override
-          public boolean handle(Row row, SqlStatement update) {
-            return false;
-          }
-        });
+        massUpdate.execute((row, update) -> false);
       }
     };
     try {

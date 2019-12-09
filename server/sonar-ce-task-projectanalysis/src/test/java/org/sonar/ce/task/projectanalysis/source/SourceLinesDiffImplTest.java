@@ -62,7 +62,7 @@ public class SourceLinesDiffImplTest {
   };
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.fileSourceDao()).thenReturn(fileSourceDao);

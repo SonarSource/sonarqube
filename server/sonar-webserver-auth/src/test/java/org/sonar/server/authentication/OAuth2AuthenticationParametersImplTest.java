@@ -45,7 +45,7 @@ public class OAuth2AuthenticationParametersImplTest {
   private OAuth2AuthenticationParameters underTest = new OAuth2AuthenticationParametersImpl();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(request.getContextPath()).thenReturn("");
   }
 

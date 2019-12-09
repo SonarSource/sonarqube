@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.projectbranches;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**

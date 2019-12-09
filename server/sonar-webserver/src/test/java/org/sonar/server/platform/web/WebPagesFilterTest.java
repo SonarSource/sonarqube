@@ -53,7 +53,7 @@ public class WebPagesFilterTest {
   private WebPagesFilter underTest = new WebPagesFilter(webPagesCache);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(servletContext.getContextPath()).thenReturn(TEST_CONTEXT);
   }
 
@@ -85,7 +85,7 @@ public class WebPagesFilterTest {
     verifyZeroInteractions(webPagesCache);
   }
 
-  class StringOutputStream extends ServletOutputStream {
+  static class StringOutputStream extends ServletOutputStream {
     private final StringBuilder buf = new StringBuilder();
 
     StringOutputStream() {

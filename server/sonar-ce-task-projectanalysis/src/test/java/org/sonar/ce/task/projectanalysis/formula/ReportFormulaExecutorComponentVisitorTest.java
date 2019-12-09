@@ -315,7 +315,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
     }
   }
 
-  private class FakeCounter implements Counter<FakeCounter> {
+  private static class FakeCounter implements Counter<FakeCounter> {
     private int value = 0;
 
     @Override
@@ -364,7 +364,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
     }
   }
 
-  private class FakeVariationCounter implements Counter<FakeVariationCounter> {
+  private static class FakeVariationCounter implements Counter<FakeVariationCounter> {
     private final IntValue values = new IntValue();
 
     @Override

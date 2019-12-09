@@ -169,7 +169,7 @@ public class DestroyActionTest {
     expectedException.expectMessage(format("The 'id' parameter cannot be parsed as a long value: %s", invalidId));
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(invalidId))
+      .setParam(PARAM_ID, invalidId)
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
@@ -182,7 +182,7 @@ public class DestroyActionTest {
     expectedException.expect(IllegalArgumentException.class);
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(EMPTY))
+      .setParam(PARAM_ID, EMPTY)
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }

@@ -20,7 +20,6 @@
 package org.sonar.server.ws;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -28,6 +27,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.IOUtils;
@@ -40,7 +40,7 @@ public class DumbResponse implements Response {
 
   private final ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-  private Map<String, String> headers = Maps.newHashMap();
+  private Map<String, String> headers = new HashMap<>();
 
   public class InMemoryStream implements Response.Stream {
     private String mediaType;
@@ -118,7 +118,7 @@ public class DumbResponse implements Response {
   }
 
   @CheckForNull
-  public String getHeader(String name){
+  public String getHeader(String name) {
     return headers.get(name);
   }
 

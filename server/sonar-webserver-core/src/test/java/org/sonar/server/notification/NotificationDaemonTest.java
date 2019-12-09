@@ -42,7 +42,7 @@ public class NotificationDaemonTest {
   private InOrder inOrder;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     MapSettings settings = new MapSettings(new PropertyDefinitions(NotificationDaemon.class)).setProperty("sonar.notifications.delay", 1L);
 
     underTest = new NotificationDaemon(settings.asConfig(), manager, notificationService);

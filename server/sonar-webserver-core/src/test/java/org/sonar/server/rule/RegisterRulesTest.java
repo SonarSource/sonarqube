@@ -367,7 +367,7 @@ public class RegisterRulesTest {
 
   @Test
   public void add_new_tag() {
-    execute((RulesDefinition) context -> {
+    execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule1")
         .setName("Rule One")
@@ -380,7 +380,7 @@ public class RegisterRulesTest {
     RuleDto rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RULE_KEY1);
     assertThat(rule.getSystemTags()).containsOnly("tag1");
 
-    execute((RulesDefinition) context -> {
+    execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule1")
         .setName("Rule One")
@@ -395,7 +395,7 @@ public class RegisterRulesTest {
 
   @Test
   public void add_new_security_standards() {
-    execute((RulesDefinition) context -> {
+    execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule1")
         .setName("Rule One")
@@ -409,7 +409,7 @@ public class RegisterRulesTest {
     RuleDto rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RULE_KEY1);
     assertThat(rule.getSecurityStandards()).containsOnly("cwe:123", "owaspTop10:a1");
 
-    execute((RulesDefinition) context -> {
+    execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule1")
         .setName("Rule One")
@@ -426,7 +426,7 @@ public class RegisterRulesTest {
   @Test
   public void update_only_rule_name() {
     when(system.now()).thenReturn(DATE1.getTime());
-    execute((RulesDefinition) context -> {
+    execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule")
         .setName("Name1")
@@ -435,7 +435,7 @@ public class RegisterRulesTest {
     });
 
     when(system.now()).thenReturn(DATE2.getTime());
-    execute((RulesDefinition) context -> {
+    execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule")
         .setName("Name2")
@@ -459,8 +459,8 @@ public class RegisterRulesTest {
     String repository = "fake";
 
     when(system.now()).thenReturn(DATE1.getTime());
-    execute((RulesDefinition) context -> {
-      RulesDefinition.NewRepository repo = context.createRepository(repository, "java");
+    execute(context -> {
+      NewRepository repo = context.createRepository(repository, "java");
       repo.createRule(ruleKey1)
         .setName("Name1")
         .setHtmlDescription("Description");
@@ -473,8 +473,8 @@ public class RegisterRulesTest {
     assertThat(searchRule1.getTotal()).isEqualTo(1);
 
     when(system.now()).thenReturn(DATE2.getTime());
-    execute((RulesDefinition) context -> {
-      RulesDefinition.NewRepository repo = context.createRepository(repository, "java");
+    execute(context -> {
+      NewRepository repo = context.createRepository(repository, "java");
       repo.createRule(ruleKey2)
         .setName("Name2")
         .setHtmlDescription("Description")
@@ -501,8 +501,8 @@ public class RegisterRulesTest {
     String repository2 = "fake2";
 
     when(system.now()).thenReturn(DATE1.getTime());
-    execute((RulesDefinition) context -> {
-      RulesDefinition.NewRepository repo = context.createRepository(repository1, "java");
+    execute(context -> {
+      NewRepository repo = context.createRepository(repository1, "java");
       repo.createRule(ruleKey)
         .setName("Name1")
         .setHtmlDescription("Description");
@@ -515,8 +515,8 @@ public class RegisterRulesTest {
     assertThat(searchRule1.getTotal()).isEqualTo(1);
 
     when(system.now()).thenReturn(DATE2.getTime());
-    execute((RulesDefinition) context -> {
-      RulesDefinition.NewRepository repo = context.createRepository(repository2, "java");
+    execute(context -> {
+      NewRepository repo = context.createRepository(repository2, "java");
       repo.createRule(ruleKey)
         .setName("Name2")
         .setHtmlDescription("Description")
@@ -542,8 +542,8 @@ public class RegisterRulesTest {
     String name = "Name1";
     String description = "Description";
     when(system.now()).thenReturn(DATE1.getTime());
-    execute((RulesDefinition) context -> {
-      RulesDefinition.NewRepository repo = context.createRepository(repo1, "java");
+    execute(context -> {
+      NewRepository repo = context.createRepository(repo1, "java");
       repo.createRule(ruleKey1)
         .setName(name)
         .setHtmlDescription(description);
@@ -555,8 +555,8 @@ public class RegisterRulesTest {
       .containsOnly(rule1.getId());
 
     when(system.now()).thenReturn(DATE2.getTime());
-    execute((RulesDefinition) context -> {
-      RulesDefinition.NewRepository repo = context.createRepository(repo2, "java");
+    execute(context -> {
+      NewRepository repo = context.createRepository(repo2, "java");
       repo.createRule(ruleKey2)
         .setName(name)
         .setHtmlDescription(description)
@@ -591,8 +591,8 @@ public class RegisterRulesTest {
     String repository2 = "fake2";
 
     when(system.now()).thenReturn(DATE1.getTime());
-    execute((RulesDefinition) context -> {
-      RulesDefinition.NewRepository repo = context.createRepository(repository1, "java");
+    execute(context -> {
+      NewRepository repo = context.createRepository(repository1, "java");
       repo.createRule(ruleKey1)
         .setName("Name1")
         .setHtmlDescription("Description");
@@ -604,8 +604,8 @@ public class RegisterRulesTest {
       .containsOnly(rule1.getId());
 
     when(system.now()).thenReturn(DATE2.getTime());
-    execute((RulesDefinition) context -> {
-      RulesDefinition.NewRepository repo = context.createRepository(repository2, "java");
+    execute(context -> {
+      NewRepository repo = context.createRepository(repository2, "java");
       repo.createRule(ruleKey2)
         .setName("Name2")
         .setHtmlDescription("Description")
@@ -626,7 +626,7 @@ public class RegisterRulesTest {
   @Test
   public void update_only_rule_description() {
     when(system.now()).thenReturn(DATE1.getTime());
-    execute((RulesDefinition) context -> {
+    execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule")
         .setName("Name")
@@ -635,7 +635,7 @@ public class RegisterRulesTest {
     });
 
     when(system.now()).thenReturn(DATE2.getTime());
-    execute((RulesDefinition) context -> {
+    execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule")
         .setName("Name")
@@ -656,7 +656,7 @@ public class RegisterRulesTest {
   public void rule_previously_created_as_adhoc_becomes_none_adhoc() {
     RuleDefinitionDto rule = db.rules().insert(r -> r.setRepositoryKey("external_fake").setIsExternal(true).setIsAdHoc(true));
     when(system.now()).thenReturn(DATE2.getTime());
-    execute((RulesDefinition) context -> {
+    execute(context -> {
       NewRepository repo = context.createExternalRepository("fake", rule.getLanguage());
       repo.createRule(rule.getRuleKey())
         .setName(rule.getName())

@@ -36,6 +36,7 @@ import org.sonar.server.qualitygate.EvaluatedCondition;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS;
 
 @ServerSide
@@ -164,7 +165,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
 
   private static String encode(String toEncode) {
     try {
-      return URLEncoder.encode(toEncode, "UTF-8");
+      return URLEncoder.encode(toEncode, UTF_8.name());
     } catch (UnsupportedEncodingException e) {
       throw new IllegalStateException("Encoding not supported", e);
     }

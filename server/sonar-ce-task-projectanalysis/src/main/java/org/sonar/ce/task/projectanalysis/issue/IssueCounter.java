@@ -200,7 +200,7 @@ public class IssueCounter extends IssueVisitor {
     if (!periodHolder.hasPeriod() && !analysisMetadataHolder.isPullRequest()) {
       return;
     }
-    double unresolvedVariations = (double) currentCounters.counterForPeriod().unresolved;
+    double unresolvedVariations = currentCounters.counterForPeriod().unresolved;
     measureRepository.add(component, metricRepository.getByKey(NEW_VIOLATIONS_KEY), Measure.newMeasureBuilder()
       .setVariation(unresolvedVariations)
       .createNoValue());
@@ -211,7 +211,7 @@ public class IssueCounter extends IssueVisitor {
       Multiset<String> bag = currentCounters.counterForPeriod().severityBag;
       Metric metric = metricRepository.getByKey(metricKey);
       measureRepository.add(component, metric, Measure.newMeasureBuilder()
-        .setVariation((double) bag.count(severity))
+        .setVariation(bag.count(severity))
         .createNoValue());
     }
 
@@ -223,7 +223,7 @@ public class IssueCounter extends IssueVisitor {
       Multiset<RuleType> bag = currentCounters.counterForPeriod().typeBag;
       Metric metric = metricRepository.getByKey(metricKey);
       measureRepository.add(component, metric, Measure.newMeasureBuilder()
-        .setVariation((double) bag.count(type))
+        .setVariation(bag.count(type))
         .createNoValue());
     }
   }

@@ -78,7 +78,7 @@ public class OAuth2ContextFactoryTest {
     oAuthParameters);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(request.getSession()).thenReturn(session);
     when(identityProvider.getKey()).thenReturn(PROVIDER_KEY);
     when(identityProvider.getName()).thenReturn(PROVIDER_NAME);

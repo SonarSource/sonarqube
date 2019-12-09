@@ -37,7 +37,7 @@ public class WebServerRuleFinderImplTest {
   private WebServerRuleFinderImpl underTest = new WebServerRuleFinderImpl(dbClient, defaultOrganizationProvider);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(dbClient.ruleDao()).thenReturn(mock(RuleDao.class));
   }
 

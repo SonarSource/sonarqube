@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.container;
 
-import com.google.common.collect.Maps;
 import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Rule;
@@ -144,7 +144,7 @@ public class CePluginRepositoryTest {
      */
     @Override
     public Map<String, Plugin> load(Map<String, PluginInfo> infoByKeys) {
-      Map<String, Plugin> result = Maps.newHashMap();
+      Map<String, Plugin> result = new HashMap<>();
       for (String pluginKey : infoByKeys.keySet()) {
         result.put(pluginKey, mock(Plugin.class));
       }

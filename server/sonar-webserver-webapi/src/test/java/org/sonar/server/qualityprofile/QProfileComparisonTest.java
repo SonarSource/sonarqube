@@ -58,7 +58,6 @@ public class QProfileComparisonTest {
   @Rule
   public EsTester es = EsTester.create();
 
-  private DbClient db;
   private DbSession dbSession;
   private QProfileRules qProfileRules;
   private QProfileComparison comparison;
@@ -70,7 +69,7 @@ public class QProfileComparisonTest {
 
   @Before
   public void before() {
-    db = dbTester.getDbClient();
+    DbClient db = dbTester.getDbClient();
     dbSession = db.openSession(false);
     RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
     ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db, es.client());

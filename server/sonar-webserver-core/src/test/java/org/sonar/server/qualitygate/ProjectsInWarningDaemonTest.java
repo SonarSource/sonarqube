@@ -72,7 +72,7 @@ public class ProjectsInWarningDaemonTest {
   private ProjectsInWarningDaemon underTest = new ProjectsInWarningDaemon(db.getDbClient(), projectMeasuresIndex, settings.asConfig(), lockManager, projectsInWarning);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     settings.setProperty("sonar.projectsInWarning.frequencyInMilliseconds", "100");
   }
 
@@ -100,7 +100,6 @@ public class ProjectsInWarningDaemonTest {
   public void update_projects_in_warning_when_new_project_in_warning() throws InterruptedException {
     allowLockToBeAcquired();
     MetricDto qualityGateStatus = insertQualityGateStatusMetric();
-    ;
     insertProjectInWarning(qualityGateStatus);
     insertProjectInWarning(qualityGateStatus);
     // Setting does not exist
@@ -118,7 +117,6 @@ public class ProjectsInWarningDaemonTest {
   public void stop_thread_when_number_of_projects_in_warning_reach_zero() throws InterruptedException {
     allowLockToBeAcquired();
     MetricDto qualityGateStatus = insertQualityGateStatusMetric();
-    ;
     ComponentDto project = insertProjectInWarning(qualityGateStatus);
 
     underTest.notifyStart();
@@ -167,7 +165,6 @@ public class ProjectsInWarningDaemonTest {
   public void do_not_compute_projects_in_warning_when_internal_property_is_zero() throws InterruptedException {
     allowLockToBeAcquired();
     MetricDto qualityGateStatus = insertQualityGateStatusMetric();
-    ;
     insertProjectInWarning(qualityGateStatus);
     // Setting contains 0, even if there are projects in warning it will stay 0 (as it's not possible to have new projects in warning)
     db.getDbClient().internalPropertiesDao().save(db.getSession(), PROJECTS_IN_WARNING_INTERNAL_PROPERTY, "0");
@@ -183,7 +180,6 @@ public class ProjectsInWarningDaemonTest {
   public void do_not_store_projects_in_warning_in_db_when_cannot_acquire_lock() throws InterruptedException {
     when(lockManager.tryLock(any(), anyInt())).thenReturn(false);
     MetricDto qualityGateStatus = insertQualityGateStatusMetric();
-    ;
     insertProjectInWarning(qualityGateStatus);
 
     underTest.notifyStart();

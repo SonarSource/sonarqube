@@ -41,7 +41,7 @@ public class QProfileVerifierTest {
   private QualityProfiles profiles;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     store = new InputComponentStore(mock(BranchConfiguration.class));
     profiles = mock(QualityProfiles.class);
     QProfile javaProfile = new QProfile("p1", "My Java profile", "java", null);

@@ -745,13 +745,13 @@ public class UserPermissionDaoTest {
     assertThat(underTest.selectUserIdsByQuery(dbSession, query)).containsExactly(expectedUserIds.toArray(new Integer[0]));
     List<UserPermissionDto> currentPermissions = underTest.selectUserPermissionsByQuery(dbSession, query, expectedUserIds);
     assertThat(currentPermissions).hasSize(expectedPermissions.length);
-    List<Tuple> expectedPermissionsAsTuple = Arrays.stream(expectedPermissions)
+    Tuple[] expectedPermissionsAsTuple = Arrays.stream(expectedPermissions)
       .map(expectedPermission -> tuple(expectedPermission.getUserId(), expectedPermission.getPermission(), expectedPermission.getComponentId(),
         expectedPermission.getOrganizationUuid()))
-      .collect(Collectors.toList());
+      .toArray(Tuple[]::new);
     assertThat(currentPermissions)
       .extracting(UserPermissionDto::getUserId, UserPermissionDto::getPermission, UserPermissionDto::getComponentId, UserPermissionDto::getOrganizationUuid)
-      .containsOnly(expectedPermissionsAsTuple.toArray(new Tuple[0]));
+      .containsOnly(expectedPermissionsAsTuple);
 
     // test method "countUsers()"
     long distinctUsers = stream(expectedPermissions).mapToLong(UserPermissionDto::getUserId).distinct().count();

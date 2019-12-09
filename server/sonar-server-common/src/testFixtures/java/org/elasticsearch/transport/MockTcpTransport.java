@@ -199,7 +199,7 @@ public class MockTcpTransport extends TcpTransport {
       configureSocket(socket);
       success = true;
     } finally {
-      if (success == false) {
+      if (!success) {
         IOUtils.close(socket);
       }
     }
@@ -233,7 +233,7 @@ public class MockTcpTransport extends TcpTransport {
     }
     // make sure we maintain at least the types that are supported by this profile even if we only use a single channel for them.
     builder.addConnections(1, allTypesWithConnection.toArray(new TransportRequestOptions.Type[0]));
-    if (allTypesWithoutConnection.isEmpty() == false) {
+    if (!allTypesWithoutConnection.isEmpty()) {
       builder.addConnections(0, allTypesWithoutConnection.toArray(new TransportRequestOptions.Type[0]));
     }
     builder.setHandshakeTimeout(connectionProfile.getHandshakeTimeout());
@@ -479,7 +479,7 @@ public class MockTcpTransport extends TcpTransport {
       super.doStart();
       success = true;
     } finally {
-      if (success == false) {
+      if (!success) {
         doStop();
       }
     }

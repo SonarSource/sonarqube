@@ -196,7 +196,7 @@ public class RegisterMetricsTest {
     new RegisterMetrics(dbClient, new Metrics[] {plugin}).start();
   }
 
-  private class TestMetrics implements Metrics {
+  private static class TestMetrics implements Metrics {
     private final List<Metric> metrics;
 
     public TestMetrics(Metric... metrics) {

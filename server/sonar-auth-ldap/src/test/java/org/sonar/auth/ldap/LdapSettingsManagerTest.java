@@ -62,7 +62,7 @@ public class LdapSettingsManagerTest {
   }
 
   @Test
-  public void testContextFactoriesWithSingleLdap() throws Exception {
+  public void testContextFactoriesWithSingleLdap() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       generateSingleLdapSettingsWithUserAndGroupMapping(), new LdapAutodiscovery());
     assertThat(settingsManager.getContextFactories().size()).isEqualTo(1);
@@ -71,11 +71,9 @@ public class LdapSettingsManagerTest {
   /**
    * Test there are 2 @link{org.sonar.plugins.ldap.LdapContextFactory}s found.
    *
-   * @throws Exception
-   *             This is not expected.
    */
   @Test
-  public void testContextFactoriesWithMultipleLdap() throws Exception {
+  public void testContextFactoriesWithMultipleLdap() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       generateMultipleLdapSettingsWithUserAndGroupMapping(), new LdapAutodiscovery());
     assertThat(settingsManager.getContextFactories().size()).isEqualTo(2);
@@ -84,7 +82,7 @@ public class LdapSettingsManagerTest {
   }
 
   @Test
-  public void testAutodiscover() throws Exception {
+  public void testAutodiscover() {
     LdapAutodiscovery ldapAutodiscovery = mock(LdapAutodiscovery.class);
     LdapSrvRecord ldap1 = new LdapSrvRecord("ldap://localhost:189", 1, 1);
     LdapSrvRecord ldap2 = new LdapSrvRecord("ldap://localhost:1899", 1, 1);
@@ -95,9 +93,9 @@ public class LdapSettingsManagerTest {
   }
 
   @Test
-  public void testAutodiscoverFailed() throws Exception {
+  public void testAutodiscoverFailed() {
     LdapAutodiscovery ldapAutodiscovery = mock(LdapAutodiscovery.class);
-    when(ldapAutodiscovery.getLdapServers("example.org")).thenReturn(Collections.<LdapSrvRecord>emptyList());
+    when(ldapAutodiscovery.getLdapServers("example.org")).thenReturn(Collections.emptyList());
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       generateAutodiscoverSettings(), ldapAutodiscovery);
 
@@ -110,11 +108,9 @@ public class LdapSettingsManagerTest {
   /**
    * Test there are 2 @link{org.sonar.plugins.ldap.LdapUserMapping}s found.
    *
-   * @throws Exception
-   *             This is not expected.
    */
   @Test
-  public void testUserMappings() throws Exception {
+  public void testUserMappings() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       generateMultipleLdapSettingsWithUserAndGroupMapping(), new LdapAutodiscovery());
     assertThat(settingsManager.getUserMappings().size()).isEqualTo(2);
@@ -125,11 +121,9 @@ public class LdapSettingsManagerTest {
   /**
    * Test there are 2 @link{org.sonar.plugins.ldap.LdapGroupMapping}s found.
    *
-   * @throws Exception
-   *             This is not expected.
    */
   @Test
-  public void testGroupMappings() throws Exception {
+  public void testGroupMappings() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       generateMultipleLdapSettingsWithUserAndGroupMapping(), new LdapAutodiscovery());
     assertThat(settingsManager.getGroupMappings().size()).isEqualTo(2);
@@ -140,10 +134,9 @@ public class LdapSettingsManagerTest {
   /**
    * Test what happens when no configuration is set.
    * Normally there will be a contextFactory, but the autodiscovery doesn't work for the test server.
-   * @throws Exception
    */
   @Test
-  public void testEmptySettings() throws Exception {
+  public void testEmptySettings() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       new MapSettings(), new LdapAutodiscovery());
 

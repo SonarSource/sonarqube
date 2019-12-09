@@ -57,10 +57,10 @@ public class AverageFormulaExecutionTest {
   @Rule
   public PeriodHolderRule periodsHolder = new PeriodHolderRule();
 
-  FormulaExecutorComponentVisitor underTest;
+  private FormulaExecutorComponentVisitor underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
       .buildFor(Lists.newArrayList(
         AverageFormula.Builder.newBuilder()

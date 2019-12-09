@@ -185,10 +185,6 @@ public class SearchResponseData {
 
   @CheckForNull
   UserDto getUserByUuid(@Nullable String userUuid) {
-    UserDto userDto = usersByUuid.get(userUuid);
-    if (userDto == null) {
-      return null;
-    }
-    return userDto;
+    return usersByUuid.get(userUuid);
   }
 }

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.notification;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
@@ -43,7 +43,7 @@ public final class NotificationDispatcherMetadata {
 
   private NotificationDispatcherMetadata(String dispatcherKey) {
     this.dispatcherKey = dispatcherKey;
-    this.properties = Maps.newHashMap();
+    this.properties = new HashMap<>();
   }
 
   /**

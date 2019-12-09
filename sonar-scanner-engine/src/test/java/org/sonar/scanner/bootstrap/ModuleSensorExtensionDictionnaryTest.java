@@ -301,7 +301,7 @@ public class ModuleSensorExtensionDictionnaryTest {
 
   }
 
-  class FakeSensor implements Sensor {
+  static class FakeSensor implements Sensor {
 
     @Override
     public void describe(SensorDescriptor descriptor) {
@@ -314,7 +314,7 @@ public class ModuleSensorExtensionDictionnaryTest {
     }
   }
 
-  class FakeGlobalSensor implements Sensor {
+  static class FakeGlobalSensor implements Sensor {
 
     @Override
     public void describe(SensorDescriptor descriptor) {
@@ -327,7 +327,7 @@ public class ModuleSensorExtensionDictionnaryTest {
 
   }
 
-  @ScannerSide
+  @ScannerSide static
   class MethodDependentOf implements Marker {
     private Object dep;
 
@@ -342,12 +342,12 @@ public class ModuleSensorExtensionDictionnaryTest {
   }
 
   @ScannerSide
-  @DependsUpon("flag")
+  @DependsUpon("flag") static
   class ClassDependsUpon implements Marker {
   }
 
   @ScannerSide
-  @DependedUpon("flag")
+  @DependedUpon("flag") static
   class ClassDependedUpon implements Marker {
   }
 
@@ -361,7 +361,7 @@ public class ModuleSensorExtensionDictionnaryTest {
   interface InterfaceDependedUpon extends Marker {
   }
 
-  @ScannerSide
+  @ScannerSide static
   class GeneratesSomething implements Marker {
     private Object gen;
 
@@ -381,7 +381,7 @@ public class ModuleSensorExtensionDictionnaryTest {
     }
   }
 
-  class NormalSensor implements Sensor {
+  static class NormalSensor implements Sensor {
 
     @Override
     public void describe(SensorDescriptor descriptor) {
@@ -393,7 +393,7 @@ public class ModuleSensorExtensionDictionnaryTest {
 
   }
 
-  @Phase(name = Phase.Name.PRE)
+  @Phase(name = Phase.Name.PRE) static
   class PreSensor implements Sensor {
 
     @Override
@@ -410,7 +410,7 @@ public class ModuleSensorExtensionDictionnaryTest {
 
   }
 
-  @Phase(name = Phase.Name.POST)
+  @Phase(name = Phase.Name.POST) static
   class PostSensor implements Sensor {
 
     @Override

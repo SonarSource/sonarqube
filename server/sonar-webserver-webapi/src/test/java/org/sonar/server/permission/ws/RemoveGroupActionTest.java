@@ -157,7 +157,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
   }
 
   @Test
-  public void fail_to_remove_last_admin_permission() throws Exception {
+  public void fail_to_remove_last_admin_permission() {
     db.users().insertPermissionOnGroup(aGroup, ADMINISTER);
     db.users().insertPermissionOnGroup(aGroup, PROVISION_PROJECTS);
     loginAsAdmin(db.getDefaultOrganization());
@@ -183,7 +183,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
   }
 
   @Test
-  public void fail_when_project_project_permission_without_project() throws Exception {
+  public void fail_when_project_project_permission_without_project() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -434,7 +434,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
+  public void fail_when_using_branch_db_key() {
     OrganizationDto organization = db.organizations().insert();
     GroupDto group = db.users().insertGroup(organization);
     ComponentDto project = db.components().insertMainBranch(organization);

@@ -158,7 +158,7 @@ public class BuiltInQualityProfilesDefinitionTest {
     return context.profilesByLanguageAndName();
   }
 
-  private class FakeProfile implements BuiltInQualityProfilesDefinition {
+  private static class FakeProfile implements BuiltInQualityProfilesDefinition {
 
     private Consumer<Context> consumer;
 

@@ -53,7 +53,7 @@ public class ModuleInputComponentStoreTest {
   }
 
   @Test
-  public void should_cache_files_by_filename() throws IOException {
+  public void should_cache_files_by_filename() {
     ModuleInputComponentStore store = newModuleInputComponentStore();
 
     String filename = "some name";
@@ -70,7 +70,7 @@ public class ModuleInputComponentStoreTest {
   }
 
   @Test
-  public void should_cache_files_by_extension() throws IOException {
+  public void should_cache_files_by_extension() {
     ModuleInputComponentStore store = newModuleInputComponentStore();
 
     InputFile inputFile1 = new TestInputFileBuilder(projectKey, "some/path/Program.java").build();
@@ -86,7 +86,7 @@ public class ModuleInputComponentStoreTest {
   }
 
   @Test
-  public void should_not_cache_duplicates() throws IOException {
+  public void should_not_cache_duplicates() {
     ModuleInputComponentStore store = newModuleInputComponentStore();
 
     String ext = "java";

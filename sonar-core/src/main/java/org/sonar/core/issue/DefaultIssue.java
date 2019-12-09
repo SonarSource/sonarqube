@@ -24,12 +24,12 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -454,7 +454,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setAttribute(String key, @Nullable String value) {
     if (attributes == null) {
-      attributes = Maps.newHashMap();
+      attributes = new HashMap<>();
     }
     if (value == null) {
       attributes.remove(key);
@@ -472,7 +472,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   public DefaultIssue setAttributes(@Nullable Map<String, String> map) {
     if (map != null) {
       if (attributes == null) {
-        attributes = Maps.newHashMap();
+        attributes = new HashMap<>();
       }
       attributes.putAll(map);
     }

@@ -27,14 +27,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ScannerUtilsTest {
 
   @Test
-  public void encodeForUrl() throws Exception {
+  public void encodeForUrl() {
     assertThat(ScannerUtils.encodeForUrl(null)).isEqualTo("");
     assertThat(ScannerUtils.encodeForUrl("")).isEqualTo("");
     assertThat(ScannerUtils.encodeForUrl("foo")).isEqualTo("foo");
     assertThat(ScannerUtils.encodeForUrl("foo&bar")).isEqualTo("foo%26bar");
   }
 
-  private class MyClass {
+  private static class MyClass {
     @Override
     public String toString() {
       return null;

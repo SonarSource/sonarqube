@@ -146,7 +146,7 @@ public class DatabaseUtilsTest {
   public void toUniqueAndSortedList_throws_NPE_if_arg_is_a_set_containing_a_null() {
     expectedException.expect(NullPointerException.class);
 
-    toUniqueAndSortedList(new HashSet<>(asList("A", (String) null, "C")));
+    toUniqueAndSortedList(new HashSet<>(asList("A", null, "C")));
   }
 
   @Test

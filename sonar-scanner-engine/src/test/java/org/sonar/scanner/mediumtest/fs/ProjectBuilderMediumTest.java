@@ -63,7 +63,7 @@ public class ProjectBuilderMediumTest {
     .addDefaultQProfile("xoo", "Sonar Way")
     .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo");
 
-  private class XooPluginWithBuilder extends XooPlugin {
+  private static class XooPluginWithBuilder extends XooPlugin {
     private ProjectBuilder builder;
 
     XooPluginWithBuilder(ProjectBuilder builder) {

@@ -21,10 +21,8 @@ package org.sonarqube.ws.client.measures;
 
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
 import org.sonarqube.ws.Measures.ComponentTreeWsResponse;

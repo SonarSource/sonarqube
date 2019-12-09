@@ -65,7 +65,7 @@ public class PermissionTemplateDaoTest {
   private PermissionTemplateDao underTest = new PermissionTemplateDao(system2);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(system2.now()).thenReturn(NOW.getTime());
   }
 

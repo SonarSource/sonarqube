@@ -22,9 +22,9 @@ package org.sonar.server.plugins.ws;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -43,7 +43,7 @@ public class PluginUpdateAggregator {
       return Collections.emptyList();
     }
 
-    Map<Plugin, PluginUpdateAggregateBuilder> builders = Maps.newHashMap();
+    Map<Plugin, PluginUpdateAggregateBuilder> builders = new HashMap<>();
     for (PluginUpdate pluginUpdate : pluginUpdates) {
       Plugin plugin = pluginUpdate.getPlugin();
       PluginUpdateAggregateBuilder builder = builders.get(plugin);

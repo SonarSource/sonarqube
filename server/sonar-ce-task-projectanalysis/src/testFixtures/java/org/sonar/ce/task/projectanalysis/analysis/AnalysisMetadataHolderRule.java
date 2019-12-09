@@ -117,7 +117,6 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
 
   @Override
   public AnalysisMetadataHolderRule setAnalysisDate(long date) {
-    checkNotNull(date, "Date must not be null");
     this.analysisDate.setProperty(date);
     return this;
   }

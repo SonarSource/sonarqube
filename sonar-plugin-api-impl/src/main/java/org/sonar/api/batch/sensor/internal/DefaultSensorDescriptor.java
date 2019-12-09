@@ -27,8 +27,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.Configuration;
 
-import static java.util.Arrays.asList;
-
 public class DefaultSensorDescriptor implements SensorDescriptor {
 
   private String name;
@@ -104,7 +102,7 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
 
   @Override
   public DefaultSensorDescriptor requireProperties(String... propertyKeys) {
-    this.configurationPredicate = config -> asList(propertyKeys).stream().allMatch(config::hasKey);
+    this.configurationPredicate = config -> Arrays.stream(propertyKeys).allMatch(config::hasKey);
     return this;
   }
 

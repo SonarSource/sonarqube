@@ -136,8 +136,8 @@ public class ListAction implements NotificationsWsAction {
         .filter(isComponentInDb)
         .map(toWsNotification(notification, organizationsByUuid, componentsById))
         .sorted(comparing(Notification::getProject, nullsFirst(naturalOrder()))
-          .thenComparing(comparing(Notification::getChannel))
-          .thenComparing(comparing(Notification::getType)))
+          .thenComparing(Notification::getChannel)
+          .thenComparing(Notification::getType))
         .forEach(response::addNotifications);
 
       return response;

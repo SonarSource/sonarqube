@@ -68,7 +68,7 @@ public class UserPermissionChangerTest {
   private ComponentDto publicProject;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     org1 = db.organizations().insert();
     org2 = db.organizations().insert();
     user1 = db.users().insertUser();

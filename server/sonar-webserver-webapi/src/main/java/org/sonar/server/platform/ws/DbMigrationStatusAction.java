@@ -68,8 +68,7 @@ public class DbMigrationStatusAction implements SystemWsAction {
     Optional<Long> currentVersion = databaseVersion.getVersion();
     checkState(currentVersion.isPresent(), NO_CONNECTION_TO_DB);
 
-    JsonWriter json = response.newJsonWriter();
-    try {
+    try (JsonWriter json = response.newJsonWriter()) {
       DatabaseVersion.Status status = databaseVersion.getStatus();
       if (status == DatabaseVersion.Status.UP_TO_DATE || status == DatabaseVersion.Status.REQUIRES_DOWNGRADE) {
         write(json, databaseMigrationState);
@@ -89,8 +88,6 @@ public class DbMigrationStatusAction implements SystemWsAction {
             throw new IllegalArgumentException(UNSUPPORTED_DATABASE_MIGRATION_STATUS);
         }
       }
-    } finally {
-      json.close();
     }
   }
 }

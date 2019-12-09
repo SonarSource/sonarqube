@@ -60,7 +60,7 @@ public class TestMeasure implements Measure {
 
   public static TestMeasure createMeasure(boolean booleanValue) {
     TestMeasure measure = new TestMeasure();
-    measure.booleanValue = requireNonNull(booleanValue, "Value cannot be null");
+    measure.booleanValue = booleanValue;
     return measure;
   }
 

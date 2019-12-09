@@ -458,7 +458,7 @@ public interface Measure {
     }
 
     public Measure create(int value, @Nullable String data) {
-      return createInternal(ValueType.INT, (double) value, data);
+      return createInternal(ValueType.INT, value, data);
     }
 
     public Measure create(int value) {

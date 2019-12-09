@@ -26,7 +26,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
@@ -43,13 +42,11 @@ public class UpdateLoginAction implements UsersWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final UserUpdater userUpdater;
-  private final OrganizationUpdater organizationUpdater;
 
-  public UpdateLoginAction(DbClient dbClient, UserSession userSession, UserUpdater userUpdater, OrganizationUpdater organizationUpdater) {
+  public UpdateLoginAction(DbClient dbClient, UserSession userSession, UserUpdater userUpdater) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.userUpdater = userUpdater;
-    this.organizationUpdater = organizationUpdater;
   }
 
   @Override
@@ -81,7 +78,8 @@ public class UpdateLoginAction implements UsersWsAction {
     String newLogin = request.mandatoryParam(PARAM_NEW_LOGIN);
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserDto user = getUser(dbSession, login);
-      userUpdater.updateAndCommit(dbSession, user, new UpdateUser().setLogin(newLogin), u -> {});
+      userUpdater.updateAndCommit(dbSession, user, new UpdateUser().setLogin(newLogin), u -> {
+      });
       response.noContent();
     }
   }

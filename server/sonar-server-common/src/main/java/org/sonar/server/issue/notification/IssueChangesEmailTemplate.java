@@ -41,6 +41,7 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Proj
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Rule;
 
 import static java.net.URLEncoder.encode;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 
 public abstract class IssueChangesEmailTemplate implements EmailTemplate {
@@ -200,7 +201,7 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
 
   private static String urlEncode(String str) {
     try {
-      return encode(str, "UTF-8");
+      return encode(str, UTF_8.name());
     } catch (UnsupportedEncodingException e) {
       throw new IllegalStateException(e);
     }

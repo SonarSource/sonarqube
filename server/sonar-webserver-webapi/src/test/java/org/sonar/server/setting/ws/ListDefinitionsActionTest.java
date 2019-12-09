@@ -92,7 +92,7 @@ public class ListDefinitionsActionTest {
     new ListDefinitionsAction(dbClient, TestComponentFinder.from(db), userSession, propertyDefinitions, support));
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
   }
 

@@ -207,7 +207,7 @@ public class ExecuteVisitorsStepTest {
     }
   }
 
-  public class Counter {
+  public static class Counter {
     private int value = 0;
 
     public void add(int value) {

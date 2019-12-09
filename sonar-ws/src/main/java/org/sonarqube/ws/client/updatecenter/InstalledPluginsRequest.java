@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.updatecenter;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**

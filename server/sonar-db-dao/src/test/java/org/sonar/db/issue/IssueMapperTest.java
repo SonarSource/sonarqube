@@ -73,7 +73,7 @@ public class IssueMapperTest {
   private System2 system2 = new AlwaysIncreasingSystem2();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     OrganizationDto organizationDto = dbTester.organizations().insert();
     project = ComponentTesting.newPrivateProjectDto(organizationDto);
     dbTester.getDbClient().componentDao().insert(dbSession, project);
@@ -458,7 +458,7 @@ public class IssueMapperTest {
     ComponentDto component = randomComponent(organization);
     IssueDto issue = insertNewClosedIssue(component, ruleType);
     Date date = new Date();
-    IssueChangeDto changes[] = new IssueChangeDto[] {
+    IssueChangeDto[] changes = new IssueChangeDto[] {
       insertToClosedDiff(issue, DateUtils.addDays(date, -10)),
       insertToClosedDiff(issue, DateUtils.addDays(date, -60)),
       insertToClosedDiff(issue, date),
@@ -485,7 +485,7 @@ public class IssueMapperTest {
     ComponentDto component = randomComponent(organization);
     IssueDto issue = insertNewClosedIssue(component, ruleType);
     Date date = new Date();
-    IssueChangeDto changes[] = new IssueChangeDto[] {
+    IssueChangeDto[] changes = new IssueChangeDto[] {
       insertToClosedDiff(issue, DateUtils.addDays(date, -10), Issue.STATUS_CLOSED, Issue.STATUS_REOPENED),
       insertToClosedDiff(issue, DateUtils.addDays(date, -60)),
       insertToClosedDiff(issue, date),

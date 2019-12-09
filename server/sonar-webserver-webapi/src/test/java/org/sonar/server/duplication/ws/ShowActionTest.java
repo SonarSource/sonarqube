@@ -81,13 +81,13 @@ public class ShowActionTest {
   }
 
   @Test
-  public void get_duplications_by_file_key() throws Exception {
+  public void get_duplications_by_file_key() {
     TestRequest request = newBaseRequest();
     verifyCallToFileWithDuplications(file -> request.setParam("key", file.getDbKey()));
   }
 
   @Test
-  public void get_duplications_by_file_id() throws Exception {
+  public void get_duplications_by_file_id() {
     TestRequest request = newBaseRequest();
     verifyCallToFileWithDuplications(file -> request.setParam("uuid", file.uuid()));
   }
@@ -238,7 +238,7 @@ public class ShowActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
+  public void fail_when_using_branch_db_key() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);

@@ -20,8 +20,6 @@
 package org.sonar.scanner.scan.branch;
 
 import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.*;
 

@@ -63,7 +63,7 @@ public class DataUtilsTest {
     assertThat(DataUtils.binarySearch(sortable), is(2));
   }
 
-  class SimpleSortable implements DataUtils.Sortable {
+  static class SimpleSortable implements DataUtils.Sortable {
     private final int[] a;
     private final int size;
 

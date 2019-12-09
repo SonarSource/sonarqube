@@ -53,7 +53,7 @@ public class SumFormulaExecutionTest {
   FormulaExecutorComponentVisitor underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
       .buildFor(Lists.newArrayList(createIntSumFormula(LINES_KEY)));
   }

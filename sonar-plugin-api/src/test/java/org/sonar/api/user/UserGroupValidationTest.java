@@ -30,7 +30,7 @@ public class UserGroupValidationTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void fail_when_group_name_is_Anyone() throws Exception {
+  public void fail_when_group_name_is_Anyone() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Anyone group cannot be used");
 
@@ -38,7 +38,7 @@ public class UserGroupValidationTest {
   }
 
   @Test
-  public void fail_when_group_name_is_empty() throws Exception {
+  public void fail_when_group_name_is_empty() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Group name cannot be empty");
 
@@ -46,7 +46,7 @@ public class UserGroupValidationTest {
   }
 
   @Test
-  public void fail_when_group_name_contains_only_blank() throws Exception {
+  public void fail_when_group_name_contains_only_blank() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Group name cannot be empty");
 
@@ -54,7 +54,7 @@ public class UserGroupValidationTest {
   }
 
   @Test
-  public void fail_when_group_name_is_too_big() throws Exception {
+  public void fail_when_group_name_is_too_big() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Group name cannot be longer than 255 characters");
 
@@ -62,7 +62,7 @@ public class UserGroupValidationTest {
   }
 
   @Test
-  public void fail_when_group_name_is_null() throws Exception {
+  public void fail_when_group_name_is_null() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Group name cannot be empty");
 

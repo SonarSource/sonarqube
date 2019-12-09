@@ -22,11 +22,11 @@ package org.sonar.server.issue.index;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Maps;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -190,7 +190,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
 
     @Override
     protected IssueDoc read(ResultSet rs) throws SQLException {
-      IssueDoc doc = new IssueDoc(Maps.newHashMapWithExpectedSize(30));
+      IssueDoc doc = new IssueDoc(new HashMap<>(30));
 
       String key = rs.getString(1);
 

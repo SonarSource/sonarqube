@@ -264,7 +264,7 @@ public class HealthActionTest {
     assertThat(node.getHealth().name()).isEqualTo(nodeHealth.getStatus().name());
     assertThat(node.getCausesList())
       .extracting(System.Cause::getMessage)
-      .containsOnly(nodeHealth.getCauses().stream().toArray(String[]::new));
+      .containsOnly(nodeHealth.getCauses().toArray(new String[0]));
     assertThat(node.getName()).isEqualTo(nodeHealth.getDetails().getName());
     assertThat(node.getHost()).isEqualTo(nodeHealth.getDetails().getHost());
     assertThat(node.getPort()).isEqualTo(nodeHealth.getDetails().getPort());

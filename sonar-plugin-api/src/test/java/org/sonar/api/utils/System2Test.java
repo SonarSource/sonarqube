@@ -111,7 +111,7 @@ public class System2Test {
       boolean isClosed = false;
 
       @Override
-      public void close() throws IOException {
+      public void close() {
         isClosed = true;
       }
     }
@@ -123,11 +123,8 @@ public class System2Test {
 
   @Test
   public void close_throws_exception_on_error() {
-    Closeable closeable = new Closeable() {
-      @Override
-      public void close() throws IOException {
-        throw new IOException("expected");
-      }
+    Closeable closeable = () -> {
+      throw new IOException("expected");
     };
     try {
       System2.INSTANCE.close(closeable);

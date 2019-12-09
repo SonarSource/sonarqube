@@ -44,9 +44,7 @@ public class BranchConfigurationProviderTest {
   private ProjectBranches branches = mock(ProjectBranches.class);
   private ProjectPullRequests pullRequests = mock(ProjectPullRequests.class);
   private ProjectReactor reactor = mock(ProjectReactor.class);
-  ;
   private Map<String, String> projectSettings = new HashMap<>();
-  ;
   private ProjectDefinition root = mock(ProjectDefinition.class);
 
   @Captor

@@ -140,13 +140,10 @@ public class ProcessEntryPointTest {
     final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, commands, runtime);
     final StandardProcess process = new StandardProcess();
 
-    Thread runner = new Thread() {
-      @Override
-      public void run() {
-        // starts and waits until terminated
-        entryPoint.launch(process);
-      }
-    };
+    Thread runner = new Thread(() -> {
+      // starts and waits until terminated
+      entryPoint.launch(process);
+    });
     runner.start();
 
     waitForOperational(process, commands);

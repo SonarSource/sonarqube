@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.projectpullrequests;
 
-import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;

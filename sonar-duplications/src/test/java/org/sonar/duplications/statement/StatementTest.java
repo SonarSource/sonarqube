@@ -37,7 +37,7 @@ public class StatementTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void shouldNotAcceptEmpty() {
-    new Statement(new ArrayList<Token>());
+    new Statement(new ArrayList<>());
   }
 
   @Test

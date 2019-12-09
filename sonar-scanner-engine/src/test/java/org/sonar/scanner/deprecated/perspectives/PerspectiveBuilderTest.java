@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PerspectiveBuilderTest {
 
   @Test
-  public void testGetPerspectiveClass() throws Exception {
+  public void testGetPerspectiveClass() {
     PerspectiveBuilder<FakePerspective> builder = new PerspectiveBuilder<FakePerspective>(FakePerspective.class) {
       @Override
       public FakePerspective loadPerspective(Class<FakePerspective> perspectiveClass, InputComponent component) {
@@ -39,7 +39,7 @@ public class PerspectiveBuilderTest {
     assertThat(builder.getPerspectiveClass()).isEqualTo(FakePerspective.class);
   }
 
-  static interface FakePerspective extends Perspective {
+  interface FakePerspective extends Perspective {
 
   }
 }

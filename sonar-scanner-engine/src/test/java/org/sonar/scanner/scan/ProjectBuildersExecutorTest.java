@@ -64,7 +64,7 @@ public class ProjectBuildersExecutorTest {
     new ProjectBuildersExecutor(projectBuilders).execute(reactor);
   }
 
-  class MyProjectBuilder extends ProjectBuilder {
+  static class MyProjectBuilder extends ProjectBuilder {
     @Override
     public void build(Context context) {
       throw new IllegalStateException();

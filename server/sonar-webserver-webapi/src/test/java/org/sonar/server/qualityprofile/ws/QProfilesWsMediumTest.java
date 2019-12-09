@@ -101,7 +101,7 @@ public class QProfilesWsMediumTest {
   private WsActionTester wsActivateRules = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSessionRule, qProfileRules, qProfileWsSupport, dbClient));
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     organization = dbTester.organizations().insert();
   }
 
@@ -273,7 +273,7 @@ public class QProfilesWsMediumTest {
   }
 
   @Test
-  public void bulk_activate_rule() throws Exception {
+  public void bulk_activate_rule() {
     QProfileDto profile = createProfile("java");
     createRule(profile.getLanguage(), "toto");
     createRule(profile.getLanguage(), "tata");
@@ -297,7 +297,7 @@ public class QProfilesWsMediumTest {
   }
 
   @Test
-  public void bulk_activate_rule_not_all() throws Exception {
+  public void bulk_activate_rule_not_all() {
     QProfileDto java = createProfile("java");
     QProfileDto php = createProfile("php");
     createRule(java.getLanguage(), "toto");
@@ -386,7 +386,7 @@ public class QProfilesWsMediumTest {
   }
 
   @Test
-  public void does_not_return_warnings_when_bulk_activate_on_profile_and_rules_exist_on_another_language_than_profile() throws Exception {
+  public void does_not_return_warnings_when_bulk_activate_on_profile_and_rules_exist_on_another_language_than_profile() {
     QProfileDto javaProfile = createProfile("java");
     createRule(javaProfile.getLanguage(), "toto");
     createRule(javaProfile.getLanguage(), "tata");

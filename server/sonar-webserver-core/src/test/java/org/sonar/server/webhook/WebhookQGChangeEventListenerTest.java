@@ -107,8 +107,8 @@ public class WebhookQGChangeEventListenerTest {
       .toArray(Metric.Level[]::new);
     Object[][] res = new Object[levelsAndNull.length * levelsAndNull.length][2];
     int i = 0;
-    for (Metric.Level previousStatus : Arrays.asList(levelsAndNull)) {
-      for (Metric.Level newStatus : Arrays.asList(levelsAndNull)) {
+    for (Metric.Level previousStatus : levelsAndNull) {
+      for (Metric.Level newStatus : levelsAndNull) {
         res[i][0] = previousStatus;
         res[i][1] = newStatus;
         i++;

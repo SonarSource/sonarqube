@@ -101,7 +101,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     organization = dbTester.organizations().insert();
     project = dbTester.components().insertMainBranch(organization);
 

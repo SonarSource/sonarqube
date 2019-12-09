@@ -42,7 +42,6 @@ public class AnalysisErrorSensorTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private AnalysisErrorSensor sensor;
-  private SensorContextTester context;
 
   @Before
   public void setUp() {
@@ -74,7 +73,7 @@ public class AnalysisErrorSensorTest {
       .setModuleBaseDir(baseDir)
       .setLines(4)
       .build();
-    context = SensorContextTester.create(baseDir);
+    SensorContextTester context = SensorContextTester.create(baseDir);
     context.fileSystem().add(inputFile);
 
     sensor.execute(context);

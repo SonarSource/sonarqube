@@ -25,15 +25,11 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.OrganizationUpdater;
-import org.sonar.server.organization.OrganizationUpdaterImpl;
-import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -59,13 +55,9 @@ public class UpdateLoginActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private OrganizationUpdater organizationUpdater = new OrganizationUpdaterImpl(db.getDbClient(), mock(System2.class), UuidFactoryFast.getInstance(),
-    new OrganizationValidationImpl(), null, null, null, null);
-
   private WsActionTester ws = new WsActionTester(new UpdateLoginAction(db.getDbClient(), userSession,
     new UserUpdater(system2, mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()),
-      null, null, null, null, null),
-    organizationUpdater));
+      null, null, null, null, null)));
 
   @Test
   public void update_login_from_sonarqube_account_when_user_is_local() {

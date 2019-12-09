@@ -19,10 +19,7 @@
  */
 package org.sonar.scanner.protocol.viewer;
 
-import java.awt.BorderLayout;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.EventQueue;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -34,22 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import javax.annotation.CheckForNull;
-import javax.swing.JEditorPane;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTree;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.*;
+import javax.swing.UIManager.*;
+import javax.swing.event.*;
+import javax.swing.tree.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.util.CloseableIterator;
@@ -443,7 +428,7 @@ public class ScannerReportViewerApp {
     try {
       int index = 0;
       for (Changeset changeset : changesets.getChangesetList()) {
-        scmEditor.getDocument().insertString(scmEditor.getDocument().getEndPosition().getOffset(), Integer.toString(index) + "\n", null);
+        scmEditor.getDocument().insertString(scmEditor.getDocument().getEndPosition().getOffset(), index + "\n", null);
         scmEditor.getDocument().insertString(scmEditor.getDocument().getEndPosition().getOffset(), changeset + "\n", null);
         index++;
       }
@@ -451,7 +436,7 @@ public class ScannerReportViewerApp {
       scmEditor.getDocument().insertString(scmEditor.getDocument().getEndPosition().getOffset(), "\n", null);
       int line = 1;
       for (Integer idx : changesetIndexByLine) {
-        scmEditor.getDocument().insertString(scmEditor.getDocument().getEndPosition().getOffset(), Integer.toString(line) + ": " + idx + "\n", null);
+        scmEditor.getDocument().insertString(scmEditor.getDocument().getEndPosition().getOffset(), line + ": " + idx + "\n", null);
         line++;
       }
 
@@ -598,7 +583,7 @@ public class ScannerReportViewerApp {
 
     significantCodeTab = new JScrollPane();
     tabbedPane.addTab("Significant Code Ranges", null, significantCodeTab, null);
-    
+
     significantCodeEditor = new JEditorPane();
     significantCodeTab.setViewportView(significantCodeEditor);
 

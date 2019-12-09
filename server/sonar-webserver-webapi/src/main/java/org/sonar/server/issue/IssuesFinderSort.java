@@ -84,12 +84,7 @@ class IssuesFinderSort {
   abstract static class TextSortIssueProcessor implements IssueProcessor {
     @Override
     public Function sortFieldFunction() {
-      return new Function<IssueDto, String>() {
-        @Override
-        public String apply(IssueDto issueDto) {
-          return sortField(issueDto);
-        }
-      };
+      return (Function<IssueDto, String>) this::sortField;
     }
 
     abstract String sortField(IssueDto issueDto);
@@ -130,12 +125,7 @@ class IssuesFinderSort {
   abstract static class DateSortRowProcessor implements IssueProcessor {
     @Override
     public Function sortFieldFunction() {
-      return new Function<IssueDto, Date>() {
-        @Override
-        public Date apply(IssueDto issueDto) {
-          return sortField(issueDto);
-        }
-      };
+      return (Function<IssueDto, Date>) this::sortField;
     }
 
     abstract Date sortField(IssueDto issueDto);

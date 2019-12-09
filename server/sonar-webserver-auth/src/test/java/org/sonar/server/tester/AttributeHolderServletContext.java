@@ -19,12 +19,12 @@
  */
 package org.sonar.server.tester;
 
-import com.google.common.collect.Maps;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.EventListener;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.Filter;
@@ -167,7 +167,7 @@ class AttributeHolderServletContext implements ServletContext {
     return Collections.enumeration(this.attributes.keySet());
   }
 
-  private final Map<String, Object> attributes = Maps.newHashMap();
+  private final Map<String, Object> attributes = new HashMap<>();
 
   @Override
   public void setAttribute(String s, Object o) {

@@ -65,7 +65,7 @@ public class BaseContextFactoryTest {
   private BaseContextFactory underTest = new BaseContextFactory(userIdentityAuthenticator, server, jwtHttpHandler, threadLocalUserSession, userSessionFactory);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(server.getPublicRootUrl()).thenReturn(PUBLIC_ROOT_URL);
     when(identityProvider.getName()).thenReturn("GitHub");
     when(identityProvider.getKey()).thenReturn("github");

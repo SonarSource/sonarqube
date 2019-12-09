@@ -59,7 +59,6 @@ public class AssignActionTest {
 
   private IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), "user_uuid");
   private DefaultIssue issue = new DefaultIssue().setKey("ABC").setAssigneeUuid(ISSUE_CURRENT_ASSIGNEE_UUID);
-  private ComponentDto project;
   private Action.Context context;
   private OrganizationDto issueOrganizationDto;
 
@@ -68,7 +67,7 @@ public class AssignActionTest {
   @Before
   public void setUp() throws Exception {
     issueOrganizationDto = db.organizations().insert();
-    project = db.components().insertPrivateProject(issueOrganizationDto);
+    ComponentDto project = db.components().insertPrivateProject(issueOrganizationDto);
     context = new ActionContext(issue, issueChangeContext, project);
   }
 

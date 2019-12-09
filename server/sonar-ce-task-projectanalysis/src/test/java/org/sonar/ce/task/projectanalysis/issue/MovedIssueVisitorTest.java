@@ -60,7 +60,7 @@ public class MovedIssueVisitorTest {
   private MovedIssueVisitor underTest = new MovedIssueVisitor(analysisMetadataHolder, movedFilesRepository, new IssueFieldsSetter());
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     analysisMetadataHolder.setAnalysisDate(ANALYSIS_DATE);
     when(movedFilesRepository.getOriginalFile(any(Component.class)))
       .thenReturn(Optional.absent());

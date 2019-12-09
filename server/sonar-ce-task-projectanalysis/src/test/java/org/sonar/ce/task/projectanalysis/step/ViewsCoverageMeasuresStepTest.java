@@ -65,7 +65,7 @@ public class ViewsCoverageMeasuresStepTest {
   CoverageMeasuresStep underTest = new CoverageMeasuresStep(treeRootHolder, metricRepository, measureRepository);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     treeRootHolder.setRoot(
       builder(VIEW, ROOT_REF)
         .addChildren(

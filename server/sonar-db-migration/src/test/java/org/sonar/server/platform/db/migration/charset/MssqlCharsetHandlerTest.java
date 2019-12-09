@@ -152,7 +152,7 @@ public class MssqlCharsetHandlerTest {
         });
       }
     }
-    return res.stream().toArray(Object[][]::new);
+    return res.toArray(new Object[0][]);
   }
 
   @Test

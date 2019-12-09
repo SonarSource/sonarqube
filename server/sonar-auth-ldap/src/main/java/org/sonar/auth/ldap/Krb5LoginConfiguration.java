@@ -32,7 +32,7 @@ public class Krb5LoginConfiguration extends Configuration {
   static {
     String loginModule = "com.sun.security.auth.module.Krb5LoginModule";
     AppConfigurationEntry.LoginModuleControlFlag flag = AppConfigurationEntry.LoginModuleControlFlag.REQUIRED;
-    CONFIG_LIST[0] = new AppConfigurationEntry(loginModule, flag, new HashMap<String, Object>());
+    CONFIG_LIST[0] = new AppConfigurationEntry(loginModule, flag, new HashMap<>());
   }
 
   /**

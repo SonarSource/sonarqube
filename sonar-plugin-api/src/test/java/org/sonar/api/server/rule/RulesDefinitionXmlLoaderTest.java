@@ -21,7 +21,6 @@ package org.sonar.api.server.rule;
 
 import java.io.InputStream;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -103,7 +102,7 @@ public class RulesDefinitionXmlLoaderTest {
   }
 
   @Test
-  public void test_utf8_encoding() throws UnsupportedEncodingException {
+  public void test_utf8_encoding() {
     InputStream input = getClass().getResourceAsStream("RulesDefinitionXmlLoaderTest/utf8.xml");
     RulesDefinition.Repository repository = load(input, StandardCharsets.UTF_8.name());
 
@@ -132,7 +131,7 @@ public class RulesDefinitionXmlLoaderTest {
   }
 
   @Test
-  public void test_linear_remediation_function() throws Exception {
+  public void test_linear_remediation_function() {
     String xml = "" +
       "<rules>" +
       "  <rule>" +

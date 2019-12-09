@@ -281,7 +281,7 @@ public class CeProcessingSchedulerImplTest {
     processingExecutorService.runFutures();
   }
 
-  private class TestCeWorkerFactory implements CeWorkerFactory {
+  private static class TestCeWorkerFactory implements CeWorkerFactory {
     private final Iterator<CeWorker> ceWorkers;
 
     private TestCeWorkerFactory(CeWorker... ceWorkers) {

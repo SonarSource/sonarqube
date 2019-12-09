@@ -30,7 +30,7 @@ import static org.junit.Assert.fail;
 
 public class UserQueryTest {
   @Test
-  public void test_all_actives() throws Exception {
+  public void test_all_actives() {
     assertThat(UserQuery.ALL_ACTIVES.includeDeactivated()).isFalse();
     assertThat(UserQuery.ALL_ACTIVES.logins()).isNull();
     assertThat(UserQuery.ALL_ACTIVES.searchText()).isNull();
@@ -38,14 +38,14 @@ public class UserQueryTest {
   }
 
   @Test
-  public void test_all() throws Exception {
+  public void test_all() {
     UserQuery all = UserQuery.builder().includeDeactivated().build();
     assertThat(all.includeDeactivated()).isTrue();
     assertThat(all.logins()).isNull();
   }
 
   @Test
-  public void test_logins() throws Exception {
+  public void test_logins() {
     UserQuery query = UserQuery.builder().logins("simon", "loic").build();
     assertThat(query.includeDeactivated()).isFalse();
     assertThat(query.logins()).containsOnly("simon", "loic");

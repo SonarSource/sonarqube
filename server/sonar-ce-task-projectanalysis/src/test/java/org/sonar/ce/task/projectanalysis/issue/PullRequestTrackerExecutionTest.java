@@ -66,7 +66,7 @@ public class PullRequestTrackerExecutionTest {
   private List<DefaultIssue> baseIssues = new ArrayList<>();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(rawFactory.create(FILE)).thenReturn(createInput(rawIssues));
     when(baseFactory.create(FILE)).thenReturn(createInput(baseIssues));
 

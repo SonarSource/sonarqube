@@ -21,7 +21,6 @@ package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -224,7 +223,7 @@ public class RegisterRules implements Startable {
         RuleDefinitionDto rule = dbRulesByRuleId.get(ruleId);
         if (rule == null) {
           LOG.warn("Could not retrieve rule with id %s referenced by a deprecated rule key. " +
-            "The following deprecated rule keys seem to be referencing a non-existing rule",
+              "The following deprecated rule keys seem to be referencing a non-existing rule",
             ruleId, entry.getValue());
         } else {
           entry.getValue().forEach(d -> builder.put(d.getOldRuleKeyAsRuleKey(), rule));
@@ -537,7 +536,7 @@ public class RegisterRules implements Startable {
 
   private void mergeParams(RulesDefinition.Rule ruleDef, RuleDefinitionDto rule, DbSession session) {
     List<RuleParamDto> paramDtos = dbClient.ruleDao().selectRuleParamsByRuleKey(session, rule.getKey());
-    Map<String, RuleParamDto> existingParamsByName = Maps.newHashMap();
+    Map<String, RuleParamDto> existingParamsByName = new HashMap<>();
 
     Profiler profiler = Profiler.create(Loggers.get(getClass()));
     for (RuleParamDto paramDto : paramDtos) {

@@ -95,7 +95,7 @@ public class InputComponentStoreTest {
   }
 
   static class InputComponentStoreTester extends InputComponentStore {
-    InputComponentStoreTester() throws IOException {
+    InputComponentStoreTester() {
       super(mock(BranchConfiguration.class));
     }
 

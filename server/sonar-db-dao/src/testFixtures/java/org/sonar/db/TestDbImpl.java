@@ -89,7 +89,7 @@ class TestDbImpl extends CoreTestDb {
     MyBatisConfExtension[] extensionArray = confExtensions.length == 0 ? null : confExtensions;
     if (schemaPath == null) {
       if (defaultSchemaBaseTestDb == null) {
-        defaultSchemaBaseTestDb = new TestDbImpl((String) null);
+        defaultSchemaBaseTestDb = new TestDbImpl(null);
       }
       if (extensionArray != null) {
         return defaultSchemaTestDbsWithExtensions.computeIfAbsent(

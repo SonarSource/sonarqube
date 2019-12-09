@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.db.migration.step;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Random;
 import org.junit.Rule;
@@ -109,7 +108,7 @@ public class MigrationStepRegistryImplTest {
 
   private static abstract class NoopMigrationStep implements MigrationStep {
     @Override
-    public void execute() throws SQLException {
+    public void execute() {
       throw new IllegalStateException("execute is not implemented");
     }
   }

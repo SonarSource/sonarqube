@@ -66,6 +66,6 @@ public class AlwaysIncreasingSystem2 extends System2 {
   }
 
   private static long randomInitialValue() {
-    return (long) Math.abs(new Random().nextInt(2_000_000));
+    return Math.abs(new Random().nextInt(2_000_000));
   }
 }

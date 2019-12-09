@@ -101,7 +101,7 @@ public class DefaultProjectRepositoriesLoaderTest {
   }
 
   @Test
-  public void deserializeResponse() throws IOException {
+  public void deserializeResponse() {
     loader.load(PROJECT_KEY, null);
   }
 

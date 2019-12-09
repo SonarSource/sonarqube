@@ -152,7 +152,6 @@ public class IntegrateIssuesVisitorTest {
     tracker = new TrackerExecution(baseInputFactory, rawInputFactory, closedIssuesInputFactory, new Tracker<>(), issuesLoader, analysisMetadataHolder);
     prBranchTracker = new PullRequestTrackerExecution(baseInputFactory, rawInputFactory, new Tracker<>(), newLinesRepository);
     mergeBranchTracker = new ReferenceBranchTrackerExecution(rawInputFactory, mergeInputFactory, new Tracker<>());
-
     trackingDelegator = new IssueTrackingDelegator(prBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
     treeRootHolder.setRoot(PROJECT);
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);

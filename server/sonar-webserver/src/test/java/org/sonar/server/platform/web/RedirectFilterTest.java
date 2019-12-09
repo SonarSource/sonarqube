@@ -44,7 +44,7 @@ public class RedirectFilterTest {
   private RedirectFilter underTest = new RedirectFilter();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(request.getContextPath()).thenReturn("/sonarqube");
   }
 

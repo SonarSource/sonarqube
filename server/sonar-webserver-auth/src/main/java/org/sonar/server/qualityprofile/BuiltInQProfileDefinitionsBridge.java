@@ -73,7 +73,7 @@ public class BuiltInQProfileDefinitionsBridge implements BuiltInQualityProfilesD
 
   private static void define(Context context, RulesProfile profile) {
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile(profile.getName(), profile.getLanguage())
-      .setDefault(profile.getDefaultProfile().booleanValue());
+      .setDefault(profile.getDefaultProfile());
 
     for (org.sonar.api.rules.ActiveRule ar : profile.getActiveRules()) {
       NewBuiltInActiveRule newActiveRule = newQp.activateRule(ar.getRepositoryKey(), ar.getRuleKey());

@@ -116,7 +116,7 @@ public class HttpHeadersAuthenticationTest {
   private HttpHeadersAuthentication underTest = new HttpHeadersAuthentication(system2, settings.asConfig(), userIdentityAuthenticator, jwtHttpHandler, authenticationEvent);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(system2.now()).thenReturn(NOW);
     group1 = db.users().insertGroup(db.getDefaultOrganization(), GROUP1);
     group2 = db.users().insertGroup(db.getDefaultOrganization(), GROUP2);
@@ -414,7 +414,7 @@ public class HttpHeadersAuthenticationTest {
   }
 
   private static void setHeaders(HttpServletRequest request, Map<String, String> valuesByName) {
-    valuesByName.entrySet().forEach(entry -> when(request.getHeader(entry.getKey())).thenReturn(entry.getValue()));
+    valuesByName.forEach((key, value) -> when(request.getHeader(key)).thenReturn(value));
     when(request.getHeaderNames()).thenReturn(Collections.enumeration(valuesByName.keySet()));
   }
 

@@ -53,8 +53,7 @@ public class ScannerPluginJarExploder extends PluginJarExploder {
     File destDir = new File(cachedFile.getParentFile(), filename + "_unzip");
     File lockFile = new File(cachedFile.getParentFile(), filename + "_unzip.lock");
     if (!destDir.exists()) {
-      FileOutputStream out = new FileOutputStream(lockFile);
-      try {
+      try (FileOutputStream out = new FileOutputStream(lockFile)) {
         java.nio.channels.FileLock lock = out.getChannel().lock();
         try {
           // Recheck in case of concurrent processes
@@ -67,7 +66,6 @@ public class ScannerPluginJarExploder extends PluginJarExploder {
           lock.release();
         }
       } finally {
-        out.close();
         deleteQuietly(lockFile);
       }
     }

@@ -178,7 +178,7 @@ public class WorkDurationTest {
   }
 
   @Test
-  public void test_equals_and_hashcode() throws Exception {
+  public void test_equals_and_hashcode() {
     WorkDuration duration = WorkDuration.createFromLong(28800, HOURS_IN_DAY);
     WorkDuration durationWithSameValue = WorkDuration.createFromLong(28800, HOURS_IN_DAY);
     WorkDuration durationWithDifferentValue = WorkDuration.createFromLong(14400, HOURS_IN_DAY);
@@ -194,7 +194,7 @@ public class WorkDurationTest {
   }
 
   @Test
-  public void test_toString() throws Exception {
+  public void test_toString() {
     assertThat(WorkDuration.createFromLong(28800, HOURS_IN_DAY).toString()).isNotNull();
   }
 }

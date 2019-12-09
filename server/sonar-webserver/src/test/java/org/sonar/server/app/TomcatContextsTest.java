@@ -61,7 +61,7 @@ public class TomcatContextsTest {
   }
 
   @Test
-  public void configure_root_webapp() throws Exception {
+  public void configure_root_webapp() {
     props.setProperty("foo", "bar");
     StandardContext context = mock(StandardContext.class);
     when(tomcat.addWebapp(anyString(), anyString())).thenReturn(context);

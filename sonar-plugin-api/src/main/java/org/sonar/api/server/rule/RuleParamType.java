@@ -64,7 +64,7 @@ public final class RuleParamType {
     if (multiple) {
       sb.append(OPTION_SEPARATOR);
       sb.append(MULTIPLE_PARAM + PARAMETER_SEPARATOR);
-      sb.append(Boolean.toString(multiple));
+      sb.append(multiple);
     }
     if (values.length > 0) {
       sb.append(OPTION_SEPARATOR);

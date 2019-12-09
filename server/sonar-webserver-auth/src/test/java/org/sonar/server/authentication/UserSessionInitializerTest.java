@@ -64,7 +64,7 @@ public class UserSessionInitializerTest {
   private UserSessionInitializer underTest = new UserSessionInitializer(settings.asConfig(), threadLocalSession, authenticationEvent, authenticator);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(request.getContextPath()).thenReturn("");
     when(request.getRequestURI()).thenReturn("/measures");
   }

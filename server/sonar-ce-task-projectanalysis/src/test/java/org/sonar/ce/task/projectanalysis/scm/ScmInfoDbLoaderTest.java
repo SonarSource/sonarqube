@@ -43,7 +43,6 @@ import org.sonar.db.source.FileSourceDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.log.LoggerLevel.TRACE;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;

@@ -21,10 +21,10 @@ package org.sonar.db.user;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multiset;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.session.RowBounds;
@@ -56,7 +56,7 @@ public class GroupMembershipDao implements Dao {
   }
 
   public Map<String, Integer> countUsersByGroups(DbSession session, Collection<Integer> groupIds) {
-    Map<String, Integer> result = Maps.newHashMap();
+    Map<String, Integer> result = new HashMap<>();
     executeLargeInputs(
       groupIds,
       input -> {

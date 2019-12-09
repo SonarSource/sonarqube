@@ -20,7 +20,6 @@
 package org.sonar.scanner.scan.filesystem;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 import org.junit.Before;
 import org.junit.Rule;
@@ -49,12 +48,12 @@ public class LanguageDetectionTest {
   private MapSettings settings;
 
   @Before
-  public void setUp() throws IOException {
+  public void setUp() {
     settings = new MapSettings();
   }
 
   @Test
-  public void test_sanitizeExtension() throws Exception {
+  public void test_sanitizeExtension() {
     assertThat(LanguageDetection.sanitizeExtension(".cbl")).isEqualTo("cbl");
     assertThat(LanguageDetection.sanitizeExtension(".CBL")).isEqualTo("cbl");
     assertThat(LanguageDetection.sanitizeExtension("CBL")).isEqualTo("cbl");
@@ -62,7 +61,7 @@ public class LanguageDetectionTest {
   }
 
   @Test
-  public void search_by_file_extension() throws Exception {
+  public void search_by_file_extension() {
     LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("java", "java", "jav"), new MockLanguage("cobol", "cbl", "cob")));
     LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
 
@@ -80,13 +79,13 @@ public class LanguageDetectionTest {
   }
 
   @Test
-  public void should_not_fail_if_no_language() throws Exception {
+  public void should_not_fail_if_no_language() {
     LanguageDetection detection = spy(new LanguageDetection(settings.asConfig(), new DefaultLanguagesRepository(new Languages())));
     assertThat(detectLanguage(detection, "Foo.java")).isNull();
   }
 
   @Test
-  public void plugin_can_declare_a_file_extension_twice_for_case_sensitivity() throws Exception {
+  public void plugin_can_declare_a_file_extension_twice_for_case_sensitivity() {
     LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("abap", "abap", "ABAP")));
 
     LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
@@ -94,7 +93,7 @@ public class LanguageDetectionTest {
   }
 
   @Test
-  public void fail_if_conflicting_language_suffix() throws Exception {
+  public void fail_if_conflicting_language_suffix() {
     LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("xml", "xhtml"), new MockLanguage("web", "xhtml")));
     LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
     try {
@@ -109,7 +108,7 @@ public class LanguageDetectionTest {
   }
 
   @Test
-  public void solve_conflict_using_filepattern() throws Exception {
+  public void solve_conflict_using_filepattern() {
     LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("xml", "xhtml"), new MockLanguage("web", "xhtml")));
 
     settings.setProperty("sonar.lang.patterns.xml", "xml/**");
@@ -120,7 +119,7 @@ public class LanguageDetectionTest {
   }
 
   @Test
-  public void fail_if_conflicting_filepattern() throws Exception {
+  public void fail_if_conflicting_filepattern() {
     LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("abap", "abap"), new MockLanguage("cobol", "cobol")));
     settings.setProperty("sonar.lang.patterns.abap", "*.abap,*.txt");
     settings.setProperty("sonar.lang.patterns.cobol", "*.cobol,*.txt");

@@ -196,7 +196,7 @@ public class ComponentIssuesLoader {
         i.addComment(c.toComment());
         break;
       default:
-        throw new IllegalStateException("Unknow change type: " + c.getChangeType());
+        throw new IllegalStateException("Unknown change type: " + c.getChangeType());
     }
   }
 

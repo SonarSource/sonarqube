@@ -20,7 +20,6 @@
 package org.sonar.duplications.internal.pmd;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -42,7 +41,7 @@ public class TokenizerBridgeTest {
   @Before
   public void setUp() {
     Tokenizer tokenizer = new Tokenizer() {
-      public void tokenize(SourceCode tokens, Tokens tokenEntries) throws IOException {
+      public void tokenize(SourceCode tokens, Tokens tokenEntries) {
         tokenEntries.add(new TokenEntry("t1", "src", 1));
         tokenEntries.add(new TokenEntry("t2", "src", 1));
         tokenEntries.add(new TokenEntry("t3", "src", 2));

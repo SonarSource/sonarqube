@@ -69,6 +69,6 @@ public class ProgressLoggerTest {
   }
 
   private boolean hasInfoLog(String expectedLog) {
-    return logTester.logs(LoggerLevel.INFO).stream().filter(s -> s.startsWith(expectedLog)).findFirst().isPresent();
+    return logTester.logs(LoggerLevel.INFO).stream().anyMatch(s -> s.startsWith(expectedLog));
   }
 }

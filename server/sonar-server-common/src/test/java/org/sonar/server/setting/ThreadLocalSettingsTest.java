@@ -375,7 +375,7 @@ public class ThreadLocalSettingsTest {
     captor.verifyValue(settings, expectedValue);
   }
 
-  private class CacheCaptorThread extends Thread {
+  private static class CacheCaptorThread extends Thread {
     private final CountDownLatch latch = new CountDownLatch(1);
     private ThreadLocalSettings settings;
     private String value;

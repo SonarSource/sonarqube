@@ -64,7 +64,7 @@ public class ComponentKeyUpdaterDaoTest {
     dbSession.commit();
 
     assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from projects"))
-      .extracting(t -> (String) t.get("UUID"), t -> (String) t.get("KEE"))
+      .extracting(t -> t.get("UUID"), t -> t.get("KEE"))
       .containsOnly(
         Tuple.tuple("A", "org.struts:struts"),
         Tuple.tuple("B", "struts:core"),
@@ -278,7 +278,7 @@ public class ComponentKeyUpdaterDaoTest {
     dbSession.commit();
 
     assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from projects"))
-      .extracting(t -> (String) t.get("UUID"), t -> (String) t.get("KEE"))
+      .extracting(t -> t.get("UUID"), t -> t.get("KEE"))
       .containsOnly(
         Tuple.tuple("A", "org.apache.struts:struts"),
         Tuple.tuple("B", "org.apache.struts:struts-core"),
@@ -298,7 +298,7 @@ public class ComponentKeyUpdaterDaoTest {
     dbSession.commit();
 
     assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from projects"))
-      .extracting(t -> (String) t.get("UUID"), t -> (String) t.get("KEE"))
+      .extracting(t -> t.get("UUID"), t -> t.get("KEE"))
       .containsOnly(
         Tuple.tuple("A", "org.struts:struts"),
         Tuple.tuple("B", "org.struts:struts-core"),
@@ -337,7 +337,7 @@ public class ComponentKeyUpdaterDaoTest {
     dbSession.commit();
 
     assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from projects"))
-      .extracting(t -> (String) t.get("UUID"), t -> (String) t.get("KEE"))
+      .extracting(t -> t.get("UUID"), t -> t.get("KEE"))
       .containsOnly(
         Tuple.tuple("A", "org.apache.struts:struts"),
         Tuple.tuple("B", "org.apache.struts:struts-core"),

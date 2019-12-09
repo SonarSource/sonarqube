@@ -146,8 +146,7 @@ public class DeactivateAction implements UsersWsAction {
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
         json.name("user");
-        Set<String> groups = new HashSet<>();
-        groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
+        Set<String> groups = new HashSet<>(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
         userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
         json.endObject();
       }

@@ -94,7 +94,7 @@ public class LiveMeasureComputerImplTest {
   private EvaluatedQualityGate newQualityGate = mock(EvaluatedQualityGate.class);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     intMetric = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.INT.name()));
     ratingMetric = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.RATING.name()));
     alertStatusMetric = db.measures().insertMetric(m -> m.setKey(CoreMetrics.ALERT_STATUS_KEY));
@@ -452,7 +452,7 @@ public class LiveMeasureComputerImplTest {
     Metric metric = new Metric.Builder(intMetric.getKey(), intMetric.getShortName(), Metric.ValueType.valueOf(intMetric.getValueType())).create();
     AtomicInteger counter = new AtomicInteger();
     return new IssueMetricFormula(metric, false, (ctx, issues) -> {
-      ctx.setValue((double) counter.incrementAndGet());
+      ctx.setValue(counter.incrementAndGet());
     });
   }
 

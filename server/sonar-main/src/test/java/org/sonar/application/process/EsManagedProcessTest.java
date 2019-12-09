@@ -125,7 +125,7 @@ public class EsManagedProcessTest {
       );
   }
 
-  private class MemoryAppender<E> extends AppenderBase<E> {
+  private static class MemoryAppender<E> extends AppenderBase<E> {
     private final List<E> events = new ArrayList();
 
     @Override

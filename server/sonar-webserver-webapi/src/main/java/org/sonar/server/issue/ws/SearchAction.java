@@ -258,7 +258,7 @@ public class SearchAction implements IssuesWsAction, Startable {
     action.createParam(PARAM_TYPES)
       .setDescription("Comma-separated list of types.")
       .setSince("5.5")
-      .setPossibleValues((Object[]) RuleType.values())
+      .setPossibleValues(RuleType.values())
       .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
     action.createParam(PARAM_OWASP_TOP_10)
       .setDescription("Comma-separated list of OWASP Top 10 lowercase categories.")

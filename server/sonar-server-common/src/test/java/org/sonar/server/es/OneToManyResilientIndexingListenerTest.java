@@ -112,7 +112,7 @@ public class OneToManyResilientIndexingListenerTest {
     try (DbSession otherSession = db.getDbClient().openSession(false)) {
       List<String> uuidsInDb = db.getDbClient().esQueueDao().selectForRecovery(otherSession, Long.MAX_VALUE, 10)
         .stream().map(EsQueueDto::getUuid).collect(toList());
-      String expectedUuids[] = Arrays.stream(expected).map(EsQueueDto::getUuid).toArray(String[]::new);
+      String[] expectedUuids = Arrays.stream(expected).map(EsQueueDto::getUuid).toArray(String[]::new);
       assertThat(uuidsInDb).containsExactlyInAnyOrder(expectedUuids);
     }
   }

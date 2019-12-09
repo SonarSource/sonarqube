@@ -64,7 +64,7 @@ public class ScoreMatrixDumperImplTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     FileUtils.listFiles(tempDir.toFile(), new AbstractFileFilter() {
       @Override
       public boolean accept(File file) {
@@ -119,7 +119,7 @@ public class ScoreMatrixDumperImplTest {
     };
   }
 
-  private static Collection<File> listDumpFilesForTaskUuid(String taskUuid) throws IOException {
+  private static Collection<File> listDumpFilesForTaskUuid(String taskUuid) {
     return FileUtils.listFiles(tempDir.toFile(), new AbstractFileFilter() {
       @Override
       public boolean accept(File file) {

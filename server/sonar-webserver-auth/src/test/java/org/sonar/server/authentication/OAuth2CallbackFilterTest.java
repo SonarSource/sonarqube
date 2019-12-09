@@ -78,7 +78,7 @@ public class OAuth2CallbackFilterTest {
     threadLocalUserSession);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(oAuth2ContextFactory.newCallback(request, response, oAuth2IdentityProvider)).thenReturn(mock(OAuth2IdentityProvider.CallbackContext.class));
     when(request.getContextPath()).thenReturn("");
   }

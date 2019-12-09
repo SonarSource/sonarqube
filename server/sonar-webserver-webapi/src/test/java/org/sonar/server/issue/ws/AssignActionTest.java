@@ -265,13 +265,12 @@ public class AssignActionTest {
   }
 
   private IssueDto newIssue(String assignee) {
-    IssueDto issue = db.issues().insertIssue(
+    return db.issues().insertIssue(
       issueDto -> issueDto
         .setAssigneeUuid(assignee)
         .setCreatedAt(PAST).setIssueCreationTime(PAST)
         .setUpdatedAt(PAST).setIssueUpdateTime(PAST)
         .setType(CODE_SMELL));
-    return issue;
   }
 
   private IssueDto newIssueWithBrowsePermission() {

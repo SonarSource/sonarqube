@@ -138,7 +138,7 @@ public class RegisterQualityProfilesNotificationTest {
 
     ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
     verify(builtInQualityProfilesNotification).onChange(captor.capture(), anyLong(), anyLong());
-    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
+    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.getValue();
     assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
       .containsExactlyInAnyOrder(tuple(dbProfile.getName(), dbProfile.getLanguage()));
@@ -160,7 +160,7 @@ public class RegisterQualityProfilesNotificationTest {
 
     ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
     verify(builtInQualityProfilesNotification).onChange(captor.capture(), anyLong(), anyLong());
-    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
+    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.getValue();
     assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
       .containsExactlyInAnyOrder(tuple(dbProfile.getName(), dbProfile.getLanguage()));
@@ -190,7 +190,7 @@ public class RegisterQualityProfilesNotificationTest {
 
     ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
     verify(builtInQualityProfilesNotification).onChange(captor.capture(), anyLong(), anyLong());
-    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
+    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.getValue();
     assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
       .containsExactlyInAnyOrder(
@@ -218,7 +218,7 @@ public class RegisterQualityProfilesNotificationTest {
 
     ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
     verify(builtInQualityProfilesNotification).onChange(captor.capture(), anyLong(), anyLong());
-    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
+    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.getValue();
     assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
       .containsExactlyInAnyOrder(tuple(builtInQProfileDto.getName(), builtInQProfileDto.getLanguage()));
@@ -245,7 +245,7 @@ public class RegisterQualityProfilesNotificationTest {
 
     ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
     verify(builtInQualityProfilesNotification).onChange(captor.capture(), anyLong(), anyLong());
-    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
+    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.getValue();
     assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
       .containsExactlyInAnyOrder(tuple(builtInProfile.getName(), builtInProfile.getLanguage()));
@@ -275,7 +275,7 @@ public class RegisterQualityProfilesNotificationTest {
 
     ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
     verify(builtInQualityProfilesNotification).onChange(captor.capture(), anyLong(), anyLong());
-    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
+    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.getValue();
     assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
       .containsExactlyInAnyOrder(tuple(builtInQProfileDto.getName(), builtInQProfileDto.getLanguage()));

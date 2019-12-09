@@ -21,6 +21,7 @@ package org.sonar.api.server.rule.internal;
 
 import org.junit.Test;
 import org.sonar.api.impl.server.RulesDefinitionContext;
+import org.sonar.api.server.rule.RulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,7 +42,7 @@ public class DefaultRepositoryTest {
     assertThat(repo.language()).isEqualTo("lang");
     assertThat(repo.isExternal()).isFalse();
     assertThat(repo.name()).isEqualTo("name");
-    assertThat(repo.rules()).extracting(r -> r.key()).containsOnly("rule1");
+    assertThat(repo.rules()).extracting(RulesDefinition.Rule::key).containsOnly("rule1");
 
   }
 }

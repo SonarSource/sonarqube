@@ -58,7 +58,7 @@ public class TransitionServiceTest {
   private TransitionService underTest = new TransitionService(userSession, workflow);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     workflow.start();
   }
 

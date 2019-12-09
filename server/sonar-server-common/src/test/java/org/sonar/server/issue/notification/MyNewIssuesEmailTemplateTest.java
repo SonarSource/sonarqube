@@ -53,7 +53,7 @@ public class MyNewIssuesEmailTemplateTest {
   private MyNewIssuesEmailTemplate underTest = new MyNewIssuesEmailTemplate(new EmailSettings(settings.asConfig(), server), i18n);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(server.getPublicRootUrl()).thenReturn("http://nemo.sonarsource.org");
   }
 

@@ -228,8 +228,7 @@ public class ComponentServiceUpdateKeyTest {
   }
 
   private ComponentDto insertProject(String key) {
-    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey(key));
-    return project;
+    return componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey(key));
   }
 
   private void assertComponentKeyHasBeenUpdated(String oldKey, String newKey) {

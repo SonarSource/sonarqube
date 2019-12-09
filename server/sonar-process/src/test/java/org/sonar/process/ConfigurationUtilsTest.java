@@ -19,16 +19,16 @@
  */
 package org.sonar.process;
 
-import com.google.common.collect.Maps;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.test.TestUtils;
-
-import java.io.File;
-import java.util.Map;
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -44,7 +44,7 @@ public class ConfigurationUtilsTest {
     input.setProperty("hello", "world");
     input.setProperty("url", "${env:SONAR_JDBC_URL}");
     input.setProperty("do_not_change", "${SONAR_JDBC_URL}");
-    Map<String, String> variables = Maps.newHashMap();
+    Map<String, String> variables = new HashMap<>();
     variables.put("SONAR_JDBC_URL", "jdbc:h2:mem");
 
     Properties output = ConfigurationUtils.interpolateVariables(input, variables);
@@ -74,7 +74,7 @@ public class ConfigurationUtilsTest {
   @Test
   public void loadPropsFromCommandLineArgs_load_properties_from_file() throws Exception {
     File propsFile = temp.newFile();
-    FileUtils.write(propsFile, "foo=bar");
+    FileUtils.write(propsFile, "foo=bar", StandardCharsets.UTF_8);
 
     Props result = ConfigurationUtils.loadPropsFromCommandLineArgs(new String[] {propsFile.getAbsolutePath()});
     assertThat(result.value("foo")).isEqualTo("bar");
@@ -87,7 +87,7 @@ public class ConfigurationUtilsTest {
     FileUtils.deleteQuietly(propsFile);
 
     try {
-      ConfigurationUtils.loadPropsFromCommandLineArgs(new String[]{propsFile.getAbsolutePath()});
+      ConfigurationUtils.loadPropsFromCommandLineArgs(new String[] {propsFile.getAbsolutePath()});
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Could not read properties from file: " + propsFile.getAbsolutePath());

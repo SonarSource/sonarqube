@@ -70,7 +70,7 @@ public class UserUpdaterReactivateTest {
   private MapSettings settings = new MapSettings();
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
   private UserUpdater underTest = new UserUpdater(system2, newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider,
-    new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);;
+    new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
 
   @Test
   public void reactivate_user() {

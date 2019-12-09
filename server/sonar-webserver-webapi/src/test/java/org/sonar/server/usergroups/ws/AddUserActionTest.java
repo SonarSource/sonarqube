@@ -210,7 +210,7 @@ public class AddUserActionTest {
   }
 
   @Test
-  public void fail_if_not_administrator() throws Exception {
+  public void fail_if_not_administrator() {
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
     db.organizations().addMember(db.getDefaultOrganization(), user);

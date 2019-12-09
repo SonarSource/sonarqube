@@ -19,8 +19,8 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.collect.Maps;
 import java.util.Date;
+import java.util.HashMap;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -54,7 +54,7 @@ public class IssueDocTesting {
   }
 
   public static IssueDoc newDoc() {
-    IssueDoc doc = new IssueDoc(Maps.newHashMap());
+    IssueDoc doc = new IssueDoc(new HashMap<>());
     doc.setKey(Uuids.createFast());
     doc.setRuleId(nextInt(1000));
     doc.setType(RuleType.CODE_SMELL);

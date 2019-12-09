@@ -39,7 +39,7 @@ public class BuiltInQPChangeNotificationTemplateTest {
   private BuiltInQPChangeNotificationTemplate underTest = new BuiltInQPChangeNotificationTemplate(server);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(server.getPublicRootUrl()).thenReturn("http://" + randomAlphanumeric(10));
   }
 

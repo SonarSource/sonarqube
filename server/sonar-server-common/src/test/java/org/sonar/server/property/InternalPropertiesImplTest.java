@@ -47,7 +47,7 @@ public class InternalPropertiesImplTest {
   private InternalPropertiesImpl underTest = new InternalPropertiesImpl(dbClient);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.internalPropertiesDao()).thenReturn(internalPropertiesDao);
   }

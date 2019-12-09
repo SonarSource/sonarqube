@@ -217,7 +217,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void adding_a_project_permission_fails_if_project_is_not_set() throws Exception {
+  public void adding_a_project_permission_fails_if_project_is_not_set() {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     loginAsAdmin(db.getDefaultOrganization());
 
@@ -456,7 +456,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
+  public void fail_when_using_branch_db_key() {
     OrganizationDto organization = db.organizations().insert();
     GroupDto group = db.users().insertGroup(organization);
     ComponentDto project = db.components().insertMainBranch(organization);

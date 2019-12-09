@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.db.migration.engine;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
@@ -47,12 +46,7 @@ public class MigrationEngineImplTest {
   private MigrationHistory migrationHistory = mock(MigrationHistory.class);
   private ComponentContainer serverContainer = new ComponentContainer();
   private MigrationStepsExecutor stepsExecutor = mock(MigrationStepsExecutor.class);
-  private MigrationContainerPopulator populator = new MigrationContainerPopulator() {
-    @Override
-    public void populateContainer(MigrationContainer container) {
-      container.add(stepsExecutor);
-    }
-  };
+  private MigrationContainerPopulator populator = container -> container.add(stepsExecutor);
   private MigrationSteps migrationSteps = mock(MigrationSteps.class);
 
   private MapSettings settings = new MapSettings();
@@ -117,7 +111,7 @@ public class MigrationEngineImplTest {
   private static class TestBlueGreenMigrationStep implements MigrationStep {
 
     @Override
-    public void execute() throws SQLException {
+    public void execute() {
 
     }
   }

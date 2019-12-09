@@ -41,7 +41,6 @@ public class AddTagsActionTest {
   private AddTagsAction underTest = new AddTagsAction(issueUpdater);
 
   @Test
-  @SuppressWarnings("unchecked")
   public void should_execute() {
     Map<String, Object> properties = new HashMap<>();
     properties.put("tags", "tag2,tag3");

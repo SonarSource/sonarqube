@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.measure;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -277,12 +276,7 @@ public class MeasureRepositoryImplTest {
   }
 
   private Measure getSomeMeasureByValueType(final Metric.MetricType metricType) {
-    return from(MEASURES).filter(new Predicate<Measure>() {
-      @Override
-      public boolean apply(@Nullable Measure input) {
-        return input.getValueType() == metricType.getValueType();
-      }
-    }).first().get();
+    return from(MEASURES).filter(input -> input.getValueType() == metricType.getValueType()).first().get();
   }
 
   @Test

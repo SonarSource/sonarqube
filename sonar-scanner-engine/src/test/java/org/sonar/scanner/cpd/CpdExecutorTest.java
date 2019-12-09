@@ -101,7 +101,7 @@ public class CpdExecutorTest {
 
   @Test
   public void dont_fail_if_nothing_to_save() {
-    executor.saveDuplications(batchComponent1, Collections.<CloneGroup>emptyList());
+    executor.saveDuplications(batchComponent1, Collections.emptyList());
     assertThat(reader.readComponentDuplications(batchComponent1.scannerId())).isExhausted();
   }
 

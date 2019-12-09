@@ -36,7 +36,7 @@ public class RemovedWebServiceHandlerTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void throw_server_exception() throws Exception {
+  public void throw_server_exception() {
     Request request = mock(Request.class);
     when(request.getPath()).thenReturn("/api/resources/index");
 

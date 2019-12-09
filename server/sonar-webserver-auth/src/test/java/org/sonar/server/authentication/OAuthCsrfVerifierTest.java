@@ -55,7 +55,7 @@ public class OAuthCsrfVerifierTest {
   private OAuthCsrfVerifier underTest = new OAuthCsrfVerifier();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(server.getContextPath()).thenReturn("");
     when(identityProvider.getName()).thenReturn(PROVIDER_NAME);
   }

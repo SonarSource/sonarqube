@@ -73,7 +73,7 @@ public class BuiltInQProfileDefinitionsBridgeTest {
       .extracting(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue).containsOnly(tuple("param", "value"));
   }
 
-  private class Profile1 extends ProfileDefinition {
+  private static class Profile1 extends ProfileDefinition {
     @Override
     public RulesProfile createProfile(ValidationMessages validation) {
       RulesProfile profile1 = RulesProfile.create("Profile 1", "xoo");
@@ -89,14 +89,14 @@ public class BuiltInQProfileDefinitionsBridgeTest {
     }
   }
 
-  private class NullProfile extends ProfileDefinition {
+  private static class NullProfile extends ProfileDefinition {
     @Override
     public RulesProfile createProfile(ValidationMessages validation) {
       return null;
     }
   }
 
-  private class ProfileWithError extends ProfileDefinition {
+  private static class ProfileWithError extends ProfileDefinition {
     @Override
     public RulesProfile createProfile(ValidationMessages validation) {
       validation.addErrorText("Foo");

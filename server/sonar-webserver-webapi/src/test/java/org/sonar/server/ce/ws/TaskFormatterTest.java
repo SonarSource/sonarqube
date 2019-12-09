@@ -292,7 +292,7 @@ public class TaskFormatterTest {
       .setAnalysisUuid("U1");
   }
 
-  private class TestActivityDto extends CeActivityDto {
+  private static class TestActivityDto extends CeActivityDto {
 
     public TestActivityDto(CeQueueDto queueDto) {
       super(queueDto);

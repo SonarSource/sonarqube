@@ -19,14 +19,13 @@
  */
 package org.sonar.scanner.repository;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.sonar.api.measures.Metric;
 
 public class MetricsRepository {
 
-  private Collection<Metric> metrics = new ArrayList<>();
+  private Collection<Metric> metrics;
 
   public MetricsRepository(List<Metric> metrics) {
     this.metrics = metrics;

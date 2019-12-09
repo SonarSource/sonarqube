@@ -45,7 +45,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener.ChangedIssue;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListenersImpl.ChangedIssueImpl;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
@@ -307,7 +306,7 @@ public class QGChangeEventListenersImplTest {
       .containsOnly(expected);
   }
 
-  private static final String[] POSSIBLE_STATUSES = asList(Issue.STATUS_CONFIRMED, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED).stream().toArray(String[]::new);
+  private static final String[] POSSIBLE_STATUSES = Stream.of(Issue.STATUS_CONFIRMED, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED).toArray(String[]::new);
   private static int issueIdCounter = 0;
 
   private static DefaultIssue newDefaultIssue(String projectUuid) {

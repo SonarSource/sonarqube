@@ -172,7 +172,7 @@ public class SQDatabase extends DefaultDatabase {
     new MigrationHistoryTableImpl(noopDatabase).start();
   }
 
-  private class NoopDatabase implements Database {
+  private static class NoopDatabase implements Database {
     private final Dialect dialect;
     private final DataSource dataSource;
 

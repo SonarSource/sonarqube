@@ -56,7 +56,7 @@ public class RequestAuthenticatorImplTest {
     new CustomAuthentication[]{customAuthentication1, customAuthentication2});
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(sessionFactory.create(A_USER)).thenReturn(new MockUserSession(A_USER));
     when(sessionFactory.createAnonymous()).thenReturn(new AnonymousMockUserSession());
   }

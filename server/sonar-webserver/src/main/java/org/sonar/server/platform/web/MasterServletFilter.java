@@ -24,6 +24,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -122,7 +123,7 @@ public class MasterServletFilter implements Filter {
 
   private static final class GodFilterChain implements FilterChain {
     private FilterChain chain;
-    private List<Filter> filters = Lists.newLinkedList();
+    private List<Filter> filters = new LinkedList<>();
     private Iterator<Filter> iterator;
 
     public GodFilterChain(FilterChain chain) {

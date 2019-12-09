@@ -49,7 +49,7 @@ public class ProjectExclusionFiltersTest {
   }
 
   @Test
-  public void no_inclusions_nor_exclusions() throws IOException {
+  public void no_inclusions_nor_exclusions() {
     ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java", null);
@@ -60,7 +60,7 @@ public class ProjectExclusionFiltersTest {
   }
 
   @Test
-  public void match_inclusion() throws IOException {
+  public void match_inclusion() {
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Dao.java");
     ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
 
@@ -72,7 +72,7 @@ public class ProjectExclusionFiltersTest {
   }
 
   @Test
-  public void match_at_least_one_inclusion() throws IOException {
+  public void match_at_least_one_inclusion() {
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Dao.java,**/*Dto.java");
     ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
 
@@ -84,7 +84,7 @@ public class ProjectExclusionFiltersTest {
   }
 
   @Test
-  public void match_exclusions() throws IOException {
+  public void match_exclusions() {
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "src/main/java/**/*");
     settings.setProperty(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY, "src/test/java/**/*");
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*Dao.java");
@@ -102,7 +102,7 @@ public class ProjectExclusionFiltersTest {
   }
 
   @Test
-  public void match_exclusion_by_absolute_path() throws IOException {
+  public void match_exclusion_by_absolute_path() {
     File excludedFile = new File(moduleBaseDir.toString(), "src/main/java/org/bar/Bar.java");
 
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "src/main/java/**/*");
@@ -118,9 +118,7 @@ public class ProjectExclusionFiltersTest {
 
   @Test
   public void trim_pattern() {
-    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
-
-    assertThat(filter.prepareMainExclusions(new String[] {"   **/*Dao.java   "}, new String[0])[0].toString()).isEqualTo("**/*Dao.java");
+    assertThat(ProjectExclusionFilters.prepareMainExclusions(new String[] {"   **/*Dao.java   "}, new String[0])[0].toString()).isEqualTo("**/*Dao.java");
   }
 
 }

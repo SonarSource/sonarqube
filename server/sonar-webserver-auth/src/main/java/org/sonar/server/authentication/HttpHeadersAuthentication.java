@@ -185,7 +185,7 @@ public class HttpHeadersAuthentication implements Startable {
   }
 
   private boolean hasHeader(Map<String, String> headerValuesByNames, String settingKey) {
-    return headerValuesByNames.keySet().contains(settingsByKey.get(settingKey).toLowerCase(Locale.ENGLISH));
+    return headerValuesByNames.containsKey(settingsByKey.get(settingKey).toLowerCase(Locale.ENGLISH));
   }
 
   private static class SsoIdentityProvider implements IdentityProvider {

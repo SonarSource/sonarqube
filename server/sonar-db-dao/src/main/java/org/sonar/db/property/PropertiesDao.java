@@ -303,9 +303,9 @@ public class PropertiesDao implements Dao {
   public void saveGlobalProperties(Map<String, String> properties) {
     try (DbSession session = mybatis.openSession(false)) {
       PropertiesMapper mapper = getMapper(session);
-      properties.entrySet().forEach(entry -> {
-        mapper.deleteGlobalProperty(entry.getKey());
-        save(mapper, entry.getKey(), null, null, entry.getValue());
+      properties.forEach((key, value) -> {
+        mapper.deleteGlobalProperty(key);
+        save(mapper, key, null, null, value);
       });
       session.commit();
     }

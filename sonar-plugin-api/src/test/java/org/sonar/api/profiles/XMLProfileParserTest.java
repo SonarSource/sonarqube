@@ -92,7 +92,7 @@ public class XMLProfileParserTest {
   private RuleFinder newRuleFinder() {
     RuleFinder ruleFinder = mock(RuleFinder.class);
     when(ruleFinder.findByKey(anyString(), anyString())).thenAnswer(new Answer<Rule>() {
-      public Rule answer(InvocationOnMock iom) throws Throwable {
+      public Rule answer(InvocationOnMock iom) {
         Rule rule = Rule.create((String) iom.getArguments()[0], (String) iom.getArguments()[1], (String) iom.getArguments()[1]);
         rule.createParameter("format");
         rule.createParameter("message");

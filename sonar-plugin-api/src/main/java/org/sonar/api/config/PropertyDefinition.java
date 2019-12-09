@@ -344,7 +344,7 @@ public final class PropertyDefinition {
 
   public static final class Result {
     private static final Result SUCCESS = new Result(null);
-    private String errorKey = null;
+    private String errorKey;
 
     @Nullable
     private Result(@Nullable String errorKey) {
@@ -532,7 +532,7 @@ public final class PropertyDefinition {
 
     public Builder options(String first, String... rest) {
       this.options.add(first);
-      stream(rest).forEach(o -> options.add(o));
+      options.addAll(asList(rest));
       return this;
     }
 
