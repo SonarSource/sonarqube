@@ -24,7 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Objects;
+import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
@@ -51,6 +51,7 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.ws.IssueUpdater;
 import org.sonar.server.tester.UserSessionRule;
@@ -61,7 +62,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -77,6 +78,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 @RunWith(DataProviderRunner.class)
 public class ChangeStatusActionTest {
   private static final Random RANDOM = new Random();
+  private static final String NO_COMMENT = null;
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -87,7 +89,8 @@ public class ChangeStatusActionTest {
   private TransitionService transitionService = mock(TransitionService.class);
   private IssueUpdater issueUpdater = mock(IssueUpdater.class);
   private System2 system2 = mock(System2.class);
-  private ChangeStatusAction underTest = new ChangeStatusAction(dbClient, userSessionRule, transitionService, system2, issueUpdater);
+  private IssueFieldsSetter issueFieldsSetter = mock(IssueFieldsSetter.class);
+  private ChangeStatusAction underTest = new ChangeStatusAction(dbClient, userSessionRule, transitionService, issueFieldsSetter, system2, issueUpdater);
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
@@ -247,7 +250,7 @@ public class ChangeStatusActionTest {
     RuleDefinitionDto rule = newRule(ruleType);
     IssueDto notAHotspot = dbTester.issues().insertIssue(IssueTesting.newIssue(rule, project, file).setType(ruleType));
     userSessionRule.logIn();
-    TestRequest request = newRequest(notAHotspot, status, resolution);
+    TestRequest request = newRequest(notAHotspot, status, resolution, NO_COMMENT);
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
@@ -270,7 +273,7 @@ public class ChangeStatusActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
-    TestRequest request = newRequest(hotspot, status, resolution);
+    TestRequest request = newRequest(hotspot, status, resolution, NO_COMMENT);
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class)
@@ -286,7 +289,7 @@ public class ChangeStatusActionTest {
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
 
-    newRequest(hotspot, status, resolution).execute().assertNoContent();
+    newRequest(hotspot, status, resolution, NO_COMMENT).execute().assertNoContent();
   }
 
   @Test
@@ -298,7 +301,7 @@ public class ChangeStatusActionTest {
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
 
-    newRequest(hotspot, status, resolution).execute().assertNoContent();
+    newRequest(hotspot, status, resolution, NO_COMMENT).execute().assertNoContent();
   }
 
   @Test
@@ -310,8 +313,9 @@ public class ChangeStatusActionTest {
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule).setStatus(status).setResolution(resolution));
 
-    newRequest(hotspot, status, resolution).execute().assertNoContent();
-    verifyNoInteractions(transitionService, issueUpdater);
+    newRequest(hotspot, status, resolution, NO_COMMENT).execute().assertNoContent();
+
+    verifyNoInteractions(transitionService, issueUpdater, issueFieldsSetter);
   }
 
   @Test
@@ -326,21 +330,27 @@ public class ChangeStatusActionTest {
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule).setStatus(STATUS_TO_REVIEW).setResolution(null));
     when(transitionService.doTransition(any(), any(), any())).thenReturn(transitionDone);
 
-    newRequest(hotspot, STATUS_REVIEWED, resolution).execute().assertNoContent();
+    newRequest(hotspot, STATUS_REVIEWED, resolution, NO_COMMENT).execute().assertNoContent();
+
     IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(now), userSessionRule.getUuid());
-    DefaultIssueMatcher defaultIssueMatcher = new DefaultIssueMatcher(hotspot);
+    ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(transitionService).checkTransitionPermission(eq(expectedTransitionKey), defaultIssueCaptor.capture());
     verify(transitionService).doTransition(
-      argThat(defaultIssueMatcher),
+      defaultIssueCaptor.capture(),
       eq(issueChangeContext),
       eq(expectedTransitionKey));
     if (transitionDone) {
       verify(issueUpdater).saveIssueAndPreloadSearchResponseData(
         any(DbSession.class),
-        argThat(defaultIssueMatcher),
+        defaultIssueCaptor.capture(),
         eq(issueChangeContext),
         eq(true));
+
+      // because it is mutated by FieldSetter and IssueUpdater, the same object must be passed to all methods
+      verifyAllSame3Objects(defaultIssueCaptor.getAllValues());
+      verifyNoInteractions(issueFieldsSetter);
     } else {
-      verifyNoInteractions(issueUpdater);
+      verifyNoInteractions(issueUpdater, issueFieldsSetter);
     }
   }
 
@@ -366,21 +376,27 @@ public class ChangeStatusActionTest {
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule).setStatus(STATUS_REVIEWED).setResolution(resolution));
     when(transitionService.doTransition(any(), any(), any())).thenReturn(transitionDone);
 
-    newRequest(hotspot, STATUS_TO_REVIEW, null).execute().assertNoContent();
+    newRequest(hotspot, STATUS_TO_REVIEW, null, NO_COMMENT).execute().assertNoContent();
+
     IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(now), userSessionRule.getUuid());
-    DefaultIssueMatcher defaultIssueMatcher = new DefaultIssueMatcher(hotspot);
+    ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(transitionService).checkTransitionPermission(eq(DefaultTransitions.RESET_AS_TO_REVIEW), defaultIssueCaptor.capture());
     verify(transitionService).doTransition(
-      argThat(defaultIssueMatcher),
+      defaultIssueCaptor.capture(),
       eq(issueChangeContext),
       eq(DefaultTransitions.RESET_AS_TO_REVIEW));
     if (transitionDone) {
       verify(issueUpdater).saveIssueAndPreloadSearchResponseData(
         any(DbSession.class),
-        argThat(defaultIssueMatcher),
+        defaultIssueCaptor.capture(),
         eq(issueChangeContext),
         eq(true));
+
+      // because it is mutated by FieldSetter and IssueUpdater, the same object must be passed to all methods
+      verifyAllSame3Objects(defaultIssueCaptor.getAllValues());
+      verifyNoInteractions(issueFieldsSetter);
     } else {
-      verifyNoInteractions(issueUpdater);
+      verifyNoInteractions(issueUpdater, issueFieldsSetter);
     }
   }
 
@@ -394,72 +410,88 @@ public class ChangeStatusActionTest {
     };
   }
 
-  private static class DefaultIssueMatcher implements ArgumentMatcher<DefaultIssue> {
-    private final DefaultIssue expected;
+  @Test
+  @UseDataProvider("changingStatusAndTransitionFlag")
+  public void persists_comment_if_hotspot_status_changes_and_transition_done(String currentStatus, @Nullable String currentResolution,
+    String newStatus, @Nullable String newResolution, boolean transitionDone) {
+    long now = RANDOM.nextInt(232_323);
+    when(system2.now()).thenReturn(now);
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.logIn().registerComponents(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule).setStatus(currentStatus).setResolution(currentResolution));
+    when(transitionService.doTransition(any(), any(), any())).thenReturn(transitionDone);
+    String comment = randomAlphabetic(12);
 
-    private DefaultIssueMatcher(IssueDto issueDto) {
-      this.expected = issueDto.toDefaultIssue();
-    }
+    newRequest(hotspot, newStatus, newResolution, comment).execute().assertNoContent();
 
-    @Override
-    public boolean matches(DefaultIssue that) {
-      if (expected == that) {
-        return true;
-      }
-      if (that == null || expected.getClass() != that.getClass()) {
-        return false;
-      }
-      return expected.manualSeverity() == that.manualSeverity() &&
-        expected.isFromExternalRuleEngine() == that.isFromExternalRuleEngine() &&
-        expected.isNew() == that.isNew() &&
-        expected.isCopied() == that.isCopied() &&
-        expected.isBeingClosed() == that.isBeingClosed() &&
-        expected.isOnDisabledRule() == that.isOnDisabledRule() &&
-        expected.isChanged() == that.isChanged() &&
-        expected.mustSendNotifications() == that.mustSendNotifications() &&
-        Objects.equals(expected.key(), that.key()) &&
-        expected.type() == that.type() &&
-        Objects.equals(expected.componentUuid(), that.componentUuid()) &&
-        Objects.equals(expected.componentKey(), that.componentKey()) &&
-        Objects.equals(expected.moduleUuid(), that.moduleUuid()) &&
-        Objects.equals(expected.moduleUuidPath(), that.moduleUuidPath()) &&
-        Objects.equals(expected.projectUuid(), that.projectUuid()) &&
-        Objects.equals(expected.projectKey(), that.projectKey()) &&
-        Objects.equals(expected.ruleKey(), that.ruleKey()) &&
-        Objects.equals(expected.language(), that.language()) &&
-        Objects.equals(expected.severity(), that.severity()) &&
-        Objects.equals(expected.message(), that.message()) &&
-        Objects.equals(expected.line(), that.line()) &&
-        Objects.equals(expected.gap(), that.gap()) &&
-        Objects.equals(expected.effort(), that.effort()) &&
-        Objects.equals(expected.status(), that.status()) &&
-        Objects.equals(expected.resolution(), that.resolution()) &&
-        Objects.equals(expected.assignee(), that.assignee()) &&
-        Objects.equals(expected.checksum(), that.checksum()) &&
-        Objects.equals(expected.attributes(), that.attributes()) &&
-        Objects.equals(expected.authorLogin(), that.authorLogin()) &&
-        Objects.equals(expected.comments(), that.comments()) &&
-        Objects.equals(expected.tags(), that.tags()) &&
-        Objects.equals(expected.getLocations(), that.getLocations()) &&
-        Objects.equals(expected.creationDate(), that.creationDate()) &&
-        Objects.equals(expected.updateDate(), that.updateDate()) &&
-        Objects.equals(expected.closeDate(), that.closeDate()) &&
-        Objects.equals(expected.currentChange(), that.currentChange()) &&
-        Objects.equals(expected.changes(), that.changes()) &&
-        Objects.equals(expected.selectedAt(), that.selectedAt());
+    IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(now), userSessionRule.getUuid());
+    ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(transitionService).doTransition(defaultIssueCaptor.capture(), eq(issueChangeContext), anyString());
+    if (transitionDone) {
+      verify(issueFieldsSetter).addComment(defaultIssueCaptor.capture(), eq(comment), eq(issueChangeContext));
+      verify(issueUpdater).saveIssueAndPreloadSearchResponseData(
+        any(DbSession.class),
+        defaultIssueCaptor.capture(),
+        eq(issueChangeContext),
+        eq(true));
+
+      // because it is mutated by FieldSetter and IssueUpdater, the same object must be passed to all methods
+      verifyAllSame3Objects(defaultIssueCaptor.getAllValues());
+    } else {
+      verifyNoInteractions(issueUpdater, issueFieldsSetter);
     }
+  }
+
+  @DataProvider
+  public static Object[][] changingStatusAndTransitionFlag() {
+    Object[][] changingStatuses = {
+      {STATUS_TO_REVIEW, null, STATUS_REVIEWED, RESOLUTION_FIXED},
+      {STATUS_TO_REVIEW, null, STATUS_REVIEWED, RESOLUTION_FIXED},
+      {STATUS_TO_REVIEW, null, STATUS_REVIEWED, RESOLUTION_SAFE},
+      {STATUS_REVIEWED, RESOLUTION_FIXED, STATUS_REVIEWED, RESOLUTION_SAFE},
+      {STATUS_REVIEWED, RESOLUTION_FIXED, STATUS_TO_REVIEW, null},
+      {STATUS_REVIEWED, RESOLUTION_SAFE, STATUS_REVIEWED, RESOLUTION_FIXED},
+      {STATUS_REVIEWED, RESOLUTION_SAFE, STATUS_TO_REVIEW, null}
+    };
+    return Arrays.stream(changingStatuses)
+      .flatMap(b -> Stream.of(
+        new Object[] {b[0], b[1], b[2], b[3], true},
+        new Object[] {b[0], b[1], b[2], b[3], false}))
+      .toArray(Object[][]::new);
+  }
+
+  @Test
+  @UseDataProvider("validStatusAndResolutions")
+  public void do_not_persist_comment_if_no_status_change(String status, @Nullable String resolution) {
+    long now = RANDOM.nextInt(232_323);
+    when(system2.now()).thenReturn(now);
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.logIn().registerComponents(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule).setStatus(status).setResolution(resolution));
+    String comment = randomAlphabetic(12);
+
+    newRequest(hotspot, status, resolution, comment).execute().assertNoContent();
+
+    verifyNoInteractions(transitionService, issueUpdater, issueFieldsSetter);
   }
 
   private static IssueDto newHotspot(ComponentDto project, ComponentDto file, RuleDefinitionDto rule) {
     return IssueTesting.newIssue(rule, project, file).setType(SECURITY_HOTSPOT);
   }
 
-  private TestRequest newRequest(IssueDto hotspot, String newStatus, @Nullable String newResolution) {
+  private TestRequest newRequest(IssueDto hotspot, String newStatus, @Nullable String newResolution, @Nullable String comment) {
     TestRequest res = actionTester.newRequest()
       .setParam("hotspot", hotspot.getKey())
       .setParam("status", newStatus);
     if (newResolution != null) {
       res.setParam("resolution", newResolution);
+    }
+    if (comment != null) {
+      res.setParam("comment", comment);
     }
     return res;
   }
@@ -475,6 +507,13 @@ public class ChangeStatusActionTest {
     populate.accept(ruleDefinition);
     dbTester.rules().insert(ruleDefinition);
     return ruleDefinition;
+  }
+
+  private static void verifyAllSame3Objects(List<DefaultIssue> allValues) {
+    assertThat(allValues).hasSize(3);
+    assertThat(allValues.get(0))
+      .isSameAs(allValues.get(1))
+      .isSameAs(allValues.get(2));
   }
 
 }
