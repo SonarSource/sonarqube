@@ -2,7 +2,7 @@
 title: Setting Your New Code Period
 url: /project-administration/new-code-period/
 ---
-By focusing on code that's been added or changed in your New Code Period, you can set consistent quality requirements and expectations on all new code. With this focus, your new code will be issue-free and you'll clean up the code you encounter along the way. For more information on the New Code Period and Cleaning as You Code, check out [Fixing the Water Leak](/user-guide/fixing-the-water-leak/).
+By focusing on code that's been added or changed in your New Code Period, you can set consistent quality requirements and expectations on all new code. With this focus, your new code will be issue-free and you'll clean up the code you encounter along the way. For more information on the New Code Period, see the [Clean as You Code](/user-guide/clean-as-you-code/) page.
 
 You can set a New Code Period at the global, project, or branch level.
 

@@ -20,8 +20,8 @@
   ],
   "component_measures": [
     {
-      "link": "/documentation/user-guide/fixing-the-water-leak/",
-      "text": "Fixing the Water Leak"
+      "link": "/documentation/user-guide/clean-as-you-code/",
+      "text": "Clean as You Code"
     },
     {
       "link": "/documentation/user-guide/metric-definitions/",
@@ -88,8 +88,8 @@
   ],
   "overview": [
     {
-      "link": "/documentation/user-guide/fixing-the-water-leak/",
-      "text": "Fixing the Water Leak"
+      "link": "/documentation/user-guide/clean-as-you-code/",
+      "text": "Clean as You Code"
     },
     {
       "link": "/documentation/branches/overview/",
@@ -116,8 +116,8 @@
   ],
   "project_quality_gate": [
     {
-      "link": "/documentation/user-guide/fixing-the-water-leak/",
-      "text": "Fixing the Water Leak"
+      "link": "/documentation/user-guide/clean-as-you-code/",
+      "text": "Clean as You Code"
     }
   ],
   "project_quality_profiles": [
@@ -142,8 +142,8 @@
   ],
   "pull_requests": [
     {
-      "link": "/documentation/user-guide/fixing-the-water-leak/",
-      "text": "Fixing the Water Leak"
+      "link": "/documentation/user-guide/clean-as-you-code/",
+      "text": "Clean as You Code"
     },
     {
       "link": "/documentation/analysis/pull-request/",
@@ -152,8 +152,8 @@
   ],
   "quality_gates": [
     {
-      "link": "/documentation/user-guide/fixing-the-water-leak/",
-      "text": "Fixing the Water Leak"
+      "link": "/documentation/user-guide/clean-as-you-code/",
+      "text": "Clean as You Code"
     }
   ],
   "quality_profiles": [

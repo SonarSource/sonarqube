@@ -38,7 +38,7 @@ Below are a few key pointers, otherwise head over to the left pane for full docu
 * [Pull Requests](/analysis/pull-request/)
 
 ### I write code
-* Why [new code](/user-guide/fixing-the-water-leak/) is the most important
+* Why [new code](/user-guide/clean-as-you-code/) is the most important
 * [Concepts](/user-guide/concepts/)
 * [Quality Gates](/user-guide/quality-gates/)
 * [Issues](/user-guide/issues/)

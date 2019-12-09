@@ -7,7 +7,7 @@ url: /user-guide/project-page/
 The Project Hompepage is the entry point of any project showing:
 * the releasability status of the project
 * the current state of its quality
-* the quality of what has been produced since the beginning of its [New Code Period](/user-guide/fixing-the-water-leak/).
+* the quality of what has been produced since the beginning of its [New Code Period](/user-guide/clean-as-you-code/).
  
 
 The Project Page answers two questions:

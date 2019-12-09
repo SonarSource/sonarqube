@@ -2,4 +2,4 @@ Both conditions on New Code and Overall Code have to be met by a project to pass
 
 ---
 
-See also: [Fixing the Water Leak](/user-guide/fixing-the-water-leak/)
+See also: [Clean as You Code](/user-guide/clean-as-you-code/)

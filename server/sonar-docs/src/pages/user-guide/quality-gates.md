@@ -24,7 +24,7 @@ Which is why you can define as many quality gates as you wish. Quality Gates are
 
 ## Use the Best Quality Gate Configuration
 
-The quality gate "Sonar way" is provided by SonarSource, activated by default and considered as built-in and so read-only. It represents our view of the best way to implement the [Fixing the Water Leak](/user-guide/fixing-the-water-leak/) concept. <!-- sonarqube -->At each SonarQube release, we adjust automatically this default quality gate according to SonarQube's capabilities.<!-- /sonarqube -->
+The quality gate "Sonar way" is provided by SonarSource, activated by default and considered as built-in and so read-only. It represents our view of the best way to implement the [Clean as You Code](/user-guide/clean-as-you-code/) concept. At each SonarQube release, we adjust automatically this default quality gate according to SonarQube's capabilities.
 
 Three metrics allow you to enforce a given Rating of Reliability, Security and Maintainability, not just overall but also on new code. These metrics are recommended and come as part of the default quality gate. We strongly advise you to adjust your own quality gates to use them to make feedback more clear to your developers looking at their quality gate on their project page.
 
