@@ -164,22 +164,8 @@ message Actions {
   repeated string actions = 1;
 }
 
-message Comment {
-  optional string key = 1;
-  optional string login = 2;
-  // TODO drop, it's already in field "users"
-  optional string email = 3;
-  // TODO drop, it's already in field "users"
-  optional string userName = 4;
-  optional string htmlText = 5;
-  // TODO rename markdownText ?
-  optional string markdown = 6;
-  optional bool updatable = 7;
-  optional string createdAt = 8;
-}
-
 message Comments {
-  repeated Comment comments = 1;
+  repeated sonarqube.ws.commons.Comment comments = 1;
 }
 
 // Deprecated since 5.5

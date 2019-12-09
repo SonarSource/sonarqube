@@ -129,6 +129,15 @@ message Changelog {
   }
 }
 
+message Comment {
+  optional string key = 1;
+  optional string login = 2;
+  optional string htmlText = 5;
+  optional string markdown = 6;
+  optional bool updatable = 7;
+  optional string createdAt = 8;
+}
+
 message Metric {
   optional string key = 1;
   optional string name = 2;
