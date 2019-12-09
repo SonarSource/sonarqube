@@ -52,12 +52,12 @@ import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelog.ChangelogLoadingContext;
+import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.SQCategory;
@@ -93,11 +93,11 @@ public class ShowActionTest {
   private DbClient dbClient = dbTester.getDbClient();
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
 
-  private TextRangeResponseFormatter commonFormatter = new TextRangeResponseFormatter();
+  private TextRangeResponseFormatter textRangeFormatter = new TextRangeResponseFormatter();
   private HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(defaultOrganizationProvider);
   private IssueChangelog issueChangelog = Mockito.mock(IssueChangelog.class);
 
-  private ShowAction underTest = new ShowAction(dbClient, userSessionRule, responseFormatter, commonFormatter, issueChangelog);
+  private ShowAction underTest = new ShowAction(dbClient, userSessionRule, responseFormatter, textRangeFormatter, issueChangelog);
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test

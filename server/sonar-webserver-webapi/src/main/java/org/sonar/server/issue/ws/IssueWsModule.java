@@ -49,6 +49,7 @@ public class IssueWsModule extends Module {
       IssueChangelog.class,
       SearchResponseLoader.class,
       TextRangeResponseFormatter.class,
+      UserResponseFormatter.class,
       SearchResponseFormat.class,
       OperationResponseWriter.class,
       AddCommentAction.class,

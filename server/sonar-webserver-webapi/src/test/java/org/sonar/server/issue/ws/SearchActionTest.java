@@ -121,7 +121,8 @@ public class SearchActionTest {
   private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
   private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient, new TransitionService(userSession, issueWorkflow));
   private Languages languages = new Languages();
-  private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new AvatarResolverImpl(), new TextRangeResponseFormatter());
+  private UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
+  private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new TextRangeResponseFormatter(), userFormatter);
   private WsActionTester ws = new WsActionTester(new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat,
     new MapSettings().asConfig(), System2.INSTANCE, dbClient));
   private StartupIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);

@@ -42,10 +42,10 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.es.Facets;
-import org.sonar.server.issue.AvatarResolver;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.workflow.Transition;
 import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Common.User;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Actions;
 import org.sonarqube.ws.Issues.Comment;
@@ -76,15 +76,14 @@ public class SearchResponseFormat {
 
   private final Durations durations;
   private final Languages languages;
-  private final AvatarResolver avatarFactory;
   private final TextRangeResponseFormatter textRangeFormatter;
+  private final UserResponseFormatter userFormatter;
 
-  public SearchResponseFormat(Durations durations, Languages languages, AvatarResolver avatarFactory,
-    TextRangeResponseFormatter textRangeFormatter) {
+  public SearchResponseFormat(Durations durations, Languages languages, TextRangeResponseFormatter textRangeFormatter, UserResponseFormatter userFormatter) {
     this.durations = durations;
     this.languages = languages;
-    this.avatarFactory = avatarFactory;
     this.textRangeFormatter = textRangeFormatter;
+    this.userFormatter = userFormatter;
   }
 
   SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging, Facets facets) {
@@ -328,20 +327,12 @@ public class SearchResponseFormat {
     Users.Builder wsUsers = Users.newBuilder();
     List<UserDto> users = data.getUsers();
     if (users != null) {
+      User.Builder builder = User.newBuilder();
       for (UserDto user : users) {
-        wsUsers.addUsers(formatUser(user));
+        wsUsers.addUsers(userFormatter.formatUser(builder, user));
       }
     }
     return wsUsers;
-  }
-
-  private Users.User.Builder formatUser(UserDto user) {
-    Users.User.Builder builder = Users.User.newBuilder()
-      .setLogin(user.getLogin())
-      .setName(nullToEmpty(user.getName()))
-      .setActive(user.isActive());
-    ofNullable(emptyToNull(user.getEmail())).ifPresent(email -> builder.setAvatar(avatarFactory.create(user)));
-    return builder;
   }
 
   private Issues.Languages.Builder formatLanguages() {

@@ -37,9 +37,9 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndex;
@@ -106,7 +106,8 @@ public class SearchActionComponentsTest {
   private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
   private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient, new TransitionService(userSession, issueWorkflow));
   private Languages languages = new Languages();
-  private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new AvatarResolverImpl(), new TextRangeResponseFormatter());
+  private UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
+  private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new TextRangeResponseFormatter(), userFormatter);
   private PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
 
   private WsActionTester ws = new WsActionTester(new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat,

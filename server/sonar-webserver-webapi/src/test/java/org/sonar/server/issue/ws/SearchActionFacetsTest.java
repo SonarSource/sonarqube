@@ -37,10 +37,10 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.issue.AvatarResolverImpl;
+import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -88,7 +88,8 @@ public class SearchActionFacetsTest {
   private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(db.getDbClient(), Clock.systemUTC(), userSession);
   private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, db.getDbClient(), new TransitionService(userSession, null));
   private Languages languages = new Languages();
-  private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new AvatarResolverImpl(), new TextRangeResponseFormatter());
+  private UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
+  private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new TextRangeResponseFormatter(), userFormatter);
 
   private WsActionTester ws = new WsActionTester(
     new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat,

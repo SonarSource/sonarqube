@@ -19,18 +19,28 @@
  */
 package org.sonar.server.issue.ws;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.issue.AvatarResolver;
+import org.sonarqube.ws.Common;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+import static com.google.common.base.Strings.emptyToNull;
+import static com.google.common.base.Strings.nullToEmpty;
+import static java.util.Optional.ofNullable;
 
-public class IssueWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new IssueWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 31);
+public class UserResponseFormatter {
+  private final AvatarResolver avatarResolver;
+
+  public UserResponseFormatter(AvatarResolver avatarResolver) {
+    this.avatarResolver = avatarResolver;
+  }
+
+  public Common.User formatUser(Common.User.Builder builder, UserDto user) {
+    builder
+      .clear()
+      .setLogin(user.getLogin())
+      .setName(nullToEmpty(user.getName()))
+      .setActive(user.isActive());
+    ofNullable(emptyToNull(user.getEmail())).ifPresent(email -> builder.setAvatar(avatarResolver.create(user)));
+    return builder.build();
   }
 }
-

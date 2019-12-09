@@ -78,7 +78,8 @@ public class SearchActionTestOnSonarCloud {
   private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
   private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient, new TransitionService(userSession, issueWorkflow));
   private Languages languages = new Languages();
-  private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new AvatarResolverImpl(), new TextRangeResponseFormatter());
+  private UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
+  private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new TextRangeResponseFormatter(), userFormatter);
   private PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
 
   private SearchAction underTest = new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat,

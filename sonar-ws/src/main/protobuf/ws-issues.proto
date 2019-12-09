@@ -53,49 +53,49 @@ message Operation {
   optional Issue issue = 1;
   repeated Component components = 2;
   repeated sonarqube.ws.commons.Rule rules = 3;
-  repeated Users.User users = 4;
+  repeated sonarqube.ws.commons.User users = 4;
 }
 message AddCommentResponse {
   optional Issue issue = 1;
   repeated Component components = 2;
   repeated sonarqube.ws.commons.Rule rules = 3;
-  repeated Users.User users = 4;
+  repeated sonarqube.ws.commons.User users = 4;
 }
 message AssignResponse {
   optional Issue issue = 1;
   repeated Component components = 2;
   repeated sonarqube.ws.commons.Rule rules = 3;
-  repeated Users.User users = 4;
+  repeated sonarqube.ws.commons.User users = 4;
 }
 message DeleteCommentResponse {
   optional Issue issue = 1;
   repeated Component components = 2;
   repeated sonarqube.ws.commons.Rule rules = 3;
-  repeated Users.User users = 4;
+  repeated sonarqube.ws.commons.User users = 4;
 }
 message DoTransitionResponse {
   optional Issue issue = 1;
   repeated Component components = 2;
   repeated sonarqube.ws.commons.Rule rules = 3;
-  repeated Users.User users = 4;
+  repeated sonarqube.ws.commons.User users = 4;
 }
 message SetSeverityResponse {
   optional Issue issue = 1;
   repeated Component components = 2;
   repeated sonarqube.ws.commons.Rule rules = 3;
-  repeated Users.User users = 4;
+  repeated sonarqube.ws.commons.User users = 4;
 }
 message SetTagsResponse {
   optional Issue issue = 1;
   repeated Component components = 2;
   repeated sonarqube.ws.commons.Rule rules = 3;
-  repeated Users.User users = 4;
+  repeated sonarqube.ws.commons.User users = 4;
 }
 message SetTypeResponse {
   optional Issue issue = 1;
   repeated Component components = 2;
   repeated sonarqube.ws.commons.Rule rules = 3;
-  repeated Users.User users = 4;
+  repeated sonarqube.ws.commons.User users = 4;
 }
 message TagsResponse {
   repeated string tags = 1;
@@ -238,14 +238,7 @@ message BulkChangeWsResponse {
 }
 
 message Users {
-  repeated User users = 1;
-
-  message User {
-    optional string login = 1;
-    optional string name = 2;
-    optional string avatar = 3;
-    optional bool active = 4;
-  }
+  repeated sonarqube.ws.commons.User users = 1;
 }
 
 // Response of GET api/issues/authors
