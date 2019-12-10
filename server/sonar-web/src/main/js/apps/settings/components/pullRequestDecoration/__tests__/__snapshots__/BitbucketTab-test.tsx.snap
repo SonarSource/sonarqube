@@ -1,13 +1,40 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<BitbucketTabRenderer
-  definitions={Array []}
+<AlmTab
+  additionalColumnsHeaders={
+    Array [
+      "settings.pr_decoration.table.column.bitbucket.url",
+    ]
+  }
+  additionalColumnsKeys={
+    Array [
+      "url",
+    ]
+  }
+  alm="bitbucket"
+  createConfiguration={[Function]}
+  defaultBinding={
+    Object {
+      "key": "",
+      "personalAccessToken": "",
+      "url": "",
+    }
+  }
+  definitions={
+    Array [
+      Object {
+        "key": "key",
+        "personalAccessToken": "asdf1234",
+        "url": "http://bbs.enterprise.com",
+      },
+    ]
+  }
+  form={[Function]}
   loading={false}
-  onCancel={[Function]}
-  onCreate={[Function]}
+  multipleAlmEnabled={true}
   onDelete={[MockFunction]}
-  onEdit={[Function]}
-  onSubmit={[Function]}
+  onUpdateDefinitions={[MockFunction]}
+  updateConfiguration={[Function]}
 />
 `;

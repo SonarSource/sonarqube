@@ -22,10 +22,22 @@ import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockGithubDefinition } from '../../../../../helpers/mocks/alm-settings';
 import { ALM_KEYS, GithubBindingDefinition } from '../../../../../types/alm-settings';
-import AlmPRDecorationFormModal from '../AlmPRDecorationFormModal';
+import AlmPRDecorationForm from '../AlmPRDecorationForm';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should reset if the props change', () => {
+  const bindingDefinition = mockGithubDefinition();
+  const wrapper = shallowRender({ bindingDefinition });
+
+  wrapper.setState({ formData: { ...bindingDefinition, appId: 'newAppId' }, touched: true });
+  wrapper.setProps({ bindingDefinition: { ...bindingDefinition } });
+  expect(wrapper.state('touched')).toBe(true);
+
+  wrapper.setProps({ bindingDefinition: mockGithubDefinition({ key: 'diffKey' }) });
+  expect(wrapper.state('touched')).toBe(false);
 });
 
 it('should handle field changes', () => {
@@ -42,7 +54,7 @@ it('should handle field changes', () => {
   wrapper.instance().handleFieldChange('url', formData.url);
   wrapper.instance().handleFieldChange('appId', formData.appId);
   wrapper.instance().handleFieldChange('privateKey', formData.privateKey);
-  expect(wrapper.state()).toEqual({ formData });
+  expect(wrapper.state().formData).toEqual(formData);
 });
 
 it('should handle form submit', async () => {
@@ -65,27 +77,59 @@ it('should handle form submit', async () => {
   expect(onSubmit).toHaveBeenCalledWith(formData, 'originalKey');
 });
 
-it('should (dis)allow submit by validating its state', async () => {
-  const wrapper = shallowRender();
+it('should handle cancelling', () => {
+  const onCancel = jest.fn();
+  const bindingDefinition = {
+    appId: 'foo',
+    key: 'bar',
+    privateKey: 'baz',
+    url: 'http://github.enterprise.com'
+  };
+  const wrapper = shallowRender({
+    bindingDefinition,
+    onCancel
+  });
 
-  expect(wrapper.instance().canSubmit()).toBe(false);
   wrapper.setState({ formData: mockGithubDefinition() });
-  await waitAndUpdate(wrapper);
+  wrapper.instance().handleCancel();
 
+  expect(wrapper.state().formData).toBe(bindingDefinition);
+  expect(onCancel).toHaveBeenCalled();
+});
+
+it('should handle deleting', () => {
+  const onDelete = jest.fn();
+  const bindingDefinition = mockGithubDefinition();
+  const wrapper = shallowRender({
+    bindingDefinition,
+    onDelete
+  });
+
+  wrapper.instance().handleDelete();
+  expect(onDelete).toHaveBeenCalledWith(bindingDefinition.key);
+});
+
+it('should (dis)allow submit by validating its state', () => {
+  const wrapper = shallowRender();
+  expect(wrapper.instance().canSubmit()).toBe(false);
+
+  wrapper.setState({ formData: mockGithubDefinition(), touched: true });
+  expect(wrapper.instance().canSubmit()).toBe(true);
+
+  wrapper.setState({ formData: mockGithubDefinition({ key: '' }), touched: true });
+  wrapper.setProps({ hideKeyField: true });
   expect(wrapper.instance().canSubmit()).toBe(true);
 });
 
-function shallowRender(
-  props: Partial<AlmPRDecorationFormModal<GithubBindingDefinition>['props']> = {}
-) {
-  return shallow<AlmPRDecorationFormModal<GithubBindingDefinition>>(
-    <AlmPRDecorationFormModal
+function shallowRender(props: Partial<AlmPRDecorationForm<GithubBindingDefinition>['props']> = {}) {
+  return shallow<AlmPRDecorationForm<GithubBindingDefinition>>(
+    <AlmPRDecorationForm
       alm={ALM_KEYS.GITHUB}
       bindingDefinition={{ appId: '', key: '', privateKey: '', url: '' }}
       onCancel={jest.fn()}
       onSubmit={jest.fn()}
       {...props}>
       {() => null}
-    </AlmPRDecorationFormModal>
+    </AlmPRDecorationForm>
   );
 }

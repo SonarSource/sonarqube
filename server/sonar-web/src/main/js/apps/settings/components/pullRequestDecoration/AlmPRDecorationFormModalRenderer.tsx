@@ -20,26 +20,28 @@
 import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ALM_KEYS } from '../../../../types/alm-settings';
 
 export interface AlmPRDecorationFormModalProps {
+  action: 'edit' | 'create';
   alm: ALM_KEYS;
   canSubmit: () => boolean;
   children: React.ReactNode;
+  help?: React.ReactNode;
   onCancel: () => void;
   onSubmit: () => void;
-  originalKey: string;
 }
 
 export default function AlmPRDecorationFormModalRenderer(props: AlmPRDecorationFormModalProps) {
-  const { alm, children, originalKey } = props;
+  const { alm, action, children, help } = props;
   const header = translate(
     'settings',
     alm === ALM_KEYS.GITLAB ? 'mr_decoration' : 'pr_decoration',
     'form.header',
-    originalKey ? 'edit' : 'create'
+    action
   );
 
   return (
@@ -50,7 +52,14 @@ export default function AlmPRDecorationFormModalRenderer(props: AlmPRDecorationF
             <h2>{header}</h2>
           </div>
 
-          <div className="modal-body modal-container">{children}</div>
+          <div className="modal-body modal-container">
+            {help && (
+              <Alert className="big-spacer-bottom" variant="info">
+                {help}
+              </Alert>
+            )}
+            {children}
+          </div>
 
           <div className="modal-foot">
             <DeferredSpinner className="spacer-right" loading={submitting} />

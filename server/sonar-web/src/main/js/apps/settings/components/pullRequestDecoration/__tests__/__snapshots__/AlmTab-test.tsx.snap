@@ -1,9 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<AlmTab
+<AlmTabRenderer
+  additionalColumnsHeaders={Array []}
+  additionalColumnsKeys={Array []}
   alm="azure"
-  createConfiguration={[Function]}
   defaultBinding={
     Object {
       "key": "",
@@ -18,11 +19,14 @@ exports[`should render correctly 1`] = `
       },
     ]
   }
-  form={[Function]}
+  form={[MockFunction]}
   loading={false}
   multipleAlmEnabled={true}
+  onCancel={[Function]}
+  onCreate={[Function]}
   onDelete={[MockFunction]}
-  onUpdateDefinitions={[MockFunction]}
-  updateConfiguration={[Function]}
+  onEdit={[Function]}
+  onSubmit={[Function]}
+  success={false}
 />
 `;

@@ -18,76 +18,40 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createGithubConfiguration, updateGithubConfiguration } from '../../../../api/almSettings';
-import { GithubBindingDefinition } from '../../../../types/alm-settings';
-import GithubTabRenderer from './GithubTabRenderer';
+import { ALM_KEYS, GithubBindingDefinition } from '../../../../types/alm-settings';
+import AlmTab from './AlmTab';
+import GithubForm from './GithubForm';
 
-interface Props {
+export interface GithubTabProps {
   definitions: GithubBindingDefinition[];
   loading: boolean;
+  multipleAlmEnabled: boolean;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
 }
 
-interface State {
-  editedDefinition?: GithubBindingDefinition;
-  projectCount?: number;
-}
+export default function GithubTab(props: GithubTabProps) {
+  const { multipleAlmEnabled, definitions, loading } = props;
 
-export default class GithubTab extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = {};
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleCancel = () => {
-    this.setState({
-      editedDefinition: undefined
-    });
-  };
-
-  handleCreate = () => {
-    this.setState({ editedDefinition: { key: '', appId: '', url: '', privateKey: '' } });
-  };
-
-  handleEdit = (definitionKey: string) => {
-    const editedDefinition = this.props.definitions.find(d => d.key === definitionKey);
-    this.setState({ editedDefinition });
-  };
-
-  handleSubmit = (config: GithubBindingDefinition, originalKey: string) => {
-    const call = originalKey
-      ? updateGithubConfiguration({ newKey: config.key, ...config, key: originalKey })
-      : createGithubConfiguration(config);
-    return call
-      .then(() => {
-        if (this.mounted) {
-          this.setState({ editedDefinition: undefined });
-        }
-      })
-      .then(this.props.onUpdateDefinitions);
-  };
-
-  render() {
-    const { definitions, loading } = this.props;
-    const { editedDefinition } = this.state;
-    return (
-      <GithubTabRenderer
-        definitions={definitions}
-        editedDefinition={editedDefinition}
-        loading={loading}
-        onCancel={this.handleCancel}
-        onCreate={this.handleCreate}
-        onDelete={this.props.onDelete}
-        onEdit={this.handleEdit}
-        onSubmit={this.handleSubmit}
-      />
-    );
-  }
+  return (
+    <AlmTab
+      additionalColumnsHeaders={[
+        translate('settings.pr_decoration.table.column.github.url'),
+        translate('settings.pr_decoration.table.column.app_id')
+      ]}
+      additionalColumnsKeys={['appId', 'url']}
+      alm={ALM_KEYS.GITHUB}
+      createConfiguration={createGithubConfiguration}
+      defaultBinding={{ key: '', appId: '', url: '', privateKey: '' }}
+      definitions={definitions}
+      form={childProps => <GithubForm {...childProps} />}
+      loading={loading}
+      multipleAlmEnabled={multipleAlmEnabled}
+      onDelete={props.onDelete}
+      onUpdateDefinitions={props.onUpdateDefinitions}
+      updateConfiguration={updateGithubConfiguration}
+    />
+  );
 }

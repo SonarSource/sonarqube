@@ -1,11 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<AlmPRDecorationFormModalRenderer
-  alm="github"
+<AlmPRDecorationFormRenderer
   canSubmit={[Function]}
-  onCancel={[MockFunction]}
+  loading={false}
+  onCancel={[Function]}
   onSubmit={[Function]}
-  originalKey=""
+  success={false}
 />
 `;

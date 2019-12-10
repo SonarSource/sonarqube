@@ -1,13 +1,44 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<GithubTabRenderer
-  definitions={Array []}
+<AlmTab
+  additionalColumnsHeaders={
+    Array [
+      "settings.pr_decoration.table.column.github.url",
+      "settings.pr_decoration.table.column.app_id",
+    ]
+  }
+  additionalColumnsKeys={
+    Array [
+      "appId",
+      "url",
+    ]
+  }
+  alm="github"
+  createConfiguration={[Function]}
+  defaultBinding={
+    Object {
+      "appId": "",
+      "key": "",
+      "privateKey": "",
+      "url": "",
+    }
+  }
+  definitions={
+    Array [
+      Object {
+        "appId": "123456",
+        "key": "key",
+        "privateKey": "asdf1234",
+        "url": "http://github.enterprise.com",
+      },
+    ]
+  }
+  form={[Function]}
   loading={false}
-  onCancel={[Function]}
-  onCreate={[Function]}
+  multipleAlmEnabled={true}
   onDelete={[MockFunction]}
-  onEdit={[Function]}
-  onSubmit={[Function]}
+  onUpdateDefinitions={[MockFunction]}
+  updateConfiguration={[Function]}
 />
 `;

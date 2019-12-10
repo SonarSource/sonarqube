@@ -18,79 +18,40 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   createBitbucketConfiguration,
   updateBitbucketConfiguration
 } from '../../../../api/almSettings';
-import { BitbucketBindingDefinition } from '../../../../types/alm-settings';
-import BitbucketTabRenderer from './BitbucketTabRenderer';
+import { ALM_KEYS, BitbucketBindingDefinition } from '../../../../types/alm-settings';
+import AlmTab from './AlmTab';
+import BitbucketForm from './BitbucketForm';
 
-interface Props {
+export interface BitbucketTabProps {
   definitions: BitbucketBindingDefinition[];
   loading: boolean;
+  multipleAlmEnabled: boolean;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
 }
 
-interface State {
-  editedDefinition?: BitbucketBindingDefinition;
-  projectCount?: number;
-}
+export default function BitbucketTab(props: BitbucketTabProps) {
+  const { multipleAlmEnabled, definitions, loading } = props;
 
-export default class BitbucketTab extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = {};
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleCancel = () => {
-    this.setState({
-      editedDefinition: undefined
-    });
-  };
-
-  handleCreate = () => {
-    this.setState({ editedDefinition: { key: '', url: '', personalAccessToken: '' } });
-  };
-
-  handleEdit = (definitionKey: string) => {
-    const editedDefinition = this.props.definitions.find(d => d.key === definitionKey);
-    this.setState({ editedDefinition });
-  };
-
-  handleSubmit = (config: BitbucketBindingDefinition, originalKey: string) => {
-    const call = originalKey
-      ? updateBitbucketConfiguration({ newKey: config.key, ...config, key: originalKey })
-      : createBitbucketConfiguration(config);
-    return call
-      .then(() => {
-        if (this.mounted) {
-          this.setState({ editedDefinition: undefined });
-        }
-      })
-      .then(this.props.onUpdateDefinitions);
-  };
-
-  render() {
-    const { definitions, loading } = this.props;
-    const { editedDefinition } = this.state;
-    return (
-      <BitbucketTabRenderer
-        definitions={definitions}
-        editedDefinition={editedDefinition}
-        loading={loading}
-        onCancel={this.handleCancel}
-        onCreate={this.handleCreate}
-        onDelete={this.props.onDelete}
-        onEdit={this.handleEdit}
-        onSubmit={this.handleSubmit}
-      />
-    );
-  }
+  return (
+    <AlmTab
+      additionalColumnsHeaders={[translate('settings.pr_decoration.table.column.bitbucket.url')]}
+      additionalColumnsKeys={['url']}
+      alm={ALM_KEYS.BITBUCKET}
+      createConfiguration={createBitbucketConfiguration}
+      defaultBinding={{ key: '', url: '', personalAccessToken: '' }}
+      definitions={definitions}
+      form={childProps => <BitbucketForm {...childProps} />}
+      loading={loading}
+      multipleAlmEnabled={multipleAlmEnabled}
+      onDelete={props.onDelete}
+      onUpdateDefinitions={props.onUpdateDefinitions}
+      updateConfiguration={updateBitbucketConfiguration}
+    />
+  );
 }

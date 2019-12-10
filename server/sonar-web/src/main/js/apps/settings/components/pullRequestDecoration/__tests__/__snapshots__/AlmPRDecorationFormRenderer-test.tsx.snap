@@ -1,0 +1,121 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<form
+  className="views-form"
+  data-test="settings__alm-form"
+  onSubmit={[Function]}
+>
+  <Component />
+  <div
+    className="display-flex-center"
+  >
+    <SubmitButton
+      disabled={true}
+    >
+      settings.pr_decoration.form.save
+    </SubmitButton>
+  </div>
+</form>
+`;
+
+exports[`should render correctly 2`] = `
+<form
+  className="views-form"
+  data-test="settings__alm-form"
+  onSubmit={[Function]}
+>
+  <Component />
+  <div
+    className="display-flex-center"
+  >
+    <SubmitButton
+      disabled={true}
+    >
+      settings.pr_decoration.form.save
+    </SubmitButton>
+    <ResetButtonLink
+      className="spacer-left"
+      onClick={[MockFunction]}
+    >
+      cancel
+    </ResetButtonLink>
+  </div>
+</form>
+`;
+
+exports[`should render correctly 3`] = `
+<form
+  className="views-form"
+  data-test="settings__alm-form"
+  onSubmit={[Function]}
+>
+  <Component />
+  <div
+    className="display-flex-center"
+  >
+    <SubmitButton
+      disabled={true}
+    >
+      settings.pr_decoration.form.save
+    </SubmitButton>
+    <Button
+      className="button-red spacer-left"
+      disabled={false}
+      onClick={[MockFunction]}
+    >
+      delete
+    </Button>
+  </div>
+</form>
+`;
+
+exports[`should render correctly 4`] = `
+<form
+  className="views-form"
+  data-test="settings__alm-form"
+  onSubmit={[Function]}
+>
+  <Component />
+  <div
+    className="display-flex-center"
+  >
+    <SubmitButton
+      disabled={true}
+    >
+      settings.pr_decoration.form.save
+    </SubmitButton>
+    <span
+      className="text-success spacer-left"
+    >
+      <AlertSuccessIcon
+        className="spacer-right"
+      />
+      settings.state.saved
+    </span>
+  </div>
+</form>
+`;
+
+exports[`should render correctly 5`] = `
+<form
+  className="views-form"
+  data-test="settings__alm-form"
+  onSubmit={[Function]}
+>
+  <Component />
+  <div
+    className="display-flex-center"
+  >
+    <SubmitButton
+      disabled={true}
+    >
+      settings.pr_decoration.form.save
+    </SubmitButton>
+    <DeferredSpinner
+      className="spacer-left"
+      timeout={100}
+    />
+  </div>
+</form>
+`;

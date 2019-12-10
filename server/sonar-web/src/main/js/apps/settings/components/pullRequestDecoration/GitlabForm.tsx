@@ -18,49 +18,40 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { BitbucketBindingDefinition } from '../../../../types/alm-settings';
+import { GitlabBindingDefinition } from '../../../../types/alm-settings';
 import { AlmDefinitionFormField } from './AlmDefinitionFormField';
 
-export interface BitbucketFormModalProps {
-  formData: BitbucketBindingDefinition;
-  onFieldChange: (fieldId: keyof BitbucketBindingDefinition, value: string) => void;
+export interface GitlabFormProps {
+  formData: GitlabBindingDefinition;
+  hideKeyField?: boolean;
+  onFieldChange: (fieldId: keyof GitlabBindingDefinition, value: string) => void;
+  readOnly?: boolean;
 }
 
-export default function BitbucketFormModal(props: BitbucketFormModalProps) {
-  const { formData, onFieldChange } = props;
+export default function GitlabForm(props: GitlabFormProps) {
+  const { formData, hideKeyField, onFieldChange, readOnly } = props;
 
   return (
     <>
+      {!hideKeyField && (
+        <AlmDefinitionFormField
+          autoFocus={true}
+          help={translate('settings.pr_decoration.form.name.gitlab.help')}
+          id="name.gitlab"
+          onFieldChange={onFieldChange}
+          propKey="key"
+          readOnly={readOnly}
+          value={formData.key}
+        />
+      )}
       <AlmDefinitionFormField
-        autoFocus={true}
-        help={translate('settings.pr_decoration.form.name.bitbucket.help')}
-        id="name.bitbucket"
-        maxLength={100}
-        onFieldChange={onFieldChange}
-        propKey="key"
-        value={formData.key}
-      />
-      <AlmDefinitionFormField
-        help={
-          <FormattedMessage
-            defaultMessage={translate('settings.pr_decoration.form.url.bitbucket.help')}
-            id="settings.pr_decoration.form.url.bitbucket.help"
-            values={{ example: 'https://bitbucket-server.your-company.com' }}
-          />
-        }
-        id="url.bitbucket"
-        maxLength={2000}
-        onFieldChange={onFieldChange}
-        propKey="url"
-        value={formData.url}
-      />
-      <AlmDefinitionFormField
+        help={translate('settings.pr_decoration.form.personal_access_token.gitlab.help')}
         id="personal_access_token"
         isTextArea={true}
         onFieldChange={onFieldChange}
         propKey="personalAccessToken"
+        readOnly={readOnly}
         value={formData.personalAccessToken}
       />
     </>

@@ -1,13 +1,28 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<GitlabTabRenderer
-  definitions={Array []}
+<AlmTab
+  alm="gitlab"
+  createConfiguration={[Function]}
+  defaultBinding={
+    Object {
+      "key": "",
+      "personalAccessToken": "",
+    }
+  }
+  definitions={
+    Array [
+      Object {
+        "key": "foo",
+        "personalAccessToken": "foobar",
+      },
+    ]
+  }
+  form={[Function]}
   loading={false}
-  onCancel={[Function]}
-  onCreate={[Function]}
+  multipleAlmEnabled={true}
   onDelete={[MockFunction]}
-  onEdit={[Function]}
-  onSubmit={[Function]}
+  onUpdateDefinitions={[MockFunction]}
+  updateConfiguration={[Function]}
 />
 `;

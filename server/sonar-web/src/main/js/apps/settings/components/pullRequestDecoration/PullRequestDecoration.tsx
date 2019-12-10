@@ -93,14 +93,22 @@ export default class PullRequestDecoration extends React.PureComponent<{}, State
   };
 
   handleDelete = (definitionKey: string) => {
-    return countBindedProjects(definitionKey).then(projectCount => {
-      if (this.mounted) {
-        this.setState({
-          definitionKeyForDeletion: definitionKey,
-          projectCount
-        });
-      }
-    });
+    this.setState({ loading: true });
+    return countBindedProjects(definitionKey)
+      .then(projectCount => {
+        if (this.mounted) {
+          this.setState({
+            definitionKeyForDeletion: definitionKey,
+            loading: false,
+            projectCount
+          });
+        }
+      })
+      .catch(() => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
+      });
   };
 
   render() {

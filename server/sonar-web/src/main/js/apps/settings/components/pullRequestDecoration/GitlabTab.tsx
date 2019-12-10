@@ -19,73 +19,33 @@
  */
 import * as React from 'react';
 import { createGitlabConfiguration, updateGitlabConfiguration } from '../../../../api/almSettings';
-import { GitlabBindingDefinition } from '../../../../types/alm-settings';
-import GitlabTabRenderer from './GitlabTabRenderer';
+import { ALM_KEYS, GitlabBindingDefinition } from '../../../../types/alm-settings';
+import AlmTab from './AlmTab';
+import GitlabForm from './GitlabForm';
 
-interface Props {
+export interface GitlabTabProps {
   definitions: GitlabBindingDefinition[];
   loading: boolean;
+  multipleAlmEnabled: boolean;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
 }
 
-interface State {
-  editedDefinition?: GitlabBindingDefinition;
-  projectCount?: number;
-}
+export default function GitlabTab(props: GitlabTabProps) {
+  const { multipleAlmEnabled, definitions, loading } = props;
 
-export default class GitlabTab extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = {};
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleEdit = (definitionKey: string) => {
-    const editedDefinition = this.props.definitions.find(d => d.key === definitionKey);
-    this.setState({ editedDefinition });
-  };
-
-  handleSubmit = (config: GitlabBindingDefinition, originalKey: string) => {
-    const call = originalKey
-      ? updateGitlabConfiguration({ newKey: config.key, ...config, key: originalKey })
-      : createGitlabConfiguration(config);
-    return call.then(this.props.onUpdateDefinitions).then(() => {
-      if (this.mounted) {
-        this.setState({ editedDefinition: undefined });
-      }
-    });
-  };
-
-  handleCancel = () => {
-    this.setState({
-      editedDefinition: undefined
-    });
-  };
-
-  handleCreate = () => {
-    this.setState({ editedDefinition: { key: '', personalAccessToken: '' } });
-  };
-
-  render() {
-    const { definitions, loading } = this.props;
-    const { editedDefinition } = this.state;
-    return (
-      <GitlabTabRenderer
-        definitions={definitions}
-        editedDefinition={editedDefinition}
-        loading={loading}
-        onCancel={this.handleCancel}
-        onCreate={this.handleCreate}
-        onDelete={this.props.onDelete}
-        onEdit={this.handleEdit}
-        onSubmit={this.handleSubmit}
-      />
-    );
-  }
+  return (
+    <AlmTab
+      alm={ALM_KEYS.GITLAB}
+      createConfiguration={createGitlabConfiguration}
+      defaultBinding={{ key: '', personalAccessToken: '' }}
+      definitions={definitions}
+      form={childProps => <GitlabForm {...childProps} />}
+      loading={loading}
+      multipleAlmEnabled={multipleAlmEnabled}
+      onDelete={props.onDelete}
+      onUpdateDefinitions={props.onUpdateDefinitions}
+      updateConfiguration={updateGitlabConfiguration}
+    />
+  );
 }

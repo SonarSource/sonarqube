@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { ALM_KEYS } from '../../../../../types/alm-settings';
-import PRDecorationTabs, { PRDecorationTabsProps } from '../PRDecorationTabs';
+import { PRDecorationTabs, PRDecorationTabsProps } from '../PRDecorationTabs';
 
 it('should render correctly', () => {
   expect(shallowRender({ loading: true })).toMatchSnapshot();
@@ -33,6 +33,7 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<PRDecorationTabsProps> = {}) {
   return shallow(
     <PRDecorationTabs
+      appState={{ multipleAlmEnabled: false }}
       currentAlm={ALM_KEYS.GITHUB}
       definitions={{ azure: [], bitbucket: [], github: [], gitlab: [] }}
       loading={false}

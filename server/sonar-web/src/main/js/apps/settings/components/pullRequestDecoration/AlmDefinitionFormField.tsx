@@ -30,13 +30,24 @@ export interface AlmDefinitionFormFieldProps<B extends AlmSettingsBinding> {
   maxLength?: number;
   onFieldChange: (id: keyof B, value: string) => void;
   propKey: keyof B;
+  readOnly?: boolean;
   value: string;
 }
 
 export function AlmDefinitionFormField<B extends AlmSettingsBinding>(
   props: AlmDefinitionFormFieldProps<B>
 ) {
-  const { autoFocus, help, id, isTextArea, maxLength, onFieldChange, propKey, value } = props;
+  const {
+    autoFocus,
+    help,
+    id,
+    isTextArea,
+    maxLength,
+    onFieldChange,
+    propKey,
+    readOnly = false,
+    value
+  } = props;
 
   return (
     <div className="modal-field">
@@ -48,6 +59,7 @@ export function AlmDefinitionFormField<B extends AlmSettingsBinding>(
       {isTextArea ? (
         <textarea
           className="settings-large-input"
+          disabled={readOnly}
           id={id}
           maxLength={maxLength || 2000}
           onChange={e => onFieldChange(propKey, e.currentTarget.value)}
@@ -59,6 +71,7 @@ export function AlmDefinitionFormField<B extends AlmSettingsBinding>(
         <input
           autoFocus={autoFocus}
           className="input-super-large"
+          disabled={readOnly}
           id={id}
           maxLength={maxLength || 100}
           name={id}

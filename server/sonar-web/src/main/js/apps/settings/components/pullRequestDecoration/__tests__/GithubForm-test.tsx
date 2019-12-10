@@ -19,18 +19,18 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockGitlabDefinition } from '../../../../../helpers/mocks/alm-settings';
-import { GitlabFormModal, GitlabFormModalProps } from '../GitlabFormModal';
+import { mockGithubDefinition } from '../../../../../helpers/mocks/alm-settings';
+import GithubForm, { GithubFormProps } from '../GithubForm';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ formData: mockGitlabDefinition() })).toMatchSnapshot();
+  expect(shallowRender({ formData: mockGithubDefinition() })).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<GitlabFormModalProps> = {}) {
+function shallowRender(props: Partial<GithubFormProps> = {}) {
   return shallow(
-    <GitlabFormModal
-      formData={{ key: '', personalAccessToken: '' }}
+    <GithubForm
+      formData={{ key: '', appId: '', privateKey: '', url: '' }}
       onFieldChange={jest.fn()}
       {...props}
     />

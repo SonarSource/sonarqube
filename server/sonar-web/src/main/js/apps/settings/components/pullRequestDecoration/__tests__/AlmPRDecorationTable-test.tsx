@@ -33,10 +33,12 @@ it('should render correctly', () => {
         { key: 'definition2', additionalColumns: ['def2-v1', 'def2-v2'] }
       ]
     })
-  ).toMatchSnapshot();
+  ).toMatchSnapshot('additional columns');
+  expect(shallowRender({ alm: ALM_KEYS.GITHUB })).toMatchSnapshot('title adjusts for GitLab');
 });
 
-it('should callback', () => {
+it('should correctly trigger create, delete, and edit', () => {
+  const onCreate = jest.fn();
   const onDelete = jest.fn();
   const onEdit = jest.fn();
 
@@ -44,9 +46,13 @@ it('should callback', () => {
     additionalColumnsHeaders: [],
     alm: ALM_KEYS.BITBUCKET,
     definitions: [{ key: 'defKey', additionalColumns: [] }],
+    onCreate,
     onDelete,
     onEdit
   });
+
+  wrapper.find('Button').simulate('click');
+  expect(onCreate).toBeCalled();
 
   wrapper.find('DeleteButton').simulate('click');
   expect(onDelete).toBeCalledWith('defKey');
@@ -61,6 +67,7 @@ function shallowRender(props: Partial<AlmPRDecorationTableProps> = {}) {
       additionalColumnsHeaders={[]}
       alm={ALM_KEYS.AZURE}
       definitions={[]}
+      onCreate={jest.fn()}
       onDelete={jest.fn()}
       onEdit={jest.fn()}
       {...props}

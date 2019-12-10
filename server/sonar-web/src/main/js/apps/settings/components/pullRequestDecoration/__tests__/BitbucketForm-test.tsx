@@ -19,25 +19,19 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockGitlabDefinition } from '../../../../../helpers/mocks/alm-settings';
-import GitlabTabRenderer, { GitlabTabRendererProps } from '../GitlabTabRenderer';
+import { mockBitbucketDefinition } from '../../../../../helpers/mocks/alm-settings';
+import BitbucketForm, { BitbucketFormProps } from '../BitbucketForm';
 
 it('should render correctly', () => {
-  expect(shallowRender({ loading: true })).toMatchSnapshot();
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ editedDefinition: mockGitlabDefinition() })).toMatchSnapshot();
+  expect(shallowRender({ formData: mockBitbucketDefinition() })).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<GitlabTabRendererProps> = {}) {
+function shallowRender(props: Partial<BitbucketFormProps> = {}) {
   return shallow(
-    <GitlabTabRenderer
-      definitions={[]}
-      loading={false}
-      onCancel={jest.fn()}
-      onCreate={jest.fn()}
-      onDelete={jest.fn()}
-      onEdit={jest.fn()}
-      onSubmit={jest.fn()}
+    <BitbucketForm
+      formData={{ key: '', personalAccessToken: '', url: '' }}
+      onFieldChange={jest.fn()}
       {...props}
     />
   );

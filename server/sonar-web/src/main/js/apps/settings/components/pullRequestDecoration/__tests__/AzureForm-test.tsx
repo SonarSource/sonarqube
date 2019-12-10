@@ -19,18 +19,18 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockGithubDefinition } from '../../../../../helpers/mocks/alm-settings';
-import GithubFormModal, { GithubFormModalProps } from '../GithubFormModal';
+import { mockAzureDefinition } from '../../../../../helpers/mocks/alm-settings';
+import AzureForm, { AzureFormProps } from '../AzureForm';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ formData: mockGithubDefinition() })).toMatchSnapshot();
+  expect(shallowRender({ formData: mockAzureDefinition() })).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<GithubFormModalProps> = {}) {
+function shallowRender(props: Partial<AzureFormProps> = {}) {
   return shallow(
-    <GithubFormModal
-      formData={{ key: '', appId: '', privateKey: '', url: '' }}
+    <AzureForm
+      formData={{ key: '', personalAccessToken: '' }}
       onFieldChange={jest.fn()}
       {...props}
     />

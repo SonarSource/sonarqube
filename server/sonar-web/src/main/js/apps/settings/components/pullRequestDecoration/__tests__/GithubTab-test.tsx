@@ -19,91 +19,19 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import {
-  createGithubConfiguration,
-  updateGithubConfiguration
-} from '../../../../../api/almSettings';
 import { mockGithubDefinition } from '../../../../../helpers/mocks/alm-settings';
-import GithubTab from '../GithubTab';
-
-jest.mock('../../../../../api/almSettings', () => ({
-  countBindedProjects: jest.fn().mockResolvedValue(2),
-  createGithubConfiguration: jest.fn().mockResolvedValue({}),
-  deleteConfiguration: jest.fn().mockResolvedValue({}),
-  updateGithubConfiguration: jest.fn().mockResolvedValue({})
-}));
-
-beforeEach(() => {
-  jest.clearAllMocks();
-});
+import GithubTab, { GithubTabProps } from '../GithubTab';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should handle cancel', async () => {
-  const wrapper = shallowRender();
-
-  wrapper.setState({
-    editedDefinition: mockGithubDefinition()
-  });
-
-  wrapper.instance().handleCancel();
-
-  await waitAndUpdate(wrapper);
-
-  expect(wrapper.state().editedDefinition).toBeUndefined();
-});
-
-it('should handle edit', async () => {
-  const config = {
-    key: 'key',
-    url: 'url',
-    appId: 'appid',
-    privateKey: 'PAT'
-  };
-  const wrapper = shallowRender({ definitions: [config] });
-  wrapper.instance().handleEdit(config.key);
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state().editedDefinition).toEqual(config);
-});
-
-it('should create config', async () => {
-  const onUpdateDefinitions = jest.fn();
-  const config = mockGithubDefinition();
-  const wrapper = shallowRender({ onUpdateDefinitions });
-  wrapper.setState({ editedDefinition: config });
-
-  await wrapper.instance().handleSubmit(config, '');
-
-  expect(createGithubConfiguration).toBeCalledWith(config);
-  expect(onUpdateDefinitions).toBeCalled();
-  expect(wrapper.state().editedDefinition).toBeUndefined();
-});
-
-it('should update config', async () => {
-  const onUpdateDefinitions = jest.fn();
-  const config = mockGithubDefinition();
-  const wrapper = shallowRender({ onUpdateDefinitions });
-  wrapper.setState({ editedDefinition: config });
-
-  await wrapper.instance().handleSubmit(config, 'originalKey');
-
-  expect(updateGithubConfiguration).toBeCalledWith({
-    newKey: 'key',
-    ...config,
-    key: 'originalKey'
-  });
-  expect(onUpdateDefinitions).toBeCalled();
-  expect(wrapper.state().editedDefinition).toBeUndefined();
-});
-
-function shallowRender(props: Partial<GithubTab['props']> = {}) {
-  return shallow<GithubTab>(
+function shallowRender(props: Partial<GithubTabProps> = {}) {
+  return shallow(
     <GithubTab
-      definitions={[]}
+      definitions={[mockGithubDefinition()]}
       loading={false}
+      multipleAlmEnabled={true}
       onDelete={jest.fn()}
       onUpdateDefinitions={jest.fn()}
       {...props}

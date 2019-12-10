@@ -26,16 +26,17 @@ import AlmPRDecorationFormModalRenderer, {
 
 it('should render correctly', () => {
   expect(shallowRender().dive()).toMatchSnapshot();
+  expect(shallowRender({ help: <span>Help me</span> }).dive()).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<AlmPRDecorationFormModalProps> = {}) {
   return shallow(
     <AlmPRDecorationFormModalRenderer
+      action="create"
       alm={ALM_KEYS.GITHUB}
       canSubmit={jest.fn()}
       onCancel={jest.fn()}
       onSubmit={jest.fn()}
-      originalKey=""
       {...props}>
       {() => null}
     </AlmPRDecorationFormModalRenderer>

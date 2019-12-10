@@ -19,97 +19,19 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import {
-  createBitbucketConfiguration,
-  updateBitbucketConfiguration
-} from '../../../../../api/almSettings';
 import { mockBitbucketDefinition } from '../../../../../helpers/mocks/alm-settings';
-import BitbucketTab from '../BitbucketTab';
-
-jest.mock('../../../../../api/almSettings', () => ({
-  countBindedProjects: jest.fn().mockResolvedValue(2),
-  createBitbucketConfiguration: jest.fn().mockResolvedValue({}),
-  deleteConfiguration: jest.fn().mockResolvedValue({}),
-  updateBitbucketConfiguration: jest.fn().mockResolvedValue({})
-}));
-
-beforeEach(() => {
-  jest.clearAllMocks();
-});
+import BitbucketTab, { BitbucketTabProps } from '../BitbucketTab';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should handle cancel', async () => {
-  const wrapper = shallowRender();
-
-  wrapper.setState({
-    editedDefinition: mockBitbucketDefinition()
-  });
-
-  wrapper.instance().handleCancel();
-
-  await waitAndUpdate(wrapper);
-
-  expect(wrapper.state().editedDefinition).toBeUndefined();
-});
-
-it('should create config', async () => {
-  const onUpdateDefinitions = jest.fn();
-  const config = mockBitbucketDefinition();
-  const wrapper = shallowRender({ onUpdateDefinitions });
-  wrapper.setState({ editedDefinition: config });
-
-  await wrapper.instance().handleSubmit(config, '');
-
-  expect(createBitbucketConfiguration).toBeCalledWith(config);
-  expect(onUpdateDefinitions).toBeCalled();
-  expect(wrapper.state().editedDefinition).toBeUndefined();
-});
-
-it('should update config', async () => {
-  const onUpdateDefinitions = jest.fn();
-  const config = mockBitbucketDefinition();
-  const wrapper = shallowRender({ onUpdateDefinitions });
-  wrapper.setState({ editedDefinition: config });
-
-  await wrapper.instance().handleSubmit(config, 'originalKey');
-
-  expect(updateBitbucketConfiguration).toBeCalledWith({
-    newKey: 'key',
-    ...config,
-    key: 'originalKey'
-  });
-  expect(onUpdateDefinitions).toBeCalled();
-  expect(wrapper.state().editedDefinition).toBeUndefined();
-});
-
-it('should handle create', async () => {
-  const wrapper = shallowRender();
-  wrapper.instance().handleCreate();
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state().editedDefinition).toEqual({ key: '', url: '', personalAccessToken: '' });
-});
-
-it('should handle edit', async () => {
-  const config = {
-    key: 'key',
-    url: 'url',
-    personalAccessToken: 'PAT'
-  };
-  const wrapper = shallowRender({ definitions: [config] });
-  wrapper.instance().handleEdit(config.key);
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state().editedDefinition).toEqual(config);
-});
-
-function shallowRender(props: Partial<BitbucketTab['props']> = {}) {
-  return shallow<BitbucketTab>(
+function shallowRender(props: Partial<BitbucketTabProps> = {}) {
+  return shallow(
     <BitbucketTab
-      definitions={[]}
+      definitions={[mockBitbucketDefinition()]}
       loading={false}
+      multipleAlmEnabled={true}
       onDelete={jest.fn()}
       onUpdateDefinitions={jest.fn()}
       {...props}

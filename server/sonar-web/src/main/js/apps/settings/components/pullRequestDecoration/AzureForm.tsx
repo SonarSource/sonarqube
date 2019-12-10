@@ -19,37 +19,41 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { GitlabBindingDefinition } from '../../../../types/alm-settings';
+import { AzureBindingDefinition } from '../../../../types/alm-settings';
 import { AlmDefinitionFormField } from './AlmDefinitionFormField';
 
-export interface GitlabFormModalProps {
-  formData: GitlabBindingDefinition;
-  onFieldChange: (fieldId: keyof GitlabBindingDefinition, value: string) => void;
+export interface AzureFormProps {
+  formData: AzureBindingDefinition;
+  hideKeyField?: boolean;
+  onFieldChange: (fieldId: keyof AzureBindingDefinition, value: string) => void;
+  readOnly?: boolean;
 }
 
-export function GitlabFormModal(props: GitlabFormModalProps) {
-  const { formData, onFieldChange } = props;
+export default function AzureForm(props: AzureFormProps) {
+  const { formData, hideKeyField, onFieldChange, readOnly } = props;
 
   return (
     <>
+      {!hideKeyField && (
+        <AlmDefinitionFormField
+          autoFocus={true}
+          help={translate('settings.pr_decoration.form.name.azure.help')}
+          id="name.azure"
+          onFieldChange={onFieldChange}
+          propKey="key"
+          readOnly={readOnly}
+          value={formData.key}
+        />
+      )}
       <AlmDefinitionFormField
-        autoFocus={true}
-        help={translate('settings.pr_decoration.form.name.gitlab.help')}
-        id="name.gitlab"
-        onFieldChange={onFieldChange}
-        propKey="key"
-        value={formData.key}
-      />
-      <AlmDefinitionFormField
-        help={translate('settings.pr_decoration.form.personal_access_token.gitlab.help')}
+        help={translate('settings.pr_decoration.form.personal_access_token.azure.help')}
         id="personal_access_token"
         isTextArea={true}
         onFieldChange={onFieldChange}
         propKey="personalAccessToken"
+        readOnly={readOnly}
         value={formData.personalAccessToken}
       />
     </>
   );
 }
-
-export default React.memo(GitlabFormModal);

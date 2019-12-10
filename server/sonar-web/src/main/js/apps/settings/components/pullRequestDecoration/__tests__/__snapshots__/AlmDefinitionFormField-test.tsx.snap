@@ -17,6 +17,7 @@ exports[`should render correctly 1`] = `
   </label>
   <input
     className="input-super-large"
+    disabled={false}
     id="key"
     maxLength={40}
     name="key"
@@ -49,6 +50,7 @@ exports[`should render correctly 2`] = `
   </label>
   <input
     className="input-super-large"
+    disabled={false}
     id="key"
     maxLength={40}
     name="key"
@@ -77,6 +79,7 @@ exports[`should render correctly 3`] = `
   </label>
   <textarea
     className="settings-large-input"
+    disabled={false}
     id="key"
     maxLength={40}
     onChange={[Function]}

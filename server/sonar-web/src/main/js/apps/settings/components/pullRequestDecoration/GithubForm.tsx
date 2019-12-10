@@ -22,24 +22,29 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { GithubBindingDefinition } from '../../../../types/alm-settings';
 import { AlmDefinitionFormField } from './AlmDefinitionFormField';
 
-export interface GithubFormModalProps {
+export interface GithubFormProps {
   formData: GithubBindingDefinition;
+  hideKeyField?: boolean;
   onFieldChange: (fieldId: keyof GithubBindingDefinition, value: string) => void;
+  readOnly?: boolean;
 }
 
-export default function GithubFormModal(props: GithubFormModalProps) {
-  const { formData, onFieldChange } = props;
+export default function GithubForm(props: GithubFormProps) {
+  const { formData, hideKeyField, onFieldChange, readOnly } = props;
 
   return (
     <>
-      <AlmDefinitionFormField
-        autoFocus={true}
-        help={translate('settings.pr_decoration.form.name.github.help')}
-        id="name.github"
-        onFieldChange={onFieldChange}
-        propKey="key"
-        value={formData.key}
-      />
+      {!hideKeyField && (
+        <AlmDefinitionFormField
+          autoFocus={true}
+          help={translate('settings.pr_decoration.form.name.github.help')}
+          id="name.github"
+          onFieldChange={onFieldChange}
+          propKey="key"
+          readOnly={readOnly}
+          value={formData.key}
+        />
+      )}
       <AlmDefinitionFormField
         help={
           <>
@@ -57,6 +62,7 @@ export default function GithubFormModal(props: GithubFormModalProps) {
         maxLength={2000}
         onFieldChange={onFieldChange}
         propKey="url"
+        readOnly={readOnly}
         value={formData.url}
       />
       <AlmDefinitionFormField
@@ -64,6 +70,7 @@ export default function GithubFormModal(props: GithubFormModalProps) {
         maxLength={80}
         onFieldChange={onFieldChange}
         propKey="appId"
+        readOnly={readOnly}
         value={formData.appId}
       />
       <AlmDefinitionFormField
@@ -71,6 +78,7 @@ export default function GithubFormModal(props: GithubFormModalProps) {
         isTextArea={true}
         onFieldChange={onFieldChange}
         propKey="privateKey"
+        readOnly={readOnly}
         value={formData.privateKey}
       />
     </>

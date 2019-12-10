@@ -78,6 +78,7 @@ exports[`should render correctly 1`] = `
     <GithubTab
       definitions={Array []}
       loading={true}
+      multipleAlmEnabled={false}
       onDelete={[MockFunction]}
       onUpdateDefinitions={[MockFunction]}
     />
@@ -163,6 +164,7 @@ exports[`should render correctly 2`] = `
     <GithubTab
       definitions={Array []}
       loading={false}
+      multipleAlmEnabled={false}
       onDelete={[MockFunction]}
       onUpdateDefinitions={[MockFunction]}
     />
@@ -253,6 +255,7 @@ exports[`should render correctly 3`] = `
     <AzureTab
       definitions={Array []}
       loading={false}
+      multipleAlmEnabled={false}
       onDelete={[MockFunction]}
       onUpdateDefinitions={[MockFunction]}
     />
@@ -338,6 +341,7 @@ exports[`should render correctly 4`] = `
     <BitbucketTab
       definitions={Array []}
       loading={false}
+      multipleAlmEnabled={false}
       onDelete={[MockFunction]}
       onUpdateDefinitions={[MockFunction]}
     />
@@ -423,6 +427,7 @@ exports[`should render correctly 5`] = `
     <GitlabTab
       definitions={Array []}
       loading={false}
+      multipleAlmEnabled={false}
       onDelete={[MockFunction]}
       onUpdateDefinitions={[MockFunction]}
     />

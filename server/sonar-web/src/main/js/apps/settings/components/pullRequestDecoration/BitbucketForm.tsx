@@ -18,34 +18,56 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { AzureBindingDefinition } from '../../../../types/alm-settings';
+import { BitbucketBindingDefinition } from '../../../../types/alm-settings';
 import { AlmDefinitionFormField } from './AlmDefinitionFormField';
 
-export interface AzureFormModalProps {
-  formData: AzureBindingDefinition;
-  onFieldChange: (fieldId: keyof AzureBindingDefinition, value: string) => void;
+export interface BitbucketFormProps {
+  formData: BitbucketBindingDefinition;
+  hideKeyField?: boolean;
+  onFieldChange: (fieldId: keyof BitbucketBindingDefinition, value: string) => void;
+  readOnly?: boolean;
 }
 
-export default function AzureFormModal(props: AzureFormModalProps) {
-  const { formData, onFieldChange } = props;
+export default function BitbucketForm(props: BitbucketFormProps) {
+  const { formData, hideKeyField, onFieldChange, readOnly } = props;
 
   return (
     <>
+      {!hideKeyField && (
+        <AlmDefinitionFormField
+          autoFocus={true}
+          help={translate('settings.pr_decoration.form.name.bitbucket.help')}
+          id="name.bitbucket"
+          maxLength={100}
+          onFieldChange={onFieldChange}
+          propKey="key"
+          readOnly={readOnly}
+          value={formData.key}
+        />
+      )}
       <AlmDefinitionFormField
-        autoFocus={true}
-        help={translate('settings.pr_decoration.form.name.azure.help')}
-        id="name.azure"
+        help={
+          <FormattedMessage
+            defaultMessage={translate('settings.pr_decoration.form.url.bitbucket.help')}
+            id="settings.pr_decoration.form.url.bitbucket.help"
+            values={{ example: 'https://bitbucket-server.your-company.com' }}
+          />
+        }
+        id="url.bitbucket"
+        maxLength={2000}
         onFieldChange={onFieldChange}
-        propKey="key"
-        value={formData.key}
+        propKey="url"
+        readOnly={readOnly}
+        value={formData.url}
       />
       <AlmDefinitionFormField
-        help={translate('settings.pr_decoration.form.personal_access_token.azure.help')}
         id="personal_access_token"
         isTextArea={true}
         onFieldChange={onFieldChange}
         propKey="personalAccessToken"
+        readOnly={readOnly}
         value={formData.personalAccessToken}
       />
     </>

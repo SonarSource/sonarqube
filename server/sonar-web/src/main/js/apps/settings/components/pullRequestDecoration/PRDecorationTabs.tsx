@@ -21,6 +21,7 @@ import * as React from 'react';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { withAppState } from '../../../../components/hoc/withAppState';
 import { AlmSettingsBindingDefinitions, ALM_KEYS } from '../../../../types/alm-settings';
 import AzureTab from './AzureTab';
 import BitbucketTab from './BitbucketTab';
@@ -29,6 +30,7 @@ import GithubTab from './GithubTab';
 import GitlabTab from './GitlabTab';
 
 export interface PRDecorationTabsProps {
+  appState: Pick<T.AppState, 'multipleAlmEnabled'>;
   currentAlm: ALM_KEYS;
   definitionKeyForDeletion?: string;
   definitions: AlmSettingsBindingDefinitions;
@@ -48,8 +50,15 @@ export const almName = {
   [ALM_KEYS.GITLAB]: 'GitLab'
 };
 
-export default function PRDecorationTabs(props: PRDecorationTabsProps) {
-  const { definitionKeyForDeletion, definitions, currentAlm, loading, projectCount } = props;
+export function PRDecorationTabs(props: PRDecorationTabsProps) {
+  const {
+    appState: { multipleAlmEnabled },
+    definitionKeyForDeletion,
+    definitions,
+    currentAlm,
+    loading,
+    projectCount
+  } = props;
 
   return (
     <>
@@ -128,6 +137,7 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
           <AzureTab
             definitions={definitions.azure}
             loading={loading}
+            multipleAlmEnabled={Boolean(multipleAlmEnabled)}
             onDelete={props.onDelete}
             onUpdateDefinitions={props.onUpdateDefinitions}
           />
@@ -136,6 +146,7 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
           <BitbucketTab
             definitions={definitions.bitbucket}
             loading={loading}
+            multipleAlmEnabled={Boolean(multipleAlmEnabled)}
             onDelete={props.onDelete}
             onUpdateDefinitions={props.onUpdateDefinitions}
           />
@@ -144,6 +155,7 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
           <GithubTab
             definitions={definitions.github}
             loading={loading}
+            multipleAlmEnabled={Boolean(multipleAlmEnabled)}
             onDelete={props.onDelete}
             onUpdateDefinitions={props.onUpdateDefinitions}
           />
@@ -152,6 +164,7 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
           <GitlabTab
             definitions={definitions.gitlab}
             loading={loading}
+            multipleAlmEnabled={Boolean(multipleAlmEnabled)}
             onDelete={props.onDelete}
             onUpdateDefinitions={props.onUpdateDefinitions}
           />
@@ -169,3 +182,5 @@ export default function PRDecorationTabs(props: PRDecorationTabsProps) {
     </>
   );
 }
+
+export default withAppState(PRDecorationTabs);
