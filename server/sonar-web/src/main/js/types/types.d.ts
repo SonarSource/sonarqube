@@ -849,6 +849,8 @@ declare namespace T {
     uuid: string;
   }
 
+  export type StandardSecurityCategories = T.Dict<{ title: string; description?: string }>;
+
   export type Standards = {
     [key in StandardType]: T.Dict<{ title: string; description?: string }>;
   };

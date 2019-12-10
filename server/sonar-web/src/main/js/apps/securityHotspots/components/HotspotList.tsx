@@ -22,7 +22,7 @@ import { groupBy } from 'lodash';
 import * as React from 'react';
 import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { RawHotspot, RiskExposure } from '../../../types/securityHotspots';
+import { RawHotspot, RiskExposure } from '../../../types/security-hotspots';
 import { groupByCategory, RISK_EXPOSURE_LEVELS } from '../utils';
 import HotspotCategory from './HotspotCategory';
 import './HotspotList.css';
@@ -30,7 +30,7 @@ import './HotspotList.css';
 export interface HotspotListProps {
   hotspots: RawHotspot[];
   onHotspotClick: (key: string) => void;
-  securityCategories: T.Dict<{ title: string; description?: string }>;
+  securityCategories: T.StandardSecurityCategories;
   selectedHotspotKey: string | undefined;
 }
 

@@ -17,60 +17,60 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mockHotspot } from '../../../helpers/mocks/security-hotspots';
-import { RiskExposure } from '../../../types/securityHotspots';
+import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
+import { RiskExposure } from '../../../types/security-hotspots';
 import { groupByCategory, mapRules, sortHotspots } from '../utils';
 
 const hotspots = [
-  mockHotspot({
+  mockRawHotspot({
     key: '3',
     vulnerabilityProbability: RiskExposure.HIGH,
     securityCategory: 'object-injection',
     message: 'tfdh'
   }),
-  mockHotspot({
+  mockRawHotspot({
     key: '5',
     vulnerabilityProbability: RiskExposure.MEDIUM,
     securityCategory: 'xpath-injection',
     message: 'asdf'
   }),
-  mockHotspot({
+  mockRawHotspot({
     key: '1',
     vulnerabilityProbability: RiskExposure.HIGH,
     securityCategory: 'dos',
     message: 'a'
   }),
-  mockHotspot({
+  mockRawHotspot({
     key: '7',
     vulnerabilityProbability: RiskExposure.LOW,
     securityCategory: 'ssrf',
     message: 'rrrr'
   }),
-  mockHotspot({
+  mockRawHotspot({
     key: '2',
     vulnerabilityProbability: RiskExposure.HIGH,
     securityCategory: 'dos',
     message: 'b'
   }),
-  mockHotspot({
+  mockRawHotspot({
     key: '8',
     vulnerabilityProbability: RiskExposure.LOW,
     securityCategory: 'ssrf',
     message: 'sssss'
   }),
-  mockHotspot({
+  mockRawHotspot({
     key: '4',
     vulnerabilityProbability: RiskExposure.MEDIUM,
     securityCategory: 'log-injection',
     message: 'asdf'
   }),
-  mockHotspot({
+  mockRawHotspot({
     key: '9',
     vulnerabilityProbability: RiskExposure.LOW,
     securityCategory: 'xxe',
     message: 'aaa'
   }),
-  mockHotspot({
+  mockRawHotspot({
     key: '6',
     vulnerabilityProbability: RiskExposure.LOW,
     securityCategory: 'xss',

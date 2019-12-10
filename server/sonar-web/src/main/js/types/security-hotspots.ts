@@ -35,10 +35,36 @@ export interface RawHotspot {
   resolution: string;
   rule: string;
   securityCategory: string;
-  updateDate: string;
-  vulnerabilityProbability: RiskExposure;
   status: string;
   subProject?: string;
+  updateDate: string;
+  vulnerabilityProbability: RiskExposure;
+}
+
+export interface DetailedHotspot {
+  assignee?: Pick<T.UserBase, 'active' | 'login' | 'name'>;
+  author?: Pick<T.UserBase, 'login'>;
+  component: T.Component;
+  creationDate: string;
+  key: string;
+  line?: number;
+  message: string;
+  project: T.Component;
+  resolution: string;
+  rule: DetailedHotspotRule;
+  status: string;
+  textRange: T.TextRange;
+  updateDate: string;
+}
+
+export interface DetailedHotspotRule {
+  fixRecommendations?: string;
+  key: string;
+  name: string;
+  riskDescription?: string;
+  securityCategory: string;
+  vulnerabilityDescription?: string;
+  vulnerabilityProbability: RiskExposure;
 }
 
 export interface HotspotSearchResponse {

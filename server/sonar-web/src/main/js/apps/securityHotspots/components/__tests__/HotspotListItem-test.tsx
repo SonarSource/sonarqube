@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
+import { mockRawHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { HotspotListItem, HotspotListItemProps } from '../HotspotListItem';
 
 it('should render correctly', () => {
@@ -28,7 +28,7 @@ it('should render correctly', () => {
 });
 
 it('should handle click', () => {
-  const hotspot = mockHotspot({ key: 'hotspotKey' });
+  const hotspot = mockRawHotspot({ key: 'hotspotKey' });
   const onClick = jest.fn();
   const wrapper = shallowRender({ hotspot, onClick });
 
@@ -39,6 +39,6 @@ it('should handle click', () => {
 
 function shallowRender(props: Partial<HotspotListItemProps> = {}) {
   return shallow(
-    <HotspotListItem hotspot={mockHotspot()} onClick={jest.fn()} selected={false} {...props} />
+    <HotspotListItem hotspot={mockRawHotspot()} onClick={jest.fn()} selected={false} {...props} />
   );
 }

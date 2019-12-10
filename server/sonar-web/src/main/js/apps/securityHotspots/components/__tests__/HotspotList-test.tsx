@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
-import { RiskExposure } from '../../../../types/securityHotspots';
+import { mockRawHotspot } from '../../../../helpers/mocks/security-hotspots';
+import { RiskExposure } from '../../../../types/security-hotspots';
 import HotspotList, { HotspotListProps } from '../HotspotList';
 
 it('should render correctly', () => {
@@ -29,19 +29,19 @@ it('should render correctly', () => {
 
 it('should render correctly with hotspots', () => {
   const hotspots = [
-    mockHotspot({ key: 'h1', securityCategory: 'cat2' }),
-    mockHotspot({ key: 'h2', securityCategory: 'cat1' }),
-    mockHotspot({
+    mockRawHotspot({ key: 'h1', securityCategory: 'cat2' }),
+    mockRawHotspot({ key: 'h2', securityCategory: 'cat1' }),
+    mockRawHotspot({
       key: 'h3',
       securityCategory: 'cat1',
       vulnerabilityProbability: RiskExposure.MEDIUM
     }),
-    mockHotspot({
+    mockRawHotspot({
       key: 'h4',
       securityCategory: 'cat1',
       vulnerabilityProbability: RiskExposure.MEDIUM
     }),
-    mockHotspot({
+    mockRawHotspot({
       key: 'h5',
       securityCategory: 'cat2',
       vulnerabilityProbability: RiskExposure.MEDIUM

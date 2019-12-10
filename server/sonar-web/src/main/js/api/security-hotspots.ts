@@ -19,7 +19,7 @@
  */
 import { getJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { HotspotSearchResponse } from '../types/securityHotspots';
+import { DetailedHotspot, HotspotSearchResponse } from '../types/security-hotspots';
 
 export function getSecurityHotspots(data: {
   projectKey: string;
@@ -27,4 +27,8 @@ export function getSecurityHotspots(data: {
   ps: number;
 }): Promise<HotspotSearchResponse> {
   return getJSON('/api/hotspots/search', data).catch(throwGlobalError);
+}
+
+export function getSecurityHotspotDetails(securityHotspotKey: string): Promise<DetailedHotspot> {
+  return getJSON('/api/hotspots/show', { hotspot: securityHotspotKey }).catch(throwGlobalError);
 }

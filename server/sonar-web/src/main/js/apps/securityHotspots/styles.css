@@ -48,4 +48,5 @@
 #security_hotspots .main {
   flex: 1 0 70%;
   overflow-y: auto;
+  background-color: white;
 }

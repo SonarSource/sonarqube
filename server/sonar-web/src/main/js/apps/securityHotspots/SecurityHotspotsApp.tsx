@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { addNoFooterPageClass, removeNoFooterPageClass } from 'sonar-ui-common/helpers/pages';
-import { getSecurityHotspots } from '../../api/securityHotspots';
+import { getSecurityHotspots } from '../../api/security-hotspots';
 import { getStandards } from '../../helpers/security-standard';
 import { BranchLike } from '../../types/branch-like';
-import { RawHotspot } from '../../types/securityHotspots';
+import { RawHotspot } from '../../types/security-hotspots';
 import SecurityHotspotsAppRenderer from './SecurityHotspotsAppRenderer';
 import './styles.css';
 import { sortHotspots } from './utils';
@@ -37,7 +37,7 @@ interface Props {
 interface State {
   hotspots: RawHotspot[];
   loading: boolean;
-  securityCategories: T.Dict<{ title: string; description?: string }>;
+  securityCategories: T.StandardSecurityCategories;
   selectedHotspotKey: string | undefined;
 }
 

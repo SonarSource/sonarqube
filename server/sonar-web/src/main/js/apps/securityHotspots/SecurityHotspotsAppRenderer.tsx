@@ -26,7 +26,7 @@ import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../components/common/ScreenPositionHelper';
-import { RawHotspot } from '../../types/securityHotspots';
+import { RawHotspot } from '../../types/security-hotspots';
 import FilterBar from './components/FilterBar';
 import HotspotList from './components/HotspotList';
 import HotspotViewer from './components/HotspotViewer';
@@ -37,7 +37,7 @@ export interface SecurityHotspotsAppRendererProps {
   loading: boolean;
   onHotspotClick: (key: string) => void;
   selectedHotspotKey?: string;
-  securityCategories: T.Dict<{ title: string; description?: string }>;
+  securityCategories: T.StandardSecurityCategories;
 }
 
 export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRendererProps) {
@@ -84,7 +84,12 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                     />
                   </div>
                   <div className="main">
-                    <HotspotViewer />
+                    {selectedHotspotKey && (
+                      <HotspotViewer
+                        hotspotKey={selectedHotspotKey}
+                        securityCategories={securityCategories}
+                      />
+                    )}
                   </div>
                 </div>
               )}

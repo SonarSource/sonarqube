@@ -21,9 +21,9 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { addNoFooterPageClass } from 'sonar-ui-common/helpers/pages';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { getSecurityHotspots } from '../../../api/securityHotspots';
+import { getSecurityHotspots } from '../../../api/security-hotspots';
 import { mockMainBranch } from '../../../helpers/mocks/branch-like';
-import { mockHotspot } from '../../../helpers/mocks/security-hotspots';
+import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
 import { getStandards } from '../../../helpers/security-standard';
 import { mockComponent } from '../../../helpers/testMocks';
 import SecurityHotspotsApp from '../SecurityHotspotsApp';
@@ -33,7 +33,7 @@ jest.mock('sonar-ui-common/helpers/pages', () => ({
   removeNoFooterPageClass: jest.fn()
 }));
 
-jest.mock('../../../api/securityHotspots', () => ({
+jest.mock('../../../api/security-hotspots', () => ({
   getSecurityHotspots: jest.fn().mockResolvedValue({ hotspots: [], rules: [] })
 }));
 
@@ -49,7 +49,7 @@ it('should load data correctly', async () => {
   const sonarsourceSecurity = { cat1: { title: 'cat 1' } };
   (getStandards as jest.Mock).mockResolvedValue({ sonarsourceSecurity });
 
-  const hotspots = [mockHotspot()];
+  const hotspots = [mockRawHotspot()];
   (getSecurityHotspots as jest.Mock).mockResolvedValue({
     hotspots
   });

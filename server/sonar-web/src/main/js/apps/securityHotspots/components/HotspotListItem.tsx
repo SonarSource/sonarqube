@@ -20,7 +20,7 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { RawHotspot } from '../../../types/securityHotspots';
+import { RawHotspot } from '../../../types/security-hotspots';
 
 export interface HotspotListItemProps {
   hotspot: RawHotspot;

@@ -19,37 +19,25 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockRawHotspot } from '../../../../helpers/mocks/security-hotspots';
-import HotspotCategory, { HotspotCategoryProps } from '../HotspotCategory';
+import { mockDetailledHotspot } from '../../../../helpers/mocks/security-hotspots';
+import { mockUser } from '../../../../helpers/testMocks';
+import HotspotViewerRenderer, { HotspotViewerRendererProps } from '../HotspotViewerRenderer';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
-
-it('should render correctly with hotspots', () => {
-  const hotspots = [mockRawHotspot({ key: 'h1' }), mockRawHotspot({ key: 'h2' })];
-  expect(shallowRender({ hotspots })).toMatchSnapshot();
-});
-
-it('should handle collapse and expand', () => {
-  const wrapper = shallowRender({ hotspots: [mockRawHotspot()] });
-
-  wrapper.find('.hotspot-category-header').simulate('click');
-
+  const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
-
-  wrapper.find('.hotspot-category-header').simulate('click');
-
-  expect(wrapper).toMatchSnapshot();
+  expect(shallowRender({ hotspot: undefined })).toMatchSnapshot('no hotspot');
+  expect(
+    shallowRender({ hotspot: mockDetailledHotspot({ assignee: mockUser({ active: false }) }) })
+  ).toMatchSnapshot('deleted assignee');
 });
 
-function shallowRender(props: Partial<HotspotCategoryProps> = {}) {
+function shallowRender(props?: Partial<HotspotViewerRendererProps>) {
   return shallow(
-    <HotspotCategory
-      category={{ key: 'class-injection', title: 'Class Injection' }}
-      hotspots={[]}
-      onHotspotClick={jest.fn()}
-      selectedHotspotKey=""
+    <HotspotViewerRenderer
+      hotspot={mockDetailledHotspot()}
+      loading={false}
+      securityCategories={{ 'sql-injection': { title: 'SQL injection' } }}
       {...props}
     />
   );

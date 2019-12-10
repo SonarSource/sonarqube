@@ -17,14 +17,57 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
+import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
+import { DetailedHotspot } from '../../../types/security-hotspots';
+import HotspotViewerRenderer from './HotspotViewerRenderer';
 
-export interface Props {}
+interface Props {
+  hotspotKey: string;
+  securityCategories: T.StandardSecurityCategories;
+}
 
-export default function HotspotViewer(props: Props) {
-  return (
-    <div {...props} className="hotspot-viewer">
-      Show hotspot details
-    </div>
-  );
+interface State {
+  hotspot?: DetailedHotspot;
+  loading: boolean;
+}
+
+export default class HotspotViewer extends React.PureComponent<Props, State> {
+  mounted = false;
+
+  componentWillMount() {
+    this.mounted = true;
+    this.fetchHotspot();
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.hotspotKey !== this.props.hotspotKey) {
+      this.fetchHotspot();
+    }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  fetchHotspot() {
+    this.setState({ loading: true });
+    return getSecurityHotspotDetails(this.props.hotspotKey)
+      .then(hotspot => this.mounted && this.setState({ hotspot }))
+      .finally(() => this.mounted && this.setState({ loading: false }));
+  }
+
+  render() {
+    const { securityCategories } = this.props;
+    const { hotspot, loading } = this.state;
+
+    return (
+      <HotspotViewerRenderer
+        hotspot={hotspot}
+        loading={loading}
+        securityCategories={securityCategories}
+      />
+    );
+  }
 }

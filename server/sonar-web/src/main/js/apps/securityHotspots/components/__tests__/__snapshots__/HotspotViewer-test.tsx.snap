@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<HotspotViewerRenderer
+  loading={true}
+  securityCategories={
+    Object {
+      "cat1": Object {
+        "title": "cat1",
+      },
+    }
+  }
+/>
+`;
+
+exports[`should render correctly 2`] = `
+<HotspotViewerRenderer
+  hotspot={
+    Object {
+      "id": "I am a detailled hotspot",
+    }
+  }
+  loading={false}
+  securityCategories={
+    Object {
+      "cat1": Object {
+        "title": "cat1",
+      },
+    }
+  }
+/>
+`;

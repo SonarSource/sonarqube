@@ -19,37 +19,37 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockRawHotspot } from '../../../../helpers/mocks/security-hotspots';
-import HotspotCategory, { HotspotCategoryProps } from '../HotspotCategory';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { getSecurityHotspotDetails } from '../../../../api/security-hotspots';
+import HotspotViewer from '../HotspotViewer';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
+const hotspotKey = 'hotspot-key';
 
-it('should render correctly with hotspots', () => {
-  const hotspots = [mockRawHotspot({ key: 'h1' }), mockRawHotspot({ key: 'h2' })];
-  expect(shallowRender({ hotspots })).toMatchSnapshot();
-});
+jest.mock('../../../../api/security-hotspots', () => ({
+  getSecurityHotspotDetails: jest.fn().mockResolvedValue({ id: `I am a detailled hotspot` })
+}));
 
-it('should handle collapse and expand', () => {
-  const wrapper = shallowRender({ hotspots: [mockRawHotspot()] });
-
-  wrapper.find('.hotspot-category-header').simulate('click');
-
+it('should render correctly', async () => {
+  const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find('.hotspot-category-header').simulate('click');
+  await waitAndUpdate(wrapper);
 
   expect(wrapper).toMatchSnapshot();
+  expect(getSecurityHotspotDetails).toHaveBeenCalledWith(hotspotKey);
+
+  const newHotspotKey = `new-${hotspotKey}`;
+  wrapper.setProps({ hotspotKey: newHotspotKey });
+
+  await waitAndUpdate(wrapper);
+  expect(getSecurityHotspotDetails).toHaveBeenCalledWith(newHotspotKey);
 });
 
-function shallowRender(props: Partial<HotspotCategoryProps> = {}) {
-  return shallow(
-    <HotspotCategory
-      category={{ key: 'class-injection', title: 'Class Injection' }}
-      hotspots={[]}
-      onHotspotClick={jest.fn()}
-      selectedHotspotKey=""
+function shallowRender(props?: Partial<HotspotViewer['props']>) {
+  return shallow<HotspotViewer>(
+    <HotspotViewer
+      hotspotKey={hotspotKey}
+      securityCategories={{ cat1: { title: 'cat1' } }}
       {...props}
     />
   );

@@ -21,7 +21,7 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import ChevronDownIcon from 'sonar-ui-common/components/icons/ChevronDownIcon';
 import ChevronUpIcon from 'sonar-ui-common/components/icons/ChevronUpIcon';
-import { RawHotspot } from '../../../types/securityHotspots';
+import { RawHotspot } from '../../../types/security-hotspots';
 import HotspotListItem from './HotspotListItem';
 
 export interface HotspotCategoryProps {

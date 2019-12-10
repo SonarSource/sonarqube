@@ -1,0 +1,131 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: empty tab 1`] = `
+<Fragment>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected="vulnerability"
+    tabs={
+      Array [
+        Object {
+          "key": "vulnerability",
+          "label": "hotspot.tabs.vulnerability_description",
+        },
+        Object {
+          "key": "fix",
+          "label": "hotspot.tabs.fix_recommendations",
+        },
+      ]
+    }
+  />
+  <div
+    className="boxed-group markdown big-padded"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+      }
+    }
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: fix 1`] = `
+<Fragment>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected="fix"
+    tabs={
+      Array [
+        Object {
+          "key": "risk",
+          "label": "hotspot.tabs.risk_description",
+        },
+        Object {
+          "key": "vulnerability",
+          "label": "hotspot.tabs.vulnerability_description",
+        },
+        Object {
+          "key": "fix",
+          "label": "hotspot.tabs.fix_recommendations",
+        },
+      ]
+    }
+  />
+  <div
+    className="boxed-group markdown big-padded"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "<p>This a <strong>strong</strong> message about fixing !</p>",
+      }
+    }
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: no tabs 1`] = `""`;
+
+exports[`should render correctly: risk 1`] = `
+<Fragment>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected="risk"
+    tabs={
+      Array [
+        Object {
+          "key": "risk",
+          "label": "hotspot.tabs.risk_description",
+        },
+        Object {
+          "key": "vulnerability",
+          "label": "hotspot.tabs.vulnerability_description",
+        },
+        Object {
+          "key": "fix",
+          "label": "hotspot.tabs.fix_recommendations",
+        },
+      ]
+    }
+  />
+  <div
+    className="boxed-group markdown big-padded"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "<p>This a <strong>strong</strong> message about risk !</p>",
+      }
+    }
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: vulnerability 1`] = `
+<Fragment>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected="vulnerability"
+    tabs={
+      Array [
+        Object {
+          "key": "risk",
+          "label": "hotspot.tabs.risk_description",
+        },
+        Object {
+          "key": "vulnerability",
+          "label": "hotspot.tabs.vulnerability_description",
+        },
+        Object {
+          "key": "fix",
+          "label": "hotspot.tabs.fix_recommendations",
+        },
+      ]
+    }
+  />
+  <div
+    className="boxed-group markdown big-padded"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+      }
+    }
+  />
+</Fragment>
+`;

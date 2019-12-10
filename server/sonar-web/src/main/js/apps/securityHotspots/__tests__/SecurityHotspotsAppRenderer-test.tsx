@@ -19,19 +19,33 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockHotspot } from '../../../helpers/mocks/security-hotspots';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
 import SecurityHotspotsAppRenderer, {
   SecurityHotspotsAppRendererProps
 } from '../SecurityHotspotsAppRenderer';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+  expect(
+    shallowRender()
+      .find(ScreenPositionHelper)
+      .dive()
+  ).toMatchSnapshot();
 });
 
 it('should render correctly with hotspots', () => {
-  const hotspots = [mockHotspot({ key: 'h1' }), mockHotspot({ key: 'h2' })];
-  expect(shallowRender({ hotspots })).toMatchSnapshot();
-  expect(shallowRender({ hotspots, selectedHotspotKey: 'h2' })).toMatchSnapshot();
+  const hotspots = [mockRawHotspot({ key: 'h1' }), mockRawHotspot({ key: 'h2' })];
+  expect(
+    shallowRender({ hotspots })
+      .find(ScreenPositionHelper)
+      .dive()
+  ).toMatchSnapshot();
+  expect(
+    shallowRender({ hotspots, selectedHotspotKey: 'h2' })
+      .find(ScreenPositionHelper)
+      .dive()
+  ).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
