@@ -19,6 +19,7 @@
  */
 package org.sonar.server.hotspot.ws;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,6 +44,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -81,6 +83,7 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_PROJECT_KEY = "projectKey";
   private static final String PARAM_STATUS = "status";
   private static final String PARAM_RESOLUTION = "resolution";
+  private static final String PARAM_HOTSPOTS = "hotspots";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -106,17 +109,23 @@ public class SearchAction implements HotspotsWsAction {
 
     action.addPagingParams(100);
     action.createParam(PARAM_PROJECT_KEY)
-      .setDescription("Key of the project")
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001)
-      .setRequired(true);
+      .setDescription(format(
+        "Key of the project. This parameter is required unless %s is provided.",
+        PARAM_HOTSPOTS))
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+    action.createParam(PARAM_HOTSPOTS)
+      .setDescription(format(
+        "Comma-separated list of Security Hotspot keys. This parameter is required unless %s is provided.",
+        PARAM_PROJECT_KEY))
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam(PARAM_STATUS)
-      .setDescription("If provided, only Security Hotspots with the specified status are returned.")
+      .setDescription("If '%s' is provided, only Security Hotspots with the specified status are returned.", PARAM_PROJECT_KEY)
       .setPossibleValues(STATUS_TO_REVIEW, STATUS_REVIEWED)
       .setRequired(false);
     action.createParam(PARAM_RESOLUTION)
       .setDescription(format(
-        "If provided and if status is '%s', only Security Hotspots with the specified resolution are returned.",
-        STATUS_REVIEWED))
+        "If '%s' is provided and if status is '%s', only Security Hotspots with the specified resolution are returned.",
+        PARAM_PROJECT_KEY, STATUS_REVIEWED))
       .setPossibleValues(RESOLUTION_FIXED, RESOLUTION_SAFE)
       .setRequired(false);
     // FIXME add response example and test it
@@ -126,10 +135,11 @@ public class SearchAction implements HotspotsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     WsRequest wsRequest = toWsRequest(request);
+    validateParameters(wsRequest);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = validateRequest(dbSession, wsRequest);
+      Optional<ComponentDto> project = getAndValidateProject(dbSession, wsRequest);
 
-      SearchResponseData searchResponseData = searchHotspots(wsRequest, dbSession, project);
+      SearchResponseData searchResponseData = searchHotspots(wsRequest, dbSession, project, wsRequest.getHotspotKeys());
       loadComponents(dbSession, searchResponseData);
       loadRules(dbSession, searchResponseData);
       writeProtobuf(formatResponse(searchResponseData), request, response);
@@ -137,30 +147,44 @@ public class SearchAction implements HotspotsWsAction {
   }
 
   private static WsRequest toWsRequest(Request request) {
+    List<String> hotspotKeysList = request.paramAsStrings(PARAM_HOTSPOTS);
+    Set<String> hotspotKeys = hotspotKeysList == null ? ImmutableSet.of() : hotspotKeysList.stream().collect(MoreCollectors.toSet(hotspotKeysList.size()));
     return new WsRequest(
       request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE),
-      request.mandatoryParam(PARAM_PROJECT_KEY),
+      request.param(PARAM_PROJECT_KEY), hotspotKeys,
       request.param(PARAM_STATUS), request.param(PARAM_RESOLUTION));
   }
 
-  private ComponentDto validateRequest(DbSession dbSession, WsRequest wsRequest) {
+  private static void validateParameters(WsRequest wsRequest) {
+    checkArgument(
+      wsRequest.getProjectKey().isPresent() || !wsRequest.getHotspotKeys().isEmpty(),
+      "A value must be provided for either parameter '%s' or parameter '%s'", PARAM_PROJECT_KEY, PARAM_HOTSPOTS);
+
+    checkArgument(!wsRequest.getStatus().isPresent() || wsRequest.getHotspotKeys().isEmpty(),
+      "Parameter '%s' can't be used with parameter '%s'", PARAM_STATUS, PARAM_HOTSPOTS);
+    checkArgument(!wsRequest.getResolution().isPresent() || wsRequest.getHotspotKeys().isEmpty(),
+      "Parameter '%s' can't be used with parameter '%s'", PARAM_RESOLUTION, PARAM_HOTSPOTS);
+
     wsRequest.getResolution().ifPresent(
       resolution -> checkArgument(wsRequest.getStatus().filter(STATUS_REVIEWED::equals).isPresent(),
         "Value '%s' of parameter '%s' can only be provided if value of parameter '%s' is '%s'",
-        resolution, PARAM_RESOLUTION, PARAM_STATUS, STATUS_REVIEWED)
-    );
-
-    ComponentDto project = dbClient.componentDao().selectByKey(dbSession, wsRequest.getProjectKey())
-      .filter(t -> Scopes.PROJECT.equals(t.scope()) && Qualifiers.PROJECT.equals(t.qualifier()))
-      .filter(ComponentDto::isEnabled)
-      .filter(t -> t.getMainBranchProjectUuid() == null)
-      .orElseThrow(() -> new NotFoundException(format("Project '%s' not found", wsRequest.getProjectKey())));
-    userSession.checkComponentPermission(UserRole.USER, project);
-    return project;
+        resolution, PARAM_RESOLUTION, PARAM_STATUS, STATUS_REVIEWED));
   }
 
-  private SearchResponseData searchHotspots(WsRequest wsRequest, DbSession dbSession, ComponentDto project) {
-    SearchResponse result = doIndexSearch(wsRequest, project);
+  private Optional<ComponentDto> getAndValidateProject(DbSession dbSession, WsRequest wsRequest) {
+    return wsRequest.getProjectKey().map(projectKey -> {
+      ComponentDto project = dbClient.componentDao().selectByKey(dbSession, projectKey)
+        .filter(t -> Scopes.PROJECT.equals(t.scope()) && Qualifiers.PROJECT.equals(t.qualifier()))
+        .filter(ComponentDto::isEnabled)
+        .filter(t -> t.getMainBranchProjectUuid() == null)
+        .orElseThrow(() -> new NotFoundException(format("Project '%s' not found", projectKey)));
+      userSession.checkComponentPermission(UserRole.USER, project);
+      return project;
+    });
+  }
+
+  private SearchResponseData searchHotspots(WsRequest wsRequest, DbSession dbSession, Optional<ComponentDto> project, Set<String> hotspotKeys) {
+    SearchResponse result = doIndexSearch(wsRequest, project, hotspotKeys);
     List<String> issueKeys = Arrays.stream(result.getHits().getHits())
       .map(SearchHit::getId)
       .collect(toList(result.getHits().getHits().length));
@@ -183,13 +207,18 @@ public class SearchAction implements HotspotsWsAction {
       .collect(Collectors.toList());
   }
 
-  private SearchResponse doIndexSearch(WsRequest wsRequest, ComponentDto project) {
+  private SearchResponse doIndexSearch(WsRequest wsRequest, Optional<ComponentDto> project, Set<String> hotspotKeys) {
     IssueQuery.Builder builder = IssueQuery.builder()
-      .projectUuids(Collections.singletonList(project.uuid()))
-      .organizationUuid(project.getOrganizationUuid())
       .types(singleton(RuleType.SECURITY_HOTSPOT.name()))
       .sort(IssueQuery.SORT_HOTSPOTS)
       .asc(true);
+    project.ifPresent(p -> {
+      builder.projectUuids(Collections.singletonList(p.uuid()));
+      builder.organizationUuid(p.getOrganizationUuid());
+    });
+    if (!hotspotKeys.isEmpty()) {
+      builder.issueKeys(hotspotKeys);
+    }
     wsRequest.getStatus().ifPresent(status -> builder.resolved(STATUS_REVIEWED.equals(status)));
     wsRequest.getResolution().ifPresent(resolution -> builder.resolutions(singleton(resolution)));
 
@@ -288,13 +317,15 @@ public class SearchAction implements HotspotsWsAction {
     private final int page;
     private final int index;
     private final String projectKey;
+    private final Set<String> hotspotKeys;
     private final String status;
     private final String resolution;
 
-    private WsRequest(int page, int index, String projectKey, @Nullable String status, @Nullable String resolution) {
+    private WsRequest(int page, int index, @Nullable String projectKey, Set<String> hotspotKeys, @Nullable String status, @Nullable String resolution) {
       this.page = page;
       this.index = index;
       this.projectKey = projectKey;
+      this.hotspotKeys = hotspotKeys;
       this.status = status;
       this.resolution = resolution;
     }
@@ -307,8 +338,12 @@ public class SearchAction implements HotspotsWsAction {
       return index;
     }
 
-    String getProjectKey() {
-      return projectKey;
+    Optional<String> getProjectKey() {
+      return ofNullable(projectKey);
+    }
+
+    Set<String> getHotspotKeys() {
+      return hotspotKeys;
     }
 
     Optional<String> getStatus() {
