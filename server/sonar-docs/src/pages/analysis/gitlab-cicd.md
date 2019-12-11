@@ -42,6 +42,7 @@ image: gradle:alpine
 variables:
   SONAR_TOKEN: "your-sonarqube-token"
   SONAR_HOST_URL: "http://your-sonarqube-instance.org"
+  GIT_DEPTH: 0
 sonarqube-check:
   stage: test
   script: gradle sonarqube -Dsonar.qualitygate.wait=true
@@ -58,6 +59,7 @@ image: maven:latest
 variables:
   SONAR_TOKEN: "your-sonarqube-token"
   SONAR_HOST_URL: "http://your-sonarqube-url"
+  GIT_DEPTH: 0
 sonarqube-check:
   script:
     - mvn verify sonar:sonar -Dsonar.qualitygate.wait=true
@@ -76,6 +78,7 @@ image:
 variables:
   SONAR_TOKEN: "your-sonarqube-token"
   SONAR_HOST_URL: "http://your-sonarqube-instance.org"
+  GIT_DEPTH: 0
 sonarqube-check:
   stage: test
   script:
