@@ -1,0 +1,112 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should open when clicked 1`] = `
+<div
+  className="dropdown"
+>
+  <Button
+    onClick={[Function]}
+  >
+    hotspots.review_hotspot
+    <DropdownIcon
+      className="little-spacer-left"
+    />
+  </Button>
+  <OutsideClickHandler
+    onClickOutside={[Function]}
+  >
+    <DropdownOverlay
+      placement="bottom-right"
+    >
+      <HotspotActionsForm
+        hotspotKey="key"
+        onSubmit={[Function]}
+      />
+    </DropdownOverlay>
+  </OutsideClickHandler>
+</div>
+`;
+
+exports[`should register an eventlistener: Dropdown closed 1`] = `
+<div
+  className="dropdown"
+>
+  <Button
+    onClick={[Function]}
+  >
+    hotspots.review_hotspot
+    <DropdownIcon
+      className="little-spacer-left"
+    />
+  </Button>
+</div>
+`;
+
+exports[`should register an eventlistener: Dropdown open 1`] = `
+<div
+  className="dropdown"
+>
+  <Button
+    onClick={[Function]}
+  >
+    hotspots.review_hotspot
+    <DropdownIcon
+      className="little-spacer-left"
+    />
+  </Button>
+  <OutsideClickHandler
+    onClickOutside={[Function]}
+  >
+    <DropdownOverlay
+      placement="bottom-right"
+    >
+      <HotspotActionsForm
+        hotspotKey="key"
+        onSubmit={[Function]}
+      />
+    </DropdownOverlay>
+  </OutsideClickHandler>
+</div>
+`;
+
+exports[`should register an eventlistener: Dropdown still open 1`] = `
+<div
+  className="dropdown"
+>
+  <Button
+    onClick={[Function]}
+  >
+    hotspots.review_hotspot
+    <DropdownIcon
+      className="little-spacer-left"
+    />
+  </Button>
+  <OutsideClickHandler
+    onClickOutside={[Function]}
+  >
+    <DropdownOverlay
+      placement="bottom-right"
+    >
+      <HotspotActionsForm
+        hotspotKey="key"
+        onSubmit={[Function]}
+      />
+    </DropdownOverlay>
+  </OutsideClickHandler>
+</div>
+`;
+
+exports[`should render correctly 1`] = `
+<div
+  className="dropdown"
+>
+  <Button
+    onClick={[Function]}
+  >
+    hotspots.review_hotspot
+    <DropdownIcon
+      className="little-spacer-left"
+    />
+  </Button>
+</div>
+`;

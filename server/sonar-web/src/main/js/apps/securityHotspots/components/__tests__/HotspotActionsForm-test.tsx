@@ -1,0 +1,101 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2020 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { setSecurityHotspotStatus } from '../../../../api/security-hotspots';
+import {
+  HotspotResolution,
+  HotspotStatus,
+  HotspotStatusOptions
+} from '../../../../types/security-hotspots';
+import HotspotActionsForm from '../HotspotActionsForm';
+
+jest.mock('../../../../api/security-hotspots', () => ({
+  setSecurityHotspotStatus: jest.fn().mockResolvedValue(undefined)
+}));
+
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should handle option selection', () => {
+  const wrapper = shallowRender();
+  expect(wrapper.state().selectedOption).toBe(HotspotStatusOptions.FIXED);
+  wrapper.instance().handleSelectOption(HotspotStatusOptions.SAFE);
+  expect(wrapper.state().selectedOption).toBe(HotspotStatusOptions.SAFE);
+});
+
+it('should handle submit', async () => {
+  const onSubmit = jest.fn();
+  const wrapper = shallowRender({ onSubmit });
+  wrapper.setState({ selectedOption: HotspotStatusOptions.ADDITIONAL_REVIEW });
+  await waitAndUpdate(wrapper);
+
+  const preventDefault = jest.fn();
+  const promise = wrapper.instance().handleSubmit({ preventDefault } as any);
+  expect(preventDefault).toBeCalled();
+
+  expect(wrapper.state().submitting).toBe(true);
+  await promise;
+  expect(wrapper.state().submitting).toBe(false);
+  expect(setSecurityHotspotStatus).toBeCalledWith({
+    hotspot: 'key',
+    status: HotspotStatus.TO_REVIEW
+  });
+  expect(onSubmit).toBeCalled();
+
+  // SAFE
+  wrapper.setState({ selectedOption: HotspotStatusOptions.SAFE });
+  await waitAndUpdate(wrapper);
+  await wrapper.instance().handleSubmit({ preventDefault } as any);
+  expect(setSecurityHotspotStatus).toBeCalledWith({
+    hotspot: 'key',
+    status: HotspotStatus.REVIEWED,
+    resolution: HotspotResolution.SAFE
+  });
+
+  // FIXED
+  wrapper.setState({ selectedOption: HotspotStatusOptions.FIXED });
+  await waitAndUpdate(wrapper);
+  await wrapper.instance().handleSubmit({ preventDefault } as any);
+  expect(setSecurityHotspotStatus).toBeCalledWith({
+    hotspot: 'key',
+    status: HotspotStatus.REVIEWED,
+    resolution: HotspotResolution.FIXED
+  });
+});
+
+it('should handle submit failure', async () => {
+  const onSubmit = jest.fn();
+  (setSecurityHotspotStatus as jest.Mock).mockRejectedValueOnce('failure');
+  const wrapper = shallowRender({ onSubmit });
+  const promise = wrapper.instance().handleSubmit({ preventDefault: jest.fn() } as any);
+  expect(wrapper.state().submitting).toBe(true);
+  await promise.catch(() => {});
+  expect(wrapper.state().submitting).toBe(false);
+  expect(onSubmit).not.toBeCalled();
+});
+
+function shallowRender(props: Partial<HotspotActionsForm['props']> = {}) {
+  return shallow<HotspotActionsForm>(
+    <HotspotActionsForm hotspotKey="key" onSubmit={jest.fn()} {...props} />
+  );
+}

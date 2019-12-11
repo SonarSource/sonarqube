@@ -20,24 +20,31 @@
 import * as React from 'react';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
+import { isLoggedIn } from '../../../helpers/users';
 import { DetailedHotspot } from '../../../types/security-hotspots';
+import HotspotActions from './HotspotActions';
 import HotspotViewerTabs from './HotspotViewerTabs';
 
 export interface HotspotViewerRendererProps {
+  currentUser: T.CurrentUser;
   hotspot?: DetailedHotspot;
   loading: boolean;
   securityCategories: T.StandardSecurityCategories;
 }
 
-export default function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
-  const { hotspot, loading, securityCategories } = props;
+export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
+  const { currentUser, hotspot, loading, securityCategories } = props;
 
   return (
     <DeferredSpinner loading={loading}>
       {hotspot && (
         <div className="big-padded">
           <div className="big-spacer-bottom">
-            <h1>{hotspot.message}</h1>
+            <div className="display-flex-space-between">
+              <h1>{hotspot.message}</h1>
+              {isLoggedIn(currentUser) && <HotspotActions hotspotKey={hotspot.key} />}
+            </div>
             <div className="text-muted">
               <span>{translate('hotspot.category')}</span>
               <span className="little-spacer-left">
@@ -67,3 +74,5 @@ export default function HotspotViewerRenderer(props: HotspotViewerRendererProps)
     </DeferredSpinner>
   );
 }
+
+export default withCurrentUser(HotspotViewerRenderer);

@@ -23,6 +23,22 @@ export enum RiskExposure {
   HIGH = 'HIGH'
 }
 
+export enum HotspotStatus {
+  TO_REVIEW = 'TO_REVIEW',
+  REVIEWED = 'REVIEWED'
+}
+
+export enum HotspotResolution {
+  FIXED = 'FIXED',
+  SAFE = 'SAFE'
+}
+
+export enum HotspotStatusOptions {
+  FIXED = 'FIXED',
+  SAFE = 'SAFE',
+  ADDITIONAL_REVIEW = 'ADDITIONAL_REVIEW'
+}
+
 export interface RawHotspot {
   assignee?: string;
   author?: string;
@@ -71,4 +87,10 @@ export interface HotspotSearchResponse {
   components?: { key: string; qualifier: string; name: string }[];
   hotspots: RawHotspot[];
   paging: T.Paging;
+}
+
+export interface HotspotSetStatusRequest {
+  hotspot: string;
+  status: HotspotStatus;
+  resolution?: HotspotResolution;
 }

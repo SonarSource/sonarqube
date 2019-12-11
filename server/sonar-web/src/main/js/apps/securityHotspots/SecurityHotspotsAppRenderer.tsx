@@ -42,6 +42,7 @@ export interface SecurityHotspotsAppRendererProps {
 
 export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRendererProps) {
   const { hotspots, loading, securityCategories, selectedHotspotKey } = props;
+
   return (
     <div id="security_hotspots">
       <FilterBar />

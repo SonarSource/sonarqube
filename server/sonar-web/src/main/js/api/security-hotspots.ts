@@ -17,9 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from 'sonar-ui-common/helpers/request';
+import { getJSON, post } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { DetailedHotspot, HotspotSearchResponse } from '../types/security-hotspots';
+import {
+  DetailedHotspot,
+  HotspotSearchResponse,
+  HotspotSetStatusRequest
+} from '../types/security-hotspots';
+
+export function setSecurityHotspotStatus(data: HotspotSetStatusRequest): Promise<void> {
+  return post('/api/hotspots/change_status', data).catch(throwGlobalError);
+}
 
 export function getSecurityHotspots(data: {
   projectKey: string;

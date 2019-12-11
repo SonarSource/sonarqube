@@ -20,8 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockDetailledHotspot } from '../../../../helpers/mocks/security-hotspots';
-import { mockUser } from '../../../../helpers/testMocks';
-import HotspotViewerRenderer, { HotspotViewerRendererProps } from '../HotspotViewerRenderer';
+import { mockCurrentUser, mockLoggedInUser, mockUser } from '../../../../helpers/testMocks';
+import { HotspotViewerRenderer, HotspotViewerRendererProps } from '../HotspotViewerRenderer';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
@@ -30,11 +30,14 @@ it('should render correctly', () => {
   expect(
     shallowRender({ hotspot: mockDetailledHotspot({ assignee: mockUser({ active: false }) }) })
   ).toMatchSnapshot('deleted assignee');
+  expect(shallowRender()).toMatchSnapshot('anonymous user');
+  expect(shallowRender({ currentUser: mockLoggedInUser() })).toMatchSnapshot('user logged in');
 });
 
 function shallowRender(props?: Partial<HotspotViewerRendererProps>) {
   return shallow(
     <HotspotViewerRenderer
+      currentUser={mockCurrentUser()}
       hotspot={mockDetailledHotspot()}
       loading={false}
       securityCategories={{ 'sql-injection': { title: 'SQL injection' } }}

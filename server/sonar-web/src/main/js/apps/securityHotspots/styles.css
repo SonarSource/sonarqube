@@ -50,3 +50,10 @@
   overflow-y: auto;
   background-color: white;
 }
+
+/*
+* Align description with label by offsetting by width of radio + margin
+*/
+#security_hotspots .radio-button-description {
+  margin-left: 23px;
+}
