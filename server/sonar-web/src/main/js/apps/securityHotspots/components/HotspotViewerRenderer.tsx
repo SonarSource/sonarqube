@@ -22,11 +22,14 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { isLoggedIn } from '../../../helpers/users';
+import { BranchLike } from '../../../types/branch-like';
 import { DetailedHotspot } from '../../../types/security-hotspots';
 import HotspotActions from './HotspotActions';
+import HotspotSnippetContainer from './HotspotSnippetContainer';
 import HotspotViewerTabs from './HotspotViewerTabs';
 
 export interface HotspotViewerRendererProps {
+  branchLike?: BranchLike;
   currentUser: T.CurrentUser;
   hotspot?: DetailedHotspot;
   loading: boolean;
@@ -34,7 +37,7 @@ export interface HotspotViewerRendererProps {
 }
 
 export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
-  const { currentUser, hotspot, loading, securityCategories } = props;
+  const { branchLike, currentUser, hotspot, loading, securityCategories } = props;
 
   return (
     <DeferredSpinner loading={loading}>
@@ -68,6 +71,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
               </>
             )}
           </div>
+          <HotspotSnippetContainer branchLike={branchLike} hotspot={hotspot} />
           <HotspotViewerTabs hotspot={hotspot} />
         </div>
       )}

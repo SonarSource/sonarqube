@@ -96,10 +96,12 @@ export default class SecurityHotspotsApp extends React.PureComponent<Props, Stat
   handleHotspotClick = (key: string) => this.setState({ selectedHotspotKey: key });
 
   render() {
+    const { branchLike } = this.props;
     const { hotspots, loading, securityCategories, selectedHotspotKey } = this.state;
 
     return (
       <SecurityHotspotsAppRenderer
+        branchLike={branchLike}
         hotspots={hotspots}
         loading={loading}
         onHotspotClick={this.handleHotspotClick}

@@ -31,6 +31,7 @@ import {
   optimizeSelectedIssue
 } from '../../../components/SourceViewer/helpers/lines';
 import { BranchLike } from '../../../types/branch-like';
+import './SnippetViewer.css';
 import { inSnippet, LINES_BELOW_ISSUE } from './utils';
 
 interface Props {
@@ -46,7 +47,7 @@ interface Props {
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   highlightedSymbols: string[];
   index: number;
-  issue: T.Issue;
+  issue: Pick<T.Issue, 'key' | 'textRange' | 'line'>;
   issuePopup?: { issue: string; name: string };
   issuesByLine: T.IssuesByLine;
   last: boolean;

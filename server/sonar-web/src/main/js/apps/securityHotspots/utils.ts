@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { groupBy, sortBy } from 'lodash';
-import { RawHotspot, RiskExposure } from '../../types/security-hotspots';
+import { DetailedHotspot, RawHotspot, RiskExposure } from '../../types/security-hotspots';
 
 export const RISK_EXPOSURE_LEVELS = [RiskExposure.HIGH, RiskExposure.MEDIUM, RiskExposure.LOW];
 
@@ -58,4 +58,19 @@ export function sortHotspots(
 
 function getCategoryTitle(key: string, securityCategories: T.StandardSecurityCategories) {
   return securityCategories[key] ? securityCategories[key].title : key;
+}
+
+export function constructSourceViewerFile(
+  { component, project }: DetailedHotspot,
+  lines?: number
+): T.SourceViewerFile {
+  return {
+    key: component.key,
+    measures: { lines: lines ? lines.toString() : undefined },
+    path: component.path || '',
+    project: project.key,
+    projectName: project.name,
+    q: component.qualifier,
+    uuid: ''
+  };
 }

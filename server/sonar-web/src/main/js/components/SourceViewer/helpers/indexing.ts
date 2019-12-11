@@ -45,7 +45,7 @@ export function issuesByComponentAndLine(
   }, {});
 }
 
-export function locationsByLine(issues: T.Issue[]) {
+export function locationsByLine(issues: Pick<T.Issue, 'textRange'>[]) {
   const index: { [line: number]: T.LinearIssueLocation[] } = {};
   issues.forEach(issue => {
     getLinearLocations(issue.textRange).forEach(location => {

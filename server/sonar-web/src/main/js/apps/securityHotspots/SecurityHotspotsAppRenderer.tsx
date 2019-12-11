@@ -26,6 +26,7 @@ import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../components/common/ScreenPositionHelper';
+import { BranchLike } from '../../types/branch-like';
 import { RawHotspot } from '../../types/security-hotspots';
 import FilterBar from './components/FilterBar';
 import HotspotList from './components/HotspotList';
@@ -33,6 +34,7 @@ import HotspotViewer from './components/HotspotViewer';
 import './styles.css';
 
 export interface SecurityHotspotsAppRendererProps {
+  branchLike?: BranchLike;
   hotspots: RawHotspot[];
   loading: boolean;
   onHotspotClick: (key: string) => void;
@@ -41,7 +43,7 @@ export interface SecurityHotspotsAppRendererProps {
 }
 
 export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRendererProps) {
-  const { hotspots, loading, securityCategories, selectedHotspotKey } = props;
+  const { branchLike, hotspots, loading, securityCategories, selectedHotspotKey } = props;
 
   return (
     <div id="security_hotspots">
@@ -87,6 +89,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                   <div className="main">
                     {selectedHotspotKey && (
                       <HotspotViewer
+                        branchLike={branchLike}
                         hotspotKey={selectedHotspotKey}
                         securityCategories={securityCategories}
                       />

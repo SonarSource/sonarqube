@@ -20,10 +20,12 @@
 
 import * as React from 'react';
 import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
+import { BranchLike } from '../../../types/branch-like';
 import { DetailedHotspot } from '../../../types/security-hotspots';
 import HotspotViewerRenderer from './HotspotViewerRenderer';
 
 interface Props {
+  branchLike?: BranchLike;
   hotspotKey: string;
   securityCategories: T.StandardSecurityCategories;
 }
@@ -59,11 +61,12 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { securityCategories } = this.props;
+    const { branchLike, securityCategories } = this.props;
     const { hotspot, loading } = this.state;
 
     return (
       <HotspotViewerRenderer
+        branchLike={branchLike}
         hotspot={hotspot}
         loading={loading}
         securityCategories={securityCategories}

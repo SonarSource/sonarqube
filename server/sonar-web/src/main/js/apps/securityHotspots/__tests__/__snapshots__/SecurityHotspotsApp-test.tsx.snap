@@ -2,6 +2,14 @@
 
 exports[`should render correctly 1`] = `
 <SecurityHotspotsAppRenderer
+  branchLike={
+    Object {
+      "analysisDate": "2018-01-01",
+      "excludedFromPurge": true,
+      "isMain": true,
+      "name": "master",
+    }
+  }
   hotspots={Array []}
   loading={true}
   onHotspotClick={[Function]}
