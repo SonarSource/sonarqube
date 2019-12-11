@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
@@ -27,14 +26,11 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
-import org.sonar.api.Startable;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
@@ -47,7 +43,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
@@ -81,7 +76,6 @@ import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
@@ -135,9 +129,10 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 
-public class SearchAction implements IssuesWsAction, Startable {
+public class SearchAction implements IssuesWsAction {
 
   private static final String LOGIN_MYSELF = "__me__";
+  private static final EnumSet<RuleType> ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS = EnumSet.complementOf(EnumSet.of(RuleType.SECURITY_HOTSPOT));
 
   static final List<String> SUPPORTED_FACETS = ImmutableList.of(
     FACET_PROJECTS,
@@ -163,26 +158,22 @@ public class SearchAction implements IssuesWsAction, Startable {
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
   private static final Set<String> FACETS_REQUIRING_PROJECT_OR_ORGANIZATION = newHashSet(PARAM_MODULE_UUIDS, PARAM_FILE_UUIDS, PARAM_DIRECTORIES);
-  private static final Joiner COMA_JOINER = Joiner.on(",");
 
   private final UserSession userSession;
   private final IssueIndex issueIndex;
   private final IssueQueryFactory issueQueryFactory;
   private final SearchResponseLoader searchResponseLoader;
   private final SearchResponseFormat searchResponseFormat;
-  private final Configuration config;
   private final System2 system2;
   private final DbClient dbClient;
-  private boolean isOnSonarCloud;
 
   public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory, SearchResponseLoader searchResponseLoader,
-    SearchResponseFormat searchResponseFormat, Configuration config, System2 system2, DbClient dbClient) {
+    SearchResponseFormat searchResponseFormat, System2 system2, DbClient dbClient) {
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueQueryFactory = issueQueryFactory;
     this.searchResponseLoader = searchResponseLoader;
     this.searchResponseFormat = searchResponseFormat;
-    this.config = config;
     this.system2 = system2;
     this.dbClient = dbClient;
   }
@@ -199,8 +190,10 @@ public class SearchAction implements IssuesWsAction, Startable {
         PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS)
       .setSince("3.6")
       .setChangelog(
-        new Change("8.1", "response field 'fromHotspot' has been deprecated and is no more populated"),
-        new Change("8.1", format("Status %s for Security Hotspots has been deprecated", STATUS_IN_REVIEW)),
+        new Change("8.2", "'REVIEWED', 'TO_REVIEW' status param values are no longer supported"),
+        new Change("8.2", "Security hotspots are no longer returned"),
+        new Change("8.2", "response field 'fromHotspot' has been deprecated and is no more populated"),
+        new Change("8.2", format("Status %s for Security Hotspots has been deprecated", STATUS_IN_REVIEW)),
         new Change("7.8", format("added new Security Hotspots statuses : %s, %s and %s", STATUS_TO_REVIEW, STATUS_IN_REVIEW, STATUS_REVIEWED)),
         new Change("7.8", "Security hotspots are returned by default"),
         new Change("7.7", format("Value '%s' in parameter '%s' is deprecated, please use '%s' instead", DEPRECATED_PARAM_AUTHORS, FACETS, PARAM_AUTHOR)),
@@ -261,7 +254,7 @@ public class SearchAction implements IssuesWsAction, Startable {
     action.createParam(PARAM_TYPES)
       .setDescription("Comma-separated list of types.")
       .setSince("5.5")
-      .setPossibleValues(RuleType.values())
+      .setPossibleValues(ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS)
       .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
     action.createParam(PARAM_OWASP_TOP_10)
       .setDescription("Comma-separated list of OWASP Top 10 lowercase categories.")
@@ -391,14 +384,14 @@ public class SearchAction implements IssuesWsAction, Startable {
   public final void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       SearchRequest searchRequest = toSearchWsRequest(dbSession, request);
-      SearchWsResponse searchWsResponse = doHandle(dbSession, searchRequest);
+      SearchWsResponse searchWsResponse = doHandle(searchRequest);
       writeProtobuf(searchWsResponse, request, response);
     }
   }
 
-  private SearchWsResponse doHandle(DbSession dbSession, SearchRequest request) {
+  private SearchWsResponse doHandle(SearchRequest request) {
     // prepare the Elasticsearch request
-    SearchOptions options = createSearchOptionsFromRequest(dbSession, request);
+    SearchOptions options = createSearchOptionsFromRequest(request);
     EnumSet<SearchAdditionalField> additionalFields = SearchAdditionalField.getFromRequest(request);
     IssueQuery query = issueQueryFactory.create(request);
 
@@ -407,7 +400,7 @@ public class SearchAction implements IssuesWsAction, Startable {
       .collect(toSet());
     checkArgument(facetsRequiringProjectOrOrganizationParameter.isEmpty() ||
       (!query.projectUuids().isEmpty()) || query.organizationUuid() != null, "Facet(s) '%s' require to also filter by project or organization",
-      COMA_JOINER.join(facetsRequiringProjectOrOrganizationParameter));
+      String.join(",", facetsRequiringProjectOrOrganizationParameter));
 
     // execute request
     SearchResponse result = issueIndex.search(query, options);
@@ -436,7 +429,7 @@ public class SearchAction implements IssuesWsAction, Startable {
     return searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
   }
 
-  private SearchOptions createSearchOptionsFromRequest(DbSession dbSession, SearchRequest request) {
+  private SearchOptions createSearchOptionsFromRequest(SearchRequest request) {
     SearchOptions options = new SearchOptions();
     options.setPage(request.getPage(), request.getPageSize());
 
@@ -446,29 +439,13 @@ public class SearchAction implements IssuesWsAction, Startable {
       return options;
     }
 
-    List<String> requestedFacets = new ArrayList<>(facets);
-    if (isOnSonarCloud) {
-      Optional<OrganizationDto> organizationDto = Optional.empty();
-      String organizationKey = request.getOrganization();
-      if (organizationKey != null) {
-        organizationDto = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
-      }
-
-      if (!organizationDto.isPresent() || !userSession.hasMembership(organizationDto.get())) {
-        // In order to display the authors facet, the organization parameter must be set and the user
-        // must be member of this organization
-        requestedFacets.remove(PARAM_AUTHOR);
-        requestedFacets.remove(DEPRECATED_PARAM_AUTHORS);
-      }
-    }
-
-    options.addFacets(requestedFacets);
+    options.addFacets(facets);
     return options;
   }
 
   private void completeFacets(Facets facets, SearchRequest request, IssueQuery query) {
     addMandatoryValuesToFacet(facets, PARAM_SEVERITIES, Severity.ALL);
-    addMandatoryValuesToFacet(facets, PARAM_STATUSES, STATUSES);
+    addMandatoryValuesToFacet(facets, PARAM_STATUSES, STATUSES.stream().filter(s -> !STATUS_TO_REVIEW.equals(s)).filter(s -> !STATUS_REVIEWED.equals(s)).collect(toList()));
     addMandatoryValuesToFacet(facets, PARAM_RESOLUTIONS, concat(singletonList(""), RESOLUTIONS));
     addMandatoryValuesToFacet(facets, FACET_PROJECTS, query.projectUuids());
     addMandatoryValuesToFacet(facets, PARAM_MODULE_UUIDS, query.moduleUuids());
@@ -486,11 +463,21 @@ public class SearchAction implements IssuesWsAction, Startable {
     addMandatoryValuesToFacet(facets, PARAM_RULES, query.rules().stream().map(IssueDoc::formatRuleId).collect(toList()));
     addMandatoryValuesToFacet(facets, PARAM_LANGUAGES, request.getLanguages());
     addMandatoryValuesToFacet(facets, PARAM_TAGS, request.getTags());
-    addMandatoryValuesToFacet(facets, PARAM_TYPES, RuleType.names());
+
+    setTypesFacet(facets);
+
     addMandatoryValuesToFacet(facets, PARAM_OWASP_TOP_10, request.getOwaspTop10());
     addMandatoryValuesToFacet(facets, PARAM_SANS_TOP_25, request.getSansTop25());
     addMandatoryValuesToFacet(facets, PARAM_CWE, request.getCwe());
     addMandatoryValuesToFacet(facets, PARAM_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
+  }
+
+  private void setTypesFacet(Facets facets) {
+    Map<String, Long> typeFacet = facets.get(PARAM_TYPES);
+    if (typeFacet != null) {
+      typeFacet.remove(RuleType.SECURITY_HOTSPOT.name());
+    }
+    addMandatoryValuesToFacet(facets, PARAM_TYPES, ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS.stream().map(Enum::name).collect(Collectors.toList()));
   }
 
   private static void addMandatoryValuesToFacet(Facets facets, String facetName, @Nullable Iterable<String> mandatoryValues) {
@@ -562,11 +549,18 @@ public class SearchAction implements IssuesWsAction, Startable {
       .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
       .setStatuses(request.paramAsStrings(PARAM_STATUSES))
       .setTags(request.paramAsStrings(PARAM_TAGS))
-      .setTypes(request.paramAsStrings(PARAM_TYPES))
+      .setTypes(allRuleTypesExceptHotspotsIfEmpty(request.paramAsStrings(PARAM_TYPES)))
       .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
       .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
       .setCwe(request.paramAsStrings(PARAM_CWE))
       .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
+  }
+
+  private List<String> allRuleTypesExceptHotspotsIfEmpty(@Nullable List<String> types) {
+    if (types == null || types.isEmpty()) {
+      return ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS.stream().map(Enum::name).collect(toList());
+    }
+    return types;
   }
 
   private List<String> getLogins(DbSession dbSession, @Nullable List<String> assigneeLogins) {
@@ -591,15 +585,5 @@ public class SearchAction implements IssuesWsAction, Startable {
       assigneeUuid = ImmutableList.of("non-existent-uuid");
     }
     return assigneeUuid;
-  }
-
-  @Override
-  public void start() {
-    this.isOnSonarCloud = config.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
-  }
-
-  @Override
-  public void stop() {
-    // Nothing to do
   }
 }

@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -51,12 +50,12 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -92,7 +91,6 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonarqube.ws.Common.RuleType.BUG;
-import static org.sonarqube.ws.Common.RuleType.SECURITY_HOTSPOT;
 import static org.sonarqube.ws.Common.RuleType.VULNERABILITY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_FIELDS;
@@ -123,8 +121,8 @@ public class SearchActionTest {
   private Languages languages = new Languages();
   private UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
   private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new TextRangeResponseFormatter(), userFormatter);
-  private WsActionTester ws = new WsActionTester(new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat,
-    new MapSettings().asConfig(), System2.INSTANCE, dbClient));
+  private WsActionTester ws = new WsActionTester(
+    new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat, System2.INSTANCE, dbClient));
   private StartupIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
 
   @Before
@@ -682,7 +680,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void security_hotspots_are_returned_by_default() {
+  public void security_hotspots_are_not_returned_by_default() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert();
@@ -697,11 +695,11 @@ public class SearchActionTest {
 
     assertThat(result.getIssuesList())
       .extracting(Issue::getType)
-      .containsExactlyInAnyOrder(BUG, VULNERABILITY, Common.RuleType.CODE_SMELL, SECURITY_HOTSPOT);
+      .containsExactlyInAnyOrder(BUG, VULNERABILITY, Common.RuleType.CODE_SMELL);
   }
 
   @Test
-  public void security_hotspot_type_included_when_explicitly_selected() {
+  public void fail_if_trying_to_filter_issues_by_hotspots() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule().getDefinition();
@@ -712,17 +710,12 @@ public class SearchActionTest {
     indexPermissions();
     indexIssues();
 
-    assertThat(ws.newRequest()
-      .setParam("types", RuleType.SECURITY_HOTSPOT.toString())
-      .executeProtobuf(SearchWsResponse.class).getIssuesList())
-        .extracting(Issue::getType)
-        .containsExactlyInAnyOrder(SECURITY_HOTSPOT);
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Value of parameter 'types' (SECURITY_HOTSPOT) must be one of: [CODE_SMELL, BUG, VULNERABILITY]");
 
-    assertThat(ws.newRequest()
-      .setParam("types", String.format("%s,%s", RuleType.BUG, RuleType.SECURITY_HOTSPOT))
-      .executeProtobuf(SearchWsResponse.class).getIssuesList())
-        .extracting(Issue::getType)
-        .containsExactlyInAnyOrder(BUG, SECURITY_HOTSPOT);
+    ws.newRequest()
+      .setParam("types", RuleType.SECURITY_HOTSPOT.toString())
+      .execute();
   }
 
   @Test
@@ -748,27 +741,6 @@ public class SearchActionTest {
     assertThat(result.getFacets().getFacets(0).getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .containsExactlyInAnyOrder(tuple("MAJOR", 3L), tuple("INFO", 0L), tuple("MINOR", 0L), tuple("CRITICAL", 0L), tuple("BLOCKER", 0L));
-  }
-
-  @Test
-  public void do_not_return_severity_on_security_hotspots() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insert();
-    db.issues().insert(rule, project, file, i -> i.setType(RuleType.BUG).setSeverity(Severity.MAJOR.name()));
-    db.issues().insert(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT).setSeverity(Severity.MAJOR.name()));
-    indexPermissions();
-    indexIssues();
-
-    SearchWsResponse result = ws.newRequest()
-      .setParam("types", String.format("%s,%s", RuleType.BUG, RuleType.SECURITY_HOTSPOT))
-      .executeProtobuf(SearchWsResponse.class);
-
-    assertThat(result.getIssuesList())
-      .extracting(Issue::getType, Issue::hasSeverity)
-      .containsExactlyInAnyOrder(
-        tuple(BUG, true),
-        tuple(SECURITY_HOTSPOT, false));
   }
 
   @Test

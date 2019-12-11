@@ -48,6 +48,7 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
@@ -189,13 +190,14 @@ public class SetTypeActionTest {
 
   @Test
   @UseDataProvider("allTypesExceptSecurityHotspot")
-  public void fail_if_trying_to_change_type_of_a_hotspot(RuleType type) {
+  public void fail_NFE_if_trying_to_change_type_of_a_hotspot(RuleType type) {
     long now = 1_999_777_234L;
     when(system2.now()).thenReturn(now);
     IssueDto issueDto = issueDbTester.insertHotspot();
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
-    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Issue with key '%s' does not exist", issueDto.getKey()));
     call(issueDto.getKey(), type.name());
   }
 

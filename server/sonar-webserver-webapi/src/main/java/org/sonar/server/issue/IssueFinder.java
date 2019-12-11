@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue;
 
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -28,6 +29,7 @@ import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 
 public class IssueFinder {
 
@@ -41,6 +43,12 @@ public class IssueFinder {
 
   public IssueDto getByKey(DbSession session, String issueKey) {
     IssueDto issue = dbClient.issueDao().selectByKey(session, issueKey).orElseThrow(() -> new NotFoundException(format("Issue with key '%s' does not exist", issueKey)));
+
+    RuleType ruleType = RuleType.valueOfNullable(issue.getType());
+    if (SECURITY_HOTSPOT.equals(ruleType)) {
+      throw new NotFoundException(format("Issue with key '%s' does not exist", issueKey));
+    }
+
     userSession.checkComponentUuidPermission(UserRole.USER, requireNonNull(issue.getProjectUuid()));
     return issue;
   }

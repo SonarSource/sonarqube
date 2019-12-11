@@ -19,12 +19,15 @@
  */
 package org.sonar.server.issue.ws;
 
+import java.util.Arrays;
+import java.util.Random;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -57,6 +60,8 @@ import static org.sonar.api.web.UserRole.USER;
 public class EditCommentActionTest {
 
   private static final long NOW = 10_000_000_000L;
+  private static final RuleType[] RULE_TYPES_EXCEPT_HOTSPOTS = Arrays.stream(RuleType.values())
+    .filter(ruleType -> RuleType.SECURITY_HOTSPOT != ruleType).toArray(RuleType[]::new);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -81,7 +86,7 @@ public class EditCommentActionTest {
 
   @Test
   public void edit_comment() {
-    IssueDto issueDto = issueDbTester.insertIssue();
+    IssueDto issueDto = newIssue();
     UserDto user = dbTester.users().insertUser();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
     loginWithBrowsePermission(user, USER, issueDto);
@@ -98,7 +103,7 @@ public class EditCommentActionTest {
 
   @Test
   public void edit_comment_using_deprecated_key_parameter() {
-    IssueDto issueDto = issueDbTester.insertIssue();
+    IssueDto issueDto = newIssue();
     UserDto user = dbTester.users().insertUser();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
     loginWithBrowsePermission(user, USER, issueDto);
@@ -115,7 +120,7 @@ public class EditCommentActionTest {
 
   @Test
   public void fail_when_comment_does_not_belong_to_current_user() {
-    IssueDto issueDto = issueDbTester.insertIssue();
+    IssueDto issueDto = newIssue();
     UserDto user = dbTester.users().insertUser();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
     UserDto another = dbTester.users().insertUser();
@@ -128,7 +133,7 @@ public class EditCommentActionTest {
 
   @Test
   public void fail_when_comment_has_not_user() {
-    IssueDto issueDto = issueDbTester.insertIssue();
+    IssueDto issueDto = newIssue();
     UserDto user = dbTester.users().insertUser();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, null, "please fix it");
     loginWithBrowsePermission(user, USER, issueDto);
@@ -164,7 +169,7 @@ public class EditCommentActionTest {
 
   @Test
   public void fail_when_empty_comment_text() {
-    IssueDto issueDto = issueDbTester.insertIssue();
+    IssueDto issueDto = newIssue();
     UserDto user = dbTester.users().insertUser();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
     loginWithBrowsePermission(user, USER, issueDto);
@@ -181,12 +186,24 @@ public class EditCommentActionTest {
 
   @Test
   public void fail_when_not_enough_permission() {
-    IssueDto issueDto = issueDbTester.insertIssue();
+    IssueDto issueDto = newIssue();
     UserDto user = dbTester.users().insertUser();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
     loginWithBrowsePermission(user, CODEVIEWER, issueDto);
 
     expectedException.expect(ForbiddenException.class);
+    call(commentDto.getKey(), "please have a look");
+  }
+
+  @Test
+  public void fail_NFE_if_security_hotspots() {
+    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setType(RuleType.SECURITY_HOTSPOT));
+    UserDto user = dbTester.users().insertUser();
+    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
+    loginWithBrowsePermission(user, CODEVIEWER, issueDto);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Issue with key '%s' does not exist", issueDto.getKey()));
     call(commentDto.getKey(), "please have a look");
   }
 
@@ -205,6 +222,10 @@ public class EditCommentActionTest {
     ofNullable(commentKey).ifPresent(comment1 -> request.setParam("comment", comment1));
     ofNullable(commentText).ifPresent(comment -> request.setParam("text", comment));
     return request.execute();
+  }
+
+  private IssueDto newIssue() {
+    return issueDbTester.insertIssue(i -> i.setType(RULE_TYPES_EXCEPT_HOTSPOTS[new Random().nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)]));
   }
 
   private void loginWithBrowsePermission(UserDto user, String permission, IssueDto issueDto) {

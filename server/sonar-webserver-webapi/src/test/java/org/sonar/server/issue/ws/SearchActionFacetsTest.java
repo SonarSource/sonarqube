@@ -21,12 +21,14 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.collect.ImmutableMap;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
@@ -73,6 +75,10 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 
 public class SearchActionFacetsTest {
 
+  private static final RuleType[] RULE_TYPES_EXCEPT_HOTSPOT = Arrays.stream(RuleType.values()).filter(ruleType -> RuleType.SECURITY_HOTSPOT != ruleType).toArray(RuleType[]::new);
+  private static final String[] ISSUE_STATUSES = Issue.STATUSES.stream().filter(s -> !Issue.STATUS_TO_REVIEW.equals(s)).filter(s -> !Issue.STATUS_REVIEWED.equals(s))
+    .toArray(String[]::new);
+
   @Rule
   public UserSessionRule userSession = standalone();
   @Rule
@@ -92,8 +98,7 @@ public class SearchActionFacetsTest {
   private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new TextRangeResponseFormatter(), userFormatter);
 
   private WsActionTester ws = new WsActionTester(
-    new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat,
-      new MapSettings().asConfig(), System2.INSTANCE, db.getDbClient()));
+    new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat, System2.INSTANCE, db.getDbClient()));
 
   @Test
   public void display_all_facets() {
@@ -117,7 +122,7 @@ public class SearchActionFacetsTest {
       .executeProtobuf(SearchWsResponse.class);
 
     Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 1L).put("CONFIRMED", 0L)
-      .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).put("TO_REVIEW", 0L).put("REVIEWED", 0L).build();
+      .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).build();
 
     assertThat(response.getFacets().getFacetsList())
       .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
@@ -126,7 +131,7 @@ public class SearchActionFacetsTest {
         tuple("statuses", expectedStatuses),
         tuple("resolutions", of("", 1L, "FALSE-POSITIVE", 0L, "FIXED", 0L, "REMOVED", 0L, "WONTFIX", 0L)),
         tuple("rules", of(rule.getKey().toString(), 1L)),
-        tuple("types", of("CODE_SMELL", 1L, "BUG", 0L, "VULNERABILITY", 0L, "SECURITY_HOTSPOT", 0L)),
+        tuple("types", of("CODE_SMELL", 1L, "BUG", 0L, "VULNERABILITY", 0L)),
         tuple("languages", of(rule.getLanguage(), 1L)),
         tuple("projects", of(project.getKey(), 1L)),
         tuple("moduleUuids", of(module.uuid(), 1L)),
@@ -155,7 +160,7 @@ public class SearchActionFacetsTest {
       .executeProtobuf(SearchWsResponse.class);
 
     Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 10L).put("CONFIRMED", 0L)
-      .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).put("TO_REVIEW", 0L).put("REVIEWED", 0L).build();
+      .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).build();
 
     assertThat(response.getFacets().getFacetsList())
       .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
@@ -164,7 +169,7 @@ public class SearchActionFacetsTest {
         tuple("statuses", expectedStatuses),
         tuple("resolutions", of("", 10L, "FALSE-POSITIVE", 0L, "FIXED", 0L, "REMOVED", 0L, "WONTFIX", 0L)),
         tuple("rules", of(rule.getKey().toString(), 10L)),
-        tuple("types", of("CODE_SMELL", 10L, "BUG", 0L, "VULNERABILITY", 0L, "SECURITY_HOTSPOT", 0L)),
+        tuple("types", of("CODE_SMELL", 10L, "BUG", 0L, "VULNERABILITY", 0L)),
         tuple("languages", of(rule.getLanguage(), 10L)),
         tuple("projects", of(project.getKey(), 10L)),
         tuple("fileUuids", of(file.uuid(), 10L)),
@@ -420,17 +425,36 @@ public class SearchActionFacetsTest {
   }
 
   @Test
-  public void check_facets_max_size() {
+  public void check_facets_max_size_for_issues() {
     ComponentDto project = db.components().insertPublicProject();
+    Random random = new Random();
     IntStream.rangeClosed(1, 110)
       .forEach(index -> {
-        RuleDefinitionDto rule = db.rules().insert();
         UserDto user = db.users().insertUser();
         ComponentDto module = db.components().insertComponent(newModuleDto(project));
         ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir" + index));
         ComponentDto file = db.components().insertComponent(newFileDto(directory));
-        db.issues().insert(rule, project, file, i -> i.setAssigneeUuid(user.getUuid()));
+
+        RuleDefinitionDto rule = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setType(RULE_TYPES_EXCEPT_HOTSPOT[random.nextInt(RULE_TYPES_EXCEPT_HOTSPOT.length)]));
+        db.issues().insert(rule, project, file, i -> i.setAssigneeUuid(user.getUuid())
+          .setStatus(ISSUE_STATUSES[random.nextInt(ISSUE_STATUSES.length)])
+          .setType(rule.getType()));
       });
+
+    // insert some hotspots which should be filtered by default
+    IntStream.rangeClosed(1, 30)
+      .forEach(index -> {
+        UserDto user = db.users().insertUser();
+        ComponentDto module = db.components().insertComponent(newModuleDto(project));
+        ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir" + index));
+        ComponentDto file = db.components().insertComponent(newFileDto(directory));
+
+        RuleDefinitionDto rule = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setType(RuleType.SECURITY_HOTSPOT));
+        db.issues().insert(rule, project, file, i -> i.setAssigneeUuid(user.getUuid())
+          .setStatus(random.nextBoolean() ? Issue.STATUS_TO_REVIEW : Issue.STATUS_REVIEWED)
+          .setType(rule.getType()));
+      });
+
     indexPermissions();
     indexIssues();
 
@@ -450,10 +474,10 @@ public class SearchActionFacetsTest {
         // Assignees contains one additional element : it's the empty string that will return number of unassigned issues
         tuple("assignees", 101),
         // Following facets returned fixed number of elements
-        tuple("statuses", 7),
+        tuple("statuses", 5),
         tuple("resolutions", 5),
         tuple("severities", 5),
-        tuple("types", 4));
+        tuple("types", 3));
   }
 
   @Test
@@ -509,7 +533,7 @@ public class SearchActionFacetsTest {
       .executeProtobuf(SearchWsResponse.class);
 
     Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 1L).put("CONFIRMED", 0L)
-      .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).put("TO_REVIEW", 0L).put("REVIEWED", 0L).build();
+      .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).build();
 
     assertThat(response.getFacets().getFacetsList())
       .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
@@ -518,7 +542,7 @@ public class SearchActionFacetsTest {
         tuple("statuses", expectedStatuses),
         tuple("resolutions", of("", 1L, "FALSE-POSITIVE", 0L, "FIXED", 0L, "REMOVED", 0L, "WONTFIX", 0L)),
         tuple("rules", of(rule1.getKey().toString(), 1L, rule2.getKey().toString(), 0L)),
-        tuple("types", of("CODE_SMELL", 1L, "BUG", 0L, "VULNERABILITY", 0L, "SECURITY_HOTSPOT", 0L)),
+        tuple("types", of("CODE_SMELL", 1L, "BUG", 0L, "VULNERABILITY", 0L)),
         tuple("languages", of(rule1.getLanguage(), 1L, rule2.getLanguage(), 0L)),
         tuple("projects", of(project1.getKey(), 1L, project2.getKey(), 0L)),
         tuple("moduleUuids", of(module1.uuid(), 1L, module2.uuid(), 0L)),

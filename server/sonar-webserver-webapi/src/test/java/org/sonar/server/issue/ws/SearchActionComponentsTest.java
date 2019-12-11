@@ -25,7 +25,6 @@ import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
@@ -110,7 +109,7 @@ public class SearchActionComponentsTest {
   private PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
 
   private WsActionTester ws = new WsActionTester(new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat,
-    new MapSettings().asConfig(), System2.INSTANCE, dbClient));
+    System2.INSTANCE, dbClient));
 
   @Test
   public void search_all_issues_when_no_parameter() {
@@ -169,12 +168,12 @@ public class SearchActionComponentsTest {
     assertThat(ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, module1.getKey())
       .executeProtobuf(SearchWsResponse.class).getIssuesList()).extracting(Issue::getKey)
-      .containsExactlyInAnyOrder(issue1.getKey());
+        .containsExactlyInAnyOrder(issue1.getKey());
 
     assertThat(ws.newRequest()
       .setParam(PARAM_MODULE_UUIDS, module1.uuid())
       .executeProtobuf(SearchWsResponse.class).getIssuesList()).extracting(Issue::getKey)
-      .containsExactlyInAnyOrder(issue1.getKey());
+        .containsExactlyInAnyOrder(issue1.getKey());
   }
 
   @Test
@@ -482,11 +481,11 @@ public class SearchActionComponentsTest {
       .setParam(PARAM_COMPONENT_KEYS, applicationBranch1.getKey())
       .setParam(PARAM_BRANCH, applicationBranch1.getBranch())
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
-      .extracting(Issue::getKey, Issue::getComponent, Issue::getProject, Issue::getBranch, Issue::hasBranch)
-      .containsExactlyInAnyOrder(
-        tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch(), true),
-        tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch(), true),
-        tuple(issueOnProject2.getKey(), project2.getKey(), project2.getKey(), "", false));
+        .extracting(Issue::getKey, Issue::getComponent, Issue::getProject, Issue::getBranch, Issue::hasBranch)
+        .containsExactlyInAnyOrder(
+          tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch(), true),
+          tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch(), true),
+          tuple(issueOnProject2.getKey(), project2.getKey(), project2.getKey(), "", false));
 
     // Issues on project1Branch1
     assertThat(ws.newRequest()
@@ -494,10 +493,10 @@ public class SearchActionComponentsTest {
       .setParam(PARAM_PROJECTS, project1.getKey())
       .setParam(PARAM_BRANCH, applicationBranch1.getBranch())
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
-      .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
-      .containsExactlyInAnyOrder(
-        tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch()),
-        tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), project1Branch1.getBranch()));
+        .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
+        .containsExactlyInAnyOrder(
+          tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch()),
+          tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), project1Branch1.getBranch()));
   }
 
   @Test
@@ -668,24 +667,24 @@ public class SearchActionComponentsTest {
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
       .setParam(PARAM_BRANCH, branch.getBranch())
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
-      .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
-      .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
+        .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
+        .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
 
     // On project key + branch
     assertThat(ws.newRequest()
       .setParam(PARAM_PROJECT_KEYS, project.getKey())
       .setParam(PARAM_BRANCH, branch.getBranch())
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
-      .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
-      .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
+        .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
+        .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
 
     // On file key + branch
     assertThat(ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, branchFile.getKey())
       .setParam(PARAM_BRANCH, branch.getBranch())
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
-      .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
-      .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
+        .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
+        .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
   }
 
   @Test
