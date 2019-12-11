@@ -60,6 +60,7 @@ public class GitLabIdentityProviderTest {
     when(gitLabSettings.applicationId()).thenReturn("123");
     when(gitLabSettings.secret()).thenReturn("456");
     when(gitLabSettings.url()).thenReturn("http://server");
+    when(gitLabSettings.syncUserGroups()).thenReturn(true);
     GitLabIdentityProvider gitLabIdentityProvider = new GitLabIdentityProvider(gitLabSettings, new GitLabRestClient(gitLabSettings),
       new ScribeGitLabOauth2Api(gitLabSettings));
 
@@ -68,7 +69,27 @@ public class GitLabIdentityProviderTest {
 
     gitLabIdentityProvider.init(initContext);
 
-    verify(initContext).redirectTo("http://server/oauth/authorize?response_type=code&client_id=123&redirect_uri=http%3A%2F%2Fserver%2Fcallback");
+    verify(initContext).redirectTo("http://server/oauth/authorize?response_type=code&client_id=123&redirect_uri=http%3A%2F%2Fserver%2Fcallback&scope=api");
+  }
+
+  @Test
+  public void test_init_without_sync() {
+    GitLabSettings gitLabSettings = mock(GitLabSettings.class);
+    when(gitLabSettings.isEnabled()).thenReturn(true);
+    when(gitLabSettings.allowUsersToSignUp()).thenReturn(true);
+    when(gitLabSettings.applicationId()).thenReturn("123");
+    when(gitLabSettings.secret()).thenReturn("456");
+    when(gitLabSettings.url()).thenReturn("http://server");
+    when(gitLabSettings.syncUserGroups()).thenReturn(false);
+    GitLabIdentityProvider gitLabIdentityProvider = new GitLabIdentityProvider(gitLabSettings, new GitLabRestClient(gitLabSettings),
+      new ScribeGitLabOauth2Api(gitLabSettings));
+
+    OAuth2IdentityProvider.InitContext initContext = mock(OAuth2IdentityProvider.InitContext.class);
+    when(initContext.getCallbackUrl()).thenReturn("http://server/callback");
+
+    gitLabIdentityProvider.init(initContext);
+
+    verify(initContext).redirectTo("http://server/oauth/authorize?response_type=code&client_id=123&redirect_uri=http%3A%2F%2Fserver%2Fcallback&scope=read_user");
   }
 
   @Test
