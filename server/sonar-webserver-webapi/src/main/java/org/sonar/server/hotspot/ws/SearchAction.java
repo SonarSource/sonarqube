@@ -31,6 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.api.resources.Qualifiers;
@@ -57,7 +58,14 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Hotspots.SearchWsResponse;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
+import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
+import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
+import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
+import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -71,6 +79,8 @@ import static org.sonarqube.ws.WsUtils.nullToEmpty;
 
 public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_PROJECT_KEY = "projectKey";
+  private static final String PARAM_STATUS = "status";
+  private static final String PARAM_RESOLUTION = "resolution";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -99,6 +109,16 @@ public class SearchAction implements HotspotsWsAction {
       .setDescription("Key of the project")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setRequired(true);
+    action.createParam(PARAM_STATUS)
+      .setDescription("If provided, only Security Hotspots with the specified status are returned.")
+      .setPossibleValues(STATUS_TO_REVIEW, STATUS_REVIEWED)
+      .setRequired(false);
+    action.createParam(PARAM_RESOLUTION)
+      .setDescription(format(
+        "If provided and if status is '%s', only Security Hotspots with the specified resolution are returned.",
+        STATUS_REVIEWED))
+      .setPossibleValues(RESOLUTION_FIXED, RESOLUTION_SAFE)
+      .setRequired(false);
     // FIXME add response example and test it
     // action.setResponseExample()
   }
@@ -117,15 +137,24 @@ public class SearchAction implements HotspotsWsAction {
   }
 
   private static WsRequest toWsRequest(Request request) {
-    return new WsRequest(request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE), request.mandatoryParam(PARAM_PROJECT_KEY));
+    return new WsRequest(
+      request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE),
+      request.mandatoryParam(PARAM_PROJECT_KEY),
+      request.param(PARAM_STATUS), request.param(PARAM_RESOLUTION));
   }
 
   private ComponentDto validateRequest(DbSession dbSession, WsRequest wsRequest) {
+    wsRequest.getResolution().ifPresent(
+      resolution -> checkArgument(wsRequest.getStatus().filter(STATUS_REVIEWED::equals).isPresent(),
+        "Value '%s' of parameter '%s' can only be provided if value of parameter '%s' is '%s'",
+        resolution, PARAM_RESOLUTION, PARAM_STATUS, STATUS_REVIEWED)
+    );
+
     ComponentDto project = dbClient.componentDao().selectByKey(dbSession, wsRequest.getProjectKey())
       .filter(t -> Scopes.PROJECT.equals(t.scope()) && Qualifiers.PROJECT.equals(t.qualifier()))
       .filter(ComponentDto::isEnabled)
       .filter(t -> t.getMainBranchProjectUuid() == null)
-      .orElseThrow(() -> new NotFoundException(String.format("Project '%s' not found", wsRequest.getProjectKey())));
+      .orElseThrow(() -> new NotFoundException(format("Project '%s' not found", wsRequest.getProjectKey())));
     userSession.checkComponentPermission(UserRole.USER, project);
     return project;
   }
@@ -158,10 +187,12 @@ public class SearchAction implements HotspotsWsAction {
     IssueQuery.Builder builder = IssueQuery.builder()
       .projectUuids(Collections.singletonList(project.uuid()))
       .organizationUuid(project.getOrganizationUuid())
-      .types(Collections.singleton(RuleType.SECURITY_HOTSPOT.name()))
-      .resolved(false)
+      .types(singleton(RuleType.SECURITY_HOTSPOT.name()))
       .sort(IssueQuery.SORT_HOTSPOTS)
       .asc(true);
+    wsRequest.getStatus().ifPresent(status -> builder.resolved(STATUS_REVIEWED.equals(status)));
+    wsRequest.getResolution().ifPresent(resolution -> builder.resolutions(singleton(resolution)));
+
     IssueQuery query = builder.build();
     SearchOptions searchOptions = new SearchOptions()
       .setPage(wsRequest.page, wsRequest.index);
@@ -218,7 +249,7 @@ public class SearchAction implements HotspotsWsAction {
     for (IssueDto hotspot : orderedHotspots) {
       RuleDefinitionDto rule = searchResponseData.getRule(hotspot.getRuleKey())
         // due to join with table Rule when retrieving data from Issues, this can't happen
-        .orElseThrow(() -> new IllegalStateException(String.format(
+        .orElseThrow(() -> new IllegalStateException(format(
           "Rule with key '%s' not found for Hotspot '%s'", hotspot.getRuleKey(), hotspot.getKey())));
       SecurityStandards.SQCategory sqCategory = fromSecurityStandards(rule.getSecurityStandards()).getSqCategory();
       builder
@@ -229,15 +260,11 @@ public class SearchAction implements HotspotsWsAction {
         .setSecurityCategory(sqCategory.getKey())
         .setVulnerabilityProbability(sqCategory.getVulnerability().name());
       ofNullable(hotspot.getStatus()).ifPresent(builder::setStatus);
-      // FIXME resolution field will be added later
-      // ofNullable(hotspot.getResolution()).ifPresent(builder::setResolution);
+      ofNullable(hotspot.getResolution()).ifPresent(builder::setResolution);
       ofNullable(hotspot.getLine()).ifPresent(builder::setLine);
       builder.setMessage(nullToEmpty(hotspot.getMessage()));
       ofNullable(hotspot.getAssigneeUuid()).ifPresent(builder::setAssignee);
-      // FIXME Filter author only if user is member of the organization (as done in issues/search WS)
-      // if (data.getUserOrganizationUuids().contains(component.getOrganizationUuid())) {
       builder.setAuthor(nullToEmpty(hotspot.getAuthorLogin()));
-      // }
       builder.setCreationDate(formatDateTime(hotspot.getIssueCreationDate()));
       builder.setUpdateDate(formatDateTime(hotspot.getIssueUpdateDate()));
 
@@ -261,11 +288,15 @@ public class SearchAction implements HotspotsWsAction {
     private final int page;
     private final int index;
     private final String projectKey;
+    private final String status;
+    private final String resolution;
 
-    private WsRequest(int page, int index, String projectKey) {
+    private WsRequest(int page, int index, String projectKey, @Nullable String status, @Nullable String resolution) {
       this.page = page;
       this.index = index;
       this.projectKey = projectKey;
+      this.status = status;
+      this.resolution = resolution;
     }
 
     int getPage() {
@@ -278,6 +309,14 @@ public class SearchAction implements HotspotsWsAction {
 
     String getProjectKey() {
       return projectKey;
+    }
+
+    Optional<String> getStatus() {
+      return ofNullable(status);
+    }
+
+    Optional<String> getResolution() {
+      return ofNullable(resolution);
     }
   }
 

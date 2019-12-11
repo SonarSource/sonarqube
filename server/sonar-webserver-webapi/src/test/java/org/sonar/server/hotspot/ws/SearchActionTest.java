@@ -35,6 +35,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,6 +74,10 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
+import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
+import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -114,6 +119,76 @@ public class SearchActionTest {
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'projectKey' parameter is missing");
+  }
+
+  @Test
+  @UseDataProvider("badStatuses")
+  public void fails_with_IAE_if_status_parameter_is_neither_TO_REVIEW_or_REVIEWED(String badStatus) {
+    TestRequest request = actionTester.newRequest()
+      .setParam("projectKey", randomAlphabetic(13))
+      .setParam("status", badStatus);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value of parameter 'status' (" + badStatus + ") must be one of: [TO_REVIEW, REVIEWED]");
+  }
+
+  @DataProvider
+  public static Object[][] badStatuses() {
+    return Stream.concat(
+      Issue.STATUSES.stream(),
+      Stream.of(randomAlphabetic(3)))
+      .filter(t -> !STATUS_REVIEWED.equals(t))
+      .filter(t -> !STATUS_TO_REVIEW.equals(t))
+      .map(t -> new Object[] {t})
+      .toArray(Object[][]::new);
+  }
+
+  @Test
+  @UseDataProvider("badResolutions")
+  public void fails_with_IAE_if_resolution_parameter_is_neither_FIXED_nor_SAFE(String badResolution) {
+    TestRequest request = actionTester.newRequest()
+      .setParam("projectKey", randomAlphabetic(13))
+      .setParam("status", STATUS_TO_REVIEW)
+      .setParam("resolution", badResolution);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value of parameter 'resolution' (" + badResolution + ") must be one of: [FIXED, SAFE]");
+  }
+
+  @DataProvider
+  public static Object[][] badResolutions() {
+    return Stream.of(
+      Issue.RESOLUTIONS.stream(),
+      Issue.SECURITY_HOTSPOT_RESOLUTIONS.stream(),
+      Stream.of(randomAlphabetic(4)))
+      .flatMap(t -> t)
+      .filter(t -> !RESOLUTION_FIXED.equals(t))
+      .filter(t -> !RESOLUTION_SAFE.equals(t))
+      .map(t -> new Object[] {t})
+      .toArray(Object[][]::new);
+  }
+
+  @Test
+  @UseDataProvider("fixedOrSafeResolution")
+  public void fails_with_IAE_if_resolution_is_provided_with_status_TO_REVIEW(String resolution) {
+    TestRequest request = actionTester.newRequest()
+      .setParam("projectKey", randomAlphabetic(13))
+      .setParam("status", STATUS_TO_REVIEW)
+      .setParam("resolution", resolution);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value '" + resolution + "' of parameter 'resolution' can only be provided if value of parameter 'status' is 'REVIEWED'");
+  }
+
+  @DataProvider
+  public static Object[][] fixedOrSafeResolution() {
+    return new Object[][] {
+      {RESOLUTION_SAFE},
+      {RESOLUTION_FIXED}
+    };
   }
 
   @Test
@@ -321,7 +396,82 @@ public class SearchActionTest {
   }
 
   @Test
-  public void returns_only_unresolved_hotspots() {
+  public void returns_hotpots_with_any_status_if_no_status_nor_resolution_parameter() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    List<IssueDto> hotspots = insertRandomNumberOfHotspotsOfAllSupportedStatusesAndResolutions(project, file)
+      .collect(Collectors.toList());
+    indexIssues();
+
+    SearchWsResponse response = newRequest(project, null, null)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(hotspots.stream().map(IssueDto::getKey).toArray(String[]::new));
+  }
+
+  @Test
+  public void returns_hotpots_reviewed_as_safe_and_fixed_if_status_is_REVIEWED_and_resolution_is_not_set() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    List<IssueDto> reviewedHotspots = insertRandomNumberOfHotspotsOfAllSupportedStatusesAndResolutions(project, file)
+      .filter(t -> STATUS_REVIEWED.equals(t.getStatus()))
+      .collect(Collectors.toList());
+    indexIssues();
+
+    SearchWsResponse response = newRequest(project, STATUS_REVIEWED, null)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(reviewedHotspots.stream().map(IssueDto::getKey).toArray(String[]::new));
+  }
+
+  @Test
+  public void returns_hotpots_reviewed_as_safe_if_status_is_REVIEWED_and_resolution_is_SAFE() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    List<IssueDto> safeHotspots = insertRandomNumberOfHotspotsOfAllSupportedStatusesAndResolutions(project, file)
+      .filter(t -> STATUS_REVIEWED.equals(t.getStatus()) && RESOLUTION_SAFE.equals(t.getResolution()))
+      .collect(Collectors.toList());
+    indexIssues();
+
+    SearchWsResponse response = newRequest(project, STATUS_REVIEWED, RESOLUTION_SAFE)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(safeHotspots.stream().map(IssueDto::getKey).toArray(String[]::new));
+  }
+
+  @Test
+  public void returns_hotpots_reviewed_as_fixed_if_status_is_REVIEWED_and_resolution_is_FIXED() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    List<IssueDto> fixedHotspots = insertRandomNumberOfHotspotsOfAllSupportedStatusesAndResolutions(project, file)
+      .filter(t -> STATUS_REVIEWED.equals(t.getStatus()) && RESOLUTION_FIXED.equals(t.getResolution()))
+      .collect(Collectors.toList());
+    indexIssues();
+
+    SearchWsResponse response = newRequest(project, STATUS_REVIEWED, RESOLUTION_FIXED)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(fixedHotspots.stream().map(IssueDto::getKey).toArray(String[]::new));
+  }
+
+  @Test
+  public void returns_only_unresolved_hotspots_when_status_is_TO_REVIEW() {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);
     indexPermissions();
@@ -336,7 +486,7 @@ public class SearchActionTest {
       t -> t.setType(SECURITY_HOTSPOT).setResolution(randomAlphabetic(5)));
     indexIssues();
 
-    SearchWsResponse response = newRequest(project)
+    SearchWsResponse response = newRequest(project, STATUS_TO_REVIEW, null)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
@@ -344,8 +494,28 @@ public class SearchActionTest {
       .containsOnly(unresolvedHotspot.getKey(), badlyClosedHotspot.getKey());
   }
 
+  private Stream<IssueDto> insertRandomNumberOfHotspotsOfAllSupportedStatusesAndResolutions(ComponentDto project, ComponentDto file) {
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    List<IssueDto> hotspots = Arrays.stream(validStatusesAndResolutions())
+      .flatMap(objects -> {
+        String status = (String) objects[0];
+        String resolution = (String) objects[1];
+        return IntStream.range(0, 1 + RANDOM.nextInt(15))
+          .mapToObj(i -> newIssue(rule, project, file)
+            .setKee("hotspot_" + status + "_" + resolution + "_" + i)
+            .setType(SECURITY_HOTSPOT)
+            .setStatus(status)
+            .setResolution(resolution));
+      })
+      .collect(Collectors.toList());
+    Collections.shuffle(hotspots);
+    hotspots.forEach(t -> dbTester.issues().insertIssue(t));
+    return hotspots.stream();
+  }
+
   @Test
-  public void returns_fields_of_hotspot() {
+  @UseDataProvider("validStatusesAndResolutions")
+  public void returns_fields_of_hotspot(String status, @Nullable String resolution) {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);
     indexPermissions();
@@ -357,7 +527,9 @@ public class SearchActionTest {
         .setLine(RANDOM.nextInt(230))
         .setMessage(randomAlphabetic(10))
         .setAssigneeUuid(randomAlphabetic(9))
-        .setAuthorLogin(randomAlphabetic(8)));
+        .setAuthorLogin(randomAlphabetic(8))
+        .setStatus(status)
+        .setResolution(resolution));
     indexIssues();
 
     SearchWsResponse response = newRequest(project)
@@ -367,15 +539,27 @@ public class SearchActionTest {
     SearchWsResponse.Hotspot actual = response.getHotspots(0);
     assertThat(actual.getComponent()).isEqualTo(file.getKey());
     assertThat(actual.getProject()).isEqualTo(project.getKey());
-    assertThat(actual.getStatus()).isEqualTo(hotspot.getStatus());
-    // FIXME resolution field will be added later
-    // assertThat(actual.getResolution()).isEqualTo(hotspot.getResolution());
+    assertThat(actual.getStatus()).isEqualTo(status);
+    if (resolution == null) {
+      assertThat(actual.hasResolution()).isFalse();
+    } else {
+      assertThat(actual.getResolution()).isEqualTo(resolution);
+    }
     assertThat(actual.getLine()).isEqualTo(hotspot.getLine());
     assertThat(actual.getMessage()).isEqualTo(hotspot.getMessage());
     assertThat(actual.getAssignee()).isEqualTo(hotspot.getAssigneeUuid());
     assertThat(actual.getAuthor()).isEqualTo(hotspot.getAuthorLogin());
     assertThat(actual.getCreationDate()).isEqualTo(formatDateTime(hotspot.getIssueCreationDate()));
     assertThat(actual.getUpdateDate()).isEqualTo(formatDateTime(hotspot.getIssueUpdateDate()));
+  }
+
+  @DataProvider
+  public static Object[][] validStatusesAndResolutions() {
+    return new Object[][] {
+      {STATUS_TO_REVIEW, null},
+      {STATUS_REVIEWED, RESOLUTION_FIXED},
+      {STATUS_REVIEWED, RESOLUTION_SAFE},
+    };
   }
 
   @Test
@@ -422,8 +606,7 @@ public class SearchActionTest {
     dbTester.issues().insert(rule, project, file,
       t -> t.setType(SECURITY_HOTSPOT)
         .setStatus(null)
-        // FIXME resolution field will be added later
-        // .setResolution(null)
+        .setResolution(null)
         .setLine(null)
         .setMessage(null)
         .setAssigneeUuid(null)
@@ -437,8 +620,7 @@ public class SearchActionTest {
       .hasSize(1);
     SearchWsResponse.Hotspot actual = response.getHotspots(0);
     assertThat(actual.hasStatus()).isFalse();
-    // FIXME resolution field will be added later
-    // assertThat(actual.hasResolution()).isFalse();
+    assertThat(actual.hasResolution()).isFalse();
     assertThat(actual.hasLine()).isFalse();
     assertThat(actual.getMessage()).isEmpty();
     assertThat(actual.hasAssignee()).isFalse();
@@ -657,8 +839,19 @@ public class SearchActionTest {
   }
 
   private TestRequest newRequest(ComponentDto project) {
-    return actionTester.newRequest()
+    return newRequest(project, null, null);
+  }
+
+  private TestRequest newRequest(ComponentDto project, @Nullable String status, @Nullable String resolution) {
+    TestRequest res = actionTester.newRequest()
       .setParam("projectKey", project.getKey());
+    if (status != null) {
+      res.setParam("status", status);
+    }
+    if (resolution != null) {
+      res.setParam("resolution", resolution);
+    }
+    return res;
   }
 
   private void indexPermissions() {

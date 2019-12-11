@@ -39,8 +39,7 @@ message SearchWsResponse {
     optional string securityCategory = 4;
     optional string vulnerabilityProbability = 5;
     optional string status = 6;
-  //  FIXME resolution field will be added later
-  //  optional string resolution = 7;
+    optional string resolution = 7;
     optional int32 line = 8;
     optional string message = 9;
     optional string assignee = 10;
