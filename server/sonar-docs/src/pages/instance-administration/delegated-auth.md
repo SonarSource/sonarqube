@@ -60,7 +60,7 @@ Create a GitLab OAuth application from your GitLab account. Click [here](https:/
 
    1. In the **Name** text box, name your app SonarQube.
    1. In the **Redirect URI** text box, enter your SonarQube URL with the path `/oauth2/callback/gitlab`. For example, `https://sonarqube.mycompany.com/oauth2/callback/gitlab`.
-   1. Under **Scopes**, select **api**. If you want to authenticate without group synchronization, you need to select **read_user**. 
+   1. Under **Scopes**, select **api** if you plan to enable group synchronization. You can instead select **read_user** if you only plan to delegate authentication.
 
 After saving your application, GitLab gives you your **Application ID** and **Secret**. Keep these at hand, open your SonarQube instance, and navigate to **[Administration > Configuration > General Settings > Security](/#sonarqube-admin#/admin/settings?category=security/)** to finish setting up GitLab authentication:
 
