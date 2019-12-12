@@ -37,8 +37,10 @@ public class PopulateExcludeBranchFromPurgeColumn extends DataChange {
   @Override
   public void execute(Context context) throws SQLException {
     Long now = system.now();
-    context.prepareUpsert("update project_branches set exclude_from_purge = true, updated_at = ? where branch_type = 'LONG'")
-      .setLong(1, now)
+    context.prepareUpsert("update project_branches set exclude_from_purge = ?, updated_at = ? where branch_type = ?")
+      .setBoolean(1, true)
+      .setLong(2, now)
+      .setString(3, "LONG")
       .execute()
       .commit();
   }
