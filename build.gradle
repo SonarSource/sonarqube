@@ -135,7 +135,7 @@ subprojects {
       dependency 'com.sonarsource.security:sonar-security-php-frontend-plugin:8.0.0.5505' // bundled_plugin::sonar-security
       dependency 'com.sonarsource.security:sonar-security-plugin:8.0.0.5505' // bundled_plugin::sonar-security
       dependency 'com.sonarsource.slang:sonar-apex-plugin:1.7.0.883' // bundled_plugin:sonarapex:slang-enterprise
-      dependency 'com.sonarsource.swift:sonar-swift-plugin:4.1.0.3087' // bundled_plugin:swift:sonar-swift
+      dependency 'com.sonarsource.swift:sonar-swift-plugin:4.2.2.77' // bundled_plugin:swift:sonar-swift
       dependency 'com.sonarsource.tsql:sonar-tsql-plugin:1.4.0.3334' // bundled_plugin:tsql:sonar-tsql
       dependency 'org.sonarsource.css:sonar-css-plugin:1.1.1.1010' // bundled_plugin:cssfamily:sonar-css
       dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:7.17.0.9346' // bundled_plugin:csharp:sonar-dotnet
