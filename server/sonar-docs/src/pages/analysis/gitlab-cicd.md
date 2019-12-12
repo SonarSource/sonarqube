@@ -49,7 +49,7 @@ sonarqube-check:
   allow_failure: true
   only:
     - merge_requests
-    - branches
+    - master
 ```
  
 ### SonarScanner for Maven:
@@ -66,7 +66,7 @@ sonarqube-check:
   allow_failure: true
   only:
     - merge_requests
-    - branches
+    - master
 ```
 
 ### SonarScanner CLI:
@@ -86,7 +86,7 @@ sonarqube-check:
   allow_failure: true
   only:
     - merge_requests
-    - branches
+    - master
 ```  
 
 **Note:** A project key has to be provided through `sonar-project.properties` or through the command line parameter. For more information, see the [SonarScanner](/analysis/scan/sonarscanner/) documentation.

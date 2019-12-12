@@ -12,9 +12,9 @@ You can add SonarQube analysis and a Quality Gate to your Pull Requests (PR) in 
 Click your ALM provider below to expand the instructions on decorating your Pull Requests.
 
 [[collapse]]
-| ## GitHub Enterprise  and GitHub.com
+| ## GitHub Enterprise and GitHub.com
 |
-|*For GitHub Enterprise, the minimum version is Version 2.14*
+|*For GitHub Enterprise, the minimum version is 2.14*
 |
 | ### Creating a GitHub App
 |
@@ -59,7 +59,7 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | A Bitbucket Server user account is used to decorate Pull Requests. We recommend creating a dedicated Bitbucket Server account with Administrator permissions to decorate Pull Requests. You need a [Personal Access Token](https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html) from this account with **Write** permission for the repositories that will be analyzed.
 |
-| To add Pull Request decoration on Bitbucket Server, you need to update your global and project settings. 
+| To add Pull Request decoration on Bitbucket Server, you also need to update your global and project settings. 
 |
 | ### Setting your global settings
 |
@@ -78,7 +78,7 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | An Azure DevOps Server user account is used to decorate Pull Requests. We recommend creating a dedicated Azure DevOps Server account with Administrator permissions to decorate Pull Requests. You need a [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=tfs-2017&tabs=preview-page) from this account with the scope authorized for **Code > Read & Write** for the repositories that will be analyzed.
 |
-| To add Pull Request decoration on Azure DevOps Server, you need to update your global and project settings. 
+| To add Pull Request decoration on Azure DevOps Server, you also need to update your global and project settings. 
 |
 | ### Setting your global settings
 |
@@ -93,9 +93,9 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 | Go to **Administration > General Settings > Pull Request Decoration** and select your **Configuration name**.
 
 [[collapse]]
-| ## GitLab
+| ## GitLab Self-Managed and GitLab.com
 |
-|*Minimum GitLab version 11.7*
+|*For GitLab Self-Managed, the minimum version is 11.7*
 |
 | A GitLab user account is used to decorate Merge Requests. We recommend creating a dedicated GitLab account with at least **Reporter** [permissions](https://docs.gitlab.com/ee/user/permissions.html) (the account needs permission to leave comments) to decorate Merge Requests. You need a Personal Access Token from this account with the scope authorized for **api** for the repositories that will be analyzed.
 |
