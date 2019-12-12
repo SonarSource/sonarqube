@@ -257,14 +257,14 @@ subprojects {
         entry 'jetty-server'
         entry 'jetty-servlet'
       }
-      dependency('org.elasticsearch.client:transport:6.8.0') {
+      dependency('org.elasticsearch.client:transport:6.8.4') {
         exclude 'org.elasticsearch.plugin:lang-mustache-client'
         exclude 'commons-logging:commons-logging'
         exclude 'org.elasticsearch.plugin:reindex-client'
         exclude 'org.elasticsearch.plugin:rank-eval-client'
       }
       dependency 'org.elasticsearch:mocksocket:1.0'
-      dependency 'org.codelibs.elasticsearch.module:analysis-common:6.8.0'
+      dependency 'org.codelibs.elasticsearch.module:analysis-common:6.8.4'
       dependency 'org.freemarker:freemarker:2.3.20'
       dependency 'org.hamcrest:hamcrest-all:1.3'
       dependency 'org.jsoup:jsoup:1.12.1'
