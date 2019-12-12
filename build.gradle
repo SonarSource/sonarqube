@@ -138,8 +138,8 @@ subprojects {
       dependency 'com.sonarsource.swift:sonar-swift-plugin:4.2.2.77' // bundled_plugin:swift:sonar-swift
       dependency 'com.sonarsource.tsql:sonar-tsql-plugin:1.4.0.3334' // bundled_plugin:tsql:sonar-tsql
       dependency 'org.sonarsource.css:sonar-css-plugin:1.1.1.1010' // bundled_plugin:cssfamily:sonar-css
-      dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:7.17.0.9346' // bundled_plugin:csharp:sonar-dotnet
-      dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:7.17.0.9346' // bundled_plugin:vbnet:sonar-dotnet
+      dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:8.1.0.13383' // bundled_plugin:csharp:sonar-dotnet
+      dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:8.1.0.13383' // bundled_plugin:vbnet:sonar-dotnet
       dependency 'org.sonarsource.flex:sonar-flex-plugin:2.5.1.1831' // bundled_plugin:flex:sonar-flex
       dependency 'org.sonarsource.html:sonar-html-plugin:3.2.0.2082' // bundled_plugin:web:sonar-html
       dependency 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.0.2.475' // bundled_plugin:jacoco:sonar-jacoco
