@@ -1283,7 +1283,7 @@ public final class CoreMetrics {
   /**
    * @since 7.0
    */
-  public static final Metric<String> NEW_DEVELOPMENT_COST = new Metric.Builder(NEW_DEVELOPMENT_COST_KEY, "Development Cost on New Code", Metric.ValueType.STRING)
+  public static final Metric<String> NEW_DEVELOPMENT_COST = new Metric.Builder(NEW_DEVELOPMENT_COST_KEY, "Development Cost on New Code", Metric.ValueType.FLOAT)
     .setDescription("Development cost on new code")
     .setDomain(DOMAIN_MAINTAINABILITY)
     .setDirection(Metric.DIRECTION_WORST)
