@@ -45,6 +45,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
@@ -121,6 +122,40 @@ public class SearchActionTest {
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("A value must be provided for either parameter 'projectKey' or parameter 'hotspots'");
+  }
+
+  @Test
+  public void fail_with_IAE_if_parameter_branch_is_used_without_parameter_projectKey() {
+    TestRequest request = actionTester.newRequest()
+      .setParam("hotspots", randomAlphabetic(2))
+      .setParam("branch", randomAlphabetic(1));
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Parameter 'branch' must be used with parameter 'projectKey'");
+  }
+
+  @Test
+  public void fail_with_IAE_if_parameter_pullRequest_is_used_without_parameter_projectKey() {
+    TestRequest request = actionTester.newRequest()
+      .setParam("hotspots", randomAlphabetic(2))
+      .setParam("pullRequest", randomAlphabetic(1));
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Parameter 'pullRequest' must be used with parameter 'projectKey'");
+  }
+
+  @Test
+  public void fail_with_IAE_if_both_parameters_pullRequest_and_branch_are_provided() {
+    TestRequest request = actionTester.newRequest()
+      .setParam("projectKey", randomAlphabetic(2))
+      .setParam("branch", randomAlphabetic(1))
+      .setParam("pullRequest", randomAlphabetic(1));
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only one of parameters 'branch' and 'pullRequest' can be provided");
   }
 
   @Test
@@ -325,6 +360,8 @@ public class SearchActionTest {
 
     SearchWsResponse response = newRequest(project)
       .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList()).isEmpty();
   }
 
   @Test
@@ -419,6 +456,54 @@ public class SearchActionTest {
     assertThat(responseProject2.getComponentsList())
       .extracting(Component::getKey)
       .containsOnly(project2.getKey(), file2.getKey());
+  }
+
+  @Test
+  public void returns_hotspot_of_branch_or_pullRequest() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST));
+    ComponentDto fileProject = dbTester.components().insertComponent(newFileDto(project));
+    ComponentDto fileBranch = dbTester.components().insertComponent(newFileDto(branch));
+    ComponentDto filePR = dbTester.components().insertComponent(newFileDto(pullRequest));
+    IssueDto[] hotspotProject = IntStream.range(0, 1 + RANDOM.nextInt(10))
+      .mapToObj(i -> {
+        RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+        return insertHotspot(project, fileProject, rule);
+      })
+      .toArray(IssueDto[]::new);
+    IssueDto[] hotspotBranch = IntStream.range(0, 1 + RANDOM.nextInt(10))
+      .mapToObj(i -> {
+        RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+        return insertHotspot(branch, fileBranch, rule);
+      })
+      .toArray(IssueDto[]::new);
+    IssueDto[] hotspotPR = IntStream.range(0, 1 + RANDOM.nextInt(10))
+      .mapToObj(i -> {
+        RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+        return insertHotspot(pullRequest, filePR, rule);
+      })
+      .toArray(IssueDto[]::new);
+    indexIssues();
+
+    SearchWsResponse responseProject = newRequest(project)
+      .executeProtobuf(SearchWsResponse.class);
+    SearchWsResponse responseBranch = newRequest(branch)
+      .executeProtobuf(SearchWsResponse.class);
+    SearchWsResponse responsePR = newRequest(pullRequest)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(responseProject.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(Arrays.stream(hotspotProject).map(IssueDto::getKey).toArray(String[]::new));
+    assertThat(responseBranch.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(Arrays.stream(hotspotBranch).map(IssueDto::getKey).toArray(String[]::new));
+    assertThat(responsePR.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(Arrays.stream(hotspotPR).map(IssueDto::getKey).toArray(String[]::new));
   }
 
   @Test
@@ -687,16 +772,92 @@ public class SearchActionTest {
     assertThat(actualProject.getName()).isEqualTo(project.name());
     assertThat(actualProject.getLongName()).isEqualTo(project.longName());
     assertThat(actualProject.hasPath()).isFalse();
+    assertThat(actualProject.hasBranch()).isFalse();
+    assertThat(actualProject.hasPullRequest()).isFalse();
     Component actualDirectory = componentByKey.get(directory.getKey());
     assertThat(actualDirectory.getQualifier()).isEqualTo(directory.qualifier());
     assertThat(actualDirectory.getName()).isEqualTo(directory.name());
     assertThat(actualDirectory.getLongName()).isEqualTo(directory.longName());
     assertThat(actualDirectory.getPath()).isEqualTo(directory.path());
+    assertThat(actualDirectory.hasBranch()).isFalse();
+    assertThat(actualDirectory.hasPullRequest()).isFalse();
     Component actualFile = componentByKey.get(file.getKey());
     assertThat(actualFile.getQualifier()).isEqualTo(file.qualifier());
     assertThat(actualFile.getName()).isEqualTo(file.name());
     assertThat(actualFile.getLongName()).isEqualTo(file.longName());
     assertThat(actualFile.getPath()).isEqualTo(file.path());
+    assertThat(actualFile.hasBranch()).isFalse();
+    assertThat(actualFile.hasPullRequest()).isFalse();
+  }
+
+  @Test
+  public void returns_branch_field_of_components_of_branch() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    userSessionRule.registerComponents(project, branch);
+    indexPermissions();
+    ComponentDto directory = dbTester.components().insertComponent(newDirectory(branch, "donut/acme"));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto fileHotspot = insertHotspot(branch, file, rule);
+    IssueDto dirHotspot = insertHotspot(branch, directory, rule);
+    IssueDto projectHotspot = insertHotspot(branch, branch, rule);
+    indexIssues();
+
+    SearchWsResponse response = newRequest(branch)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsOnly(fileHotspot.getKey(), dirHotspot.getKey(), projectHotspot.getKey());
+    assertThat(response.getComponentsList())
+      .extracting(Component::getKey)
+      .containsOnly(project.getKey(), directory.getKey(), file.getKey());
+    Map<String, Component> componentByKey = response.getComponentsList().stream().collect(uniqueIndex(Component::getKey));
+    Component actualProject = componentByKey.get(project.getKey());
+    assertThat(actualProject.getBranch()).isEqualTo(branch.getBranch());
+    assertThat(actualProject.hasPullRequest()).isFalse();
+    Component actualDirectory = componentByKey.get(directory.getKey());
+    assertThat(actualDirectory.getBranch()).isEqualTo(branch.getBranch());
+    assertThat(actualDirectory.hasPullRequest()).isFalse();
+    Component actualFile = componentByKey.get(file.getKey());
+    assertThat(actualFile.getBranch()).isEqualTo(branch.getBranch());
+    assertThat(actualFile.hasPullRequest()).isFalse();
+  }
+
+  @Test
+  public void returns_pullRequest_field_of_components_of_pullRequest() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST));
+    userSessionRule.registerComponents(project, pullRequest);
+    indexPermissions();
+    ComponentDto directory = dbTester.components().insertComponent(newDirectory(pullRequest, "donut/acme"));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(pullRequest));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto fileHotspot = insertHotspot(pullRequest, file, rule);
+    IssueDto dirHotspot = insertHotspot(pullRequest, directory, rule);
+    IssueDto projectHotspot = insertHotspot(pullRequest, pullRequest, rule);
+    indexIssues();
+
+    SearchWsResponse response = newRequest(pullRequest)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsOnly(fileHotspot.getKey(), dirHotspot.getKey(), projectHotspot.getKey());
+    assertThat(response.getComponentsList())
+      .extracting(Component::getKey)
+      .containsOnly(project.getKey(), directory.getKey(), file.getKey());
+    Map<String, Component> componentByKey = response.getComponentsList().stream().collect(uniqueIndex(Component::getKey));
+    Component actualProject = componentByKey.get(project.getKey());
+    assertThat(actualProject.hasBranch()).isFalse();
+    assertThat(actualProject.getPullRequest()).isEqualTo(pullRequest.getPullRequest());
+    Component actualDirectory = componentByKey.get(directory.getKey());
+    assertThat(actualDirectory.hasBranch()).isFalse();
+    assertThat(actualDirectory.getPullRequest()).isEqualTo(pullRequest.getPullRequest());
+    Component actualFile = componentByKey.get(file.getKey());
+    assertThat(actualFile.hasBranch()).isFalse();
+    assertThat(actualFile.getPullRequest()).isEqualTo(pullRequest.getPullRequest());
   }
 
   @Test
@@ -918,6 +1079,14 @@ public class SearchActionTest {
   private TestRequest newRequest(ComponentDto project, @Nullable String status, @Nullable String resolution) {
     TestRequest res = actionTester.newRequest()
       .setParam("projectKey", project.getKey());
+    String branch = project.getBranch();
+    if (branch != null) {
+      res.setParam("branch", branch);
+    }
+    String pullRequest = project.getPullRequest();
+    if (pullRequest != null) {
+      res.setParam("pullRequest", pullRequest);
+    }
     if (status != null) {
       res.setParam("status", status);
     }
