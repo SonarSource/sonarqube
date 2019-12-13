@@ -74,6 +74,8 @@ message Component {
   optional string name = 4;
   optional string longName = 5;
   optional string path = 6;
+  optional string branch = 7;
+  optional string pullRequest = 8;
 }
 
 message Rule {

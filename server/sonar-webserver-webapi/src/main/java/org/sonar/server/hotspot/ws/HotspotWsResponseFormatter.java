@@ -40,6 +40,8 @@ public class HotspotWsResponseFormatter {
       .setQualifier(component.qualifier())
       .setName(component.name())
       .setLongName(component.longName());
+    ofNullable(component.getBranch()).ifPresent(builder::setBranch);
+    ofNullable(component.getPullRequest()).ifPresent(builder::setPullRequest);
     ofNullable(component.path()).ifPresent(builder::setPath);
     return builder.build();
   }

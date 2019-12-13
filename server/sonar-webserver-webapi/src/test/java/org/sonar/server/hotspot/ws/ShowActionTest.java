@@ -45,6 +45,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
@@ -241,8 +242,8 @@ public class ShowActionTest {
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
     assertThat(response.getKey()).isEqualTo(hotspot.getKey());
-    verifyComponent(response.getComponent(), file);
-    verifyComponent(response.getProject(), project);
+    verifyComponent(response.getComponent(), file, null, null);
+    verifyComponent(response.getProject(), project, null, null);
     verifyRule(response.getRule(), rule);
     assertThat(response.hasTextRange()).isFalse();
   }
@@ -511,8 +512,47 @@ public class ShowActionTest {
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
-    verifyComponent(response.getProject(), project);
-    verifyComponent(response.getComponent(), project);
+    verifyComponent(response.getProject(), project, null, null);
+    verifyComponent(response.getComponent(), project, null, null);
+  }
+
+  @Test
+  public void returns_branch_but_no_pullRequest_on_component_and_project_on_non_main_branch() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch));
+    userSessionRule.registerComponents(project);
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(branch, file, rule)
+      .setLocations(DbIssues.Locations.newBuilder()
+        .setTextRange(DbCommons.TextRange.newBuilder().build())
+        .build()));
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    verifyComponent(response.getProject(), branch, branch.getBranch(), null);
+    verifyComponent(response.getComponent(), file, branch.getBranch(), null);
+  }
+
+  @Test
+  public void returns_pullRequest_but_no_branch_on_component_and_project_on_pullRequest() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto pullRequest = dbTester.components().insertProjectBranch(project,
+      t -> t.setBranchType(BranchType.PULL_REQUEST));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(pullRequest));
+    userSessionRule.registerComponents(project);
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(pullRequest, file, rule)
+      .setLocations(DbIssues.Locations.newBuilder()
+        .setTextRange(DbCommons.TextRange.newBuilder().build())
+        .build()));
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    verifyComponent(response.getProject(), pullRequest, null, pullRequest.getPullRequest());
+    verifyComponent(response.getComponent(), file, null, pullRequest.getPullRequest());
   }
 
   @Test
@@ -552,7 +592,7 @@ public class ShowActionTest {
     assertThat(wsRule.getVulnerabilityProbability()).isEqualTo(SQCategory.OTHERS.getVulnerability().name());
   }
 
-  private static void verifyComponent(Hotspots.Component wsComponent, ComponentDto dto) {
+  private static void verifyComponent(Hotspots.Component wsComponent, ComponentDto dto, @Nullable String branch, @Nullable String pullRequest) {
     assertThat(wsComponent.getKey()).isEqualTo(dto.getKey());
     if (dto.path() == null) {
       assertThat(wsComponent.hasPath()).isFalse();
@@ -562,6 +602,16 @@ public class ShowActionTest {
     assertThat(wsComponent.getQualifier()).isEqualTo(dto.qualifier());
     assertThat(wsComponent.getName()).isEqualTo(dto.name());
     assertThat(wsComponent.getLongName()).isEqualTo(dto.longName());
+    if (branch == null) {
+      assertThat(wsComponent.hasBranch()).isFalse();
+    } else {
+      assertThat(wsComponent.getBranch()).isEqualTo(branch);
+    }
+    if (pullRequest == null) {
+      assertThat(wsComponent.hasPullRequest()).isFalse();
+    } else {
+      assertThat(wsComponent.getPullRequest()).isEqualTo(pullRequest);
+    }
   }
 
   private static IssueDto newHotspot(ComponentDto project, ComponentDto file, RuleDefinitionDto rule) {
