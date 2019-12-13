@@ -13,7 +13,7 @@ exports[`should display the edition 1`] = `
       rel="noopener noreferrer"
       target="_blank"
     >
-      marketplace.ask_for_information
+      marketplace.request_free_trial
     </a>
   </div>
 </div>

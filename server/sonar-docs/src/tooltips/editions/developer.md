@@ -1,7 +1,11 @@
-### ![SonarSource logo](/images/sonarsource-icon.png) Developer Edition
+### ![SonarQube logo](/images/sonarqube-icon.png) Developer Edition
 
-* Branch and Pull Requests analysis
-* Analysis of additional languages: C/C++, Objective-C, PL/SQL, ABAP , TSQL , Swift
-* Detection of security vulnerabilities
+*Built for Developers by Developers*
+
+Community Edition functionality plus:
+
+* Branch analysis
+* Pull Request Decoration
+* Injection flaw detection
 * SonarLint notifications
-
+* Additional language analysis: C, C++, Obj-C, PS/SQL, ABAP, TSQL & Swift

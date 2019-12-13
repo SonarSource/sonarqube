@@ -46,7 +46,7 @@ export default function EditionBox({ edition, ncloc, serverId, currentEdition }:
           href={getEditionUrl(edition, { ncloc, serverId, sourceEdition: currentEdition })}
           rel="noopener noreferrer"
           target="_blank">
-          {translate('marketplace.ask_for_information')}
+          {translate('marketplace.request_free_trial')}
         </a>
       </div>
     </div>

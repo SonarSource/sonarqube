@@ -1,7 +1,12 @@
-### ![SonarSource logo](/images/sonarsource-icon.png) Enterprise Edition
+### ![SonarQube logo](/images/sonarqube-icon.png) Enterprise Edition
+
+*Designed to Meet Enterprise Requirements*
+
+Developer Edition functionality plus:
 
 * Portfolio management
+* OWASP/SANS security reports
 * Executive reporting
-* Analysis of additional languages: Apex, COBOL, PL/I, RPG & VB6
-* Parallel processing of analysis reports
 * Project transfer
+* Compute Engine parallel processing
+* Additional language analysis: Apex, COBOL, PL/I, RPG & VB6
