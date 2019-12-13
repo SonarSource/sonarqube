@@ -71,6 +71,7 @@ import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -88,6 +89,7 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_HOTSPOTS = "hotspots";
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_PULL_REQUEST = "pullRequest";
+  private static final String PARAM_SINCE_LEAK_PERIOD = "sinceLeakPeriod";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -140,6 +142,10 @@ public class SearchAction implements HotspotsWsAction {
         PARAM_PROJECT_KEY, STATUS_REVIEWED))
       .setPossibleValues(RESOLUTION_FIXED, RESOLUTION_SAFE)
       .setRequired(false);
+    action.createParam(PARAM_SINCE_LEAK_PERIOD)
+      .setDescription("If '%s' is provided, only Security Hotspots created since the leak period are returned.")
+      .setBooleanPossibleValues()
+      .setDefaultValue("false");
     // FIXME add response example and test it
     // action.setResponseExample()
   }
@@ -165,7 +171,8 @@ public class SearchAction implements HotspotsWsAction {
       request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE),
       request.param(PARAM_PROJECT_KEY), request.param(PARAM_BRANCH), request.param(PARAM_PULL_REQUEST),
       hotspotKeys,
-      request.param(PARAM_STATUS), request.param(PARAM_RESOLUTION));
+      request.param(PARAM_STATUS), request.param(PARAM_RESOLUTION),
+      request.paramAsBoolean(PARAM_SINCE_LEAK_PERIOD));
   }
 
   private static void validateParameters(WsRequest wsRequest) {
@@ -222,7 +229,7 @@ public class SearchAction implements HotspotsWsAction {
   }
 
   private SearchResponseData searchHotspots(WsRequest wsRequest, DbSession dbSession, Optional<ComponentDto> project, Set<String> hotspotKeys) {
-    SearchResponse result = doIndexSearch(wsRequest, project, hotspotKeys);
+    SearchResponse result = doIndexSearch(wsRequest, dbSession, project, hotspotKeys);
     List<String> issueKeys = Arrays.stream(result.getHits().getHits())
       .map(SearchHit::getId)
       .collect(toList(result.getHits().getHits().length));
@@ -245,7 +252,7 @@ public class SearchAction implements HotspotsWsAction {
       .collect(Collectors.toList());
   }
 
-  private SearchResponse doIndexSearch(WsRequest wsRequest, Optional<ComponentDto> project, Set<String> hotspotKeys) {
+  private SearchResponse doIndexSearch(WsRequest wsRequest, DbSession dbSession, Optional<ComponentDto> project, Set<String> hotspotKeys) {
     IssueQuery.Builder builder = IssueQuery.builder()
       .types(singleton(RuleType.SECURITY_HOTSPOT.name()))
       .sort(IssueQuery.SORT_HOTSPOTS)
@@ -259,6 +266,11 @@ public class SearchAction implements HotspotsWsAction {
       } else {
         builder.branchUuid(p.projectUuid());
         builder.mainBranch(false);
+      }
+      if (wsRequest.isSinceLeakPeriod()) {
+        dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, p.uuid())
+          .map(s -> longToDate(s.getPeriodDate()))
+          .ifPresent(d -> builder.createdAfter(d, false));
       }
     });
     if (!hotspotKeys.isEmpty()) {
@@ -367,11 +379,12 @@ public class SearchAction implements HotspotsWsAction {
     private final Set<String> hotspotKeys;
     private final String status;
     private final String resolution;
+    private final boolean sinceLeakPeriod;
 
     private WsRequest(int page, int index,
       @Nullable String projectKey, @Nullable String branch, @Nullable String pullRequest,
       Set<String> hotspotKeys,
-      @Nullable String status, @Nullable String resolution) {
+      @Nullable String status, @Nullable String resolution, @Nullable Boolean sinceLeakPeriod) {
       this.page = page;
       this.index = index;
       this.projectKey = projectKey;
@@ -380,6 +393,7 @@ public class SearchAction implements HotspotsWsAction {
       this.hotspotKeys = hotspotKeys;
       this.status = status;
       this.resolution = resolution;
+      this.sinceLeakPeriod = sinceLeakPeriod == null ? false : sinceLeakPeriod;
     }
 
     int getPage() {
@@ -412,6 +426,10 @@ public class SearchAction implements HotspotsWsAction {
 
     Optional<String> getResolution() {
       return ofNullable(resolution);
+    }
+
+    boolean isSinceLeakPeriod() {
+      return sinceLeakPeriod;
     }
   }
 

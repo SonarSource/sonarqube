@@ -71,7 +71,6 @@ import org.sonarqube.ws.Hotspots.Component;
 import org.sonarqube.ws.Hotspots.SearchWsResponse;
 
 import static java.util.Collections.singleton;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -91,6 +90,7 @@ import static org.sonar.db.issue.IssueTesting.newIssue;
 @RunWith(DataProviderRunner.class)
 public class SearchActionTest {
   private static final Random RANDOM = new Random();
+  private static final int ONE_MINUTE = 60_000;
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -1068,6 +1068,61 @@ public class SearchActionTest {
       .containsExactlyInAnyOrder(selectedHotspots.stream().map(IssueDto::getKey).toArray(String[]::new));
   }
 
+  @Test
+  public void returns_hotspots_on_the_leak_period_when_sinceLeakPeriod_is_true() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    long periodDate = 800_996_999_332L;
+    dbTester.components().insertSnapshot(project, t -> t.setPeriodDate(periodDate).setLast(false));
+    dbTester.components().insertSnapshot(project, t -> t.setPeriodDate(periodDate - 1_500).setLast(true));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    List<IssueDto> hotspotsInLeakPeriod = IntStream.range(0, 1 + RANDOM.nextInt(20))
+      .mapToObj(i -> {
+        long issueCreationDate = periodDate + ONE_MINUTE + (RANDOM.nextInt(300) * ONE_MINUTE);
+        return newIssue(rule, project, file).setType(SECURITY_HOTSPOT).setLine(i).setIssueCreationTime(issueCreationDate);
+      })
+      .map(i -> dbTester.issues().insertIssue(i))
+      .collect(toList());
+    // included because
+    List<IssueDto> atLeakPeriod = IntStream.range(0, 1 + RANDOM.nextInt(20))
+      .mapToObj(i -> newIssue(rule, project, file).setType(SECURITY_HOTSPOT).setLine(i).setIssueCreationTime(periodDate))
+      .map(i -> dbTester.issues().insertIssue(i))
+      .collect(toList());
+    List<IssueDto> hotspotsBefore = IntStream.range(0, 1 + RANDOM.nextInt(20))
+      .mapToObj(i -> {
+        long issueCreationDate = periodDate - ONE_MINUTE - (RANDOM.nextInt(300) * ONE_MINUTE);
+        return newIssue(rule, project, file).setType(SECURITY_HOTSPOT).setLine(i).setIssueCreationTime(issueCreationDate);
+      })
+      .map(i -> dbTester.issues().insertIssue(i))
+      .collect(toList());
+    indexIssues();
+
+    SearchWsResponse responseAll = newRequest(project)
+      .executeProtobuf(SearchWsResponse.class);
+    assertThat(responseAll.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(Stream.of(
+        hotspotsInLeakPeriod.stream(),
+        atLeakPeriod.stream(),
+        hotspotsBefore.stream())
+        .flatMap(t -> t)
+        .map(IssueDto::getKey)
+        .toArray(String[]::new));
+
+    SearchWsResponse responseOnLeak = newRequest(project,
+      t -> t.setParam("sinceLeakPeriod", "true"))
+        .executeProtobuf(SearchWsResponse.class);
+    assertThat(responseOnLeak.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(Stream.concat(
+        hotspotsInLeakPeriod.stream(),
+        atLeakPeriod.stream())
+        .map(IssueDto::getKey)
+        .toArray(String[]::new));
+  }
+
   private IssueDto insertHotspot(ComponentDto project, ComponentDto file, RuleDefinitionDto rule) {
     return dbTester.issues().insert(rule, project, file, t -> t.setType(SECURITY_HOTSPOT));
   }
@@ -1076,7 +1131,16 @@ public class SearchActionTest {
     return newRequest(project, null, null);
   }
 
+  private TestRequest newRequest(ComponentDto project, Consumer<TestRequest> consumer) {
+    return newRequest(project, null, null, consumer);
+  }
+
   private TestRequest newRequest(ComponentDto project, @Nullable String status, @Nullable String resolution) {
+    return newRequest(project, status, resolution, t -> {
+    });
+  }
+
+  private TestRequest newRequest(ComponentDto project, @Nullable String status, @Nullable String resolution, Consumer<TestRequest> consumer) {
     TestRequest res = actionTester.newRequest()
       .setParam("projectKey", project.getKey());
     String branch = project.getBranch();
@@ -1093,12 +1157,13 @@ public class SearchActionTest {
     if (resolution != null) {
       res.setParam("resolution", resolution);
     }
+    consumer.accept(res);
     return res;
   }
 
   private TestRequest newRequest(Collection<String> hotspotKeys) {
     return actionTester.newRequest()
-      .setParam("hotspots", hotspotKeys.stream().collect(joining(",")));
+      .setParam("hotspots", String.join(",", hotspotKeys));
   }
 
   private void indexPermissions() {
