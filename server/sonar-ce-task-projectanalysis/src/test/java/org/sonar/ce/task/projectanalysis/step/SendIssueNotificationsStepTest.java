@@ -92,6 +92,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.step.SendIssueNotificationsStep.NOTIF_TYPES;
@@ -133,7 +134,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final Random random = new Random();
-  private final RuleType[] RULE_TYPES_EXCEPT_HOTSPOTS = Stream.of(RuleType.values()).filter(r -> r != RuleType.SECURITY_HOTSPOT).toArray(RuleType[]::new);
+  private final RuleType[] RULE_TYPES_EXCEPT_HOTSPOTS = Stream.of(RuleType.values()).filter(r -> r != SECURITY_HOTSPOT).toArray(RuleType[]::new);
   private final RuleType randomRuleType = RULE_TYPES_EXCEPT_HOTSPOTS[random.nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)];
   @SuppressWarnings("unchecked")
   private Class<Map<String, UserDto>> assigneeCacheType = (Class<Map<String, UserDto>>) (Object) Map.class;
@@ -460,7 +461,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       .isEmpty();
     Tuple[] expected = stream(users).map(user -> tuple(user.getUuid(), user.getUuid(), user.getId(), user.getLogin())).toArray(Tuple[]::new);
     assertThat(cache.entrySet())
-      .extracting(t -> t.getKey(), t -> t.getValue().getUuid(), t -> t.getValue().getId(), t -> t.getValue().getLogin())
+      .extracting(Map.Entry::getKey, t -> t.getValue().getUuid(), t -> t.getValue().getId(), t -> t.getValue().getLogin())
       .containsOnly(expected);
   }
 
@@ -488,7 +489,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void dont_send_issues_change_notification_for_hotspot() {
+  public void do_not_send_new_issues_notifications_for_hotspot() {
     UserDto user = db.users().insertUser();
     ComponentDto project = newPrivateProjectDto(newOrganizationDto()).setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
     ComponentDto file = newFileDto(project).setDbKey(FILE.getDbKey()).setLongName(FILE.getName());

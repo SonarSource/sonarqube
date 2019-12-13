@@ -31,6 +31,7 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newRandomNotAHotspotRule;
 
 public class ChangesOnMyIssuesNotificationTest {
   @Test
@@ -45,7 +46,8 @@ public class ChangesOnMyIssuesNotificationTest {
   @Test
   public void equals_is_based_on_change_and_issues() {
     AnalysisChange analysisChange = new AnalysisChange(new Random().nextLong());
-    ChangedIssue changedIssue = IssuesChangesNotificationBuilderTesting.newChangedIssue("doo", IssuesChangesNotificationBuilderTesting.newProject("prj"), IssuesChangesNotificationBuilderTesting.newRule("rul"));
+    ChangedIssue changedIssue = IssuesChangesNotificationBuilderTesting.newChangedIssue("doo", IssuesChangesNotificationBuilderTesting.newProject("prj"),
+      newRandomNotAHotspotRule("rul"));
     ChangesOnMyIssuesNotification underTest = new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.of(changedIssue));
 
     assertThat(underTest)
@@ -59,7 +61,8 @@ public class ChangesOnMyIssuesNotificationTest {
   @Test
   public void hashcode_is_based_on_change_and_issues() {
     AnalysisChange analysisChange = new AnalysisChange(new Random().nextLong());
-    ChangedIssue changedIssue = IssuesChangesNotificationBuilderTesting.newChangedIssue("doo", IssuesChangesNotificationBuilderTesting.newProject("prj"), IssuesChangesNotificationBuilderTesting.newRule("rul"));
+    ChangedIssue changedIssue = IssuesChangesNotificationBuilderTesting.newChangedIssue("doo", IssuesChangesNotificationBuilderTesting.newProject("prj"),
+      newRandomNotAHotspotRule("rul"));
     ChangesOnMyIssuesNotification underTest = new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.of(changedIssue));
 
     assertThat(underTest.hashCode())

@@ -306,7 +306,7 @@ public class BulkChangeAction implements IssuesWsAction {
       .setNewStatus(issue.status())
       .setNewResolution(issue.resolution())
       .setAssignee(assignee.map(u -> new User(u.getUuid(), u.getLogin(), u.getName())).orElse(null))
-      .setRule(new IssuesChangesNotificationBuilder.Rule(ruleDefinitionDto.getKey(), ruleDefinitionDto.getName()))
+      .setRule(new IssuesChangesNotificationBuilder.Rule(ruleDefinitionDto.getKey(), RuleType.valueOfNullable(ruleDefinitionDto.getType()), ruleDefinitionDto.getName()))
       .setProject(new Project.Builder(projectDto.uuid())
         .setKey(projectDto.getKey())
         .setProjectName(projectDto.name())

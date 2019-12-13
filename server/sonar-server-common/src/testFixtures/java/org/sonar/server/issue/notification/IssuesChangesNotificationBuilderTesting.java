@@ -21,6 +21,7 @@ package org.sonar.server.issue.notification;
 
 import java.util.Random;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
@@ -36,15 +37,24 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.sonar.api.rules.RuleType.BUG;
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.api.rules.RuleType.VULNERABILITY;
 
 public class IssuesChangesNotificationBuilderTesting {
 
+  private static final RuleType[] RULE_TYPES = {CODE_SMELL, BUG, VULNERABILITY, SECURITY_HOTSPOT};
+
+  private IssuesChangesNotificationBuilderTesting() {
+  }
+
   public static Rule ruleOf(RuleDto rule) {
-    return new Rule(rule.getKey(), rule.getName());
+    return new Rule(rule.getKey(), RuleType.valueOfNullable(rule.getType()), rule.getName());
   }
 
   public static Rule ruleOf(RuleDefinitionDto rule) {
-    return new Rule(rule.getKey(), rule.getName());
+    return new Rule(rule.getKey(), RuleType.valueOfNullable(rule.getType()), rule.getName());
   }
 
   public static User userOf(UserDto changeAuthor) {
@@ -76,8 +86,8 @@ public class IssuesChangesNotificationBuilderTesting {
       .build();
   }
 
-  static ChangedIssue newChangedIssue(String key, String status, Project project, String ruleName) {
-    return newChangedIssue(key, status, project, newRule(ruleName));
+  static ChangedIssue newChangedIssue(String key, String status, Project project, String ruleName, RuleType ruleType) {
+    return newChangedIssue(key, status, project, newRule(ruleName, ruleType));
   }
 
   static ChangedIssue newChangedIssue(String key, String status, Project project, Rule rule) {
@@ -88,8 +98,16 @@ public class IssuesChangesNotificationBuilderTesting {
       .build();
   }
 
-  static Rule newRule(String ruleName) {
-    return new Rule(RuleKey.of(randomAlphabetic(6), randomAlphabetic(7)), ruleName);
+  static Rule newRule(String ruleName, RuleType ruleType) {
+    return new Rule(RuleKey.of(randomAlphabetic(6), randomAlphabetic(7)), ruleType, ruleName);
+  }
+
+  static Rule newRandomNotAHotspotRule(String ruleName) {
+    return newRule(ruleName, randomRuleTypeHotspotExcluded());
+  }
+
+  static Rule newSecurityHotspotRule(String ruleName) {
+    return newRule(ruleName, SECURITY_HOTSPOT);
   }
 
   static Project newProject(String uuid) {
@@ -106,5 +124,9 @@ public class IssuesChangesNotificationBuilderTesting {
 
   static AnalysisChange newAnalysisChange() {
     return new AnalysisChange(new Random().nextLong());
+  }
+
+  static RuleType randomRuleTypeHotspotExcluded() {
+    return RULE_TYPES[new Random().nextInt(RULE_TYPES.length - 1)];
   }
 }

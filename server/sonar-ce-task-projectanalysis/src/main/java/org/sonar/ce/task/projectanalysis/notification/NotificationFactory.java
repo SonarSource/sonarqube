@@ -111,7 +111,7 @@ public class NotificationFactory {
 
   private IssuesChangesNotificationBuilder.Rule getRuleByRuleKey(RuleKey ruleKey) {
     return ruleRepository.findByKey(ruleKey)
-      .map(t -> new IssuesChangesNotificationBuilder.Rule(ruleKey, t.getName()))
+      .map(t -> new IssuesChangesNotificationBuilder.Rule(ruleKey, t.getType(), t.getName()))
       .orElseThrow(() -> new IllegalStateException("Can not find rule " + ruleKey + " in RuleRepository"));
   }
 

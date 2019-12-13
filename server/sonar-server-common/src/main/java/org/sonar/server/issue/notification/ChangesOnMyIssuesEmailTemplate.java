@@ -21,7 +21,6 @@ package org.sonar.server.issue.notification;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.SetMultimap;
-import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.api.config.EmailSettings;
@@ -34,9 +33,13 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.UserChange;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.function.Function.identity;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.core.util.stream.MoreCollectors.index;
+import static org.sonar.server.issue.notification.RuleGroup.ISSUES;
+import static org.sonar.server.issue.notification.RuleGroup.SECURITY_HOTSPOTS;
+import static org.sonar.server.issue.notification.RuleGroup.resolveGroup;
 
 /**
  * Creates email message for notification "Changes on my issues".
@@ -109,31 +112,26 @@ public class ChangesOnMyIssuesEmailTemplate extends IssueChangesEmailTemplate {
     return new EmailMessage()
       .setFrom(user.getName().orElse(user.getLogin()))
       .setMessageId("changes-on-my-issues")
-      .setSubject("A manual update has changed some of your issues")
+      .setSubject("A manual update has changed some of your issues/hotspots")
       .setHtmlMessage(buildMultiProjectMessage(notification));
   }
 
   private String buildMultiProjectMessage(ChangesOnMyIssuesNotification notification) {
+    ListMultimap<RuleGroup, ChangedIssue> issuesAndHotspots = notification.getChangedIssues().values().stream()
+      .collect(index(changedIssue -> resolveGroup(changedIssue.getRule().getRuleType()), identity()));
+
+    List<ChangedIssue> issues = issuesAndHotspots.get(ISSUES);
+    List<ChangedIssue> hotspots = issuesAndHotspots.get(SECURITY_HOTSPOTS);
+
     StringBuilder sb = new StringBuilder();
     paragraph(sb, s -> s.append("Hi,"));
-    paragraph(sb, s -> {
-      SetMultimap<Project, ChangedIssue> changedIssues = notification.getChangedIssues();
-      s.append("A manual change has updated ").append(issuesOrAnIssue(changedIssues))
-        .append(" assigned to you:");
-    });
+    paragraph(sb, s -> s.append("A manual change has updated ").append(RuleGroup.formatIssuesOrHotspots(issues, hotspots)).append(" assigned to you:"));
 
-    addIssuesByProjectThenRule(sb, notification.getChangedIssues());
+    addIssuesAndHotspotsByProjectThenRule(sb, notification.getChangedIssues());
 
     addFooter(sb, NOTIFICATION_NAME_I18N_KEY);
 
     return sb.toString();
-  }
-
-  private static String issueOrIssues(Collection<?> collection) {
-    if (collection.size() > 1) {
-      return "issues";
-    }
-    return "issue";
   }
 
   private static String issuesOrAnIssue(SetMultimap<Project, ChangedIssue> changedIssues) {

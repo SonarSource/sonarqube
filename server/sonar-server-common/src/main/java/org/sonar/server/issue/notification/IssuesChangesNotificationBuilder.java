@@ -27,6 +27,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -233,15 +234,26 @@ public class IssuesChangesNotificationBuilder {
   @Immutable
   public static final class Rule {
     private final RuleKey key;
+    private final RuleType ruleType;
     private final String name;
 
-    public Rule(RuleKey key, String name) {
+    public Rule(RuleKey key, @Nullable String ruleType, String name) {
+      this(key, ruleType != null ? RuleType.valueOf(ruleType) : null, name);
+    }
+
+    public Rule(RuleKey key, @Nullable RuleType ruleType, String name) {
       this.key = requireNonNull(key, KEY_CANT_BE_NULL_MESSAGE);
+      this.ruleType = ruleType;
       this.name = requireNonNull(name, "name can't be null");
     }
 
     public RuleKey getKey() {
       return key;
+    }
+
+    @CheckForNull
+    public RuleType getRuleType() {
+      return ruleType;
     }
 
     public String getName() {
@@ -257,18 +269,19 @@ public class IssuesChangesNotificationBuilder {
         return false;
       }
       Rule that = (Rule) o;
-      return key.equals(that.key) && name.equals(that.name);
+      return key.equals(that.key) && ruleType.equals(that.ruleType) && name.equals(that.name);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(key, name);
+      return Objects.hash(key, ruleType, name);
     }
 
     @Override
     public String toString() {
       return "Rule{" +
         "key=" + key +
+        ", type=" + ruleType +
         ", name='" + name + '\'' +
         '}';
     }

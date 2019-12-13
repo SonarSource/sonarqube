@@ -36,7 +36,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.AnalysisChange;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Change;
@@ -61,6 +60,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedIndex;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newRandomNotAHotspotRule;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 import static org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER;
@@ -354,10 +354,10 @@ public class ChangesOnMyIssueNotificationHandlerTest {
       .collect(toSet());
     when(notificationManager.findSubscribedEmailRecipients(
       CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, project1.getKey(), ImmutableSet.of(assignee1.getLogin()), ALL_MUST_HAVE_ROLE_USER))
-      .thenReturn(ImmutableSet.of(emailRecipientOf(assignee1.getLogin())));
+        .thenReturn(ImmutableSet.of(emailRecipientOf(assignee1.getLogin())));
     when(notificationManager.findSubscribedEmailRecipients(
       CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, project2.getKey(), ImmutableSet.of(assignee2.getLogin()), ALL_MUST_HAVE_ROLE_USER))
-      .thenReturn(ImmutableSet.of(emailRecipientOf(assignee2.getLogin())));
+        .thenReturn(ImmutableSet.of(emailRecipientOf(assignee2.getLogin())));
     int deliveredCount = new Random().nextInt(100);
     when(emailNotificationChannel.deliverAll(anySet())).thenReturn(deliveredCount);
 
@@ -437,7 +437,7 @@ public class ChangesOnMyIssueNotificationHandlerTest {
   }
 
   private static Rule newRule() {
-    return new Rule(RuleKey.of(randomAlphabetic(3), randomAlphabetic(4)), randomAlphabetic(5));
+    return newRandomNotAHotspotRule(randomAlphabetic(5));
   }
 
   private static Set<IssuesChangesNotification> randomSetOfNotifications(@Nullable String projectKey, @Nullable String assignee, @Nullable String changeAuthor) {

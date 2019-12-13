@@ -35,6 +35,7 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
@@ -44,6 +45,7 @@ public class IssuesChangesNotificationSerializer {
   private static final String FIELD_CHANGE_AUTHOR_UUID = "change.author.uuid";
   private static final String FIELD_CHANGE_AUTHOR_LOGIN = "change.author.login";
   private static final String FIELD_CHANGE_AUTHOR_NAME = "change.author.name";
+  private static final String FIELD_PREFIX_RULES = "rules.";
 
   public IssuesChangesNotification serialize(IssuesChangesNotificationBuilder builder) {
     IssuesChangesNotification res = new IssuesChangesNotification();
@@ -160,7 +162,10 @@ public class IssuesChangesNotificationSerializer {
     issues.stream()
       .map(ChangedIssue::getRule)
       .collect(Collectors.toSet())
-      .forEach(rule -> res.setFieldValue("rules." + rule.getKey(), rule.getName()));
+      .forEach(rule -> {
+        res.setFieldValue(FIELD_PREFIX_RULES + rule.getKey(), rule.getName());
+        ofNullable(rule.getRuleType()).ifPresent(ruleType -> res.setFieldValue(FIELD_PREFIX_RULES + rule.getKey() + ".type", rule.getRuleType().name()));
+      });
   }
 
   private static Map<RuleKey, Rule> readRules(IssuesChangesNotification notification, List<Issue> issues) {
@@ -173,10 +178,11 @@ public class IssuesChangesNotificationSerializer {
   }
 
   private static Rule readRule(IssuesChangesNotification notification, RuleKey ruleKey) {
-    String fieldName = "rules." + ruleKey;
+    String fieldName = FIELD_PREFIX_RULES + ruleKey;
     String ruleName = notification.getFieldValue(fieldName);
+    String ruleType = notification.getFieldValue(fieldName + ".type");
     checkState(ruleName != null, "can not find field %s", ruleKey);
-    return new Rule(ruleKey, ruleName);
+    return new Rule(ruleKey, ruleType, ruleName);
   }
 
   private static void serializeProjects(IssuesChangesNotification res, Set<ChangedIssue> issues) {

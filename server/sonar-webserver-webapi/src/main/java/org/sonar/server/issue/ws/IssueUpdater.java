@@ -24,6 +24,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -112,7 +113,7 @@ public class IssueUpdater {
         .setNewResolution(issue.resolution())
         .setNewStatus(issue.status())
         .setAssignee(assignee.map(assigneeDto -> new User(assigneeDto.getUuid(), assigneeDto.getLogin(), assigneeDto.getName())).orElse(null))
-        .setRule(rule.map(r -> new Rule(r.getKey(), r.getName())).get())
+        .setRule(rule.map(r -> new Rule(r.getKey(), RuleType.valueOfNullable(r.getType()), r.getName())).get())
         .setProject(new Project.Builder(project.uuid())
           .setKey(project.getKey())
           .setProjectName(project.name())

@@ -31,10 +31,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import org.sonar.api.config.EmailSettings;
+import org.sonar.api.rules.RuleType;
 import org.sonar.core.i18n.I18n;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Project;
@@ -42,7 +45,13 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Rule
 
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.function.Function.identity;
 import static org.sonar.core.util.stream.MoreCollectors.index;
+import static org.sonar.server.issue.notification.RuleGroup.ISSUES;
+import static org.sonar.server.issue.notification.RuleGroup.SECURITY_HOTSPOTS;
+import static org.sonar.server.issue.notification.RuleGroup.formatIssueOrHotspot;
+import static org.sonar.server.issue.notification.RuleGroup.formatIssuesOrHotspots;
+import static org.sonar.server.issue.notification.RuleGroup.resolveGroup;
 
 public abstract class IssueChangesEmailTemplate implements EmailTemplate {
 
@@ -50,6 +59,7 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
   private static final Comparator<Project> PROJECT_COMPARATOR = Comparator.comparing(Project::getProjectName)
     .thenComparing(t -> t.getBranchName().orElse(""));
   private static final Comparator<ChangedIssue> CHANGED_ISSUE_KEY_COMPARATOR = Comparator.comparing(ChangedIssue::getKey, Comparator.naturalOrder());
+
   /**
    * Assuming:
    * <ul>
@@ -97,6 +107,38 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
       });
   }
 
+  void addIssuesAndHotspotsByProjectThenRule(StringBuilder sb, SetMultimap<Project, ChangedIssue> issuesByProject) {
+    issuesByProject.keySet().stream()
+      .sorted(PROJECT_COMPARATOR)
+      .forEach(project -> {
+        String encodedProjectParams = toUrlParams(project);
+        paragraph(sb, s -> toString(s, project));
+
+        Set<ChangedIssue> changedIssues = issuesByProject.get(project);
+        ListMultimap<RuleGroup, ChangedIssue> issuesAndHotspots = changedIssues.stream()
+          .collect(index(changedIssue -> resolveGroup(changedIssue.getRule().getRuleType()), identity()));
+
+        List<ChangedIssue> issues = issuesAndHotspots.get(ISSUES);
+        List<ChangedIssue> hotspots = issuesAndHotspots.get(SECURITY_HOTSPOTS);
+
+        boolean hasSecurityHotspots = !hotspots.isEmpty();
+        boolean hasOtherIssues = !issues.isEmpty();
+
+        if (hasOtherIssues) {
+          addIssuesByRule(sb, issues, projectIssuePageHref(encodedProjectParams));
+        }
+
+        if (hasSecurityHotspots && hasOtherIssues) {
+          paragraph(sb, stringBuilder -> {
+          });
+        }
+
+        if (hasSecurityHotspots) {
+          addIssuesByRule(sb, hotspots, securityHotspotPageHref(encodedProjectParams));
+        }
+      });
+  }
+
   void addIssuesByRule(StringBuilder sb, Collection<ChangedIssue> changedIssues, BiConsumer<StringBuilder, Collection<ChangedIssue>> issuePageHref) {
     ListMultimap<Rule, ChangedIssue> issuesByRule = changedIssues.stream()
       .collect(index(ChangedIssue::getRule, t -> t));
@@ -114,21 +156,22 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
       Collection<ChangedIssue> issues = issuesByRule.get(rule);
 
       sb.append("<li>").append("Rule ").append(" <em>").append(rule.getName()).append("</em> - ");
-      appendIssueLinks(sb, issuePageHref, issues);
+      appendIssueLinks(sb, issuePageHref, issues, rule.getRuleType());
       sb.append("</li>");
     }
     sb.append("</ul>");
   }
 
-  private static void appendIssueLinks(StringBuilder sb, BiConsumer<StringBuilder, Collection<ChangedIssue>> issuePageHref, Collection<ChangedIssue> issues) {
+  private static void appendIssueLinks(StringBuilder sb, BiConsumer<StringBuilder, Collection<ChangedIssue>> issuePageHref, Collection<ChangedIssue> issues,
+    @Nullable RuleType ruleType) {
     SortedSet<ChangedIssue> sortedIssues = ImmutableSortedSet.copyOf(CHANGED_ISSUE_KEY_COMPARATOR, issues);
     int issueCount = issues.size();
     if (issueCount == 1) {
-      link(sb, s -> issuePageHref.accept(s, sortedIssues), s -> s.append("See the single issue"));
+      link(sb, s -> issuePageHref.accept(s, sortedIssues), s -> s.append("See the single ").append(formatIssueOrHotspot(ruleType)));
     } else if (issueCount <= MAX_ISSUES_BY_LINK) {
-      link(sb, s -> issuePageHref.accept(s, sortedIssues), s -> s.append("See all ").append(issueCount).append(" issues"));
+      link(sb, s -> issuePageHref.accept(s, sortedIssues), s -> s.append("See all ").append(issueCount).append(" ").append(formatIssuesOrHotspots(ruleType)));
     } else {
-      sb.append("See issues");
+      sb.append("See ").append(formatIssuesOrHotspots(ruleType));
       List<List<ChangedIssue>> issueGroups = Lists.partition(ImmutableList.copyOf(sortedIssues), MAX_ISSUES_BY_LINK);
       Iterator<List<ChangedIssue>> issueGroupsIterator = issueGroups.iterator();
       int[] groupIndex = new int[] {0};
@@ -156,6 +199,21 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
 
       if (issues.size() == 1) {
         s.append("&open=").append(urlEncode(issues.iterator().next().getKey()));
+      }
+    };
+  }
+
+  BiConsumer<StringBuilder, Collection<ChangedIssue>> securityHotspotPageHref(String projectParams) {
+    return (s, issues) -> {
+      s.append(settings.getServerBaseURL()).append("/security_hotspots?").append(projectParams)
+        .append("&hotspots=");
+
+      Iterator<ChangedIssue> issueIterator = issues.iterator();
+      while (issueIterator.hasNext()) {
+        s.append(urlEncode(issueIterator.next().getKey()));
+        if (issueIterator.hasNext()) {
+          s.append(URL_ENCODED_COMMA);
+        }
       }
     };
   }
@@ -205,6 +263,13 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
     } catch (UnsupportedEncodingException e) {
       throw new IllegalStateException(e);
     }
+  }
+
+  protected static String issueOrIssues(Collection<?> collection) {
+    if (collection.size() > 1) {
+      return "issues";
+    }
+    return "issue";
   }
 
 }

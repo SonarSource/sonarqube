@@ -34,12 +34,10 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.server.issue.notification.FPOrWontFixNotification.FpOrWontFix;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Change;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Project;
-import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Rule;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.UserChange;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
@@ -66,6 +64,7 @@ import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newProject;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newRandomNotAHotspotRule;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 import static org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER;
@@ -477,7 +476,7 @@ public class FPOrWontFixNotificationHandlerTest {
           .setAssignee(new User(randomAlphabetic(3), randomAlphabetic(4), randomAlphabetic(5)))
           .setNewStatus(randomAlphabetic(12))
           .setNewResolution(randomAlphabetic(13))
-          .setRule(new Rule(RuleKey.of(randomAlphabetic(6), randomAlphabetic(7)), randomAlphabetic(8)))
+          .setRule(newRandomNotAHotspotRule(randomAlphabetic(8)))
           .setProject(new Project.Builder(randomAlphabetic(9))
             .setKey(randomAlphabetic(10))
             .setProjectName(randomAlphabetic(11))

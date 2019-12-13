@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.AnalysisChange;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Project;
@@ -36,18 +35,19 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.issue.notification.FPOrWontFixNotification.FpOrWontFix.FP;
 import static org.sonar.server.issue.notification.FPOrWontFixNotification.FpOrWontFix.WONT_FIX;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newRandomNotAHotspotRule;
 
 public class FPOrWontFixNotificationTest {
   @Test
   public void equals_is_based_on_issues_change_and_resolution() {
-    Rule rule = new Rule(RuleKey.of("repo", "rule_key"), "rule_name");
+    Rule rule = newRandomNotAHotspotRule("rule_name");
     Project project = new Project.Builder("prj_uuid").setKey("prj_key").setProjectName("prj_name").build();
     Set<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> new ChangedIssue.Builder("key_" + i)
         .setNewStatus("status")
         .setRule(rule)
         .setProject(project)
-      .build())
+        .build())
       .collect(Collectors.toSet());
     AnalysisChange change = new AnalysisChange(12);
     User user = new User("uuid", "login", null);
@@ -64,16 +64,17 @@ public class FPOrWontFixNotificationTest {
       .isNotEqualTo(new FPOrWontFixNotification(new IssuesChangesNotificationBuilder.UserChange(12, user), changedIssues, WONT_FIX))
       .isNotEqualTo(new FPOrWontFixNotification(change, changedIssues, FP));
   }
+
   @Test
   public void hashcode_is_based_on_issues_change_and_resolution() {
-    Rule rule = new Rule(RuleKey.of("repo", "rule_key"), "rule_name");
+    Rule rule = newRandomNotAHotspotRule("rule_name");
     Project project = new Project.Builder("prj_uuid").setKey("prj_key").setProjectName("prj_name").build();
     Set<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> new ChangedIssue.Builder("key_" + i)
         .setNewStatus("status")
         .setRule(rule)
         .setProject(project)
-      .build())
+        .build())
       .collect(Collectors.toSet());
     AnalysisChange change = new AnalysisChange(12);
     User user = new User("uuid", "login", null);

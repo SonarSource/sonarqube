@@ -61,7 +61,7 @@ public enum RuleType {
     }
     throw new IllegalArgumentException(format("Unsupported type value : %d", dbConstant));
   }
-  
+
   @CheckForNull
   public static RuleType valueOfNullable(int dbConstant) {
     // iterating the array is fast-enough as size is small. No need for a map.
@@ -75,5 +75,4 @@ public enum RuleType {
     }
     throw new IllegalArgumentException(format("Unsupported type value : %d", dbConstant));
   }
-
 }

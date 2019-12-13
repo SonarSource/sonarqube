@@ -32,11 +32,13 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.elasticsearch.common.util.set.Sets;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.rules.RuleType;
 import org.sonar.core.i18n.I18n;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.AnalysisChange;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Change;
@@ -60,14 +62,24 @@ import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
+import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newAnalysisChange;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newBranch;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newChangedIssue;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newProject;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newRandomNotAHotspotRule;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newRule;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newSecurityHotspotRule;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newUserChange;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.randomRuleTypeHotspotExcluded;
 
 @RunWith(DataProviderRunner.class)
 public class ChangesOnMyIssuesEmailTemplateTest {
   private static final String[] ISSUE_STATUSES = {STATUS_OPEN, STATUS_RESOLVED, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_CLOSED};
+  private static final String[] SECURITY_HOTSPOTS_STATUSES = {STATUS_TO_REVIEW, STATUS_REVIEWED};
+
   @org.junit.Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -84,7 +96,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
 
   @Test
   public void formats_fails_with_ISE_if_change_from_Analysis_and_no_issue() {
-    AnalysisChange analysisChange = IssuesChangesNotificationBuilderTesting.newAnalysisChange();
+    AnalysisChange analysisChange = newAnalysisChange();
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("changedIssues can't be empty");
@@ -95,9 +107,9 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   @Test
   public void format_sets_message_id_with_project_key_of_first_issue_in_set_when_change_from_Analysis() {
     Set<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(4))
-      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newProject("prj_" + i), newRule("rule_" + i)))
+      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newProject("prj_" + i), newRandomNotAHotspotRule("rule_" + i)))
       .collect(toSet());
-    AnalysisChange analysisChange = IssuesChangesNotificationBuilderTesting.newAnalysisChange();
+    AnalysisChange analysisChange = newAnalysisChange();
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, changedIssues));
 
@@ -107,7 +119,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   @Test
   public void format_sets_subject_with_project_name_of_first_issue_in_set_when_change_from_Analysis() {
     Set<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(4))
-      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newProject("prj_" + i), newRule("rule_" + i)))
+      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newProject("prj_" + i), newRandomNotAHotspotRule("rule_" + i)))
       .collect(toSet());
     AnalysisChange analysisChange = IssuesChangesNotificationBuilderTesting.newAnalysisChange();
 
@@ -120,9 +132,9 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   @Test
   public void format_sets_subject_with_project_name_and_branch_name_of_first_issue_in_set_when_change_from_Analysis() {
     Set<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(4))
-      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newBranch("prj_" + i, "br_" + i), newRule("rule_" + i)))
+      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newBranch("prj_" + i, "br_" + i), newRandomNotAHotspotRule("rule_" + i)))
       .collect(toSet());
-    AnalysisChange analysisChange = IssuesChangesNotificationBuilderTesting.newAnalysisChange();
+    AnalysisChange analysisChange = newAnalysisChange();
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, changedIssues));
 
@@ -133,9 +145,9 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   @Test
   public void format_set_html_message_with_header_dealing_with_plural_when_change_from_Analysis() {
     Set<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(4))
-      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newProject("prj_" + i), newRule("rule_" + i)))
+      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newProject("prj_" + i), newRandomNotAHotspotRule("rule_" + i)))
       .collect(toSet());
-    AnalysisChange analysisChange = IssuesChangesNotificationBuilderTesting.newAnalysisChange();
+    AnalysisChange analysisChange = newAnalysisChange();
 
     EmailMessage singleIssueMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, changedIssues.stream().limit(1).collect(toSet())));
     EmailMessage multiIssueMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, changedIssues));
@@ -151,9 +163,9 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   @Test
   public void format_sets_static_message_id_when_change_from_User() {
     Set<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(4))
-      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newProject("prj_" + i), newRule("rule_" + i)))
+      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newProject("prj_" + i), newRandomNotAHotspotRule("rule_" + i)))
       .collect(toSet());
-    UserChange userChange = IssuesChangesNotificationBuilderTesting.newUserChange();
+    UserChange userChange = newUserChange();
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, changedIssues));
 
@@ -163,21 +175,21 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   @Test
   public void format_sets_static_subject_when_change_from_User() {
     Set<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(4))
-      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newProject("prj_" + i), newRule("rule_" + i)))
+      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newProject("prj_" + i), newRandomNotAHotspotRule("rule_" + i)))
       .collect(toSet());
-    UserChange userChange = IssuesChangesNotificationBuilderTesting.newUserChange();
+    UserChange userChange = newUserChange();
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, changedIssues));
 
-    assertThat(emailMessage.getSubject()).isEqualTo("A manual update has changed some of your issues");
+    assertThat(emailMessage.getSubject()).isEqualTo("A manual update has changed some of your issues/hotspots");
   }
 
   @Test
-  public void format_set_html_message_with_header_dealing_with_plural_when_change_from_User() {
+  public void format_set_html_message_with_header_dealing_with_plural_issues_when_change_from_User() {
     Set<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(4))
-      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newProject("prj_" + i), newRule("rule_" + i)))
+      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newProject("prj_" + i), newRandomNotAHotspotRule("rule_" + i)))
       .collect(toSet());
-    UserChange userChange = IssuesChangesNotificationBuilderTesting.newUserChange();
+    UserChange userChange = newUserChange();
 
     EmailMessage singleIssueMessage = underTest.format(new ChangesOnMyIssuesNotification(
       userChange, changedIssues.stream().limit(1).collect(toSet())));
@@ -196,25 +208,90 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   }
 
   @Test
-  @UseDataProvider("issueStatuses")
-  public void format_set_html_message_with_footer_when_change_from_user(String issueStatus) {
-    UserChange userChange = IssuesChangesNotificationBuilderTesting.newUserChange();
-    format_set_html_message_with_footer(userChange, issueStatus, c -> c
-      // skip content
-      .hasParagraph() // open/closed issue
-      .hasList() // rule list
-    );
+  public void format_set_html_message_with_header_dealing_with_plural_security_hotspots_when_change_from_User() {
+    Set<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(4))
+      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newProject("prj_" + i), newSecurityHotspotRule("rule_" + i)))
+      .collect(toSet());
+    UserChange userChange = newUserChange();
+
+    EmailMessage singleIssueMessage = underTest.format(new ChangesOnMyIssuesNotification(
+      userChange, changedIssues.stream().limit(1).collect(toSet())));
+    EmailMessage multiIssueMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, changedIssues));
+
+    HtmlFragmentAssert.assertThat(singleIssueMessage.getMessage())
+      .hasParagraph("Hi,")
+      .withoutLink()
+      .hasParagraph("A manual change has updated a hotspot assigned to you:")
+      .withoutLink();
+    HtmlFragmentAssert.assertThat(multiIssueMessage.getMessage())
+      .hasParagraph("Hi,")
+      .withoutLink()
+      .hasParagraph("A manual change has updated hotspots assigned to you:")
+      .withoutLink();
+  }
+
+  @Test
+  public void format_set_html_message_with_header_dealing_with_plural_security_hotspots_and_issues_when_change_from_User() {
+    Set<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(4))
+      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newProject("prj_" + i), newRandomNotAHotspotRule("rule_" + i)))
+      .collect(toSet());
+
+    Set<ChangedIssue> changedHotspots = IntStream.range(0, 2 + new Random().nextInt(4))
+      .mapToObj(i -> newChangedIssue(i + "", randomValidStatus(), newProject("prj_" + i), newSecurityHotspotRule("rule_" + i)))
+      .collect(toSet());
+
+    Set<ChangedIssue> issuesAndHotspots = Sets.union(changedIssues, changedHotspots);
+
+    UserChange userChange = newUserChange();
+
+    EmailMessage multiIssueMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, issuesAndHotspots));
+
+    HtmlFragmentAssert.assertThat(multiIssueMessage.getMessage())
+      .hasParagraph("Hi,")
+      .withoutLink()
+      .hasParagraph("A manual change has updated issues/hotspots assigned to you:")
+      .withoutLink();
   }
 
   @Test
   @UseDataProvider("issueStatuses")
-  public void format_set_html_message_with_footer_when_change_from_analysis(String issueStatus) {
-    AnalysisChange analysisChange = IssuesChangesNotificationBuilderTesting.newAnalysisChange();
-    format_set_html_message_with_footer(analysisChange, issueStatus, c -> c
+  public void format_set_html_message_with_footer_when_issue_change_from_user(String issueStatus) {
+    UserChange userChange = newUserChange();
+    format_set_html_message_with_footer(userChange, issueStatus, c -> c
       // skip content
+      .hasParagraph() // skip project header
+      .hasList(), // rule list,
+      randomRuleTypeHotspotExcluded());
+  }
+
+  @Test
+  @UseDataProvider("issueStatuses")
+  public void format_set_html_message_with_footer_when_issue_change_from_analysis(String issueStatus) {
+    AnalysisChange analysisChange = newAnalysisChange();
+    format_set_html_message_with_footer(analysisChange, issueStatus, c -> c
       .hasParagraph() // status
-      .hasList() // rule list
-    );
+      .hasList(), // rule list,
+      randomRuleTypeHotspotExcluded());
+  }
+
+  @Test
+  @UseDataProvider("securityHotspotsStatuses")
+  public void format_set_html_message_with_footer_when_security_hotspot_change_from_analysis(String securityHotspotStatus) {
+    AnalysisChange analysisChange = newAnalysisChange();
+    format_set_html_message_with_footer(analysisChange, securityHotspotStatus, c -> c
+      .hasParagraph()
+      .hasList(), // rule list
+      SECURITY_HOTSPOT);
+  }
+
+  @Test
+  @UseDataProvider("securityHotspotsStatuses")
+  public void format_set_html_message_with_footer_when_security_hotspot_change_from_user(String securityHotspotStatus) {
+    UserChange userChange = newUserChange();
+    format_set_html_message_with_footer(userChange, securityHotspotStatus, c -> c
+      .hasParagraph()
+      .hasList(), // rule list
+      SECURITY_HOTSPOT);
   }
 
   @DataProvider
@@ -224,14 +301,21 @@ public class ChangesOnMyIssuesEmailTemplateTest {
       .toArray(Object[][]::new);
   }
 
-  private void format_set_html_message_with_footer(Change change, String issueStatus, Function<HtmlParagraphAssert, HtmlListAssert> skipContent) {
+  @DataProvider
+  public static Object[][] securityHotspotsStatuses() {
+    return Arrays.stream(SECURITY_HOTSPOTS_STATUSES)
+      .map(t -> new Object[] {t})
+      .toArray(Object[][]::new);
+  }
+
+  private void format_set_html_message_with_footer(Change change, String issueStatus, Function<HtmlParagraphAssert, HtmlListAssert> skipContent, RuleType ruleType) {
     String wordingNotification = randomAlphabetic(20);
     String host = randomAlphabetic(15);
     when(i18n.message(Locale.ENGLISH, "notification.dispatcher.ChangesOnMyIssue", "notification.dispatcher.ChangesOnMyIssue"))
       .thenReturn(wordingNotification);
     when(emailSettings.getServerBaseURL()).thenReturn(host);
     Project project = newProject("foo");
-    Rule rule = newRule("bar");
+    Rule rule = newRule("bar", ruleType);
     Set<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(4))
       .mapToObj(i -> newChangedIssue(i + "", issueStatus, project, rule))
       .collect(toSet());
@@ -260,11 +344,11 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   @Test
   public void format_set_html_message_with_issues_grouped_by_status_closed_or_any_other_when_change_from_analysis() {
     Project project = newProject("foo");
-    Rule rule = newRule("bar");
+    Rule rule = newRandomNotAHotspotRule("bar");
     Set<ChangedIssue> changedIssues = Arrays.stream(ISSUE_STATUSES)
       .map(status -> newChangedIssue(status + "", status, project, rule))
       .collect(toSet());
-    AnalysisChange analysisChange = IssuesChangesNotificationBuilderTesting.newAnalysisChange();
+    AnalysisChange analysisChange = newAnalysisChange();
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, changedIssues));
 
@@ -282,16 +366,16 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   }
 
   @Test
-  public void format_set_html_message_with_status_title_handles_plural_when_change_from_analysis() {
+  public void format_set_html_message_with_issue_status_title_handles_plural_when_change_from_analysis() {
     Project project = newProject("foo");
-    Rule rule = newRule("bar");
+    Rule rule = newRandomNotAHotspotRule("bar");
     Set<ChangedIssue> closedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(status -> newChangedIssue(status + "", STATUS_CLOSED, project, rule))
       .collect(toSet());
     Set<ChangedIssue> openIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(status -> newChangedIssue(status + "", STATUS_OPEN, project, rule))
       .collect(toSet());
-    AnalysisChange analysisChange = IssuesChangesNotificationBuilderTesting.newAnalysisChange();
+    AnalysisChange analysisChange = newAnalysisChange();
 
     EmailMessage closedIssuesMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, closedIssues));
     EmailMessage openIssuesMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, openIssues));
@@ -313,8 +397,8 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     Project project = newProject("1");
     String ruleName = randomAlphabetic(8);
     String host = randomAlphabetic(15);
-    ChangedIssue changedIssue = newChangedIssue("key", randomValidStatus(), project, ruleName);
-    AnalysisChange analysisChange = IssuesChangesNotificationBuilderTesting.newAnalysisChange();
+    ChangedIssue changedIssue = newChangedIssue("key", randomValidStatus(), project, ruleName, randomRuleTypeHotspotExcluded());
+    AnalysisChange analysisChange = newAnalysisChange();
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.of(changedIssue)));
@@ -333,8 +417,8 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     Project project = newProject("1");
     String ruleName = randomAlphabetic(8);
     String host = randomAlphabetic(15);
-    ChangedIssue changedIssue = newChangedIssue("key", randomValidStatus(), project, ruleName);
-    UserChange userChange = IssuesChangesNotificationBuilderTesting.newUserChange();
+    ChangedIssue changedIssue = newChangedIssue("key", randomValidStatus(), project, ruleName, randomRuleTypeHotspotExcluded());
+    UserChange userChange = newUserChange();
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.of(changedIssue)));
@@ -355,8 +439,8 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     String ruleName = randomAlphabetic(8);
     String host = randomAlphabetic(15);
     String key = "key";
-    ChangedIssue changedIssue = newChangedIssue(key, randomValidStatus(), project, ruleName);
-    AnalysisChange analysisChange = IssuesChangesNotificationBuilderTesting.newAnalysisChange();
+    ChangedIssue changedIssue = newChangedIssue(key, randomValidStatus(), project, ruleName, randomRuleTypeHotspotExcluded());
+    AnalysisChange analysisChange = newAnalysisChange();
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.of(changedIssue)));
@@ -378,8 +462,8 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     String ruleName = randomAlphabetic(8);
     String host = randomAlphabetic(15);
     String key = "key";
-    ChangedIssue changedIssue = newChangedIssue(key, randomValidStatus(), project, ruleName);
-    UserChange userChange = IssuesChangesNotificationBuilderTesting.newUserChange();
+    ChangedIssue changedIssue = newChangedIssue(key, randomValidStatus(), project, ruleName, randomRuleTypeHotspotExcluded());
+    UserChange userChange = newUserChange();
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.of(changedIssue)));
@@ -399,12 +483,12 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     Project project = newProject("1");
     String ruleName = randomAlphabetic(8);
     String host = randomAlphabetic(15);
-    Rule rule = newRule(ruleName);
+    Rule rule = newRule(ruleName, randomRuleTypeHotspotExcluded());
     String issueStatus = randomValidStatus();
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, issueStatus, project, rule))
       .collect(toList());
-    AnalysisChange analysisChange = IssuesChangesNotificationBuilderTesting.newAnalysisChange();
+    AnalysisChange analysisChange = newAnalysisChange();
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.copyOf(changedIssues)));
@@ -426,11 +510,11 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     Project project = newProject("1");
     String ruleName = randomAlphabetic(8);
     String host = randomAlphabetic(15);
-    Rule rule = newRule(ruleName);
+    Rule rule = newRule(ruleName, randomRuleTypeHotspotExcluded());
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, randomValidStatus(), project, rule))
       .collect(toList());
-    UserChange userChange = IssuesChangesNotificationBuilderTesting.newUserChange();
+    UserChange userChange = newUserChange();
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
@@ -453,12 +537,12 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     Project project = newBranch("1", branchName);
     String ruleName = randomAlphabetic(8);
     String host = randomAlphabetic(15);
-    Rule rule = newRule(ruleName);
+    Rule rule = newRule(ruleName, randomRuleTypeHotspotExcluded());
     String status = randomValidStatus();
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, status, project, rule))
       .collect(toList());
-    AnalysisChange analysisChange = IssuesChangesNotificationBuilderTesting.newAnalysisChange();
+    AnalysisChange analysisChange = newAnalysisChange();
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.copyOf(changedIssues)));
@@ -481,11 +565,11 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     Project project = newBranch("1", branchName);
     String ruleName = randomAlphabetic(8);
     String host = randomAlphabetic(15);
-    Rule rule = newRule(ruleName);
+    Rule rule = newRandomNotAHotspotRule(ruleName);
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, randomValidStatus(), project, rule))
       .collect(toList());
-    UserChange userChange = IssuesChangesNotificationBuilderTesting.newUserChange();
+    UserChange userChange = newUserChange();
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
@@ -512,10 +596,10 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     Project project3 = newProject("C");
     String host = randomAlphabetic(15);
     List<ChangedIssue> changedIssues = Stream.of(project1, project1Branch1, project1Branch2, project2, project2Branch1, project3)
-      .map(project -> newChangedIssue("issue_" + project.getUuid(), randomValidStatus(), project, newRule(randomAlphabetic(2))))
+      .map(project -> newChangedIssue("issue_" + project.getUuid(), randomValidStatus(), project, newRule(randomAlphabetic(2), randomRuleTypeHotspotExcluded())))
       .collect(toList());
     Collections.shuffle(changedIssues);
-    UserChange userChange = IssuesChangesNotificationBuilderTesting.newUserChange();
+    UserChange userChange = newUserChange();
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
@@ -541,17 +625,18 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   @Test
   public void formats_returns_html_message_with_rules_ordered_by_name_when_analysis_change() {
     Project project = newProject("1");
-    Rule rule1 = newRule("1");
-    Rule rule2 = newRule("a");
-    Rule rule3 = newRule("b");
-    Rule rule4 = newRule("X");
+    Rule rule1 = newRandomNotAHotspotRule("1");
+    Rule rule2 = newRandomNotAHotspotRule("a");
+    Rule rule3 = newRandomNotAHotspotRule("b");
+    Rule rule4 = newRandomNotAHotspotRule("X");
+
     String host = randomAlphabetic(15);
     String issueStatus = randomValidStatus();
     List<ChangedIssue> changedIssues = Stream.of(rule1, rule2, rule3, rule4)
       .map(rule -> newChangedIssue("issue_" + rule.getName(), issueStatus, project, rule))
       .collect(toList());
     Collections.shuffle(changedIssues);
-    AnalysisChange analysisChange = IssuesChangesNotificationBuilderTesting.newAnalysisChange();
+    AnalysisChange analysisChange = newAnalysisChange();
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.copyOf(changedIssues)));
@@ -569,30 +654,43 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   }
 
   @Test
-  public void formats_returns_html_message_with_rules_ordered_by_name_when_analysis_change_when_user_analysis() {
+  public void formats_returns_html_message_with_rules_ordered_by_name_user_change() {
     Project project = newProject("1");
-    Rule rule1 = newRule("1");
-    Rule rule2 = newRule("a");
-    Rule rule3 = newRule("b");
-    Rule rule4 = newRule("X");
+    Rule rule1 = newRandomNotAHotspotRule("1");
+    Rule rule2 = newRandomNotAHotspotRule("a");
+    Rule rule3 = newRandomNotAHotspotRule("b");
+    Rule rule4 = newRandomNotAHotspotRule("X");
+
+    Rule hotspot1 = newSecurityHotspotRule("S");
+    Rule hotspot2 = newSecurityHotspotRule("Z");
+    Rule hotspot3 = newSecurityHotspotRule("N");
+    Rule hotspot4 = newSecurityHotspotRule("M");
+
     String host = randomAlphabetic(15);
-    List<ChangedIssue> changedIssues = Stream.of(rule1, rule2, rule3, rule4)
+    List<ChangedIssue> changedIssues = Stream.of(rule1, rule2, rule3, rule4, hotspot1, hotspot2, hotspot3, hotspot4)
       .map(rule -> newChangedIssue("issue_" + rule.getName(), randomValidStatus(), project, rule))
       .collect(toList());
     Collections.shuffle(changedIssues);
-    UserChange userChange = IssuesChangesNotificationBuilderTesting.newUserChange();
+    UserChange userChange = newUserChange();
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
 
     HtmlFragmentAssert.assertThat(emailMessage.getMessage())
-      .hasParagraph().hasParagraph() // skip header
-      .hasParagraph(project.getProjectName())
+      .hasParagraph()
+      .hasParagraph()
+      .hasParagraph() // skip project name
       .hasList(
         "Rule " + rule1.getName() + " - See the single issue",
         "Rule " + rule2.getName() + " - See the single issue",
         "Rule " + rule3.getName() + " - See the single issue",
         "Rule " + rule4.getName() + " - See the single issue")
+      .hasEmptyParagraph()
+      .hasList(
+        "Rule " + hotspot1.getName() + " - See the single hotspot",
+        "Rule " + hotspot2.getName() + " - See the single hotspot",
+        "Rule " + hotspot3.getName() + " - See the single hotspot",
+        "Rule " + hotspot4.getName() + " - See the single hotspot")
       .hasParagraph().hasParagraph() // skip footer
       .noMoreBlock();
   }
@@ -600,11 +698,13 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   @Test
   public void formats_returns_html_message_with_multiple_links_by_rule_of_groups_of_up_to_40_issues_when_analysis_change() {
     Project project1 = newProject("1");
-    Rule rule1 = newRule("1");
-    Rule rule2 = newRule("a");
+    Rule rule1 = newRandomNotAHotspotRule("1");
+    Rule rule2 = newRandomNotAHotspotRule("a");
+
     String host = randomAlphabetic(15);
     String issueStatusClosed = STATUS_CLOSED;
     String otherIssueStatus = STATUS_RESOLVED;
+
     List<ChangedIssue> changedIssues = Stream.of(
       IntStream.range(0, 39).mapToObj(i -> newChangedIssue("39_" + i, issueStatusClosed, project1, rule1)),
       IntStream.range(0, 40).mapToObj(i -> newChangedIssue("40_" + i, issueStatusClosed, project1, rule2)),
@@ -612,8 +712,9 @@ public class ChangesOnMyIssuesEmailTemplateTest {
       IntStream.range(0, 6).mapToObj(i -> newChangedIssue("6_" + i, otherIssueStatus, project1, rule1)))
       .flatMap(t -> t)
       .collect(toList());
+
     Collections.shuffle(changedIssues);
-    AnalysisChange analysisChange = IssuesChangesNotificationBuilderTesting.newAnalysisChange();
+    AnalysisChange analysisChange = newAnalysisChange();
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.copyOf(changedIssues)));
@@ -651,23 +752,32 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   }
 
   @Test
-  public void formats_returns_html_message_with_multiple_links_by_rule_of_groups_of_up_to_40_issues_when_user_change() {
+  public void formats_returns_html_message_with_multiple_links_by_rule_of_groups_of_up_to_40_issues_and_hotspots_when_user_change() {
     Project project1 = newProject("1");
     Project project2 = newProject("V");
     Project project2Branch = newBranch("V", "AB");
-    Rule rule1 = newRule("1");
-    Rule rule2 = newRule("a");
+    Rule rule1 = newRule("1", randomRuleTypeHotspotExcluded());
+    Rule rule2 = newRule("a", randomRuleTypeHotspotExcluded());
+
+    Rule hotspot1 = newSecurityHotspotRule("h1");
+    Rule hotspot2 = newSecurityHotspotRule("h2");
+
     String status = randomValidStatus();
     String host = randomAlphabetic(15);
     List<ChangedIssue> changedIssues = Stream.of(
       IntStream.range(0, 39).mapToObj(i -> newChangedIssue("39_" + i, status, project1, rule1)),
       IntStream.range(0, 40).mapToObj(i -> newChangedIssue("40_" + i, status, project1, rule2)),
       IntStream.range(0, 81).mapToObj(i -> newChangedIssue("1-40_41-80_1_" + i, status, project2, rule2)),
-      IntStream.range(0, 6).mapToObj(i -> newChangedIssue("6_" + i, status, project2Branch, rule1)))
+      IntStream.range(0, 6).mapToObj(i -> newChangedIssue("6_" + i, status, project2Branch, rule1)),
+
+      IntStream.range(0, 39).mapToObj(i -> newChangedIssue("39_" + i, STATUS_REVIEWED, project1, hotspot1)),
+      IntStream.range(0, 40).mapToObj(i -> newChangedIssue("40_" + i, STATUS_REVIEWED, project1, hotspot2)),
+      IntStream.range(0, 81).mapToObj(i -> newChangedIssue("1-40_41-80_1_" + i, STATUS_TO_REVIEW, project2, hotspot2)),
+      IntStream.range(0, 6).mapToObj(i -> newChangedIssue("6_" + i, STATUS_TO_REVIEW, project2Branch, hotspot1)))
       .flatMap(t -> t)
       .collect(toList());
     Collections.shuffle(changedIssues);
-    UserChange userChange = IssuesChangesNotificationBuilderTesting.newUserChange();
+    UserChange userChange = newUserChange();
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
@@ -685,8 +795,20 @@ public class ChangesOnMyIssuesEmailTemplateTest {
       .withLink("See all 40 issues",
         host + "/project/issues?id=" + project1.getKey()
           + "&issues=" + IntStream.range(0, 40).mapToObj(i -> "40_" + i).sorted().collect(joining("%2C")))
+      .hasEmptyParagraph()
+      .hasList()
+      .withItemTexts(
+        "Rule " + hotspot1.getName() + " - See all 39 hotspots",
+        "Rule " + hotspot2.getName() + " - See all 40 hotspots")
+      .withLink("See all 39 hotspots",
+        host + "/security_hotspots?id=" + project1.getKey()
+          + "&hotspots=" + IntStream.range(0, 39).mapToObj(i -> "39_" + i).sorted().collect(joining("%2C")))
+      .withLink("See all 40 hotspots",
+        host + "/security_hotspots?id=" + project1.getKey()
+          + "&hotspots=" + IntStream.range(0, 40).mapToObj(i -> "40_" + i).sorted().collect(joining("%2C")))
       .hasParagraph(project2.getProjectName())
-      .hasList("Rule " + rule2.getName() + " - See issues 1-40 41-80 81")
+      .hasList(
+        "Rule " + rule2.getName() + " - See issues 1-40 41-80 81")
       .withLink("1-40",
         host + "/project/issues?id=" + project2.getKey()
           + "&issues=" + IntStream.range(0, 81).mapToObj(i -> "1-40_41-80_1_" + i).sorted().limit(40).collect(joining("%2C")))
@@ -696,11 +818,28 @@ public class ChangesOnMyIssuesEmailTemplateTest {
       .withLink("81",
         host + "/project/issues?id=" + project2.getKey()
           + "&issues=" + "1-40_41-80_1_9" + "&open=" + "1-40_41-80_1_9")
+      .hasEmptyParagraph()
+      .hasList("Rule " + hotspot2.getName() + " - See hotspots 1-40 41-80 81")
+      .withLink("1-40",
+        host + "/security_hotspots?id=" + project2.getKey()
+          + "&hotspots=" + IntStream.range(0, 81).mapToObj(i -> "1-40_41-80_1_" + i).sorted().limit(40).collect(joining("%2C")))
+      .withLink("41-80",
+        host + "/security_hotspots?id=" + project2.getKey()
+          + "&hotspots=" + IntStream.range(0, 81).mapToObj(i -> "1-40_41-80_1_" + i).sorted().skip(40).limit(40).collect(joining("%2C")))
+      .withLink("81",
+        host + "/security_hotspots?id=" + project2.getKey()
+          + "&hotspots=" + "1-40_41-80_1_9")
       .hasParagraph(project2Branch.getProjectName() + ", " + project2Branch.getBranchName().get())
-      .hasList("Rule " + rule1.getName() + " - See all 6 issues")
+      .hasList(
+        "Rule " + rule1.getName() + " - See all 6 issues")
       .withLink("See all 6 issues",
         host + "/project/issues?id=" + project2Branch.getKey() + "&branch=" + project2Branch.getBranchName().get()
           + "&issues=" + IntStream.range(0, 6).mapToObj(i -> "6_" + i).sorted().collect(joining("%2C")))
+      .hasEmptyParagraph()
+      .hasList("Rule " + hotspot1.getName() + " - See all 6 hotspots")
+      .withLink("See all 6 hotspots",
+        host + "/security_hotspots?id=" + project2Branch.getKey() + "&branch=" + project2Branch.getBranchName().get()
+          + "&hotspots=" + IntStream.range(0, 6).mapToObj(i -> "6_" + i).sorted().collect(joining("%2C")))
       .hasParagraph().hasParagraph() // skip footer
       .noMoreBlock();
   }
