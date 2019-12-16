@@ -22,6 +22,7 @@ package org.sonar.server.hotspot.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
@@ -54,7 +55,8 @@ public class AddCommentAction implements HotspotsWsAction {
       .createAction("add_comment")
       .setHandler(this)
       .setPost(true)
-      .setDescription("Add a comment to a Security Hotpot.")
+      .setDescription("Add a comment to a Security Hotpot.<br/>" +
+        "Requires authentication and the following permission: 'Browse' on the project of the specified Security Hotspot.")
       .setSince("8.1")
       .setInternal(true);
 
@@ -76,7 +78,7 @@ public class AddCommentAction implements HotspotsWsAction {
     String comment = request.mandatoryParam(PARAM_COMMENT);
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto hotspot = hotspotWsSupport.loadHotspot(dbSession, hotspotKey);
-      hotspotWsSupport.loadAndCheckProject(dbSession, hotspot);
+      hotspotWsSupport.loadAndCheckProject(dbSession, hotspot, UserRole.USER);
 
       DefaultIssue defaultIssue = hotspot.toDefaultIssue();
       IssueChangeContext context = hotspotWsSupport.newIssueChangeContext();

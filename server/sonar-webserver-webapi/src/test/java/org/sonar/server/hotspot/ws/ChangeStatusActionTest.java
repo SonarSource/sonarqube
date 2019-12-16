@@ -267,25 +267,75 @@ public class ChangeStatusActionTest {
   }
 
   @Test
-  @UseDataProvider("validStatusAndResolutions")
-  public void fails_with_ForbiddenException_if_project_is_private_and_not_allowed(String status, @Nullable String resolution) {
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    userSessionRule.logIn().registerComponents(project);
+  @UseDataProvider("anyPublicProjectPermissionButHotspotAdmin")
+  public void fails_with_ForbiddenException_if_project_is_public_and_user_has_no_HotspotAdmin_permission_on_it(String permission) {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.logIn().registerComponents(project)
+      .addProjectPermission(permission, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
-    TestRequest request = newRequest(hotspot, status, resolution, NO_COMMENT);
 
-    assertThatThrownBy(request::execute)
-      .isInstanceOf(ForbiddenException.class)
-      .hasMessage("Insufficient privileges");
+    Arrays.stream(validStatusAndResolutions())
+      .forEach(o -> {
+        String status = (String) o[0];
+        String resolution = (String) o[1];
+
+        TestRequest request = newRequest(hotspot, status, resolution, NO_COMMENT);
+        assertThatThrownBy(request::execute)
+          .isInstanceOf(ForbiddenException.class)
+          .hasMessage("Insufficient privileges");
+      });
+  }
+
+  @DataProvider
+  public static Object[][] anyPublicProjectPermissionButHotspotAdmin() {
+    return new Object[][] {
+      {UserRole.ADMIN},
+      {UserRole.ISSUE_ADMIN},
+      {UserRole.SCAN}
+    };
+  }
+
+  @Test
+  @UseDataProvider("anyPrivateProjectPermissionButHotspotAdmin")
+  public void fails_with_ForbiddenException_if_project_is_private_and_has_no_IssueAdmin_permission_on_it(String permission) {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    userSessionRule.logIn().registerComponents(project)
+      .addProjectPermission(permission, project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
+
+    Arrays.stream(validStatusAndResolutions())
+      .forEach(o -> {
+        String status = (String) o[0];
+        String resolution = (String) o[1];
+
+        TestRequest request = newRequest(hotspot, status, resolution, NO_COMMENT);
+        assertThatThrownBy(request::execute)
+          .isInstanceOf(ForbiddenException.class)
+          .hasMessage("Insufficient privileges");
+      });
+  }
+
+  @DataProvider
+  public static Object[][] anyPrivateProjectPermissionButHotspotAdmin() {
+    return new Object[][] {
+      {UserRole.USER},
+      {UserRole.ADMIN},
+      {UserRole.ISSUE_ADMIN},
+      {UserRole.CODEVIEWER},
+      {UserRole.SCAN}
+    };
   }
 
   @Test
   @UseDataProvider("validStatusAndResolutions")
-  public void succeeds_on_public_project(String status, @Nullable String resolution) {
+  public void succeeds_on_public_project_with_HotspotAdmin_permission(String status, @Nullable String resolution) {
     ComponentDto project = dbTester.components().insertPublicProject();
-    userSessionRule.logIn().registerComponents(project);
+    userSessionRule.logIn().registerComponents(project)
+      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
@@ -295,9 +345,10 @@ public class ChangeStatusActionTest {
 
   @Test
   @UseDataProvider("validStatusAndResolutions")
-  public void succeeds_on_private_project_with_permission(String status, @Nullable String resolution) {
+  public void succeeds_on_private_project_with_HotspotAdmin_permission(String status, @Nullable String resolution) {
     ComponentDto project = dbTester.components().insertPrivateProject();
-    userSessionRule.logIn().registerComponents(project).addProjectPermission(UserRole.USER, project);
+    userSessionRule.logIn().registerComponents(project)
+      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
@@ -309,7 +360,8 @@ public class ChangeStatusActionTest {
   @UseDataProvider("validStatusAndResolutions")
   public void no_effect_and_success_if_hotspot_already_has_specified_status_and_resolution(String status, @Nullable String resolution) {
     ComponentDto project = dbTester.components().insertPublicProject();
-    userSessionRule.logIn().registerComponents(project);
+    userSessionRule.logIn().registerComponents(project)
+      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule).setStatus(status).setResolution(resolution));
@@ -325,7 +377,9 @@ public class ChangeStatusActionTest {
     long now = RANDOM.nextInt(232_323);
     when(system2.now()).thenReturn(now);
     ComponentDto project = dbTester.components().insertPublicProject();
-    userSessionRule.logIn().registerComponents(project);
+    userSessionRule.logIn().registerComponents(project)
+      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
+    ;
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule).setStatus(STATUS_TO_REVIEW).setResolution(null));
@@ -371,7 +425,9 @@ public class ChangeStatusActionTest {
     long now = RANDOM.nextInt(232_323);
     when(system2.now()).thenReturn(now);
     ComponentDto project = dbTester.components().insertPublicProject();
-    userSessionRule.logIn().registerComponents(project);
+    userSessionRule.logIn().registerComponents(project)
+      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
+    ;
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule).setStatus(STATUS_REVIEWED).setResolution(resolution));
@@ -418,7 +474,9 @@ public class ChangeStatusActionTest {
     long now = RANDOM.nextInt(232_323);
     when(system2.now()).thenReturn(now);
     ComponentDto project = dbTester.components().insertPublicProject();
-    userSessionRule.logIn().registerComponents(project);
+    userSessionRule.logIn().registerComponents(project)
+      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
+    ;
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule).setStatus(currentStatus).setResolution(currentResolution));
@@ -469,7 +527,9 @@ public class ChangeStatusActionTest {
     long now = RANDOM.nextInt(232_323);
     when(system2.now()).thenReturn(now);
     ComponentDto project = dbTester.components().insertPublicProject();
-    userSessionRule.logIn().registerComponents(project);
+    userSessionRule.logIn().registerComponents(project)
+      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
+    ;
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule).setStatus(status).setResolution(resolution));

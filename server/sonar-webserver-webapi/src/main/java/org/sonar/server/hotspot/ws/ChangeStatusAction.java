@@ -25,6 +25,7 @@ import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
@@ -70,7 +71,8 @@ public class ChangeStatusAction implements HotspotsWsAction {
       .createAction("change_status")
       .setHandler(this)
       .setPost(true)
-      .setDescription("Change the status of a Security Hotpot.")
+      .setDescription("Change the status of a Security Hotpot.<br/>" +
+        "Requires the 'Administer Security Hotspot' permission.")
       .setSince("8.1")
       .setInternal(true);
 
@@ -99,7 +101,7 @@ public class ChangeStatusAction implements HotspotsWsAction {
     String newResolution = resolutionParam(request, newStatus);
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto hotspot = hotspotWsSupport.loadHotspot(dbSession, hotspotKey);
-      hotspotWsSupport.loadAndCheckProject(dbSession, hotspot);
+      hotspotWsSupport.loadAndCheckProject(dbSession, hotspot, UserRole.SECURITYHOTSPOT_ADMIN);
 
       if (needStatusUpdate(hotspot, newStatus, newResolution)) {
         String transitionKey = toTransitionKey(newStatus, newResolution);

@@ -22,7 +22,6 @@ package org.sonar.server.hotspot.ws;
 import java.util.Date;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -55,13 +54,13 @@ public class HotspotWsSupport {
       .orElseThrow(() -> new NotFoundException(format("Hotspot '%s' does not exist", hotspotKey)));
   }
 
-  ComponentDto loadAndCheckProject(DbSession dbSession, IssueDto hotspot) {
+  ComponentDto loadAndCheckProject(DbSession dbSession, IssueDto hotspot, String userRole) {
     String projectUuid = hotspot.getProjectUuid();
     checkArgument(projectUuid != null, "Hotspot '%s' has no project", hotspot.getKee());
 
     ComponentDto project = dbClient.componentDao().selectByUuid(dbSession, projectUuid)
       .orElseThrow(() -> new NotFoundException(format("Project with uuid '%s' does not exist", projectUuid)));
-    userSession.checkComponentPermission(UserRole.USER, project);
+    userSession.checkComponentPermission(userRole, project);
 
     return project;
   }

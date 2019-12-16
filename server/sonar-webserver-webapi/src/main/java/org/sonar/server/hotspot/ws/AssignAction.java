@@ -100,7 +100,7 @@ public class AssignAction implements HotspotsWsAction {
       IssueDto hotspotDto = hotspotWsSupport.loadHotspot(dbSession, hotspotKey);
 
       checkIfHotspotToReview(hotspotDto);
-      hotspotWsSupport.loadAndCheckProject(dbSession, hotspotDto);
+      hotspotWsSupport.loadAndCheckProject(dbSession, hotspotDto, UserRole.USER);
       UserDto assignee = getAssignee(dbSession, login);
 
       IssueChangeContext context = hotspotWsSupport.newIssueChangeContext();

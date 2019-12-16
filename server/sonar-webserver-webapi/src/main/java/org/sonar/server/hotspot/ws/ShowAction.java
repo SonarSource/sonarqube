@@ -29,6 +29,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -192,7 +193,7 @@ public class ShowAction implements HotspotsWsAction {
   private Components loadComponents(DbSession dbSession, IssueDto hotspot) {
     String componentUuid = hotspot.getComponentUuid();
 
-    ComponentDto project = hotspotWsSupport.loadAndCheckProject(dbSession, hotspot);
+    ComponentDto project = hotspotWsSupport.loadAndCheckProject(dbSession, hotspot, UserRole.USER);
 
     checkArgument(componentUuid != null, "Hotspot '%s' has no component", hotspot.getKee());
     boolean hotspotOnProject = Objects.equals(project.uuid(), componentUuid);
