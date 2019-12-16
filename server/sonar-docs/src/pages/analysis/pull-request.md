@@ -20,7 +20,7 @@ A [Quality Gate](/user-guide/quality-gates/) lets you ensure you are meeting you
 * **Focuses on new code** – The PR quality gate only uses your project's quality gate conditions that apply to "on New Code" metrics.
 * **Assigns a status** – Each PR shows a quality gate status reflecting whether it Passed or Failed.
 
-PR analyses on {instance} are deleted automatically after 30 days with no analysis. This can be updated in **Administration > Configuration > General > Number of days before purging inactive short living branches**. 
+PR analyses on {instance} are deleted automatically after 30 days with no analysis. This can be updated in **Administration > Configuration > General Settings > Housekeeping > Number of days before purging inactive branches**. 
 
 ## Analysis Parameters
 
