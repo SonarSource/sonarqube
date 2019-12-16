@@ -3,6 +3,24 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 8.1 Upgrade Notes  
+**Short-lived and Long-lived branches are now just branches**  
+The concept for branches is now simplified, with a single way to handle all of them. ((MMF-1786)[https://jira.sonarsource.com/browse/MMF-1786]).
+* Analysis is the same for all branches. The parameter `sonar.branch.target` is no longer used and can be removed.
+* All branches behave as previous Long-lived branches: all measures are available. The New Code period is configurable and starts by default after the first analysis. The Quality Gate check applies on all conditions.
+* As a consequence, branches that were previously Short-Lived branches may display incomplete measures before they are analyzed again. With the first analysis, measures on New Code and the Quality Gate status may change.
+* New housekeeping settings replace the Long-lived branch pattern and allow you to choose the branches which should be kept when inactive.
+* Detection of new issues in branches and PRs is simplified. The list of issues reported as new may change slighlty. ((SONAR-12627)[https://jira.sonarsource.com/browse/SONAR-12627]).
+
+**Configuration of Pull Request decoration**  
+The configuration of Pull Request decoration changes. Previous settings are replaced by a new configuration in the UI. Also, decoration of Pull Requests now supports multiple instances of a same ALM provider in Enterprise Edition and above. ((MMF-1814)[https://jira.sonarsource.com/browse/MMF-1814]).
+
+**Deprecated web services and parameters dropped**  
+Some Web services and parameters which were deprecated in 6.x versions have been dropped, including some related to Quality Profiles. See Full Release Notes for more info.
+
+[Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=15243)
+
+
 ## Release 8.0 Upgrade Notes  
 **GitHub, LDAP, and SAML authentication now built in**  
 GitHub, LDAP, and SAML authentication is now built in. If you were using the authentication plugins (sonar-ldap, sonar-auth-github, and sonar-auth-saml), you need to remove them from SonarQube before upgrading. ([SONAR-12471](https://jira.sonarsource.com/browse/SONAR-12471)).
