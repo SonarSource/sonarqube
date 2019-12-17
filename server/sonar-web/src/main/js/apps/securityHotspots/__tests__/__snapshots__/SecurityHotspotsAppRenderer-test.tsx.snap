@@ -4,7 +4,10 @@ exports[`should render correctly 1`] = `
 <div
   id="security_hotspots"
 >
-  <FilterBar />
+  <FilterBar
+    onChangeStatus={[MockFunction]}
+    statusFilter="TO_REVIEW"
+  />
   <ScreenPositionHelper>
     <Component />
   </ScreenPositionHelper>
@@ -144,6 +147,7 @@ exports[`should render correctly with hotspots 1`] = `
             }
             onHotspotClick={[MockFunction]}
             securityCategories={Object {}}
+            statusFilter="TO_REVIEW"
           />
         </div>
         <div
@@ -225,6 +229,7 @@ exports[`should render correctly with hotspots 2`] = `
             onHotspotClick={[MockFunction]}
             securityCategories={Object {}}
             selectedHotspotKey="h2"
+            statusFilter="TO_REVIEW"
           />
         </div>
         <div

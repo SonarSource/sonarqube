@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockRawHotspot } from '../../../../helpers/mocks/security-hotspots';
-import { HotspotListItem, HotspotListItemProps } from '../HotspotListItem';
+import HotspotListItem, { HotspotListItemProps } from '../HotspotListItem';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();

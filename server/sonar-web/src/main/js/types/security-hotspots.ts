@@ -33,6 +33,12 @@ export enum HotspotResolution {
   SAFE = 'SAFE'
 }
 
+export enum HotspotStatusFilters {
+  FIXED = 'FIXED',
+  SAFE = 'SAFE',
+  TO_REVIEW = 'TO_REVIEW'
+}
+
 export enum HotspotStatusOptions {
   FIXED = 'FIXED',
   SAFE = 'SAFE',

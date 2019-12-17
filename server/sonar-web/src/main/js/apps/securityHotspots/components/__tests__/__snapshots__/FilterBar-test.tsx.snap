@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="filter-bar display-flex-center"
+>
+  <h3
+    className="big-spacer-right"
+  >
+    hotspot.filters.title
+  </h3>
+  <span
+    className="spacer-right"
+  >
+    status
+  </span>
+  <Select
+    className="input-medium big-spacer-right"
+    clearable={false}
+    onChange={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "hotspot.filters.status.to_review",
+          "value": "TO_REVIEW",
+        },
+        Object {
+          "label": "hotspot.filters.status.fixed",
+          "value": "FIXED",
+        },
+        Object {
+          "label": "hotspot.filters.status.safe",
+          "value": "SAFE",
+        },
+      ]
+    }
+    searchable={false}
+    value="TO_REVIEW"
+  />
+</div>
+`;

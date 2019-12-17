@@ -22,7 +22,7 @@ import { groupBy } from 'lodash';
 import * as React from 'react';
 import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { RawHotspot, RiskExposure } from '../../../types/security-hotspots';
+import { HotspotStatusFilters, RawHotspot, RiskExposure } from '../../../types/security-hotspots';
 import { groupByCategory, RISK_EXPOSURE_LEVELS } from '../utils';
 import HotspotCategory from './HotspotCategory';
 import './HotspotList.css';
@@ -32,10 +32,11 @@ export interface HotspotListProps {
   onHotspotClick: (key: string) => void;
   securityCategories: T.StandardSecurityCategories;
   selectedHotspotKey: string | undefined;
+  statusFilter: HotspotStatusFilters;
 }
 
 export default function HotspotList(props: HotspotListProps) {
-  const { hotspots, securityCategories, selectedHotspotKey } = props;
+  const { hotspots, securityCategories, selectedHotspotKey, statusFilter } = props;
 
   const groupedHotspots: Array<{
     risk: RiskExposure;
@@ -53,7 +54,7 @@ export default function HotspotList(props: HotspotListProps) {
     <>
       <h1 className="hotspot-list-header bordered-bottom">
         <SecurityHotspotIcon className="spacer-right" />
-        {translateWithParameters(`hotspots.list_title.TO_REVIEW`, hotspots.length)}
+        {translateWithParameters(`hotspots.list_title.${statusFilter}`, hotspots.length)}
       </h1>
       <ul className="huge-spacer-bottom">
         {groupedHotspots.map(riskGroup => (

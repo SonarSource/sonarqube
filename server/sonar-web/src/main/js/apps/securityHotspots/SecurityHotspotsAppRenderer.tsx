@@ -27,7 +27,7 @@ import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../components/common/ScreenPositionHelper';
 import { BranchLike } from '../../types/branch-like';
-import { HotspotUpdate, RawHotspot } from '../../types/security-hotspots';
+import { HotspotStatusFilters, HotspotUpdate, RawHotspot } from '../../types/security-hotspots';
 import FilterBar from './components/FilterBar';
 import HotspotList from './components/HotspotList';
 import HotspotViewer from './components/HotspotViewer';
@@ -37,18 +37,27 @@ export interface SecurityHotspotsAppRendererProps {
   branchLike?: BranchLike;
   hotspots: RawHotspot[];
   loading: boolean;
+  onChangeStatusFilter: (status: HotspotStatusFilters) => void;
   onHotspotClick: (key: string) => void;
   onUpdateHotspot: (hotspot: HotspotUpdate) => void;
   selectedHotspotKey?: string;
   securityCategories: T.StandardSecurityCategories;
+  statusFilter: HotspotStatusFilters;
 }
 
 export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRendererProps) {
-  const { branchLike, hotspots, loading, securityCategories, selectedHotspotKey } = props;
+  const {
+    branchLike,
+    hotspots,
+    loading,
+    securityCategories,
+    selectedHotspotKey,
+    statusFilter
+  } = props;
 
   return (
     <div id="security_hotspots">
-      <FilterBar />
+      <FilterBar onChangeStatus={props.onChangeStatusFilter} statusFilter={statusFilter} />
       <ScreenPositionHelper>
         {({ top }) => (
           <div className="wrapper" style={{ top }}>
@@ -85,6 +94,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                       onHotspotClick={props.onHotspotClick}
                       securityCategories={securityCategories}
                       selectedHotspotKey={selectedHotspotKey}
+                      statusFilter={statusFilter}
                     />
                   </div>
                   <div className="main">

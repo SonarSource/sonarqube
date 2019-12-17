@@ -23,8 +23,10 @@ import { BranchParameters } from '../types/branch-like';
 import {
   DetailedHotspot,
   HotspotAssignRequest,
+  HotspotResolution,
   HotspotSearchResponse,
-  HotspotSetStatusRequest
+  HotspotSetStatusRequest,
+  HotspotStatus
 } from '../types/security-hotspots';
 
 export function assignSecurityHotspot(
@@ -48,6 +50,8 @@ export function getSecurityHotspots(
     projectKey: string;
     p: number;
     ps: number;
+    status?: HotspotStatus;
+    resolution?: HotspotResolution;
   } & BranchParameters
 ): Promise<HotspotSearchResponse> {
   return getJSON('/api/hotspots/search', data).catch(throwGlobalError);

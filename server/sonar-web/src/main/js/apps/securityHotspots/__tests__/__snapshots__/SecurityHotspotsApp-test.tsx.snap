@@ -12,8 +12,10 @@ exports[`should render correctly 1`] = `
   }
   hotspots={Array []}
   loading={true}
+  onChangeStatusFilter={[Function]}
   onHotspotClick={[Function]}
   onUpdateHotspot={[Function]}
   securityCategories={Object {}}
+  statusFilter="TO_REVIEW"
 />
 `;

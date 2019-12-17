@@ -34,7 +34,7 @@
 #security_hotspots .filter-bar {
   max-width: 1280px;
   margin: 0 auto;
-  padding: var(--gridSize) 20px;
+  padding: calc(2 * var(--gridSize)) 20px;
   border-bottom: 1px solid var(--barBorderColor);
 }
 

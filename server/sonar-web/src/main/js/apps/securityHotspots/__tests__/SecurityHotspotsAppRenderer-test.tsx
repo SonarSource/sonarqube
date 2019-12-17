@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
+import { HotspotStatusFilters } from '../../../types/security-hotspots';
 import SecurityHotspotsAppRenderer, {
   SecurityHotspotsAppRendererProps
 } from '../SecurityHotspotsAppRenderer';
@@ -53,9 +54,11 @@ function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
     <SecurityHotspotsAppRenderer
       hotspots={[]}
       loading={false}
+      onChangeStatusFilter={jest.fn()}
       onHotspotClick={jest.fn()}
       onUpdateHotspot={jest.fn()}
       securityCategories={{}}
+      statusFilter={HotspotStatusFilters.TO_REVIEW}
       {...props}
     />
   );

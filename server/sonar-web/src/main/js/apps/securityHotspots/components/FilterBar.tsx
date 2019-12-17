@@ -18,13 +18,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Select from 'sonar-ui-common/components/controls/Select';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { HotspotStatusFilters } from '../../../types/security-hotspots';
 
-export interface FilterBarProps {}
+export interface FilterBarProps {
+  onChangeStatus: (status: HotspotStatusFilters) => void;
+  statusFilter: HotspotStatusFilters;
+}
+
+const statusOptions: Array<{ label: string; value: string }> = [
+  { label: translate('hotspot.filters.status.to_review'), value: HotspotStatusFilters.TO_REVIEW },
+  { label: translate('hotspot.filters.status.fixed'), value: HotspotStatusFilters.FIXED },
+  { label: translate('hotspot.filters.status.safe'), value: HotspotStatusFilters.SAFE }
+];
 
 export default function FilterBar(props: FilterBarProps) {
+  const { statusFilter } = props;
   return (
     <div className="filter-bar display-flex-center">
-      <h3 {...props}>Filter</h3>
+      <h3 className="big-spacer-right">{translate('hotspot.filters.title')}</h3>
+
+      <span className="spacer-right">{translate('status')}</span>
+      <Select
+        className="input-medium big-spacer-right"
+        clearable={false}
+        onChange={(option: { value: HotspotStatusFilters }) => props.onChangeStatus(option.value)}
+        options={statusOptions}
+        searchable={false}
+        value={statusFilter}
+      />
     </div>
   );
 }

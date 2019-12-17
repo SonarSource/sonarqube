@@ -26,7 +26,11 @@ import { mockBranch } from '../../../helpers/mocks/branch-like';
 import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
 import { getStandards } from '../../../helpers/security-standard';
 import { mockComponent } from '../../../helpers/testMocks';
-import { HotspotResolution, HotspotStatus } from '../../../types/security-hotspots';
+import {
+  HotspotResolution,
+  HotspotStatus,
+  HotspotStatusFilters
+} from '../../../types/security-hotspots';
 import SecurityHotspotsApp from '../SecurityHotspotsApp';
 import SecurityHotspotsAppRenderer from '../SecurityHotspotsAppRenderer';
 
@@ -54,7 +58,7 @@ it('should load data correctly', async () => {
   (getStandards as jest.Mock).mockResolvedValue({ sonarsourceSecurity });
 
   const hotspots = [mockRawHotspot()];
-  (getSecurityHotspots as jest.Mock).mockResolvedValue({
+  (getSecurityHotspots as jest.Mock).mockResolvedValueOnce({
     hotspots
   });
 
@@ -102,6 +106,45 @@ it('should handle hotspot update', async () => {
     status: HotspotStatus.REVIEWED,
     resolution: HotspotResolution.SAFE
   });
+});
+
+it('should handle status filter change', async () => {
+  const hotspots = [mockRawHotspot({ key: 'key1' })];
+  const hotspots2 = [mockRawHotspot({ key: 'key2' })];
+  (getSecurityHotspots as jest.Mock)
+    .mockResolvedValueOnce({ hotspots })
+    .mockResolvedValueOnce({ hotspots: hotspots2 })
+    .mockResolvedValueOnce({ hotspots: [] });
+
+  const wrapper = shallowRender();
+
+  expect(getSecurityHotspots).toBeCalledWith(
+    expect.objectContaining({ status: HotspotStatus.TO_REVIEW, resolution: undefined })
+  );
+
+  await waitAndUpdate(wrapper);
+
+  // Set filter to SAFE:
+  wrapper.instance().handleChangeStatusFilter(HotspotStatusFilters.SAFE);
+
+  expect(getSecurityHotspots).toBeCalledWith(
+    expect.objectContaining({ status: HotspotStatus.REVIEWED, resolution: HotspotResolution.SAFE })
+  );
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().hotspots[0]).toBe(hotspots2[0]);
+
+  // Set filter to FIXED
+  wrapper.instance().handleChangeStatusFilter(HotspotStatusFilters.FIXED);
+
+  expect(getSecurityHotspots).toBeCalledWith(
+    expect.objectContaining({ status: HotspotStatus.REVIEWED, resolution: HotspotResolution.FIXED })
+  );
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().hotspots).toHaveLength(0);
 });
 
 function shallowRender(props: Partial<SecurityHotspotsApp['props']> = {}) {

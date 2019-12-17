@@ -23,7 +23,13 @@ import { getSecurityHotspots } from '../../api/security-hotspots';
 import { getBranchLikeQuery } from '../../helpers/branch-like';
 import { getStandards } from '../../helpers/security-standard';
 import { BranchLike } from '../../types/branch-like';
-import { HotspotUpdate, RawHotspot } from '../../types/security-hotspots';
+import {
+  HotspotResolution,
+  HotspotStatus,
+  HotspotStatusFilters,
+  HotspotUpdate,
+  RawHotspot
+} from '../../types/security-hotspots';
 import SecurityHotspotsAppRenderer from './SecurityHotspotsAppRenderer';
 import './styles.css';
 import { sortHotspots } from './utils';
@@ -40,6 +46,7 @@ interface State {
   loading: boolean;
   securityCategories: T.StandardSecurityCategories;
   selectedHotspotKey: string | undefined;
+  statusFilter: HotspotStatusFilters;
 }
 
 export default class SecurityHotspotsApp extends React.PureComponent<Props, State> {
@@ -48,7 +55,8 @@ export default class SecurityHotspotsApp extends React.PureComponent<Props, Stat
     loading: true,
     hotspots: [],
     securityCategories: {},
-    selectedHotspotKey: undefined
+    selectedHotspotKey: undefined,
+    statusFilter: HotspotStatusFilters.TO_REVIEW
   };
 
   componentDidMount() {
@@ -68,18 +76,14 @@ export default class SecurityHotspotsApp extends React.PureComponent<Props, Stat
     this.mounted = false;
   }
 
-  fetchInitialData() {
-    const { branchLike, component } = this.props;
+  handleCallFailure = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
+  };
 
-    return Promise.all([
-      getStandards(),
-      getSecurityHotspots({
-        projectKey: component.key,
-        p: 1,
-        ps: PAGE_SIZE,
-        ...getBranchLikeQuery(branchLike)
-      })
-    ])
+  fetchInitialData() {
+    return Promise.all([getStandards(), this.fetchSecurityHotspots()])
       .then(([{ sonarsourceSecurity }, response]) => {
         if (!this.mounted) {
           return;
@@ -94,12 +98,56 @@ export default class SecurityHotspotsApp extends React.PureComponent<Props, Stat
           selectedHotspotKey: hotspots.length > 0 ? hotspots[0].key : undefined
         });
       })
-      .catch(() => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      });
+      .catch(this.handleCallFailure);
   }
+
+  fetchSecurityHotspots() {
+    const { branchLike, component } = this.props;
+    const { statusFilter } = this.state;
+
+    const status =
+      statusFilter === HotspotStatusFilters.TO_REVIEW
+        ? HotspotStatus.TO_REVIEW
+        : HotspotStatus.REVIEWED;
+
+    const resolution =
+      statusFilter === HotspotStatusFilters.TO_REVIEW ? undefined : HotspotResolution[statusFilter];
+
+    return getSecurityHotspots({
+      projectKey: component.key,
+      p: 1,
+      ps: PAGE_SIZE,
+      status,
+      resolution,
+      ...getBranchLikeQuery(branchLike)
+    });
+  }
+
+  reloadSecurityHotspotList = () => {
+    const { securityCategories } = this.state;
+
+    this.setState({ loading: true });
+
+    return this.fetchSecurityHotspots()
+      .then(response => {
+        if (!this.mounted) {
+          return;
+        }
+
+        const hotspots = sortHotspots(response.hotspots, securityCategories);
+
+        this.setState({
+          hotspots,
+          loading: false,
+          selectedHotspotKey: hotspots.length > 0 ? hotspots[0].key : undefined
+        });
+      })
+      .catch(this.handleCallFailure);
+  };
+
+  handleChangeStatusFilter = (statusFilter: HotspotStatusFilters) => {
+    this.setState({ statusFilter }, this.reloadSecurityHotspotList);
+  };
 
   handleHotspotClick = (key: string) => this.setState({ selectedHotspotKey: key });
 
@@ -122,17 +170,19 @@ export default class SecurityHotspotsApp extends React.PureComponent<Props, Stat
 
   render() {
     const { branchLike } = this.props;
-    const { hotspots, loading, securityCategories, selectedHotspotKey } = this.state;
+    const { hotspots, loading, securityCategories, selectedHotspotKey, statusFilter } = this.state;
 
     return (
       <SecurityHotspotsAppRenderer
         branchLike={branchLike}
         hotspots={hotspots}
         loading={loading}
+        onChangeStatusFilter={this.handleChangeStatusFilter}
         onHotspotClick={this.handleHotspotClick}
         onUpdateHotspot={this.handleHotspotUpdate}
         securityCategories={securityCategories}
         selectedHotspotKey={selectedHotspotKey}
+        statusFilter={statusFilter}
       />
     );
   }

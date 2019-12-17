@@ -19,44 +19,31 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockRawHotspot } from '../../../../helpers/mocks/security-hotspots';
-import { HotspotStatusFilters, RiskExposure } from '../../../../types/security-hotspots';
-import HotspotList, { HotspotListProps } from '../HotspotList';
+import Select from 'sonar-ui-common/components/controls/Select';
+import { HotspotStatusFilters } from '../../../../types/security-hotspots';
+import FilterBar, { FilterBarProps } from '../FilterBar';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should render correctly with hotspots', () => {
-  const hotspots = [
-    mockRawHotspot({ key: 'h1', securityCategory: 'cat2' }),
-    mockRawHotspot({ key: 'h2', securityCategory: 'cat1' }),
-    mockRawHotspot({
-      key: 'h3',
-      securityCategory: 'cat1',
-      vulnerabilityProbability: RiskExposure.MEDIUM
-    }),
-    mockRawHotspot({
-      key: 'h4',
-      securityCategory: 'cat1',
-      vulnerabilityProbability: RiskExposure.MEDIUM
-    }),
-    mockRawHotspot({
-      key: 'h5',
-      securityCategory: 'cat2',
-      vulnerabilityProbability: RiskExposure.MEDIUM
-    })
-  ];
-  expect(shallowRender({ hotspots })).toMatchSnapshot();
+it('should trigger onChange', () => {
+  const onChangeStatus = jest.fn();
+  const wrapper = shallowRender({ onChangeStatus });
+
+  const { onChange } = wrapper.find(Select).props();
+
+  if (!onChange) {
+    return fail("Select's onChange should be defined");
+  }
+  onChange({ value: HotspotStatusFilters.SAFE });
+  expect(onChangeStatus).toBeCalledWith(HotspotStatusFilters.SAFE);
 });
 
-function shallowRender(props: Partial<HotspotListProps> = {}) {
+function shallowRender(props: Partial<FilterBarProps> = {}) {
   return shallow(
-    <HotspotList
-      hotspots={[]}
-      onHotspotClick={jest.fn()}
-      securityCategories={{}}
-      selectedHotspotKey="h2"
+    <FilterBar
+      onChangeStatus={jest.fn()}
       statusFilter={HotspotStatusFilters.TO_REVIEW}
       {...props}
     />

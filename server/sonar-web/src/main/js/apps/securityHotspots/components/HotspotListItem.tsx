@@ -28,7 +28,7 @@ export interface HotspotListItemProps {
   selected: boolean;
 }
 
-export function HotspotListItem(props: HotspotListItemProps) {
+export default function HotspotListItem(props: HotspotListItemProps) {
   const { hotspot, selected } = props;
   return (
     <a
@@ -36,9 +36,9 @@ export function HotspotListItem(props: HotspotListItemProps) {
       href="#"
       onClick={() => !selected && props.onClick(hotspot.key)}>
       <div className="little-spacer-left">{hotspot.message}</div>
-      <div className="badge spacer-top">{translate('issue.status', hotspot.status)}</div>
+      <div className="badge spacer-top">
+        {translate('hotspot.status', hotspot.resolution || hotspot.status)}
+      </div>
     </a>
   );
 }
-
-export default React.memo(HotspotListItem);
