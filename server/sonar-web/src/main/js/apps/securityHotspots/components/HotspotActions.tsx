@@ -24,17 +24,18 @@ import OutsideClickHandler from 'sonar-ui-common/components/controls/OutsideClic
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { HotspotUpdateFields } from '../../../types/security-hotspots';
+import { DetailedHotspot, HotspotUpdateFields } from '../../../types/security-hotspots';
 import HotspotActionsForm from './HotspotActionsForm';
 
 export interface HotspotActionsProps {
-  hotspotKey: string;
+  hotspot: DetailedHotspot;
   onSubmit: (hotspot: HotspotUpdateFields) => void;
 }
 
 const ESCAPE_KEY = 'Escape';
 
 export default function HotspotActions(props: HotspotActionsProps) {
+  const { hotspot } = props;
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -54,7 +55,7 @@ export default function HotspotActions(props: HotspotActionsProps) {
   return (
     <div className="dropdown">
       <Button onClick={() => setOpen(!open)}>
-        {translate('hotspots.review_hotspot')}
+        {translate('hotspot.change_status', hotspot.status)}
         <DropdownIcon className="little-spacer-left" />
       </Button>
 
@@ -62,7 +63,7 @@ export default function HotspotActions(props: HotspotActionsProps) {
         <OutsideClickHandler onClickOutside={() => setOpen(false)}>
           <DropdownOverlay placement={PopupPlacement.BottomRight}>
             <HotspotActionsForm
-              hotspotKey={props.hotspotKey}
+              hotspotKey={hotspot.key}
               onSubmit={data => {
                 setOpen(false);
                 props.onSubmit(data);

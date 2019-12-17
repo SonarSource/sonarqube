@@ -689,6 +689,7 @@ exports[`should render correctly: user logged in 1`] = `
         </h1>
         <HotspotActions
           hotspotKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+          hotspotStatus="RESOLVED"
           onSubmit={[MockFunction]}
         />
       </div>

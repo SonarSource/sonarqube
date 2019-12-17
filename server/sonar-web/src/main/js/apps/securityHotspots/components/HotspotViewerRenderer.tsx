@@ -48,7 +48,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
             <div className="display-flex-space-between">
               <h1>{hotspot.message}</h1>
               {isLoggedIn(currentUser) && (
-                <HotspotActions hotspotKey={hotspot.key} onSubmit={props.onUpdateHotspot} />
+                <HotspotActions hotspot={hotspot} onSubmit={props.onUpdateHotspot} />
               )}
             </div>
             <div className="text-muted">
