@@ -17,9 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  QualityGateApplicationStatusChildProject,
+  QualityGateProjectStatus,
+  QualityGateStatusCondition
+} from '../types/quality-gates';
+
 export function extractStatusConditionsFromProjectStatus(
-  projectStatus: T.QualityGateProjectStatus
-): T.QualityGateStatusCondition[] {
+  projectStatus: QualityGateProjectStatus
+): QualityGateStatusCondition[] {
   const { conditions } = projectStatus;
   return conditions
     ? conditions.map(c => ({
@@ -27,6 +33,22 @@ export function extractStatusConditionsFromProjectStatus(
         error: c.errorThreshold,
         level: c.status,
         metric: c.metricKey,
+        op: c.comparator,
+        period: c.periodIndex
+      }))
+    : [];
+}
+
+export function extractStatusConditionsFromApplicationStatusChildProject(
+  projectStatus: QualityGateApplicationStatusChildProject
+): QualityGateStatusCondition[] {
+  const { conditions } = projectStatus;
+  return conditions
+    ? conditions.map(c => ({
+        actual: c.value,
+        error: c.errorThreshold,
+        level: c.status,
+        metric: c.metric,
         op: c.comparator,
         period: c.periodIndex
       }))

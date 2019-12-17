@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockQualityGate } from '../../../../helpers/testMocks';
+import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import List from '../List';
 
 it('should render correctly', () => {

@@ -19,10 +19,11 @@
  */
 import { getBranchLikeKey } from '../helpers/branch-like';
 import { BranchLike } from '../types/branch-like';
+import { QualityGateStatusCondition } from '../types/quality-gates';
 import { ActionType } from './utils/actions';
 
 export interface BranchStatusData {
-  conditions?: T.QualityGateStatusCondition[];
+  conditions?: QualityGateStatusCondition[];
   ignoredConditions?: boolean;
   status?: T.Status;
 }
@@ -41,7 +42,7 @@ export function registerBranchStatusAction(
   branchLike: BranchLike,
   component: string,
   status: T.Status,
-  conditions?: T.QualityGateStatusCondition[],
+  conditions?: QualityGateStatusCondition[],
   ignoredConditions?: boolean
 ) {
   return {

@@ -20,6 +20,7 @@
 import { getJSON, post, postJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { BranchParameters } from '../types/branch-like';
+import { QualityGateApplicationStatus, QualityGateProjectStatus } from '../types/quality-gates';
 
 export function fetchQualityGates(data: {
   organization?: string;
@@ -139,35 +140,11 @@ export function dissociateGateWithProject(data: {
   return post('/api/qualitygates/deselect', data).catch(throwGlobalError);
 }
 
-export interface ConditionAnalysis {
-  comparator: string;
-  errorThreshold?: string;
-  metric: string;
-  periodIndex?: number;
-  onLeak?: boolean;
-  status: string;
-  value: string;
-  warningThreshold?: string;
-}
-
-export interface ApplicationProject {
-  key: string;
-  name: string;
-  status: string;
-  conditions: ConditionAnalysis[];
-}
-
-export interface ApplicationQualityGate {
-  metrics: T.Metric[];
-  projects: ApplicationProject[];
-  status: string;
-}
-
 export function getApplicationQualityGate(data: {
   application: string;
   branch?: string;
   organization?: string;
-}): Promise<ApplicationQualityGate> {
+}): Promise<QualityGateApplicationStatus> {
   return getJSON('/api/qualitygates/application_status', data).catch(throwGlobalError);
 }
 
@@ -176,7 +153,7 @@ export function getQualityGateProjectStatus(
     projectKey?: string;
     projectId?: string;
   } & BranchParameters
-): Promise<T.QualityGateProjectStatus> {
+): Promise<QualityGateProjectStatus> {
   return getJSON('/api/qualitygates/project_status', data)
     .then(r => r.projectStatus)
     .catch(throwGlobalError);

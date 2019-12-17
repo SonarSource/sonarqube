@@ -325,19 +325,6 @@ export function mockCondition(overrides: Partial<T.Condition> = {}): T.Condition
   };
 }
 
-export function mockQualityGateStatusCondition(
-  overrides: Partial<T.QualityGateStatusCondition> = {}
-): T.QualityGateStatusCondition {
-  return {
-    actual: '10',
-    error: '0',
-    level: 'ERROR',
-    metric: 'foo',
-    op: 'GT',
-    ...overrides
-  };
-}
-
 export function mockSnippetsByComponent(
   component = 'main.js',
   lines: number[] = [16]
@@ -543,14 +530,6 @@ export function mockPeriod(overrides: Partial<T.Period> = {}): T.Period {
   };
 }
 
-export function mockQualityGate(overrides: Partial<T.QualityGate> = {}): T.QualityGate {
-  return {
-    id: 1,
-    name: 'qualitygate',
-    ...overrides
-  };
-}
-
 export function mockQualityProfile(overrides: Partial<Profile> = {}): Profile {
   return {
     activeDeprecatedRuleCount: 2,
@@ -602,26 +581,6 @@ export function mockQualityProfileExporter(override?: Partial<Exporter>): Export
     name: 'exporter-name',
     languages: ['first-lang', 'second-lang'],
     ...override
-  };
-}
-
-export function mockQualityGateProjectStatus(
-  overrides: Partial<T.QualityGateProjectStatus> = {}
-): T.QualityGateProjectStatus {
-  return {
-    conditions: [
-      {
-        actualValue: '0',
-        comparator: 'GT',
-        errorThreshold: '1.0',
-        metricKey: 'new_bugs',
-        periodIndex: 1,
-        status: 'OK'
-      }
-    ],
-    ignoredConditions: false,
-    status: 'OK',
-    ...overrides
   };
 }
 

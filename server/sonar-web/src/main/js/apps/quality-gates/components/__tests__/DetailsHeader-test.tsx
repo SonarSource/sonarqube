@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { setQualityGateAsDefault } from '../../../../api/quality-gates';
-import { mockQualityGate } from '../../../../helpers/testMocks';
+import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import DetailsHeader from '../DetailsHeader';
 
 jest.mock('../../../../api/quality-gates', () => ({

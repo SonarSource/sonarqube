@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  mockMeasureEnhanced,
-  mockMetric,
-  mockQualityGateStatusCondition
-} from '../../../helpers/testMocks';
+import { mockQualityGateStatusCondition } from '../../../helpers/mocks/quality-gates';
+import { mockMeasureEnhanced, mockMetric } from '../../../helpers/testMocks';
+import { MetricKey } from '../../../types/metrics';
 import { getThreshold } from '../utils';
 
 // eslint-disable-next-line no-console

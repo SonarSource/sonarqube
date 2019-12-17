@@ -17,19 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
-import RenameQualityGateForm from '../RenameQualityGateForm';
+import { ApplicationPeriod } from '../../types/application';
 
-it('should render correctly', () => {
-  expect(
-    shallow(
-      <RenameQualityGateForm
-        onClose={jest.fn()}
-        onRename={jest.fn()}
-        qualityGate={mockQualityGate()}
-      />
-    )
-  ).toMatchSnapshot();
-});
+export function mockApplicationPeriod(
+  overrides: Partial<ApplicationPeriod> = {}
+): ApplicationPeriod {
+  return {
+    date: '2017-10-01',
+    project: 'foo',
+    projectName: 'Foo',
+    ...overrides
+  };
+}

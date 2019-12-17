@@ -17,8 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { extractStatusConditionsFromProjectStatus } from '../qualityGates';
-import { mockQualityGateProjectStatus } from '../testMocks';
+import {
+  mockQualityGateApplicationStatus,
+  mockQualityGateProjectStatus
+} from '../mocks/quality-gates';
+import {
+  extractStatusConditionsFromApplicationStatusChildProject,
+  extractStatusConditionsFromProjectStatus
+} from '../qualityGates';
 
 describe('extractStatusConditionsFromProjectStatus', () => {
   it('should correclty extract the conditions for the project status', () => {
@@ -27,6 +33,33 @@ describe('extractStatusConditionsFromProjectStatus', () => {
         actual: '0',
         error: '1.0',
         level: 'OK',
+        metric: 'new_bugs',
+        op: 'GT',
+        period: 1
+      }
+    ]);
+  });
+});
+
+describe('extractStatusConditionsFromApplicationStatusChildProject', () => {
+  it('should correclty extract the conditions for the application child project status', () => {
+    expect(
+      extractStatusConditionsFromApplicationStatusChildProject(
+        mockQualityGateApplicationStatus().projects[0]
+      )
+    ).toEqual([
+      {
+        actual: '10',
+        error: '1.0',
+        level: 'ERROR',
+        metric: 'coverage',
+        op: 'GT',
+        period: undefined
+      },
+      {
+        actual: '5',
+        error: '1.0',
+        level: 'ERROR',
         metric: 'new_bugs',
         op: 'GT',
         period: 1

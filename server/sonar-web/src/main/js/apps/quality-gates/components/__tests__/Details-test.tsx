@@ -21,12 +21,13 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { fetchQualityGate } from '../../../../api/quality-gates';
-import { mockCondition, mockQualityGate } from '../../../../helpers/testMocks';
+import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
+import { mockCondition } from '../../../../helpers/testMocks';
 import { addCondition, deleteCondition, replaceCondition } from '../../utils';
 import { Details } from '../Details';
 
 jest.mock('../../../../api/quality-gates', () => {
-  const { mockQualityGate } = jest.requireActual('../../../../helpers/testMocks');
+  const { mockQualityGate } = jest.requireActual('../../../../helpers/mocks/quality-gates');
   return {
     fetchQualityGate: jest.fn().mockResolvedValue(mockQualityGate())
   };

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { mockBranch } from '../../helpers/mocks/branch-like';
-import { mockQualityGateStatusCondition } from '../../helpers/testMocks';
+import { mockQualityGateStatusCondition } from '../../helpers/mocks/quality-gates';
 import { registerBranchStatusAction } from '../branches';
 import { fetchBranchStatus, registerBranchStatus } from '../rootActions';
 
@@ -28,7 +28,9 @@ jest.mock('../branches', () => ({
 }));
 
 jest.mock('../../api/quality-gates', () => {
-  const { mockQualityGateProjectStatus } = require.requireActual('../../helpers/testMocks');
+  const { mockQualityGateProjectStatus } = require.requireActual(
+    '../../helpers/mocks/quality-gates'
+  );
   return {
     getQualityGateProjectStatus: jest.fn().mockResolvedValue(
       mockQualityGateProjectStatus({

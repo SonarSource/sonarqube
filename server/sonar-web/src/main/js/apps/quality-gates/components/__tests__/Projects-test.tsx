@@ -26,7 +26,7 @@ import {
   dissociateGateWithProject,
   searchProjects
 } from '../../../../api/quality-gates';
-import { mockQualityGate } from '../../../../helpers/testMocks';
+import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import Projects from '../Projects';
 
 const qualityGate = mockQualityGate();

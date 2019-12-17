@@ -657,35 +657,6 @@ declare namespace T {
     name: string;
   }
 
-  export interface QualityGateProjectStatusCondition {
-    status: Status;
-    metricKey: string;
-    comparator: string;
-    periodIndex: number;
-    errorThreshold: string;
-    actualValue: string;
-  }
-
-  export interface QualityGateProjectStatus {
-    conditions?: QualityGateProjectStatusCondition[];
-    ignoredConditions: boolean;
-    status: Status;
-  }
-
-  export interface QualityGateStatusCondition {
-    actual?: string;
-    error?: string;
-    level: string;
-    metric: string;
-    op: string;
-    period?: number;
-    warning?: string;
-  }
-
-  export interface QualityGateStatusConditionEnhanced extends QualityGateStatusCondition {
-    measure: T.MeasureEnhanced;
-  }
-
   export interface Rule {
     isTemplate?: boolean;
     key: string;
