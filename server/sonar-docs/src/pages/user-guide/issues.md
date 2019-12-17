@@ -94,9 +94,6 @@ As a consequence, it is possible that backdating will keep newly raised issues o
 ### For Bug, Vulnerability and Code Smell
 New issues are automatically assigned during analysis to the last committer on the issue line if the committer can be correlated to a {instance} user. Note that currently, issues on any level above a file, e.g. directory / project, cannot be automatically assigned.
 
-### For Security Hotspot
-Issues are automatically assigned only when the Security Hotspot is transformed into a Vulnerability through the "Detect" action.
-
 ### User Correlation
 Login and email correlations are made automatically. I.e. if the user commits with her email address and that email address is part of her {instance} profile, then new issues raised on lines where she was the last committer will be automatically assigned to her.
 

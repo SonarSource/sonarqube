@@ -11,7 +11,7 @@ But for security-related rules, the story is a little different. For instance, a
 
 That's why security-related rules cast a wider net than you may be used to seeing. The idea is that the rule will flag anything suspicious, and leave it to the human security auditor to cull the false positives and sent the real issues for remediation.
 
-Security Hotspots are a special type of issue that identify sensitive areas of code that should be reviewed by a Security Auditor to determine if they are truly Vulnerabilities.  See Security Audits and Reports for detail on Security Hotspots and the audit process.
+Security Hotspots are a special type of issue that identify sensitive areas of code that need to be reviewed to determine if they contain vulnerable code.  See [Security Hotspots](/user-guide/security-hotspots/) for more information.
 
 ## Where security-related rules come from
 The vast majority of security-related rules originate from established standards: [CWE](http://cwe.mitre.org/), [SANS Top 25](http://www.sans.org/top25-software-errors/), and [OWASP Top 10](https://www.owasp.org/index.php/Top_10-2017_Top_10). To find rules that relate to any of these standards, you can search rules either by tag or by text. The standards that a rule relates to will be listed in the **See** section at the bottom of the rule description. 

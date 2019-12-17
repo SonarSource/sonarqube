@@ -4,55 +4,47 @@ url: /user-guide/security-hotspots/
 ---
 
 ## What is a Security Hotspot?
-
-Unlike Vulnerabilities, Security Hotspots aren't necessarily issues that are open to attack. Instead, Security Hotspots highlight security-sensitive pieces of code that need to be manually reviewed. Upon review, you'll either find a Vulnerability that needs to be fixed or that there is no threat. 
+Security Hotspots highlight security-sensitive pieces of code that need to be manually reviewed. Upon review, you'll either find that there is no threat or that there is vulnerable code that needs to be fixed. 
 
 ## Why are Security Hotspots Important?
+Security Hotspots help you focus your efforts as you manually checking security-sensitive code. Reviewing Security Hotspots allows you to:
 
-Security Hotspots help focus the efforts of developers who are manually checking security-sensitive code. Reviewing Security Hotspots allows you to:
+* **Detect security issues** – You can detect vulnerable code and ensure issues are fixed before merging pull requests or releasing your branch.
+* **Learn about security** – You can see why your code was identified as a Security Hotspot and the link between your Security Hotspots and well-known attacks or weaknesses such as SQL Injection, Weak Cryptography, or Authentication. This helps you to know when you're working on security-sensitive code and to avoid creating vulnerable code.
+* **Learn how to fix vulnerable code** – From the Security Hotspots page, you can see why the Hotspot was raised, determine if you've used code in a security-sensitive way, and learn how to fix it if you have.
 
-* **Fix security issues** – Reviewing Security Hotspots gives you the opportunity to detect vulnerabilities and ensure issues are fixed before merging pull requests or releasing your branch.
-* **Learn about security** – {instance} explains why your code was identified as a Security Hotspot and the link between your Security Hotspots and well-known attacks or weaknesses such as SQL Injection, Weak Cryptography, or Authentication. This helps you to know when you're working on security-sensitive code and to avoid creating Vulnerabilities.
+## Lifecycle
+Security Hotspots have a dedicated lifecycle. To make status changes, the user needs the **Administer Security Hotspots** permission. This permission is enabled by default. Users with the **Browse** permission can comment on or change the user assigned to a Security Hotspot.
 
-## Security Hotspot Lifecycle
-Security Hotspots have a dedicated lifecycle and must be reviewed by someone with the "Administer Security Hotspots" permission. 
-
-### Status
-
+### Statuses  
 Through the lifecycle, a Security Hotspot takes one of the following statuses:
 
-* **To Review** – the default status of new Security Hotspots set by {instance}. A Security Hotspot has been reported and needs to be checked.
-* **In Review** – the Security Hotspot is being checked to make sure there isn't a vulnerability in the code.
-* **Reviewed** – the Security Hotspot has been checked and no security issue was found.
+* **To Review** – the default status of new Security Hotspots set by SonarQube. A Security Hotspot has been reported and needs to be checked.
+* **Reviewed** – a developer has manually assessed the Security Hotspot and either considered the code not vulnerable or any vulnerability issue that was found has been fixed.
 
 A Security Hotspot is only closed if the code containing it is deleted or the rule is deactivated.
 
-### Actions
+## Workflow  
+Follow this workflow to review Security Hotspots and fix any vulnerable code that you find.
 
-You can perform the following actions on Security Hotspots:
+### Review Priority
+When SonarQube detects a Security Hotspot, it's added to the list of Security Hotspots according to its review priority from High to Low. Hotspots with a High Review Priority are the most likely to contain vulnerable code and need your attention first. 
 
-* **Resolve as Reviewed** - There is no vulnerability in the code.
-* **Set as In Review** - A review is in progress to check for a Vulnerability.
-* **Reset as To Review** - The Security Hotspot needs to be analyzed again.
-* **Open as Vulnerability** - There's a Vulnerability in the code that must be fixed.
+Review Priority is determined by the security category of each security rule. Rules in categories that are ranked high on the OWASP Top 10 and CWE Top 25 standards are considered to have a High Review Priority. Rules in categories that aren't ranked high or aren't mentioned on the OWASP Top 10 or CWE Top 25 standards are rated as Medium or Low.
 
-### Workflow
+### Reviewing Hotspots  
+When reviewing a Hotspot, you should:
 
-When {instance} detects a Security Hotspot, it is set as **To Review**. From here, you can perform the following actions on the Security Hotspot:
-* **Open as a Vulnerablility** if you find a Vulnerability in the code at the Security Hotspot location that must be fixed.
-* **Resolve as Reviewed** if you don't find a Vulnerability in the code at the Security Hotspot location.
-* **Set as In Review** if you want to flag the Security Hotspot to show that you are checking it or about to check it for Vulnerabilities. This is an optional step in the workflow. 
+1. Review the **What's the risk** tab to understand why the Security Hotspot was raised.
+1. From the **Are you vulnerable** tab, read the **Ask Yourself Whether** section to determine if the code is used in a security-sensitive way.
+1. From the **How can you fix it** tab, follow the **Recommended Secure Coding Practices** to fix your code if you've determined it's unsafe.
 
-If you set a Security Hotspot to **In Review**, it can either be marked:
-* **Open as Vulnerability** if you find a Vulnerability in the code that must be fixed.
-* **Resolve as Reviewed** if you don't find a Vulnerability in the code.
+After following these steps, set the Security Hotspot to one of the following:
 
-When you determine there is a Vulnerability at a Security Hotspot location and select **Open as a Vulnerability**, its status changes from **To Review** or **In Review** to **Open**. This converts the Security Hotspot to a Vulnerability, and the developer who last touched the line of code will receive "new issue" notifications (if she's signed up to get them).
+* **Fixed** – if you found vulnerable code and have modified it to follow secure coding practices.
+* **Safe** – if the code already follows secure coding practices and doesn't need to be modified.
+* **Needs additional review** – if you need another user's review to make sure the Security Hotspot doesn't contain vulnerable code.
 
-Once a Vulnerability is **Open**ed at a Security Hotspot location, the following occurs:
+### Review History
 
-1. The Security Hotspot is assigned to the appropriate developer, and the developer makes a fix.
-2. The developer then marks the Vulnerability **Resolve as Reviewed** *via the UI* which moves the Vulnerability back to being a Security Hotspot. 
-3. The Security Hotspot is then marked as **Reviewed** and it's status is **Fixed**. 
-
-A reviewed Security Hotspot can be reopened as a Vulnerability at any point if it's determined to be a true issue.
+The **Review history** tab shows the history of the Security Hotspot including the status it's been assigned and any comments the reviewer had regarding the Hotspot.  

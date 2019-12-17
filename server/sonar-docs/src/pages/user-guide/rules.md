@@ -131,4 +131,4 @@ Impact: **Could the exploitation of the Worst Thing result in significant damage
 Likelihood: **What is the probability that a hacker will be able to exploit the Worst Thing?**
 
 ### Security Hotspots
-Security Hotspots are not assigned severities as it is unknown whether there is truly an issue until review by a Security Auditor. When an auditor converts a Security Hotspot into a Vulnerability, severity is assigned based on the identified Vulnerability (see above).
+Security Hotspots are not assigned severities as it is unknown whether there is truly an underlying vulnerability until they are reviewed.

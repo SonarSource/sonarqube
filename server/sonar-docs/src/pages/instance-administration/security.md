@@ -105,12 +105,12 @@ Project permissions are available from the project-level Administration menu: **
 Project visibility may be toggled between public or private. Making a project private hides its source code and measures from the `Anyone` group. For both public and private projects, four different permissions can be set:
 
 * **Administer Issues**: Change the type and severity of issues, resolve issues as being "Won't Fix" or "False Positive" (users also need "Browse" permission).
-* **Administer Security Hotspots**: With Security Hotspots, you can **Open as a Vulnerability**, **Set as In Review**, **Resolve as Reviewed**. With a Security Hotspot that's been opened as a Vulnerabilty, you can **Reset as To Review** or **Resolve as Reviewed**.
+* **Administer Security Hotspots**: Change the status of a Security Hotspot.
 * **Administer**: Access project settings and perform administration tasks (users also need "Browse" permission).
 * **Execute Analysis**: Execute analyses (project, view, report, developer), and to get all settings required to perform the analysis, even the secured ones like the scm account password, the jira account password, and so on.
 
 Private projects have two additional permissions:
-* **Browse**: Access a project, browse its measures, issues and perform some issue edits (confirm/resolve/reopen, assignment, comment).
+* **Browse**: Access a project; browse its measures, issues, and Security Hotspots; perform some issue edits (confirm/resolve/reopen, assignment, comment); comment on or change the user assigned to a Security Hotspot.
 * **See Source Code**: View the project's source code.
 
 Note that permissions _are not_ cumulative. For instance, if you want to be able to administer the project, you also have to be granted the Browse permission to be able to access the project (which is the default for Public project).
