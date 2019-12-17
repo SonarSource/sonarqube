@@ -21,11 +21,9 @@ import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import { isVSTS } from '../../../helpers/almIntegrations';
-import { isSonarCloud } from '../../../helpers/system';
 import ProjectAnalysisStep from '../components/ProjectAnalysisStep';
 import TokenStep from '../components/TokenStep';
 import '../styles.css';
-import AnalyzeTutorialSuggestion from './AnalyzeTutorialSuggestion';
 
 export enum Steps {
   ANALYSIS,
@@ -67,8 +65,6 @@ export default class AnalyzeTutorial extends React.PureComponent<Props, State> {
           </p>
         </div>
 
-        {isSonarCloud() && <AnalyzeTutorialSuggestion almKey={almKey} />}
-
         {!isVSTS(almKey) && (
           <>
             <TokenStep
@@ -85,7 +81,6 @@ export default class AnalyzeTutorial extends React.PureComponent<Props, State> {
               component={component}
               displayRowLayout={true}
               open={step === Steps.ANALYSIS}
-              organization={isSonarCloud() ? component.organization : undefined}
               stepNumber={2}
               token={token}
             />

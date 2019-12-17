@@ -21,10 +21,6 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import AnalyzeTutorial from '../AnalyzeTutorial';
 
-jest.mock('../../../../helpers/system', () => ({
-  isSonarCloud: jest.fn().mockReturnValue(true)
-}));
-
 Date.now = jest.fn().mockReturnValue(1540457859031);
 
 const component = {
