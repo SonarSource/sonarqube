@@ -55,7 +55,6 @@ it('should handle submit', async () => {
 
   expect(wrapper.state().submitting).toBe(true);
   await promise;
-  expect(wrapper.state().submitting).toBe(false);
   expect(setSecurityHotspotStatus).toBeCalledWith({
     hotspot: 'key',
     status: HotspotStatus.TO_REVIEW

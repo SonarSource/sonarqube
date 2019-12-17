@@ -22,7 +22,7 @@ import { addNoFooterPageClass, removeNoFooterPageClass } from 'sonar-ui-common/h
 import { getSecurityHotspots } from '../../api/security-hotspots';
 import { getStandards } from '../../helpers/security-standard';
 import { BranchLike } from '../../types/branch-like';
-import { RawHotspot } from '../../types/security-hotspots';
+import { HotspotUpdate, RawHotspot } from '../../types/security-hotspots';
 import SecurityHotspotsAppRenderer from './SecurityHotspotsAppRenderer';
 import './styles.css';
 import { sortHotspots } from './utils';
@@ -95,6 +95,23 @@ export default class SecurityHotspotsApp extends React.PureComponent<Props, Stat
 
   handleHotspotClick = (key: string) => this.setState({ selectedHotspotKey: key });
 
+  handleHotspotUpdate = ({ key, status, resolution }: HotspotUpdate) => {
+    this.setState(({ hotspots }) => {
+      const index = hotspots.findIndex(h => h.key === key);
+
+      if (index > -1) {
+        const hotspot = {
+          ...hotspots[index],
+          status,
+          resolution
+        };
+
+        return { hotspots: [...hotspots.slice(0, index), hotspot, ...hotspots.slice(index + 1)] };
+      }
+      return null;
+    });
+  };
+
   render() {
     const { branchLike } = this.props;
     const { hotspots, loading, securityCategories, selectedHotspotKey } = this.state;
@@ -105,6 +122,7 @@ export default class SecurityHotspotsApp extends React.PureComponent<Props, Stat
         hotspots={hotspots}
         loading={loading}
         onHotspotClick={this.handleHotspotClick}
+        onUpdateHotspot={this.handleHotspotUpdate}
         securityCategories={securityCategories}
         selectedHotspotKey={selectedHotspotKey}
       />

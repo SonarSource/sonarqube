@@ -13,6 +13,7 @@ exports[`should render correctly 1`] = `
   hotspots={Array []}
   loading={true}
   onHotspotClick={[Function]}
+  onUpdateHotspot={[Function]}
   securityCategories={Object {}}
 />
 `;

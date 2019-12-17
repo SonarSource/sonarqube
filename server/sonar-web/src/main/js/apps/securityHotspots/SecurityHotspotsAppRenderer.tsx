@@ -27,7 +27,7 @@ import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../components/common/ScreenPositionHelper';
 import { BranchLike } from '../../types/branch-like';
-import { RawHotspot } from '../../types/security-hotspots';
+import { HotspotUpdate, RawHotspot } from '../../types/security-hotspots';
 import FilterBar from './components/FilterBar';
 import HotspotList from './components/HotspotList';
 import HotspotViewer from './components/HotspotViewer';
@@ -38,6 +38,7 @@ export interface SecurityHotspotsAppRendererProps {
   hotspots: RawHotspot[];
   loading: boolean;
   onHotspotClick: (key: string) => void;
+  onUpdateHotspot: (hotspot: HotspotUpdate) => void;
   selectedHotspotKey?: string;
   securityCategories: T.StandardSecurityCategories;
 }
@@ -91,6 +92,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                       <HotspotViewer
                         branchLike={branchLike}
                         hotspotKey={selectedHotspotKey}
+                        onUpdateHotspot={props.onUpdateHotspot}
                         securityCategories={securityCategories}
                       />
                     )}

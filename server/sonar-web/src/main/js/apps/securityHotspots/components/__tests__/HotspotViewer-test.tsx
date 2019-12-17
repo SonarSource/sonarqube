@@ -49,6 +49,7 @@ function shallowRender(props?: Partial<HotspotViewer['props']>) {
   return shallow<HotspotViewer>(
     <HotspotViewer
       hotspotKey={hotspotKey}
+      onUpdateHotspot={jest.fn()}
       securityCategories={{ cat1: { title: 'cat1' } }}
       {...props}
     />

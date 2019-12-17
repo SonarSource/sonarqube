@@ -54,6 +54,7 @@ function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
       hotspots={[]}
       loading={false}
       onHotspotClick={jest.fn()}
+      onUpdateHotspot={jest.fn()}
       securityCategories={{}}
       {...props}
     />

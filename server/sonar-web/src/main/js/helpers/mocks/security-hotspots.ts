@@ -21,6 +21,7 @@ import { ComponentQualifier } from '../../types/component';
 import {
   DetailedHotspot,
   DetailedHotspotRule,
+  HotspotStatus,
   RawHotspot,
   RiskExposure
 } from '../../types/security-hotspots';
@@ -32,8 +33,8 @@ export function mockRawHotspot(overrides: Partial<RawHotspot> = {}): RawHotspot 
     component: 'com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest',
     project: 'com.github.kevinsawicki:http-request',
     rule: 'checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck',
-    status: 'RESOLVED',
-    resolution: 'FALSE-POSITIVE',
+    status: HotspotStatus.TO_REVIEW,
+    resolution: undefined,
     securityCategory: 'command-injection',
     vulnerabilityProbability: RiskExposure.HIGH,
     message: "'3' is a magic number.",

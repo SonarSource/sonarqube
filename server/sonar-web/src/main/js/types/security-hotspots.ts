@@ -48,7 +48,7 @@ export interface RawHotspot {
   line?: number;
   message: string;
   project: string;
-  resolution: string;
+  resolution?: string;
   rule: string;
   securityCategory: string;
   status: string;
@@ -66,11 +66,20 @@ export interface DetailedHotspot {
   line?: number;
   message: string;
   project: T.Component;
-  resolution: string;
+  resolution?: string;
   rule: DetailedHotspotRule;
   status: string;
   textRange: T.TextRange;
   updateDate: string;
+}
+
+export interface HotspotUpdateFields {
+  status: HotspotStatus;
+  resolution?: HotspotResolution;
+}
+
+export interface HotspotUpdate extends HotspotUpdateFields {
+  key: string;
 }
 
 export interface DetailedHotspotRule {

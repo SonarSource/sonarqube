@@ -40,6 +40,7 @@ function shallowRender(props?: Partial<HotspotViewerRendererProps>) {
       currentUser={mockCurrentUser()}
       hotspot={mockDetailledHotspot()}
       loading={false}
+      onUpdateHotspot={jest.fn()}
       securityCategories={{ 'sql-injection': { title: 'SQL injection' } }}
       {...props}
     />

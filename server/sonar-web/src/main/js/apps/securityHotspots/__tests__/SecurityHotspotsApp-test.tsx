@@ -26,7 +26,9 @@ import { mockMainBranch } from '../../../helpers/mocks/branch-like';
 import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
 import { getStandards } from '../../../helpers/security-standard';
 import { mockComponent } from '../../../helpers/testMocks';
+import { HotspotResolution, HotspotStatus } from '../../../types/security-hotspots';
 import SecurityHotspotsApp from '../SecurityHotspotsApp';
+import SecurityHotspotsAppRenderer from '../SecurityHotspotsAppRenderer';
 
 jest.mock('sonar-ui-common/helpers/pages', () => ({
   addNoFooterPageClass: jest.fn(),
@@ -70,6 +72,30 @@ it('should load data correctly', async () => {
   expect(wrapper.state().securityCategories).toBe(sonarsourceSecurity);
 
   expect(wrapper.state());
+});
+
+it('should handle hotspot update', async () => {
+  const key = 'hotspotKey';
+  const hotspots = [mockRawHotspot(), mockRawHotspot({ key })];
+  (getSecurityHotspots as jest.Mock).mockResolvedValue({
+    hotspots
+  });
+
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+
+  wrapper
+    .find(SecurityHotspotsAppRenderer)
+    .props()
+    .onUpdateHotspot({ key, status: HotspotStatus.REVIEWED, resolution: HotspotResolution.SAFE });
+
+  expect(wrapper.state().hotspots[0]).toEqual(hotspots[0]);
+  expect(wrapper.state().hotspots[1]).toEqual({
+    ...hotspots[1],
+    status: HotspotStatus.REVIEWED,
+    resolution: HotspotResolution.SAFE
+  });
 });
 
 function shallowRender(props: Partial<SecurityHotspotsApp['props']> = {}) {

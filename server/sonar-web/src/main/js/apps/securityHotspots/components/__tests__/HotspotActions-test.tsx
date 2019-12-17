@@ -66,5 +66,5 @@ it('should register an eventlistener', () => {
 });
 
 function shallowRender(props: Partial<HotspotActionsProps> = {}) {
-  return shallow(<HotspotActions hotspotKey="key" {...props} />);
+  return shallow(<HotspotActions hotspotKey="key" onSubmit={jest.fn()} {...props} />);
 }

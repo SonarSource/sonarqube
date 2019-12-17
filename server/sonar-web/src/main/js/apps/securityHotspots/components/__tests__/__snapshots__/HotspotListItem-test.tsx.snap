@@ -14,7 +14,7 @@ exports[`should render correctly 1`] = `
   <div
     className="badge spacer-top"
   >
-    issue.status.RESOLVED
+    issue.status.TO_REVIEW
   </div>
 </a>
 `;
@@ -33,7 +33,7 @@ exports[`should render correctly 2`] = `
   <div
     className="badge spacer-top"
   >
-    issue.status.RESOLVED
+    issue.status.TO_REVIEW
   </div>
 </a>
 `;

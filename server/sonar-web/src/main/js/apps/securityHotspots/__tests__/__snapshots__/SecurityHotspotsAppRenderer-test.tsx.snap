@@ -118,10 +118,10 @@ exports[`should render correctly with hotspots 1`] = `
                   "line": 81,
                   "message": "'3' is a magic number.",
                   "project": "com.github.kevinsawicki:http-request",
-                  "resolution": "FALSE-POSITIVE",
+                  "resolution": undefined,
                   "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
                   "securityCategory": "command-injection",
-                  "status": "RESOLVED",
+                  "status": "TO_REVIEW",
                   "updateDate": "2013-05-13T17:55:39+0200",
                   "vulnerabilityProbability": "HIGH",
                 },
@@ -133,10 +133,10 @@ exports[`should render correctly with hotspots 1`] = `
                   "line": 81,
                   "message": "'3' is a magic number.",
                   "project": "com.github.kevinsawicki:http-request",
-                  "resolution": "FALSE-POSITIVE",
+                  "resolution": undefined,
                   "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
                   "securityCategory": "command-injection",
-                  "status": "RESOLVED",
+                  "status": "TO_REVIEW",
                   "updateDate": "2013-05-13T17:55:39+0200",
                   "vulnerabilityProbability": "HIGH",
                 },
@@ -198,10 +198,10 @@ exports[`should render correctly with hotspots 2`] = `
                   "line": 81,
                   "message": "'3' is a magic number.",
                   "project": "com.github.kevinsawicki:http-request",
-                  "resolution": "FALSE-POSITIVE",
+                  "resolution": undefined,
                   "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
                   "securityCategory": "command-injection",
-                  "status": "RESOLVED",
+                  "status": "TO_REVIEW",
                   "updateDate": "2013-05-13T17:55:39+0200",
                   "vulnerabilityProbability": "HIGH",
                 },
@@ -213,10 +213,10 @@ exports[`should render correctly with hotspots 2`] = `
                   "line": 81,
                   "message": "'3' is a magic number.",
                   "project": "com.github.kevinsawicki:http-request",
-                  "resolution": "FALSE-POSITIVE",
+                  "resolution": undefined,
                   "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
                   "securityCategory": "command-injection",
-                  "status": "RESOLVED",
+                  "status": "TO_REVIEW",
                   "updateDate": "2013-05-13T17:55:39+0200",
                   "vulnerabilityProbability": "HIGH",
                 },
@@ -232,6 +232,7 @@ exports[`should render correctly with hotspots 2`] = `
         >
           <HotspotViewer
             hotspotKey="h2"
+            onUpdateHotspot={[MockFunction]}
             securityCategories={Object {}}
           />
         </div>

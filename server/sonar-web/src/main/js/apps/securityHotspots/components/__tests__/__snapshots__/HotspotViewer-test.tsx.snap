@@ -3,6 +3,7 @@
 exports[`should render correctly 1`] = `
 <Connect(withCurrentUser(HotspotViewerRenderer))
   loading={true}
+  onUpdateHotspot={[Function]}
   securityCategories={
     Object {
       "cat1": Object {
@@ -21,6 +22,7 @@ exports[`should render correctly 2`] = `
     }
   }
   loading={false}
+  onUpdateHotspot={[Function]}
   securityCategories={
     Object {
       "cat1": Object {

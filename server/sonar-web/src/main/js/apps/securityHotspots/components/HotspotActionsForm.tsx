@@ -23,13 +23,14 @@ import {
   HotspotResolution,
   HotspotSetStatusRequest,
   HotspotStatus,
-  HotspotStatusOptions
+  HotspotStatusOptions,
+  HotspotUpdateFields
 } from '../../../types/security-hotspots';
 import HotspotActionsFormRenderer from './HotspotActionsFormRenderer';
 
 interface Props {
   hotspotKey: string;
-  onSubmit: () => void;
+  onSubmit: (data: HotspotUpdateFields) => void;
 }
 
 interface State {
@@ -65,9 +66,9 @@ export default class HotspotActionsForm extends React.Component<Props, State> {
     this.setState({ submitting: true });
     return setSecurityHotspotStatus(data)
       .then(() => {
-        this.props.onSubmit();
+        this.props.onSubmit({ status, resolution: data.resolution });
       })
-      .finally(() => {
+      .catch(() => {
         this.setState({ submitting: false });
       });
   };
