@@ -21,7 +21,7 @@ import { getJSON, post } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { BranchParameters } from '../types/branch-like';
 import {
-  DetailedHotspot,
+  Hotspot,
   HotspotAssignRequest,
   HotspotResolution,
   HotspotSearchResponse,
@@ -58,6 +58,6 @@ export function getSecurityHotspots(
   return getJSON('/api/hotspots/search', data).catch(throwGlobalError);
 }
 
-export function getSecurityHotspotDetails(securityHotspotKey: string): Promise<DetailedHotspot> {
+export function getSecurityHotspotDetails(securityHotspotKey: string): Promise<Hotspot> {
   return getJSON('/api/hotspots/show', { hotspot: securityHotspotKey }).catch(throwGlobalError);
 }

@@ -20,10 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
-import {
-  mockDetailledHotspot,
-  mockDetailledHotspotRule
-} from '../../../../helpers/mocks/security-hotspots';
+import { mockHotspot, mockHotspotRule } from '../../../../helpers/mocks/security-hotspots';
 import HotspotViewerTabs, { HotspotViewerTabsProps, Tabs } from '../HotspotViewerTabs';
 
 it('should render correctly', () => {
@@ -40,20 +37,24 @@ it('should render correctly', () => {
 
     onSelect(Tabs.FixRecommendation);
     expect(wrapper).toMatchSnapshot('fix');
+
+    onSelect(Tabs.ReviewHistory);
+    expect(wrapper).toMatchSnapshot('review');
   }
 
   expect(
     shallowRender({
-      hotspot: mockDetailledHotspot({
-        rule: mockDetailledHotspotRule({ riskDescription: undefined })
+      hotspot: mockHotspot({
+        rule: mockHotspotRule({ riskDescription: undefined })
       })
     })
   ).toMatchSnapshot('empty tab');
 
   expect(
     shallowRender({
-      hotspot: mockDetailledHotspot({
-        rule: mockDetailledHotspotRule({
+      hotspot: mockHotspot({
+        creationDate: undefined,
+        rule: mockHotspotRule({
           riskDescription: undefined,
           fixRecommendations: undefined,
           vulnerabilityDescription: undefined
@@ -64,5 +65,5 @@ it('should render correctly', () => {
 });
 
 function shallowRender(props?: Partial<HotspotViewerTabsProps>) {
-  return shallow(<HotspotViewerTabs hotspot={mockDetailledHotspot()} {...props} />);
+  return shallow(<HotspotViewerTabs hotspot={mockHotspot()} {...props} />);
 }

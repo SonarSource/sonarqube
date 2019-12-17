@@ -53,7 +53,7 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
         onClick={() => setExpanded(!expanded)}>
         <strong className="flex-1">{category.title}</strong>
         <span>
-          <span className="hotspot-counter">{hotspots.length}</span>
+          <span className="counter-badge">{hotspots.length}</span>
           {expanded ? (
             <ChevronUpIcon className="big-spacer-left" />
           ) : (

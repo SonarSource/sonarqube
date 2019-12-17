@@ -23,7 +23,7 @@ import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { isLoggedIn } from '../../../helpers/users';
 import { BranchLike } from '../../../types/branch-like';
-import { DetailedHotspot, HotspotUpdateFields } from '../../../types/security-hotspots';
+import { Hotspot, HotspotUpdateFields } from '../../../types/security-hotspots';
 import HotspotActions from './HotspotActions';
 import HotspotSnippetContainer from './HotspotSnippetContainer';
 import HotspotViewerTabs from './HotspotViewerTabs';
@@ -31,7 +31,7 @@ import HotspotViewerTabs from './HotspotViewerTabs';
 export interface HotspotViewerRendererProps {
   branchLike?: BranchLike;
   currentUser: T.CurrentUser;
-  hotspot?: DetailedHotspot;
+  hotspot?: Hotspot;
   loading: boolean;
   onUpdateHotspot: (hotspot: HotspotUpdateFields) => void;
   securityCategories: T.StandardSecurityCategories;
@@ -52,20 +52,20 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
               )}
             </div>
             <div className="text-muted">
-              <span>{translate('hotspot.category')}</span>
+              <span>{translate('category')}:</span>
               <span className="little-spacer-left">
                 {securityCategories[hotspot.rule.securityCategory].title}
               </span>
             </div>
           </div>
           <div className="huge-spacer-bottom">
-            <span>{translate('hotspot.status')}</span>
+            <span>{translate('status')}:</span>
             <span className="badge little-spacer-left">
               {translate('hotspot.status', hotspot.resolution || hotspot.status)}
             </span>
             {hotspot.assignee && hotspot.assignee.name && (
               <>
-                <span className="huge-spacer-left">{translate('hotspot.assigned_to')}</span>
+                <span className="huge-spacer-left">{translate('assigned_to')}:</span>
                 <strong className="little-spacer-left">
                   {hotspot.assignee.active
                     ? hotspot.assignee.name

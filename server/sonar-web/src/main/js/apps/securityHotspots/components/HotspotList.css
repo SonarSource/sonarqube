@@ -75,13 +75,6 @@
   cursor: unset;
 }
 
-.hotspot-counter {
-  color: var(--baseFontColor);
-  background-color: var(--gray94);
-  border-radius: 50%;
-  padding: calc(var(--gridSize) / 2) var(--gridSize);
-}
-
 .hotspot-risk-badge {
   color: white;
   text-transform: uppercase;

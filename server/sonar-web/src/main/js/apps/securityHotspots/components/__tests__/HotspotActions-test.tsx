@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { mockDetailledHotspot } from '../../../../helpers/mocks/security-hotspots';
+import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { HotspotStatus } from '../../../../types/security-hotspots';
 import HotspotActions, { HotspotActionsProps } from '../HotspotActions';
 
@@ -70,7 +70,7 @@ it('should register an eventlistener', () => {
 function shallowRender(props: Partial<HotspotActionsProps> = {}) {
   return shallow(
     <HotspotActions
-      hotspot={mockDetailledHotspot({ key: 'key', status: HotspotStatus.TO_REVIEW })}
+      hotspot={mockHotspot({ key: 'key', status: HotspotStatus.TO_REVIEW })}
       onSubmit={jest.fn()}
       {...props}
     />

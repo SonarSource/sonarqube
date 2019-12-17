@@ -22,13 +22,13 @@ import { getSources } from '../../../api/components';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
-import { DetailedHotspot } from '../../../types/security-hotspots';
+import { Hotspot } from '../../../types/security-hotspots';
 import { constructSourceViewerFile } from '../utils';
 import HotspotSnippetContainerRenderer from './HotspotSnippetContainerRenderer';
 
 interface Props {
   branchLike?: BranchLike;
-  hotspot: DetailedHotspot;
+  hotspot: Hotspot;
 }
 
 interface State {

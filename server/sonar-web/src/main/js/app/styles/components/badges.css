@@ -69,3 +69,14 @@ a.badge {
   background-color: var(--alertBackgroundError);
   color: var(--alertTextError);
 }
+
+.counter-badge {
+  color: var(--badgeBlueColor);
+  background-color: var(--badgeBlueBackground);
+  padding: calc(var(--gridSize) / 2) var(--gridSize);
+  border-radius: 1em;
+}
+
+.counter-badge:empty {
+  display: none;
+}

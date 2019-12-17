@@ -19,11 +19,13 @@
  */
 import { ComponentQualifier } from '../../types/component';
 import {
-  DetailedHotspot,
-  DetailedHotspotRule,
+  Hotspot,
   HotspotResolution,
+  HotspotRule,
   HotspotStatus,
   RawHotspot,
+  ReviewHistoryElement,
+  ReviewHistoryType,
   RiskExposure
 } from '../../types/security-hotspots';
 import { mockComponent, mockUser } from '../testMocks';
@@ -47,10 +49,11 @@ export function mockRawHotspot(overrides: Partial<RawHotspot> = {}): RawHotspot 
   };
 }
 
-export function mockDetailledHotspot(overrides?: Partial<DetailedHotspot>): DetailedHotspot {
+export function mockHotspot(overrides?: Partial<Hotspot>): Hotspot {
   return {
     assignee: mockUser(),
     author: mockUser(),
+    changelog: [],
     component: mockComponent({ qualifier: ComponentQualifier.File }),
     creationDate: '2013-05-13T17:55:41+0200',
     key: '01fc972e-2a3c-433e-bcae-0bd7f88f5123',
@@ -58,7 +61,7 @@ export function mockDetailledHotspot(overrides?: Partial<DetailedHotspot>): Deta
     message: "'3' is a magic number.",
     project: mockComponent({ qualifier: ComponentQualifier.Project }),
     resolution: HotspotResolution.FIXED,
-    rule: mockDetailledHotspotRule(),
+    rule: mockHotspotRule(),
     status: HotspotStatus.REVIEWED,
     textRange: {
       startLine: 142,
@@ -71,9 +74,7 @@ export function mockDetailledHotspot(overrides?: Partial<DetailedHotspot>): Deta
   };
 }
 
-export function mockDetailledHotspotRule(
-  overrides?: Partial<DetailedHotspotRule>
-): DetailedHotspotRule {
+export function mockHotspotRule(overrides?: Partial<HotspotRule>): HotspotRule {
   return {
     key: 'squid:S2077',
     name: 'That rule',
@@ -82,6 +83,17 @@ export function mockDetailledHotspotRule(
     vulnerabilityDescription: '<p>This a <strong>strong</strong> message about vulnerability !</p>',
     vulnerabilityProbability: RiskExposure.HIGH,
     securityCategory: 'sql-injection',
+    ...overrides
+  };
+}
+
+export function mockHotspotReviewHistoryElement(
+  overrides?: Partial<ReviewHistoryElement>
+): ReviewHistoryElement {
+  return {
+    date: '2019-09-13T17:55:42+0200',
+    type: ReviewHistoryType.Creation,
+    user: mockUser(),
     ...overrides
   };
 }

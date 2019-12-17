@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
-import { RiskExposure } from '../../../types/security-hotspots';
-import { groupByCategory, mapRules, sortHotspots } from '../utils';
+import { mockHotspot, mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
+import { ReviewHistoryType, RiskExposure } from '../../../types/security-hotspots';
+import { getHotspotReviewHistory, groupByCategory, mapRules, sortHotspots } from '../utils';
 
 const hotspots = [
   mockRawHotspot({
@@ -140,5 +140,53 @@ describe('mapRules', () => {
       b: 'B rule',
       c: 'C rule'
     });
+  });
+});
+
+describe('getHotspotReviewHistory', () => {
+  it('should properly create the review history', () => {
+    const changelogElement: T.IssueChangelog = {
+      creationDate: '2018-10-01',
+      isUserActive: true,
+      user: 'me',
+      userName: 'me-name',
+      diffs: [
+        {
+          key: 'assign',
+          newValue: 'me',
+          oldValue: 'him'
+        }
+      ]
+    };
+    const hotspot = mockHotspot({
+      creationDate: '2018-09-01',
+      changelog: [changelogElement]
+    });
+    const history = getHotspotReviewHistory(hotspot);
+
+    expect(history.length).toBe(2);
+    expect(history[0]).toEqual(
+      expect.objectContaining({
+        type: ReviewHistoryType.Creation,
+        date: hotspot.creationDate,
+        user: {
+          avatar: hotspot.author.avatar,
+          name: hotspot.author.name,
+          active: hotspot.author.active
+        }
+      })
+    );
+    expect(history[1]).toEqual(
+      expect.objectContaining({
+        type: ReviewHistoryType.Diff,
+        date: changelogElement.creationDate,
+        user: {
+          avatar: changelogElement.avatar,
+          name: changelogElement.userName,
+          active: changelogElement.isUserActive
+        },
+        diffs: changelogElement.diffs
+      })
+    );
   });
 });

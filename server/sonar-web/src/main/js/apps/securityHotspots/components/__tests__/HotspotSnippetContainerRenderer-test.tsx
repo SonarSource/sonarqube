@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
-import { mockDetailledHotspot } from '../../../../helpers/mocks/security-hotspots';
+import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockSourceLine, mockSourceViewerFile } from '../../../../helpers/testMocks';
 import HotspotSnippetContainerRenderer, {
   HotspotSnippetContainerRendererProps
@@ -36,7 +36,7 @@ function shallowRender(props?: Partial<HotspotSnippetContainerRendererProps>) {
     <HotspotSnippetContainerRenderer
       branchLike={mockMainBranch()}
       highlightedSymbols={[]}
-      hotspot={mockDetailledHotspot()}
+      hotspot={mockHotspot()}
       lastLine={undefined}
       linePopup={undefined}
       loading={false}

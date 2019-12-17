@@ -25,6 +25,7 @@ exports[`should render correctly 1`] = `
         "login": "john.doe",
         "name": "John Doe",
       },
+      "changelog": Array [],
       "component": Object {
         "breadcrumbs": Array [],
         "key": "my-project",

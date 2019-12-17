@@ -21,11 +21,7 @@
 import * as React from 'react';
 import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
 import { BranchLike } from '../../../types/branch-like';
-import {
-  DetailedHotspot,
-  HotspotUpdate,
-  HotspotUpdateFields
-} from '../../../types/security-hotspots';
+import { Hotspot, HotspotUpdate, HotspotUpdateFields } from '../../../types/security-hotspots';
 import HotspotViewerRenderer from './HotspotViewerRenderer';
 
 interface Props {
@@ -36,14 +32,15 @@ interface Props {
 }
 
 interface State {
-  hotspot?: DetailedHotspot;
+  hotspot?: Hotspot;
   loading: boolean;
 }
 
 export default class HotspotViewer extends React.PureComponent<Props, State> {
   mounted = false;
+  state: State = { loading: false };
 
-  componentWillMount() {
+  componentDidMount() {
     this.mounted = true;
     this.fetchHotspot();
   }
@@ -61,8 +58,8 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
   fetchHotspot() {
     this.setState({ loading: true });
     return getSecurityHotspotDetails(this.props.hotspotKey)
-      .then(hotspot => this.mounted && this.setState({ hotspot }))
-      .finally(() => this.mounted && this.setState({ loading: false }));
+      .then(hotspot => this.mounted && this.setState({ hotspot, loading: false }))
+      .catch(() => this.mounted && this.setState({ loading: false }));
   }
 
   handleHotspotUpdate = (data: HotspotUpdateFields) => {

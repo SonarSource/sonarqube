@@ -16,7 +16,7 @@ exports[`should handle collapse and expand 1`] = `
     </strong>
     <span>
       <span
-        className="hotspot-counter"
+        className="counter-badge"
       >
         1
       </span>
@@ -44,7 +44,7 @@ exports[`should handle collapse and expand 2`] = `
     </strong>
     <span>
       <span
-        className="hotspot-counter"
+        className="counter-badge"
       >
         1
       </span>
@@ -101,7 +101,7 @@ exports[`should render correctly with hotspots 1`] = `
     </strong>
     <span>
       <span
-        className="hotspot-counter"
+        className="counter-badge"
       >
         2
       </span>

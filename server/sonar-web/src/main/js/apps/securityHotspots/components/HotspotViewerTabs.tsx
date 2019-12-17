@@ -21,56 +21,79 @@ import { sanitize } from 'dompurify';
 import * as React from 'react';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { DetailedHotspot } from '../../../types/security-hotspots';
+import { Hotspot } from '../../../types/security-hotspots';
+import { getHotspotReviewHistory } from '../utils';
+import HotspotViewerReviewHistoryTab from './HotspotViewerReviewHistoryTab';
 
 export interface HotspotViewerTabsProps {
-  hotspot: DetailedHotspot;
+  hotspot: Hotspot;
 }
 
 export enum Tabs {
   RiskDescription = 'risk',
   VulnerabilityDescription = 'vulnerability',
-  FixRecommendation = 'fix'
+  FixRecommendation = 'fix',
+  ReviewHistory = 'review'
 }
 
 export default function HotspotViewerTabs(props: HotspotViewerTabsProps) {
   const { hotspot } = props;
-  const [currentTab, setCurrentTab] = React.useState(Tabs.RiskDescription);
+  const [currentTabKey, setCurrentTabKey] = React.useState(Tabs.RiskDescription);
+  const hotspotReviewHistory = React.useMemo(() => getHotspotReviewHistory(hotspot), [hotspot]);
 
-  const tabs = {
-    [Tabs.RiskDescription]: {
-      title: translate('hotspot.tabs.risk_description'),
+  const tabs = [
+    {
+      key: Tabs.RiskDescription,
+      label: translate('hotspots.tabs.risk_description'),
       content: hotspot.rule.riskDescription || ''
     },
-    [Tabs.VulnerabilityDescription]: {
-      title: translate('hotspot.tabs.vulnerability_description'),
+    {
+      key: Tabs.VulnerabilityDescription,
+      label: translate('hotspots.tabs.vulnerability_description'),
       content: hotspot.rule.vulnerabilityDescription || ''
     },
-    [Tabs.FixRecommendation]: {
-      title: translate('hotspot.tabs.fix_recommendations'),
+    {
+      key: Tabs.FixRecommendation,
+      label: translate('hotspots.tabs.fix_recommendations'),
       content: hotspot.rule.fixRecommendations || ''
+    },
+    {
+      key: Tabs.ReviewHistory,
+      label: (
+        <>
+          <span>{translate('hotspots.tabs.review_history')}</span>
+          <span className="counter-badge spacer-left">{hotspotReviewHistory.length}</span>
+        </>
+      ),
+      content: hotspotReviewHistory.length > 0 && (
+        <HotspotViewerReviewHistoryTab history={hotspotReviewHistory} />
+      )
     }
-  };
+  ].filter(tab => Boolean(tab.content));
 
-  const tabsToDisplay = Object.values(Tabs)
-    .filter(tab => Boolean(tabs[tab].content))
-    .map(tab => ({ key: tab, label: tabs[tab].title }));
-
-  if (tabsToDisplay.length === 0) {
+  if (tabs.length === 0) {
     return null;
   }
 
-  if (!tabsToDisplay.find(tab => tab.key === currentTab)) {
-    setCurrentTab(tabsToDisplay[0].key);
-  }
+  const currentTab = tabs.find(tab => tab.key === currentTabKey) || tabs[0];
 
   return (
     <>
-      <BoxedTabs onSelect={tab => setCurrentTab(tab)} selected={currentTab} tabs={tabsToDisplay} />
-      <div
-        className="boxed-group markdown big-padded"
-        dangerouslySetInnerHTML={{ __html: sanitize(tabs[currentTab].content) }}
+      <BoxedTabs
+        onSelect={tabKey => setCurrentTabKey(tabKey)}
+        selected={currentTabKey}
+        tabs={tabs}
       />
+      <div className="boxed-group big-padded">
+        {typeof currentTab.content === 'string' ? (
+          <div
+            className="markdown"
+            dangerouslySetInnerHTML={{ __html: sanitize(currentTab.content) }}
+          />
+        ) : (
+          <>{currentTab.content}</>
+        )}
+      </div>
     </>
   );
 }

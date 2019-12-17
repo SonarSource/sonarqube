@@ -18,7 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { groupBy, sortBy } from 'lodash';
-import { DetailedHotspot, RawHotspot, RiskExposure } from '../../types/security-hotspots';
+import {
+  Hotspot,
+  RawHotspot,
+  ReviewHistoryElement,
+  ReviewHistoryType,
+  RiskExposure
+} from '../../types/security-hotspots';
 
 export const RISK_EXPOSURE_LEVELS = [RiskExposure.HIGH, RiskExposure.MEDIUM, RiskExposure.LOW];
 
@@ -61,7 +67,7 @@ function getCategoryTitle(key: string, securityCategories: T.StandardSecurityCat
 }
 
 export function constructSourceViewerFile(
-  { component, project }: DetailedHotspot,
+  { component, project }: Hotspot,
   lines?: number
 ): T.SourceViewerFile {
   return {
@@ -73,4 +79,37 @@ export function constructSourceViewerFile(
     q: component.qualifier,
     uuid: ''
   };
+}
+
+export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[] {
+  const history: ReviewHistoryElement[] = [];
+
+  if (hotspot.creationDate) {
+    history.push({
+      type: ReviewHistoryType.Creation,
+      date: hotspot.creationDate,
+      user: {
+        avatar: hotspot.author.avatar,
+        name: hotspot.author.name || hotspot.author.login,
+        active: hotspot.author.active
+      }
+    });
+  }
+
+  if (hotspot.changelog) {
+    history.push(
+      ...hotspot.changelog.map(log => ({
+        type: ReviewHistoryType.Diff,
+        date: log.creationDate,
+        user: {
+          avatar: log.avatar,
+          name: log.userName || log.user,
+          active: log.isUserActive
+        },
+        diffs: log.diffs
+      }))
+    );
+  }
+
+  return sortBy(history, elt => elt.date);
 }

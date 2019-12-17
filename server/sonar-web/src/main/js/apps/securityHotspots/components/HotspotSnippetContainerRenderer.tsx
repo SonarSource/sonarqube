@@ -22,13 +22,13 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
 import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
 import { BranchLike } from '../../../types/branch-like';
-import { DetailedHotspot } from '../../../types/security-hotspots';
+import { Hotspot } from '../../../types/security-hotspots';
 import SnippetViewer from '../../issues/crossComponentSourceViewer/SnippetViewer';
 
 export interface HotspotSnippetContainerRendererProps {
   branchLike?: BranchLike;
   highlightedSymbols: string[];
-  hotspot: DetailedHotspot;
+  hotspot: Hotspot;
   lastLine?: number;
   loading: boolean;
   locations: { [line: number]: T.LinearIssueLocation[] };

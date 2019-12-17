@@ -23,7 +23,7 @@ import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getSources } from '../../../../api/components';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
-import { mockDetailledHotspot } from '../../../../helpers/mocks/security-hotspots';
+import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockSourceLine } from '../../../../helpers/testMocks';
 import HotspotSnippetContainer from '../HotspotSnippetContainer';
 import HotspotSnippetContainerRenderer from '../HotspotSnippetContainerRenderer';
@@ -43,7 +43,7 @@ it('should load sources on mount', async () => {
     range(5, 18).map(line => mockSourceLine({ line }))
   );
 
-  const hotspot = mockDetailledHotspot({
+  const hotspot = mockHotspot({
     textRange: { startLine: 10, endLine: 11, startOffset: 0, endOffset: 12 }
   });
 
@@ -65,7 +65,7 @@ it('should handle end-of-file on mount', async () => {
     range(5, 15).map(line => mockSourceLine({ line }))
   );
 
-  const hotspot = mockDetailledHotspot({
+  const hotspot = mockHotspot({
     textRange: { startLine: 10, endLine: 11, startOffset: 0, endOffset: 12 }
   });
 
@@ -85,7 +85,7 @@ describe('Expansion', () => {
     );
   });
 
-  const hotspot = mockDetailledHotspot({
+  const hotspot = mockHotspot({
     textRange: { startLine: 10, endLine: 11, startOffset: 0, endOffset: 12 }
   });
 
@@ -193,6 +193,6 @@ it('should handle symbol click', () => {
 
 function shallowRender(props?: Partial<HotspotSnippetContainer['props']>) {
   return shallow<HotspotSnippetContainer>(
-    <HotspotSnippetContainer branchLike={branch} hotspot={mockDetailledHotspot()} {...props} />
+    <HotspotSnippetContainer branchLike={branch} hotspot={mockHotspot()} {...props} />
   );
 }

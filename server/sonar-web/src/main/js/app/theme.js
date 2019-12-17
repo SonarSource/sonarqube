@@ -103,6 +103,10 @@ module.exports = {
     alertTextInfo: '#0e516f',
     alertIconInfo: '#0271b9',
 
+    // badge
+    badgeBlueBackground: '#2E7CB5',
+    badgeBlueColor: '#FFFFFF',
+
     // alm
     azure: '#0078d7',
     bitbucket: '#0052CC',

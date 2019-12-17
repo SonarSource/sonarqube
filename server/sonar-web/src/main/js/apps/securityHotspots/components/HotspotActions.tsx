@@ -24,11 +24,11 @@ import OutsideClickHandler from 'sonar-ui-common/components/controls/OutsideClic
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { DetailedHotspot, HotspotUpdateFields } from '../../../types/security-hotspots';
+import { Hotspot, HotspotUpdateFields } from '../../../types/security-hotspots';
 import HotspotActionsForm from './HotspotActionsForm';
 
 export interface HotspotActionsProps {
-  hotspot: DetailedHotspot;
+  hotspot: Hotspot;
   onSubmit: (hotspot: HotspotUpdateFields) => void;
 }
 
