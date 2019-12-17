@@ -451,13 +451,17 @@ export function mockLocation(overrides: Partial<Location> = {}): Location {
   };
 }
 
-export function mockMetric(overrides: Partial<T.Metric> = {}): T.Metric {
+export function mockMetric(
+  overrides: Partial<Pick<T.Metric, 'key' | 'name' | 'type'>> = {}
+): T.Metric {
+  const key = overrides.key || 'coverage';
+  const name = overrides.name || key[0].toUpperCase() + key.substr(1);
+  const type = overrides.type || 'PERCENT';
   return {
-    id: 'coverage',
-    key: 'coverage',
-    name: 'Coverage',
-    type: 'PERCENT',
-    ...overrides
+    id: key,
+    key,
+    name,
+    type
   };
 }
 

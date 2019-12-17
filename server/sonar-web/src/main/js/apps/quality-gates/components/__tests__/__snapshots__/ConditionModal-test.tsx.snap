@@ -50,13 +50,13 @@ exports[`should correctly switch scope 1`] = `
           Object {
             "id": "new_coverage",
             "key": "new_coverage",
-            "name": "Coverage on New Code",
+            "name": "New_coverage",
             "type": "PERCENT",
           },
           Object {
-            "id": "new_duplication",
-            "key": "new_duplication",
-            "name": "Duplication on New Code",
+            "id": "new_duplicated_lines",
+            "key": "new_duplicated_lines",
+            "name": "New_duplicated_lines",
             "type": "PERCENT",
           },
         ]
@@ -121,9 +121,9 @@ exports[`should correctly switch scope 2`] = `
             "type": "PERCENT",
           },
           Object {
-            "id": "duplication",
-            "key": "duplication",
-            "name": "Duplication",
+            "id": "duplicated_lines",
+            "key": "duplicated_lines",
+            "name": "Duplicated_lines",
             "type": "PERCENT",
           },
         ]
@@ -184,13 +184,13 @@ exports[`should correctly switch scope 3`] = `
           Object {
             "id": "new_coverage",
             "key": "new_coverage",
-            "name": "Coverage on New Code",
+            "name": "New_coverage",
             "type": "PERCENT",
           },
           Object {
-            "id": "new_duplication",
-            "key": "new_duplication",
-            "name": "Duplication on New Code",
+            "id": "new_duplicated_lines",
+            "key": "new_duplicated_lines",
+            "name": "New_duplicated_lines",
             "type": "PERCENT",
           },
         ]
@@ -251,13 +251,13 @@ exports[`should render correctly 1`] = `
           Object {
             "id": "new_coverage",
             "key": "new_coverage",
-            "name": "Coverage on New Code",
+            "name": "New_coverage",
             "type": "PERCENT",
           },
           Object {
-            "id": "new_duplication",
-            "key": "new_duplication",
-            "name": "Duplication on New Code",
+            "id": "new_duplicated_lines",
+            "key": "new_duplicated_lines",
+            "name": "New_duplicated_lines",
             "type": "PERCENT",
           },
         ]
@@ -299,13 +299,13 @@ exports[`should render correctly 2`] = `
           Object {
             "id": "new_coverage",
             "key": "new_coverage",
-            "name": "Coverage on New Code",
+            "name": "New_coverage",
             "type": "PERCENT",
           },
           Object {
-            "id": "new_duplication",
-            "key": "new_duplication",
-            "name": "Duplication on New Code",
+            "id": "new_duplicated_lines",
+            "key": "new_duplicated_lines",
+            "name": "New_duplicated_lines",
             "type": "PERCENT",
           },
         ]

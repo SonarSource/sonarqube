@@ -30,6 +30,7 @@ import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-li
 import { getPeriodValue, isDiffMetric } from '../../../helpers/measures';
 import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { MetricKey } from '../../../types/metrics';
 import { complementary } from '../config/complementary';
 import FilesView from '../drilldown/FilesView';
 import TreeMapView from '../drilldown/TreeMapView';
@@ -100,7 +101,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     );
     const componentKey = this.props.selected || this.props.rootComponent.key;
     const baseComponentMetrics = [this.props.requestedMetric.key];
-    if (this.props.requestedMetric.key === 'ncloc') {
+    if (this.props.requestedMetric.key === MetricKey.ncloc) {
       baseComponentMetrics.push('ncloc_language_distribution');
     }
     Promise.all([

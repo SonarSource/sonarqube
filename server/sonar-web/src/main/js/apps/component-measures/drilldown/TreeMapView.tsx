@@ -34,6 +34,7 @@ import { colors } from '../../../app/theme';
 import ColorBoxLegend from '../../../components/charts/ColorBoxLegend';
 import { isDiffMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
+import { MetricKey } from '../../../types/metrics';
 import EmptyResult from './EmptyResult';
 
 interface Props {
@@ -207,7 +208,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
               'component_measures.legend.size_x',
               translate(
                 'metric',
-                sizeMeasure && sizeMeasure.metric ? sizeMeasure.metric.key : 'ncloc',
+                sizeMeasure && sizeMeasure.metric ? sizeMeasure.metric.key : MetricKey.ncloc,
                 'name'
               )
             )}

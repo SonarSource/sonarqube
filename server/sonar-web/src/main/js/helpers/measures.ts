@@ -20,9 +20,14 @@
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { isDefined } from 'sonar-ui-common/helpers/types';
+import { MetricKey } from '../types/metrics';
+import {
+  QualityGateStatusCondition,
+  QualityGateStatusConditionEnhanced
+} from '../types/quality-gates';
 
 /** Return a localized metric name */
-export function localizeMetric(metricKey: string): string {
+export function localizeMetric(metricKey: MetricKey | string): string {
   return translate('metric', metricKey, 'name');
 }
 
@@ -48,6 +53,22 @@ export function enhanceMeasuresWithMetrics(
     .filter(isDefined);
 }
 
+export function enhanceConditionWithMeasure(
+  condition: QualityGateStatusCondition,
+  measures: T.MeasureEnhanced[]
+): QualityGateStatusConditionEnhanced | undefined {
+  const measure = measures.find(m => m.metric.key === condition.metric);
+
+  // Make sure we have a period index. This is necessary when dealing with
+  // applications.
+  let { period } = condition;
+  if (measure && measure.periods && !period) {
+    period = measure.periods[0].index;
+  }
+
+  return measure && { ...condition, period, measure };
+}
+
 /** Get period value of a measure */
 export function getPeriodValue(
   measure: T.Measure | T.MeasureEnhanced,
@@ -68,7 +89,7 @@ export function isPeriodBestValue(
 }
 
 /** Check if metric is differential */
-export function isDiffMetric(metricKey: string): boolean {
+export function isDiffMetric(metricKey: MetricKey | string): boolean {
   return metricKey.indexOf('new_') === 0;
 }
 
@@ -124,7 +145,7 @@ function getMaintainabilityRatingTooltip(rating: number): string {
   );
 }
 
-export function getRatingTooltip(metricKey: string, value: number | string): string {
+export function getRatingTooltip(metricKey: MetricKey | string, value: number | string): string {
   const ratingLetter = formatMeasure(value, 'RATING');
 
   const finalMetricKey = isDiffMetric(metricKey) ? metricKey.substr(4) : metricKey;
@@ -138,6 +159,6 @@ export function getDisplayMetrics(metrics: T.Metric[]) {
   return metrics.filter(metric => !metric.hidden && !['DATA', 'DISTRIB'].includes(metric.type));
 }
 
-export function findMeasure(measures: T.Measure[], metric: string) {
-  return measures.find(measure => measure.metric === metric);
+export function findMeasure(measures: T.MeasureEnhanced[], metric: MetricKey | string) {
+  return measures.find(measure => measure.metric.key === metric);
 }

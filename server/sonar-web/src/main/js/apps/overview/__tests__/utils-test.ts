@@ -33,7 +33,7 @@ describe('getThreshold', () => {
       getThreshold(
         [
           {
-            metric: mockMetric({ key: 'quality_gate_details' }),
+            metric: mockMetric({ key: MetricKey.quality_gate_details }),
             value: 'badly typed json should fail'
           }
         ],
@@ -45,23 +45,23 @@ describe('getThreshold', () => {
   });
 
   it('should return the threshold for the right metric', () => {
-    expect(getThreshold([mockMeasure()], 'new_coverage')).toBe(85);
-    expect(getThreshold([mockMeasure()], 'new_duplicated_lines_density')).toBe(5);
+    expect(getThreshold([mockMeasure()], MetricKey.new_coverage)).toBe(85);
+    expect(getThreshold([mockMeasure()], MetricKey.new_duplicated_lines_density)).toBe(5);
   });
 });
 
 function mockMeasure() {
   return mockMeasureEnhanced({
-    metric: mockMetric({ key: 'quality_gate_details' }),
+    metric: mockMetric({ key: MetricKey.quality_gate_details }),
     value: JSON.stringify({
       conditions: [
         mockQualityGateStatusCondition({
-          metric: 'new_coverage',
+          metric: MetricKey.new_coverage,
           level: 'ERROR',
           error: '85'
         }),
         mockQualityGateStatusCondition({
-          metric: 'new_duplicated_lines_density',
+          metric: MetricKey.new_duplicated_lines_density,
           level: 'WARNING',
           warning: '5'
         })

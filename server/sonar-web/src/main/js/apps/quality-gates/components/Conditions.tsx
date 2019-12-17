@@ -26,6 +26,7 @@ import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n'
 import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { withAppState } from '../../../components/hoc/withAppState';
+import { MetricKey } from '../../../types/metrics';
 import Condition from './Condition';
 import ConditionModal from './ConditionModal';
 
@@ -42,7 +43,11 @@ interface Props {
 }
 
 const FORBIDDEN_METRIC_TYPES = ['DATA', 'DISTRIB', 'STRING', 'BOOL'];
-const FORBIDDEN_METRICS = ['alert_status', 'releasability_rating', 'security_review_rating'];
+const FORBIDDEN_METRICS: string[] = [
+  MetricKey.alert_status,
+  MetricKey.releasability_rating,
+  MetricKey.security_review_rating
+];
 
 export class Conditions extends React.PureComponent<Props> {
   renderConditionsTable = (conditions: T.Condition[], scope: 'new' | 'overall') => {

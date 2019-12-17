@@ -20,6 +20,7 @@
 import * as React from 'react';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import { getLocalizedMetricName } from 'sonar-ui-common/helpers/l10n';
+import { isMetricKey, MetricKey } from '../../../types/metrics';
 import Measure from '../../measure/Measure';
 
 export interface MeasureWithMetric {
@@ -38,9 +39,10 @@ export default function MeasuresOverlayMeasure({ measure }: Props) {
       data-metric={measure.metric.key}
       key={measure.metric.key}>
       <span className="measure-name">
-        {['bugs', 'vulnerabilities', 'code_smells'].includes(measure.metric.key) && (
-          <IssueTypeIcon className="little-spacer-right" query={measure.metric.key} />
-        )}
+        {isMetricKey(measure.metric.key) &&
+          [MetricKey.bugs, MetricKey.vulnerabilities, MetricKey.code_smells].includes(
+            measure.metric.key
+          ) && <IssueTypeIcon className="little-spacer-right" query={measure.metric.key} />}
         {getLocalizedMetricName(measure.metric)}
       </span>
       <span className="measure-value">

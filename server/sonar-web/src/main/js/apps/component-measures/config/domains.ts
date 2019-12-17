@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { MetricKey } from '../../../types/metrics';
+
 interface Domains {
   [domain: string]: { categories?: string[]; order: string[] };
 }
@@ -26,14 +28,14 @@ export const domains: Domains = {
     categories: ['new_code_category', 'overall_category'],
     order: [
       'new_code_category',
-      'new_bugs',
-      'new_reliability_rating',
-      'new_reliability_remediation_effort',
+      MetricKey.new_bugs,
+      MetricKey.new_reliability_rating,
+      MetricKey.new_reliability_remediation_effort,
 
       'overall_category',
-      'bugs',
-      'reliability_rating',
-      'reliability_remediation_effort'
+      MetricKey.bugs,
+      MetricKey.reliability_rating,
+      MetricKey.reliability_remediation_effort
     ]
   },
 
@@ -41,16 +43,16 @@ export const domains: Domains = {
     categories: ['new_code_category', 'overall_category'],
     order: [
       'new_code_category',
-      'new_vulnerabilities',
-      'new_security_rating',
-      'new_security_remediation_effort',
-      'new_security_hotspots',
+      MetricKey.new_vulnerabilities,
+      MetricKey.new_security_rating,
+      MetricKey.new_security_remediation_effort,
+      MetricKey.new_security_hotspots,
 
       'overall_category',
-      'vulnerabilities',
-      'security_rating',
-      'security_remediation_effort',
-      'security_hotspots'
+      MetricKey.vulnerabilities,
+      MetricKey.security_rating,
+      MetricKey.security_remediation_effort,
+      MetricKey.security_hotspots
     ]
   },
 
@@ -58,17 +60,17 @@ export const domains: Domains = {
     categories: ['new_code_category', 'overall_category'],
     order: [
       'new_code_category',
-      'new_code_smells',
-      'new_technical_debt',
-      'new_sqale_debt_ratio',
-      'new_maintainability_rating',
+      MetricKey.new_code_smells,
+      MetricKey.new_technical_debt,
+      MetricKey.new_sqale_debt_ratio,
+      MetricKey.new_maintainability_rating,
 
       'overall_category',
-      'code_smells',
-      'sqale_index',
-      'sqale_debt_ratio',
-      'sqale_rating',
-      'effort_to_reach_maintainability_rating_a'
+      MetricKey.code_smells,
+      MetricKey.sqale_index,
+      MetricKey.sqale_debt_ratio,
+      MetricKey.sqale_rating,
+      MetricKey.effort_to_reach_maintainability_rating_a
     ]
   },
 
@@ -76,31 +78,30 @@ export const domains: Domains = {
     categories: ['new_code_category', 'overall_category', 'tests_category'],
     order: [
       'new_code_category',
-      'new_coverage',
-      'new_lines_to_cover',
-      'new_uncovered_lines',
-      'new_line_coverage',
-      'new_conditions_to_cover',
-      'new_uncovered_conditions',
-      'new_branch_coverage',
+      MetricKey.new_coverage,
+      MetricKey.new_lines_to_cover,
+      MetricKey.new_uncovered_lines,
+      MetricKey.new_line_coverage,
+      MetricKey.new_conditions_to_cover,
+      MetricKey.new_uncovered_conditions,
+      MetricKey.new_branch_coverage,
 
       'overall_category',
-      'coverage',
-      'lines_to_cover',
-      'uncovered_lines',
-      'line_coverage',
-      'conditions_to_cover',
-      'uncovered_conditions',
-      'branch_coverage',
+      MetricKey.coverage,
+      MetricKey.lines_to_cover,
+      MetricKey.uncovered_lines,
+      MetricKey.line_coverage,
+      MetricKey.conditions_to_cover,
+      MetricKey.uncovered_conditions,
+      MetricKey.branch_coverage,
 
       'tests_category',
-      'tests',
-      'test_success',
-      'test_errors',
-      'test_failures',
-      'skipped_tests',
-      'test_success_density',
-      'test_execution_time'
+      MetricKey.tests,
+      MetricKey.test_errors,
+      MetricKey.test_failures,
+      MetricKey.skipped_tests,
+      MetricKey.test_success_density,
+      MetricKey.test_execution_time
     ]
   },
 
@@ -108,29 +109,29 @@ export const domains: Domains = {
     categories: ['new_code_category', 'overall_category'],
     order: [
       'new_code_category',
-      'new_duplicated_lines_density',
-      'new_duplicated_lines',
-      'new_duplicated_blocks',
+      MetricKey.new_duplicated_lines_density,
+      MetricKey.new_duplicated_lines,
+      MetricKey.new_duplicated_blocks,
 
       'overall_category',
-      'duplicated_lines_density',
-      'duplicated_lines',
-      'duplicated_blocks',
-      'duplicated_files'
+      MetricKey.duplicated_lines_density,
+      MetricKey.duplicated_lines,
+      MetricKey.duplicated_blocks,
+      MetricKey.duplicated_files
     ]
   },
 
   Size: {
     order: [
-      'new_lines',
+      MetricKey.new_lines,
 
-      'ncloc',
-      'lines',
-      'statements',
-      'functions',
-      'classes',
-      'files',
-      'directories'
+      MetricKey.ncloc,
+      MetricKey.lines,
+      MetricKey.statements,
+      MetricKey.functions,
+      MetricKey.classes,
+      MetricKey.files,
+      MetricKey.directories
     ]
   },
 
@@ -144,23 +145,23 @@ export const domains: Domains = {
 
   Issues: {
     order: [
-      'new_violations',
-      'new_blocker_violations',
-      'new_critical_violations',
-      'new_major_violations',
-      'new_minor_violations',
-      'new_info_violations',
+      MetricKey.new_violations,
+      MetricKey.new_blocker_violations,
+      MetricKey.new_critical_violations,
+      MetricKey.new_major_violations,
+      MetricKey.new_minor_violations,
+      MetricKey.new_info_violations,
 
-      'violations',
-      'blocker_violations',
-      'critical_violations',
-      'major_violations',
-      'minor_violations',
-      'info_violations',
-      'open_issues',
-      'reopened_issues',
-      'confirmed_issues',
-      'false_positive_issues'
+      MetricKey.violations,
+      MetricKey.blocker_violations,
+      MetricKey.critical_violations,
+      MetricKey.major_violations,
+      MetricKey.minor_violations,
+      MetricKey.info_violations,
+      MetricKey.open_issues,
+      MetricKey.reopened_issues,
+      MetricKey.confirmed_issues,
+      MetricKey.false_positive_issues
     ]
   }
 };

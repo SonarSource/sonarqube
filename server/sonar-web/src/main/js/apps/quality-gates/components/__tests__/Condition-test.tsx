@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockCondition, mockMetric, mockQualityGate } from '../../../../helpers/testMocks';
+import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
+import { mockCondition, mockMetric } from '../../../../helpers/testMocks';
 import Condition from '../Condition';
 
 it('should render correctly', () => {

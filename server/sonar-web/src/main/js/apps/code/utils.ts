@@ -20,6 +20,7 @@
 import { getBreadcrumbs, getChildren, getComponent } from '../../api/components';
 import { getBranchLikeQuery, isPullRequest } from '../../helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
+import { MetricKey } from '../../types/metrics';
 import {
   addComponent,
   addComponentBreadcrumbs,
@@ -30,34 +31,34 @@ import {
 } from './bucket';
 
 const METRICS = [
-  'ncloc',
-  'bugs',
-  'vulnerabilities',
-  'code_smells',
-  'security_hotspots',
-  'coverage',
-  'duplicated_lines_density'
+  MetricKey.ncloc,
+  MetricKey.bugs,
+  MetricKey.vulnerabilities,
+  MetricKey.code_smells,
+  MetricKey.security_hotspots,
+  MetricKey.coverage,
+  MetricKey.duplicated_lines_density
 ];
 
-const APPLICATION_METRICS = ['alert_status', ...METRICS];
+const APPLICATION_METRICS = [MetricKey.alert_status, ...METRICS];
 
 const PORTFOLIO_METRICS = [
-  'releasability_rating',
-  'reliability_rating',
-  'security_rating',
-  'security_review_rating',
-  'sqale_rating',
-  'ncloc'
+  MetricKey.releasability_rating,
+  MetricKey.reliability_rating,
+  MetricKey.security_rating,
+  MetricKey.security_review_rating,
+  MetricKey.sqale_rating,
+  MetricKey.ncloc
 ];
 
 const LEAK_METRICS = [
-  'new_lines',
-  'bugs',
-  'vulnerabilities',
-  'code_smells',
-  'security_hotspots',
-  'new_coverage',
-  'new_duplicated_lines_density'
+  MetricKey.new_lines,
+  MetricKey.bugs,
+  MetricKey.vulnerabilities,
+  MetricKey.code_smells,
+  MetricKey.security_hotspots,
+  MetricKey.new_coverage,
+  MetricKey.new_duplicated_lines_density
 ];
 
 const PAGE_SIZE = 100;
@@ -107,7 +108,7 @@ export function getCodeMetrics(
 ) {
   if (['VW', 'SVW'].includes(qualifier)) {
     const metrics = [...PORTFOLIO_METRICS];
-    return options.includeQGStatus ? metrics.concat('alert_status') : metrics;
+    return options.includeQGStatus ? metrics.concat(MetricKey.alert_status) : metrics;
   }
   if (qualifier === 'APP') {
     return [...APPLICATION_METRICS];

@@ -19,7 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockMetric, mockQualityGate } from '../../../../helpers/testMocks';
+import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
+import { mockMetric } from '../../../../helpers/testMocks';
+import { MetricKey } from '../../../../types/metrics';
 import ConditionModal from '../ConditionModal';
 
 it('should render correctly', () => {
@@ -40,14 +42,12 @@ it('should correctly handle a metric selection', () => {
 it('should correctly switch scope', () => {
   const wrapper = shallowRender({
     metrics: [
-      mockMetric({ id: 'new_coverage', key: 'new_coverage', name: 'Coverage on New Code' }),
+      mockMetric({ key: MetricKey.new_coverage }),
       mockMetric({
-        id: 'new_duplication',
-        key: 'new_duplication',
-        name: 'Duplication on New Code'
+        key: MetricKey.new_duplicated_lines
       }),
       mockMetric(),
-      mockMetric({ id: 'duplication', key: 'duplication', name: 'Duplication' })
+      mockMetric({ key: MetricKey.duplicated_lines })
     ]
   });
   expect(wrapper).toMatchSnapshot();
@@ -64,12 +64,8 @@ function shallowRender(props: Partial<ConditionModal['props']> = {}) {
     <ConditionModal
       header="header"
       metrics={[
-        mockMetric({ id: 'new_coverage', key: 'new_coverage', name: 'Coverage on New Code' }),
-        mockMetric({
-          id: 'new_duplication',
-          key: 'new_duplication',
-          name: 'Duplication on New Code'
-        })
+        mockMetric({ key: MetricKey.new_coverage }),
+        mockMetric({ key: MetricKey.new_duplicated_lines })
       ]}
       onAddCondition={jest.fn()}
       onClose={jest.fn()}

@@ -19,7 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockCondition, mockMetric, mockQualityGate } from '../../../../helpers/testMocks';
+import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
+import { mockCondition, mockMetric } from '../../../../helpers/testMocks';
+import { MetricKey } from '../../../../types/metrics';
 import { Conditions } from '../Conditions';
 
 it('should render correctly', () => {
@@ -30,9 +32,9 @@ it('should render correctly with new code conditions', () => {
   const wrapper = shallowRender({
     conditions: [
       mockCondition(),
-      mockCondition({ id: 2, metric: 'duplication' }),
-      mockCondition({ id: 3, metric: 'new_coverage' }),
-      mockCondition({ id: 4, metric: 'new_duplication' })
+      mockCondition({ id: 2, metric: MetricKey.duplicated_lines }),
+      mockCondition({ id: 3, metric: MetricKey.new_coverage }),
+      mockCondition({ id: 4, metric: MetricKey.new_duplicated_lines })
     ]
   });
   expect(wrapper).toMatchSnapshot();
@@ -53,19 +55,15 @@ function shallowRender(props: Partial<Conditions['props']> = {}) {
     <Conditions
       appState={{ branchesEnabled: true }}
       canEdit={false}
-      conditions={[mockCondition(), mockCondition({ id: 2, metric: 'duplication' })]}
+      conditions={[mockCondition(), mockCondition({ id: 2, metric: MetricKey.duplicated_lines })]}
       metrics={{
-        coverage: mockMetric(),
-        duplication: mockMetric({ id: 'duplication', key: 'duplication', name: 'Duplication' }),
-        new_coverage: mockMetric({
-          id: 'new_coverage',
-          key: 'new_coverage',
-          name: 'Coverage on New Code'
+        [MetricKey.coverage]: mockMetric(),
+        [MetricKey.duplicated_lines]: mockMetric({ key: MetricKey.duplicated_lines }),
+        [MetricKey.new_coverage]: mockMetric({
+          key: MetricKey.new_coverage
         }),
-        new_duplication: mockMetric({
-          id: 'new_duplication',
-          key: 'new_duplication',
-          name: 'Duplication on New Code'
+        [MetricKey.new_duplicated_lines]: mockMetric({
+          key: MetricKey.new_duplicated_lines
         })
       }}
       onAddCondition={jest.fn()}

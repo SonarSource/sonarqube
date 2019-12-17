@@ -75,9 +75,9 @@ exports[`should render correctly 1`] = `
         }
         metric={
           Object {
-            "id": "coverage",
+            "id": "bugs",
             "key": "bugs",
-            "name": "Coverage",
+            "name": "Bugs",
             "type": "PERCENT",
           }
         }
@@ -111,9 +111,9 @@ exports[`should render correctly 1`] = `
         }
         metric={
           Object {
-            "id": "coverage",
+            "id": "vulnerabilities",
             "key": "vulnerabilities",
-            "name": "Coverage",
+            "name": "Vulnerabilities",
             "type": "PERCENT",
           }
         }
@@ -205,9 +205,9 @@ exports[`should render correctly for a file 1`] = `
         }
         metric={
           Object {
-            "id": "coverage",
+            "id": "bugs",
             "key": "bugs",
-            "name": "Coverage",
+            "name": "Bugs",
             "type": "PERCENT",
           }
         }
@@ -239,9 +239,9 @@ exports[`should render correctly for a file 1`] = `
         }
         metric={
           Object {
-            "id": "coverage",
+            "id": "vulnerabilities",
             "key": "vulnerabilities",
-            "name": "Coverage",
+            "name": "Vulnerabilities",
             "type": "PERCENT",
           }
         }

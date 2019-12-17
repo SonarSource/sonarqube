@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { MetricKey } from '../../../types/metrics';
 import * as utils from '../utils';
 
 const MEASURES = [
   {
     metric: {
       id: '1',
-      key: 'lines_to_cover',
+      key: MetricKey.lines_to_cover,
       type: 'INT',
       name: 'Lines to Cover',
       domain: 'Coverage'
@@ -35,7 +36,7 @@ const MEASURES = [
   {
     metric: {
       id: '2',
-      key: 'coverage',
+      key: MetricKey.coverage,
       type: 'PERCENT',
       name: 'Coverage',
       domain: 'Coverage'
@@ -47,7 +48,7 @@ const MEASURES = [
   {
     metric: {
       id: '3',
-      key: 'duplicated_lines_density',
+      key: MetricKey.duplicated_lines_density,
       type: 'PERCENT',
       name: 'Duplicated Lines (%)',
       domain: 'Duplications'
@@ -62,9 +63,14 @@ describe('filterMeasures', () => {
   it('should exclude banned measures', () => {
     expect(
       utils.filterMeasures([
-        { metric: { id: '1', key: 'bugs', name: 'Bugs', type: 'INT' } },
+        { metric: { id: '1', key: MetricKey.bugs, name: 'Bugs', type: 'INT' } },
         {
-          metric: { id: '2', key: 'critical_violations', name: 'Critical Violations', type: 'INT' }
+          metric: {
+            id: '2',
+            key: MetricKey.critical_violations,
+            name: 'Critical Violations',
+            type: 'INT'
+          }
         }
       ])
     ).toHaveLength(1);
@@ -76,13 +82,23 @@ describe('sortMeasures', () => {
     expect(
       utils.sortMeasures('Reliability', [
         {
-          metric: { id: '1', key: 'reliability_remediation_effort', name: 'new_bugs', type: 'INT' }
+          metric: {
+            id: '1',
+            key: MetricKey.reliability_remediation_effort,
+            name: 'new_bugs',
+            type: 'INT'
+          }
         },
         {
-          metric: { id: '2', key: 'new_reliability_remediation_effort', name: 'bugs', type: 'INT' }
+          metric: {
+            id: '2',
+            key: MetricKey.new_reliability_remediation_effort,
+            name: 'bugs',
+            type: 'INT'
+          }
         },
-        { metric: { id: '3', key: 'new_bugs', name: 'new_bugs', type: 'INT' } },
-        { metric: { id: '4', key: 'bugs', name: 'bugs', type: 'INT' } },
+        { metric: { id: '3', key: MetricKey.new_bugs, name: 'new_bugs', type: 'INT' } },
+        { metric: { id: '4', key: MetricKey.bugs, name: 'bugs', type: 'INT' } },
         'overall_category'
       ])
     ).toMatchSnapshot();
