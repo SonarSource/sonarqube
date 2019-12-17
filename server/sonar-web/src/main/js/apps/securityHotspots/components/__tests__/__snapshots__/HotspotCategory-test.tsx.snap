@@ -57,7 +57,7 @@ exports[`should handle collapse and expand 2`] = `
     <li
       key="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
     >
-      <Memo(HotspotListItem)
+      <HotspotListItem
         hotspot={
           Object {
             "author": "Developer 1",
@@ -114,7 +114,7 @@ exports[`should render correctly with hotspots 1`] = `
     <li
       key="h1"
     >
-      <Memo(HotspotListItem)
+      <HotspotListItem
         hotspot={
           Object {
             "author": "Developer 1",
@@ -139,7 +139,7 @@ exports[`should render correctly with hotspots 1`] = `
     <li
       key="h2"
     >
-      <Memo(HotspotListItem)
+      <HotspotListItem
         hotspot={
           Object {
             "author": "Developer 1",

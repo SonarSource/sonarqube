@@ -195,7 +195,7 @@ exports[`should render correctly: with sourcelines 1`] = `
               ],
               "tags": Array [],
             },
-            "resolution": "FALSE-POSITIVE",
+            "resolution": "FIXED",
             "rule": Object {
               "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
               "key": "squid:S2077",
@@ -205,7 +205,7 @@ exports[`should render correctly: with sourcelines 1`] = `
               "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
               "vulnerabilityProbability": "HIGH",
             },
-            "status": "RESOLVED",
+            "status": "REVIEWED",
             "textRange": Object {
               "endLine": 142,
               "endOffset": 83,

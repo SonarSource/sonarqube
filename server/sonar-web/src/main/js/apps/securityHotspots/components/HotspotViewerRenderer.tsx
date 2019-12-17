@@ -61,7 +61,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
           <div className="huge-spacer-bottom">
             <span>{translate('hotspot.status')}</span>
             <span className="badge little-spacer-left">
-              {translate('issue.status', hotspot.status)}
+              {translate('hotspot.status', hotspot.resolution || hotspot.status)}
             </span>
             {hotspot.assignee && hotspot.assignee.name && (
               <>

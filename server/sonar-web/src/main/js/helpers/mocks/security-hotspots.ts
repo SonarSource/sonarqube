@@ -21,6 +21,7 @@ import { ComponentQualifier } from '../../types/component';
 import {
   DetailedHotspot,
   DetailedHotspotRule,
+  HotspotResolution,
   HotspotStatus,
   RawHotspot,
   RiskExposure
@@ -56,9 +57,9 @@ export function mockDetailledHotspot(overrides?: Partial<DetailedHotspot>): Deta
     line: 142,
     message: "'3' is a magic number.",
     project: mockComponent({ qualifier: ComponentQualifier.Project }),
-    resolution: 'FALSE-POSITIVE',
+    resolution: HotspotResolution.FIXED,
     rule: mockDetailledHotspotRule(),
-    status: 'RESOLVED',
+    status: HotspotStatus.REVIEWED,
     textRange: {
       startLine: 142,
       endLine: 142,

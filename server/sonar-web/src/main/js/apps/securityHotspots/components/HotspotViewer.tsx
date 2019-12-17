@@ -67,6 +67,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
 
   handleHotspotUpdate = (data: HotspotUpdateFields) => {
     this.props.onUpdateHotspot({ key: this.props.hotspotKey, ...data });
+    this.fetchHotspot();
   };
 
   render() {
