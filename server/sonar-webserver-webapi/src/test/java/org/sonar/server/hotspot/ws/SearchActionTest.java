@@ -52,7 +52,6 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueIndex;
@@ -64,6 +63,7 @@ import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Hotspots;
@@ -105,7 +105,8 @@ public class SearchActionTest {
 
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
-  private StartupIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
+  private ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
+  private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
   private HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(defaultOrganizationProvider);
 
   private SearchAction underTest = new SearchAction(dbClient, userSessionRule, issueIndex, responseFormatter);
@@ -268,15 +269,14 @@ public class SearchActionTest {
   }
 
   @Test
-  public void fails_with_NotFoundException_if_project_is_not_a_project() {
+  public void fails_with_NotFoundException_if_project_is_neither_a_project_nor_an_application() {
     ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto directory = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "foo"));
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
-    ComponentDto portfolio = dbTester.components().insertPrivatePortfolio(dbTester.getDefaultOrganization());
-    ComponentDto application = dbTester.components().insertPrivateApplication(dbTester.getDefaultOrganization());
+    ComponentDto portfolio = dbTester.components().insertPrivatePortfolio();
     TestRequest request = actionTester.newRequest();
 
-    for (ComponentDto component : Arrays.asList(directory, file, portfolio, application)) {
+    for (ComponentDto component : Arrays.asList(directory, file, portfolio)) {
       request.setParam("projectKey", component.getKey());
 
       assertThatThrownBy(request::execute)
@@ -297,11 +297,34 @@ public class SearchActionTest {
   }
 
   @Test
+  public void fails_with_ForbiddenException_if_application_is_private_and_not_allowed() {
+    ComponentDto application = dbTester.components().insertPrivateApplication();
+    userSessionRule.registerComponents(application);
+    TestRequest request = newRequest(application);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+  }
+
+  @Test
   public void succeeds_on_public_project() {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);
 
     SearchWsResponse response = newRequest(project)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList()).isEmpty();
+    assertThat(response.getComponentsList()).isEmpty();
+  }
+
+  @Test
+  public void succeeds_on_public_application() {
+    ComponentDto application = dbTester.components().insertPublicApplication();
+    userSessionRule.registerComponents(application);
+
+    SearchWsResponse response = newRequest(application)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList()).isEmpty();
@@ -315,6 +338,19 @@ public class SearchActionTest {
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
 
     SearchWsResponse response = newRequest(project)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList()).isEmpty();
+    assertThat(response.getComponentsList()).isEmpty();
+  }
+
+  @Test
+  public void succeeds_on_private_application_with_permission() {
+    ComponentDto application = dbTester.components().insertPrivateApplication();
+    userSessionRule.registerComponents(application);
+    userSessionRule.logIn().addProjectPermission(UserRole.USER, application);
+
+    SearchWsResponse response = newRequest(application)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList()).isEmpty();
@@ -460,6 +496,93 @@ public class SearchActionTest {
     assertThat(responseProject2.getComponentsList())
       .extracting(Component::getKey)
       .containsOnly(project2.getKey(), file2.getKey());
+  }
+
+  @Test
+  public void returns_hotspots_of_specified_application() {
+    ComponentDto application1 = dbTester.components().insertPublicApplication();
+    ComponentDto application2 = dbTester.components().insertPublicApplication();
+    ComponentDto project1 = dbTester.components().insertPublicProject();
+    ComponentDto project2 = dbTester.components().insertPublicProject();
+    dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project1, application1));
+    dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project2, application2));
+    indexViews();
+    userSessionRule.registerComponents(application1, application2, project1, project2);
+    indexPermissions();
+    ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project1));
+    ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project2));
+    IssueDto[] hotspots2 = IntStream.range(0, 1 + RANDOM.nextInt(10))
+      .mapToObj(i -> {
+        RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+        insertHotspot(project1, file1, rule);
+        return insertHotspot(project2, file2, rule);
+      })
+      .toArray(IssueDto[]::new);
+    indexIssues();
+
+    SearchWsResponse responseApplication1 = newRequest(application1)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(responseApplication1.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .doesNotContainAnyElementsOf(Arrays.stream(hotspots2).map(IssueDto::getKey).collect(toList()));
+    assertThat(responseApplication1.getComponentsList())
+      .extracting(Component::getKey)
+      .containsOnly(project1.getKey(), file1.getKey());
+
+    SearchWsResponse responseApplication2 = newRequest(application2)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(responseApplication2.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsOnly(Arrays.stream(hotspots2).map(IssueDto::getKey).toArray(String[]::new));
+    assertThat(responseApplication2.getComponentsList())
+      .extracting(Component::getKey)
+      .containsOnly(project2.getKey(), file2.getKey());
+  }
+
+  @Test
+  public void returns_hotspots_of_specified_application_branch() {
+    ComponentDto application = dbTester.components().insertPublicApplication();
+    ComponentDto applicationBranch = dbTester.components().insertProjectBranch(application);
+    ComponentDto project1 = dbTester.components().insertPublicProject();
+    ComponentDto project2 = dbTester.components().insertPublicProject();
+    dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project1, application));
+    dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project2, applicationBranch));
+    indexViews();
+    userSessionRule.registerComponents(application, applicationBranch, project1, project2);
+    indexPermissions();
+    ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project1));
+    ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project2));
+    IssueDto[] hotspots2 = IntStream.range(0, 1 + RANDOM.nextInt(10))
+      .mapToObj(i -> {
+        RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+        insertHotspot(project1, file1, rule);
+        return insertHotspot(project2, file2, rule);
+      })
+      .toArray(IssueDto[]::new);
+    indexIssues();
+
+    SearchWsResponse responseApplication = newRequest(application)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(responseApplication.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .doesNotContainAnyElementsOf(Arrays.stream(hotspots2).map(IssueDto::getKey).collect(toList()));
+    assertThat(responseApplication.getComponentsList())
+      .extracting(Component::getKey)
+      .containsOnly(project1.getKey(), file1.getKey());
+
+    SearchWsResponse responseApplicationBranch = newRequest(applicationBranch)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(responseApplicationBranch.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsOnly(Arrays.stream(hotspots2).map(IssueDto::getKey).toArray(String[]::new));
+    assertThat(responseApplicationBranch.getComponentsList())
+      .extracting(Component::getKey)
+      .containsOnly(project2.getKey(), file2.getKey());
+
   }
 
   @Test
@@ -1259,6 +1382,10 @@ public class SearchActionTest {
 
   private void indexIssues() {
     issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
+  }
+
+  private void indexViews() {
+    viewIndexer.indexOnStartup(viewIndexer.getIndexTypes());
   }
 
   private RuleDefinitionDto newRule(RuleType ruleType) {

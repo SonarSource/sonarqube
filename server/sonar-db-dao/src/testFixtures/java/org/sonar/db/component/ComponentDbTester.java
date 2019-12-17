@@ -167,13 +167,28 @@ public class ComponentDbTester {
   }
 
   @SafeVarargs
+  public final ComponentDto insertPrivatePortfolio(Consumer<ComponentDto>... dtoPopulators) {
+    return insertComponentImpl(ComponentTesting.newView(db.getDefaultOrganization()).setPrivate(true), true, dtoPopulators);
+  }
+
+  @SafeVarargs
   public final ComponentDto insertPrivatePortfolio(OrganizationDto organization, Consumer<ComponentDto>... dtoPopulators) {
     return insertComponentImpl(ComponentTesting.newView(organization).setPrivate(true), true, dtoPopulators);
   }
 
   @SafeVarargs
+  public final ComponentDto insertPublicApplication(Consumer<ComponentDto>... dtoPopulators) {
+    return insertComponentImpl(ComponentTesting.newApplication(db.getDefaultOrganization()).setPrivate(false), false, dtoPopulators);
+  }
+
+  @SafeVarargs
   public final ComponentDto insertPublicApplication(OrganizationDto organization, Consumer<ComponentDto>... dtoPopulators) {
     return insertComponentImpl(ComponentTesting.newApplication(organization).setPrivate(false), false, dtoPopulators);
+  }
+
+  @SafeVarargs
+  public final ComponentDto insertPrivateApplication(Consumer<ComponentDto>... dtoPopulators) {
+    return insertComponentImpl(ComponentTesting.newApplication(db.getDefaultOrganization()).setPrivate(true), true, dtoPopulators);
   }
 
   @SafeVarargs

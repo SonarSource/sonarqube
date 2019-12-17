@@ -60,6 +60,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Hotspots.SearchWsResponse;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
@@ -84,6 +85,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsUtils.nullToEmpty;
 
 public class SearchAction implements HotspotsWsAction {
+  private static final Set<String> SUPPORTED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP);
   private static final String PARAM_PROJECT_KEY = "projectKey";
   private static final String PARAM_STATUS = "status";
   private static final String PARAM_RESOLUTION = "resolution";
@@ -118,7 +120,7 @@ public class SearchAction implements HotspotsWsAction {
     action.addPagingParams(100);
     action.createParam(PARAM_PROJECT_KEY)
       .setDescription(format(
-        "Key of the project. This parameter is required unless %s is provided.",
+        "Key of the project or application. This parameter is required unless %s is provided.",
         PARAM_HOTSPOTS))
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam(PARAM_BRANCH)
@@ -162,7 +164,7 @@ public class SearchAction implements HotspotsWsAction {
     WsRequest wsRequest = toWsRequest(request);
     validateParameters(wsRequest);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<ComponentDto> project = getAndValidateProject(dbSession, wsRequest);
+      Optional<ComponentDto> project = getAndValidateProjectOrApplication(dbSession, wsRequest);
 
       SearchResponseData searchResponseData = searchHotspots(wsRequest, dbSession, project, wsRequest.getHotspotKeys());
       loadComponents(dbSession, searchResponseData);
@@ -222,10 +224,10 @@ public class SearchAction implements HotspotsWsAction {
     }
   }
 
-  private Optional<ComponentDto> getAndValidateProject(DbSession dbSession, WsRequest wsRequest) {
+  private Optional<ComponentDto> getAndValidateProjectOrApplication(DbSession dbSession, WsRequest wsRequest) {
     return wsRequest.getProjectKey().map(projectKey -> {
       ComponentDto project = getProject(dbSession, projectKey, wsRequest.getBranch(), wsRequest.getPullRequest())
-        .filter(t -> Scopes.PROJECT.equals(t.scope()) && Qualifiers.PROJECT.equals(t.qualifier()))
+        .filter(t -> Scopes.PROJECT.equals(t.scope()) && SUPPORTED_QUALIFIERS.contains(t.qualifier()))
         .filter(ComponentDto::isEnabled)
         .orElseThrow(() -> new NotFoundException(format("Project '%s' not found", projectKey)));
       userSession.checkComponentPermission(UserRole.USER, project);
@@ -274,13 +276,20 @@ public class SearchAction implements HotspotsWsAction {
     project.ifPresent(p -> {
       builder.organizationUuid(p.getOrganizationUuid());
 
+      String projectUuid = firstNonNull(p.getMainBranchProjectUuid(), p.uuid());
+      if (Qualifiers.APP.equals(p.qualifier())) {
+        builder.viewUuids(singletonList(projectUuid));
+      } else {
+        builder.projectUuids(singletonList(projectUuid));
+      }
+
       if (p.getMainBranchProjectUuid() == null) {
         builder.mainBranch(true);
-        builder.projectUuids(singletonList(p.uuid()));
       } else {
-        builder.branchUuid(p.projectUuid());
+        builder.branchUuid(p.uuid());
         builder.mainBranch(false);
       }
+
       if (wsRequest.isSinceLeakPeriod()) {
         dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, p.uuid())
           .map(s -> longToDate(s.getPeriodDate()))
