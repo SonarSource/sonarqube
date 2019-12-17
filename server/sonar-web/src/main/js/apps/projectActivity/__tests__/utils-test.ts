@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as dates from 'sonar-ui-common/helpers/dates';
+import { DEFAULT_GRAPH } from '../../../components/activity-graph/utils';
+import { GraphType } from '../../../types/project-activity';
 import * as utils from '../utils';
 
 jest.mock('date-fns/start_of_day', () =>
@@ -67,78 +69,34 @@ const ANALYSES = [
   { key: 'AVvtGF3IY6vCuQNDdwxI', date: dates.parseDate('2017-05-09T12:03:59.000Z'), events: [] }
 ];
 
-const HISTORY = [
-  {
-    metric: 'lines_to_cover',
-    history: [
-      { date: dates.parseDate('2017-04-27T08:21:32.000Z'), value: '100' },
-      { date: dates.parseDate('2017-04-30T23:06:24.000Z'), value: '100' }
-    ]
-  },
-  {
-    metric: 'uncovered_lines',
-    history: [
-      { date: dates.parseDate('2017-04-27T08:21:32.000Z'), value: '12' },
-      { date: dates.parseDate('2017-04-30T23:06:24.000Z'), value: '50' }
-    ]
-  }
-];
-
-const METRICS = [
-  { id: '1', key: 'uncovered_lines', name: 'Uncovered Lines', type: 'INT' },
-  { id: '2', key: 'lines_to_cover', name: 'Line to Cover', type: 'PERCENT' }
-];
-
 const QUERY = {
   category: '',
   from: dates.parseDate('2017-04-27T08:21:32.000Z'),
-  graph: utils.DEFAULT_GRAPH,
+  graph: DEFAULT_GRAPH,
   project: 'foo',
   to: undefined,
   selectedDate: undefined,
   customMetrics: ['foo', 'bar', 'baz']
 };
 
-describe('generateCoveredLinesMetric', () => {
-  it('should correctly generate covered lines metric', () => {
-    expect(utils.generateCoveredLinesMetric(HISTORY[1], HISTORY)).toMatchSnapshot();
-  });
-});
-
-describe('generateSeries', () => {
-  it('should correctly generate the series', () => {
-    expect(
-      utils.generateSeries(HISTORY, 'coverage', METRICS, ['uncovered_lines', 'lines_to_cover'])
-    ).toMatchSnapshot();
-  });
-});
-
 describe('getAnalysesByVersionByDay', () => {
   it('should correctly map analysis by versions and by days', () => {
     expect(
       utils.getAnalysesByVersionByDay(ANALYSES, {
-        category: '',
-        customMetrics: [],
-        graph: utils.DEFAULT_GRAPH,
-        project: 'foo'
+        category: ''
       })
     ).toMatchSnapshot();
   });
   it('should also filter analysis based on the query', () => {
     expect(
       utils.getAnalysesByVersionByDay(ANALYSES, {
-        category: 'QUALITY_PROFILE',
-        customMetrics: [],
-        graph: utils.DEFAULT_GRAPH,
-        project: 'foo'
+        category: 'QUALITY_PROFILE'
       })
     ).toMatchSnapshot();
     expect(
       utils.getAnalysesByVersionByDay(ANALYSES, {
         category: '',
-        customMetrics: [],
-        graph: utils.DEFAULT_GRAPH,
-        project: 'foo',
+
         to: dates.parseDate('2017-06-09T11:12:27.000Z'),
         from: dates.parseDate('2017-05-18T14:13:07.000Z')
       })
@@ -170,51 +128,10 @@ describe('getAnalysesByVersionByDay', () => {
           }
         ],
         {
-          category: '',
-          customMetrics: [],
-          graph: utils.DEFAULT_GRAPH,
-          project: 'foo'
+          category: ''
         }
       )
     ).toMatchSnapshot();
-  });
-});
-
-describe('getDisplayedHistoryMetrics', () => {
-  const customMetrics = ['foo', 'bar'];
-  it('should return only displayed metrics on the graph', () => {
-    expect(utils.getDisplayedHistoryMetrics(utils.DEFAULT_GRAPH, [])).toEqual([
-      'bugs',
-      'code_smells',
-      'vulnerabilities'
-    ]);
-    expect(utils.getDisplayedHistoryMetrics('coverage', customMetrics)).toEqual([
-      'lines_to_cover',
-      'uncovered_lines'
-    ]);
-  });
-  it('should return all custom metrics for the custom graph', () => {
-    expect(utils.getDisplayedHistoryMetrics('custom', customMetrics)).toEqual(customMetrics);
-  });
-});
-
-describe('getHistoryMetrics', () => {
-  const customMetrics = ['foo', 'bar'];
-  it('should return all metrics', () => {
-    expect(utils.getHistoryMetrics(utils.DEFAULT_GRAPH, [])).toEqual([
-      'bugs',
-      'code_smells',
-      'vulnerabilities',
-      'reliability_rating',
-      'security_rating',
-      'sqale_rating'
-    ]);
-    expect(utils.getHistoryMetrics('coverage', customMetrics)).toEqual([
-      'lines_to_cover',
-      'uncovered_lines',
-      'coverage'
-    ]);
-    expect(utils.getHistoryMetrics('custom', customMetrics)).toEqual(customMetrics);
   });
 });
 
@@ -236,11 +153,13 @@ describe('serializeQuery', () => {
       from: '2017-04-27T08:21:32+0000',
       project: 'foo'
     });
-    expect(utils.serializeQuery({ ...QUERY, graph: 'coverage', category: 'test' })).toEqual({
-      from: '2017-04-27T08:21:32+0000',
-      project: 'foo',
-      category: 'test'
-    });
+    expect(utils.serializeQuery({ ...QUERY, graph: GraphType.coverage, category: 'test' })).toEqual(
+      {
+        from: '2017-04-27T08:21:32+0000',
+        project: 'foo',
+        category: 'test'
+      }
+    );
   });
 });
 
@@ -252,59 +171,17 @@ describe('serializeUrlQuery', () => {
       custom_metrics: 'foo,bar,baz'
     });
     expect(
-      utils.serializeUrlQuery({ ...QUERY, graph: 'coverage', category: 'test', customMetrics: [] })
+      utils.serializeUrlQuery({
+        ...QUERY,
+        graph: GraphType.coverage,
+        category: 'test',
+        customMetrics: []
+      })
     ).toEqual({
       from: '2017-04-27T08:21:32+0000',
       id: 'foo',
-      graph: 'coverage',
+      graph: GraphType.coverage,
       category: 'test'
     });
-  });
-});
-
-describe('hasHistoryData', () => {
-  it('should correctly detect if there is history data', () => {
-    expect(
-      utils.hasHistoryData([
-        {
-          name: 'foo',
-          translatedName: 'foo',
-          type: 'INT',
-          data: [
-            { x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 },
-            { x: dates.parseDate('2017-04-30T23:06:24.000Z'), y: 2 }
-          ]
-        }
-      ])
-    ).toBeTruthy();
-    expect(
-      utils.hasHistoryData([
-        {
-          name: 'foo',
-          translatedName: 'foo',
-          type: 'INT',
-          data: []
-        },
-        {
-          name: 'bar',
-          translatedName: 'bar',
-          type: 'INT',
-          data: [
-            { x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 },
-            { x: dates.parseDate('2017-04-30T23:06:24.000Z'), y: 2 }
-          ]
-        }
-      ])
-    ).toBeTruthy();
-    expect(
-      utils.hasHistoryData([
-        {
-          name: 'bar',
-          translatedName: 'bar',
-          type: 'INT',
-          data: [{ x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 }]
-        }
-      ])
-    ).toBeFalsy();
   });
 });

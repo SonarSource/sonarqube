@@ -81,8 +81,8 @@
 }
 
 .project-activity-analysis.selected {
-  background-color: #ecf6fe;
   cursor: default;
+  background-color: var(--rowHoverHighlight);
 }
 
 .project-activity-analysis:focus {
@@ -90,7 +90,7 @@
 }
 
 .project-activity-analysis:hover {
-  background-color: #ecf6fe;
+  background-color: var(--rowHoverHighlight);
 }
 
 .project-activity-analysis + .project-activity-analysis {
@@ -172,77 +172,9 @@
   text-overflow: ellipsis;
 }
 
-.project-activity-graphs {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-}
-
-.project-activity-graph-container {
-  padding: 10px 0;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-}
-
-.project-activity-graph {
-  flex: 1;
-  overflow: hidden;
-}
-
-.project-activity-graph-legends {
-  flex-grow: 0;
-  padding-bottom: 16px;
-  text-align: center;
-}
-
-.project-activity-graph-legend-actionable {
-  display: inline-block;
-  padding: 4px 8px 4px 12px;
-  border-width: 1px;
-  border-style: solid;
-  border-radius: 12px;
-}
-
-.project-activity-graph-tooltip {
-  padding: 8px;
-}
-
-.project-activity-graph-tooltip-line {
-  height: 20px;
-}
-
-.project-activity-graph-tooltip-line + .project-activity-graph-tooltip-line {
-  padding-top: 4px;
-}
-
 .Select .project-activity-event-icon,
-.project-activity-graph-tooltip-line .project-activity-event-icon {
+.activity-graph-tooltip-line .project-activity-event-icon {
   margin-top: 1px;
-}
-
-.project-activity-graph-tooltip-issues-line {
-  height: 26px;
-  padding-bottom: 4px;
-}
-
-.project-activity-graph-tooltip-separator {
-  padding-left: 16px;
-  padding-right: 16px;
-}
-
-.project-activity-graph-tooltip-separator hr {
-  margin-top: 8px;
-  margin-bottom: 8px;
-}
-
-.project-activity-graph-tooltip-title,
-.project-activity-graph-tooltip-value {
-  font-weight: bold;
 }
 
 .baseline-marker {

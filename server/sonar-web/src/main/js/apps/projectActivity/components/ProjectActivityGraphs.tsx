@@ -19,26 +19,21 @@
  */
 import { debounce, findLast, maxBy, minBy, sortBy } from 'lodash';
 import * as React from 'react';
-import { save } from 'sonar-ui-common/helpers/storage';
+import GraphsHeader from '../../../components/activity-graph/GraphsHeader';
+import GraphsHistory from '../../../components/activity-graph/GraphsHistory';
+import GraphsZoom from '../../../components/activity-graph/GraphsZoom';
 import {
-  datesQueryChanged,
   generateSeries,
+  getActivityGraph,
   getDisplayedHistoryMetrics,
-  getProjectActivityGraph,
   getSeriesMetricType,
-  historyQueryChanged,
   isCustomGraph,
-  MeasureHistory,
-  Point,
-  PROJECT_ACTIVITY_GRAPH,
-  PROJECT_ACTIVITY_GRAPH_CUSTOM,
-  Query,
-  Serie,
+  saveActivityGraph,
   splitSeriesInGraphs
-} from '../utils';
-import GraphsHistory from './GraphsHistory';
-import GraphsZoom from './GraphsZoom';
-import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
+} from '../../../components/activity-graph/utils';
+import { GraphType, MeasureHistory, Point, Serie } from '../../../types/project-activity';
+import { datesQueryChanged, historyQueryChanged, Query } from '../utils';
+import { PROJECT_ACTIVITY_GRAPH } from './ProjectActivityAppContainer';
 
 interface Props {
   analyses: T.ParsedAnalysis[];
@@ -148,20 +143,20 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
 
   addCustomMetric = (metric: string) => {
     const customMetrics = [...this.props.query.customMetrics, metric];
-    save(PROJECT_ACTIVITY_GRAPH_CUSTOM, customMetrics.join(','), this.props.project);
+    saveActivityGraph(PROJECT_ACTIVITY_GRAPH, this.props.project, GraphType.custom, customMetrics);
     this.props.updateQuery({ customMetrics });
   };
 
   removeCustomMetric = (removedMetric: string) => {
     const customMetrics = this.props.query.customMetrics.filter(metric => metric !== removedMetric);
-    save(PROJECT_ACTIVITY_GRAPH_CUSTOM, customMetrics.join(','), this.props.project);
+    saveActivityGraph(PROJECT_ACTIVITY_GRAPH, this.props.project, GraphType.custom, customMetrics);
     this.props.updateQuery({ customMetrics });
   };
 
-  updateGraph = (graph: string) => {
-    save(PROJECT_ACTIVITY_GRAPH, graph, this.props.project);
+  updateGraph = (graph: GraphType) => {
+    saveActivityGraph(PROJECT_ACTIVITY_GRAPH, this.props.project, graph);
     if (isCustomGraph(graph) && this.props.query.customMetrics.length <= 0) {
-      const { customGraphs } = getProjectActivityGraph(this.props.project);
+      const { customGraphs } = getActivityGraph(PROJECT_ACTIVITY_GRAPH, this.props.project);
       this.props.updateQuery({ graph, customMetrics: customGraphs });
     } else {
       this.props.updateQuery({ graph, customMetrics: [] });
@@ -198,8 +193,9 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
 
     return (
       <div className="project-activity-layout-page-main-inner boxed-group boxed-group-inner">
-        <ProjectActivityGraphsHeader
+        <GraphsHeader
           addCustomMetric={this.addCustomMetric}
+          className="big-spacer-bottom"
           graph={query.graph}
           metrics={metrics}
           metricsTypeFilter={this.getMetricsTypeFilter()}
@@ -209,7 +205,6 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
         />
         <GraphsHistory
           analyses={this.props.analyses}
-          eventFilter={query.category}
           graph={query.graph}
           graphEndDate={graphEndDate}
           graphStartDate={graphStartDate}
@@ -230,7 +225,7 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
           loading={loading}
           metricsType={getSeriesMetricType(series)}
           series={series}
-          showAreas={['coverage', 'duplications'].includes(query.graph)}
+          showAreas={[GraphType.coverage, GraphType.duplications].includes(query.graph)}
           updateGraphZoom={this.updateGraphZoom}
         />
       </div>

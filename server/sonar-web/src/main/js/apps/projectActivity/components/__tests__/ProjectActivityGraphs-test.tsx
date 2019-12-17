@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
-import { DEFAULT_GRAPH } from '../../utils';
+import { DEFAULT_GRAPH } from '../../../../components/activity-graph/utils';
 import ProjectActivityGraphs from '../ProjectActivityGraphs';
 
 const ANALYSES = [

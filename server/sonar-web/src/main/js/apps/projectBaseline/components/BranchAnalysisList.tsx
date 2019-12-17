@@ -156,10 +156,7 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
     const { analyses, loading, range } = this.state;
 
     const byVersionByDay = getAnalysesByVersionByDay(analyses, {
-      category: '',
-      customMetrics: [],
-      graph: '',
-      project: this.props.component
+      category: ''
     });
 
     const hasFilteredData =

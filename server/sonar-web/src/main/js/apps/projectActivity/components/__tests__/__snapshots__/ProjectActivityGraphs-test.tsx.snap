@@ -4,8 +4,9 @@ exports[`should render correctly the graph and legends 1`] = `
 <div
   className="project-activity-layout-page-main-inner boxed-group boxed-group-inner"
 >
-  <ProjectActivityGraphsHeader
+  <GraphsHeader
     addCustomMetric={[Function]}
+    className="big-spacer-bottom"
     graph="issues"
     metrics={
       Array [
@@ -58,7 +59,6 @@ exports[`should render correctly the graph and legends 1`] = `
         },
       ]
     }
-    eventFilter=""
     graph="issues"
     graphs={
       Array [

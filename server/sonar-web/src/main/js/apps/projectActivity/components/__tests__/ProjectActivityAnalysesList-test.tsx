@@ -20,9 +20,9 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
+import { DEFAULT_GRAPH } from '../../../../components/activity-graph/utils';
 import { mockParsedAnalysis } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
-import { DEFAULT_GRAPH } from '../../utils';
 import ProjectActivityAnalysesList from '../ProjectActivityAnalysesList';
 
 jest.mock('date-fns/start_of_day', () => (date: Date) => {

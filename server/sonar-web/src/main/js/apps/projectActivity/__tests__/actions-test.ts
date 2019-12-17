@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { parseDate } from 'sonar-ui-common/helpers/dates';
+import { DEFAULT_GRAPH } from '../../../components/activity-graph/utils';
 import * as actions from '../actions';
 
 const ANALYSES = [
@@ -69,7 +70,7 @@ const emptyState = {
   measuresHistory: [],
   measures: [],
   metrics: [],
-  query: { category: '', graph: '', project: '', customMetrics: [] }
+  query: { category: '', graph: DEFAULT_GRAPH, project: '', customMetrics: [] }
 };
 
 const state = { ...emptyState, analyses: ANALYSES };
