@@ -19,6 +19,7 @@
  */
 import { getJSON, post } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { BranchParameters } from '../types/branch-like';
 import {
   DetailedHotspot,
   HotspotSearchResponse,
@@ -29,11 +30,13 @@ export function setSecurityHotspotStatus(data: HotspotSetStatusRequest): Promise
   return post('/api/hotspots/change_status', data).catch(throwGlobalError);
 }
 
-export function getSecurityHotspots(data: {
-  projectKey: string;
-  p: number;
-  ps: number;
-}): Promise<HotspotSearchResponse> {
+export function getSecurityHotspots(
+  data: {
+    projectKey: string;
+    p: number;
+    ps: number;
+  } & BranchParameters
+): Promise<HotspotSearchResponse> {
   return getJSON('/api/hotspots/search', data).catch(throwGlobalError);
 }
 

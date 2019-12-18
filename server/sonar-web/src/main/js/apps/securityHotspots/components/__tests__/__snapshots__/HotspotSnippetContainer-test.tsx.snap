@@ -2,6 +2,14 @@
 
 exports[`should render correctly 1`] = `
 <HotspotSnippetContainerRenderer
+  branchLike={
+    Object {
+      "analysisDate": "2018-01-01",
+      "excludedFromPurge": true,
+      "isMain": false,
+      "name": "branch-6.7",
+    }
+  }
   highlightedSymbols={Array []}
   hotspot={
     Object {

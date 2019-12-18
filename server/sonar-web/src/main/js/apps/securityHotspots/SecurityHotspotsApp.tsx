@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { addNoFooterPageClass, removeNoFooterPageClass } from 'sonar-ui-common/helpers/pages';
 import { getSecurityHotspots } from '../../api/security-hotspots';
+import { getBranchLikeQuery } from '../../helpers/branch-like';
 import { getStandards } from '../../helpers/security-standard';
 import { BranchLike } from '../../types/branch-like';
 import { HotspotUpdate, RawHotspot } from '../../types/security-hotspots';
@@ -68,9 +69,16 @@ export default class SecurityHotspotsApp extends React.PureComponent<Props, Stat
   }
 
   fetchInitialData() {
+    const { branchLike, component } = this.props;
+
     return Promise.all([
       getStandards(),
-      getSecurityHotspots({ projectKey: this.props.component.key, p: 1, ps: PAGE_SIZE })
+      getSecurityHotspots({
+        projectKey: component.key,
+        p: 1,
+        ps: PAGE_SIZE,
+        ...getBranchLikeQuery(branchLike)
+      })
     ])
       .then(([{ sonarsourceSecurity }, response]) => {
         if (!this.mounted) {

@@ -22,6 +22,7 @@ import { range } from 'lodash';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getSources } from '../../../../api/components';
+import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockDetailledHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockSourceLine } from '../../../../helpers/testMocks';
 import HotspotSnippetContainer from '../HotspotSnippetContainer';
@@ -30,6 +31,8 @@ import HotspotSnippetContainerRenderer from '../HotspotSnippetContainerRenderer'
 jest.mock('../../../../api/components', () => ({
   getSources: jest.fn().mockResolvedValue([])
 }));
+
+const branch = mockBranch();
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -48,7 +51,11 @@ it('should load sources on mount', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(getSources).toBeCalled();
+  expect(getSources).toBeCalledWith(
+    expect.objectContaining({
+      branch: branch.name
+    })
+  );
   expect(wrapper.state().lastLine).toBeUndefined();
   expect(wrapper.state().sourceLines).toHaveLength(12);
 });
@@ -97,6 +104,11 @@ describe('Expansion', () => {
 
     await waitAndUpdate(wrapper);
 
+    expect(getSources).toBeCalledWith(
+      expect.objectContaining({
+        branch: branch.name
+      })
+    );
     expect(wrapper.state().sourceLines).toHaveLength(16);
   });
 
@@ -181,6 +193,6 @@ it('should handle symbol click', () => {
 
 function shallowRender(props?: Partial<HotspotSnippetContainer['props']>) {
   return shallow<HotspotSnippetContainer>(
-    <HotspotSnippetContainer hotspot={mockDetailledHotspot()} {...props} />
+    <HotspotSnippetContainer branchLike={branch} hotspot={mockDetailledHotspot()} {...props} />
   );
 }

@@ -22,7 +22,7 @@ import * as React from 'react';
 import { addNoFooterPageClass } from 'sonar-ui-common/helpers/pages';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getSecurityHotspots } from '../../../api/security-hotspots';
-import { mockMainBranch } from '../../../helpers/mocks/branch-like';
+import { mockBranch } from '../../../helpers/mocks/branch-like';
 import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
 import { getStandards } from '../../../helpers/security-standard';
 import { mockComponent } from '../../../helpers/testMocks';
@@ -43,6 +43,8 @@ jest.mock('../../../helpers/security-standard', () => ({
   getStandards: jest.fn()
 }));
 
+const branch = mockBranch();
+
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
@@ -62,7 +64,11 @@ it('should load data correctly', async () => {
 
   expect(addNoFooterPageClass).toBeCalled();
   expect(getStandards).toBeCalled();
-  expect(getSecurityHotspots).toBeCalled();
+  expect(getSecurityHotspots).toBeCalledWith(
+    expect.objectContaining({
+      branch: branch.name
+    })
+  );
 
   await waitAndUpdate(wrapper);
 
@@ -100,6 +106,6 @@ it('should handle hotspot update', async () => {
 
 function shallowRender(props: Partial<SecurityHotspotsApp['props']> = {}) {
   return shallow<SecurityHotspotsApp>(
-    <SecurityHotspotsApp branchLike={mockMainBranch()} component={mockComponent()} {...props} />
+    <SecurityHotspotsApp branchLike={branch} component={mockComponent()} {...props} />
   );
 }

@@ -6,8 +6,8 @@ exports[`should render correctly 1`] = `
     Object {
       "analysisDate": "2018-01-01",
       "excludedFromPurge": true,
-      "isMain": true,
-      "name": "master",
+      "isMain": false,
+      "name": "branch-6.7",
     }
   }
   hotspots={Array []}

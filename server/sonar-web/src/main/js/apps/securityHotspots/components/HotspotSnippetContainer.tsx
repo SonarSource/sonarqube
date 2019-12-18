@@ -77,14 +77,17 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
   }
 
   fetchSources() {
-    const { component, textRange } = this.props.hotspot;
+    const {
+      branchLike,
+      hotspot: { component, textRange }
+    } = this.props;
 
     const from = Math.max(1, textRange.startLine - BUFFER_LINES);
     // Add 1 to check for end-of-file:
     const to = textRange.endLine + BUFFER_LINES + 1;
 
     this.setState({ loading: true });
-    return getSources({ key: component.key, from, to })
+    return getSources({ key: component.key, from, to, ...getBranchLikeQuery(branchLike) })
       .then(sourceLines => {
         if (this.mounted) {
           const lastLine = this.checkLastLine(sourceLines, to);
