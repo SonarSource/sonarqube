@@ -176,6 +176,10 @@ public class XooRulesDefinition implements RulesDefinition {
       hotspot
         .addOwaspTop10(OwaspTop10.A1, OwaspTop10.A3)
         .addCwe(1, 89, 123, 863);
+
+      oneVulnerabilityIssuePerModule
+        .addOwaspTop10(OwaspTop10.A1, OwaspTop10.A3)
+        .addCwe(1, 89, 123, 863);
     }
 
     repo.done();

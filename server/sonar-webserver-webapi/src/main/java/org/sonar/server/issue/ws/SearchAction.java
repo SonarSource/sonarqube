@@ -193,7 +193,7 @@ public class SearchAction implements IssuesWsAction {
         new Change("8.2", "'REVIEWED', 'TO_REVIEW' status param values are no longer supported"),
         new Change("8.2", "Security hotspots are no longer returned"),
         new Change("8.2", "response field 'fromHotspot' has been deprecated and is no more populated"),
-        new Change("8.2", format("Status %s for Security Hotspots has been deprecated", STATUS_IN_REVIEW)),
+        new Change("8.2", "Status 'IN_REVIEW' for Security Hotspots has been deprecated"),
         new Change("7.8", format("added new Security Hotspots statuses : %s, %s and %s", STATUS_TO_REVIEW, STATUS_IN_REVIEW, STATUS_REVIEWED)),
         new Change("7.8", "Security hotspots are returned by default"),
         new Change("7.7", format("Value '%s' in parameter '%s' is deprecated, please use '%s' instead", DEPRECATED_PARAM_AUTHORS, FACETS, PARAM_AUTHOR)),
@@ -237,7 +237,7 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_STATUSES)
       .setDescription("Comma-separated list of statuses")
       .setExampleValue(STATUS_OPEN + "," + STATUS_REOPENED)
-      .setPossibleValues(STATUSES);
+      .setPossibleValues(getIssueStatuses());
     action.createParam(PARAM_RESOLUTIONS)
       .setDescription("Comma-separated list of resolutions")
       .setExampleValue(RESOLUTION_FIXED + "," + RESOLUTION_REMOVED)
@@ -310,6 +310,10 @@ public class SearchAction implements IssuesWsAction {
         "If this parameter is set to a truthy value, createdAfter must not be set and one component id or key must be provided.")
       .setBooleanPossibleValues()
       .setDefaultValue("false");
+  }
+
+  private static List<String> getIssueStatuses() {
+    return STATUSES.stream().filter(s -> !s.equals(STATUS_TO_REVIEW)).filter(s -> !s.equals(STATUS_REVIEWED)).collect(toList());
   }
 
   private static void addComponentRelatedParams(WebService.NewAction action) {
@@ -429,7 +433,7 @@ public class SearchAction implements IssuesWsAction {
     return searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
   }
 
-  private SearchOptions createSearchOptionsFromRequest(SearchRequest request) {
+  private static SearchOptions createSearchOptionsFromRequest(SearchRequest request) {
     SearchOptions options = new SearchOptions();
     options.setPage(request.getPage(), request.getPageSize());
 
@@ -445,7 +449,7 @@ public class SearchAction implements IssuesWsAction {
 
   private void completeFacets(Facets facets, SearchRequest request, IssueQuery query) {
     addMandatoryValuesToFacet(facets, PARAM_SEVERITIES, Severity.ALL);
-    addMandatoryValuesToFacet(facets, PARAM_STATUSES, STATUSES.stream().filter(s -> !STATUS_TO_REVIEW.equals(s)).filter(s -> !STATUS_REVIEWED.equals(s)).collect(toList()));
+    addMandatoryValuesToFacet(facets, PARAM_STATUSES, getIssueStatuses());
     addMandatoryValuesToFacet(facets, PARAM_RESOLUTIONS, concat(singletonList(""), RESOLUTIONS));
     addMandatoryValuesToFacet(facets, FACET_PROJECTS, query.projectUuids());
     addMandatoryValuesToFacet(facets, PARAM_MODULE_UUIDS, query.moduleUuids());
@@ -472,7 +476,7 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
   }
 
-  private void setTypesFacet(Facets facets) {
+  private static void setTypesFacet(Facets facets) {
     Map<String, Long> typeFacet = facets.get(PARAM_TYPES);
     if (typeFacet != null) {
       typeFacet.remove(RuleType.SECURITY_HOTSPOT.name());
@@ -556,7 +560,7 @@ public class SearchAction implements IssuesWsAction {
       .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
   }
 
-  private List<String> allRuleTypesExceptHotspotsIfEmpty(@Nullable List<String> types) {
+  private static List<String> allRuleTypesExceptHotspotsIfEmpty(@Nullable List<String> types) {
     if (types == null || types.isEmpty()) {
       return ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS.stream().map(Enum::name).collect(toList());
     }
