@@ -28,6 +28,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +56,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
@@ -65,6 +67,11 @@ import static org.sonar.server.security.SecurityStandards.SQ_CATEGORY_KEYS_ORDER
 @RunWith(DataProviderRunner.class)
 public class RuleIndexerTest {
 
+  public static final String VALID_HOTSPOT_RULE_DESCRIPTION = "acme\n" +
+    "<h2>Ask Yourself Whether</h2>\n" +
+    "bar\n" +
+    "<h2>Recommended Secure Coding Practices</h2>\n" +
+    "foo";
   @Rule
   public EsTester es = EsTester.create();
   @Rule
@@ -181,7 +188,10 @@ public class RuleIndexerTest {
       .flatMap(t -> CWES_BY_SQ_CATEGORY.get(t).stream().map(e -> "cwe:" + e))
       .collect(toSet());
     SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(standards);
-    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule().setType(RuleType.SECURITY_HOTSPOT).setSecurityStandards(standards));
+    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setSecurityStandards(standards)
+      .setDescription(VALID_HOTSPOT_RULE_DESCRIPTION));
     OrganizationDto organization = dbTester.organizations().insert();
     underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
 
@@ -210,5 +220,83 @@ public class RuleIndexerTest {
     return new Object[][] {
       {sqCategory1, sqCategory2}
     };
+  }
+
+  @Test
+  @UseDataProvider("nullEmptyOrNoTitleDescription")
+  public void log_a_warning_when_hotspot_rule_description_is_null_or_empty_or_has_none_of_the_key_titles(@Nullable String description) {
+    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setDescription(description));
+    OrganizationDto organization = dbTester.organizations().insert();
+    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+
+    assertThat(logTester.getLogs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.WARN).get(0))
+      .isEqualTo(format(
+        "Description of Security Hotspot Rule %s can't be fully parsed: What is the risk?=missing, Are you vulnerable?=missing, How to fix it=missing",
+        rule.getKey()));
+  }
+
+  @DataProvider
+  public static Object[][] nullEmptyOrNoTitleDescription() {
+    return new Object[][] {
+      {null},
+      {""},
+      {"   "},
+      {randomAlphabetic(30)}
+    };
+  }
+
+  @Test
+  public void log_a_warning_when_hotspot_rule_description_is_missing_fixIt_tab_content() {
+    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setDescription("bar\n" +
+        "<h2>Ask Yourself Whether</h2>\n" +
+        "foo"));
+    OrganizationDto organization = dbTester.organizations().insert();
+    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+
+    assertThat(logTester.getLogs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.WARN).get(0))
+      .isEqualTo(format(
+        "Description of Security Hotspot Rule %s can't be fully parsed: What is the risk?=ok, Are you vulnerable?=ok, How to fix it=missing",
+        rule.getKey()));
+  }
+
+  @Test
+  public void log_a_warning_when_hotspot_rule_description_is_missing_risk_tab_content() {
+    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setDescription("<h2>Ask Yourself Whether</h2>\n" +
+        "bar\n" +
+        "<h2>Recommended Secure Coding Practices</h2>\n" +
+        "foo"));
+    OrganizationDto organization = dbTester.organizations().insert();
+    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+
+    assertThat(logTester.getLogs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.WARN).get(0))
+      .isEqualTo(format(
+        "Description of Security Hotspot Rule %s can't be fully parsed: What is the risk?=missing, Are you vulnerable?=ok, How to fix it=ok",
+        rule.getKey()));
+  }
+
+  @Test
+  public void log_a_warning_when_hotspot_rule_description_is_missing_vulnerable_tab_content() {
+    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setDescription("bar\n" +
+        "<h2>Recommended Secure Coding Practices</h2>\n" +
+        "foo"));
+    OrganizationDto organization = dbTester.organizations().insert();
+    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+
+    assertThat(logTester.getLogs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.WARN).get(0))
+      .isEqualTo(format(
+        "Description of Security Hotspot Rule %s can't be fully parsed: What is the risk?=ok, Are you vulnerable?=missing, How to fix it=ok",
+        rule.getKey()));
   }
 }

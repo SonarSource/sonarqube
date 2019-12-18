@@ -43,6 +43,7 @@ import org.sonar.server.issue.IssueChangeWSSupport.FormattingContext;
 import org.sonar.server.issue.IssueChangeWSSupport.Load;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.ws.UserResponseFormatter;
+import org.sonar.server.rule.HotspotRuleDescription;
 import org.sonar.server.security.SecurityStandards;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;

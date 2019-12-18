@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.hotspot.ws;
+package org.sonar.server.rule;
 
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleForIndexingDto;
 
 import static java.lang.Character.isWhitespace;
 import static java.util.Optional.ofNullable;
@@ -45,6 +46,14 @@ public class HotspotRuleDescription {
 
   public static HotspotRuleDescription from(RuleDefinitionDto dto) {
     String description = dto.getDescription();
+    return from(description);
+  }
+
+  public static HotspotRuleDescription from(RuleForIndexingDto dto) {
+    return from(dto.getDescription());
+  }
+
+  private static HotspotRuleDescription from(@Nullable String description) {
     if (description == null) {
       return NO_DESCRIPTION;
     }
@@ -111,6 +120,9 @@ public class HotspotRuleDescription {
     return ofNullable(fixIt);
   }
 
+  public boolean isComplete() {
+    return risk != null && vulnerable != null && fixIt != null;
+  }
   @Override
   public String toString() {
     return "HotspotRuleDescription{" +
