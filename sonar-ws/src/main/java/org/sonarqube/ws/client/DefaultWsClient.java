@@ -34,6 +34,7 @@ import org.sonarqube.ws.client.editions.EditionsService;
 import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
 import org.sonarqube.ws.client.governancereports.GovernanceReportsService;
+import org.sonarqube.ws.client.hotspots.HotspotsService;
 import org.sonarqube.ws.client.issues.IssuesService;
 import org.sonarqube.ws.client.l10n.L10nService;
 import org.sonarqube.ws.client.languages.LanguagesService;
@@ -98,6 +99,7 @@ class DefaultWsClient implements WsClient {
   private final EmailsService emailsService;
   private final FavoritesService favoritesService;
   private final GovernanceReportsService governanceReportsService;
+  private final HotspotsService hotspotsService;
   private final IssuesService issuesService;
   private final L10nService l10nService;
   private final LanguagesService languagesService;
@@ -155,6 +157,7 @@ class DefaultWsClient implements WsClient {
     this.emailsService = new EmailsService(wsConnector);
     this.favoritesService = new FavoritesService(wsConnector);
     this.governanceReportsService = new GovernanceReportsService(wsConnector);
+    this.hotspotsService = new HotspotsService(wsConnector);
     this.issuesService = new IssuesService(wsConnector);
     this.l10nService = new L10nService(wsConnector);
     this.languagesService = new LanguagesService(wsConnector);
@@ -266,6 +269,11 @@ class DefaultWsClient implements WsClient {
   @Override
   public GovernanceReportsService governanceReports() {
     return governanceReportsService;
+  }
+
+  @Override
+  public HotspotsService hotspots() {
+    return hotspotsService;
   }
 
   @Override

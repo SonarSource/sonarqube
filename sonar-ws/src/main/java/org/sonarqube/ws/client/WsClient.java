@@ -34,6 +34,7 @@ import org.sonarqube.ws.client.editions.EditionsService;
 import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
 import org.sonarqube.ws.client.governancereports.GovernanceReportsService;
+import org.sonarqube.ws.client.hotspots.HotspotsService;
 import org.sonarqube.ws.client.issues.IssuesService;
 import org.sonarqube.ws.client.l10n.L10nService;
 import org.sonarqube.ws.client.languages.LanguagesService;
@@ -122,6 +123,8 @@ public interface WsClient {
   FavoritesService favorites();
 
   GovernanceReportsService governanceReports();
+
+  HotspotsService hotspots();
 
   IssuesService issues();
 
