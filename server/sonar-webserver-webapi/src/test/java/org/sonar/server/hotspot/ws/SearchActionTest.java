@@ -71,6 +71,7 @@ import org.sonarqube.ws.Hotspots.Component;
 import org.sonarqube.ws.Hotspots.SearchWsResponse;
 
 import static java.util.Collections.singleton;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -111,8 +112,11 @@ public class SearchActionTest {
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
-  public void ws_is_internal() {
+  public void verify_ws_def() {
     assertThat(actionTester.getDef().isInternal()).isTrue();
+    assertThat(actionTester.getDef().param("onlyMine").isRequired()).isFalse();
+    assertThat(actionTester.getDef().param("onlyMine").possibleValues())
+      .containsExactlyInAnyOrder("yes", "no", "true", "false");
   }
 
   @Test
@@ -504,6 +508,85 @@ public class SearchActionTest {
     assertThat(responsePR.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(Arrays.stream(hotspotPR).map(IssueDto::getKey).toArray(String[]::new));
+  }
+
+  @Test
+  @UseDataProvider("onlyMineParamValues")
+  public void returns_hotspots_of_specified_project_assigned_to_current_user_if_only_mine_is_set(String onlyMineParameter, boolean shouldFilter) {
+    ComponentDto project1 = dbTester.components().insertPublicProject();
+    String assigneeUuid = this.userSessionRule.logIn().registerComponents(project1).getUuid();
+
+    indexPermissions();
+    ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project1));
+    IssueDto[] assigneeHotspots = IntStream.range(0, 1 + RANDOM.nextInt(10))
+      .mapToObj(i -> {
+        RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+        insertHotspot(project1, file1, rule, randomAlphabetic(5));
+        return insertHotspot(project1, file1, rule, assigneeUuid);
+      })
+      .toArray(IssueDto[]::new);
+
+    indexIssues();
+
+    SearchWsResponse allHotspots = newRequest(project1)
+      .executeProtobuf(SearchWsResponse.class);
+
+    SearchWsResponse userHotspots = newRequest(project1, r -> r.setParam("onlyMine", onlyMineParameter))
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(allHotspots.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .contains(Arrays.stream(assigneeHotspots).map(IssueDto::getKey).toArray(String[]::new))
+      .hasSizeGreaterThan(assigneeHotspots.length);
+
+    if (shouldFilter) {
+      assertThat(userHotspots.getHotspotsList())
+        .extracting(SearchWsResponse.Hotspot::getKey)
+        .containsOnly(Arrays.stream(assigneeHotspots).map(IssueDto::getKey).toArray(String[]::new));
+    } else {
+      assertThat(userHotspots.getHotspotsList())
+        .extracting(SearchWsResponse.Hotspot::getKey)
+        .containsOnly(allHotspots.getHotspotsList().stream().map(SearchWsResponse.Hotspot::getKey).toArray(String[]::new));
+    }
+  }
+
+  @DataProvider
+  public static Object[][] onlyMineParamValues() {
+    return new Object[][] {
+      {"yes", true},
+      {"true", true},
+      {"no", false},
+      {"false", false}
+    };
+  }
+
+  @Test
+  public void fail_if_hotspots_provided_with_onlyMine_param() {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+
+    userSessionRule.registerComponents(project);
+    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
+
+    assertThatThrownBy(() -> actionTester.newRequest()
+      .setParam("hotspots", IntStream.range(2, 10).mapToObj(String::valueOf).collect(joining(",")))
+      .setParam("onlyMine", "true")
+      .execute())
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Parameter 'onlyMine' can be used with parameter 'projectKey' only");
+  }
+
+  @Test
+  public void fail_if_user_not_authenticated_with_onlyMine_param() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+
+    userSessionRule.anonymous();
+
+    assertThatThrownBy(() -> actionTester.newRequest()
+      .setParam("projectKey", project.getKey())
+      .setParam("onlyMine", "true")
+      .execute())
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Parameter 'onlyMine' requires user to be logged in");
   }
 
   @Test
@@ -1125,6 +1208,10 @@ public class SearchActionTest {
 
   private IssueDto insertHotspot(ComponentDto project, ComponentDto file, RuleDefinitionDto rule) {
     return dbTester.issues().insert(rule, project, file, t -> t.setType(SECURITY_HOTSPOT));
+  }
+
+  private IssueDto insertHotspot(ComponentDto project, ComponentDto file, RuleDefinitionDto rule, String assigneeUuid) {
+    return dbTester.issues().insert(rule, project, file, t -> t.setType(SECURITY_HOTSPOT).setAssigneeUuid(assigneeUuid));
   }
 
   private TestRequest newRequest(ComponentDto project) {

@@ -22,6 +22,7 @@ package org.sonar.server.hotspot.ws;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -90,6 +91,7 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_PULL_REQUEST = "pullRequest";
   private static final String PARAM_SINCE_LEAK_PERIOD = "sinceLeakPeriod";
+  private static final String PARAM_ONLY_MINE = "onlyMine";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -146,6 +148,11 @@ public class SearchAction implements HotspotsWsAction {
       .setDescription("If '%s' is provided, only Security Hotspots created since the leak period are returned.")
       .setBooleanPossibleValues()
       .setDefaultValue("false");
+    action.createParam(PARAM_ONLY_MINE)
+      .setDescription("If 'projectKey' is provided, returns only Security Hotspots assigned to the current user")
+      .setBooleanPossibleValues()
+      .setRequired(false);
+
     // FIXME add response example and test it
     // action.setResponseExample()
   }
@@ -172,15 +179,15 @@ public class SearchAction implements HotspotsWsAction {
       request.param(PARAM_PROJECT_KEY), request.param(PARAM_BRANCH), request.param(PARAM_PULL_REQUEST),
       hotspotKeys,
       request.param(PARAM_STATUS), request.param(PARAM_RESOLUTION),
-      request.paramAsBoolean(PARAM_SINCE_LEAK_PERIOD));
+      request.paramAsBoolean(PARAM_SINCE_LEAK_PERIOD),
+      request.paramAsBoolean(PARAM_ONLY_MINE));
   }
 
-  private static void validateParameters(WsRequest wsRequest) {
+  private void validateParameters(WsRequest wsRequest) {
     Optional<String> projectKey = wsRequest.getProjectKey();
     Optional<String> branch = wsRequest.getBranch();
     Optional<String> pullRequest = wsRequest.getPullRequest();
     Set<String> hotspotKeys = wsRequest.getHotspotKeys();
-
     checkArgument(
       projectKey.isPresent() || !hotspotKeys.isEmpty(),
       "A value must be provided for either parameter '%s' or parameter '%s'", PARAM_PROJECT_KEY, PARAM_HOTSPOTS);
@@ -206,6 +213,13 @@ public class SearchAction implements HotspotsWsAction {
       r -> checkArgument(status.filter(STATUS_REVIEWED::equals).isPresent(),
         "Value '%s' of parameter '%s' can only be provided if value of parameter '%s' is '%s'",
         r, PARAM_RESOLUTION, PARAM_STATUS, STATUS_REVIEWED));
+
+    if (wsRequest.isOnlyMine()) {
+      checkArgument(userSession.isLoggedIn(),
+        "Parameter '%s' requires user to be logged in", PARAM_ONLY_MINE);
+      checkArgument(wsRequest.getProjectKey().isPresent(),
+        "Parameter '%s' can be used with parameter '%s' only", PARAM_ONLY_MINE, PARAM_PROJECT_KEY);
+    }
   }
 
   private Optional<ComponentDto> getAndValidateProject(DbSession dbSession, WsRequest wsRequest) {
@@ -276,6 +290,12 @@ public class SearchAction implements HotspotsWsAction {
     if (!hotspotKeys.isEmpty()) {
       builder.issueKeys(hotspotKeys);
     }
+
+    if (wsRequest.isOnlyMine()) {
+      userSession.checkLoggedIn();
+      builder.assigneeUuids(Collections.singletonList(userSession.getUuid()));
+    }
+
     wsRequest.getStatus().ifPresent(status -> builder.resolved(STATUS_REVIEWED.equals(status)));
     wsRequest.getResolution().ifPresent(resolution -> builder.resolutions(singleton(resolution)));
 
@@ -380,11 +400,13 @@ public class SearchAction implements HotspotsWsAction {
     private final String status;
     private final String resolution;
     private final boolean sinceLeakPeriod;
+    private final boolean onlyMine;
 
     private WsRequest(int page, int index,
       @Nullable String projectKey, @Nullable String branch, @Nullable String pullRequest,
       Set<String> hotspotKeys,
-      @Nullable String status, @Nullable String resolution, @Nullable Boolean sinceLeakPeriod) {
+      @Nullable String status, @Nullable String resolution, @Nullable Boolean sinceLeakPeriod,
+      @Nullable Boolean onlyMine) {
       this.page = page;
       this.index = index;
       this.projectKey = projectKey;
@@ -393,7 +415,8 @@ public class SearchAction implements HotspotsWsAction {
       this.hotspotKeys = hotspotKeys;
       this.status = status;
       this.resolution = resolution;
-      this.sinceLeakPeriod = sinceLeakPeriod == null ? false : sinceLeakPeriod;
+      this.sinceLeakPeriod = sinceLeakPeriod != null && sinceLeakPeriod;
+      this.onlyMine = onlyMine != null && onlyMine;
     }
 
     int getPage() {
@@ -430,6 +453,10 @@ public class SearchAction implements HotspotsWsAction {
 
     boolean isSinceLeakPeriod() {
       return sinceLeakPeriod;
+    }
+
+    boolean isOnlyMine() {
+      return onlyMine;
     }
   }
 
