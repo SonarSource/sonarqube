@@ -59,6 +59,7 @@ import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.plugins.ServerPluginRepository;
@@ -78,6 +79,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
@@ -119,6 +121,7 @@ public class RegisterRulesTest {
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
   private RuleIndex ruleIndex;
+  private MetadataIndex metadataIndex = mock(MetadataIndex.class);
   private OrganizationDto defaultOrganization;
   private OrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
@@ -174,6 +177,7 @@ public class RegisterRulesTest {
     // verify index
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), db.getDefaultOrganization(), RULE_KEY2);
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(rule1.getId(), rule2.getId(), hotspotRule.getId());
+    verifyIndicesMarkedAsInitialized();
 
     // verify repositories
     assertThat(dbClient.ruleRepositoryDao().selectAll(db.getSession())).extracting(RuleRepositoryDto::getKey).containsOnly("fake");
@@ -237,6 +241,7 @@ public class RegisterRulesTest {
     // verify index
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds())
       .containsExactly(rule.getId());
+    verifyIndicesMarkedAsInitialized();
 
     // register no rule
     execute(context -> context.createRepository("fake", "java").done());
@@ -253,6 +258,7 @@ public class RegisterRulesTest {
     // verify index
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds())
       .isEmpty();
+    verifyIndicesNotMarkedAsInitialized();
   }
 
   @Test
@@ -316,6 +322,7 @@ public class RegisterRulesTest {
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RULE_KEY2);
     RuleDto hotspotRule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, HOTSPOT_RULE_KEY);
     assertThat(es.getIds(RuleIndexDefinition.TYPE_RULE)).containsOnly(valueOf(rule1.getId()), valueOf(rule2.getId()), valueOf(hotspotRule.getId()));
+    verifyIndicesMarkedAsInitialized();
 
     // user adds tags and sets markdown note
     rule1.setTags(newHashSet("usertag1", "usertag2"));
@@ -327,6 +334,7 @@ public class RegisterRulesTest {
     when(system.now()).thenReturn(DATE2.getTime());
     execute(new FakeRepositoryV2());
 
+    verifyIndicesNotMarkedAsInitialized();
     // rule1 has been updated
     rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RULE_KEY1);
     assertThat(rule1.getName()).isEqualTo("One v2");
@@ -1026,7 +1034,7 @@ public class RegisterRulesTest {
     reset(webServerRuleFinder);
 
     RegisterRules task = new RegisterRules(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer,
-      languages, system, organizationFlags, webServerRuleFinder, uuidFactory);
+      languages, system, organizationFlags, webServerRuleFinder, uuidFactory, metadataIndex);
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
     db.getSession().commit();
@@ -1046,6 +1054,17 @@ public class RegisterRulesTest {
 
     Arrays.stream(consumers).forEach(c -> c.accept(newRule));
     repo.done();
+  }
+
+  private void verifyIndicesMarkedAsInitialized() {
+    verify(metadataIndex).setInitialized(RuleIndexDefinition.TYPE_RULE,true);
+    verify(metadataIndex).setInitialized(RuleIndexDefinition.TYPE_RULE_EXTENSION,true);
+    verify(metadataIndex).setInitialized(RuleIndexDefinition.TYPE_ACTIVE_RULE, true);
+    reset(metadataIndex);
+  }
+
+  private void verifyIndicesNotMarkedAsInitialized() {
+    verifyNoInteractions(metadataIndex);
   }
 
   private RuleParamDto getParam(List<RuleParamDto> params, String key) {

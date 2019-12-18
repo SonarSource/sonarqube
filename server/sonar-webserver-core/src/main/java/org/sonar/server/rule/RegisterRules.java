@@ -61,6 +61,7 @@ import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
+import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.QProfileRules;
@@ -95,10 +96,11 @@ public class RegisterRules implements Startable {
   private final OrganizationFlags organizationFlags;
   private final WebServerRuleFinder webServerRuleFinder;
   private final UuidFactory uuidFactory;
+  private final MetadataIndex metadataIndex;
 
   public RegisterRules(RuleDefinitionsLoader defLoader, QProfileRules qProfileRules, DbClient dbClient, RuleIndexer ruleIndexer,
     ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2, OrganizationFlags organizationFlags,
-    WebServerRuleFinder webServerRuleFinder, UuidFactory uuidFactory) {
+    WebServerRuleFinder webServerRuleFinder, UuidFactory uuidFactory, MetadataIndex metadataIndex) {
     this.defLoader = defLoader;
     this.qProfileRules = qProfileRules;
     this.dbClient = dbClient;
@@ -109,6 +111,7 @@ public class RegisterRules implements Startable {
     this.organizationFlags = organizationFlags;
     this.webServerRuleFinder = webServerRuleFinder;
     this.uuidFactory = uuidFactory;
+    this.metadataIndex = metadataIndex;
   }
 
   @Override
@@ -144,6 +147,11 @@ public class RegisterRules implements Startable {
       activeRuleIndexer.commitAndIndex(dbSession, changes);
       registerRulesContext.getRenamed().forEach(e -> LOG.info("Rule {} re-keyed to {}", e.getValue(), e.getKey().getKey()));
       profiler.stopDebug();
+
+      if (!registerRulesContext.hasDbRules()) {
+        Stream.concat(ruleIndexer.getIndexTypes().stream(), activeRuleIndexer.getIndexTypes().stream())
+          .forEach(t -> metadataIndex.setInitialized(t, true));
+      }
 
       webServerRuleFinder.startCaching();
     }
@@ -223,13 +231,17 @@ public class RegisterRules implements Startable {
         RuleDefinitionDto rule = dbRulesByRuleId.get(ruleId);
         if (rule == null) {
           LOG.warn("Could not retrieve rule with id %s referenced by a deprecated rule key. " +
-              "The following deprecated rule keys seem to be referencing a non-existing rule",
+            "The following deprecated rule keys seem to be referencing a non-existing rule",
             ruleId, entry.getValue());
         } else {
           entry.getValue().forEach(d -> builder.put(d.getOldRuleKeyAsRuleKey(), rule));
         }
       }
       return builder.build();
+    }
+
+    private boolean hasDbRules() {
+      return !dbRules.isEmpty();
     }
 
     private Optional<RuleDefinitionDto> getDbRuleFor(RulesDefinition.Rule ruleDef) {
@@ -629,11 +641,11 @@ public class RegisterRules implements Startable {
       changed = true;
     } else if (dto.getSystemTags().size() != ruleDef.tags().size() ||
       !dto.getSystemTags().containsAll(ruleDef.tags())) {
-      dto.setSystemTags(ruleDef.tags());
-      // FIXME this can't be implemented easily with organization support: remove end-user tags that are now declared as system
-      // RuleTagHelper.applyTags(dto, ImmutableSet.copyOf(dto.getTags()));
-      changed = true;
-    }
+        dto.setSystemTags(ruleDef.tags());
+        // FIXME this can't be implemented easily with organization support: remove end-user tags that are now declared as system
+        // RuleTagHelper.applyTags(dto, ImmutableSet.copyOf(dto.getTags()));
+        changed = true;
+      }
     return changed;
   }
 
@@ -645,9 +657,9 @@ public class RegisterRules implements Startable {
       changed = true;
     } else if (dto.getSecurityStandards().size() != ruleDef.securityStandards().size() ||
       !dto.getSecurityStandards().containsAll(ruleDef.securityStandards())) {
-      dto.setSecurityStandards(ruleDef.securityStandards());
-      changed = true;
-    }
+        dto.setSecurityStandards(ruleDef.securityStandards());
+        changed = true;
+      }
     return changed;
   }
 
