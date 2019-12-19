@@ -20,11 +20,12 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockAnalysis } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
 import { Analysis, AnalysisProps } from '../Analysis';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ qualifier: 'APP' })).toMatchSnapshot();
+  expect(shallowRender({ qualifier: ComponentQualifier.Application })).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<AnalysisProps> = {}) {
@@ -36,7 +37,7 @@ function shallowRender(props: Partial<AnalysisProps> = {}) {
           { key: '2', category: 'VERSION', name: '6.5-SNAPSHOT' }
         ]
       })}
-      qualifier="TRK"
+      qualifier={ComponentQualifier.Project}
       {...props}
     />
   );

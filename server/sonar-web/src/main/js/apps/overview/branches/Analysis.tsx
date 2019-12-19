@@ -21,6 +21,7 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import DateTooltipFormatter from '../../../components/intl/DateTooltipFormatter';
+import { ComponentQualifier } from '../../../types/component';
 import Event from './Event';
 
 export interface AnalysisProps {
@@ -38,7 +39,10 @@ export function Analysis({ analysis, ...props }: AnalysisProps) {
   );
 
   // use `TRK` for all components but applications
-  const qualifier = props.qualifier === 'APP' ? 'APP' : 'TRK';
+  const qualifier =
+    props.qualifier === ComponentQualifier.Application
+      ? ComponentQualifier.Application
+      : ComponentQualifier.Project;
 
   return (
     <li className="overview-analysis">

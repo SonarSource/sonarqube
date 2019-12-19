@@ -33,6 +33,7 @@ import { getTimeMachineData } from '../../../../api/time-machine';
 import { getActivityGraph, saveActivityGraph } from '../../../../components/activity-graph/utils';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { GraphType } from '../../../../types/project-activity';
 import BranchOverview, { BRANCH_OVERVIEW_ACTIVITY_GRAPH } from '../BranchOverview';
@@ -229,8 +230,8 @@ describe('project overview', () => {
 
 describe('application overview', () => {
   const component = mockComponent({
-    breadcrumbs: [mockComponent({ key: 'foo', qualifier: 'APP' })],
-    qualifier: 'APP'
+    breadcrumbs: [mockComponent({ key: 'foo', qualifier: ComponentQualifier.Application })],
+    qualifier: ComponentQualifier.Application
   });
 
   it('should render correctly', async () => {

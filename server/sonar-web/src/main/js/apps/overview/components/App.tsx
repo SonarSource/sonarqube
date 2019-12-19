@@ -23,6 +23,7 @@ import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { isPullRequest } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
 import BranchOverview from '../branches/BranchOverview';
 
 const EmptyOverview = lazyLoad(() => import('./EmptyOverview'));
@@ -50,7 +51,9 @@ export class App extends React.PureComponent<Props> {
   }
 
   isPortfolio = () => {
-    return ['VW', 'SVW'].includes(this.props.component.qualifier);
+    return ([ComponentQualifier.Portfolio, ComponentQualifier.SubPortfolio] as string[]).includes(
+      this.props.component.qualifier
+    );
   };
 
   render() {

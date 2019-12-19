@@ -22,6 +22,8 @@ import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getBranchLikeDisplayName, isMainBranch } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
+import { MetricKey } from '../../../types/metrics';
 
 interface Props {
   branchLike?: BranchLike;
@@ -30,7 +32,7 @@ interface Props {
 }
 
 export function NoCodeWarning({ branchLike, component, measures }: Props) {
-  const isApp = component.qualifier === 'APP';
+  const isApp = component.qualifier === ComponentQualifier.Application;
 
   /* eslint-disable no-lonely-if */
   // - Is App
@@ -49,7 +51,7 @@ export function NoCodeWarning({ branchLike, component, measures }: Props) {
   if (isApp) {
     if (
       measures === undefined ||
-      measures.find(measure => measure.metric.key === 'projects') === undefined
+      measures.find(measure => measure.metric.key === MetricKey.projects) === undefined
     ) {
       title = translate('portfolio.app.empty');
     } else {

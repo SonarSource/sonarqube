@@ -21,9 +21,11 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent, mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
+import { MetricKey } from '../../../../types/metrics';
 import { NoCodeWarning } from '../NoCodeWarning';
 
-it.only('should render correctly if the project has no lines of code', () => {
+it('should render correctly if the project has no lines of code', () => {
   const wrapper = shallowRender();
   expect(wrapper.children().text()).toBe('overview.project.main_branch_no_lines_of_code');
 
@@ -47,8 +49,8 @@ it('should correctly if the project is empty', () => {
 
 it('should render correctly if the application is empty or has no lines of code', () => {
   const wrapper = shallowRender({
-    component: mockComponent({ qualifier: 'APP' }),
-    measures: [mockMeasureEnhanced({ metric: mockMetric({ key: 'projects' }) })]
+    component: mockComponent({ qualifier: ComponentQualifier.Application }),
+    measures: [mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.projects }) })]
   });
   expect(wrapper.children().text()).toBe('portfolio.app.no_lines_of_code');
 
@@ -61,7 +63,7 @@ function shallowRender(props = {}) {
     <NoCodeWarning
       branchLike={mockMainBranch()}
       component={mockComponent()}
-      measures={[mockMeasureEnhanced({ metric: mockMetric({ key: 'bugs' }) })]}
+      measures={[mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.bugs }) })]}
       {...props}
     />
   );

@@ -22,6 +22,7 @@ import * as React from 'react';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent, mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { MeasuresPanel, MeasuresPanelProps, MeasuresPanelTabs } from '../MeasuresPanel';
 
@@ -33,7 +34,9 @@ it('should render correctly for projects', () => {
 });
 
 it('should render correctly for applications', () => {
-  const wrapper = shallowRender({ component: mockComponent({ qualifier: 'APP' }) });
+  const wrapper = shallowRender({
+    component: mockComponent({ qualifier: ComponentQualifier.Application })
+  });
   expect(wrapper).toMatchSnapshot();
   wrapper.find(BoxedTabs).prop<Function>('onSelect')(MeasuresPanelTabs.Overall);
   expect(wrapper).toMatchSnapshot();

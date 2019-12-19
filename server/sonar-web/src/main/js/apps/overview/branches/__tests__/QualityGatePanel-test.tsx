@@ -25,6 +25,8 @@ import {
   mockQualityGateStatusConditionEnhanced
 } from '../../../../helpers/mocks/quality-gates';
 import { mockComponent, mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
+import { MetricKey } from '../../../../types/metrics';
 import { QualityGatePanel, QualityGatePanelProps } from '../QualityGatePanel';
 
 it('should render correctly for projects', () => {
@@ -42,15 +44,17 @@ it('should render correctly for projects', () => {
 it('should render correctly for applications', () => {
   expect(
     shallowRender({
-      component: mockComponent({ qualifier: 'APP' }),
+      component: mockComponent({ qualifier: ComponentQualifier.Application }),
       qgStatuses: [
         mockQualityGateStatus(),
         mockQualityGateStatus({
           failedConditions: [
             mockQualityGateStatusConditionEnhanced(),
             mockQualityGateStatusConditionEnhanced({
-              measure: mockMeasureEnhanced({ metric: mockMetric({ key: 'new_code_smells' }) }),
-              metric: 'new_code_smells'
+              measure: mockMeasureEnhanced({
+                metric: mockMetric({ key: MetricKey.new_code_smells })
+              }),
+              metric: MetricKey.new_code_smells
             })
           ]
         })
@@ -59,7 +63,7 @@ it('should render correctly for applications', () => {
   ).toMatchSnapshot();
 
   const wrapper = shallowRender({
-    component: mockComponent({ qualifier: 'APP' }),
+    component: mockComponent({ qualifier: ComponentQualifier.Application }),
     qgStatuses: [
       mockQualityGateStatus(),
       mockQualityGateStatus({

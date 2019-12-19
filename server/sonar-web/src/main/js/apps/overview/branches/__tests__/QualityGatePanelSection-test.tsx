@@ -25,6 +25,8 @@ import {
   mockQualityGateStatusConditionEnhanced
 } from '../../../../helpers/mocks/quality-gates';
 import { mockComponent } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
+import { MetricKey } from '../../../../types/metrics';
 import { QualityGatePanelSection, QualityGatePanelSectionProps } from '../QualityGatePanelSection';
 
 it('should render correctly', () => {
@@ -37,7 +39,9 @@ it('should render correctly', () => {
       })
     }).type()
   ).toBeNull();
-  expect(shallowRender({ component: mockComponent({ qualifier: 'APP' }) })).toMatchSnapshot();
+  expect(
+    shallowRender({ component: mockComponent({ qualifier: ComponentQualifier.Application }) })
+  ).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<QualityGatePanelSectionProps> = {}) {
@@ -47,8 +51,8 @@ function shallowRender(props: Partial<QualityGatePanelSectionProps> = {}) {
       component={mockComponent()}
       qgStatus={mockQualityGateStatus({
         failedConditions: [
-          mockQualityGateStatusConditionEnhanced({ metric: 'bugs' }),
-          mockQualityGateStatusConditionEnhanced({ metric: 'new_bugs' })
+          mockQualityGateStatusConditionEnhanced({ metric: MetricKey.bugs }),
+          mockQualityGateStatusConditionEnhanced({ metric: MetricKey.new_bugs })
         ],
         status: 'ERROR'
       })}

@@ -21,6 +21,7 @@ import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { QualityGateConditions } from '../components/QualityGateConditions';
 
@@ -39,7 +40,7 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
     return null;
   }
 
-  const showName = component.qualifier === 'APP';
+  const showName = component.qualifier === ComponentQualifier.Application;
 
   return (
     <div className="overview-quality-gate-conditions">

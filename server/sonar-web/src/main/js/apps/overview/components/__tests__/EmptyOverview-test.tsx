@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent, mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
 import { EmptyOverview } from '../EmptyOverview';
 
 it('renders correctly', () => {
@@ -43,7 +44,9 @@ it('should not render warning message for pull requests', () => {
 });
 
 it('should not render the tutorial for applications', () => {
-  expect(shallowRender({ component: mockComponent({ qualifier: 'APP' }) })).toMatchSnapshot();
+  expect(
+    shallowRender({ component: mockComponent({ qualifier: ComponentQualifier.Application }) })
+  ).toMatchSnapshot();
 });
 
 function shallowRender(props = {}) {

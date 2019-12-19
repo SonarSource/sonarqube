@@ -44,6 +44,7 @@ import {
 } from '../../../helpers/qualityGates';
 import { ApplicationPeriod } from '../../../types/application';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus, QualityGateStatusCondition } from '../../../types/quality-gates';
@@ -106,7 +107,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   }
 
   loadStatus = () => {
-    if (this.props.component.qualifier === 'APP') {
+    if (this.props.component.qualifier === ComponentQualifier.Application) {
       this.loadApplicationStatus();
     } else {
       this.loadProjectStatus();
@@ -342,7 +343,11 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     let current = component.breadcrumbs.length - 1;
     while (
       current > 0 &&
-      !['TRK', 'VW', 'APP'].includes(component.breadcrumbs[current].qualifier)
+      !([
+        ComponentQualifier.Project,
+        ComponentQualifier.Portfolio,
+        ComponentQualifier.Application
+      ] as string[]).includes(component.breadcrumbs[current].qualifier)
     ) {
       current--;
     }
@@ -380,7 +385,8 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
       qgStatuses
     } = this.state;
 
-    const leakPeriod = component.qualifier === 'APP' ? appLeak : getLeakPeriod(periods);
+    const leakPeriod =
+      component.qualifier === ComponentQualifier.Application ? appLeak : getLeakPeriod(periods);
 
     const projectIsEmpty =
       loadingStatus === false &&
