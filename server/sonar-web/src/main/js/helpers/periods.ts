@@ -19,6 +19,7 @@
  */
 import { parseDate } from 'sonar-ui-common/helpers/dates';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { ApplicationPeriod } from '../types/application';
 
 function getPeriod<T extends T.Period | T.PeriodMeasure>(periods: T[] | undefined, index: number) {
   if (!Array.isArray(periods)) {
@@ -70,4 +71,10 @@ export function getPeriodLabel(
 
 export function getPeriodDate(period?: { date?: string }): Date | undefined {
   return period && period.date ? parseDate(period.date) : undefined;
+}
+
+export function isApplicationPeriod(
+  period: T.Period | ApplicationPeriod
+): period is ApplicationPeriod {
+  return (period as ApplicationPeriod).project !== undefined;
 }

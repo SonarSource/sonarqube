@@ -17,28 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import ApplicationLeakPeriodLegend from '../ApplicationLeakPeriodLegend';
+import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import DateFromNow from '../../../components/intl/DateFromNow';
+import { ApplicationPeriod } from '../../../types/application';
 
-jest.mock('../../../../api/application', () => ({
-  getApplicationLeak: jest.fn(() =>
-    Promise.resolve([
-      { date: '2017-01-01T11:39:03+0100', project: 'foo', projectName: 'Foo' },
-      { date: '2017-02-01T11:39:03+0100', project: 'bar', projectName: 'Bar' }
-    ])
-  )
-}));
+export interface ApplicationLeakPeriodInfoProps {
+  leakPeriod: ApplicationPeriod;
+}
 
-it('renders', async () => {
-  const wrapper = shallow(
-    <ApplicationLeakPeriodLegend
-      component={{ key: 'foo', organization: 'bar', qualifier: 'APP' }}
-    />
+export function ApplicationLeakPeriodInfo({ leakPeriod }: ApplicationLeakPeriodInfoProps) {
+  return (
+    <>
+      <div className="note spacer-top">
+        {translateWithParameters('overview.max_new_code_period_from_x', leakPeriod.projectName)}
+      </div>
+      <DateFromNow date={leakPeriod.date}>
+        {fromNow => (
+          <div className="note little-spacer-top">
+            {translateWithParameters('overview.started_x', fromNow)}
+          </div>
+        )}
+      </DateFromNow>
+    </>
   );
-  expect(wrapper).toMatchSnapshot();
+}
 
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-});
+export default React.memo(ApplicationLeakPeriodInfo);
