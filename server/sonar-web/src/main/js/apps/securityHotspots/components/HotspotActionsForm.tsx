@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { setSecurityHotspotStatus } from '../../../api/security-hotspots';
+import { assignSecurityHotspot, setSecurityHotspotStatus } from '../../../api/security-hotspots';
 import {
   HotspotResolution,
   HotspotSetStatusRequest,
@@ -34,6 +34,7 @@ interface Props {
 }
 
 interface State {
+  selectedUser?: T.UserActive;
   selectedOption: HotspotStatusOptions;
   submitting: boolean;
 }
@@ -48,6 +49,10 @@ export default class HotspotActionsForm extends React.Component<Props, State> {
     this.setState({ selectedOption });
   };
 
+  handleAssign = (selectedUser: T.UserActive) => {
+    this.setState({ selectedUser });
+  };
+
   handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -58,13 +63,20 @@ export default class HotspotActionsForm extends React.Component<Props, State> {
       selectedOption === HotspotStatusOptions.ADDITIONAL_REVIEW
         ? HotspotStatus.TO_REVIEW
         : HotspotStatus.REVIEWED;
-    const data: HotspotSetStatusRequest = { hotspot: hotspotKey, status };
+    const data: HotspotSetStatusRequest = { status };
     if (selectedOption !== HotspotStatusOptions.ADDITIONAL_REVIEW) {
       data.resolution = HotspotResolution[selectedOption];
     }
 
     this.setState({ submitting: true });
-    return setSecurityHotspotStatus(data)
+    return setSecurityHotspotStatus(hotspotKey, data)
+      .then(() => {
+        const { selectedUser } = this.state;
+        if (selectedOption === HotspotStatusOptions.ADDITIONAL_REVIEW && selectedUser) {
+          return this.assignHotspot(selectedUser);
+        }
+        return null;
+      })
       .then(() => {
         this.props.onSubmit({ status, resolution: data.resolution });
       })
@@ -73,16 +85,26 @@ export default class HotspotActionsForm extends React.Component<Props, State> {
       });
   };
 
+  assignHotspot = (assignee: T.UserActive) => {
+    const { hotspotKey } = this.props;
+
+    return assignSecurityHotspot(hotspotKey, {
+      assignee: assignee.login
+    });
+  };
+
   render() {
     const { hotspotKey } = this.props;
-    const { selectedOption, submitting } = this.state;
+    const { selectedOption, selectedUser, submitting } = this.state;
 
     return (
       <HotspotActionsFormRenderer
         hotspotKey={hotspotKey}
+        onAssign={this.handleAssign}
         onSelectOption={this.handleSelectOption}
         onSubmit={this.handleSubmit}
         selectedOption={selectedOption}
+        selectedUser={selectedUser}
         submitting={submitting}
       />
     );

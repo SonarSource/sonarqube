@@ -3,6 +3,7 @@
 exports[`should render correctly 1`] = `
 <HotspotActionsFormRenderer
   hotspotKey="key"
+  onAssign={[Function]}
   onSelectOption={[Function]}
   onSubmit={[Function]}
   selectedOption="FIXED"

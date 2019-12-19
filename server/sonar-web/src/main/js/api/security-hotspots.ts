@@ -22,12 +22,25 @@ import throwGlobalError from '../app/utils/throwGlobalError';
 import { BranchParameters } from '../types/branch-like';
 import {
   DetailedHotspot,
+  HotspotAssignRequest,
   HotspotSearchResponse,
   HotspotSetStatusRequest
 } from '../types/security-hotspots';
 
-export function setSecurityHotspotStatus(data: HotspotSetStatusRequest): Promise<void> {
-  return post('/api/hotspots/change_status', data).catch(throwGlobalError);
+export function assignSecurityHotspot(
+  hotspotKey: string,
+  data: HotspotAssignRequest
+): Promise<void> {
+  return post('/api/hotspots/assign', { hotspot: hotspotKey, ...data }).catch(throwGlobalError);
+}
+
+export function setSecurityHotspotStatus(
+  hotspotKey: string,
+  data: HotspotSetStatusRequest
+): Promise<void> {
+  return post('/api/hotspots/change_status', { hotspot: hotspotKey, ...data }).catch(
+    throwGlobalError
+  );
 }
 
 export function getSecurityHotspots(

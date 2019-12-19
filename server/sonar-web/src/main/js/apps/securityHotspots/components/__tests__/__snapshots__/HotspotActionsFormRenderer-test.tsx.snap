@@ -236,3 +236,91 @@ exports[`should render correctly: safe option selected 1`] = `
   </div>
 </form>
 `;
+
+exports[`should render correctly: user selected 1`] = `
+<form
+  className="abs-width-400"
+  onSubmit={[MockFunction]}
+>
+  <h2>
+    hotspots.form.title
+  </h2>
+  <div
+    className="display-flex-column big-spacer-bottom"
+  >
+    <div
+      className="big-spacer-top"
+    >
+      <Radio
+        checked={false}
+        onCheck={[MockFunction]}
+        value="FIXED"
+      >
+        <h3>
+          hotspots.status_option.FIXED
+        </h3>
+      </Radio>
+      <div
+        className="radio-button-description"
+      >
+        hotspots.status_option.FIXED.description
+      </div>
+    </div>
+    <div
+      className="big-spacer-top"
+    >
+      <Radio
+        checked={false}
+        onCheck={[MockFunction]}
+        value="SAFE"
+      >
+        <h3>
+          hotspots.status_option.SAFE
+        </h3>
+      </Radio>
+      <div
+        className="radio-button-description"
+      >
+        hotspots.status_option.SAFE.description
+      </div>
+    </div>
+    <div
+      className="big-spacer-top"
+    >
+      <Radio
+        checked={true}
+        onCheck={[MockFunction]}
+        value="ADDITIONAL_REVIEW"
+      >
+        <h3>
+          hotspots.status_option.ADDITIONAL_REVIEW
+        </h3>
+      </Radio>
+      <div
+        className="radio-button-description"
+      >
+        hotspots.status_option.ADDITIONAL_REVIEW.description
+      </div>
+    </div>
+  </div>
+  <div
+    className="form-field huge-spacer-left"
+  >
+    <label>
+      hotspots.form.assign_to
+    </label>
+    <HotspotAssigneeSelect
+      onSelect={[MockFunction]}
+    />
+  </div>
+  <div
+    className="text-right"
+  >
+    <SubmitButton
+      disabled={false}
+    >
+      hotspots.form.submit
+    </SubmitButton>
+  </div>
+</form>
+`;

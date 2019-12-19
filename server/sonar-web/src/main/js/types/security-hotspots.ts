@@ -99,7 +99,11 @@ export interface HotspotSearchResponse {
 }
 
 export interface HotspotSetStatusRequest {
-  hotspot: string;
   status: HotspotStatus;
   resolution?: HotspotResolution;
+}
+
+export interface HotspotAssignRequest {
+  assignee: string;
+  comment?: string;
 }

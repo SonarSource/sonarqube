@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import { HotspotStatusOptions } from '../../../../types/security-hotspots';
 import HotspotActionsForm from '../HotspotActionsForm';
 import HotspotActionsFormRenderer, {
@@ -31,12 +32,19 @@ it('should render correctly', () => {
   expect(shallowRender({ selectedOption: HotspotStatusOptions.SAFE })).toMatchSnapshot(
     'safe option selected'
   );
+  expect(
+    shallowRender({
+      selectedOption: HotspotStatusOptions.ADDITIONAL_REVIEW,
+      selectedUser: mockLoggedInUser()
+    })
+  ).toMatchSnapshot('user selected');
 });
 
 function shallowRender(props: Partial<HotspotActionsFormRendererProps> = {}) {
   return shallow<HotspotActionsForm>(
     <HotspotActionsFormRenderer
       hotspotKey="key"
+      onAssign={jest.fn()}
       onSelectOption={jest.fn()}
       onSubmit={jest.fn()}
       selectedOption={HotspotStatusOptions.FIXED}

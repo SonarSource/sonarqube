@@ -22,12 +22,15 @@ import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Radio from 'sonar-ui-common/components/controls/Radio';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { HotspotStatusOptions } from '../../../types/security-hotspots';
+import HotspotAssigneeSelect from './HotspotAssigneeSelect';
 
 export interface HotspotActionsFormRendererProps {
   hotspotKey: string;
+  onAssign: (user: T.UserActive) => void;
   onSelectOption: (option: HotspotStatusOptions) => void;
   onSubmit: (event: React.SyntheticEvent<HTMLFormElement>) => void;
   selectedOption: HotspotStatusOptions;
+  selectedUser?: T.UserActive;
   submitting: boolean;
 }
 
@@ -54,6 +57,12 @@ export default function HotspotActionsFormRenderer(props: HotspotActionsFormRend
           onClick: props.onSelectOption
         })}
       </div>
+      {selectedOption === HotspotStatusOptions.ADDITIONAL_REVIEW && (
+        <div className="form-field huge-spacer-left">
+          <label>{translate('hotspots.form.assign_to')}</label>
+          <HotspotAssigneeSelect onSelect={props.onAssign} />
+        </div>
+      )}
       <div className="text-right">
         {submitting && <i className="spinner spacer-right" />}
         <SubmitButton disabled={submitting}>{translate('hotspots.form.submit')}</SubmitButton>

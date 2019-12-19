@@ -132,6 +132,10 @@ th.hide-overflow {
   margin-top: 4px !important;
 }
 
+.padded {
+  padding: var(--gridSize);
+}
+
 .big-padded {
   padding: calc(2 * var(--gridSize));
 }

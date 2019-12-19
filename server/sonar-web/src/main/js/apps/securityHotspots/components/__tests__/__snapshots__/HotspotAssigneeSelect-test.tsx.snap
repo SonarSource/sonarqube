@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<HotspotAssigneeSelectRenderer
+  loading={false}
+  onKeyDown={[Function]}
+  onSearch={[Function]}
+  onSelect={[Function]}
+  open={false}
+/>
+`;
