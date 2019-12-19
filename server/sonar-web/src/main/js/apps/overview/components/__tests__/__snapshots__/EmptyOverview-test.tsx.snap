@@ -71,7 +71,13 @@ exports[`renders correctly 3`] = `
 exports[`should not render the tutorial for applications 1`] = `
 <div
   className="page page-limited"
-/>
+>
+  <Alert
+    variant="warning"
+  >
+    provisioning.no_analysis.application
+  </Alert>
+</div>
 `;
 
 exports[`should render another message when there are branches 1`] = `

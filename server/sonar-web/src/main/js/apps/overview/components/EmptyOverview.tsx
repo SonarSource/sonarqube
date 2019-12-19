@@ -26,6 +26,7 @@ import { getBranchLikeDisplayName, isBranch, isMainBranch } from '../../../helpe
 import { isLoggedIn } from '../../../helpers/users';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
 import AnalyzeTutorial from '../../tutorials/analyzeProject/AnalyzeTutorial';
 
 interface Props {
@@ -39,7 +40,13 @@ interface Props {
 export function EmptyOverview(props: Props) {
   const { branchLike, branchLikes, component, currentUser, hasAnalyses } = props;
 
-  if (!isBranch(branchLike)) {
+  if (component.qualifier === ComponentQualifier.Application) {
+    return (
+      <div className="page page-limited">
+        <Alert variant="warning">{translate('provisioning.no_analysis.application')}</Alert>
+      </div>
+    );
+  } else if (!isBranch(branchLike)) {
     return null;
   }
 
@@ -49,8 +56,7 @@ export function EmptyOverview(props: Props) {
     (branchLikes.length === 2 && branchLikes.some(branch => isBranch(branch)));
 
   const showWarning = isMainBranch(branchLike) && hasBranches;
-  const showTutorial =
-    isMainBranch(branchLike) && !hasBranches && !hasAnalyses && component.qualifier !== 'APP';
+  const showTutorial = isMainBranch(branchLike) && !hasBranches && !hasAnalyses;
 
   let warning;
   if (isLoggedIn(currentUser) && showWarning && hasBadBranchConfig) {
