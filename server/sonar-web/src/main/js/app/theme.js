@@ -55,6 +55,9 @@ module.exports = {
 
     globalNavBarBg: '#262626',
 
+    // table
+    rowHoverHighlight: '#ecf6fe',
+
     // fonts
     baseFontColor: '#444',
     secondFontColor: '#777',
@@ -145,6 +148,7 @@ module.exports = {
     mediumFontSize: '14px',
     bigFontSize: '16px',
     hugeFontSize: '24px',
+    giganticFontSize: '36px',
 
     hugeControlHeight: `${5 * grid}px`,
     largeControlHeight: `${4 * grid}px`,

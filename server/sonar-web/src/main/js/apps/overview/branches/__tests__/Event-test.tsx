@@ -19,37 +19,30 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { isSonarCloud } from '../../../../helpers/system';
-import BranchOverview from '../../branches/BranchOverview';
-import { App } from '../App';
+import { Event } from '../Event';
 
-jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
-
-const component = {
-  key: 'foo',
-  analysisDate: '2016-01-01',
-  breadcrumbs: [],
-  name: 'Foo',
-  organization: 'org',
-  qualifier: 'TRK',
-  version: '0.0.1'
-};
-
-beforeEach(() => {
-  (isSonarCloud as jest.Mock<any>).mockClear();
-  (isSonarCloud as jest.Mock<any>).mockReturnValue(false);
-});
-
-it('should render BranchOverview', () => {
+it('should render an event correctly', () => {
   expect(
-    getWrapper()
-      .find(BranchOverview)
-      .exists()
-  ).toBeTruthy();
+    shallow(<Event event={{ key: '1', category: 'OTHER', name: 'test' }} />)
+  ).toMatchSnapshot();
 });
 
-function getWrapper(props = {}) {
-  return shallow(
-    <App branchLikes={[]} component={component} router={{ replace: jest.fn() }} {...props} />
-  );
-}
+it('should render a version correctly', () => {
+  expect(
+    shallow(<Event event={{ key: '2', category: 'VERSION', name: '6.5-SNAPSHOT' }} />)
+  ).toMatchSnapshot();
+});
+
+it('should render rich quality gate event', () => {
+  const event: T.AnalysisEvent = {
+    category: 'QUALITY_GATE',
+    key: 'foo1234',
+    name: '',
+    qualityGate: {
+      failing: [{ branch: 'master', key: 'foo', name: 'Foo' }],
+      status: 'ERROR',
+      stillFailing: true
+    }
+  };
+  expect(shallow(<Event event={event} />)).toMatchSnapshot();
+});

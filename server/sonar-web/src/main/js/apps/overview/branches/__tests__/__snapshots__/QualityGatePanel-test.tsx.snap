@@ -1,0 +1,625 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for applications 1`] = `
+<div
+  className="overview-panel"
+  data-test="overview__quality-gate-panel"
+>
+  <h2
+    className="overview-panel-title display-inline-flex-center"
+  >
+    overview.quality_gate
+     
+    <DocTooltip
+      className="little-spacer-left"
+      doc={Promise {}}
+    />
+  </h2>
+  <div
+    className="overview-panel-content"
+  >
+    <div
+      className="overview-quality-gate-badge-large failed"
+    >
+      <h3
+        className="big-spacer-bottom huge"
+      >
+        metric.level.ERROR
+      </h3>
+      <span
+        className="small"
+      >
+        overview.X_conditions_failed.3
+      </span>
+    </div>
+    <div
+      data-test="overview__quality-gate-conditions"
+    >
+      <Memo(QualityGatePanelSection)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "APP",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        key="foo"
+        qgStatus={
+          Object {
+            "failedConditions": Array [
+              Object {
+                "actual": "10",
+                "error": "0",
+                "level": "ERROR",
+                "measure": Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "coverage",
+                    "key": "coverage",
+                    "name": "Coverage",
+                    "type": "PERCENT",
+                  },
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                "metric": "foo",
+                "op": "GT",
+              },
+            ],
+            "ignoredConditions": false,
+            "key": "foo",
+            "name": "Foo",
+            "status": "ERROR",
+          }
+        }
+      />
+      <Memo(QualityGatePanelSection)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "APP",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        key="foo"
+        qgStatus={
+          Object {
+            "failedConditions": Array [
+              Object {
+                "actual": "10",
+                "error": "0",
+                "level": "ERROR",
+                "measure": Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "coverage",
+                    "key": "coverage",
+                    "name": "Coverage",
+                    "type": "PERCENT",
+                  },
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                "metric": "foo",
+                "op": "GT",
+              },
+              Object {
+                "actual": "10",
+                "error": "0",
+                "level": "ERROR",
+                "measure": Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "new_code_smells",
+                    "key": "new_code_smells",
+                    "name": "New_code_smells",
+                    "type": "PERCENT",
+                  },
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                "metric": "new_code_smells",
+                "op": "GT",
+              },
+            ],
+            "ignoredConditions": false,
+            "key": "foo",
+            "name": "Foo",
+            "status": "ERROR",
+          }
+        }
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly for applications 2`] = `
+<div
+  className="overview-panel"
+  data-test="overview__quality-gate-panel"
+>
+  <h2
+    className="overview-panel-title display-inline-flex-center"
+  >
+    overview.quality_gate
+     
+    <DocTooltip
+      className="little-spacer-left"
+      doc={Promise {}}
+    />
+  </h2>
+  <div
+    className="overview-panel-content"
+  >
+    <div
+      className="overview-quality-gate-badge-large failed"
+    >
+      <h3
+        className="big-spacer-bottom huge"
+      >
+        metric.level.ERROR
+      </h3>
+      <span
+        className="small"
+      >
+        overview.X_conditions_failed.1
+      </span>
+    </div>
+    <div
+      data-test="overview__quality-gate-conditions"
+    >
+      <Memo(QualityGatePanelSection)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "APP",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        key="foo"
+        qgStatus={
+          Object {
+            "failedConditions": Array [
+              Object {
+                "actual": "10",
+                "error": "0",
+                "level": "ERROR",
+                "measure": Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "coverage",
+                    "key": "coverage",
+                    "name": "Coverage",
+                    "type": "PERCENT",
+                  },
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                "metric": "foo",
+                "op": "GT",
+              },
+            ],
+            "ignoredConditions": false,
+            "key": "foo",
+            "name": "Foo",
+            "status": "ERROR",
+          }
+        }
+      />
+      <Memo(QualityGatePanelSection)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "APP",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        key="foo"
+        qgStatus={
+          Object {
+            "failedConditions": Array [],
+            "ignoredConditions": false,
+            "key": "foo",
+            "name": "Foo",
+            "status": "OK",
+          }
+        }
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly for projects 1`] = `
+<div
+  className="overview-panel"
+  data-test="overview__quality-gate-panel"
+>
+  <h2
+    className="overview-panel-title display-inline-flex-center"
+  >
+    overview.quality_gate
+     
+    <DocTooltip
+      className="little-spacer-left"
+      doc={Promise {}}
+    />
+  </h2>
+  <div
+    className="overview-panel-content"
+  >
+    <div
+      className="overview-quality-gate-badge-large failed"
+    >
+      <h3
+        className="big-spacer-bottom huge"
+      >
+        metric.level.ERROR
+      </h3>
+      <span
+        className="small"
+      >
+        overview.X_conditions_failed.1
+      </span>
+    </div>
+    <div
+      data-test="overview__quality-gate-conditions"
+    >
+      <Memo(QualityGatePanelSection)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        key="foo"
+        qgStatus={
+          Object {
+            "failedConditions": Array [
+              Object {
+                "actual": "10",
+                "error": "0",
+                "level": "ERROR",
+                "measure": Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "coverage",
+                    "key": "coverage",
+                    "name": "Coverage",
+                    "type": "PERCENT",
+                  },
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                "metric": "foo",
+                "op": "GT",
+              },
+            ],
+            "ignoredConditions": false,
+            "key": "foo",
+            "name": "Foo",
+            "status": "ERROR",
+          }
+        }
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly for projects 2`] = `
+<div
+  className="overview-panel"
+  data-test="overview__quality-gate-panel"
+>
+  <h2
+    className="overview-panel-title display-inline-flex-center"
+  >
+    overview.quality_gate
+     
+    <DocTooltip
+      className="little-spacer-left"
+      doc={Promise {}}
+    />
+  </h2>
+  <div
+    className="overview-panel-content"
+  >
+    <div
+      className="overview-quality-gate-badge-large success"
+    >
+      <h3
+        className="big-spacer-bottom huge"
+      >
+        metric.level.OK
+      </h3>
+      <span
+        className="small"
+      >
+        overview.quality_gate_all_conditions_passed
+      </span>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly for projects 3`] = `
+<div
+  className="overview-panel"
+  data-test="overview__quality-gate-panel"
+>
+  <h2
+    className="overview-panel-title display-inline-flex-center"
+  >
+    overview.quality_gate
+     
+    <DocTooltip
+      className="little-spacer-left"
+      doc={Promise {}}
+    />
+  </h2>
+  <Alert
+    className="big-spacer-bottom"
+    display="inline"
+    variant="info"
+  >
+    <span
+      className="text-middle"
+    >
+      overview.quality_gate.ignored_conditions
+    </span>
+    <HelpTooltip
+      className="spacer-left"
+      overlay="overview.quality_gate.ignored_conditions.tooltip"
+    />
+  </Alert>
+  <div
+    className="overview-panel-content"
+  >
+    <div
+      className="overview-quality-gate-badge-large failed"
+    >
+      <h3
+        className="big-spacer-bottom huge"
+      >
+        metric.level.ERROR
+      </h3>
+      <span
+        className="small"
+      >
+        overview.X_conditions_failed.1
+      </span>
+    </div>
+    <div
+      data-test="overview__quality-gate-conditions"
+    >
+      <Memo(QualityGatePanelSection)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        key="foo"
+        qgStatus={
+          Object {
+            "failedConditions": Array [
+              Object {
+                "actual": "10",
+                "error": "0",
+                "level": "ERROR",
+                "measure": Object {
+                  "bestValue": true,
+                  "leak": "1",
+                  "metric": Object {
+                    "id": "coverage",
+                    "key": "coverage",
+                    "name": "Coverage",
+                    "type": "PERCENT",
+                  },
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                "metric": "foo",
+                "op": "GT",
+              },
+            ],
+            "ignoredConditions": true,
+            "key": "foo",
+            "name": "Foo",
+            "status": "ERROR",
+          }
+        }
+      />
+    </div>
+  </div>
+</div>
+`;

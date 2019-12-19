@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { ApplicationPeriod } from '../../../types/application';
@@ -28,18 +29,18 @@ export interface ApplicationLeakPeriodInfoProps {
 
 export function ApplicationLeakPeriodInfo({ leakPeriod }: ApplicationLeakPeriodInfoProps) {
   return (
-    <>
-      <div className="note spacer-top">
-        {translateWithParameters('overview.max_new_code_period_from_x', leakPeriod.projectName)}
-      </div>
+    <div className="note spacer-top display-inline-flex-center">
       <DateFromNow date={leakPeriod.date}>
-        {fromNow => (
-          <div className="note little-spacer-top">
-            {translateWithParameters('overview.started_x', fromNow)}
-          </div>
-        )}
+        {fromNow => translateWithParameters('overview.started_x', fromNow)}
       </DateFromNow>
-    </>
+      <HelpTooltip
+        className="little-spacer-left"
+        overlay={translateWithParameters(
+          'overview.max_new_code_period_from_x',
+          leakPeriod.projectName
+        )}
+      />
+    </div>
   );
 }
 

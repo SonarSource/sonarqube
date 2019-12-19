@@ -4,206 +4,94 @@ exports[`renders correctly 1`] = `
 <div
   className="page page-limited"
 >
-  <div
-    className="overview page-with-sidebar"
-  >
-    <div
-      className="overview-main page-main"
-    >
-      <AnalyzeTutorial
-        component={
+  <AnalyzeTutorial
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
           Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
-            "organization": "foo",
-            "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
-            "version": "0.0.1",
-          }
-        }
-        currentUser={
-          Object {
-            "groups": Array [],
-            "isLoggedIn": true,
-            "login": "luke",
-            "name": "Skywalker",
-            "scmAccounts": Array [],
-          }
-        }
-      />
-    </div>
-    <div
-      className="overview-sidebar page-sidebar-fixed"
-    >
-      <Connect(Meta)
-        branchLike={
-          Object {
-            "analysisDate": "2018-01-01",
-            "excludedFromPurge": true,
-            "isMain": true,
-            "name": "master",
-          }
-        }
-        component={
-          Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
-            "organization": "foo",
-            "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
-            "version": "0.0.1",
-          }
-        }
-        onComponentChange={[MockFunction]}
-      />
-    </div>
-  </div>
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+        "version": "0.0.1",
+      }
+    }
+    currentUser={
+      Object {
+        "groups": Array [],
+        "isLoggedIn": true,
+        "login": "luke",
+        "name": "Skywalker",
+        "scmAccounts": Array [],
+      }
+    }
+  />
 </div>
 `;
 
-exports[`should not render the tutorial 1`] = `
+exports[`renders correctly 2`] = `
+<div
+  className="page page-limited"
+/>
+`;
+
+exports[`renders correctly 3`] = `
 <div
   className="page page-limited"
 >
-  <div
-    className="overview page-with-sidebar"
+  <Alert
+    variant="warning"
   >
-    <div
-      className="overview-main page-main"
+    <FormattedMessage
+      defaultMessage="provisioning.no_analysis_on_main_branch"
+      id="provisioning.no_analysis_on_main_branch"
+      values={
+        Object {
+          "branchName": "master",
+        }
+      }
     />
-    <div
-      className="overview-sidebar page-sidebar-fixed"
-    >
-      <Connect(Meta)
-        branchLike={
-          Object {
-            "analysisDate": "2018-01-01",
-            "excludedFromPurge": true,
-            "isMain": true,
-            "name": "master",
-          }
-        }
-        component={
-          Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
-            "organization": "foo",
-            "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
-            "version": "0.0.1",
-          }
-        }
-        onComponentChange={[MockFunction]}
-      />
-    </div>
-  </div>
+  </Alert>
 </div>
+`;
+
+exports[`should not render the tutorial for applications 1`] = `
+<div
+  className="page page-limited"
+/>
 `;
 
 exports[`should render another message when there are branches 1`] = `
 <div
   className="page page-limited"
 >
-  <div
-    className="overview page-with-sidebar"
+  <Alert
+    variant="warning"
   >
-    <div
-      className="overview-main page-main"
-    >
-      <WarningMessage
-        branchLike={
-          Object {
-            "analysisDate": "2018-01-01",
-            "excludedFromPurge": true,
-            "isMain": true,
-            "name": "master",
-          }
+    <FormattedMessage
+      defaultMessage="provisioning.no_analysis_on_main_branch.bad_configuration"
+      id="provisioning.no_analysis_on_main_branch.bad_configuration"
+      values={
+        Object {
+          "branchName": "master",
+          "branchType": "branches.main_branch",
         }
-        message="provisioning.no_analysis_on_main_branch"
-      />
-    </div>
-    <div
-      className="overview-sidebar page-sidebar-fixed"
-    >
-      <Connect(Meta)
-        branchLike={
-          Object {
-            "analysisDate": "2018-01-01",
-            "excludedFromPurge": true,
-            "isMain": true,
-            "name": "master",
-          }
-        }
-        component={
-          Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
-            "organization": "foo",
-            "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
-            "version": "0.0.1",
-          }
-        }
-        onComponentChange={[MockFunction]}
-      />
-    </div>
-  </div>
+      }
+    />
+  </Alert>
 </div>
 `;
 
@@ -211,80 +99,19 @@ exports[`should render another message when there are branches 2`] = `
 <div
   className="page page-limited"
 >
-  <div
-    className="overview page-with-sidebar"
+  <Alert
+    variant="warning"
   >
-    <div
-      className="overview-main page-main"
-    >
-      <WarningMessage
-        branchLike={
-          Object {
-            "analysisDate": "2018-01-01",
-            "excludedFromPurge": true,
-            "isMain": true,
-            "name": "master",
-          }
+    <FormattedMessage
+      defaultMessage="provisioning.no_analysis_on_main_branch.bad_configuration"
+      id="provisioning.no_analysis_on_main_branch.bad_configuration"
+      values={
+        Object {
+          "branchName": "master",
+          "branchType": "branches.main_branch",
         }
-        message="provisioning.no_analysis_on_main_branch.bad_configuration"
-      />
-    </div>
-    <div
-      className="overview-sidebar page-sidebar-fixed"
-    >
-      <Connect(Meta)
-        branchLike={
-          Object {
-            "analysisDate": "2018-01-01",
-            "excludedFromPurge": true,
-            "isMain": true,
-            "name": "master",
-          }
-        }
-        component={
-          Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
-            "organization": "foo",
-            "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
-            "version": "0.0.1",
-          }
-        }
-        onComponentChange={[MockFunction]}
-      />
-    </div>
-  </div>
-</div>
-`;
-
-exports[`should render warning message 1`] = `
-<Alert
-  variant="warning"
->
-  <FormattedMessage
-    defaultMessage="foo"
-    id="foo"
-    values={
-      Object {
-        "branchName": "master",
-        "branchType": "branches.main_branch",
       }
-    }
-  />
-</Alert>
+    />
+  </Alert>
+</div>
 `;

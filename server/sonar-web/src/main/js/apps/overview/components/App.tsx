@@ -18,19 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
 import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
-import { getBaseUrl, getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { isPullRequest } from '../../../helpers/branch-like';
-import { isSonarCloud } from '../../../helpers/system';
-import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import OverviewApp from './OverviewApp';
+import BranchOverview from '../branches/BranchOverview';
 
 const EmptyOverview = lazyLoad(() => import('./EmptyOverview'));
-const ReviewApp = lazyLoad(() => import('../pullRequests/ReviewApp'));
+const PullRequestOverview = lazyLoad(() => import('../pullRequests/PullRequestOverview'));
 
 interface Props {
   branchLike?: BranchLike;
@@ -38,7 +34,6 @@ interface Props {
   component: T.Component;
   isInProgress?: boolean;
   isPending?: boolean;
-  onComponentChange: (changes: Partial<T.Component>) => void;
   router: Pick<Router, 'replace'>;
 }
 
@@ -67,19 +62,10 @@ export class App extends React.PureComponent<Props> {
 
     return (
       <>
-        {isSonarCloud() && (
-          <Helmet>
-            <link
-              href={getBaseUrl() + getPathUrlAsString(getProjectUrl(component.key))}
-              rel="canonical"
-            />
-          </Helmet>
-        )}
-
         {isPullRequest(branchLike) ? (
           <>
             <Suggestions suggestions="pull_requests" />
-            <ReviewApp branchLike={branchLike} component={component} />
+            <PullRequestOverview branchLike={branchLike} component={component} />
           </>
         ) : (
           <>
@@ -91,16 +77,9 @@ export class App extends React.PureComponent<Props> {
                 branchLikes={branchLikes}
                 component={component}
                 hasAnalyses={this.props.isPending || this.props.isInProgress}
-                onComponentChange={this.props.onComponentChange}
               />
             ) : (
-              <OverviewApp
-                branchLike={branchLike}
-                component={component}
-                isInProgress={this.props.isInProgress}
-                isPending={this.props.isPending}
-                onComponentChange={this.props.onComponentChange}
-              />
+              <BranchOverview branchLike={branchLike} component={component} />
             )}
           </>
         )}

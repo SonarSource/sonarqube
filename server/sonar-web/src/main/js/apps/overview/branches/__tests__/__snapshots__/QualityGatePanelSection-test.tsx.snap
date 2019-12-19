@@ -1,0 +1,436 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="overview-quality-gate-conditions"
+>
+  <h4
+    className="overview-quality-gate-conditions-section-title"
+  >
+    quality_gates.conditions.new_code
+  </h4>
+  <QualityGateConditions
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
+        "isMain": true,
+        "name": "master",
+      }
+    }
+    component={
+      Object {
+        "failedConditions": Array [
+          Object {
+            "actual": "10",
+            "error": "0",
+            "level": "ERROR",
+            "measure": Object {
+              "bestValue": true,
+              "leak": "1",
+              "metric": Object {
+                "id": "coverage",
+                "key": "coverage",
+                "name": "Coverage",
+                "type": "PERCENT",
+              },
+              "periods": Array [
+                Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+              ],
+              "value": "1.0",
+            },
+            "metric": "bugs",
+            "op": "GT",
+          },
+          Object {
+            "actual": "10",
+            "error": "0",
+            "level": "ERROR",
+            "measure": Object {
+              "bestValue": true,
+              "leak": "1",
+              "metric": Object {
+                "id": "coverage",
+                "key": "coverage",
+                "name": "Coverage",
+                "type": "PERCENT",
+              },
+              "periods": Array [
+                Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+              ],
+              "value": "1.0",
+            },
+            "metric": "new_bugs",
+            "op": "GT",
+          },
+        ],
+        "ignoredConditions": false,
+        "key": "foo",
+        "name": "Foo",
+        "status": "ERROR",
+      }
+    }
+    failedConditions={
+      Array [
+        Object {
+          "actual": "10",
+          "error": "0",
+          "level": "ERROR",
+          "measure": Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "periods": Array [
+              Object {
+                "bestValue": true,
+                "index": 1,
+                "value": "1.0",
+              },
+            ],
+            "value": "1.0",
+          },
+          "metric": "new_bugs",
+          "op": "GT",
+        },
+      ]
+    }
+  />
+  <h4
+    className="overview-quality-gate-conditions-section-title"
+  >
+    quality_gates.conditions.overall_code
+  </h4>
+  <QualityGateConditions
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
+        "isMain": true,
+        "name": "master",
+      }
+    }
+    component={
+      Object {
+        "failedConditions": Array [
+          Object {
+            "actual": "10",
+            "error": "0",
+            "level": "ERROR",
+            "measure": Object {
+              "bestValue": true,
+              "leak": "1",
+              "metric": Object {
+                "id": "coverage",
+                "key": "coverage",
+                "name": "Coverage",
+                "type": "PERCENT",
+              },
+              "periods": Array [
+                Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+              ],
+              "value": "1.0",
+            },
+            "metric": "bugs",
+            "op": "GT",
+          },
+          Object {
+            "actual": "10",
+            "error": "0",
+            "level": "ERROR",
+            "measure": Object {
+              "bestValue": true,
+              "leak": "1",
+              "metric": Object {
+                "id": "coverage",
+                "key": "coverage",
+                "name": "Coverage",
+                "type": "PERCENT",
+              },
+              "periods": Array [
+                Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+              ],
+              "value": "1.0",
+            },
+            "metric": "new_bugs",
+            "op": "GT",
+          },
+        ],
+        "ignoredConditions": false,
+        "key": "foo",
+        "name": "Foo",
+        "status": "ERROR",
+      }
+    }
+    failedConditions={
+      Array [
+        Object {
+          "actual": "10",
+          "error": "0",
+          "level": "ERROR",
+          "measure": Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "periods": Array [
+              Object {
+                "bestValue": true,
+                "index": 1,
+                "value": "1.0",
+              },
+            ],
+            "value": "1.0",
+          },
+          "metric": "bugs",
+          "op": "GT",
+        },
+      ]
+    }
+  />
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="overview-quality-gate-conditions"
+>
+  <h3
+    className="overview-quality-gate-conditions-project-name"
+  >
+    Foo
+  </h3>
+  <h4
+    className="overview-quality-gate-conditions-section-title"
+  >
+    quality_gates.conditions.new_code
+  </h4>
+  <QualityGateConditions
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
+        "isMain": true,
+        "name": "master",
+      }
+    }
+    component={
+      Object {
+        "failedConditions": Array [
+          Object {
+            "actual": "10",
+            "error": "0",
+            "level": "ERROR",
+            "measure": Object {
+              "bestValue": true,
+              "leak": "1",
+              "metric": Object {
+                "id": "coverage",
+                "key": "coverage",
+                "name": "Coverage",
+                "type": "PERCENT",
+              },
+              "periods": Array [
+                Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+              ],
+              "value": "1.0",
+            },
+            "metric": "bugs",
+            "op": "GT",
+          },
+          Object {
+            "actual": "10",
+            "error": "0",
+            "level": "ERROR",
+            "measure": Object {
+              "bestValue": true,
+              "leak": "1",
+              "metric": Object {
+                "id": "coverage",
+                "key": "coverage",
+                "name": "Coverage",
+                "type": "PERCENT",
+              },
+              "periods": Array [
+                Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+              ],
+              "value": "1.0",
+            },
+            "metric": "new_bugs",
+            "op": "GT",
+          },
+        ],
+        "ignoredConditions": false,
+        "key": "foo",
+        "name": "Foo",
+        "status": "ERROR",
+      }
+    }
+    failedConditions={
+      Array [
+        Object {
+          "actual": "10",
+          "error": "0",
+          "level": "ERROR",
+          "measure": Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "periods": Array [
+              Object {
+                "bestValue": true,
+                "index": 1,
+                "value": "1.0",
+              },
+            ],
+            "value": "1.0",
+          },
+          "metric": "new_bugs",
+          "op": "GT",
+        },
+      ]
+    }
+  />
+  <h4
+    className="overview-quality-gate-conditions-section-title"
+  >
+    quality_gates.conditions.overall_code
+  </h4>
+  <QualityGateConditions
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
+        "isMain": true,
+        "name": "master",
+      }
+    }
+    component={
+      Object {
+        "failedConditions": Array [
+          Object {
+            "actual": "10",
+            "error": "0",
+            "level": "ERROR",
+            "measure": Object {
+              "bestValue": true,
+              "leak": "1",
+              "metric": Object {
+                "id": "coverage",
+                "key": "coverage",
+                "name": "Coverage",
+                "type": "PERCENT",
+              },
+              "periods": Array [
+                Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+              ],
+              "value": "1.0",
+            },
+            "metric": "bugs",
+            "op": "GT",
+          },
+          Object {
+            "actual": "10",
+            "error": "0",
+            "level": "ERROR",
+            "measure": Object {
+              "bestValue": true,
+              "leak": "1",
+              "metric": Object {
+                "id": "coverage",
+                "key": "coverage",
+                "name": "Coverage",
+                "type": "PERCENT",
+              },
+              "periods": Array [
+                Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+              ],
+              "value": "1.0",
+            },
+            "metric": "new_bugs",
+            "op": "GT",
+          },
+        ],
+        "ignoredConditions": false,
+        "key": "foo",
+        "name": "Foo",
+        "status": "ERROR",
+      }
+    }
+    failedConditions={
+      Array [
+        Object {
+          "actual": "10",
+          "error": "0",
+          "level": "ERROR",
+          "measure": Object {
+            "bestValue": true,
+            "leak": "1",
+            "metric": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "periods": Array [
+              Object {
+                "bestValue": true,
+                "index": 1,
+                "value": "1.0",
+              },
+            ],
+            "value": "1.0",
+          },
+          "metric": "bugs",
+          "op": "GT",
+        },
+      ]
+    }
+  />
+</div>
+`;

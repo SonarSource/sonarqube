@@ -17,39 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import { isSonarCloud } from '../../../../helpers/system';
-import BranchOverview from '../../branches/BranchOverview';
-import { App } from '../App';
+import { DateSource } from 'react-intl';
 
-jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
+interface Props {
+  children?: (formattedDate: string) => React.ReactNode;
+  date: DateSource;
+}
 
-const component = {
-  key: 'foo',
-  analysisDate: '2016-01-01',
-  breadcrumbs: [],
-  name: 'Foo',
-  organization: 'org',
-  qualifier: 'TRK',
-  version: '0.0.1'
-};
-
-beforeEach(() => {
-  (isSonarCloud as jest.Mock<any>).mockClear();
-  (isSonarCloud as jest.Mock<any>).mockReturnValue(false);
-});
-
-it('should render BranchOverview', () => {
-  expect(
-    getWrapper()
-      .find(BranchOverview)
-      .exists()
-  ).toBeTruthy();
-});
-
-function getWrapper(props = {}) {
-  return shallow(
-    <App branchLikes={[]} component={component} router={{ replace: jest.fn() }} {...props} />
-  );
+export default function DateFromNow({ children, date }: Props) {
+  return children && children(date.toString());
 }

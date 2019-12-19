@@ -19,40 +19,39 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockBranch, mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
-import { mockComponent, mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { EmptyOverview } from '../EmptyOverview';
+import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import {
+  mockQualityGateStatus,
+  mockQualityGateStatusConditionEnhanced
+} from '../../../../helpers/mocks/quality-gates';
+import { mockComponent } from '../../../../helpers/testMocks';
+import { QualityGatePanelSection, QualityGatePanelSectionProps } from '../QualityGatePanelSection';
 
-it('renders correctly', () => {
+it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ hasAnalyses: true })).toMatchSnapshot();
-  expect(shallowRender({ currentUser: mockCurrentUser() })).toMatchSnapshot();
-});
-
-it('should render another message when there are branches', () => {
-  expect(shallowRender({ branchLikes: [mockMainBranch(), mockBranch()] })).toMatchSnapshot();
   expect(
     shallowRender({
-      branchLikes: [mockMainBranch(), mockBranch(), mockBranch({ name: 'branch-7.8' })]
-    })
-  ).toMatchSnapshot();
-});
-
-it('should not render warning message for pull requests', () => {
-  expect(shallowRender({ branchLike: mockPullRequest() }).type()).toBeNull();
-});
-
-it('should not render the tutorial for applications', () => {
+      qgStatus: mockQualityGateStatus({
+        failedConditions: [],
+        status: 'OK'
+      })
+    }).type()
+  ).toBeNull();
   expect(shallowRender({ component: mockComponent({ qualifier: 'APP' }) })).toMatchSnapshot();
 });
 
-function shallowRender(props = {}) {
+function shallowRender(props: Partial<QualityGatePanelSectionProps> = {}) {
   return shallow(
-    <EmptyOverview
+    <QualityGatePanelSection
       branchLike={mockMainBranch()}
-      branchLikes={[mockMainBranch()]}
-      component={mockComponent({ version: '0.0.1' })}
-      currentUser={mockLoggedInUser()}
+      component={mockComponent()}
+      qgStatus={mockQualityGateStatus({
+        failedConditions: [
+          mockQualityGateStatusConditionEnhanced({ metric: 'bugs' }),
+          mockQualityGateStatusConditionEnhanced({ metric: 'new_bugs' })
+        ],
+        status: 'ERROR'
+      })}
       {...props}
     />
   );

@@ -1,0 +1,349 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="overview-panel big-spacer-top"
+  data-test="overview__activity-panel"
+>
+  <h2
+    className="overview-panel-title"
+  >
+    overview.activity
+  </h2>
+  <div
+    className="overview-panel-content"
+  >
+    <div
+      className="display-flex-row"
+    >
+      <div
+        className="display-flex-column flex-1"
+      >
+        <div
+          aria-hidden={true}
+          className="overview-panel-padded display-flex-column flex-1"
+        >
+          <GraphsHeader
+            graph="issues"
+            metrics={
+              Array [
+                Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+              ]
+            }
+            updateGraph={[MockFunction]}
+          />
+          <GraphsHistory
+            analyses={
+              Array [
+                Object {
+                  "date": 2017-03-01T08:36:01.000Z,
+                  "events": Array [
+                    Object {
+                      "category": "QUALITY_GATE",
+                      "description": "Lorem ipsum dolor sit amet",
+                      "key": "E11",
+                      "name": "Lorem ipsum",
+                      "qualityGate": Object {
+                        "failing": Array [
+                          Object {
+                            "branch": "master",
+                            "key": "foo",
+                            "name": "Foo",
+                          },
+                          Object {
+                            "branch": "feature/bar",
+                            "key": "bar",
+                            "name": "Bar",
+                          },
+                        ],
+                        "status": "ERROR",
+                        "stillFailing": true,
+                      },
+                    },
+                  ],
+                  "key": "foo",
+                  "projectVersion": "1.0",
+                },
+                Object {
+                  "date": 2017-03-01T08:36:01.000Z,
+                  "events": Array [],
+                  "key": "foo",
+                  "projectVersion": "1.0",
+                },
+              ]
+            }
+            graph="issues"
+            graphs={
+              Array [
+                Array [
+                  Object {
+                    "data": Array [
+                      Object {
+                        "x": 2016-10-27T14:33:50.000Z,
+                        "y": 20,
+                      },
+                    ],
+                    "name": "bugs",
+                    "translatedName": "Bugs",
+                    "type": "PERCENT",
+                  },
+                ],
+              ]
+            }
+            loading={false}
+            measuresHistory={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "history": Array [
+                    Object {
+                      "date": 2016-10-27T14:33:50.000Z,
+                      "value": "20",
+                    },
+                  ],
+                  "metric": "bugs",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            series={
+              Array [
+                Object {
+                  "data": Array [
+                    Object {
+                      "x": 2016-10-27T14:33:50.000Z,
+                      "y": 20,
+                    },
+                  ],
+                  "name": "bugs",
+                  "translatedName": "Bugs",
+                  "type": "PERCENT",
+                },
+              ]
+            }
+          />
+        </div>
+        <div
+          className="overview-panel-padded bordered-top text-right"
+        >
+          <ActivityLink
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "excludedFromPurge": true,
+                "isMain": true,
+                "name": "master",
+              }
+            }
+            component="my-project"
+            graph="issues"
+          />
+        </div>
+      </div>
+      <div
+        className="overview-panel-padded bordered-left width-30"
+      >
+        <div
+          data-test="overview__activity-analyses"
+        >
+          <DeferredSpinner
+            className="spacer-top spacer-left"
+            loading={false}
+            timeout={100}
+          >
+            <ul
+              className="spacer-top spacer-left"
+            >
+              <Memo(Analysis)
+                analysis={
+                  Object {
+                    "date": "2017-03-01T09:36:01+0100",
+                    "events": Array [
+                      Object {
+                        "category": "QUALITY_GATE",
+                        "description": "Lorem ipsum dolor sit amet",
+                        "key": "E11",
+                        "name": "Lorem ipsum",
+                        "qualityGate": Object {
+                          "failing": Array [
+                            Object {
+                              "branch": "master",
+                              "key": "foo",
+                              "name": "Foo",
+                            },
+                            Object {
+                              "branch": "feature/bar",
+                              "key": "bar",
+                              "name": "Bar",
+                            },
+                          ],
+                          "status": "ERROR",
+                          "stillFailing": true,
+                        },
+                      },
+                    ],
+                    "key": "foo",
+                    "projectVersion": "1.0",
+                  }
+                }
+                key="foo"
+                qualifier="TRK"
+              />
+            </ul>
+          </DeferredSpinner>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="overview-panel big-spacer-top"
+  data-test="overview__activity-panel"
+>
+  <h2
+    className="overview-panel-title"
+  >
+    overview.activity
+  </h2>
+  <div
+    className="overview-panel-content"
+  >
+    <div
+      className="display-flex-row"
+    >
+      <div
+        className="display-flex-column flex-1"
+      >
+        <div
+          aria-hidden={true}
+          className="overview-panel-padded display-flex-column flex-1"
+        >
+          <GraphsHeader
+            graph="issues"
+            metrics={
+              Array [
+                Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+              ]
+            }
+            updateGraph={[MockFunction]}
+          />
+          <GraphsHistory
+            analyses={Array []}
+            graph="issues"
+            graphs={
+              Array [
+                Array [
+                  Object {
+                    "data": Array [
+                      Object {
+                        "x": 2016-10-27T14:33:50.000Z,
+                        "y": 20,
+                      },
+                    ],
+                    "name": "bugs",
+                    "translatedName": "Bugs",
+                    "type": "PERCENT",
+                  },
+                ],
+              ]
+            }
+            loading={true}
+            measuresHistory={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "history": Array [
+                    Object {
+                      "date": 2016-10-27T14:33:50.000Z,
+                      "value": "20",
+                    },
+                  ],
+                  "metric": "bugs",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            series={
+              Array [
+                Object {
+                  "data": Array [
+                    Object {
+                      "x": 2016-10-27T14:33:50.000Z,
+                      "y": 20,
+                    },
+                  ],
+                  "name": "bugs",
+                  "translatedName": "Bugs",
+                  "type": "PERCENT",
+                },
+              ]
+            }
+          />
+        </div>
+        <div
+          className="overview-panel-padded bordered-top text-right"
+        >
+          <ActivityLink
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "excludedFromPurge": true,
+                "isMain": true,
+                "name": "master",
+              }
+            }
+            component="my-project"
+            graph="issues"
+          />
+        </div>
+      </div>
+      <div
+        className="overview-panel-padded bordered-left width-30"
+      >
+        <div
+          data-test="overview__activity-analyses"
+        >
+          <DeferredSpinner
+            className="spacer-top spacer-left"
+            loading={true}
+            timeout={100}
+          >
+            <p
+              className="spacer-top spacer-left note"
+            >
+              no_results
+            </p>
+          </DeferredSpinner>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

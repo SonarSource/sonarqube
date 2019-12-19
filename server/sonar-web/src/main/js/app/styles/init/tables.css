@@ -269,7 +269,7 @@ table.data.boxed-padding > thead + tbody > tr:first-child > td {
 }
 
 table.data.zebra-hover > tbody > tr:hover {
-  background-color: #ecf6fe !important;
+  background-color: var(--rowHoverHighlight) !important;
 }
 
 table.data.zebra > tbody > tr.selected {

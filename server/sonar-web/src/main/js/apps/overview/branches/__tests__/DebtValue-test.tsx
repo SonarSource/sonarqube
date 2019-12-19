@@ -19,37 +19,27 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { isSonarCloud } from '../../../../helpers/system';
-import BranchOverview from '../../branches/BranchOverview';
-import { App } from '../App';
+import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockComponent, mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
+import { MetricKey } from '../../../../types/metrics';
+import { DebtValue, DebtValueProps } from '../DebtValue';
 
-jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
-
-const component = {
-  key: 'foo',
-  analysisDate: '2016-01-01',
-  breadcrumbs: [],
-  name: 'Foo',
-  organization: 'org',
-  qualifier: 'TRK',
-  version: '0.0.1'
-};
-
-beforeEach(() => {
-  (isSonarCloud as jest.Mock<any>).mockClear();
-  (isSonarCloud as jest.Mock<any>).mockReturnValue(false);
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ useDiffMetric: true })).toMatchSnapshot();
+  expect(shallowRender({ measures: [] })).toMatchSnapshot();
 });
 
-it('should render BranchOverview', () => {
-  expect(
-    getWrapper()
-      .find(BranchOverview)
-      .exists()
-  ).toBeTruthy();
-});
-
-function getWrapper(props = {}) {
+function shallowRender(props: Partial<DebtValueProps> = {}) {
   return shallow(
-    <App branchLikes={[]} component={component} router={{ replace: jest.fn() }} {...props} />
+    <DebtValue
+      branchLike={mockMainBranch()}
+      component={mockComponent()}
+      measures={[
+        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.sqale_index }) }),
+        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_technical_debt }) })
+      ]}
+      {...props}
+    />
   );
 }

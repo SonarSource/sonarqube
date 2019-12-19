@@ -32,13 +32,11 @@ import {
   Store
 } from '../../../store/rootReducer';
 import { BranchLike } from '../../../types/branch-like';
-import AnalysesList from '../events/AnalysesList';
 import MetaKey from './MetaKey';
 import MetaLinks from './MetaLinks';
 import MetaOrganizationKey from './MetaOrganizationKey';
 import MetaQualityGate from './MetaQualityGate';
 import MetaQualityProfiles from './MetaQualityProfiles';
-import MetaSize from './MetaSize';
 import MetaTags from './MetaTags';
 
 const ProjectBadges = lazyLoadComponent(() => import('../badges/ProjectBadges'), 'ProjectBadges');
@@ -103,7 +101,7 @@ export class Meta extends React.PureComponent<Props> {
 
   render() {
     const { organizationsEnabled } = this.props.appState;
-    const { branchLike, component, currentUser, measures, metrics, organization } = this.props;
+    const { branchLike, component, currentUser, metrics, organization } = this.props;
     const { qualifier, description, visibility } = component;
 
     const isProject = qualifier === 'TRK';
@@ -131,20 +129,7 @@ export class Meta extends React.PureComponent<Props> {
           {isProject && (
             <MetaTags component={component} onComponentChange={this.props.onComponentChange} />
           )}
-          {measures && (
-            <MetaSize branchLike={branchLike} component={component} measures={measures} />
-          )}
         </div>
-
-        {metrics && (
-          <AnalysesList
-            branchLike={branchLike}
-            component={component}
-            history={this.props.history}
-            metrics={metrics}
-            qualifier={component.qualifier}
-          />
-        )}
 
         {this.renderQualityInfos()}
 
