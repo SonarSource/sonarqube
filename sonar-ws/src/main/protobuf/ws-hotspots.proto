@@ -66,6 +66,7 @@ message ShowWsResponse {
   optional sonarqube.ws.commons.TextRange textRange = 13;
   repeated sonarqube.ws.commons.Changelog changelog = 14;
   repeated sonarqube.ws.commons.Comment comment = 15;
+  repeated sonarqube.ws.commons.User users = 16;
 }
 
 message Component {

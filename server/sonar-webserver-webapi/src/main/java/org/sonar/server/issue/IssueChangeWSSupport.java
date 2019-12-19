@@ -88,6 +88,8 @@ public class IssueChangeWSSupport {
 
     List<IssueChangeDto> getComments(IssueDto dto);
 
+    Set<UserDto> getUsers();
+
     Optional<UserDto> getUserByUuid(@Nullable String uuid);
 
     Optional<ComponentDto> getFileByUuid(@Nullable String uuid);
@@ -326,6 +328,11 @@ public class IssueChangeWSSupport {
         return ImmutableList.of();
       }
       return ImmutableList.copyOf(comments);
+    }
+
+    @Override
+    public Set<UserDto> getUsers() {
+      return ImmutableSet.copyOf(usersByUuid.values());
     }
 
     @Override

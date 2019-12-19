@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
@@ -55,6 +56,7 @@ import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ShowAction implements HotspotsWsAction {
@@ -107,12 +109,14 @@ public class ShowAction implements HotspotsWsAction {
       RuleDefinitionDto rule = loadRule(dbSession, hotspot);
 
       ShowWsResponse.Builder responseBuilder = ShowWsResponse.newBuilder();
+      Common.User.Builder userBuilder = Common.User.newBuilder();
       formatHotspot(responseBuilder, hotspot);
-      formatUsers(responseBuilder, users, hotspot);
+      formatHotspotAuthorAndAssignee(responseBuilder, userBuilder, users, hotspot);
       formatComponents(components, responseBuilder);
       formatRule(responseBuilder, rule);
-      formatTextRange(hotspot, responseBuilder);
-      formatChangeLogAndComments(dbSession, hotspot, components, responseBuilder);
+      formatTextRange(responseBuilder, hotspot);
+      FormattingContext formattingContext = formatChangeLogAndComments(dbSession, hotspot, users, components, responseBuilder);
+      formatUsers(responseBuilder, userBuilder, users, formattingContext);
 
       writeProtobuf(responseBuilder.build(), request, response);
     }
@@ -143,8 +147,8 @@ public class ShowAction implements HotspotsWsAction {
     builder.setUpdateDate(formatDateTime(hotspot.getIssueUpdateDate()));
   }
 
-  private void formatUsers(ShowWsResponse.Builder responseBuilder, Users users, IssueDto hotspot) {
-    Common.User.Builder userBuilder = Common.User.newBuilder();
+  private void formatHotspotAuthorAndAssignee(ShowWsResponse.Builder responseBuilder,
+    Common.User.Builder userBuilder, Users users, IssueDto hotspot) {
     users.getAssignee().map(t -> userFormatter.formatUser(userBuilder, t)).ifPresent(responseBuilder::setAssignee);
 
     Common.User author = users.getAuthor()
@@ -174,19 +178,36 @@ public class ShowAction implements HotspotsWsAction {
     responseBuilder.setRule(ruleBuilder.build());
   }
 
-  private void formatTextRange(IssueDto hotspot, ShowWsResponse.Builder responseBuilder) {
+  private void formatTextRange(ShowWsResponse.Builder responseBuilder, IssueDto hotspot) {
     textRangeFormatter.formatTextRange(hotspot, responseBuilder::setTextRange);
   }
 
-  private void formatChangeLogAndComments(DbSession dbSession, IssueDto hotspot, Components components, ShowWsResponse.Builder responseBuilder) {
+  private FormattingContext formatChangeLogAndComments(DbSession dbSession, IssueDto hotspot, Users users, Components components, ShowWsResponse.Builder responseBuilder) {
+    Set<UserDto> preloadedUsers = Stream.of(users.getAssignee(), users.getAuthor())
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .collect(toSet());
     Set<ComponentDto> preloadedComponents = ImmutableSet.of(components.project, components.component);
     FormattingContext formattingContext = issueChangeSupport
-      .newFormattingContext(dbSession, singleton(hotspot), Load.ALL, ImmutableSet.of(), preloadedComponents);
+      .newFormattingContext(dbSession, singleton(hotspot), Load.ALL, preloadedUsers, preloadedComponents);
 
     issueChangeSupport.formatChangelog(hotspot, formattingContext)
       .forEach(responseBuilder::addChangelog);
     issueChangeSupport.formatComments(hotspot, Common.Comment.newBuilder(), formattingContext)
       .forEach(responseBuilder::addComment);
+
+    return formattingContext;
+  }
+
+  private void formatUsers(ShowWsResponse.Builder responseBuilder, Common.User.Builder userBuilder, Users users, FormattingContext formattingContext) {
+    Stream.concat(
+      Stream.of(users.getAssignee(), users.getAuthor())
+        .filter(Optional::isPresent)
+        .map(Optional::get),
+      formattingContext.getUsers().stream())
+      .distinct()
+      .map(user -> userFormatter.formatUser(userBuilder, user))
+      .forEach(responseBuilder::addUsers);
   }
 
   private RuleDefinitionDto loadRule(DbSession dbSession, IssueDto hotspot) {

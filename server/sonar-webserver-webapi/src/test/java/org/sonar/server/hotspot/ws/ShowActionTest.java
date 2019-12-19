@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,6 +55,7 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -77,6 +79,7 @@ import org.sonarqube.ws.Hotspots;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -178,6 +181,7 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -193,6 +197,7 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -209,6 +214,7 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule).setStatus(status).setResolution(resolution));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -238,6 +244,7 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -257,6 +264,7 @@ public class ShowActionTest {
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
       .setLocations(DbIssues.Locations.newBuilder().build()));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -280,9 +288,11 @@ public class ShowActionTest {
           .setEndOffset(endOffset)
           .build())
         .build()));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
+
     assertThat(response.hasTextRange()).isTrue();
     Common.TextRange textRange = response.getTextRange();
     assertThat(textRange.getStartLine()).isEqualTo(startLine);
@@ -299,6 +309,7 @@ public class ShowActionTest {
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
       .setAssigneeUuid(randomAlphabetic(10)));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -315,6 +326,7 @@ public class ShowActionTest {
     UserDto assignee = dbTester.users().insertUser();
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
       .setAssigneeUuid(assignee.getUuid()));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -335,6 +347,7 @@ public class ShowActionTest {
     UserDto assignee = dbTester.users().insertUser(t -> t.setEmail(null));
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
       .setAssigneeUuid(assignee.getUuid()));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -351,11 +364,14 @@ public class ShowActionTest {
     UserDto assignee = dbTester.users().insertUser(t -> t.setActive(false));
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
       .setAssigneeUuid(assignee.getUuid()));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
     assertThat(response.getAssignee().getActive()).isFalse();
+    assertThat(response.getUsersList()).hasSize(1);
+    assertThat(response.getUsersList().iterator().next().getActive()).isFalse();
   }
 
   @Test
@@ -367,6 +383,7 @@ public class ShowActionTest {
     String authorLogin = randomAlphabetic(10);
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
       .setAuthorLogin(authorLogin));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -376,6 +393,7 @@ public class ShowActionTest {
     assertThat(wsAuthor.hasName()).isFalse();
     assertThat(wsAuthor.hasActive()).isFalse();
     assertThat(wsAuthor.hasAvatar()).isFalse();
+    assertThat(response.getUsersList()).isEmpty();
   }
 
   @Test
@@ -387,6 +405,7 @@ public class ShowActionTest {
     UserDto author = dbTester.users().insertUser();
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
       .setAuthorLogin(author.getLogin()));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -396,6 +415,12 @@ public class ShowActionTest {
     assertThat(wsAuthor.getName()).isEqualTo(author.getName());
     assertThat(wsAuthor.getActive()).isEqualTo(author.isActive());
     assertThat(wsAuthor.getAvatar()).isEqualTo(avatarResolver.create(author));
+    assertThat(response.getUsersList()).hasSize(1);
+    User wsAuthorFromList = response.getUsersList().iterator().next();
+    assertThat(wsAuthorFromList.getLogin()).isEqualTo(author.getLogin());
+    assertThat(wsAuthorFromList.getName()).isEqualTo(author.getName());
+    assertThat(wsAuthorFromList.getActive()).isEqualTo(author.isActive());
+    assertThat(wsAuthorFromList.getAvatar()).isEqualTo(avatarResolver.create(author));
   }
 
   @Test
@@ -407,11 +432,14 @@ public class ShowActionTest {
     UserDto author = dbTester.users().insertUser(t -> t.setEmail(null));
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
       .setAuthorLogin(author.getLogin()));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
     assertThat(response.getAuthor().hasAvatar()).isFalse();
+    assertThat(response.getUsersList()).hasSize(1);
+    assertThat(response.getUsersList().iterator().next().hasAvatar()).isFalse();
   }
 
   @Test
@@ -423,6 +451,7 @@ public class ShowActionTest {
     UserDto author = dbTester.users().insertUser(t -> t.setActive(false));
     IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
       .setAuthorLogin(author.getLogin()));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -451,6 +480,7 @@ public class ShowActionTest {
       .setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(DbCommons.TextRange.newBuilder().build())
         .build()));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -475,6 +505,7 @@ public class ShowActionTest {
       .setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(DbCommons.TextRange.newBuilder().build())
         .build()));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -509,6 +540,7 @@ public class ShowActionTest {
       .setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(DbCommons.TextRange.newBuilder().build())
         .build()));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -528,6 +560,7 @@ public class ShowActionTest {
       .setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(DbCommons.TextRange.newBuilder().build())
         .build()));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -548,6 +581,7 @@ public class ShowActionTest {
       .setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(DbCommons.TextRange.newBuilder().build())
         .build()));
+    mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
@@ -566,14 +600,13 @@ public class ShowActionTest {
       .setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(DbCommons.TextRange.newBuilder().build())
         .build()));
-    FormattingContext formattingContext = Mockito.mock(FormattingContext.class);
     List<Common.Changelog> changelog = IntStream.range(0, 1 + new Random().nextInt(12))
       .mapToObj(i -> Common.Changelog.newBuilder().setUser("u" + i).build())
       .collect(Collectors.toList());
     List<Common.Comment> comments = IntStream.range(0, 1 + new Random().nextInt(12))
       .mapToObj(i -> Common.Comment.newBuilder().setKey("u" + i).build())
       .collect(Collectors.toList());
-    when(issueChangeSupport.newFormattingContext(any(), any(), any(), anySet(), anySet())).thenReturn(formattingContext);
+    FormattingContext formattingContext = mockChangelogAndCommentsFormattingContext();
     when(issueChangeSupport.formatChangelog(any(), any())).thenReturn(changelog.stream());
     when(issueChangeSupport.formatComments(any(), any(), any())).thenReturn(comments.stream());
 
@@ -594,7 +627,88 @@ public class ShowActionTest {
     verify(issueChangeSupport).formatComments(argThat(new IssueDtoArgumentMatcher(hotspot)), any(Common.Comment.Builder.class), eq(formattingContext));
   }
 
-  public void verifyRule(Hotspots.Rule wsRule, RuleDefinitionDto dto) {
+  @Test
+  public void returns_user_details_of_users_from_ChangelogAndComments() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
+    FormattingContext formattingContext = mockChangelogAndCommentsFormattingContext();
+    Set<UserDto> changeLogAndCommentsUsers = IntStream.range(0, 1 + RANDOM.nextInt(14))
+      .mapToObj(i -> UserTesting.newUserDto())
+      .collect(Collectors.toSet());
+    when(formattingContext.getUsers()).thenReturn(changeLogAndCommentsUsers);
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin, User::getName, User::getActive)
+      .containsExactlyInAnyOrder(
+        changeLogAndCommentsUsers.stream()
+          .map(t -> tuple(t.getLogin(), t.getName(), t.isActive()))
+          .toArray(Tuple[]::new));
+  }
+
+  @Test
+  public void returns_user_of_users_from_ChangelogAndComments_and_assignee_and_author() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    UserDto author = dbTester.users().insertUser();
+    UserDto assignee = dbTester.users().insertUser();
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
+      .setAuthorLogin(author.getLogin())
+      .setAssigneeUuid(assignee.getUuid()));
+    FormattingContext formattingContext = mockChangelogAndCommentsFormattingContext();
+    Set<UserDto> changeLogAndCommentsUsers = IntStream.range(0, 1 + RANDOM.nextInt(14))
+      .mapToObj(i -> UserTesting.newUserDto())
+      .collect(Collectors.toSet());
+    when(formattingContext.getUsers()).thenReturn(changeLogAndCommentsUsers);
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin, User::getName, User::getActive)
+      .containsExactlyInAnyOrder(
+        Stream.concat(
+          Stream.of(author, assignee),
+          changeLogAndCommentsUsers.stream())
+          .map(t -> tuple(t.getLogin(), t.getName(), t.isActive()))
+          .toArray(Tuple[]::new));
+  }
+
+  @Test
+  public void do_not_duplicate_user_if_author_assignee_ChangeLogComment_user() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    UserDto author = dbTester.users().insertUser();
+    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
+      .setAuthorLogin(author.getLogin())
+      .setAssigneeUuid(author.getUuid()));
+    FormattingContext formattingContext = mockChangelogAndCommentsFormattingContext();
+    when(formattingContext.getUsers()).thenReturn(ImmutableSet.of(author));
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin, User::getName, User::getActive)
+      .containsOnly(tuple(author.getLogin(), author.getName(), author.isActive()));
+  }
+
+  private FormattingContext mockChangelogAndCommentsFormattingContext() {
+    FormattingContext formattingContext = Mockito.mock(FormattingContext.class);
+    when(issueChangeSupport.newFormattingContext(any(), any(), any(), anySet(), anySet())).thenReturn(formattingContext);
+    return formattingContext;
+  }
+
+  private void verifyRule(Hotspots.Rule wsRule, RuleDefinitionDto dto) {
     assertThat(wsRule.getKey()).isEqualTo(dto.getKey().toString());
     assertThat(wsRule.getName()).isEqualTo(dto.getName());
     assertThat(wsRule.getSecurityCategory()).isEqualTo(SQCategory.OTHERS.getKey());

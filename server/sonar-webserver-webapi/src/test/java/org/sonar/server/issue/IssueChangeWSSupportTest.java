@@ -166,6 +166,9 @@ public class IssueChangeWSSupportTest {
 
     FormattingContext formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue), Load.CHANGE_LOG);
 
+    assertThat(formattingContext.getUsers())
+      .extracting(UserDto::getUuid)
+      .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid());
     assertThat(formattingContext.getUserByUuid(user1.getUuid())).isNotEmpty();
     assertThat(formattingContext.getUserByUuid(user2.getUuid())).isNotEmpty();
     assertThat(formattingContext.getUserByUuid(user3.getUuid())).isEmpty();
@@ -187,6 +190,9 @@ public class IssueChangeWSSupportTest {
 
     FormattingContext formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue), Load.COMMENTS);
 
+    assertThat(formattingContext.getUsers())
+      .extracting(UserDto::getUuid)
+      .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid());
     assertThat(formattingContext.getUserByUuid(user1.getUuid())).isNotEmpty();
     assertThat(formattingContext.getUserByUuid(user2.getUuid())).isNotEmpty();
     assertThat(formattingContext.getUserByUuid(user3.getUuid())).isEmpty();
@@ -219,6 +225,9 @@ public class IssueChangeWSSupportTest {
 
     FormattingContext formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue), Load.ALL);
 
+    assertThat(formattingContext.getUsers())
+      .extracting(UserDto::getUuid)
+      .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid(), user4.getUuid());
     assertThat(formattingContext.getUserByUuid(user1.getUuid())).isNotEmpty();
     assertThat(formattingContext.getUserByUuid(user2.getUuid())).isNotEmpty();
     assertThat(formattingContext.getUserByUuid(user3.getUuid())).isEmpty();
@@ -294,6 +303,9 @@ public class IssueChangeWSSupportTest {
     // no users are preloaded
     FormattingContext formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue), Load.ALL,
       emptySet(), emptySet());
+    assertThat(formattingContext.getUsers())
+      .extracting(UserDto::getUuid)
+      .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid(), user3.getUuid(), user4.getUuid());
     assertThat(formattingContext.getUserByUuid(user1.getUuid()).get().getEmail()).isNotEqualTo(user1.getEmail());
     assertThat(formattingContext.getUserByUuid(user2.getUuid()).get().getEmail()).isNotEqualTo(user2.getEmail());
     assertThat(formattingContext.getUserByUuid(user3.getUuid()).get().getEmail()).isNotEqualTo(user3.getEmail());
@@ -302,6 +314,9 @@ public class IssueChangeWSSupportTest {
     // some users are preloaded
     formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue), Load.ALL,
       ImmutableSet.of(user1, user4), emptySet());
+    assertThat(formattingContext.getUsers())
+      .extracting(UserDto::getUuid)
+      .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid(), user3.getUuid(), user4.getUuid());
     assertThat(formattingContext.getUserByUuid(user1.getUuid()).get().getEmail()).isEqualTo(user1.getEmail());
     assertThat(formattingContext.getUserByUuid(user2.getUuid()).get().getEmail()).isNotEqualTo(user2.getEmail());
     assertThat(formattingContext.getUserByUuid(user3.getUuid()).get().getEmail()).isNotEqualTo(user3.getEmail());
@@ -310,6 +325,9 @@ public class IssueChangeWSSupportTest {
     // all users are preloaded
     formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue), Load.ALL,
       ImmutableSet.of(user1, user2, user3, user4), emptySet());
+    assertThat(formattingContext.getUsers())
+      .extracting(UserDto::getUuid)
+      .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid(), user3.getUuid(), user4.getUuid());
     assertThat(formattingContext.getUserByUuid(user1.getUuid()).get().getEmail()).isEqualTo(user1.getEmail());
     assertThat(formattingContext.getUserByUuid(user2.getUuid()).get().getEmail()).isEqualTo(user2.getEmail());
     assertThat(formattingContext.getUserByUuid(user3.getUuid()).get().getEmail()).isEqualTo(user3.getEmail());
