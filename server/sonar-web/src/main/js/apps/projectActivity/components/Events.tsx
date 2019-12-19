@@ -21,18 +21,20 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import Event from './Event';
 
-interface Props {
-  analysis: string;
+export interface EventsProps {
+  analysisKey: string;
   canAdmin?: boolean;
-  changeEvent: (event: string, name: string) => Promise<void>;
-  deleteEvent: (analysis: string, event: string) => Promise<void>;
   events: T.AnalysisEvent[];
   isFirst?: boolean;
+  onChange?: (event: string, name: string) => Promise<void>;
+  onDelete?: (analysis: string, event: string) => Promise<void>;
 }
 
-export default function Events(props: Props) {
+export function Events(props: EventsProps) {
+  const { analysisKey, canAdmin, events, isFirst } = props;
+
   const sortedEvents = sortBy(
-    props.events,
+    events,
     // versions last
     event => (event.category === 'VERSION' ? 1 : 0),
     // then the rest sorted by category
@@ -40,18 +42,20 @@ export default function Events(props: Props) {
   );
 
   return (
-    <div className="project-activity-events">
+    <div className="big-spacer-top">
       {sortedEvents.map(event => (
         <Event
-          analysis={props.analysis}
-          canAdmin={props.canAdmin}
-          changeEvent={props.changeEvent}
-          deleteEvent={props.deleteEvent}
+          analysisKey={analysisKey}
+          canAdmin={canAdmin}
           event={event}
-          isFirst={props.isFirst}
+          isFirst={isFirst}
           key={event.key}
+          onChange={props.onChange}
+          onDelete={props.onDelete}
         />
       ))}
     </div>
   );
 }
+
+export default React.memo(Events);

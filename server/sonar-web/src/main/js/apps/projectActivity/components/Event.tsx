@@ -17,120 +17,101 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as classNames from 'classnames';
 import * as React from 'react';
 import { DeleteButton, EditButton } from 'sonar-ui-common/components/controls/buttons';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import ProjectEventIcon from 'sonar-ui-common/components/icons/ProjectEventIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import EventInner from './EventInner';
 import ChangeEventForm from './forms/ChangeEventForm';
 import RemoveEventForm from './forms/RemoveEventForm';
 
-interface Props {
-  analysis: string;
+export interface EventProps {
+  analysisKey: string;
   canAdmin?: boolean;
-  changeEvent: (event: string, name: string) => Promise<void>;
-  deleteEvent: (analysis: string, event: string) => Promise<void>;
   event: T.AnalysisEvent;
   isFirst?: boolean;
+  onChange?: (event: string, name: string) => Promise<void>;
+  onDelete?: (analysisKey: string, event: string) => Promise<void>;
 }
 
-interface State {
-  changing: boolean;
-  deleting: boolean;
+export function Event(props: EventProps) {
+  const { analysisKey, event, canAdmin, isFirst } = props;
+
+  const [changing, setChanging] = React.useState(false);
+  const [deleting, setDeleting] = React.useState(false);
+
+  const isOther = event.category === 'OTHER';
+  const isVersion = event.category === 'VERSION';
+  const canChange = (isOther || isVersion) && props.onChange;
+  const canDelete = (isOther || (isVersion && !isFirst)) && props.onDelete;
+  const showActions = canAdmin && (canChange || canDelete);
+
+  return (
+    <div className="project-activity-event">
+      <ProjectEventIcon
+        className={classNames(
+          'project-activity-event-icon little-spacer-right text-middle',
+          event.category
+        )}
+      />
+
+      <EventInner event={event} />
+
+      {showActions && (
+        <span className="nowrap">
+          {canChange && (
+            <EditButton
+              aria-label={translate('project_activity.events.tooltip.edit')}
+              className="button-small"
+              data-test="project-activity__edit-event"
+              onClick={() => setChanging(true)}
+              stopPropagation={true}
+            />
+          )}
+          {canDelete && (
+            <DeleteButton
+              aria-label={translate('project_activity.events.tooltip.delete')}
+              className="button-small"
+              data-test="project-activity__delete-event"
+              onClick={() => setDeleting(true)}
+              stopPropagation={true}
+            />
+          )}
+        </span>
+      )}
+
+      {changing && props.onChange && (
+        <ChangeEventForm
+          changeEvent={props.onChange}
+          event={event}
+          header={
+            isVersion
+              ? translate('project_activity.change_version')
+              : translate('project_activity.change_custom_event')
+          }
+          onClose={() => setChanging(false)}
+        />
+      )}
+
+      {deleting && props.onDelete && (
+        <RemoveEventForm
+          analysisKey={analysisKey}
+          event={event}
+          header={
+            isVersion
+              ? translate('project_activity.remove_version')
+              : translate('project_activity.remove_custom_event')
+          }
+          onClose={() => setDeleting(false)}
+          onConfirm={props.onDelete}
+          removeEventQuestion={translate(
+            `project_activity.${isVersion ? 'remove_version' : 'remove_custom_event'}.question`
+          )}
+        />
+      )}
+    </div>
+  );
 }
 
-export default class Event extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { changing: false, deleting: false };
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  startChanging = () => {
-    this.setState({ changing: true });
-  };
-
-  stopChanging = () => {
-    if (this.mounted) {
-      this.setState({ changing: false });
-    }
-  };
-
-  startDeleting = () => {
-    this.setState({ deleting: true });
-  };
-
-  stopDeleting = () => {
-    if (this.mounted) {
-      this.setState({ deleting: false });
-    }
-  };
-
-  render() {
-    const { event, canAdmin } = this.props;
-    const isOther = event.category === 'OTHER';
-    const isVersion = !isOther && event.category === 'VERSION';
-    const canChange = isOther || isVersion;
-    const canDelete = isOther || (isVersion && !this.props.isFirst);
-    const showActions = canAdmin && (canChange || canDelete);
-
-    return (
-      <div className="project-activity-event">
-        <EventInner event={this.props.event} />
-
-        {showActions && (
-          <div className="project-activity-event-actions spacer-left">
-            {canChange && (
-              <Tooltip overlay={translate('project_activity.events.tooltip.edit')}>
-                <EditButton className="js-change-event button-small" onClick={this.startChanging} />
-              </Tooltip>
-            )}
-            {canDelete && (
-              <Tooltip overlay={translate('project_activity.events.tooltip.delete')}>
-                <DeleteButton
-                  className="js-delete-event button-small"
-                  onClick={this.startDeleting}
-                />
-              </Tooltip>
-            )}
-          </div>
-        )}
-
-        {this.state.changing && (
-          <ChangeEventForm
-            changeEvent={this.props.changeEvent}
-            event={this.props.event}
-            header={
-              isVersion
-                ? translate('project_activity.change_version')
-                : translate('project_activity.change_custom_event')
-            }
-            onClose={this.stopChanging}
-          />
-        )}
-
-        {this.state.deleting && (
-          <RemoveEventForm
-            analysis={this.props.analysis}
-            deleteEvent={this.props.deleteEvent}
-            event={this.props.event}
-            header={
-              isVersion
-                ? translate('project_activity.remove_version')
-                : translate('project_activity.remove_custom_event')
-            }
-            onClose={this.stopDeleting}
-            removeEventQuestion={`project_activity.${
-              isVersion ? 'remove_version' : 'remove_custom_event'
-            }.question`}
-          />
-        )}
-      </div>
-    );
-  }
-}
+export default React.memo(Event);

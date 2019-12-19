@@ -17,19 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
 import * as React from 'react';
-import ProjectEventIcon from 'sonar-ui-common/components/icons/ProjectEventIcon';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ComponentContext } from '../../../app/components/ComponentContext';
 import { DefinitionChangeEventInner, isDefinitionChangeEvent } from './DefinitionChangeEventInner';
 import { isRichQualityGateEvent, RichQualityGateEventInner } from './RichQualityGateEventInner';
 
-interface Props {
+export interface EventInnerProps {
   event: T.AnalysisEvent;
 }
 
-export default function EventInner({ event }: Props) {
+export default function EventInner({ event }: EventInnerProps) {
   if (isRichQualityGateEvent(event)) {
     return <RichQualityGateEventInner event={event} />;
   } else if (isDefinitionChangeEvent(event)) {
@@ -39,25 +38,14 @@ export default function EventInner({ event }: Props) {
       </ComponentContext.Consumer>
     );
   } else {
-    return (
-      <div className="project-activity-event-inner">
-        <div className="project-activity-event-inner-main">
-          <ProjectEventIcon
-            className={classNames(
-              'project-activity-event-icon',
-              'little-spacer-right',
-              event.category
-            )}
-          />
-
-          <span className="project-activity-event-inner-text">
-            <span className="note little-spacer-right">
-              {translate('event.category', event.category)}:
-            </span>
-            <strong title={event.description}>{event.name}</strong>
-          </span>
-        </div>
-      </div>
+    const content = (
+      <span className="text-middle">
+        <span className="note little-spacer-right">
+          {translate('event.category', event.category)}:
+        </span>
+        <strong className="spacer-right">{event.name}</strong>
+      </span>
     );
+    return event.description ? <Tooltip overlay={event.description}>{content}</Tooltip> : content;
   }
 }

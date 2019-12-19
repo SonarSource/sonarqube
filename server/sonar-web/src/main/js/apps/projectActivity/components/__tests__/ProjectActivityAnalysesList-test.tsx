@@ -20,6 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
+import { mockParsedAnalysis } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
 import { DEFAULT_GRAPH } from '../../utils';
 import ProjectActivityAnalysesList from '../ProjectActivityAnalysesList';
 
@@ -36,67 +38,97 @@ jest.mock('sonar-ui-common/helpers/dates', () => {
 
 const DATE = parseDate('2016-10-27T16:33:50+0000');
 
-const ANALYSES = [
-  {
-    key: 'A1',
-    date: DATE,
-    events: [{ key: 'E1', category: 'VERSION', name: '6.5-SNAPSHOT' }]
-  },
-  { key: 'A2', date: parseDate('2016-10-27T12:21:15+0000'), events: [] },
-  {
-    key: 'A3',
-    date: parseDate('2016-10-26T12:17:29+0000'),
-    events: [
-      { key: 'E2', category: 'VERSION', name: '6.4' },
-      { key: 'E3', category: 'OTHER', name: 'foo' }
-    ]
-  },
-  {
-    key: 'A4',
-    date: parseDate('2016-10-24T16:33:50+0000'),
-    events: [{ key: 'E1', category: 'QUALITY_GATE', name: 'Quality gate changed to red...' }]
-  }
-];
-
-const DEFAULT_PROPS: ProjectActivityAnalysesList['props'] = {
-  addCustomEvent: jest.fn().mockResolvedValue(undefined),
-  addVersion: jest.fn().mockResolvedValue(undefined),
-  analyses: ANALYSES,
-  analysesLoading: false,
-  canAdmin: false,
-  changeEvent: jest.fn().mockResolvedValue(undefined),
-  deleteAnalysis: jest.fn().mockResolvedValue(undefined),
-  deleteEvent: jest.fn().mockResolvedValue(undefined),
-  initializing: false,
-  leakPeriodDate: parseDate('2016-10-27T12:21:15+0000'),
-  project: { qualifier: 'TRK' },
-  query: {
-    category: '',
-    customMetrics: [],
-    graph: DEFAULT_GRAPH,
-    project: 'org.sonarsource.sonarqube:sonarqube'
-  },
-  updateQuery: () => {}
+const DEFAULT_QUERY = {
+  category: '',
+  customMetrics: [],
+  graph: DEFAULT_GRAPH,
+  project: 'org.sonarsource.sonarqube:sonarqube'
 };
 
 it('should render correctly', () => {
-  expect(shallow(<ProjectActivityAnalysesList {...DEFAULT_PROPS} />)).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ project: { qualifier: ComponentQualifier.Application } })).toMatchSnapshot(
+    'application'
+  );
+  expect(shallowRender({ analyses: [], initializing: true })).toMatchSnapshot('loading');
+  expect(shallowRender({ analyses: [] })).toMatchSnapshot('no analyses');
 });
 
 it('should correctly filter analyses by category', () => {
-  const wrapper = shallow(<ProjectActivityAnalysesList {...DEFAULT_PROPS} />);
-  wrapper.setProps({ query: { ...DEFAULT_PROPS.query, category: 'QUALITY_GATE' } });
+  const wrapper = shallowRender();
+  wrapper.setProps({ query: { ...DEFAULT_QUERY, category: 'QUALITY_GATE' } });
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should correctly filter analyses by date range', () => {
-  const wrapper = shallow(<ProjectActivityAnalysesList {...DEFAULT_PROPS} />);
+  const wrapper = shallowRender();
   wrapper.setProps({
     query: {
-      ...DEFAULT_PROPS.query,
+      ...DEFAULT_QUERY,
       from: DATE,
       to: DATE
     }
   });
   expect(wrapper).toMatchSnapshot();
 });
+
+it('should correctly update the selected date', () => {
+  const selectedDate = new Date();
+  const updateQuery = jest.fn();
+  const wrapper = shallowRender({ updateQuery });
+  wrapper.instance().updateSelectedDate(selectedDate);
+  expect(updateQuery).toBeCalledWith({ selectedDate });
+});
+
+it('should correctly reset scroll if filters change', () => {
+  const wrapper = shallowRender();
+  const scrollContainer = document.createElement('ul');
+  scrollContainer.scrollTop = 100;
+
+  // Saves us a call to mount().
+  wrapper.instance().scrollContainer = scrollContainer;
+
+  wrapper.setProps({ query: { ...DEFAULT_QUERY, category: 'OTHER' } });
+  expect(scrollContainer.scrollTop).toBe(0);
+});
+
+function shallowRender(props: Partial<ProjectActivityAnalysesList['props']> = {}) {
+  return shallow<ProjectActivityAnalysesList>(
+    <ProjectActivityAnalysesList
+      addCustomEvent={jest.fn().mockResolvedValue(undefined)}
+      addVersion={jest.fn().mockResolvedValue(undefined)}
+      analyses={[
+        mockParsedAnalysis({
+          key: 'A1',
+          date: DATE,
+          events: [{ key: 'E1', category: 'VERSION', name: '6.5-SNAPSHOT' }]
+        }),
+        mockParsedAnalysis({ key: 'A2', date: parseDate('2016-10-27T12:21:15+0000') }),
+        mockParsedAnalysis({
+          key: 'A3',
+          date: parseDate('2016-10-26T12:17:29+0000'),
+          events: [
+            { key: 'E2', category: 'VERSION', name: '6.4' },
+            { key: 'E3', category: 'OTHER', name: 'foo' }
+          ]
+        }),
+        mockParsedAnalysis({
+          key: 'A4',
+          date: parseDate('2016-10-24T16:33:50+0000'),
+          events: [{ key: 'E1', category: 'QUALITY_GATE', name: 'Quality gate changed to red...' }]
+        })
+      ]}
+      analysesLoading={false}
+      canAdmin={false}
+      changeEvent={jest.fn().mockResolvedValue(undefined)}
+      deleteAnalysis={jest.fn().mockResolvedValue(undefined)}
+      deleteEvent={jest.fn().mockResolvedValue(undefined)}
+      initializing={false}
+      leakPeriodDate={parseDate('2016-10-27T12:21:15+0000')}
+      project={{ qualifier: ComponentQualifier.Project }}
+      query={DEFAULT_QUERY}
+      updateQuery={jest.fn()}
+      {...props}
+    />
+  );
+}

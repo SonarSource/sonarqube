@@ -247,9 +247,7 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
 
                                     {analysis.events.length > 0 && (
                                       <Events
-                                        analysis={analysis.key}
-                                        changeEvent={() => Promise.resolve()}
-                                        deleteEvent={() => Promise.resolve()}
+                                        analysisKey={analysis.key}
                                         events={analysis.events}
                                         isFirst={analyses[0].key === analysis.key}
                                       />

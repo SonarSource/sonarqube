@@ -76,7 +76,6 @@ exports[`should render correctly 1`] = `
         canAdmin={false}
         canDeleteAnalyses={false}
         changeEvent={[MockFunction]}
-        className="boxed-group-inner"
         deleteAnalysis={[MockFunction]}
         deleteEvent={[MockFunction]}
         initializing={false}

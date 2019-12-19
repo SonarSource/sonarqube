@@ -17,11 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+/* eslint-disable sonarjs/no-duplicate-string */
+import { mount, shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { IntlProvider } from 'react-intl';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
+import { click } from 'sonar-ui-common/helpers/testUtils';
+import TimeFormatter from '../../../../components/intl/TimeFormatter';
 import { mockAnalysisEvent, mockParsedAnalysis } from '../../../../helpers/testMocks';
-import ProjectActivityAnalysis from '../ProjectActivityAnalysis';
+import AddEventForm from '../forms/AddEventForm';
+import RemoveAnalysisForm from '../forms/RemoveAnalysisForm';
+import { ProjectActivityAnalysis, ProjectActivityAnalysisProps } from '../ProjectActivityAnalysis';
 
 jest.mock('sonar-ui-common/helpers/dates', () => ({
   parseDate: () => ({
@@ -30,15 +36,35 @@ jest.mock('sonar-ui-common/helpers/dates', () => ({
   })
 }));
 
+jest.mock('sonar-ui-common/helpers/scrolling', () => ({
+  scrollToElement: jest.fn()
+}));
+
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
   expect(
     shallowRender({ analysis: mockParsedAnalysis({ events: [mockAnalysisEvent()] }) })
-  ).toMatchSnapshot();
+  ).toMatchSnapshot('with events');
   expect(
     shallowRender({ analysis: mockParsedAnalysis({ buildString: '1.0.234' }) })
-  ).toMatchSnapshot();
-  expect(shallowRender({ isBaseline: true })).toMatchSnapshot();
+  ).toMatchSnapshot('with build string');
+  expect(shallowRender({ isBaseline: true })).toMatchSnapshot('with baseline marker');
+  expect(
+    shallowRender({
+      canAdmin: true,
+      canCreateVersion: true,
+      canDeleteAnalyses: true
+    })
+  ).toMatchSnapshot('with admin options');
+
+  const timeFormatter = shallowRender()
+    .find(TimeFormatter)
+    .prop('children');
+  if (!timeFormatter) {
+    fail('TimeFormatter instance not found');
+  } else {
+    expect(timeFormatter('formatted_time')).toMatchSnapshot('formatted time');
+  }
 });
 
 it('should show the correct admin options', () => {
@@ -47,24 +73,27 @@ it('should show the correct admin options', () => {
     canCreateVersion: true,
     canDeleteAnalyses: true
   });
-  const instance = wrapper.instance();
 
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('.js-add-version').exists()).toBe(true);
+  click(wrapper.find('.js-add-version'));
+  const addVersionForm = wrapper.find(AddEventForm);
+  expect(addVersionForm.exists()).toBe(true);
+  addVersionForm.prop('onClose')();
+  expect(wrapper.find(AddEventForm).exists()).toBe(false);
 
-  instance.setState({ addEventForm: true });
-  waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-  instance.setState({ addEventForm: false });
+  expect(wrapper.find('.js-add-event').exists()).toBe(true);
+  click(wrapper.find('.js-add-event'));
+  const addEventForm = wrapper.find(AddEventForm);
+  expect(addEventForm.exists()).toBe(true);
+  addEventForm.prop('onClose')();
+  expect(wrapper.find(AddEventForm).exists()).toBe(false);
 
-  instance.setState({ removeAnalysisForm: true });
-  waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-  instance.setState({ removeAnalysisForm: false });
-
-  instance.setState({ addVersionForm: true });
-  waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-  instance.setState({ addVersionForm: false });
+  expect(wrapper.find('.js-delete-analysis').exists()).toBe(true);
+  click(wrapper.find('.js-delete-analysis'));
+  const removeAnalysisForm = wrapper.find(RemoveAnalysisForm);
+  expect(removeAnalysisForm.exists()).toBe(true);
+  removeAnalysisForm.prop('onClose')();
+  expect(wrapper.find(RemoveAnalysisForm).exists()).toBe(false);
 });
 
 it('should not allow the first item to be deleted', () => {
@@ -75,11 +104,34 @@ it('should not allow the first item to be deleted', () => {
       canDeleteAnalyses: true,
       isFirst: true
     })
-  ).toMatchSnapshot();
+      .find('.js-delete-analysis')
+      .exists()
+  ).toBe(false);
 });
 
-function shallowRender(props: Partial<ProjectActivityAnalysis['props']> = {}) {
-  return shallow(
+it('should be clickable', () => {
+  const date = new Date('2018-03-01T09:37:01+0100');
+  const updateSelectedDate = jest.fn();
+  const wrapper = shallowRender({ analysis: mockParsedAnalysis({ date }), updateSelectedDate });
+  click(wrapper);
+  expect(updateSelectedDate).toBeCalledWith(date);
+});
+
+it('should trigger a scroll to itself if selected', () => {
+  mountRender({ parentScrollContainer: document.createElement('ul'), selected: true });
+  expect(scrollToElement).toBeCalled();
+});
+
+function shallowRender(props: Partial<ProjectActivityAnalysisProps> = {}) {
+  return shallow(createComponent(props));
+}
+
+function mountRender(props: Partial<ProjectActivityAnalysisProps> = {}) {
+  return mount(<IntlProvider locale="en">{createComponent(props)}</IntlProvider>);
+}
+
+function createComponent(props: Partial<ProjectActivityAnalysisProps> = {}) {
+  return (
     <ProjectActivityAnalysis
       addCustomEvent={jest.fn()}
       addVersion={jest.fn()}

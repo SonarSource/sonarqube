@@ -25,12 +25,8 @@ import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import DateFormatter from '../../../components/intl/DateFormatter';
-import {
-  activityQueryChanged,
-  getAnalysesByVersionByDay,
-  Query,
-  selectedDateQueryChanged
-} from '../utils';
+import { ComponentQualifier } from '../../../types/component';
+import { activityQueryChanged, getAnalysesByVersionByDay, Query } from '../utils';
 import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 
 interface Props {
@@ -41,7 +37,6 @@ interface Props {
   canAdmin?: boolean;
   canDeleteAnalyses?: boolean;
   changeEvent: (event: string, name: string) => Promise<void>;
-  className?: string;
   deleteAnalysis: (analysis: string) => Promise<void>;
   deleteEvent: (analysis: string, event: string) => Promise<void>;
   initializing: boolean;
@@ -54,7 +49,7 @@ interface Props {
 export default class ProjectActivityAnalysesList extends React.PureComponent<Props> {
   analyses?: HTMLCollectionOf<HTMLElement>;
   badges?: HTMLCollectionOf<HTMLElement>;
-  scrollContainer?: HTMLElement | null;
+  scrollContainer?: HTMLUListElement | null;
 
   constructor(props: Props) {
     super(props);
@@ -74,13 +69,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
     if (!this.scrollContainer) {
       return;
     }
-    if (
-      this.props.query.selectedDate &&
-      (selectedDateQueryChanged(prevProps.query, this.props.query) ||
-        prevProps.analyses !== this.props.analyses)
-    ) {
-      this.scrollToDate(this.props.query.selectedDate);
-    } else if (activityQueryChanged(prevProps.query, this.props.query)) {
+    if (activityQueryChanged(prevProps.query, this.props.query)) {
       this.resetScrollTop(0, true);
     }
   }
@@ -98,24 +87,6 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
       }
     }
     this.updateStickyBadges(forceBadgeAlignement);
-  };
-
-  scrollToDate = (targetDate?: Date) => {
-    if (!this.scrollContainer || !targetDate || !this.analyses) {
-      return;
-    }
-    const date = targetDate.valueOf();
-    for (let i = 1; i < this.analyses.length; i++) {
-      if (Number(this.analyses[i].getAttribute('data-date')) === date) {
-        const containerHeight = this.scrollContainer.offsetHeight - 100;
-        const scrollDiff = Math.abs(this.scrollContainer.scrollTop - this.analyses[i].offsetTop);
-        // Center only the extremities and the ones outside of the container
-        if (scrollDiff > containerHeight || scrollDiff < 100) {
-          this.resetScrollTop(this.analyses[i].offsetTop - containerHeight / 2);
-        }
-        break;
-      }
-    }
   };
 
   updateStickyBadges = (forceBadgeAlignement?: boolean) => {
@@ -173,7 +144,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
         addVersion={this.props.addVersion}
         analysis={analysis}
         canAdmin={this.props.canAdmin}
-        canCreateVersion={this.props.project.qualifier === 'TRK'}
+        canCreateVersion={this.props.project.qualifier === ComponentQualifier.Project}
         canDeleteAnalyses={this.props.canDeleteAnalyses}
         changeEvent={this.props.changeEvent}
         deleteAnalysis={this.props.deleteAnalysis}
@@ -181,6 +152,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
         isBaseline={this.shouldRenderBaselineMarker(analysis)}
         isFirst={analysis.key === firstAnalysisKey}
         key={analysis.key}
+        parentScrollContainer={this.scrollContainer}
         selected={analysis.date.valueOf() === selectedDate}
         updateSelectedDate={this.updateSelectedDate}
       />
@@ -194,7 +166,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
       (byVersionByDay.length === 1 && Object.keys(byVersionByDay[0].byDay).length > 0);
     if (this.props.analyses.length === 0 || !hasFilteredData) {
       return (
-        <div className={this.props.className}>
+        <div className="boxed-group-inner">
           {this.props.initializing ? (
             <div className="text-center">
               <i className="spinner" />
@@ -208,10 +180,12 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
 
     return (
       <ul
-        className={classNames('project-activity-versions-list', this.props.className)}
+        className="project-activity-versions-list"
         onScroll={this.handleScroll}
         ref={element => (this.scrollContainer = element)}
-        style={{ paddingTop: this.props.project.qualifier === 'TRK' ? 52 : undefined }}>
+        style={{
+          paddingTop: this.props.project.qualifier === ComponentQualifier.Project ? 52 : undefined
+        }}>
         {byVersionByDay.map((version, idx) => {
           const days = Object.keys(version.byDay);
           if (days.length <= 0) {

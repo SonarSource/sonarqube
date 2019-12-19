@@ -1,37 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render 1`] = `
-<div
-  className="project-activity-event-inner"
->
-  <div
-    className="project-activity-event-inner-main"
+<Fragment>
+  <span
+    className="note spacer-right"
   >
-    <ProjectEventIcon
-      className="project-activity-event-icon little-spacer-right QUALITY_GATE"
-    />
-    <div
-      className="project-activity-event-inner-text flex-1"
-    >
-      <span
-        className="note little-spacer-right"
-      >
-        event.category.QUALITY_GATE
-        :
-      </span>
-      <FormattedMessage
-        defaultMessage="event.quality_gate.still_x"
-        id="event.quality_gate.still_x"
-        values={
-          Object {
-            "status": <Level
-              level="ERROR"
-              small={true}
-            />,
-          }
-        }
-      />
-    </div>
+    event.category.QUALITY_GATE
+    :
+  </span>
+  <FormattedMessage
+    defaultMessage="event.quality_gate.still_x"
+    id="event.quality_gate.still_x"
+    values={
+      Object {
+        "status": <Level
+          level="ERROR"
+          small={true}
+        />,
+      }
+    }
+  />
+  <div>
     <ResetButtonLink
       className="project-activity-event-inner-more-link"
       onClick={[Function]}
@@ -44,41 +33,30 @@ exports[`should render 1`] = `
       />
     </ResetButtonLink>
   </div>
-</div>
+</Fragment>
 `;
 
 exports[`should render 2`] = `
-<div
-  className="project-activity-event-inner"
->
-  <div
-    className="project-activity-event-inner-main"
+<Fragment>
+  <span
+    className="note spacer-right"
   >
-    <ProjectEventIcon
-      className="project-activity-event-icon little-spacer-right QUALITY_GATE"
-    />
-    <div
-      className="project-activity-event-inner-text flex-1"
-    >
-      <span
-        className="note little-spacer-right"
-      >
-        event.category.QUALITY_GATE
-        :
-      </span>
-      <FormattedMessage
-        defaultMessage="event.quality_gate.still_x"
-        id="event.quality_gate.still_x"
-        values={
-          Object {
-            "status": <Level
-              level="ERROR"
-              small={true}
-            />,
-          }
-        }
-      />
-    </div>
+    event.category.QUALITY_GATE
+    :
+  </span>
+  <FormattedMessage
+    defaultMessage="event.quality_gate.still_x"
+    id="event.quality_gate.still_x"
+    values={
+      Object {
+        "status": <Level
+          level="ERROR"
+          small={true}
+        />,
+      }
+    }
+  />
+  <div>
     <ResetButtonLink
       className="project-activity-event-inner-more-link"
       onClick={[Function]}
@@ -92,14 +70,14 @@ exports[`should render 2`] = `
     </ResetButtonLink>
   </div>
   <ul
-    className="project-activity-event-inner-more-content"
+    className="spacer-left spacer-top"
   >
     <li
-      className="display-flex-center little-spacer-top"
+      className="display-flex-center spacer-top"
       key="foo"
     >
       <Level
-        className="little-spacer-right"
+        className="spacer-right"
         level="ERROR"
         small={true}
       />
@@ -126,11 +104,11 @@ exports[`should render 2`] = `
       </div>
     </li>
     <li
-      className="display-flex-center little-spacer-top"
+      className="display-flex-center spacer-top"
       key="bar"
     >
       <Level
-        className="little-spacer-right"
+        className="spacer-right"
         level="ERROR"
         small={true}
       />
@@ -157,5 +135,5 @@ exports[`should render 2`] = `
       </div>
     </li>
   </ul>
-</div>
+</Fragment>
 `;

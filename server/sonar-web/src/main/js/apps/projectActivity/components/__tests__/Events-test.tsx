@@ -17,29 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { mockAnalysisEvent } from '../../../../helpers/testMocks';
+import { Events, EventsProps } from '../Events';
 
-export interface RemoveEventFormProps {
-  analysisKey: string;
-  event: T.AnalysisEvent;
-  header: string;
-  removeEventQuestion: string;
-  onClose: () => void;
-  onConfirm: (analysis: string, event: string) => Promise<void>;
-}
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
 
-export default function RemoveEventForm(props: RemoveEventFormProps) {
-  const { analysisKey, event, header, removeEventQuestion } = props;
-  return (
-    <ConfirmModal
-      confirmButtonText={translate('delete')}
-      header={header}
-      isDestructive={true}
-      onClose={props.onClose}
-      onConfirm={() => props.onConfirm(analysisKey, event.key)}>
-      {removeEventQuestion}
-    </ConfirmModal>
+function shallowRender(props: Partial<EventsProps> = {}) {
+  return shallow(
+    <Events
+      analysisKey="foo"
+      events={[
+        mockAnalysisEvent(),
+        mockAnalysisEvent({ category: 'VERSION' }),
+        mockAnalysisEvent({ category: 'OTHER' })
+      ]}
+      onChange={jest.fn()}
+      onDelete={jest.fn()}
+      {...props}
+    />
   );
 }

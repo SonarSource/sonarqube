@@ -78,7 +78,6 @@ export default function ProjectActivityApp(props: Props) {
             canAdmin={canAdmin}
             canDeleteAnalyses={canDeleteAnalyses}
             changeEvent={props.changeEvent}
-            className="boxed-group-inner"
             deleteAnalysis={props.deleteAnalysis}
             deleteEvent={props.deleteEvent}
             initializing={props.initializing}

@@ -46,7 +46,7 @@ exports[`should correctly filter analyses by category 1`] = `
         <ul
           className="project-activity-analyses-list"
         >
-          <ProjectActivityAnalysis
+          <Memo(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
@@ -60,6 +60,7 @@ exports[`should correctly filter analyses by category 1`] = `
                   },
                 ],
                 "key": "A4",
+                "projectVersion": "1.0",
               }
             }
             canAdmin={false}
@@ -126,7 +127,7 @@ exports[`should correctly filter analyses by date range 1`] = `
         <ul
           className="project-activity-analyses-list"
         >
-          <ProjectActivityAnalysis
+          <Memo(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
@@ -140,6 +141,7 @@ exports[`should correctly filter analyses by date range 1`] = `
                   },
                 ],
                 "key": "A1",
+                "projectVersion": "1.0",
               }
             }
             canAdmin={false}
@@ -160,7 +162,229 @@ exports[`should correctly filter analyses by date range 1`] = `
 </ul>
 `;
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: application 1`] = `
+<ul
+  className="project-activity-versions-list"
+  onScroll={[Function]}
+  style={
+    Object {
+      "paddingTop": undefined,
+    }
+  }
+>
+  <li
+    key="E1"
+  >
+    <div
+      className="project-activity-version-badge first"
+    >
+      <Tooltip
+        mouseEnterDelay={0.5}
+        overlay="version 6.5-SNAPSHOT"
+      >
+        <span
+          className="analysis-version"
+        >
+          6.5-SNAPSHOT
+        </span>
+      </Tooltip>
+    </div>
+    <ul
+      className="project-activity-days-list"
+    >
+      <li
+        className="project-activity-day"
+        data-day="ISO.1477526400000"
+        key="1477526400000"
+      >
+        <div
+          className="project-activity-date"
+        >
+          <DateFormatter
+            date={1477526400000}
+            long={true}
+          />
+        </div>
+        <ul
+          className="project-activity-analyses-list"
+        >
+          <Memo(ProjectActivityAnalysis)
+            addCustomEvent={[MockFunction]}
+            addVersion={[MockFunction]}
+            analysis={
+              Object {
+                "date": 2016-10-27T16:33:50.000Z,
+                "events": Array [
+                  Object {
+                    "category": "VERSION",
+                    "key": "E1",
+                    "name": "6.5-SNAPSHOT",
+                  },
+                ],
+                "key": "A1",
+                "projectVersion": "1.0",
+              }
+            }
+            canAdmin={false}
+            canCreateVersion={false}
+            changeEvent={[MockFunction]}
+            deleteAnalysis={[MockFunction]}
+            deleteEvent={[MockFunction]}
+            isBaseline={false}
+            isFirst={true}
+            key="A1"
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+          <Memo(ProjectActivityAnalysis)
+            addCustomEvent={[MockFunction]}
+            addVersion={[MockFunction]}
+            analysis={
+              Object {
+                "date": 2016-10-27T12:21:15.000Z,
+                "events": Array [],
+                "key": "A2",
+                "projectVersion": "1.0",
+              }
+            }
+            canAdmin={false}
+            canCreateVersion={false}
+            changeEvent={[MockFunction]}
+            deleteAnalysis={[MockFunction]}
+            deleteEvent={[MockFunction]}
+            isBaseline={true}
+            isFirst={false}
+            key="A2"
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li
+    key="E2"
+  >
+    <div
+      className="project-activity-version-badge"
+    >
+      <Tooltip
+        mouseEnterDelay={0.5}
+        overlay="version 6.4"
+      >
+        <span
+          className="analysis-version"
+        >
+          6.4
+        </span>
+      </Tooltip>
+    </div>
+    <ul
+      className="project-activity-days-list"
+    >
+      <li
+        className="project-activity-day"
+        data-day="ISO.1477440000000"
+        key="1477440000000"
+      >
+        <div
+          className="project-activity-date"
+        >
+          <DateFormatter
+            date={1477440000000}
+            long={true}
+          />
+        </div>
+        <ul
+          className="project-activity-analyses-list"
+        >
+          <Memo(ProjectActivityAnalysis)
+            addCustomEvent={[MockFunction]}
+            addVersion={[MockFunction]}
+            analysis={
+              Object {
+                "date": 2016-10-26T12:17:29.000Z,
+                "events": Array [
+                  Object {
+                    "category": "VERSION",
+                    "key": "E2",
+                    "name": "6.4",
+                  },
+                  Object {
+                    "category": "OTHER",
+                    "key": "E3",
+                    "name": "foo",
+                  },
+                ],
+                "key": "A3",
+                "projectVersion": "1.0",
+              }
+            }
+            canAdmin={false}
+            canCreateVersion={false}
+            changeEvent={[MockFunction]}
+            deleteAnalysis={[MockFunction]}
+            deleteEvent={[MockFunction]}
+            isBaseline={false}
+            isFirst={false}
+            key="A3"
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+        </ul>
+      </li>
+      <li
+        className="project-activity-day"
+        data-day="ISO.1477267200000"
+        key="1477267200000"
+      >
+        <div
+          className="project-activity-date"
+        >
+          <DateFormatter
+            date={1477267200000}
+            long={true}
+          />
+        </div>
+        <ul
+          className="project-activity-analyses-list"
+        >
+          <Memo(ProjectActivityAnalysis)
+            addCustomEvent={[MockFunction]}
+            addVersion={[MockFunction]}
+            analysis={
+              Object {
+                "date": 2016-10-24T16:33:50.000Z,
+                "events": Array [
+                  Object {
+                    "category": "QUALITY_GATE",
+                    "key": "E1",
+                    "name": "Quality gate changed to red...",
+                  },
+                ],
+                "key": "A4",
+                "projectVersion": "1.0",
+              }
+            }
+            canAdmin={false}
+            canCreateVersion={false}
+            changeEvent={[MockFunction]}
+            deleteAnalysis={[MockFunction]}
+            deleteEvent={[MockFunction]}
+            isBaseline={false}
+            isFirst={false}
+            key="A4"
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+`;
+
+exports[`should render correctly: default 1`] = `
 <ul
   className="project-activity-versions-list"
   onScroll={[Function]}
@@ -206,7 +430,7 @@ exports[`should render correctly 1`] = `
         <ul
           className="project-activity-analyses-list"
         >
-          <ProjectActivityAnalysis
+          <Memo(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
@@ -220,6 +444,7 @@ exports[`should render correctly 1`] = `
                   },
                 ],
                 "key": "A1",
+                "projectVersion": "1.0",
               }
             }
             canAdmin={false}
@@ -233,7 +458,7 @@ exports[`should render correctly 1`] = `
             selected={false}
             updateSelectedDate={[Function]}
           />
-          <ProjectActivityAnalysis
+          <Memo(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
@@ -241,6 +466,7 @@ exports[`should render correctly 1`] = `
                 "date": 2016-10-27T12:21:15.000Z,
                 "events": Array [],
                 "key": "A2",
+                "projectVersion": "1.0",
               }
             }
             canAdmin={false}
@@ -294,7 +520,7 @@ exports[`should render correctly 1`] = `
         <ul
           className="project-activity-analyses-list"
         >
-          <ProjectActivityAnalysis
+          <Memo(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
@@ -313,6 +539,7 @@ exports[`should render correctly 1`] = `
                   },
                 ],
                 "key": "A3",
+                "projectVersion": "1.0",
               }
             }
             canAdmin={false}
@@ -344,7 +571,7 @@ exports[`should render correctly 1`] = `
         <ul
           className="project-activity-analyses-list"
         >
-          <ProjectActivityAnalysis
+          <Memo(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
@@ -358,6 +585,7 @@ exports[`should render correctly 1`] = `
                   },
                 ],
                 "key": "A4",
+                "projectVersion": "1.0",
               }
             }
             canAdmin={false}
@@ -376,4 +604,30 @@ exports[`should render correctly 1`] = `
     </ul>
   </li>
 </ul>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <div
+    className="text-center"
+  >
+    <i
+      className="spinner"
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly: no analyses 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <span
+    className="note"
+  >
+    no_results
+  </span>
+</div>
 `;

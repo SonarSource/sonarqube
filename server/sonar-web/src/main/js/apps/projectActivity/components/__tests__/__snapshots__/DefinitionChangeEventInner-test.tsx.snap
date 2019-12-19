@@ -1,24 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render 1`] = `
-<div
-  className="project-activity-event-inner"
->
-  <div
-    className="project-activity-event-inner-main"
+<Fragment>
+  <span
+    className="note"
   >
-    <ProjectEventIcon
-      className="project-activity-event-icon little-spacer-right DEFINITION_CHANGE"
-    />
-    <div
-      className="project-activity-event-inner-text flex-1"
-    >
-      <span
-        className="note little-spacer-right"
-      >
-        event.category.DEFINITION_CHANGE
-      </span>
-    </div>
+    event.category.DEFINITION_CHANGE
+    :
+  </span>
+  <div>
     <ResetButtonLink
       className="project-activity-event-inner-more-link"
       onClick={[Function]}
@@ -31,28 +21,18 @@ exports[`should render 1`] = `
       />
     </ResetButtonLink>
   </div>
-</div>
+</Fragment>
 `;
 
 exports[`should render 2`] = `
-<div
-  className="project-activity-event-inner"
->
-  <div
-    className="project-activity-event-inner-main"
+<Fragment>
+  <span
+    className="note"
   >
-    <ProjectEventIcon
-      className="project-activity-event-icon little-spacer-right DEFINITION_CHANGE"
-    />
-    <div
-      className="project-activity-event-inner-text flex-1"
-    >
-      <span
-        className="note little-spacer-right"
-      >
-        event.category.DEFINITION_CHANGE
-      </span>
-    </div>
+    event.category.DEFINITION_CHANGE
+    :
+  </span>
+  <div>
     <ResetButtonLink
       className="project-activity-event-inner-more-link"
       onClick={[Function]}
@@ -66,10 +46,10 @@ exports[`should render 2`] = `
     </ResetButtonLink>
   </div>
   <ul
-    className="project-activity-event-inner-more-content"
+    className="spacer-left spacer-top"
   >
     <li
-      className="display-flex-center little-spacer-top"
+      className="display-flex-center spacer-top"
       key="foo"
     >
       <div
@@ -112,7 +92,7 @@ exports[`should render 2`] = `
       </div>
     </li>
     <li
-      className="display-flex-center little-spacer-top"
+      className="display-flex-center spacer-top"
       key="bar"
     >
       <div
@@ -155,28 +135,18 @@ exports[`should render 2`] = `
       </div>
     </li>
   </ul>
-</div>
+</Fragment>
 `;
 
 exports[`should render for a branch 1`] = `
-<div
-  className="project-activity-event-inner"
->
-  <div
-    className="project-activity-event-inner-main"
+<Fragment>
+  <span
+    className="note"
   >
-    <ProjectEventIcon
-      className="project-activity-event-icon little-spacer-right DEFINITION_CHANGE"
-    />
-    <div
-      className="project-activity-event-inner-text flex-1"
-    >
-      <span
-        className="note little-spacer-right"
-      >
-        event.category.DEFINITION_CHANGE
-      </span>
-    </div>
+    event.category.DEFINITION_CHANGE
+    :
+  </span>
+  <div>
     <ResetButtonLink
       className="project-activity-event-inner-more-link"
       onClick={[Function]}
@@ -190,10 +160,10 @@ exports[`should render for a branch 1`] = `
     </ResetButtonLink>
   </div>
   <ul
-    className="project-activity-event-inner-more-content"
+    className="spacer-left spacer-top"
   >
     <li
-      className="display-flex-center little-spacer-top"
+      className="display-flex-center spacer-top"
       key="foo"
     >
       <div
@@ -236,7 +206,7 @@ exports[`should render for a branch 1`] = `
       </div>
     </li>
     <li
-      className="display-flex-center little-spacer-top"
+      className="display-flex-center spacer-top"
       key="bar"
     >
       <FormattedMessage
@@ -284,5 +254,5 @@ exports[`should render for a branch 1`] = `
       />
     </li>
   </ul>
-</div>
+</Fragment>
 `;
