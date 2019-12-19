@@ -20,22 +20,39 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { getMeasures } from '../../../../api/measures';
+import { getMeasuresAndMeta } from '../../../../api/measures';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
-import { mockComponent, mockQualityGateStatusCondition } from '../../../../helpers/testMocks';
-import { ReviewApp } from '../ReviewApp';
+import { mockQualityGateStatusCondition } from '../../../../helpers/mocks/quality-gates';
+import { mockComponent } from '../../../../helpers/testMocks';
+import { PullRequestOverview } from '../PullRequestOverview';
 
 jest.mock('../../../../api/measures', () => {
-  const { mockMeasure } = require.requireActual('../../../../helpers/testMocks');
+  const { mockMeasure, mockMetric } = require.requireActual('../../../../helpers/testMocks');
   return {
-    getMeasures: jest
-      .fn()
-      .mockResolvedValue([
-        mockMeasure({ metric: 'new_bugs ' }),
-        mockMeasure({ metric: 'new_vulnerabilities' }),
-        mockMeasure({ metric: 'new_code_smells' }),
-        mockMeasure({ metric: 'new_security_hotspots' })
-      ])
+    getMeasuresAndMeta: jest.fn().mockResolvedValue({
+      component: {
+        measures: [
+          mockMeasure({ metric: 'new_bugs' }),
+          mockMeasure({ metric: 'new_vulnerabilities' }),
+          mockMeasure({ metric: 'new_code_smells' }),
+          mockMeasure({ metric: 'new_security_hotspots' })
+        ]
+      },
+      metrics: [
+        mockMetric({ key: 'new_bugs', name: 'new_bugs', id: 'new_bugs' }),
+        mockMetric({
+          key: 'new_vulnerabilities',
+          name: 'new_vulnerabilities',
+          id: 'new_vulnerabilities'
+        }),
+        mockMetric({ key: 'new_code_smells', name: 'new_code_smells', id: 'new_code_smells' }),
+        mockMetric({
+          key: 'new_security_hotspots',
+          name: 'new_security_hotspots',
+          id: 'new_security_hotspots'
+        })
+      ]
+    })
   };
 });
 
@@ -55,7 +72,7 @@ it('should render correctly for a passed QG', async () => {
 
   expect(wrapper.find('QualityGateConditions').exists()).toBe(false);
 
-  expect(getMeasures).toBeCalled();
+  expect(getMeasuresAndMeta).toBeCalled();
   expect(fetchBranchStatus).toBeCalled();
 });
 
@@ -84,22 +101,20 @@ it('should render correctly for a failed QG', async () => {
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-
-  expect(wrapper.find('QualityGateConditions').exists()).toBe(true);
 });
 
 it('should correctly handle a WS failure', async () => {
-  (getMeasures as jest.Mock).mockRejectedValue({});
+  (getMeasuresAndMeta as jest.Mock).mockRejectedValueOnce({});
   const fetchBranchStatus = jest.fn().mockRejectedValue({});
   const wrapper = shallowRender({ fetchBranchStatus });
 
   await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.type()).toBeNull();
 });
 
-function shallowRender(props: Partial<ReviewApp['props']> = {}) {
+function shallowRender(props: Partial<PullRequestOverview['props']> = {}) {
   return shallow(
-    <ReviewApp
+    <PullRequestOverview
       branchLike={mockPullRequest()}
       component={mockComponent()}
       fetchBranchStatus={jest.fn()}

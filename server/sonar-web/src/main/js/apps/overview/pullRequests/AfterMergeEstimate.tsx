@@ -22,16 +22,16 @@ import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { findMeasure } from '../../../helpers/measures';
-import { MEASUREMENTS_MAP, MeasurementType } from '../utils';
+import { getMeasurementAfterMergeMetricKey, MeasurementType } from '../utils';
 
-interface Props {
+export interface AfterMergeEstimateProps {
   className?: string;
-  measures: T.Measure[];
+  measures: T.MeasureEnhanced[];
   type: MeasurementType;
 }
 
-export default function AfterMergeEstimate({ className, measures, type }: Props) {
-  const { afterMergeMetric } = MEASUREMENTS_MAP[type];
+export function AfterMergeEstimate({ className, measures, type }: AfterMergeEstimateProps) {
+  const afterMergeMetric = getMeasurementAfterMergeMetricKey(type);
 
   const measure = findMeasure(measures, afterMergeMetric);
 
@@ -42,9 +42,11 @@ export default function AfterMergeEstimate({ className, measures, type }: Props)
   return (
     <div className={classNames(className, 'display-flex-center')}>
       <span className="huge">{formatMeasure(measure.value, 'PERCENT')}</span>
-      <span className="label flex-1">
+      <span className="label flex-1 spacer-left text-right">
         {translate('component_measures.facet_category.overall_category.estimated')}
       </span>
     </div>
   );
 }
+
+export default React.memo(AfterMergeEstimate);

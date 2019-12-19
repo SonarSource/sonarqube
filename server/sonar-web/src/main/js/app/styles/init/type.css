@@ -253,8 +253,16 @@ small,
   text-transform: none;
 }
 
+.text-light {
+  font-weight: 300 !important;
+}
+
 .text-normal {
   font-weight: normal !important;
+}
+
+.text-bold {
+  font-weight: bold !important;
 }
 
 .text-muted {

@@ -17,61 +17,61 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
 import * as React from 'react';
 import { Link } from 'react-router';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure, localizeMetric } from 'sonar-ui-common/helpers/measures';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { getLeakValue } from '../../../components/measure/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { findMeasure } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { getMetricName, IssueType, ISSUETYPE_MAP } from '../utils';
+import { getIssueIconClass, getIssueMetricKey, IssueType } from '../utils';
 
-export interface Props {
+export interface IssueLabelProps {
   branchLike?: BranchLike;
-  className?: string;
   component: T.Component;
   docTooltip?: Promise<{ default: string }>;
-  measures: T.Measure[];
+  measures: T.MeasureEnhanced[];
   type: IssueType;
+  useDiffMetric?: boolean;
 }
 
-export default function IssueLabel({
-  branchLike,
-  className,
-  component,
-  docTooltip,
-  measures,
-  type
-}: Props) {
-  const { metric, iconClass } = ISSUETYPE_MAP[type];
+export function IssueLabel(props: IssueLabelProps) {
+  const { branchLike, component, docTooltip, measures, type, useDiffMetric = false } = props;
+  const metric = getIssueMetricKey(type, useDiffMetric);
   const measure = findMeasure(measures, metric);
+  const iconClass = getIssueIconClass(type);
 
   let value;
   if (measure) {
-    value = getLeakValue(measure);
+    value = useDiffMetric ? getLeakValue(measure) : measure.value;
   }
 
   const params = {
     ...getBranchLikeQuery(branchLike),
     resolved: 'false',
-    types: type
+    types: type,
+    sinceLeakPeriod: useDiffMetric ? 'true' : 'false'
   };
 
   return (
     <>
       {value === undefined ? (
-        <span className={classNames(className, 'measure-empty')}>—</span>
+        <span aria-label={translate('no_data')} className="overview-measures-empty-value" />
       ) : (
-        <Link className={className} to={getComponentIssuesUrl(component.key, params)}>
+        <Link
+          className="overview-measures-value text-light"
+          to={getComponentIssuesUrl(component.key, params)}>
           {formatMeasure(value, 'SHORT_INT')}
         </Link>
       )}
       {React.createElement(iconClass, { className: 'big-spacer-left little-spacer-right' })}
-      {getMetricName(metric)}
+      {localizeMetric(metric)}
       {docTooltip && <DocTooltip className="little-spacer-left" doc={docTooltip} />}
     </>
   );
 }
+
+export default React.memo(IssueLabel);

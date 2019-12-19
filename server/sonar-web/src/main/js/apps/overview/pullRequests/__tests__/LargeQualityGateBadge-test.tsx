@@ -19,24 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { isSonarCloud } from '../../../../helpers/system';
 import { mockComponent } from '../../../../helpers/testMocks';
-import LargeQualityGateBadge from '../LargeQualityGateBadge';
-
-jest.mock('../../../../helpers/system', () => ({
-  isSonarCloud: jest.fn()
-}));
+import { LargeQualityGateBadge } from '../LargeQualityGateBadge';
 
 it('should render correctly for SQ', () => {
-  (isSonarCloud as jest.Mock).mockReturnValue(false);
-
   expect(shallowRender()).toMatchSnapshot();
   expect(shallowRender({ level: 'OK' })).toMatchSnapshot();
-});
-
-it('should render the link correctly for SC', () => {
-  (isSonarCloud as jest.Mock).mockReturnValue(true);
-  expect(shallowRender()).toMatchSnapshot();
 });
 
 function shallowRender(props = {}) {

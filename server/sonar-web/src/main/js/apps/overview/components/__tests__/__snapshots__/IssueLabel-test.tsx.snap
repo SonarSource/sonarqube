@@ -1,0 +1,246 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for bugs 1`] = `
+<Fragment>
+  <Link
+    className="overview-measures-value text-light"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "id": "my-project",
+          "pullRequest": "1001",
+          "resolved": "false",
+          "sinceLeakPeriod": "false",
+          "types": "BUG",
+        },
+      }
+    }
+  >
+    1
+  </Link>
+  <BugIcon
+    className="big-spacer-left little-spacer-right"
+  />
+  metric.bugs.name
+</Fragment>
+`;
+
+exports[`should render correctly for bugs 2`] = `
+<Fragment>
+  <Link
+    className="overview-measures-value text-light"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "id": "my-project",
+          "pullRequest": "1001",
+          "resolved": "false",
+          "sinceLeakPeriod": "true",
+          "types": "BUG",
+        },
+      }
+    }
+  >
+    1
+  </Link>
+  <BugIcon
+    className="big-spacer-left little-spacer-right"
+  />
+  metric.new_bugs.name
+</Fragment>
+`;
+
+exports[`should render correctly for code smells 1`] = `
+<Fragment>
+  <Link
+    className="overview-measures-value text-light"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "id": "my-project",
+          "pullRequest": "1001",
+          "resolved": "false",
+          "sinceLeakPeriod": "false",
+          "types": "CODE_SMELL",
+        },
+      }
+    }
+  >
+    1
+  </Link>
+  <CodeSmellIcon
+    className="big-spacer-left little-spacer-right"
+  />
+  metric.code_smells.name
+</Fragment>
+`;
+
+exports[`should render correctly for code smells 2`] = `
+<Fragment>
+  <Link
+    className="overview-measures-value text-light"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "id": "my-project",
+          "pullRequest": "1001",
+          "resolved": "false",
+          "sinceLeakPeriod": "true",
+          "types": "CODE_SMELL",
+        },
+      }
+    }
+  >
+    1
+  </Link>
+  <CodeSmellIcon
+    className="big-spacer-left little-spacer-right"
+  />
+  metric.new_code_smells.name
+</Fragment>
+`;
+
+exports[`should render correctly for hotspots 1`] = `
+<Fragment>
+  <Link
+    className="overview-measures-value text-light"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "id": "my-project",
+          "pullRequest": "1001",
+          "resolved": "false",
+          "sinceLeakPeriod": "false",
+          "types": "SECURITY_HOTSPOT",
+        },
+      }
+    }
+  >
+    1
+  </Link>
+  <SecurityHotspotIcon
+    className="big-spacer-left little-spacer-right"
+  />
+  metric.security_hotspots.name
+  <DocTooltip
+    className="little-spacer-left"
+    doc={Promise {}}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly for hotspots 2`] = `
+<Fragment>
+  <Link
+    className="overview-measures-value text-light"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "id": "my-project",
+          "pullRequest": "1001",
+          "resolved": "false",
+          "sinceLeakPeriod": "true",
+          "types": "SECURITY_HOTSPOT",
+        },
+      }
+    }
+  >
+    1
+  </Link>
+  <SecurityHotspotIcon
+    className="big-spacer-left little-spacer-right"
+  />
+  metric.new_security_hotspots.name
+  <DocTooltip
+    className="little-spacer-left"
+    doc={Promise {}}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly for vulnerabilities 1`] = `
+<Fragment>
+  <Link
+    className="overview-measures-value text-light"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "id": "my-project",
+          "pullRequest": "1001",
+          "resolved": "false",
+          "sinceLeakPeriod": "false",
+          "types": "VULNERABILITY",
+        },
+      }
+    }
+  >
+    1
+  </Link>
+  <VulnerabilityIcon
+    className="big-spacer-left little-spacer-right"
+  />
+  metric.vulnerabilities.name
+</Fragment>
+`;
+
+exports[`should render correctly for vulnerabilities 2`] = `
+<Fragment>
+  <Link
+    className="overview-measures-value text-light"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "id": "my-project",
+          "pullRequest": "1001",
+          "resolved": "false",
+          "sinceLeakPeriod": "true",
+          "types": "VULNERABILITY",
+        },
+      }
+    }
+  >
+    1
+  </Link>
+  <VulnerabilityIcon
+    className="big-spacer-left little-spacer-right"
+  />
+  metric.new_vulnerabilities.name
+</Fragment>
+`;
+
+exports[`should render correctly if no values are present 1`] = `
+<Fragment>
+  <span
+    aria-label="no_data"
+    className="overview-measures-empty-value"
+  />
+  <BugIcon
+    className="big-spacer-left little-spacer-right"
+  />
+  metric.bugs.name
+</Fragment>
+`;

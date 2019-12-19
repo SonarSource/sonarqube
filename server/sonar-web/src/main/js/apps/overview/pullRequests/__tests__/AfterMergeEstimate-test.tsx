@@ -19,26 +19,36 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockMeasure } from '../../../../helpers/testMocks';
-import AfterMergeEstimate from '../AfterMergeEstimate';
+import { mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
+import { MetricKey } from '../../../../types/metrics';
+import { MeasurementType } from '../../utils';
+import { AfterMergeEstimate, AfterMergeEstimateProps } from '../AfterMergeEstimate';
 
 it('should render correctly for coverage', () => {
-  expect(shallowRender({ measures: [mockMeasure({ metric: 'coverage' })] })).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('should render correctly for duplications', () => {
   expect(
     shallowRender({
-      measures: [mockMeasure({ metric: 'duplicated_lines_density' })],
-      type: 'DUPLICATION'
+      measures: [
+        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.duplicated_lines_density }) })
+      ],
+      type: MeasurementType.Duplication
     })
   ).toMatchSnapshot();
 });
 
 it('should render correctly with no value', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ measures: [] })).toMatchSnapshot();
 });
 
-function shallowRender(props = {}) {
-  return shallow(<AfterMergeEstimate measures={[mockMeasure()]} type="COVERAGE" {...props} />);
+function shallowRender(props: Partial<AfterMergeEstimateProps> = {}) {
+  return shallow(
+    <AfterMergeEstimate
+      measures={[mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.coverage }) })]}
+      type={MeasurementType.Coverage}
+      {...props}
+    />
+  );
 }

@@ -25,7 +25,6 @@ import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import HelpIcon from 'sonar-ui-common/components/icons/HelpIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { colors } from '../../../app/theme';
-import { isSonarCloud } from '../../../helpers/system';
 import { getQualityGatesUrl, getQualityGateUrl } from '../../../helpers/urls';
 
 interface Props {
@@ -33,25 +32,17 @@ interface Props {
   level?: T.Status;
 }
 
-export default function LargeQualityGateBadge({ component, level }: Props) {
+export function LargeQualityGateBadge({ component, level }: Props) {
   const success = level === 'OK';
 
-  let path;
-  if (isSonarCloud()) {
-    path =
-      component.qualityGate === undefined
-        ? getQualityGatesUrl(component.organization)
-        : getQualityGateUrl(component.qualityGate.key, component.organization);
-  } else {
-    path =
-      component.qualityGate === undefined
-        ? getQualityGatesUrl()
-        : getQualityGateUrl(component.qualityGate.key);
-  }
+  const path =
+    component.qualityGate === undefined
+      ? getQualityGatesUrl()
+      : getQualityGateUrl(component.qualityGate.key);
 
   return (
     <div
-      className={classNames('quality-gate-badge-large small', {
+      className={classNames('overview-quality-gate-badge-large small', {
         failed: !success,
         success
       })}>
@@ -73,8 +64,10 @@ export default function LargeQualityGateBadge({ component, level }: Props) {
         </HelpTooltip>
       </div>
       {level !== undefined && (
-        <h4 className="huge-spacer-top huge">{translate('metric.level', level)}</h4>
+        <h3 className="huge-spacer-top huge">{translate('metric.level', level)}</h3>
       )}
     </div>
   );
 }
+
+export default React.memo(LargeQualityGateBadge);

@@ -10,7 +10,7 @@ exports[`should render correctly for coverage 1`] = `
     1.0%
   </span>
   <span
-    className="label flex-1"
+    className="label flex-1 spacer-left text-right"
   >
     component_measures.facet_category.overall_category.estimated
   </span>
@@ -27,7 +27,7 @@ exports[`should render correctly for duplications 1`] = `
     1.0%
   </span>
   <span
-    className="label flex-1"
+    className="label flex-1 spacer-left text-right"
   >
     component_measures.facet_category.overall_category.estimated
   </span>

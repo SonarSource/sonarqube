@@ -24,29 +24,31 @@ import { getLeakValue, getRatingTooltip } from '../../../components/measure/util
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { findMeasure } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
-import { getRatingName, IssueType, ISSUETYPE_MAP } from '../utils';
+import { getIssueRatingMetricKey, getIssueRatingName, IssueType } from '../utils';
 
-interface Props {
+export interface IssueRatingProps {
   branchLike?: BranchLike;
   component: T.Component;
-  measures: T.Measure[];
+  measures: T.MeasureEnhanced[];
   type: IssueType;
+  useDiffMetric?: boolean;
 }
 
-export default function IssueRating({ branchLike, component, measures, type }: Props) {
-  const { rating } = ISSUETYPE_MAP[type];
+export function IssueRating(props: IssueRatingProps) {
+  const { branchLike, component, measures, type, useDiffMetric = false } = props;
+  const rating = getIssueRatingMetricKey(type, useDiffMetric);
   const measure = findMeasure(measures, rating);
 
   if (!rating || !measure) {
     return null;
   }
 
-  const value = getLeakValue(measure);
+  const value = useDiffMetric ? getLeakValue(measure) : measure.value;
   const tooltip = value && getRatingTooltip(rating, Number(value));
 
   return (
     <>
-      <span className="big-spacer-right flex-1">{getRatingName(type)}</span>
+      <span className="flex-1 big-spacer-right text-right">{getIssueRatingName(type)}</span>
       <Tooltip overlay={tooltip}>
         <span>
           <DrilldownLink
@@ -61,3 +63,5 @@ export default function IssueRating({ branchLike, component, measures, type }: P
     </>
   );
 }
+
+export default React.memo(IssueRating);
