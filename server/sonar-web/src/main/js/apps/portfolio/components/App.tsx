@@ -22,13 +22,13 @@ import { connect } from 'react-redux';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getChildren } from '../../../api/components';
 import { getMeasures } from '../../../api/measures';
+import MeasuresLink from '../../../components/common/MeasuresLink';
 import Measure from '../../../components/measure/Measure';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics, Store } from '../../../store/rootReducer';
 import '../styles.css';
 import { SubComponent } from '../types';
 import { convertMeasures, PORTFOLIO_METRICS, SUB_COMPONENTS_METRICS } from '../utils';
-import MeasuresButtonLink from './MeasuresButtonLink';
 import MetricBox from './MetricBox';
 import Report from './Report';
 import WorstProjects from './WorstProjects';
@@ -183,7 +183,7 @@ export class App extends React.PureComponent<Props, State> {
             </div>
             <div className="portfolio-breakdown-box-link">
               <div>
-                <MeasuresButtonLink component={component.key} metric="projects" />
+                <MeasuresLink component={component.key} metric="projects" />
               </div>
             </div>
           </div>
@@ -198,7 +198,7 @@ export class App extends React.PureComponent<Props, State> {
             </div>
             <div className="portfolio-breakdown-box-link">
               <div>
-                <MeasuresButtonLink
+                <MeasuresLink
                   component={component.key}
                   label={translate('portfolio.language_breakdown_link')}
                   metric="ncloc"

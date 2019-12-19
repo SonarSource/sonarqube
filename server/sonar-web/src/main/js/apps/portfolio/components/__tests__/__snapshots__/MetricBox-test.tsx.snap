@@ -42,13 +42,13 @@ exports[`should render correctly 1`] = `
     className="portfolio-box-links"
   >
     <div>
-      <MeasuresButtonLink
+      <MeasuresLink
         component="foo"
         metric="Reliability"
       />
     </div>
     <div>
-      <HistoryButtonLink
+      <ActivityLink
         component="foo"
         metric="reliability_rating"
       />
@@ -122,13 +122,13 @@ exports[`should render correctly for releasability 1`] = `
     className="portfolio-box-links"
   >
     <div>
-      <MeasuresButtonLink
+      <MeasuresLink
         component="foo"
         metric="Releasability"
       />
     </div>
     <div>
-      <HistoryButtonLink
+      <ActivityLink
         component="foo"
         metric="releasability_rating"
       />
@@ -202,13 +202,13 @@ exports[`should render correctly for releasability 2`] = `
     className="portfolio-box-links"
   >
     <div>
-      <MeasuresButtonLink
+      <MeasuresLink
         component="foo"
         metric="Releasability"
       />
     </div>
     <div>
-      <HistoryButtonLink
+      <ActivityLink
         component="foo"
         metric="releasability_rating"
       />
@@ -246,13 +246,13 @@ exports[`should render correctly when no effort 1`] = `
     className="portfolio-box-links"
   >
     <div>
-      <MeasuresButtonLink
+      <MeasuresLink
         component="foo"
         metric="Releasability"
       />
     </div>
     <div>
-      <HistoryButtonLink
+      <ActivityLink
         component="foo"
         metric="releasability_rating"
       />

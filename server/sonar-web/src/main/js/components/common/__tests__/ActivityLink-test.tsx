@@ -17,22 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Link } from 'react-router';
-import HistoryIcon from 'sonar-ui-common/components/icons/HistoryIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getMeasureHistoryUrl } from '../../../helpers/urls';
+import { mockBranch } from '../../../helpers/mocks/branch-like';
+import { GraphType } from '../../../types/project-activity';
+import ActivityLink, { ActivityLinkProps } from '../ActivityLink';
 
-interface Props {
-  component: string;
-  metric: string;
-}
+it('renders correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ label: 'Foo', branchLike: mockBranch() })).toMatchSnapshot();
+  expect(shallowRender({ graph: GraphType.coverage })).toMatchSnapshot();
+  expect(shallowRender({ graph: GraphType.custom, metric: 'new_bugs,bugs' })).toMatchSnapshot();
+});
 
-export default function HistoryButtonLink({ component, metric }: Props) {
-  return (
-    <Link to={getMeasureHistoryUrl(component, metric)}>
-      <HistoryIcon className="little-spacer-right" size={14} />
-      <span>{translate('portfolio.activity_link')}</span>
-    </Link>
-  );
+function shallowRender(props: Partial<ActivityLinkProps> = {}) {
+  return shallow(<ActivityLink component="foo" {...props} />);
 }

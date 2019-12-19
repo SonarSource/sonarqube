@@ -145,19 +145,9 @@
   border-right: 1px solid var(--barBorderColor);
 }
 
-.portfolio-box-links a,
-.portfolio-breakdown-box-link a {
-  border: none;
-}
-
 .portfolio-box-links svg,
 .portfolio-breakdown-box-link svg {
   vertical-align: middle;
-}
-
-.portfolio-box-links a > span,
-.portfolio-breakdown-box-link a > span {
-  border-bottom: 1px solid #cae3f2;
 }
 
 .portfolio-breakdown {

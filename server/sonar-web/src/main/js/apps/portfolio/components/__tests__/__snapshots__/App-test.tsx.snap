@@ -101,7 +101,7 @@ exports[`renders 1`] = `
         className="portfolio-breakdown-box-link"
       >
         <div>
-          <MeasuresButtonLink
+          <MeasuresLink
             component="foo"
             metric="projects"
           />
@@ -129,7 +129,7 @@ exports[`renders 1`] = `
         className="portfolio-breakdown-box-link"
       >
         <div>
-          <MeasuresButtonLink
+          <MeasuresLink
             component="foo"
             label="portfolio.language_breakdown_link"
             metric="ncloc"

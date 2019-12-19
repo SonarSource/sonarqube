@@ -22,13 +22,13 @@ import { Link } from 'react-router';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import Level from 'sonar-ui-common/components/ui/Level';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import ActivityLink from '../../../components/common/ActivityLink';
+import MeasuresLink from '../../../components/common/MeasuresLink';
 import Measure from '../../../components/measure/Measure';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { METRICS_PER_TYPE } from '../utils';
 import Effort from './Effort';
-import HistoryButtonLink from './HistoryButtonLink';
 import MainRating from './MainRating';
-import MeasuresButtonLink from './MeasuresButtonLink';
 import RatingFreshness from './RatingFreshness';
 
 export interface MetricBoxProps {
@@ -113,10 +113,10 @@ export default function MetricBox({ component, measures, metricKey }: MetricBoxP
 
       <div className="portfolio-box-links">
         <div>
-          <MeasuresButtonLink component={component} metric={keys.measuresMetric} />
+          <MeasuresLink component={component} metric={keys.measuresMetric} />
         </div>
         <div>
-          <HistoryButtonLink component={component} metric={keys.activity || keys.rating} />
+          <ActivityLink component={component} metric={keys.activity || keys.rating} />
         </div>
       </div>
     </div>

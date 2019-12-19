@@ -19,21 +19,34 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import MeasuresIcon from 'sonar-ui-common/components/icons/MeasuresIcon';
+import HistoryIcon from 'sonar-ui-common/components/icons/HistoryIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getComponentDrilldownUrl } from '../../../helpers/urls';
+import { getActivityUrl, getMeasureHistoryUrl } from '../../helpers/urls';
+import { BranchLike } from '../../types/branch-like';
+import { GraphType } from '../../types/project-activity';
+import { isCustomGraph } from '../activity-graph/utils';
+import './ActivityLink.css';
 
-interface Props {
+export interface ActivityLinkProps {
+  branchLike?: BranchLike;
   component: string;
+  graph?: GraphType;
   label?: string;
-  metric: string;
+  metric?: string;
 }
 
-export default function MeasuresButtonLink({ component, label, metric }: Props) {
+export default function ActivityLink(props: ActivityLinkProps) {
+  const { branchLike, component, graph, label, metric } = props;
   return (
-    <Link to={getComponentDrilldownUrl({ componentKey: component, metric })}>
-      <MeasuresIcon className="little-spacer-right" size={14} />
-      <span>{label || translate('portfolio.measures_link')}</span>
+    <Link
+      className="activity-link"
+      to={
+        metric !== undefined && graph !== undefined && isCustomGraph(graph)
+          ? getMeasureHistoryUrl(component, metric, branchLike)
+          : getActivityUrl(component, branchLike, graph)
+      }>
+      <HistoryIcon className="little-spacer-right" size={14} />
+      <span>{label || translate('portfolio.activity_link')}</span>
     </Link>
   );
 }

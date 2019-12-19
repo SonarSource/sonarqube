@@ -20,6 +20,7 @@
 import { getBaseUrl, Location } from 'sonar-ui-common/helpers/urls';
 import { getProfilePath } from '../apps/quality-profiles/utils';
 import { BranchLike } from '../types/branch-like';
+import { GraphType } from '../types/project-activity';
 import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branch-like';
 
 type Query = Location['query'];
@@ -118,10 +119,10 @@ export function getMeasureTreemapUrl(componentKey: string, metric: string) {
   return getComponentDrilldownUrl({ componentKey, metric, treemapView: true });
 }
 
-export function getActivityUrl(component: string, branchLike?: BranchLike) {
+export function getActivityUrl(component: string, branchLike?: BranchLike, graph?: GraphType) {
   return {
     pathname: '/project/activity',
-    query: { id: component, ...getBranchLikeQuery(branchLike) }
+    query: { id: component, graph, ...getBranchLikeQuery(branchLike) }
   };
 }
 

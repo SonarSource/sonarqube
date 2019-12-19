@@ -1,0 +1,103 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<Link
+  className="activity-link"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/project/activity",
+      "query": Object {
+        "graph": undefined,
+        "id": "foo",
+      },
+    }
+  }
+>
+  <HistoryIcon
+    className="little-spacer-right"
+    size={14}
+  />
+  <span>
+    portfolio.activity_link
+  </span>
+</Link>
+`;
+
+exports[`renders correctly 2`] = `
+<Link
+  className="activity-link"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/project/activity",
+      "query": Object {
+        "branch": "branch-6.7",
+        "graph": undefined,
+        "id": "foo",
+      },
+    }
+  }
+>
+  <HistoryIcon
+    className="little-spacer-right"
+    size={14}
+  />
+  <span>
+    Foo
+  </span>
+</Link>
+`;
+
+exports[`renders correctly 3`] = `
+<Link
+  className="activity-link"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/project/activity",
+      "query": Object {
+        "graph": "coverage",
+        "id": "foo",
+      },
+    }
+  }
+>
+  <HistoryIcon
+    className="little-spacer-right"
+    size={14}
+  />
+  <span>
+    portfolio.activity_link
+  </span>
+</Link>
+`;
+
+exports[`renders correctly 4`] = `
+<Link
+  className="activity-link"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/project/activity",
+      "query": Object {
+        "custom_metrics": "new_bugs,bugs",
+        "graph": "custom",
+        "id": "foo",
+      },
+    }
+  }
+>
+  <HistoryIcon
+    className="little-spacer-right"
+    size={14}
+  />
+  <span>
+    portfolio.activity_link
+  </span>
+</Link>
+`;
