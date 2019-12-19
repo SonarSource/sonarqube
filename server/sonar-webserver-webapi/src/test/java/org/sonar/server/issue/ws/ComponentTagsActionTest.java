@@ -20,10 +20,12 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
 import java.util.Map;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.server.issue.index.IssueQuery;
@@ -38,9 +40,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ComponentTagsActionTest {
+  private static String[] ISSUE_RULE_TYPES = Arrays.stream(RuleType.values())
+    .filter(t -> t != SECURITY_HOTSPOT)
+    .map(Enum::name)
+    .toArray(String[]::new);
 
   private IssueIndex service = mock(IssueIndex.class);
   private IssueQueryFactory issueQueryFactory = mock(IssueQueryFactory.class, Mockito.RETURNS_DEEP_STUBS);
@@ -99,6 +106,7 @@ public class ComponentTagsActionTest {
       .execute();
     assertJson(response.getInput()).isSimilarTo(getClass().getResource("ComponentTagsActionTest/component-tags.json"));
 
+    assertThat(captor.getValue().getTypes()).containsExactlyInAnyOrder(ISSUE_RULE_TYPES);
     assertThat(captor.getValue().getComponentUuids()).containsOnly("polop");
     assertThat(captor.getValue().getResolved()).isFalse();
     assertThat(captor.getValue().getCreatedAfter()).isNull();
@@ -125,6 +133,7 @@ public class ComponentTagsActionTest {
       .setParam("ps", "5")
       .execute();
     assertJson(response.getInput()).isSimilarTo(getClass().getResource("ComponentTagsActionTest/component-tags.json"));
+    assertThat(captor.getValue().getTypes()).containsExactlyInAnyOrder(ISSUE_RULE_TYPES);
     assertThat(captor.getValue().getComponentUuids()).containsOnly(componentUuid);
     assertThat(captor.getValue().getResolved()).isFalse();
     assertThat(captor.getValue().getCreatedAfter()).isEqualTo(createdAfter);

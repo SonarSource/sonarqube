@@ -19,6 +19,8 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.protobuf.ProtocolStringList;
+import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,6 +30,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.component.ComponentFinder;
@@ -39,6 +42,7 @@ import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewIndexer;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Issues.TagsResponse;
 
@@ -87,6 +91,21 @@ public class TagsActionTest {
   }
 
   @Test
+  public void search_tags_ignores_hotspots() {
+    ComponentDto project = db.components().insertPrivateProject();
+    RuleDefinitionDto issueRule = db.rules().insertIssueRule();
+    RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule();
+    Consumer<IssueDto> setTags = issue -> issue.setTags(asList("tag1", "tag2"));
+    db.issues().insertIssue(issueRule, project, project, setTags);
+    db.issues().insertHotspot(hotspotRule, project, project, setTags);
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexer.allowOnlyAnyone(project);
+    TestRequest testRequest = ws.newRequest();
+
+    assertThat(tagListOf(testRequest)).containsExactly("tag1", "tag2");
+  }
+
+  @Test
   public void search_tags_by_query() {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPrivateProject();
@@ -95,11 +114,26 @@ public class TagsActionTest {
     issueIndexer.indexOnStartup(emptySet());
     permissionIndexer.allowOnlyAnyone(project);
 
-    TagsResponse result = ws.newRequest()
-      .setParam("q", "ag1")
-      .executeProtobuf(TagsResponse.class);
+    assertThat(tagListOf(ws.newRequest().setParam("q", "ag1"))).containsExactly("tag1", "tag12");
+  }
 
-    assertThat(result.getTagsList()).containsExactly("tag1", "tag12");
+  @Test
+  public void search_tags_by_query_ignores_hotspots() {
+    RuleDefinitionDto issueRule = db.rules().insertIssueRule();
+    RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule();
+    ComponentDto project = db.components().insertPrivateProject();
+    db.issues().insertIssue(issueRule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertHotspot(hotspotRule, project, project, issue -> issue.setTags(asList("tag1", "tag12", "tag4", "tag5")));
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexer.allowOnlyAnyone(project);
+    TestRequest testRequest = ws.newRequest();
+
+    assertThat(tagListOf(testRequest)).containsExactly("tag1", "tag2");
+    assertThat(tagListOf(testRequest.setParam("q", "ag1"))).containsExactly("tag1");
+    assertThat(tagListOf(testRequest.setParam("q", "tag1"))).containsExactly("tag1");
+    assertThat(tagListOf(testRequest.setParam("q", "tag12"))).isEmpty();
+    assertThat(tagListOf(testRequest.setParam("q", "tag2"))).containsOnly("tag2");
+    assertThat(tagListOf(testRequest.setParam("q", "ag5"))).isEmpty();
   }
 
   @Test
@@ -116,11 +150,27 @@ public class TagsActionTest {
     issueIndexer.indexOnStartup(emptySet());
     permissionIndexer.allowOnlyAnyone(project1, project2);
 
-    TagsResponse result = ws.newRequest()
-      .setParam("organization", organization1.getKey())
-      .executeProtobuf(TagsResponse.class);
+    assertThat(tagListOf(ws.newRequest().setParam("organization", organization1.getKey()))).containsExactly("tag1", "tag2");
+  }
 
-    assertThat(result.getTagsList()).containsExactly("tag1", "tag2");
+  @Test
+  public void search_tags_by_organization_ignores_hotspots() {
+    RuleDefinitionDto issueRule = db.rules().insertIssueRule();
+    RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule();
+    // Tags on issues of organization 1
+    OrganizationDto organization1 = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPrivateProject(organization1);
+    db.issues().insertIssue(issueRule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertHotspot(hotspotRule, project1, project1, issue -> issue.setTags(asList("tag3", "tag4")));
+    // Tags on issues of organization 2
+    OrganizationDto organization2 = db.organizations().insert();
+    ComponentDto project2 = db.components().insertPrivateProject(organization2);
+    db.issues().insertIssue(issueRule, project2, project2, issue -> issue.setTags(singletonList("tag5")));
+    db.issues().insertHotspot(hotspotRule, project2, project2, issue -> issue.setTags(singletonList("tag6")));
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexer.allowOnlyAnyone(project1, project2);
+
+    assertThat(tagListOf(ws.newRequest().setParam("organization", organization1.getKey()))).containsExactly("tag1", "tag2");
   }
 
   @Test
@@ -134,12 +184,28 @@ public class TagsActionTest {
     issueIndexer.indexOnStartup(emptySet());
     permissionIndexer.allowOnlyAnyone(project1, project2);
 
-    TagsResponse result = ws.newRequest()
+    assertThat(tagListOf(ws.newRequest()
       .setParam("organization", organization.getKey())
-      .setParam("project", project1.getKey())
-      .executeProtobuf(TagsResponse.class);
+      .setParam("project", project1.getKey()))).containsExactly("tag1");
+  }
 
-    assertThat(result.getTagsList()).containsExactly("tag1");
+  @Test
+  public void search_tags_by_project_ignores_hotspots() {
+    RuleDefinitionDto issueRule = db.rules().insertIssueRule();
+    RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule();
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    db.issues().insertHotspot(hotspotRule, project1, project1, issue -> issue.setTags(singletonList("tag1")));
+    db.issues().insertIssue(issueRule, project1, project1, issue -> issue.setTags(singletonList("tag2")));
+    db.issues().insertHotspot(hotspotRule, project2, project2, issue -> issue.setTags(singletonList("tag3")));
+    db.issues().insertIssue(issueRule, project2, project2, issue -> issue.setTags(singletonList("tag4")));
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexer.allowOnlyAnyone(project1, project2);
+
+    assertThat(tagListOf(ws.newRequest()
+      .setParam("organization", organization.getKey())
+      .setParam("project", project1.getKey()))).containsExactly("tag2");
   }
 
   @Test
@@ -155,11 +221,25 @@ public class TagsActionTest {
     viewIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(organization);
 
-    TagsResponse result = ws.newRequest()
-      .setParam("project", portfolio.getKey())
-      .executeProtobuf(TagsResponse.class);
+    assertThat(tagListOf(ws.newRequest().setParam("project", portfolio.getKey()))).containsExactly("cwe");
+  }
 
-    assertThat(result.getTagsList()).containsExactly("cwe");
+  @Test
+  public void search_tags_by_portfolio_ignores_hotspots() {
+    OrganizationDto organization = db.getDefaultOrganization();
+    ComponentDto portfolio = db.components().insertPrivatePortfolio(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    db.components().insertComponent(newProjectCopy(project, portfolio));
+    permissionIndexer.allowOnlyAnyone(project);
+    RuleDefinitionDto issueRule = db.rules().insertIssueRule();
+    RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule();
+    db.issues().insertHotspot(hotspotRule, project, project, issue -> issue.setTags(singletonList("cwe")));
+    db.issues().insertIssue(issueRule, project, project, issue -> issue.setTags(singletonList("foo")));
+    issueIndexer.indexOnStartup(emptySet());
+    viewIndexer.indexOnStartup(emptySet());
+    userSession.logIn().addMembership(organization);
+
+    assertThat(tagListOf(ws.newRequest().setParam("project", portfolio.getKey()))).containsExactly("foo");
   }
 
   @Test
@@ -175,11 +255,25 @@ public class TagsActionTest {
     viewIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(organization);
 
-    TagsResponse result = ws.newRequest()
-      .setParam("project", application.getKey())
-      .executeProtobuf(TagsResponse.class);
+    assertThat(tagListOf(ws.newRequest().setParam("project", application.getKey()))).containsExactly("cwe");
+  }
 
-    assertThat(result.getTagsList()).containsExactly("cwe");
+  @Test
+  public void search_tags_by_application_ignores_hotspots() {
+    OrganizationDto organization = db.getDefaultOrganization();
+    ComponentDto application = db.components().insertPrivateApplication(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    db.components().insertComponent(newProjectCopy(project, application));
+    permissionIndexer.allowOnlyAnyone(project);
+    RuleDefinitionDto issueRule = db.rules().insertIssueRule();
+    RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule();
+    db.issues().insertIssue(issueRule, project, project, issue -> issue.setTags(singletonList("cwe")));
+    db.issues().insertHotspot(hotspotRule, project, project, issue -> issue.setTags(singletonList("foo")));
+    issueIndexer.indexOnStartup(emptySet());
+    viewIndexer.indexOnStartup(emptySet());
+    userSession.logIn().addMembership(organization);
+
+    assertThat(tagListOf(ws.newRequest().setParam("project", application.getKey()))).containsExactly("cwe");
   }
 
   @Test
@@ -303,6 +397,10 @@ public class TagsActionTest {
         tuple("ps", "10", null, false, false),
         tuple("organization", null, "6.4", false, true),
         tuple("project", null, "7.4", false, false));
+  }
+
+  private static ProtocolStringList tagListOf(TestRequest testRequest) {
+    return testRequest.executeProtobuf(TagsResponse.class).getTagsList();
   }
 
 }

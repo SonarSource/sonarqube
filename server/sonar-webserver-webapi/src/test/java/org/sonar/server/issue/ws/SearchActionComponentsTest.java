@@ -466,14 +466,15 @@ public class SearchActionComponentsTest {
     db.components().insertComponents(newProjectCopy(project2, applicationBranch1));
     db.components().insertComponents(newProjectCopy(project1Branch2, applicationBranch2));
 
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
-    IssueDto issueOnProject1 = db.issues().insertIssue(rule, project1, project1);
-    IssueDto issueOnProject1Branch1 = db.issues().insertIssue(rule, project1Branch1, project1Branch1);
-    db.issues().insertHotspot(rule, project1Branch1, project1Branch1);
-    IssueDto issueOnFileOnProject1Branch1 = db.issues().insertIssue(rule, project1Branch1, fileOnProject1Branch1);
-    IssueDto issueOnProject1Branch2 = db.issues().insertIssue(rule, project1Branch2, project1Branch2);
-    IssueDto issueOnProject2 = db.issues().insertIssue(rule, project2, project2);
-    db.issues().insertHotspot(rule, project2, project2);
+    RuleDefinitionDto issueRule = db.rules().insertIssueRule();
+    RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule();
+    IssueDto issueOnProject1 = db.issues().insertIssue(issueRule, project1, project1);
+    IssueDto issueOnProject1Branch1 = db.issues().insertIssue(issueRule, project1Branch1, project1Branch1);
+    db.issues().insertHotspot(hotspotRule, project1Branch1, project1Branch1);
+    IssueDto issueOnFileOnProject1Branch1 = db.issues().insertIssue(issueRule, project1Branch1, fileOnProject1Branch1);
+    IssueDto issueOnProject1Branch2 = db.issues().insertIssue(issueRule, project1Branch2, project1Branch2);
+    IssueDto issueOnProject2 = db.issues().insertIssue(issueRule, project2, project2);
+    db.issues().insertHotspot(hotspotRule, project2, project2);
     allowAnyoneOnProjects(project1, project2, application);
     userSession.addProjectPermission(USER, application);
     indexIssuesAndViews();

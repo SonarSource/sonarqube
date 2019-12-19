@@ -43,8 +43,10 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -88,6 +90,10 @@ public class IssueQueryFactory {
     .filter(s -> !s.equals(STATUS_TO_REVIEW))
     .filter(s -> !s.equals(STATUS_REVIEWED))
     .collect(ImmutableList.toImmutableList());
+  public static final Set<String> ISSUE_TYPE_NAMES = Arrays.stream(RuleType.values())
+    .filter(t -> t != RuleType.SECURITY_HOTSPOT)
+    .map(Enum::name)
+    .collect(MoreCollectors.toSet(RuleType.values().length - 1));
   private static final ComponentDto UNKNOWN_COMPONENT = new ComponentDto().setUuid(UNKNOWN).setProjectUuid(UNKNOWN);
 
   private final DbClient dbClient;

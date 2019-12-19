@@ -26,13 +26,14 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.issue.SearchRequest;
+import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.issue.index.IssueQueryFactory;
-import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.issue.SearchRequest;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_TYPE_NAMES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_COMPONENT_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUID;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
@@ -79,6 +80,7 @@ public class ComponentTagsAction implements IssuesWsAction {
   public void handle(Request request, Response response) throws Exception {
     SearchRequest searchRequest = new SearchRequest()
       .setComponentUuids(singletonList(request.mandatoryParam(PARAM_COMPONENT_UUID)))
+      .setTypes(ISSUE_TYPE_NAMES)
       .setResolved(false)
       .setCreatedAfter(request.param(PARAM_CREATED_AFTER));
 

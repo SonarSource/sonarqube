@@ -19,7 +19,10 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.collect.ImmutableSet;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -62,7 +65,7 @@ public class SearchRequest {
   private List<String> severities;
   private List<String> statuses;
   private List<String> tags;
-  private List<String> types;
+  private Set<String> types;
   private List<String> owaspTop10;
   private List<String> sansTop25;
   private List<String> sonarsourceSecurity;
@@ -387,12 +390,12 @@ public class SearchRequest {
   }
 
   @CheckForNull
-  public List<String> getTypes() {
+  public Set<String> getTypes() {
     return types;
   }
 
-  public SearchRequest setTypes(@Nullable List<String> types) {
-    this.types = types;
+  public SearchRequest setTypes(@Nullable Collection<String> types) {
+    this.types = types == null ? null : ImmutableSet.copyOf(types);
     return this;
   }
 

@@ -43,8 +43,9 @@ import org.sonarqube.ws.Issues;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
+import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_TYPE_NAMES;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -117,7 +118,8 @@ public class TagsAction implements IssuesWsAction {
   }
 
   private List<String> searchTags(Optional<OrganizationDto> organization, Optional<ComponentDto> project, Request request) {
-    IssueQuery.Builder issueQueryBuilder = IssueQuery.builder();
+    IssueQuery.Builder issueQueryBuilder = IssueQuery.builder()
+      .types(ISSUE_TYPE_NAMES);
     organization.ifPresent(o -> issueQueryBuilder.organizationUuid(o.getUuid()));
     project.ifPresent(p -> {
       switch (p.qualifier()) {

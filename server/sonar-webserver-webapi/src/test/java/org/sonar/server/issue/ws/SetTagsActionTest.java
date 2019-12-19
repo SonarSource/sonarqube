@@ -42,6 +42,7 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
@@ -205,6 +206,19 @@ public class SetTagsActionTest {
     logInAndAddProjectPermission(issueDto, ISSUE_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
+
+    call(issueDto.getKey(), "bug");
+  }
+
+  @Test
+  public void fail_when_security_hotspot() {
+    RuleDefinitionDto rule = db.rules().insertHotspotRule();
+    ComponentDto project = db.components().insertMainBranch(newPublicProjectDto(db.getDefaultOrganization()));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    IssueDto issueDto = db.issues().insertHotspot(rule, project, file);
+    logIn(issueDto);
+
+    expectedException.expect(NotFoundException.class);
 
     call(issueDto.getKey(), "bug");
   }

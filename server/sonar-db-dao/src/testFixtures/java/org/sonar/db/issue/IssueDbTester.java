@@ -33,6 +33,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
@@ -140,6 +141,8 @@ public class IssueDbTester {
    */
   @SafeVarargs
   public final IssueDto insertHotspot(RuleDefinitionDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto>... populators) {
+    checkArgument(rule.getType() == RuleType.SECURITY_HOTSPOT.getDbConstant(), "rule must be a hotspot rule");
+
     IssueDto issue = newIssue(rule, project, file)
       .setType(SECURITY_HOTSPOT)
       .setStatus(Issue.STATUS_TO_REVIEW)

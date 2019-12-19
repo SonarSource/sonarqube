@@ -98,6 +98,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonarqube.ws.Common.RuleType.BUG;
+import static org.sonarqube.ws.Common.RuleType.SECURITY_HOTSPOT_VALUE;
 import static org.sonarqube.ws.Common.RuleType.VULNERABILITY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_FIELDS;
@@ -148,7 +149,7 @@ public class SearchActionTest {
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     UserDto simon = db.users().insertUser();
-    RuleDefinitionDto rule = newRule().getDefinition();
+    RuleDefinitionDto rule = newIssueRule().getDefinition();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i
       .setEffort(10L)
       .setLine(42)
@@ -204,7 +205,7 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertPublicProject(organization);
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule().getDefinition();
+    RuleDefinitionDto rule = newIssueRule().getDefinition();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setAuthorLogin("John"));
     indexIssues();
 
@@ -253,7 +254,7 @@ public class SearchActionTest {
           .setEndOffset(12)
           .build())
         .build())));
-    RuleDefinitionDto rule = newRule().getDefinition();
+    RuleDefinitionDto rule = newIssueRule().getDefinition();
     db.issues().insertIssue(rule, project, file, i -> i.setLocations(locations.build()));
     indexIssues();
 
@@ -274,7 +275,7 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertPublicProject();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule().getDefinition();
+    RuleDefinitionDto rule = newIssueRule().getDefinition();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     dbClient.issueChangeDao().insert(session,
       new IssueChangeDto().setIssueKey(issue.getKey())
@@ -307,7 +308,7 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertPublicProject();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule().getDefinition();
+    RuleDefinitionDto rule = newIssueRule().getDefinition();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     dbClient.issueChangeDao().insert(session,
       new IssueChangeDto().setIssueKey(issue.getKey())
@@ -342,7 +343,7 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertPublicProject();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule().getDefinition();
+    RuleDefinitionDto rule = newIssueRule().getDefinition();
     db.issues().insertIssue(rule, project, file, i -> i.setAssigneeUuid(simon.getUuid()).setType(CODE_SMELL));
     indexIssues();
     userSession.logIn("john");
@@ -362,7 +363,7 @@ public class SearchActionTest {
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY").setLanguage("js"));
 
-    IssueDto issue = newDto(newRule(), file, project)
+    IssueDto issue = newDto(newIssueRule(), file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setAuthorLogin(fabrice.getLogin())
       .setAssigneeUuid(simon.getUuid())
@@ -380,7 +381,7 @@ public class SearchActionTest {
 
   @Test
   public void search_by_rule_key() {
-    RuleDto rule = newRule();
+    RuleDto rule = newIssueRule();
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-1"));
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY").setLanguage("java"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY").setLanguage("java"));
@@ -402,7 +403,7 @@ public class SearchActionTest {
 
   @Test
   public void issue_on_removed_file() {
-    RuleDto rule = newRule();
+    RuleDto rule = newIssueRule();
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-2"));
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -428,7 +429,7 @@ public class SearchActionTest {
 
   @Test
   public void apply_paging_with_one_component() {
-    RuleDto rule = newRule();
+    RuleDto rule = newIssueRule();
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-2"));
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -451,7 +452,7 @@ public class SearchActionTest {
     indexPermissions();
     ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project).setDbKey("ModuleHavingFile"));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null, "BCDE").setDbKey("FileLinkedToModule"));
-    IssueDto issue = newDto(newRule(), file, project);
+    IssueDto issue = newDto(newIssueRule(), file, project);
     dbClient.issueDao().insert(session, issue);
     session.commit();
     indexIssues();
@@ -468,7 +469,7 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
-    RuleDto rule = newRule();
+    RuleDto rule = newIssueRule();
     IssueDto issue1 = newDto(rule, file, project)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
@@ -515,7 +516,7 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
-    RuleDto rule = newRule();
+    RuleDto rule = newIssueRule();
     IssueDto issue1 = newDto(rule, file, project)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
@@ -565,7 +566,7 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
-    RuleDto rule = newRule();
+    RuleDto rule = newIssueRule();
     IssueDto issue1 = newDto(rule, file, project)
       .setStatus("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
@@ -657,7 +658,7 @@ public class SearchActionTest {
 
   @Test
   public void sort_by_updated_at() {
-    RuleDto rule = newRule();
+    RuleDto rule = newIssueRule();
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-2"));
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -757,12 +758,13 @@ public class SearchActionTest {
     UserDto user = db.users().insertUser();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
-    db.issues().insertHotspot(rule, project, file, issueDto -> issueDto.setAssigneeUuid(user.getUuid()));
-    IssueDto issueDto1 = db.issues().insertIssue(rule, project, file, issueDto -> issueDto.setAssigneeUuid(user.getUuid()));
-    IssueDto issueDto2 = db.issues().insertIssue(rule, project, file, issueDto -> issueDto.setAssigneeUuid(user.getUuid()));
-    IssueDto issueDto3 = db.issues().insertIssue(rule, project, file, issueDto -> issueDto.setAssigneeUuid(user.getUuid()));
-    IssueDto issueDto4 = db.issues().insertIssue(rule, project, file, issueDto -> issueDto.setAssigneeUuid(user.getUuid()));
+    RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule();
+    db.issues().insertHotspot(hotspotRule, project, file, issueDto -> issueDto.setAssigneeUuid(user.getUuid()));
+    RuleDefinitionDto issueRule = db.rules().insertIssueRule();
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueDto -> issueDto.setAssigneeUuid(user.getUuid()));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueDto -> issueDto.setAssigneeUuid(user.getUuid()));
+    IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueDto -> issueDto.setAssigneeUuid(user.getUuid()));
+    IssueDto issueDto4 = db.issues().insertIssue(issueRule, project, file, issueDto -> issueDto.setAssigneeUuid(user.getUuid()));
 
     indexPermissions();
     indexIssues();
@@ -796,7 +798,7 @@ public class SearchActionTest {
   public void security_hotspots_are_not_returned_by_issues_param_only() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    RuleDefinitionDto rule = db.rules().insertHotspotRule();
     List<IssueDto> hotspots = IntStream.range(1, 2 + new Random().nextInt(10))
       .mapToObj(value -> db.issues().insertHotspot(rule, project, file))
       .collect(Collectors.toList());
@@ -815,11 +817,12 @@ public class SearchActionTest {
   public void fail_if_trying_to_filter_issues_by_hotspots() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule().getDefinition();
-    db.issues().insertIssue(rule, project, file, i -> i.setType(RuleType.BUG));
-    db.issues().insertIssue(rule, project, file, i -> i.setType(RuleType.VULNERABILITY));
-    db.issues().insertIssue(rule, project, file, i -> i.setType(CODE_SMELL));
-    db.issues().insertHotspot(rule, project, file);
+    RuleDefinitionDto issueRule = newIssueRule().getDefinition();
+    RuleDefinitionDto hotspotRule = newHotspotRule().getDefinition();
+    db.issues().insertIssue(issueRule, project, file, i -> i.setType(RuleType.BUG));
+    db.issues().insertIssue(issueRule, project, file, i -> i.setType(RuleType.VULNERABILITY));
+    db.issues().insertIssue(issueRule, project, file, i -> i.setType(CODE_SMELL));
+    db.issues().insertHotspot(hotspotRule, project, file);
     indexPermissions();
     indexIssues();
 
@@ -878,7 +881,7 @@ public class SearchActionTest {
 
   @Test
   public void paging() {
-    RuleDto rule = newRule();
+    RuleDto rule = newIssueRule();
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-1"));
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -899,7 +902,7 @@ public class SearchActionTest {
 
   @Test
   public void paging_with_page_size_to_minus_one() {
-    RuleDto rule = newRule();
+    RuleDto rule = newIssueRule();
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-1"));
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -988,11 +991,21 @@ public class SearchActionTest {
       "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. If this parameter is set, projectUuids must not be set.");
   }
 
-  private RuleDto newRule() {
+  private RuleDto newIssueRule() {
     RuleDto rule = RuleTesting.newXooX1()
       .setName("Rule name")
       .setDescription("Rule desc")
       .setStatus(RuleStatus.READY);
+    db.rules().insert(rule.getDefinition());
+    return rule;
+  }
+
+  private RuleDto newHotspotRule() {
+    RuleDto rule = RuleTesting.newXooX2()
+      .setName("Rule name")
+      .setDescription("Rule desc")
+      .setStatus(RuleStatus.READY)
+      .setType(SECURITY_HOTSPOT_VALUE);
     db.rules().insert(rule.getDefinition());
     return rule;
   }
