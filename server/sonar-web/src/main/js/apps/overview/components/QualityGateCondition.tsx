@@ -28,15 +28,16 @@ import {
 } from 'sonar-ui-common/helpers/measures';
 import Measure from '../../../components/measure/Measure';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
-import { getBranchLikeQuery, isPullRequest } from '../../../helpers/branch-like';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { getPeriodValue, isDiffMetric } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 
 interface Props {
   branchLike?: BranchLike;
   component: Pick<T.Component, 'key'>;
-  condition: T.QualityGateStatusConditionEnhanced;
+  condition: QualityGateStatusConditionEnhanced;
 }
 
 export default class QualityGateCondition extends React.PureComponent<Props> {
@@ -84,11 +85,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
 
     const className = classNames(
       'overview-quality-gate-condition',
-      'overview-quality-gate-condition-' + condition.level.toLowerCase(),
-      {
-        'overview-quality-gate-condition-leak':
-          condition.period != null && !isPullRequest(branchLike)
-      }
+      `overview-quality-gate-condition-${condition.level.toLowerCase()}`
     );
 
     const metricKey = condition.measure.metric.key;
@@ -143,8 +140,8 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
     }
 
     return this.wrapWithLink(
-      <div className="overview-quality-gate-condition-container">
-        <div className="overview-quality-gate-condition-value">
+      <div className="overview-quality-gate-condition-container display-flex-center">
+        <div className="overview-quality-gate-condition-value text-center">
           <Measure
             decimals={decimals}
             metricKey={measure.metric.key}
@@ -154,18 +151,18 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
         </div>
 
         <div>
-          <div className="overview-quality-gate-condition-metric">
+          <span className="overview-quality-gate-condition-metric little-spacer-right">
             <IssueTypeIcon className="little-spacer-right" query={metric.key} />
             {metric.name}
-          </div>
+          </span>
           {!isDiff && condition.period != null && (
-            <div className="overview-quality-gate-condition-period">
+            <span className="overview-quality-gate-condition-period text-ellipsis little-spacer-right">
               {translate('quality_gates.conditions.new_code')}
-            </div>
+            </span>
           )}
-          <div className="overview-quality-gate-threshold">
+          <span className="little-spacer-top small text-muted">
             {operator} {formatMeasure(threshold, metric.type)}
-          </div>
+          </span>
         </div>
       </div>
     );

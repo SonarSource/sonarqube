@@ -19,43 +19,32 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { getMeasuresAndMeta } from '../../../../api/measures';
-import { mockComponent, mockQualityGateStatusCondition } from '../../../../helpers/testMocks';
-import QualityGateConditions from '../QualityGateConditions';
+import { click } from 'sonar-ui-common/helpers/testUtils';
+import { mockQualityGateStatusConditionEnhanced } from '../../../../helpers/mocks/quality-gates';
+import { mockComponent } from '../../../../helpers/testMocks';
+import { QualityGateStatusConditionEnhanced } from '../../../../types/quality-gates';
+import { QualityGateConditions, QualityGateConditionsProps } from '../QualityGateConditions';
 
-jest.mock('../../../../api/measures', () => {
-  return {
-    getMeasuresAndMeta: jest.fn().mockResolvedValue({
-      component: { measures: [{ metric: 'foo' }] },
-      metrics: [{ key: 'foo' }]
-    })
-  };
-});
-
-it('should render correctly', async () => {
+it('should render correctly', () => {
   const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(getMeasuresAndMeta).toBeCalled();
   expect(wrapper.find('QualityGateCondition').length).toBe(10);
+  expect(shallowRender({ failedConditions: [] }).type()).toBeNull();
 });
 
-it('should be collapsible', async () => {
+it('should be collapsible', () => {
   const wrapper = shallowRender({ collapsible: true });
-  await waitAndUpdate(wrapper);
   expect(wrapper.find('QualityGateCondition').length).toBe(5);
-  wrapper.setState({ collapsed: false });
-  await waitAndUpdate(wrapper);
+  click(wrapper.find('ButtonLink'));
   expect(wrapper.find('QualityGateCondition').length).toBe(10);
 });
 
-function shallowRender(props: Partial<QualityGateConditions['props']> = {}) {
-  const conditions: T.QualityGateStatusCondition[] = [];
+function shallowRender(props: Partial<QualityGateConditionsProps> = {}) {
+  const conditions: QualityGateStatusConditionEnhanced[] = [];
   for (let i = 10; i > 0; --i) {
-    conditions.push(mockQualityGateStatusCondition());
+    conditions.push(mockQualityGateStatusConditionEnhanced());
   }
 
   return shallow(
-    <QualityGateConditions component={mockComponent()} conditions={conditions} {...props} />
+    <QualityGateConditions component={mockComponent()} failedConditions={conditions} {...props} />
   );
 }
