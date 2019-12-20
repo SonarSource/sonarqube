@@ -79,6 +79,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
+import static org.sonar.api.issue.Issue.STATUSES;
+import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
@@ -499,6 +501,32 @@ public class SearchActionTest {
   }
 
   @Test
+  public void returns_only_hotspots_to_review_or_reviewed_of_project() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    IssueDto[] hotspots = STATUSES.stream()
+      .map(status -> {
+        RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+        return insertHotspot(rule, project, file, t -> t.setStatus(status));
+      })
+      .toArray(IssueDto[]::new);
+    indexIssues();
+    String[] expectedKeys = Arrays.stream(hotspots)
+      .filter(t -> STATUS_REVIEWED.equals(t.getStatus()) || STATUS_TO_REVIEW.equals(t.getStatus()))
+      .map(IssueDto::getKey)
+      .toArray(String[]::new);
+
+    SearchWsResponse response = newRequest(project)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsOnly(expectedKeys);
+  }
+
+  @Test
   public void returns_hotspots_of_specified_application() {
     ComponentDto application1 = dbTester.components().insertPublicApplication();
     ComponentDto application2 = dbTester.components().insertPublicApplication();
@@ -644,8 +672,8 @@ public class SearchActionTest {
     IssueDto[] assigneeHotspots = IntStream.range(0, 1 + RANDOM.nextInt(10))
       .mapToObj(i -> {
         RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-        insertHotspot(project1, file1, rule, randomAlphabetic(5));
-        return insertHotspot(project1, file1, rule, assigneeUuid);
+        insertHotspot(rule, project1, file1, randomAlphabetic(5));
+        return insertHotspot(rule, project1, file1, assigneeUuid);
       })
       .toArray(IssueDto[]::new);
 
@@ -794,13 +822,11 @@ public class SearchActionTest {
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto unresolvedHotspot = dbTester.issues().insert(rule, project, file,
-      t -> t.setType(SECURITY_HOTSPOT).setResolution(null));
-    // unrealistic case since a resolution must be set, but shows a limit of current implementation
-    IssueDto badlyClosedHotspot = dbTester.issues().insert(rule, project, file,
-      t -> t.setType(SECURITY_HOTSPOT).setStatus(Issue.STATUS_CLOSED).setResolution(null));
-    IssueDto resolvedHotspot = dbTester.issues().insert(rule, project, file,
-      t -> t.setType(SECURITY_HOTSPOT).setResolution(randomAlphabetic(5)));
+    IssueDto unresolvedHotspot = insertHotspot(rule, project, file, t -> t.setResolution(null));
+    // unrealistic case since a resolution must be set, but shows a limit of current implementation (resolution is enough)
+    IssueDto badlyResolved = insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW).setResolution(randomAlphabetic(5)));
+    IssueDto badlyReviewed = insertHotspot(rule, project, file, t -> t.setStatus(STATUS_REVIEWED).setResolution(null));
+    IssueDto badlyClosedHotspot = insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setResolution(null));
     indexIssues();
 
     SearchWsResponse response = newRequest(project, STATUS_TO_REVIEW, null)
@@ -808,7 +834,7 @@ public class SearchActionTest {
 
     assertThat(response.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
-      .containsOnly(unresolvedHotspot.getKey(), badlyClosedHotspot.getKey());
+      .containsOnly(unresolvedHotspot.getKey());
   }
 
   private Stream<IssueDto> insertRandomNumberOfHotspotsOfAllSupportedStatusesAndResolutions(ComponentDto project, ComponentDto file) {
@@ -838,8 +864,8 @@ public class SearchActionTest {
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insert(rule, project, file,
-      t -> t.setType(SECURITY_HOTSPOT)
+    IssueDto hotspot = insertHotspot(rule, project, file,
+      t -> t
         .setStatus(randomAlphabetic(11))
         .setLine(RANDOM.nextInt(230))
         .setMessage(randomAlphabetic(10))
@@ -920,10 +946,8 @@ public class SearchActionTest {
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    dbTester.issues().insert(rule, project, file,
-      t -> t.setType(SECURITY_HOTSPOT)
-        .setStatus(null)
-        .setResolution(null)
+    insertHotspot(rule, project, file,
+      t -> t.setResolution(null)
         .setLine(null)
         .setMessage(null)
         .setAssigneeUuid(null)
@@ -936,7 +960,6 @@ public class SearchActionTest {
     assertThat(response.getHotspotsList())
       .hasSize(1);
     SearchWsResponse.Hotspot actual = response.getHotspots(0);
-    assertThat(actual.hasStatus()).isFalse();
     assertThat(actual.hasResolution()).isFalse();
     assertThat(actual.hasLine()).isFalse();
     assertThat(actual.getMessage()).isEmpty();
@@ -1085,8 +1108,8 @@ public class SearchActionTest {
           SECURITY_HOTSPOT,
           t -> t.setName("rule_" + sqCategory.name() + "_b").setSecurityStandards(securityStandards));
         return Stream.of(
-          newIssue(rule1, project, file).setKee(sqCategory + "_a").setType(SECURITY_HOTSPOT),
-          newIssue(rule2, project, file).setKee(sqCategory + "_b").setType(SECURITY_HOTSPOT));
+          newHotspot(rule1, project, file).setKee(sqCategory + "_a"),
+          newHotspot(rule2, project, file).setKee(sqCategory + "_b"));
       })
       .collect(toList());
     String[] expectedHotspotKeys = hotspots.stream().map(IssueDto::getKey).toArray(String[]::new);
@@ -1113,14 +1136,14 @@ public class SearchActionTest {
     ComponentDto file3 = dbTester.components().insertComponent(newFileDto(project).setPath("a/a/d"));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     List<IssueDto> hotspots = Stream.of(
-      newIssue(rule, project, file3).setType(SECURITY_HOTSPOT).setLine(8),
-      newIssue(rule, project, file3).setType(SECURITY_HOTSPOT).setLine(10),
-      newIssue(rule, project, file1).setType(SECURITY_HOTSPOT).setLine(null),
-      newIssue(rule, project, file1).setType(SECURITY_HOTSPOT).setLine(9),
-      newIssue(rule, project, file1).setType(SECURITY_HOTSPOT).setLine(11).setKee("a"),
-      newIssue(rule, project, file1).setType(SECURITY_HOTSPOT).setLine(11).setKee("b"),
-      newIssue(rule, project, file2).setType(SECURITY_HOTSPOT).setLine(null),
-      newIssue(rule, project, file2).setType(SECURITY_HOTSPOT).setLine(2))
+      newHotspot(rule, project, file3).setLine(8),
+      newHotspot(rule, project, file3).setLine(10),
+      newHotspot(rule, project, file1).setLine(null),
+      newHotspot(rule, project, file1).setLine(9),
+      newHotspot(rule, project, file1).setLine(11).setKee("a"),
+      newHotspot(rule, project, file1).setLine(11).setKee("b"),
+      newHotspot(rule, project, file2).setLine(null),
+      newHotspot(rule, project, file2).setLine(2))
       .collect(toList());
     String[] expectedHotspotKeys = hotspots.stream().map(IssueDto::getKey).toArray(String[]::new);
     // insert hotspots in random order
@@ -1145,7 +1168,7 @@ public class SearchActionTest {
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     int total = 436;
     List<IssueDto> hotspots = IntStream.range(0, total)
-      .mapToObj(i -> newIssue(rule, project, file).setType(SECURITY_HOTSPOT).setLine(i))
+      .mapToObj(i -> newHotspot(rule, project, file).setLine(i))
       .map(i -> dbTester.issues().insertIssue(i))
       .collect(toList());
     indexIssues();
@@ -1188,7 +1211,7 @@ public class SearchActionTest {
 
   private void verifyPaging(ComponentDto project, ComponentDto file, RuleDefinitionDto rule, int total, int pageSize) {
     List<IssueDto> hotspots = IntStream.range(0, total)
-      .mapToObj(i -> newIssue(rule, project, file).setType(SECURITY_HOTSPOT).setLine(i).setKee("issue_" + i))
+      .mapToObj(i -> newHotspot(rule, project, file).setLine(i).setKee("issue_" + i))
       .map(i -> dbTester.issues().insertIssue(i))
       .collect(toList());
     indexIssues();
@@ -1239,7 +1262,7 @@ public class SearchActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     List<IssueDto> hotspots = IntStream.range(0, 1 + RANDOM.nextInt(15))
-      .mapToObj(i -> newIssue(rule, project, file).setType(SECURITY_HOTSPOT).setLine(i))
+      .mapToObj(i -> newHotspot(rule, project, file).setLine(i))
       .map(i -> dbTester.issues().insertIssue(i))
       .collect(toList());
     indexIssues();
@@ -1259,7 +1282,7 @@ public class SearchActionTest {
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     int total = 1 + RANDOM.nextInt(20);
     List<IssueDto> hotspots = IntStream.range(0, total)
-      .mapToObj(i -> newIssue(rule, project, file).setType(SECURITY_HOTSPOT).setLine(i))
+      .mapToObj(i -> newHotspot(rule, project, file).setLine(i))
       .map(i -> dbTester.issues().insertIssue(i))
       .collect(toList());
     Collections.shuffle(hotspots);
@@ -1287,19 +1310,19 @@ public class SearchActionTest {
     List<IssueDto> hotspotsInLeakPeriod = IntStream.range(0, 1 + RANDOM.nextInt(20))
       .mapToObj(i -> {
         long issueCreationDate = periodDate + ONE_MINUTE + (RANDOM.nextInt(300) * ONE_MINUTE);
-        return newIssue(rule, project, file).setType(SECURITY_HOTSPOT).setLine(i).setIssueCreationTime(issueCreationDate);
+        return newHotspot(rule, project, file).setLine(i).setIssueCreationTime(issueCreationDate);
       })
       .map(i -> dbTester.issues().insertIssue(i))
       .collect(toList());
     // included because
     List<IssueDto> atLeakPeriod = IntStream.range(0, 1 + RANDOM.nextInt(20))
-      .mapToObj(i -> newIssue(rule, project, file).setType(SECURITY_HOTSPOT).setLine(i).setIssueCreationTime(periodDate))
+      .mapToObj(i -> newHotspot(rule, project, file).setLine(i).setIssueCreationTime(periodDate))
       .map(i -> dbTester.issues().insertIssue(i))
       .collect(toList());
     List<IssueDto> hotspotsBefore = IntStream.range(0, 1 + RANDOM.nextInt(20))
       .mapToObj(i -> {
         long issueCreationDate = periodDate - ONE_MINUTE - (RANDOM.nextInt(300) * ONE_MINUTE);
-        return newIssue(rule, project, file).setType(SECURITY_HOTSPOT).setLine(i).setIssueCreationTime(issueCreationDate);
+        return newHotspot(rule, project, file).setLine(i).setIssueCreationTime(issueCreationDate);
       })
       .map(i -> dbTester.issues().insertIssue(i))
       .collect(toList());
@@ -1330,11 +1353,28 @@ public class SearchActionTest {
   }
 
   private IssueDto insertHotspot(ComponentDto project, ComponentDto file, RuleDefinitionDto rule) {
-    return dbTester.issues().insert(rule, project, file, t -> t.setType(SECURITY_HOTSPOT));
+    return insertHotspot(rule, project, file, t -> {
+    });
   }
 
-  private IssueDto insertHotspot(ComponentDto project, ComponentDto file, RuleDefinitionDto rule, String assigneeUuid) {
-    return dbTester.issues().insert(rule, project, file, t -> t.setType(SECURITY_HOTSPOT).setAssigneeUuid(assigneeUuid));
+  private IssueDto insertHotspot(RuleDefinitionDto rule, ComponentDto project, ComponentDto file, @Nullable String assigneeUuid) {
+    return insertHotspot(rule, project, file, t -> t.setAssigneeUuid(assigneeUuid));
+  }
+
+  private IssueDto insertHotspot(RuleDefinitionDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto> consumer) {
+    return dbTester.issues().insertIssue(newHotspot(rule, project, file, consumer));
+  }
+
+  private static IssueDto newHotspot(RuleDefinitionDto rule, ComponentDto project, ComponentDto component) {
+    return newHotspot(rule, project, component, t -> {
+    });
+  }
+
+  private static IssueDto newHotspot(RuleDefinitionDto rule, ComponentDto project, ComponentDto component, Consumer<IssueDto> consumer) {
+    IssueDto res = newIssue(rule, project, component)
+      .setStatus(STATUS_TO_REVIEW);
+    consumer.accept(res);
+    return res.setType(SECURITY_HOTSPOT);
   }
 
   private TestRequest newRequest(ComponentDto project) {

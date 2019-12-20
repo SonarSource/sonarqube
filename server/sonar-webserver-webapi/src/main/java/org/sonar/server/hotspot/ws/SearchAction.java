@@ -19,6 +19,7 @@
  */
 package org.sonar.server.hotspot.ws;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Collection;
@@ -94,6 +95,7 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_PULL_REQUEST = "pullRequest";
   private static final String PARAM_SINCE_LEAK_PERIOD = "sinceLeakPeriod";
   private static final String PARAM_ONLY_MINE = "onlyMine";
+  private static final List<String> STATUSES = ImmutableList.of(STATUS_TO_REVIEW, STATUS_REVIEWED);
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -138,7 +140,7 @@ public class SearchAction implements HotspotsWsAction {
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam(PARAM_STATUS)
       .setDescription("If '%s' is provided, only Security Hotspots with the specified status are returned.", PARAM_PROJECT_KEY)
-      .setPossibleValues(STATUS_TO_REVIEW, STATUS_REVIEWED)
+      .setPossibleValues(STATUSES)
       .setRequired(false);
     action.createParam(PARAM_RESOLUTION)
       .setDescription(format(
@@ -272,7 +274,8 @@ public class SearchAction implements HotspotsWsAction {
     IssueQuery.Builder builder = IssueQuery.builder()
       .types(singleton(RuleType.SECURITY_HOTSPOT.name()))
       .sort(IssueQuery.SORT_HOTSPOTS)
-      .asc(true);
+      .asc(true)
+      .statuses(wsRequest.getStatus().map(Collections::singletonList).orElse(STATUSES));;
     project.ifPresent(p -> {
       builder.organizationUuid(p.getOrganizationUuid());
 
